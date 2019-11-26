@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Package 
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" 
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" 
+  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5" 
+  xmlns:uap8="http://schemas.microsoft.com/appx/manifest/uap/windows10/8" 
+  xmlns:wincap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/windowscapabilities" 
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities" 
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10" 
+  IgnorableNamespaces="uap uap5 uap8 wincap rescap desktop">
+  <Identity Name="WindowsPackageManager" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" Version="0.0.0.1" />
+  <Properties>
+    <DisplayName>Windows Package Manager</DisplayName>
+    <PublisherDisplayName>Microsoft Corporation</PublisherDisplayName>
+    <Logo>Images\StoreLogo.png</Logo>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.16299.0" MaxVersionTested="10.0.19033.0" />
+    <PackageDependency Name="Microsoft.VCLibs.140.00.UWPDesktop" MinVersion="14.0.25426.0" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" />
+  </Dependencies>
+  <Resources>
+    <Resource Language="x-generate" />
+  </Resources>
+  <Applications>
+    <Application Id="AppInstCLI" Executable="AppInstallerCLI\AppInstallerCLI.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements DisplayName="Windows Package Manager" Square150x150Logo="Images\Square150x150Logo.png" Square44x44Logo="Images\Square44x44Logo.png" Description="The Windows Package Manager CLI application." BackgroundColor="#0078d7" AppListEntry="none" />
+      <Extensions>
+        <uap5:Extension Category="windows.appExecutionAlias">
+          <uap5:AppExecutionAlias>
+            <uap8:ExecutionAlias Alias="appinst.exe" />
+          </uap5:AppExecutionAlias>
+        </uap5:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+    <rescap:Capability Name="allowElevation" />
+  </Capabilities>
+</Package>
