@@ -10,6 +10,7 @@ using namespace AppInstaller::CLI;
 int wmain(int argc, wchar_t const** argv) try
 {
     init_apartment();
+    RegisterTraceLogging();
 
     RootCommand root;
     Invocation invocation{ argc, argv };
@@ -32,6 +33,7 @@ int wmain(int argc, wchar_t const** argv) try
     catch (const CommandException& ce)
     {
         commandToExecute->OutputHelp(std::wcout, &ce);
+        UnRegisterTraceLogging();
         return 1;
     }
 
@@ -48,6 +50,8 @@ int wmain(int argc, wchar_t const** argv) try
     {
 
     }
+
+    UnRegisterTraceLogging();
 }
 // End of the line exceptions that are not ever expected
 catch (const winrt::hresult_error&)

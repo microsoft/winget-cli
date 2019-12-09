@@ -6,3 +6,5 @@
 
 #include <iostream>
 #include <memory>
+#include <windows.h>
+#include "TraceLogging.h"
