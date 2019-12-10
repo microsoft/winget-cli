@@ -11,7 +11,7 @@ using namespace AppInstaller::CLI;
 int CLICoreMain(int argc, wchar_t const** argv) try
 {
     init_apartment();
-    RegisterTraceLogging();
+    TraceLoggingRegistration tlRegistration;
 
     RootCommand root;
     Invocation invocation{ argc, argv };
@@ -53,7 +53,8 @@ int CLICoreMain(int argc, wchar_t const** argv) try
 
     return 0;
 }
-// End of the line exceptions that are not ever expected
+// End of the line exceptions that are not ever expected.
+// Telemetry cannot be reliable beyond this point, so don't let these happen.
 catch (const winrt::hresult_error&)
 {
     return CLICORE_ERROR_INTERNAL_ERROR;

@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)MicrosoftTelemetry.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)TelemetryWrapper.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)TraceLogging.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)WinEventLogLevels.h" />
   </ItemGroup>
