@@ -3,12 +3,14 @@
 #include "pch.h"
 #include "SQLiteWrapper.h"
 
+#define THROW_SQLITE(_error_) throw SQLiteException(_error_)
+
 #define THROW_IF_SQLITE_FAILED(_statement_) \
     do { \
         int _sqliteReturnValue = _statement_; \
         if (_sqliteReturnValue != SQLITE_OK) \
         { \
-            throw SQLiteException(_sqliteReturnValue); \
+            THROW_SQLITE(_sqliteReturnValue); \
         } \
     } while (0,0);
 
@@ -27,7 +29,7 @@ namespace AppInstaller::Repository::SQLite
     {
         void ParameterSpecifics<std::string>::Bind(sqlite3_stmt* stmt, int index, const std::string& v)
         {
-            THROW_IF_SQLITE_FAILED(sqlite3_bind_text(stmt, index, v.c_str(), v.size() + 1, SQLITE_TRANSIENT));
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_text64(stmt, index, v.c_str(), v.size(), SQLITE_TRANSIENT, SQLITE_UTF8));
         }
 
         std::string ParameterSpecifics<std::string>::GetColumn(sqlite3_stmt* stmt, int column)
@@ -60,5 +62,43 @@ namespace AppInstaller::Repository::SQLite
     Connection::~Connection()
     {
         sqlite3_close_v2(_dbconn);
+    }
+
+    Statement::Statement(Connection& connection, const std::string& sql, bool persistent)
+    {
+        // SQL string size should include the null terminator (https://www.sqlite.org/c3ref/prepare.html)
+        THROW_IF_SQLITE_FAILED(sqlite3_prepare_v3(connection, sql.c_str(), static_cast<int>(sql.size() + 1), (persistent ? SQLITE_PREPARE_PERSISTENT : 0), &_stmt, nullptr));
+    }
+
+    Statement::~Statement()
+    {
+        sqlite3_finalize(_stmt);
+    }
+
+    bool Statement::Step()
+    {
+        int result = sqlite3_step(_stmt);
+
+        if (result == SQLITE_ROW)
+        {
+            _state = State::HasRow;
+            return true;
+        }
+        else if (result == SQLITE_DONE)
+        {
+            _state = State::Completed;
+            return false;
+        }
+        else
+        {
+            _state = State::Error;
+            THROW_SQLITE(result);
+        }
+    }
+
+    void Statement::Reset()
+    {
+        // Ignore return value from reset, as if it is an error, it was the error from the last call to step.
+        sqlite3_reset(_stmt);
     }
 }

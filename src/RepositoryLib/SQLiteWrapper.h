@@ -90,10 +90,12 @@ namespace AppInstaller::Repository::SQLite
         Statement(const Statement&) = delete;
         Statement& operator=(const Statement&) = delete;
 
-        Statement(Statement&& other) { std::swap(_stmt, other._stmt); }
-        Statement& operator=(Statement&& other) { std::swap(_stmt, other._stmt); return *this; }
+        Statement(Statement&& other) noexcept { std::swap(_stmt, other._stmt); }
+        Statement& operator=(Statement&& other) noexcept { std::swap(_stmt, other._stmt); return *this; }
 
         ~Statement();
+
+        operator sqlite3_stmt* () const { return _stmt; }
 
         // The state of the statement.
         enum class State
@@ -104,6 +106,8 @@ namespace AppInstaller::Repository::SQLite
             HasRow = 1,
             // The statement has been completed.
             Completed = 2,
+            // The statement has resulted in an error.
+            Error = 3,
         };
 
         // Gets the current state of the statement.
@@ -118,6 +122,7 @@ namespace AppInstaller::Repository::SQLite
 
         // Evaluate the statement; either retrieving the next row or executing some action.
         // Returns true if there is a row of data, or false if there is none.
+        // This return value is the equivalent of 'GetState() == State::HasRow' after calling Step.
         bool Step();
 
         // Gets the value of the specified column from the current row.
