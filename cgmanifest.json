@@ -1,0 +1,14 @@
+{
+"Registrations":[
+    {
+      "component": {
+       "type": "git",
+       "git": {
+         "repositoryUrl": "https://github.com/catchorg/Catch2.git",
+         "commitHash": "e1c9d5569dc4135babb9c81891d70a8ba8ed938c"
+         }
+       }
+    }
+ ],
+ "Version": 1
+}

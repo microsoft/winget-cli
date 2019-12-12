@@ -27,14 +27,24 @@ namespace AppInstaller::Repository::SQLite
 
     namespace details
     {
-        void ParameterSpecifics<std::string>::Bind(sqlite3_stmt* stmt, int index, const std::string& v)
+        void ParameterSpecificsImpl<std::string>::Bind(sqlite3_stmt* stmt, int index, const std::string& v)
         {
             THROW_IF_SQLITE_FAILED(sqlite3_bind_text64(stmt, index, v.c_str(), v.size(), SQLITE_TRANSIENT, SQLITE_UTF8));
         }
 
-        std::string ParameterSpecifics<std::string>::GetColumn(sqlite3_stmt* stmt, int column)
+        std::string ParameterSpecificsImpl<std::string>::GetColumn(sqlite3_stmt* stmt, int column)
         {
             return reinterpret_cast<const char*>(sqlite3_column_text(stmt, column));
+        }
+
+        void ParameterSpecificsImpl<int>::Bind(sqlite3_stmt* stmt, int index, int v)
+        {
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_int(stmt, index, v));
+        }
+
+        int ParameterSpecificsImpl<int>::GetColumn(sqlite3_stmt* stmt, int column)
+        {
+            return sqlite3_column_int(stmt, column);
         }
     }
 
@@ -70,6 +80,11 @@ namespace AppInstaller::Repository::SQLite
         THROW_IF_SQLITE_FAILED(sqlite3_prepare_v3(connection, sql.c_str(), static_cast<int>(sql.size() + 1), (persistent ? SQLITE_PREPARE_PERSISTENT : 0), &_stmt, nullptr));
     }
 
+    Statement Statement::Create(Connection& connection, const std::string& sql, bool persistent)
+    {
+        return { connection, sql, persistent };
+    }
+
     Statement::~Statement()
     {
         sqlite3_finalize(_stmt);
@@ -100,5 +115,6 @@ namespace AppInstaller::Repository::SQLite
     {
         // Ignore return value from reset, as if it is an error, it was the error from the last call to step.
         sqlite3_reset(_stmt);
+        _state = State::Prepared;
     }
 }

@@ -5,6 +5,8 @@
 #include <string>
 #include <stdexcept>
 #include <system_error>
+#include <tuple>
+#include <type_traits>
 #include <utility>
 
 namespace AppInstaller::Repository::SQLite
@@ -12,7 +14,7 @@ namespace AppInstaller::Repository::SQLite
     namespace details
     {
         template <typename T>
-        struct ParameterSpecifics
+        struct ParameterSpecificsImpl
         {
             static void Bind(sqlite3_stmt*, int, T&&)
             {
@@ -25,11 +27,21 @@ namespace AppInstaller::Repository::SQLite
         };
 
         template <>
-        struct ParameterSpecifics<std::string>
+        struct ParameterSpecificsImpl<std::string>
         {
             static void Bind(sqlite3_stmt* stmt, int index, const std::string& v);
             static std::string GetColumn(sqlite3_stmt* stmt, int column);
         };
+
+        template <>
+        struct ParameterSpecificsImpl<int>
+        {
+            static void Bind(sqlite3_stmt* stmt, int index, int v);
+            static int GetColumn(sqlite3_stmt* stmt, int column);
+        };
+
+        template <typename T>
+        using ParameterSpecifics = ParameterSpecificsImpl<std::decay_t<T>>;
     }
 
     // A SQLite exception.
@@ -59,12 +71,11 @@ namespace AppInstaller::Repository::SQLite
         // Indicate that the target can be a URI.
         Uri = SQLITE_OPEN_URI,
     };
-    DEFINE_ENUM_FLAG_OPERATORS(OpenFlags);
 
     // The connection to a database.
     struct Connection
     {
-        static Connection Create(const std::string& target, OpenDisposition disposition, OpenFlags flags);
+        static Connection Create(const std::string& target, OpenDisposition disposition, OpenFlags flags = OpenFlags::None);
 
         Connection(const Connection&) = delete;
         Connection& operator=(const Connection&) = delete;
@@ -85,7 +96,7 @@ namespace AppInstaller::Repository::SQLite
     // A SQL statement.
     struct Statement
     {
-        Statement(Connection& connection, const std::string& sql, bool persistent = false);
+        static Statement Create(Connection& connection, const std::string& sql, bool persistent = false);
 
         Statement(const Statement&) = delete;
         Statement& operator=(const Statement&) = delete;
@@ -114,6 +125,7 @@ namespace AppInstaller::Repository::SQLite
         State GetState() const { return _state; }
 
         // Bind parameters to the statement.
+        // The index is 1 based.
         template <typename Value>
         void Bind(int index, Value&& v)
         {
@@ -126,6 +138,7 @@ namespace AppInstaller::Repository::SQLite
         bool Step();
 
         // Gets the value of the specified column from the current row.
+        // The index is 0 based.
         template <typename Value>
         Value GetColumn(int column)
         {
@@ -133,13 +146,38 @@ namespace AppInstaller::Repository::SQLite
             {
                 throw std::out_of_range("SQLite statement does not have a row available.");
             }
-            details::ParameterSpecifics<Value>::GetColumn(_stmt, column);
+            return details::ParameterSpecifics<Value>::GetColumn(_stmt, column);
+        }
+
+        // Gets the entire row of values from the current row.
+        // The values requested *must* be those available starting from the first column, but trailing columns can be ommitted.
+        template <typename... Values>
+        std::tuple<Values...> GetRow()
+        {
+            return GetRowImpl<Values...>(std::make_integer_sequence<int, sizeof...(Values)>{});
         }
 
         // Resets the statement state, allowing it to be evaluated again.
         void Reset();
 
     private:
+        Statement(Connection& connection, const std::string& sql, bool persistent);
+
+        // Helper to receive the integer sequence from the public function.
+        // This is equivalent to calling:
+        //  for (i = 0 .. count of Values types)
+        //      GetColumn<current Value type>(i)
+        // Then putting them all into a tuple.
+        template <typename... Values, int... I>
+        std::tuple<Values...> GetRowImpl(std::integer_sequence<int, I...>)
+        {
+            if (_state != State::HasRow)
+            {
+                throw std::out_of_range("SQLite statement does not have a row available.");
+            }
+            return std::make_tuple(details::ParameterSpecifics<Values>::GetColumn(_stmt, I)...);
+        }
+
         sqlite3_stmt* _stmt = nullptr;
         State _state = State::Prepared;
     };
