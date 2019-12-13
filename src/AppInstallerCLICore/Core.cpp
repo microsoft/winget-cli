@@ -11,7 +11,7 @@ using namespace AppInstaller::CLI;
 int CLICoreMain(int argc, wchar_t const** argv) try
 {
     init_apartment();
-    //TelemetryTraceLogger::GetInstance().LogMessage(L"Launched PackageManager Client.");
+    TelemetryTraceLogger::GetInstance().LogMessage(L"Launched PackageManager Client.");
 
     RootCommand root;
     Invocation invocation{ argc, argv };

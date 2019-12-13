@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
+#include "pch.h"
 #include "TelemetryWrapper.h"
 
 #define PKGMGR_CLIENT_EVENT_INFO "Information"

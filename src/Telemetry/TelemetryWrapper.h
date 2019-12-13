@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #pragma once
 
-#include "pch.h"
 #include "TraceLogging.h"
+#include <xstring>
 
 namespace AppInstaller::CLI
 {
