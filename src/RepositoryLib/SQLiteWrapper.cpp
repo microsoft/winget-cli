@@ -1,0 +1,120 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+#include "pch.h"
+#include "SQLiteWrapper.h"
+
+#define THROW_SQLITE(_error_) throw SQLiteException(_error_)
+
+#define THROW_IF_SQLITE_FAILED(_statement_) \
+    do { \
+        int _sqliteReturnValue = _statement_; \
+        if (_sqliteReturnValue != SQLITE_OK) \
+        { \
+            THROW_SQLITE(_sqliteReturnValue); \
+        } \
+    } while (0,0);
+
+namespace AppInstaller::Repository::SQLite
+{
+    namespace
+    {
+        class SQLiteErrorCategory : public std::error_category
+        {
+            const char* name() const noexcept override { return "sqlite"; }
+            std::string message(int error) const override { return sqlite3_errstr(error); }
+        };
+    }
+
+    namespace details
+    {
+        void ParameterSpecificsImpl<std::string>::Bind(sqlite3_stmt* stmt, int index, const std::string& v)
+        {
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_text64(stmt, index, v.c_str(), v.size(), SQLITE_TRANSIENT, SQLITE_UTF8));
+        }
+
+        std::string ParameterSpecificsImpl<std::string>::GetColumn(sqlite3_stmt* stmt, int column)
+        {
+            return reinterpret_cast<const char*>(sqlite3_column_text(stmt, column));
+        }
+
+        void ParameterSpecificsImpl<int>::Bind(sqlite3_stmt* stmt, int index, int v)
+        {
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_int(stmt, index, v));
+        }
+
+        int ParameterSpecificsImpl<int>::GetColumn(sqlite3_stmt* stmt, int column)
+        {
+            return sqlite3_column_int(stmt, column);
+        }
+    }
+
+    const std::error_category& SQLiteException::GetCategory() noexcept
+    {
+        static SQLiteErrorCategory category;
+        return category;
+    }
+
+    Connection::Connection(const std::string& target, OpenDisposition disposition, OpenFlags flags)
+    {
+        int resultingFlags = static_cast<int>(disposition) | static_cast<int>(flags);
+        THROW_IF_SQLITE_FAILED(sqlite3_open_v2(target.c_str(), &_dbconn, resultingFlags, nullptr));
+    }
+
+    Connection Connection::Create(const std::string& target, OpenDisposition disposition, OpenFlags flags)
+    {
+        Connection result{ target, disposition, flags };
+        
+        THROW_IF_SQLITE_FAILED(sqlite3_extended_result_codes(result._dbconn, 1));
+
+        return result;
+    }
+
+    Connection::~Connection()
+    {
+        sqlite3_close_v2(_dbconn);
+    }
+
+    Statement::Statement(Connection& connection, const std::string& sql, bool persistent)
+    {
+        // SQL string size should include the null terminator (https://www.sqlite.org/c3ref/prepare.html)
+        THROW_IF_SQLITE_FAILED(sqlite3_prepare_v3(connection, sql.c_str(), static_cast<int>(sql.size() + 1), (persistent ? SQLITE_PREPARE_PERSISTENT : 0), &_stmt, nullptr));
+    }
+
+    Statement Statement::Create(Connection& connection, const std::string& sql, bool persistent)
+    {
+        return { connection, sql, persistent };
+    }
+
+    Statement::~Statement()
+    {
+        sqlite3_finalize(_stmt);
+    }
+
+    bool Statement::Step()
+    {
+        int result = sqlite3_step(_stmt);
+
+        if (result == SQLITE_ROW)
+        {
+            _state = State::HasRow;
+            return true;
+        }
+        else if (result == SQLITE_DONE)
+        {
+            _state = State::Completed;
+            return false;
+        }
+        else
+        {
+            _state = State::Error;
+            THROW_SQLITE(result);
+        }
+    }
+
+    void Statement::Reset()
+    {
+        // Ignore return value from reset, as if it is an error, it was the error from the last call to step.
+        sqlite3_reset(_stmt);
+        _state = State::Prepared;
+    }
+}
