@@ -2,19 +2,19 @@
 // Licensed under the MIT License.
 #pragma once
 
-#include <windows.h>
 #include "TraceLogging.h"
+#include <xstring>
 
-struct TraceLoggingRegistration
+namespace AppInstaller::CLI
 {
-    TraceLoggingRegistration()
+    class TelemetryTraceLogger
     {
-        RegisterTraceLogging();
-    }
+    public:
+        static TelemetryTraceLogger& GetInstance();
+        virtual void LogMessage(std::wstring_view message);
 
-    ~TraceLoggingRegistration()
-    {
-        UnRegisterTraceLogging();
-    }
-};
-
+    private:
+        TelemetryTraceLogger();
+        ~TelemetryTraceLogger();
+    };
+}
