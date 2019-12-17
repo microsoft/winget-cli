@@ -53,29 +53,29 @@ namespace AppInstaller::Repository::SQLite
         static const std::error_category& GetCategory() noexcept;
     };
 
-    // The disposition for opening a database connection.
-    enum class OpenDisposition : int
-    {
-        // Open existing database for reading.
-        ReadOnly = SQLITE_OPEN_READONLY,
-        // Open existing database for reading and writing.
-        ReadWrite = SQLITE_OPEN_READWRITE,
-        // Create new database for reading and writing.
-        Create = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
-    };
-
-    // Flags for opening a database connection.
-    enum class OpenFlags : int
-    {
-        // No flags specified.
-        None = 0,
-        // Indicate that the target can be a URI.
-        Uri = SQLITE_OPEN_URI,
-    };
-
     // The connection to a database.
     struct Connection
     {
+        // The disposition for opening a database connection.
+        enum class OpenDisposition : int
+        {
+            // Open existing database for reading.
+            ReadOnly = SQLITE_OPEN_READONLY,
+            // Open existing database for reading and writing.
+            ReadWrite = SQLITE_OPEN_READWRITE,
+            // Create new database for reading and writing.
+            Create = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+        };
+
+        // Flags for opening a database connection.
+        enum class OpenFlags : int
+        {
+            // No flags specified.
+            None = 0,
+            // Indicate that the target can be a URI.
+            Uri = SQLITE_OPEN_URI,
+        };
+
         static Connection Create(const std::string& target, OpenDisposition disposition, OpenFlags flags = OpenFlags::None);
 
         Connection(const Connection&) = delete;

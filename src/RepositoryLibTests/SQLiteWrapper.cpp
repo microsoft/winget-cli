@@ -68,7 +68,7 @@ void SelectFromSimpleTestTableOnlyOneRow(Connection& connection, int firstVal, c
 
 TEST_CASE("SQLiteWrapperMemoryCreate", "[sqlitewrapper]")
 {
-    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, OpenDisposition::Create);
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
 
     CreateSimpleTestTable(connection);
 
@@ -98,7 +98,7 @@ TEST_CASE("SQLiteWrapperFileCreateAndReopen", "[sqlitewrapper]")
 
     // Create the DB and some data
     {
-        Connection connection = Connection::Create(tempFileName.str(), OpenDisposition::Create);
+        Connection connection = Connection::Create(tempFileName.str(), Connection::OpenDisposition::Create);
 
         CreateSimpleTestTable(connection);
 
@@ -107,7 +107,7 @@ TEST_CASE("SQLiteWrapperFileCreateAndReopen", "[sqlitewrapper]")
 
     // Reopen the DB and read data
     {
-        Connection connection = Connection::Create(tempFileName.str(), OpenDisposition::ReadWrite);
+        Connection connection = Connection::Create(tempFileName.str(), Connection::OpenDisposition::ReadWrite);
 
         SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
     }

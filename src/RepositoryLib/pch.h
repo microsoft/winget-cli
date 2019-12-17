@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 
+#define NOMINMAX
 #include <windows.h>
 #include "TelemetryWrapper.h"
 
