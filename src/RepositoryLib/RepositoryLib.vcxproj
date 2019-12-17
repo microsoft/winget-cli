@@ -166,12 +166,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Microsoft\MSIndex.h" />
+    <ClInclude Include="Microsoft\Schema\MetadataTable.h" />
+    <ClInclude Include="Microsoft\SQLiteIndex.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="SQLiteWrapper.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Microsoft\MSIndex.cpp" />
+    <ClCompile Include="Microsoft\Schema\MetadataTable.cpp" />
+    <ClCompile Include="Microsoft\SQLiteIndex.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
