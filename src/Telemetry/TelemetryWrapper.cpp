@@ -26,11 +26,11 @@ namespace AppInstaller::CLI
 
     void TelemetryTraceLogger::LogMessage(std::wstring_view message)
     {
-        if (!g_IsTelemetryProviderEnabled)
+        if (g_IsTelemetryProviderEnabled)
         {
             TraceLoggingWrite(g_hTelemetryProvider,
                 PKGMGR_CLIENT_EVENT_INFO,
-                TraceLoggingWideString(message.data(), PKGMGR_CLIENT_MESSAGE),
+                TraceLoggingCountedWideString(message.data(), message.size(), PKGMGR_CLIENT_MESSAGE),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
         }
