@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Microsoft">
+      <UniqueIdentifier>{2d97761a-4967-4ece-b5fd-d96f346731ed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -21,6 +24,9 @@
     <ClInclude Include="SQLiteWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\MSIndex.h">
+      <Filter>Microsoft</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -28,6 +34,9 @@
     </ClCompile>
     <ClCompile Include="SQLiteWrapper.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\MSIndex.cpp">
+      <Filter>Microsoft</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

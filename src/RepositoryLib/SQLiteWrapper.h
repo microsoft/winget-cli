@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <winsqlite/winsqlite3.h>
+
 #include <string>
 #include <stdexcept>
 #include <system_error>

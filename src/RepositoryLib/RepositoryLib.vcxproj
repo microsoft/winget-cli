@@ -166,10 +166,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Microsoft\MSIndex.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="SQLiteWrapper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Microsoft\MSIndex.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
