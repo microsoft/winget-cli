@@ -10,7 +10,13 @@ namespace AppInstaller::Repository::Microsoft
     SQLiteIndex SQLiteIndex::CreateNew(const std::string& filePath, Schema::Version version)
     {
         SQLiteIndex result{ filePath, version };
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result._dbconn, "sqliteindex_createnew");
+
         Schema::MetadataTable::Create(result._dbconn);
+        version.SetSchemaVersion(result._dbconn);
+
+        savepoint.Commit();
     }
 
     SQLiteIndex SQLiteIndex::Open(const std::string& filePath, OpenDisposition disposition)

@@ -19,11 +19,11 @@ namespace AppInstaller::Repository::SQLite
         {
             static void Bind(sqlite3_stmt*, int, T&&)
             {
-                static_assert(false, "No type specific override has been supplied.");
+                static_assert(false, "No type specific override has been supplied");
             }
             static T GetColumn(sqlite3_stmt*, int)
             {
-                static_assert(false, "No type specific override has been supplied.");
+                static_assert(false, "No type specific override has been supplied");
             }
         };
 
@@ -78,6 +78,8 @@ namespace AppInstaller::Repository::SQLite
 
         static Connection Create(const std::string& target, OpenDisposition disposition, OpenFlags flags = OpenFlags::None);
 
+        Connection() = default;
+
         Connection(const Connection&) = delete;
         Connection& operator=(const Connection&) = delete;
 
@@ -98,6 +100,8 @@ namespace AppInstaller::Repository::SQLite
     struct Statement
     {
         static Statement Create(Connection& connection, const std::string& sql, bool persistent = false);
+
+        Statement() = default;
 
         Statement(const Statement&) = delete;
         Statement& operator=(const Statement&) = delete;
@@ -136,7 +140,7 @@ namespace AppInstaller::Repository::SQLite
         // Evaluate the statement; either retrieving the next row or executing some action.
         // Returns true if there is a row of data, or false if there is none.
         // This return value is the equivalent of 'GetState() == State::HasRow' after calling Step.
-        bool Step();
+        bool Step(bool failFastOnError = false);
 
         // Gets the value of the specified column from the current row.
         // The index is 0 based.
@@ -145,7 +149,7 @@ namespace AppInstaller::Repository::SQLite
         {
             if (_state != State::HasRow)
             {
-                throw std::out_of_range("SQLite statement does not have a row available.");
+                throw std::out_of_range("SQLite statement does not have a row available");
             }
             return details::ParameterSpecifics<Value>::GetColumn(_stmt, column);
         }
@@ -174,12 +178,41 @@ namespace AppInstaller::Repository::SQLite
         {
             if (_state != State::HasRow)
             {
-                throw std::out_of_range("SQLite statement does not have a row available.");
+                throw std::out_of_range("SQLite statement does not have a row available");
             }
             return std::make_tuple(details::ParameterSpecifics<Values>::GetColumn(_stmt, I)...);
         }
 
         sqlite3_stmt* _stmt = nullptr;
         State _state = State::Prepared;
+    };
+
+    // A SQLite savepoint.
+    struct Savepoint
+    {
+        // Creates a savepoint, beginning it.
+        static Savepoint Create(Connection& connection, std::string&& name);
+
+        Savepoint(const Savepoint&) = delete;
+        Savepoint& operator=(const Savepoint&) = delete;
+
+        Savepoint(Savepoint&&) = default;
+        Savepoint& operator=(Savepoint&&) = default;
+
+        ~Savepoint();
+
+        // Rolls back the Savepoint.
+        void Rollback();
+
+        // Commits the Savepoint.
+        void Commit();
+
+    private:
+        Savepoint(Connection& connection, std::string&& name);
+
+        std::string _name;
+        bool _inProgress = true;
+        Statement _rollback;
+        Statement _commit;
     };
 }
