@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "SQLiteWrapper.h"
-#include "Schema/Version.h"
+#include "Microsoft/Schema/Version.h"
 
 #include <limits>
 #include <memory>
@@ -13,6 +13,11 @@ namespace AppInstaller::Repository::Microsoft
     // Holds the connection to the database, as well as the appropriate functionality to interface with it.
     struct SQLiteIndex
     {
+        SQLiteIndex(const SQLiteIndex&) = delete;
+        SQLiteIndex& operator=(const SQLiteIndex&) = delete;
+
+        SQLiteIndex(SQLiteIndex&&) = default;
+        SQLiteIndex& operator=(SQLiteIndex&&) = default;
 
         // Creates a new index database of the given version.
         static SQLiteIndex CreateNew(const std::string& filePath, Schema::Version version);
@@ -30,6 +35,9 @@ namespace AppInstaller::Repository::Microsoft
 
         // Opens an existing index database.
         static SQLiteIndex Open(const std::string& filePath, OpenDisposition disposition);
+
+        // Gets the schema version of the index.
+        Schema::Version GetVersion() const { return _version; }
 
     private:
         // Constructor used to open an existing index.

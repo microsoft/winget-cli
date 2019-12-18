@@ -14,8 +14,16 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
     }
 
-    SQLite::Statement MetadataTable::GetNamedValueStatement(const std::string& name)
+    SQLite::Statement MetadataTable::GetNamedValueStatement(SQLite::Connection& connection, const std::string& name)
     {
 
+    }
+
+    SQLite::Statement MetadataTable::SetNamedValueStatement(SQLite::Connection& connection, const std::string& name)
+    {
+        THROW_HR_IF(E_INVALIDARG, name.empty());
+        SQLite::Statement result = SQLite::Statement::Create(connection, );
+        result.Bind(1, name);
+        return result;
     }
 }

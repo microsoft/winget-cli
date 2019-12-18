@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "ISQLiteIndex.h"
+#include "SQLiteWrapper.h"
+#include "Microsoft/Schema/ISQLiteIndex.h"
 
-#include <stdint.h>
 #include <limits>
 #include <memory>
 
@@ -19,6 +19,11 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // All changes to the schema warrant a change to the minor version.
         uint32_t MinorVersion{};
 
+        bool operator==(Version other)
+        {
+            return (MajorVersion == other.MajorVersion && MinorVersion == other.MinorVersion);
+        }
+
         // Gets a version that represents the latest schema known to the implementation.
         static constexpr Version Latest() { return { std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max() }; }
 
@@ -26,7 +31,10 @@ namespace AppInstaller::Repository::Microsoft::Schema
         bool IsLatest() const { return (MajorVersion == std::numeric_limits<uint32_t>::max() && MinorVersion == std::numeric_limits<uint32_t>::max()); }
 
         // Determines the schema version of the opened index.
-        static Version ReadSchemaVersion(SQLite::Connection& connection);
+        static Version GetSchemaVersion(SQLite::Connection& connection);
+
+        // Writes the current version to the given index.
+        Version SetSchemaVersion(SQLite::Connection& connection);
 
         // Creates the interface object for this version.
         std::unique_ptr<ISQLiteIndex> CreateISQLiteIndex();

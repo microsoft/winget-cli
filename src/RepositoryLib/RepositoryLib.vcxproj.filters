@@ -19,6 +19,9 @@
     <Filter Include="Microsoft\Schema">
       <UniqueIdentifier>{7996cf09-4e36-4009-b48d-53ffc3bfa956}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Microsoft\Schema\1_0">
+      <UniqueIdentifier>{cff561cd-211b-4cab-87f5-39359eef1e8d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -39,6 +42,9 @@
     <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h">
       <Filter>Microsoft\Schema</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_0\Interface.h">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -51,6 +57,9 @@
       <Filter>Microsoft</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\MetadataTable.cpp">
+      <Filter>Microsoft\Schema</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\Version.cpp">
       <Filter>Microsoft\Schema</Filter>
     </ClCompile>
   </ItemGroup>

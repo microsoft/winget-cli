@@ -166,6 +166,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Microsoft\Schema\1_0\Interface.h" />
     <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h" />
     <ClInclude Include="Microsoft\Schema\MetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\Version.h" />
@@ -175,6 +176,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Microsoft\Schema\MetadataTable.cpp" />
+    <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

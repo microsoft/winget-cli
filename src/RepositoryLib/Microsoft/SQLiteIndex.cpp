@@ -7,20 +7,10 @@
 
 namespace AppInstaller::Repository::Microsoft
 {
-    namespace
-    {
-        Schema::Version ReadSchemaVersion(SQLite::Connection& connection)
-        {
-            int major = Schema::MetadataTable::GetNamedValue<int>(Schema::s_MetadataValueName_MajorVersion);
-            int minor = Schema::MetadataTable::GetNamedValue<int>(Schema::s_MetadataValueName_MinorVersion);
-
-            return { static_cast<uint32_t>(major), static_cast<uint32_t>(minor) };
-        }
-    }
-
     SQLiteIndex SQLiteIndex::CreateNew(const std::string& filePath, Schema::Version version)
     {
-
+        SQLiteIndex result{ filePath, version };
+        Schema::MetadataTable::Create(result._dbconn);
     }
 
     SQLiteIndex SQLiteIndex::Open(const std::string& filePath, OpenDisposition disposition)
