@@ -33,6 +33,12 @@
     <ClInclude Include="Microsoft\Schema\MetadataTable.h">
       <Filter>Microsoft\Schema</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\Version.h">
+      <Filter>Microsoft\Schema</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h">
+      <Filter>Microsoft\Schema</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

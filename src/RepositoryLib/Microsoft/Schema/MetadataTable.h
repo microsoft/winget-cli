@@ -7,6 +7,8 @@
 namespace AppInstaller::Repository::Microsoft::Schema
 {
     // Named metadata values are defined here to reduce the risk of duplicate names.
+
+    // Version 1.0
     extern char const* const s_MetadataValueName_MajorVersion;
     extern char const *const s_MetadataValueName_MinorVersion;
 

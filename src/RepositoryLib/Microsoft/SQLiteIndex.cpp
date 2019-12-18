@@ -9,20 +9,16 @@ namespace AppInstaller::Repository::Microsoft
 {
     namespace
     {
-        // Determines the schema version of the opened index.
-        SQLiteIndex::Version ReadSchemaVersion(SQLite::Connection& connection)
+        Schema::Version ReadSchemaVersion(SQLite::Connection& connection)
         {
+            int major = Schema::MetadataTable::GetNamedValue<int>(Schema::s_MetadataValueName_MajorVersion);
+            int minor = Schema::MetadataTable::GetNamedValue<int>(Schema::s_MetadataValueName_MinorVersion);
 
-        }
-
-        // Creates the appropriate interface for operating on the index given the version.
-        std::unique_ptr<ISQLiteIndex> CreateIndexInterfaceFromVersion(SQLiteIndex::Version version)
-        {
-
+            return { static_cast<uint32_t>(major), static_cast<uint32_t>(minor) };
         }
     }
 
-    SQLiteIndex SQLiteIndex::CreateNew(const std::string& filePath, Version version)
+    SQLiteIndex SQLiteIndex::CreateNew(const std::string& filePath, Schema::Version version)
     {
 
     }
@@ -38,10 +34,10 @@ namespace AppInstaller::Repository::Microsoft
 
     }
 
-    SQLiteIndex::SQLiteIndex(const std::string& target, Version version) :
+    SQLiteIndex::SQLiteIndex(const std::string& target, Schema::Version version) :
         _dbconn(SQLite::Connection::Create(target, SQLite::Connection::OpenDisposition::Create)),
         _version(version)
     {
-        _interface = CreateIndexInterfaceFromVersion(_version);
+        _interface = _version.CreateISQLiteIndex();
     }
 }
