@@ -106,8 +106,8 @@ namespace AppInstaller::Repository::SQLite
         Statement(const Statement&) = delete;
         Statement& operator=(const Statement&) = delete;
 
-        Statement(Statement&& other) noexcept { std::swap(_stmt, other._stmt); }
-        Statement& operator=(Statement&& other) noexcept { std::swap(_stmt, other._stmt); return *this; }
+        Statement(Statement&& other) noexcept { std::swap(_stmt, other._stmt); std::swap(_state, other._state); }
+        Statement& operator=(Statement&& other) noexcept { std::swap(_stmt, other._stmt); std::swap(_state, other._state); return *this; }
 
         ~Statement();
 

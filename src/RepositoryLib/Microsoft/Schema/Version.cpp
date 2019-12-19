@@ -20,8 +20,8 @@ namespace AppInstaller::Repository::Microsoft::Schema
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "version_setschemaversion");
 
-        MetadataTable::SetNamedValue(connection, Schema::s_MetadataValueName_MajorVersion, MajorVersion);
-        MetadataTable::SetNamedValue(connection, Schema::s_MetadataValueName_MinorVersion, MinorVersion);
+        MetadataTable::SetNamedValue(connection, Schema::s_MetadataValueName_MajorVersion, static_cast<int>(MajorVersion));
+        MetadataTable::SetNamedValue(connection, Schema::s_MetadataValueName_MinorVersion, static_cast<int>(MinorVersion));
 
         savepoint.Commit();
     }
@@ -29,9 +29,14 @@ namespace AppInstaller::Repository::Microsoft::Schema
     // Creates the interface object for this version.
     std::unique_ptr<ISQLiteIndex> Version::CreateISQLiteIndex()
     {
-        if (*this == Version{ 1, 0 })
+        if (*this == Version{ 1, 0 } ||
+            this->MajorVersion == 1 ||
+            this->IsLatest())
         {
             return std::make_unique<V1_0::Interface>();
         }
+
+        // We do not have the capacity to operate on this schema version
+        THROW_HR(E_NOT_SET);
     }
 }

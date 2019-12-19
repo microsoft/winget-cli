@@ -9,6 +9,9 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema
 {
+    // Forward declarations
+    struct ISQLiteIndex;
+
     // Represents the schema version of the index.
     struct Version
     {
@@ -19,7 +22,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // All changes to the schema warrant a change to the minor version.
         uint32_t MinorVersion{};
 
-        bool operator==(Version other)
+        bool operator==(Version other) const
         {
             return (MajorVersion == other.MajorVersion && MinorVersion == other.MinorVersion);
         }
@@ -27,8 +30,14 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Gets a version that represents the latest schema known to the implementation.
         static constexpr Version Latest() { return { std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max() }; }
 
+        // Gets a version that represents the latest schema known to the implementation for the given major version.
+        static constexpr Version LatestForMajor(uint32_t majorVersion) { return { majorVersion, std::numeric_limits<uint32_t>::max() }; }
+
         // Determines if this version represents the latest schema.
         bool IsLatest() const { return (MajorVersion == std::numeric_limits<uint32_t>::max() && MinorVersion == std::numeric_limits<uint32_t>::max()); }
+
+        // Determines if this version represents the latest schema of the given major version.
+        bool IsLatestForMajor(uint32_t majorVersion) const { return (MajorVersion == majorVersion && MinorVersion == std::numeric_limits<uint32_t>::max()); }
 
         // Determines the schema version of the opened index.
         static Version GetSchemaVersion(SQLite::Connection& connection);

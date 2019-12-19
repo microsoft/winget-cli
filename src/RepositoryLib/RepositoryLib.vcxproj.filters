@@ -62,6 +62,9 @@
     <ClCompile Include="Microsoft\Schema\Version.cpp">
       <Filter>Microsoft\Schema</Filter>
     </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_0\Interface.cpp">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

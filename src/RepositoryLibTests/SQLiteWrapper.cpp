@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "TestCommon.h"
 #include <SQLiteWrapper.h>
 
 using namespace AppInstaller::Repository::SQLite;
@@ -82,23 +83,15 @@ TEST_CASE("SQLiteWrapperMemoryCreate", "[sqlitewrapper]")
 
 TEST_CASE("SQLiteWrapperFileCreateAndReopen", "[sqlitewrapper]")
 {
-    char tempPath[MAX_PATH]{};
-    REQUIRE(GetTempPathA(MAX_PATH, tempPath) != 0);
-
-    srand(static_cast<unsigned int>(time(NULL)));
-    std::stringstream tempFileName;
-    tempFileName << tempPath << "\\repolibtest_tempdb" << rand() << ".db";
-
-    INFO("Using temporary file named: " << tempFileName.str());
-
-    DeleteFileA(tempFileName.str().c_str());
+    TestCommon::TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    INFO("Using temporary file named: " << tempFile.GetPath());
 
     int firstVal = 1;
     std::string secondVal = "test";
 
     // Create the DB and some data
     {
-        Connection connection = Connection::Create(tempFileName.str(), Connection::OpenDisposition::Create);
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::Create);
 
         CreateSimpleTestTable(connection);
 
@@ -107,7 +100,7 @@ TEST_CASE("SQLiteWrapperFileCreateAndReopen", "[sqlitewrapper]")
 
     // Reopen the DB and read data
     {
-        Connection connection = Connection::Create(tempFileName.str(), Connection::OpenDisposition::ReadWrite);
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
 
         SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
     }

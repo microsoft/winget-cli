@@ -130,12 +130,11 @@ namespace AppInstaller::Repository::SQLite
     Savepoint::Savepoint(Connection& connection, std::string&& name) :
         _name(std::move(name))
     {
-        Statement begin = Statement::Create(connection, "SAVEPOINT ?");
-        begin.Bind(1, _name);
-        _rollback = Statement::Create(connection, "ROLLBACK TO ?", true);
-        _rollback.Bind(1, _name);
-        _commit = Statement::Create(connection, "RELEASE ?", true);
-        _commit.Bind(1, _name);
+        using namespace std::string_literals;
+
+        Statement begin = Statement::Create(connection, "SAVEPOINT ["s + name + "]");
+        _rollback = Statement::Create(connection, "ROLLBACK TO ["s + name + "]", true);
+        _commit = Statement::Create(connection, "RELEASE ["s + name + "]", true);
 
         begin.Step();
     }

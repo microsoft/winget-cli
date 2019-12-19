@@ -38,9 +38,9 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
     private:
         // Internal function that gets the named value.
-        SQLite::Statement GetNamedValueStatement(SQLite::Connection& connection, const std::string& name);
+        static SQLite::Statement GetNamedValueStatement(SQLite::Connection& connection, const std::string& name);
 
         // Internal function that sets the named value.
-        SQLite::Statement SetNamedValueStatement(SQLite::Connection& connection, const std::string& name);
+        static SQLite::Statement SetNamedValueStatement(SQLite::Connection& connection, const std::string& name);
     };
 }
