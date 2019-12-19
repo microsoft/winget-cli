@@ -29,8 +29,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YamlCppLib", "YamlCppLib\Ya
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PackageManifestHelper", "PackageManifestHelper\PackageManifestHelper.vcxproj", "{F8F75341-9455-4D5B-824A-47A7818EE864}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PackageManifestHelperTests", "PackageManifestHelperTests\PackageManifestHelperTests.vcxproj", "{B11812EF-A421-4D11-B600-F285F00E1995}"
-EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Telemetry\Telemetry.vcxitems*{1c6e0108-2860-4b17-9f7e-fa5c6c1f3d3d}*SharedItemsImports = 4
@@ -38,7 +36,6 @@ Global
 		catch2\catch2.vcxitems*{5295e21e-9868-4de2-a177-fbb97b36579b}*SharedItemsImports = 9
 		Telemetry\Telemetry.vcxitems*{5eb88068-5fb9-4e69-89b2-72dbc5e068f9}*SharedItemsImports = 4
 		catch2\catch2.vcxitems*{89b1aab4-2bbc-4b65-9ed7-a01d5cf88230}*SharedItemsImports = 4
-		catch2\catch2.vcxitems*{b11812ef-a421-4d11-b600-f285f00e1995}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -187,20 +184,6 @@ Global
 		{F8F75341-9455-4D5B-824A-47A7818EE864}.Release|x64.Build.0 = Release|x64
 		{F8F75341-9455-4D5B-824A-47A7818EE864}.Release|x86.ActiveCfg = Release|Win32
 		{F8F75341-9455-4D5B-824A-47A7818EE864}.Release|x86.Build.0 = Release|Win32
-		{B11812EF-A421-4D11-B600-F285F00E1995}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{B11812EF-A421-4D11-B600-F285F00E1995}.Debug|ARM.ActiveCfg = Debug|Win32
-		{B11812EF-A421-4D11-B600-F285F00E1995}.Debug|ARM64.ActiveCfg = Debug|Win32
-		{B11812EF-A421-4D11-B600-F285F00E1995}.Debug|x64.ActiveCfg = Debug|x64
-		{B11812EF-A421-4D11-B600-F285F00E1995}.Debug|x64.Build.0 = Debug|x64
-		{B11812EF-A421-4D11-B600-F285F00E1995}.Debug|x86.ActiveCfg = Debug|Win32
-		{B11812EF-A421-4D11-B600-F285F00E1995}.Debug|x86.Build.0 = Debug|Win32
-		{B11812EF-A421-4D11-B600-F285F00E1995}.Release|Any CPU.ActiveCfg = Release|Win32
-		{B11812EF-A421-4D11-B600-F285F00E1995}.Release|ARM.ActiveCfg = Release|Win32
-		{B11812EF-A421-4D11-B600-F285F00E1995}.Release|ARM64.ActiveCfg = Release|Win32
-		{B11812EF-A421-4D11-B600-F285F00E1995}.Release|x64.ActiveCfg = Release|x64
-		{B11812EF-A421-4D11-B600-F285F00E1995}.Release|x64.Build.0 = Release|x64
-		{B11812EF-A421-4D11-B600-F285F00E1995}.Release|x86.ActiveCfg = Release|Win32
-		{B11812EF-A421-4D11-B600-F285F00E1995}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -209,7 +192,6 @@ Global
 		{4B988559-DDBD-4456-9300-0C3AAD12C466} = {60618CAC-2995-4DF9-9914-45C6FC02C995}
 		{5295E21E-9868-4DE2-A177-FBB97B36579B} = {60618CAC-2995-4DF9-9914-45C6FC02C995}
 		{89B1AAB4-2BBC-4B65-9ED7-A01D5CF88230} = {63D9DA93-A735-4CBC-8127-343EB2E58E43}
-		{B11812EF-A421-4D11-B600-F285F00E1995} = {63D9DA93-A735-4CBC-8127-343EB2E58E43}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6FDB70C-A751-422C-ACD1-E35419495857}
