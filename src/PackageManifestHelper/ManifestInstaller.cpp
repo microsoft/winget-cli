@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 #include "pch.h"
-#include "yaml-cpp\yaml.h"
 #include "ManifestInstaller.h"
 
 namespace AppInstaller::Package::Manifest
@@ -24,7 +23,7 @@ namespace AppInstaller::Package::Manifest
             YAML::Node switchesNode = installerNode["Switches"];
             InstallerSwitches switches;
             switches.PopulateSwitchesFields(switchesNode);
-            this->Switches.emplace(switches);
+            this->Switches.emplace(std::move(switches));
         }
     }
 }

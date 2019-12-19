@@ -3,7 +3,6 @@
 
 #include "pch.h"
 #include "framework.h"
-#include "yaml-cpp\yaml.h"
 #include "Manifest.h"
 
 namespace AppInstaller::Package::Manifest
@@ -37,7 +36,7 @@ namespace AppInstaller::Package::Manifest
             YAML::Node installerNode = installersNode[i];
             ManifestInstaller installer;
             installer.PopulateInstallerFields(installerNode);
-            this->Installers.push_back(installer);
+            this->Installers.emplace_back(std::move(installer));
         }
 
         if (rootNode["Localization"])
@@ -47,7 +46,7 @@ namespace AppInstaller::Package::Manifest
                 YAML::Node localizationNode = localizationsNode[i];
                 ManifestLocalization localization;
                 localization.PopulateLocalizationFields(localizationNode);
-                this->Localization.push_back(localization);
+                this->Localization.emplace_back(std::move(localization));
             }
         }
 
@@ -56,7 +55,7 @@ namespace AppInstaller::Package::Manifest
             YAML::Node switchesNode = rootNode["Switches"];
             InstallerSwitches switches;
             switches.PopulateSwitchesFields(switchesNode);
-            this->Switches.emplace(switches);
+            this->Switches.emplace(std::move(switches));
         }
     }
 

@@ -12,5 +12,6 @@
 
 // add headers that you want to pre-compile here
 #include "framework.h"
+#include "yaml-cpp\yaml.h"
 
 #endif //PCH_H

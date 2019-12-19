@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 #include "pch.h"
-#include "yaml-cpp\yaml.h"
 #include "ManifestLocalization.h"
 
 namespace AppInstaller::Package::Manifest
