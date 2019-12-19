@@ -3,8 +3,7 @@
 
 #include "pch.h"
 #include "framework.h"
-#include "yaml-cpp/node/parse.h"
-#include "yaml-cpp/node/node.h"
+#include "yaml-cpp\yaml.h"
 #include "Manifest.h"
 
 namespace AppInstaller::Package::Manifest
@@ -26,6 +25,7 @@ namespace AppInstaller::Package::Manifest
         this->MinOSVersion = rootNode["MinOSVersion"] ? rootNode["MinOSVersion"].as<std::string>() : "";
         this->Tags = rootNode["Tags"] ? rootNode["Tags"].as<std::string>() : "";
         this->Commands = rootNode["Commands"] ? rootNode["Commands"].as<std::string>() : "";
+        this->Protocols = rootNode["Protocols"] ? rootNode["Protocols"].as<std::string>() : "";
         this->FileExtensions = rootNode["FileExtensions"] ? rootNode["FileExtensions"].as<std::string>() : "";
         this->InstallerType = rootNode["InstallerType"] ? rootNode["InstallerType"].as<std::string>() : "";
         this->Description = rootNode["Description"] ? rootNode["Description"].as<std::string>() : "";

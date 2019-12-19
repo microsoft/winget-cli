@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 #include "pch.h"
-#include "yaml-cpp/node/node.h"
+#include "yaml-cpp\yaml.h"
 #include "InstallerSwitches.h"
 
 namespace AppInstaller::Package::Manifest
