@@ -1,14 +1,23 @@
 {
 "Registrations":[
-    {
-      "component": {
-       "type": "git",
-       "git": {
-         "repositoryUrl": "https://github.com/catchorg/Catch2.git",
-         "commitHash": "e1c9d5569dc4135babb9c81891d70a8ba8ed938c"
-         }
-       }
+  {
+    "component": {
+      "type": "git",
+      "git": {
+        "repositoryUrl": "https://github.com/catchorg/Catch2.git",
+        "commitHash": "e1c9d5569dc4135babb9c81891d70a8ba8ed938c"
+      }
     }
+  },
+  {
+    "component": {
+      "type": "git",
+      "git": {
+        "repositoryUrl": "https://github.com/jbeder/yaml-cpp.git",
+        "commitHash": "9a3624205e8774953ef18f57067b3426c1c5ada6"
+      }
+    }
+  }
  ],
  "Version": 1
 }

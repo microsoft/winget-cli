@@ -33,7 +33,8 @@ steps:
 
 - task: CmdLine@2
   inputs:
-    script: 'RepositoryLibTests.exe -s -r junit -o TEST-RepositoryLib-$(_artifact).xml'
+    script: |
+      RepositoryLibTests.exe -s -r junit -o TEST-RepositoryLib-$(_artifact).xml
     workingDirectory: 'src\Release\'
 
 - task: PublishTestResults@2
