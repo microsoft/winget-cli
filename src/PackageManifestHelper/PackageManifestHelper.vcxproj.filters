@@ -7,21 +7,30 @@
     </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="TestData">
-      <UniqueIdentifier>{d5cac203-3846-4b39-a1cd-8de9303757b4}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TestCommon.h">
+    <ClInclude Include="Manifest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ManifestInstaller.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InstallerSwitches.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ManifestLocalization.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -29,32 +38,17 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="Manifest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SQLiteWrapper.cpp">
+    <ClCompile Include="ManifestInstaller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SQLiteIndex.cpp">
+    <ClCompile Include="InstallerSwitches.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TestCommon.cpp">
+    <ClCompile Include="ManifestLocalization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PackageManifestHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="PropertySheet.props" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="TestData\BadManifest-MissingName.yml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\GoodManifest.yml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
   </ItemGroup>
 </Project>
