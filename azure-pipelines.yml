@@ -34,8 +34,8 @@ steps:
 - task: CmdLine@2
   inputs:
     script: |
-      RepositoryLibTests.exe -s -r junit -o TEST-RepositoryLib-$(_artifact).xml
-    workingDirectory: 'src\Release\'
+      AppInstallerClientTests.exe -s -r junit -o TEST-AppInstallerClient-$(_artifact).xml
+    workingDirectory: 'src\x64\Release\AppInstallerClientTests\'
 
 - task: PublishTestResults@2
   inputs:
