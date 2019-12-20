@@ -4,7 +4,7 @@
 #include "pch.h"
 #include "InstallerSwitches.h"
 
-namespace AppInstaller::Package::Manifest
+namespace AppInstaller::Manifest
 {
     void InstallerSwitches::PopulateSwitchesFields(YAML::Node switchesNode)
     {

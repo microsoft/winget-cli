@@ -5,7 +5,7 @@
 #include "framework.h"
 #include "Manifest.h"
 
-namespace AppInstaller::Package::Manifest
+namespace AppInstaller::Manifest
 {
     void Manifest::PopulateManifestFields(const YAML::Node& rootNode)
     {
@@ -59,7 +59,7 @@ namespace AppInstaller::Package::Manifest
         }
     }
 
-    Manifest Manifest::CreatePackageManifest(const std::string& inputFile)
+    Manifest Manifest::CreatePackageManifestFromFile(const std::string& inputFile)
     {
         YAML::Node rootNode = YAML::LoadFile(inputFile);
 
@@ -69,12 +69,20 @@ namespace AppInstaller::Package::Manifest
         return manifest;
     }
 
-    Manifest Manifest::CreatePackageManifest(std::istream& inputStream)
+    Manifest Manifest::CreatePackageManifest(const std::string& input)
     {
-        YAML::Node rootNode = YAML::Load(inputStream);
-
         Manifest manifest;
-        manifest.PopulateManifestFields(rootNode);
+
+        try
+        {
+            YAML::Node rootNode = YAML::Load(input);
+            manifest.PopulateManifestFields(rootNode);
+        }
+        catch (std::exception & e)
+        {
+            // Log theinput string when read manifest failure
+            throw;
+        }
 
         return manifest;
     }

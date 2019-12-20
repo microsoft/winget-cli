@@ -4,7 +4,7 @@
 #include "pch.h"
 #include "ManifestLocalization.h"
 
-namespace AppInstaller::Package::Manifest
+namespace AppInstaller::Manifest
 {
     void ManifestLocalization::PopulateLocalizationFields(YAML::Node localizationNode)
     {

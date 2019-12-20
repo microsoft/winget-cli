@@ -6,7 +6,7 @@
 #include <optional>
 #include "InstallerSwitches.h"
 
-namespace AppInstaller::Package::Manifest
+namespace AppInstaller::Manifest
 {
     class ManifestInstaller
     {

@@ -4,7 +4,7 @@
 #include "pch.h"
 #include "ManifestInstaller.h"
 
-namespace AppInstaller::Package::Manifest
+namespace AppInstaller::Manifest
 {
     void ManifestInstaller::PopulateInstallerFields(YAML::Node installerNode)
     {

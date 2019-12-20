@@ -3,7 +3,7 @@
 
 #pragma once
 #include <string>
-namespace AppInstaller::Package::Manifest
+namespace AppInstaller::Manifest
 {
     class InstallerSwitches
     {

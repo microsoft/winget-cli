@@ -8,7 +8,7 @@
 #include "ManifestInstaller.h"
 #include "ManifestLocalization.h"
 
-namespace AppInstaller::Package::Manifest
+namespace AppInstaller::Manifest
 {
     class Manifest
     {
@@ -66,8 +66,8 @@ namespace AppInstaller::Package::Manifest
 
         void PopulateManifestFields(const YAML::Node& rootNode);
 
-        static Manifest CreatePackageManifest(const std::string& inputFile);
+        static Manifest CreatePackageManifestFromFile(const std::string& inputFile);
 
-        static Manifest CreatePackageManifest(std::istream& inputStream);
+        static Manifest CreatePackageManifest(const std::string& input);
     };
 }
