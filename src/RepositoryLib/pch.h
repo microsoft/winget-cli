@@ -6,7 +6,15 @@
 #include <windows.h>
 #include "TelemetryWrapper.h"
 
+#include <wil/result_macros.h>
+
 #include <winsqlite/winsqlite3.h>
 
 #include <winrt/Windows.Foundation.h>
 
+#include <string>
+#include <stdexcept>
+#include <system_error>
+#include <tuple>
+#include <type_traits>
+#include <utility>

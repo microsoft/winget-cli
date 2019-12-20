@@ -105,3 +105,63 @@ TEST_CASE("SQLiteWrapperFileCreateAndReopen", "[sqlitewrapper]")
         SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
     }
 }
+
+TEST_CASE("SQLiteWrapperSavepointRollback", "[sqlitewrapper]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    CreateSimpleTestTable(connection);
+
+    Savepoint savepoint = Savepoint::Create(connection, "test_savepoint");
+
+    InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+
+    savepoint.Rollback();
+
+    Statement select = Statement::Create(connection, s_selectFromSimpleTestTableSQL);
+    REQUIRE(!select.Step());
+    REQUIRE(select.GetState() == Statement::State::Completed);
+}
+
+TEST_CASE("SQLiteWrapperSavepointRollbackOnDestruct", "[sqlitewrapper]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    CreateSimpleTestTable(connection);
+
+    {
+        Savepoint savepoint = Savepoint::Create(connection, "test_savepoint");
+
+        InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+    }
+
+    Statement select = Statement::Create(connection, s_selectFromSimpleTestTableSQL);
+    REQUIRE(!select.Step());
+    REQUIRE(select.GetState() == Statement::State::Completed);
+}
+
+TEST_CASE("SQLiteWrapperSavepointCommit", "[sqlitewrapper]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    CreateSimpleTestTable(connection);
+
+    {
+        Savepoint savepoint = Savepoint::Create(connection, "test_savepoint");
+
+        InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+
+        savepoint.Commit();
+    }
+
+    SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
+}

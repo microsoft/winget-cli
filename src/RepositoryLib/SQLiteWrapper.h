@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <wil/result_macros.h>
 #include <winsqlite/winsqlite3.h>
 
 #include <string>
@@ -147,10 +148,7 @@ namespace AppInstaller::Repository::SQLite
         template <typename Value>
         Value GetColumn(int column)
         {
-            if (_state != State::HasRow)
-            {
-                throw std::out_of_range("SQLite statement does not have a row available");
-            }
+            THROW_HR_IF(E_BOUNDS, _state != State::HasRow);
             return details::ParameterSpecifics<Value>::GetColumn(_stmt, column);
         }
 
@@ -176,10 +174,7 @@ namespace AppInstaller::Repository::SQLite
         template <typename... Values, int... I>
         std::tuple<Values...> GetRowImpl(std::integer_sequence<int, I...>)
         {
-            if (_state != State::HasRow)
-            {
-                throw std::out_of_range("SQLite statement does not have a row available");
-            }
+            THROW_HR_IF(E_BOUNDS, _state != State::HasRow);
             return std::make_tuple(details::ParameterSpecifics<Values>::GetColumn(_stmt, I)...);
         }
 
