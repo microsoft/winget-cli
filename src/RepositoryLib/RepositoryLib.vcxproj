@@ -185,6 +185,7 @@
     <ClCompile Include="SQLiteWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Microsoft\README.md" />
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
   </ItemGroup>

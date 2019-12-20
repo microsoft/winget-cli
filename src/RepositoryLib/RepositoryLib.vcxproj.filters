@@ -69,5 +69,8 @@
   <ItemGroup>
     <None Include="PropertySheet.props" />
     <None Include="packages.config" />
+    <None Include="Microsoft\README.md">
+      <Filter>Microsoft</Filter>
+    </None>
   </ItemGroup>
 </Project>
