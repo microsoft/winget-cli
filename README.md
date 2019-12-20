@@ -1,3 +1,4 @@
+[![Build Status](https://dev.azure.com/ms/pkg/_apis/build/status/microsoft.appinstaller-cli?branchName=master)](https://dev.azure.com/ms/pkg/_build/latest?definitionId=308&branchName=master)
 
 # Contributing
 
