@@ -166,16 +166,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Microsoft\Schema\1_0\Interface.h" />
+    <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h" />
+    <ClInclude Include="Microsoft\Schema\MetadataTable.h" />
+    <ClInclude Include="Microsoft\Schema\Version.h" />
+    <ClInclude Include="Microsoft\SQLiteIndex.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="SQLiteWrapper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Microsoft\Schema\1_0\Interface.cpp" />
+    <ClCompile Include="Microsoft\Schema\MetadataTable.cpp" />
+    <ClCompile Include="Microsoft\Schema\Version.cpp" />
+    <ClCompile Include="Microsoft\SQLiteIndex.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SQLiteWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Microsoft\README.md" />
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
   </ItemGroup>

@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <wil/result_macros.h>
 #include <winsqlite/winsqlite3.h>
+
 #include <string>
 #include <stdexcept>
 #include <system_error>
@@ -18,11 +20,11 @@ namespace AppInstaller::Repository::SQLite
         {
             static void Bind(sqlite3_stmt*, int, T&&)
             {
-                static_assert(false, "No type specific override has been supplied.");
+                static_assert(false, "No type specific override has been supplied");
             }
             static T GetColumn(sqlite3_stmt*, int)
             {
-                static_assert(false, "No type specific override has been supplied.");
+                static_assert(false, "No type specific override has been supplied");
             }
         };
 
@@ -52,30 +54,32 @@ namespace AppInstaller::Repository::SQLite
         static const std::error_category& GetCategory() noexcept;
     };
 
-    // The disposition for opening a database connection.
-    enum class OpenDisposition : int
-    {
-        // Open existing database for reading.
-        ReadOnly = SQLITE_OPEN_READONLY,
-        // Open existing database for reading and writing.
-        ReadWrite = SQLITE_OPEN_READWRITE,
-        // Create new database for reading and writing.
-        Create = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
-    };
-
-    // Flags for opening a database connection.
-    enum class OpenFlags : int
-    {
-        // No flags specified.
-        None = 0,
-        // Indicate that the target can be a URI.
-        Uri = SQLITE_OPEN_URI,
-    };
-
     // The connection to a database.
     struct Connection
     {
+        // The disposition for opening a database connection.
+        enum class OpenDisposition : int
+        {
+            // Open existing database for reading.
+            ReadOnly = SQLITE_OPEN_READONLY,
+            // Open existing database for reading and writing.
+            ReadWrite = SQLITE_OPEN_READWRITE,
+            // Create new database for reading and writing.
+            Create = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+        };
+
+        // Flags for opening a database connection.
+        enum class OpenFlags : int
+        {
+            // No flags specified.
+            None = 0,
+            // Indicate that the target can be a URI.
+            Uri = SQLITE_OPEN_URI,
+        };
+
         static Connection Create(const std::string& target, OpenDisposition disposition, OpenFlags flags = OpenFlags::None);
+
+        Connection() = default;
 
         Connection(const Connection&) = delete;
         Connection& operator=(const Connection&) = delete;
@@ -98,11 +102,13 @@ namespace AppInstaller::Repository::SQLite
     {
         static Statement Create(Connection& connection, const std::string& sql, bool persistent = false);
 
+        Statement() = default;
+
         Statement(const Statement&) = delete;
         Statement& operator=(const Statement&) = delete;
 
-        Statement(Statement&& other) noexcept { std::swap(_stmt, other._stmt); }
-        Statement& operator=(Statement&& other) noexcept { std::swap(_stmt, other._stmt); return *this; }
+        Statement(Statement&& other) noexcept { std::swap(_stmt, other._stmt); std::swap(_state, other._state); }
+        Statement& operator=(Statement&& other) noexcept { std::swap(_stmt, other._stmt); std::swap(_state, other._state); return *this; }
 
         ~Statement();
 
@@ -135,17 +141,14 @@ namespace AppInstaller::Repository::SQLite
         // Evaluate the statement; either retrieving the next row or executing some action.
         // Returns true if there is a row of data, or false if there is none.
         // This return value is the equivalent of 'GetState() == State::HasRow' after calling Step.
-        bool Step();
+        bool Step(bool failFastOnError = false);
 
         // Gets the value of the specified column from the current row.
         // The index is 0 based.
         template <typename Value>
         Value GetColumn(int column)
         {
-            if (_state != State::HasRow)
-            {
-                throw std::out_of_range("SQLite statement does not have a row available.");
-            }
+            THROW_HR_IF(E_BOUNDS, _state != State::HasRow);
             return details::ParameterSpecifics<Value>::GetColumn(_stmt, column);
         }
 
@@ -171,14 +174,40 @@ namespace AppInstaller::Repository::SQLite
         template <typename... Values, int... I>
         std::tuple<Values...> GetRowImpl(std::integer_sequence<int, I...>)
         {
-            if (_state != State::HasRow)
-            {
-                throw std::out_of_range("SQLite statement does not have a row available.");
-            }
+            THROW_HR_IF(E_BOUNDS, _state != State::HasRow);
             return std::make_tuple(details::ParameterSpecifics<Values>::GetColumn(_stmt, I)...);
         }
 
         sqlite3_stmt* _stmt = nullptr;
         State _state = State::Prepared;
+    };
+
+    // A SQLite savepoint.
+    struct Savepoint
+    {
+        // Creates a savepoint, beginning it.
+        static Savepoint Create(Connection& connection, std::string&& name);
+
+        Savepoint(const Savepoint&) = delete;
+        Savepoint& operator=(const Savepoint&) = delete;
+
+        Savepoint(Savepoint&&) = default;
+        Savepoint& operator=(Savepoint&&) = default;
+
+        ~Savepoint();
+
+        // Rolls back the Savepoint.
+        void Rollback();
+
+        // Commits the Savepoint.
+        void Commit();
+
+    private:
+        Savepoint(Connection& connection, std::string&& name);
+
+        std::string _name;
+        bool _inProgress = true;
+        Statement _rollback;
+        Statement _commit;
     };
 }

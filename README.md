@@ -1,3 +1,4 @@
+[![Build Status](https://dev.azure.com/ms/pkg/_apis/build/status/microsoft.appinstaller-cli?branchName=master)](https://dev.azure.com/ms/pkg/_build/latest?definitionId=308&branchName=master)
 
 # Contributing
 
@@ -14,7 +15,7 @@ For more information see the [Code of Conduct FAQ](https://opensource.microsoft.
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
 
-Data/Telemetry
+# Data/Telemetry
 
-This project collects usage data and sends it to Microsoft to help improve our products and services. See the privacy statement for more details.
+This project collects usage data and sends it to Microsoft to help improve our products and services. See the [privacy statement](privacy.md) for more details.
 

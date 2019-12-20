@@ -3,6 +3,8 @@
 #include "pch.h"
 #include "SQLiteWrapper.h"
 
+#include <wil/result_macros.h>
+
 #define THROW_SQLITE(_error_) throw SQLiteException(_error_)
 
 #define THROW_IF_SQLITE_FAILED(_statement_) \
@@ -90,7 +92,7 @@ namespace AppInstaller::Repository::SQLite
         sqlite3_finalize(_stmt);
     }
 
-    bool Statement::Step()
+    bool Statement::Step(bool failFastOnError)
     {
         int result = sqlite3_step(_stmt);
 
@@ -107,7 +109,14 @@ namespace AppInstaller::Repository::SQLite
         else
         {
             _state = State::Error;
-            THROW_SQLITE(result);
+            if (failFastOnError)
+            {
+                FAIL_FAST_MSG("Critical SQL statement failed");
+            }
+            else
+            {
+                THROW_SQLITE(result);
+            }
         }
     }
 
@@ -116,5 +125,45 @@ namespace AppInstaller::Repository::SQLite
         // Ignore return value from reset, as if it is an error, it was the error from the last call to step.
         sqlite3_reset(_stmt);
         _state = State::Prepared;
+    }
+
+    Savepoint::Savepoint(Connection& connection, std::string&& name) :
+        _name(std::move(name))
+    {
+        using namespace std::string_literals;
+
+        Statement begin = Statement::Create(connection, "SAVEPOINT ["s + name + "]");
+        _rollback = Statement::Create(connection, "ROLLBACK TO ["s + name + "]", true);
+        _commit = Statement::Create(connection, "RELEASE ["s + name + "]", true);
+
+        begin.Step();
+    }
+
+    Savepoint Savepoint::Create(Connection& connection, std::string&& name)
+    {
+        return { connection, std::move(name) };
+    }
+
+    Savepoint::~Savepoint()
+    {
+        Rollback();
+    }
+
+    void Savepoint::Rollback()
+    {
+        if (_inProgress)
+        {
+            _rollback.Step(true);
+            _inProgress = false;
+        }
+    }
+
+    void Savepoint::Commit()
+    {
+        if (_inProgress)
+        {
+            _commit.Step(true);
+            _inProgress = false;
+        }
     }
 }

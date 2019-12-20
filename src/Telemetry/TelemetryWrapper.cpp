@@ -30,7 +30,7 @@ namespace AppInstaller::CLI
         {
             TraceLoggingWrite(g_hTelemetryProvider,
                 PKGMGR_CLIENT_EVENT_INFO,
-                TraceLoggingCountedWideString(message.data(), message.size(), PKGMGR_CLIENT_MESSAGE),
+                TraceLoggingCountedWideString(message.data(), static_cast<ULONG>(message.size()), PKGMGR_CLIENT_MESSAGE),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
         }

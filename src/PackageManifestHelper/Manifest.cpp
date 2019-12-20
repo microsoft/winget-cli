@@ -78,9 +78,9 @@ namespace AppInstaller::Manifest
             YAML::Node rootNode = YAML::Load(input);
             manifest.PopulateManifestFields(rootNode);
         }
-        catch (std::exception & e)
+        catch (std::exception&)
         {
-            // Log theinput string when read manifest failure
+            // TODO: Log theinput string when read manifest failure
             throw;
         }
 

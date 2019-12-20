@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "TestCommon.h"
 #include <SQLiteWrapper.h>
 
 using namespace AppInstaller::Repository::SQLite;
@@ -68,7 +69,7 @@ void SelectFromSimpleTestTableOnlyOneRow(Connection& connection, int firstVal, c
 
 TEST_CASE("SQLiteWrapperMemoryCreate", "[sqlitewrapper]")
 {
-    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, OpenDisposition::Create);
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
 
     CreateSimpleTestTable(connection);
 
@@ -82,23 +83,15 @@ TEST_CASE("SQLiteWrapperMemoryCreate", "[sqlitewrapper]")
 
 TEST_CASE("SQLiteWrapperFileCreateAndReopen", "[sqlitewrapper]")
 {
-    char tempPath[MAX_PATH]{};
-    REQUIRE(GetTempPathA(MAX_PATH, tempPath) != 0);
-
-    srand(static_cast<unsigned int>(time(NULL)));
-    std::stringstream tempFileName;
-    tempFileName << tempPath << "\\repolibtest_tempdb" << rand() << ".db";
-
-    INFO("Using temporary file named: " << tempFileName.str());
-
-    DeleteFileA(tempFileName.str().c_str());
+    TestCommon::TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    INFO("Using temporary file named: " << tempFile.GetPath());
 
     int firstVal = 1;
     std::string secondVal = "test";
 
     // Create the DB and some data
     {
-        Connection connection = Connection::Create(tempFileName.str(), OpenDisposition::Create);
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::Create);
 
         CreateSimpleTestTable(connection);
 
@@ -107,8 +100,68 @@ TEST_CASE("SQLiteWrapperFileCreateAndReopen", "[sqlitewrapper]")
 
     // Reopen the DB and read data
     {
-        Connection connection = Connection::Create(tempFileName.str(), OpenDisposition::ReadWrite);
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
 
         SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
     }
+}
+
+TEST_CASE("SQLiteWrapperSavepointRollback", "[sqlitewrapper]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    CreateSimpleTestTable(connection);
+
+    Savepoint savepoint = Savepoint::Create(connection, "test_savepoint");
+
+    InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+
+    savepoint.Rollback();
+
+    Statement select = Statement::Create(connection, s_selectFromSimpleTestTableSQL);
+    REQUIRE(!select.Step());
+    REQUIRE(select.GetState() == Statement::State::Completed);
+}
+
+TEST_CASE("SQLiteWrapperSavepointRollbackOnDestruct", "[sqlitewrapper]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    CreateSimpleTestTable(connection);
+
+    {
+        Savepoint savepoint = Savepoint::Create(connection, "test_savepoint");
+
+        InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+    }
+
+    Statement select = Statement::Create(connection, s_selectFromSimpleTestTableSQL);
+    REQUIRE(!select.Step());
+    REQUIRE(select.GetState() == Statement::State::Completed);
+}
+
+TEST_CASE("SQLiteWrapperSavepointCommit", "[sqlitewrapper]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    CreateSimpleTestTable(connection);
+
+    {
+        Savepoint savepoint = Savepoint::Create(connection, "test_savepoint");
+
+        InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+
+        savepoint.Commit();
+    }
+
+    SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
 }
