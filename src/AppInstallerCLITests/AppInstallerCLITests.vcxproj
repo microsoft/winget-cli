@@ -108,7 +108,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(MSBuildThisFileDirectory)..\RepositoryLib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)..\PackageManifestHelper;$(MSBuildThisFileDirectory)..\YamlCppLib\yaml-cpp\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\YamlCppLib\yaml-cpp\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -119,7 +119,7 @@
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(MSBuildThisFileDirectory)..\RepositoryLib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)..\PackageManifestHelper;$(MSBuildThisFileDirectory)..\YamlCppLib\yaml-cpp\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\YamlCppLib\yaml-cpp\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">winsqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -131,8 +131,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(MSBuildThisFileDirectory)..\RepositoryLib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)..\PackageManifestHelper;$(MSBuildThisFileDirectory)..\YamlCppLib\yaml-cpp\include</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(MSBuildThisFileDirectory)..\RepositoryLib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)..\PackageManifestHelper;$(MSBuildThisFileDirectory)..\YamlCppLib\yaml-cpp\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\YamlCppLib\yaml-cpp\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\YamlCppLib\yaml-cpp\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,7 +148,6 @@
     <ClInclude Include="TestCommon.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="PackageManifestHelper.cpp" />
     <ClCompile Include="main.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -161,6 +160,7 @@
     <ClCompile Include="SQLiteIndex.cpp" />
     <ClCompile Include="SQLiteWrapper.cpp" />
     <ClCompile Include="TestCommon.cpp" />
+    <ClCompile Include="YamlManifest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="TestData\GoodManifest.yml">
@@ -173,9 +173,6 @@
     <None Include="PropertySheet.props" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PackageManifestHelper\PackageManifestHelper.vcxproj">
-      <Project>{f8f75341-9455-4d5b-824a-47a7818ee864}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\AppInstallerRepositoryCore\AppInstallerRepositoryCore.vcxproj">
       <Project>{5eb88068-5fb9-4e69-89b2-72dbc5e068f9}</Project>
     </ProjectReference>

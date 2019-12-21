@@ -4,6 +4,9 @@
 
 #define NOMINMAX
 #include <windows.h>
+
+#include "yaml-cpp/yaml.h"
+
 #include "TelemetryWrapper.h"
 
 #include <wil/result_macros.h>

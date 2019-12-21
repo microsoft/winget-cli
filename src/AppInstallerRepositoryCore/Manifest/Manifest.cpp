@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 #include "pch.h"
-#include "framework.h"
 #include "Manifest.h"
 
 namespace AppInstaller::Manifest

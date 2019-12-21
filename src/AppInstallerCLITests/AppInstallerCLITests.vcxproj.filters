@@ -41,7 +41,7 @@
     <ClCompile Include="TestCommon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PackageManifestHelper.cpp">
+    <ClCompile Include="YamlManifest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
