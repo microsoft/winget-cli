@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "AppInstallerClientPackage", "AppInstallerClientPackage\AppInstallerClientPackage.wapproj", "{6AA3791A-0713-4548-A357-87A323E7AC3A}"
+Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "AppInstallerCLIPackage", "AppInstallerCLIPackage\AppInstallerCLIPackage.wapproj", "{6AA3791A-0713-4548-A357-87A323E7AC3A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppInstallerCLI", "AppInstallerCLI\AppInstallerCLI.vcxproj", "{5B6F90DF-FD19-4BAE-83D9-24DAD128E777}"
 EndProject
@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{60618C
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Telemetry", "Telemetry\Telemetry.vcxitems", "{4B988559-DDBD-4456-9300-0C3AAD12C466}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RepositoryLib", "RepositoryLib\RepositoryLib.vcxproj", "{5EB88068-5FB9-4E69-89B2-72DBC5E068F9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppInstallerRepositoryCore", "AppInstallerRepositoryCore\AppInstallerRepositoryCore.vcxproj", "{5EB88068-5FB9-4E69-89B2-72DBC5E068F9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{8D53D749-D51C-46F8-A162-9371AAA6C2E7}"
 	ProjectSection(SolutionItems) = preProject
@@ -23,7 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{8D53
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "catch2", "catch2\catch2.vcxitems", "{5295E21E-9868-4DE2-A177-FBB97B36579B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppInstallerClientTests", "AppInstallerClientTests\AppInstallerClientTests.vcxproj", "{89B1AAB4-2BBC-4B65-9ED7-A01D5CF88230}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppInstallerCLITests", "AppInstallerCLITests\AppInstallerCLITests.vcxproj", "{89B1AAB4-2BBC-4B65-9ED7-A01D5CF88230}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YamlCppLib", "YamlCppLib\YamlCppLib.vcxproj", "{8BB94BB8-374F-4294-BCA1-C7811514A6B7}"
 EndProject
