@@ -8,9 +8,9 @@
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities" 
   xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10" 
   IgnorableNamespaces="uap uap5 uap8 wincap rescap desktop">
-  <Identity Name="AppInstallerClient" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" Version="0.0.0.2" />
+  <Identity Name="AppInstallerCLI" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" Version="0.0.0.2" />
   <Properties>
-    <DisplayName>App Installer Client</DisplayName>
+    <DisplayName>App Installer CLI</DisplayName>
     <PublisherDisplayName>Microsoft Corporation</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
