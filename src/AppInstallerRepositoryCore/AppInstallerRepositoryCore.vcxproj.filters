@@ -22,6 +22,9 @@
     <Filter Include="Microsoft\Schema\1_0">
       <UniqueIdentifier>{cff561cd-211b-4cab-87f5-39359eef1e8d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Manifest">
+      <UniqueIdentifier>{052eaac1-ec6e-4879-8388-aff5a30401f0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -45,6 +48,18 @@
     <ClInclude Include="Microsoft\Schema\1_0\Interface.h">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClInclude>
+    <ClInclude Include="Manifest\InstallerSwitches.h">
+      <Filter>Manifest</Filter>
+    </ClInclude>
+    <ClInclude Include="Manifest\Manifest.h">
+      <Filter>Manifest</Filter>
+    </ClInclude>
+    <ClInclude Include="Manifest\ManifestInstaller.h">
+      <Filter>Manifest</Filter>
+    </ClInclude>
+    <ClInclude Include="Manifest\ManifestLocalization.h">
+      <Filter>Manifest</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -64,6 +79,18 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_0\Interface.cpp">
       <Filter>Microsoft\Schema\1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\InstallerSwitches.cpp">
+      <Filter>Manifest</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\Manifest.cpp">
+      <Filter>Manifest</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\ManifestInstaller.cpp">
+      <Filter>Manifest</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\ManifestLocalization.cpp">
+      <Filter>Manifest</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

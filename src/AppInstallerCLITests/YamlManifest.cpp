@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Manifest.h"
+#include "Manifest/Manifest.h"
 
 using namespace AppInstaller::Manifest;
 

@@ -167,10 +167,7 @@
       <Project>{1c6e0108-2860-4b17-9f7e-fa5c6c1f3d3d}</Project>
       <Private>false</Private>
     </ProjectReference>
-    <ProjectReference Include="..\PackageManifestHelper\PackageManifestHelper.vcxproj">
-      <Project>{f8f75341-9455-4d5b-824a-47a7818ee864}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\RepositoryLib\RepositoryLib.vcxproj">
+    <ProjectReference Include="..\AppInstallerRepositoryCore\AppInstallerRepositoryCore.vcxproj">
       <Project>{5eb88068-5fb9-4e69-89b2-72dbc5e068f9}</Project>
     </ProjectReference>
     <ProjectReference Include="..\YamlCppLib\YamlCppLib.vcxproj">

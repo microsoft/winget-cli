@@ -12,7 +12,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  solution: 'src/AppInstallerClient.sln'
+  solution: 'src/AppInstallerCLI.sln'
   buildPlatform: 'x86|x64|ARM'
   buildConfiguration: 'Release'
   appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
@@ -34,8 +34,8 @@ steps:
 - task: CmdLine@2
   inputs:
     script: |
-      AppInstallerClientTests.exe -s -r junit -o TEST-AppInstallerClient-$(_artifact).xml
-    workingDirectory: 'src\x64\Release\AppInstallerClientTests\'
+      AppInstallerCLITests.exe -s -r junit -o TEST-AppInstallerCLI-$(_artifact).xml
+    workingDirectory: 'src\x64\Release\AppInstallerCLITests\'
 
 - task: PublishTestResults@2
   inputs:
