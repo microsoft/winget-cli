@@ -7,8 +7,6 @@
 
 #include "yaml-cpp/yaml.h"
 
-#include "TelemetryWrapper.h"
-
 #include <wil/result_macros.h>
 
 #include <winsqlite/winsqlite3.h>

@@ -36,7 +36,10 @@
     <ClInclude Include="Telemetry\WinEventLogLevels.h">
       <Filter>Telemetry - Do Not Modify</Filter>
     </ClInclude>
-    <ClInclude Include="Public\TelemetryWrapper.h">
+    <ClInclude Include="Public\AppInstallerTelemetry.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\AppInstallerLogging.h">
       <Filter>Public</Filter>
     </ClInclude>
   </ItemGroup>
@@ -47,7 +50,10 @@
     <ClCompile Include="Telemetry\TraceLogging.cpp">
       <Filter>Telemetry - Do Not Modify</Filter>
     </ClCompile>
-    <ClCompile Include="TelemetryWrapper.cpp">
+    <ClCompile Include="AppInstallerTelemetry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AppInstallerLogging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

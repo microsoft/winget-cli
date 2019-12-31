@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Public/TelemetryWrapper.h"
+#include "Public/AppInstallerTelemetry.h"
 
 #define PKGMGR_CLIENT_EVENT_INFO "Information"
 #define PKGMGR_CLIENT_MESSAGE "Message"
 
-namespace AppInstaller::CLI
+namespace AppInstaller::Logging
 {
     TelemetryTraceLogger::TelemetryTraceLogger()
     {

@@ -3,7 +3,7 @@
 #pragma once
 
 #include <windows.h>
-#include "TelemetryWrapper.h"
+#include "AppInstallerTelemetry.h"
 
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>

@@ -4,5 +4,5 @@
 
 int wmain(int argc, wchar_t const** argv)
 {
-    return CLICoreMain(argc, argv);
+    return AppInstaller::CLI::CoreMain(argc, argv);
 }
