@@ -3,9 +3,23 @@
 #pragma once
 
 #include <memory>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <vector>
+
+#define AICLI_LOG(_channel_,_level_,_outstream_) \
+    do { \
+        auto _aicli_log_channel = AppInstaller::Logging::Channel:: ## _channel_; \
+        auto _aicli_log_level = AppInstaller::Logging::Level:: ## _level_; \
+        auto& _aicli_log_log = AppInstaller::Logging::Log(); \
+        if (_aicli_log_log.IsEnabled(_aicli_log_channel, _aicli_log_level)) \
+        { \
+            std::stringstream _aicli_log_strstr; \
+            _aicli_log_strstr _outstream_; \
+            _aicli_log_log.Write(_aicli_log_channel, _aicli_log_level, _aicli_log_strstr.str()); \
+        } \
+    } while (0, 0)
 
 namespace AppInstaller::Logging
 {
@@ -38,7 +52,7 @@ namespace AppInstaller::Logging
         virtual std::string GetName() const = 0;
 
         // Informs the logger of the given log.
-        virtual void Write(Channel channel, Level level, std::wstring_view message) = 0;
+        virtual void Write(Channel channel, Level level, std::string_view message) = 0;
     };
 
     // This type contains the set of loggers that diagnostic logging will be sent to.
@@ -46,6 +60,14 @@ namespace AppInstaller::Logging
     // desired level, as nothing is enabled by default.
     struct DiagnosticLogger
     {
+        ~DiagnosticLogger() = default;
+
+        DiagnosticLogger(const DiagnosticLogger&) = delete;
+        DiagnosticLogger& operator=(const DiagnosticLogger&) = delete;
+
+        DiagnosticLogger(DiagnosticLogger&&) = delete;
+        DiagnosticLogger& operator=(DiagnosticLogger&&) = delete;
+
         // Gets the singleton instance of this type.
         static DiagnosticLogger& GetInstance();
 
@@ -70,13 +92,14 @@ namespace AppInstaller::Logging
         bool IsEnabled(Channel channel, Level level) const;
 
         // Writes a log line, if the given channel and level are enabled.
-        void Write(Channel channel, Level level, std::wstring_view message);
+        void Write(Channel channel, Level level, std::string_view message);
 
     private:
         DiagnosticLogger() = default;
-        ~DiagnosticLogger() = default;
 
-        std::vector<std::unique_ptr<ILogger>> _loggers;
+        std::vector<std::unique_ptr<ILogger>> m_loggers;
+        uint64_t m_enabledChannels = 0;
+        Level m_enabledLevel = Level::Info;
     };
 
     // Helper to make the call sites look clean.

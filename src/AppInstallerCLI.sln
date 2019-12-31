@@ -25,7 +25,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppInstallerCLITests", "App
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YamlCppLib", "YamlCppLib\YamlCppLib.vcxproj", "{8BB94BB8-374F-4294-BCA1-C7811514A6B7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppInstallerLoggingCore", "AppInstallerLoggingCore\AppInstallerLoggingCore.vcxproj", "{5890D6ED-7C3B-40F3-B436-B54F640D9E65}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppInstallerCommonCore", "AppInstallerCommonCore\AppInstallerCommonCore.vcxproj", "{5890D6ED-7C3B-40F3-B436-B54F640D9E65}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

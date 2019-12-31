@@ -37,7 +37,7 @@ namespace AppInstaller::Repository::Microsoft
         static SQLiteIndex Open(const std::string& filePath, OpenDisposition disposition);
 
         // Gets the schema version of the index.
-        Schema::Version GetVersion() const { return _version; }
+        Schema::Version GetVersion() const { return m_version; }
 
     private:
         // Constructor used to open an existing index.
@@ -46,8 +46,8 @@ namespace AppInstaller::Repository::Microsoft
         // Constructor used to create a new index.
         SQLiteIndex(const std::string& target, Schema::Version version);
 
-        SQLite::Connection _dbconn;
-        Schema::Version _version;
-        std::unique_ptr<Schema::ISQLiteIndex> _interface;
+        SQLite::Connection m_dbconn;
+        Schema::Version m_version;
+        std::unique_ptr<Schema::ISQLiteIndex> m_interface;
     };
 }

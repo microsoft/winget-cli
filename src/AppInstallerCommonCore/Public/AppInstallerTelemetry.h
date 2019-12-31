@@ -12,6 +12,14 @@ namespace AppInstaller::Logging
     // this should not become a burden.
     struct TelemetryTraceLogger
     {
+        ~TelemetryTraceLogger();
+
+        TelemetryTraceLogger(const TelemetryTraceLogger&) = delete;
+        TelemetryTraceLogger& operator=(const TelemetryTraceLogger&) = delete;
+
+        TelemetryTraceLogger(TelemetryTraceLogger&&) = delete;
+        TelemetryTraceLogger& operator=(TelemetryTraceLogger&&) = delete;
+
         // Gets the singleton instance of this type.
         static TelemetryTraceLogger& GetInstance();
 
@@ -20,7 +28,6 @@ namespace AppInstaller::Logging
 
     private:
         TelemetryTraceLogger();
-        ~TelemetryTraceLogger();
     };
 
     // Helper to make the call sites look clean.

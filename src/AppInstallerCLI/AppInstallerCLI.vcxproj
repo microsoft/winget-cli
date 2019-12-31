@@ -167,7 +167,7 @@
       <Project>{1c6e0108-2860-4b17-9f7e-fa5c6c1f3d3d}</Project>
       <Private>false</Private>
     </ProjectReference>
-    <ProjectReference Include="..\AppInstallerLoggingCore\AppInstallerLoggingCore.vcxproj">
+    <ProjectReference Include="..\AppInstallerCommonCore\AppInstallerCommonCore.vcxproj">
       <Project>{5890d6ed-7c3b-40f3-b436-b54f640d9e65}</Project>
     </ProjectReference>
     <ProjectReference Include="..\AppInstallerRepositoryCore\AppInstallerRepositoryCore.vcxproj">

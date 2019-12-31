@@ -4,6 +4,6 @@
 
 namespace AppInstaller::CLI
 {
-    using StringLiteralPtr = wchar_t const* const;
-    using StringLiteralPtrRef = wchar_t const*;
+    using StringLiteralPtr = char const* const;
+    using StringLiteralPtrRef = char const*;
 }

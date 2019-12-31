@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Manifest">
-      <UniqueIdentifier>{052eaac1-ec6e-4879-8388-aff5a30401f0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Telemetry - Do Not Modify">
       <UniqueIdentifier>{552a58eb-8d07-41b2-87b5-3e71b9fb3cfd}</UniqueIdentifier>
     </Filter>
@@ -42,6 +39,9 @@
     <ClInclude Include="Public\AppInstallerLogging.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="Public\AppInstallerStrings.h">
+      <Filter>Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -54,6 +54,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AppInstallerLogging.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AppInstallerStrings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

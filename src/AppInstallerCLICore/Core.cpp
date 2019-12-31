@@ -11,13 +11,32 @@ using namespace AppInstaller::CLI;
 namespace AppInstaller::CLI
 {
 
-    int CLICoreMain(int argc, wchar_t const** argv) try
+    int CoreMain(int argc, wchar_t const** argv) try
     {
         init_apartment();
-        Logging::Telemetry().LogMessage(L"Launched PackageManager Client.");
+
+        // Enable logging (all for now)
+        Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().SetLevel(Logging::Level::Info);
+
+        // Convert incoming wide char args to UTF8
+        std::vector<std::string> utf8Args;
+        for (int i = 1; i < argc; ++i)
+        {
+            utf8Args.emplace_back(Utility::ConvertToUTF8(argv[i]));
+        }
+
+        AICLI_LOG(CLI, Info, << "AppInstaller CLI invoked with arguments:" << [&]() {
+                std::stringstream strstr;
+                for (const auto& arg : utf8Args)
+                {
+                    strstr << " '" << arg << '\'';
+                }
+                return strstr.str();
+            }());
 
         RootCommand root;
-        Invocation invocation{ argc, argv };
+        Invocation invocation{ std::move(utf8Args) };
 
         // The root command is our fallback in the event of very bad or very little input
         Command* commandToExecute = &root;
@@ -36,13 +55,13 @@ namespace AppInstaller::CLI
         // Exceptions specific to parsing the arguments of a command
         catch (const CommandException & ce)
         {
-            commandToExecute->OutputHelp(std::wcout, &ce);
+            commandToExecute->OutputHelp(std::cout, &ce);
             return CLICORE_ERROR_INVALID_CL_ARGUMENTS;
         }
 
         try
         {
-            commandToExecute->Execute(invocation, std::wcout);
+            commandToExecute->Execute(invocation, std::cout);
         }
         // Exceptions that may occur in the process of executing an arbitrary command
         catch (const winrt::hresult_error&)

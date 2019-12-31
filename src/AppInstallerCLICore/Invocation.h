@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <map>
+#include <vector>
 
 #include "Common.h"
 
@@ -9,40 +10,41 @@ namespace AppInstaller::CLI
 {
     struct Invocation
     {
-        using ArgString = wchar_t const*;
+        using ArgString = char const*;
 
-        Invocation(int argc, ArgString* argv) : m_argc(argc), m_argv(argv) {}
+        Invocation(std::vector<std::string>&& args) : m_args(std::move(args)) {}
 
         struct iterator
         {
-            iterator(int arg, ArgString* argv) : m_arg(arg), m_argv(argv) {}
+            iterator(size_t arg, std::vector<std::string>& args) : m_arg(arg), m_args(args) {}
 
             iterator(const iterator&) = default;
             iterator& operator=(const iterator&) = default;
 
-            iterator operator++() { return { ++m_arg, m_argv }; }
-            iterator operator++(int) { return { m_arg++, m_argv }; }
-            iterator operator--() { return { --m_arg, m_argv }; }
-            iterator operator--(int) { return { m_arg--, m_argv }; }
+            iterator operator++() { return { ++m_arg, m_args }; }
+            iterator operator++(int) { return { m_arg++, m_args }; }
+            iterator operator--() { return { --m_arg, m_args }; }
+            iterator operator--(int) { return { m_arg--, m_args }; }
 
             bool operator==(const iterator& other) { return m_arg == other.m_arg; }
             bool operator!=(const iterator& other) { return m_arg != other.m_arg; }
 
-            ArgString operator*() const { return m_argv[m_arg]; }
+            const std::string& operator*() const { return m_args[m_arg]; }
+            const std::string* operator->() const { return &(m_args[m_arg]); }
 
-            int index() const { return m_arg; }
+            size_t index() const { return m_arg; }
 
         private:
-            int m_arg;
-            ArgString* m_argv;
+            size_t m_arg;
+            std::vector<std::string>& m_args;
         };
 
-        iterator begin() { return { m_currentFirstArg, m_argv }; }
-        iterator end() { return { m_argc, m_argv }; }
+        iterator begin() { return { m_currentFirstArg, m_args }; }
+        iterator end() { return { m_args.size(), m_args }; }
         void consume(const iterator& i) { m_currentFirstArg = i.index() + 1; }
 
         bool Contains(StringLiteralPtrRef name) const { return (m_parsedArgs.count(name) != 0); }
-        const std::vector<std::wstring>* GetArgs(StringLiteralPtrRef name) const
+        const std::vector<std::string>* GetArgs(StringLiteralPtrRef name) const
         {
             auto itr = m_parsedArgs.find(name);
             return (itr == m_parsedArgs.end() ? nullptr : &(itr->second));
@@ -54,13 +56,12 @@ namespace AppInstaller::CLI
         }
 
         bool AddArg(StringLiteralPtrRef name) { return m_parsedArgs[name].empty(); }
-        void AddArg(StringLiteralPtrRef name, std::wstring value) { m_parsedArgs[name].emplace_back(std::move(value)); }
+        void AddArg(StringLiteralPtrRef name, std::string value) { m_parsedArgs[name].emplace_back(std::move(value)); }
 
     private:
-        int m_argc;
-        ArgString* m_argv;
-        int m_currentFirstArg = 1;
+        std::vector<std::string> m_args;
+        size_t m_currentFirstArg = 0;
 
-        std::map<std::wstring, std::vector<std::wstring>> m_parsedArgs;
+        std::map<std::string, std::vector<std::string>> m_parsedArgs;
     };
 }

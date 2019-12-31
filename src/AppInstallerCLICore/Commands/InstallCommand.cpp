@@ -9,19 +9,19 @@ namespace AppInstaller::CLI
     std::vector<Argument> InstallCommand::GetArguments() const
     {
         return {
-            Argument{ L"application", LOCME(L"The name of the application to install"), ArgumentType::Positional, true },
+            Argument{ "application", LOCME("The name of the application to install"), ArgumentType::Positional, true },
         };
     }
 
-    std::wstring InstallCommand::ShortDescription() const
+    std::string InstallCommand::ShortDescription() const
     {
-        return LOCME(L"Installs the given application");
+        return LOCME("Installs the given application");
     }
 
-    std::vector<std::wstring> InstallCommand::GetLongDescription() const
+    std::vector<std::string> InstallCommand::GetLongDescription() const
     {
         return {
-            LOCME(L"Installs the given application"),
+            LOCME("Installs the given application"),
         };
     }
 }

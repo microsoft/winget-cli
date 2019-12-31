@@ -59,27 +59,27 @@ namespace AppInstaller::Repository::SQLite
     Connection::Connection(const std::string& target, OpenDisposition disposition, OpenFlags flags)
     {
         int resultingFlags = static_cast<int>(disposition) | static_cast<int>(flags);
-        THROW_IF_SQLITE_FAILED(sqlite3_open_v2(target.c_str(), &_dbconn, resultingFlags, nullptr));
+        THROW_IF_SQLITE_FAILED(sqlite3_open_v2(target.c_str(), &m_dbconn, resultingFlags, nullptr));
     }
 
     Connection Connection::Create(const std::string& target, OpenDisposition disposition, OpenFlags flags)
     {
         Connection result{ target, disposition, flags };
         
-        THROW_IF_SQLITE_FAILED(sqlite3_extended_result_codes(result._dbconn, 1));
+        THROW_IF_SQLITE_FAILED(sqlite3_extended_result_codes(result.m_dbconn, 1));
 
         return result;
     }
 
     Connection::~Connection()
     {
-        sqlite3_close_v2(_dbconn);
+        sqlite3_close_v2(m_dbconn);
     }
 
     Statement::Statement(Connection& connection, const std::string& sql, bool persistent)
     {
         // SQL string size should include the null terminator (https://www.sqlite.org/c3ref/prepare.html)
-        THROW_IF_SQLITE_FAILED(sqlite3_prepare_v3(connection, sql.c_str(), static_cast<int>(sql.size() + 1), (persistent ? SQLITE_PREPARE_PERSISTENT : 0), &_stmt, nullptr));
+        THROW_IF_SQLITE_FAILED(sqlite3_prepare_v3(connection, sql.c_str(), static_cast<int>(sql.size() + 1), (persistent ? SQLITE_PREPARE_PERSISTENT : 0), &m_stmt, nullptr));
     }
 
     Statement Statement::Create(Connection& connection, const std::string& sql, bool persistent)
@@ -89,26 +89,26 @@ namespace AppInstaller::Repository::SQLite
 
     Statement::~Statement()
     {
-        sqlite3_finalize(_stmt);
+        sqlite3_finalize(m_stmt);
     }
 
     bool Statement::Step(bool failFastOnError)
     {
-        int result = sqlite3_step(_stmt);
+        int result = sqlite3_step(m_stmt);
 
         if (result == SQLITE_ROW)
         {
-            _state = State::HasRow;
+            m_state = State::HasRow;
             return true;
         }
         else if (result == SQLITE_DONE)
         {
-            _state = State::Completed;
+            m_state = State::Completed;
             return false;
         }
         else
         {
-            _state = State::Error;
+            m_state = State::Error;
             if (failFastOnError)
             {
                 FAIL_FAST_MSG("Critical SQL statement failed");
@@ -123,18 +123,18 @@ namespace AppInstaller::Repository::SQLite
     void Statement::Reset()
     {
         // Ignore return value from reset, as if it is an error, it was the error from the last call to step.
-        sqlite3_reset(_stmt);
-        _state = State::Prepared;
+        sqlite3_reset(m_stmt);
+        m_state = State::Prepared;
     }
 
     Savepoint::Savepoint(Connection& connection, std::string&& name) :
-        _name(std::move(name))
+        m_name(std::move(name))
     {
         using namespace std::string_literals;
 
         Statement begin = Statement::Create(connection, "SAVEPOINT ["s + name + "]");
-        _rollback = Statement::Create(connection, "ROLLBACK TO ["s + name + "]", true);
-        _commit = Statement::Create(connection, "RELEASE ["s + name + "]", true);
+        m_rollback = Statement::Create(connection, "ROLLBACK TO ["s + name + "]", true);
+        m_commit = Statement::Create(connection, "RELEASE ["s + name + "]", true);
 
         begin.Step();
     }
@@ -151,19 +151,19 @@ namespace AppInstaller::Repository::SQLite
 
     void Savepoint::Rollback()
     {
-        if (_inProgress)
+        if (m_inProgress)
         {
-            _rollback.Step(true);
-            _inProgress = false;
+            m_rollback.Step(true);
+            m_inProgress = false;
         }
     }
 
     void Savepoint::Commit()
     {
-        if (_inProgress)
+        if (m_inProgress)
         {
-            _commit.Step(true);
-            _inProgress = false;
+            m_commit.Step(true);
+            m_inProgress = false;
         }
     }
 }

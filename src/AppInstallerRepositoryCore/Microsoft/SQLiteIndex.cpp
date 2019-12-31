@@ -11,11 +11,11 @@ namespace AppInstaller::Repository::Microsoft
     {
         SQLiteIndex result{ filePath, version };
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result._dbconn, "sqliteindex_createnew");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "sqliteindex_createnew");
 
-        Schema::MetadataTable::Create(result._dbconn);
+        Schema::MetadataTable::Create(result.m_dbconn);
         // Use calculated version, as incoming version could be 'latest'
-        result._version.SetSchemaVersion(result._dbconn);
+        result.m_version.SetSchemaVersion(result.m_dbconn);
 
         savepoint.Commit();
 
@@ -83,16 +83,16 @@ namespace AppInstaller::Repository::Microsoft
     }
 
     SQLiteIndex::SQLiteIndex(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags) :
-        _dbconn(SQLite::Connection::Create(target, disposition, flags))
+        m_dbconn(SQLite::Connection::Create(target, disposition, flags))
     {
-        _version = Schema::Version::GetSchemaVersion(_dbconn);
-        _interface = _version.CreateISQLiteIndex();
+        m_version = Schema::Version::GetSchemaVersion(m_dbconn);
+        m_interface = m_version.CreateISQLiteIndex();
     }
 
     SQLiteIndex::SQLiteIndex(const std::string& target, Schema::Version version) :
-        _dbconn(SQLite::Connection::Create(target, SQLite::Connection::OpenDisposition::Create))
+        m_dbconn(SQLite::Connection::Create(target, SQLite::Connection::OpenDisposition::Create))
     {
-        _interface = version.CreateISQLiteIndex();
-        _version = _interface->GetVersion();
+        m_interface = version.CreateISQLiteIndex();
+        m_version = m_interface->GetVersion();
     }
 }
