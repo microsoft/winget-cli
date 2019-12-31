@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 
-#include "TraceLogging.h"
-#include <xstring>
+#include <string_view>
 
 namespace AppInstaller::CLI
 {
@@ -11,7 +10,7 @@ namespace AppInstaller::CLI
     {
     public:
         static TelemetryTraceLogger& GetInstance();
-        virtual void LogMessage(std::wstring_view message);
+        void LogMessage(std::wstring_view message);
 
     private:
         TelemetryTraceLogger();
