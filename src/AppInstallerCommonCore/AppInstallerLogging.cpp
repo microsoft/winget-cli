@@ -3,6 +3,8 @@
 #include "pch.h"
 #include "Public/AppInstallerLogging.h"
 
+#include "FileLogger.h"
+
 namespace AppInstaller::Logging
 {
     namespace
@@ -23,6 +25,18 @@ namespace AppInstaller::Logging
             {
                 return (1ull << AsNum(channel));
             }
+        }
+    }
+
+    char const* const GetChannelName(Channel channel)
+    {
+        switch(channel)
+        {
+        case Channel::CLI:  return "CLI ";
+        case Channel::SQL:  return "SQL ";
+        case Channel::Repo: return "REPO";
+        case Channel::YAML: return "YAML";
+        default:            return "NONE";
         }
     }
 
@@ -86,5 +100,10 @@ namespace AppInstaller::Logging
                 logger->Write(channel, level, message);
             }
         }
+    }
+
+    void AddDefaultFileLogger()
+    {
+        Log().AddLogger(std::make_unique<FileLogger>());
     }
 }

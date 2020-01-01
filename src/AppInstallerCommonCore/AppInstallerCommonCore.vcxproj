@@ -164,7 +164,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DateTime.h" />
+    <ClInclude Include="FileLogger.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Public\AppInstallerRuntime.h" />
     <ClInclude Include="Public\AppInstallerStrings.h" />
     <ClInclude Include="Public\AppInstallerTelemetry.h" />
     <ClInclude Include="Public\AppInstallerLogging.h" />
@@ -175,6 +178,9 @@
   <ItemGroup>
     <ClCompile Include="AppInstallerLogging.cpp" />
     <ClCompile Include="AppInstallerStrings.cpp" />
+    <ClCompile Include="DateTime.cpp" />
+    <ClCompile Include="FileLogger.cpp" />
+    <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

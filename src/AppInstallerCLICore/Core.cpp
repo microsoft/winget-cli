@@ -15,9 +15,10 @@ namespace AppInstaller::CLI
     {
         init_apartment();
 
-        // Enable logging (all for now)
+        // Enable logging (*all* for now)
         Logging::Log().EnableChannel(Logging::Channel::All);
-        Logging::Log().SetLevel(Logging::Level::Info);
+        Logging::Log().SetLevel(Logging::Level::Verbose);
+        Logging::AddDefaultFileLogger();
 
         // Convert incoming wide char args to UTF8
         std::vector<std::string> utf8Args;

@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include <Public/AppInstallerLogging.h>
+
 #include "TestCommon.h"
 
 using namespace winrt;
@@ -28,6 +30,11 @@ int main(int argc, char** argv)
             args.push_back(argv[i]);
         }
     }
+
+    // Enable all logging, to force log string building to run.
+    // By not creating a log target, it will all be thrown away.
+    AppInstaller::Logging::Log().EnableChannel(AppInstaller::Logging::Channel::All);
+    AppInstaller::Logging::Log().SetLevel(AppInstaller::Logging::Level::Verbose);
 
     return Catch::Session().run(static_cast<int>(args.size()), args.data());
 }

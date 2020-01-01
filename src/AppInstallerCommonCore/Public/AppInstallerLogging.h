@@ -34,6 +34,9 @@ namespace AppInstaller::Logging
         All,
     };
 
+    // Gets the channel's name as a string.
+    char const* const GetChannelName(Channel channel);
+
     // The level of the log.
     enum class Level
     {
@@ -107,4 +110,7 @@ namespace AppInstaller::Logging
     {
         return DiagnosticLogger::GetInstance();
     }
+
+    // Adds the default file logger to the DiagnosticLogger.
+    void AddDefaultFileLogger();
 }
