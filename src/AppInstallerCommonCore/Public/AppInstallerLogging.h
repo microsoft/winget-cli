@@ -37,6 +37,9 @@ namespace AppInstaller::Logging
     // Gets the channel's name as a string.
     char const* const GetChannelName(Channel channel);
 
+    // Gets the maximum channel name length in characters.
+    size_t GetMaxChannelNameLength();
+
     // The level of the log.
     enum class Level
     {

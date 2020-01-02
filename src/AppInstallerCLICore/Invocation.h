@@ -55,8 +55,16 @@ namespace AppInstaller::CLI
             return (args ? args->size() : 0);
         }
 
-        bool AddArg(StringLiteralPtrRef name) { return m_parsedArgs[name].empty(); }
-        void AddArg(StringLiteralPtrRef name, std::string value) { m_parsedArgs[name].emplace_back(std::move(value)); }
+        bool AddArg(StringLiteralPtrRef name)
+        {
+            AICLI_LOG(CLI, Verbose, << "Found flag: " << name);
+            return m_parsedArgs[name].empty();
+        }
+        void AddArg(StringLiteralPtrRef name, std::string value)
+        {
+            AICLI_LOG(CLI, Verbose, << "Found argument with value: " << name << " => " << value);
+            m_parsedArgs[name].emplace_back(std::move(value));
+        }
 
     private:
         std::vector<std::string> m_args;

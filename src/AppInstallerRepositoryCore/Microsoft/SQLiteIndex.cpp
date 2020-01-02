@@ -7,8 +7,27 @@
 
 namespace AppInstaller::Repository::Microsoft
 {
+    namespace
+    {
+        char const* const GetOpenDispositionString(SQLiteIndex::OpenDisposition disposition)
+        {
+            switch (disposition)
+            {
+            case AppInstaller::Repository::Microsoft::SQLiteIndex::OpenDisposition::Read:
+                return "Read";
+            case AppInstaller::Repository::Microsoft::SQLiteIndex::OpenDisposition::ReadWrite:
+                return "ReadWrite";
+            case AppInstaller::Repository::Microsoft::SQLiteIndex::OpenDisposition::Immutable:
+                return "ImmutableRead";
+            default:
+                return "Unknown";
+            }
+        }
+    }
+
     SQLiteIndex SQLiteIndex::CreateNew(const std::string& filePath, Schema::Version version)
     {
+        AICLI_LOG(Repo, Info, << "Creating new SQLite Index [" << version << "] at '" << filePath << "'");
         SQLiteIndex result{ filePath, version };
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "sqliteindex_createnew");
@@ -24,6 +43,7 @@ namespace AppInstaller::Repository::Microsoft
 
     SQLiteIndex SQLiteIndex::Open(const std::string& filePath, OpenDisposition disposition)
     {
+        AICLI_LOG(Repo, Info, << "Opening SQLite Index for " << GetOpenDispositionString(disposition) << " at '" << filePath << "'");
         switch (disposition)
         {
         case AppInstaller::Repository::Microsoft::SQLiteIndex::OpenDisposition::Read:
@@ -86,6 +106,7 @@ namespace AppInstaller::Repository::Microsoft
         m_dbconn(SQLite::Connection::Create(target, disposition, flags))
     {
         m_version = Schema::Version::GetSchemaVersion(m_dbconn);
+        AICLI_LOG(Repo, Info, << "Opened SQLite Index with version: " << m_version);
         m_interface = m_version.CreateISQLiteIndex();
     }
 

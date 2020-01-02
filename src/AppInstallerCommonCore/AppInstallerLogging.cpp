@@ -32,13 +32,15 @@ namespace AppInstaller::Logging
     {
         switch(channel)
         {
-        case Channel::CLI:  return "CLI ";
-        case Channel::SQL:  return "SQL ";
+        case Channel::CLI:  return "CLI";
+        case Channel::SQL:  return "SQL";
         case Channel::Repo: return "REPO";
         case Channel::YAML: return "YAML";
         default:            return "NONE";
         }
     }
+
+    size_t GetMaxChannelNameLength() { return 4; }
 
     DiagnosticLogger& DiagnosticLogger::GetInstance()
     {

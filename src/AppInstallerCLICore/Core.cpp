@@ -15,7 +15,7 @@ namespace AppInstaller::CLI
     {
         init_apartment();
 
-        // Enable logging (*all* for now)
+        // Enable logging (*all* for now, TODO: add common arguments to allow control of logging)
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
         Logging::AddDefaultFileLogger();
@@ -50,13 +50,16 @@ namespace AppInstaller::CLI
             {
                 commandToExecute = foundCommand.get();
             }
+            AICLI_LOG(CLI, Info, << "Leaf command to execute: " << commandToExecute->Name());
+
             commandToExecute->ParseArguments(invocation);
             commandToExecute->ValidateArguments(invocation);
         }
         // Exceptions specific to parsing the arguments of a command
-        catch (const CommandException & ce)
+        catch (const CommandException& ce)
         {
             commandToExecute->OutputHelp(std::cout, &ce);
+            AICLI_LOG(CLI, Error, << "Error encountered parsing command line: " << ce.Message());
             return CLICORE_ERROR_INVALID_CL_ARGUMENTS;
         }
 
@@ -83,6 +86,10 @@ namespace AppInstaller::CLI
         return CLICORE_ERROR_INTERNAL_ERROR;
     }
     catch (const std::exception&)
+    {
+        return CLICORE_ERROR_INTERNAL_ERROR;
+    }
+    catch (...)
     {
         return CLICORE_ERROR_INTERNAL_ERROR;
     }

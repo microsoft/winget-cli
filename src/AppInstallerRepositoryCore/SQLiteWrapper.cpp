@@ -5,16 +5,21 @@
 
 #include <wil/result_macros.h>
 
-#define THROW_SQLITE(_error_) throw SQLiteException(_error_)
+// TODO: Invoke the wil error handling callback to log the error
+#define THROW_SQLITE(_error_) \
+    do { \
+        auto _throw_sqlite_exc = SQLiteException(_error_); \
+        throw _throw_sqlite_exc; \
+    } while (0,0)
 
 #define THROW_IF_SQLITE_FAILED(_statement_) \
     do { \
-        int _sqliteReturnValue = _statement_; \
-        if (_sqliteReturnValue != SQLITE_OK) \
+        int _tisf_sqliteReturnValue = _statement_; \
+        if (_tisf_sqliteReturnValue != SQLITE_OK) \
         { \
-            THROW_SQLITE(_sqliteReturnValue); \
+            THROW_SQLITE(_tisf_sqliteReturnValue); \
         } \
-    } while (0,0);
+    } while (0,0)
 
 namespace AppInstaller::Repository::SQLite
 {
@@ -25,6 +30,12 @@ namespace AppInstaller::Repository::SQLite
             const char* name() const noexcept override { return "sqlite"; }
             std::string message(int error) const override { return sqlite3_errstr(error); }
         };
+
+        size_t GetNextStatementId()
+        {
+            static std::atomic_size_t statementId(0);
+            return ++statementId;
+        }
     }
 
     namespace details
@@ -58,6 +69,7 @@ namespace AppInstaller::Repository::SQLite
 
     Connection::Connection(const std::string& target, OpenDisposition disposition, OpenFlags flags)
     {
+        AICLI_LOG(SQL, Info, << "Opening SQLite connection: '" << target << "' [" << std::hex << static_cast<int>(disposition) << ", " << std::hex << static_cast<int>(flags) << "]");
         int resultingFlags = static_cast<int>(disposition) | static_cast<int>(flags);
         THROW_IF_SQLITE_FAILED(sqlite3_open_v2(target.c_str(), &m_dbconn, resultingFlags, nullptr));
     }
@@ -78,6 +90,8 @@ namespace AppInstaller::Repository::SQLite
 
     Statement::Statement(Connection& connection, const std::string& sql, bool persistent)
     {
+        m_id = GetNextStatementId();
+        AICLI_LOG(SQL, Verbose, << "Preparing statement #" << m_id << ": " << sql);
         // SQL string size should include the null terminator (https://www.sqlite.org/c3ref/prepare.html)
         THROW_IF_SQLITE_FAILED(sqlite3_prepare_v3(connection, sql.c_str(), static_cast<int>(sql.size() + 1), (persistent ? SQLITE_PREPARE_PERSISTENT : 0), &m_stmt, nullptr));
     }
@@ -94,15 +108,18 @@ namespace AppInstaller::Repository::SQLite
 
     bool Statement::Step(bool failFastOnError)
     {
+        AICLI_LOG(SQL, Verbose, << "Stepping statement #" << m_id);
         int result = sqlite3_step(m_stmt);
 
         if (result == SQLITE_ROW)
         {
+            AICLI_LOG(SQL, Verbose, << "Statement #" << m_id << " has data");
             m_state = State::HasRow;
             return true;
         }
         else if (result == SQLITE_DONE)
         {
+            AICLI_LOG(SQL, Verbose, << "Statement #" << m_id << " has completed");
             m_state = State::Completed;
             return false;
         }
@@ -122,6 +139,7 @@ namespace AppInstaller::Repository::SQLite
 
     void Statement::Reset()
     {
+        AICLI_LOG(SQL, Verbose, << "Reset statement #" << m_id);
         // Ignore return value from reset, as if it is an error, it was the error from the last call to step.
         sqlite3_reset(m_stmt);
         m_state = State::Prepared;
@@ -136,6 +154,7 @@ namespace AppInstaller::Repository::SQLite
         m_rollback = Statement::Create(connection, "ROLLBACK TO ["s + name + "]", true);
         m_commit = Statement::Create(connection, "RELEASE ["s + name + "]", true);
 
+        AICLI_LOG(SQL, Info, << "Begin savepoint: " << m_name);
         begin.Step();
     }
 
@@ -153,6 +172,7 @@ namespace AppInstaller::Repository::SQLite
     {
         if (m_inProgress)
         {
+            AICLI_LOG(SQL, Info, << "Roll back savepoint: " << m_name);
             m_rollback.Step(true);
             m_inProgress = false;
         }
@@ -162,6 +182,7 @@ namespace AppInstaller::Repository::SQLite
     {
         if (m_inProgress)
         {
+            AICLI_LOG(SQL, Info, << "Commit savepoint: " << m_name);
             m_commit.Step(true);
             m_inProgress = false;
         }

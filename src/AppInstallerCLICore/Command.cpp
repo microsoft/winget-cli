@@ -77,6 +77,7 @@ namespace AppInstaller::CLI
         {
             if (*itr == command->Name())
             {
+                AICLI_LOG(CLI, Info, << "Found subcommand: " << *itr);
                 inv.consume(itr);
                 std::unique_ptr<Command> subcommand = command->FindInvokedCommand(inv);
                 // If we found a subcommand, return it.  Otherwise, this is the one.
@@ -175,6 +176,7 @@ namespace AppInstaller::CLI
 
     void Command::Execute(Invocation& inv, std::ostream& out) const
     {
+        AICLI_LOG(CLI, Info, << "Executing command: " << Name());
         if (inv.Contains(APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING))
         {
             OutputHelp(out);

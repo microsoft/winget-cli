@@ -178,6 +178,7 @@ namespace AppInstaller::Repository::SQLite
             return std::make_tuple(details::ParameterSpecifics<Values>::GetColumn(m_stmt, I)...);
         }
 
+        size_t m_id = 0;
         sqlite3_stmt* m_stmt = nullptr;
         State m_state = State::Prepared;
     };
