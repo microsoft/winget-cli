@@ -19,6 +19,7 @@ namespace AppInstaller::CLI
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
         Logging::AddDefaultFileLogger();
+        Logging::EnableWilFailureTelemetry();
 
         // Convert incoming wide char args to UTF8
         std::vector<std::string> utf8Args;
@@ -68,13 +69,20 @@ namespace AppInstaller::CLI
             commandToExecute->Execute(invocation, std::cout);
         }
         // Exceptions that may occur in the process of executing an arbitrary command
-        catch (const winrt::hresult_error&)
+        catch (const winrt::hresult_error& hre)
         {
-
+            // TODO: Better error output
+            std::string message = Utility::ConvertToUTF8(hre.message());
+            std::cout << "An error occured while executing the command: " << message << std::endl;
+            AICLI_LOG(CLI, Error, << "Error encountered executing command: " << message);
+            return CLICORE_ERROR_COMMAND_FAILED;
         }
-        catch (const std::exception&)
+        catch (const std::exception& e)
         {
-
+            // TODO: Better error output
+            std::cout << "An error occured while executing the command: " << e.what() << std::endl;
+            AICLI_LOG(CLI, Error, << "Error encountered executing command: " << e.what());
+            return CLICORE_ERROR_COMMAND_FAILED;
         }
 
         return 0;

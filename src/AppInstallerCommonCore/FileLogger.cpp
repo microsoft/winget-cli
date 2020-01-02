@@ -44,9 +44,13 @@ namespace AppInstaller::Logging
         return m_name;
     }
 
-    void FileLogger::Write(Channel channel, Level, std::string_view message)
+    void FileLogger::Write(Channel channel, Level, std::string_view message) noexcept try
     {
         Utility::OutputTimepoint(m_stream, std::chrono::system_clock::now());
         m_stream << " [" << std::setw(GetMaxChannelNameLength()) << std::left << std::setfill(' ') << GetChannelName(channel) << "] " << message << std::endl;
+    }
+    catch (...)
+    {
+        // Just eat any exceptions here; better than losing logs
     }
 }

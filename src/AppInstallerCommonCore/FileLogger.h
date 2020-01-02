@@ -27,7 +27,7 @@ namespace AppInstaller::Logging
         // ILogger
         virtual std::string GetName() const override;
 
-        virtual void Write(Channel channel, Level level, std::string_view message) override;
+        virtual void Write(Channel channel, Level level, std::string_view message) noexcept override;
 
     private:
         std::string m_name;

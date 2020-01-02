@@ -3,11 +3,19 @@
 #include "pch.h"
 #include "Public/AppInstallerTelemetry.h"
 
-#define PKGMGR_CLIENT_EVENT_INFO "Information"
-#define PKGMGR_CLIENT_MESSAGE "Message"
+#include "Public/AppInstallerLogging.h"
+#include "Public/AppInstallerStrings.h"
 
 namespace AppInstaller::Logging
 {
+    namespace
+    {
+        void wilResultLoggingCallback(const wil::FailureInfo& info) noexcept
+        {
+            Telemetry().LogFailure(info);
+        }
+    }
+
     TelemetryTraceLogger::TelemetryTraceLogger()
     {
         RegisterTraceLogging();
@@ -24,17 +32,33 @@ namespace AppInstaller::Logging
         return instance;
     }
 
-    void TelemetryTraceLogger::LogMessage(std::wstring_view message)
+    void TelemetryTraceLogger::LogFailure(const wil::FailureInfo& failure) noexcept
     {
         if (g_IsTelemetryProviderEnabled)
         {
             TraceLoggingWrite(g_hTelemetryProvider,
-                PKGMGR_CLIENT_EVENT_INFO,
-                TraceLoggingCountedWideString(message.data(), static_cast<ULONG>(message.size()), PKGMGR_CLIENT_MESSAGE),
+                "FailureInfo",
+                TraceLoggingHResult(failure.hr, "hr"),
+                TraceLoggingWideString(failure.pszMessage, "message"),
+                TraceLoggingString(failure.pszModule, "module"),
+                TraceLoggingUInt32(failure.threadId, "threadId"),
+                TraceLoggingUInt32(static_cast<uint32_t>(failure.type), "type"),
+                TraceLoggingString(failure.pszFile, "file"),
+                TraceLoggingUInt32(failure.uLineNumber, "line"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
         }
 
-        //ToDo if required add logging to disk file here 
+        // Also send failure to the log
+        AICLI_LOG(Fail, Error, << [&]() {
+                wchar_t message[2048];
+                GetFailureLogString(message, ARRAYSIZE(message), failure);
+                return Utility::ConvertToUTF8(message);
+            }());
+    }
+
+    void EnableWilFailureTelemetry()
+    {
+        wil::SetResultLoggingCallback(wilResultLoggingCallback);
     }
 }

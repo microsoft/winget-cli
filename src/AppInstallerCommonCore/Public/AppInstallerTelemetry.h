@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 #pragma once
 
+#include <wil/result_macros.h>
+
 #include <string_view>
 
 namespace AppInstaller::Logging
@@ -23,8 +25,8 @@ namespace AppInstaller::Logging
         // Gets the singleton instance of this type.
         static TelemetryTraceLogger& GetInstance();
 
-        // TODO: Remove in favor of specific event methods.
-        void LogMessage(std::wstring_view message);
+        // Logs the failure info.
+        void LogFailure(const wil::FailureInfo& failure) noexcept;
 
     private:
         TelemetryTraceLogger();
@@ -35,4 +37,7 @@ namespace AppInstaller::Logging
     {
         return TelemetryTraceLogger::GetInstance();
     }
+
+    // Turns on wil failure telemetry and logging.
+    void EnableWilFailureTelemetry();
 }

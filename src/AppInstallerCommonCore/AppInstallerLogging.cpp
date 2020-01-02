@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Public/AppInstallerLogging.h"
 
+#include "Public/AppInstallerTelemetry.h"
 #include "FileLogger.h"
 
 namespace AppInstaller::Logging
@@ -32,6 +33,7 @@ namespace AppInstaller::Logging
     {
         switch(channel)
         {
+        case Channel::Fail:  return "FAIL";
         case Channel::CLI:  return "CLI";
         case Channel::SQL:  return "SQL";
         case Channel::Repo: return "REPO";

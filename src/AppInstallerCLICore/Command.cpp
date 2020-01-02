@@ -190,5 +190,6 @@ namespace AppInstaller::CLI
     void Command::ExecuteInternal(Invocation&, std::ostream& out) const
     {
         out << LOCME("Oops, we forgot to do this...") << std::endl;
+        THROW_HR(E_NOTIMPL);
     }
 }

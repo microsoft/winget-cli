@@ -27,6 +27,7 @@ namespace AppInstaller::Logging
     // Channels enable large groups of logs to be enabled or disabled together.
     enum class Channel : uint32_t
     {
+        Fail,
         CLI,
         SQL,
         Repo,
@@ -58,7 +59,7 @@ namespace AppInstaller::Logging
         virtual std::string GetName() const = 0;
 
         // Informs the logger of the given log.
-        virtual void Write(Channel channel, Level level, std::string_view message) = 0;
+        virtual void Write(Channel channel, Level level, std::string_view message) noexcept = 0;
     };
 
     // This type contains the set of loggers that diagnostic logging will be sent to.

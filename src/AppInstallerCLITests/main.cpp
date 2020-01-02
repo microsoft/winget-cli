@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <Public/AppInstallerLogging.h>
+#include <Public/AppInstallerTelemetry.h>
 
 #include "TestCommon.h"
 
@@ -35,6 +36,7 @@ int main(int argc, char** argv)
     // By not creating a log target, it will all be thrown away.
     AppInstaller::Logging::Log().EnableChannel(AppInstaller::Logging::Channel::All);
     AppInstaller::Logging::Log().SetLevel(AppInstaller::Logging::Level::Verbose);
+    AppInstaller::Logging::EnableWilFailureTelemetry();
 
     return Catch::Session().run(static_cast<int>(args.size()), args.data());
 }
