@@ -6,20 +6,20 @@
 
 namespace AppInstaller::CLI
 {
-    void Command::OutputIntroHeader(std::wostream& out) const
+    void Command::OutputIntroHeader(std::ostream& out) const
     {
-        out << L"AppInstaller Command Line" << std::endl;
-        out << L"(c) 2019 Microsoft Corporation" << std::endl;
+        out << "AppInstaller Command Line" << std::endl;
+        out << "(c) 2019 Microsoft Corporation" << std::endl;
     }
 
-    void Command::OutputHelp(std::wostream& out, const CommandException* exception) const
+    void Command::OutputHelp(std::ostream& out, const CommandException* exception) const
     {
         OutputIntroHeader(out);
         out << std::endl;
 
         if (exception)
         {
-            out << exception->Message() << L" : " << exception->Param() << std::endl;
+            out << exception->Message() << " : '" << exception->Param() << '\'' << std::endl;
             out << std::endl;
         }
 
@@ -32,27 +32,27 @@ namespace AppInstaller::CLI
         auto commands = GetCommands();
         if (!commands.empty())
         {
-            out << LOCME(L"The following commands are available:") << std::endl;
+            out << LOCME("The following commands are available:") << std::endl;
             out << std::endl;
 
             for (const auto& command : commands)
             {
-                out << L"  " << command->Name() << std::endl;
-                out << L"    " << command->ShortDescription() << std::endl;
+                out << "  " << command->Name() << std::endl;
+                out << "    " << command->ShortDescription() << std::endl;
             }
 
             out << std::endl;
-            out << LOCME(L"For more details on a specific command, pass it the help argument.") << L" [" << APPINSTALLER_CLI_HELP_ARGUMENT << L"]" << std::endl;
+            out << LOCME("For more details on a specific command, pass it the help argument.") << " [" << APPINSTALLER_CLI_HELP_ARGUMENT << "]" << std::endl;
         }
         else
         {
-            out << LOCME(L"The following arguments are available:") << std::endl;
+            out << LOCME("The following arguments are available:") << std::endl;
             out << std::endl;
 
             for (const auto& arg : GetArguments())
             {
-                out << L"  " << arg.Name() << std::endl;
-                out << L"    " << arg.Description() << std::endl;
+                out << "  " << arg.Name() << std::endl;
+                out << "    " << arg.Description() << std::endl;
             }
         }
     }
@@ -60,7 +60,7 @@ namespace AppInstaller::CLI
     std::unique_ptr<Command> Command::FindInvokedCommand(Invocation& inv) const
     {
         auto itr = inv.begin();
-        if (itr == inv.end() || **itr == APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
+        if (itr == inv.end() || (*itr)[0] == APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
         {
             // No more command arguments to check, so no command to find
             return {};
@@ -73,12 +73,11 @@ namespace AppInstaller::CLI
             return {};
         }
 
-        std::wstring arg = *itr;
-
         for (auto& command : commands)
         {
-            if (arg == command->Name())
+            if (*itr == command->Name())
             {
+                AICLI_LOG(CLI, Info, << "Found subcommand: " << *itr);
                 inv.consume(itr);
                 std::unique_ptr<Command> subcommand = command->FindInvokedCommand(inv);
                 // If we found a subcommand, return it.  Otherwise, this is the one.
@@ -86,7 +85,7 @@ namespace AppInstaller::CLI
             }
         }
 
-        throw CommandException(LOCME(L"Unrecognized command"), arg);
+        throw CommandException(LOCME("Unrecognized command"), *itr);
     }
 
     void Command::ParseArguments(Invocation& inv) const
@@ -96,7 +95,7 @@ namespace AppInstaller::CLI
 
         for (auto incomingArgsItr = inv.begin(); incomingArgsItr != inv.end(); ++incomingArgsItr)
         {
-            if (**incomingArgsItr != APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
+            if ((*incomingArgsItr)[0] != APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
             {
                 // Positional argument, find the next appropriate one if the current itr isn't one or has hit its limit.
                 if (positionalSearchItr != definedArgs.end() &&
@@ -107,7 +106,7 @@ namespace AppInstaller::CLI
 
                 if (positionalSearchItr == definedArgs.end())
                 {
-                    throw CommandException(LOCME(L"Found a positional argument when none was expected"), *incomingArgsItr);
+                    throw CommandException(LOCME("Found a positional argument when none was expected"), *incomingArgsItr);
                 }
 
                 inv.AddArg(positionalSearchItr->Name(), *incomingArgsItr);
@@ -116,7 +115,7 @@ namespace AppInstaller::CLI
             {
                 // This is an arg name, find it and process its value if needed.
                 // Skip the name identifier char.
-                std::wstring argName = *incomingArgsItr + 1;
+                std::string argName = incomingArgsItr->substr(1);
                 bool argFound = false;
 
                 for (const auto& arg : definedArgs)
@@ -132,7 +131,7 @@ namespace AppInstaller::CLI
                             ++incomingArgsItr;
                             if (incomingArgsItr == inv.end())
                             {
-                                throw CommandException(LOCME(L"Argument value required, but none found"), *incomingArgsItr);
+                                throw CommandException(LOCME("Argument value required, but none found"), *incomingArgsItr);
                             }
                             inv.AddArg(arg.Name(), *incomingArgsItr);
                         }
@@ -147,7 +146,7 @@ namespace AppInstaller::CLI
                 }
                 else if (!argFound)
                 {
-                    throw CommandException(LOCME(L"Argument name was not recognized for the current command"), *incomingArgsItr);
+                    throw CommandException(LOCME("Argument name was not recognized for the current command"), *incomingArgsItr);
                 }
             }
         }
@@ -165,18 +164,19 @@ namespace AppInstaller::CLI
         {
             if (arg.Required() && !inv.Contains(arg.Name()))
             {
-                throw CommandException(LOCME(L"Required argument not provided"), arg.Name());
+                throw CommandException(LOCME("Required argument not provided"), arg.Name());
             }
 
             if (arg.Limit() < inv.GetCount(arg.Name()))
             {
-                throw CommandException(LOCME(L"Argument provided more times than allowed"), arg.Name());
+                throw CommandException(LOCME("Argument provided more times than allowed"), arg.Name());
             }
         }
     }
 
-    void Command::Execute(Invocation& inv, std::wostream& out) const
+    void Command::Execute(Invocation& inv, std::ostream& out) const
     {
+        AICLI_LOG(CLI, Info, << "Executing command: " << Name());
         if (inv.Contains(APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING))
         {
             OutputHelp(out);
@@ -187,8 +187,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    void Command::ExecuteInternal(Invocation&, std::wostream& out) const
+    void Command::ExecuteInternal(Invocation&, std::ostream& out) const
     {
-        out << LOCME(L"Oops, we forgot to do this...") << std::endl;
+        out << LOCME("Oops, we forgot to do this...") << std::endl;
+        THROW_HR(E_NOTIMPL);
     }
 }

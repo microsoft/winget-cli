@@ -48,4 +48,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Creates the interface object for this version.
         std::unique_ptr<ISQLiteIndex> CreateISQLiteIndex();
     };
+
+    // Output the version
+    std::ostream& operator<<(std::ostream& out, const Version& version);
 }

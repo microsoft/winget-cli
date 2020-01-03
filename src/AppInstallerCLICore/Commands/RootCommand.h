@@ -7,13 +7,13 @@ namespace AppInstaller::CLI
 {
     struct RootCommand final : public Command
     {
-        RootCommand() : Command(L"root") {}
+        RootCommand() : Command("root") {}
 
         virtual std::vector<std::unique_ptr<Command>> GetCommands() const override;
 
-        virtual std::vector<std::wstring> GetLongDescription() const override;
+        virtual std::vector<std::string> GetLongDescription() const override;
 
     protected:
-        virtual void ExecuteInternal(Invocation& inv, std::wostream& out) const;
+        virtual void ExecuteInternal(Invocation& inv, std::ostream& out) const;
     };
 }

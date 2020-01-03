@@ -17,15 +17,15 @@ namespace AppInstaller::CLI
         });
     }
 
-    std::vector<std::wstring> RootCommand::GetLongDescription() const
+    std::vector<std::string> RootCommand::GetLongDescription() const
     {
         return {
-            LOCME(L"AppInstaller command line utility enables installing applications from the"),
-            LOCME(L"command line."),
+            LOCME("AppInstaller command line utility enables installing applications from the"),
+            LOCME("command line."),
         };
     }
 
-    void RootCommand::ExecuteInternal(Invocation&, std::wostream& out) const
+    void RootCommand::ExecuteInternal(Invocation&, std::ostream& out) const
     {
         OutputHelp(out);
     }

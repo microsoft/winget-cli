@@ -84,17 +84,17 @@ namespace AppInstaller::Repository::SQLite
         Connection(const Connection&) = delete;
         Connection& operator=(const Connection&) = delete;
 
-        Connection(Connection&& other) noexcept { std::swap(_dbconn, other._dbconn); }
-        Connection& operator=(Connection&& other) noexcept { std::swap(_dbconn, other._dbconn); return *this; }
+        Connection(Connection&& other) noexcept { std::swap(m_dbconn, other.m_dbconn); }
+        Connection& operator=(Connection&& other) noexcept { std::swap(m_dbconn, other.m_dbconn); return *this; }
 
         ~Connection();
 
-        operator sqlite3* () const { return _dbconn; }
+        operator sqlite3* () const { return m_dbconn; }
 
     private:
         Connection(const std::string& target, OpenDisposition disposition, OpenFlags flags);
 
-        sqlite3* _dbconn = nullptr;
+        sqlite3* m_dbconn = nullptr;
     };
 
     // A SQL statement.
@@ -107,12 +107,12 @@ namespace AppInstaller::Repository::SQLite
         Statement(const Statement&) = delete;
         Statement& operator=(const Statement&) = delete;
 
-        Statement(Statement&& other) noexcept { std::swap(_stmt, other._stmt); std::swap(_state, other._state); }
-        Statement& operator=(Statement&& other) noexcept { std::swap(_stmt, other._stmt); std::swap(_state, other._state); return *this; }
+        Statement(Statement&& other) noexcept { std::swap(m_stmt, other.m_stmt); std::swap(m_state, other.m_state); }
+        Statement& operator=(Statement&& other) noexcept { std::swap(m_stmt, other.m_stmt); std::swap(m_state, other.m_state); return *this; }
 
         ~Statement();
 
-        operator sqlite3_stmt* () const { return _stmt; }
+        operator sqlite3_stmt* () const { return m_stmt; }
 
         // The state of the statement.
         enum class State
@@ -128,14 +128,14 @@ namespace AppInstaller::Repository::SQLite
         };
 
         // Gets the current state of the statement.
-        State GetState() const { return _state; }
+        State GetState() const { return m_state; }
 
         // Bind parameters to the statement.
         // The index is 1 based.
         template <typename Value>
         void Bind(int index, Value&& v)
         {
-            details::ParameterSpecifics<Value>::Bind(_stmt, index, std::forward<Value>(v));
+            details::ParameterSpecifics<Value>::Bind(m_stmt, index, std::forward<Value>(v));
         }
 
         // Evaluate the statement; either retrieving the next row or executing some action.
@@ -148,8 +148,8 @@ namespace AppInstaller::Repository::SQLite
         template <typename Value>
         Value GetColumn(int column)
         {
-            THROW_HR_IF(E_BOUNDS, _state != State::HasRow);
-            return details::ParameterSpecifics<Value>::GetColumn(_stmt, column);
+            THROW_HR_IF(E_BOUNDS, m_state != State::HasRow);
+            return details::ParameterSpecifics<Value>::GetColumn(m_stmt, column);
         }
 
         // Gets the entire row of values from the current row.
@@ -174,12 +174,13 @@ namespace AppInstaller::Repository::SQLite
         template <typename... Values, int... I>
         std::tuple<Values...> GetRowImpl(std::integer_sequence<int, I...>)
         {
-            THROW_HR_IF(E_BOUNDS, _state != State::HasRow);
-            return std::make_tuple(details::ParameterSpecifics<Values>::GetColumn(_stmt, I)...);
+            THROW_HR_IF(E_BOUNDS, m_state != State::HasRow);
+            return std::make_tuple(details::ParameterSpecifics<Values>::GetColumn(m_stmt, I)...);
         }
 
-        sqlite3_stmt* _stmt = nullptr;
-        State _state = State::Prepared;
+        size_t m_id = 0;
+        sqlite3_stmt* m_stmt = nullptr;
+        State m_state = State::Prepared;
     };
 
     // A SQLite savepoint.
@@ -205,9 +206,9 @@ namespace AppInstaller::Repository::SQLite
     private:
         Savepoint(Connection& connection, std::string&& name);
 
-        std::string _name;
-        bool _inProgress = true;
-        Statement _rollback;
-        Statement _commit;
+        std::string m_name;
+        bool m_inProgress = true;
+        Statement m_rollback;
+        Statement m_commit;
     };
 }

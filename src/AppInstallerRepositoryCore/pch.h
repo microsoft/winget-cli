@@ -5,9 +5,8 @@
 #define NOMINMAX
 #include <windows.h>
 
-#include "yaml-cpp/yaml.h"
-
-#include "TelemetryWrapper.h"
+#include <AppInstallerLogging.h>
+#include <yaml-cpp/yaml.h>
 
 #include <wil/result_macros.h>
 
@@ -15,6 +14,7 @@
 
 #include <winrt/Windows.Foundation.h>
 
+#include <iomanip>
 #include <string>
 #include <stdexcept>
 #include <system_error>
