@@ -10,7 +10,7 @@ namespace AppInstaller::Logging
 {
     namespace
     {
-        void wilResultLoggingCallback(const wil::FailureInfo& info) noexcept
+        void __stdcall wilResultLoggingCallback(const wil::FailureInfo& info) noexcept
         {
             Telemetry().LogFailure(info);
         }

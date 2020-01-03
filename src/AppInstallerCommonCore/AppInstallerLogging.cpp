@@ -33,7 +33,7 @@ namespace AppInstaller::Logging
     {
         switch(channel)
         {
-        case Channel::Fail:  return "FAIL";
+        case Channel::Fail: return "FAIL";
         case Channel::CLI:  return "CLI";
         case Channel::SQL:  return "SQL";
         case Channel::Repo: return "REPO";
