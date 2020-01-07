@@ -10,9 +10,9 @@
 
 namespace AppInstaller::Manifest
 {
-    class Manifest
+    // Our representation of the parsed manifest file.
+    struct Manifest
     {
-    public:
         // Required
         std::string Id;
 

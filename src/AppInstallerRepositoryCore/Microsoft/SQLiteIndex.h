@@ -3,7 +3,9 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include "Microsoft/Schema/Version.h"
+#include "Manifest/Manifest.h"
 
+#include <filesystem>
 #include <limits>
 #include <memory>
 #include <string>
@@ -38,6 +40,13 @@ namespace AppInstaller::Repository::Microsoft
 
         // Gets the schema version of the index.
         Schema::Version GetVersion() const { return m_version; }
+
+        // Adds the manifest at the repository relative path to the 
+        void AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
+
+        void UpdateManifest(const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath);
+
+        void RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
 
     private:
         // Constructor used to open an existing index.
