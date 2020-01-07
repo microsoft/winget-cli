@@ -23,4 +23,3 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
     };
 }
-

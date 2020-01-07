@@ -44,6 +44,11 @@ namespace AppInstaller::Repository::SQLite
             return reinterpret_cast<const char*>(sqlite3_column_text(stmt, column));
         }
 
+        void ParameterSpecificsImpl<std::string_view>::Bind(sqlite3_stmt* stmt, int index, std::string_view v)
+        {
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_text64(stmt, index, v.data(), v.size(), SQLITE_TRANSIENT, SQLITE_UTF8));
+        }
+
         void ParameterSpecificsImpl<int>::Bind(sqlite3_stmt* stmt, int index, int v)
         {
             THROW_IF_SQLITE_FAILED(sqlite3_bind_int(stmt, index, v));
@@ -76,15 +81,27 @@ namespace AppInstaller::Repository::SQLite
         sqlite3_close_v2(m_dbconn);
     }
 
-    Statement::Statement(Connection& connection, const std::string& sql, bool persistent)
+    Statement::Statement(Connection& connection, std::string_view sql, bool persistent)
     {
         m_id = GetNextStatementId();
         AICLI_LOG(SQL, Verbose, << "Preparing statement #" << m_id << ": " << sql);
         // SQL string size should include the null terminator (https://www.sqlite.org/c3ref/prepare.html)
-        THROW_IF_SQLITE_FAILED(sqlite3_prepare_v3(connection, sql.c_str(), static_cast<int>(sql.size() + 1), (persistent ? SQLITE_PREPARE_PERSISTENT : 0), &m_stmt, nullptr));
+        assert(sql.data()[sql.size()] == '\0');
+        THROW_IF_SQLITE_FAILED(sqlite3_prepare_v3(connection, sql.data(), static_cast<int>(sql.size() + 1), (persistent ? SQLITE_PREPARE_PERSISTENT : 0), &m_stmt, nullptr));
     }
 
     Statement Statement::Create(Connection& connection, const std::string& sql, bool persistent)
+    {
+        return { connection, { sql.c_str(), sql.size() }, persistent };
+    }
+
+    Statement Statement::Create(Connection& connection, std::string_view sql, bool persistent)
+    {
+        // We need the statement to be null terminated, and the only way to guarantee that with a string_view is to construct a string copy.
+        return Create(connection, std::string(sql), persistent);
+    }
+
+    Statement Statement::Create(Connection& connection, char const* const sql, bool persistent)
     {
         return { connection, sql, persistent };
     }

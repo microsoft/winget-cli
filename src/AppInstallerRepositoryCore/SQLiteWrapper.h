@@ -5,8 +5,7 @@
 #include <winsqlite/winsqlite3.h>
 
 #include <string>
-#include <stdexcept>
-#include <system_error>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -33,6 +32,12 @@ namespace AppInstaller::Repository::SQLite
         {
             static void Bind(sqlite3_stmt* stmt, int index, const std::string& v);
             static std::string GetColumn(sqlite3_stmt* stmt, int column);
+        };
+
+        template <>
+        struct ParameterSpecificsImpl<std::string_view>
+        {
+            static void Bind(sqlite3_stmt* stmt, int index, std::string_view v);
         };
 
         template <>
@@ -99,6 +104,8 @@ namespace AppInstaller::Repository::SQLite
     struct Statement
     {
         static Statement Create(Connection& connection, const std::string& sql, bool persistent = false);
+        static Statement Create(Connection& connection, std::string_view sql, bool persistent = false);
+        static Statement Create(Connection& connection, char const* const sql, bool persistent = false);
 
         Statement() = default;
 
@@ -165,7 +172,7 @@ namespace AppInstaller::Repository::SQLite
         void Reset();
 
     private:
-        Statement(Connection& connection, const std::string& sql, bool persistent);
+        Statement(Connection& connection, std::string_view sql, bool persistent);
 
         // Helper to receive the integer sequence from the public function.
         // This is equivalent to calling:

@@ -173,6 +173,7 @@
     <ClInclude Include="Microsoft\Schema\1_0\ExtensionsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\IdTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\Interface.h" />
+    <ClInclude Include="Microsoft\Schema\1_0\ManifestTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\MonikerTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\NameTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\OneToManyTable.h" />
@@ -193,6 +194,7 @@
     <ClCompile Include="Manifest\ManifestInstaller.cpp" />
     <ClCompile Include="Manifest\ManifestLocalization.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\Interface.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_0\ManifestTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\OneToManyTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\OneToOneTable.cpp" />
     <ClCompile Include="Microsoft\Schema\MetadataTable.cpp" />

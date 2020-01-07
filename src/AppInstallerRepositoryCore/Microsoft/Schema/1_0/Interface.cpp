@@ -8,6 +8,9 @@
 #include "Microsoft/Schema/1_0/MonikerTable.h"
 #include "Microsoft/Schema/1_0/VersionTable.h"
 #include "Microsoft/Schema/1_0/ChannelTable.h"
+
+#include "Microsoft/Schema/1_0/ManifestTable.h"
+
 #include "Microsoft/Schema/1_0/TagsTable.h"
 #include "Microsoft/Schema/1_0/CommandsTable.h"
 #include "Microsoft/Schema/1_0/ProtocolsTable.h"
@@ -29,6 +32,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         MonikerTable::Create(connection);
         VersionTable::Create(connection);
         ChannelTable::Create(connection);
+
+        ManifestTable::Create(connection, 
+            { IdTable::ValueName(), NameTable::ValueName(), MonikerTable::ValueName(), VersionTable::ValueName(), ChannelTable::ValueName() });
+
         TagsTable::Create(connection);
         CommandsTable::Create(connection);
         ProtocolsTable::Create(connection);

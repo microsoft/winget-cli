@@ -21,5 +21,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         {
             details::CreateOneToOneTable(connection, TableInfo::TableName(), TableInfo::ValueName());
         }
+
+        static std::string_view ValueName()
+        {
+            return TableInfo::ValueName();
+        }
     };
 }

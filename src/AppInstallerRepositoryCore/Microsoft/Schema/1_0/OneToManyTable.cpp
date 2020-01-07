@@ -8,8 +8,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
     namespace details
     {
-        static char const* const s_OneToManyTable_MapTable_ManifestName = "manifest";
-        static char const* const s_OneToManyTable_MapTable_Suffix = "_map";
+        using namespace std::string_view_literals;
+        static constexpr std::string_view s_OneToManyTable_MapTable_ManifestName = "manifest"sv;
+        static constexpr std::string_view s_OneToManyTable_MapTable_Suffix = "_map"sv;
 
         void CreateOneToManyTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName)
         {
