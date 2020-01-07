@@ -178,6 +178,7 @@
     <ClInclude Include="Microsoft\Schema\1_0\NameTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\OneToManyTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\OneToOneTable.h" />
+    <ClInclude Include="Microsoft\Schema\1_0\PathPartTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\ProtocolsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\TagsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\VersionTable.h" />
@@ -197,6 +198,7 @@
     <ClCompile Include="Microsoft\Schema\1_0\ManifestTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\OneToManyTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\OneToOneTable.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_0\PathPartTable.cpp" />
     <ClCompile Include="Microsoft\Schema\MetadataTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />

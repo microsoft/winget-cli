@@ -96,6 +96,9 @@
     <ClInclude Include="Microsoft\Schema\1_0\ManifestTable.h">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_0\PathPartTable.h">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -135,6 +138,9 @@
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_0\ManifestTable.cpp">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_0\PathPartTable.cpp">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClCompile>
   </ItemGroup>

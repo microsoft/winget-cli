@@ -9,6 +9,8 @@
 #include "Microsoft/Schema/1_0/VersionTable.h"
 #include "Microsoft/Schema/1_0/ChannelTable.h"
 
+#include "Microsoft/Schema/1_0/PathPartTable.h"
+
 #include "Microsoft/Schema/1_0/ManifestTable.h"
 
 #include "Microsoft/Schema/1_0/TagsTable.h"
@@ -33,8 +35,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         VersionTable::Create(connection);
         ChannelTable::Create(connection);
 
+        PathPartTable::Create(connection);
+
         ManifestTable::Create(connection, 
-            { IdTable::ValueName(), NameTable::ValueName(), MonikerTable::ValueName(), VersionTable::ValueName(), ChannelTable::ValueName() });
+            { IdTable::ValueName(), NameTable::ValueName(), MonikerTable::ValueName(), VersionTable::ValueName(), ChannelTable::ValueName(), PathPartTable::ValueName() });
 
         TagsTable::Create(connection);
         CommandsTable::Create(connection);
