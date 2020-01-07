@@ -47,11 +47,9 @@ namespace AppInstaller::Repository::SQLite
     }
 
     // A SQLite exception.
-    struct SQLiteException : public std::system_error
+    struct SQLiteException : public wil::ResultException
     {
-        SQLiteException(int error) : std::system_error(error, GetCategory()) {}
-
-        static const std::error_category& GetCategory() noexcept;
+        SQLiteException(int error) : wil::ResultException(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_SQLITE, error)) {}
     };
 
     // The connection to a database.
@@ -143,6 +141,9 @@ namespace AppInstaller::Repository::SQLite
         // This return value is the equivalent of 'GetState() == State::HasRow' after calling Step.
         bool Step(bool failFastOnError = false);
 
+        // Equivalent to Step, but does not ever expect a result, throwing if one is retrieved.
+        void Execute(bool failFastOnError = false);
+
         // Gets the value of the specified column from the current row.
         // The index is 0 based.
         template <typename Value>
@@ -187,7 +188,7 @@ namespace AppInstaller::Repository::SQLite
     struct Savepoint
     {
         // Creates a savepoint, beginning it.
-        static Savepoint Create(Connection& connection, std::string&& name);
+        static Savepoint Create(Connection& connection, std::string name);
 
         Savepoint(const Savepoint&) = delete;
         Savepoint& operator=(const Savepoint&) = delete;

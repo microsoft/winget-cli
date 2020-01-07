@@ -60,6 +60,39 @@
     <ClInclude Include="Manifest\ManifestLocalization.h">
       <Filter>Manifest</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_0\OneToOneTable.h">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_0\IdTable.h">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_0\ChannelTable.h">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_0\MonikerTable.h">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_0\NameTable.h">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_0\VersionTable.h">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_0\OneToManyTable.h">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_0\TagsTable.h">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_0\CommandsTable.h">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_0\ExtensionsTable.h">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_0\ProtocolsTable.h">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -91,6 +124,12 @@
     </ClCompile>
     <ClCompile Include="Manifest\ManifestLocalization.cpp">
       <Filter>Manifest</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_0\OneToOneTable.cpp">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_0\OneToManyTable.cpp">
+      <Filter>Microsoft\Schema\1_0</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -17,6 +17,7 @@
 #include <iomanip>
 #include <string>
 #include <stdexcept>
+#include <sstream>
 #include <system_error>
 #include <tuple>
 #include <type_traits>

@@ -8,8 +8,8 @@
 // TODO: Invoke the wil error handling callback to log the error
 #define THROW_SQLITE(_error_) \
     do { \
-        auto _throw_sqlite_exc = SQLiteException(_error_); \
-        throw _throw_sqlite_exc; \
+        int _ts_sqliteReturnValue = _error_; \
+        THROW_EXCEPTION_MSG(SQLiteException(_ts_sqliteReturnValue), sqlite3_errstr(_ts_sqliteReturnValue)); \
     } while (0,0)
 
 #define THROW_IF_SQLITE_FAILED(_statement_) \
@@ -25,12 +25,6 @@ namespace AppInstaller::Repository::SQLite
 {
     namespace
     {
-        class SQLiteErrorCategory : public std::error_category
-        {
-            const char* name() const noexcept override { return "sqlite"; }
-            std::string message(int error) const override { return sqlite3_errstr(error); }
-        };
-
         size_t GetNextStatementId()
         {
             static std::atomic_size_t statementId(0);
@@ -59,12 +53,6 @@ namespace AppInstaller::Repository::SQLite
         {
             return sqlite3_column_int(stmt, column);
         }
-    }
-
-    const std::error_category& SQLiteException::GetCategory() noexcept
-    {
-        static SQLiteErrorCategory category;
-        return category;
     }
 
     Connection::Connection(const std::string& target, OpenDisposition disposition, OpenFlags flags)
@@ -137,6 +125,11 @@ namespace AppInstaller::Repository::SQLite
         }
     }
 
+    void Statement::Execute(bool failFastOnError)
+    {
+        THROW_HR_IF(E_UNEXPECTED, Step(failFastOnError));
+    }
+
     void Statement::Reset()
     {
         AICLI_LOG(SQL, Verbose, << "Reset statement #" << m_id);
@@ -158,7 +151,7 @@ namespace AppInstaller::Repository::SQLite
         begin.Step();
     }
 
-    Savepoint Savepoint::Create(Connection& connection, std::string&& name)
+    Savepoint Savepoint::Create(Connection& connection, std::string name)
     {
         return { connection, std::move(name) };
     }

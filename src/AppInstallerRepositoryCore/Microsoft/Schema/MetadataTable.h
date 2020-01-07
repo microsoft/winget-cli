@@ -33,7 +33,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         {
             SQLite::Statement statement = SetNamedValueStatement(connection, name);
             statement.Bind(2, std::forward<Value>(v));
-            THROW_HR_IF(E_UNEXPECTED, statement.Step());
+            statement.Execute();
         }
 
     private:

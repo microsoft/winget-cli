@@ -16,7 +16,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
     static char const* const s_MetadataTable_Table_Create = R"(
 CREATE TABLE [metadata](
-    [name] TEXT PRIMARY KEY NOT NULL UNIQUE,
+    [name] TEXT PRIMARY KEY NOT NULL,
     [value] TEXT NOT NULL)
 )";
 
@@ -27,7 +27,7 @@ CREATE TABLE [metadata](
     void MetadataTable::Create(SQLite::Connection& connection)
     {
         SQLite::Statement create = SQLite::Statement::Create(connection, s_MetadataTable_Table_Create);
-        create.Step();
+        create.Execute();
     }
 
     SQLite::Statement MetadataTable::GetNamedValueStatement(SQLite::Connection& connection, const std::string& name)
