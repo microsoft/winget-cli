@@ -8,8 +8,8 @@
 // TODO: Invoke the wil error handling callback to log the error
 #define THROW_SQLITE(_error_) \
     do { \
-        auto _throw_sqlite_exc = SQLiteException(_error_); \
-        throw _throw_sqlite_exc; \
+        int _ts_sqliteReturnValue = _error_; \
+        THROW_EXCEPTION_MSG(SQLiteException(_ts_sqliteReturnValue), sqlite3_errstr(_ts_sqliteReturnValue)); \
     } while (0,0)
 
 #define THROW_IF_SQLITE_FAILED(_statement_) \
@@ -25,12 +25,6 @@ namespace AppInstaller::Repository::SQLite
 {
     namespace
     {
-        class SQLiteErrorCategory : public std::error_category
-        {
-            const char* name() const noexcept override { return "sqlite"; }
-            std::string message(int error) const override { return sqlite3_errstr(error); }
-        };
-
         size_t GetNextStatementId()
         {
             static std::atomic_size_t statementId(0);
@@ -50,6 +44,11 @@ namespace AppInstaller::Repository::SQLite
             return reinterpret_cast<const char*>(sqlite3_column_text(stmt, column));
         }
 
+        void ParameterSpecificsImpl<std::string_view>::Bind(sqlite3_stmt* stmt, int index, std::string_view v)
+        {
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_text64(stmt, index, v.data(), v.size(), SQLITE_TRANSIENT, SQLITE_UTF8));
+        }
+
         void ParameterSpecificsImpl<int>::Bind(sqlite3_stmt* stmt, int index, int v)
         {
             THROW_IF_SQLITE_FAILED(sqlite3_bind_int(stmt, index, v));
@@ -59,12 +58,6 @@ namespace AppInstaller::Repository::SQLite
         {
             return sqlite3_column_int(stmt, column);
         }
-    }
-
-    const std::error_category& SQLiteException::GetCategory() noexcept
-    {
-        static SQLiteErrorCategory category;
-        return category;
     }
 
     Connection::Connection(const std::string& target, OpenDisposition disposition, OpenFlags flags)
@@ -88,15 +81,27 @@ namespace AppInstaller::Repository::SQLite
         sqlite3_close_v2(m_dbconn);
     }
 
-    Statement::Statement(Connection& connection, const std::string& sql, bool persistent)
+    Statement::Statement(Connection& connection, std::string_view sql, bool persistent)
     {
         m_id = GetNextStatementId();
         AICLI_LOG(SQL, Verbose, << "Preparing statement #" << m_id << ": " << sql);
         // SQL string size should include the null terminator (https://www.sqlite.org/c3ref/prepare.html)
-        THROW_IF_SQLITE_FAILED(sqlite3_prepare_v3(connection, sql.c_str(), static_cast<int>(sql.size() + 1), (persistent ? SQLITE_PREPARE_PERSISTENT : 0), &m_stmt, nullptr));
+        assert(sql.data()[sql.size()] == '\0');
+        THROW_IF_SQLITE_FAILED(sqlite3_prepare_v3(connection, sql.data(), static_cast<int>(sql.size() + 1), (persistent ? SQLITE_PREPARE_PERSISTENT : 0), &m_stmt, nullptr));
     }
 
     Statement Statement::Create(Connection& connection, const std::string& sql, bool persistent)
+    {
+        return { connection, { sql.c_str(), sql.size() }, persistent };
+    }
+
+    Statement Statement::Create(Connection& connection, std::string_view sql, bool persistent)
+    {
+        // We need the statement to be null terminated, and the only way to guarantee that with a string_view is to construct a string copy.
+        return Create(connection, std::string(sql), persistent);
+    }
+
+    Statement Statement::Create(Connection& connection, char const* const sql, bool persistent)
     {
         return { connection, sql, persistent };
     }
@@ -137,6 +142,11 @@ namespace AppInstaller::Repository::SQLite
         }
     }
 
+    void Statement::Execute(bool failFastOnError)
+    {
+        THROW_HR_IF(E_UNEXPECTED, Step(failFastOnError));
+    }
+
     void Statement::Reset()
     {
         AICLI_LOG(SQL, Verbose, << "Reset statement #" << m_id);
@@ -158,7 +168,7 @@ namespace AppInstaller::Repository::SQLite
         begin.Step();
     }
 
-    Savepoint Savepoint::Create(Connection& connection, std::string&& name)
+    Savepoint Savepoint::Create(Connection& connection, std::string name)
     {
         return { connection, std::move(name) };
     }

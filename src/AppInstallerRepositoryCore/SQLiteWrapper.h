@@ -5,8 +5,7 @@
 #include <winsqlite/winsqlite3.h>
 
 #include <string>
-#include <stdexcept>
-#include <system_error>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -36,6 +35,12 @@ namespace AppInstaller::Repository::SQLite
         };
 
         template <>
+        struct ParameterSpecificsImpl<std::string_view>
+        {
+            static void Bind(sqlite3_stmt* stmt, int index, std::string_view v);
+        };
+
+        template <>
         struct ParameterSpecificsImpl<int>
         {
             static void Bind(sqlite3_stmt* stmt, int index, int v);
@@ -47,11 +52,9 @@ namespace AppInstaller::Repository::SQLite
     }
 
     // A SQLite exception.
-    struct SQLiteException : public std::system_error
+    struct SQLiteException : public wil::ResultException
     {
-        SQLiteException(int error) : std::system_error(error, GetCategory()) {}
-
-        static const std::error_category& GetCategory() noexcept;
+        SQLiteException(int error) : wil::ResultException(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_SQLITE, error)) {}
     };
 
     // The connection to a database.
@@ -101,6 +104,8 @@ namespace AppInstaller::Repository::SQLite
     struct Statement
     {
         static Statement Create(Connection& connection, const std::string& sql, bool persistent = false);
+        static Statement Create(Connection& connection, std::string_view sql, bool persistent = false);
+        static Statement Create(Connection& connection, char const* const sql, bool persistent = false);
 
         Statement() = default;
 
@@ -143,6 +148,9 @@ namespace AppInstaller::Repository::SQLite
         // This return value is the equivalent of 'GetState() == State::HasRow' after calling Step.
         bool Step(bool failFastOnError = false);
 
+        // Equivalent to Step, but does not ever expect a result, throwing if one is retrieved.
+        void Execute(bool failFastOnError = false);
+
         // Gets the value of the specified column from the current row.
         // The index is 0 based.
         template <typename Value>
@@ -164,7 +172,7 @@ namespace AppInstaller::Repository::SQLite
         void Reset();
 
     private:
-        Statement(Connection& connection, const std::string& sql, bool persistent);
+        Statement(Connection& connection, std::string_view sql, bool persistent);
 
         // Helper to receive the integer sequence from the public function.
         // This is equivalent to calling:
@@ -187,7 +195,7 @@ namespace AppInstaller::Repository::SQLite
     struct Savepoint
     {
         // Creates a savepoint, beginning it.
-        static Savepoint Create(Connection& connection, std::string&& name);
+        static Savepoint Create(Connection& connection, std::string name);
 
         Savepoint(const Savepoint&) = delete;
         Savepoint& operator=(const Savepoint&) = delete;

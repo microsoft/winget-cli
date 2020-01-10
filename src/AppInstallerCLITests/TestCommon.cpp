@@ -7,15 +7,16 @@ namespace TestCommon
 {
     namespace
     {
-        struct initRand
+        int initRand()
         {
-            initRand() { srand(static_cast<unsigned int>(time(NULL))); }
+            srand(static_cast<unsigned int>(time(NULL)));
+            return rand();
         };
 
         inline int getRand()
         {
-            static initRand srandHolder;
-            return rand();
+            static int randStart = initRand();
+            return randStart++;
         }
 
         inline std::string GetTempFilePath(const std::string& baseName, const std::string& baseExt)

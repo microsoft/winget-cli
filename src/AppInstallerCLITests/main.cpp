@@ -26,6 +26,10 @@ int main(int argc, char** argv)
         {
             TestCommon::TempFile::SetDestructorBehavior(true);
         }
+        else if ("-log"s == argv[i])
+        {
+            AppInstaller::Logging::AddDefaultFileLogger();
+        }
         else
         {
             args.push_back(argv[i]);

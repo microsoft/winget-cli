@@ -19,6 +19,9 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         // Gets the schema version that this index interface is built for.
         virtual Schema::Version GetVersion() const = 0;
+
+        // Creates all of the version dependent tables within the database.
+        virtual void CreateTables(SQLite::Connection& connection) = 0;
     };
 
 

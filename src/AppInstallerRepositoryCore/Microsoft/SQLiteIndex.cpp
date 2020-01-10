@@ -36,6 +36,8 @@ namespace AppInstaller::Repository::Microsoft
         // Use calculated version, as incoming version could be 'latest'
         result.m_version.SetSchemaVersion(result.m_dbconn);
 
+        result.m_interface->CreateTables(result.m_dbconn);
+
         savepoint.Commit();
 
         return result;

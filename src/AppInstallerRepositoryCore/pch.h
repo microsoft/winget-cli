@@ -14,9 +14,11 @@
 
 #include <winrt/Windows.Foundation.h>
 
+#include <initializer_list>
 #include <iomanip>
 #include <string>
-#include <stdexcept>
+#include <string_view>
+#include <sstream>
 #include <system_error>
 #include <tuple>
 #include <type_traits>
