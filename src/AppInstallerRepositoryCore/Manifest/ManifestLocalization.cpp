@@ -6,7 +6,7 @@
 
 namespace AppInstaller::Manifest
 {
-    void ManifestLocalization::PopulateLocalizationFields(YAML::Node localizationNode)
+    void ManifestLocalization::PopulateLocalizationFields(const YAML::Node& localizationNode)
     {
         // Required
         this->Language = localizationNode["Language"].as<std::string>();

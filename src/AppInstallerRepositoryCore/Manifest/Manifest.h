@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #pragma once
-#include <string>
-#include <vector>
-#include <optional>
 #include "ManifestInstaller.h"
 #include "ManifestLocalization.h"
+
+#include <filesystem>
+#include <string>
+#include <optional>
+#include <vector>
 
 namespace AppInstaller::Manifest
 {
@@ -66,8 +67,8 @@ namespace AppInstaller::Manifest
 
         void PopulateManifestFields(const YAML::Node& rootNode);
 
-        static Manifest CreatePackageManifestFromFile(const std::string& inputFile);
+        static Manifest CreateFromPath(const std::filesystem::path& inputFile);
 
-        static Manifest CreatePackageManifest(const std::string& input);
+        static Manifest Create(const std::string& input);
     };
 }

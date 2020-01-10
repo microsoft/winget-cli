@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #pragma once
 #include <string>
+
+namespace YAML { class Node; }
+
 namespace AppInstaller::Manifest
 {
     class InstallerSwitches
@@ -14,6 +16,6 @@ namespace AppInstaller::Manifest
 
         std::string Verbose;
 
-        void PopulateSwitchesFields(YAML::Node switchesNode);
+        void PopulateSwitchesFields(const YAML::Node& switchesNode);
     };
 }

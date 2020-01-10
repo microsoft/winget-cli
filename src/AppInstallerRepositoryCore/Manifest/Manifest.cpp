@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #include "pch.h"
 #include "Manifest.h"
 
@@ -58,9 +57,9 @@ namespace AppInstaller::Manifest
         }
     }
 
-    Manifest Manifest::CreatePackageManifestFromFile(const std::string& inputFile)
+    Manifest Manifest::CreateFromPath(const std::filesystem::path& inputFile)
     {
-        YAML::Node rootNode = YAML::LoadFile(inputFile);
+        YAML::Node rootNode = YAML::LoadFile(inputFile.u8string());
 
         Manifest manifest;
         manifest.PopulateManifestFields(rootNode);
@@ -68,7 +67,7 @@ namespace AppInstaller::Manifest
         return manifest;
     }
 
-    Manifest Manifest::CreatePackageManifest(const std::string& input)
+    Manifest Manifest::Create(const std::string& input)
     {
         Manifest manifest;
 

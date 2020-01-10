@@ -6,7 +6,7 @@
 
 namespace AppInstaller::Manifest
 {
-    void ManifestInstaller::PopulateInstallerFields(YAML::Node installerNode)
+    void ManifestInstaller::PopulateInstallerFields(const YAML::Node& installerNode)
     {
         // Required fields
         this->Arch = installerNode["Arch"].as<std::string>();
