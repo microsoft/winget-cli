@@ -84,7 +84,4 @@ namespace AppInstaller::Manifest
 
         return manifest;
     }
-
-
 }
-

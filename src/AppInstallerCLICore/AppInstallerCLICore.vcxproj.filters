@@ -19,6 +19,9 @@
     <Filter Include="Public">
       <UniqueIdentifier>{00cc3138-2893-4fc4-8595-d3cf9d26be1c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Workflows">
+      <UniqueIdentifier>{fdeb940e-93e2-4bb0-a59c-1e2d1c0588d1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -51,6 +54,9 @@
     <ClInclude Include="Public\AppInstallerCLICore.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="Workflows\InstallFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -70,6 +76,9 @@
     </ClCompile>
     <ClCompile Include="Core.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\InstallFlow.cpp">
+      <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

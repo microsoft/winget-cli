@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 #include "pch.h"
+#include "..\AppInstallerCommonCore\Public\AppInstallerRuntime.h"
+#include "..\AppInstallerCommonCore\Public\AppInstallerUtility.h"
 #include "ManifestInstaller.h"
 
 namespace AppInstaller::Manifest
@@ -9,7 +11,7 @@ namespace AppInstaller::Manifest
     void ManifestInstaller::PopulateInstallerFields(const YAML::Node& installerNode)
     {
         // Required fields
-        this->Arch = installerNode["Arch"].as<std::string>();
+        this->Arch = Utility::ConvertToArchitectureEnum(installerNode["Arch"].as<std::string>());
         this->Url = installerNode["Url"].as<std::string>();
         this->Sha256 = installerNode["Sha256"].as<std::string>();
 

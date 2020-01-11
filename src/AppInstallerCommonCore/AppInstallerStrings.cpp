@@ -35,4 +35,12 @@ namespace AppInstaller::Utility
 
         return result;
     }
+
+    std::string ToLower(const std::string& in)
+    {
+        std::string result(in);
+        std::transform(result.begin(), result.end(), result.begin(),
+            [](unsigned char c) { return std::tolower(c); });
+        return result;
+    }
 }

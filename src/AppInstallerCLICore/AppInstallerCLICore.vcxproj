@@ -122,9 +122,9 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
@@ -136,7 +136,7 @@
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Windows</SubSystem>
@@ -148,10 +148,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -169,6 +169,7 @@
     <ClInclude Include="Commands\InstallCommand.h" />
     <ClInclude Include="Commands\RootCommand.h" />
     <ClInclude Include="Common.h" />
+    <ClInclude Include="Workflows\InstallFlow.h" />
     <ClInclude Include="Invocation.h" />
     <ClInclude Include="Localization.h" />
     <ClInclude Include="pch.h" />
@@ -181,6 +182,7 @@
     <ClCompile Include="Commands\InstallCommand.cpp" />
     <ClCompile Include="Commands\RootCommand.cpp" />
     <ClCompile Include="Core.cpp" />
+    <ClCompile Include="Workflows\InstallFlow.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
@@ -188,6 +190,17 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AppInstallerCommonCore\AppInstallerCommonCore.vcxproj">
+      <Project>{5890d6ed-7c3b-40f3-b436-b54f640d9e65}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\AppInstallerRepositoryCore\AppInstallerRepositoryCore.vcxproj">
+      <Project>{5eb88068-5fb9-4e69-89b2-72dbc5e068f9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\YamlCppLib\YamlCppLib.vcxproj">
+      <Project>{8bb94bb8-374f-4294-bca1-c7811514a6b7}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
