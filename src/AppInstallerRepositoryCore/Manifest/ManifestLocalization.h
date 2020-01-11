@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #pragma once
 #include <string>
+
+namespace YAML { class Node; }
 
 namespace AppInstaller::Manifest
 {
@@ -18,6 +19,6 @@ namespace AppInstaller::Manifest
 
         std::string LicenseUrl;
 
-        void PopulateLocalizationFields(YAML::Node localizationNode);
+        void PopulateLocalizationFields(const YAML::Node& localizationNode);
     };
 }

@@ -1,0 +1,8 @@
+LIBRARY     AppInstallerSQLiteIndexUtil
+EXPORTS
+    AppInstallerSQLiteIndexCreate
+    AppInstallerSQLiteIndexOpen
+    AppInstallerSQLiteIndexClose
+    AppInstallerSQLiteIndexAddManifest
+    AppInstallerSQLiteIndexUpdateManifest
+    AppInstallerSQLiteIndexRemoveManifest

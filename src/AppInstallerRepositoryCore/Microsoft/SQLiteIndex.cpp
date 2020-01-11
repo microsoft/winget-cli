@@ -118,4 +118,46 @@ namespace AppInstaller::Repository::Microsoft
         m_interface = version.CreateISQLiteIndex();
         m_version = m_interface->GetVersion();
     }
+
+    void SQLiteIndex::AddManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
+    {
+        Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(manifestPath);
+        AddManifest(manifest, relativePath);
+    }
+
+    void SQLiteIndex::AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    {
+        UNREFERENCED_PARAMETER(manifest);
+        UNREFERENCED_PARAMETER(relativePath);
+        THROW_HR(E_NOTIMPL);
+    }
+
+    void SQLiteIndex::UpdateManifest(const std::filesystem::path& oldManifestPath, const std::filesystem::path& oldRelativePath, const std::filesystem::path& newManifestPath, const std::filesystem::path& newRelativePath)
+    {
+        Manifest::Manifest oldManifest = Manifest::Manifest::CreateFromPath(oldManifestPath);
+        Manifest::Manifest newManifest = Manifest::Manifest::CreateFromPath(newManifestPath);
+        UpdateManifest(oldManifest, oldRelativePath, newManifest, newRelativePath);
+    }
+
+    void SQLiteIndex::UpdateManifest(const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath)
+    {
+        UNREFERENCED_PARAMETER(oldManifest);
+        UNREFERENCED_PARAMETER(oldRelativePath);
+        UNREFERENCED_PARAMETER(newManifest);
+        UNREFERENCED_PARAMETER(newRelativePath);
+        THROW_HR(E_NOTIMPL);
+    }
+
+    void SQLiteIndex::RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
+    {
+        Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(manifestPath);
+        RemoveManifest(manifest, relativePath);
+    }
+
+    void SQLiteIndex::RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    {
+        UNREFERENCED_PARAMETER(manifest);
+        UNREFERENCED_PARAMETER(relativePath);
+        THROW_HR(E_NOTIMPL);
+    }
 }

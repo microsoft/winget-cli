@@ -7,7 +7,7 @@ using namespace AppInstaller::Manifest;
 
 TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
 {
-    Manifest manifest = Manifest::CreatePackageManifestFromFile("GoodManifest.yml");
+    Manifest manifest = Manifest::CreateFromPath("GoodManifest.yml");
 
     REQUIRE(manifest.Id == "microsoft.msixsdk");
     REQUIRE(manifest.Name == "MSIX SDK");
@@ -71,5 +71,5 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
 
 TEST_CASE("ReadBadManifestAndVerifyThrow", "[PackageManifestHelper]")
 {
-    REQUIRE_THROWS_WITH(Manifest::CreatePackageManifestFromFile("BadManifest-MissingName.yml"), "invalid node; first invalid key: \"Name\"");
+    REQUIRE_THROWS_WITH(Manifest::CreateFromPath("BadManifest-MissingName.yml"), "invalid node; first invalid key: \"Name\"");
 }

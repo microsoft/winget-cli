@@ -42,11 +42,21 @@ namespace AppInstaller::Repository::Microsoft
         Schema::Version GetVersion() const { return m_version; }
 
         // Adds the manifest at the repository relative path to the index.
+        void AddManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);
+
+        // Adds the manifest at the repository relative path to the index.
         void AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
 
         // Updates the manifest at the repository relative path in the index.
         // If the old manifest does not exist in the index, this is equivalent to AddManifest(newManifest, newRelativePath).
+        void UpdateManifest(const std::filesystem::path& oldManifestPath, const std::filesystem::path& oldRelativePath, const std::filesystem::path& newManifestPath, const std::filesystem::path& newRelativePath);
+
+        // Updates the manifest at the repository relative path in the index.
+        // If the old manifest does not exist in the index, this is equivalent to AddManifest(newManifest, newRelativePath).
         void UpdateManifest(const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath);
+
+        // Removes the manifest at the repository relative path from the index.
+        void RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);
 
         // Removes the manifest at the repository relative path from the index.
         void RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);

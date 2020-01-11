@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #pragma once
 #include <string>
 #include <optional>
@@ -32,6 +31,6 @@ namespace AppInstaller::Manifest
         // If present, has more presedence than root
         std::optional<InstallerSwitches> Switches;
 
-        void PopulateInstallerFields(YAML::Node installerNode);
+        void PopulateInstallerFields(const YAML::Node& installerNode);
     };
 }

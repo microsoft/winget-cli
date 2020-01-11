@@ -6,7 +6,7 @@
 
 namespace AppInstaller::Manifest
 {
-    void InstallerSwitches::PopulateSwitchesFields(YAML::Node switchesNode)
+    void InstallerSwitches::PopulateSwitchesFields(const YAML::Node& switchesNode)
     {
         this->Default = switchesNode["Default"] ? switchesNode["Default"].as<std::string>() : "";
         this->Silent = switchesNode["Silent"] ? switchesNode["Silent"].as<std::string>() : "";
