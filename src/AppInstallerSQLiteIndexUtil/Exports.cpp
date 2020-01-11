@@ -9,14 +9,14 @@ using namespace AppInstaller::Repository::Microsoft;
 
 extern "C"
 {
-    HRESULT AppInstallerSQLiteIndexCreate(APPINSTALLER_SQLITE_INDEX_STRING filePath, AppInstallerSQLiteIndexVersion version, APPINSTALLER_SQLITE_INDEX_HANDLE* index) try
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexCreate(APPINSTALLER_SQLITE_INDEX_STRING filePath, UINT32 majorVersion, UINT32 minorVersion, APPINSTALLER_SQLITE_INDEX_HANDLE* index) try
     {
         THROW_HR_IF(E_INVALIDARG, !filePath);
         THROW_HR_IF(E_INVALIDARG, !index);
         THROW_HR_IF(E_INVALIDARG, !!*index);
 
         std::string filePathUtf8 = ConvertToUTF8(filePath);
-        Schema::Version internalVersion{ version.MajorVersion, version.MinorVersion };
+        Schema::Version internalVersion{ majorVersion, minorVersion };
 
         std::unique_ptr<SQLiteIndex> result = std::make_unique<SQLiteIndex>(SQLiteIndex::CreateNew(filePathUtf8, internalVersion));
 
@@ -26,7 +26,7 @@ extern "C"
     }
     CATCH_RETURN()
 
-    HRESULT AppInstallerSQLiteIndexOpen(APPINSTALLER_SQLITE_INDEX_STRING filePath, APPINSTALLER_SQLITE_INDEX_HANDLE* index) try
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexOpen(APPINSTALLER_SQLITE_INDEX_STRING filePath, APPINSTALLER_SQLITE_INDEX_HANDLE* index) try
     {
         THROW_HR_IF(E_INVALIDARG, !filePath);
         THROW_HR_IF(E_INVALIDARG, !index);
@@ -42,7 +42,7 @@ extern "C"
     }
     CATCH_RETURN()
 
-    HRESULT AppInstallerSQLiteIndexClose(APPINSTALLER_SQLITE_INDEX_HANDLE index) try
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexClose(APPINSTALLER_SQLITE_INDEX_HANDLE index) try
     {
         std::unique_ptr<SQLiteIndex> toClose(reinterpret_cast<SQLiteIndex*>(index));
 
@@ -50,7 +50,7 @@ extern "C"
     }
     CATCH_RETURN()
 
-    HRESULT AppInstallerSQLiteIndexAddManifest(APPINSTALLER_SQLITE_INDEX_HANDLE index, APPINSTALLER_SQLITE_INDEX_STRING manifestPath, APPINSTALLER_SQLITE_INDEX_STRING relativePath) try
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexAddManifest(APPINSTALLER_SQLITE_INDEX_HANDLE index, APPINSTALLER_SQLITE_INDEX_STRING manifestPath, APPINSTALLER_SQLITE_INDEX_STRING relativePath) try
     {
         THROW_HR_IF(E_INVALIDARG, !index);
         THROW_HR_IF(E_INVALIDARG, !manifestPath);
@@ -62,7 +62,7 @@ extern "C"
     }
     CATCH_RETURN()
 
-    HRESULT AppInstallerSQLiteIndexUpdateManifest(
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexUpdateManifest(
         APPINSTALLER_SQLITE_INDEX_HANDLE index,
         APPINSTALLER_SQLITE_INDEX_STRING oldManifestPath, APPINSTALLER_SQLITE_INDEX_STRING oldRelativePath,
         APPINSTALLER_SQLITE_INDEX_STRING newManifestPath, APPINSTALLER_SQLITE_INDEX_STRING newRelativePath) try
@@ -79,7 +79,7 @@ extern "C"
     }
     CATCH_RETURN()
 
-    HRESULT AppInstallerSQLiteIndexRemoveManifest(APPINSTALLER_SQLITE_INDEX_HANDLE index, APPINSTALLER_SQLITE_INDEX_STRING manifestPath, APPINSTALLER_SQLITE_INDEX_STRING relativePath) try
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexRemoveManifest(APPINSTALLER_SQLITE_INDEX_HANDLE index, APPINSTALLER_SQLITE_INDEX_STRING manifestPath, APPINSTALLER_SQLITE_INDEX_STRING relativePath) try
     {
         THROW_HR_IF(E_INVALIDARG, !index);
         THROW_HR_IF(E_INVALIDARG, !manifestPath);
