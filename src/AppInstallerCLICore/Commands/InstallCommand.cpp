@@ -40,7 +40,7 @@ namespace AppInstaller::CLI
                 try
                 {
                     Manifest::Manifest packageManifest = Manifest::Manifest::CreateFromPath(manifest);
-                    InstallFlow packageInstall(packageManifest);
+                    InstallFlow packageInstall(packageManifest, out);
                     packageInstall.Install();
                 }
                 catch (std::exception& e)

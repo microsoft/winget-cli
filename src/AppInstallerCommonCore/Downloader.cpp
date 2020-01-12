@@ -72,10 +72,10 @@ namespace AppInstaller::Utility
             }
 
             // Get content length. Don't fail the download if failed.
-            LONGLONG contentLength;
+            LONGLONG contentLength = 0;
             DWORD cbContentLength = sizeof(contentLength);
 
-            if (HttpQueryInfo(
+            if (HttpQueryInfoA(
                 m_urlFile,
                 HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER64,
                 &contentLength,
@@ -99,7 +99,7 @@ namespace AppInstaller::Utility
 
             if (callback)
             {
-                callback->OnStarted(m_downloadSize);
+                callback->OnStarted();
             }
 
             do
@@ -132,9 +132,9 @@ namespace AppInstaller::Utility
 
                 m_progress += bytesRead;
 
-                if (callback)
+                if (callback && bytesRead != 0)
                 {
-                    callback->OnProgress(m_progress);
+                    callback->OnProgress(m_progress, m_downloadSize);
                 }
 
             } while (readSuccess && bytesRead != 0);

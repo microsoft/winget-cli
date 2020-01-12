@@ -176,6 +176,7 @@
     <ClInclude Include="Public\AppInstallerCLICore.h" />
     <ClInclude Include="Search\Search.h" />
     <ClInclude Include="Workflows\ManifestComparator.h" />
+    <ClInclude Include="Workflows\WorkflowReporter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Command.cpp" />
@@ -188,6 +189,7 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Workflows\WorkflowReporter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

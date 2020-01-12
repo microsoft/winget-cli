@@ -9,13 +9,13 @@ namespace AppInstaller::Utility
     class IDownloaderCallback
     {
     public:
-        virtual void OnStarted(LONGLONG downloadSize);
+        virtual void OnStarted() = 0;
 
-        virtual void OnProgress(LONGLONG progress);
+        virtual void OnProgress(LONGLONG progress, LONGLONG downloadSize) = 0;
 
-        virtual void OnCanceled();
+        virtual void OnCanceled() = 0;
 
-        virtual void OnCompleted();
+        virtual void OnCompleted() = 0;
     };
 
     class Downloader

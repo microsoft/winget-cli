@@ -16,7 +16,18 @@ namespace AppInstaller::Workflow {
 
     void InstallFlow::Install()
     {
+        DetermineLocalization();
         DetermineInstaller();
+
+        m_reporter.ShowPackageInfo(
+            m_packageManifest.Name,
+            m_packageManifest.Version,
+            m_packageManifest.Author,
+            m_packageManifest.Description,
+            m_packageManifest.Homepage,
+            m_packageManifest.LicenseUrl
+        );
+
         DownloadInstaller();
         ExecuteInstaller();
     }
@@ -104,7 +115,8 @@ namespace AppInstaller::Workflow {
         auto downloadTask = downloader.DownloadAsync(
             m_selectedInstaller.Url,
             tempInstallerPath,
-            true);
+            true,
+            &m_reporter.GetDownloaderCallback());
 
         downloadTask.wait();
 
@@ -119,6 +131,8 @@ namespace AppInstaller::Workflow {
         {
             throw;
         }
+
+        m_reporter.ShowMsg("Successfully verified SHA256.");
 
         m_downloadedInstaller = tempInstallerPath;
     }
@@ -160,13 +174,19 @@ namespace AppInstaller::Workflow {
             throw;
         }
 
+        m_reporter.ShowMsg("Installing package ...");
+
         std::future<int> installTask;
         if (m_selectedInstaller.InstallerType.compare("exe") == 0)
         {
             installTask = ExecuteExeInstallerAsync(m_downloadedInstaller, GetInstallerArgs());
         }
 
+        m_reporter.ShowIndefiniteSpinner(true);
+
         installTask.wait();
+
+        m_reporter.ShowIndefiniteSpinner(false);
 
         auto installResult = installTask.get();
 
@@ -175,7 +195,7 @@ namespace AppInstaller::Workflow {
             throw;
         }
 
-        std::cout << "done" << std::endl;
+        m_reporter.ShowMsg("Successfully installed!");
     }
 
     

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #pragma once
+#include "WorkflowReporter.h"
 
 namespace AppInstaller::Workflow {
 
@@ -15,7 +16,8 @@ namespace AppInstaller::Workflow {
     class InstallFlow
     {
     public:
-        InstallFlow(const AppInstaller::Manifest::Manifest manifest) : m_packageManifest(manifest) {}
+        InstallFlow(const AppInstaller::Manifest::Manifest manifest, std::ostream& stream) :
+            m_packageManifest(manifest), m_reporter(stream) {}
 
         void Install();
 
@@ -24,6 +26,7 @@ namespace AppInstaller::Workflow {
         AppInstaller::Manifest::ManifestInstaller m_selectedInstaller;
         AppInstaller::Manifest::ManifestLocalization m_selectedLocalization;
         std::filesystem::path m_downloadedInstaller;
+        WorkflowReporter m_reporter;
 
         //std::filesystem::path m_downloadedInstallerPath;
 
