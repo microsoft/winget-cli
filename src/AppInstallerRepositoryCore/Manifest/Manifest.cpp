@@ -59,10 +59,19 @@ namespace AppInstaller::Manifest
 
     Manifest Manifest::CreateFromPath(const std::filesystem::path& inputFile)
     {
-        YAML::Node rootNode = YAML::LoadFile(inputFile.u8string());
-
         Manifest manifest;
-        manifest.PopulateManifestFields(rootNode);
+
+        try
+        {
+            YAML::Node rootNode = YAML::LoadFile(inputFile.u8string());
+            manifest.PopulateManifestFields(rootNode);
+        }
+        catch (std::runtime_error & e)
+        {
+            AICLI_LOG(YAML, Error, << "Failed to create manifest from file: " << inputFile.u8string());
+            throw ManifestException(e.what());
+        }
+        
 
         return manifest;
     }
@@ -76,10 +85,10 @@ namespace AppInstaller::Manifest
             YAML::Node rootNode = YAML::Load(input);
             manifest.PopulateManifestFields(rootNode);
         }
-        catch (std::exception&)
+        catch (std::runtime_error& e)
         {
-            // TODO: Log theinput string when read manifest failure
-            throw;
+            AICLI_LOG(YAML, Error, << "Failed to create manifest: " << input);
+            throw ManifestException(e.what());
         }
 
         return manifest;

@@ -4,7 +4,9 @@
 #include <string>
 #include <optional>
 #include "InstallerSwitches.h"
-#include "..\AppInstallerCommonCore\Public\AppInstallerRuntime.h"
+#include "..\AppInstallerCommonCore\Public\AppInstallerArchitecture.h"
+
+using namespace AppInstaller::Utility;
 
 namespace AppInstaller::Manifest
 {
@@ -12,7 +14,7 @@ namespace AppInstaller::Manifest
     {
     public:
         // Required. Values: x86, x64, arm, arm64, all.
-        Runtime::Architecture Arch;
+        Architecture Arch;
 
         // Required
         std::string Url;

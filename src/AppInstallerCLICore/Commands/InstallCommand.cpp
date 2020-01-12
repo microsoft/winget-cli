@@ -39,7 +39,7 @@ namespace AppInstaller::CLI
             {
                 try
                 {
-                    Manifest::Manifest packageManifest = Manifest::Manifest::CreatePackageManifestFromFile(manifest);
+                    Manifest::Manifest packageManifest = Manifest::Manifest::CreateFromPath(manifest);
                     InstallFlow packageInstall(packageManifest);
                     packageInstall.Install();
                 }

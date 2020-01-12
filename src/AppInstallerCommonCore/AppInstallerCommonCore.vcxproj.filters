@@ -51,7 +51,16 @@
     <ClInclude Include="Public\AppInstallerRuntime.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="Public\AppInstallerUtility.h">
+    <ClInclude Include="Public\AppInstallerSHA256.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\Exceptions.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\AppInstallerDownloader.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\AppInstallerArchitecture.h">
       <Filter>Public</Filter>
     </ClInclude>
   </ItemGroup>
@@ -80,7 +89,13 @@
     <ClCompile Include="Runtime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utility.cpp">
+    <ClCompile Include="SHA256.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Downloader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Architecture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -11,6 +11,11 @@
 
 namespace AppInstaller::Manifest
 {
+    struct ManifestException : public std::runtime_error
+    {
+        ManifestException(std::string message) : std::runtime_error(message) {}
+    };
+
     // Our representation of the parsed manifest file.
     struct Manifest
     {

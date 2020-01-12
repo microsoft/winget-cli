@@ -167,11 +167,14 @@
     <ClInclude Include="DateTime.h" />
     <ClInclude Include="FileLogger.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Public\AppInstallerDownloader.h" />
     <ClInclude Include="Public\AppInstallerRuntime.h" />
+    <ClInclude Include="Public\AppInstallerSHA256.h" />
     <ClInclude Include="Public\AppInstallerStrings.h" />
     <ClInclude Include="Public\AppInstallerTelemetry.h" />
     <ClInclude Include="Public\AppInstallerLogging.h" />
-    <ClInclude Include="Public\AppInstallerUtility.h" />
+    <ClInclude Include="Public\AppInstallerArchitecture.h" />
+    <ClInclude Include="Public\Exceptions.h" />
     <ClInclude Include="Telemetry\MicrosoftTelemetry.h" />
     <ClInclude Include="Telemetry\TraceLogging.h" />
     <ClInclude Include="Telemetry\WinEventLogLevels.h" />
@@ -180,14 +183,16 @@
     <ClCompile Include="AppInstallerLogging.cpp" />
     <ClCompile Include="AppInstallerStrings.cpp" />
     <ClCompile Include="DateTime.cpp" />
+    <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="FileLogger.cpp" />
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="AppInstallerTelemetry.cpp" />
+    <ClCompile Include="SHA256.cpp" />
     <ClCompile Include="Telemetry\TraceLogging.cpp" />
-    <ClCompile Include="Utility.cpp" />
+    <ClCompile Include="Architecture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

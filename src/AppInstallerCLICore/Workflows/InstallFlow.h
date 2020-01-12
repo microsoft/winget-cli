@@ -5,6 +5,13 @@
 
 namespace AppInstaller::Workflow {
 
+    class InstallFlowException : public std::runtime_error
+    {
+    public:
+        InstallFlowException(const char* message) :
+           std::runtime_error(message) {}
+    };
+
     class InstallFlow
     {
     public:
@@ -16,7 +23,7 @@ namespace AppInstaller::Workflow {
         AppInstaller::Manifest::Manifest m_packageManifest;
         AppInstaller::Manifest::ManifestInstaller m_selectedInstaller;
         AppInstaller::Manifest::ManifestLocalization m_selectedLocalization;
-        std::string m_downloadedInstaller;
+        std::filesystem::path m_downloadedInstaller;
 
         //std::filesystem::path m_downloadedInstallerPath;
 
@@ -26,6 +33,6 @@ namespace AppInstaller::Workflow {
         void ExecuteInstaller();
         std::string GetInstallerArgs();
 
-        std::future<int> ExecuteExeInstallAsync(const std::string& filePath, const std::string& args);
+        std::future<int> ExecuteExeInstallerAsync(const std::filesystem::path& filePath, const std::string& args);
     };
 }

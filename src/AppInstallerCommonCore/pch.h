@@ -12,6 +12,7 @@
 #include <wil/safecast.h>
 
 #include <chrono>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <limits>
@@ -23,3 +24,5 @@
 #include <vector>
 #include <future>
 #include <set>
+
+#include <WinInet.h>

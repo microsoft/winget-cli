@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "Public/AppInstallerArchitecture.h"
 #include "Public/AppInstallerRuntime.h"
-
 #include <winrt/Windows.Storage.h>
+
+using namespace AppInstaller::Utility;
 
 namespace AppInstaller::Runtime
 {
-    static const std::set<Architecture> ApplicableArchitectures = GetApplicableArchitectures();
-
     namespace
     {
         bool DoesCurrentProcessHaveIdentity()
@@ -65,40 +65,5 @@ namespace AppInstaller::Runtime
         }
 
         return systemArchitecture;
-    }
-
-    std::set<Architecture> GetApplicableArchitectures()
-    {
-        std::set<Architecture> applicableArchs;
-        
-        switch (GetSystemArchitecture())
-        {
-        case Architecture::arm64:
-            applicableArchs.insert(Architecture::arm64);
-            applicableArchs.insert(Architecture::x86);
-            applicableArchs.insert(Architecture::arm);
-            applicableArchs.insert(Architecture::neutral);
-            break;
-        case Architecture::arm:
-            applicableArchs.insert(Architecture::arm);
-            applicableArchs.insert(Architecture::neutral);
-            break;
-        case Architecture::x86:
-            applicableArchs.insert(Architecture::x86);
-            applicableArchs.insert(Architecture::neutral);
-            break;
-        case Architecture::x64:
-            applicableArchs.insert(Architecture::x86);
-            applicableArchs.insert(Architecture::x64);
-            applicableArchs.insert(Architecture::neutral);
-            break;
-        }
-
-        return applicableArchs;
-    }
-
-    bool IsApplicableArchitecture(Architecture arch)
-    {
-        return ApplicableArchitectures.find(arch) != ApplicableArchitectures.end();
     }
 }
