@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 #include "pch.h"
-#include <AppInstallerRuntime.h>
-#include <AppInstallerStrings.h>
 #include "ManifestInstaller.h"
 
 namespace AppInstaller::Manifest
@@ -13,7 +11,7 @@ namespace AppInstaller::Manifest
         // Required fields
         this->Arch = Utility::ConvertToArchitectureEnum(installerNode["Arch"].as<std::string>());
         this->Url = installerNode["Url"].as<std::string>();
-        this->Sha256 = Utility::ToLower(installerNode["Sha256"].as<std::string>());
+        this->Sha256 = installerNode["Sha256"].as<std::string>();
 
         // Optional fields.
         this->Language = installerNode["Language"] ? installerNode["Language"].as<std::string>() : "";

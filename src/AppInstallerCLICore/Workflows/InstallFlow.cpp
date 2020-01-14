@@ -154,7 +154,7 @@ namespace AppInstaller::Workflow {
             throw InstallFlowException("Package download canceled");
         }
 
-        if (downloadResult.second != m_selectedInstaller.Sha256)
+        if (Utility::ToLower(downloadResult.second) != m_selectedInstaller.Sha256)
         {
             m_reporter.ShowMsg("Package hash verification failed.");
             throw InstallFlowException("Package hash verification failed");
