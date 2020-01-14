@@ -1,7 +1,5 @@
-//
-//  Copyright (C) 2017 Microsoft.  All rights reserved.
-//  See LICENSE file in the project root for full license information.
-//
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 #include <pch.h>
 #define WIN32_NO_STATUS

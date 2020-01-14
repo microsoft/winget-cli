@@ -71,7 +71,6 @@ namespace AppInstaller::Manifest
             AICLI_LOG(YAML, Error, << "Failed to create manifest from file: " << inputFile.u8string());
             throw ManifestException(e.what());
         }
-        
 
         return manifest;
     }

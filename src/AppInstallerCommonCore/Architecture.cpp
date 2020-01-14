@@ -27,14 +27,12 @@ namespace AppInstaller::Utility
         {
             return Architecture::arm64;
         }
-        if (ToLower(archStr) == "neutral")
+        else if (ToLower(archStr) == "neutral")
         {
             return Architecture::neutral;
         }
-        else
-        {
-            return Architecture::unknown;
-        }
+
+        return Architecture::unknown;
     }
 
     std::set<Architecture> GetApplicableArchitectures()

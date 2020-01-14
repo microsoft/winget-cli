@@ -4,6 +4,7 @@
 #include "Manifest/Manifest.h"
 
 using namespace AppInstaller::Manifest;
+using namespace AppInstaller::Utility;
 
 TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
 {
@@ -37,7 +38,7 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
     // installers
     REQUIRE(manifest.Installers.size() == 2);
     ManifestInstaller installer1 = manifest.Installers.at(0);
-    REQUIRE(installer1.Arch == "x86");
+    REQUIRE(installer1.Arch == Architecture::x86);
     REQUIRE(installer1.Url == "https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx86.zip");
     REQUIRE(installer1.Sha256 == "69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82");
     REQUIRE(installer1.Language == "en-US");
@@ -51,7 +52,7 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
     REQUIRE(installer1Switches.Default == "/d");
 
     ManifestInstaller installer2 = manifest.Installers.at(1);
-    REQUIRE(installer2.Arch == "x64");
+    REQUIRE(installer2.Arch == Architecture::x64);
     REQUIRE(installer2.Url == "https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx64.zip");
     REQUIRE(installer2.Sha256 == "69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF0000");
     REQUIRE(installer2.Language == "en-US");

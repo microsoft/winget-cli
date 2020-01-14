@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 #pragma once
 
 #include <winerror.h>
@@ -13,8 +16,8 @@ namespace AppInstaller::Utility
             m_code(static_cast<std::uint32_t>(error)),
             m_message(message) {}
 
-        uint32_t Code() { return m_code; }
-        const std::string& Message() { return m_message; }
+        uint32_t Code() const { return m_code; }
+        const std::string& Message() const { return m_message; }
 
     protected:
         std::uint32_t   m_code;
@@ -28,8 +31,8 @@ namespace AppInstaller::Utility
             m_code((error)),
             m_message(message) {}
 
-        HRESULT Code() { return m_code; }
-        const std::string& Message() { return m_message; }
+        HRESULT Code() const { return m_code; }
+        const std::string& Message() const { return m_message; }
 
     protected:
         HRESULT   m_code;

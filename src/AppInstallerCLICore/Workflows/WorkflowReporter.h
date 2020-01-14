@@ -1,9 +1,13 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 #pragma once
 
 #include "AppInstallerDownloader.h"
 
 namespace AppInstaller::Workflow
 {
+    // This will be triggered by file downloader to get download progress
     class DownloaderCallback : public AppInstaller::Utility::IDownloaderCallback
     {
     public:
@@ -18,6 +22,7 @@ namespace AppInstaller::Workflow
         std::ostream& out;
     };
 
+    // Class to print the in progress spinner
     class IndefiniteSpinner
     {
     public:
@@ -27,13 +32,16 @@ namespace AppInstaller::Workflow
         void StopSpinner();
 
     private:
-        bool m_canceled = false;
-        std::ostream& out;
+        std::atomic<bool> m_canceled = false;
+        std::atomic<bool> m_spinnerRunning = false;
         std::future<void> m_spinnerJob;
+        std::ostream& out;
 
         void ShowSpinnerInternal();
     };
 
+    // WorkflowReporter should be the central place to show workflow status to user.
+    // Todo: need to implement actual console output to show color, progress bar, etc
     class WorkflowReporter
     {
     public:
@@ -49,6 +57,8 @@ namespace AppInstaller::Workflow
             const std::string& licenceUrl);
 
         void ShowMsg(const std::string& msg);
+
+        // running: shows the spinner if set to true, stops the spinner if set to false
         void ShowIndefiniteSpinner(bool running);
 
         DownloaderCallback& GetDownloaderCallback() { return m_downloaderCallback; }

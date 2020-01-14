@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 #pragma once
 
 namespace AppInstaller::Utility
@@ -21,7 +24,7 @@ namespace AppInstaller::Utility
     class Downloader
     {
     public:
-        std::future<std::pair<unsigned int, std::string>> DownloadAsync(
+        void StartDownloadAsync(
             const std::string& url,
             const std::filesystem::path& dest,
             bool computeHash = false,
@@ -29,13 +32,16 @@ namespace AppInstaller::Utility
 
         void Cancel();
 
+        std::pair<unsigned int, std::string> Wait();
+
     private:
         HINTERNET m_session;
         HINTERNET m_urlFile;
         LONGLONG m_downloadSize = 0;
         LONGLONG m_progress = 0;
-        bool m_isCanceled = false;
-        bool m_downloading = false;
+        std::future<std::pair<unsigned int, std::string>> m_downloadTask;
+        std::atomic<bool> m_cancelled = false;
+        std::atomic<bool> m_downloading = false;
         BYTE* m_buffer;
         std::ofstream m_outfile;
 

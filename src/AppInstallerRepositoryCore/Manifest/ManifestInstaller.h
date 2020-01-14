@@ -3,10 +3,8 @@
 #pragma once
 #include <string>
 #include <optional>
+#include <AppInstallerArchitecture.h>
 #include "InstallerSwitches.h"
-#include "..\AppInstallerCommonCore\Public\AppInstallerArchitecture.h"
-
-using namespace AppInstaller::Utility;
 
 namespace AppInstaller::Manifest
 {
@@ -14,7 +12,7 @@ namespace AppInstaller::Manifest
     {
     public:
         // Required. Values: x86, x64, arm, arm64, all.
-        Architecture Arch;
+        AppInstaller::Utility::Architecture Arch;
 
         // Required
         std::string Url;

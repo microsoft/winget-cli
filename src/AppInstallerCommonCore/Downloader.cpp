@@ -1,12 +1,16 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 #include <pch.h>
 #include <Public/AppInstallerDownloader.h>
 #include <Public/AppInstallerSHA256.h>
 #include <Public/AppInstallerStrings.h>
+#include <Public/Exceptions.h>
+#include <Public/AppInstallerLogging.h>
 
 namespace AppInstaller::Utility
 {
-    std::future<std::pair<unsigned int, std::string>> Downloader::DownloadAsync(
+    void Downloader::StartDownloadAsync(
         const std::string& url,
         const std::filesystem::path& dest,
         bool computeHash,
@@ -14,12 +18,17 @@ namespace AppInstaller::Utility
     {
         if (m_downloading)
         {
-            throw std::runtime_error("Download already started");
+            throw std::runtime_error("Download in progress.");
+        }
+
+        if (m_cancelled)
+        {
+            throw std::runtime_error("Download cancelation in progress.");
         }
 
         m_downloading = true;
 
-        return std::async(std::launch::async, &Downloader::DownloadInternal, this, url, dest, computeHash, callback);
+        m_downloadTask = std::async(std::launch::async, &Downloader::DownloadInternal, this, url, dest, computeHash, callback);
     }
 
     std::pair<unsigned int, std::string> Downloader::DownloadInternal(
@@ -30,6 +39,7 @@ namespace AppInstaller::Utility
     {
         try
         {
+            AICLI_LOG(CLI, Info, << "Downloading url: " << url << " , dest: " << dest);
             m_session = InternetOpenA(
                 "appinstaller-cli",
                 INTERNET_OPEN_TYPE_PRECONFIG,
@@ -39,8 +49,7 @@ namespace AppInstaller::Utility
 
             if (!m_session)
             {
-                Cleanup();
-                return std::make_pair(APPINSTALLER_DOWNLOAD_FAILED, "");
+                throw HResultException("InternetOpen() failed.", HRESULT_FROM_WIN32(GetLastError()));
             }
 
             m_urlFile = InternetOpenUrlA(
@@ -53,8 +62,7 @@ namespace AppInstaller::Utility
 
             if (!m_urlFile)
             {
-                Cleanup();
-                return std::make_pair(APPINSTALLER_DOWNLOAD_FAILED, "");
+                throw HResultException("InternetOpenUrl() failed.", HRESULT_FROM_WIN32(GetLastError()));
             }
 
             // Check http return status
@@ -67,9 +75,10 @@ namespace AppInstaller::Utility
                 &cbRequestStatus,
                 nullptr) || requestStatus != HTTP_STATUS_OK)
             {
-                Cleanup();
-                return std::make_pair(APPINSTALLER_DOWNLOAD_FAILED, "");
+                throw HResultException("Query download request status failed.", HRESULT_FROM_WIN32(GetLastError()));
             }
+
+            AICLI_LOG(CLI, Verbose, << "Download request status success.");
 
             // Get content length. Don't fail the download if failed.
             LONGLONG contentLength = 0;
@@ -83,6 +92,7 @@ namespace AppInstaller::Utility
                 nullptr))
             {
                 m_downloadSize = contentLength;
+                AICLI_LOG(CLI, Verbose, << "Download size: " << contentLength);
             }
 
             m_outfile.open(dest, std::ofstream::binary);
@@ -104,7 +114,7 @@ namespace AppInstaller::Utility
 
             do
             {
-                if (m_isCanceled)
+                if (m_cancelled)
                 {
                     if (callback)
                     {
@@ -149,10 +159,28 @@ namespace AppInstaller::Utility
             callback->OnCompleted();
 
             Cleanup();
+            AICLI_LOG(CLI, Info, << "Download completed.");
+            if (computeHash)
+            {
+                AICLI_LOG(CLI, Info, << "Download hash: " << downloadHash);
+            }
             return std::make_pair(APPINSTALLER_DOWNLOAD_SUCCESS, downloadHash);
+        }
+        catch (const HResultException& e)
+        {
+            AICLI_LOG(Fail, Error, << e.Message() << " hresult: " << e.Code());
+            Cleanup();
+            return std::make_pair(APPINSTALLER_DOWNLOAD_FAILED, "");
+        }
+        catch (const NtStatusException& e)
+        {
+            AICLI_LOG(Fail, Error, << e.Message() << " NtStatus: " << e.Code());
+            Cleanup();
+            return std::make_pair(APPINSTALLER_DOWNLOAD_FAILED, "");
         }
         catch (const std::exception& e)
         {
+            AICLI_LOG(Fail, Error, << e.what());
             Cleanup();
             return std::make_pair(APPINSTALLER_DOWNLOAD_FAILED, "");
         }
@@ -180,7 +208,7 @@ namespace AppInstaller::Utility
             m_outfile.close();
         }
 
-        m_isCanceled = false;
+        m_cancelled = false;
         m_downloading = false;
         m_downloadSize = 0;
         m_progress = 0;
@@ -188,9 +216,20 @@ namespace AppInstaller::Utility
 
     void Downloader::Cancel()
     {
-        if (m_downloading)
+        if (m_downloadTask.valid() && m_downloading && !m_cancelled)
         {
-            m_isCanceled = true;
+            m_cancelled = true;
+            m_downloadTask.get();
         }
+    }
+
+    std::pair<unsigned int, std::string> Downloader::Wait()
+    {
+        if (!m_downloadTask.valid() || !m_downloading)
+        {
+            throw std::runtime_error("No active download found");
+        }
+
+        return m_downloadTask.get();
     }
 }

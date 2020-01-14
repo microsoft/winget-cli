@@ -1,4 +1,5 @@
-
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 #include "pch.h"
 #include "WorkflowReporter.h"
@@ -66,14 +67,16 @@ namespace AppInstaller::Workflow
 
     void IndefiniteSpinner::ShowSpinner()
     {
-        m_spinnerJob = std::async(std::launch::async, &IndefiniteSpinner::ShowSpinnerInternal, this);
+        if (!m_spinnerJob.valid() && !m_spinnerRunning && !m_canceled)
+        {
+            m_spinnerRunning = true;
+            m_spinnerJob = std::async(std::launch::async, &IndefiniteSpinner::ShowSpinnerInternal, this);
+        }
     }
 
     void IndefiniteSpinner::ShowSpinnerInternal()
     {
         char spinnerChars[] = { '-', '\\', '|', '/' };
-
-        m_canceled = false;
 
         for (int i = 0; !m_canceled; i++) {
             std::cout << '\b' << spinnerChars[i] << std::flush;
@@ -88,11 +91,15 @@ namespace AppInstaller::Workflow
 
         std::cout << '\b';
         m_canceled = false;
+        m_spinnerRunning = false;
     }
 
     void IndefiniteSpinner::StopSpinner()
     {
-        m_canceled = true;
-        m_spinnerJob.wait();
+        if (!m_canceled && m_spinnerJob.valid() && m_spinnerRunning)
+        {
+            m_canceled = true;
+            m_spinnerJob.wait();
+        }
     }
 }

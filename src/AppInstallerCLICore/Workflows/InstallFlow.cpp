@@ -3,8 +3,8 @@
 
 #include "pch.h"
 #include "AppInstallerRuntime.h"
-#include "..\AppInstallerRepositoryCore\Manifest\ManifestInstaller.h"
-#include "..\AppInstallerRepositoryCore\Manifest\Manifest.h"
+#include "Manifest\ManifestInstaller.h"
+#include "Manifest\Manifest.h"
 #include "InstallFlow.h"
 #include "AppInstallerDownloader.h"
 #include "ManifestComparator.h"
@@ -23,9 +23,9 @@ namespace AppInstaller::Workflow {
             m_packageManifest.Name,
             m_packageManifest.Version,
             m_packageManifest.Author,
-            m_packageManifest.Description,
-            m_packageManifest.Homepage,
-            m_packageManifest.LicenseUrl
+            m_selectedLocalization.Description,
+            m_selectedLocalization.Homepage,
+            m_selectedLocalization.LicenseUrl
         );
 
         DownloadInstaller();
@@ -34,20 +34,28 @@ namespace AppInstaller::Workflow {
 
     void InstallFlow::DetermineInstaller()
     {
+        AICLI_LOG(CLI, Info, << "Starting installer selection.");
+
+        // Sorting the list of availlable installers according to rules defined in InstallerComparator.
         std::sort(m_packageManifest.Installers.begin(), m_packageManifest.Installers.end(), InstallerComparator());
 
+        // If the first one is inapplicable, then no installer is applicable.
         if (!Utility::IsApplicableArchitecture(m_packageManifest.Installers[0].Arch))
         {
-            throw;
+            m_reporter.ShowMsg("No applicable installer found.");
+            throw InstallFlowException("No installer with applicable architecture found.");
         }
 
+        // local copy to work on.
         m_selectedInstaller = m_packageManifest.Installers[0];
 
+        // Populate default values from package manifest if individual installer field is empty.
         if (m_selectedInstaller.InstallerType.empty())
         {
             m_selectedInstaller.InstallerType = m_packageManifest.InstallerType;
         }
 
+        // Populate default installer switches from package manifest if individual installer switch field is empty.
         if (m_packageManifest.Switches.has_value())
         {
             if (!m_selectedInstaller.Switches.has_value())
@@ -70,10 +78,20 @@ namespace AppInstaller::Workflow {
                 }
             }
         }
+
+        AICLI_LOG(CLI, Info, << "Completed installer selection.");
+        AICLI_LOG(CLI, Verbose, << "Selected installer arch: " << (int)m_selectedInstaller.Arch);
+        AICLI_LOG(CLI, Verbose, << "Selected installer url: " << m_selectedInstaller.Url);
+        AICLI_LOG(CLI, Verbose, << "Selected installer InstallerType: " << m_selectedInstaller.InstallerType);
+        AICLI_LOG(CLI, Verbose, << "Selected installer scope: " << m_selectedInstaller.Scope);
+        AICLI_LOG(CLI, Verbose, << "Selected installer language: " << m_selectedInstaller.Language);
     }
 
     void InstallFlow::DetermineLocalization()
     {
+        AICLI_LOG(CLI, Info, << "Starting localization selection.");
+
+        // local copy to work on.
         ManifestLocalization localization;
 
         // Pupulate default from package manifest
@@ -81,6 +99,7 @@ namespace AppInstaller::Workflow {
         localization.Homepage = m_packageManifest.Homepage;
         localization.LicenseUrl = m_packageManifest.LicenseUrl;
 
+        // Sorting the list of availlable localizations according to rules defined in LocalizationComparator.
         if (!m_packageManifest.Localization.empty())
         {
             std::sort(m_packageManifest.Localization.begin(), m_packageManifest.Localization.end(), LocalizationComparator());
@@ -104,6 +123,8 @@ namespace AppInstaller::Workflow {
         }
 
         m_selectedLocalization = localization;
+        AICLI_LOG(CLI, Info, << "Completed localization selection.");
+        AICLI_LOG(CLI, Verbose, << "Selected localization language: " << m_selectedLocalization.Language);
     }
 
     void InstallFlow::DownloadInstaller()
@@ -111,75 +132,62 @@ namespace AppInstaller::Workflow {
         std::filesystem::path tempInstallerPath = Runtime::GetPathToTemp();
         tempInstallerPath /= m_packageManifest.Id + '_' + m_packageManifest.Version + '.' + m_selectedInstaller.InstallerType;
 
+        AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
+
         Downloader downloader;
-        auto downloadTask = downloader.DownloadAsync(
+        downloader.StartDownloadAsync(
             m_selectedInstaller.Url,
             tempInstallerPath,
             true,
             &m_reporter.GetDownloaderCallback());
 
-        downloadTask.wait();
+        auto downloadResult = downloader.Wait();
 
-        auto downloadResult = downloadTask.get();
-
-        if (downloadResult.first != APPINSTALLER_DOWNLOAD_SUCCESS)
+        if (downloadResult.first == APPINSTALLER_DOWNLOAD_FAILED)
         {
-            throw;
+            m_reporter.ShowMsg("Package download failed.");
+            throw InstallFlowException("Package download failed");
+        }
+        else if (downloadResult.first == APPINSTALLER_DOWNLOAD_CANCELED)
+        {
+            m_reporter.ShowMsg("Package download canceled.");
+            throw InstallFlowException("Package download canceled");
         }
 
         if (downloadResult.second != m_selectedInstaller.Sha256)
         {
-            throw;
+            m_reporter.ShowMsg("Package hash verification failed.");
+            throw InstallFlowException("Package hash verification failed");
         }
 
+        AICLI_LOG(CLI, Info, << "Downloaded package hash verified");
         m_reporter.ShowMsg("Successfully verified SHA256.");
 
         m_downloadedInstaller = tempInstallerPath;
-    }
-
-    std::future<int> InstallFlow::ExecuteExeInstallerAsync(const std::filesystem::path& filePath, const std::string& args)
-    {
-        return std::async(std::launch::async, [&filePath, &args] {
-            SHELLEXECUTEINFOA execInfo = { 0 };
-            execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-            execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-            execInfo.lpFile = Utility::ConvertToUTF8(filePath.c_str()).c_str();
-            execInfo.lpParameters = args.c_str();
-            execInfo.nShow = SW_SHOW;
-            if (!ShellExecuteExA(&execInfo) || !execInfo.hProcess)
-            {
-                return 1;
-            }
-            // Wait for installation to finish
-            WaitForSingleObject(execInfo.hProcess, INFINITE);
-            CloseHandle(execInfo.hProcess);
-            return 0;
-            });
-    }
-
-    std::string InstallFlow::GetInstallerArgs()
-    {
-        if (m_selectedInstaller.Switches.has_value())
-        {
-            return m_selectedInstaller.Switches.value().Default;
-        }
-
-        return "";
     }
 
     void InstallFlow::ExecuteInstaller()
     {
         if (m_downloadedInstaller.empty())
         {
-            throw;
+            throw InstallFlowException("Installer not downloaded yet");
         }
 
         m_reporter.ShowMsg("Installing package ...");
 
-        std::future<int> installTask;
-        if (m_selectedInstaller.InstallerType.compare("exe") == 0)
+        std::string installerArgs = GetInstallerArgs();
+        AICLI_LOG(CLI, Info, << "Installer args: " << installerArgs);
+
+        // Todo: add support for other installer types
+        std::future<DWORD> installTask;
+        if (Utility::ToLower(m_selectedInstaller.InstallerType) == "exe")
         {
-            installTask = ExecuteExeInstallerAsync(m_downloadedInstaller, GetInstallerArgs());
+            installTask = ExecuteExeInstallerAsync(m_downloadedInstaller, installerArgs);
+        }
+        else
+        {
+            m_reporter.ShowMsg("Installer type not supported.");
+            throw InstallFlowException("Installer type not supported");
         }
 
         m_reporter.ShowIndefiniteSpinner(true);
@@ -192,11 +200,49 @@ namespace AppInstaller::Workflow {
 
         if (installResult != 0)
         {
-            throw;
+            m_reporter.ShowMsg("Install failed. Exit code: " + std::to_string(installResult));
+            throw InstallFlowException("Install failed. Installer task returned: " + std::to_string(installResult));
         }
 
         m_reporter.ShowMsg("Successfully installed!");
     }
 
-    
+    std::future<DWORD> InstallFlow::ExecuteExeInstallerAsync(const std::filesystem::path& filePath, const std::string& args)
+    {
+        AICLI_LOG(CLI, Info, << "Staring EXE installer. Path: " << filePath);
+        return std::async(std::launch::async, [&filePath, &args] {
+
+            SHELLEXECUTEINFOA execInfo = { 0 };
+            execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+            execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+            execInfo.lpFile = Utility::ConvertToUTF8(filePath.c_str()).c_str();
+            execInfo.lpParameters = args.c_str();
+            execInfo.nShow = SW_SHOW;
+            if (!ShellExecuteExA(&execInfo) || !execInfo.hProcess)
+            {
+                return GetLastError();
+            }
+            // Wait for installation to finish
+            WaitForSingleObject(execInfo.hProcess, INFINITE);
+
+            // Get exe exit code
+            DWORD exitCode;
+            GetExitCodeProcess(execInfo.hProcess, &exitCode);
+
+            CloseHandle(execInfo.hProcess);
+
+            return exitCode;
+        });
+    }
+
+    std::string InstallFlow::GetInstallerArgs()
+    {
+        // Todo: Implement arg selection logic.
+        if (m_selectedInstaller.Switches.has_value())
+        {
+            return m_selectedInstaller.Switches.value().Default;
+        }
+
+        return "";
+    }
 }

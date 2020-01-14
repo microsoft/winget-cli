@@ -3,8 +3,8 @@
 #include "pch.h"
 #include "InstallCommand.h"
 #include "Localization.h"
-#include "..\AppInstallerRepositoryCore\Manifest\Manifest.h"
-#include "..\Workflows\InstallFlow.h"
+#include "Manifest\Manifest.h"
+#include "Workflows\InstallFlow.h"
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Workflow;
@@ -43,9 +43,19 @@ namespace AppInstaller::CLI
                     InstallFlow packageInstall(packageManifest, out);
                     packageInstall.Install();
                 }
-                catch (std::exception& e)
+                catch (const ManifestException & e)
                 {
-                    AICLI_LOG(CLI, Error, << "Failed to install package using manifest file at: " << manifest);
+                    AICLI_LOG(CLI, Error, << "Failed to parse package manifest file at: " << manifest << " Reason: " << e.what());
+                    continue;
+                }
+                catch (const InstallFlowException & e)
+                {
+                    AICLI_LOG(CLI, Error, << "Failed to install package. Reason: " << e.what());
+                    continue;
+                }
+                catch (const std::exception& e)
+                {
+                    AICLI_LOG(CLI, Error, << "Failed to install package using manifest file at: " << manifest << " Reason: " << e.what());
                     continue;
                 }
             }

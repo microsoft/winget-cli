@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 #include "pch.h"
-#include "..\AppInstallerCommonCore\Public\AppInstallerRuntime.h"
-#include "..\AppInstallerCommonCore\Public\AppInstallerStrings.h"
+#include <AppInstallerRuntime.h>
+#include <AppInstallerStrings.h>
 #include "ManifestInstaller.h"
 
 namespace AppInstaller::Manifest

@@ -9,12 +9,12 @@ namespace AppInstaller::CLI
     {
         InstallCommand() : Command("install") {}
 
-        virtual std::vector<Argument> GetArguments() const override;
+        std::vector<Argument> GetArguments() const override;
 
-        virtual std::string ShortDescription() const override;
-        virtual std::vector<std::string> GetLongDescription() const override;
+        std::string ShortDescription() const override;
+        std::vector<std::string> GetLongDescription() const override;
 
     protected:
-        virtual void ExecuteInternal(Invocation& inv, std::ostream& out) const;
+        void ExecuteInternal(Invocation& inv, std::ostream& out) const;
     };
 }
