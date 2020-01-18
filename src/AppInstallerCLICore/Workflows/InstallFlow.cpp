@@ -59,7 +59,10 @@ namespace AppInstaller::Workflow {
             THROW_EXCEPTION_MSG(WorkflowException(CLICORE_ERROR_INSTALLFLOW_FAILED), "Package download canceled");
         }
 
-        if (!std::equal(m_selectedInstaller.Sha256.begin(), m_selectedInstaller.Sha256.end(), downloader->GetDownloadHash().begin()))
+        if (!std::equal(
+            m_selectedInstaller.Sha256.begin(),
+            m_selectedInstaller.Sha256.end(),
+            downloader->GetDownloadHash().begin()))
         {
             AICLI_LOG(CLI, Error,
                 << "Package hash verification failed. SHA256 in manifest: "
@@ -67,19 +70,21 @@ namespace AppInstaller::Workflow {
                 << "SHA256 from download: "
                 << SHA256::ConvertToString(downloader->GetDownloadHash()));
 
-            m_reporter.ShowMsg(WorkflowReporter::Level::Warning, "Package hash verification failed. Continue installation? (Y|N)");
+            m_reporter.ShowMsg(WorkflowReporter::Level::Warning, "Package hash verification failed. Continue? (Y|N)");
 
             char response;
             std::cin >> response;
             if (response != 'y' && response != 'Y')
             {
-                m_reporter.ShowMsg(WorkflowReporter::Level::Error, "Package installation canceled.");
-                return;
+                m_reporter.ShowMsg(WorkflowReporter::Level::Error, "Canceled. Package hash mismatch.");
+                THROW_EXCEPTION_MSG(WorkflowException(CLICORE_ERROR_INSTALLFLOW_FAILED), "Package installation canceled");
             }
         }
-
-        AICLI_LOG(CLI, Info, << "Downloaded package hash verified");
-        m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Successfully verified SHA256.");
+        else
+        {
+            AICLI_LOG(CLI, Info, << "Downloaded package hash verified");
+            m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Successfully verified SHA256.");
+        }
 
         m_downloadedInstaller = tempInstallerPath;
     }

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 #pragma once
-#include "pch.h"
 #include "Common.h"
 #include "WorkflowReporter.h"
 
@@ -11,7 +10,7 @@ namespace AppInstaller::Workflow {
     class InstallFlow
     {
     public:
-        InstallFlow(const AppInstaller::Manifest::Manifest manifest, std::ostream& stream) :
+        InstallFlow(AppInstaller::Manifest::Manifest manifest, std::ostream& stream) :
             m_packageManifest(manifest), m_reporter(stream) {}
 
         void Install();
@@ -23,8 +22,8 @@ namespace AppInstaller::Workflow {
         std::filesystem::path m_downloadedInstaller;
         WorkflowReporter m_reporter;
 
-        void DownloadInstaller();
-        void ExecuteInstaller();
+        virtual void DownloadInstaller();
+        virtual void ExecuteInstaller();
         std::string GetInstallerArgs();
 
         std::future<DWORD> ExecuteExeInstallerAsync(const std::filesystem::path& filePath, const std::string& args);

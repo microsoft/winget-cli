@@ -3,6 +3,7 @@
 #pragma once
 #define NOMINMAX
 #include <Windows.h>
+#include <WinInet.h>
 
 #include <catch.hpp>
 
@@ -14,5 +15,8 @@
 #include <iostream>
 #include <sstream>
 #include <utility>
+#include <filesystem>
+#include <future>
+#include <fstream>
 
 #include <yaml-cpp/yaml.h>

@@ -15,6 +15,7 @@ namespace AppInstaller::Utility
         bool computeHash,
         IDownloaderCallback* callback)
     {
+        // std::make_unique cannot access private constructor
         auto downloader = std::unique_ptr<Downloader>(new Downloader());
 
         downloader->m_downloadTask = std::async(std::launch::async, &Downloader::DownloadInternal, downloader.get(), url, dest, computeHash, callback);
@@ -124,7 +125,7 @@ namespace AppInstaller::Utility
 
                 if (callback && bytesRead != 0)
                 {
-                    callback->OnProgress(progress, contentLength != 0 ? contentLength : progress);
+                    callback->OnProgress(progress, contentLength);
                 }
 
             } while (bytesRead != 0);
