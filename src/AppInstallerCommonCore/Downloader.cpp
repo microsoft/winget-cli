@@ -5,33 +5,24 @@
 #include <Public/AppInstallerDownloader.h>
 #include <Public/AppInstallerSHA256.h>
 #include <Public/AppInstallerStrings.h>
-#include <Public/Exceptions.h>
 #include <Public/AppInstallerLogging.h>
 
 namespace AppInstaller::Utility
 {
-    void Downloader::StartDownloadAsync(
+    std::unique_ptr<Downloader> Downloader::StartDownloadAsync(
         const std::string& url,
         const std::filesystem::path& dest,
         bool computeHash,
         IDownloaderCallback* callback)
     {
-        if (m_downloading)
-        {
-            throw std::runtime_error("Download in progress.");
-        }
+        auto downloader = std::unique_ptr<Downloader>(new Downloader());
 
-        if (m_cancelled)
-        {
-            throw std::runtime_error("Download cancelation in progress.");
-        }
+        downloader->m_downloadTask = std::async(std::launch::async, &Downloader::DownloadInternal, downloader.get(), url, dest, computeHash, callback);
 
-        m_downloading = true;
-
-        m_downloadTask = std::async(std::launch::async, &Downloader::DownloadInternal, this, url, dest, computeHash, callback);
+        return downloader;
     }
 
-    std::pair<unsigned int, std::string> Downloader::DownloadInternal(
+    DownloaderResult Downloader::DownloadInternal(
         const std::string& url,
         const std::filesystem::path& dest,
         bool computeHash,
@@ -40,42 +31,38 @@ namespace AppInstaller::Utility
         try
         {
             AICLI_LOG(CLI, Info, << "Downloading url: " << url << " , dest: " << dest);
-            m_session = InternetOpenA(
+
+            wil::unique_hinternet session(InternetOpenA(
                 "appinstaller-cli",
                 INTERNET_OPEN_TYPE_PRECONFIG,
                 NULL,
                 NULL,
-                0);
+                0));
+            THROW_LAST_ERROR_IF_NULL_MSG(session, "InternetOpen() failed.");
 
-            if (!m_session)
-            {
-                throw HResultException("InternetOpen() failed.", HRESULT_FROM_WIN32(GetLastError()));
-            }
-
-            m_urlFile = InternetOpenUrlA(
-                m_session,
+            wil::unique_hinternet urlFile(InternetOpenUrlA(
+                session.get(),
                 url.c_str(),
                 NULL,
                 0,
-                INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTP | INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTPS,
-                0);
-
-            if (!m_urlFile)
-            {
-                throw HResultException("InternetOpenUrl() failed.", HRESULT_FROM_WIN32(GetLastError()));
-            }
+                INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTPS, // This allows http->https redirection
+                0));
+            THROW_LAST_ERROR_IF_NULL_MSG(urlFile, "InternetOpenUrl() failed.");
 
             // Check http return status
             DWORD requestStatus = 0;
             DWORD cbRequestStatus = sizeof(requestStatus);
 
-            if (!HttpQueryInfoA(m_urlFile,
+            THROW_LAST_ERROR_IF_MSG(!HttpQueryInfoA(urlFile.get(),
                 HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER,
                 &requestStatus,
                 &cbRequestStatus,
-                nullptr) || requestStatus != HTTP_STATUS_OK)
+                nullptr), "Query download request status failed.");
+
+            if (requestStatus != HTTP_STATUS_OK)
             {
-                throw HResultException("Query download request status failed.", HRESULT_FROM_WIN32(GetLastError()));
+                AICLI_LOG(CLI, Error, << "Download request failed. Returned status: " << requestStatus);
+                throw std::runtime_error("Download request status is not success.");
             }
 
             AICLI_LOG(CLI, Verbose, << "Download request status success.");
@@ -84,28 +71,26 @@ namespace AppInstaller::Utility
             LONGLONG contentLength = 0;
             DWORD cbContentLength = sizeof(contentLength);
 
-            if (HttpQueryInfoA(
-                m_urlFile,
+            HttpQueryInfoA(
+                urlFile.get(),
                 HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER64,
                 &contentLength,
                 &cbContentLength,
-                nullptr))
-            {
-                m_downloadSize = contentLength;
-                AICLI_LOG(CLI, Verbose, << "Download size: " << contentLength);
-            }
+                nullptr);
+            AICLI_LOG(CLI, Verbose, << "Download size: " << contentLength);
 
-            m_outfile.open(dest, std::ofstream::binary);
+            std::ofstream outfile(dest, std::ofstream::binary);
 
             // Setup hash engine
             SHA256 hashEngine;
-            std::string downloadHash;
+            std::string contentHash;
 
             const int bufferSize = 1024 * 1024; // 1MB
-            m_buffer = new BYTE[bufferSize];
+            auto buffer = std::make_unique<BYTE[]>(bufferSize);
 
             BOOL readSuccess = true;
             DWORD bytesRead = 0;
+            LONGLONG progress = 0;
 
             if (callback)
             {
@@ -121,113 +106,73 @@ namespace AppInstaller::Utility
                         callback->OnCanceled();
                     }
 
-                    Cleanup();
-                    return std::make_pair(APPINSTALLER_DOWNLOAD_CANCELED, "");
+                    return DownloaderResult::Canceled;
                 }
 
-                readSuccess = InternetReadFile(m_urlFile, m_buffer, bufferSize, &bytesRead);
+                readSuccess = InternetReadFile(urlFile.get(), buffer.get(), bufferSize, &bytesRead);
 
-                if (!readSuccess)
-                {
-                    Cleanup();
-                    return std::make_pair(APPINSTALLER_DOWNLOAD_FAILED, "");
-                }
+                THROW_LAST_ERROR_IF_MSG(!readSuccess, "InternetReadFile() failed.");
 
                 if (computeHash)
                 {
-                    hashEngine.Add(m_buffer, bytesRead);
+                    hashEngine.Add(buffer.get(), bytesRead);
                 }
 
-                m_outfile.write((char*)m_buffer, bytesRead);
+                outfile.write((char*)buffer.get(), bytesRead);
 
-                m_progress += bytesRead;
+                progress += bytesRead;
 
                 if (callback && bytesRead != 0)
                 {
-                    callback->OnProgress(m_progress, m_downloadSize);
+                    callback->OnProgress(progress, contentLength != 0 ? contentLength : progress);
                 }
 
-            } while (readSuccess && bytesRead != 0);
+            } while (bytesRead != 0);
 
-            m_outfile.flush();
+            outfile.flush();
 
             if (computeHash)
             {
-                downloadHash = hashEngine.GetAsString();
+                m_downloadHash = hashEngine.Get();
+                AICLI_LOG(CLI, Info, << "Download hash: " << SHA256::ConvertToString(m_downloadHash));
             }
 
-            callback->OnCompleted();
+            if (callback)
+            {
+                callback->OnCompleted();
+            }
 
-            Cleanup();
             AICLI_LOG(CLI, Info, << "Download completed.");
-            if (computeHash)
-            {
-                AICLI_LOG(CLI, Info, << "Download hash: " << downloadHash);
-            }
-            return std::make_pair(APPINSTALLER_DOWNLOAD_SUCCESS, downloadHash);
+
+            return DownloaderResult::Success;
         }
-        catch (const HResultException& e)
+        catch (const wil::ResultException& e)
         {
-            AICLI_LOG(Fail, Error, << e.Message() << " hresult: " << e.Code());
-            Cleanup();
-            return std::make_pair(APPINSTALLER_DOWNLOAD_FAILED, "");
-        }
-        catch (const NtStatusException& e)
-        {
-            AICLI_LOG(Fail, Error, << e.Message() << " NtStatus: " << e.Code());
-            Cleanup();
-            return std::make_pair(APPINSTALLER_DOWNLOAD_FAILED, "");
+            AICLI_LOG(Fail, Error, << "Download failed. HResult: " << e.GetErrorCode() << " Reason: " << e.what());
+            return DownloaderResult::Failed;
         }
         catch (const std::exception& e)
         {
-            AICLI_LOG(Fail, Error, << e.what());
-            Cleanup();
-            return std::make_pair(APPINSTALLER_DOWNLOAD_FAILED, "");
+            AICLI_LOG(Fail, Error, << "Download failed. Reason: " << e.what());
+            return DownloaderResult::Failed;
         }
     }
 
-    void Downloader::Cleanup()
+    DownloaderResult Downloader::Cancel()
     {
-        if (m_session)
-        {
-            InternetCloseHandle(m_session);
-        }
-
-        if (m_urlFile)
-        {
-            InternetCloseHandle(m_urlFile);
-        }
-
-        if (m_buffer)
-        {
-            delete m_buffer;
-        }
-
-        if (m_outfile.is_open())
-        {
-            m_outfile.close();
-        }
-
-        m_cancelled = false;
-        m_downloading = false;
-        m_downloadSize = 0;
-        m_progress = 0;
-    }
-
-    void Downloader::Cancel()
-    {
-        if (m_downloadTask.valid() && m_downloading && !m_cancelled)
+        if (m_downloadTask.valid() && !m_cancelled)
         {
             m_cancelled = true;
-            m_downloadTask.get();
         }
+
+        return m_downloadTask.get();
     }
 
-    std::pair<unsigned int, std::string> Downloader::Wait()
+    DownloaderResult Downloader::Wait()
     {
-        if (!m_downloadTask.valid() || !m_downloading)
+        if (!m_downloadTask.valid())
         {
-            throw std::runtime_error("No active download found");
+            throw std::runtime_error("No active download found.");
         }
 
         return m_downloadTask.get();

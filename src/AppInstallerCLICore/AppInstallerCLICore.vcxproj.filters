@@ -45,9 +45,6 @@
     <ClInclude Include="Invocation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Search\Search.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -61,6 +58,12 @@
       <Filter>Workflows</Filter>
     </ClInclude>
     <ClInclude Include="Workflows\WorkflowReporter.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\Common.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\Common.h">
       <Filter>Workflows</Filter>
     </ClInclude>
   </ItemGroup>

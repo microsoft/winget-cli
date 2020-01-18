@@ -18,7 +18,7 @@ namespace AppInstaller::Manifest
         std::string Url;
 
         // Required
-        std::string Sha256;
+        std::vector<BYTE> Sha256;
 
         // Empty means default
         std::string Language;
@@ -32,6 +32,8 @@ namespace AppInstaller::Manifest
         // If present, has more presedence than root
         std::optional<InstallerSwitches> Switches;
 
-        void PopulateInstallerFields(const YAML::Node& installerNode);
+        // Populates ManifestInstaller
+        // defaultInstaller: if an optional field is not found in the YAML node, the field will be populated with value from defaultInstaller.
+        void PopulateInstallerFields(const YAML::Node& installerNode, const ManifestInstaller& defaultInstaller);
     };
 }

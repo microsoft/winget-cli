@@ -3,26 +3,28 @@
 
 #pragma once
 
-#include <set>
+#include <vector>
 
 namespace AppInstaller::Utility
 {
     enum class Architecture
     {
-        unknown = -1,
-        neutral,
-        x86,
-        x64,
-        arm,
-        arm64
+        Unknown = -1,
+        Neutral,
+        X86,
+        X64,
+        Arm,
+        Arm64
     };
 
     // Converts a string to corresponding enum
     Architecture ConvertToArchitectureEnum(const std::string& archStr);
 
     // Gets a set of architectures that are applicable to the current system
-    std::set<Architecture> GetApplicableArchitectures();
+    std::vector<Architecture> GetApplicableArchitectures();
 
     // Gets if an architecture is applicable to the system
-    bool IsApplicableArchitecture(Architecture arch);
+    // Returns the priority in the applicable architecture list if the architecture is applicable. 0 has lowest priority.
+    // Returns -1 if the architecture is not applicable.
+    int IsApplicableArchitecture(Architecture arch);
 }

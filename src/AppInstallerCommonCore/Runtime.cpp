@@ -41,9 +41,9 @@ namespace AppInstaller::Runtime
 
     Architecture GetSystemArchitecture()
     {
-        Architecture systemArchitecture = Architecture::unknown;
+        Architecture systemArchitecture = Architecture::Unknown;
 
-        static SYSTEM_INFO systemInfo;
+        SYSTEM_INFO systemInfo;
         ZeroMemory(&systemInfo, sizeof(SYSTEM_INFO));
         GetNativeSystemInfo(&systemInfo);
 
@@ -51,16 +51,16 @@ namespace AppInstaller::Runtime
         {
         case PROCESSOR_ARCHITECTURE_AMD64:
         case PROCESSOR_ARCHITECTURE_IA64:
-            systemArchitecture = Architecture::x64;
+            systemArchitecture = Architecture::X64;
             break;
         case PROCESSOR_ARCHITECTURE_ARM:
-            systemArchitecture = Architecture::arm;
+            systemArchitecture = Architecture::Arm;
             break;
         case PROCESSOR_ARCHITECTURE_ARM64:
-            systemArchitecture = Architecture::arm64;
+            systemArchitecture = Architecture::Arm64;
             break;
         case PROCESSOR_ARCHITECTURE_INTEL:
-            systemArchitecture = Architecture::x86;
+            systemArchitecture = Architecture::X86;
             break;
         }
 

@@ -45,6 +45,15 @@ namespace AppInstaller::Workflow
     class WorkflowReporter
     {
     public:
+
+        enum class Level
+        {
+            Verbose,
+            Info,
+            Warning,
+            Error,
+        };
+
         WorkflowReporter(std::ostream& stream) :
             out(stream), m_downloaderCallback(stream), m_spinner(stream) {};
 
@@ -56,7 +65,7 @@ namespace AppInstaller::Workflow
             const std::string& homepage,
             const std::string& licenceUrl);
 
-        void ShowMsg(const std::string& msg);
+        void ShowMsg(Level level, const std::string& msg);
 
         // running: shows the spinner if set to true, stops the spinner if set to false
         void ShowIndefiniteSpinner(bool running);

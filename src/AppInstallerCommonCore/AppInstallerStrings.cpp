@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerStrings.h"
-#include "Public/Exceptions.h"
 
 namespace AppInstaller::Utility
 {

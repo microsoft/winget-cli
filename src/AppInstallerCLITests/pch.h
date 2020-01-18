@@ -9,6 +9,8 @@
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 
+#include <wil/result_macros.h>
+
 #include <iostream>
 #include <sstream>
 #include <utility>

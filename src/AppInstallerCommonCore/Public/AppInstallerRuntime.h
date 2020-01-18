@@ -13,5 +13,6 @@ namespace AppInstaller::Runtime
     // Gets the path to the temp location.
     std::filesystem::path GetPathToTemp();
 
+    // Gets the system's architecture as Architecture enum
     AppInstaller::Utility::Architecture GetSystemArchitecture();
 }

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "Common.h"
 #include "InstallCommand.h"
 #include "Localization.h"
 #include "Manifest\Manifest.h"
@@ -14,8 +15,8 @@ namespace AppInstaller::CLI
     std::vector<Argument> InstallCommand::GetArguments() const
     {
         return {
-            Argument{ "application", LOCME("The name of the application to install"), ArgumentType::Positional, false },
-            Argument{ "manifest", LOCME("The path to the manifest of the application to install"), ArgumentType::Standard, false },
+            Argument{ ARG_APPLICATION, LOCME("The name of the application to install"), ArgumentType::Positional, false },
+            Argument{ ARG_MANIFEST, LOCME("The path to the manifest of the application to install"), ArgumentType::Standard, false },
         };
     }
 
@@ -33,32 +34,26 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ExecuteInternal(Invocation& inv, std::ostream& out) const
     {
-        if (inv.Contains("manifest"))
+        if (inv.Contains(ARG_MANIFEST))
         {
-            for (auto const& manifest : *(inv.GetArgs("manifest")))
-            {
-                try
-                {
-                    Manifest::Manifest packageManifest = Manifest::Manifest::CreateFromPath(manifest);
-                    InstallFlow packageInstall(packageManifest, out);
-                    packageInstall.Install();
-                }
-                catch (const ManifestException & e)
-                {
-                    AICLI_LOG(CLI, Error, << "Failed to parse package manifest file at: " << manifest << " Reason: " << e.what());
-                    continue;
-                }
-                catch (const InstallFlowException & e)
-                {
-                    AICLI_LOG(CLI, Error, << "Failed to install package. Reason: " << e.what());
-                    continue;
-                }
-                catch (const std::exception& e)
-                {
-                    AICLI_LOG(CLI, Error, << "Failed to install package using manifest file at: " << manifest << " Reason: " << e.what());
-                    continue;
-                }
-            }
+            std::string manifest = *(inv.GetArg(ARG_MANIFEST));
+            Manifest::Manifest packageManifest = Manifest::Manifest::CreateFromPath(manifest);
+            InstallFlow packageInstall(packageManifest, out);
+            packageInstall.Install();
+        }
+        else
+        {
+            out << "Not supported!" << std::endl;
+        }
+    }
+
+    void InstallCommand::ValidateArguments(Invocation& inv) const
+    {
+        Command::ValidateArguments(inv);
+
+        if (!inv.Contains(ARG_APPLICATION) && !inv.Contains(ARG_MANIFEST))
+        {
+            throw CommandException(LOCME("Required argument not provided"), ARG_APPLICATION);
         }
     }
 }

@@ -34,8 +34,6 @@ namespace AppInstaller::Utility {
         // value will be returned and the object can no longer be used.
         void Get(HashBuffer& hash);
 
-        std::string GetAsString();
-
         inline HashBuffer Get()
         {
             HashBuffer result{};
@@ -45,6 +43,10 @@ namespace AppInstaller::Utility {
 
         // Computes the hash of the given buffer immediately.
         static bool ComputeHash(uint8_t* buffer, std::uint32_t cbBuffer, HashBuffer& hash);
+
+        static std::string ConvertToString(const HashBuffer& hashBuffer);
+
+        static HashBuffer ConvertToBytes(const std::string& hashStr);
 
     private:
         void EnsureNotFinished() const

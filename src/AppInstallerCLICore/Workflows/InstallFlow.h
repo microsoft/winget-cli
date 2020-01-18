@@ -2,16 +2,11 @@
 // Licensed under the MIT License.
 
 #pragma once
+#include "pch.h"
+#include "Common.h"
 #include "WorkflowReporter.h"
 
 namespace AppInstaller::Workflow {
-
-    class InstallFlowException : public std::runtime_error
-    {
-    public:
-        InstallFlowException(const std::string& message) :
-           std::runtime_error(message) {}
-    };
 
     class InstallFlow
     {
@@ -21,15 +16,13 @@ namespace AppInstaller::Workflow {
 
         void Install();
 
-    private:
+    protected:
         AppInstaller::Manifest::Manifest m_packageManifest;
         AppInstaller::Manifest::ManifestInstaller m_selectedInstaller;
         AppInstaller::Manifest::ManifestLocalization m_selectedLocalization;
         std::filesystem::path m_downloadedInstaller;
         WorkflowReporter m_reporter;
 
-        void DetermineInstaller();
-        void DetermineLocalization();
         void DownloadInstaller();
         void ExecuteInstaller();
         std::string GetInstallerArgs();

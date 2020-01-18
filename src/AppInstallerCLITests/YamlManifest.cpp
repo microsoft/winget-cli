@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Manifest/Manifest.h"
+#include "AppInstallerSHA256.h"
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Utility;
@@ -38,9 +39,9 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
     // installers
     REQUIRE(manifest.Installers.size() == 2);
     ManifestInstaller installer1 = manifest.Installers.at(0);
-    REQUIRE(installer1.Arch == Architecture::x86);
+    REQUIRE(installer1.Arch == Architecture::X86);
     REQUIRE(installer1.Url == "https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx86.zip");
-    REQUIRE(installer1.Sha256 == "69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82");
+    REQUIRE(installer1.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
     REQUIRE(installer1.Language == "en-US");
     REQUIRE(installer1.InstallerType == "Zip");
     REQUIRE(installer1.Scope == "user");
@@ -52,14 +53,19 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
     REQUIRE(installer1Switches.Default == "/d");
 
     ManifestInstaller installer2 = manifest.Installers.at(1);
-    REQUIRE(installer2.Arch == Architecture::x64);
+    REQUIRE(installer2.Arch == Architecture::X64);
     REQUIRE(installer2.Url == "https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx64.zip");
-    REQUIRE(installer2.Sha256 == "69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF0000");
+    REQUIRE(installer2.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF0000"));
     REQUIRE(installer2.Language == "en-US");
     REQUIRE(installer2.InstallerType == "Zip");
     REQUIRE(installer2.Scope == "user");
 
-    REQUIRE_FALSE(installer2.Switches.has_value());
+    // Installer2 does not declare switches, it inherits switches from package default.
+    REQUIRE(installer2.Switches.has_value());
+    InstallerSwitches installer2Switches = installer2.Switches.value();
+    REQUIRE(installer2Switches.Verbose == "/verbose");
+    REQUIRE(installer2Switches.Silent == "/silence");
+    REQUIRE(installer2Switches.Default == "/default");
 
     // Localization
     REQUIRE(manifest.Localization.size() == 1);
@@ -72,5 +78,5 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
 
 TEST_CASE("ReadBadManifestAndVerifyThrow", "[PackageManifestHelper]")
 {
-    REQUIRE_THROWS_WITH(Manifest::CreateFromPath("BadManifest-MissingName.yml"), "invalid node; first invalid key: \"Name\"");
+    REQUIRE_THROWS_WITH(Manifest::CreateFromPath("BadManifest-MissingName.yml"), Catch::Contains("invalid node; first invalid key: \"Name\""));
 }

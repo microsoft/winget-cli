@@ -54,9 +54,6 @@
     <ClInclude Include="Public\AppInstallerSHA256.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="Public\Exceptions.h">
-      <Filter>Public</Filter>
-    </ClInclude>
     <ClInclude Include="Public\AppInstallerDownloader.h">
       <Filter>Public</Filter>
     </ClInclude>

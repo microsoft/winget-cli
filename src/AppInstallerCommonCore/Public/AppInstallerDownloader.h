@@ -5,10 +5,15 @@
 
 namespace AppInstaller::Utility
 {
-    const unsigned int APPINSTALLER_DOWNLOAD_SUCCESS = 0;
-    const unsigned int APPINSTALLER_DOWNLOAD_FAILED = 1;
-    const unsigned int APPINSTALLER_DOWNLOAD_CANCELED = 2;
+    // Enum used by Downloader to report download result
+    enum class DownloaderResult
+    {
+        Success = 0,
+        Failed,
+        Canceled
+    };
 
+    // Callback interface that can be passed in to downloader to get download updates.
     class IDownloaderCallback
     {
     public:
@@ -21,36 +26,51 @@ namespace AppInstaller::Utility
         virtual void OnCompleted() = 0;
     };
 
+    // Downloader class to handle 1 file download per instance. The Downloader class supports
+    // SHA 256 calculation as downloading happens.
     class Downloader
     {
     public:
-        void StartDownloadAsync(
+        // This is the only method to get a Downloader instance.
+        //   url: The url to be downloaded from. http->https redirection is allowed.
+        //   dest: The path to local file to be downloaded to.
+        //   computeHash: Optional. Indicates if SHA256 hash should be calculated when downloading.
+        //   callback: Optional. Pass in an object implementing IDownloaderCallback to receive download updates.
+        static std::unique_ptr<Downloader> StartDownloadAsync(
             const std::string& url,
             const std::filesystem::path& dest,
             bool computeHash = false,
             IDownloaderCallback* callback = nullptr);
 
-        void Cancel();
+        // Cancel the download.
+        DownloaderResult Cancel();
 
-        std::pair<unsigned int, std::string> Wait();
+        // Wait for the download to finish.
+        DownloaderResult Wait();
+
+        // Get download content hash only if download is success and hash calculation is requested.
+        std::vector<BYTE> GetDownloadHash()
+        {
+            if (m_downloadHash.size() == 0)
+            {
+                throw std::runtime_error("Invalid sha256 length. Download in progress or hash calculation not requested.");
+            }
+
+            return m_downloadHash;
+        };
 
     private:
-        HINTERNET m_session;
-        HINTERNET m_urlFile;
-        LONGLONG m_downloadSize = 0;
-        LONGLONG m_progress = 0;
-        std::future<std::pair<unsigned int, std::string>> m_downloadTask;
+        std::future<DownloaderResult> m_downloadTask;
         std::atomic<bool> m_cancelled = false;
-        std::atomic<bool> m_downloading = false;
-        BYTE* m_buffer;
-        std::ofstream m_outfile;
+        std::vector<BYTE> m_downloadHash;
 
-        std::pair<unsigned int, std::string> DownloadInternal(
+        Downloader() {};
+
+        // The internal method which does actual downloading.
+        DownloaderResult DownloadInternal(
             const std::string& url,
             const std::filesystem::path& dest,
             bool computeHash,
             IDownloaderCallback* callback);
-
-        void Cleanup();
     };
 }

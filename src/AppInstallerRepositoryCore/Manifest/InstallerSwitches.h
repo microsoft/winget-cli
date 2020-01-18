@@ -16,6 +16,8 @@ namespace AppInstaller::Manifest
 
         std::string Verbose;
 
-        void PopulateSwitchesFields(const YAML::Node& switchesNode);
+        // Populates InstallerSwitches
+        // defaultSwitches: if an optional field is not found in the YAML node, the field will be populated with value from defaultSwitches.
+        void PopulateSwitchesFields(const YAML::Node& switchesNode, const InstallerSwitches* defaultSwitches = nullptr);
     };
 }

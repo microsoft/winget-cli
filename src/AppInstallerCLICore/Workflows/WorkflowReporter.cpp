@@ -48,8 +48,9 @@ namespace AppInstaller::Workflow
         out << "Licence: " << licenceUrl << std::endl;
     }
 
-    void WorkflowReporter::ShowMsg(const std::string& msg)
+    void WorkflowReporter::ShowMsg(Level level, const std::string& msg)
     {
+        // Todo: color output using level and possibly other factors.
         out << msg << std::endl;
     }
 
@@ -79,7 +80,7 @@ namespace AppInstaller::Workflow
         char spinnerChars[] = { '-', '\\', '|', '/' };
 
         for (int i = 0; !m_canceled; i++) {
-            std::cout << '\b' << spinnerChars[i] << std::flush;
+            out << '\b' << spinnerChars[i] << std::flush;
 
             if (i == 3)
             {
@@ -89,7 +90,7 @@ namespace AppInstaller::Workflow
             Sleep(300);
         }
 
-        std::cout << '\b';
+        out << '\b';
         m_canceled = false;
         m_spinnerRunning = false;
     }

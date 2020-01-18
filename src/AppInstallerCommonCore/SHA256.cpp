@@ -4,42 +4,26 @@
 #include <pch.h>
 #define WIN32_NO_STATUS
 #include <bcrypt.h>
-#include <Public/Exceptions.h>
 #include "Public/AppInstallerSHA256.h"
-
-struct unique_hash_handle_deleter {
-    void operator()(BCRYPT_HASH_HANDLE h) const {
-        BCryptDestroyHash(h);
-    };
-};
-
-struct unique_alg_handle_deleter {
-    void operator()(BCRYPT_ALG_HANDLE h) const {
-        BCryptCloseAlgorithmProvider(h, 0);
-    };
-};
-
-typedef std::unique_ptr<void, unique_alg_handle_deleter> unique_alg_handle;
-typedef std::unique_ptr<void, unique_hash_handle_deleter> unique_hash_handle;
 
 namespace AppInstaller::Utility {
 
     struct SHA256Context
     {
-        unique_alg_handle algHandle;
-        unique_hash_handle hashHandle;
+        wil::unique_bcrypt_algorithm algHandle;
+        wil::unique_bcrypt_hash hashHandle;
         DWORD hashLength = 0;
     };
 
     SHA256::SHA256() : context(new SHA256Context{})
     {
+        BCRYPT_ALG_HANDLE algHandleT{};
         BCRYPT_HASH_HANDLE hashHandleT;
         DWORD hashLength = 0;
         DWORD resultLength = 0;
 
         // Open an algorithm handle
-        BCRYPT_ALG_HANDLE algHandleT{};
-        ThrowStatusIfFailed(BCryptOpenAlgorithmProvider(
+        THROW_IF_NTSTATUS_FAILED_MSG(BCryptOpenAlgorithmProvider(
             &algHandleT,                // Alg Handle pointer
             BCRYPT_SHA256_ALGORITHM,    // Cryptographic Algorithm name (null terminated unicode string)
             nullptr,                    // Provider name; if null, the default provider is loaded
@@ -48,7 +32,7 @@ namespace AppInstaller::Utility {
         context->algHandle.reset(algHandleT);
 
         // Obtain the length of the hash
-        ThrowStatusIfFailed(BCryptGetProperty(
+        THROW_IF_NTSTATUS_FAILED_MSG(BCryptGetProperty(
             context->algHandle.get(),       // Handle to a CNG object
             BCRYPT_HASH_LENGTH,             // Property name (null terminated unicode string)
             (PBYTE) & (context->hashLength),  // Address of the output buffer which receives the property value
@@ -63,7 +47,7 @@ namespace AppInstaller::Utility {
         }
 
         // Create a hash handle
-        ThrowStatusIfFailed(BCryptCreateHash(
+        THROW_IF_NTSTATUS_FAILED_MSG(BCryptCreateHash(
             context->algHandle.get(),   // Handle to an algorithm provider
             &hashHandleT,               // A pointer to a hash handle - can be a hash or hmac object
             nullptr,                    // Pointer to the buffer that receives the hash/hmac object
@@ -80,7 +64,9 @@ namespace AppInstaller::Utility {
         EnsureNotFinished();
 
         // Add the data
-        ThrowStatusIfFailed(BCryptHashData(context->hashHandle.get(), const_cast<PUCHAR>(buffer), static_cast<ULONG>(cbBuffer), 0), "failed adding SHA256 data");
+        THROW_IF_NTSTATUS_FAILED_MSG(
+            BCryptHashData(context->hashHandle.get(), const_cast<PUCHAR>(buffer), static_cast<ULONG>(cbBuffer), 0),
+            "failed adding SHA256 data");
     }
 
     void SHA256::Get(HashBuffer& hash)
@@ -91,7 +77,7 @@ namespace AppInstaller::Utility {
         hash.resize(context->hashLength);
 
         // Obtain the hash of the message(s) into the hash buffer
-        ThrowStatusIfFailed(BCryptFinishHash(
+        THROW_IF_NTSTATUS_FAILED_MSG(BCryptFinishHash(
             context->hashHandle.get(),  // Handle to the hash or MAC object
             hash.data(),                // A pointer to a buffer that receives the hash or MAC value
             context->hashLength,        // Size of the buffer in bytes
@@ -101,21 +87,43 @@ namespace AppInstaller::Utility {
         context.reset();
     }
 
-    std::string SHA256::GetAsString()
+    std::string SHA256::ConvertToString(const HashBuffer& hashBuffer)
     {
-        HashBuffer resultBuffer{};
-        Get(resultBuffer);
-
-        char resultStrBuffer[65];
-
-        for (int i = 0; i < resultBuffer.size(); i++)
+        if (hashBuffer.size() != 32)
         {
-            sprintf(resultStrBuffer + i * 2, "%02x", resultBuffer[i]);
+            throw std::runtime_error("Invalid SHA256 size when SHA256::ConvertToString() is called.");
         }
 
-        resultStrBuffer[64] = '\0';
+        char resultBuffer[65];
 
-        return std::string(resultStrBuffer);
+        for (int i = 0; i < hashBuffer.size(); i++)
+        {
+            sprintf(resultBuffer + i * 2, "%02x", resultBuffer[i]);
+        }
+
+        resultBuffer[64] = '\0';
+
+        return std::string(resultBuffer);
+    }
+
+    std::vector<uint8_t> SHA256::ConvertToBytes(const std::string& hashStr)
+    {
+        if (hashStr.size() != 64)
+        {
+            throw std::runtime_error("Invalid SHA256 size when SHA256::ConvertToBytes() is called.");
+        }
+
+        auto hashCStr = hashStr.c_str();
+        std::vector<uint8_t> resultBuffer;
+
+        resultBuffer.resize(32);
+
+        for (int i = 0; i < 32; i++)
+        {
+            sscanf(hashCStr + 2 * i, "%02x", &resultBuffer[i]);
+        }
+
+        return resultBuffer;
     }
 
     bool SHA256::ComputeHash(std::uint8_t* buffer, std::uint32_t cbBuffer, HashBuffer& hash)
