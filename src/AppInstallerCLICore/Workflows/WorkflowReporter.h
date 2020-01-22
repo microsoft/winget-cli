@@ -65,7 +65,7 @@ namespace AppInstaller::Workflow
             const std::string& homepage,
             const std::string& licenceUrl);
 
-        char GetCharResponse();
+        bool PromptForBoolResponse(Level level, const std::string& msg);
 
         void ShowMsg(Level level, const std::string& msg);
 

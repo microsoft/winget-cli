@@ -70,10 +70,7 @@ namespace AppInstaller::Workflow {
                 << "SHA256 from download: "
                 << SHA256::ConvertToString(downloader->GetDownloadHash()));
 
-            m_reporter.ShowMsg(WorkflowReporter::Level::Warning, "Package hash verification failed. Continue? (Y|N)");
-
-            char response = m_reporter.GetCharResponse();
-            if (response != 'y' && response != 'Y')
+            if (!m_reporter.PromptForBoolResponse(WorkflowReporter::Level::Warning, "Package hash verification failed. Continue?"))
             {
                 m_reporter.ShowMsg(WorkflowReporter::Level::Error, "Canceled. Package hash mismatch.");
                 THROW_EXCEPTION_MSG(WorkflowException(CLICORE_ERROR_INSTALLFLOW_FAILED), "Package installation canceled");

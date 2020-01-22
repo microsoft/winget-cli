@@ -35,14 +35,17 @@ TEST_CASE("DownloadValidFileAndCancel", "[Downloader]")
 
     auto downloader = Downloader::StartDownloadAsync("https://aka.ms/win32-x64-user-stable", tempFile.GetPath(), true);
 
+    DownloaderResult waitResult;
+    std::thread waitThread([&downloader, &waitResult] { waitResult = downloader->Wait(); });
+
     DownloaderResult cancelResult;
     std::thread cancelThread([&downloader, &cancelResult] { cancelResult = downloader->Cancel();});
+
+    waitThread.join();
     cancelThread.join();
 
-    auto downloadResult = downloader->Wait();
-
-    REQUIRE(downloadResult == cancelResult);
-    REQUIRE(downloadResult == DownloaderResult::Canceled);
+    REQUIRE(waitResult == cancelResult);
+    REQUIRE(waitResult == DownloaderResult::Canceled);
 
     REQUIRE_THROWS(downloader->GetDownloadHash());
 }

@@ -166,7 +166,7 @@ namespace AppInstaller::Utility
     {
         if (!m_downloadTask.valid())
         {
-            THROW_EXCEPTION_MSG(RuntimeException(), "No active download found.");
+            THROW_EXCEPTION_MSG(RuntimeException(CLICORE_ERROR_DOWNLOAD_FAILED), "No active download found. Cancel failed.");
         }
 
         if (!m_cancelled)
@@ -181,7 +181,7 @@ namespace AppInstaller::Utility
     {
         if (!m_downloadTask.valid())
         {
-            THROW_EXCEPTION_MSG(RuntimeException(), "No active download found.");
+            THROW_EXCEPTION_MSG(RuntimeException(CLICORE_ERROR_DOWNLOAD_FAILED), "No active download found. Wait failed.");
         }
 
         return m_downloadTask.get();
@@ -191,7 +191,7 @@ namespace AppInstaller::Utility
     {
         if (m_downloadHash.size() == 0)
         {
-            THROW_EXCEPTION_MSG(RuntimeException(), "Invalid sha256 length. Download in progress or hash calculation not requested.");
+            THROW_EXCEPTION_MSG(RuntimeException(CLICORE_ERROR_DOWNLOAD_FAILED), "Invalid sha256 length. Download in progress or hash calculation not requested.");
         }
 
         return m_downloadHash;

@@ -48,11 +48,14 @@ namespace AppInstaller::Workflow
         out << "Licence: " << licenceUrl << std::endl;
     }
 
-    char WorkflowReporter::GetCharResponse()
+    bool WorkflowReporter::PromptForBoolResponse(Level level, const std::string& msg)
     {
+        out << msg << " (Y|N)" << std::endl;
+
         char response;
         in.get(response);
-        return response;
+
+        return tolower(response) == 'y';
     }
 
     void WorkflowReporter::ShowMsg(Level level, const std::string& msg)
