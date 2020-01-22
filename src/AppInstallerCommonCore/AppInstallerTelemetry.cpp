@@ -4,7 +4,25 @@
 #include "Public/AppInstallerTelemetry.h"
 
 #include "Public/AppInstallerLogging.h"
+#include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
+
+// Helper to print a GUID
+std::ostream& operator<<(std::ostream& out, const GUID& guid)
+{
+    wchar_t buffer[256];
+
+    if (StringFromGUID2(guid, buffer, ARRAYSIZE(buffer)))
+    {
+        out << AppInstaller::Utility::ConvertToUTF8(buffer);
+    }
+    else
+    {
+        out << "error";
+    }
+
+    return out;
+}
 
 namespace AppInstaller::Logging
 {
@@ -13,6 +31,19 @@ namespace AppInstaller::Logging
         void __stdcall wilResultLoggingCallback(const wil::FailureInfo& info) noexcept
         {
             Telemetry().LogFailure(info);
+        }
+
+        GUID CreateGuid()
+        {
+            GUID result{};
+            (void)CoCreateGuid(&result);
+            return result;
+        }
+
+        const GUID* GetActivityId()
+        {
+            static GUID activityId = CreateGuid();
+            return &activityId;
         }
     }
 
@@ -36,8 +67,10 @@ namespace AppInstaller::Logging
     {
         if (g_IsTelemetryProviderEnabled)
         {
-            TraceLoggingWrite(g_hTelemetryProvider,
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "FailureInfo",
+                GetActivityId(),
+                nullptr,
                 TraceLoggingHResult(failure.hr, "hr"),
                 TraceLoggingWideString(failure.pszMessage, "message"),
                 TraceLoggingString(failure.pszModule, "module"),
@@ -55,6 +88,24 @@ namespace AppInstaller::Logging
                 GetFailureLogString(message, ARRAYSIZE(message), failure);
                 return Utility::ConvertToUTF8(message);
             }());
+    }
+
+    void TelemetryTraceLogger::LogStartup() noexcept
+    {
+        std::string version = Runtime::GetClientVersion();
+
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "ClientStartup",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingCountedString(version.c_str(), static_cast<ULONG>(version.size()), "version"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+        }
+
+        AICLI_LOG(CLI, Info, << "AppInstallerCLI, version [" << version << "], activity [" << *GetActivityId() << ']');
     }
 
     void EnableWilFailureTelemetry()

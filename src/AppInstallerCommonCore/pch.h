@@ -18,6 +18,7 @@
 #include <memory>
 #include <ostream>
 #include <string>
+#include <sstream>
 #include <string_view>
 #include <type_traits>
 #include <vector>

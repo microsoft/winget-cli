@@ -28,6 +28,9 @@ namespace AppInstaller::Logging
         // Logs the failure info.
         void LogFailure(const wil::FailureInfo& failure) noexcept;
 
+        // Logs the initial process startup.
+        void LogStartup() noexcept;
+
     private:
         TelemetryTraceLogger();
     };

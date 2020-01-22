@@ -21,6 +21,8 @@ namespace AppInstaller::CLI
         Logging::AddDefaultFileLogger();
         Logging::EnableWilFailureTelemetry();
 
+        Logging::Telemetry().LogStartup();
+
         // Convert incoming wide char args to UTF8
         std::vector<std::string> utf8Args;
         for (int i = 1; i < argc; ++i)
