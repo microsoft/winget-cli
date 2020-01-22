@@ -29,25 +29,6 @@ namespace AppInstaller::Manifest
         this->Homepage = rootNode["Homepage"] ? rootNode["Homepage"].as<std::string>() : "";
         this->LicenseUrl = rootNode["LicenseUrl"] ? rootNode["LicenseUrl"].as<std::string>() : "";
 
-        YAML::Node installersNode = rootNode["Installers"];
-        for (std::size_t i = 0; i < installersNode.size(); i++) {
-            YAML::Node installerNode = installersNode[i];
-            ManifestInstaller installer;
-            installer.PopulateInstallerFields(installerNode);
-            this->Installers.emplace_back(std::move(installer));
-        }
-
-        if (rootNode["Localization"])
-        {
-            YAML::Node localizationsNode = rootNode["Localization"];
-            for (std::size_t i = 0; i < localizationsNode.size(); i++) {
-                YAML::Node localizationNode = localizationsNode[i];
-                ManifestLocalization localization;
-                localization.PopulateLocalizationFields(localizationNode);
-                this->Localization.emplace_back(std::move(localization));
-            }
-        }
-
         if (rootNode["Switches"])
         {
             YAML::Node switchesNode = rootNode["Switches"];
@@ -55,14 +36,55 @@ namespace AppInstaller::Manifest
             switches.PopulateSwitchesFields(switchesNode);
             this->Switches.emplace(std::move(switches));
         }
+
+        // Create default ManifestInstaller to be used to populate default value when optional fields are not found.
+        ManifestInstaller defaultInstaller;
+        defaultInstaller.InstallerType = this->InstallerType;
+        if (this->Switches.has_value())
+        {
+            defaultInstaller.Switches.emplace(this->Switches.value());
+        }
+
+        YAML::Node installersNode = rootNode["Installers"];
+        for (std::size_t i = 0; i < installersNode.size(); i++) {
+            YAML::Node installerNode = installersNode[i];
+            ManifestInstaller installer;
+            installer.PopulateInstallerFields(installerNode, defaultInstaller);
+            this->Installers.emplace_back(std::move(installer));
+        }
+
+        // Create default ManifestLocalization to be used to populate default value when optional fields are not found.
+        ManifestLocalization defaultLocalization;
+        defaultLocalization.Description = this->Description;
+        defaultLocalization.Homepage = this->Homepage;
+        defaultLocalization.LicenseUrl = this->LicenseUrl;
+
+        if (rootNode["Localization"])
+        {
+            YAML::Node localizationsNode = rootNode["Localization"];
+            for (std::size_t i = 0; i < localizationsNode.size(); i++) {
+                YAML::Node localizationNode = localizationsNode[i];
+                ManifestLocalization localization;
+                localization.PopulateLocalizationFields(localizationNode, defaultLocalization);
+                this->Localization.emplace_back(std::move(localization));
+            }
+        }
     }
 
     Manifest Manifest::CreateFromPath(const std::filesystem::path& inputFile)
     {
-        YAML::Node rootNode = YAML::LoadFile(inputFile.u8string());
-
         Manifest manifest;
-        manifest.PopulateManifestFields(rootNode);
+
+        try
+        {
+            YAML::Node rootNode = YAML::LoadFile(inputFile.u8string());
+            manifest.PopulateManifestFields(rootNode);
+        }
+        catch (std::runtime_error& e)
+        {
+            AICLI_LOG(YAML, Error, << "Failed to create manifest from file: " << inputFile.u8string());
+            THROW_EXCEPTION_MSG(ManifestException(), e.what());
+        }
 
         return manifest;
     }
@@ -76,15 +98,12 @@ namespace AppInstaller::Manifest
             YAML::Node rootNode = YAML::Load(input);
             manifest.PopulateManifestFields(rootNode);
         }
-        catch (std::exception&)
+        catch (std::runtime_error& e)
         {
-            // TODO: Log theinput string when read manifest failure
-            throw;
+            AICLI_LOG(YAML, Error, << "Failed to create manifest: " << input);
+            THROW_EXCEPTION_MSG(ManifestException(), e.what());
         }
 
         return manifest;
     }
-
-
 }
-

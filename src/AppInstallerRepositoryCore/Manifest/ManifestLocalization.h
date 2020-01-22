@@ -19,6 +19,8 @@ namespace AppInstaller::Manifest
 
         std::string LicenseUrl;
 
-        void PopulateLocalizationFields(const YAML::Node& localizationNode);
+        // Populates ManifestLocalization
+        // defaultLocalization: if an optional field is not found in the YAML node, the field will be populated with value from defaultLocalization.
+        void PopulateLocalizationFields(const YAML::Node& localizationNode, const ManifestLocalization& defaultLocalization);
     };
 }

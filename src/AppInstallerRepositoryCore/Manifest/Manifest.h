@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+
+#include "AppInstallerCLICore.h"
 #include "ManifestInstaller.h"
 #include "ManifestLocalization.h"
 
@@ -11,6 +13,11 @@
 
 namespace AppInstaller::Manifest
 {
+    struct ManifestException : public wil::ResultException
+    {
+        ManifestException() : wil::ResultException(CLICORE_ERROR_MANIFEST_FAILED) {}
+    };
+
     // Our representation of the parsed manifest file.
     struct Manifest
     {

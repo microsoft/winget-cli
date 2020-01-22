@@ -8,7 +8,6 @@
 #include <type_traits>
 #include <vector>
 
-#include "Common.h"
 #include "Invocation.h"
 
 #define APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR      '-'
@@ -21,14 +20,14 @@ namespace AppInstaller::CLI
 {
     struct CommandException
     {
-        CommandException(std::string message, std::string param) : m_message(message), m_param(param) {}
+        CommandException(std::string message, std::string_view param) : m_message(message), m_param(param) {}
 
         const std::string& Message() const { return m_message; }
-        const std::string& Param() const { return m_param; }
+        const std::string_view Param() const { return m_param; }
 
     private:
         std::string m_message;
-        std::string m_param;
+        std::string_view m_param;
     };
 
     enum class ArgumentType
@@ -43,16 +42,16 @@ namespace AppInstaller::CLI
 
     struct Argument
     {
-        Argument(StringLiteralPtr name, std::string desc) :
+        Argument(std::string_view name, std::string desc) :
             m_name(name), m_desc(std::move(desc)) {}
 
-        Argument(StringLiteralPtr name, std::string desc, bool required) :
+        Argument(std::string_view name, std::string desc, bool required) :
             m_name(name), m_desc(std::move(desc)), m_required(required) {}
 
-        Argument(StringLiteralPtr name, std::string desc, ArgumentType type) :
+        Argument(std::string_view name, std::string desc, ArgumentType type) :
             m_name(name), m_desc(std::move(desc)), m_type(type) {}
 
-        Argument(StringLiteralPtr name, std::string desc, ArgumentType type, bool required) :
+        Argument(std::string_view name, std::string desc, ArgumentType type, bool required) :
             m_name(name), m_desc(std::move(desc)), m_type(type), m_required(required) {}
 
         ~Argument() = default;
@@ -63,14 +62,14 @@ namespace AppInstaller::CLI
         Argument(Argument&&) = default;
         Argument& operator=(Argument&&) = default;
 
-        StringLiteralPtrRef Name() const { return m_name; }
+        std::string_view Name() const { return m_name; }
         std::string Description() const { return m_desc; }
         bool Required() const { return m_required; }
         ArgumentType Type() const { return m_type; }
         size_t Limit() const { return m_countLimit; }
 
     private:
-        StringLiteralPtrRef m_name;
+        std::string_view m_name;
         std::string m_desc;
         bool m_required = false;
         ArgumentType m_type = ArgumentType::Standard;
@@ -79,7 +78,7 @@ namespace AppInstaller::CLI
 
     struct Command
     {
-        Command(StringLiteralPtr name) : m_name(name) {}
+        Command(std::string_view name) : m_name(name) {}
         virtual ~Command() = default;
 
         Command(const Command&) = default;
@@ -88,7 +87,7 @@ namespace AppInstaller::CLI
         Command(Command&&) = default;
         Command& operator=(Command&&) = default;
 
-        StringLiteralPtrRef Name() const { return m_name; }
+        std::string_view Name() const { return m_name; }
 
         virtual std::vector<std::unique_ptr<Command>> GetCommands() const { return {}; }
         virtual std::vector<Argument> GetArguments() const { return {}; }
@@ -103,13 +102,13 @@ namespace AppInstaller::CLI
         virtual void ParseArguments(Invocation& inv) const;
         virtual void ValidateArguments(Invocation& inv) const;
 
-        virtual void Execute(Invocation& inv, std::ostream& out) const;
+        virtual void Execute(Invocation& inv, std::ostream& out, std::istream& in) const;
 
     protected:
-        virtual void ExecuteInternal(Invocation& inv, std::ostream& out) const;
+        virtual void ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const;
 
     private:
-        StringLiteralPtrRef m_name;
+        std::string_view m_name;
     };
 
     template <typename Container>

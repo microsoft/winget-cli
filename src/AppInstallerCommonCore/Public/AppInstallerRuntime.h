@@ -3,6 +3,8 @@
 #pragma once
 
 #include <filesystem>
+#include "AppInstallerArchitecture.h"
+#include "AppInstallerCLICore.h"
 
 namespace AppInstaller::Runtime
 {
@@ -11,4 +13,7 @@ namespace AppInstaller::Runtime
 
     // Gets the path to the temp location.
     std::filesystem::path GetPathToTemp();
+
+    // Gets the system's architecture as Architecture enum
+    AppInstaller::Utility::Architecture GetSystemArchitecture();
 }

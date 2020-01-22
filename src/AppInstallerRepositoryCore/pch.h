@@ -6,6 +6,7 @@
 #include <windows.h>
 
 #include <AppInstallerLogging.h>
+#include <AppInstallerSHA256.h>
 #include <yaml-cpp/yaml.h>
 
 #include <wil/result_macros.h>

@@ -6,14 +6,22 @@
 
 namespace AppInstaller::Manifest
 {
-    void ManifestLocalization::PopulateLocalizationFields(const YAML::Node& localizationNode)
+    void ManifestLocalization::PopulateLocalizationFields(const YAML::Node& localizationNode, const ManifestLocalization& defaultLocalization)
     {
         // Required
         this->Language = localizationNode["Language"].as<std::string>();
 
         // Optional
-        this->Description = localizationNode["Description"] ? localizationNode["Description"].as<std::string>() : "";
-        this->Homepage = localizationNode["Homepage"] ? localizationNode["Homepage"].as<std::string>() : "";
-        this->LicenseUrl = localizationNode["LicenseUrl"] ? localizationNode["LicenseUrl"].as<std::string>() : "";
+        this->Description = localizationNode["Description"] ?
+            localizationNode["Description"].as<std::string>() :
+            defaultLocalization.Description;
+
+        this->Homepage = localizationNode["Homepage"] ?
+            localizationNode["Homepage"].as<std::string>() :
+            defaultLocalization.Homepage;
+
+        this->LicenseUrl = localizationNode["LicenseUrl"] ?
+            localizationNode["LicenseUrl"].as<std::string>() :
+            defaultLocalization.LicenseUrl;
     }
 }
