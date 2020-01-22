@@ -102,10 +102,10 @@ namespace AppInstaller::CLI
         virtual void ParseArguments(Invocation& inv) const;
         virtual void ValidateArguments(Invocation& inv) const;
 
-        virtual void Execute(Invocation& inv, std::ostream& out) const;
+        virtual void Execute(Invocation& inv, std::ostream& out, std::istream& in) const;
 
     protected:
-        virtual void ExecuteInternal(Invocation& inv, std::ostream& out) const;
+        virtual void ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const;
 
     private:
         std::string_view m_name;

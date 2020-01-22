@@ -5,6 +5,9 @@
 #define WIN32_NO_STATUS
 #include <bcrypt.h>
 #include "Public/AppInstallerSHA256.h"
+#include "Public/AppInstallerRuntime.h"
+
+using namespace AppInstaller::Runtime;
 
 namespace AppInstaller::Utility {
 
@@ -43,7 +46,7 @@ namespace AppInstaller::Utility {
         
         if (resultLength != sizeof(context->hashLength))
         {
-            throw std::runtime_error("failed getting SHA256 hash length");
+            THROW_EXCEPTION_MSG(RuntimeException(), "failed getting SHA256 hash length");
         }
 
         // Create a hash handle
@@ -91,7 +94,7 @@ namespace AppInstaller::Utility {
     {
         if (hashBuffer.size() != 32)
         {
-            throw std::runtime_error("Invalid SHA256 size when SHA256::ConvertToString() is called.");
+            THROW_EXCEPTION_MSG(RuntimeException(), "Invalid SHA256 size when SHA256::ConvertToString() is called.");
         }
 
         char resultBuffer[65];
@@ -110,7 +113,7 @@ namespace AppInstaller::Utility {
     {
         if (hashStr.size() != 64)
         {
-            throw std::runtime_error("Invalid SHA256 size when SHA256::ConvertToBytes() is called.");
+            THROW_EXCEPTION_MSG(RuntimeException(), "Invalid SHA256 size when SHA256::ConvertToBytes() is called.");
         }
 
         auto hashCStr = hashStr.c_str();
@@ -138,5 +141,13 @@ namespace AppInstaller::Utility {
     void SHA256::SHA256ContextDeleter::operator()(SHA256Context* context)
     {
         delete context;
+    }
+
+    void SHA256::EnsureNotFinished() const
+    {
+        if (!context)
+        {
+            THROW_EXCEPTION_MSG(RuntimeException(), "The hash is already finished");
+        }
     }
 }

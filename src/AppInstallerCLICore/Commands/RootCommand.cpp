@@ -25,7 +25,7 @@ namespace AppInstaller::CLI
         };
     }
 
-    void RootCommand::ExecuteInternal(Invocation&, std::ostream& out) const
+    void RootCommand::ExecuteInternal(Invocation&, std::ostream& out, std::istream& in) const
     {
         OutputHelp(out);
     }

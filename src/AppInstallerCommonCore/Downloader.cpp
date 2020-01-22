@@ -1,11 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#include <pch.h>
-#include <Public/AppInstallerDownloader.h>
-#include <Public/AppInstallerSHA256.h>
-#include <Public/AppInstallerStrings.h>
-#include <Public/AppInstallerLogging.h>
+#include "pch.h"
+#include "Public/AppInstallerRuntime.h"
+#include "Public/AppInstallerDownloader.h"
+#include "Public/AppInstallerSHA256.h"
+#include "Public/AppInstallerStrings.h"
+#include "Public/AppInstallerLogging.h"
+
+using namespace AppInstaller::Runtime;
 
 namespace AppInstaller::Utility
 {
@@ -63,7 +66,7 @@ namespace AppInstaller::Utility
             if (requestStatus != HTTP_STATUS_OK)
             {
                 AICLI_LOG(CLI, Error, << "Download request failed. Returned status: " << requestStatus);
-                throw std::runtime_error("Download request status is not success.");
+                THROW_HR_MSG(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, requestStatus), "Download request status is not success.");
             }
 
             AICLI_LOG(CLI, Verbose, << "Download request status success.");
@@ -161,7 +164,12 @@ namespace AppInstaller::Utility
 
     DownloaderResult Downloader::Cancel()
     {
-        if (m_downloadTask.valid() && !m_cancelled)
+        if (!m_downloadTask.valid())
+        {
+            THROW_EXCEPTION_MSG(RuntimeException(), "No active download found.");
+        }
+
+        if (!m_cancelled)
         {
             m_cancelled = true;
         }
@@ -173,9 +181,19 @@ namespace AppInstaller::Utility
     {
         if (!m_downloadTask.valid())
         {
-            throw std::runtime_error("No active download found.");
+            THROW_EXCEPTION_MSG(RuntimeException(), "No active download found.");
         }
 
         return m_downloadTask.get();
     }
+
+    std::vector<BYTE> Downloader::GetDownloadHash()
+    {
+        if (m_downloadHash.size() == 0)
+        {
+            THROW_EXCEPTION_MSG(RuntimeException(), "Invalid sha256 length. Download in progress or hash calculation not requested.");
+        }
+
+        return m_downloadHash;
+    };
 }

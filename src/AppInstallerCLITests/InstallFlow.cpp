@@ -13,8 +13,8 @@ using namespace AppInstaller::Manifest;
 class InstallFlowTest : public InstallFlow
 {
 public:
-    InstallFlowTest(Manifest manifest, std::ostream& stream) :
-        InstallFlow(manifest, stream) {}
+    InstallFlowTest(Manifest manifest, std::ostream& outStream, std::istream& inStream) :
+        InstallFlow(manifest, outStream, inStream) {}
 
 protected:
     void DownloadInstaller() override
@@ -31,7 +31,7 @@ TEST_CASE("InstallFlowWithTestManifest", "[InstallFlow]")
 
     auto manifest = Manifest::CreateFromPath("InstallFlowTest.yml");
 
-    InstallFlowTest testFlow(manifest, std::cout);
+    InstallFlowTest testFlow(manifest, std::cout, std::cin);
     testFlow.Install();
 
     // Verify Installer is called and parameters are passed in.
@@ -51,7 +51,7 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow]")
 
     auto manifest = Manifest::CreateFromPath("InstallFlowTest_NoApplicableArchitecture.yml");
 
-    InstallFlowTest testFlow(manifest, std::cout);
+    InstallFlowTest testFlow(manifest, std::cout, std::cin);
     REQUIRE_THROWS_WITH(testFlow.Install(), Catch::Contains("No installer with applicable architecture found."));
 
     // Verify Installer is called and parameters are passed in.

@@ -49,18 +49,10 @@ namespace AppInstaller::Utility
         DownloaderResult Wait();
 
         // Get download content hash only if download is success and hash calculation is requested.
-        std::vector<BYTE> GetDownloadHash()
-        {
-            if (m_downloadHash.size() == 0)
-            {
-                throw std::runtime_error("Invalid sha256 length. Download in progress or hash calculation not requested.");
-            }
-
-            return m_downloadHash;
-        };
+        std::vector<BYTE> GetDownloadHash();
 
     private:
-        std::future<DownloaderResult> m_downloadTask;
+        std::shared_future<DownloaderResult> m_downloadTask;
         std::atomic<bool> m_cancelled = false;
         std::vector<BYTE> m_downloadHash;
 

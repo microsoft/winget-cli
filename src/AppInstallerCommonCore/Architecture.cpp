@@ -31,7 +31,7 @@ namespace AppInstaller::Utility
             return Architecture::Neutral;
         }
 
-        AICLI_LOG(YAML, Error, << "Convert to architecture enum. Unknown architecture: " << archStr);
+        AICLI_LOG(YAML, Info, << "Convert to architecture enum. Unknown architecture: " << archStr);
         return Architecture::Unknown;
     }
 

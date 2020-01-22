@@ -57,11 +57,6 @@ namespace AppInstaller::CLI
                 return nullptr;
             }
 
-            if (itr->second.size() != 1)
-            {
-                throw std::runtime_error("The requested arg does not have exactly 1 value. Use GetArgs() instead.");
-            }
-
             return &(itr->second[0]);
         }
 

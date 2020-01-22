@@ -54,8 +54,8 @@ namespace AppInstaller::Workflow
             Error,
         };
 
-        WorkflowReporter(std::ostream& stream) :
-            out(stream), m_downloaderCallback(stream), m_spinner(stream) {};
+        WorkflowReporter(std::ostream& outStream, std::istream& inStream) :
+            out(outStream), in(inStream), m_downloaderCallback(outStream), m_spinner(outStream) {};
 
         void ShowPackageInfo(
             const std::string& name,
@@ -64,6 +64,8 @@ namespace AppInstaller::Workflow
             const std::string& description,
             const std::string& homepage,
             const std::string& licenceUrl);
+
+        char GetCharResponse();
 
         void ShowMsg(Level level, const std::string& msg);
 
@@ -74,6 +76,7 @@ namespace AppInstaller::Workflow
 
     private:
         std::ostream& out;
+        std::istream& in;
         DownloaderCallback m_downloaderCallback;
         IndefiniteSpinner m_spinner;
     };

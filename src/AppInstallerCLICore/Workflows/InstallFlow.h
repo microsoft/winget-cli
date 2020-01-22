@@ -10,8 +10,8 @@ namespace AppInstaller::Workflow {
     class InstallFlow
     {
     public:
-        InstallFlow(AppInstaller::Manifest::Manifest manifest, std::ostream& stream) :
-            m_packageManifest(manifest), m_reporter(stream) {}
+        InstallFlow(AppInstaller::Manifest::Manifest manifest, std::ostream& outStream, std::istream& inStream) :
+            m_packageManifest(manifest), m_reporter(outStream, inStream) {}
 
         void Install();
 

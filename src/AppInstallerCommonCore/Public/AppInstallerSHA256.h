@@ -49,13 +49,7 @@ namespace AppInstaller::Utility {
         static HashBuffer ConvertToBytes(const std::string& hashStr);
 
     private:
-        void EnsureNotFinished() const
-        {
-            if (!context)
-            {
-                throw std::runtime_error("The hash is already finished");
-            }
-        }
+        void EnsureNotFinished() const;
 
         struct SHA256ContextDeleter
         {

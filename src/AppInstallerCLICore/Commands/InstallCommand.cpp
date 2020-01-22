@@ -32,13 +32,13 @@ namespace AppInstaller::CLI
         };
     }
 
-    void InstallCommand::ExecuteInternal(Invocation& inv, std::ostream& out) const
+    void InstallCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const
     {
         if (inv.Contains(ARG_MANIFEST))
         {
             std::string manifest = *(inv.GetArg(ARG_MANIFEST));
             Manifest::Manifest packageManifest = Manifest::Manifest::CreateFromPath(manifest);
-            InstallFlow packageInstall(packageManifest, out);
+            InstallFlow packageInstall(packageManifest, out, in);
             packageInstall.Install();
         }
         else

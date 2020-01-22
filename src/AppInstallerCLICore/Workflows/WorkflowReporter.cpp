@@ -48,6 +48,13 @@ namespace AppInstaller::Workflow
         out << "Licence: " << licenceUrl << std::endl;
     }
 
+    char WorkflowReporter::GetCharResponse()
+    {
+        char response;
+        in.get(response);
+        return response;
+    }
+
     void WorkflowReporter::ShowMsg(Level level, const std::string& msg)
     {
         // Todo: color output using level and possibly other factors.

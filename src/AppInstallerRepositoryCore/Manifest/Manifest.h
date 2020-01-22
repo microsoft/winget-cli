@@ -15,7 +15,7 @@ namespace AppInstaller::Manifest
 {
     struct ManifestException : public wil::ResultException
     {
-        ManifestException() : wil::ResultException(CLICORE_ERROR_INSTALLFLOW_FAILED) {}
+        ManifestException() : wil::ResultException(CLICORE_ERROR_MANIFEST_FAILED) {}
     };
 
     // Our representation of the parsed manifest file.

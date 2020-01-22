@@ -72,8 +72,7 @@ namespace AppInstaller::Workflow {
 
             m_reporter.ShowMsg(WorkflowReporter::Level::Warning, "Package hash verification failed. Continue? (Y|N)");
 
-            char response;
-            std::cin >> response;
+            char response = m_reporter.GetCharResponse();
             if (response != 'y' && response != 'Y')
             {
                 m_reporter.ShowMsg(WorkflowReporter::Level::Error, "Canceled. Package hash mismatch.");
