@@ -46,7 +46,7 @@ namespace AppInstaller::Utility {
         
         if (resultLength != sizeof(context->hashLength))
         {
-            THROW_EXCEPTION_MSG(RuntimeException(), "failed getting SHA256 hash length");
+            THROW_HR_MSG(E_UNEXPECTED, "failed getting SHA256 hash length");
         }
 
         // Create a hash handle
@@ -94,7 +94,7 @@ namespace AppInstaller::Utility {
     {
         if (hashBuffer.size() != 32)
         {
-            THROW_EXCEPTION_MSG(RuntimeException(), "Invalid SHA256 size when SHA256::ConvertToString() is called.");
+            THROW_HR_MSG(E_INVALIDARG, "Invalid SHA256 size when SHA256::ConvertToString() is called.");
         }
 
         char resultBuffer[65];
@@ -113,7 +113,7 @@ namespace AppInstaller::Utility {
     {
         if (hashStr.size() != 64)
         {
-            THROW_EXCEPTION_MSG(RuntimeException(), "Invalid SHA256 size when SHA256::ConvertToBytes() is called.");
+            THROW_HR_MSG(E_INVALIDARG, "Invalid SHA256 size when SHA256::ConvertToBytes() is called.");
         }
 
         auto hashCStr = hashStr.c_str();
@@ -147,7 +147,7 @@ namespace AppInstaller::Utility {
     {
         if (!context)
         {
-            THROW_EXCEPTION_MSG(RuntimeException(), "The hash is already finished");
+            THROW_HR_MSG(E_UNEXPECTED, "The hash is already finished");
         }
     }
 }

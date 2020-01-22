@@ -8,12 +8,6 @@
 
 namespace AppInstaller::Runtime
 {
-    struct RuntimeException : public wil::ResultException
-    {
-        RuntimeException() : wil::ResultException(CLICORE_ERROR_RUNTIME_ERROR) {}
-        RuntimeException(HRESULT hr) : wil::ResultException(hr) {}
-    };
-
     // Determines whether the process is running in a packaged context or not.
     bool IsRunningInPackagedContext();
 
