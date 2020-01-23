@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 
-#include "AppInstallerCLICore.h"
+#include "AppInstallerErrors.h"
 #include "ManifestInstaller.h"
 #include "ManifestLocalization.h"
 
@@ -15,7 +15,7 @@ namespace AppInstaller::Manifest
 {
     struct ManifestException : public wil::ResultException
     {
-        ManifestException() : wil::ResultException(CLICORE_ERROR_MANIFEST_FAILED) {}
+        ManifestException() : wil::ResultException(APPINSTALLER_CLI_ERROR_MANIFEST_FAILED) {}
     };
 
     // Our representation of the parsed manifest file.

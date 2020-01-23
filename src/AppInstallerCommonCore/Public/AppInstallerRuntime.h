@@ -4,7 +4,6 @@
 
 #include <filesystem>
 #include "AppInstallerArchitecture.h"
-#include "AppInstallerCLICore.h"
 
 namespace AppInstaller::Runtime
 {
