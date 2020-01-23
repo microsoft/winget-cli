@@ -174,7 +174,7 @@ namespace AppInstaller::CLI
         }
     }
 
-    void Command::Execute(Invocation& inv, std::ostream& out) const
+    void Command::Execute(Invocation& inv, std::ostream& out, std::istream& in) const
     {
         AICLI_LOG(CLI, Info, << "Executing command: " << Name());
         if (inv.Contains(APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING))
@@ -183,11 +183,11 @@ namespace AppInstaller::CLI
         }
         else
         {
-            ExecuteInternal(inv, out);
+            ExecuteInternal(inv, out, in);
         }
     }
 
-    void Command::ExecuteInternal(Invocation&, std::ostream& out) const
+    void Command::ExecuteInternal(Invocation&, std::ostream& out, std::istream& in) const
     {
         out << LOCME("Oops, we forgot to do this...") << std::endl;
         THROW_HR(E_NOTIMPL);

@@ -19,6 +19,9 @@
     <Filter Include="Public">
       <UniqueIdentifier>{00cc3138-2893-4fc4-8595-d3cf9d26be1c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Workflows">
+      <UniqueIdentifier>{fdeb940e-93e2-4bb0-a59c-1e2d1c0588d1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -42,14 +45,26 @@
     <ClInclude Include="Invocation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Search\Search.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Public\AppInstallerCLICore.h">
       <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\InstallFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\ManifestComparator.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\WorkflowReporter.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\Common.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\Common.h">
+      <Filter>Workflows</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -70,6 +85,15 @@
     </ClCompile>
     <ClCompile Include="Core.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\InstallFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\ManifestComparator.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\WorkflowReporter.cpp">
+      <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

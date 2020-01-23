@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "Common.h"
 #include "DescribeCommand.h"
 #include "Localization.h"
 
@@ -9,8 +10,8 @@ namespace AppInstaller::CLI
     std::vector<Argument> DescribeCommand::GetArguments() const
     {
         return {
-            Argument{ "application", LOCME("The name of the application to install"), ArgumentType::Positional, true },
-            Argument{ "manifest", LOCME("If specified, output the full manifest file"), ArgumentType::Flag },
+            Argument{ ARG_APPLICATION, LOCME("The name of the application to install"), ArgumentType::Positional, true },
+            Argument{ ARG_MANIFEST, LOCME("If specified, output the full manifest file"), ArgumentType::Flag },
         };
     }
 

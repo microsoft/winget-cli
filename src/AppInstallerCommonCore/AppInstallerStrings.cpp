@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "Public/AppInstallerStrings.h"
 
-
 namespace AppInstaller::Utility
 {
     std::string ConvertToUTF8(std::wstring_view input)
@@ -33,6 +32,14 @@ namespace AppInstaller::Utility
         int utf16CharsWritten = MultiByteToWideChar(CP_UTF8, 0, input.data(), wil::safe_cast<int>(input.length()), &result[0], wil::safe_cast<int>(result.size()));
         FAIL_FAST_HR_IF(E_UNEXPECTED, utf16CharCount != utf16CharsWritten);
 
+        return result;
+    }
+
+    std::string ToLower(const std::string& in)
+    {
+        std::string result(in);
+        std::transform(result.begin(), result.end(), result.begin(),
+            [](unsigned char c) { return std::tolower(c); });
         return result;
     }
 }

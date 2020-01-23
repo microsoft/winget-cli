@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppInstallerCommonCore", "A
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppInstallerSQLiteIndexUtil", "AppInstallerSQLiteIndexUtil\AppInstallerSQLiteIndexUtil.vcxproj", "{FB313532-38B0-4676-9303-AB200AA13576}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppInstallerTestExeInstaller", "AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.vcxproj", "{6CB84692-5994-407D-B9BD-9216AF77FE83}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		catch2\catch2.vcxitems*{5295e21e-9868-4de2-a177-fbb97b36579b}*SharedItemsImports = 9
@@ -177,6 +179,18 @@ Global
 		{FB313532-38B0-4676-9303-AB200AA13576}.Release|x64.Build.0 = Release|x64
 		{FB313532-38B0-4676-9303-AB200AA13576}.Release|x86.ActiveCfg = Release|Win32
 		{FB313532-38B0-4676-9303-AB200AA13576}.Release|x86.Build.0 = Release|Win32
+		{6CB84692-5994-407D-B9BD-9216AF77FE83}.Debug|ARM.ActiveCfg = Debug|Win32
+		{6CB84692-5994-407D-B9BD-9216AF77FE83}.Debug|ARM64.ActiveCfg = Debug|Win32
+		{6CB84692-5994-407D-B9BD-9216AF77FE83}.Debug|x64.ActiveCfg = Debug|x64
+		{6CB84692-5994-407D-B9BD-9216AF77FE83}.Debug|x64.Build.0 = Debug|x64
+		{6CB84692-5994-407D-B9BD-9216AF77FE83}.Debug|x86.ActiveCfg = Debug|Win32
+		{6CB84692-5994-407D-B9BD-9216AF77FE83}.Debug|x86.Build.0 = Debug|Win32
+		{6CB84692-5994-407D-B9BD-9216AF77FE83}.Release|ARM.ActiveCfg = Release|Win32
+		{6CB84692-5994-407D-B9BD-9216AF77FE83}.Release|ARM64.ActiveCfg = Release|Win32
+		{6CB84692-5994-407D-B9BD-9216AF77FE83}.Release|x64.ActiveCfg = Release|x64
+		{6CB84692-5994-407D-B9BD-9216AF77FE83}.Release|x64.Build.0 = Release|x64
+		{6CB84692-5994-407D-B9BD-9216AF77FE83}.Release|x86.ActiveCfg = Release|Win32
+		{6CB84692-5994-407D-B9BD-9216AF77FE83}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

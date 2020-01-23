@@ -68,7 +68,7 @@ namespace AppInstaller::CLI
 
         try
         {
-            commandToExecute->Execute(invocation, std::cout);
+            commandToExecute->Execute(invocation, std::cout, std::cin);
         }
         // Exceptions that may occur in the process of executing an arbitrary command
         catch (const winrt::hresult_error& hre)
