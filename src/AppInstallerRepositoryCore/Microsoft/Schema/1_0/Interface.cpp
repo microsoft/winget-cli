@@ -47,4 +47,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         savepoint.Commit();
     }
+
+    void Interface::AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    {
+
+    }
+
+    void Interface::UpdateManifest(const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath)
+    {
+
+    }
+
+    void Interface::RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    {
+
+    }
 }

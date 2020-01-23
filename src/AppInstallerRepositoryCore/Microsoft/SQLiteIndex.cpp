@@ -127,9 +127,7 @@ namespace AppInstaller::Repository::Microsoft
 
     void SQLiteIndex::AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
-        UNREFERENCED_PARAMETER(manifest);
-        UNREFERENCED_PARAMETER(relativePath);
-        THROW_HR(E_NOTIMPL);
+        m_interface->AddManifest(manifest, relativePath);
     }
 
     void SQLiteIndex::UpdateManifest(const std::filesystem::path& oldManifestPath, const std::filesystem::path& oldRelativePath, const std::filesystem::path& newManifestPath, const std::filesystem::path& newRelativePath)
@@ -141,11 +139,7 @@ namespace AppInstaller::Repository::Microsoft
 
     void SQLiteIndex::UpdateManifest(const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath)
     {
-        UNREFERENCED_PARAMETER(oldManifest);
-        UNREFERENCED_PARAMETER(oldRelativePath);
-        UNREFERENCED_PARAMETER(newManifest);
-        UNREFERENCED_PARAMETER(newRelativePath);
-        THROW_HR(E_NOTIMPL);
+        m_interface->UpdateManifest(oldManifest, oldRelativePath, newManifest, newRelativePath);
     }
 
     void SQLiteIndex::RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
@@ -156,8 +150,6 @@ namespace AppInstaller::Repository::Microsoft
 
     void SQLiteIndex::RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
-        UNREFERENCED_PARAMETER(manifest);
-        UNREFERENCED_PARAMETER(relativePath);
-        THROW_HR(E_NOTIMPL);
+        m_interface->RemoveManifest(manifest, relativePath);
     }
 }
