@@ -51,12 +51,12 @@ namespace AppInstaller::Workflow {
         if (downloadResult == DownloaderResult::Failed)
         {
             m_reporter.ShowMsg(WorkflowReporter::Level::Error, "Package download failed.");
-            THROW_EXCEPTION_MSG(WorkflowException(CLICORE_ERROR_INSTALLFLOW_FAILED), "Package download failed");
+            THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED), "Package download failed");
         }
         else if (downloadResult == DownloaderResult::Canceled)
         {
             m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Package download canceled.");
-            THROW_EXCEPTION_MSG(WorkflowException(CLICORE_ERROR_INSTALLFLOW_FAILED), "Package download canceled");
+            THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED), "Package download canceled");
         }
 
         if (!std::equal(
@@ -73,7 +73,7 @@ namespace AppInstaller::Workflow {
             if (!m_reporter.PromptForBoolResponse(WorkflowReporter::Level::Warning, "Package hash verification failed. Continue?"))
             {
                 m_reporter.ShowMsg(WorkflowReporter::Level::Error, "Canceled. Package hash mismatch.");
-                THROW_EXCEPTION_MSG(WorkflowException(CLICORE_ERROR_INSTALLFLOW_FAILED), "Package installation canceled");
+                THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED), "Package installation canceled");
             }
         }
         else
@@ -89,7 +89,7 @@ namespace AppInstaller::Workflow {
     {
         if (m_downloadedInstaller.empty())
         {
-            THROW_EXCEPTION_MSG(WorkflowException(CLICORE_ERROR_INSTALLFLOW_FAILED), "Installer not downloaded yet");
+            THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED), "Installer not downloaded yet");
         }
 
         m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Installing package ...");
@@ -106,7 +106,7 @@ namespace AppInstaller::Workflow {
         else
         {
             m_reporter.ShowMsg(WorkflowReporter::Level::Error, "Installer type not supported.");
-            THROW_EXCEPTION_MSG(WorkflowException(CLICORE_ERROR_INSTALLFLOW_FAILED), "Installer type not supported");
+            THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED), "Installer type not supported");
         }
 
         m_reporter.ShowIndefiniteSpinner(true);
@@ -121,7 +121,7 @@ namespace AppInstaller::Workflow {
         {
             m_reporter.ShowMsg(WorkflowReporter::Level::Error, "Install failed. Exit code: " + std::to_string(installResult));
 
-            THROW_EXCEPTION_MSG(WorkflowException(CLICORE_ERROR_INSTALLFLOW_FAILED),
+            THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED),
                 "Install failed. Installer task returned: %u", installResult);
         }
 

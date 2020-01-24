@@ -26,5 +26,6 @@
 #include "AppInstallerRuntime.h"
 #include "AppInstallerSHA256.h"
 #include "AppInstallerDownloader.h"
+#include "AppInstallerErrors.h"
 #include "Manifest/ManifestInstaller.h"
 #include "Manifest/Manifest.h"
