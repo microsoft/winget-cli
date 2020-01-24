@@ -5,8 +5,14 @@
 
 namespace AppInstaller::Repository
 {
-    // Class containing data used to filter the available manifests in a source.
+    // Container for data used to filter the available manifests in a source.
     struct SearchFilter
+    {
+
+    };
+
+    // Search result data.
+    struct SearchResult
     {
 
     };

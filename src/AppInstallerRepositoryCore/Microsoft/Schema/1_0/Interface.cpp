@@ -50,7 +50,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     void Interface::AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
+        auto pathResult = PathPartTable::EnsurePathExists(relativePath, true);
 
+        // if we get false from the function, this manifest already exists in the index
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), !std::get<0>(pathResult));
     }
 
     void Interface::UpdateManifest(const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath)

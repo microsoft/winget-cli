@@ -33,7 +33,7 @@ namespace AppInstaller::Repository
         virtual void Update() = 0;
 
         // Execute a search on the source.
-        virtual SEARCH_RESULT_THING Search(const SearchFilter& filter) = 0;
+        virtual SearchResult Search(const SearchFilter& filter) = 0;
     };
 
     // Adds a new source for the user.
