@@ -30,6 +30,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     std::tuple<bool, int64_t> PathPartTable::EnsurePathExists(SQLite::Connection& connection, const std::filesystem::path& relativePath, bool createIfNotFound)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "ensurepathexists");
+        //SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "ensurepathexists");
+
+        std::tuple<bool, int64_t> result{};
+
+        return result;
     }
 }
