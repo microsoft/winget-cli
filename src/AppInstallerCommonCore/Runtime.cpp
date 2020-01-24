@@ -25,6 +25,38 @@ namespace AppInstaller::Runtime
         return result;
     }
 
+    std::string GetClientVersion()
+    {
+        using namespace std::string_literals;
+
+        if (IsRunningInPackagedContext())
+        {
+            UINT32 bufferLength = 0;
+            LONG gcpiResult = GetCurrentPackageId(&bufferLength, nullptr);
+            THROW_HR_IF(E_UNEXPECTED, gcpiResult != ERROR_INSUFFICIENT_BUFFER);
+
+            std::unique_ptr<byte[]> buffer = std::make_unique<byte[]>(bufferLength);
+
+            gcpiResult = GetCurrentPackageId(&bufferLength, buffer.get());
+            if (FAILED_WIN32_LOG(gcpiResult))
+            {
+                return "error"s;
+            }
+
+            PACKAGE_ID* packageId = reinterpret_cast<PACKAGE_ID*>(buffer.get());
+            PACKAGE_VERSION& version = packageId->version;
+
+            std::ostringstream strstr;
+            strstr << version.Major << '.' << version.Minor << '.' << version.Build << '.' << version.Revision;
+
+            return strstr.str();
+        }
+        else
+        {
+            return "unknown"s;
+        }
+    }
+
     std::filesystem::path GetPathToTemp()
     {
         if (IsRunningInPackagedContext())

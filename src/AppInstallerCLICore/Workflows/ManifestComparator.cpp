@@ -47,7 +47,7 @@ namespace AppInstaller::Workflow
         if (Utility::IsApplicableArchitecture(m_manifestRef.Installers[0].Arch) == -1)
         {
             m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "No applicable installer found.");
-            THROW_EXCEPTION_MSG(WorkflowException(CLICORE_ERROR_WORKFLOW_FAILED), "No installer with applicable architecture found.");
+            THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_WORKFLOW_FAILED), "No installer with applicable architecture found.");
         }
 
         ManifestInstaller selectedInstaller = m_manifestRef.Installers[0];

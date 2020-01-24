@@ -21,6 +21,8 @@ namespace AppInstaller::CLI
         Logging::AddDefaultFileLogger();
         Logging::EnableWilFailureTelemetry();
 
+        Logging::Telemetry().LogStartup();
+
         // Convert incoming wide char args to UTF8
         std::vector<std::string> utf8Args;
         for (int i = 1; i < argc; ++i)
@@ -61,7 +63,7 @@ namespace AppInstaller::CLI
         {
             commandToExecute->OutputHelp(std::cout, &ce);
             AICLI_LOG(CLI, Error, << "Error encountered parsing command line: " << ce.Message());
-            return CLICORE_ERROR_INVALID_CL_ARGUMENTS;
+            return APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS;
         }
 
         try
@@ -75,14 +77,14 @@ namespace AppInstaller::CLI
             std::string message = Utility::ConvertToUTF8(hre.message());
             std::cout << "An error occured while executing the command: " << message << std::endl;
             AICLI_LOG(CLI, Error, << "Error encountered executing command: " << message);
-            return CLICORE_ERROR_COMMAND_FAILED;
+            return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
         catch (const std::exception& e)
         {
             // TODO: Better error output
             std::cout << "An error occured while executing the command: " << e.what() << std::endl;
             AICLI_LOG(CLI, Error, << "Error encountered executing command: " << e.what());
-            return CLICORE_ERROR_COMMAND_FAILED;
+            return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
 
         return 0;
@@ -91,15 +93,15 @@ namespace AppInstaller::CLI
     // Telemetry cannot be reliable beyond this point, so don't let these happen.
     catch (const winrt::hresult_error&)
     {
-        return CLICORE_ERROR_INTERNAL_ERROR;
+        return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
     }
     catch (const std::exception&)
     {
-        return CLICORE_ERROR_INTERNAL_ERROR;
+        return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
     }
     catch (...)
     {
-        return CLICORE_ERROR_INTERNAL_ERROR;
+        return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
     }
 
 }
