@@ -50,6 +50,8 @@ namespace AppInstaller::Workflow
 
     bool WorkflowReporter::PromptForBoolResponse(Level level, const std::string& msg)
     {
+        UNREFERENCED_PARAMETER(level);
+
         out << msg << " (Y|N)" << std::endl;
 
         char response;
@@ -60,6 +62,8 @@ namespace AppInstaller::Workflow
 
     void WorkflowReporter::ShowMsg(Level level, const std::string& msg)
     {
+        UNREFERENCED_PARAMETER(level);
+
         // Todo: color output using level and possibly other factors.
         out << msg << std::endl;
     }
