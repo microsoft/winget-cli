@@ -41,5 +41,13 @@ namespace AppInstaller::Repository::Microsoft::Schema
     // Common base class used by all schema versions.
     struct SQLiteIndexBase : public ISQLiteIndex
     {
+        SQLiteIndexBase(SQLite::Connection& connection) : m_connection(connection) {}
+
+        SQLiteIndexBase(SQLiteIndexBase&) = delete;
+        SQLiteIndexBase& operator=(SQLiteIndexBase&) = delete;
+
+    protected:
+        // Non-owning reference; the interface should never outlive the SQLiteIndex class.
+        SQLite::Connection& m_connection;
     };
 }

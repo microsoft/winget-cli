@@ -109,13 +109,13 @@ namespace AppInstaller::Repository::Microsoft
     {
         m_version = Schema::Version::GetSchemaVersion(m_dbconn);
         AICLI_LOG(Repo, Info, << "Opened SQLite Index with version: " << m_version);
-        m_interface = m_version.CreateISQLiteIndex();
+        m_interface = m_version.CreateISQLiteIndex(m_dbconn);
     }
 
     SQLiteIndex::SQLiteIndex(const std::string& target, Schema::Version version) :
         m_dbconn(SQLite::Connection::Create(target, SQLite::Connection::OpenDisposition::Create))
     {
-        m_interface = version.CreateISQLiteIndex();
+        m_interface = version.CreateISQLiteIndex(m_dbconn);
         m_version = m_interface->GetVersion();
     }
 
