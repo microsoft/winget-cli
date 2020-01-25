@@ -23,6 +23,8 @@ namespace AppInstaller::Workflow
 
     bool LocalizationComparator::operator() (const ManifestLocalization& loc1, const ManifestLocalization& loc2)
     {
+        UNREFERENCED_PARAMETER(loc2);
+
         // Todo: Compare simple language for now. Need more work and spec.
         std::string userPreferredLocale = std::locale("").name();
 
@@ -38,7 +40,7 @@ namespace AppInstaller::Workflow
 
     ManifestInstaller ManifestComparator::GetPreferredInstaller(const std::locale& preferredLocale)
     {
-        AICLI_LOG(CLI, Info, << "Starting installer selection.");
+        AICLI_LOG(CLI, Info, << "Starting installer selection. Preferred locale: " << preferredLocale.name());
 
         // Sorting the list of availlable installers according to rules defined in InstallerComparator.
         std::sort(m_manifestRef.Installers.begin(), m_manifestRef.Installers.end(), InstallerComparator());
@@ -64,7 +66,7 @@ namespace AppInstaller::Workflow
 
     ManifestLocalization ManifestComparator::GetPreferredLocalization(const std::locale& preferredLocale)
     {
-        AICLI_LOG(CLI, Info, << "Starting localization selection.");
+        AICLI_LOG(CLI, Info, << "Starting localization selection. Preferred locale: " << preferredLocale.name());
 
         ManifestLocalization selectedLocalization;
 

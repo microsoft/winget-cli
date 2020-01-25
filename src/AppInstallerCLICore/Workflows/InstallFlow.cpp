@@ -136,7 +136,8 @@ namespace AppInstaller::Workflow {
             SHELLEXECUTEINFOA execInfo = { 0 };
             execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
             execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-            execInfo.lpFile = Utility::ConvertToUTF8(filePath.c_str()).c_str();
+            std::string filePathUTF8Str = Utility::ConvertToUTF8(filePath.c_str());
+            execInfo.lpFile = filePathUTF8Str.c_str();
             execInfo.lpParameters = args.c_str();
             execInfo.nShow = SW_SHOW;
             if (!ShellExecuteExA(&execInfo) || !execInfo.hProcess)

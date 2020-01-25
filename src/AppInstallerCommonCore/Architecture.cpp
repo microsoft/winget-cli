@@ -79,7 +79,7 @@ namespace AppInstaller::Utility
 
         if (it != applicableArchs.end())
         {
-            return std::distance(it, applicableArchs.end());
+            return static_cast<int>(std::distance(it, applicableArchs.end()));
         }
         else
         {
