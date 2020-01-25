@@ -22,7 +22,6 @@ namespace AppInstaller::Utility {
     {
         BCRYPT_ALG_HANDLE algHandleT{};
         BCRYPT_HASH_HANDLE hashHandleT;
-        DWORD hashLength = 0;
         DWORD resultLength = 0;
 
         // Open an algorithm handle
@@ -99,9 +98,9 @@ namespace AppInstaller::Utility {
 
         char resultBuffer[65];
 
-        for (int i = 0; i < hashBuffer.size(); i++)
+        for (int i = 0; i < 32; i++)
         {
-            sprintf(resultBuffer + i * 2, "%02x", resultBuffer[i]);
+            sprintf_s(resultBuffer + i * 2, 3, "%02x", hashBuffer[i]);
         }
 
         resultBuffer[64] = '\0';
@@ -123,7 +122,7 @@ namespace AppInstaller::Utility {
 
         for (int i = 0; i < 32; i++)
         {
-            sscanf(hashCStr + 2 * i, "%02x", &resultBuffer[i]);
+            sscanf_s(hashCStr + 2 * i, "%02hhx", &resultBuffer[i]);
         }
 
         return resultBuffer;
