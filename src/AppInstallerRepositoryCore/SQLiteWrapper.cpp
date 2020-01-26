@@ -5,6 +5,8 @@
 
 #include <wil/result_macros.h>
 
+using namespace std::string_view_literals;
+
 // TODO: Invoke the wil error handling callback to log the error
 #define THROW_SQLITE(_error_) \
     do { \
@@ -23,6 +25,8 @@
 
 namespace AppInstaller::Repository::SQLite
 {
+    std::string_view RowIDName = "rowid"sv;
+
     namespace
     {
         size_t GetNextStatementId()
@@ -34,6 +38,11 @@ namespace AppInstaller::Repository::SQLite
 
     namespace details
     {
+        void ParameterSpecificsImpl<nullptr_t>::Bind(sqlite3_stmt* stmt, int index, nullptr_t)
+        {
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_null(stmt, index));
+        }
+
         void ParameterSpecificsImpl<std::string>::Bind(sqlite3_stmt* stmt, int index, const std::string& v)
         {
             THROW_IF_SQLITE_FAILED(sqlite3_bind_text64(stmt, index, v.c_str(), v.size(), SQLITE_TRANSIENT, SQLITE_UTF8));
@@ -58,6 +67,16 @@ namespace AppInstaller::Repository::SQLite
         {
             return sqlite3_column_int(stmt, column);
         }
+
+        void ParameterSpecificsImpl<int64_t>::Bind(sqlite3_stmt* stmt, int index, int64_t v)
+        {
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_int64(stmt, index, v));
+        }
+
+        int64_t ParameterSpecificsImpl<int64_t>::GetColumn(sqlite3_stmt* stmt, int column)
+        {
+            return sqlite3_column_int64(stmt, column);
+        }
     }
 
     Connection::Connection(const std::string& target, OpenDisposition disposition, OpenFlags flags)
@@ -79,6 +98,11 @@ namespace AppInstaller::Repository::SQLite
     Connection::~Connection()
     {
         sqlite3_close_v2(m_dbconn);
+    }
+
+    int64_t Connection::GetLastInsertRowID()
+    {
+        return sqlite3_last_insert_rowid(m_dbconn);
     }
 
     Statement::Statement(Connection& connection, std::string_view sql, bool persistent)

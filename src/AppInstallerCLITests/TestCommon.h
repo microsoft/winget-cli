@@ -4,6 +4,8 @@
 #include "pch.h"
 #include <string>
 
+#define SQLITE_MEMORY_DB_CONNECTION_TARGET ":memory:"
+
 namespace TestCommon
 {
     struct TempFile

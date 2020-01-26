@@ -26,6 +26,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         //      The result bool will indicate whether the path was found (true), or not (false).
         // In all cases except createIfNotFound == false and result bool == false, the int64_t value
         // will be valid and the rowid of the final path part in the path.
-        static std::tuple<bool, int64_t> EnsurePathExists(SQLite::Connection& connection, const std::filesystem::path& relativePath, bool createIfNotFound);
+        static std::tuple<bool, SQLite::rowid_t> EnsurePathExists(SQLite::Connection& connection, const std::filesystem::path& relativePath, bool createIfNotFound);
     };
 }
