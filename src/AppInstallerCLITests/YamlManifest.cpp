@@ -7,13 +7,32 @@
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Utility;
 
+using MultiValue = std::vector<std::string>;
+bool operator==(const MultiValue& a, const MultiValue& b)
+{
+    if (a.size() != b.size())
+    {
+        return false;
+    }
+
+    for (size_t i = 0; i < a.size(); ++i)
+    {
+        if (a[i] != b[i])
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
 {
     Manifest manifest = Manifest::CreateFromPath("GoodManifest.yml");
 
     REQUIRE(manifest.Id == "microsoft.msixsdk");
     REQUIRE(manifest.Name == "MSIX SDK");
-    REQUIRE(manifest.ShortId == "msixsdk");
+    REQUIRE(manifest.AppMoniker == "msixsdk");
     REQUIRE(manifest.Version == "1.7.32");
     REQUIRE(manifest.CompanyName == "Microsoft");
     REQUIRE(manifest.Channel == "release");
@@ -23,10 +42,10 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
     REQUIRE(manifest.MinOSVersion == "0.0.0.0");
     REQUIRE(manifest.Description == "The MSIX SDK project is an effort to enable developers");
     REQUIRE(manifest.Homepage == "https://github.com/microsoft/msix-packaging");
-    REQUIRE(manifest.Tags == "msix,appx");
-    REQUIRE(manifest.Commands == "makemsix,makeappx");
-    REQUIRE(manifest.Protocols == "protocol1,protocol2");
-    REQUIRE(manifest.FileExtensions == "appx,appxbundle,msix,msixbundle");
+    REQUIRE(manifest.Tags == MultiValue{ "msix", "appx" });
+    REQUIRE(manifest.Commands == MultiValue{ "makemsix", "makeappx" });
+    REQUIRE(manifest.Protocols == MultiValue{ "protocol1", "protocol2" });
+    REQUIRE(manifest.FileExtensions == MultiValue{ "appx", "appxbundle", "msix", "msixbundle" });
     REQUIRE(manifest.InstallerType == "Zip");
 
     // default switches

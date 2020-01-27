@@ -18,7 +18,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         std::optional<SQLite::rowid_t> SelectPathPart(SQLite::Connection& connection, std::optional<SQLite::rowid_t> parent, std::string_view part)
         {
             std::ostringstream selectPartSQL;
-            selectPartSQL << "SELECT " << SQLite::RowIDName << ' '
+            selectPartSQL << "SELECT [" << SQLite::RowIDName << "] "
                 << "FROM [" << s_PathPartTable_Table_Name << "] WHERE "
                 << '[' << s_PathPartTable_ParentValue_Name << "] " << (parent ? "= ?" : "IS NULL") << " AND "
                 << '[' << s_PathPartTable_PartValue_Name << "] = ?";
@@ -79,7 +79,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         std::ostringstream createTableSQL;
         createTableSQL << "CREATE TABLE [" << s_PathPartTable_Table_Name << "]("
             << '[' << s_PathPartTable_ParentValue_Name << "] INT64,"
-            << '[' << s_PathPartTable_PartValue_Name << "] TEXT,"
+            << '[' << s_PathPartTable_PartValue_Name << "] TEXT NOT NULL,"
             << "PRIMARY KEY([" << s_PathPartTable_PartValue_Name << "], [" << s_PathPartTable_ParentValue_Name << "]))";
 
         SQLite::Statement createStatement = SQLite::Statement::Create(connection, createTableSQL.str());

@@ -5,6 +5,37 @@
 
 namespace AppInstaller::Manifest
 {
+    namespace
+    {
+        std::vector<std::string> SplitMultiValueField(const std::string& input)
+        {
+            if (input.empty())
+            {
+                return {};
+            }
+
+            std::vector<std::string> result;
+            size_t currentPos = 0;
+            while (currentPos != std::string::npos)
+            {
+                size_t splitPos = input.find(',', currentPos);
+                if (splitPos == std::string::npos)
+                {
+                    break;
+                }
+
+                std::string splitVal = input.substr(currentPos, splitPos - currentPos);
+                if (!splitVal.empty())
+                {
+                    result.emplace_back(std::move(splitVal));
+                }
+                currentPos = splitPos + 1;
+            }
+
+            return result;
+        }
+    }
+
     void Manifest::PopulateManifestFields(const YAML::Node& rootNode)
     {
         // Required fields
@@ -13,17 +44,17 @@ namespace AppInstaller::Manifest
         this->Version = rootNode["Version"].as<std::string>();
 
         // Optional fields.
-        this->ShortId = rootNode["ShortId"] ? rootNode["ShortId"].as<std::string>() : "";
+        this->AppMoniker = rootNode["AppMoniker"] ? rootNode["AppMoniker"].as<std::string>() : "";
         this->CompanyName = rootNode["CompanyName"] ? rootNode["CompanyName"].as<std::string>() : "";
         this->Authors = rootNode["Authors"] ? rootNode["Authors"].as<std::string>() : "";
         this->Channel = rootNode["Channel"] ? rootNode["Channel"].as<std::string>() : "";
         this->Author = rootNode["Author"] ? rootNode["Author"].as<std::string>() : "";
         this->License = rootNode["License"] ? rootNode["License"].as<std::string>() : "";
         this->MinOSVersion = rootNode["MinOSVersion"] ? rootNode["MinOSVersion"].as<std::string>() : "";
-        this->Tags = rootNode["Tags"] ? rootNode["Tags"].as<std::string>() : "";
-        this->Commands = rootNode["Commands"] ? rootNode["Commands"].as<std::string>() : "";
-        this->Protocols = rootNode["Protocols"] ? rootNode["Protocols"].as<std::string>() : "";
-        this->FileExtensions = rootNode["FileExtensions"] ? rootNode["FileExtensions"].as<std::string>() : "";
+        this->Tags = SplitMultiValueField(rootNode["Tags"] ? rootNode["Tags"].as<std::string>() : "");
+        this->Commands = SplitMultiValueField(rootNode["Commands"] ? rootNode["Commands"].as<std::string>() : "");
+        this->Protocols = SplitMultiValueField(rootNode["Protocols"] ? rootNode["Protocols"].as<std::string>() : "");
+        this->FileExtensions = SplitMultiValueField(rootNode["FileExtensions"] ? rootNode["FileExtensions"].as<std::string>() : "");
         this->InstallerType = rootNode["InstallerType"] ? rootNode["InstallerType"].as<std::string>() : "";
         this->Description = rootNode["Description"] ? rootNode["Description"].as<std::string>() : "";
         this->Homepage = rootNode["Homepage"] ? rootNode["Homepage"].as<std::string>() : "";

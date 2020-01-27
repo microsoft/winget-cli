@@ -10,10 +10,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     namespace details
     {
         void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName);
-        SQLite::rowid_t EnsureExists(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value);
+        SQLite::rowid_t OneToOneTableEnsureExists(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value);
     }
 
-    // A table that represents a value that is 1:1 with a manifest.
+    // A table that represents a value that is 1:1 with a primary entry.
     template <typename TableInfo>
     struct OneToOneTable
     {
@@ -23,14 +23,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             details::CreateOneToOneTable(connection, TableInfo::TableName(), TableInfo::ValueName());
         }
 
-        static std::string_view ValueName()
+        static constexpr std::string_view ValueName()
         {
             return TableInfo::ValueName();
         }
 
         static SQLite::rowid_t EnsureExists(SQLite::Connection& connection, std::string_view value)
         {
-            return details::EnsureExists(connection, TableInfo::TableName(), TableInfo::ValueName(), value);
+            return details::OneToOneTableEnsureExists(connection, TableInfo::TableName(), TableInfo::ValueName(), value);
         }
     };
 }

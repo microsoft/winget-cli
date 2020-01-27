@@ -27,13 +27,13 @@ namespace AppInstaller::Repository::Microsoft::Schema
     }
 
     // Creates the interface object for this version.
-    std::unique_ptr<ISQLiteIndex> Version::CreateISQLiteIndex(SQLite::Connection& connection)
+    std::unique_ptr<ISQLiteIndex> Version::CreateISQLiteIndex()
     {
         if (*this == Version{ 1, 0 } ||
             this->MajorVersion == 1 ||
             this->IsLatest())
         {
-            return std::make_unique<V1_0::Interface>(connection);
+            return std::make_unique<V1_0::Interface>();
         }
 
         // We do not have the capacity to operate on this schema version

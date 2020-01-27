@@ -30,8 +30,7 @@ namespace AppInstaller::Manifest
         // Required
         std::string Version;
 
-        // Name subject to change
-        std::string ShortId;
+        std::string AppMoniker;
 
         std::string CompanyName;
 
@@ -47,16 +46,16 @@ namespace AppInstaller::Manifest
         std::string MinOSVersion;
 
         // Comma separated values
-        std::string Tags;
+        std::vector<std::string> Tags;
 
         // Comma separated values
-        std::string Commands;
+        std::vector<std::string> Commands;
 
         // Comma separated values
-        std::string Protocols;
+        std::vector<std::string> Protocols;
 
         // Comma separated values
-        std::string FileExtensions;
+        std::vector<std::string> FileExtensions;
 
         std::vector<ManifestInstaller> Installers;
 

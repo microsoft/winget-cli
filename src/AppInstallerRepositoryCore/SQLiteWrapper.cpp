@@ -184,9 +184,9 @@ namespace AppInstaller::Repository::SQLite
     {
         using namespace std::string_literals;
 
-        Statement begin = Statement::Create(connection, "SAVEPOINT ["s + name + "]");
-        m_rollback = Statement::Create(connection, "ROLLBACK TO ["s + name + "]", true);
-        m_commit = Statement::Create(connection, "RELEASE ["s + name + "]", true);
+        Statement begin = Statement::Create(connection, "SAVEPOINT ["s + m_name + "]");
+        m_rollback = Statement::Create(connection, "ROLLBACK TO ["s + m_name + "]", true);
+        m_commit = Statement::Create(connection, "RELEASE ["s + m_name + "]", true);
 
         AICLI_LOG(SQL, Info, << "Begin savepoint: " << m_name);
         begin.Step();

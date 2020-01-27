@@ -192,6 +192,7 @@ namespace AppInstaller::Repository::SQLite
         }
 
         // Resets the statement state, allowing it to be evaluated again.
+        // Note that this does not clear data bindings.
         void Reset();
 
     private:

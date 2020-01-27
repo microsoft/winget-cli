@@ -27,27 +27,19 @@ namespace AppInstaller::Repository::Microsoft::Schema
         virtual void CreateTables(SQLite::Connection& connection) = 0;
 
         // Adds the manifest at the repository relative path to the index.
-        virtual void AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
+        virtual void AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
 
         // Updates the manifest at the repository relative path in the index.
         // If the old manifest does not exist in the index, this is equivalent to AddManifest(newManifest, newRelativePath).
-        virtual void UpdateManifest(const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath) = 0;
+        virtual void UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath) = 0;
 
         // Removes the manifest at the repository relative path from the index.
-        virtual void RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
+        virtual void RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
     };
 
 
     // Common base class used by all schema versions.
     struct SQLiteIndexBase : public ISQLiteIndex
     {
-        SQLiteIndexBase(SQLite::Connection& connection) : m_connection(connection) {}
-
-        SQLiteIndexBase(SQLiteIndexBase&) = delete;
-        SQLiteIndexBase& operator=(SQLiteIndexBase&) = delete;
-
-    protected:
-        // Non-owning reference; the interface should never outlive the SQLiteIndex class.
-        SQLite::Connection& m_connection;
     };
 }

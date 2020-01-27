@@ -38,7 +38,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         PathPartTable::Create(connection);
 
         ManifestTable::Create(connection, 
-            { IdTable::ValueName(), NameTable::ValueName(), MonikerTable::ValueName(), VersionTable::ValueName(), ChannelTable::ValueName(), PathPartTable::ValueName() });
+            { IdTable::ValueName(), NameTable::ValueName(), MonikerTable::ValueName(), VersionTable::ValueName(), ChannelTable::ValueName(), PathPartTable::ValueName() },
+            { IdTable::ValueName(), VersionTable::ValueName(), ChannelTable::ValueName() });
 
         TagsTable::Create(connection);
         CommandsTable::Create(connection);
@@ -48,47 +49,49 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         savepoint.Commit();
     }
 
-    void Interface::AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    void Interface::AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_connection, "addmanifest_v1_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addmanifest_v1_0");
 
-        auto pathResult = PathPartTable::EnsurePathExists(m_connection, relativePath, true);
+        auto pathResult = PathPartTable::EnsurePathExists(connection, relativePath, true);
 
         // If we get false from the function, this manifest already exists in the index.
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), !std::get<0>(pathResult));
 
-        // TODO:
-        //  Convert ShortId to proper moniker name
-        //  impl 1:1 ensure exists
-        //  impl mani insert
-        //  convert 1:Ns to vectors
-        //  impl 1:N insert
-
         // Ensure that all of the 1:1 data exists.
-        SQLite::rowid_t idId = IdTable::EnsureExists(m_connection, manifest.Id);
-        SQLite::rowid_t nameId = NameTable::EnsureExists(m_connection, manifest.Name);
-        SQLite::rowid_t monikerId = MonikerTable::EnsureExists(m_connection, manifest.);
-        SQLite::rowid_t versionId = VersionTable::EnsureExists(m_connection, manifest.Version);
-        SQLite::rowid_t channelId = ChannelTable::EnsureExists(m_connection, manifest.Channel);
+        SQLite::rowid_t idId = IdTable::EnsureExists(connection, manifest.Id);
+        SQLite::rowid_t nameId = NameTable::EnsureExists(connection, manifest.Name);
+        SQLite::rowid_t monikerId = MonikerTable::EnsureExists(connection, manifest.AppMoniker);
+        SQLite::rowid_t versionId = VersionTable::EnsureExists(connection, manifest.Version);
+        SQLite::rowid_t channelId = ChannelTable::EnsureExists(connection, manifest.Channel);
 
         // Insert the manifest entry.
-        SQLite::rowid_t manifestId = ManifestTable::Insert(m_connection, idId, nameId, monikerId, versionId, channelId, std::get<1>(pathResult));
+        SQLite::rowid_t manifestId = ManifestTable::Insert(connection, {
+            { IdTable::ValueName(), idId},
+            { NameTable::ValueName(), nameId },
+            { MonikerTable::ValueName(), monikerId },
+            { VersionTable::ValueName(), versionId },
+            { ChannelTable::ValueName(), channelId },
+            { PathPartTable::ValueName(), std::get<1>(pathResult) }
+            });
 
         // Add all of the 1:N data.
-        TagsTable::EnsureExistsAndInsert(m_connection, manifest.Tags, manifestId);
-        CommandsTable::EnsureExistsAndInsert(m_connection, manifest.Commands, manifestId);
-        ProtocolsTable::EnsureExistsAndInsert(m_connection, manifest.Protocols, manifestId);
-        ExtensionsTable::EnsureExistsAndInsert(m_connection, manifest.FileExtensions, manifestId);
+        TagsTable::EnsureExistsAndInsert(connection, manifest.Tags, manifestId);
+        CommandsTable::EnsureExistsAndInsert(connection, manifest.Commands, manifestId);
+        ProtocolsTable::EnsureExistsAndInsert(connection, manifest.Protocols, manifestId);
+        ExtensionsTable::EnsureExistsAndInsert(connection, manifest.FileExtensions, manifestId);
 
         savepoint.Commit();
     }
 
-    void Interface::UpdateManifest(const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath)
+    void Interface::UpdateManifest(SQLite::Connection& connection, 
+        const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, 
+        const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath)
     {
 
     }
 
-    void Interface::RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    void Interface::RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
 
     }

@@ -3,9 +3,11 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <SQLiteWrapper.h>
+#include <Manifest/Manifest.h>
 #include <Microsoft/SQLiteIndex.h>
 #include <Microsoft/Schema/1_0/PathPartTable.h>
 
+using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Repository::SQLite;
 
@@ -45,6 +47,27 @@ TEST_CASE("SQLiteIndexCreateLatestAndReopen", "[sqliteindex]")
         Schema::Version versionRead = index.GetVersion();
         REQUIRE(versionRead == versionCreated);
     }
+}
+
+TEST_CASE("SQLiteIndexCreateAndAddManifest", "[sqliteindex]")
+{
+    TestCommon::TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, Schema::Version::Latest());
+
+    Manifest manifest;
+    manifest.Id = "test.id";
+    manifest.Name = "Test Name";
+    manifest.AppMoniker = "testmoniker";
+    manifest.Version = "1.0.0";
+    manifest.Channel = "test";
+    manifest.Tags = { "t1", "t2" };
+    manifest.Commands = { "test1", "test2" };
+    manifest.Protocols = { "htttest" };
+    manifest.FileExtensions = { "tst", "test", "testy" };
+
+    index.AddManifest(manifest, "test/id/test.id-1.0.0.yml");
 }
 
 TEST_CASE("PathPartTable_EnsurePathExists_Negative_Paths", "[sqliteindex][V1_0]")

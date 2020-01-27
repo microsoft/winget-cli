@@ -12,8 +12,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         struct NameTableInfo
         {
-            inline static std::string_view TableName() { return "names"sv; }
-            inline static std::string_view ValueName() { return "name"sv; }
+            inline static constexpr std::string_view TableName() { return "names"sv; }
+            inline static constexpr std::string_view ValueName() { return "name"sv; }
         };
     }
 

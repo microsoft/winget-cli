@@ -109,13 +109,14 @@ namespace AppInstaller::Repository::Microsoft
     {
         m_version = Schema::Version::GetSchemaVersion(m_dbconn);
         AICLI_LOG(Repo, Info, << "Opened SQLite Index with version: " << m_version);
-        m_interface = m_version.CreateISQLiteIndex(m_dbconn);
+        m_interface = m_version.CreateISQLiteIndex();
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLite::Connection::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
     }
 
     SQLiteIndex::SQLiteIndex(const std::string& target, Schema::Version version) :
         m_dbconn(SQLite::Connection::Create(target, SQLite::Connection::OpenDisposition::Create))
     {
-        m_interface = version.CreateISQLiteIndex(m_dbconn);
+        m_interface = version.CreateISQLiteIndex();
         m_version = m_interface->GetVersion();
     }
 
@@ -127,7 +128,7 @@ namespace AppInstaller::Repository::Microsoft
 
     void SQLiteIndex::AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
-        m_interface->AddManifest(manifest, relativePath);
+        m_interface->AddManifest(m_dbconn, manifest, relativePath);
     }
 
     void SQLiteIndex::UpdateManifest(const std::filesystem::path& oldManifestPath, const std::filesystem::path& oldRelativePath, const std::filesystem::path& newManifestPath, const std::filesystem::path& newRelativePath)
@@ -139,7 +140,7 @@ namespace AppInstaller::Repository::Microsoft
 
     void SQLiteIndex::UpdateManifest(const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath)
     {
-        m_interface->UpdateManifest(oldManifest, oldRelativePath, newManifest, newRelativePath);
+        m_interface->UpdateManifest(m_dbconn, oldManifest, oldRelativePath, newManifest, newRelativePath);
     }
 
     void SQLiteIndex::RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
@@ -150,6 +151,6 @@ namespace AppInstaller::Repository::Microsoft
 
     void SQLiteIndex::RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
-        m_interface->RemoveManifest(manifest, relativePath);
+        m_interface->RemoveManifest(m_dbconn, manifest, relativePath);
     }
 }
