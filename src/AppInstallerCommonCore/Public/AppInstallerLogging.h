@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 
+#include <chrono>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -118,3 +119,6 @@ namespace AppInstaller::Logging
     // Adds the default file logger to the DiagnosticLogger.
     void AddDefaultFileLogger();
 }
+
+// Enable output of system_clock timepoints.
+std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time);

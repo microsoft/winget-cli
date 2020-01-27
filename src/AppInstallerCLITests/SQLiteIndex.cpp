@@ -7,13 +7,14 @@
 #include <Microsoft/SQLiteIndex.h>
 #include <Microsoft/Schema/1_0/PathPartTable.h>
 
+using namespace TestCommon;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Repository::SQLite;
 
 TEST_CASE("SQLiteIndexCreateLatestAndReopen", "[sqliteindex]")
 {
-    TestCommon::TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    TempFile tempFile{ "repolibtest_tempdb", ".db" };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Schema::Version versionCreated;
@@ -51,7 +52,7 @@ TEST_CASE("SQLiteIndexCreateLatestAndReopen", "[sqliteindex]")
 
 TEST_CASE("SQLiteIndexCreateAndAddManifest", "[sqliteindex]")
 {
-    TestCommon::TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    TempFile tempFile{ "repolibtest_tempdb", ".db" };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, Schema::Version::Latest());
@@ -70,23 +71,39 @@ TEST_CASE("SQLiteIndexCreateAndAddManifest", "[sqliteindex]")
     index.AddManifest(manifest, "test/id/test.id-1.0.0.yml");
 }
 
+TEST_CASE("SQLiteIndexCreateAndAddManifestFile", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, Schema::Version::Latest());
+
+    TestDataFile manifestFile{ "GoodManifest.yml" };
+    std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yml" };
+
+    index.AddManifest(manifestFile, manifestPath);
+
+    // Attempting to add again should fail
+    REQUIRE_THROWS_HR(index.AddManifest(manifestFile, manifestPath), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
+}
+
 TEST_CASE("PathPartTable_EnsurePathExists_Negative_Paths", "[sqliteindex][V1_0]")
 {
     // Open it directly to directly test pathpart table
     Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
 
-    REQUIRE_THROWS_AS(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"()", false), wil::ResultException);
-    REQUIRE_THROWS_AS(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(\)", false), wil::ResultException);
-    REQUIRE_THROWS_AS(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(/)", false), wil::ResultException);
-    REQUIRE_THROWS_AS(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(C:)", false), wil::ResultException);
-    REQUIRE_THROWS_AS(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(C:\\)", false), wil::ResultException);
-    REQUIRE_THROWS_AS(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(C:\temp\path\file.txt)", false), wil::ResultException);
-    REQUIRE_THROWS_AS(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(\temp\path\file.txt)", false), wil::ResultException);
+    REQUIRE_THROWS_HR(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"()", false), E_INVALIDARG);
+    REQUIRE_THROWS_HR(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(\)", false), E_INVALIDARG);
+    REQUIRE_THROWS_HR(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(/)", false), E_INVALIDARG);
+    REQUIRE_THROWS_HR(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(C:)", false), E_INVALIDARG);
+    REQUIRE_THROWS_HR(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(C:\\)", false), E_INVALIDARG);
+    REQUIRE_THROWS_HR(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(C:\temp\path\file.txt)", false), E_INVALIDARG);
+    REQUIRE_THROWS_HR(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(\temp\path\file.txt)", false), E_INVALIDARG);
 }
 
 TEST_CASE("PathPartTable_EnsurePathExists", "[sqliteindex][V1_0]")
 {
-    TestCommon::TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    TempFile tempFile{ "repolibtest_tempdb", ".db" };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     // Create the index

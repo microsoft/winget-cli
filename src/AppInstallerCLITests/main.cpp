@@ -19,6 +19,8 @@ int main(int argc, char** argv)
 {
     init_apartment();
 
+    bool hasSetTestDataBasePath = false;
+
     std::vector<char*> args;
     for (int i = 0; i < argc; ++i)
     {
@@ -30,9 +32,31 @@ int main(int argc, char** argv)
         {
             AppInstaller::Logging::AddDefaultFileLogger();
         }
+        else if ("-tdd"s == argv[i])
+        {
+            ++i;
+            if (i < argc)
+            {
+                TestCommon::TestDataFile::SetTestDataBasePath(argv[i]);
+                hasSetTestDataBasePath = true;
+            }
+        }
         else
         {
             args.push_back(argv[i]);
+        }
+    }
+
+    // If not set, use the current executables path
+    if (!hasSetTestDataBasePath)
+    {
+        wchar_t fullFileName[1024];
+        DWORD chars = ARRAYSIZE(fullFileName);
+        if (QueryFullProcessImageNameW(GetCurrentProcess(), 0, fullFileName, &chars))
+        {
+            std::filesystem::path filepath{ fullFileName };
+            filepath.remove_filename();
+            TestCommon::TestDataFile::SetTestDataBasePath(filepath);
         }
     }
 

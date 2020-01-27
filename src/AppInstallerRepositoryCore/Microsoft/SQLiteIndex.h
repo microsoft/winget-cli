@@ -5,6 +5,7 @@
 #include "Microsoft/Schema/Version.h"
 #include "Manifest/Manifest.h"
 
+#include <chrono>
 #include <filesystem>
 #include <limits>
 #include <memory>
@@ -41,6 +42,9 @@ namespace AppInstaller::Repository::Microsoft
         // Gets the schema version of the index.
         Schema::Version GetVersion() const { return m_version; }
 
+        // Gets the last write time for the index.
+        std::chrono::system_clock::time_point GetLastWriteTime();
+
         // Adds the manifest at the repository relative path to the index.
         void AddManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);
 
@@ -67,6 +71,9 @@ namespace AppInstaller::Repository::Microsoft
 
         // Constructor used to create a new index.
         SQLiteIndex(const std::string& target, Schema::Version version);
+
+        // Sets the last write time metadata value in the index.
+        void SetLastWriteTime();
 
         SQLite::Connection m_dbconn;
         Schema::Version m_version;

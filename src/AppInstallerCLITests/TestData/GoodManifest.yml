@@ -1,6 +1,6 @@
 Id: microsoft.msixsdk
 Name: MSIX SDK
-ShortId: msixsdk
+AppMoniker: msixsdk
 Version: 1.7.32
 CompanyName: Microsoft
 Channel: release

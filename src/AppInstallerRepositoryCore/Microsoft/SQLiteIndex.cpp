@@ -38,6 +38,8 @@ namespace AppInstaller::Repository::Microsoft
 
         result.m_interface->CreateTables(result.m_dbconn);
 
+        result.SetLastWriteTime();
+
         savepoint.Commit();
 
         return result;
@@ -108,7 +110,7 @@ namespace AppInstaller::Repository::Microsoft
         m_dbconn(SQLite::Connection::Create(target, disposition, flags))
     {
         m_version = Schema::Version::GetSchemaVersion(m_dbconn);
-        AICLI_LOG(Repo, Info, << "Opened SQLite Index with version: " << m_version);
+        AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
         m_interface = m_version.CreateISQLiteIndex();
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLite::Connection::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
     }
@@ -128,7 +130,13 @@ namespace AppInstaller::Repository::Microsoft
 
     void SQLiteIndex::AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_addmanifest");
+
         m_interface->AddManifest(m_dbconn, manifest, relativePath);
+
+        SetLastWriteTime();
+
+        savepoint.Commit();
     }
 
     void SQLiteIndex::UpdateManifest(const std::filesystem::path& oldManifestPath, const std::filesystem::path& oldRelativePath, const std::filesystem::path& newManifestPath, const std::filesystem::path& newRelativePath)
@@ -140,7 +148,13 @@ namespace AppInstaller::Repository::Microsoft
 
     void SQLiteIndex::UpdateManifest(const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath)
     {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_updatemanifest");
+
         m_interface->UpdateManifest(m_dbconn, oldManifest, oldRelativePath, newManifest, newRelativePath);
+
+        SetLastWriteTime();
+
+        savepoint.Commit();
     }
 
     void SQLiteIndex::RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
@@ -151,6 +165,27 @@ namespace AppInstaller::Repository::Microsoft
 
     void SQLiteIndex::RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_removemanifest");
+
         m_interface->RemoveManifest(m_dbconn, manifest, relativePath);
+
+        SetLastWriteTime();
+
+        savepoint.Commit();
+    }
+
+    // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus
+    // should be consistent across systems.
+    void SQLiteIndex::SetLastWriteTime()
+    {
+        static_assert(std::is_same_v<int64_t, decltype(time(nullptr))>, "time returns a 64-bit integer");
+        time_t now = time(nullptr);
+        Schema::MetadataTable::SetNamedValue(m_dbconn, Schema::s_MetadataValueName_LastWriteTime, static_cast<int64_t>(now));
+    }
+
+    std::chrono::system_clock::time_point SQLiteIndex::GetLastWriteTime()
+    {
+        int64_t lastWriteTime = Schema::MetadataTable::GetNamedValue<int64_t>(m_dbconn, Schema::s_MetadataValueName_LastWriteTime);
+        return std::chrono::system_clock::from_time_t(static_cast<time_t>(lastWriteTime));
     }
 }

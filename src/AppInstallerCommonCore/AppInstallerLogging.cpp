@@ -4,6 +4,7 @@
 #include "Public/AppInstallerLogging.h"
 
 #include "Public/AppInstallerTelemetry.h"
+#include "DateTime.h"
 #include "FileLogger.h"
 
 namespace AppInstaller::Logging
@@ -110,4 +111,10 @@ namespace AppInstaller::Logging
     {
         Log().AddLogger(std::make_unique<FileLogger>());
     }
+}
+
+std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time)
+{
+    AppInstaller::Utility::OutputTimepoint(out, time);
+    return out;
 }

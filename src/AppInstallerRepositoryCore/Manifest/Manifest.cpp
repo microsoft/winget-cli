@@ -16,12 +16,12 @@ namespace AppInstaller::Manifest
 
             std::vector<std::string> result;
             size_t currentPos = 0;
-            while (currentPos != std::string::npos)
+            while (currentPos < input.size())
             {
                 size_t splitPos = input.find(',', currentPos);
                 if (splitPos == std::string::npos)
                 {
-                    break;
+                    splitPos = input.size();
                 }
 
                 std::string splitVal = input.substr(currentPos, splitPos - currentPos);
