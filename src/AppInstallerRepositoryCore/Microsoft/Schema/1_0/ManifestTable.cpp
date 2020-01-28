@@ -9,24 +9,25 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     using namespace std::string_view_literals;
     static constexpr std::string_view s_ManifestTable_Table_Name = "manifest"sv;
 
-    void ManifestTable::Create(SQLite::Connection& connection, 
-        std::initializer_list<std::string_view> valueNames,
-        std::initializer_list<std::string_view> primaryKeyNames)
+    void ManifestTable::Create(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values)
     {
         std::ostringstream createTableSQL;
         createTableSQL << "CREATE TABLE [" << s_ManifestTable_Table_Name << "] (";
 
-        for (const std::string_view& valueName : valueNames)
+        for (const ManifestColumnInfo& value : values)
         {
-            createTableSQL << '[' << valueName << "] INT64 NOT NULL,";
+            createTableSQL << '[' << value.Name << "] INT64 NOT NULL" << (value.Unique ? " UNIQUE" : "") << ",";
         }
 
         createTableSQL << "PRIMARY KEY(";
 
         bool isFirst = true;
-        for (const std::string_view& primaryKeyName : primaryKeyNames)
+        for (const ManifestColumnInfo& value : values)
         {
-            createTableSQL << (isFirst ? "[" : ", [") << primaryKeyName << "]";
+            if (value.PrimaryKey)
+            {
+                createTableSQL << (isFirst ? "[" : ", [") << value.Name << "]";
+            }
             isFirst = false;
         }
 

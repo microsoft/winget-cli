@@ -8,6 +8,14 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
+    // Info on the manifest columns.
+    struct ManifestColumnInfo
+    {
+        std::string_view Name;
+        bool PrimaryKey;
+        bool Unique;
+    };
+
     // A value that is 1:1 with the manifest.
     struct ManifestOneToOneValue
     {
@@ -19,9 +27,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     struct ManifestTable
     {
         // Creates the table.
-        static void Create(SQLite::Connection& connection, 
-            std::initializer_list<std::string_view> valueNames,
-            std::initializer_list<std::string_view> primaryKeyNames);
+        static void Create(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values);
 
         static SQLite::rowid_t Insert(SQLite::Connection& connection, std::initializer_list<ManifestOneToOneValue> values);
     };
