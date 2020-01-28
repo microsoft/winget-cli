@@ -45,7 +45,7 @@ steps:
 
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: 'src\x64\Release\AppInstallerCLITests\AppInstallerCLITests.exe'
+    PathtoPublish: 'src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'
     ArtifactName: 'AppInstallerCLI.exe'
     publishLocation: 'Container'
 
