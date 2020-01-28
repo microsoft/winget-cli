@@ -147,8 +147,8 @@ namespace AppInstaller::Logging
                 "ManifestFields",
                 GetActivityId(),
                 nullptr,
-                TraceLoggingString(ToolName.c_str(),"ToolName"),
-                TraceLoggingString(ToolVersion.c_str(), "ToolVersion"),
+                TraceLoggingCountedString(ToolName.c_str(), ToolName.size(),"ToolName"),
+                TraceLoggingCountedString(ToolVersion.c_str(), ToolVersion.size(), "ToolVersion"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
         }
