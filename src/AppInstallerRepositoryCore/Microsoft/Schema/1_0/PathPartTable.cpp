@@ -8,6 +8,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
     using namespace std::string_view_literals;
     static constexpr std::string_view s_PathPartTable_Table_Name = "pathparts"sv;
+    static constexpr std::string_view s_PathPartTable_ParentIndex_Name = "pathparts_parentidx"sv;
     static constexpr std::string_view s_PathPartTable_ParentValue_Name = "parent"sv;
     static constexpr std::string_view s_PathPartTable_PartValue_Name = "pathpart"sv;
 
@@ -72,19 +73,53 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             return connection.GetLastInsertRowID();
         }
+
+        // Determines if any part references this one as their parent.
+        bool IsLeafPart(SQLite::Connection& connection, SQLite::rowid_t id)
+        {
+            std::ostringstream selectPartSQL;
+            selectPartSQL << "SELECT COUNT(*) FROM [" << s_PathPartTable_Table_Name << "] WHERE "
+                << '[' << s_PathPartTable_ParentValue_Name << "] = ?";
+
+            SQLite::Statement select = SQLite::Statement::Create(connection, selectPartSQL.str());
+
+            select.Bind(1, id);
+
+            THROW_HR_IF(E_UNEXPECTED, !select.Step());
+
+            // No rows with this as a parent means it is a leaf.
+            return (select.GetColumn<int>(0) == 0);
+        }
     }
 
     void PathPartTable::Create(SQLite::Connection& connection)
     {
-        std::ostringstream createTableSQL;
-        createTableSQL << "CREATE TABLE [" << s_PathPartTable_Table_Name << "]("
-            << '[' << s_PathPartTable_ParentValue_Name << "] INT64,"
-            << '[' << s_PathPartTable_PartValue_Name << "] TEXT NOT NULL,"
-            << "PRIMARY KEY([" << s_PathPartTable_PartValue_Name << "], [" << s_PathPartTable_ParentValue_Name << "]))";
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "pathparts_create");
 
-        SQLite::Statement createStatement = SQLite::Statement::Create(connection, createTableSQL.str());
+        {
+            std::ostringstream createTableSQL;
+            createTableSQL << "CREATE TABLE [" << s_PathPartTable_Table_Name << "]("
+                << '[' << s_PathPartTable_ParentValue_Name << "] INT64,"
+                << '[' << s_PathPartTable_PartValue_Name << "] TEXT NOT NULL,"
+                << "PRIMARY KEY([" << s_PathPartTable_PartValue_Name << "], [" << s_PathPartTable_ParentValue_Name << "]))";
 
-        createStatement.Execute();
+            SQLite::Statement createStatement = SQLite::Statement::Create(connection, createTableSQL.str());
+
+            createStatement.Execute();
+        }
+
+        {
+            std::ostringstream createIndexSQL;
+            createIndexSQL << "CREATE INDEX [" << s_PathPartTable_ParentIndex_Name << "] "
+                << "ON [" << s_PathPartTable_Table_Name << "]("
+                << '[' << s_PathPartTable_ParentValue_Name << "])";
+
+            SQLite::Statement createStatement = SQLite::Statement::Create(connection, createIndexSQL.str());
+
+            createStatement.Execute();
+        }
+
+        savepoint.Commit();
     }
 
     std::string_view PathPartTable::ValueName()
@@ -138,5 +173,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // If we were asked to create it, return whether we needed to or it was already present.
         // If not, then true indicates that it exists.
         return { (createIfNotFound ? partsAdded : true), parent.value() };
+    }
+
+    void PathPartTable::RemovePathById(SQLite::Connection& connection, SQLite::rowid_t)
+    {
+
     }
 }

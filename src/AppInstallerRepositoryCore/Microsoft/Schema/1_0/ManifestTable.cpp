@@ -9,6 +9,28 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     using namespace std::string_view_literals;
     static constexpr std::string_view s_ManifestTable_Table_Name = "manifest"sv;
 
+    namespace details
+    {
+        std::optional<SQLite::rowid_t> ManifestTableSelectByValueId(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t id)
+        {
+            std::ostringstream selectSQL;
+            selectSQL << "SELECT [" << SQLite::RowIDName << "] FROM [" << s_ManifestTable_Table_Name << "] WHERE [" << valueName << "] = ?";
+
+            SQLite::Statement select = SQLite::Statement::Create(connection, selectSQL.str());
+
+            select.Bind(1, id);
+
+            if (select.Step())
+            {
+                return select.GetColumn<SQLite::rowid_t>(0);
+            }
+            else
+            {
+                return {};
+            }
+        }
+    }
+
     void ManifestTable::Create(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values)
     {
         std::ostringstream createTableSQL;
@@ -70,10 +92,5 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         insert.Execute();
 
         return connection.GetLastInsertRowID();
-    }
-
-    std::optional<SQLite::rowid_t> ManifestTable::SelectByPath(SQLite::Connection& connection, SQLite::rowid_t pathId)
-    {
-
     }
 }

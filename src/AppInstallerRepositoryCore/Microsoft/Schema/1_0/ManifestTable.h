@@ -9,6 +9,11 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
+    namespace details
+    {
+        std::optional<SQLite::rowid_t> ManifestTableSelectByValueId(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t id);
+    }
+
     // Info on the manifest columns.
     struct ManifestColumnInfo
     {
@@ -33,7 +38,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Insert the given values into the table.
         static SQLite::rowid_t Insert(SQLite::Connection& connection, std::initializer_list<ManifestOneToOneValue> values);
 
-        // Select the rowid of the manifest with the given path.
-        static std::optional<SQLite::rowid_t> SelectByPath(SQLite::Connection& connection, SQLite::rowid_t pathId);
+        // Select the rowid of the manifest with the given value.
+        template <typename Table>
+        static std::optional<SQLite::rowid_t> SelectByValueId(SQLite::Connection& connection, SQLite::rowid_t id)
+        {
+            return details::ManifestTableSelectByValueId(connection, Table::ValueName(), id);
+        }
     };
 }

@@ -33,13 +33,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 return {};
             }
 
-            std::optional<SQLite::rowid_t> manifestId = ManifestTable::SelectByPath(connection, std::get<1>(pathResult));
+            std::optional<SQLite::rowid_t> manifestId = ManifestTable::SelectByValueId<PathPartTable>(connection, std::get<1>(pathResult));
 
             // If the manifest didn't actually exist, then remove the path
             if (!manifestId)
             {
                 AICLI_LOG(Repo, Info, << "Did not find a manifest row for the path: " << relativePath.u8string());
-                PathPartTable::RemovePath(connection, std::get<1>(pathResult));
+                PathPartTable::RemovePathById(connection, std::get<1>(pathResult));
                 return {};
             }
 
