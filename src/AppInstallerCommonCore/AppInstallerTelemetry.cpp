@@ -137,6 +137,8 @@ namespace AppInstaller::Logging
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
         }
+
+        AICLI_LOG(CLI, Info, << "Leaf command succeeded: " << CommandName);
     }
 
     void TelemetryTraceLogger::LogManifestFields(std::string ToolName, std::string ToolVersion) noexcept
@@ -152,6 +154,8 @@ namespace AppInstaller::Logging
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
         }
+
+        AICLI_LOG(CLI, Info, << "AppInstallerCLI, ToolName [" << ToolName << "], ToolVersion [" << ToolVersion << ']');
     }
 
     void EnableWilFailureTelemetry()
