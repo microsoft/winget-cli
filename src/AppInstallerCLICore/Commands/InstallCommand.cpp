@@ -38,6 +38,9 @@ namespace AppInstaller::CLI
         {
             std::string manifest = *(inv.GetArg(ARG_MANIFEST));
             Manifest::Manifest packageManifest = Manifest::Manifest::CreateFromPath(manifest);
+
+            Logging::Telemetry().LogManifestFields(packageManifest.Name, packageManifest.Version);
+
             InstallFlow packageInstall(packageManifest, out, in);
             packageInstall.Install();
         }

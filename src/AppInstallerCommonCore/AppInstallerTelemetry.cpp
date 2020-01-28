@@ -101,11 +101,61 @@ namespace AppInstaller::Logging
                 GetActivityId(),
                 nullptr,
                 TraceLoggingCountedString(version.c_str(), static_cast<ULONG>(version.size()), "version"),
+                TraceLoggingWideString(GetCommandLineW(), "commandlineargs"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
         }
 
         AICLI_LOG(CLI, Info, << "AppInstallerCLI, version [" << version << "], activity [" << *GetActivityId() << ']');
+    }
+ 
+    void TelemetryTraceLogger::LogCommand(std::string_view commandName) noexcept
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "CommandFound",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingCountedString(commandName.data(), commandName.size(), "Command"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+        }
+
+        AICLI_LOG(CLI, Info, << "Leaf command to execute: " << commandName);
+    }
+
+    void TelemetryTraceLogger::LogCommandSuccess(std::string_view commandName) noexcept
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "CommandSuccess",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingCountedString(commandName.data(), commandName.size(), "Command"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+        }
+
+        AICLI_LOG(CLI, Info, << "Leaf command succeeded: " << commandName);
+    }
+
+    void TelemetryTraceLogger::LogManifestFields(const std::string& name, const std::string& version) noexcept
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "ManifestFields",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingCountedString(name.c_str(), name.size(),"Name"),
+                TraceLoggingCountedString(version.c_str(), version.size(), "Version"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+        }
+
+        AICLI_LOG(CLI, Info, << "AppInstallerCLI, Name [" << name << "], Version [" << version << ']');
     }
 
     void EnableWilFailureTelemetry()
