@@ -15,6 +15,7 @@
 
 #include <winrt/Windows.Foundation.h>
 
+#include <filesystem>
 #include <initializer_list>
 #include <iomanip>
 #include <optional>

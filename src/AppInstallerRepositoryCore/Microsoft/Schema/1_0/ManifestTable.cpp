@@ -71,4 +71,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         return connection.GetLastInsertRowID();
     }
+
+    std::optional<SQLite::rowid_t> ManifestTable::SelectByPath(SQLite::Connection& connection, SQLite::rowid_t pathId)
+    {
+
+    }
 }
