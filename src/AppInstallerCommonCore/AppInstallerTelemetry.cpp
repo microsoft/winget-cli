@@ -109,7 +109,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Info, << "AppInstallerCLI, version [" << version << "], activity [" << *GetActivityId() << ']');
     }
  
-    void TelemetryTraceLogger::LogCommand(std::string_view CommandName) noexcept
+    void TelemetryTraceLogger::LogCommand(std::string_view commandName) noexcept
     {
         if (g_IsTelemetryProviderEnabled)
         {
@@ -117,15 +117,15 @@ namespace AppInstaller::Logging
                 "CommandFound",
                 GetActivityId(),
                 nullptr,
-                TraceLoggingCountedString(CommandName.data(), CommandName.size(), "Command"),
+                TraceLoggingCountedString(commandName.data(), commandName.size(), "Command"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
         }
 
-        AICLI_LOG(CLI, Info, << "Leaf command to execute: " << CommandName);
+        AICLI_LOG(CLI, Info, << "Leaf command to execute: " << commandName);
     }
 
-    void TelemetryTraceLogger::LogCommandSuccess(std::string_view CommandName) noexcept
+    void TelemetryTraceLogger::LogCommandSuccess(std::string_view commandName) noexcept
     {
         if (g_IsTelemetryProviderEnabled)
         {
@@ -133,15 +133,15 @@ namespace AppInstaller::Logging
                 "CommandSuccess",
                 GetActivityId(),
                 nullptr,
-                TraceLoggingCountedString(CommandName.data(), CommandName.size(), "Command"),
+                TraceLoggingCountedString(commandName.data(), commandName.size(), "Command"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
         }
 
-        AICLI_LOG(CLI, Info, << "Leaf command succeeded: " << CommandName);
+        AICLI_LOG(CLI, Info, << "Leaf command succeeded: " << commandName);
     }
 
-    void TelemetryTraceLogger::LogManifestFields(std::string ToolName, std::string ToolVersion) noexcept
+    void TelemetryTraceLogger::LogManifestFields(const std::string& name, const std::string& version) noexcept
     {
         if (g_IsTelemetryProviderEnabled)
         {
@@ -149,13 +149,13 @@ namespace AppInstaller::Logging
                 "ManifestFields",
                 GetActivityId(),
                 nullptr,
-                TraceLoggingCountedString(ToolName.c_str(), ToolName.size(),"ToolName"),
-                TraceLoggingCountedString(ToolVersion.c_str(), ToolVersion.size(), "ToolVersion"),
+                TraceLoggingCountedString(name.c_str(), name.size(),"Name"),
+                TraceLoggingCountedString(version.c_str(), version.size(), "Version"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
         }
 
-        AICLI_LOG(CLI, Info, << "AppInstallerCLI, ToolName [" << ToolName << "], ToolVersion [" << ToolVersion << ']');
+        AICLI_LOG(CLI, Info, << "AppInstallerCLI, Name [" << name << "], Version [" << version << ']');
     }
 
     void EnableWilFailureTelemetry()
