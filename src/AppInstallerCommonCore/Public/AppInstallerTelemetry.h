@@ -31,6 +31,15 @@ namespace AppInstaller::Logging
         // Logs the initial process startup.
         void LogStartup() noexcept;
 
+        // Logs the invoked command.
+        void LogCommand(std::string_view CommandName) noexcept;
+
+        // Logs the invoked command success.
+        void LogCommandSuccess(std::string_view CommandName) noexcept;
+
+        // Logs the Manifest fields.
+        void LogManifestFields(std::string ToolName, std::string ToolVersion) noexcept;
+
     private:
         TelemetryTraceLogger();
     };

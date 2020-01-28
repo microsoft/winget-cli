@@ -101,11 +101,57 @@ namespace AppInstaller::Logging
                 GetActivityId(),
                 nullptr,
                 TraceLoggingCountedString(version.c_str(), static_cast<ULONG>(version.size()), "version"),
+                TraceLoggingWideString(GetCommandLineW(), "commandlineargs"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
         }
 
         AICLI_LOG(CLI, Info, << "AppInstallerCLI, version [" << version << "], activity [" << *GetActivityId() << ']');
+    }
+ 
+    void TelemetryTraceLogger::LogCommand(std::string_view CommandName) noexcept
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "CommandFound",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingCountedString(CommandName.data(), CommandName.size(), "Command"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+        }
+
+        AICLI_LOG(CLI, Info, << "Leaf command to execute: " << CommandName);
+    }
+
+    void TelemetryTraceLogger::LogCommandSuccess(std::string_view CommandName) noexcept
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "CommandSuccess",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingCountedString(CommandName.data(), CommandName.size(), "Command"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+        }
+    }
+
+    void TelemetryTraceLogger::LogManifestFields(std::string ToolName, std::string ToolVersion) noexcept
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "ManifestFields",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingString(ToolName.c_str(),"ToolName"),
+                TraceLoggingString(ToolVersion.c_str(), "ToolVersion"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+        }
     }
 
     void EnableWilFailureTelemetry()
