@@ -22,49 +22,60 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
     namespace
     {
-        std::optional<SQLite::rowid_t> GetExistingManifestId(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+        // Holds the information on a potentially existing manifest.
+        struct ExistingManifestInfo
         {
-            auto pathResult = PathPartTable::EnsurePathExists(connection, relativePath, false);
+            SQLite::rowid_t PathLeaf;
+            std::optional<SQLite::rowid_t> Manifest;
+        };
+
+        // Gets an existing manifest by its rowid.
+        // The return value contains the path leaf and manifest rowid, if they exist.
+        ExistingManifestInfo GetExistingManifestId(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+        {
+            auto [pathFound, pathLeafId] = PathPartTable::EnsurePathExists(connection, relativePath, false);
 
             // If we do not find the path, there can be no manifest
-            if (!std::get<0>(pathResult))
+            if (!pathFound)
             {
                 AICLI_LOG(Repo, Info, << "Did not find a manifest to remove at path: " << relativePath.u8string());
                 return {};
             }
 
-            std::optional<SQLite::rowid_t> manifestId = ManifestTable::SelectByValueId<PathPartTable>(connection, std::get<1>(pathResult));
+            ExistingManifestInfo result{};
+            result.PathLeaf = pathLeafId;
+            result.Manifest = ManifestTable::SelectByValueId<PathPartTable>(connection, result.PathLeaf);
 
             // If the manifest didn't actually exist, then remove the path
-            if (!manifestId)
+            if (!result.Manifest)
             {
                 AICLI_LOG(Repo, Info, << "Did not find a manifest row for the path: " << relativePath.u8string());
-                PathPartTable::RemovePathById(connection, std::get<1>(pathResult));
+                PathPartTable::RemovePathById(connection, result.PathLeaf);
                 return {};
             }
 
             // Ensure that the given manifest matches the data in the index
-            auto values = ManifestTable::GetValuesById<IdTable, VersionTable, ChannelTable>(connection, manifestId.value());
+            auto [idValue, versionValue, channelValue] = ManifestTable::GetValuesById<IdTable, VersionTable, ChannelTable>(connection, result.Manifest.value());
 
-            if (std::get<0>(values) != manifest.Id)
+            if (idValue != manifest.Id)
             {
-                AICLI_LOG(Repo, Error, << "Existing manifest in index does not match given value for Id: [" << std::get<0>(values) << "] != [" << manifest.Id << "]");
+                AICLI_LOG(Repo, Error, << "Existing manifest in index does not match given value for Id: [" << idValue << "] != [" << manifest.Id << "]");
                 THROW_HR(E_NOT_VALID_STATE);
             }
 
-            if (std::get<1>(values) != manifest.Version)
+            if (versionValue != manifest.Version)
             {
-                AICLI_LOG(Repo, Error, << "Existing manifest in index does not match given value for Version: [" << std::get<1>(values) << "] != [" << manifest.Version << "]");
+                AICLI_LOG(Repo, Error, << "Existing manifest in index does not match given value for Version: [" << versionValue << "] != [" << manifest.Version << "]");
                 THROW_HR(E_NOT_VALID_STATE);
             }
 
-            if (std::get<2>(values) != manifest.Channel)
+            if (channelValue != manifest.Channel)
             {
-                AICLI_LOG(Repo, Error, << "Existing manifest in index does not match given value for Channel: [" << std::get<2>(values) << "] != [" << manifest.Channel << "]");
+                AICLI_LOG(Repo, Error, << "Existing manifest in index does not match given value for Channel: [" << channelValue << "] != [" << manifest.Channel << "]");
                 THROW_HR(E_NOT_VALID_STATE);
             }
 
-            return manifestId;
+            return result;
         }
     }
 
@@ -106,10 +117,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addmanifest_v1_0");
 
-        auto pathResult = PathPartTable::EnsurePathExists(connection, relativePath, true);
+        auto [pathFound, pathLeafId] = PathPartTable::EnsurePathExists(connection, relativePath, true);
 
         // If we get false from the function, this manifest already exists in the index.
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), !std::get<0>(pathResult));
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), !pathFound);
 
         // Ensure that all of the 1:1 data exists.
         SQLite::rowid_t idId = IdTable::EnsureExists(connection, manifest.Id);
@@ -125,7 +136,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             { MonikerTable::ValueName(), monikerId },
             { VersionTable::ValueName(), versionId },
             { ChannelTable::ValueName(), channelId },
-            { PathPartTable::ValueName(), std::get<1>(pathResult) }
+            { PathPartTable::ValueName(), pathLeafId }
             });
 
         // Add all of the 1:N data.
@@ -137,7 +148,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         savepoint.Commit();
     }
 
-    void Interface::UpdateManifest(SQLite::Connection& connection, 
+    bool Interface::UpdateManifest(SQLite::Connection& connection, 
         const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, 
         const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath)
     {
@@ -149,34 +160,44 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         THROW_HR(E_NOTIMPL);
     }
 
-    void Interface::RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    bool Interface::RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removemanifest_v1_0");
 
-        std::optional<SQLite::rowid_t> manifestId = GetExistingManifestId(connection, manifest, relativePath);
+        ExistingManifestInfo manifestInfo = GetExistingManifestId(connection, manifest, relativePath);
 
-        //// Remove all of the 1:N data.
-        //TagsTable::RemoveAndEnsureNeeded(connection, manifestId);
-        //CommandsTable::EnsureExistsAndInsert(connection, manifest.Commands, manifestId);
-        //ProtocolsTable::EnsureExistsAndInsert(connection, manifest.Protocols, manifestId);
-        //ExtensionsTable::EnsureExistsAndInsert(connection, manifest.FileExtensions, manifestId);
+        // If the manifest doesn't actually exist, we don't need to make any change.
+        if (!manifestInfo.Manifest)
+        {
+            return false;
+        }
 
-        //// Insert the manifest entry.
-        //SQLite::rowid_t manifestId = ManifestTable::Insert(connection, {
-        //    { IdTable::ValueName(), idId},
-        //    { NameTable::ValueName(), nameId },
-        //    { MonikerTable::ValueName(), monikerId },
-        //    { VersionTable::ValueName(), versionId },
-        //    { ChannelTable::ValueName(), channelId },
-        //    { PathPartTable::ValueName(), std::get<1>(pathResult) }
-        //    });
+        // Get the ids of the values from the manifest table
+        auto [idId, nameId, monikerId, versionId, channelId] = 
+            ManifestTable::GetIdsById<IdTable, NameTable, MonikerTable, VersionTable, ChannelTable>(connection, manifestInfo.Manifest.value());
 
-        //// Ensure that all of the 1:1 data exists.
-        //SQLite::rowid_t idId = IdTable::EnsureExists(connection, manifest.Id);
-        //SQLite::rowid_t nameId = NameTable::EnsureExists(connection, manifest.Name);
-        //SQLite::rowid_t monikerId = MonikerTable::EnsureExists(connection, manifest.AppMoniker);
-        //SQLite::rowid_t versionId = VersionTable::EnsureExists(connection, manifest.Version);
-        //SQLite::rowid_t channelId = ChannelTable::EnsureExists(connection, manifest.Channel);
+        // Remove all of the 1:N data.
+        TagsTable::RemoveAndEnsureNeeded(connection, manifestId);
+        CommandsTable::EnsureExistsAndInsert(connection, manifest.Commands, manifestId);
+        ProtocolsTable::EnsureExistsAndInsert(connection, manifest.Protocols, manifestId);
+        ExtensionsTable::EnsureExistsAndInsert(connection, manifest.FileExtensions, manifestId);
+
+        // Insert the manifest entry.
+        SQLite::rowid_t manifestId = ManifestTable::Insert(connection, {
+            { IdTable::ValueName(), idId},
+            { NameTable::ValueName(), nameId },
+            { MonikerTable::ValueName(), monikerId },
+            { VersionTable::ValueName(), versionId },
+            { ChannelTable::ValueName(), channelId },
+            { PathPartTable::ValueName(), std::get<1>(pathResult) }
+            });
+
+        // Ensure that all of the 1:1 data exists.
+        SQLite::rowid_t idId = IdTable::EnsureExists(connection, manifest.Id);
+        SQLite::rowid_t nameId = NameTable::EnsureExists(connection, manifest.Name);
+        SQLite::rowid_t monikerId = MonikerTable::EnsureExists(connection, manifest.AppMoniker);
+        SQLite::rowid_t versionId = VersionTable::EnsureExists(connection, manifest.Version);
+        SQLite::rowid_t channelId = ChannelTable::EnsureExists(connection, manifest.Channel);
 
         savepoint.Commit();
     }

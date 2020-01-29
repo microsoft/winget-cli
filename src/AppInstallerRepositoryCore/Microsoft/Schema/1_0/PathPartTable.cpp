@@ -116,7 +116,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Removes the given part by id.
-        bool RemovePartById(SQLite::Connection& connection, SQLite::rowid_t id)
+        void RemovePartById(SQLite::Connection& connection, SQLite::rowid_t id)
         {
             std::ostringstream deletePartSQL;
             deletePartSQL << "DELETE FROM [" << s_PathPartTable_Table_Name << "] WHERE "

@@ -30,23 +30,29 @@ extern "C"
     APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexClose(
         APPINSTALLER_SQLITE_INDEX_HANDLE index);
 
-    // Adds a manifest to the index.
+    // Adds the manifest at the repository relative path to the index.
+    // If the function succeeds, the manifest has been added.
     APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexAddManifest(
         APPINSTALLER_SQLITE_INDEX_HANDLE index, 
         APPINSTALLER_SQLITE_INDEX_STRING manifestPath, 
         APPINSTALLER_SQLITE_INDEX_STRING relativePath);
 
-    // Updates a manifest in the index.
+    // Updates the manifest at the repository relative path in the index.
+    // If the old manifest does not exist in the index, this is equivalent to AddManifest(newManifest, newRelativePath).
+    // The out value indicates whether the index was modified by the function.
     APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexUpdateManifest(
         APPINSTALLER_SQLITE_INDEX_HANDLE index, 
         APPINSTALLER_SQLITE_INDEX_STRING oldManifestPath, 
         APPINSTALLER_SQLITE_INDEX_STRING oldRelativePath, 
         APPINSTALLER_SQLITE_INDEX_STRING newManifestPath, 
-        APPINSTALLER_SQLITE_INDEX_STRING newRelativePath);
+        APPINSTALLER_SQLITE_INDEX_STRING newRelativePath,
+        bool* indexModified);
 
-    // Removes a manifest from the index.
+    // Removes the manifest at the repository relative path from the index.
+    // The out value indicates whether the index was modified by the function.
     APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexRemoveManifest(
         APPINSTALLER_SQLITE_INDEX_HANDLE index, 
         APPINSTALLER_SQLITE_INDEX_STRING manifestPath, 
-        APPINSTALLER_SQLITE_INDEX_STRING relativePath);
+        APPINSTALLER_SQLITE_INDEX_STRING relativePath,
+        bool* indexModified);
 }

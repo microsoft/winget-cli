@@ -50,7 +50,9 @@ extern "C"
     }
     CATCH_RETURN()
 
-    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexAddManifest(APPINSTALLER_SQLITE_INDEX_HANDLE index, APPINSTALLER_SQLITE_INDEX_STRING manifestPath, APPINSTALLER_SQLITE_INDEX_STRING relativePath) try
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexAddManifest(
+        APPINSTALLER_SQLITE_INDEX_HANDLE index, 
+        APPINSTALLER_SQLITE_INDEX_STRING manifestPath, APPINSTALLER_SQLITE_INDEX_STRING relativePath) try
     {
         THROW_HR_IF(E_INVALIDARG, !index);
         THROW_HR_IF(E_INVALIDARG, !manifestPath);
@@ -65,7 +67,8 @@ extern "C"
     APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexUpdateManifest(
         APPINSTALLER_SQLITE_INDEX_HANDLE index,
         APPINSTALLER_SQLITE_INDEX_STRING oldManifestPath, APPINSTALLER_SQLITE_INDEX_STRING oldRelativePath,
-        APPINSTALLER_SQLITE_INDEX_STRING newManifestPath, APPINSTALLER_SQLITE_INDEX_STRING newRelativePath) try
+        APPINSTALLER_SQLITE_INDEX_STRING newManifestPath, APPINSTALLER_SQLITE_INDEX_STRING newRelativePath,
+        bool* indexModified) try
     {
         THROW_HR_IF(E_INVALIDARG, !index);
         THROW_HR_IF(E_INVALIDARG, !oldManifestPath);
@@ -73,19 +76,30 @@ extern "C"
         THROW_HR_IF(E_INVALIDARG, !newManifestPath);
         THROW_HR_IF(E_INVALIDARG, !newRelativePath);
 
-        reinterpret_cast<SQLiteIndex*>(index)->UpdateManifest(oldManifestPath, oldRelativePath, newManifestPath, newRelativePath);
+        bool result = reinterpret_cast<SQLiteIndex*>(index)->UpdateManifest(oldManifestPath, oldRelativePath, newManifestPath, newRelativePath);
+        if (indexModified)
+        {
+            *indexModified = result;
+        }
 
         return S_OK;
     }
     CATCH_RETURN()
 
-    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexRemoveManifest(APPINSTALLER_SQLITE_INDEX_HANDLE index, APPINSTALLER_SQLITE_INDEX_STRING manifestPath, APPINSTALLER_SQLITE_INDEX_STRING relativePath) try
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexRemoveManifest(
+        APPINSTALLER_SQLITE_INDEX_HANDLE index, 
+        APPINSTALLER_SQLITE_INDEX_STRING manifestPath, APPINSTALLER_SQLITE_INDEX_STRING relativePath,
+        bool* indexModified) try
     {
         THROW_HR_IF(E_INVALIDARG, !index);
         THROW_HR_IF(E_INVALIDARG, !manifestPath);
         THROW_HR_IF(E_INVALIDARG, !relativePath);
 
-        reinterpret_cast<SQLiteIndex*>(index)->RemoveManifest(manifestPath, relativePath);
+        bool result = reinterpret_cast<SQLiteIndex*>(index)->RemoveManifest(manifestPath, relativePath);
+        if (indexModified)
+        {
+            *indexModified = result;
+        }
 
         return S_OK;
     }

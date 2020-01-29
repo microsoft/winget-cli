@@ -143,48 +143,58 @@ namespace AppInstaller::Repository::Microsoft
         savepoint.Commit();
     }
 
-    void SQLiteIndex::UpdateManifest(const std::filesystem::path& oldManifestPath, const std::filesystem::path& oldRelativePath, const std::filesystem::path& newManifestPath, const std::filesystem::path& newRelativePath)
+    bool SQLiteIndex::UpdateManifest(const std::filesystem::path& oldManifestPath, const std::filesystem::path& oldRelativePath, const std::filesystem::path& newManifestPath, const std::filesystem::path& newRelativePath)
     {
         AICLI_LOG(Repo, Info, << "Updating manifest from file [" << oldManifestPath << "] to file [" << newManifestPath << "]");
 
         Manifest::Manifest oldManifest = Manifest::Manifest::CreateFromPath(oldManifestPath);
         Manifest::Manifest newManifest = Manifest::Manifest::CreateFromPath(newManifestPath);
-        UpdateManifest(oldManifest, oldRelativePath, newManifest, newRelativePath);
+        return UpdateManifest(oldManifest, oldRelativePath, newManifest, newRelativePath);
     }
 
-    void SQLiteIndex::UpdateManifest(const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath)
+    bool SQLiteIndex::UpdateManifest(const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath)
     {
         AICLI_LOG(Repo, Info, << "Updating manifest from [" << oldManifest.Id << ", " << oldManifest.Version << "] to [" << newManifest.Id << ", " << newManifest.Version <<
             "] at relative path [" << oldRelativePath << "] to [" << newRelativePath << "]");
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_updatemanifest");
 
-        m_interface->UpdateManifest(m_dbconn, oldManifest, oldRelativePath, newManifest, newRelativePath);
+        bool result = m_interface->UpdateManifest(m_dbconn, oldManifest, oldRelativePath, newManifest, newRelativePath);
 
-        SetLastWriteTime();
+        if (result)
+        {
+            SetLastWriteTime();
 
-        savepoint.Commit();
+            savepoint.Commit();
+        }
+
+        return result;
     }
 
-    void SQLiteIndex::RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
+    bool SQLiteIndex::RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
     {
         AICLI_LOG(Repo, Info, << "Removing manifest from file [" << manifestPath << "]");
 
         Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(manifestPath);
-        RemoveManifest(manifest, relativePath);
+        return RemoveManifest(manifest, relativePath);
     }
 
-    void SQLiteIndex::RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    bool SQLiteIndex::RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
         AICLI_LOG(Repo, Info, << "Removing manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath << "]");
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_removemanifest");
 
-        m_interface->RemoveManifest(m_dbconn, manifest, relativePath);
+        bool result = m_interface->RemoveManifest(m_dbconn, manifest, relativePath);
 
-        SetLastWriteTime();
+        if (result)
+        {
+            SetLastWriteTime();
 
-        savepoint.Commit();
+            savepoint.Commit();
+        }
+
+        return result;
     }
 
     // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus

@@ -24,6 +24,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // The value type.
         using value_t = std::string;
 
+        // The id type
+        using id_t = SQLite::rowid_t;
+
         // Creates the table.
         static void Create(SQLite::Connection& connection)
         {

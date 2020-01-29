@@ -46,24 +46,30 @@ namespace AppInstaller::Repository::Microsoft
         std::chrono::system_clock::time_point GetLastWriteTime();
 
         // Adds the manifest at the repository relative path to the index.
+        // If the function succeeds, the manifest has been added.
         void AddManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);
 
         // Adds the manifest at the repository relative path to the index.
+        // If the function succeeds, the manifest has been added.
         void AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
 
         // Updates the manifest at the repository relative path in the index.
         // If the old manifest does not exist in the index, this is equivalent to AddManifest(newManifest, newRelativePath).
-        void UpdateManifest(const std::filesystem::path& oldManifestPath, const std::filesystem::path& oldRelativePath, const std::filesystem::path& newManifestPath, const std::filesystem::path& newRelativePath);
+        // The return value indicates whether the index was modified by the function.
+        bool UpdateManifest(const std::filesystem::path& oldManifestPath, const std::filesystem::path& oldRelativePath, const std::filesystem::path& newManifestPath, const std::filesystem::path& newRelativePath);
 
         // Updates the manifest at the repository relative path in the index.
         // If the old manifest does not exist in the index, this is equivalent to AddManifest(newManifest, newRelativePath).
-        void UpdateManifest(const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath);
+        // The return value indicates whether the index was modified by the function.
+        bool UpdateManifest(const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath);
 
         // Removes the manifest at the repository relative path from the index.
-        void RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);
+        // The return value indicates whether the index was modified by the function.
+        bool RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);
 
         // Removes the manifest at the repository relative path from the index.
-        void RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
+        // The return value indicates whether the index was modified by the function.
+        bool RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
 
     private:
         // Constructor used to open an existing index.

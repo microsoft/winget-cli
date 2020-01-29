@@ -30,21 +30,70 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
         }
 
-        SQLite::Statement ManifestTableGetValuesById_Statement(
+        SQLite::Statement ManifestTableGetIdsById_Statement(
             SQLite::Connection& connection,
-            std::initializer_list<std::string_view> tableNames,
-            std::initializer_list<std::string_view> valueNames,
-            SQLite::rowid_t id)
+            SQLite::rowid_t id,
+            std::initializer_list<std::string_view> values)
         {
-            THROW_HR_IF(E_INVALIDARG, tableNames.size() != valueNames.size());
-
             std::ostringstream selectSQL;
             selectSQL << "SELECT ";
 
             // add columns to select
-            tableNames
+            bool isFirst = true;
+            for (const std::string_view& value : values)
+            {
+                selectSQL << (isFirst ? "[" : ", [") << value << ']';
+            }
 
-            SQLite::Statement result;
+            selectSQL << " FROM [" << s_ManifestTable_Table_Name << "] WHERE [" << SQLite::RowIDName << "] = ?";
+
+            SQLite::Statement result = SQLite::Statement::Create(connection, selectSQL.str());
+
+            result.Bind(1, id);
+
+            THROW_HR_IF(E_NOT_SET, !result.Step());
+
+            return result;
+        }
+
+        // Creates a statement and executes it, select the actual values for a given manifest id.
+        // Ex.
+        // SELECT [ids].[id] FROM [manifest]
+        // JOIN [ids] ON [manifest].[id] = [ids].[rowid]
+        // WHERE [manifest].[rowid] = 1
+        SQLite::Statement ManifestTableGetValuesById_Statement(
+            SQLite::Connection& connection,
+            SQLite::rowid_t id,
+            std::initializer_list<ManifestOneToOneTableInfo> tableInfos)
+        {
+            std::ostringstream selectSQL;
+            selectSQL << "SELECT ";
+
+            // add columns to select
+            bool isFirst = true;
+            for (const ManifestOneToOneTableInfo& tableInfo : tableInfos)
+            {
+                selectSQL << (isFirst ? "[" : ", [") << tableInfo.Table << "].[" << tableInfo.Value << ']';
+            }
+
+            selectSQL << " FROM [" << s_ManifestTable_Table_Name << "] ";
+
+            // join tables
+            for (const ManifestOneToOneTableInfo& tableInfo : tableInfos)
+            {
+                selectSQL << "JOIN [" << tableInfo.Table << "] ON " << 
+                    '[' << s_ManifestTable_Table_Name << "].[" << tableInfo.Value << "] = [" << tableInfo.Table << "].[" << SQLite::RowIDName << "] ";
+            }
+
+            selectSQL << " WHERE [" << s_ManifestTable_Table_Name << "].[" << SQLite::RowIDName << "] = ?";
+
+            SQLite::Statement result = SQLite::Statement::Create(connection, selectSQL.str());
+
+            result.Bind(1, id);
+
+            THROW_HR_IF(E_NOT_SET, !result.Step());
+
+            return result;
         }
     }
 
