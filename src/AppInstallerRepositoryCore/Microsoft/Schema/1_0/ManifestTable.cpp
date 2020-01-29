@@ -29,10 +29,29 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 return {};
             }
         }
+
+        SQLite::Statement ManifestTableGetValuesById_Statement(
+            SQLite::Connection& connection,
+            std::initializer_list<std::string_view> tableNames,
+            std::initializer_list<std::string_view> valueNames,
+            SQLite::rowid_t id)
+        {
+            THROW_HR_IF(E_INVALIDARG, tableNames.size() != valueNames.size());
+
+            std::ostringstream selectSQL;
+            selectSQL << "SELECT ";
+
+            // add columns to select
+            tableNames
+
+            SQLite::Statement result;
+        }
     }
 
     void ManifestTable::Create(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values)
     {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createManifestTable_v1_0");
+
         std::ostringstream createTableSQL;
         createTableSQL << "CREATE TABLE [" << s_ManifestTable_Table_Name << "] (";
 
@@ -58,6 +77,21 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Statement createStatement = SQLite::Statement::Create(connection, createTableSQL.str());
 
         createStatement.Execute();
+
+        // Create an index on every value to improve performance
+        for (const ManifestColumnInfo& value : values)
+        {
+            std::ostringstream createIndexSQL;
+            createIndexSQL << "CREATE INDEX [" << s_ManifestTable_Table_Name << '_' << value.Name << "_index] "
+                << "ON [" << s_ManifestTable_Table_Name << "]("
+                << '[' << value.Name << "])";
+
+            SQLite::Statement createIndex = SQLite::Statement::Create(connection, createIndexSQL.str());
+
+            createIndex.Execute();
+        }
+
+        savepoint.Commit();
     }
 
     SQLite::rowid_t ManifestTable::Insert(SQLite::Connection& connection, std::initializer_list<ManifestOneToOneValue> values)

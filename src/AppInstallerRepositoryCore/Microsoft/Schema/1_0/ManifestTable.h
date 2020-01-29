@@ -11,7 +11,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
     namespace details
     {
+        // Selects a manifest by the given value id.
         std::optional<SQLite::rowid_t> ManifestTableSelectByValueId(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t id);
+
+        // Gets the requested values for the manifest with the given rowid.
+        SQLite::Statement ManifestTableGetValuesById_Statement(
+            SQLite::Connection& connection, 
+            std::initializer_list<std::string_view> tableNames, 
+            std::initializer_list<std::string_view> valueNames, 
+            SQLite::rowid_t id);
     }
 
     // Info on the manifest columns.
@@ -43,6 +51,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         static std::optional<SQLite::rowid_t> SelectByValueId(SQLite::Connection& connection, SQLite::rowid_t id)
         {
             return details::ManifestTableSelectByValueId(connection, Table::ValueName(), id);
+        }
+
+        // Gets the values requested for the manifest with the given rowid.
+        template <typename... Tables>
+        static auto GetValuesById(SQLite::Connection& connection, SQLite::rowid_t id)
+        {
+            ManifestTableGetValuesById_Statement(connection, { Tables::TableName()... }, { Tables::ValueName()... }, id).GetRow<Tables::value_t...>();
         }
     };
 }

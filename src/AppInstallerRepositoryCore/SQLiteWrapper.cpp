@@ -171,6 +171,12 @@ namespace AppInstaller::Repository::SQLite
         THROW_HR_IF(E_UNEXPECTED, Step(failFastOnError));
     }
 
+    bool Statement::GetColumnIsNull(int column)
+    {
+        int type = sqlite3_column_type(m_stmt, column);
+        return type == SQLITE_NULL;
+    }
+
     void Statement::Reset()
     {
         AICLI_LOG(SQL, Verbose, << "Reset statement #" << m_id);

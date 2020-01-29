@@ -11,7 +11,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
     namespace details
     {
+        // Create the tables.
         void CreateOneToManyTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName);
+
+        // Ensures that the value exists and inserts mapping entries.
         void OneToManyTableEnsureExistsAndInsert(SQLite::Connection& connection,
             std::string_view tableName, std::string_view valueName, 
             const std::vector<std::string>& values, SQLite::rowid_t manifestId);

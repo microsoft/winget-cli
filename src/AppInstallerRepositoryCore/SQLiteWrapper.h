@@ -174,6 +174,10 @@ namespace AppInstaller::Repository::SQLite
         // Equivalent to Step, but does not ever expect a result, throwing if one is retrieved.
         void Execute(bool failFastOnError = false);
 
+        // Gets a boolean value that indicates whether the specified column value is null in the current row.
+        // The index is 0 based.
+        bool GetColumnIsNull(int column);
+
         // Gets the value of the specified column from the current row.
         // The index is 0 based.
         template <typename Value>

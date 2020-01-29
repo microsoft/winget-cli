@@ -74,6 +74,30 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return connection.GetLastInsertRowID();
         }
 
+        // Gets the parent of a given part by id.
+        // This should only be called when the part must exist, as it will throw if not found.
+        std::optional<SQLite::rowid_t> GetParentById(SQLite::Connection& connection, SQLite::rowid_t id)
+        {
+            std::ostringstream selectPartSQL;
+            selectPartSQL << "SELECT [" << s_PathPartTable_Table_Name << "] FROM [" << s_PathPartTable_Table_Name << "] WHERE "
+                << '[' << SQLite::RowIDName << "] = ?";
+
+            SQLite::Statement select = SQLite::Statement::Create(connection, selectPartSQL.str());
+
+            select.Bind(1, id);
+
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED, !select.Step());
+
+            if (!select.GetColumnIsNull(0))
+            {
+                return select.GetColumn<SQLite::rowid_t>(0);
+            }
+            else
+            {
+                return {};
+            }
+        }
+
         // Determines if any part references this one as their parent.
         bool IsLeafPart(SQLite::Connection& connection, SQLite::rowid_t id)
         {
@@ -90,11 +114,25 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             // No rows with this as a parent means it is a leaf.
             return (select.GetColumn<int>(0) == 0);
         }
+
+        // Removes the given part by id.
+        bool RemovePartById(SQLite::Connection& connection, SQLite::rowid_t id)
+        {
+            std::ostringstream deletePartSQL;
+            deletePartSQL << "DELETE FROM [" << s_PathPartTable_Table_Name << "] WHERE "
+                << '[' << SQLite::RowIDName << "] = ?";
+
+            SQLite::Statement deletePart = SQLite::Statement::Create(connection, deletePartSQL.str());
+
+            deletePart.Bind(1, id);
+
+            deletePart.Execute();
+        }
     }
 
     void PathPartTable::Create(SQLite::Connection& connection)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "pathparts_create");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createPathParts_v1_0");
 
         {
             std::ostringstream createTableSQL;
@@ -135,7 +173,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         std::unique_ptr<SQLite::Savepoint> savepoint;
         if (createIfNotFound)
         {
-            savepoint = std::make_unique<SQLite::Savepoint>(SQLite::Savepoint::Create(connection, "ensurepathexists"));
+            savepoint = std::make_unique<SQLite::Savepoint>(SQLite::Savepoint::Create(connection, "ensurepathexists_v1_0"));
         }
 
         bool partsAdded = false;
@@ -175,8 +213,23 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return { (createIfNotFound ? partsAdded : true), parent.value() };
     }
 
-    void PathPartTable::RemovePathById(SQLite::Connection& connection, SQLite::rowid_t)
+    void PathPartTable::RemovePathById(SQLite::Connection& connection, SQLite::rowid_t id)
     {
+        SQLite::rowid_t currentPartToRemove = id;
+        while (IsLeafPart(connection, id))
+        {
+            std::optional<SQLite::rowid_t> parent = GetParentById(connection, id);
+            RemovePartById(connection, id);
 
+            // If parent was NULL, this was a root part and we can stop
+            if (!parent)
+            {
+                break;
+            }
+            else
+            {
+                currentPartToRemove = parent.value();
+            }
+        }
     }
 }

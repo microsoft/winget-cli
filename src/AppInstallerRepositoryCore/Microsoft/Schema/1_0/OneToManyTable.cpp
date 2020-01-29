@@ -15,7 +15,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         void CreateOneToManyTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName)
         {
-            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } +"_create");
+            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } +"_create_v1_0");
 
             // Create the data table as a 1:1
             CreateOneToOneTable(connection, tableName, valueName);
@@ -38,7 +38,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             std::string_view tableName, std::string_view valueName,
             const std::vector<std::string>& values, SQLite::rowid_t manifestId)
         {
-            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } +"_ensureandinsert");
+            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } +"_ensureandinsert_v1_0");
 
             // Create the mapping table insert statement for multiple use
             std::ostringstream insertMappingSQL;

@@ -30,6 +30,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Removes the path that terminates at the given id.
         // Will not remove a path part if it is referenced.
-        static void RemovePathById(SQLite::Connection& connection, SQLite::rowid_t);
+        static void RemovePathById(SQLite::Connection& connection, SQLite::rowid_t id);
     };
 }

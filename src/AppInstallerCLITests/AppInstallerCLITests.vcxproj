@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="InstallFlow.cpp" />
+    <ClCompile Include="LanguageUtilities.cpp" />
     <ClCompile Include="main.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
