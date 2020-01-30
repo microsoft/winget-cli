@@ -160,17 +160,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         THROW_HR(E_NOTIMPL);
     }
 
-    bool Interface::RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    void Interface::RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removemanifest_v1_0");
 
         ExistingManifestInfo manifestInfo = GetExistingManifestId(connection, manifest, relativePath);
 
-        // If the manifest doesn't actually exist, we don't need to make any change.
-        if (!manifestInfo.Manifest)
-        {
-            return false;
-        }
+        // If the manifest doesn't actually exist, fail the remove.
+        THROW_HR_IF(E_NOT_SET, !manifestInfo.Manifest);
 
         SQLite::rowid_t manifestId = manifestInfo.Manifest.value();
 
@@ -198,7 +195,5 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         ExtensionsTable::DeleteIfNotNeededByManifestId(connection, manifestId);
 
         savepoint.Commit();
-
-        return true;
     }
 }

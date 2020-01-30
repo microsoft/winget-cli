@@ -171,30 +171,25 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    bool SQLiteIndex::RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
+    void SQLiteIndex::RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
     {
         AICLI_LOG(Repo, Info, << "Removing manifest from file [" << manifestPath << "]");
 
         Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(manifestPath);
-        return RemoveManifest(manifest, relativePath);
+        RemoveManifest(manifest, relativePath);
     }
 
-    bool SQLiteIndex::RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    void SQLiteIndex::RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
         AICLI_LOG(Repo, Info, << "Removing manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath << "]");
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_removemanifest");
 
-        bool result = m_interface->RemoveManifest(m_dbconn, manifest, relativePath);
+        m_interface->RemoveManifest(m_dbconn, manifest, relativePath);
 
-        if (result)
-        {
-            SetLastWriteTime();
+        SetLastWriteTime();
 
-            savepoint.Commit();
-        }
-
-        return result;
+        savepoint.Commit();
     }
 
     // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus

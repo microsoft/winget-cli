@@ -102,18 +102,13 @@ extern "C"
 
     APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexRemoveManifest(
         APPINSTALLER_SQLITE_INDEX_HANDLE index, 
-        APPINSTALLER_SQLITE_INDEX_STRING manifestPath, APPINSTALLER_SQLITE_INDEX_STRING relativePath,
-        bool* indexModified) try
+        APPINSTALLER_SQLITE_INDEX_STRING manifestPath, APPINSTALLER_SQLITE_INDEX_STRING relativePath) try
     {
         THROW_HR_IF(E_INVALIDARG, !index);
         THROW_HR_IF(E_INVALIDARG, !manifestPath);
         THROW_HR_IF(E_INVALIDARG, !relativePath);
 
-        bool result = reinterpret_cast<SQLiteIndex*>(index)->RemoveManifest(manifestPath, relativePath);
-        if (indexModified)
-        {
-            *indexModified = result;
-        }
+        reinterpret_cast<SQLiteIndex*>(index)->RemoveManifest(manifestPath, relativePath);
 
         return S_OK;
     }

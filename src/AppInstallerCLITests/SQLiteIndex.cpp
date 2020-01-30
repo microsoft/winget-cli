@@ -105,10 +105,7 @@ TEST_CASE("SQLiteIndex_RemoveManifestFile_NotPresent", "[sqliteindex]")
     TestDataFile manifestFile{ "GoodManifest.yml" };
     std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yml" };
 
-    bool result = index.RemoveManifest(manifestFile, manifestPath);
-
-    // Attempting to add again should fail
-    REQUIRE(!result);
+    REQUIRE_THROWS_HR(index.RemoveManifest(manifestFile, manifestPath), E_NOT_SET);
 }
 
 TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex]")
@@ -147,9 +144,7 @@ TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex]")
         index.AddManifest(manifest2, manifest2Path);
 
         // Now remove manifest1
-        bool result = index.RemoveManifest(manifest1, manifest1Path);
-
-        REQUIRE(result);
+        index.RemoveManifest(manifest1, manifest1Path);
     }
 
     {
@@ -174,9 +169,7 @@ TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex]")
         SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
 
         // Now remove manifest2
-        bool result = index.RemoveManifest(manifest2, manifest2Path);
-
-        REQUIRE(result);
+        index.RemoveManifest(manifest2, manifest2Path);
     }
 
     // Open it directly to directly test table state
@@ -209,9 +202,7 @@ TEST_CASE("SQLiteIndex_RemoveManifestFile", "[sqliteindex]")
         index.AddManifest(manifestFile, manifestPath);
 
         // Now remove that manifest
-        bool result = index.RemoveManifest(manifestFile, manifestPath);
-
-        REQUIRE(result);
+        index.RemoveManifest(manifestFile, manifestPath);
     }
 
     // Open it directly to directly test table state
