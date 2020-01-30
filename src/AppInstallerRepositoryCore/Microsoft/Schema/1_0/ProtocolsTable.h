@@ -12,8 +12,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         struct ProtocolsTableInfo
         {
-            inline static std::string_view TableName() { return "protocols"sv; }
-            inline static std::string_view ValueName() { return "protocol"sv; }
+            inline static constexpr std::string_view TableName() { return "protocols"sv; }
+            inline static constexpr std::string_view ValueName() { return "protocol"sv; }
         };
     }
 

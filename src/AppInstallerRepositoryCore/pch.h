@@ -5,6 +5,7 @@
 #define NOMINMAX
 #include <windows.h>
 
+#include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerSHA256.h>
 #include <yaml-cpp/yaml.h>
@@ -15,8 +16,10 @@
 
 #include <winrt/Windows.Foundation.h>
 
+#include <filesystem>
 #include <initializer_list>
 #include <iomanip>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <sstream>

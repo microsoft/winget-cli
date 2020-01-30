@@ -12,8 +12,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         struct TagsTableInfo
         {
-            inline static std::string_view TableName() { return "tags"sv; }
-            inline static std::string_view ValueName() { return "tag"sv; }
+            inline static constexpr std::string_view TableName() { return "tags"sv; }
+            inline static constexpr std::string_view ValueName() { return "tag"sv; }
         };
     }
 

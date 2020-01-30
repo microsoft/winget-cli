@@ -46,8 +46,7 @@ namespace AppInstaller::Logging
 
     void FileLogger::Write(Channel channel, Level, std::string_view message) noexcept try
     {
-        Utility::OutputTimepoint(m_stream, std::chrono::system_clock::now());
-        m_stream << " [" << std::setw(GetMaxChannelNameLength()) << std::left << std::setfill(' ') << GetChannelName(channel) << "] " << message << std::endl;
+        m_stream << std::chrono::system_clock::now() << " [" << std::setw(GetMaxChannelNameLength()) << std::left << std::setfill(' ') << GetChannelName(channel) << "] " << message << std::endl;
     }
     catch (...)
     {

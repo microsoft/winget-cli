@@ -2,13 +2,30 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include <SQLiteWrapper.h>
+#include <Manifest/Manifest.h>
 #include <Microsoft/SQLiteIndex.h>
 
+#include <Microsoft/Schema/1_0/IdTable.h>
+#include <Microsoft/Schema/1_0/NameTable.h>
+#include <Microsoft/Schema/1_0/MonikerTable.h>
+#include <Microsoft/Schema/1_0/VersionTable.h>
+#include <Microsoft/Schema/1_0/ChannelTable.h>
+#include <Microsoft/Schema/1_0/PathPartTable.h>
+#include <Microsoft/Schema/1_0/ManifestTable.h>
+#include <Microsoft/Schema/1_0/TagsTable.h>
+#include <Microsoft/Schema/1_0/CommandsTable.h>
+#include <Microsoft/Schema/1_0/ProtocolsTable.h>
+#include <Microsoft/Schema/1_0/ExtensionsTable.h>
+
+using namespace TestCommon;
+using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository::Microsoft;
+using namespace AppInstaller::Repository::SQLite;
 
 TEST_CASE("SQLiteIndexCreateLatestAndReopen", "[sqliteindex]")
 {
-    TestCommon::TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    TempFile tempFile{ "repolibtest_tempdb", ".db" };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Schema::Version versionCreated;
@@ -42,4 +59,231 @@ TEST_CASE("SQLiteIndexCreateLatestAndReopen", "[sqliteindex]")
         Schema::Version versionRead = index.GetVersion();
         REQUIRE(versionRead == versionCreated);
     }
+}
+
+TEST_CASE("SQLiteIndexCreateAndAddManifest", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, Schema::Version::Latest());
+
+    Manifest manifest;
+    manifest.Id = "test.id";
+    manifest.Name = "Test Name";
+    manifest.AppMoniker = "testmoniker";
+    manifest.Version = "1.0.0";
+    manifest.Channel = "test";
+    manifest.Tags = { "t1", "t2" };
+    manifest.Commands = { "test1", "test2" };
+    manifest.Protocols = { "htttest" };
+    manifest.FileExtensions = { "tst", "test", "testy" };
+
+    index.AddManifest(manifest, "test/id/test.id-1.0.0.yml");
+}
+
+TEST_CASE("SQLiteIndexCreateAndAddManifestFile", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, Schema::Version::Latest());
+
+    TestDataFile manifestFile{ "GoodManifest.yml" };
+    std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yml" };
+
+    index.AddManifest(manifestFile, manifestPath);
+
+    // Attempting to add again should fail
+    REQUIRE_THROWS_HR(index.AddManifest(manifestFile, manifestPath), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
+}
+
+TEST_CASE("SQLiteIndex_RemoveManifestFile_NotPresent", "[sqliteindex]")
+{
+    SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
+
+    TestDataFile manifestFile{ "GoodManifest.yml" };
+    std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yml" };
+
+    REQUIRE_THROWS_HR(index.RemoveManifest(manifestFile, manifestPath), E_NOT_SET);
+}
+
+TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string manifest1Path = "test/id/test.id-1.0.0.yml";
+    Manifest manifest1;
+    manifest1.Id = "test.id";
+    manifest1.Name = "Test Name";
+    manifest1.AppMoniker = "testmoniker";
+    manifest1.Version = "1.0.0";
+    manifest1.Channel = "test";
+    manifest1.Tags = { "t1", "t2" };
+    manifest1.Commands = { "test1", "test2" };
+    manifest1.Protocols = { "htttest" };
+    manifest1.FileExtensions = { "tst", "test", "testy" };
+
+    std::string manifest2Path = "test/woah/test.id-1.0.0.yml";
+    Manifest manifest2;
+    manifest2.Id = "test.woah";
+    manifest2.Name = "Test Name WOAH";
+    manifest2.AppMoniker = "testmoniker";
+    manifest2.Version = "1.0.0";
+    manifest2.Channel = "test";
+    manifest2.Tags = { "t1" };
+    manifest2.Commands = { "test1", "test2", "test3" };
+    manifest2.Protocols = {};
+    manifest2.FileExtensions = { "tst", "test", "testy" };
+    
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
+
+        index.AddManifest(manifest1, manifest1Path);
+        index.AddManifest(manifest2, manifest2Path);
+
+        // Now remove manifest1
+        index.RemoveManifest(manifest1, manifest1Path);
+    }
+
+    {
+        // Open it directly to directly test table state
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+        REQUIRE(!Schema::V1_0::ManifestTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::IdTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::NameTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::MonikerTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::VersionTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::ChannelTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::PathPartTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::TagsTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::CommandsTable::IsEmpty(connection));
+        // Because manifest2 had no protocols
+        REQUIRE(Schema::V1_0::ProtocolsTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::ExtensionsTable::IsEmpty(connection));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        // Now remove manifest2
+        index.RemoveManifest(manifest2, manifest2Path);
+    }
+
+    // Open it directly to directly test table state
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+    REQUIRE(Schema::V1_0::ManifestTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::IdTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::NameTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::MonikerTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::VersionTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ChannelTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::PathPartTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::TagsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ProtocolsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ExtensionsTable::IsEmpty(connection));
+}
+
+TEST_CASE("SQLiteIndex_RemoveManifestFile", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
+
+        TestDataFile manifestFile{ "GoodManifest.yml" };
+        std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yml" };
+
+        index.AddManifest(manifestFile, manifestPath);
+
+        // Now remove that manifest
+        index.RemoveManifest(manifestFile, manifestPath);
+    }
+
+    // Open it directly to directly test table state
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+    REQUIRE(Schema::V1_0::ManifestTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::IdTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::NameTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::MonikerTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::VersionTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ChannelTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::PathPartTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::TagsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ProtocolsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ExtensionsTable::IsEmpty(connection));
+}
+
+TEST_CASE("PathPartTable_EnsurePathExists_Negative_Paths", "[sqliteindex][V1_0]")
+{
+    // Open it directly to directly test pathpart table
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    REQUIRE_THROWS_HR(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"()", false), E_INVALIDARG);
+    REQUIRE_THROWS_HR(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(\)", false), E_INVALIDARG);
+    REQUIRE_THROWS_HR(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(/)", false), E_INVALIDARG);
+    REQUIRE_THROWS_HR(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(C:)", false), E_INVALIDARG);
+    REQUIRE_THROWS_HR(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(C:\\)", false), E_INVALIDARG);
+    REQUIRE_THROWS_HR(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(C:\temp\path\file.txt)", false), E_INVALIDARG);
+    REQUIRE_THROWS_HR(Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(\temp\path\file.txt)", false), E_INVALIDARG);
+}
+
+TEST_CASE("PathPartTable_EnsurePathExists", "[sqliteindex][V1_0]")
+{
+    TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    // Create the index
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
+        Schema::Version versionCreated = index.GetVersion();
+        REQUIRE(versionCreated == Schema::Version{ 1, 0 });
+    }
+
+    // Open it directly to directly test pathpart table
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+    // attempt to find path that doesn't exist
+    auto result0 = Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(a\b\c.txt)", false);
+    REQUIRE(!std::get<0>(result0));
+
+    // add path
+    auto result1 = Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(a\b\c.txt)", true);
+    REQUIRE(std::get<0>(result1));
+
+    // Second time trying to create should return false and same id
+    auto result2 = Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(a\b\c.txt)", true);
+    REQUIRE(!std::get<0>(result2));
+    REQUIRE(std::get<1>(result1) == std::get<1>(result2));
+
+    // Trying to find but not create should return true because it exists
+    auto result3 = Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(a\b\c.txt)", false);
+    REQUIRE(std::get<0>(result3));
+    REQUIRE(std::get<1>(result1) == std::get<1>(result3));
+
+    // attempt to find a different file
+    auto result4 = Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(a\b\d.txt)", false);
+    REQUIRE(!std::get<0>(result4));
+
+    // add a different file
+    auto result5 = Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(a\b\d.txt)", true);
+    REQUIRE(std::get<0>(result5));
+    REQUIRE(std::get<1>(result1) != std::get<1>(result5));
+
+    // add the same file but deeper
+    auto result6 = Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(a\b\d\c.txt)", true);
+    REQUIRE(std::get<0>(result6));
+    REQUIRE(std::get<1>(result1) != std::get<1>(result6));
+
+    // get the deeper file with extra separators
+    auto result7 = Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(a\\b\d\\c.txt)", true);
+    REQUIRE(!std::get<0>(result7));
+    REQUIRE(std::get<1>(result6) == std::get<1>(result7));
 }

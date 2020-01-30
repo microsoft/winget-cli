@@ -6,8 +6,6 @@
 
 using namespace AppInstaller::Repository::SQLite;
 
-#define SQLITE_MEMORY_DB_CONNECTION_TARGET ":memory:"
-
 static const char* s_CreateSimpleTestTableSQL = R"(
 CREATE TABLE [main].[simpletest](
   [first] INT, 

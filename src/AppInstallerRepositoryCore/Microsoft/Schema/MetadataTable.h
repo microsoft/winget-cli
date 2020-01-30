@@ -14,6 +14,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
     // Version 1.0
     static constexpr std::string_view s_MetadataValueName_MajorVersion = "majorVersion"sv;
     static constexpr std::string_view s_MetadataValueName_MinorVersion = "minorVersion"sv;
+    static constexpr std::string_view s_MetadataValueName_LastWriteTime = "lastwritetime"sv;
 
     // The metadata table for the index.
     // Contains a fixed-schema set of named values that can be used to determine how to read the rest of the index.

@@ -25,6 +25,9 @@
     <Filter Include="Manifest">
       <UniqueIdentifier>{052eaac1-ec6e-4879-8388-aff5a30401f0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Public">
+      <UniqueIdentifier>{69ce2e35-fe7f-41af-bd47-91a70131d167}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -101,6 +104,12 @@
     </ClInclude>
     <ClInclude Include="SQLiteStatementBuilder.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\AppInstallerRepositorySource.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\AppInstallerRepositorySearch.h">
+      <Filter>Public</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

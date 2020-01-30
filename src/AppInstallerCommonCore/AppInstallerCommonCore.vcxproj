@@ -169,6 +169,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\AppInstallerDownloader.h" />
     <ClInclude Include="Public\AppInstallerErrors.h" />
+    <ClInclude Include="Public\AppInstallerLanguageUtilities.h" />
     <ClInclude Include="Public\AppInstallerRuntime.h" />
     <ClInclude Include="Public\AppInstallerSHA256.h" />
     <ClInclude Include="Public\AppInstallerStrings.h" />
