@@ -99,6 +99,9 @@
     <ClInclude Include="Microsoft\Schema\1_0\PathPartTable.h">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClInclude>
+    <ClInclude Include="SQLiteStatementBuilder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -142,6 +145,9 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_0\PathPartTable.cpp">
       <Filter>Microsoft\Schema\1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="SQLiteStatementBuilder.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

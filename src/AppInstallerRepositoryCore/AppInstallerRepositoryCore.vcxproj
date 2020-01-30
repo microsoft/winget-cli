@@ -187,6 +187,7 @@
     <ClInclude Include="Microsoft\Schema\Version.h" />
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="SQLiteStatementBuilder.h" />
     <ClInclude Include="SQLiteWrapper.h" />
   </ItemGroup>
   <ItemGroup>
@@ -205,6 +206,7 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SQLiteStatementBuilder.cpp" />
     <ClCompile Include="SQLiteWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
