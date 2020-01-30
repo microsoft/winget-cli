@@ -4,6 +4,9 @@
 #include <wil/result_macros.h>
 #include <winsqlite/winsqlite3.h>
 
+#include <AppInstallerLogging.h>
+#include <AppInstallerLanguageUtilities.h>
+
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -12,6 +15,12 @@
 
 namespace AppInstaller::Repository::SQLite
 {
+    // The name of the rowid column in SQLite.
+    extern std::string_view RowIDName;
+
+    // The type of a rowid column in code.
+    using rowid_t = int64_t;
+
     namespace details
     {
         template <typename T>
@@ -25,6 +34,12 @@ namespace AppInstaller::Repository::SQLite
             {
                 static_assert(false, "No type specific override has been supplied");
             }
+        };
+
+        template <>
+        struct ParameterSpecificsImpl<nullptr_t>
+        {
+            static void Bind(sqlite3_stmt* stmt, int index, nullptr_t);
         };
 
         template <>
@@ -45,6 +60,13 @@ namespace AppInstaller::Repository::SQLite
         {
             static void Bind(sqlite3_stmt* stmt, int index, int v);
             static int GetColumn(sqlite3_stmt* stmt, int column);
+        };
+
+        template <>
+        struct ParameterSpecificsImpl<int64_t>
+        {
+            static void Bind(sqlite3_stmt* stmt, int index, int64_t v);
+            static int64_t GetColumn(sqlite3_stmt* stmt, int column);
         };
 
         template <typename T>
@@ -91,6 +113,8 @@ namespace AppInstaller::Repository::SQLite
         Connection& operator=(Connection&& other) noexcept { std::swap(m_dbconn, other.m_dbconn); return *this; }
 
         ~Connection();
+
+        int64_t GetLastInsertRowID();
 
         operator sqlite3* () const { return m_dbconn; }
 
@@ -140,6 +164,7 @@ namespace AppInstaller::Repository::SQLite
         template <typename Value>
         void Bind(int index, Value&& v)
         {
+            AICLI_LOG(SQL, Verbose, << "Binding statement #" << m_id << ": " << index << " => " << std::forward<Value>(v));
             details::ParameterSpecifics<Value>::Bind(m_stmt, index, std::forward<Value>(v));
         }
 
@@ -150,6 +175,10 @@ namespace AppInstaller::Repository::SQLite
 
         // Equivalent to Step, but does not ever expect a result, throwing if one is retrieved.
         void Execute(bool failFastOnError = false);
+
+        // Gets a boolean value that indicates whether the specified column value is null in the current row.
+        // The index is 0 based.
+        bool GetColumnIsNull(int column);
 
         // Gets the value of the specified column from the current row.
         // The index is 0 based.
@@ -169,6 +198,7 @@ namespace AppInstaller::Repository::SQLite
         }
 
         // Resets the statement state, allowing it to be evaluated again.
+        // Note that this does not clear data bindings.
         void Reset();
 
     private:
@@ -215,7 +245,7 @@ namespace AppInstaller::Repository::SQLite
         Savepoint(Connection& connection, std::string&& name);
 
         std::string m_name;
-        bool m_inProgress = true;
+        DestructionToken m_inProgress = true;
         Statement m_rollback;
         Statement m_commit;
     };

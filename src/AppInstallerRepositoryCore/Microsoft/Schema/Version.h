@@ -27,6 +27,11 @@ namespace AppInstaller::Repository::Microsoft::Schema
             return (MajorVersion == other.MajorVersion && MinorVersion == other.MinorVersion);
         }
 
+        bool operator!=(Version other) const
+        {
+            return !operator==(other);
+        }
+
         // Gets a version that represents the latest schema known to the implementation.
         static constexpr Version Latest() { return { std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max() }; }
 

@@ -12,8 +12,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         struct ExtensionsTableInfo
         {
-            inline static std::string_view TableName() { return "extensions"sv; }
-            inline static std::string_view ValueName() { return "extension"sv; }
+            inline static constexpr std::string_view TableName() { return "extensions"sv; }
+            inline static constexpr std::string_view ValueName() { return "extension"sv; }
         };
     }
 

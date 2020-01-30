@@ -12,5 +12,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Version 1.0
         Schema::Version GetVersion() const override;
         void CreateTables(SQLite::Connection& connection) override;
+        void AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) override;
+        bool UpdateManifest(SQLite::Connection& connection, 
+            const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, 
+            const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath) override;
+        void RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) override;
     };
 }

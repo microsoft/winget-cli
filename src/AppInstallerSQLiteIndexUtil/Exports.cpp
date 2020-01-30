@@ -9,6 +9,20 @@ using namespace AppInstaller::Repository::Microsoft;
 
 extern "C"
 {
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerLoggingInit(APPINSTALLER_SQLITE_INDEX_STRING logPath) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !logPath);
+
+        // Enable all logs for now.
+        AppInstaller::Logging::Log().EnableChannel(AppInstaller::Logging::Channel::All);
+        AppInstaller::Logging::Log().SetLevel(AppInstaller::Logging::Level::Verbose);
+        AppInstaller::Logging::AddFileLogger(logPath);
+        AppInstaller::Logging::EnableWilFailureTelemetry();
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
     APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexCreate(APPINSTALLER_SQLITE_INDEX_STRING filePath, UINT32 majorVersion, UINT32 minorVersion, APPINSTALLER_SQLITE_INDEX_HANDLE* index) try
     {
         THROW_HR_IF(E_INVALIDARG, !filePath);
@@ -50,7 +64,9 @@ extern "C"
     }
     CATCH_RETURN()
 
-    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexAddManifest(APPINSTALLER_SQLITE_INDEX_HANDLE index, APPINSTALLER_SQLITE_INDEX_STRING manifestPath, APPINSTALLER_SQLITE_INDEX_STRING relativePath) try
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexAddManifest(
+        APPINSTALLER_SQLITE_INDEX_HANDLE index, 
+        APPINSTALLER_SQLITE_INDEX_STRING manifestPath, APPINSTALLER_SQLITE_INDEX_STRING relativePath) try
     {
         THROW_HR_IF(E_INVALIDARG, !index);
         THROW_HR_IF(E_INVALIDARG, !manifestPath);
@@ -65,7 +81,8 @@ extern "C"
     APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexUpdateManifest(
         APPINSTALLER_SQLITE_INDEX_HANDLE index,
         APPINSTALLER_SQLITE_INDEX_STRING oldManifestPath, APPINSTALLER_SQLITE_INDEX_STRING oldRelativePath,
-        APPINSTALLER_SQLITE_INDEX_STRING newManifestPath, APPINSTALLER_SQLITE_INDEX_STRING newRelativePath) try
+        APPINSTALLER_SQLITE_INDEX_STRING newManifestPath, APPINSTALLER_SQLITE_INDEX_STRING newRelativePath,
+        bool* indexModified) try
     {
         THROW_HR_IF(E_INVALIDARG, !index);
         THROW_HR_IF(E_INVALIDARG, !oldManifestPath);
@@ -73,13 +90,19 @@ extern "C"
         THROW_HR_IF(E_INVALIDARG, !newManifestPath);
         THROW_HR_IF(E_INVALIDARG, !newRelativePath);
 
-        reinterpret_cast<SQLiteIndex*>(index)->UpdateManifest(oldManifestPath, oldRelativePath, newManifestPath, newRelativePath);
+        bool result = reinterpret_cast<SQLiteIndex*>(index)->UpdateManifest(oldManifestPath, oldRelativePath, newManifestPath, newRelativePath);
+        if (indexModified)
+        {
+            *indexModified = result;
+        }
 
         return S_OK;
     }
     CATCH_RETURN()
 
-    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexRemoveManifest(APPINSTALLER_SQLITE_INDEX_HANDLE index, APPINSTALLER_SQLITE_INDEX_STRING manifestPath, APPINSTALLER_SQLITE_INDEX_STRING relativePath) try
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexRemoveManifest(
+        APPINSTALLER_SQLITE_INDEX_HANDLE index, 
+        APPINSTALLER_SQLITE_INDEX_STRING manifestPath, APPINSTALLER_SQLITE_INDEX_STRING relativePath) try
     {
         THROW_HR_IF(E_INVALIDARG, !index);
         THROW_HR_IF(E_INVALIDARG, !manifestPath);

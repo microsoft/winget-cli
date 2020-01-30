@@ -12,8 +12,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         struct IdTableInfo
         {
-            inline static std::string_view TableName() { return "ids"sv; }
-            inline static std::string_view ValueName() { return "id"sv; }
+            inline static constexpr std::string_view TableName() { return "ids"sv; }
+            inline static constexpr std::string_view ValueName() { return "id"sv; }
         };
     }
 

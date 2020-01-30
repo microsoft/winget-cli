@@ -12,8 +12,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         struct ChannelTableInfo
         {
-            inline static std::string_view TableName() { return "channels"sv; }
-            inline static std::string_view ValueName() { return "channel"sv; }
+            inline static constexpr std::string_view TableName() { return "channels"sv; }
+            inline static constexpr std::string_view ValueName() { return "channel"sv; }
         };
     }
 

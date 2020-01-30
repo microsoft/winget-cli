@@ -12,8 +12,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         struct VersionTableInfo
         {
-            inline static std::string_view TableName() { return "versions"sv; }
-            inline static std::string_view ValueName() { return "version"sv; }
+            inline static constexpr std::string_view TableName() { return "versions"sv; }
+            inline static constexpr std::string_view ValueName() { return "version"sv; }
         };
     }
 

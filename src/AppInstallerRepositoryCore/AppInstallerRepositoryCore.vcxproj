@@ -187,6 +187,8 @@
     <ClInclude Include="Microsoft\Schema\Version.h" />
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Public\AppInstallerRepositorySearch.h" />
+    <ClInclude Include="Public\AppInstallerRepositorySource.h" />
     <ClInclude Include="SQLiteWrapper.h" />
   </ItemGroup>
   <ItemGroup>

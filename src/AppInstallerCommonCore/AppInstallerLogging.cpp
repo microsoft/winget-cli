@@ -4,6 +4,7 @@
 #include "Public/AppInstallerLogging.h"
 
 #include "Public/AppInstallerTelemetry.h"
+#include "DateTime.h"
 #include "FileLogger.h"
 
 namespace AppInstaller::Logging
@@ -38,6 +39,7 @@ namespace AppInstaller::Logging
         case Channel::SQL:  return "SQL";
         case Channel::Repo: return "REPO";
         case Channel::YAML: return "YAML";
+        case Channel::Test: return "TEST";
         default:            return "NONE";
         }
     }
@@ -106,8 +108,14 @@ namespace AppInstaller::Logging
         }
     }
 
-    void AddDefaultFileLogger()
+    void AddFileLogger(const std::filesystem::path& filePath)
     {
-        Log().AddLogger(std::make_unique<FileLogger>());
+        Log().AddLogger(std::make_unique<FileLogger>(filePath));
     }
+}
+
+std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time)
+{
+    AppInstaller::Utility::OutputTimepoint(out, time);
+    return out;
 }

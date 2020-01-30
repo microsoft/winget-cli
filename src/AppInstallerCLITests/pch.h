@@ -12,11 +12,12 @@
 
 #include <wil/result_macros.h>
 
+#include <filesystem>
+#include <fstream>
+#include <future>
 #include <iostream>
 #include <sstream>
 #include <utility>
-#include <filesystem>
-#include <future>
-#include <fstream>
+#include <vector>
 
 #include <yaml-cpp/yaml.h>
