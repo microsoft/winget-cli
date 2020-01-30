@@ -58,7 +58,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Insert the given values into the table.
         static SQLite::rowid_t Insert(SQLite::Connection& connection, std::initializer_list<ManifestOneToOneValue> values);
 
-        // Select the rowid of the manifest with the given value.
+        // Select the first rowid of the manifest with the given value.
         template <typename Table>
         static std::optional<SQLite::rowid_t> SelectByValueId(SQLite::Connection& connection, SQLite::rowid_t id)
         {
@@ -78,5 +78,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         {
             return details::ManifestTableGetValuesById_Statement(connection, id, { details::ManifestOneToOneTableInfo{ Tables::TableName(), Tables::ValueName() }... }).GetRow<Tables::value_t...>();
         }
+
+        // Deletes the manifest row with the given rowid.
+        static void DeleteById(SQLite::Connection& connection, SQLite::rowid_t id);
+
+        // Determines if the table is empty.
+        static bool IsEmpty(SQLite::Connection& connection);
     };
 }

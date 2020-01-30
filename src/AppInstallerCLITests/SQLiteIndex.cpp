@@ -5,7 +5,18 @@
 #include <SQLiteWrapper.h>
 #include <Manifest/Manifest.h>
 #include <Microsoft/SQLiteIndex.h>
+
+#include <Microsoft/Schema/1_0/IdTable.h>
+#include <Microsoft/Schema/1_0/NameTable.h>
+#include <Microsoft/Schema/1_0/MonikerTable.h>
+#include <Microsoft/Schema/1_0/VersionTable.h>
+#include <Microsoft/Schema/1_0/ChannelTable.h>
 #include <Microsoft/Schema/1_0/PathPartTable.h>
+#include <Microsoft/Schema/1_0/ManifestTable.h>
+#include <Microsoft/Schema/1_0/TagsTable.h>
+#include <Microsoft/Schema/1_0/CommandsTable.h>
+#include <Microsoft/Schema/1_0/ProtocolsTable.h>
+#include <Microsoft/Schema/1_0/ExtensionsTable.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::Manifest;
@@ -85,6 +96,138 @@ TEST_CASE("SQLiteIndexCreateAndAddManifestFile", "[sqliteindex]")
 
     // Attempting to add again should fail
     REQUIRE_THROWS_HR(index.AddManifest(manifestFile, manifestPath), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
+}
+
+TEST_CASE("SQLiteIndex_RemoveManifestFile_NotPresent", "[sqliteindex]")
+{
+    SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
+
+    TestDataFile manifestFile{ "GoodManifest.yml" };
+    std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yml" };
+
+    bool result = index.RemoveManifest(manifestFile, manifestPath);
+
+    // Attempting to add again should fail
+    REQUIRE(!result);
+}
+
+TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string manifest1Path = "test/id/test.id-1.0.0.yml";
+    Manifest manifest1;
+    manifest1.Id = "test.id";
+    manifest1.Name = "Test Name";
+    manifest1.AppMoniker = "testmoniker";
+    manifest1.Version = "1.0.0";
+    manifest1.Channel = "test";
+    manifest1.Tags = { "t1", "t2" };
+    manifest1.Commands = { "test1", "test2" };
+    manifest1.Protocols = { "htttest" };
+    manifest1.FileExtensions = { "tst", "test", "testy" };
+
+    std::string manifest2Path = "test/woah/test.id-1.0.0.yml";
+    Manifest manifest2;
+    manifest2.Id = "test.woah";
+    manifest2.Name = "Test Name WOAH";
+    manifest2.AppMoniker = "testmoniker";
+    manifest2.Version = "1.0.0";
+    manifest2.Channel = "test";
+    manifest2.Tags = { "t1" };
+    manifest2.Commands = { "test1", "test2", "test3" };
+    manifest2.Protocols = {};
+    manifest2.FileExtensions = { "tst", "test", "testy" };
+    
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
+
+        index.AddManifest(manifest1, manifest1Path);
+        index.AddManifest(manifest2, manifest2Path);
+
+        // Now remove manifest1
+        bool result = index.RemoveManifest(manifest1, manifest1Path);
+
+        REQUIRE(result);
+    }
+
+    {
+        // Open it directly to directly test table state
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+        REQUIRE(!Schema::V1_0::ManifestTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::IdTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::NameTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::MonikerTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::VersionTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::ChannelTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::PathPartTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::TagsTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::CommandsTable::IsEmpty(connection));
+        // Because manifest2 had no protocols
+        REQUIRE(Schema::V1_0::ProtocolsTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::ExtensionsTable::IsEmpty(connection));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        // Now remove manifest2
+        bool result = index.RemoveManifest(manifest2, manifest2Path);
+
+        REQUIRE(result);
+    }
+
+    // Open it directly to directly test table state
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+    REQUIRE(Schema::V1_0::ManifestTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::IdTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::NameTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::MonikerTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::VersionTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ChannelTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::PathPartTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::TagsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ProtocolsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ExtensionsTable::IsEmpty(connection));
+}
+
+TEST_CASE("SQLiteIndex_RemoveManifestFile", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
+
+        TestDataFile manifestFile{ "GoodManifest.yml" };
+        std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yml" };
+
+        index.AddManifest(manifestFile, manifestPath);
+
+        // Now remove that manifest
+        bool result = index.RemoveManifest(manifestFile, manifestPath);
+
+        REQUIRE(result);
+    }
+
+    // Open it directly to directly test table state
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+    REQUIRE(Schema::V1_0::ManifestTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::IdTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::NameTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::MonikerTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::VersionTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ChannelTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::PathPartTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::TagsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ProtocolsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ExtensionsTable::IsEmpty(connection));
 }
 
 TEST_CASE("PathPartTable_EnsurePathExists_Negative_Paths", "[sqliteindex][V1_0]")

@@ -172,33 +172,33 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return false;
         }
 
+        SQLite::rowid_t manifestId = manifestInfo.Manifest.value();
+
         // Get the ids of the values from the manifest table
         auto [idId, nameId, monikerId, versionId, channelId] = 
-            ManifestTable::GetIdsById<IdTable, NameTable, MonikerTable, VersionTable, ChannelTable>(connection, manifestInfo.Manifest.value());
+            ManifestTable::GetIdsById<IdTable, NameTable, MonikerTable, VersionTable, ChannelTable>(connection, manifestId);
 
-        // Remove all of the 1:N data.
-        TagsTable::RemoveAndEnsureNeeded(connection, manifestId);
-        CommandsTable::EnsureExistsAndInsert(connection, manifest.Commands, manifestId);
-        ProtocolsTable::EnsureExistsAndInsert(connection, manifest.Protocols, manifestId);
-        ExtensionsTable::EnsureExistsAndInsert(connection, manifest.FileExtensions, manifestId);
+        // Remove the manifest row
+        ManifestTable::DeleteById(connection, manifestId);
 
-        // Insert the manifest entry.
-        SQLite::rowid_t manifestId = ManifestTable::Insert(connection, {
-            { IdTable::ValueName(), idId},
-            { NameTable::ValueName(), nameId },
-            { MonikerTable::ValueName(), monikerId },
-            { VersionTable::ValueName(), versionId },
-            { ChannelTable::ValueName(), channelId },
-            { PathPartTable::ValueName(), std::get<1>(pathResult) }
-            });
+        // Remove all of the 1:1 data that is no longer referenced.
+        IdTable::DeleteIfNotNeededById(connection, idId);
+        NameTable::DeleteIfNotNeededById(connection, nameId);
+        MonikerTable::DeleteIfNotNeededById(connection, monikerId);
+        VersionTable::DeleteIfNotNeededById(connection, versionId);
+        ChannelTable::DeleteIfNotNeededById(connection, channelId);
 
-        // Ensure that all of the 1:1 data exists.
-        SQLite::rowid_t idId = IdTable::EnsureExists(connection, manifest.Id);
-        SQLite::rowid_t nameId = NameTable::EnsureExists(connection, manifest.Name);
-        SQLite::rowid_t monikerId = MonikerTable::EnsureExists(connection, manifest.AppMoniker);
-        SQLite::rowid_t versionId = VersionTable::EnsureExists(connection, manifest.Version);
-        SQLite::rowid_t channelId = ChannelTable::EnsureExists(connection, manifest.Channel);
+        // Remove the path
+        PathPartTable::RemovePathById(connection, manifestInfo.PathLeaf);
+
+        // Remove all of the 1:N data that is no longer referenced.
+        TagsTable::DeleteIfNotNeededByManifestId(connection, manifestId);
+        CommandsTable::DeleteIfNotNeededByManifestId(connection, manifestId);
+        ProtocolsTable::DeleteIfNotNeededByManifestId(connection, manifestId);
+        ExtensionsTable::DeleteIfNotNeededByManifestId(connection, manifestId);
 
         savepoint.Commit();
+
+        return true;
     }
 }

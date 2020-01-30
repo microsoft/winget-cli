@@ -14,7 +14,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         std::optional<SQLite::rowid_t> ManifestTableSelectByValueId(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t id)
         {
             std::ostringstream selectSQL;
-            selectSQL << "SELECT [" << SQLite::RowIDName << "] FROM [" << s_ManifestTable_Table_Name << "] WHERE [" << valueName << "] = ?";
+            selectSQL << "SELECT [" << SQLite::RowIDName << "] FROM [" << s_ManifestTable_Table_Name << "] WHERE [" << valueName << "] = ? LIMIT 1";
 
             SQLite::Statement select = SQLite::Statement::Create(connection, selectSQL.str());
 
@@ -43,6 +43,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             for (const std::string_view& value : values)
             {
                 selectSQL << (isFirst ? "[" : ", [") << value << ']';
+                isFirst = false;
             }
 
             selectSQL << " FROM [" << s_ManifestTable_Table_Name << "] WHERE [" << SQLite::RowIDName << "] = ?";
@@ -74,6 +75,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             for (const ManifestOneToOneTableInfo& tableInfo : tableInfos)
             {
                 selectSQL << (isFirst ? "[" : ", [") << tableInfo.Table << "].[" << tableInfo.Value << ']';
+                isFirst = false;
             }
 
             selectSQL << " FROM [" << s_ManifestTable_Table_Name << "] ";
@@ -175,5 +177,29 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         insert.Execute();
 
         return connection.GetLastInsertRowID();
+    }
+
+    void ManifestTable::DeleteById(SQLite::Connection& connection, SQLite::rowid_t id)
+    {
+        std::ostringstream deleteSQL;
+        deleteSQL << "DELETE FROM [" << s_ManifestTable_Table_Name << "] WHERE [" << SQLite::RowIDName << "] = ?";
+
+        SQLite::Statement deleteStatement = SQLite::Statement::Create(connection, deleteSQL.str());
+
+        deleteStatement.Bind(1, id);
+
+        deleteStatement.Execute();
+    }
+
+    bool ManifestTable::IsEmpty(SQLite::Connection& connection)
+    {
+        std::ostringstream countSQL;
+        countSQL << "SELECT COUNT(*) FROM [" << s_ManifestTable_Table_Name << ']';
+
+        SQLite::Statement countStatement = SQLite::Statement::Create(connection, countSQL.str());
+
+        THROW_HR_IF(E_UNEXPECTED, !countStatement.Step());
+
+        return (countStatement.GetColumn<int>(0) == 0);
     }
 }

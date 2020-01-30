@@ -79,7 +79,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         std::optional<SQLite::rowid_t> GetParentById(SQLite::Connection& connection, SQLite::rowid_t id)
         {
             std::ostringstream selectPartSQL;
-            selectPartSQL << "SELECT [" << s_PathPartTable_Table_Name << "] FROM [" << s_PathPartTable_Table_Name << "] WHERE "
+            selectPartSQL << "SELECT [" << s_PathPartTable_ParentValue_Name << "] FROM [" << s_PathPartTable_Table_Name << "] WHERE "
                 << '[' << SQLite::RowIDName << "] = ?";
 
             SQLite::Statement select = SQLite::Statement::Create(connection, selectPartSQL.str());
@@ -216,10 +216,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     void PathPartTable::RemovePathById(SQLite::Connection& connection, SQLite::rowid_t id)
     {
         SQLite::rowid_t currentPartToRemove = id;
-        while (IsLeafPart(connection, id))
+        while (IsLeafPart(connection, currentPartToRemove))
         {
-            std::optional<SQLite::rowid_t> parent = GetParentById(connection, id);
-            RemovePartById(connection, id);
+            std::optional<SQLite::rowid_t> parent = GetParentById(connection, currentPartToRemove);
+            RemovePartById(connection, currentPartToRemove);
 
             // If parent was NULL, this was a root part and we can stop
             if (!parent)
@@ -231,5 +231,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 currentPartToRemove = parent.value();
             }
         }
+    }
+
+    bool PathPartTable::IsEmpty(SQLite::Connection& connection)
+    {
+        std::ostringstream countSQL;
+        countSQL << "SELECT COUNT(*) FROM [" << s_PathPartTable_Table_Name << ']';
+
+        SQLite::Statement countStatement = SQLite::Statement::Create(connection, countSQL.str());
+
+        THROW_HR_IF(E_UNEXPECTED, !countStatement.Step());
+
+        return (countStatement.GetColumn<int>(0) == 0);
     }
 }

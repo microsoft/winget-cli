@@ -4,6 +4,7 @@
 #include <wil/result_macros.h>
 #include <winsqlite/winsqlite3.h>
 
+#include <AppInstallerLogging.h>
 #include <AppInstallerLanguageUtilities.h>
 
 #include <string>
@@ -163,6 +164,7 @@ namespace AppInstaller::Repository::SQLite
         template <typename Value>
         void Bind(int index, Value&& v)
         {
+            AICLI_LOG(SQL, Verbose, << "Binding statement #" << m_id << ": " << index << " => " << std::forward<Value>(v));
             details::ParameterSpecifics<Value>::Bind(m_stmt, index, std::forward<Value>(v));
         }
 

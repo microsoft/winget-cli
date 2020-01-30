@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Microsoft/Schema/1_0/OneToOneTable.h"
+#include "Microsoft/Schema/1_0/ManifestTable.h"
 
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_0
@@ -45,6 +46,36 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             insert.Execute();
 
             return connection.GetLastInsertRowID();
+        }
+
+        void OneToOneTableDeleteIfNotNeededById(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id)
+        {
+            // If a manifest is found that references this id, then we are done.
+            if (ManifestTableSelectByValueId(connection, valueName, id))
+            {
+                return;
+            }
+
+            std::ostringstream deleteSQL;
+            deleteSQL << "DELETE FROM [" << tableName << "] WHERE [" << SQLite::RowIDName << "] = ?";
+
+            SQLite::Statement deleteStatement = SQLite::Statement::Create(connection, deleteSQL.str());
+
+            deleteStatement.Bind(1, id);
+
+            deleteStatement.Execute();
+        }
+
+        bool OneToOneTableIsEmpty(SQLite::Connection& connection, std::string_view tableName)
+        {
+            std::ostringstream countSQL;
+            countSQL << "SELECT COUNT(*) FROM [" << tableName << ']';
+
+            SQLite::Statement countStatement = SQLite::Statement::Create(connection, countSQL.str());
+
+            THROW_HR_IF(E_UNEXPECTED, !countStatement.Step());
+
+            return (countStatement.GetColumn<int>(0) == 0);
         }
     }
 }
