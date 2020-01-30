@@ -6,10 +6,108 @@
 #include "AppInstallerDownloader.h"
 #include "ManifestComparator.h"
 
+using namespace winrt::Windows::Foundation;
+using namespace winrt::Windows::Management::Deployment;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::Workflow {
+
+    void InstallFlow::DownloadMsixInstaller()
+    {
+        auto msixInfo = Msix::MsixInfo::CreateMsixInfo(m_selectedInstaller.Url);
+        auto signature = msixInfo->GetSignature();
+
+        SHA256::HashBuffer hash;
+        SHA256::ComputeHash(signature.data(), signature.size(), hash);
+
+        if (!std::equal(
+            m_selectedInstaller.Sha256.begin(),
+            m_selectedInstaller.Sha256.end(),
+            hash.begin()))
+        {
+            AICLI_LOG(CLI, Error,
+                << "Package hash verification failed. SHA256 in manifest: "
+                << SHA256::ConvertToString(m_selectedInstaller.Sha256)
+                << "SHA256 from download: "
+                << SHA256::ConvertToString(hash));
+
+            if (!m_reporter.PromptForBoolResponse(WorkflowReporter::Level::Warning, "Package hash verification failed. Continue?"))
+            {
+                m_reporter.ShowMsg(WorkflowReporter::Level::Error, "Canceled. Package hash mismatch.");
+                THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED), "Package installation canceled");
+            }
+        }
+        else
+        {
+            AICLI_LOG(CLI, Info, << "Msix package signature hash verified");
+            m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Successfully verified SHA256.");
+        }
+
+        m_downloadedInstaller = m_selectedInstaller.Url;
+    }
+
+    std::future<int> InstallFlow::ExecuteMsixInstallerAsync()
+    {
+        PackageManager packageManager;
+        DeploymentOptions deploymentOptions =
+            DeploymentOptions::ForceApplicationShutdown |
+            DeploymentOptions::ForceTargetApplicationShutdown;
+
+        std::atomic<bool> done = false;
+
+        auto opration = packageManager.RequestAddPackageAsync(
+            Uri(m_downloadedInstaller.c_str()),
+            nullptr, /*dependencyPackageUris*/
+            deploymentOptions,
+            nullptr, /*targetVolume*/
+            nullptr, /*optionalAndRelatedPackageFamilyNames*/
+            nullptr /*relatedPackageUris*/);
+
+        AsyncOperationProgressHandler<DeploymentResult, DeploymentProgress> progressCallback(
+            [this](const IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress>& op, DeploymentProgress progress)
+            {
+                m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Installing: " + std::to_string(progress.percentage));
+            }
+        );
+
+        opration.Progress(progressCallback);
+
+        /*AsyncOperationWithProgressCompletedHandler<DeploymentResult, DeploymentProgress> completedCallback(
+            [this, &done](const IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress>& op, AsyncStatus status)
+            {
+                done = true;
+                if (status == AsyncStatus::Completed)
+                {
+                    m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Install succeeded");
+                }
+                else if (status == AsyncStatus::Canceled)
+                {
+                    m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Install canceled");
+                }
+                else
+                {
+                    m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Install failed. Reason: " + Utility::ConvertToUTF8(op.GetResults().ErrorText()));
+                }
+            });
+
+        opration.Completed(completedCallback);*/
+
+        co_await opration;
+
+        co_return 0;
+    }
+
+    void InstallFlow::ExecuteMsixInstaller()
+    {
+        auto op = ExecuteMsixInstallerAsync();
+
+        //Sleep(50000);
+        op.get();
+
+       // 
+        
+    }
 
     void InstallFlow::Install()
     {
@@ -28,8 +126,16 @@ namespace AppInstaller::Workflow {
 
         m_selectedInstaller = manifestComparator.GetPreferredInstaller(std::locale(""));
 
-        DownloadInstaller();
-        ExecuteInstaller();
+        if (Utility::ToLower(m_selectedInstaller.InstallerType) == "exe")
+        {
+            DownloadInstaller();
+            ExecuteInstaller();
+        }
+        else if (Utility::ToLower(m_selectedInstaller.InstallerType) == "msix" || Utility::ToLower(m_selectedInstaller.InstallerType) == "appx")
+        {
+            DownloadMsixInstaller();
+            ExecuteMsixInstaller();
+        }
     }
 
     void InstallFlow::DownloadInstaller()

@@ -24,6 +24,13 @@ namespace AppInstaller::Workflow {
 
         virtual void DownloadInstaller();
         virtual void ExecuteInstaller();
+
+        void DownloadMsixInstaller();
+
+        void ExecuteMsixInstaller();
+
+        std::future<int> ExecuteMsixInstallerAsync();
+
         std::string GetInstallerArgs();
 
         std::future<DWORD> ExecuteExeInstallerAsync(const std::filesystem::path& filePath, const std::string& args);

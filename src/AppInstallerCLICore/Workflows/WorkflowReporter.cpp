@@ -37,7 +37,7 @@ namespace AppInstaller::Workflow
         const std::string& author,
         const std::string& description,
         const std::string& homepage,
-        const std::string& licenceUrl
+        const std::string& licenseUrl
     )
     {
         out << "Name: " << name << std::endl;
@@ -45,7 +45,7 @@ namespace AppInstaller::Workflow
         out << "Author: " << author << std::endl;
         out << "Description: " << description << std::endl;
         out << "Homepage: " << homepage << std::endl;
-        out << "Licence: " << licenceUrl << std::endl;
+        out << "License: " << licenseUrl << std::endl;
     }
 
     bool WorkflowReporter::PromptForBoolResponse(Level level, const std::string& msg)

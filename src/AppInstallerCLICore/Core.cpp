@@ -5,7 +5,7 @@
 #include "Commands/RootCommand.h"
 
 using namespace winrt;
-using namespace Windows::Foundation;
+using namespace winrt::Windows::Foundation;
 using namespace AppInstaller::CLI;
 
 namespace AppInstaller::CLI
