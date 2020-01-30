@@ -32,7 +32,7 @@ namespace AppInstaller::Manifest
 
         std::string AppMoniker;
 
-        std::string CompanyName;
+        std::string Publisher;
 
         // Comma separated Values
         std::string Authors;

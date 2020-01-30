@@ -36,7 +36,7 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
     REQUIRE(manifest.Name == "MSIX SDK");
     REQUIRE(manifest.AppMoniker == "msixsdk");
     REQUIRE(manifest.Version == "1.7.32");
-    REQUIRE(manifest.CompanyName == "Microsoft");
+    REQUIRE(manifest.Publisher == "Microsoft");
     REQUIRE(manifest.Channel == "release");
     REQUIRE(manifest.Author == "Microsoft");
     REQUIRE(manifest.License == "MIT License");

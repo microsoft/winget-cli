@@ -42,10 +42,10 @@ namespace AppInstaller::Manifest
         this->Id = rootNode["Id"].as<std::string>();
         this->Name = rootNode["Name"].as<std::string>();
         this->Version = rootNode["Version"].as<std::string>();
+        this->Publisher = rootNode["Publisher"].as<std::string>();
 
         // Optional fields.
         this->AppMoniker = rootNode["AppMoniker"] ? rootNode["AppMoniker"].as<std::string>() : "";
-        this->CompanyName = rootNode["CompanyName"] ? rootNode["CompanyName"].as<std::string>() : "";
         this->Authors = rootNode["Authors"] ? rootNode["Authors"].as<std::string>() : "";
         this->Channel = rootNode["Channel"] ? rootNode["Channel"].as<std::string>() : "";
         this->Author = rootNode["Author"] ? rootNode["Author"].as<std::string>() : "";
