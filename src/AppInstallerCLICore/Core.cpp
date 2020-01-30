@@ -53,7 +53,8 @@ namespace AppInstaller::CLI
             {
                 commandToExecute = foundCommand.get();
             }
-            AICLI_LOG(CLI, Info, << "Leaf command to execute: " << commandToExecute->Name());
+
+            Logging::Telemetry().LogCommand(commandToExecute->Name());
 
             commandToExecute->ParseArguments(invocation);
             commandToExecute->ValidateArguments(invocation);
@@ -87,6 +88,7 @@ namespace AppInstaller::CLI
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
 
+        Logging::Telemetry().LogCommandSuccess(commandToExecute->Name());
         return 0;
     }
     // End of the line exceptions that are not ever expected.
