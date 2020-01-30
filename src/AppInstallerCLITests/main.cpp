@@ -15,6 +15,18 @@ using namespace winrt;
 using namespace Windows::Foundation;
 using namespace std::string_literals;
 
+// Logs the the AppInstaller log target to break up individual tests
+struct LoggingBreakListener : public Catch::TestEventListenerBase
+{
+    using TestEventListenerBase::TestEventListenerBase;
+
+    void testCaseStarting(const Catch::TestCaseInfo& info) override
+    {
+        AICLI_LOG(Test, Info, << "========== Test Case Begins :: " << info.name << " ==========");
+    }
+};
+CATCH_REGISTER_LISTENER(LoggingBreakListener);
+
 int main(int argc, char** argv)
 {
     init_apartment();
@@ -30,7 +42,7 @@ int main(int argc, char** argv)
         }
         else if ("-log"s == argv[i])
         {
-            AppInstaller::Logging::AddDefaultFileLogger();
+            AppInstaller::Logging::AddFileLogger();
         }
         else if ("-tdd"s == argv[i])
         {

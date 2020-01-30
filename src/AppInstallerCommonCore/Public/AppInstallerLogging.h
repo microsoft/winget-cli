@@ -3,6 +3,7 @@
 #pragma once
 
 #include <chrono>
+#include <filesystem>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -33,6 +34,7 @@ namespace AppInstaller::Logging
         SQL,
         Repo,
         YAML,
+        Test,
         All,
     };
 
@@ -117,7 +119,7 @@ namespace AppInstaller::Logging
     }
 
     // Adds the default file logger to the DiagnosticLogger.
-    void AddDefaultFileLogger();
+    void AddFileLogger(const std::filesystem::path& filePath = {});
 }
 
 // Enable output of system_clock timepoints.

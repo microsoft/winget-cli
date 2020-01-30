@@ -14,6 +14,10 @@ extern "C"
 
 #define APPINSTALLER_SQLITE_INDEX_VERSION_LATEST ((UINT32)-1)
 
+    // Initializes the logging infrastructure.
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerLoggingInit(
+        APPINSTALLER_SQLITE_INDEX_STRING logPath);
+
     // Creates a new index file at filePath with the given version.
     APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexCreate(
         APPINSTALLER_SQLITE_INDEX_STRING filePath, 

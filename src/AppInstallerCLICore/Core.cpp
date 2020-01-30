@@ -18,7 +18,7 @@ namespace AppInstaller::CLI
         // Enable logging (*all* for now, TODO: add common arguments to allow control of logging)
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
-        Logging::AddDefaultFileLogger();
+        Logging::AddFileLogger();
         Logging::EnableWilFailureTelemetry();
 
         Logging::Telemetry().LogStartup();
