@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include "pch.h"
 #include "SQLiteStatementBuilder.h"
 
 namespace AppInstaller::Repository::SQLite::Builder

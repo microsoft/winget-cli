@@ -117,7 +117,7 @@ namespace AppInstaller::Logging
                 "CommandFound",
                 GetActivityId(),
                 nullptr,
-                TraceLoggingCountedString(commandName.data(), commandName.size(), "Command"),
+                TraceLoggingCountedString(commandName.data(), static_cast<ULONG>(commandName.size()), "Command"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
         }
@@ -133,7 +133,7 @@ namespace AppInstaller::Logging
                 "CommandSuccess",
                 GetActivityId(),
                 nullptr,
-                TraceLoggingCountedString(commandName.data(), commandName.size(), "Command"),
+                TraceLoggingCountedString(commandName.data(), static_cast<ULONG>(commandName.size()), "Command"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
         }
@@ -149,8 +149,8 @@ namespace AppInstaller::Logging
                 "ManifestFields",
                 GetActivityId(),
                 nullptr,
-                TraceLoggingCountedString(name.c_str(), name.size(),"Name"),
-                TraceLoggingCountedString(version.c_str(), version.size(), "Version"),
+                TraceLoggingCountedString(name.c_str(), static_cast<ULONG>(name.size()),"Name"),
+                TraceLoggingCountedString(version.c_str(), static_cast<ULONG>(version.size()), "Version"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
         }
