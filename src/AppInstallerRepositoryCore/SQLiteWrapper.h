@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <wil/result_macros.h>
+#include <wil/resource.h>
 #include <winsqlite/winsqlite3.h>
 
 #include <AppInstallerLogging.h>
@@ -109,19 +110,19 @@ namespace AppInstaller::Repository::SQLite
         Connection(const Connection&) = delete;
         Connection& operator=(const Connection&) = delete;
 
-        Connection(Connection&& other) noexcept { std::swap(m_dbconn, other.m_dbconn); }
-        Connection& operator=(Connection&& other) noexcept { std::swap(m_dbconn, other.m_dbconn); return *this; }
+        Connection(Connection&& other) = default;
+        Connection& operator=(Connection&& other) = default;
 
-        ~Connection();
+        ~Connection() = default;
 
         int64_t GetLastInsertRowID();
 
-        operator sqlite3* () const { return m_dbconn; }
+        operator sqlite3* () const { return m_dbconn.get(); }
 
     private:
         Connection(const std::string& target, OpenDisposition disposition, OpenFlags flags);
 
-        sqlite3* m_dbconn = nullptr;
+        wil::unique_any<sqlite3*, decltype(sqlite3_close_v2), sqlite3_close_v2> m_dbconn;
     };
 
     // A SQL statement.
@@ -136,12 +137,10 @@ namespace AppInstaller::Repository::SQLite
         Statement(const Statement&) = delete;
         Statement& operator=(const Statement&) = delete;
 
-        Statement(Statement&& other) noexcept { std::swap(m_stmt, other.m_stmt); std::swap(m_state, other.m_state); }
-        Statement& operator=(Statement&& other) noexcept { std::swap(m_stmt, other.m_stmt); std::swap(m_state, other.m_state); return *this; }
+        Statement(Statement&& other) = default;
+        Statement& operator=(Statement&& other) = default;
 
-        ~Statement();
-
-        operator sqlite3_stmt* () const { return m_stmt; }
+        operator sqlite3_stmt* () const { return m_stmt.get(); }
 
         // The state of the statement.
         enum class State
@@ -165,7 +164,7 @@ namespace AppInstaller::Repository::SQLite
         void Bind(int index, Value&& v)
         {
             AICLI_LOG(SQL, Verbose, << "Binding statement #" << m_id << ": " << index << " => " << std::forward<Value>(v));
-            details::ParameterSpecifics<Value>::Bind(m_stmt, index, std::forward<Value>(v));
+            details::ParameterSpecifics<Value>::Bind(m_stmt.get(), index, std::forward<Value>(v));
         }
 
         // Evaluate the statement; either retrieving the next row or executing some action.
@@ -186,7 +185,7 @@ namespace AppInstaller::Repository::SQLite
         Value GetColumn(int column)
         {
             THROW_HR_IF(E_BOUNDS, m_state != State::HasRow);
-            return details::ParameterSpecifics<Value>::GetColumn(m_stmt, column);
+            return details::ParameterSpecifics<Value>::GetColumn(m_stmt.get(), column);
         }
 
         // Gets the entire row of values from the current row.
@@ -213,11 +212,11 @@ namespace AppInstaller::Repository::SQLite
         std::tuple<Values...> GetRowImpl(std::integer_sequence<int, I...>)
         {
             THROW_HR_IF(E_BOUNDS, m_state != State::HasRow);
-            return std::make_tuple(details::ParameterSpecifics<Values>::GetColumn(m_stmt, I)...);
+            return std::make_tuple(details::ParameterSpecifics<Values>::GetColumn(m_stmt.get(), I)...);
         }
 
         size_t m_id = 0;
-        sqlite3_stmt* m_stmt = nullptr;
+        wil::unique_any<sqlite3_stmt*, decltype(sqlite3_finalize), sqlite3_finalize> m_stmt;
         State m_state = State::Prepared;
     };
 

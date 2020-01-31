@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "PathPartTable.h"
+#include "SQLiteStatementBuilder.h"
 
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_0
@@ -18,23 +19,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Returns an no value if none exists, or the rowid of the part if it is found.
         std::optional<SQLite::rowid_t> SelectPathPart(SQLite::Connection& connection, std::optional<SQLite::rowid_t> parent, std::string_view part)
         {
-            std::ostringstream selectPartSQL;
-            selectPartSQL << "SELECT [" << SQLite::RowIDName << "] "
-                << "FROM [" << s_PathPartTable_Table_Name << "] WHERE "
-                << '[' << s_PathPartTable_ParentValue_Name << "] " << (parent ? "= ?" : "IS NULL") << " AND "
-                << '[' << s_PathPartTable_PartValue_Name << "] = ?";
+            SQLite::Builder::StatementBuilder builder;
+            builder.Select(SQLite::RowIDName).From(s_PathPartTable_Table_Name).
+                Where(s_PathPartTable_ParentValue_Name).Equals(parent).And(s_PathPartTable_PartValue_Name).Equals(part);
 
-            SQLite::Statement select = SQLite::Statement::Create(connection, selectPartSQL.str());
-
-            if (parent)
-            {
-                select.Bind(1, parent.value());
-                select.Bind(2, part);
-            }
-            else
-            {
-                select.Bind(1, part);
-            }
+            SQLite::Statement select = builder.Prepare(connection);
 
             if (select.Step())
             {
@@ -78,13 +67,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // This should only be called when the part must exist, as it will throw if not found.
         std::optional<SQLite::rowid_t> GetParentById(SQLite::Connection& connection, SQLite::rowid_t id)
         {
-            std::ostringstream selectPartSQL;
-            selectPartSQL << "SELECT [" << s_PathPartTable_ParentValue_Name << "] FROM [" << s_PathPartTable_Table_Name << "] WHERE "
-                << '[' << SQLite::RowIDName << "] = ?";
+            SQLite::Builder::StatementBuilder builder;
+            builder.Select(s_PathPartTable_ParentValue_Name).From(s_PathPartTable_Table_Name).Where(SQLite::RowIDName).Equals(id);
 
-            SQLite::Statement select = SQLite::Statement::Create(connection, selectPartSQL.str());
-
-            select.Bind(1, id);
+            SQLite::Statement select = builder.Prepare(connection);
 
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED, !select.Step());
 
@@ -101,13 +87,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Determines if any part references this one as their parent.
         bool IsLeafPart(SQLite::Connection& connection, SQLite::rowid_t id)
         {
-            std::ostringstream selectPartSQL;
-            selectPartSQL << "SELECT COUNT(*) FROM [" << s_PathPartTable_Table_Name << "] WHERE "
-                << '[' << s_PathPartTable_ParentValue_Name << "] = ?";
+            SQLite::Builder::StatementBuilder builder;
+            builder.Select(SQLite::Builder::RowCount).From(s_PathPartTable_Table_Name).Where(s_PathPartTable_ParentValue_Name).Equals(id);
 
-            SQLite::Statement select = SQLite::Statement::Create(connection, selectPartSQL.str());
-
-            select.Bind(1, id);
+            SQLite::Statement select = builder.Prepare(connection);
 
             THROW_HR_IF(E_UNEXPECTED, !select.Step());
 
@@ -235,10 +218,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     bool PathPartTable::IsEmpty(SQLite::Connection& connection)
     {
-        std::ostringstream countSQL;
-        countSQL << "SELECT COUNT(*) FROM [" << s_PathPartTable_Table_Name << ']';
+        SQLite::Builder::StatementBuilder builder;
+        builder.Select(SQLite::Builder::RowCount).From(s_PathPartTable_Table_Name);
 
-        SQLite::Statement countStatement = SQLite::Statement::Create(connection, countSQL.str());
+        SQLite::Statement countStatement = builder.Prepare(connection);
 
         THROW_HR_IF(E_UNEXPECTED, !countStatement.Step());
 

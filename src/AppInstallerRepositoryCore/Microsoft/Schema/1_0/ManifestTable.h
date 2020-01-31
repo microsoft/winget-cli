@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "SQLiteWrapper.h"
+#include "SQLiteStatementBuilder.h"
 #include <initializer_list>
 #include <optional>
 #include <string_view>
@@ -11,13 +12,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
     namespace details
     {
-        // Table info that is 1:1 with the manifest.
-        struct ManifestOneToOneTableInfo
-        {
-            std::string_view Table;
-            std::string_view Value;
-        };
-
         // Selects a manifest by the given value id.
         std::optional<SQLite::rowid_t> ManifestTableSelectByValueId(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t id);
 
@@ -31,7 +25,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Statement ManifestTableGetValuesById_Statement(
             SQLite::Connection& connection,
             SQLite::rowid_t id,
-            std::initializer_list<ManifestOneToOneTableInfo> tableInfos);
+            std::initializer_list<SQLite::Builder::QualifiedColumn> columns);
     }
 
     // Info on the manifest columns.
@@ -76,7 +70,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         template <typename... Tables>
         static auto GetValuesById(SQLite::Connection& connection, SQLite::rowid_t id)
         {
-            return details::ManifestTableGetValuesById_Statement(connection, id, { details::ManifestOneToOneTableInfo{ Tables::TableName(), Tables::ValueName() }... }).GetRow<Tables::value_t...>();
+            return details::ManifestTableGetValuesById_Statement(connection, id, { SQLite::Builder::QualifiedColumn{ Tables::TableName(), Tables::ValueName() }... }).GetRow<Tables::value_t...>();
         }
 
         // Deletes the manifest row with the given rowid.

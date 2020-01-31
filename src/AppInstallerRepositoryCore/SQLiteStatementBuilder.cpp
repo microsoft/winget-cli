@@ -6,6 +6,12 @@
 
 namespace AppInstaller::Repository::SQLite::Builder
 {
+    std::ostream& operator<<(std::ostream& out, const QualifiedColumn& column)
+    {
+        out << '[' << column.Table << "].[" << column.Column << ']';
+        return out;
+    }
+
     StatementBuilder& StatementBuilder::Select(std::string_view column)
     {
         m_stream << "SELECT [" << column << ']';
@@ -26,7 +32,7 @@ namespace AppInstaller::Repository::SQLite::Builder
 
     StatementBuilder& StatementBuilder::Select(QualifiedColumn column)
     {
-        m_stream << "SELECT [" << column.Table << "].[" << column.Column << ']';
+        m_stream << "SELECT " << column;
         return *this;
     }
 
@@ -36,15 +42,32 @@ namespace AppInstaller::Repository::SQLite::Builder
         bool isFirst = true;
         for (const auto& c : columns)
         {
-            m_stream << (isFirst ? " [" : ", [") << c.Table << "].[" << c.Column << ']';
+            m_stream << (isFirst ? " " : ", ") << c;
             isFirst = false;
         }
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Select(details::rowcount_t)
+    {
+        m_stream << "SELECT COUNT(*)";
         return *this;
     }
 
     StatementBuilder& StatementBuilder::From(std::string_view table)
     {
         m_stream << " FROM [" << table << ']';
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::From(std::initializer_list<std::string_view> table)
+    {
+        m_stream << " FROM [";
+        for (std::string_view t : table)
+        {
+            m_stream << t;
+        }
+        m_stream << ']';
         return *this;
     }
 
@@ -56,13 +79,68 @@ namespace AppInstaller::Repository::SQLite::Builder
 
     StatementBuilder& StatementBuilder::Where(QualifiedColumn column)
     {
-        m_stream << " WHERE [" << column.Table << "].[" << column.Column << ']';
+        m_stream << " WHERE " << column;
         return *this;
     }
 
     StatementBuilder& StatementBuilder::Equals(details::unbound_t)
     {
         AppendOpAndBinder(Op::Equals);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Equals(std::nullptr_t)
+    {
+        // This is almost certainly not what you want.
+        // In SQL, value = NULL is always false.
+        // Use StatementBuilder::IsNull instead.
+        THROW_HR(E_NOTIMPL);
+    }
+
+    StatementBuilder& StatementBuilder::IsNull()
+    {
+        m_stream << " IS NULL";
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::And(std::string_view column)
+    {
+        m_stream << " AND [" << column << ']';
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::And(QualifiedColumn column)
+    {
+        m_stream << " AND " << column;
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Join(std::string_view table)
+    {
+        m_stream << " JOIN [" << table << ']';
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Join(std::initializer_list<std::string_view> table)
+    {
+        m_stream << " JOIN [";
+        for (std::string_view t : table)
+        {
+            m_stream << t;
+        }
+        m_stream << ']';
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::On(QualifiedColumn column1, QualifiedColumn column2)
+    {
+        m_stream << " ON " << column1 << " = " << column2;
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Limit(size_t rowCount)
+    {
+        m_stream << " LIMIT " << rowCount;
         return *this;
     }
 
@@ -81,7 +159,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         Prepare(connection).Execute();
     }
 
-    void StatementBuilder::AppendOpAndBinder(Op op)
+    int StatementBuilder::AppendOpAndBinder(Op op)
     {
         switch (op)
         {
@@ -91,5 +169,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         default:
             THROW_HR(E_UNEXPECTED);
         }
+
+        return m_bindIndex++;
     }
 }

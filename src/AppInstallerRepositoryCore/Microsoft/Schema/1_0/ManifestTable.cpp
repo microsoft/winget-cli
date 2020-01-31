@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ManifestTable.h"
+#include "SQLiteStatementBuilder.h"
 
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_0
@@ -13,12 +14,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
         std::optional<SQLite::rowid_t> ManifestTableSelectByValueId(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t id)
         {
-            std::ostringstream selectSQL;
-            selectSQL << "SELECT [" << SQLite::RowIDName << "] FROM [" << s_ManifestTable_Table_Name << "] WHERE [" << valueName << "] = ? LIMIT 1";
+            SQLite::Builder::StatementBuilder builder;
+            builder.Select(SQLite::RowIDName).From(s_ManifestTable_Table_Name).Where(valueName).Equals(id).Limit(1);
 
-            SQLite::Statement select = SQLite::Statement::Create(connection, selectSQL.str());
-
-            select.Bind(1, id);
+            SQLite::Statement select = builder.Prepare(connection);
 
             if (select.Step())
             {
@@ -35,22 +34,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             SQLite::rowid_t id,
             std::initializer_list<std::string_view> values)
         {
-            std::ostringstream selectSQL;
-            selectSQL << "SELECT ";
+            SQLite::Builder::StatementBuilder builder;
+            builder.Select(values).From(s_ManifestTable_Table_Name).Where(SQLite::RowIDName).Equals(id);
 
-            // add columns to select
-            bool isFirst = true;
-            for (const std::string_view& value : values)
-            {
-                selectSQL << (isFirst ? "[" : ", [") << value << ']';
-                isFirst = false;
-            }
-
-            selectSQL << " FROM [" << s_ManifestTable_Table_Name << "] WHERE [" << SQLite::RowIDName << "] = ?";
-
-            SQLite::Statement result = SQLite::Statement::Create(connection, selectSQL.str());
-
-            result.Bind(1, id);
+            SQLite::Statement result = builder.Prepare(connection);
 
             THROW_HR_IF(E_NOT_SET, !result.Step());
 
@@ -65,33 +52,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Statement ManifestTableGetValuesById_Statement(
             SQLite::Connection& connection,
             SQLite::rowid_t id,
-            std::initializer_list<ManifestOneToOneTableInfo> tableInfos)
+            std::initializer_list<SQLite::Builder::QualifiedColumn> columns)
         {
-            std::ostringstream selectSQL;
-            selectSQL << "SELECT ";
+            using QCol = SQLite::Builder::QualifiedColumn;
 
-            // add columns to select
-            bool isFirst = true;
-            for (const ManifestOneToOneTableInfo& tableInfo : tableInfos)
-            {
-                selectSQL << (isFirst ? "[" : ", [") << tableInfo.Table << "].[" << tableInfo.Value << ']';
-                isFirst = false;
-            }
-
-            selectSQL << " FROM [" << s_ManifestTable_Table_Name << "] ";
+            SQLite::Builder::StatementBuilder builder;
+            builder.Select(columns).From(s_ManifestTable_Table_Name);
 
             // join tables
-            for (const ManifestOneToOneTableInfo& tableInfo : tableInfos)
+            for (const QCol& column : columns)
             {
-                selectSQL << "JOIN [" << tableInfo.Table << "] ON " << 
-                    '[' << s_ManifestTable_Table_Name << "].[" << tableInfo.Value << "] = [" << tableInfo.Table << "].[" << SQLite::RowIDName << "] ";
+                builder.Join(column.Table).On(QCol{ s_ManifestTable_Table_Name, column.Column }, QCol{ column.Table, SQLite::RowIDName });
             }
 
-            selectSQL << " WHERE [" << s_ManifestTable_Table_Name << "].[" << SQLite::RowIDName << "] = ?";
+            builder.Where(QCol{ s_ManifestTable_Table_Name, SQLite::RowIDName }).Equals(id);
 
-            SQLite::Statement result = SQLite::Statement::Create(connection, selectSQL.str());
-
-            result.Bind(1, id);
+            SQLite::Statement result = builder.Prepare(connection);
 
             THROW_HR_IF(E_NOT_SET, !result.Step());
 
@@ -193,10 +169,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     bool ManifestTable::IsEmpty(SQLite::Connection& connection)
     {
-        std::ostringstream countSQL;
-        countSQL << "SELECT COUNT(*) FROM [" << s_ManifestTable_Table_Name << ']';
+        SQLite::Builder::StatementBuilder builder;
+        builder.Select(SQLite::Builder::RowCount).From(s_ManifestTable_Table_Name);
 
-        SQLite::Statement countStatement = SQLite::Statement::Create(connection, countSQL.str());
+        SQLite::Statement countStatement = builder.Prepare(connection);
 
         THROW_HR_IF(E_UNEXPECTED, !countStatement.Step());
 
