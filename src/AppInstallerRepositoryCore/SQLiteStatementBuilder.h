@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "SQLiteWrapper.h"
+#include <AppInstallerLanguageUtilities.h>
 
 #include <functional>
 #include <initializer_list>
@@ -103,6 +104,29 @@ namespace AppInstaller::Repository::SQLite::Builder
         // Limits the result set to the given number of rows.
         StatementBuilder& Limit(size_t rowCount);
 
+        // Begin an insert statement for the given table.
+        // The initializer_list form enables the table name to be constructed from multiple parts.
+        StatementBuilder& InsertInto(std::string_view table);
+        StatementBuilder& InsertInto(std::initializer_list<std::string_view> table);
+
+        // Set the columns for a statement (typically insert).
+        StatementBuilder& Columns(std::string_view column);
+        StatementBuilder& Columns(std::initializer_list<std::string_view> columns);
+        StatementBuilder& Columns(QualifiedColumn column);
+        StatementBuilder& Columns(std::initializer_list<QualifiedColumn> columns);
+
+        // Add the values clause for an insert statement.
+        template <typename... ValueTypes>
+        StatementBuilder& Values(const ValueTypes&... values)
+        {
+            int bindIndexBegin = AppendValuesAndBinders(sizeof...(ValueTypes));
+            // Use folding to add a binder for every value, specifically in the order they were given.
+            // Do not change this expression without understanding the implications to the bind order.
+            // See: https://en.cppreference.com/w/cpp/language/fold for more details.
+            (FoldHelper{}, ..., InsertValuesValueBinder(bindIndexBegin++, values));
+            return *this;
+        }
+
         // Prepares and returns the statement, applying any bindings that were requested.
         Statement Prepare(Connection& connection, bool persistent = false);
 
@@ -118,17 +142,49 @@ namespace AppInstaller::Repository::SQLite::Builder
         // Appends given the operation.
         int AppendOpAndBinder(Op op);
 
+        // Appends a set of binders for the values clause of an insert.
+        int AppendValuesAndBinders(size_t count);
+
         // Adds a functor to our list that will bind the given value.
         template <typename ValueType>
         void AddBindFunctor(int binderIndex, const ValueType& value)
         {
-            m_binders.emplace_back([this, binderIndex, &value]() { this->m_statement->Bind(binderIndex, value); });
+            m_binders.emplace_back([binderIndex, &value](Statement& s) { s.Bind(binderIndex, value); });
+        }
+
+        // Helper template for binding incoming values for an insert.
+        template <typename ValueType>
+        StatementBuilder& InsertValuesValueBinder(int bindIndex, const ValueType& value)
+        {
+            AddBindFunctor(bindIndex, value);
+            return *this;
+        }
+        template <typename ValueType>
+        StatementBuilder& InsertValuesValueBinder(int bindIndex, const std::optional<ValueType>& value)
+        {
+            if (value)
+            {
+                AddBindFunctor(bindIndex, value.value());
+            }
+            else
+            {
+                AddBindFunctor(bindIndex, nullptr);
+            }
+            return *this;
+        }
+        StatementBuilder& InsertValuesValueBinder(int bindIndex, details::unbound_t)
+        {
+            return *this;
+        }
+        StatementBuilder& InsertValuesValueBinder(int bindIndex, std::nullptr_t)
+        {
+            AddBindFunctor(bindIndex, nullptr);
+            return *this;
         }
 
         std::ostringstream m_stream;
-        std::unique_ptr<Statement> m_statement;
         // Because binding values starts at 1
         int m_bindIndex = 1;
-        std::vector<std::function<void()>> m_binders;
+        std::vector<std::function<void(Statement&)>> m_binders;
     };
 }

@@ -12,39 +12,78 @@ namespace AppInstaller::Repository::SQLite::Builder
         return out;
     }
 
+    namespace
+    {
+        void OutputColumns(std::ostream& out, std::string_view op, std::string_view column)
+        {
+            out << op << '[' << column << ']';
+        }
+
+        void OutputColumns(std::ostream& out, std::string_view op, std::initializer_list<std::string_view> columns)
+        {
+            out << op;
+            bool isFirst = true;
+            for (const auto& c : columns)
+            {
+                out << (isFirst ? "[" : ", [") << c << ']';
+                isFirst = false;
+            }
+        }
+
+        void OutputColumns(std::ostream& out, std::string_view op, QualifiedColumn column)
+        {
+            out << op << column;
+        }
+
+        void OutputColumns(std::ostream& out, std::string_view op, std::initializer_list<QualifiedColumn> columns)
+        {
+            out << op;
+            bool isFirst = true;
+            for (const auto& c : columns)
+            {
+                out << (isFirst ? "" : ", ") << c;
+                isFirst = false;
+            }
+        }
+
+        // Use to output operation and table name, such as " FROM [table]"
+        void OutputOperationAndTable(std::ostream& out, std::string_view op, std::string_view table)
+        {
+            out << op << " [" << table << ']';
+        }
+
+        void OutputOperationAndTable(std::ostream& out, std::string_view op, std::initializer_list<std::string_view> table)
+        {
+            out << op << " [";
+            for (std::string_view t : table)
+            {
+                out << t;
+            }
+            out << ']';
+        }
+    }
+
     StatementBuilder& StatementBuilder::Select(std::string_view column)
     {
-        m_stream << "SELECT [" << column << ']';
+        OutputColumns(m_stream, "SELECT ", column);
         return *this;
     }
 
     StatementBuilder& StatementBuilder::Select(std::initializer_list<std::string_view> columns)
     {
-        m_stream << "SELECT";
-        bool isFirst = true;
-        for (const auto& c : columns)
-        {
-            m_stream << (isFirst ? " [" : ", [") << c << ']';
-            isFirst = false;
-        }
+        OutputColumns(m_stream, "SELECT ", columns);
         return *this;
     }
 
     StatementBuilder& StatementBuilder::Select(QualifiedColumn column)
     {
-        m_stream << "SELECT " << column;
+        OutputColumns(m_stream, "SELECT ", column);
         return *this;
     }
 
     StatementBuilder& StatementBuilder::Select(std::initializer_list<QualifiedColumn> columns)
     {
-        m_stream << "SELECT";
-        bool isFirst = true;
-        for (const auto& c : columns)
-        {
-            m_stream << (isFirst ? " " : ", ") << c;
-            isFirst = false;
-        }
+        OutputColumns(m_stream, "SELECT ", columns);
         return *this;
     }
 
@@ -56,30 +95,25 @@ namespace AppInstaller::Repository::SQLite::Builder
 
     StatementBuilder& StatementBuilder::From(std::string_view table)
     {
-        m_stream << " FROM [" << table << ']';
+        OutputOperationAndTable(m_stream, " FROM", table);
         return *this;
     }
 
     StatementBuilder& StatementBuilder::From(std::initializer_list<std::string_view> table)
     {
-        m_stream << " FROM [";
-        for (std::string_view t : table)
-        {
-            m_stream << t;
-        }
-        m_stream << ']';
+        OutputOperationAndTable(m_stream, " FROM", table);
         return *this;
     }
 
     StatementBuilder& StatementBuilder::Where(std::string_view column)
     {
-        m_stream << " WHERE [" << column << ']';
+        OutputColumns(m_stream, " WHERE ", column);
         return *this;
     }
 
     StatementBuilder& StatementBuilder::Where(QualifiedColumn column)
     {
-        m_stream << " WHERE " << column;
+        OutputColumns(m_stream, " WHERE ", column);
         return *this;
     }
 
@@ -105,30 +139,25 @@ namespace AppInstaller::Repository::SQLite::Builder
 
     StatementBuilder& StatementBuilder::And(std::string_view column)
     {
-        m_stream << " AND [" << column << ']';
+        OutputColumns(m_stream, " AND ", column);
         return *this;
     }
 
     StatementBuilder& StatementBuilder::And(QualifiedColumn column)
     {
-        m_stream << " AND " << column;
+        OutputColumns(m_stream, " AND ", column);
         return *this;
     }
 
     StatementBuilder& StatementBuilder::Join(std::string_view table)
     {
-        m_stream << " JOIN [" << table << ']';
+        OutputOperationAndTable(m_stream, " JOIN", table);
         return *this;
     }
 
     StatementBuilder& StatementBuilder::Join(std::initializer_list<std::string_view> table)
     {
-        m_stream << " JOIN [";
-        for (std::string_view t : table)
-        {
-            m_stream << t;
-        }
-        m_stream << ']';
+        OutputOperationAndTable(m_stream, " JOIN", table);
         return *this;
     }
 
@@ -144,14 +173,54 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::InsertInto(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "INSERT INTO", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::InsertInto(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, "INSERT INTO", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Columns(std::string_view column)
+    {
+        OutputColumns(m_stream, "(", column);
+        m_stream << ')';
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Columns(std::initializer_list<std::string_view> columns)
+    {
+        OutputColumns(m_stream, "(", columns);
+        m_stream << ')';
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Columns(QualifiedColumn column)
+    {
+        OutputColumns(m_stream, "(", column);
+        m_stream << ')';
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Columns(std::initializer_list<QualifiedColumn> columns)
+    {
+        OutputColumns(m_stream, "(", columns);
+        m_stream << ')';
+        return *this;
+    }
+
     Statement StatementBuilder::Prepare(Connection& connection, bool persistent)
     {
-        m_statement = std::make_unique<Statement>(Statement::Create(connection, m_stream.str(), persistent));
+        Statement result = Statement::Create(connection, m_stream.str(), persistent);
         for (const auto& f : m_binders)
         {
-            f();
+            f(result);
         }
-        return std::move(*(m_statement.release()));
+        return result;
     }
 
     void StatementBuilder::Execute(Connection& connection)
@@ -171,5 +240,19 @@ namespace AppInstaller::Repository::SQLite::Builder
         }
 
         return m_bindIndex++;
+    }
+
+    int StatementBuilder::AppendValuesAndBinders(size_t count)
+    {
+        m_stream << " VALUES (";
+        for (size_t i = 0; i < count; ++i)
+        {
+            m_stream << (i == 0 ? "?" : ", ?");
+        }
+        m_stream << ')';
+
+        int result = m_bindIndex;
+        m_bindIndex += static_cast<int>(count);
+        return result;
     }
 }

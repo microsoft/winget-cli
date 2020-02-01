@@ -45,4 +45,11 @@ namespace AppInstaller
 
     // Enables a bool to be used as a destruction indicator.
     using DestructionToken = ResetWhenMovedFrom<bool>;
+
+    // Enable use of folding to execute functions across parameter packs.
+    struct FoldHelper
+    {
+        template <typename T>
+        FoldHelper& operator,(T&&) { return *this; }
+    };
 }
