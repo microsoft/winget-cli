@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Microsoft/Schema/1_0/OneToManyTable.h"
 #include "Microsoft/Schema/1_0/OneToOneTable.h"
+#include "SQLiteStatementBuilder.h"
 
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_0
@@ -70,12 +71,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             // Get values referenced by the manifest id.
             std::vector<SQLite::rowid_t> values;
 
-            std::ostringstream selectMappingSQL;
-            selectMappingSQL << "SELECT [" << valueName << "] FROM [" << tableName << s_OneToManyTable_MapTable_Suffix << "] WHERE [" << s_OneToManyTable_MapTable_ManifestName << "] = ?";
+            SQLite::Builder::StatementBuilder selectMappingBuilder;
+            selectMappingBuilder.Select(valueName).From({ tableName, s_OneToManyTable_MapTable_Suffix }).Where(s_OneToManyTable_MapTable_ManifestName).Equals(manifestId);
 
-            SQLite::Statement selectMappingStatement = SQLite::Statement::Create(connection, selectMappingSQL.str());
-
-            selectMappingStatement.Bind(1, manifestId);
+            SQLite::Statement selectMappingStatement = selectMappingBuilder.Prepare(connection);
 
             while (selectMappingStatement.Step())
             {
@@ -93,11 +92,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             deleteStatement.Execute();
 
             // For each value, see if any references exist
-            std::ostringstream selectValueMappingSQL;
-            selectValueMappingSQL << "SELECT [" << s_OneToManyTable_MapTable_ManifestName << "] "
-                << "FROM [" << tableName << s_OneToManyTable_MapTable_Suffix << "] WHERE [" << valueName << "] = ? LIMIT 1";
+            SQLite::Builder::StatementBuilder selectValueMappingBuilder;
+            selectValueMappingBuilder.Select(s_OneToManyTable_MapTable_ManifestName).From({ tableName, s_OneToManyTable_MapTable_Suffix }).Where(valueName).Equals(SQLite::Builder::Unbound).Limit(1);
 
-            SQLite::Statement selectValueMappingStatement = SQLite::Statement::Create(connection, selectValueMappingSQL.str());
+            SQLite::Statement selectValueMappingStatement = selectValueMappingBuilder.Prepare(connection);
 
             std::ostringstream deleteValueSQL;
             deleteValueSQL << "DELETE FROM [" << tableName << "] WHERE [" << SQLite::RowIDName << "] = ?";
@@ -124,17 +122,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         bool OneToManyTableIsEmpty(SQLite::Connection& connection, std::string_view tableName)
         {
-            std::ostringstream countSQL;
-            countSQL << "SELECT COUNT(*) FROM [" << tableName << ']';
+            SQLite::Builder::StatementBuilder countBuilder;
+            countBuilder.Select(SQLite::Builder::RowCount).From(tableName);
 
-            SQLite::Statement countStatement = SQLite::Statement::Create(connection, countSQL.str());
+            SQLite::Statement countStatement = countBuilder.Prepare(connection);
 
             THROW_HR_IF(E_UNEXPECTED, !countStatement.Step());
 
-            std::ostringstream countMapSQL;
-            countMapSQL << "SELECT COUNT(*) FROM [" << tableName << s_OneToManyTable_MapTable_Suffix << ']';
+            SQLite::Builder::StatementBuilder countMapBuilder;
+            countMapBuilder.Select(SQLite::Builder::RowCount).From({ tableName, s_OneToManyTable_MapTable_Suffix });
 
-            SQLite::Statement countMapStatement = SQLite::Statement::Create(connection, countMapSQL.str());
+            SQLite::Statement countMapStatement = countMapBuilder.Prepare(connection);
 
             THROW_HR_IF(E_UNEXPECTED, !countMapStatement.Step());
 

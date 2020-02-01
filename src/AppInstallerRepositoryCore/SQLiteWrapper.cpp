@@ -90,19 +90,14 @@ namespace AppInstaller::Repository::SQLite
     {
         Connection result{ target, disposition, flags };
         
-        THROW_IF_SQLITE_FAILED(sqlite3_extended_result_codes(result.m_dbconn, 1));
+        THROW_IF_SQLITE_FAILED(sqlite3_extended_result_codes(result.m_dbconn.get(), 1));
 
         return result;
     }
 
-    Connection::~Connection()
-    {
-        sqlite3_close_v2(m_dbconn);
-    }
-
     int64_t Connection::GetLastInsertRowID()
     {
-        return sqlite3_last_insert_rowid(m_dbconn);
+        return sqlite3_last_insert_rowid(m_dbconn.get());
     }
 
     Statement::Statement(Connection& connection, std::string_view sql, bool persistent)
@@ -130,15 +125,10 @@ namespace AppInstaller::Repository::SQLite
         return { connection, sql, persistent };
     }
 
-    Statement::~Statement()
-    {
-        sqlite3_finalize(m_stmt);
-    }
-
     bool Statement::Step(bool failFastOnError)
     {
         AICLI_LOG(SQL, Verbose, << "Stepping statement #" << m_id);
-        int result = sqlite3_step(m_stmt);
+        int result = sqlite3_step(m_stmt.get());
 
         if (result == SQLITE_ROW)
         {
@@ -173,7 +163,7 @@ namespace AppInstaller::Repository::SQLite
 
     bool Statement::GetColumnIsNull(int column)
     {
-        int type = sqlite3_column_type(m_stmt, column);
+        int type = sqlite3_column_type(m_stmt.get(), column);
         return type == SQLITE_NULL;
     }
 
@@ -181,7 +171,7 @@ namespace AppInstaller::Repository::SQLite
     {
         AICLI_LOG(SQL, Verbose, << "Reset statement #" << m_id);
         // Ignore return value from reset, as if it is an error, it was the error from the last call to step.
-        sqlite3_reset(m_stmt);
+        sqlite3_reset(m_stmt.get());
         m_state = State::Prepared;
     }
 

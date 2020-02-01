@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Microsoft/Schema/1_0/OneToOneTable.h"
 #include "Microsoft/Schema/1_0/ManifestTable.h"
+#include "SQLiteStatementBuilder.h"
 
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_0
@@ -23,12 +24,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::rowid_t OneToOneTableEnsureExists(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value)
         {
             {
-                std::ostringstream selectSQL;
-                selectSQL << "SELECT [" << SQLite::RowIDName << "] FROM [" << tableName << "] WHERE [" << valueName << "] = ?";
+                SQLite::Builder::StatementBuilder selectBuilder;
+                selectBuilder.Select(SQLite::RowIDName).From(tableName).Where(valueName).Equals(value);
 
-                SQLite::Statement select = SQLite::Statement::Create(connection, selectSQL.str());
-
-                select.Bind(1, value);
+                SQLite::Statement select = selectBuilder.Prepare(connection);
 
                 if (select.Step())
                 {
@@ -68,10 +67,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         bool OneToOneTableIsEmpty(SQLite::Connection& connection, std::string_view tableName)
         {
-            std::ostringstream countSQL;
-            countSQL << "SELECT COUNT(*) FROM [" << tableName << ']';
+            SQLite::Builder::StatementBuilder builder;
+            builder.Select(SQLite::Builder::RowCount).From(tableName);
 
-            SQLite::Statement countStatement = SQLite::Statement::Create(connection, countSQL.str());
+            SQLite::Statement countStatement = builder.Prepare(connection);
 
             THROW_HR_IF(E_UNEXPECTED, !countStatement.Step());
 

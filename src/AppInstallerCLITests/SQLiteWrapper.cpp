@@ -3,8 +3,13 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <SQLiteWrapper.h>
+#include <SQLiteStatementBuilder.h>
 
 using namespace AppInstaller::Repository::SQLite;
+
+static const char* s_firstColumn = "first";
+static const char* s_secondColumn = "second";
+static const char* s_tableName = "simpletest";
 
 static const char* s_CreateSimpleTestTableSQL = R"(
 CREATE TABLE [main].[simpletest](
@@ -38,9 +43,22 @@ void InsertIntoSimpleTestTable(Connection& connection, int firstVal, const std::
     REQUIRE(insert.GetState() == Statement::State::Completed);
 }
 
+void InsertIntoSimpleTestTableWithNull(Connection& connection, int firstVal)
+{
+    Statement insert = Statement::Create(connection, s_insertToSimpleTestTableSQL);
+
+    insert.Bind(1, firstVal);
+
+    REQUIRE_FALSE(insert.Step());
+    REQUIRE(insert.GetState() == Statement::State::Completed);
+}
+
 void SelectFromSimpleTestTableOnlyOneRow(Connection& connection, int firstVal, const std::string& secondVal)
 {
-    Statement select = Statement::Create(connection, s_selectFromSimpleTestTableSQL);
+    Builder::StatementBuilder builder;
+    builder.Select({ s_firstColumn, s_secondColumn }).From(s_tableName);
+    Statement select = builder.Prepare(connection);
+
     REQUIRE(select.Step());
     REQUIRE(select.GetState() == Statement::State::HasRow);
 
@@ -162,4 +180,122 @@ TEST_CASE("SQLiteWrapperSavepointCommit", "[sqlitewrapper]")
     }
 
     SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
+}
+
+TEST_CASE("SQLBuilder_SimpleSelectBind", "[sqlbuilder]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    CreateSimpleTestTable(connection);
+
+    InsertIntoSimpleTestTable(connection, 1, "1");
+    InsertIntoSimpleTestTable(connection, 2, "2");
+    InsertIntoSimpleTestTable(connection, 3, "3");
+
+    Builder::StatementBuilder builder;
+    builder.Select({ s_firstColumn, s_secondColumn }).From(s_tableName).Where(s_firstColumn).Equals(2);
+
+    auto statement = builder.Prepare(connection);
+
+    REQUIRE(statement.Step());
+    REQUIRE(statement.GetColumn<int>(0) == 2);
+    REQUIRE(statement.GetColumn<std::string>(0) == "2");
+
+    REQUIRE(!statement.Step());
+
+    Builder::StatementBuilder buildCount;
+    buildCount.Select(Builder::RowCount).From(s_tableName);
+
+    auto rows = buildCount.Prepare(connection);
+
+    REQUIRE(rows.Step());
+    REQUIRE(rows.GetColumn<int>(0) == 3);
+
+    REQUIRE(!rows.Step());
+}
+
+TEST_CASE("SQLBuilder_SimpleSelectUnbound", "[sqlbuilder]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    CreateSimpleTestTable(connection);
+
+    InsertIntoSimpleTestTable(connection, 1, "1");
+    InsertIntoSimpleTestTable(connection, 2, "2");
+    InsertIntoSimpleTestTable(connection, 3, "3");
+
+    Builder::StatementBuilder builder;
+    builder.Select({ s_firstColumn, s_secondColumn }).From(s_tableName).Where(s_firstColumn).Equals(Builder::Unbound);
+
+    auto statement = builder.Prepare(connection);
+
+    statement.Bind(1, 2);
+
+    REQUIRE(statement.Step());
+    REQUIRE(statement.GetColumn<int>(0) == 2);
+    REQUIRE(statement.GetColumn<std::string>(0) == "2");
+
+    REQUIRE(!statement.Step());
+}
+
+TEST_CASE("SQLBuilder_SimpleSelectNull", "[sqlbuilder]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    CreateSimpleTestTable(connection);
+
+    InsertIntoSimpleTestTable(connection, 1, "1");
+    InsertIntoSimpleTestTable(connection, 2, "2");
+    InsertIntoSimpleTestTableWithNull(connection, 3);
+
+    Builder::StatementBuilder builder;
+    builder.Select({ s_firstColumn, s_secondColumn }).From(s_tableName).Where(s_secondColumn).IsNull();
+
+    auto statement = builder.Prepare(connection);
+
+    REQUIRE(statement.Step());
+    REQUIRE(statement.GetColumn<int>(0) == 3);
+    REQUIRE(statement.GetColumnIsNull(1));
+
+    REQUIRE(!statement.Step());
+}
+
+TEST_CASE("SQLBuilder_SimpleSelectOptional", "[sqlbuilder]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    CreateSimpleTestTable(connection);
+
+    InsertIntoSimpleTestTable(connection, 1, "1");
+    InsertIntoSimpleTestTable(connection, 2, "2");
+    InsertIntoSimpleTestTableWithNull(connection, 3);
+
+    std::optional<std::string> secondValue;
+
+    {
+        Builder::StatementBuilder builder;
+        builder.Select({ s_firstColumn, s_secondColumn }).From(s_tableName).Where(s_secondColumn).Equals(secondValue);
+
+        auto statement = builder.Prepare(connection);
+
+        REQUIRE(statement.Step());
+        REQUIRE(statement.GetColumn<int>(0) == 3);
+        REQUIRE(statement.GetColumnIsNull(1));
+
+        REQUIRE(!statement.Step());
+    }
+
+    {
+        secondValue = "2";
+        Builder::StatementBuilder builder;
+        builder.Select({ s_firstColumn, s_secondColumn }).From(s_tableName).Where(s_secondColumn).Equals(secondValue);
+
+        auto statement = builder.Prepare(connection);
+
+        REQUIRE(statement.Step());
+        REQUIRE(statement.GetColumn<int>(0) == 2);
+        REQUIRE(statement.GetColumn<std::string>(1) == "2");
+
+        REQUIRE(!statement.Step());
+    }
 }
