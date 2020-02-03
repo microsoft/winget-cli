@@ -75,7 +75,7 @@ namespace AppInstaller::Workflow
 
     void InstallerHandlerBase::DownloaderCallback::OnProgress(LONGLONG progress, LONGLONG downloadSize)
     {
-        int progressPercent = 100 * progress / downloadSize;
+        int progressPercent = static_cast<int>(100 * progress / downloadSize);
         m_reporterRef.ShowProgress(true, progressPercent);
     }
 

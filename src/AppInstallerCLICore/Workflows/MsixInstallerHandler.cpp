@@ -38,7 +38,7 @@ namespace AppInstaller::Workflow
             auto signature = msixInfo->GetSignature();
 
             SHA256::HashBuffer signatureHash;
-            SHA256::ComputeHash(signature.data(), signature.size(), signatureHash);
+            SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()), signatureHash);
 
             if (!std::equal(
                 m_manifestInstallerRef.SignatureSha256.begin(),
@@ -100,7 +100,7 @@ namespace AppInstaller::Workflow
             nullptr /*relatedPackageUris*/);
 
         AsyncOperationProgressHandler<DeploymentResult, DeploymentProgress> progressCallback(
-            [this](const IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress>& op, DeploymentProgress progress)
+            [this](const IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress>&, DeploymentProgress progress)
             {
                 m_reporterRef.ShowProgress(true, progress.percentage);
             }
