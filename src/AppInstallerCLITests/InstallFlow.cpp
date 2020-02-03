@@ -4,15 +4,38 @@
 #include "TestCommon.h"
 #include "Manifest/Manifest.h"
 #include "AppInstallerDownloader.h"
+#include "AppInstallerStrings.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/ExecutableInstallerHandler.h"
 #include "Workflows/MsixInstallerHandler.h"
 
+using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
 using namespace TestCommon;
 using namespace AppInstaller::Workflow;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
+
+class MsixInstallerHandlerTest : public MsixInstallerHandler
+{
+public:
+    MsixInstallerHandlerTest(
+        const ManifestInstaller& manifestInstaller,
+        WorkflowReporter& reporter) : MsixInstallerHandler(manifestInstaller, reporter) {};
+
+protected:
+
+    std::future<void> ExecuteInstallerAsync(const Uri& uri) override
+    {
+        std::ofstream file("TestMsixInstalled.txt", std::ofstream::out);
+
+        file << AppInstaller::Utility::ConvertToUTF8(uri.ToString());
+
+        file.close();
+
+        co_return;
+    }
+};
 
 class ExecutableInstallerHandlerTest : public ExecutableInstallerHandler
 {
@@ -44,7 +67,7 @@ protected:
         }
         else if (m_selectedInstaller.InstallerType == ManifestInstaller::InstallerTypeEnum::Msix)
         {
-            return std::make_unique<MsixInstallerHandler>(m_selectedInstaller, m_reporter);
+            return std::make_unique<MsixInstallerHandlerTest>(m_selectedInstaller, m_reporter);
         }
         else
         {
@@ -59,7 +82,7 @@ TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
 
     std::filesystem::remove(installResultPath);
 
-    auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest.yml"));
+    auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yml"));
 
     std::ostringstream installOutput;
     InstallFlowTest testFlow(manifest, installOutput, std::cin);
@@ -90,4 +113,48 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow]")
 
     // Verify Installer is called and parameters are passed in.
     REQUIRE(!std::filesystem::exists(installResultPath));
+}
+
+TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow]")
+{
+    auto installResultPath = std::filesystem::current_path().append("TestMsixInstalled.txt");
+
+    std::filesystem::remove(installResultPath);
+
+    auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Msix_DownloadFlow.yml"));
+
+    std::ostringstream installOutput;
+    InstallFlowTest testFlow(manifest, installOutput, std::cin);
+    testFlow.Install();
+    INFO(installOutput.str());
+
+    // Verify Installer is called and a local file is used as package Uri.
+    REQUIRE(std::filesystem::exists(installResultPath));
+    std::ifstream installResultFile(installResultPath);
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("file://") != std::string::npos);
+}
+
+TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow]")
+{
+    auto installResultPath = std::filesystem::current_path().append("TestMsixInstalled.txt");
+
+    std::filesystem::remove(installResultPath);
+
+    auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Msix_StreamingFlow.yml"));
+
+    std::ostringstream installOutput;
+    InstallFlowTest testFlow(manifest, installOutput, std::cin);
+    testFlow.Install();
+    INFO(installOutput.str());
+
+    // Verify Installer is called and a local file is used as package Uri.
+    REQUIRE(std::filesystem::exists(installResultPath));
+    std::ifstream installResultFile(installResultPath);
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("https://") != std::string::npos);
 }

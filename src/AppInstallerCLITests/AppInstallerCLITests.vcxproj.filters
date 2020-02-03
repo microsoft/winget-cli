@@ -65,10 +65,16 @@
     <CopyFileToFolders Include="TestData\GoodManifest.yml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\InstallFlowTest.yml">
+    <CopyFileToFolders Include="TestData\InstallFlowTest_NoApplicableArchitecture.yml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\InstallFlowTest_NoApplicableArchitecture.yml">
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Exe.yml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Msix_DownloadFlow.yml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Msix_StreamingFlow.yml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>

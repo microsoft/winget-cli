@@ -67,36 +67,29 @@ namespace AppInstaller::Workflow
 
     void MsixInstallerHandler::Install()
     {
-        auto installTask = ExecuteInstallerAsync();
-
-        auto installTaskResult = installTask.get();
-
-        m_reporterRef.ShowProgress(false, 0);
-
-        if (SUCCEEDED(installTaskResult.ExtendedErrorCode()))
+        if (!m_useStreaming && m_downloadedInstaller.empty())
         {
-            m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Install succeeded.");
+            THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED), "Installer not downloaded yet");
         }
-        else
-        {
-            m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Install failed. Reason: " + Utility::ConvertToUTF8(installTaskResult.ErrorText()));
-        }
+
+        auto installTask = ExecuteInstallerAsync(
+            m_useStreaming ? Uri(Utility::ConvertToUTF16(m_manifestInstallerRef.Url)) : Uri(m_downloadedInstaller.c_str()));
+
+        installTask.get();
     }
 
-    std::future<IDeploymentResult> MsixInstallerHandler::ExecuteInstallerAsync()
+    std::future<void> MsixInstallerHandler::ExecuteInstallerAsync(const Uri& uri)
     {
         PackageManager packageManager;
         DeploymentOptions deploymentOptions =
             DeploymentOptions::ForceApplicationShutdown |
             DeploymentOptions::ForceTargetApplicationShutdown;
 
-        std::atomic<bool> done = false;
-
         m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Starting package install...");
         m_reporterRef.ShowProgress(true, 0);
 
-        auto opration = packageManager.RequestAddPackageAsync(
-            m_useStreaming ? Uri(Utility::ConvertToUTF16(m_manifestInstallerRef.Url)) : Uri(m_downloadedInstaller.c_str()),
+        auto deployOpration = packageManager.RequestAddPackageAsync(
+            uri,
             nullptr, /*dependencyPackageUris*/
             deploymentOptions,
             nullptr, /*targetVolume*/
@@ -110,10 +103,22 @@ namespace AppInstaller::Workflow
             }
         );
 
-        opration.Progress(progressCallback);
+        deployOpration.Progress(progressCallback);
 
-        co_await opration;
+        co_await deployOpration;
 
-        co_return std::move(opration.GetResults());
+        auto deployResult = deployOpration.GetResults();
+
+        m_reporterRef.ShowProgress(false, 0);
+
+        if (!SUCCEEDED(deployResult.ExtendedErrorCode()))
+        {
+            m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Install failed. Reason: " + Utility::ConvertToUTF8(deployResult.ErrorText()));
+
+            THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED),
+                "Install failed. Installer task returned: %u", deployResult.ExtendedErrorCode());
+        }
+
+        m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Successfully installed.");
     }
 }

@@ -18,7 +18,8 @@ namespace AppInstaller::Workflow
         void Install() override;
 
     protected:
-        std::future<winrt::Windows::Management::Deployment::IDeploymentResult> ExecuteInstallerAsync();
         bool m_useStreaming = true;
+
+        virtual std::future<void> ExecuteInstallerAsync(const winrt::Windows::Foundation::Uri& uri);
     };
 }
