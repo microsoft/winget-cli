@@ -12,13 +12,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
         void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName)
         {
-            std::ostringstream createTableSQL;
-            createTableSQL << "CREATE TABLE [" << tableName << "]("
-                << '[' << valueName << "] TEXT NOT NULL PRIMARY KEY)";
+            using namespace SQLite::Builder;
 
-            SQLite::Statement createStatement = SQLite::Statement::Create(connection, createTableSQL.str());
+            StatementBuilder createTableBuilder;
+            createTableBuilder.CreateTable(tableName).Columns({
+                ColumnBuilder(valueName, Type::Text).NotNull().PrimaryKey()
+                });
 
-            createStatement.Execute();
+            createTableBuilder.Execute(connection);
         }
 
         SQLite::rowid_t OneToOneTableEnsureExists(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value)

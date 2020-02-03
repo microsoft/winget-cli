@@ -115,19 +115,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     void PathPartTable::Create(SQLite::Connection& connection)
     {
+        using namespace SQLite::Builder;
+
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createPathParts_v1_0");
 
-        {
-            std::ostringstream createTableSQL;
-            createTableSQL << "CREATE TABLE [" << s_PathPartTable_Table_Name << "]("
-                << '[' << s_PathPartTable_ParentValue_Name << "] INT64,"
-                << '[' << s_PathPartTable_PartValue_Name << "] TEXT NOT NULL,"
-                << "PRIMARY KEY([" << s_PathPartTable_PartValue_Name << "], [" << s_PathPartTable_ParentValue_Name << "]))";
+        StatementBuilder createTableBuilder;
+        createTableBuilder.CreateTable(s_PathPartTable_Table_Name).Columns({
+            ColumnBuilder(s_PathPartTable_ParentValue_Name, Type::Int64),
+            ColumnBuilder(s_PathPartTable_PartValue_Name, Type::Text).NotNull(),
+            PrimaryKeyBuilder({ s_PathPartTable_PartValue_Name, s_PathPartTable_ParentValue_Name })
+            });
 
-            SQLite::Statement createStatement = SQLite::Statement::Create(connection, createTableSQL.str());
-
-            createStatement.Execute();
-        }
+        createTableBuilder.Execute(connection);
 
         {
             std::ostringstream createIndexSQL;

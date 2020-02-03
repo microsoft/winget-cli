@@ -19,6 +19,40 @@ namespace AppInstaller::Repository::SQLite::Builder
         // Sentinel types to indicate special cases to the builder.
         struct unbound_t {};
         struct rowcount_t {};
+
+        // Class for intake from external functions.
+        struct SubBuilder
+        {
+            SubBuilder(std::string&& s) : m_string(std::move(s)) {}
+
+            SubBuilder(const SubBuilder&) = default;
+            SubBuilder& operator=(const SubBuilder&) = default;
+
+            SubBuilder(SubBuilder&&) noexcept = default;
+            SubBuilder& operator=(SubBuilder&&) noexcept = default;
+
+            const std::string& GetString() const { return m_string; }
+
+        protected:
+            std::string m_string;
+        };
+
+        // Base class for all sub-builders.
+        struct SubBuilderBase
+        {
+            SubBuilderBase() = default;
+
+            SubBuilderBase(const SubBuilderBase&) = default;
+            SubBuilderBase& operator=(const SubBuilderBase&) = default;
+
+            SubBuilderBase(SubBuilderBase&&) noexcept = default;
+            SubBuilderBase& operator=(SubBuilderBase&&) noexcept = default;
+
+            virtual operator SubBuilder() { return { m_stream.str() }; }
+
+        protected:
+            std::ostringstream m_stream;
+        };
     }
 
     // Pass this value to indicate that the caller will bind the value later.
@@ -37,6 +71,61 @@ namespace AppInstaller::Repository::SQLite::Builder
         explicit QualifiedColumn(std::string_view table, std::string_view column) : Table(table), Column(column) {}
     };
 
+    // SQLite types as an enum.
+    enum class Type
+    {
+        Int,
+        Int64,
+        Text,
+    };
+
+    // Helper used when creating a table.
+    struct ColumnBuilder : public details::SubBuilderBase
+    {
+        // Specify the column name and type when creating the builder.
+        ColumnBuilder(std::string_view column, Type type);
+
+        ColumnBuilder(const ColumnBuilder&) = default;
+        ColumnBuilder& operator=(const ColumnBuilder&) = default;
+
+        ColumnBuilder(ColumnBuilder&&) noexcept = default;
+        ColumnBuilder& operator=(ColumnBuilder&&) noexcept = default;
+
+        // Indicate that the column is not able to be null.
+        // Allow for data driven construction with input value.
+        ColumnBuilder& NotNull(bool isTrue = true);
+
+        // Indicate that the column is unique.
+        // Allow for data driven construction with input value.
+        ColumnBuilder& Unique(bool isTrue = true);
+
+        // Indicate that the column is the primary key.
+        // Allow for data driven construction with input value.
+        ColumnBuilder& PrimaryKey(bool isTrue = true);
+    };
+
+    // Helper used to specify a primary key with multiple columns.
+    struct PrimaryKeyBuilder : public details::SubBuilderBase
+    {
+        PrimaryKeyBuilder();
+        PrimaryKeyBuilder(std::initializer_list<std::string_view> columns);
+
+        PrimaryKeyBuilder(const PrimaryKeyBuilder&) = default;
+        PrimaryKeyBuilder& operator=(const PrimaryKeyBuilder&) = default;
+
+        PrimaryKeyBuilder(PrimaryKeyBuilder&&) noexcept = default;
+        PrimaryKeyBuilder& operator=(PrimaryKeyBuilder&&) noexcept = default;
+
+        virtual operator details::SubBuilder() override;
+
+        // Add a column to the primary key.
+        PrimaryKeyBuilder& Column(std::string_view column);
+
+    private:
+        bool m_isFirst = true;
+        bool m_needsClosing = true;
+    };
+
     // A class that aids in building SQL statements in a more expressive manner than simple strings.
     struct StatementBuilder
     {
@@ -49,9 +138,10 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& operator=(StatementBuilder&&) = default;
 
         // Begin a select statement for the given columns.
+        StatementBuilder& Select();
         StatementBuilder& Select(std::string_view column);
         StatementBuilder& Select(std::initializer_list<std::string_view> columns);
-        StatementBuilder& Select(QualifiedColumn column);
+        StatementBuilder& Select(const QualifiedColumn& column);
         StatementBuilder& Select(std::initializer_list<QualifiedColumn> columns);
         StatementBuilder& Select(details::rowcount_t);
 
@@ -62,7 +152,7 @@ namespace AppInstaller::Repository::SQLite::Builder
 
         // Begin a filter clause on the given column.
         StatementBuilder& Where(std::string_view column);
-        StatementBuilder& Where(QualifiedColumn column);
+        StatementBuilder& Where(const QualifiedColumn& column);
 
         // Indicate the operation of the filter clause.
         template <typename ValueType>
@@ -91,7 +181,7 @@ namespace AppInstaller::Repository::SQLite::Builder
 
         // Operators for combining filter clauses.
         StatementBuilder& And(std::string_view column);
-        StatementBuilder& And(QualifiedColumn column);
+        StatementBuilder& And(const QualifiedColumn& column);
 
         // Begin a join clause.
         // The initializer_list form enables the table name to be constructed from multiple parts.
@@ -99,7 +189,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& Join(std::initializer_list<std::string_view> table);
 
         // Set the join constraint.
-        StatementBuilder& On(QualifiedColumn column1, QualifiedColumn column2);
+        StatementBuilder& On(const QualifiedColumn& column1, const QualifiedColumn& column2);
 
         // Limits the result set to the given number of rows.
         StatementBuilder& Limit(size_t rowCount);
@@ -112,8 +202,16 @@ namespace AppInstaller::Repository::SQLite::Builder
         // Set the columns for a statement (typically insert).
         StatementBuilder& Columns(std::string_view column);
         StatementBuilder& Columns(std::initializer_list<std::string_view> columns);
-        StatementBuilder& Columns(QualifiedColumn column);
+        StatementBuilder& Columns(const QualifiedColumn& column);
         StatementBuilder& Columns(std::initializer_list<QualifiedColumn> columns);
+
+        // Set the columns for a create table statement.
+        StatementBuilder& Columns(std::initializer_list<details::SubBuilder> columns);
+        StatementBuilder& BeginColumns();
+        StatementBuilder& Column(std::string_view column);
+        StatementBuilder& Column(const QualifiedColumn& column);
+        StatementBuilder& Column(const details::SubBuilder& column);
+        StatementBuilder& EndColumns();
 
         // Add the values clause for an insert statement.
         template <typename... ValueTypes>
@@ -126,6 +224,11 @@ namespace AppInstaller::Repository::SQLite::Builder
             (FoldHelper{}, ..., InsertValuesValueBinder(bindIndexBegin++, values));
             return *this;
         }
+
+        // Begin an table creation statement.
+        // The initializer_list form enables the table name to be constructed from multiple parts.
+        StatementBuilder& CreateTable(std::string_view table);
+        StatementBuilder& CreateTable(std::initializer_list<std::string_view> table);
 
         // Prepares and returns the statement, applying any bindings that were requested.
         Statement Prepare(Connection& connection, bool persistent = false);
@@ -172,7 +275,7 @@ namespace AppInstaller::Repository::SQLite::Builder
             }
             return *this;
         }
-        StatementBuilder& InsertValuesValueBinder(int bindIndex, details::unbound_t)
+        StatementBuilder& InsertValuesValueBinder(int, details::unbound_t)
         {
             return *this;
         }
@@ -186,5 +289,6 @@ namespace AppInstaller::Repository::SQLite::Builder
         // Because binding values starts at 1
         int m_bindIndex = 1;
         std::vector<std::function<void(Statement&)>> m_binders;
+        bool m_needsComma = false;
     };
 }

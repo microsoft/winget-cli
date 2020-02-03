@@ -77,33 +77,30 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     void ManifestTable::Create(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values)
     {
+        using namespace SQLite::Builder;
+
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createManifestTable_v1_0");
 
-        std::ostringstream createTableSQL;
-        createTableSQL << "CREATE TABLE [" << s_ManifestTable_Table_Name << "] (";
+        StatementBuilder createTableBuilder;
+        createTableBuilder.CreateTable(s_ManifestTable_Table_Name).BeginColumns();
 
         for (const ManifestColumnInfo& value : values)
         {
-            createTableSQL << '[' << value.Name << "] INT64 NOT NULL" << (value.Unique ? " UNIQUE" : "") << ",";
+            createTableBuilder.Column(ColumnBuilder(value.Name, Type::Int64).NotNull().Unique(value.Unique));
         }
 
-        createTableSQL << "PRIMARY KEY(";
-
-        bool isFirst = true;
+        PrimaryKeyBuilder pkBuilder;
         for (const ManifestColumnInfo& value : values)
         {
             if (value.PrimaryKey)
             {
-                createTableSQL << (isFirst ? "[" : ", [") << value.Name << "]";
+                pkBuilder.Column(value.Name);
             }
-            isFirst = false;
         }
 
-        createTableSQL << "))";
+        createTableBuilder.Column(pkBuilder).EndColumns();
 
-        SQLite::Statement createStatement = SQLite::Statement::Create(connection, createTableSQL.str());
-
-        createStatement.Execute();
+        createTableBuilder.Execute(connection);
 
         // Create an index on every value to improve performance
         for (const ManifestColumnInfo& value : values)

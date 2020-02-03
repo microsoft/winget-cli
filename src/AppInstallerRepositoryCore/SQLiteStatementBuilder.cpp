@@ -12,6 +12,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         return out;
     }
 
+    std::ostream& operator<<(std::ostream& out, const details::SubBuilder& column)
+    {
+        out << column.GetString();
+        return out;
+    }
+
     namespace
     {
         void OutputColumns(std::ostream& out, std::string_view op, std::string_view column)
@@ -30,12 +36,23 @@ namespace AppInstaller::Repository::SQLite::Builder
             }
         }
 
-        void OutputColumns(std::ostream& out, std::string_view op, QualifiedColumn column)
+        void OutputColumns(std::ostream& out, std::string_view op, const QualifiedColumn& column)
         {
             out << op << column;
         }
 
         void OutputColumns(std::ostream& out, std::string_view op, std::initializer_list<QualifiedColumn> columns)
+        {
+            out << op;
+            bool isFirst = true;
+            for (const auto& c : columns)
+            {
+                out << (isFirst ? "" : ", ") << c;
+                isFirst = false;
+            }
+        }
+
+        void OutputColumns(std::ostream& out, std::string_view op, std::initializer_list<details::SubBuilder> columns)
         {
             out << op;
             bool isFirst = true;
@@ -61,6 +78,100 @@ namespace AppInstaller::Repository::SQLite::Builder
             }
             out << ']';
         }
+
+        void OutputType(std::ostream& out, Type type)
+        {
+            out << ' ';
+            switch (type)
+            {
+            case Type::Int:
+                out << "INT";
+                break;
+            case Type::Int64:
+                out << "INT64";
+                break;
+            case Type::Text:
+                out << "TEXT";
+                break;
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
+    }
+
+    ColumnBuilder::ColumnBuilder(std::string_view column, Type type)
+    {
+        OutputColumns(m_stream, "", column);
+        OutputType(m_stream, type);
+    }
+
+    ColumnBuilder& ColumnBuilder::NotNull(bool isTrue)
+    {
+        if (isTrue)
+        {
+            m_stream << " NOT NULL";
+        }
+        return *this;
+    }
+
+    ColumnBuilder& ColumnBuilder::Unique(bool isTrue)
+    {
+        if (isTrue)
+        {
+            m_stream << " UNIQUE";
+        }
+        return *this;
+    }
+
+    ColumnBuilder& ColumnBuilder::PrimaryKey(bool isTrue)
+    {
+        if (isTrue)
+        {
+            m_stream << " PRIMARY KEY";
+        }
+        return *this;
+    }
+
+    PrimaryKeyBuilder::PrimaryKeyBuilder(std::initializer_list<std::string_view> columns)
+    {
+        OutputColumns(m_stream, "PRIMARY KEY(", columns);
+        m_stream << ')';
+        m_needsClosing = false;
+    }
+
+    PrimaryKeyBuilder::PrimaryKeyBuilder()
+    {
+        m_stream << "PRIMARY KEY(";
+    }
+
+    PrimaryKeyBuilder& PrimaryKeyBuilder::Column(std::string_view column)
+    {
+        if (m_isFirst)
+        {
+            m_isFirst = false;
+        }
+        else
+        {
+            m_stream << ", ";
+        }
+        OutputColumns(m_stream, "", column);
+        return *this;
+    }
+
+    PrimaryKeyBuilder::operator details::SubBuilder()
+    {
+        if (m_needsClosing)
+        {
+            m_stream << ')';
+            m_needsClosing = false;
+        }
+        return { m_stream.str() };
+    }
+
+    StatementBuilder& StatementBuilder::Select()
+    {
+        m_stream << "SELECT ";
+        return *this;
     }
 
     StatementBuilder& StatementBuilder::Select(std::string_view column)
@@ -75,7 +186,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
-    StatementBuilder& StatementBuilder::Select(QualifiedColumn column)
+    StatementBuilder& StatementBuilder::Select(const QualifiedColumn& column)
     {
         OutputColumns(m_stream, "SELECT ", column);
         return *this;
@@ -111,7 +222,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
-    StatementBuilder& StatementBuilder::Where(QualifiedColumn column)
+    StatementBuilder& StatementBuilder::Where(const QualifiedColumn& column)
     {
         OutputColumns(m_stream, " WHERE ", column);
         return *this;
@@ -143,7 +254,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
-    StatementBuilder& StatementBuilder::And(QualifiedColumn column)
+    StatementBuilder& StatementBuilder::And(const QualifiedColumn& column)
     {
         OutputColumns(m_stream, " AND ", column);
         return *this;
@@ -161,7 +272,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
-    StatementBuilder& StatementBuilder::On(QualifiedColumn column1, QualifiedColumn column2)
+    StatementBuilder& StatementBuilder::On(const QualifiedColumn& column1, const QualifiedColumn& column2)
     {
         m_stream << " ON " << column1 << " = " << column2;
         return *this;
@@ -199,7 +310,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
-    StatementBuilder& StatementBuilder::Columns(QualifiedColumn column)
+    StatementBuilder& StatementBuilder::Columns(const QualifiedColumn& column)
     {
         OutputColumns(m_stream, "(", column);
         m_stream << ')';
@@ -210,6 +321,72 @@ namespace AppInstaller::Repository::SQLite::Builder
     {
         OutputColumns(m_stream, "(", columns);
         m_stream << ')';
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Columns(std::initializer_list<details::SubBuilder> columns)
+    {
+        OutputColumns(m_stream, "(", columns);
+        m_stream << ')';
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::BeginColumns()
+    {
+        m_stream << '(';
+        m_needsComma = false;
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Column(std::string_view column)
+    {
+        if (m_needsComma)
+        {
+            m_stream << ", ";
+        }
+        OutputColumns(m_stream, "", column);
+        m_needsComma = true;
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Column(const QualifiedColumn& column)
+    {
+        if (m_needsComma)
+        {
+            m_stream << ", ";
+        }
+        OutputColumns(m_stream, "", column);
+        m_needsComma = true;
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Column(const details::SubBuilder& column)
+    {
+        if (m_needsComma)
+        {
+            m_stream << ", ";
+        }
+        m_stream << column;
+        m_needsComma = true;
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::EndColumns()
+    {
+        m_stream << ')';
+        m_needsComma = false;
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::CreateTable(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE TABLE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::CreateTable(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE TABLE", table);
         return *this;
     }
 

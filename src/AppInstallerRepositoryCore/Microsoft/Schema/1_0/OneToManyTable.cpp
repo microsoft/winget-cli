@@ -16,21 +16,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         void CreateOneToManyTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName)
         {
+            using namespace SQLite::Builder;
+
             SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } +"_create_v1_0");
 
             // Create the data table as a 1:1
             CreateOneToOneTable(connection, tableName, valueName);
 
             // Create the mapping table
-            std::ostringstream createMapTableSQL;
-            createMapTableSQL << "CREATE TABLE [" << tableName << s_OneToManyTable_MapTable_Suffix << "]("
-                << "[" << s_OneToManyTable_MapTable_ManifestName << "] INT64 NOT NULL,"
-                << '[' << valueName << "] INT64 NOT NULL,"
-                "PRIMARY KEY([" << s_OneToManyTable_MapTable_ManifestName << "], [" << valueName << "]))";
+            StatementBuilder createMapTableBuilder;
+            createMapTableBuilder.CreateTable({ tableName, s_OneToManyTable_MapTable_Suffix }).Columns({
+                ColumnBuilder(s_OneToManyTable_MapTable_ManifestName, Type::Int64).NotNull(),
+                ColumnBuilder(valueName, Type::Int64).NotNull(),
+                PrimaryKeyBuilder({ s_OneToManyTable_MapTable_ManifestName, valueName })
+                });
 
-            SQLite::Statement createMapStatement = SQLite::Statement::Create(connection, createMapTableSQL.str());
-
-            createMapStatement.Execute();
+            createMapTableBuilder.Execute(connection);
 
             savepoint.Commit();
         }
