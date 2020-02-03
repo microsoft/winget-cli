@@ -175,9 +175,11 @@
     <ClInclude Include="Public\AppInstallerCLICore.h" />
     <ClInclude Include="Search\Search.h" />
     <ClInclude Include="Workflows\Common.h" />
+    <ClInclude Include="Workflows\ExecutableInstallerHandler.h" />
     <ClInclude Include="Workflows\InstallerHandlerBase.h" />
     <ClInclude Include="Workflows\InstallFlow.h" />
     <ClInclude Include="Workflows\ManifestComparator.h" />
+    <ClInclude Include="Workflows\MsixInstallerHandler.h" />
     <ClInclude Include="Workflows\WorkflowReporter.h" />
   </ItemGroup>
   <ItemGroup>
@@ -189,9 +191,11 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Workflows\ExecutableInstallerHandler.cpp" />
     <ClCompile Include="Workflows\InstallerHandlerBase.cpp" />
     <ClCompile Include="Workflows\InstallFlow.cpp" />
     <ClCompile Include="Workflows\ManifestComparator.cpp" />
+    <ClCompile Include="Workflows\MsixInstallerHandler.cpp" />
     <ClCompile Include="Workflows\WorkflowReporter.cpp" />
   </ItemGroup>
   <ItemGroup>

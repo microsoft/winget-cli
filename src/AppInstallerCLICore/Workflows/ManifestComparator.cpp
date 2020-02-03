@@ -57,7 +57,7 @@ namespace AppInstaller::Workflow
         AICLI_LOG(CLI, Info, << "Completed installer selection.");
         AICLI_LOG(CLI, Verbose, << "Selected installer arch: " << (int)selectedInstaller.Arch);
         AICLI_LOG(CLI, Verbose, << "Selected installer url: " << selectedInstaller.Url);
-        AICLI_LOG(CLI, Verbose, << "Selected installer InstallerType: " << selectedInstaller.InstallerType);
+        AICLI_LOG(CLI, Verbose, << "Selected installer InstallerType: " << static_cast<int>(selectedInstaller.InstallerType));
         AICLI_LOG(CLI, Verbose, << "Selected installer scope: " << selectedInstaller.Scope);
         AICLI_LOG(CLI, Verbose, << "Selected installer language: " << selectedInstaller.Language);
 

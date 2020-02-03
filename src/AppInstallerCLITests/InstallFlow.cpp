@@ -5,11 +5,29 @@
 #include "Manifest/Manifest.h"
 #include "AppInstallerDownloader.h"
 #include "Workflows/InstallFlow.h"
+#include "Workflows/ExecutableInstallerHandler.h"
+#include "Workflows/MsixInstallerHandler.h"
 
+using namespace winrt::Windows::Management::Deployment;
 using namespace TestCommon;
 using namespace AppInstaller::Workflow;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
+
+class ExecutableInstallerHandlerTest : public ExecutableInstallerHandler
+{
+public:
+    ExecutableInstallerHandlerTest(
+        const ManifestInstaller& manifestInstaller,
+        WorkflowReporter& reporter) : ExecutableInstallerHandler(manifestInstaller, reporter) {};
+
+    void Download() override
+    {
+        this->m_downloadedInstaller = TestDataFile("AppInstallerTestExeInstaller.exe");
+    }
+
+    void RenameDownloadedInstaller() override {};
+};
 
 class InstallFlowTest : public InstallFlow
 {
@@ -18,13 +36,24 @@ public:
         InstallFlow(manifest, outStream, inStream) {}
 
 protected:
-    void DownloadInstaller() override
+    std::unique_ptr<InstallerHandlerBase> GetInstallerHandler() override
     {
-        this->m_downloadedInstaller = TestDataFile("AppInstallerTestExeInstaller.exe");
+        if (m_selectedInstaller.InstallerType == ManifestInstaller::InstallerTypeEnum::Exe)
+        {
+            return std::make_unique<ExecutableInstallerHandlerTest>(m_selectedInstaller, m_reporter);
+        }
+        else if (m_selectedInstaller.InstallerType == ManifestInstaller::InstallerTypeEnum::Msix)
+        {
+            return std::make_unique<MsixInstallerHandler>(m_selectedInstaller, m_reporter);
+        }
+        else
+        {
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+        }
     }
 };
 
-TEST_CASE("InstallFlowWithTestManifest", "[InstallFlow]")
+TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
 {
     auto installResultPath = std::filesystem::current_path().append("TestExeInstalled.txt");
 

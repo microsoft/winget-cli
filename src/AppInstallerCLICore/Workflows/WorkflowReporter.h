@@ -7,22 +7,7 @@
 
 namespace AppInstaller::Workflow
 {
-    // This will be triggered by file downloader to get download progress
-    class DownloaderCallback : public AppInstaller::Utility::IDownloaderCallback
-    {
-    public:
-        DownloaderCallback(std::ostream& stream) : out(stream) {};
-
-        void OnStarted() override;
-        void OnProgress(LONGLONG progress, LONGLONG downloadSize) override;
-        void OnCanceled() override;
-        void OnCompleted() override;
-
-    private:
-        std::ostream& out;
-    };
-
-    // Class to print the in progress spinner
+    // Class to print a indefinite spinner.
     class IndefiniteSpinner
     {
     public:
@@ -40,6 +25,19 @@ namespace AppInstaller::Workflow
         void ShowSpinnerInternal();
     };
 
+    // Class to print a indefinite spinner.
+    class ProgressBar
+    {
+    public:
+        ProgressBar(std::ostream& stream) : out(stream) {};
+
+        void ShowProgress(bool running, int progress);
+
+    private:
+        std::atomic<bool> m_isVisible = false;
+        std::ostream& out;
+    };
+
     // WorkflowReporter should be the central place to show workflow status to user.
     // Todo: need to implement actual console output to show color, progress bar, etc
     class WorkflowReporter
@@ -55,7 +53,7 @@ namespace AppInstaller::Workflow
         };
 
         WorkflowReporter(std::ostream& outStream, std::istream& inStream) :
-            out(outStream), in(inStream), m_downloaderCallback(outStream), m_spinner(outStream) {};
+            out(outStream), in(inStream), m_progressBar(outStream), m_spinner(outStream) {};
 
         void ShowPackageInfo(
             const std::string& name,
@@ -69,15 +67,19 @@ namespace AppInstaller::Workflow
 
         void ShowMsg(Level level, const std::string& msg);
 
-        // running: shows the spinner if set to true, stops the spinner if set to false
-        void ShowIndefiniteSpinner(bool running);
+        // Used to show indefinite progress.
+        // running: shows progress bar if set to true, dismisses progress bar if set to false
+        void ShowProgress(bool running, int progress);
 
-        DownloaderCallback& GetDownloaderCallback() { return m_downloaderCallback; }
+        // Used to show indefinite progress. Currently an indefinite spinner is the form of
+        // showing indefinite progress.
+        // running: shows indefinite progress if set to true, stops indefinite progress if set to false
+        void ShowIndefiniteProgress(bool running);
 
     private:
         std::ostream& out;
         std::istream& in;
-        DownloaderCallback m_downloaderCallback;
         IndefiniteSpinner m_spinner;
+        ProgressBar m_progressBar;
     };
 }
