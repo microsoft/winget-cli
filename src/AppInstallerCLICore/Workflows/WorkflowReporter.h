@@ -25,7 +25,7 @@ namespace AppInstaller::Workflow
         void ShowSpinnerInternal();
     };
 
-    // Class to print a indefinite spinner.
+    // Todo: Need to implement real progress bar. Only prints progress number now.
     class ProgressBar
     {
     public:

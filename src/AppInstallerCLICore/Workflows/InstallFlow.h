@@ -24,6 +24,7 @@ namespace AppInstaller::Workflow
 
         virtual void ProcessManifest();
 
+        // Creates corresponding InstallerHandler according to InstallerType
         virtual std::unique_ptr<InstallerHandlerBase> GetInstallerHandler();
     };
 }

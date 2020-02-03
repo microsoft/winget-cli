@@ -7,16 +7,23 @@
 
 namespace AppInstaller::Workflow
 {
+    // This is the base class for installer handlers. Individual installer handler should override
+    // member methods to do appropriate work on different installers.
     class InstallerHandlerBase
     {
     public:
+
+        // The Download method downloads installer to local temp folder.
+        // The downloaded installer does not have any extension appended.
+        // SHA256 of the downloaded installer is verified during download.
         virtual void Download();
+
         virtual void Install() { THROW_HR(E_NOTIMPL); }
         virtual void Cancel() { THROW_HR(E_NOTIMPL); }
 
     protected:
 
-        // This will be triggered by file downloader to get download progress
+        // This will be triggered by file downloader to report download progress
         class DownloaderCallback : public AppInstaller::Utility::IDownloaderCallback
         {
         public:

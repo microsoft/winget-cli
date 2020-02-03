@@ -62,6 +62,7 @@ namespace AppInstaller::Utility::Msix
 
     void MsixInfo::PopulateMsixInfo(const std::string& uriStr)
     {
+        // Get an IStream from the input uri and try to create package or bundler reader.
         winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(uriStr));
         IRandomAccessStream randomAccessStream = HttpRandomAccessStream::CreateAsync(uri).get();
 

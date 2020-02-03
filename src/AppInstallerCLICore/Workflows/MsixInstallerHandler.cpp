@@ -27,11 +27,13 @@ namespace AppInstaller::Workflow
     {
         if (m_manifestInstallerRef.SignatureSha256.empty())
         {
+            // Signature hash not provided. Go with download flow.
             InstallerHandlerBase::Download();
             m_useStreaming = false;
         }
         else
         {
+            // Signature hash provided. No download needed. Just verify signature hash.
             auto msixInfo = Msix::MsixInfo::CreateMsixInfo(m_manifestInstallerRef.Url);
             auto signature = msixInfo->GetSignature();
 
@@ -88,6 +90,7 @@ namespace AppInstaller::Workflow
         m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Starting package install...");
         m_reporterRef.ShowProgress(true, 0);
 
+        // RequestAddPackageAsync will invoke smart screen.
         auto deployOpration = packageManager.RequestAddPackageAsync(
             uri,
             nullptr, /*dependencyPackageUris*/
@@ -103,6 +106,7 @@ namespace AppInstaller::Workflow
             }
         );
 
+        // Set progress callback.
         deployOpration.Progress(progressCallback);
 
         co_await deployOpration;

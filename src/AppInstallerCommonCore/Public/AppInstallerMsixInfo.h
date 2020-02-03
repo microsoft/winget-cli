@@ -16,6 +16,7 @@ namespace AppInstaller::Utility::Msix
         IStream* inputStream,
         IAppxPackageReader** reader);
 
+    // MsixInfo class handles all appx/msix related query.
     class MsixInfo
     {
     public:
@@ -26,6 +27,7 @@ namespace AppInstaller::Utility::Msix
             return m_isBundle;
         }
 
+        // Full content of AppxSignature.p7x
         std::vector<byte> GetSignature();
 
     private:
