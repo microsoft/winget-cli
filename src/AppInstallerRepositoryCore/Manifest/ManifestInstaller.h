@@ -55,4 +55,6 @@ namespace AppInstaller::Manifest
         // defaultInstaller: if an optional field is not found in the YAML node, the field will be populated with value from defaultInstaller.
         void PopulateInstallerFields(const YAML::Node& installerNode, const ManifestInstaller& defaultInstaller);
     };
+
+    std::ostream& operator<<(std::ostream& out, const ManifestInstaller::InstallerTypeEnum& installerType);
 }

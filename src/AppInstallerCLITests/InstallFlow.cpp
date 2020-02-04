@@ -6,7 +6,7 @@
 #include "AppInstallerDownloader.h"
 #include "AppInstallerStrings.h"
 #include "Workflows/InstallFlow.h"
-#include "Workflows/ExecutableInstallerHandler.h"
+#include "Workflows/ShellExecuteInstallerHandler.h"
 #include "Workflows/MsixInstallerHandler.h"
 
 using namespace winrt::Windows::Foundation;
@@ -37,12 +37,12 @@ protected:
     }
 };
 
-class ExecutableInstallerHandlerTest : public ExecutableInstallerHandler
+class ShellExecuteInstallerHandlerTest : public ShellExecuteInstallerHandler
 {
 public:
-    ExecutableInstallerHandlerTest(
+    ShellExecuteInstallerHandlerTest(
         const ManifestInstaller& manifestInstaller,
-        WorkflowReporter& reporter) : ExecutableInstallerHandler(manifestInstaller, reporter) {};
+        WorkflowReporter& reporter) : ShellExecuteInstallerHandler(manifestInstaller, reporter) {};
 
     void Download() override
     {
@@ -61,16 +61,13 @@ public:
 protected:
     std::unique_ptr<InstallerHandlerBase> GetInstallerHandler() override
     {
-        if (m_selectedInstaller.InstallerType == ManifestInstaller::InstallerTypeEnum::Exe)
+        switch (m_selectedInstaller.InstallerType)
         {
-            return std::make_unique<ExecutableInstallerHandlerTest>(m_selectedInstaller, m_reporter);
-        }
-        else if (m_selectedInstaller.InstallerType == ManifestInstaller::InstallerTypeEnum::Msix)
-        {
+        case ManifestInstaller::InstallerTypeEnum::Exe:
+            return std::make_unique<ShellExecuteInstallerHandlerTest>(m_selectedInstaller, m_reporter);
+        case ManifestInstaller::InstallerTypeEnum::Msix:
             return std::make_unique<MsixInstallerHandlerTest>(m_selectedInstaller, m_reporter);
-        }
-        else
-        {
+        default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
     }
@@ -78,9 +75,7 @@ protected:
 
 TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
 {
-    auto installResultPath = std::filesystem::current_path().append("TestExeInstalled.txt");
-
-    std::filesystem::remove(installResultPath);
+    TestCommon::TempFile installResultPath("TestExeInstalled", ".txt", true, false, true);
 
     auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yml"));
 
@@ -90,8 +85,8 @@ TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
     INFO(installOutput.str());
 
     // Verify Installer is called and parameters are passed in.
-    REQUIRE(std::filesystem::exists(installResultPath));
-    std::ifstream installResultFile(installResultPath);
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
     REQUIRE(installResultFile.is_open());
     std::string installResultStr;
     std::getline(installResultFile, installResultStr);
@@ -100,9 +95,7 @@ TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
 
 TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow]")
 {
-    auto installResultPath = std::filesystem::current_path().append("TestExeInstalled.txt");
-
-    std::filesystem::remove(installResultPath);
+    TestCommon::TempFile installResultPath("TestExeInstalled", ".txt", true, false, true);
 
     auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_NoApplicableArchitecture.yml"));
 
@@ -112,15 +105,14 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow]")
     INFO(installOutput.str());
 
     // Verify Installer is called and parameters are passed in.
-    REQUIRE(!std::filesystem::exists(installResultPath));
+    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
 }
 
 TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow]")
 {
-    auto installResultPath = std::filesystem::current_path().append("TestMsixInstalled.txt");
+    TestCommon::TempFile installResultPath("TestMsixInstalled", ".txt", true, false, true);
 
-    std::filesystem::remove(installResultPath);
-
+    // Todo: point to files from our repo when the repo goes public
     auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Msix_DownloadFlow.yml"));
 
     std::ostringstream installOutput;
@@ -129,8 +121,8 @@ TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow]")
     INFO(installOutput.str());
 
     // Verify Installer is called and a local file is used as package Uri.
-    REQUIRE(std::filesystem::exists(installResultPath));
-    std::ifstream installResultFile(installResultPath);
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
     REQUIRE(installResultFile.is_open());
     std::string installResultStr;
     std::getline(installResultFile, installResultStr);
@@ -139,10 +131,9 @@ TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow]")
 
 TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow]")
 {
-    auto installResultPath = std::filesystem::current_path().append("TestMsixInstalled.txt");
+    TestCommon::TempFile installResultPath("TestMsixInstalled", ".txt", true, false, true);
 
-    std::filesystem::remove(installResultPath);
-
+    // Todo: point to files from our repo when the repo goes public
     auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Msix_StreamingFlow.yml"));
 
     std::ostringstream installOutput;
@@ -151,8 +142,8 @@ TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow]")
     INFO(installOutput.str());
 
     // Verify Installer is called and a local file is used as package Uri.
-    REQUIRE(std::filesystem::exists(installResultPath));
-    std::ifstream installResultFile(installResultPath);
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
     REQUIRE(installResultFile.is_open());
     std::string installResultStr;
     std::getline(installResultFile, installResultStr);

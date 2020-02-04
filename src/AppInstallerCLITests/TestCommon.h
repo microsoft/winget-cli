@@ -14,7 +14,7 @@ namespace TestCommon
     // Use this to create a temporary file for testing.
     struct TempFile
     {
-        TempFile(const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction = true);
+        TempFile(const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction = true, bool useRand = true, bool useCurrectDir = false);
 
         TempFile(const TempFile&) = delete;
         TempFile& operator=(const TempFile&) = delete;

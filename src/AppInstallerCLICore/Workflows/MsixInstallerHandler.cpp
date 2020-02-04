@@ -34,8 +34,8 @@ namespace AppInstaller::Workflow
         else
         {
             // Signature hash provided. No download needed. Just verify signature hash.
-            auto msixInfo = Msix::MsixInfo::CreateMsixInfo(m_manifestInstallerRef.Url);
-            auto signature = msixInfo->GetSignature();
+            Msix::MsixInfo msixInfo(m_manifestInstallerRef.Url);
+            auto signature = msixInfo.GetSignature();
 
             SHA256::HashBuffer signatureHash;
             SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()), signatureHash);
@@ -91,7 +91,7 @@ namespace AppInstaller::Workflow
         m_reporterRef.ShowProgress(true, 0);
 
         // RequestAddPackageAsync will invoke smart screen.
-        auto deployOpration = packageManager.RequestAddPackageAsync(
+        auto deployOperation = packageManager.RequestAddPackageAsync(
             uri,
             nullptr, /*dependencyPackageUris*/
             deploymentOptions,
@@ -102,16 +102,18 @@ namespace AppInstaller::Workflow
         AsyncOperationProgressHandler<DeploymentResult, DeploymentProgress> progressCallback(
             [this](const IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress>&, DeploymentProgress progress)
             {
+                // Todo: might need to tweak progress reporting logic to account
+                // for the time before DeploymentRequest is dequeued.
                 m_reporterRef.ShowProgress(true, progress.percentage);
             }
         );
 
         // Set progress callback.
-        deployOpration.Progress(progressCallback);
+        deployOperation.Progress(progressCallback);
 
-        co_await deployOpration;
+        co_await deployOperation;
 
-        auto deployResult = deployOpration.GetResults();
+        auto deployResult = deployOperation.GetResults();
 
         m_reporterRef.ShowProgress(false, 0);
 

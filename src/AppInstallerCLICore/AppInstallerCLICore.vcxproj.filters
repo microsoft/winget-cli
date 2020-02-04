@@ -69,10 +69,10 @@
     <ClInclude Include="Workflows\InstallerHandlerBase.h">
       <Filter>Workflows</Filter>
     </ClInclude>
-    <ClInclude Include="Workflows\ExecutableInstallerHandler.h">
+    <ClInclude Include="Workflows\MsixInstallerHandler.h">
       <Filter>Workflows</Filter>
     </ClInclude>
-    <ClInclude Include="Workflows\MsixInstallerHandler.h">
+    <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h">
       <Filter>Workflows</Filter>
     </ClInclude>
   </ItemGroup>
@@ -107,10 +107,10 @@
     <ClCompile Include="Workflows\InstallerHandlerBase.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
-    <ClCompile Include="Workflows\ExecutableInstallerHandler.cpp">
+    <ClCompile Include="Workflows\MsixInstallerHandler.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
-    <ClCompile Include="Workflows\MsixInstallerHandler.cpp">
+    <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>

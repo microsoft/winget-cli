@@ -6,12 +6,12 @@
 
 namespace AppInstaller::Workflow
 {
-    // ExecutableInstallerHandler handles installers run through ShellExecute.
+    // ShellExecuteInstallerHandler handles installers run through ShellExecute.
     // Exe, Wix, Nullsoft, Msi and Inno should be handled by this installer handler.
-    class ExecutableInstallerHandler : public InstallerHandlerBase
+    class ShellExecuteInstallerHandler : public InstallerHandlerBase
     {
     public:
-        ExecutableInstallerHandler(
+        ShellExecuteInstallerHandler(
             const Manifest::ManifestInstaller& manifestInstaller,
             WorkflowReporter& reporter);
 

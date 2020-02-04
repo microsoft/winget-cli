@@ -4,7 +4,7 @@
 #include "pch.h"
 #include "InstallFlow.h"
 #include "ManifestComparator.h"
-#include "ExecutableInstallerHandler.h"
+#include "ShellExecuteInstallerHandler.h"
 #include "MsixInstallerHandler.h"
 
 using namespace winrt::Windows::Foundation;
@@ -44,16 +44,13 @@ namespace AppInstaller::Workflow {
 
     std::unique_ptr<InstallerHandlerBase> InstallFlow::GetInstallerHandler()
     {
-        if (m_selectedInstaller.InstallerType == ManifestInstaller::InstallerTypeEnum::Exe)
+        switch (m_selectedInstaller.InstallerType)
         {
-            return std::make_unique<ExecutableInstallerHandler>(m_selectedInstaller, m_reporter);
-        }
-        else if (m_selectedInstaller.InstallerType == ManifestInstaller::InstallerTypeEnum::Msix)
-        {
+        case ManifestInstaller::InstallerTypeEnum::Exe:
+            return std::make_unique<ShellExecuteInstallerHandler>(m_selectedInstaller, m_reporter);
+        case ManifestInstaller::InstallerTypeEnum::Msix:
             return std::make_unique<MsixInstallerHandler>(m_selectedInstaller, m_reporter);
-        }
-        else
-        {
+        default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
     }

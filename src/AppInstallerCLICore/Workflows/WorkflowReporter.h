@@ -67,7 +67,7 @@ namespace AppInstaller::Workflow
 
         void ShowMsg(Level level, const std::string& msg);
 
-        // Used to show indefinite progress.
+        // Used to show definite progress.
         // running: shows progress bar if set to true, dismisses progress bar if set to false
         void ShowProgress(bool running, int progress);
 

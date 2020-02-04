@@ -42,25 +42,70 @@ namespace AppInstaller::Manifest
 
     ManifestInstaller::InstallerTypeEnum ManifestInstaller::ConvertToInstallerTypeEnum(const std::string& in)
     {
-        static std::map<std::string, InstallerTypeEnum> InstallerTypeEnumMap = {
-            { "inno", InstallerTypeEnum::Inno },
-            { "wix", InstallerTypeEnum::Wix },
-            { "msi", InstallerTypeEnum::Msi },
-            { "nullsoft", InstallerTypeEnum::Nullsoft },
-            { "zip", InstallerTypeEnum::Zip },
-            { "appx", InstallerTypeEnum::Msix },
-            { "msix", InstallerTypeEnum::Msix },
-            { "exe", InstallerTypeEnum::Exe },
-        };
-
         std::string inStrLower = Utility::ToLower(in);
-        auto iter = InstallerTypeEnumMap.find(inStrLower);
+        InstallerTypeEnum result = InstallerTypeEnum::Unknown;
 
-        if (iter != InstallerTypeEnumMap.end())
+        if (inStrLower == "inno")
         {
-            return iter->second;
+            result = InstallerTypeEnum::Inno;
+        }
+        else if (inStrLower == "wix")
+        {
+            result = InstallerTypeEnum::Wix;
+        }
+        else if (inStrLower == "msi")
+        {
+            result = InstallerTypeEnum::Msi;
+        }
+        else if (inStrLower == "nullsoft")
+        {
+            result = InstallerTypeEnum::Nullsoft;
+        }
+        else if (inStrLower == "zip")
+        {
+            result = InstallerTypeEnum::Zip;
+        }
+        else if (inStrLower == "appx" || inStrLower == "msix")
+        {
+            result = InstallerTypeEnum::Msix;
+        }
+        else if (inStrLower == "exe")
+        {
+            result = InstallerTypeEnum::Exe;
         }
 
-        return InstallerTypeEnum::Unknown;
+        return result;
+    }
+
+    std::ostream& operator<<(std::ostream& out, const ManifestInstaller::InstallerTypeEnum& installerType)
+    {
+        switch (installerType)
+        {
+        case ManifestInstaller::InstallerTypeEnum::Exe:
+            out << "Exe";
+            break;
+        case ManifestInstaller::InstallerTypeEnum::Inno:
+            out << "Inno";
+            break;
+        case ManifestInstaller::InstallerTypeEnum::Msi:
+            out << "Msi";
+            break;
+        case ManifestInstaller::InstallerTypeEnum::Msix:
+            out << "Msix";
+            break;
+        case ManifestInstaller::InstallerTypeEnum::Nullsoft:
+            out << "Nullsoft";
+            break;
+        case ManifestInstaller::InstallerTypeEnum::Wix:
+            out << "Wix";
+            break;
+        case ManifestInstaller::InstallerTypeEnum::Zip:
+            out << "Zip";
+            break;
+        default:
+            out << "Unknown";
+        }
+
+        return out;
     }
 }

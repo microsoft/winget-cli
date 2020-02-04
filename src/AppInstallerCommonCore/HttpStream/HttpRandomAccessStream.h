@@ -10,7 +10,6 @@ namespace AppInstaller::Utility::HttpStream
 {
     // Provides an implementation of a random access stream over HTTP that supports
     // range-based fetching. This is intended to be used by AppxPackageReader.
-    // We should switch to the platform implementation once it is supported (11722780).
     //
     // Note: If the server doesn't support HTTP ranges, this implementation will throw an exception.
     class HttpRandomAccessStream : public winrt::implements<

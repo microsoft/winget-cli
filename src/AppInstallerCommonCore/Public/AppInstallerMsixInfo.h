@@ -4,23 +4,30 @@
 #pragma once
 #include "pch.h"
 
-namespace AppInstaller::Utility::Msix
+namespace AppInstaller::Msix
 {
     // Function to create an AppxBundle package reader given the input file name.
-    HRESULT GetBundleReader(
+    // Returns true if success, false if the input stream is of wrong type.
+    bool GetBundleReader(
         IStream* inputStream,
         IAppxBundleReader** reader);
 
     // Function to create an Appx package reader given the input file name.
-    HRESULT GetPackageReader(
+    // Returns true if success, false if the input stream is of wrong type.
+    bool GetPackageReader(
         IStream* inputStream,
         IAppxPackageReader** reader);
 
     // MsixInfo class handles all appx/msix related query.
-    class MsixInfo
+    struct MsixInfo
     {
-    public:
-        static std::unique_ptr<MsixInfo> CreateMsixInfo(const std::string& uriStr);
+        MsixInfo(const std::string& uriStr);
+
+        MsixInfo(const MsixInfo&) = default;
+        MsixInfo& operator=(const MsixInfo&) = default;
+
+        MsixInfo(MsixInfo&&) = default;
+        MsixInfo& operator=(MsixInfo&&) = default;
 
         inline bool GetIsBundle()
         {
@@ -31,10 +38,6 @@ namespace AppInstaller::Utility::Msix
         std::vector<byte> GetSignature();
 
     private:
-        MsixInfo() {};
-
-        void PopulateMsixInfo(const std::string& uriStr);
-
         bool m_isBundle;
         Microsoft::WRL::ComPtr<IStream> m_stream;
         Microsoft::WRL::ComPtr<IAppxBundleReader> m_bundleReader;

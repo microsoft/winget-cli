@@ -3,14 +3,14 @@
 
 #include "pch.h"
 #include "Common.h"
-#include "ExecutableInstallerHandler.h"
+#include "ShellExecuteInstallerHandler.h"
 
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::Workflow
 {
-    ExecutableInstallerHandler::ExecutableInstallerHandler(
+    ShellExecuteInstallerHandler::ShellExecuteInstallerHandler(
         const Manifest::ManifestInstaller& manifestInstaller,
         WorkflowReporter& reporter) :
     InstallerHandlerBase(manifestInstaller, reporter)
@@ -23,7 +23,7 @@ namespace AppInstaller::Workflow
         }
     }
 
-    void ExecutableInstallerHandler::Install()
+    void ShellExecuteInstallerHandler::Install()
     {
         if (m_downloadedInstaller.empty())
         {
@@ -57,7 +57,7 @@ namespace AppInstaller::Workflow
         m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Successfully installed!");
     }
 
-    std::future<DWORD> ExecutableInstallerHandler::ExecuteInstallerAsync(const std::filesystem::path& filePath, const std::string& args)
+    std::future<DWORD> ShellExecuteInstallerHandler::ExecuteInstallerAsync(const std::filesystem::path& filePath, const std::string& args)
     {
         AICLI_LOG(CLI, Info, << "Staring installer. Path: " << filePath);
         return std::async(std::launch::async, [&filePath, &args]
@@ -87,7 +87,7 @@ namespace AppInstaller::Workflow
             });
     }
 
-    std::string ExecutableInstallerHandler::GetInstallerArgs()
+    std::string ShellExecuteInstallerHandler::GetInstallerArgs()
     {
         // Todo: Implement arg selection logic.
         if (m_manifestInstallerRef.Switches.has_value())
@@ -98,7 +98,7 @@ namespace AppInstaller::Workflow
         return "";
     }
 
-    void ExecutableInstallerHandler::RenameDownloadedInstaller()
+    void ShellExecuteInstallerHandler::RenameDownloadedInstaller()
     {
         std::filesystem::path renamedDownloadedInstaller(m_downloadedInstaller);
 

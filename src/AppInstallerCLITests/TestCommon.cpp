@@ -19,14 +19,30 @@ namespace TestCommon
             return randStart++;
         }
 
-        inline std::string GetTempFilePath(const std::string& baseName, const std::string& baseExt)
+        inline std::string GetTempFilePath(const std::string& baseName, const std::string& baseExt, bool useRand, bool useCurrentDir)
         {
-            char tempPath[MAX_PATH]{};
-            REQUIRE(GetTempPathA(MAX_PATH, tempPath) != 0);
-
-            srand(static_cast<unsigned int>(time(NULL)));
             std::stringstream tempFileName;
-            tempFileName << tempPath << '\\' << baseName << getRand() << baseExt;
+
+            if (useCurrentDir)
+            {
+                tempFileName << std::filesystem::current_path().string();
+            }
+            else
+            {
+                char tempPath[MAX_PATH]{};
+                REQUIRE(GetTempPathA(MAX_PATH, tempPath) != 0);
+                tempFileName << tempPath;
+            }
+
+            tempFileName << '\\' << baseName;
+
+            if (useRand)
+            {
+                srand(static_cast<unsigned int>(time(NULL)));
+                tempFileName << getRand();
+            }
+
+            tempFileName << baseExt;
 
             return tempFileName.str();
         }
@@ -36,9 +52,9 @@ namespace TestCommon
         static std::filesystem::path s_TestDataFileBasePath{};
     }
 
-    TempFile::TempFile(const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction)
+    TempFile::TempFile(const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction, bool useRand, bool useCurrentDir)
     {
-        _filepath = GetTempFilePath(baseName, baseExt);
+        _filepath = GetTempFilePath(baseName, baseExt, useRand, useCurrentDir);
         if (deleteFileOnConstruction)
         {
             DeleteFileA(_filepath.c_str());

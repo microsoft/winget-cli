@@ -11,28 +11,41 @@ using namespace winrt::Windows::Storage::Streams;
 using namespace Microsoft::WRL;
 using namespace AppInstaller::Utility::HttpStream;
 
-namespace AppInstaller::Utility::Msix
+namespace AppInstaller::Msix
 {
-    HRESULT GetBundleReader(
+    bool GetBundleReader(
         _In_ IStream* inputStream,
         _Outptr_ IAppxBundleReader** reader)
     {
         ComPtr<IAppxBundleFactory> bundleFactory;
 
         // Create a new Appxbundle factory
-        RETURN_IF_FAILED(CoCreateInstance(
+        THROW_IF_FAILED(CoCreateInstance(
             __uuidof(AppxBundleFactory),
             nullptr,
             CLSCTX_INPROC_SERVER,
             __uuidof(IAppxBundleFactory),
             (LPVOID*)(&bundleFactory)));
 
-        RETURN_IF_FAILED(bundleFactory->CreateBundleReader(inputStream, reader));
+        HRESULT hr = bundleFactory->CreateBundleReader(inputStream, reader);
 
-        return S_OK;
+        if (SUCCEEDED(hr))
+        {
+            return true;
+        }
+        else if (hr == APPX_E_MISSING_REQUIRED_FILE)
+        {
+            // APPX_E_MISSING_REQUIRED_FILE returned when trying to open
+            // an *.msix as an *.msixbundle or vice-versa.
+            return false;
+        }
+        else
+        {
+            THROW_HR(hr);
+        }
     }
 
-    HRESULT GetPackageReader(
+    bool GetPackageReader(
         _In_ IStream* inputStream,
         _Outptr_ IAppxPackageReader** reader)
     {
@@ -40,7 +53,7 @@ namespace AppInstaller::Utility::Msix
         ComPtr<IAppxFactory> appxFactory;
 
         // Create a new Appx factory
-        RETURN_IF_FAILED(CoCreateInstance(
+        THROW_IF_FAILED(CoCreateInstance(
             __uuidof(AppxFactory),
             nullptr,
             CLSCTX_INPROC_SERVER,
@@ -48,19 +61,25 @@ namespace AppInstaller::Utility::Msix
             (LPVOID*)(&appxFactory)));
 
         // Create a new package reader using the factory.
-        RETURN_IF_FAILED(appxFactory->CreatePackageReader(inputStream, reader));
+        HRESULT hr = appxFactory->CreatePackageReader(inputStream, reader);
 
-        return S_OK;
+        if (SUCCEEDED(hr))
+        {
+            return true;
+        }
+        else if (hr == APPX_E_MISSING_REQUIRED_FILE)
+        {
+            // APPX_E_MISSING_REQUIRED_FILE returned when trying to open
+            // an *.msix as an *.msixbundle or vice-versa.
+            return false;
+        }
+        else
+        {
+            THROW_HR(hr);
+        }
     }
 
-    std::unique_ptr<MsixInfo> MsixInfo::CreateMsixInfo(const std::string& uriStr)
-    {
-        auto msixInfo = std::unique_ptr<MsixInfo>(new MsixInfo());
-        msixInfo->PopulateMsixInfo(uriStr);
-        return msixInfo;
-    }
-
-    void MsixInfo::PopulateMsixInfo(const std::string& uriStr)
+    MsixInfo::MsixInfo(const std::string& uriStr)
     {
         // Get an IStream from the input uri and try to create package or bundler reader.
         winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(uriStr));
@@ -71,21 +90,18 @@ namespace AppInstaller::Utility::Msix
             rasAsIUnknown,
             IID_PPV_ARGS(m_stream.ReleaseAndGetAddressOf())));
 
-        HRESULT hr = GetBundleReader(m_stream.Get(), &m_bundleReader);
-        if (SUCCEEDED(hr))
+        if (GetBundleReader(m_stream.Get(), &m_bundleReader))
         {
             m_isBundle = true;
         }
-        else if (hr == APPX_E_MISSING_REQUIRED_FILE) // returned when trying to open an *.msix as an *.msixbundle or vice-versa
+        else if (GetPackageReader(m_stream.Get(), &m_packageReader))
         {
-            hr = GetPackageReader(m_stream.Get(), &m_packageReader);
-            if (SUCCEEDED(hr))
-            {
-                m_isBundle = false;
-            }
+            m_isBundle = false;
         }
-
-        THROW_IF_FAILED(hr);
+        else
+        {
+            THROW_HR_MSG(E_UNEXPECTED, "Failed to open uri as msix package or bundle. Uri: %s", uriStr.c_str());
+        }
     }
 
     std::vector<byte> MsixInfo::GetSignature()
@@ -108,6 +124,7 @@ namespace AppInstaller::Utility::Msix
 
         STATSTG stat = { 0 };
         THROW_IF_FAILED(signatureStream->Stat(&stat, STATFLAG_NONAME));
+        THROW_HR_IF(E_UNEXPECTED, stat.cbSize.HighPart != 0); // Signature size should be small
         signatureSize = stat.cbSize.LowPart;
 
         signatureContent.resize(signatureSize);
