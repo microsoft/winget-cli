@@ -1,5 +1,6 @@
 LIBRARY     AppInstallerSQLiteIndexUtil
 EXPORTS
+    AppInstallerLoggingInit
     AppInstallerSQLiteIndexCreate
     AppInstallerSQLiteIndexOpen
     AppInstallerSQLiteIndexClose
