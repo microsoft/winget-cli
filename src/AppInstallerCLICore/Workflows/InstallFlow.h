@@ -3,10 +3,11 @@
 
 #pragma once
 #include "Common.h"
+#include "InstallerHandlerBase.h"
 #include "WorkflowReporter.h"
 
-namespace AppInstaller::Workflow {
-
+namespace AppInstaller::Workflow
+{
     class InstallFlow
     {
     public:
@@ -19,13 +20,11 @@ namespace AppInstaller::Workflow {
         AppInstaller::Manifest::Manifest m_packageManifest;
         AppInstaller::Manifest::ManifestInstaller m_selectedInstaller;
         AppInstaller::Manifest::ManifestLocalization m_selectedLocalization;
-        std::filesystem::path m_downloadedInstaller;
         WorkflowReporter m_reporter;
 
-        virtual void DownloadInstaller();
-        virtual void ExecuteInstaller();
-        std::string GetInstallerArgs();
+        virtual void ProcessManifest();
 
-        std::future<DWORD> ExecuteExeInstallerAsync(const std::filesystem::path& filePath, const std::string& args);
+        // Creates corresponding InstallerHandler according to InstallerType
+        virtual std::unique_ptr<InstallerHandlerBase> GetInstallerHandler();
     };
 }

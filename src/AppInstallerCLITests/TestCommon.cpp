@@ -19,16 +19,13 @@ namespace TestCommon
             return randStart++;
         }
 
-        inline std::string GetTempFilePath(const std::string& baseName, const std::string& baseExt)
+        inline std::filesystem::path GetTempFilePath(const std::string& baseName, const std::string& baseExt)
         {
-            char tempPath[MAX_PATH]{};
-            REQUIRE(GetTempPathA(MAX_PATH, tempPath) != 0);
+            std::filesystem::path tempFilePath = std::filesystem::temp_directory_path();
 
-            srand(static_cast<unsigned int>(time(NULL)));
-            std::stringstream tempFileName;
-            tempFileName << tempPath << '\\' << baseName << getRand() << baseExt;
+            tempFilePath /= baseName + std::to_string(getRand()) + baseExt;
 
-            return tempFileName.str();
+            return tempFilePath;
         }
 
         static bool s_TempFileDestructorKeepsFile{};
@@ -41,7 +38,16 @@ namespace TestCommon
         _filepath = GetTempFilePath(baseName, baseExt);
         if (deleteFileOnConstruction)
         {
-            DeleteFileA(_filepath.c_str());
+            std::filesystem::remove(_filepath);
+        }
+    }
+
+    TempFile::TempFile(const std::filesystem::path& filePath, bool deleteFileOnConstruction)
+    {
+        _filepath = filePath;
+        if (deleteFileOnConstruction)
+        {
+            std::filesystem::remove(_filepath);
         }
     }
 
@@ -49,7 +55,7 @@ namespace TestCommon
     {
         if (!s_TempFileDestructorKeepsFile)
         {
-            DeleteFileA(_filepath.c_str());
+            std::filesystem::remove(_filepath);
         }
     }
 

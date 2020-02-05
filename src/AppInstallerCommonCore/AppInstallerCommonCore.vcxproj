@@ -115,7 +115,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
       <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalOptions>%(AdditionalOptions) /permissive- /bigobj</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /permissive-</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
@@ -166,10 +166,14 @@
   <ItemGroup>
     <ClInclude Include="DateTime.h" />
     <ClInclude Include="FileLogger.h" />
+    <ClInclude Include="HttpStream\HttpClientWrapper.h" />
+    <ClInclude Include="HttpStream\HttpLocalCache.h" />
+    <ClInclude Include="HttpStream\HttpRandomAccessStream.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\AppInstallerDownloader.h" />
     <ClInclude Include="Public\AppInstallerErrors.h" />
     <ClInclude Include="Public\AppInstallerLanguageUtilities.h" />
+    <ClInclude Include="Public\AppInstallerMsixInfo.h" />
     <ClInclude Include="Public\AppInstallerRuntime.h" />
     <ClInclude Include="Public\AppInstallerSHA256.h" />
     <ClInclude Include="Public\AppInstallerStrings.h" />
@@ -186,6 +190,10 @@
     <ClCompile Include="DateTime.cpp" />
     <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="FileLogger.cpp" />
+    <ClCompile Include="HttpStream\HttpClientWrapper.cpp" />
+    <ClCompile Include="HttpStream\HttpLocalCache.cpp" />
+    <ClCompile Include="HttpStream\HttpRandomAccessStream.cpp" />
+    <ClCompile Include="MsixInfo.cpp" />
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

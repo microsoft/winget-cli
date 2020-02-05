@@ -13,6 +13,12 @@ namespace AppInstaller::Utility
     // Converts the given UTF8 string to UTF16
     std::wstring ConvertToUTF16(std::string_view input);
 
-    // Get the lower case version of the given string
+    // Get the lower case version of the given std::string
     std::string ToLower(const std::string& in);
+
+    // Get the lower case version of the given std::wstring
+    std::wstring ToLower(const std::wstring& in);
+
+    // Checks if the input string is empty or whitespace
+    bool IsEmptyOrWhitespace(std::wstring_view str);
 }

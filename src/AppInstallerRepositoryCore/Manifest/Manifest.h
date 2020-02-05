@@ -34,9 +34,6 @@ namespace AppInstaller::Manifest
 
         std::string Publisher;
 
-        // Comma separated Values
-        std::string Authors;
-
         std::string Channel;
 
         std::string Author;
@@ -61,7 +58,7 @@ namespace AppInstaller::Manifest
 
         std::vector<ManifestLocalization> Localization;
 
-        std::string InstallerType;
+        ManifestInstaller::InstallerTypeEnum InstallerType;
 
         std::optional<InstallerSwitches> Switches;
 

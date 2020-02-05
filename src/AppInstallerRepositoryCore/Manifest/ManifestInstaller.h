@@ -11,6 +11,19 @@ namespace AppInstaller::Manifest
     class ManifestInstaller
     {
     public:
+
+        enum class InstallerTypeEnum
+        {
+            Inno,
+            Wix,
+            Msi,
+            Nullsoft,
+            Zip,
+            Msix,
+            Exe,
+            Unknown
+        };
+
         // Required. Values: x86, x64, arm, arm64, all.
         AppInstaller::Utility::Architecture Arch;
 
@@ -20,6 +33,10 @@ namespace AppInstaller::Manifest
         // Required
         std::vector<BYTE> Sha256;
 
+        // Optional. Only used by appx/msix type. If provided, Appinstaller will
+        // validate appx/msix signature and perform streaming install.
+        std::vector<BYTE> SignatureSha256;
+
         // Empty means default
         std::string Language;
 
@@ -27,13 +44,17 @@ namespace AppInstaller::Manifest
         std::string Scope;
 
         // If present, has more presedence than root
-        std::string InstallerType;
+        InstallerTypeEnum InstallerType;
 
         // If present, has more presedence than root
         std::optional<InstallerSwitches> Switches;
+
+        static InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
 
         // Populates ManifestInstaller
         // defaultInstaller: if an optional field is not found in the YAML node, the field will be populated with value from defaultInstaller.
         void PopulateInstallerFields(const YAML::Node& installerNode, const ManifestInstaller& defaultInstaller);
     };
+
+    std::ostream& operator<<(std::ostream& out, const ManifestInstaller::InstallerTypeEnum& installerType);
 }

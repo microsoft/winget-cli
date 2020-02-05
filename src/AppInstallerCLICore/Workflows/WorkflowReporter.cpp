@@ -6,38 +6,13 @@
 
 namespace AppInstaller::Workflow
 {
-    void DownloaderCallback::OnStarted()
-    {
-        out << "Starting package download ..." << std::endl;
-    }
-
-    void DownloaderCallback::OnProgress(LONGLONG progress, LONGLONG downloadSize)
-    {
-        out << "\rDownloading " << progress << '/' << downloadSize;
-
-        if (progress == downloadSize)
-        {
-            out << std::endl;
-        }
-    }
-
-    void DownloaderCallback::OnCanceled()
-    {
-        out << "Package download canceled ..." << std::endl;
-    }
-
-    void DownloaderCallback::OnCompleted()
-    {
-        out << "Package download completed ..." << std::endl;
-    }
-
     void WorkflowReporter::ShowPackageInfo(
         const std::string& name,
         const std::string& version,
         const std::string& author,
         const std::string& description,
         const std::string& homepage,
-        const std::string& licenceUrl
+        const std::string& licenseUrl
     )
     {
         out << "Name: " << name << std::endl;
@@ -45,7 +20,7 @@ namespace AppInstaller::Workflow
         out << "Author: " << author << std::endl;
         out << "Description: " << description << std::endl;
         out << "Homepage: " << homepage << std::endl;
-        out << "Licence: " << licenceUrl << std::endl;
+        out << "License: " << licenseUrl << std::endl;
     }
 
     bool WorkflowReporter::PromptForBoolResponse(Level level, const std::string& msg)
@@ -68,7 +43,7 @@ namespace AppInstaller::Workflow
         out << msg << std::endl;
     }
 
-    void WorkflowReporter::ShowIndefiniteSpinner(bool running)
+    void WorkflowReporter::ShowIndefiniteProgress(bool running)
     {
         if (running)
         {
@@ -78,6 +53,11 @@ namespace AppInstaller::Workflow
         {
             m_spinner.StopSpinner();
         }
+    }
+
+    void WorkflowReporter::ShowProgress(bool running, int progress)
+    {
+        m_progressBar.ShowProgress(running, progress);
     }
 
     void IndefiniteSpinner::ShowSpinner()
@@ -115,6 +95,30 @@ namespace AppInstaller::Workflow
         {
             m_canceled = true;
             m_spinnerJob.wait();
+        }
+    }
+
+    void ProgressBar::ShowProgress(bool running, int progress)
+    {
+        if (running)
+        {
+            if (m_isVisible)
+            {
+                out << "\rProgress: " << progress;
+            }
+            else
+            {
+                out << "Progress: " << progress;
+                m_isVisible = true;
+            }
+        }
+        else
+        {
+            if (m_isVisible)
+            {
+                out << std::endl;
+                m_isVisible = false;
+            }
         }
     }
 }

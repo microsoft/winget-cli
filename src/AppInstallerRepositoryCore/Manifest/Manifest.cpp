@@ -46,7 +46,6 @@ namespace AppInstaller::Manifest
 
         // Optional fields.
         this->AppMoniker = rootNode["AppMoniker"] ? rootNode["AppMoniker"].as<std::string>() : "";
-        this->Authors = rootNode["Authors"] ? rootNode["Authors"].as<std::string>() : "";
         this->Channel = rootNode["Channel"] ? rootNode["Channel"].as<std::string>() : "";
         this->Author = rootNode["Author"] ? rootNode["Author"].as<std::string>() : "";
         this->License = rootNode["License"] ? rootNode["License"].as<std::string>() : "";
@@ -55,7 +54,9 @@ namespace AppInstaller::Manifest
         this->Commands = SplitMultiValueField(rootNode["Commands"] ? rootNode["Commands"].as<std::string>() : "");
         this->Protocols = SplitMultiValueField(rootNode["Protocols"] ? rootNode["Protocols"].as<std::string>() : "");
         this->FileExtensions = SplitMultiValueField(rootNode["FileExtensions"] ? rootNode["FileExtensions"].as<std::string>() : "");
-        this->InstallerType = rootNode["InstallerType"] ? rootNode["InstallerType"].as<std::string>() : "";
+        this->InstallerType = rootNode["InstallerType"] ?
+            ManifestInstaller::ConvertToInstallerTypeEnum(rootNode["InstallerType"].as<std::string>()) :
+            ManifestInstaller::InstallerTypeEnum::Unknown;
         this->Description = rootNode["Description"] ? rootNode["Description"].as<std::string>() : "";
         this->Homepage = rootNode["Homepage"] ? rootNode["Homepage"].as<std::string>() : "";
         this->LicenseUrl = rootNode["LicenseUrl"] ? rootNode["LicenseUrl"].as<std::string>() : "";

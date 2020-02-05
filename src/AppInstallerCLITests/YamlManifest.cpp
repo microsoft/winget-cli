@@ -48,7 +48,7 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
     REQUIRE(manifest.Commands == MultiValue{ "makemsix", "makeappx" });
     REQUIRE(manifest.Protocols == MultiValue{ "protocol1", "protocol2" });
     REQUIRE(manifest.FileExtensions == MultiValue{ "appx", "appxbundle", "msix", "msixbundle" });
-    REQUIRE(manifest.InstallerType == "Zip");
+    REQUIRE(manifest.InstallerType == ManifestInstaller::InstallerTypeEnum::Zip);
 
     // default switches
     REQUIRE(manifest.Switches.has_value());
@@ -64,7 +64,7 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
     REQUIRE(installer1.Url == "https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx86.zip");
     REQUIRE(installer1.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
     REQUIRE(installer1.Language == "en-US");
-    REQUIRE(installer1.InstallerType == "Zip");
+    REQUIRE(installer1.InstallerType == ManifestInstaller::InstallerTypeEnum::Zip);
     REQUIRE(installer1.Scope == "user");
 
     REQUIRE(installer1.Switches.has_value());
@@ -78,7 +78,7 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
     REQUIRE(installer2.Url == "https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx64.zip");
     REQUIRE(installer2.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF0000"));
     REQUIRE(installer2.Language == "en-US");
-    REQUIRE(installer2.InstallerType == "Zip");
+    REQUIRE(installer2.InstallerType == ManifestInstaller::InstallerTypeEnum::Zip);
     REQUIRE(installer2.Scope == "user");
 
     // Installer2 does not declare switches, it inherits switches from package default.

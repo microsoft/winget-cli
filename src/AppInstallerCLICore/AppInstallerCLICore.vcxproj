@@ -169,14 +169,17 @@
     <ClInclude Include="Commands\DescribeCommand.h" />
     <ClInclude Include="Commands\InstallCommand.h" />
     <ClInclude Include="Commands\RootCommand.h" />
-    <ClInclude Include="Workflows\Common.h" />
-    <ClInclude Include="Workflows\InstallFlow.h" />
     <ClInclude Include="Invocation.h" />
     <ClInclude Include="Localization.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\AppInstallerCLICore.h" />
     <ClInclude Include="Search\Search.h" />
+    <ClInclude Include="Workflows\Common.h" />
+    <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
+    <ClInclude Include="Workflows\InstallerHandlerBase.h" />
+    <ClInclude Include="Workflows\InstallFlow.h" />
     <ClInclude Include="Workflows\ManifestComparator.h" />
+    <ClInclude Include="Workflows\MsixInstallerHandler.h" />
     <ClInclude Include="Workflows\WorkflowReporter.h" />
   </ItemGroup>
   <ItemGroup>
@@ -185,11 +188,14 @@
     <ClCompile Include="Commands\InstallCommand.cpp" />
     <ClCompile Include="Commands\RootCommand.cpp" />
     <ClCompile Include="Core.cpp" />
-    <ClCompile Include="Workflows\ManifestComparator.cpp" />
-    <ClCompile Include="Workflows\InstallFlow.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
+    <ClCompile Include="Workflows\InstallerHandlerBase.cpp" />
+    <ClCompile Include="Workflows\InstallFlow.cpp" />
+    <ClCompile Include="Workflows\ManifestComparator.cpp" />
+    <ClCompile Include="Workflows\MsixInstallerHandler.cpp" />
     <ClCompile Include="Workflows\WorkflowReporter.cpp" />
   </ItemGroup>
   <ItemGroup>
