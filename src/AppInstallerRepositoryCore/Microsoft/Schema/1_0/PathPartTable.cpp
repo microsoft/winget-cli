@@ -40,25 +40,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         {
             THROW_HR_IF(E_INVALIDARG, part.empty());
 
-            std::ostringstream insertPartSQL;
-            insertPartSQL << "INSERT INTO [" << s_PathPartTable_Table_Name << "] ("
-                << '[' << s_PathPartTable_ParentValue_Name << "],"
-                << '[' << s_PathPartTable_PartValue_Name << "])"
-                << " VALUES (?, ?)";
+            SQLite::Builder::StatementBuilder builder;
+            builder.InsertInto(s_PathPartTable_Table_Name).Columns({ s_PathPartTable_ParentValue_Name, s_PathPartTable_PartValue_Name }).Values(parent, part);
 
-            SQLite::Statement insert = SQLite::Statement::Create(connection, insertPartSQL.str());
-
-            if (parent)
-            {
-                insert.Bind(1, parent.value());
-            }
-            else
-            {
-                insert.Bind(1, nullptr);
-            }
-            insert.Bind(2, part);
-
-            insert.Execute();
+            builder.Execute(connection);
 
             return connection.GetLastInsertRowID();
         }
@@ -101,44 +86,32 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Removes the given part by id.
         void RemovePartById(SQLite::Connection& connection, SQLite::rowid_t id)
         {
-            std::ostringstream deletePartSQL;
-            deletePartSQL << "DELETE FROM [" << s_PathPartTable_Table_Name << "] WHERE "
-                << '[' << SQLite::RowIDName << "] = ?";
+            SQLite::Builder::StatementBuilder builder;
+            builder.DeleteFrom(s_PathPartTable_Table_Name).Where(SQLite::RowIDName).Equals(id);
 
-            SQLite::Statement deletePart = SQLite::Statement::Create(connection, deletePartSQL.str());
-
-            deletePart.Bind(1, id);
-
-            deletePart.Execute();
+            builder.Execute(connection);
         }
     }
 
     void PathPartTable::Create(SQLite::Connection& connection)
     {
+        using namespace SQLite::Builder;
+
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createPathParts_v1_0");
 
-        {
-            std::ostringstream createTableSQL;
-            createTableSQL << "CREATE TABLE [" << s_PathPartTable_Table_Name << "]("
-                << '[' << s_PathPartTable_ParentValue_Name << "] INT64,"
-                << '[' << s_PathPartTable_PartValue_Name << "] TEXT NOT NULL,"
-                << "PRIMARY KEY([" << s_PathPartTable_PartValue_Name << "], [" << s_PathPartTable_ParentValue_Name << "]))";
+        StatementBuilder createTableBuilder;
+        createTableBuilder.CreateTable(s_PathPartTable_Table_Name).Columns({
+            ColumnBuilder(s_PathPartTable_ParentValue_Name, Type::Int64),
+            ColumnBuilder(s_PathPartTable_PartValue_Name, Type::Text).NotNull(),
+            PrimaryKeyBuilder({ s_PathPartTable_PartValue_Name, s_PathPartTable_ParentValue_Name })
+            });
 
-            SQLite::Statement createStatement = SQLite::Statement::Create(connection, createTableSQL.str());
+        createTableBuilder.Execute(connection);
 
-            createStatement.Execute();
-        }
+        StatementBuilder createIndexBuilder;
+        createIndexBuilder.CreateIndex(s_PathPartTable_ParentIndex_Name).On(s_PathPartTable_Table_Name).Columns(s_PathPartTable_ParentValue_Name);
 
-        {
-            std::ostringstream createIndexSQL;
-            createIndexSQL << "CREATE INDEX [" << s_PathPartTable_ParentIndex_Name << "] "
-                << "ON [" << s_PathPartTable_Table_Name << "]("
-                << '[' << s_PathPartTable_ParentValue_Name << "])";
-
-            SQLite::Statement createStatement = SQLite::Statement::Create(connection, createIndexSQL.str());
-
-            createStatement.Execute();
-        }
+        createIndexBuilder.Execute(connection);
 
         savepoint.Commit();
     }

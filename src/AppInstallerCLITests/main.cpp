@@ -44,6 +44,11 @@ int main(int argc, char** argv)
         {
             AppInstaller::Logging::AddFileLogger();
         }
+        else if ("-logto"s == argv[i])
+        {
+            ++i;
+            AppInstaller::Logging::AddFileLogger(argv[i]);
+        }
         else if ("-tdd"s == argv[i])
         {
             ++i;

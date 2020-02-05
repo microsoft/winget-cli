@@ -34,14 +34,29 @@ steps:
 - task: CmdLine@2
   inputs:
     script: |
-      AppInstallerCLITests.exe -s -r junit -o TEST-AppInstallerCLI-$(_artifact).xml
+      AppInstallerCLITests.exe -logto AICLI.log -s -r junit -o TEST-AppInstallerCLI-$(_artifact).xml
     workingDirectory: 'src\x64\Release\AppInstallerCLITests\'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'src\x64\Release\AppInstallerCLITests\AICLI.log'
+    ArtifactName: 'TestPassLog'
+    publishLocation: 'Container'
+  condition: succeededOrFailed()
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'src\x64\Release\AppInstallerCLITests\TEST-AppInstallerCLI-$(_artifact).xml'
+    ArtifactName: 'TestPassOutput'
+    publishLocation: 'Container'
+  condition: succeededOrFailed()
 
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit'
     testResultsFiles: '**/TEST-*.xml'
     failTaskOnFailedTests: true
+  condition: succeededOrFailed()
 
 - task: PublishBuildArtifacts@1
   inputs:

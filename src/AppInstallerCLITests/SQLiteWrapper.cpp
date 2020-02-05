@@ -27,17 +27,22 @@ select first, second from simpletest
 
 void CreateSimpleTestTable(Connection& connection)
 {
-    Statement createTable = Statement::Create(connection, s_CreateSimpleTestTableSQL);
+    Builder::StatementBuilder builder;
+    builder.CreateTable(s_tableName).Columns({
+        Builder::ColumnBuilder(s_firstColumn, Builder::Type::Int),
+        Builder::ColumnBuilder(s_secondColumn, Builder::Type::Text),
+        });
+
+    Statement createTable = builder.Prepare(connection);
     REQUIRE_FALSE(createTable.Step());
     REQUIRE(createTable.GetState() == Statement::State::Completed);
 }
 
 void InsertIntoSimpleTestTable(Connection& connection, int firstVal, const std::string& secondVal)
 {
-    Statement insert = Statement::Create(connection, s_insertToSimpleTestTableSQL);
-
-    insert.Bind(1, firstVal);
-    insert.Bind(2, secondVal);
+    Builder::StatementBuilder builder;
+    builder.InsertInto(s_tableName).Columns({ s_firstColumn, s_secondColumn }).Values(firstVal, secondVal);
+    Statement insert = builder.Prepare(connection);
 
     REQUIRE_FALSE(insert.Step());
     REQUIRE(insert.GetState() == Statement::State::Completed);
@@ -45,9 +50,9 @@ void InsertIntoSimpleTestTable(Connection& connection, int firstVal, const std::
 
 void InsertIntoSimpleTestTableWithNull(Connection& connection, int firstVal)
 {
-    Statement insert = Statement::Create(connection, s_insertToSimpleTestTableSQL);
-
-    insert.Bind(1, firstVal);
+    Builder::StatementBuilder builder;
+    builder.InsertInto(s_tableName).Columns({ s_firstColumn, s_secondColumn }).Values(firstVal, nullptr);
+    Statement insert = builder.Prepare(connection);
 
     REQUIRE_FALSE(insert.Step());
     REQUIRE(insert.GetState() == Statement::State::Completed);
@@ -297,5 +302,166 @@ TEST_CASE("SQLBuilder_SimpleSelectOptional", "[sqlbuilder]")
         REQUIRE(statement.GetColumn<std::string>(1) == "2");
 
         REQUIRE(!statement.Step());
+    }
+}
+
+TEST_CASE("SQLBuilder_CreateTable", "[sqlbuilder]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    int testRun = GENERATE(0, 1, 2, 3, 4, 5, 6, 7);
+
+    bool notNull = ((testRun & 1) != 0);
+    bool unique = ((testRun & 2) != 0);
+    bool pk = ((testRun & 4) != 0);
+    CAPTURE(notNull, unique, pk);
+
+    Builder::StatementBuilder createTable;
+    createTable.CreateTable(s_tableName).Columns({
+        Builder::ColumnBuilder(s_firstColumn, Builder::Type::Int).NotNull(notNull).Unique(unique).PrimaryKey(pk)
+        });
+
+    createTable.Execute(connection);
+
+    Builder::StatementBuilder insertBuilder;
+    insertBuilder.InsertInto(s_tableName).Columns(s_firstColumn).Values(Builder::Unbound);
+
+    Statement insertStatement = insertBuilder.Prepare(connection);
+
+    {
+        INFO("Insert NULL");
+        insertStatement.Bind(1, nullptr);
+
+        if (notNull)
+        {
+            REQUIRE_THROWS_HR(insertStatement.Execute(), MAKE_HRESULT(SEVERITY_ERROR, FACILITY_SQLITE, SQLITE_CONSTRAINT_NOTNULL));
+        }
+        else
+        {
+            insertStatement.Execute();
+        }
+    }
+
+    {
+        INFO("Insert unique values");
+        insertStatement.Reset();
+        insertStatement.Bind(1, 1);
+        insertStatement.Execute();
+
+        insertStatement.Reset();
+        insertStatement.Bind(1, 2);
+        insertStatement.Execute();
+    }
+
+    {
+        INFO("Insert duplicate values");
+        insertStatement.Reset();
+        insertStatement.Bind(1, 1);
+
+        if (unique || pk)
+        {
+            HRESULT expectedHR = S_OK;
+            if (pk)
+            {
+                expectedHR = MAKE_HRESULT(SEVERITY_ERROR, FACILITY_SQLITE, SQLITE_CONSTRAINT_PRIMARYKEY);
+            }
+            else
+            {
+                expectedHR = MAKE_HRESULT(SEVERITY_ERROR, FACILITY_SQLITE, SQLITE_CONSTRAINT_UNIQUE);
+            }
+            REQUIRE_THROWS_HR(insertStatement.Execute(), expectedHR);
+        }
+        else
+        {
+            insertStatement.Execute();
+        }
+    }
+}
+
+TEST_CASE("SQLBuilder_InsertValueBinding", "[sqlbuilder]")
+{
+    char const* const columns[] = { "a", "b", "c", "d", "e", "f" };
+
+    TestCommon::TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::Create);
+
+    {
+        INFO("Create table");
+        Builder::StatementBuilder createTable;
+        createTable.CreateTable(s_tableName).BeginColumns();
+        for (const auto c : columns)
+        {
+            createTable.Column(Builder::ColumnBuilder(c, Builder::Type::Int));
+        }
+        createTable.EndColumns();
+        createTable.Execute(connection);
+    }
+
+    {
+        INFO("Insert values");
+        Builder::StatementBuilder insertBuilder;
+        insertBuilder.InsertInto(s_tableName).BeginColumns();
+        for (const auto c : columns)
+        {
+            insertBuilder.Column(c);
+        }
+        insertBuilder.EndColumns().Values(0, 1, 2, 3, 4, 5);
+        insertBuilder.Execute(connection);
+    }
+
+    {
+        INFO("Insert values");
+        Builder::StatementBuilder insertBuilder;
+        insertBuilder.InsertInto(s_tableName).BeginColumns();
+        for (const auto c : columns)
+        {
+            insertBuilder.Column(c);
+        }
+        insertBuilder.EndColumns().BeginValues();
+        insertBuilder.Value(5);
+        insertBuilder.Value(nullptr);
+        insertBuilder.Value(3);
+        insertBuilder.Value(std::optional<int>{});
+        insertBuilder.Value(std::optional<int>{ 1 });
+        insertBuilder.Value(Builder::Unbound);
+        insertBuilder.EndValues();
+        insertBuilder.Execute(connection);
+    }
+
+    {
+        INFO("Select values");
+        Builder::StatementBuilder selectBuilder;
+        selectBuilder.Select();
+        for (const auto c : columns)
+        {
+            selectBuilder.Column(c);
+        }
+        selectBuilder.From(s_tableName);
+
+        Statement select = selectBuilder.Prepare(connection);
+        REQUIRE(select.Step());
+
+        for (int i = 0; i < ARRAYSIZE(columns); ++i)
+        {
+            REQUIRE(i == select.GetColumn<int>(i));
+        }
+
+        REQUIRE(select.Step());
+
+        for (int i = 0; i < ARRAYSIZE(columns); ++i)
+        {
+            if (i & 1)
+            {
+                REQUIRE(select.GetColumnIsNull(i));
+            }
+            else
+            {
+                REQUIRE((5 - i) == select.GetColumn<int>(i));
+            }
+        }
+
+        REQUIRE(!select.Step());
     }
 }
