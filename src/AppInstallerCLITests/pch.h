@@ -20,6 +20,6 @@
 #include <sstream>
 #include <utility>
 #include <vector>
-#include <xstring>
+#include <string>
 
 #include <yaml-cpp/yaml.h>

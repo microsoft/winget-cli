@@ -23,7 +23,6 @@ namespace TestCommon
         {
             std::filesystem::path tempFilePath = std::filesystem::temp_directory_path();
 
-            srand(static_cast<unsigned int>(time(NULL)));
             tempFilePath /= baseName + std::to_string(getRand()) + baseExt;
 
             return tempFilePath;

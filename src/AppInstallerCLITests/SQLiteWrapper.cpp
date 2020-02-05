@@ -383,7 +383,7 @@ TEST_CASE("SQLBuilder_InsertValueBinding", "[sqlbuilder]")
 {
     char const* const columns[] = { "a", "b", "c", "d", "e", "f" };
 
-    TestCommon::TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    TestCommon::TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::Create);
