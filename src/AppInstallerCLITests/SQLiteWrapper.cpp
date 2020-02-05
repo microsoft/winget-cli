@@ -382,7 +382,10 @@ TEST_CASE("SQLBuilder_InsertValueBinding", "[sqlbuilder]")
 {
     char const* const columns[] = { "a", "b", "c", "d", "e", "f" };
 
-    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+    TestCommon::TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::Create);
 
     {
         INFO("Create table");

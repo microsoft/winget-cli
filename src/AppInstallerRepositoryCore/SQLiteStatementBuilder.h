@@ -277,7 +277,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         template <typename ValueType>
         void AddBindFunctor(int binderIndex, const ValueType& value)
         {
-            m_binders.emplace_back([binderIndex, &value](Statement& s) { s.Bind(binderIndex, value); });
+            m_binders.emplace_back([binderIndex, value](Statement& s) { s.Bind(binderIndex, value); });
         }
 
         // Helper template for binding incoming values for an insert.
