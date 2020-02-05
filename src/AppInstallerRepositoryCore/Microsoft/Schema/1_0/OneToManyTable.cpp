@@ -43,12 +43,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } +"_ensureandinsert_v1_0");
 
             // Create the mapping table insert statement for multiple use
-            std::ostringstream insertMappingSQL;
-            insertMappingSQL << "INSERT INTO [" << tableName << s_OneToManyTable_MapTable_Suffix << "] ("
-                << s_OneToManyTable_MapTable_ManifestName << ", " << valueName << ") VALUES (?, ?)";
+            SQLite::Builder::StatementBuilder insertMappingBuilder;
+            insertMappingBuilder.InsertInto({ tableName, s_OneToManyTable_MapTable_Suffix }).
+                Columns({ s_OneToManyTable_MapTable_ManifestName, valueName }).Values(manifestId, SQLite::Builder::Unbound);
 
-            SQLite::Statement insertMapping = SQLite::Statement::Create(connection, insertMappingSQL.str());
-            insertMapping.Bind(1, manifestId);
+            SQLite::Statement insertMapping = insertMappingBuilder.Prepare(connection);
 
             for (const std::string& value : values)
             {
@@ -83,14 +82,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
 
             // Delete the mapping table rows with the manifest id.
-            std::ostringstream deleteSQL;
-            deleteSQL << "DELETE FROM [" << tableName << s_OneToManyTable_MapTable_Suffix << "] WHERE [" << s_OneToManyTable_MapTable_ManifestName << "] = ?";
+            SQLite::Builder::StatementBuilder deleteBuilder;
+            deleteBuilder.DeleteFrom({ tableName, s_OneToManyTable_MapTable_Suffix }).Where(s_OneToManyTable_MapTable_ManifestName).Equals(manifestId);
 
-            SQLite::Statement deleteStatement = SQLite::Statement::Create(connection, deleteSQL.str());
-
-            deleteStatement.Bind(1, manifestId);
-
-            deleteStatement.Execute();
+            deleteBuilder.Execute(connection);
 
             // For each value, see if any references exist
             SQLite::Builder::StatementBuilder selectValueMappingBuilder;
@@ -98,10 +93,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             SQLite::Statement selectValueMappingStatement = selectValueMappingBuilder.Prepare(connection);
 
-            std::ostringstream deleteValueSQL;
-            deleteValueSQL << "DELETE FROM [" << tableName << "] WHERE [" << SQLite::RowIDName << "] = ?";
+            SQLite::Builder::StatementBuilder deleteValueBuilder;
+            deleteValueBuilder.DeleteFrom(tableName).Where(SQLite::RowIDName).Equals(SQLite::Builder::Unbound);
 
-            SQLite::Statement deleteValueStatement = SQLite::Statement::Create(connection, deleteValueSQL.str());
+            SQLite::Statement deleteValueStatement = deleteValueBuilder.Prepare(connection);
 
             for (SQLite::rowid_t value : values)
             {

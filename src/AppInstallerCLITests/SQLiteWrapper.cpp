@@ -409,6 +409,25 @@ TEST_CASE("SQLBuilder_InsertValueBinding", "[sqlbuilder]")
     }
 
     {
+        INFO("Insert values");
+        Builder::StatementBuilder insertBuilder;
+        insertBuilder.InsertInto(s_tableName).BeginColumns();
+        for (const auto c : columns)
+        {
+            insertBuilder.Column(c);
+        }
+        insertBuilder.EndColumns().BeginValues();
+        insertBuilder.Value(5);
+        insertBuilder.Value(nullptr);
+        insertBuilder.Value(3);
+        insertBuilder.Value(std::optional<int>{});
+        insertBuilder.Value(std::optional<int>{ 1 });
+        insertBuilder.Value(Builder::Unbound);
+        insertBuilder.EndValues();
+        insertBuilder.Execute(connection);
+    }
+
+    {
         INFO("Select values");
         Builder::StatementBuilder selectBuilder;
         selectBuilder.Select();
@@ -424,6 +443,20 @@ TEST_CASE("SQLBuilder_InsertValueBinding", "[sqlbuilder]")
         for (int i = 0; i < ARRAYSIZE(columns); ++i)
         {
             REQUIRE(i == select.GetColumn<int>(i));
+        }
+
+        REQUIRE(select.Step());
+
+        for (int i = 0; i < ARRAYSIZE(columns); ++i)
+        {
+            if (i & 1)
+            {
+                REQUIRE(select.GetColumnIsNull(i));
+            }
+            else
+            {
+                REQUIRE((5 - i) == select.GetColumn<int>(i));
+            }
         }
 
         REQUIRE(!select.Step());

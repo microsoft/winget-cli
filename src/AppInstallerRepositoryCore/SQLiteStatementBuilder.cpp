@@ -378,6 +378,20 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::BeginValues()
+    {
+        m_stream << " VALUES (";
+        m_needsComma = false;
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::EndValues()
+    {
+        m_stream << ')';
+        m_needsComma = false;
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::CreateTable(std::string_view table)
     {
         OutputOperationAndTable(m_stream, "CREATE TABLE", table);
@@ -387,6 +401,42 @@ namespace AppInstaller::Repository::SQLite::Builder
     StatementBuilder& StatementBuilder::CreateTable(std::initializer_list<std::string_view> table)
     {
         OutputOperationAndTable(m_stream, "CREATE TABLE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::CreateIndex(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE INDEX", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::CreateIndex(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE INDEX", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::On(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, " ON", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::On(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, " ON", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::DeleteFrom(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "DELETE FROM", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::DeleteFrom(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, "DELETE FROM", table);
         return *this;
     }
 
@@ -431,5 +481,16 @@ namespace AppInstaller::Repository::SQLite::Builder
         int result = m_bindIndex;
         m_bindIndex += static_cast<int>(count);
         return result;
+    }
+
+    int StatementBuilder::AppendValueAndBinder()
+    {
+        if (m_needsComma)
+        {
+            m_stream << ", ";
+        }
+        m_stream << '?';
+        m_needsComma = true;
+        return m_bindIndex++;
     }
 }

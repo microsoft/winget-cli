@@ -224,11 +224,33 @@ namespace AppInstaller::Repository::SQLite::Builder
             (FoldHelper{}, ..., InsertValuesValueBinder(bindIndexBegin++, values));
             return *this;
         }
+        StatementBuilder& BeginValues();
+        template <typename ValueType>
+        StatementBuilder& Value(const ValueType& value)
+        {
+            InsertValuesValueBinder(AppendValueAndBinder(), value);
+            return *this;
+        }
+        StatementBuilder& EndValues();
 
-        // Begin an table creation statement.
+        // Begin a table creation statement.
         // The initializer_list form enables the table name to be constructed from multiple parts.
         StatementBuilder& CreateTable(std::string_view table);
         StatementBuilder& CreateTable(std::initializer_list<std::string_view> table);
+
+        // Begin an index creation statement.
+        // The initializer_list form enables the table name to be constructed from multiple parts.
+        StatementBuilder& CreateIndex(std::string_view table);
+        StatementBuilder& CreateIndex(std::initializer_list<std::string_view> table);
+
+        // Set index target table.
+        StatementBuilder& On(std::string_view table);
+        StatementBuilder& On(std::initializer_list<std::string_view> table);
+
+        // Begin a delete statement.
+        // The initializer_list form enables the table name to be constructed from multiple parts.
+        StatementBuilder& DeleteFrom(std::string_view table);
+        StatementBuilder& DeleteFrom(std::initializer_list<std::string_view> table);
 
         // Prepares and returns the statement, applying any bindings that were requested.
         Statement Prepare(Connection& connection, bool persistent = false);
@@ -247,6 +269,9 @@ namespace AppInstaller::Repository::SQLite::Builder
 
         // Appends a set of binders for the values clause of an insert.
         int AppendValuesAndBinders(size_t count);
+
+        // Appends a binder for the values clause of an insert.
+        int AppendValueAndBinder();
 
         // Adds a functor to our list that will bind the given value.
         template <typename ValueType>

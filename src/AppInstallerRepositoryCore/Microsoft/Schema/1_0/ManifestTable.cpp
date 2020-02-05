@@ -9,6 +9,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
     using namespace std::string_view_literals;
     static constexpr std::string_view s_ManifestTable_Table_Name = "manifest"sv;
+    static constexpr std::string_view s_ManifestTable_Index_Separator = "_"sv;
+    static constexpr std::string_view s_ManifestTable_Index_Suffix = "_index"sv;
 
     namespace details
     {
@@ -105,14 +107,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Create an index on every value to improve performance
         for (const ManifestColumnInfo& value : values)
         {
-            std::ostringstream createIndexSQL;
-            createIndexSQL << "CREATE INDEX [" << s_ManifestTable_Table_Name << '_' << value.Name << "_index] "
-                << "ON [" << s_ManifestTable_Table_Name << "]("
-                << '[' << value.Name << "])";
+            StatementBuilder createIndexBuilder;
+            createIndexBuilder.CreateIndex({ s_ManifestTable_Table_Name, s_ManifestTable_Index_Separator, value.Name, s_ManifestTable_Index_Suffix }).
+                On(s_ManifestTable_Table_Name).Columns(value.Name);
 
-            SQLite::Statement createIndex = SQLite::Statement::Create(connection, createIndexSQL.str());
-
-            createIndex.Execute();
+            createIndexBuilder.Execute(connection);
         }
 
         savepoint.Commit();
@@ -120,48 +119,34 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     SQLite::rowid_t ManifestTable::Insert(SQLite::Connection& connection, std::initializer_list<ManifestOneToOneValue> values)
     {
-        std::ostringstream insertSQL;
-        insertSQL << "INSERT INTO [" << s_ManifestTable_Table_Name << "] (";
+        SQLite::Builder::StatementBuilder builder;
+        builder.InsertInto(s_ManifestTable_Table_Name).BeginColumns();
 
-        bool isFirst = true;
         for (const ManifestOneToOneValue& value : values)
         {
-            insertSQL << (isFirst ? "[" : ",[") << value.Name << "] ";
-            isFirst = false;
+            builder.Column(value.Name);
         }
 
-        insertSQL << ") VALUES (";
+        builder.EndColumns().BeginValues();
 
-        for (size_t i = 0; i < values.size(); ++i)
-        {
-            insertSQL << (i == 0 ? "?" : ", ?");
-        }
-
-        insertSQL << ')';
-
-        SQLite::Statement insert = SQLite::Statement::Create(connection, insertSQL.str());
-
-        int bindIndex = 1;
         for (const ManifestOneToOneValue& value : values)
         {
-            insert.Bind(bindIndex++, value.Value);
+            builder.Value(value.Value);
         }
 
-        insert.Execute();
+        builder.EndValues();
+
+        builder.Execute(connection);
 
         return connection.GetLastInsertRowID();
     }
 
     void ManifestTable::DeleteById(SQLite::Connection& connection, SQLite::rowid_t id)
     {
-        std::ostringstream deleteSQL;
-        deleteSQL << "DELETE FROM [" << s_ManifestTable_Table_Name << "] WHERE [" << SQLite::RowIDName << "] = ?";
+        SQLite::Builder::StatementBuilder builder;
+        builder.DeleteFrom(s_ManifestTable_Table_Name).Where(SQLite::RowIDName).Equals(id);
 
-        SQLite::Statement deleteStatement = SQLite::Statement::Create(connection, deleteSQL.str());
-
-        deleteStatement.Bind(1, id);
-
-        deleteStatement.Execute();
+        builder.Execute(connection);
     }
 
     bool ManifestTable::IsEmpty(SQLite::Connection& connection)
