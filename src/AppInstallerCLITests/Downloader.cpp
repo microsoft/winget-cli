@@ -6,10 +6,11 @@
 #include "AppInstallerSHA256.h"
 
 using namespace AppInstaller::Utility;
+using namespace std::string_literals;
 
 TEST_CASE("DownloadValidFileAndVerifyHash", "[Downloader]")
 {
-    TestCommon::TempFile tempFile("downloader_test", ".test");
+    TestCommon::TempFile tempFile("downloader_test"s, ".test"s);
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     // Todo: point to files from our repo when the repo goes public
@@ -30,7 +31,7 @@ TEST_CASE("DownloadValidFileAndVerifyHash", "[Downloader]")
 
 TEST_CASE("DownloadValidFileAndCancel", "[Downloader]")
 {
-    TestCommon::TempFile tempFile("downloader_test", ".test");
+    TestCommon::TempFile tempFile("downloader_test"s, ".test"s);
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     auto downloader = Downloader::StartDownloadAsync("https://aka.ms/win32-x64-user-stable", tempFile.GetPath(), true);
@@ -52,7 +53,7 @@ TEST_CASE("DownloadValidFileAndCancel", "[Downloader]")
 
 TEST_CASE("DownloadUnreachableUrl", "[Downloader]")
 {
-    TestCommon::TempFile tempFile("downloader_test", ".test");
+    TestCommon::TempFile tempFile("downloader_test"s, ".test"s);
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     auto downloader = Downloader::StartDownloadAsync("https://does_not_exist.com/", tempFile.GetPath(), true);

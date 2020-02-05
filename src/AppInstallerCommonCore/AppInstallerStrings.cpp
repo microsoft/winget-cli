@@ -42,4 +42,25 @@ namespace AppInstaller::Utility
             [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
         return result;
     }
+
+    std::wstring ToLower(const std::wstring& in)
+    {
+        std::wstring result(in);
+        std::transform(result.begin(), result.end(), result.begin(),
+            [](unsigned short c) { return std::towlower(c); });
+        return result;
+    }
+
+    bool IsEmptyOrWhitespace(std::wstring_view str)
+    {
+        if (str.empty())
+        {
+            return true;
+        }
+
+        std::wstring inputAsWStr(str.data());
+        bool nonWhitespaceNotFound = inputAsWStr.find_last_not_of(L" \t\v\f") == std::wstring::npos;
+
+        return nonWhitespaceNotFound;
+    }
 }

@@ -18,6 +18,7 @@
 #include <Microsoft/Schema/1_0/ProtocolsTable.h>
 #include <Microsoft/Schema/1_0/ExtensionsTable.h>
 
+using namespace std::string_literals;
 using namespace TestCommon;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository::Microsoft;
@@ -25,7 +26,7 @@ using namespace AppInstaller::Repository::SQLite;
 
 TEST_CASE("SQLiteIndexCreateLatestAndReopen", "[sqliteindex]")
 {
-    TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     Schema::Version versionCreated;
@@ -63,7 +64,7 @@ TEST_CASE("SQLiteIndexCreateLatestAndReopen", "[sqliteindex]")
 
 TEST_CASE("SQLiteIndexCreateAndAddManifest", "[sqliteindex]")
 {
-    TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, Schema::Version::Latest());
@@ -84,7 +85,7 @@ TEST_CASE("SQLiteIndexCreateAndAddManifest", "[sqliteindex]")
 
 TEST_CASE("SQLiteIndexCreateAndAddManifestFile", "[sqliteindex]")
 {
-    TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, Schema::Version::Latest());
@@ -110,7 +111,7 @@ TEST_CASE("SQLiteIndex_RemoveManifestFile_NotPresent", "[sqliteindex]")
 
 TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex]")
 {
-    TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     std::string manifest1Path = "test/id/test.id-1.0.0.yml";
@@ -190,7 +191,7 @@ TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex]")
 
 TEST_CASE("SQLiteIndex_RemoveManifestFile", "[sqliteindex]")
 {
-    TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     {
@@ -237,7 +238,7 @@ TEST_CASE("PathPartTable_EnsurePathExists_Negative_Paths", "[sqliteindex][V1_0]"
 
 TEST_CASE("PathPartTable_EnsurePathExists", "[sqliteindex][V1_0]")
 {
-    TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     // Create the index

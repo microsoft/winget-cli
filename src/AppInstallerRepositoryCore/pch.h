@@ -8,6 +8,7 @@
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerSHA256.h>
+#include <AppInstallerStrings.h>
 #include <yaml-cpp/yaml.h>
 
 #include <wil/result_macros.h>

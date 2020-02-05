@@ -1,0 +1,10 @@
+﻿Id: AppInstallerCliTest.TestMsixInstaller
+Version: 1.0.0.0
+Name: AppInstaller Test MSIX Installer
+Publisher: Microsoft Corporation
+AppMoniker: AICLITestMsix
+Installers: 
+    - Arch: x64
+      Url: https://github.com/microsoft/msix-packaging/blob/master/src/test/testData/unpack/TestAppxPackage_x64.appx?raw=true
+      InstallerType: msix
+      Sha256: 6a2d3683fa19bf00e58e07d1313d20a5f5735ebbd6a999d33381d28740ee07ea

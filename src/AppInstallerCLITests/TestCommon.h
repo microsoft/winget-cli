@@ -16,6 +16,7 @@ namespace TestCommon
     struct TempFile
     {
         TempFile(const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction = true);
+        TempFile(const std::filesystem::path& filePath, bool deleteFileOnConstruction = true);
 
         TempFile(const TempFile&) = delete;
         TempFile& operator=(const TempFile&) = delete;
@@ -25,13 +26,13 @@ namespace TestCommon
 
         ~TempFile();
 
-        const std::string& GetPath() const { return _filepath; }
-        operator const std::string& () const { return _filepath; }
+        const std::filesystem::path& GetPath() const { return _filepath; }
+        operator const std::string () const { return _filepath.u8string(); }
 
         static void SetDestructorBehavior(bool keepFilesOnDestruction);
 
     private:
-        std::string _filepath;
+        std::filesystem::path _filepath;
     };
 
     // Use this to find a test data file when testing.

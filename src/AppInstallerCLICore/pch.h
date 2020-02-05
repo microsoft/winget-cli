@@ -7,6 +7,7 @@
 
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.Management.Deployment.h>
 
 #include <wil/result_macros.h>
 
@@ -20,6 +21,9 @@
 
 #include <yaml-cpp\yaml.h>
 
+#include <wrl/client.h>
+#include <AppxPackaging.h>
+
 #include "AppInstallerLogging.h"
 #include "AppInstallerTelemetry.h"
 #include "AppInstallerStrings.h"
@@ -29,3 +33,4 @@
 #include "AppInstallerErrors.h"
 #include "Manifest/ManifestInstaller.h"
 #include "Manifest/Manifest.h"
+#include "AppInstallerMsixInfo.h"

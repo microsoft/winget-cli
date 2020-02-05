@@ -19,6 +19,9 @@
     <Filter Include="Public">
       <UniqueIdentifier>{5cdf3fa3-e657-4d84-81bb-f740aa476143}</UniqueIdentifier>
     </Filter>
+    <Filter Include="HttpStream">
+      <UniqueIdentifier>{a9c14af9-ca74-4945-a19c-9e99df23a5ae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -66,6 +69,18 @@
     <ClInclude Include="Public\AppInstallerLanguageUtilities.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="HttpStream\HttpClientWrapper.h">
+      <Filter>HttpStream</Filter>
+    </ClInclude>
+    <ClInclude Include="HttpStream\HttpLocalCache.h">
+      <Filter>HttpStream</Filter>
+    </ClInclude>
+    <ClInclude Include="HttpStream\HttpRandomAccessStream.h">
+      <Filter>HttpStream</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\AppInstallerMsixInfo.h">
+      <Filter>Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -99,6 +114,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Architecture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HttpStream\HttpClientWrapper.cpp">
+      <Filter>HttpStream</Filter>
+    </ClCompile>
+    <ClCompile Include="HttpStream\HttpLocalCache.cpp">
+      <Filter>HttpStream</Filter>
+    </ClCompile>
+    <ClCompile Include="HttpStream\HttpRandomAccessStream.cpp">
+      <Filter>HttpStream</Filter>
+    </ClCompile>
+    <ClCompile Include="MsixInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
