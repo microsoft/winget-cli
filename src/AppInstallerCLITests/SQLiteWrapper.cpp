@@ -6,6 +6,7 @@
 #include <SQLiteStatementBuilder.h>
 
 using namespace AppInstaller::Repository::SQLite;
+using namespace std::string_literals;
 
 static const char* s_firstColumn = "first";
 static const char* s_secondColumn = "second";
@@ -104,7 +105,7 @@ TEST_CASE("SQLiteWrapperMemoryCreate", "[sqlitewrapper]")
 
 TEST_CASE("SQLiteWrapperFileCreateAndReopen", "[sqlitewrapper]")
 {
-    TestCommon::TempFile tempFile{ "repolibtest_tempdb", ".db" };
+    TestCommon::TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     int firstVal = 1;

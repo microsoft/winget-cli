@@ -100,7 +100,8 @@ namespace AppInstaller::Msix
         }
         else
         {
-            THROW_HR_MSG(E_UNEXPECTED, "Failed to open uri as msix package or bundle. Uri: %s", uriStr.c_str());
+            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_INSTALL_OPEN_PACKAGE_FAILED),
+                "Failed to open uri as msix package or bundle. Uri: %s", uriStr.c_str());
         }
     }
 

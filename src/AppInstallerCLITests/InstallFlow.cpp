@@ -75,7 +75,7 @@ protected:
 
 TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
 {
-    TestCommon::TempFile installResultPath("TestExeInstalled", ".txt", true, false, true);
+    TestCommon::TempFile installResultPath(std::filesystem::current_path().append("TestExeInstalled.txt"));
 
     auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yml"));
 
@@ -95,7 +95,7 @@ TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
 
 TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow]")
 {
-    TestCommon::TempFile installResultPath("TestExeInstalled", ".txt", true, false, true);
+    TestCommon::TempFile installResultPath(std::filesystem::current_path().append("TestExeInstalled.txt"));
 
     auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_NoApplicableArchitecture.yml"));
 
@@ -110,7 +110,7 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow]")
 
 TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow]")
 {
-    TestCommon::TempFile installResultPath("TestMsixInstalled", ".txt", true, false, true);
+    TestCommon::TempFile installResultPath(std::filesystem::current_path().append("TestMsixInstalled.txt"));
 
     // Todo: point to files from our repo when the repo goes public
     auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Msix_DownloadFlow.yml"));
@@ -131,7 +131,7 @@ TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow]")
 
 TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow]")
 {
-    TestCommon::TempFile installResultPath("TestMsixInstalled", ".txt", true, false, true);
+    TestCommon::TempFile installResultPath(std::filesystem::current_path().append("TestMsixInstalled.txt"));
 
     // Todo: point to files from our repo when the repo goes public
     auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Msix_StreamingFlow.yml"));

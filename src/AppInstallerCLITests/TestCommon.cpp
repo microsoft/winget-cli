@@ -19,32 +19,14 @@ namespace TestCommon
             return randStart++;
         }
 
-        inline std::string GetTempFilePath(const std::string& baseName, const std::string& baseExt, bool useRand, bool useCurrentDir)
+        inline std::filesystem::path GetTempFilePath(const std::string& baseName, const std::string& baseExt)
         {
-            std::stringstream tempFileName;
+            std::filesystem::path tempFilePath = std::filesystem::temp_directory_path();
 
-            if (useCurrentDir)
-            {
-                tempFileName << std::filesystem::current_path().string();
-            }
-            else
-            {
-                char tempPath[MAX_PATH]{};
-                REQUIRE(GetTempPathA(MAX_PATH, tempPath) != 0);
-                tempFileName << tempPath;
-            }
+            srand(static_cast<unsigned int>(time(NULL)));
+            tempFilePath /= baseName + std::to_string(getRand()) + baseExt;
 
-            tempFileName << '\\' << baseName;
-
-            if (useRand)
-            {
-                srand(static_cast<unsigned int>(time(NULL)));
-                tempFileName << getRand();
-            }
-
-            tempFileName << baseExt;
-
-            return tempFileName.str();
+            return tempFilePath;
         }
 
         static bool s_TempFileDestructorKeepsFile{};
@@ -52,12 +34,21 @@ namespace TestCommon
         static std::filesystem::path s_TestDataFileBasePath{};
     }
 
-    TempFile::TempFile(const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction, bool useRand, bool useCurrentDir)
+    TempFile::TempFile(const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction)
     {
-        _filepath = GetTempFilePath(baseName, baseExt, useRand, useCurrentDir);
+        _filepath = GetTempFilePath(baseName, baseExt);
         if (deleteFileOnConstruction)
         {
-            DeleteFileA(_filepath.c_str());
+            std::filesystem::remove(_filepath);
+        }
+    }
+
+    TempFile::TempFile(const std::filesystem::path& filePath, bool deleteFileOnConstruction)
+    {
+        _filepath = filePath;
+        if (deleteFileOnConstruction)
+        {
+            std::filesystem::remove(_filepath);
         }
     }
 
@@ -65,7 +56,7 @@ namespace TestCommon
     {
         if (!s_TempFileDestructorKeepsFile)
         {
-            DeleteFileA(_filepath.c_str());
+            std::filesystem::remove(_filepath);
         }
     }
 
