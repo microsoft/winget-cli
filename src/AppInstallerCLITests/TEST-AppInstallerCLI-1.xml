@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="AppInstallerCLITests.exe" errors="0" failures="0" tests="271" hostname="tbd" time="3.0509" timestamp="2020-02-05T01:16:40Z">
+    <testcase classname="AppInstallerCLITests.exe.global" name="DownloadValidFileAndVerifyHash" time="0.424575"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="DownloadValidFileAndCancel" time="0.907437"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="DownloadUnreachableUrl" time="0.082048"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="InstallFlowWithTestManifest" time="0.72304"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="InstallFlowWithNonApplicableArchitecture" time="0.020354"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="DestructionToken" time="0.00016"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLiteIndexCreateLatestAndReopen" time="0.057503"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLiteIndexCreateAndAddManifest" time="0.068016"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLiteIndexCreateAndAddManifestFile" time="0.11345"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLiteIndex_RemoveManifestFile_NotPresent" time="0.034248"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLiteIndex_RemoveManifest" time="0.18614"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLiteIndex_RemoveManifestFile" time="0.14229"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="PathPartTable_EnsurePathExists_Negative_Paths" time="0.013909"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="PathPartTable_EnsurePathExists" time="0.112738"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLiteWrapperMemoryCreate" time="0.001666"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLiteWrapperFileCreateAndReopen" time="0.045612"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLiteWrapperSavepointRollback" time="0.002914"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLiteWrapperSavepointRollbackOnDestruct" time="0.002808"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLiteWrapperSavepointCommit" time="0.003673"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLBuilder_SimpleSelectBind" time="0.003718"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLBuilder_SimpleSelectUnbound" time="0.00303"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLBuilder_SimpleSelectNull" time="0.002924"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLBuilder_SimpleSelectOptional" time="0.003667"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLBuilder_CreateTable" time="0.005427"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="SQLBuilder_InsertValueBinding" time="0.002521"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="ReadGoodManifestAndVerifyContents" time="0.019252"/>
+    <testcase classname="AppInstallerCLITests.exe.global" name="ReadBadManifestAndVerifyThrow" time="0.032321"/>
+    <system-out/>
+    <system-err/>
+  </testsuite>
+</testsuites>
