@@ -45,9 +45,6 @@
     <ClInclude Include="Public\AppInstallerStrings.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="FileLogger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DateTime.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -79,6 +76,9 @@
       <Filter>HttpStream</Filter>
     </ClInclude>
     <ClInclude Include="Public\AppInstallerMsixInfo.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\AppInstallerFileLogger.h">
       <Filter>Public</Filter>
     </ClInclude>
   </ItemGroup>

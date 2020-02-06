@@ -165,13 +165,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DateTime.h" />
-    <ClInclude Include="FileLogger.h" />
     <ClInclude Include="HttpStream\HttpClientWrapper.h" />
     <ClInclude Include="HttpStream\HttpLocalCache.h" />
     <ClInclude Include="HttpStream\HttpRandomAccessStream.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\AppInstallerDownloader.h" />
     <ClInclude Include="Public\AppInstallerErrors.h" />
+    <ClInclude Include="Public\AppInstallerFileLogger.h" />
     <ClInclude Include="Public\AppInstallerLanguageUtilities.h" />
     <ClInclude Include="Public\AppInstallerMsixInfo.h" />
     <ClInclude Include="Public\AppInstallerRuntime.h" />
