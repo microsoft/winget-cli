@@ -440,6 +440,25 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::Update(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "UPDATE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Update(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, "UPDATE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Set()
+    {
+        m_stream << " SET";
+        m_needsComma = false;
+        return *this;
+    }
+
     Statement StatementBuilder::Prepare(Connection& connection, bool persistent)
     {
         Statement result = Statement::Create(connection, m_stream.str(), persistent);

@@ -77,6 +77,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             return result;
         }
+
+        // Updates the manifest column and related table based on the given value.
+        template <typename Table>
+        void UpdateManifestValueById(SQLite::Connection& connection, SQLite::rowid_t id, const typename Table::value_t& value)
+        {
+            auto [oldValueId] = ManifestTable::GetIdsById<Table>(connection, id);
+
+            SQLite::rowid_t newValueId = Table::EnsureExists(connection, value);
+
+            ManifestTable::UpdateIdById<Table>(connection, id, newValueId);
+
+            Table::DeleteIfNotNeededById(connection, oldValueId);
+        }
     }
 
     Schema::Version Interface::GetVersion() const
@@ -148,22 +161,47 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         savepoint.Commit();
     }
 
-    bool Interface::UpdateManifest(SQLite::Connection& connection, 
-        const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, 
-        const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath)
+    bool Interface::UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
-        UNREFERENCED_PARAMETER(connection);
-        UNREFERENCED_PARAMETER(oldManifest);
-        UNREFERENCED_PARAMETER(oldRelativePath);
-        UNREFERENCED_PARAMETER(newManifest);
-        UNREFERENCED_PARAMETER(newRelativePath);
-        THROW_HR(E_NOTIMPL);
+        ExistingManifestInfo manifestInfo = GetExistingManifestId(connection, manifest, relativePath);
+
+        // If the manifest doesn't actually exist, fail the update.
+        THROW_HR_IF(E_NOT_SET, !manifestInfo.Manifest);
+
+        SQLite::rowid_t manifestId = manifestInfo.Manifest.value();
+
+        auto [idInIndex, nameInIndex, monikerInIndex, versionInIndex, channelInIndex] =
+            ManifestTable::GetValuesById<IdTable, NameTable, MonikerTable, VersionTable, ChannelTable>(connection, manifestId);
+
+        // We know that the Id, Version, and Channel did not change based on GetExistingManifestId,
+        // but we still verify that here in the event that the code there changed.
+        THROW_HR_IF(E_UNEXPECTED, idInIndex != manifest.Id);
+        THROW_HR_IF(E_UNEXPECTED, versionInIndex != manifest.Version);
+        THROW_HR_IF(E_UNEXPECTED, channelInIndex != manifest.Channel);
+
+        bool indexModified = false;
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "updatemanifest_v1_0");
+
+        // If these values changed, we need to update them.
+        if (nameInIndex != manifest.Name)
+        {
+            UpdateManifestValueById<NameTable>(connection, manifestId, manifest.Name);
+            indexModified = true;
+        }
+
+        if (monikerInIndex != manifest.AppMoniker)
+        {
+            UpdateManifestValueById<MonikerTable>(connection, manifestId, manifest.AppMoniker);
+            indexModified = true;
+        }
+
+        savepoint.Commit();
+
+        return indexModified;
     }
 
     void Interface::RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removemanifest_v1_0");
-
         ExistingManifestInfo manifestInfo = GetExistingManifestId(connection, manifest, relativePath);
 
         // If the manifest doesn't actually exist, fail the remove.
@@ -174,6 +212,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Get the ids of the values from the manifest table
         auto [idId, nameId, monikerId, versionId, channelId] = 
             ManifestTable::GetIdsById<IdTable, NameTable, MonikerTable, VersionTable, ChannelTable>(connection, manifestId);
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removemanifest_v1_0");
 
         // Remove the manifest row
         ManifestTable::DeleteById(connection, manifestId);

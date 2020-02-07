@@ -80,17 +80,15 @@ extern "C"
 
     APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexUpdateManifest(
         APPINSTALLER_SQLITE_INDEX_HANDLE index,
-        APPINSTALLER_SQLITE_INDEX_STRING oldManifestPath, APPINSTALLER_SQLITE_INDEX_STRING oldRelativePath,
-        APPINSTALLER_SQLITE_INDEX_STRING newManifestPath, APPINSTALLER_SQLITE_INDEX_STRING newRelativePath,
+        APPINSTALLER_SQLITE_INDEX_STRING manifestPath,
+        APPINSTALLER_SQLITE_INDEX_STRING relativePath,
         bool* indexModified) try
     {
         THROW_HR_IF(E_INVALIDARG, !index);
-        THROW_HR_IF(E_INVALIDARG, !oldManifestPath);
-        THROW_HR_IF(E_INVALIDARG, !oldRelativePath);
-        THROW_HR_IF(E_INVALIDARG, !newManifestPath);
-        THROW_HR_IF(E_INVALIDARG, !newRelativePath);
+        THROW_HR_IF(E_INVALIDARG, !manifestPath);
+        THROW_HR_IF(E_INVALIDARG, !relativePath);
 
-        bool result = reinterpret_cast<SQLiteIndex*>(index)->UpdateManifest(oldManifestPath, oldRelativePath, newManifestPath, newRelativePath);
+        bool result = reinterpret_cast<SQLiteIndex*>(index)->UpdateManifest(manifestPath, relativePath);
         if (indexModified)
         {
             *indexModified = result;

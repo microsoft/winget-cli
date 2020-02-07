@@ -252,6 +252,14 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& DeleteFrom(std::string_view table);
         StatementBuilder& DeleteFrom(std::initializer_list<std::string_view> table);
 
+        // Begin an update statement.
+        // The initializer_list form enables the table name to be constructed from multiple parts.
+        StatementBuilder& Update(std::string_view table);
+        StatementBuilder& Update(std::initializer_list<std::string_view> table);
+
+        // Output the set portion of an update statement.
+        StatementBuilder& Set();
+
         // Prepares and returns the statement, applying any bindings that were requested.
         Statement Prepare(Connection& connection, bool persistent = false);
 
