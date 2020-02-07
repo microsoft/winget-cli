@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "FileLogger.h"
+#include "Public/AppInstallerFileLogger.h"
 
 #include "Public/AppInstallerRuntime.h"
 #include "DateTime.h"

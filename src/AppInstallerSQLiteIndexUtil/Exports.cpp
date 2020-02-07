@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "AppInstallerSQLiteIndexUtil.h"
 
-
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Repository::Microsoft;
 
@@ -13,11 +12,37 @@ extern "C"
     {
         THROW_HR_IF(E_INVALIDARG, !logPath);
 
-        // Enable all logs for now.
-        AppInstaller::Logging::Log().EnableChannel(AppInstaller::Logging::Channel::All);
-        AppInstaller::Logging::Log().SetLevel(AppInstaller::Logging::Level::Verbose);
-        AppInstaller::Logging::AddFileLogger(logPath);
-        AppInstaller::Logging::EnableWilFailureTelemetry();
+        static std::once_flag s_initLogging;
+        std::call_once(s_initLogging, []() {
+            // Enable all logs for now.
+            AppInstaller::Logging::Log().EnableChannel(AppInstaller::Logging::Channel::All);
+            AppInstaller::Logging::Log().SetLevel(AppInstaller::Logging::Level::Verbose);
+            AppInstaller::Logging::EnableWilFailureTelemetry();
+            });
+
+        std::filesystem::path pathAsPath = logPath;
+        std::string loggerName = AppInstaller::Logging::FileLogger::GetNameForPath(pathAsPath);
+
+        if (!AppInstaller::Logging::Log().ContainsLogger(loggerName))
+        {
+            AppInstaller::Logging::AddFileLogger(pathAsPath);
+        }
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerLoggingTerm(APPINSTALLER_SQLITE_INDEX_STRING logPath) try
+    {
+        if (logPath)
+        {
+            std::string loggerName = AppInstaller::Logging::FileLogger::GetNameForPath(logPath);
+            (void)AppInstaller::Logging::Log().RemoveLogger(loggerName);
+        }
+        else
+        {
+            AppInstaller::Logging::Log().RemoveAllLoggers();
+        }
 
         return S_OK;
     }

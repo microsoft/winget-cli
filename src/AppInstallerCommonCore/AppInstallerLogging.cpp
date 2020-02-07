@@ -4,8 +4,8 @@
 #include "Public/AppInstallerLogging.h"
 
 #include "Public/AppInstallerTelemetry.h"
+#include "Public/AppInstallerFileLogger.h"
 #include "DateTime.h"
-#include "FileLogger.h"
 
 namespace AppInstaller::Logging
 {
@@ -57,6 +57,19 @@ namespace AppInstaller::Logging
         m_loggers.emplace_back(std::move(logger));
     }
 
+    bool DiagnosticLogger::ContainsLogger(const std::string& name)
+    {
+        for (auto i = m_loggers.begin(); i != m_loggers.end(); ++i)
+        {
+            if ((*i)->GetName() == name)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     std::unique_ptr<ILogger> DiagnosticLogger::RemoveLogger(const std::string& name)
     {
         std::unique_ptr<ILogger> result;
@@ -72,6 +85,11 @@ namespace AppInstaller::Logging
         }
 
         return result;
+    }
+
+    void DiagnosticLogger::RemoveAllLoggers()
+    {
+        m_loggers.clear();
     }
 
     void DiagnosticLogger::EnableChannel(Channel channel)
@@ -91,7 +109,8 @@ namespace AppInstaller::Logging
 
     bool DiagnosticLogger::IsEnabled(Channel channel, Level level) const
     {
-        return ((m_enabledChannels & ConvertChannelToBitmask(channel)) != 0 &&
+        return (!m_loggers.empty() &&
+                (m_enabledChannels & ConvertChannelToBitmask(channel)) != 0 &&
                 (AsNum(level) >= AsNum(m_enabledLevel)));
     }
 

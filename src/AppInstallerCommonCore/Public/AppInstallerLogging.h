@@ -81,11 +81,23 @@ namespace AppInstaller::Logging
         // Gets the singleton instance of this type.
         static DiagnosticLogger& GetInstance();
 
+        // NOTE: The logger management functionality is *SINGLE THREAD SAFE*.
+        //       This includes with logging itself.
+        //       As it is not expected that adding/removing loggers is an
+        //       extremely frequent operation, no care has been made to protect
+        //       it from modifying loggers while logging may be occurring.
+
         // Adds a logger to the active set.
         void AddLogger(std::unique_ptr<ILogger>&& logger);
 
+        // Determines if a logger with the given name is present.
+        bool ContainsLogger(const std::string& name);
+
         // Removes a logger from the active set, returning it.
         std::unique_ptr<ILogger> RemoveLogger(const std::string& name);
+
+        // Removes all loggers.
+        void RemoveAllLoggers();
 
         // Enables the given channel.
         void EnableChannel(Channel channel);
