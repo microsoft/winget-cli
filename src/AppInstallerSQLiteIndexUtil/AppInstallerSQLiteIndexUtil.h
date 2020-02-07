@@ -18,6 +18,11 @@ extern "C"
     APPINSTALLER_SQLITE_INDEX_API AppInstallerLoggingInit(
         APPINSTALLER_SQLITE_INDEX_STRING logPath);
 
+    // Removes the given log file from the logging infrastructure.
+    // If logPath is nullptr, then remove all loggers.
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerLoggingTerm(
+        APPINSTALLER_SQLITE_INDEX_STRING logPath);
+
     // Creates a new index file at filePath with the given version.
     APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexCreate(
         APPINSTALLER_SQLITE_INDEX_STRING filePath, 
