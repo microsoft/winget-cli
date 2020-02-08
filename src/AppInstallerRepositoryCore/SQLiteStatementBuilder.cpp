@@ -454,7 +454,7 @@ namespace AppInstaller::Repository::SQLite::Builder
 
     StatementBuilder& StatementBuilder::Set()
     {
-        m_stream << " SET";
+        m_stream << " SET ";
         m_needsComma = false;
         return *this;
     }

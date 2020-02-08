@@ -14,6 +14,75 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         static constexpr std::string_view s_OneToManyTable_MapTable_ManifestName = "manifest"sv;
         static constexpr std::string_view s_OneToManyTable_MapTable_Suffix = "_map"sv;
 
+        namespace
+        {
+            // Create the mapping table insert statement for multiple use.
+            // Bind the rowid of the value to 2.
+            SQLite::Statement CreateMappingInsertStatementForManifestId(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t manifestId)
+            {
+                SQLite::Builder::StatementBuilder insertMappingBuilder;
+                insertMappingBuilder.InsertInto({ tableName, s_OneToManyTable_MapTable_Suffix }).
+                    Columns({ s_OneToManyTable_MapTable_ManifestName, valueName }).Values(manifestId, SQLite::Builder::Unbound);
+
+                return insertMappingBuilder.Prepare(connection);
+            }
+
+            // Get a collection of the value ids associated with the given manifest id.
+            std::vector<SQLite::rowid_t> GetValueIdsByManifestId(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t manifestId)
+            {
+                std::vector<SQLite::rowid_t> result;
+
+                SQLite::Builder::StatementBuilder selectMappingBuilder;
+                selectMappingBuilder.Select(valueName).From({ tableName, s_OneToManyTable_MapTable_Suffix }).Where(s_OneToManyTable_MapTable_ManifestName).Equals(manifestId);
+
+                SQLite::Statement selectMappingStatement = selectMappingBuilder.Prepare(connection);
+
+                while (selectMappingStatement.Step())
+                {
+                    result.push_back(selectMappingStatement.GetColumn<SQLite::rowid_t>(0));
+                }
+
+                return result;
+            }
+
+            struct DeleteValueIfNotNeededStatements
+            {
+                DeleteValueIfNotNeededStatements(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName)
+                {
+                    SQLite::Builder::StatementBuilder selectValueMappingBuilder;
+                    selectValueMappingBuilder.Select(s_OneToManyTable_MapTable_ManifestName).From({ tableName, s_OneToManyTable_MapTable_Suffix }).Where(valueName).Equals(SQLite::Builder::Unbound).Limit(1);
+
+                    SelectIfAnyMappingsByValueId = selectValueMappingBuilder.Prepare(connection);
+
+                    SQLite::Builder::StatementBuilder deleteValueBuilder;
+                    deleteValueBuilder.DeleteFrom(tableName).Where(SQLite::RowIDName).Equals(SQLite::Builder::Unbound);
+
+                    DeleteValueById = deleteValueBuilder.Prepare(connection);
+                }
+
+                void Execute(SQLite::rowid_t valueId)
+                {
+                    SelectIfAnyMappingsByValueId.Reset();
+                    SelectIfAnyMappingsByValueId.Bind(1, valueId);
+
+                    // If no rows are found, we can delete the data.
+                    if (!SelectIfAnyMappingsByValueId.Step())
+                    {
+                        DeleteValueById.Reset();
+                        DeleteValueById.Bind(1, valueId);
+
+                        DeleteValueById.Execute();
+                    }
+                }
+
+            private:
+                // Bind valid rowid to 1.
+                SQLite::Statement SelectIfAnyMappingsByValueId;
+                // Bind valid rowid to 1.
+                SQLite::Statement DeleteValueById;
+            };
+        }
+
         void CreateOneToManyTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName)
         {
             using namespace SQLite::Builder;
@@ -42,12 +111,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         {
             SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } +"_ensureandinsert_v1_0");
 
-            // Create the mapping table insert statement for multiple use
-            SQLite::Builder::StatementBuilder insertMappingBuilder;
-            insertMappingBuilder.InsertInto({ tableName, s_OneToManyTable_MapTable_Suffix }).
-                Columns({ s_OneToManyTable_MapTable_ManifestName, valueName }).Values(manifestId, SQLite::Builder::Unbound);
-
-            SQLite::Statement insertMapping = insertMappingBuilder.Prepare(connection);
+            SQLite::Statement insertMapping = CreateMappingInsertStatementForManifestId(connection, tableName, valueName, manifestId);
 
             for (const std::string& value : values)
             {
@@ -64,22 +128,67 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             savepoint.Commit();
         }
 
+        bool OneToManyTableUpdateIfNeededByManifestId(SQLite::Connection& connection,
+            std::string_view tableName, std::string_view valueName,
+            const std::vector<std::string>& values, SQLite::rowid_t manifestId)
+        {
+            std::vector<SQLite::rowid_t> oldValueIds = GetValueIdsByManifestId(connection, tableName, valueName, manifestId);
+            bool modificationNeeded = false;
+
+            SQLite::Statement insertMapping = CreateMappingInsertStatementForManifestId(connection, tableName, valueName, manifestId);
+
+            for (const std::string& value : values)
+            {
+                SQLite::rowid_t valueId = OneToOneTableEnsureExists(connection, tableName, valueName, value);
+
+                auto itr = std::find(oldValueIds.begin(), oldValueIds.end(), valueId);
+                if (itr != oldValueIds.end())
+                {
+                    oldValueIds.erase(itr);
+                }
+                else
+                {
+                    modificationNeeded = true;
+
+                    insertMapping.Reset();
+                    insertMapping.Bind(2, valueId);
+
+                    insertMapping.Execute();
+                }
+            }
+
+            // All incoming values are now present, we just need to delete the remaining old ones.
+            SQLite::Builder::StatementBuilder deleteBuilder;
+            deleteBuilder.DeleteFrom({ tableName, s_OneToManyTable_MapTable_Suffix }).
+                Where(s_OneToManyTable_MapTable_ManifestName).Equals(manifestId).And(valueName).Equals(SQLite::Builder::Unbound);
+
+            SQLite::Statement deleteStatement = deleteBuilder.Prepare(connection);
+
+            DeleteValueIfNotNeededStatements dvinns(connection, tableName, valueName);
+
+            for (SQLite::rowid_t valueId : oldValueIds)
+            {
+                modificationNeeded = true;
+
+                // First, delete the mapping
+                deleteStatement.Reset();
+                deleteStatement.Bind(2, valueId);
+
+                deleteStatement.Execute();
+
+                // Second, delete the value itself if not needed
+                dvinns.Execute(valueId);
+            }
+
+            return modificationNeeded;
+        }
+
         void OneToManyTableDeleteIfNotNeededByManifestId(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t manifestId)
         {
             SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } +"_deleteifnotneeded_v1_0");
 
             // Get values referenced by the manifest id.
-            std::vector<SQLite::rowid_t> values;
-
-            SQLite::Builder::StatementBuilder selectMappingBuilder;
-            selectMappingBuilder.Select(valueName).From({ tableName, s_OneToManyTable_MapTable_Suffix }).Where(s_OneToManyTable_MapTable_ManifestName).Equals(manifestId);
-
-            SQLite::Statement selectMappingStatement = selectMappingBuilder.Prepare(connection);
-
-            while (selectMappingStatement.Step())
-            {
-                values.push_back(selectMappingStatement.GetColumn<SQLite::rowid_t>(0));
-            }
+            std::vector<SQLite::rowid_t> values = GetValueIdsByManifestId(connection, tableName, valueName, manifestId);
 
             // Delete the mapping table rows with the manifest id.
             SQLite::Builder::StatementBuilder deleteBuilder;
@@ -88,29 +197,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             deleteBuilder.Execute(connection);
 
             // For each value, see if any references exist
-            SQLite::Builder::StatementBuilder selectValueMappingBuilder;
-            selectValueMappingBuilder.Select(s_OneToManyTable_MapTable_ManifestName).From({ tableName, s_OneToManyTable_MapTable_Suffix }).Where(valueName).Equals(SQLite::Builder::Unbound).Limit(1);
-
-            SQLite::Statement selectValueMappingStatement = selectValueMappingBuilder.Prepare(connection);
-
-            SQLite::Builder::StatementBuilder deleteValueBuilder;
-            deleteValueBuilder.DeleteFrom(tableName).Where(SQLite::RowIDName).Equals(SQLite::Builder::Unbound);
-
-            SQLite::Statement deleteValueStatement = deleteValueBuilder.Prepare(connection);
+            DeleteValueIfNotNeededStatements dvinns(connection, tableName, valueName);
 
             for (SQLite::rowid_t value : values)
             {
-                selectValueMappingStatement.Reset();
-                selectValueMappingStatement.Bind(1, value);
-
-                // If no rows are found, we can delete the data.
-                if (!selectValueMappingStatement.Step())
-                {
-                    deleteValueStatement.Reset();
-                    deleteValueStatement.Bind(1, value);
-
-                    deleteValueStatement.Execute();
-                }
+                dvinns.Execute(value);
             }
 
             savepoint.Commit();

@@ -80,13 +80,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Updates the manifest column and related table based on the given value.
         template <typename Table>
-        void UpdateManifestValueById(SQLite::Connection& connection, SQLite::rowid_t id, const typename Table::value_t& value)
+        void UpdateManifestValueById(SQLite::Connection& connection, const typename Table::value_t& value, SQLite::rowid_t manifestId)
         {
-            auto [oldValueId] = ManifestTable::GetIdsById<Table>(connection, id);
+            auto [oldValueId] = ManifestTable::GetIdsById<Table>(connection, manifestId);
 
             SQLite::rowid_t newValueId = Table::EnsureExists(connection, value);
 
-            ManifestTable::UpdateIdById<Table>(connection, id, newValueId);
+            ManifestTable::UpdateIdById<Table>(connection, manifestId, newValueId);
 
             Table::DeleteIfNotNeededById(connection, oldValueId);
         }
@@ -185,15 +185,21 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // If these values changed, we need to update them.
         if (nameInIndex != manifest.Name)
         {
-            UpdateManifestValueById<NameTable>(connection, manifestId, manifest.Name);
+            UpdateManifestValueById<NameTable>(connection, manifest.Name, manifestId);
             indexModified = true;
         }
 
         if (monikerInIndex != manifest.AppMoniker)
         {
-            UpdateManifestValueById<MonikerTable>(connection, manifestId, manifest.AppMoniker);
+            UpdateManifestValueById<MonikerTable>(connection, manifest.AppMoniker, manifestId);
             indexModified = true;
         }
+
+        // Update all 1:N tables as necessary
+        indexModified = TagsTable::UpdateIfNeededByManifestId(connection, manifest.Tags, manifestId) || indexModified;
+        indexModified = CommandsTable::UpdateIfNeededByManifestId(connection, manifest.Commands, manifestId) || indexModified;
+        indexModified = ProtocolsTable::UpdateIfNeededByManifestId(connection, manifest.Protocols, manifestId) || indexModified;
+        indexModified = ExtensionsTable::UpdateIfNeededByManifestId(connection, manifest.FileExtensions, manifestId) || indexModified;
 
         savepoint.Commit();
 
