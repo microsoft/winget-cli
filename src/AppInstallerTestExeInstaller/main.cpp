@@ -3,10 +3,13 @@
 
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 
 int main(int argc, const char** argv)
 {
-    std::ofstream file("TestExeInstalled.txt", std::ofstream::out);
+    std::filesystem::path temp = std::filesystem::temp_directory_path();
+    temp /= "TestExeInstalled.txt";
+    std::ofstream file(temp, std::ofstream::out);
 
     for (int i = 1; i < argc; i++)
     {

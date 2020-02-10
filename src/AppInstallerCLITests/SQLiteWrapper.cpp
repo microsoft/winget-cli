@@ -11,6 +11,7 @@ using namespace std::string_literals;
 static const char* s_firstColumn = "first";
 static const char* s_secondColumn = "second";
 static const char* s_tableName = "simpletest";
+static const char* s_savepoint = "simplesave";
 
 static const char* s_CreateSimpleTestTableSQL = R"(
 CREATE TABLE [main].[simpletest](
@@ -47,6 +48,13 @@ void InsertIntoSimpleTestTable(Connection& connection, int firstVal, const std::
 
     REQUIRE_FALSE(insert.Step());
     REQUIRE(insert.GetState() == Statement::State::Completed);
+}
+
+void UpdateSimpleTestTable(Connection& connection, int firstVal, const std::string& secondVal)
+{
+    Builder::StatementBuilder update;
+    update.Update(s_tableName).Set().Column(s_firstColumn).Equals(firstVal).Column(s_secondColumn).Equals(secondVal);
+    update.Execute(connection);
 }
 
 void InsertIntoSimpleTestTableWithNull(Connection& connection, int firstVal)
@@ -188,6 +196,70 @@ TEST_CASE("SQLiteWrapperSavepointCommit", "[sqlitewrapper]")
     SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
 }
 
+TEST_CASE("SQLiteWrapperSavepointReuse", "[sqlitewrapper]")
+{
+    TestCommon::TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    // Create the DB and some data
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::Create);
+
+        CreateSimpleTestTable(connection);
+
+        InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+    }
+
+    // Reopen the DB and update with a single savepoint
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+        Savepoint savepoint = Savepoint::Create(connection, s_savepoint);
+
+        firstVal = 2;
+        secondVal = "test2";
+        UpdateSimpleTestTable(connection, firstVal, secondVal);
+        
+        savepoint.Commit();
+    }
+
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+        SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
+    }
+
+    // Reopen the DB and update with a multiple savepoint
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+        {
+            Savepoint savepoint = Savepoint::Create(connection, s_savepoint);
+
+            firstVal = 3;
+            secondVal = "test3";
+            UpdateSimpleTestTable(connection, firstVal, secondVal);
+        }
+
+        {
+            Savepoint savepoint = Savepoint::Create(connection, s_savepoint);
+
+            firstVal = 4;
+            secondVal = "test4";
+            UpdateSimpleTestTable(connection, firstVal, secondVal);
+
+            savepoint.Commit();
+        }
+    }
+
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+        SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
+    }
+}
+
 TEST_CASE("SQLBuilder_SimpleSelectBind", "[sqlbuilder]")
 {
     Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
@@ -304,6 +376,27 @@ TEST_CASE("SQLBuilder_SimpleSelectOptional", "[sqlbuilder]")
 
         REQUIRE(!statement.Step());
     }
+}
+
+TEST_CASE("SQLBuilder_Update", "[sqlbuilder]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    CreateSimpleTestTable(connection);
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+
+    SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
+
+    firstVal = 2;
+    secondVal = "testing";
+
+    UpdateSimpleTestTable(connection, firstVal, secondVal);
+
+    SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
 }
 
 TEST_CASE("SQLBuilder_CreateTable", "[sqlbuilder]")

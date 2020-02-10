@@ -222,6 +222,109 @@ TEST_CASE("SQLiteIndex_RemoveManifestFile", "[sqliteindex]")
     REQUIRE(Schema::V1_0::ExtensionsTable::IsEmpty(connection));
 }
 
+TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string manifestPath = "test/id/test.id-1.0.0.yml";
+    Manifest manifest;
+    manifest.Id = "test.id";
+    manifest.Name = "Test Name";
+    manifest.AppMoniker = "testmoniker";
+    manifest.Version = "1.0.0";
+    manifest.Channel = "test";
+    manifest.Tags = { "t1", "t2" };
+    manifest.Commands = { "test1", "test2" };
+    manifest.Protocols = { "htttest" };
+    manifest.FileExtensions = { "tst", "test", "testy" };
+
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
+
+        index.AddManifest(manifest, manifestPath);
+    }
+
+    {
+        // Open it directly to directly test table state
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+        REQUIRE(!Schema::V1_0::ManifestTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::IdTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::NameTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::MonikerTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::VersionTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::ChannelTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::PathPartTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::TagsTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::CommandsTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::ProtocolsTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::ExtensionsTable::IsEmpty(connection));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        // Update with no updates should return false
+        REQUIRE(!index.UpdateManifest(manifest, manifestPath));
+
+        manifest.Description = "description2";
+
+        // Update with no indexed updates should return false
+        REQUIRE(!index.UpdateManifest(manifest, manifestPath));
+
+        // Update with indexed changes
+        manifest.Name = "Test Name2";
+        manifest.AppMoniker = "testmoniker2";
+        manifest.Tags = { "t1", "t2", "t3" };
+        manifest.Commands = { "test1", "test3" };
+        manifest.Protocols = {};
+        manifest.FileExtensions = { "tst", "test", "testy" };
+
+        REQUIRE(index.UpdateManifest(manifest, manifestPath));
+    }
+
+    {
+        // Open it directly to directly test table state
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+        REQUIRE(!Schema::V1_0::ManifestTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::IdTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::NameTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::MonikerTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::VersionTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::ChannelTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::PathPartTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::TagsTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::CommandsTable::IsEmpty(connection));
+        // The update removed all protocols
+        REQUIRE(Schema::V1_0::ProtocolsTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::ExtensionsTable::IsEmpty(connection));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        // Now remove manifest2
+        index.RemoveManifest(manifest, manifestPath);
+    }
+
+    // Open it directly to directly test table state
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+    REQUIRE(Schema::V1_0::ManifestTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::IdTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::NameTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::MonikerTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::VersionTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ChannelTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::PathPartTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::TagsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ProtocolsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ExtensionsTable::IsEmpty(connection));
+}
+
 TEST_CASE("PathPartTable_EnsurePathExists_Negative_Paths", "[sqliteindex][V1_0]")
 {
     // Open it directly to directly test pathpart table

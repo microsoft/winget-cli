@@ -181,8 +181,8 @@ namespace AppInstaller::Repository::SQLite
         using namespace std::string_literals;
 
         Statement begin = Statement::Create(connection, "SAVEPOINT ["s + m_name + "]");
-        m_rollback = Statement::Create(connection, "ROLLBACK TO ["s + m_name + "]", true);
-        m_commit = Statement::Create(connection, "RELEASE ["s + m_name + "]", true);
+        m_rollbackTo = Statement::Create(connection, "ROLLBACK TO ["s + m_name + "]", true);
+        m_release = Statement::Create(connection, "RELEASE ["s + m_name + "]", true);
 
         AICLI_LOG(SQL, Info, << "Begin savepoint: " << m_name);
         begin.Step();
@@ -203,7 +203,11 @@ namespace AppInstaller::Repository::SQLite
         if (m_inProgress)
         {
             AICLI_LOG(SQL, Info, << "Roll back savepoint: " << m_name);
-            m_rollback.Step(true);
+            m_rollbackTo.Step(true);
+            // 'ROLLBACK TO' *DOES NOT* remove the savepoint from the transaction stack.
+            // In order to remove it, we must RELEASE. Since we just invoked a ROLLBACK TO
+            // this should have the effect of 'committing' nothing.
+            m_release.Step(true);
             m_inProgress = false;
         }
     }
@@ -213,7 +217,7 @@ namespace AppInstaller::Repository::SQLite
         if (m_inProgress)
         {
             AICLI_LOG(SQL, Info, << "Commit savepoint: " << m_name);
-            m_commit.Step(true);
+            m_release.Step(true);
             m_inProgress = false;
         }
     }

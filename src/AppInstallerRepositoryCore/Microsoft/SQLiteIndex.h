@@ -55,11 +55,11 @@ namespace AppInstaller::Repository::Microsoft
 
         // Updates the manifest at the repository relative path in the index.
         // The return value indicates whether the index was modified by the function.
-        bool UpdateManifest(const std::filesystem::path& oldManifestPath, const std::filesystem::path& oldRelativePath, const std::filesystem::path& newManifestPath, const std::filesystem::path& newRelativePath);
+        bool UpdateManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);
 
         // Updates the manifest at the repository relative path in the index.
         // The return value indicates whether the index was modified by the function.
-        bool UpdateManifest(const Manifest::Manifest& oldManifest, const std::filesystem::path& oldRelativePath, const Manifest::Manifest& newManifest, const std::filesystem::path& newRelativePath);
+        bool UpdateManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
 
         // Removes the manifest at the repository relative path from the index.
         void RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);

@@ -27,7 +27,9 @@ protected:
 
     std::future<void> ExecuteInstallerAsync(const Uri& uri) override
     {
-        std::ofstream file("TestMsixInstalled.txt", std::ofstream::out);
+        std::filesystem::path temp = std::filesystem::temp_directory_path();
+        temp /= "TestMsixInstalled.txt";
+        std::ofstream file(temp, std::ofstream::out);
 
         file << AppInstaller::Utility::ConvertToUTF8(uri.ToString());
 
