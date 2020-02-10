@@ -22,8 +22,23 @@ struct LoggingBreakListener : public Catch::TestEventListenerBase
 
     void testCaseStarting(const Catch::TestCaseInfo& info) override
     {
+        Catch::TestEventListenerBase::testCaseStarting(info);
         AICLI_LOG(Test, Info, << "========== Test Case Begins :: " << info.name << " ==========");
+        TestCommon::TempFile::SetTestFailed(false);
     }
+
+    void testCaseEnded(const Catch::TestCaseStats& testCaseStats) override
+    {
+        AICLI_LOG(Test, Info, << "========== Test Case Ends :: " << currentTestCaseInfo->name << " ==========");
+        if (!testCaseStats.totals.delta(lastTotals).testCases.allOk())
+        {
+            TestCommon::TempFile::SetTestFailed(true);
+        }
+        lastTotals = testCaseStats.totals;
+        Catch::TestEventListenerBase::testCaseEnded(testCaseStats);
+    }
+
+    Catch::Totals lastTotals{};
 };
 CATCH_REGISTER_LISTENER(LoggingBreakListener);
 
@@ -38,7 +53,11 @@ int main(int argc, char** argv)
     {
         if ("-ktf"s == argv[i])
         {
-            TestCommon::TempFile::SetDestructorBehavior(true);
+            TestCommon::TempFile::SetDestructorBehavior(TestCommon::TempFileDestructionBehavior::Keep);
+        }
+        else if ("-seof"s == argv[i])
+        {
+            TestCommon::TempFile::SetDestructorBehavior(TestCommon::TempFileDestructionBehavior::ShellExecuteOnFailure);
         }
         else if ("-log"s == argv[i])
         {

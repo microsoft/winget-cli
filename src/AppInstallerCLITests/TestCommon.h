@@ -9,6 +9,13 @@
 
 namespace TestCommon
 {
+    enum class TempFileDestructionBehavior
+    {
+        Delete,
+        Keep,
+        ShellExecuteOnFailure,
+    };
+
     // Use this to create a temporary file for testing.
     struct TempFile
     {
@@ -26,7 +33,9 @@ namespace TestCommon
         const std::filesystem::path& GetPath() const { return _filepath; }
         operator const std::string () const { return _filepath.u8string(); }
 
-        static void SetDestructorBehavior(bool keepFilesOnDestruction);
+        static void SetDestructorBehavior(TempFileDestructionBehavior behavior);
+
+        static void SetTestFailed(bool failed);
 
     private:
         std::filesystem::path _filepath;

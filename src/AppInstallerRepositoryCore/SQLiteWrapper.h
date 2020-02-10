@@ -245,7 +245,7 @@ namespace AppInstaller::Repository::SQLite
 
         std::string m_name;
         DestructionToken m_inProgress = true;
-        Statement m_rollback;
-        Statement m_commit;
+        Statement m_rollbackTo;
+        Statement m_release;
     };
 }

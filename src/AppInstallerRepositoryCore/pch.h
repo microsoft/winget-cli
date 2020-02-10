@@ -17,6 +17,7 @@
 
 #include <winrt/Windows.Foundation.h>
 
+#include <algorithm>
 #include <filesystem>
 #include <initializer_list>
 #include <iomanip>

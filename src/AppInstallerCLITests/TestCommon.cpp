@@ -28,7 +28,8 @@ namespace TestCommon
             return tempFilePath;
         }
 
-        static bool s_TempFileDestructorKeepsFile{};
+        static TempFileDestructionBehavior s_TempFileDestructorBehavior = TempFileDestructionBehavior::Delete;
+        static std::vector<std::filesystem::path> s_TempFilesOnFile;
 
         static std::filesystem::path s_TestDataFileBasePath{};
     }
@@ -44,7 +45,15 @@ namespace TestCommon
 
     TempFile::TempFile(const std::filesystem::path& filePath, bool deleteFileOnConstruction)
     {
-        _filepath = filePath;
+        if (filePath.is_relative())
+        {
+            _filepath = std::filesystem::temp_directory_path();
+            _filepath /= filePath;
+        }
+        else
+        {
+            _filepath = filePath;
+        }
         if (deleteFileOnConstruction)
         {
             std::filesystem::remove(_filepath);
@@ -53,15 +62,42 @@ namespace TestCommon
 
     TempFile::~TempFile()
     {
-        if (!s_TempFileDestructorKeepsFile)
+        switch (s_TempFileDestructorBehavior)
         {
+        case TempFileDestructionBehavior::Delete:
             std::filesystem::remove(_filepath);
+            break;
+        case TempFileDestructionBehavior::Keep:
+            break;
+        case TempFileDestructionBehavior::ShellExecuteOnFailure:
+            s_TempFilesOnFile.emplace_back(std::move(_filepath));
+            break;
         }
     }
 
-    void TempFile::SetDestructorBehavior(bool keepFilesOnDestruction)
+    void TempFile::SetDestructorBehavior(TempFileDestructionBehavior behavior)
     {
-        s_TempFileDestructorKeepsFile = keepFilesOnDestruction;
+        s_TempFileDestructorBehavior = behavior;
+    }
+
+    void TempFile::SetTestFailed(bool failed)
+    {
+        if (failed)
+        {
+            for (const auto& path : s_TempFilesOnFile)
+            {
+                SHELLEXECUTEINFOW seinfo{};
+                seinfo.cbSize = sizeof(seinfo);
+                seinfo.lpVerb = L"open";
+                seinfo.lpFile = path.c_str();
+
+                ShellExecuteExW(&seinfo);
+            }
+        }
+        else
+        {
+            s_TempFilesOnFile.clear();
+        }
     }
 
     std::filesystem::path TestDataFile::GetPath() const
