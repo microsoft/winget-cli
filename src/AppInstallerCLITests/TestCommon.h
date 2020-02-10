@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "pch.h"
+#include <wil/result.h>
+
+#include <filesystem>
+#include <string>
 
 #define SQLITE_MEMORY_DB_CONNECTION_TARGET ":memory:"
 

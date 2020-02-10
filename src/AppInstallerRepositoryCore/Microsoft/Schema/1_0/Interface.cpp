@@ -130,10 +130,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addmanifest_v1_0");
 
-        auto [pathFound, pathLeafId] = PathPartTable::EnsurePathExists(connection, relativePath, true);
+        auto [pathAdded, pathLeafId] = PathPartTable::EnsurePathExists(connection, relativePath, true);
 
         // If we get false from the function, this manifest already exists in the index.
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), !pathFound);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), !pathAdded);
 
         // Ensure that all of the 1:1 data exists.
         SQLite::rowid_t idId = IdTable::EnsureExists(connection, manifest.Id);

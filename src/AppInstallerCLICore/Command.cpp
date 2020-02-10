@@ -9,7 +9,7 @@ namespace AppInstaller::CLI
     void Command::OutputIntroHeader(std::ostream& out) const
     {
         out << "AppInstaller Command Line" << std::endl;
-        out << "(c) 2019 Microsoft Corporation" << std::endl;
+        out << "Copyright (c) Microsoft Corporation" << std::endl;
     }
 
     void Command::OutputHelp(std::ostream& out, const CommandException* exception) const
