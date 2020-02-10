@@ -87,7 +87,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         {
             using namespace SQLite::Builder;
 
-            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } +"_create_v1_0");
+            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } + "_create_v1_0");
 
             // Create the data table as a 1:1
             CreateOneToOneTable(connection, tableName, valueName);
@@ -109,7 +109,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             std::string_view tableName, std::string_view valueName,
             const std::vector<std::string>& values, SQLite::rowid_t manifestId)
         {
-            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } +"_ensureandinsert_v1_0");
+            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } + "_ensureandinsert_v1_0");
 
             SQLite::Statement insertMapping = CreateMappingInsertStatementForManifestId(connection, tableName, valueName, manifestId);
 
@@ -185,7 +185,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         void OneToManyTableDeleteIfNotNeededByManifestId(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t manifestId)
         {
-            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } +"_deleteifnotneeded_v1_0");
+            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } + "_deleteifnotneeded_v1_0");
 
             // Get values referenced by the manifest id.
             std::vector<SQLite::rowid_t> values = GetValueIdsByManifestId(connection, tableName, valueName, manifestId);

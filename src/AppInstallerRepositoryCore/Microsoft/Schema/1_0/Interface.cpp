@@ -86,7 +86,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             SQLite::rowid_t newValueId = Table::EnsureExists(connection, value);
 
-            ManifestTable::UpdateIdById<Table>(connection, manifestId, newValueId);
+            ManifestTable::UpdateValueIdById<Table>(connection, manifestId, newValueId);
 
             Table::DeleteIfNotNeededById(connection, oldValueId);
         }

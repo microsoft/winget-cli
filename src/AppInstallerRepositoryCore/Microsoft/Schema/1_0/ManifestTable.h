@@ -28,7 +28,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             std::initializer_list<SQLite::Builder::QualifiedColumn> columns);
 
         // Update the value of a single column for the manifest with the given rowid.
-        void ManifestTableUpdateIdById(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t value, SQLite::rowid_t id);
+        void ManifestTableUpdateValueIdById(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t value, SQLite::rowid_t id);
     }
 
     // Info on the manifest columns.
@@ -78,9 +78,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Update the value of a single column for the manifest with the given rowid.
         template <typename Table>
-        static void UpdateIdById(SQLite::Connection& connection, SQLite::rowid_t id, SQLite::rowid_t value)
+        static void UpdateValueIdById(SQLite::Connection& connection, SQLite::rowid_t id, SQLite::rowid_t value)
         {
-            details::ManifestTableUpdateIdById(connection, Table::ValueName(), value, id);
+            details::ManifestTableUpdateValueIdById(connection, Table::ValueName(), value, id);
         }
 
         // Deletes the manifest row with the given rowid.

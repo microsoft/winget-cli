@@ -76,7 +76,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return result;
         }
 
-        void ManifestTableUpdateIdById(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t value, SQLite::rowid_t id)
+        void ManifestTableUpdateValueIdById(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t value, SQLite::rowid_t id)
         {
             SQLite::Builder::StatementBuilder builder;
             builder.Update(s_ManifestTable_Table_Name).Set().Column(valueName).Equals(value).Where(SQLite::RowIDName).Equals(id);
