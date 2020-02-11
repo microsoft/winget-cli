@@ -91,9 +91,9 @@ namespace AppInstaller::Repository
         std::unique_ptr<IApplication> Application;
 
         // The highest order field on which the application matched the search.
-        ApplicationMatchFilter Field;
+        ApplicationMatchFilter MatchCriteria;
 
-        ResultMatch(std::unique_ptr<IApplication> a, ApplicationMatchFilter f) : Application(std::move(a)), Field(std::move(f)) {}
+        ResultMatch(std::unique_ptr<IApplication> a, ApplicationMatchFilter f) : Application(std::move(a)), MatchCriteria(std::move(f)) {}
     };
 
     // Search result data.
