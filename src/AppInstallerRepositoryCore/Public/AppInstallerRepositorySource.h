@@ -3,6 +3,7 @@
 #pragma once
 #include <Public/AppInstallerRepositorySearch.h>
 
+#include <chrono>
 #include <memory>
 #include <string>
 #include <vector>
@@ -11,29 +12,35 @@
 namespace AppInstaller::Repository
 {
     // Interface for retrieving information about a source without acting on it.
-    struct ISourceDetails
+    struct SourceDetails
     {
-        // Gets the name of the source.
-        virtual const std::string& GetName() = 0;
+        // The name of the source.
+        std::string Name;
 
-        // Gets the type of the source.
-        virtual const std::string& GetType() = 0;
+        // The type of the source.
+        std::string Type;
 
-        // Gets the argument used when adding the source.
-        virtual const std::string& GetArg() = 0;
+        // The argument used when adding the source.
+        std::string Arg;
 
-        // Gets sources extra data string.
-        virtual const std::string& GetData() = 0;
+        // The sources extra data string.
+        std::string Data;
+
+        // The last time that this source was updated.
+        std::chrono::system_clock::time_point LastUpdateTime;
     };
 
     // Interface for interacting with a source from outside of the repository lib.
-    struct ISource : public ISourceDetails
+    struct ISource
     {
+        // Get the source's details.
+        virtual const SourceDetails& GetDetails() const = 0;
+
         // Request that the source update its internal data from the upstream location.
         virtual void Update() = 0;
 
         // Execute a search on the source.
-        virtual SearchResult Search(const SearchFilter& filter) = 0;
+        virtual SearchResult Search(const SearchRequest& request) const = 0;
     };
 
     // Adds a new source for the user.
@@ -44,7 +51,7 @@ namespace AppInstaller::Repository
     std::unique_ptr<ISource> OpenSource(const std::string& name);
 
     // Gets the details for all sources.
-    std::vector<std::unique_ptr<ISourceDetails>> GetSources();
+    std::vector<SourceDetails> GetSources();
 
     // Removes an existing source.
     void RemoveSource(const std::string& name);
