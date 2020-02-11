@@ -143,7 +143,7 @@ TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow]")
     testFlow.Install();
     INFO(installOutput.str());
 
-    // Verify Installer is called and a local file is used as package Uri.
+    // Verify Installer is called and a http address is used as package Uri.
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     std::ifstream installResultFile(installResultPath.GetPath());
     REQUIRE(installResultFile.is_open());

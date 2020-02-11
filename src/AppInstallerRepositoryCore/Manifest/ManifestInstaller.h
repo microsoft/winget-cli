@@ -21,6 +21,8 @@ namespace AppInstaller::Manifest
             Zip,
             Msix,
             Exe,
+            Burn,
+            InstallShield,
             Unknown
         };
 

@@ -92,7 +92,7 @@ namespace AppInstaller::Workflow
         // Todo: Implement arg selection logic.
         if (m_manifestInstallerRef.Switches.has_value())
         {
-            return m_manifestInstallerRef.Switches.value().Default;
+            return m_manifestInstallerRef.Switches.value().Custom;
         }
 
         return "";
@@ -102,9 +102,19 @@ namespace AppInstaller::Workflow
     {
         std::filesystem::path renamedDownloadedInstaller(m_downloadedInstaller);
 
-        if (m_manifestInstallerRef.InstallerType == ManifestInstaller::InstallerTypeEnum::Exe)
+        switch(m_manifestInstallerRef.InstallerType)
         {
+        case ManifestInstaller::InstallerTypeEnum::Burn:
+        case ManifestInstaller::InstallerTypeEnum::Exe:
+        case ManifestInstaller::InstallerTypeEnum::Inno:
+        case ManifestInstaller::InstallerTypeEnum::Nullsoft:
             renamedDownloadedInstaller += L".exe";
+            break;
+        case ManifestInstaller::InstallerTypeEnum::InstallShield:
+        case ManifestInstaller::InstallerTypeEnum::Msi:
+        case ManifestInstaller::InstallerTypeEnum::Wix:
+            renamedDownloadedInstaller += L".msi";
+            break;
         }
 
         std::filesystem::rename(m_downloadedInstaller, renamedDownloadedInstaller);

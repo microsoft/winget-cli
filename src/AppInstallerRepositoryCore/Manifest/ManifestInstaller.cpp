@@ -73,6 +73,14 @@ namespace AppInstaller::Manifest
         {
             result = InstallerTypeEnum::Exe;
         }
+        else if (inStrLower == "burn")
+        {
+            result = InstallerTypeEnum::Burn;
+        }
+        else if (inStrLower == "installshield")
+        {
+            result = InstallerTypeEnum::InstallShield;
+        }
 
         return result;
     }

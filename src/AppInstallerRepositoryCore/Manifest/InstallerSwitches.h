@@ -10,11 +10,19 @@ namespace AppInstaller::Manifest
     class InstallerSwitches
     {
     public:
-        std::string Default;
+        std::string Custom;
 
         std::string Silent;
 
-        std::string Verbose;
+        std::string SilentWithProgress;
+
+        std::string Interactive;
+
+        std::string Language;
+
+        std::string Log;
+
+        std::string InstallLocation;
 
         // Populates InstallerSwitches
         // defaultSwitches: if an optional field is not found in the YAML node, the field will be populated with value from defaultSwitches.
