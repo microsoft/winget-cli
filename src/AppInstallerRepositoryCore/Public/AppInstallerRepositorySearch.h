@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <Manifest/Manifest.h>
+
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 
@@ -19,13 +22,11 @@ namespace AppInstaller::Repository
     };
 
     // The field to match on.
-    enum class MatchField
+    enum class ApplicationMatchField
     {
         Id,
         Name,
         Moniker,
-        Version,
-        Channel,
         Tag,
         Command,
         Protocol,
@@ -42,11 +43,11 @@ namespace AppInstaller::Repository
     };
 
     // A match on a specific field to be performed during a search.
-    struct MatchFilter : public RequestMatch
+    struct ApplicationMatchFilter : public RequestMatch
     {
-        MatchField Field;
+        ApplicationMatchField Field;
 
-        MatchFilter(MatchField f, MatchType t, std::string v) : RequestMatch(t, std::move(v)), Field(f) {}
+        ApplicationMatchFilter(ApplicationMatchField f, MatchType t, std::string v) : RequestMatch(t, std::move(v)), Field(f) {}
     };
 
     // Container for data used to filter the available manifests in a source.
@@ -57,7 +58,7 @@ namespace AppInstaller::Repository
         std::optional<RequestMatch> Query;
 
         // Specific fields used to filter the data further.
-        std::vector<MatchFilter> Filters;
+        std::vector<ApplicationMatchFilter> Filters;
 
         // The maximum number of results to return.
         // The default of 0 will place no limit.
@@ -67,7 +68,20 @@ namespace AppInstaller::Repository
     // A single application result from a search.
     struct IApplication
     {
-        virtual std::vector<std::unique_ptr<IManifest>> GetMatchingManifests() const = 0;
+        // Gets the id of the application.
+        virtual std::string GetId() const = 0;
+
+        // Gets the name of the application (the latest name).
+        virtual std::string GetName() const = 0;
+
+        // Gets a manifest for this application.
+        // An empty version implies 'latest'.
+        // An empty channel is the 'general audience'.
+        virtual Manifest::Manifest GetManifest(std::string_view version, std::string_view channel) const = 0;
+
+        // Gets all versions of this application.
+        // The pair is <version, channel>.
+        virtual std::vector<std::pair<std::string, std::string>> GetVersions() const = 0;
     };
 
     // A single result from the search.
@@ -77,9 +91,9 @@ namespace AppInstaller::Repository
         std::unique_ptr<IApplication> Application;
 
         // The highest order field on which the application matched the search.
-        MatchFilter Field;
+        ApplicationMatchFilter Field;
 
-        ResultMatch(std::unique_ptr<IApplication> a, MatchFilter f) : Application(std::move(a)), Field(std::move(f)) {}
+        ResultMatch(std::unique_ptr<IApplication> a, ApplicationMatchFilter f) : Application(std::move(a)), Field(std::move(f)) {}
     };
 
     // Search result data.
