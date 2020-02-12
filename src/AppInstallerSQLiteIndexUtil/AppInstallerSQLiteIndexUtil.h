@@ -48,7 +48,7 @@ extern "C"
 
     // Updates the manifest at the repository relative path in the index.
     // The out value indicates whether the index was modified by the function.
-    APPINSTALLER_SQLITE_INDEX_API ApdateManifest(
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexUpdateManifest(
         APPINSTALLER_SQLITE_INDEX_HANDLE index, 
         APPINSTALLER_SQLITE_INDEX_STRING manifestPath, 
         APPINSTALLER_SQLITE_INDEX_STRING relativePath,
