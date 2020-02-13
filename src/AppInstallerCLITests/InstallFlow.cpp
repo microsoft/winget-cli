@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "AppInstallerLogging.h"
 #include "TestCommon.h"
 #include "Manifest/Manifest.h"
 #include "AppInstallerDownloader.h"
@@ -21,7 +22,8 @@ class MsixInstallerHandlerTest : public MsixInstallerHandler
 public:
     MsixInstallerHandlerTest(
         const ManifestInstaller& manifestInstaller,
-        WorkflowReporter& reporter) : MsixInstallerHandler(manifestInstaller, reporter) {};
+        const AppInstaller::CLI::Invocation& args,
+        WorkflowReporter& reporter) : MsixInstallerHandler(manifestInstaller, args, reporter) {};
 
 protected:
 
@@ -44,7 +46,8 @@ class ShellExecuteInstallerHandlerTest : public ShellExecuteInstallerHandler
 public:
     ShellExecuteInstallerHandlerTest(
         const ManifestInstaller& manifestInstaller,
-        WorkflowReporter& reporter) : ShellExecuteInstallerHandler(manifestInstaller, reporter) {};
+        const AppInstaller::CLI::Invocation& args,
+        WorkflowReporter& reporter) : ShellExecuteInstallerHandler(manifestInstaller, args, reporter) {};
 
     void Download() override
     {
@@ -57,8 +60,8 @@ public:
 class InstallFlowTest : public InstallFlow
 {
 public:
-    InstallFlowTest(Manifest manifest, std::ostream& outStream, std::istream& inStream) :
-        InstallFlow(manifest, outStream, inStream) {}
+    InstallFlowTest(Manifest manifest, const AppInstaller::CLI::Invocation& args, std::ostream& outStream, std::istream& inStream) :
+        InstallFlow(manifest, args, outStream, inStream) {}
 
 protected:
     std::unique_ptr<InstallerHandlerBase> GetInstallerHandler() override
@@ -66,9 +69,9 @@ protected:
         switch (m_selectedInstaller.InstallerType)
         {
         case ManifestInstaller::InstallerTypeEnum::Exe:
-            return std::make_unique<ShellExecuteInstallerHandlerTest>(m_selectedInstaller, m_reporter);
+            return std::make_unique<ShellExecuteInstallerHandlerTest>(m_selectedInstaller, m_argsRef, m_reporter);
         case ManifestInstaller::InstallerTypeEnum::Msix:
-            return std::make_unique<MsixInstallerHandlerTest>(m_selectedInstaller, m_reporter);
+            return std::make_unique<MsixInstallerHandlerTest>(m_selectedInstaller, m_argsRef, m_reporter);
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
@@ -82,7 +85,8 @@ TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
     auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yml"));
 
     std::ostringstream installOutput;
-    InstallFlowTest testFlow(manifest, installOutput, std::cin);
+    AppInstaller::CLI::Invocation inv{ {""} };
+    InstallFlowTest testFlow(manifest, inv, installOutput, std::cin);
     testFlow.Install();
     INFO(installOutput.str());
 
@@ -92,7 +96,8 @@ TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
     REQUIRE(installResultFile.is_open());
     std::string installResultStr;
     std::getline(installResultFile, installResultStr);
-    REQUIRE(installResultStr.find("/default") != std::string::npos);
+    REQUIRE(installResultStr.find("/custom") != std::string::npos);
+    REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
 }
 
 TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow]")
@@ -102,7 +107,8 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow]")
     auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_NoApplicableArchitecture.yml"));
 
     std::ostringstream installOutput;
-    InstallFlowTest testFlow(manifest, installOutput, std::cin);
+    AppInstaller::CLI::Invocation inv{ {""} };
+    InstallFlowTest testFlow(manifest, inv, installOutput, std::cin);
     REQUIRE_THROWS_WITH(testFlow.Install(), Catch::Contains("No installer with applicable architecture found."));
     INFO(installOutput.str());
 
@@ -118,7 +124,8 @@ TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow]")
     auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Msix_DownloadFlow.yml"));
 
     std::ostringstream installOutput;
-    InstallFlowTest testFlow(manifest, installOutput, std::cin);
+    AppInstaller::CLI::Invocation inv{ {""} };
+    InstallFlowTest testFlow(manifest, inv, installOutput, std::cin);
     testFlow.Install();
     INFO(installOutput.str());
 
@@ -139,7 +146,8 @@ TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow]")
     auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Msix_StreamingFlow.yml"));
 
     std::ostringstream installOutput;
-    InstallFlowTest testFlow(manifest, installOutput, std::cin);
+    AppInstaller::CLI::Invocation inv{ {""} };
+    InstallFlowTest testFlow(manifest, inv, installOutput, std::cin);
     testFlow.Install();
     INFO(installOutput.str());
 

@@ -53,9 +53,13 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
     // default switches
     REQUIRE(manifest.Switches.has_value());
     InstallerSwitches switches = manifest.Switches.value();
-    REQUIRE(switches.Verbose == "/verbose");
+    REQUIRE(switches.Custom == "/custom");
+    REQUIRE(switches.SilentWithProgress == "/silentwithprogress");
     REQUIRE(switches.Silent == "/silence");
-    REQUIRE(switches.Default == "/default");
+    REQUIRE(switches.Interactive == "/interactive");
+    REQUIRE(switches.Language == "/en-us");
+    REQUIRE(switches.Log == "/log=<LOGPATH>");
+    REQUIRE(switches.InstallLocation == "/dir=<INSTALLPATH>");
 
     // installers
     REQUIRE(manifest.Installers.size() == 2);
@@ -69,9 +73,13 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
 
     REQUIRE(installer1.Switches.has_value());
     InstallerSwitches installer1Switches = installer1.Switches.value();
-    REQUIRE(installer1Switches.Verbose == "/v");
+    REQUIRE(installer1Switches.Custom == "/c");
+    REQUIRE(installer1Switches.SilentWithProgress == "/sp");
     REQUIRE(installer1Switches.Silent == "/s");
-    REQUIRE(installer1Switches.Default == "/d");
+    REQUIRE(installer1Switches.Interactive == "/i");
+    REQUIRE(installer1Switches.Language == "/en");
+    REQUIRE(installer1Switches.Log == "/l=<LOGPATH>");
+    REQUIRE(installer1Switches.InstallLocation == "/d=<INSTALLPATH>");
 
     ManifestInstaller installer2 = manifest.Installers.at(1);
     REQUIRE(installer2.Arch == Architecture::X64);
@@ -84,9 +92,13 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
     // Installer2 does not declare switches, it inherits switches from package default.
     REQUIRE(installer2.Switches.has_value());
     InstallerSwitches installer2Switches = installer2.Switches.value();
-    REQUIRE(installer2Switches.Verbose == "/verbose");
+    REQUIRE(installer2Switches.Custom == "/custom");
+    REQUIRE(installer2Switches.SilentWithProgress == "/silentwithprogress");
     REQUIRE(installer2Switches.Silent == "/silence");
-    REQUIRE(installer2Switches.Default == "/default");
+    REQUIRE(installer2Switches.Interactive == "/interactive");
+    REQUIRE(installer2Switches.Language == "/en-us");
+    REQUIRE(installer2Switches.Log == "/log=<LOGPATH>");
+    REQUIRE(installer2Switches.InstallLocation == "/dir=<INSTALLPATH>");
 
     // Localization
     REQUIRE(manifest.Localization.size() == 1);

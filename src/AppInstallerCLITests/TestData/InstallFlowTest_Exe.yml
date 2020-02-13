@@ -4,8 +4,8 @@ Name: AppInstaller Test Installer
 Publisher: Microsoft Corporation
 AppMoniker: AICLITestExe
 Switches:
-  Verbose: /verbose
-  Default: /default
+  Custom: /custom
+  SilentWithProgress: /silentwithprogress
   Silent: /silence
 Installers: 
     - Arch: x64
