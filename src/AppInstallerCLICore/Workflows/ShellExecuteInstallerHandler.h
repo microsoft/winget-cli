@@ -13,13 +13,18 @@ namespace AppInstaller::Workflow
     public:
         ShellExecuteInstallerHandler(
             const Manifest::ManifestInstaller& manifestInstaller,
-            WorkflowReporter& reporter);
+            const CLI::Invocation& args,
+            WorkflowReporter& reporter) :
+            InstallerHandlerBase(manifestInstaller, args, reporter) {};
 
         // Install is done though invoking SheelExecute on downloaded installer.
         void Install() override;
 
     protected:
         std::future<DWORD> ExecuteInstallerAsync(const std::filesystem::path& filePath, const std::string& args);
+        std::string GetDefaultArg(std::string_view argType);
+        std::string GetInstallerArgsTemplate();
+        void PopulateInstallerArgsTemplate(std::string& installerArgs);
         std::string GetInstallerArgs();
 
         // This method appends appropriate extension to the downloaded installer.

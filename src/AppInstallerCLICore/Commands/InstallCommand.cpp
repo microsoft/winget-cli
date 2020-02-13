@@ -17,6 +17,12 @@ namespace AppInstaller::CLI
         return {
             Argument{ ARG_APPLICATION, LOCME("The name of the application to install"), ArgumentType::Positional, false },
             Argument{ ARG_MANIFEST, LOCME("The path to the manifest of the application to install"), ArgumentType::Standard, false },
+            Argument{ ARG_SILENTWITHPROGRESS, LOCME("The application installation is silent with installation progress reported."), ArgumentType::Flag, false },
+            Argument{ ARG_INTERACTIVE, LOCME("The application installation is interactive. User input is needed."), ArgumentType::Flag, false },
+            Argument{ ARG_SILENT, LOCME("The application installation is silent."), ArgumentType::Flag, false },
+            Argument{ ARG_LANGUAGE, LOCME("Preferred language if application installation supports multiple languages."), ArgumentType::Standard, false },
+            Argument{ ARG_LOG, LOCME("Preferred log location if application installation supports custom log path."), ArgumentType::Standard, false },
+            Argument{ ARG_CUSTOM, LOCME("Custom switches to be passed on to application installer."), ArgumentType::Standard, false },
         };
     }
 
@@ -41,7 +47,7 @@ namespace AppInstaller::CLI
 
             Logging::Telemetry().LogManifestFields(packageManifest.Name, packageManifest.Version);
 
-            InstallFlow packageInstall(packageManifest, out, in);
+            InstallFlow packageInstall(packageManifest, inv, out, in);
             packageInstall.Install();
         }
         else
@@ -57,6 +63,13 @@ namespace AppInstaller::CLI
         if (!inv.Contains(ARG_APPLICATION) && !inv.Contains(ARG_MANIFEST))
         {
             throw CommandException(LOCME("Required argument not provided"), ARG_APPLICATION);
+        }
+
+        if ((inv.Contains(ARG_SILENTWITHPROGRESS) && inv.Contains(ARG_SILENT)) ||
+            (inv.Contains(ARG_SILENTWITHPROGRESS) && inv.Contains(ARG_INTERACTIVE)) ||
+            (inv.Contains(ARG_SILENT) && inv.Contains(ARG_INTERACTIVE)))
+        {
+            throw CommandException(LOCME("More than 1 install behavior argument provided"), ARG_APPLICATION);
         }
     }
 }

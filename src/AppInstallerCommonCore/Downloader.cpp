@@ -98,7 +98,7 @@ namespace AppInstaller::Utility
 
             if (callback)
             {
-                callback->OnStarted();
+                callback->OnStarted(contentLength > 0);
             }
 
             do
@@ -126,7 +126,7 @@ namespace AppInstaller::Utility
 
                 progress += bytesRead;
 
-                if (callback && bytesRead != 0)
+                if (callback && bytesRead != 0 && contentLength > 0)
                 {
                     callback->OnProgress(progress, contentLength);
                 }

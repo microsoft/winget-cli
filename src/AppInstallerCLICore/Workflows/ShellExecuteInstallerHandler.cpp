@@ -3,6 +3,7 @@
 
 #include "pch.h"
 #include "Common.h"
+#include "Commands/Common.h"
 #include "ShellExecuteInstallerHandler.h"
 
 using namespace AppInstaller::Utility;
@@ -10,19 +11,6 @@ using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::Workflow
 {
-    ShellExecuteInstallerHandler::ShellExecuteInstallerHandler(
-        const Manifest::ManifestInstaller& manifestInstaller,
-        WorkflowReporter& reporter) :
-    InstallerHandlerBase(manifestInstaller, reporter)
-    {
-        // Todo: add support for other installer types.
-        // This Installer Handler should support Inno, Wix, Nullsoft, Msi and Exe.
-        if (manifestInstaller.InstallerType != ManifestInstaller::InstallerTypeEnum::Exe)
-        {
-            THROW_HR_MSG(E_UNEXPECTED, "Installer type not supported.");
-        }
-    }
-
     void ShellExecuteInstallerHandler::Install()
     {
         if (m_downloadedInstaller.empty())
@@ -60,7 +48,7 @@ namespace AppInstaller::Workflow
     std::future<DWORD> ShellExecuteInstallerHandler::ExecuteInstallerAsync(const std::filesystem::path& filePath, const std::string& args)
     {
         AICLI_LOG(CLI, Info, << "Staring installer. Path: " << filePath);
-        return std::async(std::launch::async, [&filePath, &args]
+        return std::async(std::launch::async, [this, &filePath, &args]
             {
                 SHELLEXECUTEINFOA execInfo = { 0 };
                 execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
@@ -68,7 +56,7 @@ namespace AppInstaller::Workflow
                 std::string filePathUTF8Str = Utility::ConvertToUTF8(filePath.c_str());
                 execInfo.lpFile = filePathUTF8Str.c_str();
                 execInfo.lpParameters = args.c_str();
-                execInfo.nShow = SW_SHOW;
+                execInfo.nShow = m_argsRef.Contains(CLI::ARG_INTERACTIVE) ? SW_SHOW : SW_HIDE;
                 if (!ShellExecuteExA(&execInfo) || !execInfo.hProcess)
                 {
                     return GetLastError();
@@ -87,15 +75,178 @@ namespace AppInstaller::Workflow
             });
     }
 
-    std::string ShellExecuteInstallerHandler::GetInstallerArgs()
+    std::string ShellExecuteInstallerHandler::GetDefaultArg(std::string_view argType)
     {
-        // Todo: Implement arg selection logic.
-        if (m_manifestInstallerRef.Switches.has_value())
+        std::string arg;
+        if (argType == CLI::ARG_SILENT)
         {
-            return m_manifestInstallerRef.Switches.value().Custom;
+            switch (m_manifestInstallerRef.InstallerType)
+            {
+            case ManifestInstaller::InstallerTypeEnum::Burn:
+            case ManifestInstaller::InstallerTypeEnum::Wix:
+            case ManifestInstaller::InstallerTypeEnum::Msi:
+                arg = "/quiet";
+                break;
+            case ManifestInstaller::InstallerTypeEnum::Nullsoft:
+                arg = "/S";
+                break;
+            case ManifestInstaller::InstallerTypeEnum::Inno:
+                arg = "/VERYSILENT";
+                break;
+            }
+        }
+        else if (argType == CLI::ARG_SILENTWITHPROGRESS)
+        {
+            switch (m_manifestInstallerRef.InstallerType)
+            {
+            case ManifestInstaller::InstallerTypeEnum::Burn:
+            case ManifestInstaller::InstallerTypeEnum::Wix:
+            case ManifestInstaller::InstallerTypeEnum::Msi:
+                arg = "/passive";
+                break;
+            case ManifestInstaller::InstallerTypeEnum::Nullsoft:
+                arg = "/S";
+                break;
+            case ManifestInstaller::InstallerTypeEnum::Inno:
+                arg = "/SILENT";
+                break;
+            }
+        }
+        else if (argType == CLI::ARG_INTERACTIVE)
+        {
+            // Nothing to do for now
+        }
+        else if (argType == CLI::ARG_LANGUAGE)
+        {
+            // Todo: language arguments will be implemented later
+        }
+        else if (argType == CLI::ARG_LOG)
+        {
+            switch (m_manifestInstallerRef.InstallerType)
+            {
+            case ManifestInstaller::InstallerTypeEnum::Burn:
+            case ManifestInstaller::InstallerTypeEnum::Wix:
+            case ManifestInstaller::InstallerTypeEnum::Msi:
+                arg = "/log \"" + std::string(ARG_TOKEN_LOGPATH) + "\"";
+                break;
+            case ManifestInstaller::InstallerTypeEnum::Inno:
+                arg = "/LOG=\"" + std::string(ARG_TOKEN_LOGPATH) + "\"";
+                break;
+            }
+        }
+        else if (argType == CLI::ARG_INSTALLLOCATION)
+        {
+            switch (m_manifestInstallerRef.InstallerType)
+            {
+            case ManifestInstaller::InstallerTypeEnum::Burn:
+            case ManifestInstaller::InstallerTypeEnum::Wix:
+            case ManifestInstaller::InstallerTypeEnum::Msi:
+                arg = "TARGETDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"";
+                break;
+            case ManifestInstaller::InstallerTypeEnum::Inno:
+                arg = "/DIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"";
+                break;
+            case ManifestInstaller::InstallerTypeEnum::Nullsoft:
+                arg = "/D=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"";
+                break;
+            }
         }
 
-        return "";
+        return arg;
+    }
+
+    std::string ShellExecuteInstallerHandler::GetInstallerArgsTemplate()
+    {
+        InstallerSwitches const* installerSwitches = nullptr;
+
+        if (m_manifestInstallerRef.Switches.has_value())
+        {
+            installerSwitches = &(m_manifestInstallerRef.Switches.value());
+        }
+
+        std::string installerArgs = "";
+
+        if (m_argsRef.Contains(CLI::ARG_SILENT))
+        {
+            installerArgs += installerSwitches && !installerSwitches->Silent.empty() ?
+                installerSwitches->Silent : GetDefaultArg(CLI::ARG_SILENT);
+        }
+        else if (m_argsRef.Contains(CLI::ARG_INTERACTIVE))
+        {
+            installerArgs += installerSwitches && !installerSwitches->Interactive.empty() ?
+                installerSwitches->Interactive : GetDefaultArg(CLI::ARG_INTERACTIVE);
+        }
+        else
+        {
+            installerArgs += installerSwitches && !installerSwitches->SilentWithProgress.empty() ?
+                installerSwitches->SilentWithProgress : GetDefaultArg(CLI::ARG_SILENTWITHPROGRESS);
+        }
+
+        installerArgs += ' ';
+        installerArgs += installerSwitches && !installerSwitches->Language.empty() ?
+            installerSwitches->Language : GetDefaultArg(CLI::ARG_LANGUAGE);
+
+        installerArgs += ' ';
+        installerArgs += installerSwitches && !installerSwitches->Log.empty() ?
+            installerSwitches->Log : GetDefaultArg(CLI::ARG_LOG);
+
+        installerArgs += ' ';
+        if (m_argsRef.Contains(CLI::ARG_CUSTOM))
+        {
+            installerArgs += *(m_argsRef.GetArg(CLI::ARG_CUSTOM));
+        }
+        else if (installerSwitches && !installerSwitches->Custom.empty())
+        {
+            installerArgs += installerSwitches->Custom;
+        }
+
+        return installerArgs;
+    }
+
+    void ShellExecuteInstallerHandler::PopulateInstallerArgsTemplate(std::string& installerArgs)
+    {
+        std::string::size_type pos = 0u;
+        while ((pos = installerArgs.find(ARG_TOKEN_LOGPATH, pos)) != std::string::npos)
+        {
+            std::string logPath;
+            if (m_argsRef.Contains(CLI::ARG_LOG))
+            {
+                logPath = *m_argsRef.GetArg(CLI::ARG_LOG);
+            }
+            else
+            {
+                logPath = Utility::ConvertToUTF8(m_downloadedInstaller.c_str()) + ".log";
+            }
+            installerArgs.replace(pos, ARG_TOKEN_LOGPATH.length(), logPath);
+            pos += logPath.length();
+        }
+
+        pos = 0u;
+        while ((pos = installerArgs.find(ARG_TOKEN_INSTALLPATH, pos)) != std::string::npos)
+        {
+            std::string installPath;
+            if (m_argsRef.Contains(CLI::ARG_INSTALLLOCATION))
+            {
+                installPath = *m_argsRef.GetArg(CLI::ARG_INSTALLLOCATION);
+            }
+            else
+            {
+                installPath = Utility::ConvertToUTF8(std::filesystem::current_path().c_str());
+            }
+            installerArgs.replace(pos, ARG_TOKEN_LOGPATH.length(), installPath);
+            pos += installPath.length();
+        }
+
+        // Todo: language token support will be implemented later
+    }
+
+    std::string ShellExecuteInstallerHandler::GetInstallerArgs()
+    {
+        std::string installerArgs = GetInstallerArgsTemplate();
+
+        PopulateInstallerArgsTemplate(installerArgs);
+
+        return installerArgs;
     }
 
     void ShellExecuteInstallerHandler::RenameDownloadedInstaller()
@@ -110,7 +261,6 @@ namespace AppInstaller::Workflow
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
             renamedDownloadedInstaller += L".exe";
             break;
-        case ManifestInstaller::InstallerTypeEnum::InstallShield:
         case ManifestInstaller::InstallerTypeEnum::Msi:
         case ManifestInstaller::InstallerTypeEnum::Wix:
             renamedDownloadedInstaller += L".msi";

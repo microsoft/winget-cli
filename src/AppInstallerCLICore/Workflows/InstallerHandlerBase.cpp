@@ -45,7 +45,7 @@ namespace AppInstaller::Workflow
             AICLI_LOG(CLI, Error,
                 << "Package hash verification failed. SHA256 in manifest: "
                 << SHA256::ConvertToString(m_manifestInstallerRef.Sha256)
-                << "SHA256 from download: "
+                << " SHA256 from download: "
                 << SHA256::ConvertToString(downloader->GetDownloadHash()));
 
             if (!m_reporterRef.PromptForBoolResponse(WorkflowReporter::Level::Warning, "Package hash verification failed. Continue?"))
@@ -63,10 +63,19 @@ namespace AppInstaller::Workflow
         m_downloadedInstaller = tempInstallerPath;
     }
 
-    void InstallerHandlerBase::DownloaderCallback::OnStarted()
+    void InstallerHandlerBase::DownloaderCallback::OnStarted(bool isDownloadSizeKnown)
     {
         m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Starting package download ...");
-        m_reporterRef.ShowProgress(true, 0);
+        m_isDownloadSizeKnown = isDownloadSizeKnown;
+
+        if (m_isDownloadSizeKnown)
+        {
+            m_reporterRef.ShowProgress(true, 0);
+        }
+        else
+        {
+            m_reporterRef.ShowIndefiniteProgress(true);
+        }
     }
 
     void InstallerHandlerBase::DownloaderCallback::OnProgress(LONGLONG progress, LONGLONG downloadSize)
@@ -77,13 +86,29 @@ namespace AppInstaller::Workflow
 
     void InstallerHandlerBase::DownloaderCallback::OnCanceled()
     {
-        m_reporterRef.ShowProgress(false, 0);
+        if (m_isDownloadSizeKnown)
+        {
+            m_reporterRef.ShowProgress(false, 0);
+        }
+        else
+        {
+            m_reporterRef.ShowIndefiniteProgress(false);
+        }
+
         m_reporterRef.ShowMsg(WorkflowReporter::Level::Warning, "Package download canceled.");
     }
 
     void InstallerHandlerBase::DownloaderCallback::OnCompleted()
     {
-        m_reporterRef.ShowProgress(false, 0);
+        if (m_isDownloadSizeKnown)
+        {
+            m_reporterRef.ShowProgress(false, 0);
+        }
+        else
+        {
+            m_reporterRef.ShowIndefiniteProgress(false);
+        }
+
         m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Package download completed.");
     }
 }
