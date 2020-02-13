@@ -10,6 +10,7 @@ namespace AppInstaller::Workflow
 {
     using namespace std::string_view_literals;
 
+    // Token specified in installer args will be replaced by proper value.
     static constexpr std::string_view ARG_TOKEN_LOGPATH = "<LOGPATH>"sv;
     static constexpr std::string_view ARG_TOKEN_INSTALLPATH = "<INSTALLPATH>"sv;
 
@@ -42,7 +43,9 @@ namespace AppInstaller::Workflow
 
         private:
             WorkflowReporter& m_reporterRef;
-            bool m_isDownloadSizeKnown;
+
+            // This determines if definite progress bar or indefinite progress bar should be shown.
+            bool m_isDownloadSizeKnown = true;
         };
 
         InstallerHandlerBase(

@@ -126,6 +126,7 @@ namespace AppInstaller::Utility
 
                 progress += bytesRead;
 
+                // If download size is unknown. No progress report necessary.
                 if (callback && bytesRead != 0 && contentLength > 0)
                 {
                     callback->OnProgress(progress, contentLength);

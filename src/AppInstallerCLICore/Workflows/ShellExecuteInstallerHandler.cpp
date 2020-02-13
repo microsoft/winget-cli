@@ -77,6 +77,7 @@ namespace AppInstaller::Workflow
 
     std::string ShellExecuteInstallerHandler::GetDefaultArg(std::string_view argType)
     {
+        // This contains knowledge about known installer type's known default switches.
         std::string arg;
         if (argType == CLI::ARG_SILENT)
         {
@@ -166,6 +167,7 @@ namespace AppInstaller::Workflow
 
         std::string installerArgs = "";
 
+        // Construct install experience arg.
         if (m_argsRef.Contains(CLI::ARG_SILENT))
         {
             installerArgs += installerSwitches && !installerSwitches->Silent.empty() ?
@@ -182,14 +184,17 @@ namespace AppInstaller::Workflow
                 installerSwitches->SilentWithProgress : GetDefaultArg(CLI::ARG_SILENTWITHPROGRESS);
         }
 
+        // Construct language arg.
         installerArgs += ' ';
         installerArgs += installerSwitches && !installerSwitches->Language.empty() ?
             installerSwitches->Language : GetDefaultArg(CLI::ARG_LANGUAGE);
 
+        // Construct log path arg.
         installerArgs += ' ';
         installerArgs += installerSwitches && !installerSwitches->Log.empty() ?
             installerSwitches->Log : GetDefaultArg(CLI::ARG_LOG);
 
+        // Construct custom arg. Custom arg from command line overrides ones specified in manifest.
         installerArgs += ' ';
         if (m_argsRef.Contains(CLI::ARG_CUSTOM))
         {
@@ -205,6 +210,7 @@ namespace AppInstaller::Workflow
 
     void ShellExecuteInstallerHandler::PopulateInstallerArgsTemplate(std::string& installerArgs)
     {
+        // Populate <LogPath> with value from command line or temp path.
         std::string::size_type pos = 0u;
         while ((pos = installerArgs.find(ARG_TOKEN_LOGPATH, pos)) != std::string::npos)
         {
@@ -221,6 +227,7 @@ namespace AppInstaller::Workflow
             pos += logPath.length();
         }
 
+        // Populate <InstallPath> with value from command line or current path.
         pos = 0u;
         while ((pos = installerArgs.find(ARG_TOKEN_INSTALLPATH, pos)) != std::string::npos)
         {
