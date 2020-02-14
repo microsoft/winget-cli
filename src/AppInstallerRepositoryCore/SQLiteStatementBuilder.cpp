@@ -416,6 +416,18 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::DropIndex(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "DROP INDEX", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::DropIndex(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, "DROP INDEX", table);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::On(std::string_view table)
     {
         OutputOperationAndTable(m_stream, " ON", table);
@@ -456,6 +468,12 @@ namespace AppInstaller::Repository::SQLite::Builder
     {
         m_stream << " SET ";
         m_needsComma = false;
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Vacuum()
+    {
+        m_stream << "VACUUM";
         return *this;
     }
 

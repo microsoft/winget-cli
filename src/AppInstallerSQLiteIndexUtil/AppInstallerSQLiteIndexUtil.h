@@ -59,4 +59,8 @@ extern "C"
         APPINSTALLER_SQLITE_INDEX_HANDLE index, 
         APPINSTALLER_SQLITE_INDEX_STRING manifestPath, 
         APPINSTALLER_SQLITE_INDEX_STRING relativePath);
+
+    // Removes data that is no longer needed for an index that is to be published.
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexPrepareForPackaging(
+        APPINSTALLER_SQLITE_INDEX_HANDLE index);
 }

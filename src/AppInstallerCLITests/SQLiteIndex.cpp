@@ -105,7 +105,7 @@ TEST_CASE("SQLiteIndex_RemoveManifestFile_NotPresent", "[sqliteindex]")
     REQUIRE_THROWS_HR(index.RemoveManifest(manifestFile, manifestPath), E_NOT_SET);
 }
 
-TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex]")
+TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex][V1_0]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -177,7 +177,7 @@ TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex]")
     REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
 }
 
-TEST_CASE("SQLiteIndex_RemoveManifestFile", "[sqliteindex]")
+TEST_CASE("SQLiteIndex_RemoveManifestFile", "[sqliteindex][V1_0]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -208,7 +208,7 @@ TEST_CASE("SQLiteIndex_RemoveManifestFile", "[sqliteindex]")
     REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
 }
 
-TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex]")
+TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex][V1_0]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -366,4 +366,19 @@ TEST_CASE("PathPartTable_EnsurePathExists", "[sqliteindex][V1_0]")
     auto result7 = Schema::V1_0::PathPartTable::EnsurePathExists(connection, R"(a\\b\d\\c.txt)", true);
     REQUIRE(!std::get<0>(result7));
     REQUIRE(std::get<1>(result6) == std::get<1>(result7));
+}
+
+TEST_CASE("SQLiteIndex_PrepareForPackaging", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, Schema::Version::Latest());
+
+    TestDataFile manifestFile{ "GoodManifest.yml" };
+    std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yml" };
+
+    index.AddManifest(manifestFile, manifestPath);
+
+    index.PrepareForPackaging();
 }

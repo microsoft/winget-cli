@@ -243,6 +243,11 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& CreateIndex(std::string_view table);
         StatementBuilder& CreateIndex(std::initializer_list<std::string_view> table);
 
+        // Begin an index deletion statement.
+        // The initializer_list form enables the table name to be constructed from multiple parts.
+        StatementBuilder& DropIndex(std::string_view table);
+        StatementBuilder& DropIndex(std::initializer_list<std::string_view> table);
+
         // Set index target table.
         StatementBuilder& On(std::string_view table);
         StatementBuilder& On(std::initializer_list<std::string_view> table);
@@ -259,6 +264,9 @@ namespace AppInstaller::Repository::SQLite::Builder
 
         // Output the set portion of an update statement.
         StatementBuilder& Set();
+
+        // Output the set portion of an update statement.
+        StatementBuilder& Vacuum();
 
         // Prepares and returns the statement, applying any bindings that were requested.
         Statement Prepare(Connection& connection, bool persistent = false);

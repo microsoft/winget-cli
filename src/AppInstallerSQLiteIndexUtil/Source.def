@@ -8,3 +8,4 @@ EXPORTS
     AppInstallerSQLiteIndexAddManifest
     AppInstallerSQLiteIndexUpdateManifest
     AppInstallerSQLiteIndexRemoveManifest
+    AppInstallerSQLiteIndexPrepareForPackaging

@@ -190,6 +190,13 @@ namespace AppInstaller::Repository::Microsoft
         savepoint.Commit();
     }
 
+    void SQLiteIndex::PrepareForPackaging()
+    {
+        AICLI_LOG(Repo, Info, << "Preparing index for packaging");
+
+        m_interface->PrepareForPackaging(m_dbconn);
+    }
+
     // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus
     // should be consistent across systems.
     void SQLiteIndex::SetLastWriteTime()

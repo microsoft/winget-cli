@@ -232,4 +232,34 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         savepoint.Commit();
     }
+
+    void Interface::PrepareForPackaging(SQLite::Connection& connection)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_0");
+
+        IdTable::PrepareForPackaging(connection);
+        NameTable::PrepareForPackaging(connection);
+        MonikerTable::PrepareForPackaging(connection);
+        VersionTable::PrepareForPackaging(connection);
+        ChannelTable::PrepareForPackaging(connection);
+
+        PathPartTable::PrepareForPackaging(connection);
+
+        ManifestTable::PrepareForPackaging(connection, {
+            VersionTable::ValueName(),
+            ChannelTable::ValueName(),
+            PathPartTable::ValueName(),
+            });
+
+        TagsTable::PrepareForPackaging(connection);
+        CommandsTable::PrepareForPackaging(connection);
+
+        savepoint.Commit();
+
+        // Force the database to actually shrink the file size.
+        // This *must* be done outside of an active transaction.
+        SQLite::Builder::StatementBuilder builder;
+        builder.Vacuum();
+        builder.Execute(connection);
+    }
 }

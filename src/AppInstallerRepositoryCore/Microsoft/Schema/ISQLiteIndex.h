@@ -34,6 +34,9 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         // Removes the manifest at the repository relative path from the index.
         virtual void RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
+
+        // Removes data that is no longer needed for an index that is to be published.
+        virtual void PrepareForPackaging(SQLite::Connection& connection) = 0;
     };
 
 

@@ -86,6 +86,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Deletes the manifest row with the given rowid.
         static void DeleteById(SQLite::Connection& connection, SQLite::rowid_t id);
 
+        // Removes data that is no longer needed for an index that is to be published.
+        static void PrepareForPackaging(SQLite::Connection& connection, std::initializer_list<std::string_view> values);
+
         // Determines if the table is empty.
         static bool IsEmpty(SQLite::Connection& connection);
     };

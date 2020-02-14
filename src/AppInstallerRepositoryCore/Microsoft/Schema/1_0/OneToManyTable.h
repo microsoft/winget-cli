@@ -27,6 +27,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Deletes the mapping rows for the given manifest, then removes any unused data rows.
         void OneToManyTableDeleteIfNotNeededByManifestId(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t manifestId);
 
+        // Removes data that is no longer needed for an index that is to be published.
+        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName);
+
         // Determines if the table is empty.
         bool OneToManyTableIsEmpty(SQLite::Connection& connection, std::string_view tableName);
     }
@@ -57,6 +60,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         static void DeleteIfNotNeededByManifestId(SQLite::Connection& connection, SQLite::rowid_t manifestId)
         {
             details::OneToManyTableDeleteIfNotNeededByManifestId(connection, TableInfo::TableName(), TableInfo::ValueName(), manifestId);
+        }
+
+        // Removes data that is no longer needed for an index that is to be published.
+        static void PrepareForPackaging(SQLite::Connection& connection)
+        {
+            details::OneToManyTablePrepareForPackaging(connection, TableInfo::TableName());
         }
 
         // Determines if the table is empty.
