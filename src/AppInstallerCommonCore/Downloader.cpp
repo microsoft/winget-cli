@@ -94,7 +94,7 @@ namespace AppInstaller::Utility
 
             BOOL readSuccess = true;
             DWORD bytesRead = 0;
-            LONGLONG progress = 0;
+            LONGLONG bytesDownloaded = 0;
 
             if (callback)
             {
@@ -124,12 +124,11 @@ namespace AppInstaller::Utility
 
                 outfile.write((char*)buffer.get(), bytesRead);
 
-                progress += bytesRead;
+                bytesDownloaded += bytesRead;
 
-                // If download size is unknown. No progress report necessary.
-                if (callback && bytesRead != 0 && contentLength > 0)
+                if (callback && bytesRead != 0)
                 {
-                    callback->OnProgress(progress, contentLength);
+                    callback->OnProgress(bytesDownloaded, contentLength);
                 }
 
             } while (bytesRead != 0);

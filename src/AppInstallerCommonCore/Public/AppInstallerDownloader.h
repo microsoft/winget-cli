@@ -17,9 +17,9 @@ namespace AppInstaller::Utility
     class IDownloaderCallback
     {
     public:
-        virtual void OnStarted(bool isDownloadSizeKnown) = 0;
+        virtual void OnStarted(LONGLONG totalBytes) = 0;
 
-        virtual void OnProgress(LONGLONG progress, LONGLONG downloadSize) = 0;
+        virtual void OnProgress(LONGLONG bytesDownloaded, LONGLONG totalBytes) = 0;
 
         virtual void OnCanceled() = 0;
 

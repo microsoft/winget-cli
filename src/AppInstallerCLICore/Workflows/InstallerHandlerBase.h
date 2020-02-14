@@ -36,8 +36,8 @@ namespace AppInstaller::Workflow
         public:
             DownloaderCallback(WorkflowReporter& reporter) : m_reporterRef(reporter) {};
 
-            void OnStarted(bool isDownloadSizeKnown) override;
-            void OnProgress(LONGLONG progress, LONGLONG downloadSize) override;
+            void OnStarted(LONGLONG totalBytes) override;
+            void OnProgress(LONGLONG bytesDownloaded, LONGLONG totalBytes) override;
             void OnCanceled() override;
             void OnCompleted() override;
 
@@ -45,7 +45,7 @@ namespace AppInstaller::Workflow
             WorkflowReporter& m_reporterRef;
 
             // This determines if definite progress bar or indefinite progress bar should be shown.
-            bool m_isDownloadSizeKnown = true;
+            bool m_useProgressBar = true;
         };
 
         InstallerHandlerBase(

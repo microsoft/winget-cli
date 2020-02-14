@@ -63,12 +63,12 @@ namespace AppInstaller::Workflow
         m_downloadedInstaller = tempInstallerPath;
     }
 
-    void InstallerHandlerBase::DownloaderCallback::OnStarted(bool isDownloadSizeKnown)
+    void InstallerHandlerBase::DownloaderCallback::OnStarted(LONGLONG totalBytes)
     {
-        m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Starting package download ...");
-        m_isDownloadSizeKnown = isDownloadSizeKnown;
+        m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Starting installer download ...");
+        m_useProgressBar = totalBytes > 0;
 
-        if (m_isDownloadSizeKnown)
+        if (m_useProgressBar)
         {
             m_reporterRef.ShowProgress(true, 0);
         }
@@ -78,15 +78,18 @@ namespace AppInstaller::Workflow
         }
     }
 
-    void InstallerHandlerBase::DownloaderCallback::OnProgress(LONGLONG progress, LONGLONG downloadSize)
+    void InstallerHandlerBase::DownloaderCallback::OnProgress(LONGLONG bytesDownloaded, LONGLONG totalBytes)
     {
-        int progressPercent = static_cast<int>(100 * progress / downloadSize);
-        m_reporterRef.ShowProgress(true, progressPercent);
+        if (m_useProgressBar)
+        {
+            int progressPercent = static_cast<int>(100 * bytesDownloaded / totalBytes);
+            m_reporterRef.ShowProgress(true, progressPercent);
+        }
     }
 
     void InstallerHandlerBase::DownloaderCallback::OnCanceled()
     {
-        if (m_isDownloadSizeKnown)
+        if (m_useProgressBar)
         {
             m_reporterRef.ShowProgress(false, 0);
         }
@@ -95,12 +98,12 @@ namespace AppInstaller::Workflow
             m_reporterRef.ShowIndefiniteProgress(false);
         }
 
-        m_reporterRef.ShowMsg(WorkflowReporter::Level::Warning, "Package download canceled.");
+        m_reporterRef.ShowMsg(WorkflowReporter::Level::Warning, "Installer download canceled.");
     }
 
     void InstallerHandlerBase::DownloaderCallback::OnCompleted()
     {
-        if (m_isDownloadSizeKnown)
+        if (m_useProgressBar)
         {
             m_reporterRef.ShowProgress(false, 0);
         }
@@ -109,6 +112,6 @@ namespace AppInstaller::Workflow
             m_reporterRef.ShowIndefiniteProgress(false);
         }
 
-        m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Package download completed.");
+        m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Installer download completed.");
     }
 }

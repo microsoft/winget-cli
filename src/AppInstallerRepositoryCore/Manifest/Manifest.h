@@ -60,7 +60,7 @@ namespace AppInstaller::Manifest
 
         ManifestInstaller::InstallerTypeEnum InstallerType;
 
-        std::optional<InstallerSwitches> Switches;
+        std::map < ManifestInstaller::InstallerSwitchType, std::string> Switches;
 
         std::string Description;
 

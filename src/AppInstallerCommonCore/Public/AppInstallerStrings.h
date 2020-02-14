@@ -21,4 +21,7 @@ namespace AppInstaller::Utility
 
     // Checks if the input string is empty or whitespace
     bool IsEmptyOrWhitespace(std::wstring_view str);
+
+    // Find token in the input string and replace with value.
+    void FindAndReplace(std::string& inputStr, const std::string& token, const std::string& value);
 }

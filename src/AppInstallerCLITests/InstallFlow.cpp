@@ -169,99 +169,90 @@ TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow]")
 
 TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
 {
-    ManifestInstaller manifestInstaller;
     std::ostringstream installOutput;
     WorkflowReporter reporter(installOutput, std::cin);
 
     {
         // Default Msi type with no args passed in, no switches specified in manifest
-        manifestInstaller.InstallerType = ManifestInstaller::InstallerTypeEnum::Msi;
-        manifestInstaller.Switches.reset();
+        auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Msi_NoSwitches.yml"));
         AppInstaller::CLI::Invocation inv{ {""} };
-        ShellExecuteInstallerHandlerTest testhandler(manifestInstaller, inv, reporter);
+        ShellExecuteInstallerHandlerTest testhandler(manifest.Installers.at(0), inv, reporter);
         std::string installerArgs = testhandler.TestInstallerArgs();
         REQUIRE(installerArgs.find("/passive") != std::string::npos);
         REQUIRE(installerArgs.find("AppInstallerTestExeInstaller.exe.log") != std::string::npos);
     }
 
     {
-        // Msi type with /silent and /log and /custom, no switches specified in manifest
-        manifestInstaller.InstallerType = ManifestInstaller::InstallerTypeEnum::Msi;
-        manifestInstaller.Switches.reset();
+        // Msi type with /silent and /log and /custom and /installlocation, no switches specified in manifest
+        auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Msi_NoSwitches.yml"));
         AppInstaller::CLI::Invocation inv{ {""} };
         inv.AddArg(AppInstaller::CLI::ARG_SILENT);
         inv.AddArg(AppInstaller::CLI::ARG_LOG, "MyLog.log");
         inv.AddArg(AppInstaller::CLI::ARG_CUSTOM, "/customArg");
-        ShellExecuteInstallerHandlerTest testhandler(manifestInstaller, inv, reporter);
+        inv.AddArg(AppInstaller::CLI::ARG_INSTALLLOCATION, "MyDir");
+        ShellExecuteInstallerHandlerTest testhandler(manifest.Installers.at(0), inv, reporter);
         std::string installerArgs = testhandler.TestInstallerArgs();
         REQUIRE(installerArgs.find("/quiet") != std::string::npos);
         REQUIRE(installerArgs.find("/log \"MyLog.log\"") != std::string::npos);
         REQUIRE(installerArgs.find("/customArg") != std::string::npos);
+        REQUIRE(installerArgs.find("TARGETDIR=\"MyDir\"") != std::string::npos);
     }
 
     {
-        // Msi type with /silent and /log and /custom, switches specified in manifest
-        manifestInstaller.InstallerType = ManifestInstaller::InstallerTypeEnum::Msi;
-        manifestInstaller.Switches.reset();
-        InstallerSwitches installerSwitches;
-        installerSwitches.Silent = "/customSilent";
-        installerSwitches.Custom = "/custom";
-        installerSwitches.Log = "/mylog=\"<LOGPATH>\"";
-        manifestInstaller.Switches.emplace(std::move(installerSwitches));
+        // Msi type with /silent and /log and /custom and /installlocation, switches specified in manifest
+        auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Msi_WithSwitches.yml"));
         AppInstaller::CLI::Invocation inv{ {""} };
         inv.AddArg(AppInstaller::CLI::ARG_SILENT);
         inv.AddArg(AppInstaller::CLI::ARG_LOG, "MyLog.log");
         inv.AddArg(AppInstaller::CLI::ARG_CUSTOM, "/customArg");
-        ShellExecuteInstallerHandlerTest testhandler(manifestInstaller, inv, reporter);
+        inv.AddArg(AppInstaller::CLI::ARG_INSTALLLOCATION, "MyDir");
+        ShellExecuteInstallerHandlerTest testhandler(manifest.Installers.at(0), inv, reporter);
         std::string installerArgs = testhandler.TestInstallerArgs();
-        REQUIRE(installerArgs.find("/customSilent") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("/mysilent") != std::string::npos); // Use declaration in manifest
         REQUIRE(installerArgs.find("/mylog=\"MyLog.log\"") != std::string::npos); // Use declaration in manifest
         REQUIRE(installerArgs.find("/customArg") != std::string::npos); // Custom from CLI overrides manifest declaration
+        REQUIRE(installerArgs.find("/myinstalldir=\"MyDir\"") != std::string::npos); // Use declaration in manifest
     }
 
     {
         // Default Inno type with no args passed in, no switches specified in manifest
-        manifestInstaller.InstallerType = ManifestInstaller::InstallerTypeEnum::Inno;
-        manifestInstaller.Switches.reset();
+        auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Inno_NoSwitches.yml"));
         AppInstaller::CLI::Invocation inv{ {""} };
-        ShellExecuteInstallerHandlerTest testhandler(manifestInstaller, inv, reporter);
+        ShellExecuteInstallerHandlerTest testhandler(manifest.Installers.at(0), inv, reporter);
         std::string installerArgs = testhandler.TestInstallerArgs();
         REQUIRE(installerArgs.find("/SILENT") != std::string::npos);
         REQUIRE(installerArgs.find("AppInstallerTestExeInstaller.exe.log") != std::string::npos);
     }
 
     {
-        // Msi type with /silent and /log and /custom, no switches specified in manifest
-        manifestInstaller.InstallerType = ManifestInstaller::InstallerTypeEnum::Inno;
-        manifestInstaller.Switches.reset();
+        // Inno type with /silent and /log and /custom and /installlocation, no switches specified in manifest
+        auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Inno_NoSwitches.yml"));
         AppInstaller::CLI::Invocation inv{ {""} };
         inv.AddArg(AppInstaller::CLI::ARG_SILENT);
         inv.AddArg(AppInstaller::CLI::ARG_LOG, "MyLog.log");
         inv.AddArg(AppInstaller::CLI::ARG_CUSTOM, "/customArg");
-        ShellExecuteInstallerHandlerTest testhandler(manifestInstaller, inv, reporter);
+        inv.AddArg(AppInstaller::CLI::ARG_INSTALLLOCATION, "MyDir");
+        ShellExecuteInstallerHandlerTest testhandler(manifest.Installers.at(0), inv, reporter);
         std::string installerArgs = testhandler.TestInstallerArgs();
         REQUIRE(installerArgs.find("/VERYSILENT") != std::string::npos);
         REQUIRE(installerArgs.find("/LOG=\"MyLog.log\"") != std::string::npos);
         REQUIRE(installerArgs.find("/customArg") != std::string::npos);
+        REQUIRE(installerArgs.find("/DIR=\"MyDir\"") != std::string::npos);
     }
 
     {
-        // Msi type with /silent and /log and /custom, switches specified in manifest
-        manifestInstaller.InstallerType = ManifestInstaller::InstallerTypeEnum::Inno;
-        manifestInstaller.Switches.reset();
-        InstallerSwitches installerSwitches;
-        installerSwitches.Silent = "/customSilent";
-        installerSwitches.Custom = "/custom";
-        installerSwitches.Log = "/mylog=\"<LOGPATH>\"";
-        manifestInstaller.Switches.emplace(std::move(installerSwitches));
+        // Inno type with /silent and /log and /custom and /installlocation, switches specified in manifest
+        auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yml"));
         AppInstaller::CLI::Invocation inv{ {""} };
         inv.AddArg(AppInstaller::CLI::ARG_SILENT);
         inv.AddArg(AppInstaller::CLI::ARG_LOG, "MyLog.log");
         inv.AddArg(AppInstaller::CLI::ARG_CUSTOM, "/customArg");
-        ShellExecuteInstallerHandlerTest testhandler(manifestInstaller, inv, reporter);
+        inv.AddArg(AppInstaller::CLI::ARG_INSTALLLOCATION, "MyDir");
+        ShellExecuteInstallerHandlerTest testhandler(manifest.Installers.at(0), inv, reporter);
         std::string installerArgs = testhandler.TestInstallerArgs();
-        REQUIRE(installerArgs.find("/customSilent") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("/mysilent") != std::string::npos); // Use declaration in manifest
         REQUIRE(installerArgs.find("/mylog=\"MyLog.log\"") != std::string::npos); // Use declaration in manifest
         REQUIRE(installerArgs.find("/customArg") != std::string::npos); // Custom from CLI overrides manifest declaration
+        REQUIRE(installerArgs.find("/myinstalldir=\"MyDir\"") != std::string::npos); // Use declaration in manifest
     }
 }

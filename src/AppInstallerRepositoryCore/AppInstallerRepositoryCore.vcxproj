@@ -168,7 +168,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Manifest\InstallerSwitches.h" />
     <ClInclude Include="Manifest\Manifest.h" />
     <ClInclude Include="Manifest\ManifestInstaller.h" />
     <ClInclude Include="Manifest\ManifestLocalization.h" />
@@ -197,7 +196,6 @@
     <ClInclude Include="SQLiteWrapper.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Manifest\InstallerSwitches.cpp" />
     <ClCompile Include="Manifest\Manifest.cpp" />
     <ClCompile Include="Manifest\ManifestInstaller.cpp" />
     <ClCompile Include="Manifest\ManifestLocalization.cpp" />

@@ -5,6 +5,8 @@
 #define NOMINMAX
 #include <Windows.h>
 
+#include <yaml-cpp/yaml.h>
+
 #include <Public/AppInstallerFileLogger.h>
 #include <Public/AppInstallerStrings.h>
 #include <Public/AppInstallerLogging.h>

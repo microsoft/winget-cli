@@ -10,7 +10,6 @@ namespace AppInstaller::CLI
 {
     static constexpr std::string_view ARG_APPLICATION = "application"sv;
     static constexpr std::string_view ARG_MANIFEST = "manifest"sv;
-    static constexpr std::string_view ARG_SILENTWITHPROGRESS = "silentwithprogress"sv;
     static constexpr std::string_view ARG_INTERACTIVE = "interactive"sv;
     static constexpr std::string_view ARG_SILENT = "silent"sv;
     static constexpr std::string_view ARG_LANGUAGE = "language"sv;

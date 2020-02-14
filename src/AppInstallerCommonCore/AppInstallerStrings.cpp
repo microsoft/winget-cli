@@ -63,4 +63,14 @@ namespace AppInstaller::Utility
 
         return nonWhitespaceNotFound;
     }
+
+    void FindAndReplace(std::string& inputStr, const std::string& token, const std::string& value)
+    {
+        std::string::size_type pos = 0u;
+        while ((pos = inputStr.find(token, pos)) != std::string::npos)
+        {
+            inputStr.replace(pos, token.length(), value);
+            pos += value.length();
+        }
+    }
 }

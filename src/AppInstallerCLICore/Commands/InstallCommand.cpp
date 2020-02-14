@@ -17,7 +17,6 @@ namespace AppInstaller::CLI
         return {
             Argument{ ARG_APPLICATION, LOCME("The name of the application to install"), ArgumentType::Positional, false },
             Argument{ ARG_MANIFEST, LOCME("The path to the manifest of the application to install"), ArgumentType::Standard, false },
-            Argument{ ARG_SILENTWITHPROGRESS, LOCME("The application installation is silent with installation progress reported."), ArgumentType::Flag, false },
             Argument{ ARG_INTERACTIVE, LOCME("The application installation is interactive. User input is needed."), ArgumentType::Flag, false },
             Argument{ ARG_SILENT, LOCME("The application installation is silent."), ArgumentType::Flag, false },
             Argument{ ARG_LANGUAGE, LOCME("Preferred language if application installation supports multiple languages."), ArgumentType::Standard, false },
@@ -65,11 +64,9 @@ namespace AppInstaller::CLI
             throw CommandException(LOCME("Required argument not provided"), ARG_APPLICATION);
         }
 
-        if ((inv.Contains(ARG_SILENTWITHPROGRESS) && inv.Contains(ARG_SILENT)) ||
-            (inv.Contains(ARG_SILENTWITHPROGRESS) && inv.Contains(ARG_INTERACTIVE)) ||
-            (inv.Contains(ARG_SILENT) && inv.Contains(ARG_INTERACTIVE)))
+        if (inv.Contains(ARG_SILENT) && inv.Contains(ARG_INTERACTIVE))
         {
-            throw CommandException(LOCME("More than 1 install behavior argument provided"), ARG_APPLICATION);
+            throw CommandException(LOCME("More than one install behavior argument provided"), ARG_APPLICATION);
         }
     }
 }

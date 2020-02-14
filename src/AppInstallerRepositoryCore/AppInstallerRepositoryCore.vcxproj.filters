@@ -51,9 +51,6 @@
     <ClInclude Include="Microsoft\Schema\1_0\Interface.h">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClInclude>
-    <ClInclude Include="Manifest\InstallerSwitches.h">
-      <Filter>Manifest</Filter>
-    </ClInclude>
     <ClInclude Include="Manifest\Manifest.h">
       <Filter>Manifest</Filter>
     </ClInclude>
@@ -130,9 +127,6 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_0\Interface.cpp">
       <Filter>Microsoft\Schema\1_0</Filter>
-    </ClCompile>
-    <ClCompile Include="Manifest\InstallerSwitches.cpp">
-      <Filter>Manifest</Filter>
     </ClCompile>
     <ClCompile Include="Manifest\Manifest.cpp">
       <Filter>Manifest</Filter>

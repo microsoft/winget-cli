@@ -57,6 +57,9 @@
   <ItemGroup>
     <None Include="PropertySheet.props" />
     <None Include="packages.config" />
+    <None Include="TestData\InstallerArgTest_Msi_WithSwitches.yml">
+      <Filter>TestData</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="TestData\BadManifest-MissingName.yml">
@@ -75,6 +78,15 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Msix_StreamingFlow.yml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_NoSwitches.yml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_NoSwitches.yml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_WithSwitches.yml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>
