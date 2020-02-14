@@ -98,7 +98,7 @@ namespace AppInstaller::Utility
 
             if (callback)
             {
-                callback->OnStarted(contentLength > 0);
+                callback->OnStarted(contentLength);
             }
 
             do
