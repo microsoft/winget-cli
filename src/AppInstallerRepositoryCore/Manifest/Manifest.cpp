@@ -64,18 +64,13 @@ namespace AppInstaller::Manifest
         if (rootNode["Switches"])
         {
             YAML::Node switchesNode = rootNode["Switches"];
-            InstallerSwitches switches;
-            switches.PopulateSwitchesFields(switchesNode);
-            this->Switches.emplace(std::move(switches));
+            ManifestInstaller::PopulateSwitchesFields(&switchesNode, this->Switches);
         }
 
         // Create default ManifestInstaller to be used to populate default value when optional fields are not found.
         ManifestInstaller defaultInstaller;
         defaultInstaller.InstallerType = this->InstallerType;
-        if (this->Switches.has_value())
-        {
-            defaultInstaller.Switches.emplace(this->Switches.value());
-        }
+        defaultInstaller.Switches = this->Switches;
 
         YAML::Node installersNode = rootNode["Installers"];
         for (std::size_t i = 0; i < installersNode.size(); i++) {

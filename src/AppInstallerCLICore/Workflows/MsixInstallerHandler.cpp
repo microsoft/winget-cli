@@ -12,17 +12,6 @@ using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::Workflow
 {
-    MsixInstallerHandler::MsixInstallerHandler(
-        const Manifest::ManifestInstaller& manifestInstaller,
-        WorkflowReporter& reporter) :
-        InstallerHandlerBase(manifestInstaller, reporter)
-    {
-        if (manifestInstaller.InstallerType != ManifestInstaller::InstallerTypeEnum::Msix)
-        {
-            THROW_HR_MSG(E_UNEXPECTED, "Installer type not supported.");
-        }
-    }
-
     void MsixInstallerHandler::Download()
     {
         if (m_manifestInstallerRef.SignatureSha256.empty())

@@ -51,11 +51,14 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
     REQUIRE(manifest.InstallerType == ManifestInstaller::InstallerTypeEnum::Zip);
 
     // default switches
-    REQUIRE(manifest.Switches.has_value());
-    InstallerSwitches switches = manifest.Switches.value();
-    REQUIRE(switches.Verbose == "/verbose");
-    REQUIRE(switches.Silent == "/silence");
-    REQUIRE(switches.Default == "/default");
+    auto switches = manifest.Switches;
+    REQUIRE(switches.at(ManifestInstaller::InstallerSwitchType::Custom) == "/custom");
+    REQUIRE(switches.at(ManifestInstaller::InstallerSwitchType::SilentWithProgress) == "/silentwithprogress");
+    REQUIRE(switches.at(ManifestInstaller::InstallerSwitchType::Silent) == "/silence");
+    REQUIRE(switches.at(ManifestInstaller::InstallerSwitchType::Interactive) == "/interactive");
+    REQUIRE(switches.at(ManifestInstaller::InstallerSwitchType::Language) == "/en-us");
+    REQUIRE(switches.at(ManifestInstaller::InstallerSwitchType::Log) == "/log=<LOGPATH>");
+    REQUIRE(switches.at(ManifestInstaller::InstallerSwitchType::InstallLocation) == "/dir=<INSTALLPATH>");
 
     // installers
     REQUIRE(manifest.Installers.size() == 2);
@@ -67,11 +70,14 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
     REQUIRE(installer1.InstallerType == ManifestInstaller::InstallerTypeEnum::Zip);
     REQUIRE(installer1.Scope == "user");
 
-    REQUIRE(installer1.Switches.has_value());
-    InstallerSwitches installer1Switches = installer1.Switches.value();
-    REQUIRE(installer1Switches.Verbose == "/v");
-    REQUIRE(installer1Switches.Silent == "/s");
-    REQUIRE(installer1Switches.Default == "/d");
+    auto installer1Switches = installer1.Switches;
+    REQUIRE(installer1Switches.at(ManifestInstaller::InstallerSwitchType::Custom) == "/c");
+    REQUIRE(installer1Switches.at(ManifestInstaller::InstallerSwitchType::SilentWithProgress) == "/sp");
+    REQUIRE(installer1Switches.at(ManifestInstaller::InstallerSwitchType::Silent) == "/s");
+    REQUIRE(installer1Switches.at(ManifestInstaller::InstallerSwitchType::Interactive) == "/i");
+    REQUIRE(installer1Switches.at(ManifestInstaller::InstallerSwitchType::Language) == "/en");
+    REQUIRE(installer1Switches.at(ManifestInstaller::InstallerSwitchType::Log) == "/l=<LOGPATH>");
+    REQUIRE(installer1Switches.at(ManifestInstaller::InstallerSwitchType::InstallLocation) == "/d=<INSTALLPATH>");
 
     ManifestInstaller installer2 = manifest.Installers.at(1);
     REQUIRE(installer2.Arch == Architecture::X64);
@@ -82,11 +88,14 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
     REQUIRE(installer2.Scope == "user");
 
     // Installer2 does not declare switches, it inherits switches from package default.
-    REQUIRE(installer2.Switches.has_value());
-    InstallerSwitches installer2Switches = installer2.Switches.value();
-    REQUIRE(installer2Switches.Verbose == "/verbose");
-    REQUIRE(installer2Switches.Silent == "/silence");
-    REQUIRE(installer2Switches.Default == "/default");
+    auto installer2Switches = installer2.Switches;
+    REQUIRE(installer2Switches.at(ManifestInstaller::InstallerSwitchType::Custom) == "/custom");
+    REQUIRE(installer2Switches.at(ManifestInstaller::InstallerSwitchType::SilentWithProgress) == "/silentwithprogress");
+    REQUIRE(installer2Switches.at(ManifestInstaller::InstallerSwitchType::Silent) == "/silence");
+    REQUIRE(installer2Switches.at(ManifestInstaller::InstallerSwitchType::Interactive) == "/interactive");
+    REQUIRE(installer2Switches.at(ManifestInstaller::InstallerSwitchType::Language) == "/en-us");
+    REQUIRE(installer2Switches.at(ManifestInstaller::InstallerSwitchType::Log) == "/log=<LOGPATH>");
+    REQUIRE(installer2Switches.at(ManifestInstaller::InstallerSwitchType::InstallLocation) == "/dir=<INSTALLPATH>");
 
     // Localization
     REQUIRE(manifest.Localization.size() == 1);

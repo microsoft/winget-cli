@@ -24,20 +24,89 @@ namespace AppInstaller::Manifest
 
         this->InstallerType = installerNode["InstallerType"] ?
             ConvertToInstallerTypeEnum(installerNode["InstallerType"].as<std::string>()) :
-            InstallerTypeEnum::Unknown;
+            defaultInstaller.InstallerType;
+
+        std::map<InstallerSwitchType, std::string> defaultKnownSwitches = GetDefaultKnownSwitches(this->InstallerType);
 
         if (installerNode["Switches"])
         {
             YAML::Node switchesNode = installerNode["Switches"];
-            InstallerSwitches switches;
-            switches.PopulateSwitchesFields(switchesNode,
-                defaultInstaller.Switches.has_value() ? &(defaultInstaller.Switches.value()) : nullptr);
-            this->Switches.emplace(std::move(switches));
+            PopulateSwitchesFields(&switchesNode, this->Switches, &(defaultInstaller.Switches), &defaultKnownSwitches);
         }
-        else if (defaultInstaller.Switches.has_value())
+        else
         {
-            this->Switches.emplace(defaultInstaller.Switches.value());
+            PopulateSwitchesFields(nullptr, this->Switches, &(defaultInstaller.Switches), &defaultKnownSwitches);
         }
+    }
+
+    void ManifestInstaller::PopulateSwitchesFields(
+        const YAML::Node* switchesNode,
+        std::map<InstallerSwitchType, std::string>& switches,
+        const std::map<InstallerSwitchType, std::string>* manifestRootSwitches,
+        const std::map<InstallerSwitchType, std::string>* defaultKnownSwitches)
+    {
+        PopulateOneSwitchField(switchesNode, "Custom", InstallerSwitchType::Custom, switches, manifestRootSwitches, defaultKnownSwitches);
+        PopulateOneSwitchField(switchesNode, "Silent", InstallerSwitchType::Silent, switches, manifestRootSwitches, defaultKnownSwitches);
+        PopulateOneSwitchField(switchesNode, "SilentWithProgress", InstallerSwitchType::SilentWithProgress, switches, manifestRootSwitches, defaultKnownSwitches);
+        PopulateOneSwitchField(switchesNode, "Interactive", InstallerSwitchType::Interactive, switches, manifestRootSwitches, defaultKnownSwitches);
+        PopulateOneSwitchField(switchesNode, "Language", InstallerSwitchType::Language, switches, manifestRootSwitches, defaultKnownSwitches);
+        PopulateOneSwitchField(switchesNode, "Log", InstallerSwitchType::Log, switches, manifestRootSwitches, defaultKnownSwitches);
+        PopulateOneSwitchField(switchesNode, "InstallLocation", InstallerSwitchType::InstallLocation, switches, manifestRootSwitches, defaultKnownSwitches);
+    }
+
+    void ManifestInstaller::PopulateOneSwitchField(
+        const YAML::Node* switchesNode,
+        const std::string& switchName,
+        InstallerSwitchType switchType,
+        std::map<InstallerSwitchType, std::string>& switches,
+        const std::map<InstallerSwitchType, std::string>* manifestRootSwitches,
+        const std::map<InstallerSwitchType, std::string>* defaultKnownSwitches)
+    {
+        if (switchesNode && (*switchesNode)[switchName])
+        {
+            switches.emplace(switchType, (*switchesNode)[switchName].as<std::string>());
+        }
+        else if (manifestRootSwitches && manifestRootSwitches->find(switchType) != manifestRootSwitches->end())
+        {
+            switches.emplace(switchType, manifestRootSwitches->at(switchType));
+        }
+        else if (defaultKnownSwitches && defaultKnownSwitches->find(switchType) != defaultKnownSwitches->end())
+        {
+            switches.emplace(switchType, defaultKnownSwitches->at(switchType));
+        }
+    }
+
+    std::map<ManifestInstaller::InstallerSwitchType, std::string> ManifestInstaller::GetDefaultKnownSwitches(InstallerTypeEnum installerType)
+    {
+        switch (installerType)
+        {
+        case ManifestInstaller::InstallerTypeEnum::Burn:
+        case ManifestInstaller::InstallerTypeEnum::Wix:
+        case ManifestInstaller::InstallerTypeEnum::Msi:
+            return
+            {
+                {InstallerSwitchType::Silent, "/quiet"},
+                {InstallerSwitchType::SilentWithProgress, "/passive"},
+                {InstallerSwitchType::Log, "/log \"" + std::string(ARG_TOKEN_LOGPATH) + "\""},
+                {InstallerSwitchType::InstallLocation, "TARGETDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\""}
+            };
+        case ManifestInstaller::InstallerTypeEnum::Nullsoft:
+            return
+            {
+                {InstallerSwitchType::Silent, "/S"},
+                {InstallerSwitchType::SilentWithProgress, "/S"},
+                {InstallerSwitchType::InstallLocation, "/D=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\""}
+            };
+        case ManifestInstaller::InstallerTypeEnum::Inno:
+            return
+            {
+                {InstallerSwitchType::Silent, "/VERYSILENT"},
+                {InstallerSwitchType::SilentWithProgress, "/SILENT"},
+                {InstallerSwitchType::Log, "/LOG=\"" + std::string(ARG_TOKEN_LOGPATH) + "\""},
+                {InstallerSwitchType::InstallLocation, "/DIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\""}
+            };
+        }
+        return {};
     }
 
     ManifestInstaller::InstallerTypeEnum ManifestInstaller::ConvertToInstallerTypeEnum(const std::string& in)
@@ -73,6 +142,10 @@ namespace AppInstaller::Manifest
         {
             result = InstallerTypeEnum::Exe;
         }
+        else if (inStrLower == "burn")
+        {
+            result = InstallerTypeEnum::Burn;
+        }
 
         return result;
     }
@@ -101,6 +174,9 @@ namespace AppInstaller::Manifest
             break;
         case ManifestInstaller::InstallerTypeEnum::Zip:
             out << "Zip";
+            break;
+        case ManifestInstaller::InstallerTypeEnum::Burn:
+            out << "Burn";
             break;
         default:
             out << "Unknown";

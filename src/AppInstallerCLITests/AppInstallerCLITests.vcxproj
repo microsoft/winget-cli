@@ -188,6 +188,18 @@
     </CopyFileToFolders>
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
+    <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_NoSwitches.yml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_WithSwitches.yml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_NoSwitches.yml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_WithSwitches.yml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerCLICore\AppInstallerCLICore.vcxproj">

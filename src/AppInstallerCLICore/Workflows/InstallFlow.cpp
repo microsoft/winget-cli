@@ -47,9 +47,14 @@ namespace AppInstaller::Workflow {
         switch (m_selectedInstaller.InstallerType)
         {
         case ManifestInstaller::InstallerTypeEnum::Exe:
-            return std::make_unique<ShellExecuteInstallerHandler>(m_selectedInstaller, m_reporter);
+        case ManifestInstaller::InstallerTypeEnum::Burn:
+        case ManifestInstaller::InstallerTypeEnum::Inno:
+        case ManifestInstaller::InstallerTypeEnum::Msi:
+        case ManifestInstaller::InstallerTypeEnum::Nullsoft:
+        case ManifestInstaller::InstallerTypeEnum::Wix:
+            return std::make_unique<ShellExecuteInstallerHandler>(m_selectedInstaller, m_argsRef, m_reporter);
         case ManifestInstaller::InstallerTypeEnum::Msix:
-            return std::make_unique<MsixInstallerHandler>(m_selectedInstaller, m_reporter);
+            return std::make_unique<MsixInstallerHandler>(m_selectedInstaller, m_argsRef, m_reporter);
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }

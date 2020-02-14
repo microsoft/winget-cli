@@ -45,7 +45,7 @@ namespace AppInstaller::Workflow
             AICLI_LOG(CLI, Error,
                 << "Package hash verification failed. SHA256 in manifest: "
                 << SHA256::ConvertToString(m_manifestInstallerRef.Sha256)
-                << "SHA256 from download: "
+                << " SHA256 from download: "
                 << SHA256::ConvertToString(downloader->GetDownloadHash()));
 
             if (!m_reporterRef.PromptForBoolResponse(WorkflowReporter::Level::Warning, "Package hash verification failed. Continue?"))
@@ -63,27 +63,55 @@ namespace AppInstaller::Workflow
         m_downloadedInstaller = tempInstallerPath;
     }
 
-    void InstallerHandlerBase::DownloaderCallback::OnStarted()
+    void InstallerHandlerBase::DownloaderCallback::OnStarted(LONGLONG totalBytes)
     {
-        m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Starting package download ...");
-        m_reporterRef.ShowProgress(true, 0);
+        m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Starting installer download ...");
+        m_useProgressBar = totalBytes > 0;
+
+        if (m_useProgressBar)
+        {
+            m_reporterRef.ShowProgress(true, 0);
+        }
+        else
+        {
+            m_reporterRef.ShowIndefiniteProgress(true);
+        }
     }
 
-    void InstallerHandlerBase::DownloaderCallback::OnProgress(LONGLONG progress, LONGLONG downloadSize)
+    void InstallerHandlerBase::DownloaderCallback::OnProgress(LONGLONG bytesDownloaded, LONGLONG totalBytes)
     {
-        int progressPercent = static_cast<int>(100 * progress / downloadSize);
-        m_reporterRef.ShowProgress(true, progressPercent);
+        if (m_useProgressBar)
+        {
+            int progressPercent = static_cast<int>(100 * bytesDownloaded / totalBytes);
+            m_reporterRef.ShowProgress(true, progressPercent);
+        }
     }
 
     void InstallerHandlerBase::DownloaderCallback::OnCanceled()
     {
-        m_reporterRef.ShowProgress(false, 0);
-        m_reporterRef.ShowMsg(WorkflowReporter::Level::Warning, "Package download canceled.");
+        if (m_useProgressBar)
+        {
+            m_reporterRef.ShowProgress(false, 0);
+        }
+        else
+        {
+            m_reporterRef.ShowIndefiniteProgress(false);
+        }
+
+        m_reporterRef.ShowMsg(WorkflowReporter::Level::Warning, "Installer download canceled.");
     }
 
     void InstallerHandlerBase::DownloaderCallback::OnCompleted()
     {
-        m_reporterRef.ShowProgress(false, 0);
-        m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Package download completed.");
+        if (m_useProgressBar)
+        {
+            m_reporterRef.ShowProgress(false, 0);
+        }
+        else
+        {
+            m_reporterRef.ShowIndefiniteProgress(false);
+        }
+
+        m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Installer download completed.");
     }
 }

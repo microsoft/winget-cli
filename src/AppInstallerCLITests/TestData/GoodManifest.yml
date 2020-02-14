@@ -18,9 +18,13 @@ FileExtensions: "appx,appxbundle,msix,msixbundle"
 # on the root. An installer can override them.
 InstallerType: Zip
 Switches:
-  Verbose: /verbose
-  Default: /default
+  Custom: /custom
+  SilentWithProgress: /silentwithprogress
   Silent: /silence
+  Interactive: /interactive
+  Language: /en-us
+  Log: /log=<LOGPATH>
+  InstallLocation: /dir=<INSTALLPATH>
 Installers:
   - Arch: x86
     Url: https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx86.zip
@@ -29,9 +33,13 @@ Installers:
     InstallerType: Zip
     Scope: user
     Switches:
-      Verbose: /v
-      Default: /d
+      Custom: /c
+      SilentWithProgress: /sp
       Silent: /s
+      Interactive: /i
+      Language: /en
+      Log: /l=<LOGPATH>
+      InstallLocation: /d=<INSTALLPATH>
   - Arch: x64
     Url: https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx64.zip
     Sha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF0000

@@ -94,11 +94,11 @@ namespace AppInstaller::Utility
 
             BOOL readSuccess = true;
             DWORD bytesRead = 0;
-            LONGLONG progress = 0;
+            LONGLONG bytesDownloaded = 0;
 
             if (callback)
             {
-                callback->OnStarted();
+                callback->OnStarted(contentLength);
             }
 
             do
@@ -124,11 +124,11 @@ namespace AppInstaller::Utility
 
                 outfile.write((char*)buffer.get(), bytesRead);
 
-                progress += bytesRead;
+                bytesDownloaded += bytesRead;
 
                 if (callback && bytesRead != 0)
                 {
-                    callback->OnProgress(progress, contentLength);
+                    callback->OnProgress(bytesDownloaded, contentLength);
                 }
 
             } while (bytesRead != 0);
