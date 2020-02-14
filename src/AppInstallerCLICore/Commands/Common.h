@@ -14,6 +14,6 @@ namespace AppInstaller::CLI
     static constexpr std::string_view ARG_SILENT = "silent"sv;
     static constexpr std::string_view ARG_LANGUAGE = "language"sv;
     static constexpr std::string_view ARG_LOG = "log"sv;
-    static constexpr std::string_view ARG_CUSTOM = "custom"sv;
+    static constexpr std::string_view ARG_OVERRIDE = "override"sv;
     static constexpr std::string_view ARG_INSTALLLOCATION = "installlocation"sv;
 }

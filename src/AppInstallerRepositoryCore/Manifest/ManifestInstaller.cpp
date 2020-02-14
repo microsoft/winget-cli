@@ -26,7 +26,7 @@ namespace AppInstaller::Manifest
             ConvertToInstallerTypeEnum(installerNode["InstallerType"].as<std::string>()) :
             defaultInstaller.InstallerType;
 
-        std::map<InstallerSwitchType, std::string> defaultKnownSwitches = GetDefaultArgs(this->InstallerType);
+        std::map<InstallerSwitchType, std::string> defaultKnownSwitches = GetDefaultKnownSwitches(this->InstallerType);
 
         if (installerNode["Switches"])
         {
@@ -76,7 +76,7 @@ namespace AppInstaller::Manifest
         }
     }
 
-    std::map<ManifestInstaller::InstallerSwitchType, std::string> ManifestInstaller::GetDefaultArgs(InstallerTypeEnum installerType)
+    std::map<ManifestInstaller::InstallerSwitchType, std::string> ManifestInstaller::GetDefaultKnownSwitches(InstallerTypeEnum installerType)
     {
         switch (installerType)
         {
@@ -146,10 +146,6 @@ namespace AppInstaller::Manifest
         {
             result = InstallerTypeEnum::Burn;
         }
-        else if (inStrLower == "installshield")
-        {
-            result = InstallerTypeEnum::InstallShield;
-        }
 
         return result;
     }
@@ -181,9 +177,6 @@ namespace AppInstaller::Manifest
             break;
         case ManifestInstaller::InstallerTypeEnum::Burn:
             out << "Burn";
-            break;
-        case ManifestInstaller::InstallerTypeEnum::InstallShield:
-            out << "InstallShield";
             break;
         default:
             out << "Unknown";

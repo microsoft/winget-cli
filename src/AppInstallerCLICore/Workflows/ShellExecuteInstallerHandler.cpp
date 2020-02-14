@@ -112,12 +112,8 @@ namespace AppInstaller::Workflow
             installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::Log);
         }
 
-        // Construct custom arg. Custom arg from command line overrides ones specified in manifest.
-        if (m_argsRef.Contains(CLI::ARG_CUSTOM))
-        {
-            installerArgs += ' ' + *(m_argsRef.GetArg(CLI::ARG_CUSTOM));
-        }
-        else if (installerSwitches.find(ManifestInstaller::InstallerSwitchType::Custom) != installerSwitches.end())
+        // Construct custom arg.
+        if (installerSwitches.find(ManifestInstaller::InstallerSwitchType::Custom) != installerSwitches.end())
         {
             installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::Custom);
         }
@@ -147,6 +143,12 @@ namespace AppInstaller::Workflow
 
     std::string ShellExecuteInstallerHandler::GetInstallerArgs()
     {
+        // If override switch is specified, use the override value as installer args.
+        if (m_argsRef.Contains(CLI::ARG_OVERRIDE))
+        {
+            return *m_argsRef.GetArg(CLI::ARG_OVERRIDE);
+        }
+
         std::string installerArgs = GetInstallerArgsTemplate();
 
         PopulateInstallerArgsTemplate(installerArgs);

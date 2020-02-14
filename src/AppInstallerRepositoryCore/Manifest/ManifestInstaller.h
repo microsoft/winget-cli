@@ -27,7 +27,6 @@ namespace AppInstaller::Manifest
             Msix,
             Exe,
             Burn,
-            InstallShield,
             Unknown
         };
 
@@ -69,7 +68,7 @@ namespace AppInstaller::Manifest
 
         static InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
 
-        static std::map<InstallerSwitchType, std::string> GetDefaultArgs(InstallerTypeEnum installerType);
+        static std::map<InstallerSwitchType, std::string> GetDefaultKnownSwitches(InstallerTypeEnum installerType);
 
         // Populates InstallerSwitches
         // The value declared in the manifest takes precedence, then value in the manifest root, then default known values.

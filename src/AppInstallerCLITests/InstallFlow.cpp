@@ -188,13 +188,11 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         AppInstaller::CLI::Invocation inv{ {""} };
         inv.AddArg(AppInstaller::CLI::ARG_SILENT);
         inv.AddArg(AppInstaller::CLI::ARG_LOG, "MyLog.log");
-        inv.AddArg(AppInstaller::CLI::ARG_CUSTOM, "/customArg");
         inv.AddArg(AppInstaller::CLI::ARG_INSTALLLOCATION, "MyDir");
         ShellExecuteInstallerHandlerTest testhandler(manifest.Installers.at(0), inv, reporter);
         std::string installerArgs = testhandler.TestInstallerArgs();
         REQUIRE(installerArgs.find("/quiet") != std::string::npos);
         REQUIRE(installerArgs.find("/log \"MyLog.log\"") != std::string::npos);
-        REQUIRE(installerArgs.find("/customArg") != std::string::npos);
         REQUIRE(installerArgs.find("TARGETDIR=\"MyDir\"") != std::string::npos);
     }
 
@@ -204,13 +202,12 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         AppInstaller::CLI::Invocation inv{ {""} };
         inv.AddArg(AppInstaller::CLI::ARG_SILENT);
         inv.AddArg(AppInstaller::CLI::ARG_LOG, "MyLog.log");
-        inv.AddArg(AppInstaller::CLI::ARG_CUSTOM, "/customArg");
         inv.AddArg(AppInstaller::CLI::ARG_INSTALLLOCATION, "MyDir");
         ShellExecuteInstallerHandlerTest testhandler(manifest.Installers.at(0), inv, reporter);
         std::string installerArgs = testhandler.TestInstallerArgs();
         REQUIRE(installerArgs.find("/mysilent") != std::string::npos); // Use declaration in manifest
         REQUIRE(installerArgs.find("/mylog=\"MyLog.log\"") != std::string::npos); // Use declaration in manifest
-        REQUIRE(installerArgs.find("/customArg") != std::string::npos); // Custom from CLI overrides manifest declaration
+        REQUIRE(installerArgs.find("/mycustom") != std::string::npos); // Use declaration in manifest
         REQUIRE(installerArgs.find("/myinstalldir=\"MyDir\"") != std::string::npos); // Use declaration in manifest
     }
 
@@ -230,13 +227,11 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         AppInstaller::CLI::Invocation inv{ {""} };
         inv.AddArg(AppInstaller::CLI::ARG_SILENT);
         inv.AddArg(AppInstaller::CLI::ARG_LOG, "MyLog.log");
-        inv.AddArg(AppInstaller::CLI::ARG_CUSTOM, "/customArg");
         inv.AddArg(AppInstaller::CLI::ARG_INSTALLLOCATION, "MyDir");
         ShellExecuteInstallerHandlerTest testhandler(manifest.Installers.at(0), inv, reporter);
         std::string installerArgs = testhandler.TestInstallerArgs();
         REQUIRE(installerArgs.find("/VERYSILENT") != std::string::npos);
         REQUIRE(installerArgs.find("/LOG=\"MyLog.log\"") != std::string::npos);
-        REQUIRE(installerArgs.find("/customArg") != std::string::npos);
         REQUIRE(installerArgs.find("/DIR=\"MyDir\"") != std::string::npos);
     }
 
@@ -246,13 +241,25 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         AppInstaller::CLI::Invocation inv{ {""} };
         inv.AddArg(AppInstaller::CLI::ARG_SILENT);
         inv.AddArg(AppInstaller::CLI::ARG_LOG, "MyLog.log");
-        inv.AddArg(AppInstaller::CLI::ARG_CUSTOM, "/customArg");
         inv.AddArg(AppInstaller::CLI::ARG_INSTALLLOCATION, "MyDir");
         ShellExecuteInstallerHandlerTest testhandler(manifest.Installers.at(0), inv, reporter);
         std::string installerArgs = testhandler.TestInstallerArgs();
         REQUIRE(installerArgs.find("/mysilent") != std::string::npos); // Use declaration in manifest
         REQUIRE(installerArgs.find("/mylog=\"MyLog.log\"") != std::string::npos); // Use declaration in manifest
-        REQUIRE(installerArgs.find("/customArg") != std::string::npos); // Custom from CLI overrides manifest declaration
+        REQUIRE(installerArgs.find("/mycustom") != std::string::npos); // Use declaration in manifest
         REQUIRE(installerArgs.find("/myinstalldir=\"MyDir\"") != std::string::npos); // Use declaration in manifest
+    }
+
+    {
+        // Override switch specified. The whole arg passed to installer is overrided.
+        auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yml"));
+        AppInstaller::CLI::Invocation inv{ {""} };
+        inv.AddArg(AppInstaller::CLI::ARG_SILENT);
+        inv.AddArg(AppInstaller::CLI::ARG_LOG, "MyLog.log");
+        inv.AddArg(AppInstaller::CLI::ARG_INSTALLLOCATION, "MyDir");
+        inv.AddArg(AppInstaller::CLI::ARG_OVERRIDE, "/OverrideEverything");
+        ShellExecuteInstallerHandlerTest testhandler(manifest.Installers.at(0), inv, reporter);
+        std::string installerArgs = testhandler.TestInstallerArgs();
+        REQUIRE(installerArgs == "/OverrideEverything"); // Use value specified in override switch
     }
 }

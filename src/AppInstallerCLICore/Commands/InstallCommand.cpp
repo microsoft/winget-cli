@@ -21,7 +21,7 @@ namespace AppInstaller::CLI
             Argument{ ARG_SILENT, LOCME("The application installation is silent."), ArgumentType::Flag, false },
             Argument{ ARG_LANGUAGE, LOCME("Preferred language if application installation supports multiple languages."), ArgumentType::Standard, false },
             Argument{ ARG_LOG, LOCME("Preferred log location if application installation supports custom log path."), ArgumentType::Standard, false },
-            Argument{ ARG_CUSTOM, LOCME("Custom switches to be passed on to application installer."), ArgumentType::Standard, false },
+            Argument{ ARG_OVERRIDE, LOCME("Override switches to be passed on to application installer."), ArgumentType::Standard, false },
         };
     }
 
