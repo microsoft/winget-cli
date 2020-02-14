@@ -29,8 +29,6 @@ namespace AppInstaller::Repository
         Moniker,
         Tag,
         Command,
-        Protocol,
-        Extension,
     };
 
     // A single match to be performed during a search.

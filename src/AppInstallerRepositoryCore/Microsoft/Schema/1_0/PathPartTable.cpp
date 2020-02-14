@@ -189,6 +189,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
     }
 
+    void PathPartTable::PrepareForPackaging(SQLite::Connection& connection)
+    {
+        SQLite::Builder::StatementBuilder dropIndexBuilder;
+        dropIndexBuilder.DropIndex(s_PathPartTable_ParentIndex_Name);
+
+        dropIndexBuilder.Execute(connection);
+    }
+
     bool PathPartTable::IsEmpty(SQLite::Connection& connection)
     {
         SQLite::Builder::StatementBuilder builder;

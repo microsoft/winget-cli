@@ -63,6 +63,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return details::OneToOneTableDeleteIfNotNeededById(connection, TableInfo::TableName(), TableInfo::ValueName(), id);
         }
 
+        // Removes data that is no longer needed for an index that is to be published.
+        static void PrepareForPackaging(SQLite::Connection&)
+        {
+            // There is currently nothing to do for these tables.
+        }
+
         // Determines if the table is empty.
         static bool IsEmpty(SQLite::Connection& connection)
         {

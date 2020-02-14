@@ -15,5 +15,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         void AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) override;
         bool UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) override;
         void RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) override;
+        void PrepareForPackaging(SQLite::Connection& connection) override;
     };
 }

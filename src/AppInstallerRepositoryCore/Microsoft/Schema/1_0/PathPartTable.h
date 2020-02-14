@@ -32,6 +32,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Will not remove a path part if it is referenced.
         static void RemovePathById(SQLite::Connection& connection, SQLite::rowid_t id);
 
+        // Removes data that is no longer needed for an index that is to be published.
+        static void PrepareForPackaging(SQLite::Connection& connection);
+
         // Determines if the table is empty.
         static bool IsEmpty(SQLite::Connection& connection);
     };

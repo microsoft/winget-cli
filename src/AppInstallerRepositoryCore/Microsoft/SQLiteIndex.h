@@ -67,6 +67,9 @@ namespace AppInstaller::Repository::Microsoft
         // Removes the manifest at the repository relative path from the index.
         void RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
 
+        // Removes data that is no longer needed for an index that is to be published.
+        void PrepareForPackaging();
+
     private:
         // Constructor used to open an existing index.
         SQLiteIndex(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags);

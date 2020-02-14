@@ -136,4 +136,15 @@ extern "C"
         return S_OK;
     }
     CATCH_RETURN()
+
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexPrepareForPackaging(
+        APPINSTALLER_SQLITE_INDEX_HANDLE index) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !index);
+
+        reinterpret_cast<SQLiteIndex*>(index)->PrepareForPackaging();
+
+        return S_OK;
+    }
+    CATCH_RETURN()
 }

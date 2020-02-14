@@ -157,6 +157,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         builder.Execute(connection);
     }
 
+    void ManifestTable::PrepareForPackaging(SQLite::Connection& connection, std::initializer_list<std::string_view> values)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "pfpManifestTable_v1_0");
+
+        // Drop the index on the requested values
+        for (std::string_view value : values)
+        {
+            SQLite::Builder::StatementBuilder dropIndexBuilder;
+            dropIndexBuilder.DropIndex({ s_ManifestTable_Table_Name, s_ManifestTable_Index_Separator, value, s_ManifestTable_Index_Suffix });
+
+            dropIndexBuilder.Execute(connection);
+        }
+
+        savepoint.Commit();
+    }
+
     bool ManifestTable::IsEmpty(SQLite::Connection& connection)
     {
         SQLite::Builder::StatementBuilder builder;

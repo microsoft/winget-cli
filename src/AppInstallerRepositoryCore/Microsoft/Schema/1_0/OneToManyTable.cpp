@@ -13,6 +13,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         using namespace std::string_view_literals;
         static constexpr std::string_view s_OneToManyTable_MapTable_ManifestName = "manifest"sv;
         static constexpr std::string_view s_OneToManyTable_MapTable_Suffix = "_map"sv;
+        static constexpr std::string_view s_OneToManyTable_MapTable_IndexSuffix = "_index"sv;
 
         namespace
         {
@@ -97,10 +98,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             createMapTableBuilder.CreateTable({ tableName, s_OneToManyTable_MapTable_Suffix }).Columns({
                 ColumnBuilder(s_OneToManyTable_MapTable_ManifestName, Type::Int64).NotNull(),
                 ColumnBuilder(valueName, Type::Int64).NotNull(),
-                PrimaryKeyBuilder({ s_OneToManyTable_MapTable_ManifestName, valueName })
+                PrimaryKeyBuilder({ valueName, s_OneToManyTable_MapTable_ManifestName })
                 });
 
             createMapTableBuilder.Execute(connection);
+
+            StatementBuilder createMapTableIndexBuilder;
+            createMapTableIndexBuilder.CreateIndex({ tableName, s_OneToManyTable_MapTable_Suffix, s_OneToManyTable_MapTable_IndexSuffix }).
+                On({ tableName, s_OneToManyTable_MapTable_Suffix }).Columns(s_OneToManyTable_MapTable_ManifestName);
+
+            createMapTableIndexBuilder.Execute(connection);
 
             savepoint.Commit();
         }
@@ -205,6 +212,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
 
             savepoint.Commit();
+        }
+
+        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName)
+        {
+            SQLite::Builder::StatementBuilder dropMapTableIndexBuilder;
+            dropMapTableIndexBuilder.DropIndex({ tableName, s_OneToManyTable_MapTable_Suffix, s_OneToManyTable_MapTable_IndexSuffix });
+
+            dropMapTableIndexBuilder.Execute(connection);
         }
 
         bool OneToManyTableIsEmpty(SQLite::Connection& connection, std::string_view tableName)
