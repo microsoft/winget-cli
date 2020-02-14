@@ -15,8 +15,6 @@
 #include <Microsoft/Schema/1_0/ManifestTable.h>
 #include <Microsoft/Schema/1_0/TagsTable.h>
 #include <Microsoft/Schema/1_0/CommandsTable.h>
-#include <Microsoft/Schema/1_0/ProtocolsTable.h>
-#include <Microsoft/Schema/1_0/ExtensionsTable.h>
 
 using namespace std::string_literals;
 using namespace TestCommon;
@@ -77,8 +75,6 @@ TEST_CASE("SQLiteIndexCreateAndAddManifest", "[sqliteindex]")
     manifest.Channel = "test";
     manifest.Tags = { "t1", "t2" };
     manifest.Commands = { "test1", "test2" };
-    manifest.Protocols = { "htttest" };
-    manifest.FileExtensions = { "tst", "test", "testy" };
 
     index.AddManifest(manifest, "test/id/test.id-1.0.0.yml");
 }
@@ -123,8 +119,6 @@ TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex]")
     manifest1.Channel = "test";
     manifest1.Tags = { "t1", "t2" };
     manifest1.Commands = { "test1", "test2" };
-    manifest1.Protocols = { "htttest" };
-    manifest1.FileExtensions = { "tst", "test", "testy" };
 
     std::string manifest2Path = "test/woah/test.id-1.0.0.yml";
     Manifest manifest2;
@@ -133,10 +127,8 @@ TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex]")
     manifest2.AppMoniker = "testmoniker";
     manifest2.Version = "1.0.0";
     manifest2.Channel = "test";
-    manifest2.Tags = { "t1" };
+    manifest2.Tags = {};
     manifest2.Commands = { "test1", "test2", "test3" };
-    manifest2.Protocols = {};
-    manifest2.FileExtensions = { "tst", "test", "testy" };
     
     {
         SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
@@ -159,11 +151,9 @@ TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex]")
         REQUIRE(!Schema::V1_0::VersionTable::IsEmpty(connection));
         REQUIRE(!Schema::V1_0::ChannelTable::IsEmpty(connection));
         REQUIRE(!Schema::V1_0::PathPartTable::IsEmpty(connection));
-        REQUIRE(!Schema::V1_0::TagsTable::IsEmpty(connection));
+        // Because manifest2 had no tags
+        REQUIRE(Schema::V1_0::TagsTable::IsEmpty(connection));
         REQUIRE(!Schema::V1_0::CommandsTable::IsEmpty(connection));
-        // Because manifest2 had no protocols
-        REQUIRE(Schema::V1_0::ProtocolsTable::IsEmpty(connection));
-        REQUIRE(!Schema::V1_0::ExtensionsTable::IsEmpty(connection));
     }
 
     {
@@ -185,8 +175,6 @@ TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex]")
     REQUIRE(Schema::V1_0::PathPartTable::IsEmpty(connection));
     REQUIRE(Schema::V1_0::TagsTable::IsEmpty(connection));
     REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
-    REQUIRE(Schema::V1_0::ProtocolsTable::IsEmpty(connection));
-    REQUIRE(Schema::V1_0::ExtensionsTable::IsEmpty(connection));
 }
 
 TEST_CASE("SQLiteIndex_RemoveManifestFile", "[sqliteindex]")
@@ -218,8 +206,6 @@ TEST_CASE("SQLiteIndex_RemoveManifestFile", "[sqliteindex]")
     REQUIRE(Schema::V1_0::PathPartTable::IsEmpty(connection));
     REQUIRE(Schema::V1_0::TagsTable::IsEmpty(connection));
     REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
-    REQUIRE(Schema::V1_0::ProtocolsTable::IsEmpty(connection));
-    REQUIRE(Schema::V1_0::ExtensionsTable::IsEmpty(connection));
 }
 
 TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex]")
@@ -236,8 +222,6 @@ TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex]")
     manifest.Channel = "test";
     manifest.Tags = { "t1", "t2" };
     manifest.Commands = { "test1", "test2" };
-    manifest.Protocols = { "htttest" };
-    manifest.FileExtensions = { "tst", "test", "testy" };
 
     {
         SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
@@ -258,8 +242,6 @@ TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex]")
         REQUIRE(!Schema::V1_0::PathPartTable::IsEmpty(connection));
         REQUIRE(!Schema::V1_0::TagsTable::IsEmpty(connection));
         REQUIRE(!Schema::V1_0::CommandsTable::IsEmpty(connection));
-        REQUIRE(!Schema::V1_0::ProtocolsTable::IsEmpty(connection));
-        REQUIRE(!Schema::V1_0::ExtensionsTable::IsEmpty(connection));
     }
 
     {
@@ -277,9 +259,7 @@ TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex]")
         manifest.Name = "Test Name2";
         manifest.AppMoniker = "testmoniker2";
         manifest.Tags = { "t1", "t2", "t3" };
-        manifest.Commands = { "test1", "test3" };
-        manifest.Protocols = {};
-        manifest.FileExtensions = { "tst", "test", "testy" };
+        manifest.Commands = {};
 
         REQUIRE(index.UpdateManifest(manifest, manifestPath));
     }
@@ -296,10 +276,8 @@ TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex]")
         REQUIRE(!Schema::V1_0::ChannelTable::IsEmpty(connection));
         REQUIRE(!Schema::V1_0::PathPartTable::IsEmpty(connection));
         REQUIRE(!Schema::V1_0::TagsTable::IsEmpty(connection));
-        REQUIRE(!Schema::V1_0::CommandsTable::IsEmpty(connection));
-        // The update removed all protocols
-        REQUIRE(Schema::V1_0::ProtocolsTable::IsEmpty(connection));
-        REQUIRE(!Schema::V1_0::ExtensionsTable::IsEmpty(connection));
+        // The update removed all commands
+        REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
     }
 
     {
@@ -321,8 +299,6 @@ TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex]")
     REQUIRE(Schema::V1_0::PathPartTable::IsEmpty(connection));
     REQUIRE(Schema::V1_0::TagsTable::IsEmpty(connection));
     REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
-    REQUIRE(Schema::V1_0::ProtocolsTable::IsEmpty(connection));
-    REQUIRE(Schema::V1_0::ExtensionsTable::IsEmpty(connection));
 }
 
 TEST_CASE("PathPartTable_EnsurePathExists_Negative_Paths", "[sqliteindex][V1_0]")

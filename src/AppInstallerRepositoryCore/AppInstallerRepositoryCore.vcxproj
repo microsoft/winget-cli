@@ -173,7 +173,6 @@
     <ClInclude Include="Manifest\ManifestLocalization.h" />
     <ClInclude Include="Microsoft\Schema\1_0\ChannelTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\CommandsTable.h" />
-    <ClInclude Include="Microsoft\Schema\1_0\ExtensionsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\IdTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\Interface.h" />
     <ClInclude Include="Microsoft\Schema\1_0\ManifestTable.h" />
@@ -182,7 +181,6 @@
     <ClInclude Include="Microsoft\Schema\1_0\OneToManyTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\OneToOneTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\PathPartTable.h" />
-    <ClInclude Include="Microsoft\Schema\1_0\ProtocolsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\TagsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\VersionTable.h" />
     <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h" />

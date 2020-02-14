@@ -87,12 +87,6 @@
     <ClInclude Include="Microsoft\Schema\1_0\CommandsTable.h">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClInclude>
-    <ClInclude Include="Microsoft\Schema\1_0\ExtensionsTable.h">
-      <Filter>Microsoft\Schema\1_0</Filter>
-    </ClInclude>
-    <ClInclude Include="Microsoft\Schema\1_0\ProtocolsTable.h">
-      <Filter>Microsoft\Schema\1_0</Filter>
-    </ClInclude>
     <ClInclude Include="Microsoft\Schema\1_0\ManifestTable.h">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClInclude>

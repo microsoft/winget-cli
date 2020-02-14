@@ -15,8 +15,6 @@
 
 #include "Microsoft/Schema/1_0/TagsTable.h"
 #include "Microsoft/Schema/1_0/CommandsTable.h"
-#include "Microsoft/Schema/1_0/ProtocolsTable.h"
-#include "Microsoft/Schema/1_0/ExtensionsTable.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
@@ -120,8 +118,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         TagsTable::Create(connection);
         CommandsTable::Create(connection);
-        ProtocolsTable::Create(connection);
-        ExtensionsTable::Create(connection);
 
         savepoint.Commit();
     }
@@ -155,8 +151,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Add all of the 1:N data.
         TagsTable::EnsureExistsAndInsert(connection, manifest.Tags, manifestId);
         CommandsTable::EnsureExistsAndInsert(connection, manifest.Commands, manifestId);
-        ProtocolsTable::EnsureExistsAndInsert(connection, manifest.Protocols, manifestId);
-        ExtensionsTable::EnsureExistsAndInsert(connection, manifest.FileExtensions, manifestId);
 
         savepoint.Commit();
     }
@@ -198,8 +192,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Update all 1:N tables as necessary
         indexModified = TagsTable::UpdateIfNeededByManifestId(connection, manifest.Tags, manifestId) || indexModified;
         indexModified = CommandsTable::UpdateIfNeededByManifestId(connection, manifest.Commands, manifestId) || indexModified;
-        indexModified = ProtocolsTable::UpdateIfNeededByManifestId(connection, manifest.Protocols, manifestId) || indexModified;
-        indexModified = ExtensionsTable::UpdateIfNeededByManifestId(connection, manifest.FileExtensions, manifestId) || indexModified;
 
         savepoint.Commit();
 
@@ -237,8 +229,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Remove all of the 1:N data that is no longer referenced.
         TagsTable::DeleteIfNotNeededByManifestId(connection, manifestId);
         CommandsTable::DeleteIfNotNeededByManifestId(connection, manifestId);
-        ProtocolsTable::DeleteIfNotNeededByManifestId(connection, manifestId);
-        ExtensionsTable::DeleteIfNotNeededByManifestId(connection, manifestId);
 
         savepoint.Commit();
     }
