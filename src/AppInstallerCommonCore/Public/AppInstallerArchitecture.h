@@ -20,6 +20,9 @@ namespace AppInstaller::Utility
     // Converts a string to corresponding enum
     Architecture ConvertToArchitectureEnum(const std::string& archStr);
 
+    // Gets the system's architecture as Architecture enum
+    AppInstaller::Utility::Architecture GetSystemArchitecture();
+
     // Gets a set of architectures that are applicable to the current system
     std::vector<Architecture> GetApplicableArchitectures();
 

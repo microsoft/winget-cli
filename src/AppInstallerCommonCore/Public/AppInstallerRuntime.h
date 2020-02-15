@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "AppInstallerArchitecture.h"
-
 #include <filesystem>
+#include <memory>
 #include <string>
+#include <string_view>
 
 namespace AppInstaller::Runtime
 {
@@ -17,6 +17,10 @@ namespace AppInstaller::Runtime
     // Gets the path to the temp location.
     std::filesystem::path GetPathToTemp();
 
-    // Gets the system's architecture as Architecture enum
-    AppInstaller::Utility::Architecture GetSystemArchitecture();
+    // Gets a stream containing the named setting's value, if present.
+    // If the setting does not exist, returns an empty value.
+    std::unique_ptr<std::istream> GetSettingStream(std::string_view name);
+
+    // Sets the named setting to the given value.
+    void SetSetting(std::string_view name, std::string_view value);
 }
