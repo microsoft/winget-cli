@@ -125,6 +125,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
         THROW_HR_IF(E_INVALIDARG, !relativePath.has_relative_path());
         THROW_HR_IF(E_INVALIDARG, relativePath.has_root_path());
+        THROW_HR_IF(E_INVALIDARG, !relativePath.has_filename());
 
         std::unique_ptr<SQLite::Savepoint> savepoint;
         if (createIfNotFound)

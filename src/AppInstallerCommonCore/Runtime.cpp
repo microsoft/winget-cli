@@ -16,6 +16,26 @@ namespace AppInstaller::Runtime
             return (result != APPMODEL_ERROR_NO_PACKAGE);
         }
 
+        void ValidateSettingNamePath(const std::filesystem::path& name)
+        {
+            THROW_HR_IF(E_INVALIDARG, !name.has_relative_path());
+            THROW_HR_IF(E_INVALIDARG, name.has_root_path());
+            THROW_HR_IF(E_INVALIDARG, !name.has_filename());
+        }
+
+        auto GetLocalSettingsContainerForPath(const std::filesystem::path& name)
+        {
+            auto result = winrt::Windows::Storage::ApplicationData::Current().LocalSettings();
+
+            for (const auto& part : name.parent_path())
+            {
+                auto partHstring = winrt::to_hstring(part.c_str());
+                result = result.CreateContainer(partHstring, winrt::Windows::Storage::ApplicationDataCreateDisposition::Always);
+            }
+
+            return result;
+        }
+
         // Gets the path to the appdata root.
         // *Only used by non packaged version!*
         std::filesystem::path GetPathToAppDataRoot()
@@ -111,12 +131,15 @@ namespace AppInstaller::Runtime
         }
     }
 
-    std::unique_ptr<std::istream> GetSettingStream(std::string_view name)
+    std::unique_ptr<std::istream> GetSettingStream(const std::filesystem::path& name)
     {
+        ValidateSettingNamePath(name);
+
         if (IsRunningInPackagedContext())
         {
-            auto nameHstring = winrt::to_hstring(name);
-            auto settingsValues = winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values();
+            auto container = GetLocalSettingsContainerForPath(name);
+            auto nameHstring = winrt::to_hstring(name.filename().c_str());
+            auto settingsValues = container.Values();
             if (settingsValues.HasKey(nameHstring))
             {
                 auto value = winrt::unbox_value<winrt::hstring>(settingsValues.Lookup(nameHstring));
@@ -143,8 +166,10 @@ namespace AppInstaller::Runtime
         }
     }
 
-    void SetSetting(std::string_view name, std::string_view value)
+    void SetSetting(const std::filesystem::path& name, std::string_view value)
     {
+        ValidateSettingNamePath(name);
+
         if (IsRunningInPackagedContext())
         {
             winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().
