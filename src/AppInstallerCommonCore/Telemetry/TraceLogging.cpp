@@ -46,7 +46,7 @@ void RegisterTraceLogging()
             nullptr,
             TraceLoggingHResult(hr),
             TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-            TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+            TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
         g_TelemetryProviderActivityId = GUID_NULL;
     };
