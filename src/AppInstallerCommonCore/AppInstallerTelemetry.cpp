@@ -79,7 +79,7 @@ namespace AppInstaller::Logging
                 TraceLoggingString(failure.pszFile, "file"),
                 TraceLoggingUInt32(failure.uLineNumber, "line"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
         // Also send failure to the log
@@ -102,8 +102,8 @@ namespace AppInstaller::Logging
                 nullptr,
                 TraceLoggingCountedString(version.c_str(), static_cast<ULONG>(version.size()), "version"),
                 TraceLoggingWideString(GetCommandLineW(), "commandlineargs"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance|PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
         AICLI_LOG(CLI, Info, << "AppInstallerCLI, version [" << version << "], activity [" << *GetActivityId() << ']');
@@ -119,7 +119,7 @@ namespace AppInstaller::Logging
                 nullptr,
                 TraceLoggingCountedString(commandName.data(), static_cast<ULONG>(commandName.size()), "Command"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
         AICLI_LOG(CLI, Info, << "Leaf command to execute: " << commandName);
@@ -135,7 +135,7 @@ namespace AppInstaller::Logging
                 nullptr,
                 TraceLoggingCountedString(commandName.data(), static_cast<ULONG>(commandName.size()), "Command"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
         AICLI_LOG(CLI, Info, << "Leaf command succeeded: " << commandName);
@@ -151,8 +151,8 @@ namespace AppInstaller::Logging
                 nullptr,
                 TraceLoggingCountedString(name.c_str(), static_cast<ULONG>(name.size()),"Name"),
                 TraceLoggingCountedString(version.c_str(), static_cast<ULONG>(version.size()), "Version"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance|PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
         AICLI_LOG(CLI, Info, << "AppInstallerCLI, Name [" << name << "], Version [" << version << ']');
