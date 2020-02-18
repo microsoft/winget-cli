@@ -73,4 +73,18 @@ namespace AppInstaller::Utility
             pos += value.length();
         }
     }
+
+    std::string ReadEntireStream(std::istream& stream)
+    {
+        std::streampos currentPos = stream.tellg();
+        stream.seekg(0, std::ios_base::end);
+
+        auto offset = stream.tellg() - currentPos;
+        stream.seekg(currentPos);
+
+        std::string result(offset, '\0');
+        stream.read(&result[0], offset);
+
+        return result;
+    }
 }

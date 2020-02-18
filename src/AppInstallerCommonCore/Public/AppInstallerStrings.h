@@ -24,4 +24,7 @@ namespace AppInstaller::Utility
 
     // Find token in the input string and replace with value.
     void FindAndReplace(std::string& inputStr, const std::string& token, const std::string& value);
+
+    // Reads the entire stream into a string.
+    std::string ReadEntireStream(std::istream& stream);
 }

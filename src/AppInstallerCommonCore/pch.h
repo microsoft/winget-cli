@@ -6,7 +6,6 @@
 #include <Windows.h>
 #include <appmodel.h>
 #include <WinInet.h>
-#include <ntstatus.h>
 
 #include "TraceLogging.h"
 

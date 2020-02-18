@@ -23,6 +23,7 @@ namespace AppInstaller::Runtime
             THROW_HR_IF(E_INVALIDARG, !name.has_filename());
         }
 
+        // Gets the container within LocalSettings for the given path.
         auto GetLocalSettingsContainerForPath(const std::filesystem::path& name)
         {
             auto result = winrt::Windows::Storage::ApplicationData::Current().LocalSettings();
@@ -45,7 +46,7 @@ namespace AppInstaller::Runtime
             DWORD charCount = ExpandEnvironmentStringsW(L"%LOCALAPPDATA%", nullptr, 0);
             THROW_LAST_ERROR_IF(charCount == 0);
 
-            std::wstring localAppDataPath(L' ', charCount + 1);
+            std::wstring localAppDataPath(charCount + 1, L'\0');
             charCount = ExpandEnvironmentStringsW(L"%LOCALAPPDATA%", &localAppDataPath[0], charCount + 1);
             THROW_LAST_ERROR_IF(charCount == 0);
 
@@ -56,9 +57,9 @@ namespace AppInstaller::Runtime
             return result;
         }
 
-        // Gets the path to the settings.
+        // Gets the path to the settings root.
         // Creates the directory if it does not already exist.
-        std::filesystem::path GetPathToSettings()
+        std::filesystem::path GetPathToSettingsRoot()
         {
             std::filesystem::path result = GetPathToAppDataRoot();
             result /= "Settings";
@@ -67,7 +68,8 @@ namespace AppInstaller::Runtime
             {
                 if (!std::filesystem::is_directory(result))
                 {
-                    THROW_NTSTATUS_MSG(STATUS_NOT_A_DIRECTORY, "Settings is not a directory");
+                    // STATUS_NOT_A_DIRECTORY: A requested opened file is not a directory.
+                    THROW_NTSTATUS_MSG(0xC0000103, "Settings is not a directory");
                 }
             }
             else
@@ -75,6 +77,19 @@ namespace AppInstaller::Runtime
                 std::filesystem::create_directories(result);
             }
 
+            return result;
+        }
+
+        // Gets the path to the settings directory for the given setting.
+        // Creates the directory if it does not already exist.
+        std::filesystem::path GetPathToSettings(const std::filesystem::path& name)
+        {
+            std::filesystem::path result = GetPathToAppDataRoot();
+            if (name.has_parent_path())
+            {
+                result /= name.parent_path();
+                std::filesystem::create_directories(result);
+            }
             return result;
         }
     }
@@ -138,11 +153,11 @@ namespace AppInstaller::Runtime
         if (IsRunningInPackagedContext())
         {
             auto container = GetLocalSettingsContainerForPath(name);
-            auto nameHstring = winrt::to_hstring(name.filename().c_str());
+            auto filenameHstring = winrt::to_hstring(name.filename().c_str());
             auto settingsValues = container.Values();
-            if (settingsValues.HasKey(nameHstring))
+            if (settingsValues.HasKey(filenameHstring))
             {
-                auto value = winrt::unbox_value<winrt::hstring>(settingsValues.Lookup(nameHstring));
+                auto value = winrt::unbox_value<winrt::hstring>(settingsValues.Lookup(filenameHstring));
                 return std::make_unique<std::istringstream>(Utility::ConvertToUTF8(value.c_str()));
             }
             else
@@ -152,8 +167,8 @@ namespace AppInstaller::Runtime
         }
         else
         {
-            auto settingFileName = GetPathToSettings();
-            settingFileName /= name;
+            auto settingFileName = GetPathToSettings(name);
+            settingFileName /= name.filename();
 
             if (std::filesystem::exists(settingFileName))
             {
@@ -172,13 +187,13 @@ namespace AppInstaller::Runtime
 
         if (IsRunningInPackagedContext())
         {
-            winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().
-                Insert(winrt::to_hstring(name), winrt::box_value(winrt::to_hstring(value)));
+            GetLocalSettingsContainerForPath(name).Values().
+                Insert(winrt::to_hstring(name.filename().c_str()), winrt::box_value(winrt::to_hstring(value)));
         }
         else
         {
-            auto settingFileName = GetPathToSettings();
-            settingFileName /= name;
+            auto settingFileName = GetPathToSettings(name);
+            settingFileName /= name.filename();
 
             std::ofstream stream(settingFileName, std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
             stream << value << std::flush;
