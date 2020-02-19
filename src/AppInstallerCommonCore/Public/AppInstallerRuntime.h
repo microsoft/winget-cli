@@ -19,8 +19,11 @@ namespace AppInstaller::Runtime
 
     // Gets a stream containing the named setting's value, if present.
     // If the setting does not exist, returns an empty value.
-    std::unique_ptr<std::istream> GetSettingStream(const std::filesystem::path& name);
+    std::unique_ptr<std::istream> GetSettingStream(std::filesystem::path name);
 
     // Sets the named setting to the given value.
-    void SetSetting(const std::filesystem::path& name, std::string_view value);
+    void SetSetting(std::filesystem::path name, std::string_view value);
+
+    // Deletes the given setting.
+    void RemoveSetting(std::filesystem::path name);
 }

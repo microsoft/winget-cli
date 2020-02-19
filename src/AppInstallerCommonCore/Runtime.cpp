@@ -16,11 +16,20 @@ namespace AppInstaller::Runtime
             return (result != APPMODEL_ERROR_NO_PACKAGE);
         }
 
-        void ValidateSettingNamePath(const std::filesystem::path& name)
+        static std::filesystem::path s_Settings_TestHook_ForcedContainerPrepend;
+
+        void ValidateSettingNamePath(std::filesystem::path& name)
         {
             THROW_HR_IF(E_INVALIDARG, !name.has_relative_path());
             THROW_HR_IF(E_INVALIDARG, name.has_root_path());
             THROW_HR_IF(E_INVALIDARG, !name.has_filename());
+
+            if (!s_Settings_TestHook_ForcedContainerPrepend.empty())
+            {
+                std::filesystem::path result = s_Settings_TestHook_ForcedContainerPrepend;
+                result /= name;
+                name = std::move(result);
+            }
         }
 
         // Gets the container within LocalSettings for the given path.
@@ -146,7 +155,7 @@ namespace AppInstaller::Runtime
         }
     }
 
-    std::unique_ptr<std::istream> GetSettingStream(const std::filesystem::path& name)
+    std::unique_ptr<std::istream> GetSettingStream(std::filesystem::path name)
     {
         ValidateSettingNamePath(name);
 
@@ -181,7 +190,7 @@ namespace AppInstaller::Runtime
         }
     }
 
-    void SetSetting(const std::filesystem::path& name, std::string_view value)
+    void SetSetting(std::filesystem::path name, std::string_view value)
     {
         ValidateSettingNamePath(name);
 
@@ -198,5 +207,27 @@ namespace AppInstaller::Runtime
             std::ofstream stream(settingFileName, std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
             stream << value << std::flush;
         }
+    }
+
+    void RemoveSetting(std::filesystem::path name)
+    {
+        ValidateSettingNamePath(name);
+
+        if (IsRunningInPackagedContext())
+        {
+            GetLocalSettingsContainerForPath(name).Values().Remove(winrt::to_hstring(name.filename().c_str()));
+        }
+        else
+        {
+            auto settingFileName = GetPathToSettings(name);
+            settingFileName /= name.filename();
+
+            std::filesystem::remove(settingFileName);
+        }
+    }
+
+    void TestHook_ForceContainerPrepend(const std::filesystem::path& prepend)
+    {
+        s_Settings_TestHook_ForcedContainerPrepend = prepend;
     }
 }

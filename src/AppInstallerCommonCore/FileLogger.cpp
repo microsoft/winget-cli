@@ -4,7 +4,7 @@
 #include "Public/AppInstallerFileLogger.h"
 
 #include "Public/AppInstallerRuntime.h"
-#include "DateTime.h"
+#include "Public/AppInstallerDateTime.h"
 
 #define AICLI_FILELOGGER_DEFAULT_FILE "AICLI.log"
 

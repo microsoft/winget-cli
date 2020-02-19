@@ -14,6 +14,17 @@
 using namespace winrt;
 using namespace Windows::Foundation;
 using namespace std::string_literals;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+#include "pch.h"
+#include "Public/AppInstallerRuntime.h"
+#include "Public/AppInstallerStrings.h"
+
+namespace AppInstaller::Runtime
+{
+    void TestHook_ForceContainerPrepend(const std::filesystem::path& prepend);
+}
+
 
 // Logs the the AppInstaller log target to break up individual tests
 struct LoggingBreakListener : public Catch::TestEventListenerBase
@@ -101,6 +112,10 @@ int main(int argc, char** argv)
     AppInstaller::Logging::Log().EnableChannel(AppInstaller::Logging::Channel::All);
     AppInstaller::Logging::Log().SetLevel(AppInstaller::Logging::Level::Verbose);
     AppInstaller::Logging::EnableWilFailureTelemetry();
+
+    // Force all tests to run against settings inside this container.
+    // This prevents test runs from trashing the users actual settings.
+    AppInstaller::Runtime::TestHook_ForceContainerPrepend("AutoTestContainer");
 
     return Catch::Session().run(static_cast<int>(args.size()), args.data());
 }

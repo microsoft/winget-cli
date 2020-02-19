@@ -6,6 +6,7 @@
 #include <chrono>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 
@@ -44,15 +45,15 @@ namespace AppInstaller::Repository
     };
 
     // Adds a new source for the user.
-    std::unique_ptr<ISource> AddSource(const std::string& name, const std::string& type, const std::string& arg);
+    std::unique_ptr<ISource> AddSource(std::string name, std::string type, std::string arg);
 
     // Opens an existing source.
     // Passing an empty string as the name of the source will return a source that aggregates all others.
-    std::unique_ptr<ISource> OpenSource(const std::string& name);
+    std::unique_ptr<ISource> OpenSource(std::string_view name);
 
     // Gets the details for all sources.
     std::vector<SourceDetails> GetSources();
 
     // Removes an existing source.
-    void RemoveSource(const std::string& name);
+    void RemoveSource(std::string_view name);
 }
