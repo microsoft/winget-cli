@@ -14,11 +14,6 @@
 using namespace winrt;
 using namespace Windows::Foundation;
 using namespace std::string_literals;
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-#include "pch.h"
-#include "Public/AppInstallerRuntime.h"
-#include "Public/AppInstallerStrings.h"
 
 namespace AppInstaller::Runtime
 {
