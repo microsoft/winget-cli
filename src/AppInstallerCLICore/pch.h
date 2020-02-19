@@ -24,13 +24,15 @@
 #include <wrl/client.h>
 #include <AppxPackaging.h>
 
-#include "AppInstallerLogging.h"
-#include "AppInstallerTelemetry.h"
-#include "AppInstallerStrings.h"
-#include "AppInstallerRuntime.h"
-#include "AppInstallerSHA256.h"
-#include "AppInstallerDownloader.h"
-#include "AppInstallerErrors.h"
-#include "Manifest/ManifestInstaller.h"
-#include "Manifest/Manifest.h"
-#include "AppInstallerMsixInfo.h"
+#include <AppInstallerDateTime.h>
+#include <AppInstallerDownloader.h>
+#include <AppInstallerErrors.h>
+#include <AppInstallerLogging.h>
+#include <AppInstallerMsixInfo.h>
+#include <AppInstallerRepositorySource.h>
+#include <AppInstallerRuntime.h>
+#include <AppInstallerSHA256.h>
+#include <AppInstallerStrings.h>
+#include <AppInstallerTelemetry.h>
+#include <Manifest/ManifestInstaller.h>
+#include <Manifest/Manifest.h>

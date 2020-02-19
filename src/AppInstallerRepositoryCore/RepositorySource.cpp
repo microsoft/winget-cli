@@ -157,7 +157,7 @@ namespace AppInstaller::Repository
         // Check all sources for the given name.
         std::vector<SourceDetails> currentSources = GetSources();
 
-        auto itr = std::find_if(currentSources.begin(), currentSources.end(), [&name](const SourceDetails& sd) { return sd.Name == name; });
+        auto itr = std::find_if(currentSources.begin(), currentSources.end(), [&name](const SourceDetails& sd) { return Utility::CaseInsensitiveEquals(sd.Name, name); });
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, itr != currentSources.end());
 
         SourceDetails details;

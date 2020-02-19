@@ -7,6 +7,9 @@
 
 namespace AppInstaller::Utility
 {
+    // Compares the two UTF8 strings in a case insensitive manner.
+    bool CaseInsensitiveEquals(const std::string& a, const std::string& b);
+
     // Converts the given UTF16 string to UTF8
     std::string ConvertToUTF8(std::wstring_view input);
 
