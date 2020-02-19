@@ -45,9 +45,6 @@
     <ClInclude Include="Public\AppInstallerStrings.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="DateTime.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Public\AppInstallerRuntime.h">
       <Filter>Public</Filter>
     </ClInclude>
@@ -79,6 +76,9 @@
       <Filter>Public</Filter>
     </ClInclude>
     <ClInclude Include="Public\AppInstallerFileLogger.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\AppInstallerDateTime.h">
       <Filter>Public</Filter>
     </ClInclude>
   </ItemGroup>

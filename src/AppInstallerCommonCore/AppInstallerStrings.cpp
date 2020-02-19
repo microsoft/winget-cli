@@ -5,6 +5,12 @@
 
 namespace AppInstaller::Utility
 {
+    bool CaseInsensitiveEquals(const std::string& a, const std::string& b)
+    {
+        // TODO: When we bring in ICU, do this correctly.
+        return ToLower(a) == ToLower(b);
+    }
+
     std::string ConvertToUTF8(std::wstring_view input)
     {
         int utf8ByteCount = WideCharToMultiByte(CP_UTF8, 0, input.data(), wil::safe_cast<int>(input.length()), nullptr, 0, nullptr, nullptr);
@@ -72,5 +78,19 @@ namespace AppInstaller::Utility
             inputStr.replace(pos, token.length(), value);
             pos += value.length();
         }
+    }
+
+    std::string ReadEntireStream(std::istream& stream)
+    {
+        std::streampos currentPos = stream.tellg();
+        stream.seekg(0, std::ios_base::end);
+
+        auto offset = stream.tellg() - currentPos;
+        stream.seekg(currentPos);
+
+        std::string result(offset, '\0');
+        stream.read(&result[0], offset);
+
+        return result;
     }
 }

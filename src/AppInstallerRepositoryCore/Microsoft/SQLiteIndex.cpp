@@ -201,14 +201,12 @@ namespace AppInstaller::Repository::Microsoft
     // should be consistent across systems.
     void SQLiteIndex::SetLastWriteTime()
     {
-        static_assert(std::is_same_v<int64_t, decltype(time(nullptr))>, "time returns a 64-bit integer");
-        time_t now = time(nullptr);
-        Schema::MetadataTable::SetNamedValue(m_dbconn, Schema::s_MetadataValueName_LastWriteTime, static_cast<int64_t>(now));
+        Schema::MetadataTable::SetNamedValue(m_dbconn, Schema::s_MetadataValueName_LastWriteTime, Utility::GetCurrentUnixEpoch());
     }
 
     std::chrono::system_clock::time_point SQLiteIndex::GetLastWriteTime()
     {
         int64_t lastWriteTime = Schema::MetadataTable::GetNamedValue<int64_t>(m_dbconn, Schema::s_MetadataValueName_LastWriteTime);
-        return std::chrono::system_clock::from_time_t(static_cast<time_t>(lastWriteTime));
+        return Utility::ConvertUnixEpochToSystemClock(lastWriteTime);
     }
 }

@@ -53,13 +53,16 @@
     <ClCompile Include="LanguageUtilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
     <None Include="packages.config" />
-    <None Include="TestData\InstallerArgTest_Msi_WithSwitches.yml">
-      <Filter>TestData</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="TestData\BadManifest-MissingName.yml">
@@ -89,5 +92,6 @@
     <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_WithSwitches.yml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_WithSwitches.yml" />
   </ItemGroup>
 </Project>

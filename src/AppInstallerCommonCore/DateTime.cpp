@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "DateTime.h"
+#include "Public/AppInstallerDateTime.h"
 
 namespace AppInstaller::Utility
 {
@@ -25,5 +25,24 @@ namespace AppInstaller::Utility
         auto leftoverMillis = duration_cast<milliseconds>(sinceEpoch) - duration_cast<seconds>(sinceEpoch);
 
         stream << std::setw(3) << std::setfill('0') << leftoverMillis.count();
+    }
+
+    int64_t GetCurrentUnixEpoch()
+    {
+        static_assert(std::is_same_v<int64_t, decltype(time(nullptr))>, "time returns a 64-bit integer");
+        time_t now = time(nullptr);
+       return static_cast<int64_t>(now);
+    }
+
+    int64_t ConvertSystemClockToUnixEpoch(const std::chrono::system_clock::time_point& time)
+    {
+        static_assert(std::is_same_v<int64_t, decltype(std::chrono::system_clock::to_time_t(time))>, "to_time_t returns a 64-bit integer");
+        time_t timeAsTimeT = std::chrono::system_clock::to_time_t(time);
+        return static_cast<int64_t>(timeAsTimeT);
+    }
+
+    std::chrono::system_clock::time_point ConvertUnixEpochToSystemClock(int64_t epoch)
+    {
+        return std::chrono::system_clock::from_time_t(static_cast<time_t>(epoch));
     }
 }

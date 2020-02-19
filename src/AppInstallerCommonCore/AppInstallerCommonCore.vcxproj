@@ -168,11 +168,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="DateTime.h" />
     <ClInclude Include="HttpStream\HttpClientWrapper.h" />
     <ClInclude Include="HttpStream\HttpLocalCache.h" />
     <ClInclude Include="HttpStream\HttpRandomAccessStream.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Public\AppInstallerDateTime.h" />
     <ClInclude Include="Public\AppInstallerDownloader.h" />
     <ClInclude Include="Public\AppInstallerErrors.h" />
     <ClInclude Include="Public\AppInstallerFileLogger.h" />

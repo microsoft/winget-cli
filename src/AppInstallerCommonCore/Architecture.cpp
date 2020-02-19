@@ -35,6 +35,34 @@ namespace AppInstaller::Utility
         return Architecture::Unknown;
     }
 
+    Architecture GetSystemArchitecture()
+    {
+        Architecture systemArchitecture = Architecture::Unknown;
+
+        SYSTEM_INFO systemInfo;
+        ZeroMemory(&systemInfo, sizeof(SYSTEM_INFO));
+        GetNativeSystemInfo(&systemInfo);
+
+        switch (systemInfo.wProcessorArchitecture)
+        {
+        case PROCESSOR_ARCHITECTURE_AMD64:
+        case PROCESSOR_ARCHITECTURE_IA64:
+            systemArchitecture = Architecture::X64;
+            break;
+        case PROCESSOR_ARCHITECTURE_ARM:
+            systemArchitecture = Architecture::Arm;
+            break;
+        case PROCESSOR_ARCHITECTURE_ARM64:
+            systemArchitecture = Architecture::Arm64;
+            break;
+        case PROCESSOR_ARCHITECTURE_INTEL:
+            systemArchitecture = Architecture::X86;
+            break;
+        }
+
+        return systemArchitecture;
+    }
+
     std::vector<Architecture> GetApplicableArchitectures()
     {
         static std::vector<Architecture> applicableArchs;
@@ -44,7 +72,7 @@ namespace AppInstaller::Utility
             return applicableArchs;
         }
 
-        switch (Runtime::GetSystemArchitecture())
+        switch (GetSystemArchitecture())
         {
         case Architecture::Arm64:
             applicableArchs.push_back(Architecture::Arm64);

@@ -75,6 +75,9 @@
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h">
       <Filter>Workflows</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\SourceCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -112,6 +115,9 @@
     </ClCompile>
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp">
       <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\SourceCommand.cpp">
+      <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -3,9 +3,9 @@
 #include "pch.h"
 #include "Public/AppInstallerLogging.h"
 
-#include "Public/AppInstallerTelemetry.h"
 #include "Public/AppInstallerFileLogger.h"
-#include "DateTime.h"
+#include "Public/AppInstallerTelemetry.h"
+#include "Public/AppInstallerDateTime.h"
 
 namespace AppInstaller::Logging
 {

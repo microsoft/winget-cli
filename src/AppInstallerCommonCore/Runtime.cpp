@@ -1,21 +1,105 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Public/AppInstallerArchitecture.h"
 #include "Public/AppInstallerRuntime.h"
-#include <winrt/Windows.Storage.h>
-
-using namespace AppInstaller::Utility;
+#include "Public/AppInstallerStrings.h"
 
 namespace AppInstaller::Runtime
 {
     namespace
     {
+        // Gets a boolean indicating whether the current process has identity.
         bool DoesCurrentProcessHaveIdentity()
         {
             UINT32 length = 0;
             LONG result = GetPackageFamilyName(GetCurrentProcess(), &length, nullptr);
             return (result != APPMODEL_ERROR_NO_PACKAGE);
+        }
+
+        static std::filesystem::path s_Settings_TestHook_ForcedContainerPrepend;
+
+        void ValidateSettingNamePath(std::filesystem::path& name)
+        {
+            THROW_HR_IF(E_INVALIDARG, !name.has_relative_path());
+            THROW_HR_IF(E_INVALIDARG, name.has_root_path());
+            THROW_HR_IF(E_INVALIDARG, !name.has_filename());
+
+            if (!s_Settings_TestHook_ForcedContainerPrepend.empty())
+            {
+                std::filesystem::path result = s_Settings_TestHook_ForcedContainerPrepend;
+                result /= name;
+                name = std::move(result);
+            }
+        }
+
+        // Gets the container within LocalSettings for the given path.
+        auto GetLocalSettingsContainerForPath(const std::filesystem::path& name)
+        {
+            auto result = winrt::Windows::Storage::ApplicationData::Current().LocalSettings();
+
+            for (const auto& part : name.parent_path())
+            {
+                auto partHstring = winrt::to_hstring(part.c_str());
+                result = result.CreateContainer(partHstring, winrt::Windows::Storage::ApplicationDataCreateDisposition::Always);
+            }
+
+            return result;
+        }
+
+        // Gets the path to the appdata root.
+        // *Only used by non packaged version!*
+        std::filesystem::path GetPathToAppDataRoot()
+        {
+            THROW_HR_IF(E_NOT_VALID_STATE, IsRunningInPackagedContext());
+
+            DWORD charCount = ExpandEnvironmentStringsW(L"%LOCALAPPDATA%", nullptr, 0);
+            THROW_LAST_ERROR_IF(charCount == 0);
+
+            std::wstring localAppDataPath(charCount + 1, L'\0');
+            charCount = ExpandEnvironmentStringsW(L"%LOCALAPPDATA%", &localAppDataPath[0], charCount + 1);
+            THROW_LAST_ERROR_IF(charCount == 0);
+
+            localAppDataPath.resize(charCount - 1);
+
+            std::filesystem::path result = localAppDataPath;
+            result /= "Microsoft/AppInstaller";
+            return result;
+        }
+
+        // Gets the path to the settings root.
+        // Creates the directory if it does not already exist.
+        std::filesystem::path GetPathToSettingsRoot()
+        {
+            std::filesystem::path result = GetPathToAppDataRoot();
+            result /= "Settings";
+
+            if (std::filesystem::exists(result))
+            {
+                if (!std::filesystem::is_directory(result))
+                {
+                    // STATUS_NOT_A_DIRECTORY: A requested opened file is not a directory.
+                    THROW_NTSTATUS_MSG(0xC0000103, "Settings is not a directory");
+                }
+            }
+            else
+            {
+                std::filesystem::create_directories(result);
+            }
+
+            return result;
+        }
+
+        // Gets the path to the settings directory for the given setting.
+        // Creates the directory if it does not already exist.
+        std::filesystem::path GetPathToSettings(const std::filesystem::path& name)
+        {
+            std::filesystem::path result = GetPathToAppDataRoot();
+            if (name.has_parent_path())
+            {
+                result /= name.parent_path();
+                std::filesystem::create_directories(result);
+            }
+            return result;
         }
     }
 
@@ -71,31 +155,79 @@ namespace AppInstaller::Runtime
         }
     }
 
-    Architecture GetSystemArchitecture()
+    std::unique_ptr<std::istream> GetSettingStream(std::filesystem::path name)
     {
-        Architecture systemArchitecture = Architecture::Unknown;
+        ValidateSettingNamePath(name);
 
-        SYSTEM_INFO systemInfo;
-        ZeroMemory(&systemInfo, sizeof(SYSTEM_INFO));
-        GetNativeSystemInfo(&systemInfo);
-
-        switch (systemInfo.wProcessorArchitecture)
+        if (IsRunningInPackagedContext())
         {
-        case PROCESSOR_ARCHITECTURE_AMD64:
-        case PROCESSOR_ARCHITECTURE_IA64:
-            systemArchitecture = Architecture::X64;
-            break;
-        case PROCESSOR_ARCHITECTURE_ARM:
-            systemArchitecture = Architecture::Arm;
-            break;
-        case PROCESSOR_ARCHITECTURE_ARM64:
-            systemArchitecture = Architecture::Arm64;
-            break;
-        case PROCESSOR_ARCHITECTURE_INTEL:
-            systemArchitecture = Architecture::X86;
-            break;
+            auto container = GetLocalSettingsContainerForPath(name);
+            auto filenameHstring = winrt::to_hstring(name.filename().c_str());
+            auto settingsValues = container.Values();
+            if (settingsValues.HasKey(filenameHstring))
+            {
+                auto value = winrt::unbox_value<winrt::hstring>(settingsValues.Lookup(filenameHstring));
+                return std::make_unique<std::istringstream>(Utility::ConvertToUTF8(value.c_str()));
+            }
+            else
+            {
+                return {};
+            }
         }
+        else
+        {
+            auto settingFileName = GetPathToSettings(name);
+            settingFileName /= name.filename();
 
-        return systemArchitecture;
+            if (std::filesystem::exists(settingFileName))
+            {
+                return std::make_unique<std::ifstream>(settingFileName);
+            }
+            else
+            {
+                return {};
+            }
+        }
+    }
+
+    void SetSetting(std::filesystem::path name, std::string_view value)
+    {
+        ValidateSettingNamePath(name);
+
+        if (IsRunningInPackagedContext())
+        {
+            GetLocalSettingsContainerForPath(name).Values().
+                Insert(winrt::to_hstring(name.filename().c_str()), winrt::box_value(winrt::to_hstring(value)));
+        }
+        else
+        {
+            auto settingFileName = GetPathToSettings(name);
+            settingFileName /= name.filename();
+
+            std::ofstream stream(settingFileName, std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
+            stream << value << std::flush;
+        }
+    }
+
+    void RemoveSetting(std::filesystem::path name)
+    {
+        ValidateSettingNamePath(name);
+
+        if (IsRunningInPackagedContext())
+        {
+            GetLocalSettingsContainerForPath(name).Values().Remove(winrt::to_hstring(name.filename().c_str()));
+        }
+        else
+        {
+            auto settingFileName = GetPathToSettings(name);
+            settingFileName /= name.filename();
+
+            std::filesystem::remove(settingFileName);
+        }
+    }
+
+    void TestHook_ForceContainerPrepend(const std::filesystem::path& prepend)
+    {
+        s_Settings_TestHook_ForcedContainerPrepend = prepend;
     }
 }
