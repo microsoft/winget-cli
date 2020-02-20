@@ -5,6 +5,7 @@
 #include "Invocation.h"
 #include "WorkflowReporter.h"
 #include "Public/AppInstallerRepositorySearch.h"
+#include "Public/AppInstallerRepositorySource.h"
 
 namespace AppInstaller::Workflow
 {
@@ -17,6 +18,9 @@ namespace AppInstaller::Workflow
         WorkflowReporter m_reporter;
         const AppInstaller::CLI::Invocation& m_argsRef;
 
-        AppInstaller::Repository::SearchResult SearchIndex();
+        AppInstaller::Repository::SearchResult IndexSearch();
+        virtual void OpenIndexSource();
+
+        std::unique_ptr<AppInstaller::Repository::ISource> m_source;
     };
 }

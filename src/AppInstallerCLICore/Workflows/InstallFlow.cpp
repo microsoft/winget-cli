@@ -17,7 +17,7 @@ namespace AppInstaller::Workflow
 {
     void InstallFlow::Execute(bool showInfoOnly)
     {
-        m_searchResult = WorkflowBase::SearchIndex();
+        m_searchResult = WorkflowBase::IndexSearch();
 
         if (ProcessSearchResult())
         {
@@ -25,7 +25,7 @@ namespace AppInstaller::Workflow
 
             if (!showInfoOnly)
             {
-                Install();
+                InstallInternal();
             }
         }
     }
@@ -36,10 +36,10 @@ namespace AppInstaller::Workflow
 
         ProcessManifestAndShowInfo();
 
-        Install();
+        InstallInternal();
     }
 
-    void InstallFlow::Install()
+    void InstallFlow::InstallInternal()
     {
         auto installerHandler = GetInstallerHandler();
 
@@ -100,6 +100,7 @@ namespace AppInstaller::Workflow
         AICLI_LOG(Repo, Info, << "Found one app. App id: " << app->GetId() << " App name: " << app->GetName());
         m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Found app: " + app->GetName());
 
+        // Todo: handle failure if necessary after real search is in place
         m_manifest = app->GetManifest(
             m_argsRef.Contains(CLI::ARG_VERSION) ? *m_argsRef.GetArg(CLI::ARG_VERSION) : "",
             m_argsRef.Contains(CLI::ARG_CHANNEL) ? *m_argsRef.GetArg(CLI::ARG_CHANNEL) : ""

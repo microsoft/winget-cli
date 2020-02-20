@@ -16,8 +16,10 @@ namespace AppInstaller::Workflow
         InstallFlow(const AppInstaller::CLI::Invocation& args, std::ostream& outStream, std::istream& inStream) :
             WorkflowBase(args, outStream, inStream) {}
 
+        // Execute will perform a query against index and do app install if a target app is found.
         void Execute(bool showInfoOnly = false);
 
+        // Install an app with the given manifest, no query against index is performed.
         void Install(const Manifest::Manifest& manifest);
 
     protected:
@@ -28,7 +30,7 @@ namespace AppInstaller::Workflow
 
         virtual bool ProcessSearchResult();
         virtual void ProcessManifestAndShowInfo();
-        virtual void Install();
+        virtual void InstallInternal();
 
         // Creates corresponding InstallerHandler according to InstallerType
         virtual std::unique_ptr<InstallerHandlerBase> GetInstallerHandler();

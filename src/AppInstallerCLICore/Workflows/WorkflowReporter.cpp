@@ -22,9 +22,9 @@ namespace AppInstaller::Workflow
 
         out << "Installer info:" << manifest.Id << std::endl;
         out << "--Installer Type: " << selectedInstaller.InstallerType << std::endl;
-        out << "--Installer Language:" << selectedInstaller.Language << std::endl;
-        out << "--Installer SHA256:" << Utility::SHA256::ConvertToString(selectedInstaller.Sha256) << std::endl;
-        out << "--Installer Download Url:" << selectedInstaller.Url << std::endl;
+        out << "--Installer Language: " << selectedInstaller.Language << std::endl;
+        out << "--Installer SHA256: " << Utility::SHA256::ConvertToString(selectedInstaller.Sha256) << std::endl;
+        out << "--Installer Download Url: " << selectedInstaller.Url << std::endl;
     }
 
     void WorkflowReporter::ShowSearchResult(const AppInstaller::Repository::SearchResult& result)
