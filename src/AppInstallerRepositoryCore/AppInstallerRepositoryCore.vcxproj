@@ -171,6 +171,7 @@
     <ClInclude Include="Manifest\Manifest.h" />
     <ClInclude Include="Manifest\ManifestInstaller.h" />
     <ClInclude Include="Manifest\ManifestLocalization.h" />
+    <ClInclude Include="Microsoft\PreIndexedSource.h" />
     <ClInclude Include="Microsoft\Schema\1_0\ChannelTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\CommandsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\IdTable.h" />
@@ -188,6 +189,7 @@
     <ClInclude Include="Microsoft\Schema\Version.h" />
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="SourceFactory.h" />
     <ClInclude Include="SQLiteStatementBuilder.h" />
     <ClInclude Include="Public\AppInstallerRepositorySearch.h" />
     <ClInclude Include="Public\AppInstallerRepositorySource.h" />
@@ -197,6 +199,7 @@
     <ClCompile Include="Manifest\Manifest.cpp" />
     <ClCompile Include="Manifest\ManifestInstaller.cpp" />
     <ClCompile Include="Manifest\ManifestLocalization.cpp" />
+    <ClCompile Include="Microsoft\PreIndexedSource.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\Interface.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\ManifestTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\OneToManyTable.cpp" />

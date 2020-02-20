@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="TestCommon.h" />
+    <ClInclude Include="TestHooks.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Downloader.cpp" />

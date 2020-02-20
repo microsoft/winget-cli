@@ -31,3 +31,8 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+#include <functional>
+#include <map>
+#endif

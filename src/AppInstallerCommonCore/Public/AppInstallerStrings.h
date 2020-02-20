@@ -8,7 +8,7 @@
 namespace AppInstaller::Utility
 {
     // Compares the two UTF8 strings in a case insensitive manner.
-    bool CaseInsensitiveEquals(const std::string& a, const std::string& b);
+    bool CaseInsensitiveEquals(std::string_view a, std::string_view b);
 
     // Converts the given UTF16 string to UTF8
     std::string ConvertToUTF8(std::wstring_view input);
@@ -17,10 +17,10 @@ namespace AppInstaller::Utility
     std::wstring ConvertToUTF16(std::string_view input);
 
     // Get the lower case version of the given std::string
-    std::string ToLower(const std::string& in);
+    std::string ToLower(std::string_view in);
 
     // Get the lower case version of the given std::wstring
-    std::wstring ToLower(const std::wstring& in);
+    std::wstring ToLower(std::wstring_view in);
 
     // Checks if the input string is empty or whitespace
     bool IsEmptyOrWhitespace(std::wstring_view str);

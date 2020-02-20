@@ -34,26 +34,30 @@ namespace AppInstaller::Repository
     // Interface for interacting with a source from outside of the repository lib.
     struct ISource
     {
+        virtual ~ISource() = default;
+
         // Get the source's details.
         virtual const SourceDetails& GetDetails() const = 0;
-
-        // Request that the source update its internal data from the upstream location.
-        virtual void Update() = 0;
 
         // Execute a search on the source.
         virtual SearchResult Search(const SearchRequest& request) const = 0;
     };
 
-    // Adds a new source for the user.
-    std::unique_ptr<ISource> AddSource(std::string name, std::string type, std::string arg);
-
-    // Opens an existing source.
-    // Passing an empty string as the name of the source will return a source that aggregates all others.
-    std::unique_ptr<ISource> OpenSource(std::string_view name);
-
     // Gets the details for all sources.
     std::vector<SourceDetails> GetSources();
 
+    // Adds a new source for the user.
+    void AddSource(std::string name, std::string type, std::string arg);
+
+    // Opens an existing source.
+    // Passing an empty string as the name of the source will return a source that aggregates all others.
+    std::unique_ptr<ISource> OpenSource(std::string_view name = {});
+
+    // Updates an existing source.
+    // Return value indicates whether the named source was found.
+    bool UpdateSource(std::string_view name);
+
     // Removes an existing source.
-    void RemoveSource(std::string_view name);
+    // Return value indicates whether the named source was found.
+    bool RemoveSource(std::string_view name);
 }

@@ -10,15 +10,11 @@
 #include <Public/AppInstallerTelemetry.h>
 
 #include "TestCommon.h"
+#include "TestHooks.h"
 
 using namespace winrt;
 using namespace Windows::Foundation;
 using namespace std::string_literals;
-
-namespace AppInstaller::Runtime
-{
-    void TestHook_ForceContainerPrepend(const std::filesystem::path& prepend);
-}
 
 
 // Logs the the AppInstaller log target to break up individual tests

@@ -102,6 +102,12 @@
     <ClInclude Include="Public\AppInstallerRepositorySearch.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\PreIndexedSource.h">
+      <Filter>Microsoft</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -148,6 +154,9 @@
     </ClCompile>
     <ClCompile Include="RepositorySource.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\PreIndexedSource.cpp">
+      <Filter>Microsoft</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

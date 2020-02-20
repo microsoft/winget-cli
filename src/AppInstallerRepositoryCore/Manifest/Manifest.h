@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-
 #include "AppInstallerErrors.h"
 #include "ManifestInstaller.h"
 #include "ManifestLocalization.h"
+#include <yaml-cpp/yaml.h>
+
+#include <wil/result.h>
 
 #include <filesystem>
 #include <string>

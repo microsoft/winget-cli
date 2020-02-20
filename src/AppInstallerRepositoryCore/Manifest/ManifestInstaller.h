@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerArchitecture.h>
+#include <yaml-cpp/yaml.h>
+
 #include <string>
 #include <map>
-#include <AppInstallerArchitecture.h>
 
 namespace AppInstaller::Manifest
 {
