@@ -16,7 +16,9 @@ namespace AppInstaller::Runtime
             return (result != APPMODEL_ERROR_NO_PACKAGE);
         }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
         static std::filesystem::path s_Settings_TestHook_ForcedContainerPrepend;
+#endif
 
         void ValidateSettingNamePath(std::filesystem::path& name)
         {
@@ -24,12 +26,14 @@ namespace AppInstaller::Runtime
             THROW_HR_IF(E_INVALIDARG, name.has_root_path());
             THROW_HR_IF(E_INVALIDARG, !name.has_filename());
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
             if (!s_Settings_TestHook_ForcedContainerPrepend.empty())
             {
                 std::filesystem::path result = s_Settings_TestHook_ForcedContainerPrepend;
                 result /= name;
                 name = std::move(result);
             }
+#endif
         }
 
         // Gets the container within LocalSettings for the given path.
@@ -226,8 +230,10 @@ namespace AppInstaller::Runtime
         }
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
     void TestHook_ForceContainerPrepend(const std::filesystem::path& prepend)
     {
         s_Settings_TestHook_ForcedContainerPrepend = prepend;
     }
+#endif
 }

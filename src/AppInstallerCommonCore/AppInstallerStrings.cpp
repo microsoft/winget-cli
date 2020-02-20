@@ -5,7 +5,7 @@
 
 namespace AppInstaller::Utility
 {
-    bool CaseInsensitiveEquals(const std::string& a, const std::string& b)
+    bool CaseInsensitiveEquals(std::string_view a, std::string_view b)
     {
         // TODO: When we bring in ICU, do this correctly.
         return ToLower(a) == ToLower(b);
@@ -41,7 +41,7 @@ namespace AppInstaller::Utility
         return result;
     }
 
-    std::string ToLower(const std::string& in)
+    std::string ToLower(std::string_view in)
     {
         std::string result(in);
         std::transform(result.begin(), result.end(), result.begin(),
@@ -49,7 +49,7 @@ namespace AppInstaller::Utility
         return result;
     }
 
-    std::wstring ToLower(const std::wstring& in)
+    std::wstring ToLower(std::wstring_view in)
     {
         std::wstring result(in);
         std::transform(result.begin(), result.end(), result.begin(),

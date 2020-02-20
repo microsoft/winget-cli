@@ -43,4 +43,30 @@ namespace AppInstaller::CLI
     protected:
         virtual void ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const;
     };
+
+    struct SourceUpdateCommand final : public Command
+    {
+        SourceUpdateCommand() : Command("update") {}
+
+        virtual std::vector<Argument> GetArguments() const override;
+
+        virtual std::string ShortDescription() const override;
+        virtual std::vector<std::string> GetLongDescription() const override;
+
+    protected:
+        virtual void ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const;
+    };
+
+    struct SourceRemoveCommand final : public Command
+    {
+        SourceRemoveCommand() : Command("remove") {}
+
+        virtual std::vector<Argument> GetArguments() const override;
+
+        virtual std::string ShortDescription() const override;
+        virtual std::vector<std::string> GetLongDescription() const override;
+
+    protected:
+        virtual void ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const;
+    };
 }

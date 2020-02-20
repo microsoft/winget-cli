@@ -3,6 +3,8 @@
 #include "pch.h"
 #include "Public/AppInstallerRepositorySource.h"
 
+#include "SourceFactory.h"
+#include "Microsoft/PreIndexedSource.h"
 
 namespace AppInstaller::Repository
 {
@@ -147,17 +149,64 @@ namespace AppInstaller::Repository
 
             Runtime::SetSetting(settingName, out.c_str());
         }
+
+        // Finds a source from the given vector by its name.
+        auto FindSourceByName(std::vector<SourceDetails>& sources, std::string_view name)
+        {
+            return std::find_if(sources.begin(), sources.end(), [&name](const SourceDetails& sd) { return Utility::CaseInsensitiveEquals(sd.Name, name); });
+        }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        static std::map<std::string, std::function<std::unique_ptr<ISourceFactory>()>> s_Sources_TestHook_SourceFactories;
+#endif
+
+        std::unique_ptr<ISourceFactory> GetFactoryForType(std::string_view type)
+        {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            // Tests can ensure case matching
+            auto itr = s_Sources_TestHook_SourceFactories.find(std::string(type));
+            if (itr != s_Sources_TestHook_SourceFactories.end())
+            {
+                return itr->second();
+            }
+#endif
+
+            // For now, enable an empty type to represent the only one we have.
+            if (type.empty() ||
+                Utility::CaseInsensitiveEquals(Microsoft::PreIndexedSource::Type(), type))
+            {
+                return Microsoft::PreIndexedSource::CreateFactory();
+            }
+
+            THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
+        }
+
+        std::unique_ptr<ISource> CreateSourceFromDetails(const SourceDetails& details)
+        {
+            return GetFactoryForType(details.Type)->Create(details);
+        }
+
+        void UpdateSourceFromDetails(SourceDetails& details)
+        {
+            GetFactoryForType(details.Type)->Update(details);
+        }
+
+        void RemoveSourceFromDetails(const SourceDetails& details)
+        {
+            GetFactoryForType(details.Type)->Remove(details);
+        }
     }
 
-    std::unique_ptr<ISource> AddSource(std::string name, std::string type, std::string arg)
+    void AddSource(std::string name, std::string type, std::string arg)
     {
         THROW_HR_IF(E_INVALIDARG, name.empty());
-        THROW_HR_IF(E_INVALIDARG, type.empty());
+
+        AICLI_LOG(Repo, Info, << "Adding source: Name[" << name << "], Type[" << type << "], Arg[" << arg << "]");
 
         // Check all sources for the given name.
         std::vector<SourceDetails> currentSources = GetSources();
 
-        auto itr = std::find_if(currentSources.begin(), currentSources.end(), [&name](const SourceDetails& sd) { return Utility::CaseInsensitiveEquals(sd.Name, name); });
+        auto itr = FindSourceByName(currentSources, name);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, itr != currentSources.end());
 
         SourceDetails details;
@@ -166,23 +215,50 @@ namespace AppInstaller::Repository
         details.Arg = std::move(arg);
         details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
 
-        // TODO: Implement actual source creation, for now we just add to the user setting.
-        // Ex.
-        //std::unique_ptr<ISource> result = CreateSourceFromDetails(details);
+        UpdateSourceFromDetails(details);
+
+        AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
 
         currentSources = GetSourcesFromSetting(s_RepositorySettings_UserSources);
-        // NOTE: When implementing creation as above, insert the details that we then get out of the result.
-        currentSources.push_back(details);
+        currentSources.emplace_back(details);
 
         SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
-
-        return {};
     }
 
     std::unique_ptr<ISource> OpenSource(std::string_view name)
     {
-        UNREFERENCED_PARAMETER(name);
-        return {};
+        if (name.empty())
+        {
+            // TODO: Create aggregate source here.  For now, just get the first in the list.
+            std::vector<SourceDetails> currentSources = GetSources();
+
+            if (currentSources.empty())
+            {
+                AICLI_LOG(Repo, Info, << "Default source requested, but no sources configured");
+                return {};
+            }
+            else
+            {
+                AICLI_LOG(Repo, Info, << "Default source requested, using first source: " << currentSources[0].Name);
+                return CreateSourceFromDetails(currentSources[0]);
+            }
+        }
+        else
+        {
+            std::vector<SourceDetails> currentSources = GetSources();
+            auto itr = FindSourceByName(currentSources, name);
+            
+            if (itr == currentSources.end())
+            {
+                AICLI_LOG(Repo, Info, << "Named source requested, but not found: " << name);
+                return {};
+            }
+            else
+            {
+                AICLI_LOG(Repo, Info, << "Named source requested, found: " << itr->Name);
+                return CreateSourceFromDetails(*itr);
+            }
+        }
     }
 
     std::vector<SourceDetails> GetSources()
@@ -190,8 +266,61 @@ namespace AppInstaller::Repository
         return GetSourcesFromSetting(s_RepositorySettings_UserSources);
     }
 
-    void RemoveSource(std::string_view name)
+    bool UpdateSource(std::string_view name)
     {
-        UNREFERENCED_PARAMETER(name);
+        THROW_HR_IF(E_INVALIDARG, name.empty());
+
+        std::vector<SourceDetails> currentSources = GetSourcesFromSetting(s_RepositorySettings_UserSources);
+        auto itr = FindSourceByName(currentSources, name);
+
+        if (itr == currentSources.end())
+        {
+            AICLI_LOG(Repo, Info, << "Named source to be updated, but not found: " << name);
+            return false;
+        }
+        else
+        {
+            AICLI_LOG(Repo, Info, << "Named source to be updated, found: " << itr->Name);
+            UpdateSourceFromDetails(*itr);
+
+            SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
+            return true;
+        }
     }
+
+    bool RemoveSource(std::string_view name)
+    {
+        THROW_HR_IF(E_INVALIDARG, name.empty());
+
+        std::vector<SourceDetails> currentSources = GetSourcesFromSetting(s_RepositorySettings_UserSources);
+        auto itr = FindSourceByName(currentSources, name);
+
+        if (itr == currentSources.end())
+        {
+            AICLI_LOG(Repo, Info, << "Named source to be removed, but not found: " << name);
+            return false;
+        }
+        else
+        {
+            AICLI_LOG(Repo, Info, << "Named source to be removed, found: " << itr->Name);
+            RemoveSourceFromDetails(*itr);
+
+            currentSources.erase(itr);
+            SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
+
+            return true;
+        }
+    }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    void TestHook_SetSourceFactoryOverride(const std::string& type, std::function<std::unique_ptr<ISourceFactory>()>&& factory)
+    {
+        s_Sources_TestHook_SourceFactories[type] = std::move(factory);
+    }
+
+    void TestHook_ClearSourceFactoryOverrides()
+    {
+        s_Sources_TestHook_SourceFactories.clear();
+    }
+#endif
 }

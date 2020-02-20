@@ -18,6 +18,8 @@ namespace AppInstaller::CLI
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
             std::make_unique<SourceAddCommand>(),
             std::make_unique<SourceListCommand>(),
+            std::make_unique<SourceUpdateCommand>(),
+            std::make_unique<SourceRemoveCommand>(),
             });
     }
 
@@ -42,8 +44,8 @@ namespace AppInstaller::CLI
     {
         return {
             Argument{ s_SourceCommand_ArgName_Name, LOCME("Name of the source for future reference"), ArgumentType::Positional, true },
-            Argument{ s_SourceCommand_ArgName_Type, LOCME("Type of the source"), ArgumentType::Positional, true },
             Argument{ s_SourceCommand_ArgName_Arg, LOCME("Argument given to the source"), ArgumentType::Positional, true },
+            Argument{ s_SourceCommand_ArgName_Type, LOCME("Type of the source"), ArgumentType::Positional, false },
         };
     }
 
@@ -62,13 +64,20 @@ namespace AppInstaller::CLI
     void SourceAddCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream&) const
     {
         std::string name = *inv.GetArg(s_SourceCommand_ArgName_Name);
-        std::string type = *inv.GetArg(s_SourceCommand_ArgName_Type);
         std::string arg = *inv.GetArg(s_SourceCommand_ArgName_Arg);
+        std::string type;
+        if (inv.Contains(s_SourceCommand_ArgName_Type))
+        {
+            type = *inv.GetArg(s_SourceCommand_ArgName_Type);
+        }
 
         out << LOCME("Adding source:") << std::endl;
-        out << "  " << name << std::endl;
-        out << "  " << type << std::endl;
-        out << "  " << arg << std::endl;
+        out << "  " << LOCME("Name: ") << name << std::endl;
+        out << "  " << LOCME("Arg: ") << arg << std::endl;
+        if (!type.empty())
+        {
+            out << "  " << LOCME("Type: ") << type << std::endl;
+        }
 
         // TODO: Needs to be hooked up to a reporter when real source construction happens.
         Repository::AddSource(std::move(name), std::move(type), std::move(arg));
@@ -139,6 +148,87 @@ namespace AppInstaller::CLI
                     out << "  " << source.Name << " => " << source.Arg << std::endl;
                 }
             }
+        }
+    }
+
+    std::vector<Argument> SourceUpdateCommand::GetArguments() const
+    {
+        return {
+            Argument{ s_SourceCommand_ArgName_Name, LOCME("Name of the source to update"), ArgumentType::Positional, false },
+        };
+    }
+
+    std::string SourceUpdateCommand::ShortDescription() const
+    {
+        return LOCME("Update current sources");
+    }
+
+    std::vector<std::string> SourceUpdateCommand::GetLongDescription() const
+    {
+        return {
+            LOCME("Update current sources"),
+        };
+    }
+
+    void SourceUpdateCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream&) const
+    {
+        if (inv.Contains(s_SourceCommand_ArgName_Name))
+        {
+            const std::string& name = *inv.GetArg(s_SourceCommand_ArgName_Name);
+            out << LOCME("Updating source: ") << name << "..." << std::endl;
+            if (!Repository::UpdateSource(name))
+            {
+                out << LOCME("Could not find a source by that name.") << std::endl;
+            }
+            else
+            {
+                out << LOCME("Done") << std::endl;
+            }
+        }
+        else
+        {
+            out << LOCME("Updating all sources...") << std::endl;
+
+            std::vector<Repository::SourceDetails> sources = Repository::GetSources();
+            for (const auto& sd : sources)
+            {
+                out << LOCME("  Updating source: ") << sd.Name << "..." << std::flush;
+                Repository::UpdateSource(sd.Name);
+                out << LOCME(" Done.") << std::endl;
+            }
+        }
+    }
+
+    std::vector<Argument> SourceRemoveCommand::GetArguments() const
+    {
+        return {
+            Argument{ s_SourceCommand_ArgName_Name, LOCME("Name of the source to update"), ArgumentType::Positional, true },
+        };
+    }
+
+    std::string SourceRemoveCommand::ShortDescription() const
+    {
+        return LOCME("Remove current sources");
+    }
+
+    std::vector<std::string> SourceRemoveCommand::GetLongDescription() const
+    {
+        return {
+            LOCME("Remove current sources"),
+        };
+    }
+
+    void SourceRemoveCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream&) const
+    {
+        const std::string& name = *inv.GetArg(s_SourceCommand_ArgName_Name);
+        out << LOCME("Removing source: ") << name << "..." << std::endl;
+        if (!Repository::RemoveSource(name))
+        {
+            out << LOCME("Could not find a source by that name.") << std::endl;
+        }
+        else
+        {
+            out << LOCME("Done") << std::endl;
         }
     }
 }
