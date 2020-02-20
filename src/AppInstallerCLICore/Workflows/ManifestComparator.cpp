@@ -38,9 +38,9 @@ namespace AppInstaller::Workflow
         return true;
     }
 
-    ManifestInstaller ManifestComparator::GetPreferredInstaller(const std::locale& preferredLocale)
+    ManifestInstaller ManifestComparator::GetPreferredInstaller(const AppInstaller::CLI::Invocation&)
     {
-        AICLI_LOG(CLI, Info, << "Starting installer selection. Preferred locale: " << preferredLocale.name());
+        AICLI_LOG(CLI, Info, << "Starting installer selection.");
 
         // Sorting the list of availlable installers according to rules defined in InstallerComparator.
         std::sort(m_manifestRef.Installers.begin(), m_manifestRef.Installers.end(), InstallerComparator());
@@ -64,9 +64,9 @@ namespace AppInstaller::Workflow
         return selectedInstaller;
     }
 
-    ManifestLocalization ManifestComparator::GetPreferredLocalization(const std::locale& preferredLocale)
+    ManifestLocalization ManifestComparator::GetPreferredLocalization(const AppInstaller::CLI::Invocation&)
     {
-        AICLI_LOG(CLI, Info, << "Starting localization selection. Preferred locale: " << preferredLocale.name());
+        AICLI_LOG(CLI, Info, << "Starting localization selection.");
 
         ManifestLocalization selectedLocalization;
 

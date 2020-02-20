@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #pragma once
+#include "Invocation.h"
 
 namespace AppInstaller::Workflow
 {
@@ -27,8 +28,8 @@ namespace AppInstaller::Workflow
     public:
         ManifestComparator(AppInstaller::Manifest::Manifest& manifest, WorkflowReporter& reporter) : m_manifestRef(manifest), m_reporterRef(reporter) {}
 
-        AppInstaller::Manifest::ManifestInstaller GetPreferredInstaller(const std::locale& preferredLocale);
-        AppInstaller::Manifest::ManifestLocalization GetPreferredLocalization(const std::locale& preferredLocale);
+        AppInstaller::Manifest::ManifestInstaller GetPreferredInstaller(const AppInstaller::CLI::Invocation& args);
+        AppInstaller::Manifest::ManifestLocalization GetPreferredLocalization(const AppInstaller::CLI::Invocation& args);
 
     private:
         AppInstaller::Manifest::Manifest& m_manifestRef;

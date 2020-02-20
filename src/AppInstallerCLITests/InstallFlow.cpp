@@ -67,8 +67,8 @@ public:
 class InstallFlowTest : public InstallFlow
 {
 public:
-    InstallFlowTest(Manifest manifest, const AppInstaller::CLI::Invocation& args, std::ostream& outStream, std::istream& inStream) :
-        InstallFlow(manifest, args, outStream, inStream) {}
+    InstallFlowTest(const AppInstaller::CLI::Invocation& args, std::ostream& outStream, std::istream& inStream) :
+        InstallFlow(args, outStream, inStream) {}
 
 protected:
     std::unique_ptr<InstallerHandlerBase> GetInstallerHandler() override
@@ -93,8 +93,8 @@ TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
 
     std::ostringstream installOutput;
     AppInstaller::CLI::Invocation inv{ {""} };
-    InstallFlowTest testFlow(manifest, inv, installOutput, std::cin);
-    testFlow.Install();
+    InstallFlowTest testFlow(inv, installOutput, std::cin);
+    testFlow.Install(manifest);
     INFO(installOutput.str());
 
     // Verify Installer is called and parameters are passed in.
@@ -115,8 +115,8 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow]")
 
     std::ostringstream installOutput;
     AppInstaller::CLI::Invocation inv{ {""} };
-    InstallFlowTest testFlow(manifest, inv, installOutput, std::cin);
-    REQUIRE_THROWS_WITH(testFlow.Install(), Catch::Contains("No installer with applicable architecture found."));
+    InstallFlowTest testFlow(inv, installOutput, std::cin);
+    REQUIRE_THROWS_WITH(testFlow.Install(manifest), Catch::Contains("No installer with applicable architecture found."));
     INFO(installOutput.str());
 
     // Verify Installer is called and parameters are passed in.
@@ -132,8 +132,8 @@ TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow]")
 
     std::ostringstream installOutput;
     AppInstaller::CLI::Invocation inv{ {""} };
-    InstallFlowTest testFlow(manifest, inv, installOutput, std::cin);
-    testFlow.Install();
+    InstallFlowTest testFlow(inv, installOutput, std::cin);
+    testFlow.Install(manifest);
     INFO(installOutput.str());
 
     // Verify Installer is called and a local file is used as package Uri.
@@ -154,8 +154,8 @@ TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow]")
 
     std::ostringstream installOutput;
     AppInstaller::CLI::Invocation inv{ {""} };
-    InstallFlowTest testFlow(manifest, inv, installOutput, std::cin);
-    testFlow.Install();
+    InstallFlowTest testFlow(inv, installOutput, std::cin);
+    testFlow.Install(manifest);
     INFO(installOutput.str());
 
     // Verify Installer is called and a http address is used as package Uri.

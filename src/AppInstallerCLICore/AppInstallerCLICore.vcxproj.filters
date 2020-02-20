@@ -36,9 +36,6 @@
     <ClInclude Include="Commands\InstallCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
-    <ClInclude Include="Commands\DescribeCommand.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
     <ClInclude Include="Command.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -75,8 +72,20 @@
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h">
       <Filter>Workflows</Filter>
     </ClInclude>
+    <ClInclude Include="Workflows\WorkflowBase.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
     <ClInclude Include="Commands\SourceCommand.h">
       <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\ShowCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\SearchCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\SearchFlow.h">
+      <Filter>Workflows</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -87,9 +96,6 @@
       <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="Commands\InstallCommand.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="Commands\DescribeCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="Command.cpp">
@@ -114,6 +120,18 @@
       <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\WorkflowBase.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ShowCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\SearchCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\SearchFlow.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="Commands\SourceCommand.cpp">

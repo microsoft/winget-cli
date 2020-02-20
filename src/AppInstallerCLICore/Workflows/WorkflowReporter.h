@@ -3,7 +3,9 @@
 
 #pragma once
 
+#include "Manifest/Manifest.h"
 #include "AppInstallerDownloader.h"
+#include "Public/AppInstallerRepositorySearch.h"
 
 namespace AppInstaller::Workflow
 {
@@ -55,13 +57,13 @@ namespace AppInstaller::Workflow
         WorkflowReporter(std::ostream& outStream, std::istream& inStream) :
             out(outStream), in(inStream), m_progressBar(outStream), m_spinner(outStream) {};
 
-        void ShowPackageInfo(
-            const std::string& name,
-            const std::string& version,
-            const std::string& author,
-            const std::string& description,
-            const std::string& homepage,
-            const std::string& licenseUrl);
+        void ShowAppInfo(
+            const AppInstaller::Manifest::Manifest& manifest,
+            const AppInstaller::Manifest::ManifestLocalization& selectedLocalization,
+            const AppInstaller::Manifest::ManifestInstaller& selectedInstaller);
+
+        void ShowSearchResult(
+            const AppInstaller::Repository::SearchResult& result);
 
         bool PromptForBoolResponse(Level level, const std::string& msg);
 
