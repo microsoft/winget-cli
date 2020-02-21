@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #include "pch.h"
+#include "Public/AppInstallerMsixInfo.h"
 #include "HttpStream/HttpRandomAccessStream.h"
 #include "Public/AppInstallerStrings.h"
-#include "Public/AppInstallerMsixInfo.h"
 
 
 using namespace winrt::Windows::Storage::Streams;
@@ -135,5 +134,27 @@ namespace AppInstaller::Msix
         THROW_HR_IF_MSG(E_UNEXPECTED, signatureRead != signatureSize, "Failed to read the whole signature stream");
 
         return signatureContent;
+    }
+
+    std::string MsixInfo::GetPackageFamilyName()
+    {
+        ComPtr<IAppxManifestPackageId> packageId;
+        if (m_isBundle)
+        {
+            ComPtr<IAppxBundleManifestReader> manifestReader;
+            THROW_IF_FAILED(m_bundleReader->GetManifest(&manifestReader));
+            THROW_IF_FAILED(manifestReader->GetPackageId(&packageId));
+        }
+        else
+        {
+            ComPtr<IAppxManifestReader> manifestReader;
+            THROW_IF_FAILED(m_packageReader->GetManifest(&manifestReader));
+            THROW_IF_FAILED(manifestReader->GetPackageId(&packageId));
+        }
+
+        wil::unique_cotaskmem_string familyName;
+        THROW_IF_FAILED(packageId->GetPackageFamilyName(&familyName));
+
+        return Utility::ConvertToUTF8(familyName.get());
     }
 }

@@ -171,7 +171,7 @@
     <ClInclude Include="Manifest\Manifest.h" />
     <ClInclude Include="Manifest\ManifestInstaller.h" />
     <ClInclude Include="Manifest\ManifestLocalization.h" />
-    <ClInclude Include="Microsoft\PreIndexedSource.h" />
+    <ClInclude Include="Microsoft\PreIndexedPackageSourceFactory.h" />
     <ClInclude Include="Microsoft\Schema\1_0\ChannelTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\CommandsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\IdTable.h" />
@@ -199,7 +199,7 @@
     <ClCompile Include="Manifest\Manifest.cpp" />
     <ClCompile Include="Manifest\ManifestInstaller.cpp" />
     <ClCompile Include="Manifest\ManifestLocalization.cpp" />
-    <ClCompile Include="Microsoft\PreIndexedSource.cpp" />
+    <ClCompile Include="Microsoft\PreIndexedPackageSourceFactory.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\Interface.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\ManifestTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\OneToManyTable.cpp" />

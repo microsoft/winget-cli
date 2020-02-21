@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppxPackaging.h>
+#include <wrl/client.h>
+#include <string>
+#include <vector>
 
 namespace AppInstaller::Msix
 {
@@ -34,6 +38,9 @@ namespace AppInstaller::Msix
 
         // Full content of AppxSignature.p7x
         std::vector<byte> GetSignature();
+
+        // Gets the package family name.
+        std::string GetPackageFamilyName();
 
     private:
         bool m_isBundle;

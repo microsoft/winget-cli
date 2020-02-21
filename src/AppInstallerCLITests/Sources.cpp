@@ -94,14 +94,20 @@ struct TestSource : public ISource
 // Helper that allows some lambdas to be wrapped into a source factory.
 struct TestSourceFactory : public ISourceFactory
 {
+    using IsInitializedFunctor = std::function<bool(const SourceDetails&)>;
     using CreateFunctor = std::function<std::unique_ptr<ISource>(const SourceDetails&)>;
     using UpdateFunctor = std::function<void(SourceDetails&)>;
     using RemoveFunctor = std::function<void(const SourceDetails&)>;
 
     TestSourceFactory() :
-        m_Create(TestSource::Create), m_Update([](SourceDetails&) {}), m_Remove([](const SourceDetails&) {}) {}
+        m_isInit([](const SourceDetails&) { return true; }), m_Create(TestSource::Create), m_Update([](SourceDetails&) {}), m_Remove([](const SourceDetails&) {}) {}
 
     // ISourceFactory
+    bool IsInitialized(const SourceDetails& details) override
+    {
+        return m_isInit(details);
+    }
+
     std::unique_ptr<ISource> Create(const SourceDetails& details) override
     {
         return m_Create(details);
@@ -123,6 +129,7 @@ struct TestSourceFactory : public ISourceFactory
         return [this]() { return std::make_unique<TestSourceFactory>(*this); };
     }
 
+    IsInitializedFunctor m_isInit;
     CreateFunctor m_Create;
     UpdateFunctor m_Update;
     RemoveFunctor m_Remove;
@@ -343,4 +350,36 @@ TEST_CASE("RepoSources_RemoveSource", "[sources]")
 
     sources = GetSources();
     REQUIRE(sources.empty());
+}
+
+TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
+{
+    using namespace std::chrono_literals;
+
+    RemoveSetting(s_RepositorySettings_UserSources);
+    TestHook_ClearSourceFactoryOverrides();
+
+    std::string name = "testName";
+    std::string type = "testType";
+    std::string arg = "testArg";
+    std::string data = "testDataOnUpdate";
+
+    bool updateCalledOnFactory = false;
+    TestSourceFactory factory;
+    factory.m_isInit = [](const SourceDetails&) { return false; };
+    factory.m_Update = [&](SourceDetails& sd) { updateCalledOnFactory = true; sd.Data = data; };
+    TestHook_SetSourceFactoryOverride(type, factory);
+
+    SetSetting(s_RepositorySettings_UserSources, s_SingleSource);
+
+    REQUIRE(updateCalledOnFactory);
+
+    std::vector<SourceDetails> sources = GetSources();
+    REQUIRE(sources.size() == 1);
+
+    REQUIRE(sources[0].Name == name);
+    REQUIRE(sources[0].Type == type);
+    REQUIRE(sources[0].Arg == arg);
+    REQUIRE(sources[0].Data == data);
+    REQUIRE(sources[0].LastUpdateTime == ConvertUnixEpochToSystemClock(0));
 }

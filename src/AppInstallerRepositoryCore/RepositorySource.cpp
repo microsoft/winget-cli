@@ -4,7 +4,7 @@
 #include "Public/AppInstallerRepositorySource.h"
 
 #include "SourceFactory.h"
-#include "Microsoft/PreIndexedSource.h"
+#include "Microsoft/PreIndexedPackageSourceFactory.h"
 
 namespace AppInstaller::Repository
 {
@@ -173,9 +173,9 @@ namespace AppInstaller::Repository
 
             // For now, enable an empty type to represent the only one we have.
             if (type.empty() ||
-                Utility::CaseInsensitiveEquals(Microsoft::PreIndexedSource::Type(), type))
+                Utility::CaseInsensitiveEquals(Microsoft::PreIndexedPackageSourceFactory::Type(), type))
             {
-                return Microsoft::PreIndexedSource::CreateFactory();
+                return Microsoft::PreIndexedPackageSourceFactory::Create();
             }
 
             THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
