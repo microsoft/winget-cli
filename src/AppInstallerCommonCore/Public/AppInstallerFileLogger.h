@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "Public/AppInstallerLogging.h"
+#include <AppInstallerLogging.h>
 
 #include <filesystem>
 #include <fstream>
