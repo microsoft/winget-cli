@@ -12,8 +12,10 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Management.Deployment.h>
 
+#include <wil/resource.h>
 #include <wil/result_macros.h>
 
+#include <atomic>
 #include <filesystem>
 #include <fstream>
 #include <future>

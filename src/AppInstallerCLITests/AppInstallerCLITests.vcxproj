@@ -166,6 +166,7 @@
     <ClCompile Include="Sources.cpp" />
     <ClCompile Include="SQLiteIndex.cpp" />
     <ClCompile Include="SQLiteWrapper.cpp" />
+    <ClCompile Include="Synchronization.cpp" />
     <ClCompile Include="TestCommon.cpp" />
     <ClCompile Include="YamlManifest.cpp" />
   </ItemGroup>
