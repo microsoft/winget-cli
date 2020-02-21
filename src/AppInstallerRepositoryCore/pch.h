@@ -11,13 +11,16 @@
 #include <AppInstallerRuntime.h>
 #include <AppInstallerSHA256.h>
 #include <AppInstallerStrings.h>
+#include <AppInstallerSynchronization.h>
 #include <yaml-cpp/yaml.h>
 
 #include <wil/result_macros.h>
 
 #include <winsqlite/winsqlite3.h>
 
+#include <winrt/Windows.ApplicationModel.h>
 #include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Foundation.Collections.h>
 
 #include <algorithm>
 #include <filesystem>

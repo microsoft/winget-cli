@@ -181,6 +181,11 @@ namespace AppInstaller::Repository
             THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
         }
 
+        bool CheckIfInitializedFromDetails(const SourceDetails& details)
+        {
+            return GetFactoryForType(details.Type)->IsInitialized(details);
+        }
+
         std::unique_ptr<ISource> CreateSourceFromDetails(const SourceDetails& details)
         {
             return GetFactoryForType(details.Type)->Create(details);
@@ -193,8 +198,22 @@ namespace AppInstaller::Repository
 
         void RemoveSourceFromDetails(const SourceDetails& details)
         {
-            GetFactoryForType(details.Type)->Remove(details);
+            auto factory = GetFactoryForType(details.Type);
+
+            if (factory->IsInitialized(details))
+            {
+                factory->Remove(details);
+            }
+            else
+            {
+                AICLI_LOG(Repo, Info, << "Uninitialized source being removed, making it a no-op: " << details.Name);
+            }
         }
+    }
+
+    std::vector<SourceDetails> GetSources()
+    {
+        return GetSourcesFromSetting(s_RepositorySettings_UserSources);
     }
 
     void AddSource(std::string name, std::string type, std::string arg)
@@ -227,11 +246,10 @@ namespace AppInstaller::Repository
 
     std::unique_ptr<ISource> OpenSource(std::string_view name)
     {
+        std::vector<SourceDetails> currentSources = GetSources();
+
         if (name.empty())
         {
-            // TODO: Create aggregate source here.  For now, just get the first in the list.
-            std::vector<SourceDetails> currentSources = GetSources();
-
             if (currentSources.empty())
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, but no sources configured");
@@ -239,13 +257,13 @@ namespace AppInstaller::Repository
             }
             else
             {
+                // TODO: Create aggregate source here.  For now, just get the first in the list.
                 AICLI_LOG(Repo, Info, << "Default source requested, using first source: " << currentSources[0].Name);
-                return CreateSourceFromDetails(currentSources[0]);
+                return OpenSource(currentSources[0].Name);
             }
         }
         else
         {
-            std::vector<SourceDetails> currentSources = GetSources();
             auto itr = FindSourceByName(currentSources, name);
             
             if (itr == currentSources.end())
@@ -256,14 +274,15 @@ namespace AppInstaller::Repository
             else
             {
                 AICLI_LOG(Repo, Info, << "Named source requested, found: " << itr->Name);
+                if (!CheckIfInitializedFromDetails(*itr))
+                {
+                    AICLI_LOG(Repo, Info, << "Source needs to be initialized during open: " << itr->Name);
+                    UpdateSourceFromDetails(*itr);
+                    SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
+                }
                 return CreateSourceFromDetails(*itr);
             }
         }
-    }
-
-    std::vector<SourceDetails> GetSources()
-    {
-        return GetSourcesFromSetting(s_RepositorySettings_UserSources);
     }
 
     bool UpdateSource(std::string_view name)

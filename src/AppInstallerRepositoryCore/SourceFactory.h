@@ -13,6 +13,9 @@ namespace AppInstaller::Repository
     {
         virtual ~ISourceFactory() = default;
 
+        // Returns a value indicating whether the source details reference a source that is properly initialized.
+        virtual bool IsInitialized(const SourceDetails& details) = 0;
+
         // Creates a source object from the given details.
         virtual std::unique_ptr<ISource> Create(const SourceDetails& details) = 0;
 

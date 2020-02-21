@@ -12,6 +12,8 @@ namespace AppInstaller::Repository::Microsoft
     // In addition, the manifest files are also individually available on the server.
     struct PreIndexedSource : public ISource
     {
+        PreIndexedSource(const SourceDetails& details);
+
         PreIndexedSource(const PreIndexedSource&) = delete;
         PreIndexedSource& operator=(const PreIndexedSource&) = delete;
 
@@ -35,5 +37,8 @@ namespace AppInstaller::Repository::Microsoft
 
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
+
+    private:
+        SourceDetails m_details;
     };
 }
