@@ -7,16 +7,17 @@
 
 namespace AppInstaller::Workflow
 {
-    class SearchFlow : public WorkflowBase
+    class ShowFlow : public WorkflowBase
     {
     public:
-        SearchFlow(const AppInstaller::CLI::Invocation& args, std::ostream& outStream, std::istream& inStream) :
+        ShowFlow(const AppInstaller::CLI::Invocation& args, std::ostream& outStream, std::istream& inStream) :
             WorkflowBase(args, outStream, inStream) {}
 
         void Execute();;
 
     protected:
 
-        void ProcessSearchResult();
+        void ShowAppInfo();
+        void ShowAppVersion();
     };
 }

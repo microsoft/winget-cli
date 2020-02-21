@@ -15,18 +15,14 @@ using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::Workflow
 {
-    void InstallFlow::Execute(bool showInfoOnly)
+    void InstallFlow::Execute()
     {
         m_searchResult = WorkflowBase::IndexSearch();
 
-        if (ProcessSearchResult())
+        if (WorkflowBase::EnsureOneMatchFromSearchResult())
         {
-            ProcessManifestAndShowInfo();
-
-            if (!showInfoOnly)
-            {
-                InstallInternal();
-            }
+            GetManifest();
+            InstallInternal();
         }
     }
 
@@ -34,30 +30,35 @@ namespace AppInstaller::Workflow
     {
         m_manifest = manifest;
 
-        ProcessManifestAndShowInfo();
-
         InstallInternal();
     }
 
     void InstallFlow::InstallInternal()
     {
+        Logging::Telemetry().LogManifestFields(m_manifest.Name, m_manifest.Version);
+
+        // Select Installer
+        ManifestComparator manifestComparator(m_manifest, m_reporter);
+        m_selectedInstaller = manifestComparator.GetPreferredInstaller(m_argsRef);
+
         auto installerHandler = GetInstallerHandler();
 
         installerHandler->Download();
         installerHandler->Install();
     }
 
-    void InstallFlow::ProcessManifestAndShowInfo()
+    void InstallFlow::GetManifest()
     {
-        Logging::Telemetry().LogManifestFields(m_manifest.Name, m_manifest.Version);
+        auto app = m_searchResult.Matches.at(0).Application.get();
 
-        ManifestComparator manifestComparator(m_manifest, m_reporter);
+        AICLI_LOG(CLI, Info, << "Found one app. App id: " << app->GetId() << " App name: " << app->GetName());
+        m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Found app: " + app->GetName());
 
-        m_selectedLocalization = manifestComparator.GetPreferredLocalization(m_argsRef);
-
-        m_selectedInstaller = manifestComparator.GetPreferredInstaller(m_argsRef);
-
-        m_reporter.ShowAppInfo(m_manifest, m_selectedLocalization, m_selectedInstaller);
+        // Todo: handle failure if necessary after real search is in place
+        m_manifest = app->GetManifest(
+            m_argsRef.Contains(CLI::ARG_VERSION) ? *m_argsRef.GetArg(CLI::ARG_VERSION) : "",
+            m_argsRef.Contains(CLI::ARG_CHANNEL) ? *m_argsRef.GetArg(CLI::ARG_CHANNEL) : ""
+        );
     }
 
     std::unique_ptr<InstallerHandlerBase> InstallFlow::GetInstallerHandler()
@@ -76,35 +77,5 @@ namespace AppInstaller::Workflow
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
-    }
-
-    bool InstallFlow::ProcessSearchResult()
-    {
-        if (m_searchResult.Matches.size() == 0)
-        {
-            AICLI_LOG(Repo, Info, << "No app found matching input criteria");
-            m_reporter.ShowMsg(WorkflowReporter::Level::Info, "No app found matching input criteria.");
-            return false;
-        }
-
-        if (m_searchResult.Matches.size() > 1)
-        {
-            AICLI_LOG(Repo, Info, << "Multiple apps found matching input criteria");
-            m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Multiple apps found matching input criteria. Please refine the input.");
-            m_reporter.ShowSearchResult(m_searchResult);
-            return false;
-        }
-
-        auto app = m_searchResult.Matches.at(0).Application.get();
-
-        AICLI_LOG(Repo, Info, << "Found one app. App id: " << app->GetId() << " App name: " << app->GetName());
-        m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Found app: " + app->GetName());
-
-        // Todo: handle failure if necessary after real search is in place
-        m_manifest = app->GetManifest(
-            m_argsRef.Contains(CLI::ARG_VERSION) ? *m_argsRef.GetArg(CLI::ARG_VERSION) : "",
-            m_argsRef.Contains(CLI::ARG_CHANNEL) ? *m_argsRef.GetArg(CLI::ARG_CHANNEL) : ""
-        );
-        return true;
     }
 }

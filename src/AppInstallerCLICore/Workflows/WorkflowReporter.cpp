@@ -6,45 +6,6 @@
 
 namespace AppInstaller::Workflow
 {
-    void WorkflowReporter::ShowAppInfo(
-        const AppInstaller::Manifest::Manifest& manifest,
-        const AppInstaller::Manifest::ManifestLocalization& selectedLocalization,
-        const AppInstaller::Manifest::ManifestInstaller& selectedInstaller)
-    {
-        out << "Id: " << manifest.Id << std::endl;
-        out << "Name: " << manifest.Name << std::endl;
-        out << "Version: " << manifest.Version << std::endl;
-        out << "Author: " << manifest.Author << std::endl;
-        out << "AppMoniker: " << manifest.AppMoniker << std::endl;
-        out << "Description: " << selectedLocalization.Description << std::endl;
-        out << "Homepage: " << selectedLocalization.Homepage << std::endl;
-        out << "License: " << selectedLocalization.LicenseUrl << std::endl;
-
-        out << "Installer info:" << manifest.Id << std::endl;
-        out << "--Installer Type: " << selectedInstaller.InstallerType << std::endl;
-        out << "--Installer Language: " << selectedInstaller.Language << std::endl;
-        out << "--Installer SHA256: " << Utility::SHA256::ConvertToString(selectedInstaller.Sha256) << std::endl;
-        out << "--Installer Download Url: " << selectedInstaller.Url << std::endl;
-    }
-
-    void WorkflowReporter::ShowSearchResult(const AppInstaller::Repository::SearchResult& result)
-    {
-        for (auto& match : result.Matches)
-        {
-            auto app = match.Application.get();
-            out << "App Id: " << app->GetId() << std::endl;
-            out << "App Name: " << app->GetName() << std::endl;
-            out << "Available Versions:" << std::endl;
-
-            for (auto& version : app->GetVersions())
-            {
-                out << "  Version: " << version.first << ", Channel: " << version.second << std::endl;
-            }
-
-            out << std::endl;
-        }
-    }
-
     bool WorkflowReporter::PromptForBoolResponse(Level level, const std::string& msg)
     {
         UNREFERENCED_PARAMETER(level);

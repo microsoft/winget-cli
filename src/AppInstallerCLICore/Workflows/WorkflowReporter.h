@@ -57,14 +57,6 @@ namespace AppInstaller::Workflow
         WorkflowReporter(std::ostream& outStream, std::istream& inStream) :
             out(outStream), in(inStream), m_progressBar(outStream), m_spinner(outStream) {};
 
-        void ShowAppInfo(
-            const AppInstaller::Manifest::Manifest& manifest,
-            const AppInstaller::Manifest::ManifestLocalization& selectedLocalization,
-            const AppInstaller::Manifest::ManifestInstaller& selectedInstaller);
-
-        void ShowSearchResult(
-            const AppInstaller::Repository::SearchResult& result);
-
         bool PromptForBoolResponse(Level level, const std::string& msg);
 
         void ShowMsg(Level level, const std::string& msg);

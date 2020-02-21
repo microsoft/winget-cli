@@ -18,9 +18,15 @@ namespace AppInstaller::Workflow
         WorkflowReporter m_reporter;
         const AppInstaller::CLI::Invocation& m_argsRef;
 
-        AppInstaller::Repository::SearchResult IndexSearch();
         virtual void OpenIndexSource();
 
+        AppInstaller::Repository::SearchResult IndexSearch();
+
+        bool EnsureOneMatchFromSearchResult();
+
+        void ReportSearchResult();
+
         std::unique_ptr<AppInstaller::Repository::ISource> m_source;
+        AppInstaller::Repository::SearchResult m_searchResult;
     };
 }

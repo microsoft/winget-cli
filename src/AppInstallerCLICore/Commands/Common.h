@@ -27,4 +27,5 @@ namespace AppInstaller::CLI
     static constexpr std::string_view ARG_EXACT = "exact"sv;
     static constexpr std::string_view ARG_VERSION = "version"sv;
     static constexpr std::string_view ARG_CHANNEL = "channel"sv;
+    static constexpr std::string_view ARG_LISTVERSIONS = "listversions"sv;
 }

@@ -59,7 +59,7 @@
     <ClCompile Include="Sources.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InstallFlow.cpp">
+    <ClCompile Include="WorkFlow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Synchronization.cpp">

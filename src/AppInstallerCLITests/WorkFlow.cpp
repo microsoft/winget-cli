@@ -8,6 +8,7 @@
 #include "AppInstallerDownloader.h"
 #include "AppInstallerStrings.h"
 #include "Workflows/InstallFlow.h"
+#include "Workflows/ShowFlow.h"
 #include "Workflows/ShellExecuteInstallerHandler.h"
 #include "Workflows/MsixInstallerHandler.h"
 #include "Public/AppInstallerRepositorySource.h"
@@ -130,8 +131,6 @@ struct TestSource : public ISource
     }
 
     virtual const SourceDetails& GetDetails() const override { THROW_HR(E_NOTIMPL); }
-
-    void Update() override { THROW_HR(E_NOTIMPL); }
 };
 
 class InstallFlowTest : public InstallFlow
@@ -153,6 +152,20 @@ protected:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
     }
+
+    void OpenIndexSource() override
+    {
+        m_source = std::make_unique<TestSource>();
+    }
+};
+
+class ShowFlowTest : public ShowFlow
+{
+public:
+    ShowFlowTest(const AppInstaller::CLI::Invocation& args, std::ostream& outStream, std::istream& inStream) :
+        ShowFlow(args, outStream, inStream) {}
+
+protected:
 
     void OpenIndexSource() override
     {
@@ -360,27 +373,6 @@ TEST_CASE("InstallFlow_SearchAndInstall", "[InstallFlow]")
     REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
 }
 
-TEST_CASE("InstallFlow_SearchAndShowInfoonly", "[InstallFlow]")
-{
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
-    std::ostringstream installOutput;
-    AppInstaller::CLI::Invocation inv{ {""} };
-    inv.AddArg(AppInstaller::CLI::ARG_QUERY, "TestQueryReturnOne");
-    InstallFlowTest testFlow(inv, installOutput, std::cin);
-    testFlow.Execute(true);
-    INFO(installOutput.str());
-
-    // Verify Installer is not called
-    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
-
-    // Verify AppInfo is printed
-    REQUIRE(installOutput.str().find("Id: AppInstallerCliTest.TestInstaller") != std::string::npos);
-    REQUIRE(installOutput.str().find("Name: AppInstaller Test Installer") != std::string::npos);
-    REQUIRE(installOutput.str().find("Version: 1.0.0.0") != std::string::npos);
-    REQUIRE(installOutput.str().find("--Installer Download Url: https://ThisIsNotUsed") != std::string::npos);
-}
-
 TEST_CASE("InstallFlow_SearchFoundNoApp", "[InstallFlow]")
 {
     std::ostringstream installOutput;
@@ -405,4 +397,36 @@ TEST_CASE("InstallFlow_SearchFoundMultipleApp", "[InstallFlow]")
 
     // Verify proper message is printed
     REQUIRE(installOutput.str().find("Multiple apps found matching input criteria. Please refine the input.") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_SearchAndShowAppInfo", "[ShowFlow]")
+{
+    std::ostringstream showOutput;
+    AppInstaller::CLI::Invocation inv{ {""} };
+    inv.AddArg(AppInstaller::CLI::ARG_QUERY, "TestQueryReturnOne");
+    ShowFlowTest testFlow(inv, showOutput, std::cin);
+    testFlow.Execute();
+    INFO(showOutput.str());
+
+    // Verify AppInfo is printed
+    REQUIRE(showOutput.str().find("Id: AppInstallerCliTest.TestInstaller") != std::string::npos);
+    REQUIRE(showOutput.str().find("Name: AppInstaller Test Installer") != std::string::npos);
+    REQUIRE(showOutput.str().find("Version: 1.0.0.0") != std::string::npos);
+    REQUIRE(showOutput.str().find("--Installer Download Url: https://ThisIsNotUsed") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_SearchAndShowAppVersion", "[ShowFlow]")
+{
+    std::ostringstream showOutput;
+    AppInstaller::CLI::Invocation inv{ {""} };
+    inv.AddArg(AppInstaller::CLI::ARG_QUERY, "TestQueryReturnOne");
+    inv.AddArg(AppInstaller::CLI::ARG_LISTVERSIONS);
+    ShowFlowTest testFlow(inv, showOutput, std::cin);
+    testFlow.Execute();
+    INFO(showOutput.str());
+
+    // Verify App version is printed
+    REQUIRE(showOutput.str().find("Version: 1.0.0.0") != std::string::npos);
+    // No manifest info is printed
+    REQUIRE(showOutput.str().find("--Installer Download Url: https://ThisIsNotUsed") == std::string::npos);
 }

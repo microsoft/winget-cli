@@ -87,6 +87,9 @@
     <ClInclude Include="Workflows\SearchFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
+    <ClInclude Include="Workflows\ShowFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -103,9 +106,6 @@
     </ClCompile>
     <ClCompile Include="Core.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Workflows\InstallFlow.cpp">
-      <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="Workflows\ManifestComparator.cpp">
       <Filter>Workflows</Filter>
@@ -136,6 +136,12 @@
     </ClCompile>
     <ClCompile Include="Commands\SourceCommand.cpp">
       <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\ShowFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\InstallFlow.cpp">
+      <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

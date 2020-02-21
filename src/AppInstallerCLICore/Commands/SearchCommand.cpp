@@ -39,8 +39,8 @@ namespace AppInstaller::CLI
 
     void SearchCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const
     {
-        SearchFlow appInstall(inv, out, in);
+        SearchFlow appSearch(inv, out, in);
 
-        appInstall.Execute();
+        appSearch.Execute();
     }
 }

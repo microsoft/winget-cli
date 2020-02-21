@@ -4,7 +4,7 @@
 #include "Common.h"
 #include "ShowCommand.h"
 #include "Localization.h"
-#include "Workflows\InstallFlow.h"
+#include "Workflows\ShowFlow.h"
 
 namespace AppInstaller::CLI
 {
@@ -21,6 +21,7 @@ namespace AppInstaller::CLI
             Argument{ ARG_CHANNEL, LOCME("If specified, use the specified channel. Default is general audience"), ArgumentType::Standard },
             Argument{ ARG_SOURCE, LOCME("If specified, find app using the specified source. Default is all source"), ArgumentType::Standard },
             Argument{ ARG_EXACT, LOCME("If specified, find app using exact match"), ArgumentType::Flag },
+            Argument{ ARG_LISTVERSIONS, LOCME("If specified, only show available versions of the app"), ArgumentType::Flag },
         };
     }
 
@@ -38,8 +39,8 @@ namespace AppInstaller::CLI
 
     void ShowCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const
     {
-        InstallFlow appInstall(inv, out, in);
+        ShowFlow appShowInfo(inv, out, in);
 
-        appInstall.Execute(true);
+        appShowInfo.Execute();
     }
 }
