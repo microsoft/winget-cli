@@ -51,7 +51,7 @@ TEST_CASE("CPRWL_WriterBlocksReader", "[CrossProcessReaderWriteLock]")
     REQUIRE(signal.wait(1000));
 }
 
-TEST_CASE("CPRWL_WriterReaderBlocksWriter", "[CrossProcessReaderWriteLock]")
+TEST_CASE("CPRWL_ReaderBlocksWriter", "[CrossProcessReaderWriteLock]")
 {
     std::string name = "AppInstCPRWLTests";
 
@@ -60,6 +60,30 @@ TEST_CASE("CPRWL_WriterReaderBlocksWriter", "[CrossProcessReaderWriteLock]")
 
     {
         CrossProcessReaderWriteLock mainThreadLock = CrossProcessReaderWriteLock::LockForRead(name);
+
+        std::thread otherThread([&name, &signal]() {
+            CrossProcessReaderWriteLock otherThreadLock = CrossProcessReaderWriteLock::LockForWrite(name);
+            signal.SetEvent();
+            });
+        // In the event of bugs, we don't want to block the test waiting forever
+        otherThread.detach();
+
+        REQUIRE(!signal.wait(1000));
+    }
+
+    // Upon release of the writer, the other thread should signal
+    REQUIRE(signal.wait(1000));
+}
+
+TEST_CASE("CPRWL_WriterBlocksWriter", "[CrossProcessReaderWriteLock]")
+{
+    std::string name = "AppInstCPRWLTests";
+
+    wil::unique_event signal;
+    signal.create();
+
+    {
+        CrossProcessReaderWriteLock mainThreadLock = CrossProcessReaderWriteLock::LockForWrite(name);
 
         std::thread otherThread([&name, &signal]() {
             CrossProcessReaderWriteLock otherThreadLock = CrossProcessReaderWriteLock::LockForWrite(name);
