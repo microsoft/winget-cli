@@ -84,6 +84,9 @@
     <ClInclude Include="Public\AppInstallerSynchronization.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="Public\AppInstallerFuture.h">
+      <Filter>Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

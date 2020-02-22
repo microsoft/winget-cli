@@ -176,6 +176,7 @@
     <ClInclude Include="Public\AppInstallerDownloader.h" />
     <ClInclude Include="Public\AppInstallerErrors.h" />
     <ClInclude Include="Public\AppInstallerFileLogger.h" />
+    <ClInclude Include="Public\AppInstallerFuture.h" />
     <ClInclude Include="Public\AppInstallerLanguageUtilities.h" />
     <ClInclude Include="Public\AppInstallerMsixInfo.h" />
     <ClInclude Include="Public\AppInstallerRuntime.h" />
