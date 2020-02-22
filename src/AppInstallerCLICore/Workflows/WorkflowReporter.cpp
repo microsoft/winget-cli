@@ -6,23 +6,6 @@
 
 namespace AppInstaller::Workflow
 {
-    void WorkflowReporter::ShowPackageInfo(
-        const std::string& name,
-        const std::string& version,
-        const std::string& author,
-        const std::string& description,
-        const std::string& homepage,
-        const std::string& licenseUrl
-    )
-    {
-        out << "Name: " << name << std::endl;
-        out << "Version: " << version << std::endl;
-        out << "Author: " << author << std::endl;
-        out << "Description: " << description << std::endl;
-        out << "Homepage: " << homepage << std::endl;
-        out << "License: " << licenseUrl << std::endl;
-    }
-
     bool WorkflowReporter::PromptForBoolResponse(Level level, const std::string& msg)
     {
         UNREFERENCED_PARAMETER(level);

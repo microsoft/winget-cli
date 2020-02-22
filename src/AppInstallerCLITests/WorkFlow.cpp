@@ -8,8 +8,11 @@
 #include "AppInstallerDownloader.h"
 #include "AppInstallerStrings.h"
 #include "Workflows/InstallFlow.h"
+#include "Workflows/ShowFlow.h"
 #include "Workflows/ShellExecuteInstallerHandler.h"
 #include "Workflows/MsixInstallerHandler.h"
+#include "Public/AppInstallerRepositorySource.h"
+#include "Public/AppInstallerRepositorySearch.h"
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
@@ -17,6 +20,7 @@ using namespace TestCommon;
 using namespace AppInstaller::Workflow;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
+using namespace AppInstaller::Repository;
 
 class MsixInstallerHandlerTest : public MsixInstallerHandler
 {
@@ -64,11 +68,76 @@ public:
     }
 };
 
+struct TestSource : public ISource
+{
+    struct TestApplication : public IApplication
+    {
+        TestApplication(const Manifest manifest) : m_manifest(manifest) {}
+
+        Manifest GetManifest(std::string_view, std::string_view) const override
+        {
+            return m_manifest;
+        }
+
+        std::string GetId() const override
+        {
+            return m_manifest.Id;
+        }
+
+        std::string GetName() const override
+        {
+            return m_manifest.Name;
+        }
+
+        std::vector<std::pair<std::string, std::string>> GetVersions() const override
+        {
+            std::vector<std::pair<std::string, std::string>> result;
+            result.emplace_back(std::make_pair(m_manifest.Version, m_manifest.Channel));
+            return result;
+        }
+
+        Manifest m_manifest;
+    };
+
+    SearchResult Search(const SearchRequest& request) const override
+    {
+        SearchResult result;
+        if (request.Query.has_value())
+        {
+            if (request.Query.value().Value == "TestQueryReturnOne")
+            {
+                auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        std::make_unique<TestApplication>(manifest),
+                        ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, "TestQueryReturnOne")));
+            }
+            else if (request.Query.value().Value == "TestQueryReturnTwo")
+            {
+                auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        std::make_unique<TestApplication>(manifest),
+                        ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
+
+                auto manifest2 = Manifest::CreateFromPath(TestDataFile("GoodManifest.yml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        std::make_unique<TestApplication>(manifest2),
+                        ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
+            }
+        }
+        return result;
+    }
+
+    virtual const SourceDetails& GetDetails() const override { THROW_HR(E_NOTIMPL); }
+};
+
 class InstallFlowTest : public InstallFlow
 {
 public:
-    InstallFlowTest(Manifest manifest, const AppInstaller::CLI::Invocation& args, std::ostream& outStream, std::istream& inStream) :
-        InstallFlow(manifest, args, outStream, inStream) {}
+    InstallFlowTest(const AppInstaller::CLI::Invocation& args, std::ostream& outStream, std::istream& inStream) :
+        InstallFlow(args, outStream, inStream) {}
 
 protected:
     std::unique_ptr<InstallerHandlerBase> GetInstallerHandler() override
@@ -83,18 +152,36 @@ protected:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
     }
+
+    void OpenIndexSource() override
+    {
+        m_source = std::make_unique<TestSource>();
+    }
+};
+
+class ShowFlowTest : public ShowFlow
+{
+public:
+    ShowFlowTest(const AppInstaller::CLI::Invocation& args, std::ostream& outStream, std::istream& inStream) :
+        ShowFlow(args, outStream, inStream) {}
+
+protected:
+
+    void OpenIndexSource() override
+    {
+        m_source = std::make_unique<TestSource>();
+    }
 };
 
 TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
-    auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yml"));
-
     std::ostringstream installOutput;
     AppInstaller::CLI::Invocation inv{ {""} };
-    InstallFlowTest testFlow(manifest, inv, installOutput, std::cin);
-    testFlow.Install();
+    inv.AddArg(AppInstaller::CLI::ARG_MANIFEST, TestDataFile("InstallFlowTest_Exe.yml").GetPath().u8string());
+    InstallFlowTest testFlow(inv, installOutput, std::cin);
+    testFlow.Execute();
     INFO(installOutput.str());
 
     // Verify Installer is called and parameters are passed in.
@@ -111,12 +198,11 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
-    auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_NoApplicableArchitecture.yml"));
-
     std::ostringstream installOutput;
     AppInstaller::CLI::Invocation inv{ {""} };
-    InstallFlowTest testFlow(manifest, inv, installOutput, std::cin);
-    REQUIRE_THROWS_WITH(testFlow.Install(), Catch::Contains("No installer with applicable architecture found."));
+    inv.AddArg(AppInstaller::CLI::ARG_MANIFEST, TestDataFile("InstallFlowTest_NoApplicableArchitecture.yml").GetPath().u8string());
+    InstallFlowTest testFlow(inv, installOutput, std::cin);
+    REQUIRE_THROWS_WITH(testFlow.Execute(), Catch::Contains("No installer with applicable architecture found."));
     INFO(installOutput.str());
 
     // Verify Installer is called and parameters are passed in.
@@ -127,13 +213,12 @@ TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow]")
 {
     TestCommon::TempFile installResultPath("TestMsixInstalled.txt");
 
-    // Todo: point to files from our repo when the repo goes public
-    auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Msix_DownloadFlow.yml"));
-
     std::ostringstream installOutput;
     AppInstaller::CLI::Invocation inv{ {""} };
-    InstallFlowTest testFlow(manifest, inv, installOutput, std::cin);
-    testFlow.Install();
+    // Todo: point to files from our repo when the repo goes public
+    inv.AddArg(AppInstaller::CLI::ARG_MANIFEST, TestDataFile("InstallFlowTest_Msix_DownloadFlow.yml").GetPath().u8string());
+    InstallFlowTest testFlow(inv, installOutput, std::cin);
+    testFlow.Execute();
     INFO(installOutput.str());
 
     // Verify Installer is called and a local file is used as package Uri.
@@ -149,13 +234,12 @@ TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow]")
 {
     TestCommon::TempFile installResultPath("TestMsixInstalled.txt");
 
-    // Todo: point to files from our repo when the repo goes public
-    auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Msix_StreamingFlow.yml"));
-
     std::ostringstream installOutput;
     AppInstaller::CLI::Invocation inv{ {""} };
-    InstallFlowTest testFlow(manifest, inv, installOutput, std::cin);
-    testFlow.Install();
+    // Todo: point to files from our repo when the repo goes public
+    inv.AddArg(AppInstaller::CLI::ARG_MANIFEST, TestDataFile("InstallFlowTest_Msix_StreamingFlow.yml").GetPath().u8string());
+    InstallFlowTest testFlow(inv, installOutput, std::cin);
+    testFlow.Execute();
     INFO(installOutput.str());
 
     // Verify Installer is called and a http address is used as package Uri.
@@ -262,4 +346,83 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         std::string installerArgs = testhandler.TestInstallerArgs();
         REQUIRE(installerArgs == "/OverrideEverything"); // Use value specified in override switch
     }
+}
+
+TEST_CASE("InstallFlow_SearchAndInstall", "[InstallFlow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    AppInstaller::CLI::Invocation inv{ {""} };
+    inv.AddArg(AppInstaller::CLI::ARG_QUERY, "TestQueryReturnOne");
+    InstallFlowTest testFlow(inv, installOutput, std::cin);
+    testFlow.Execute();
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/custom") != std::string::npos);
+    REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_SearchFoundNoApp", "[InstallFlow]")
+{
+    std::ostringstream installOutput;
+    AppInstaller::CLI::Invocation inv{ {""} };
+    inv.AddArg(AppInstaller::CLI::ARG_QUERY, "TestQueryReturnZero");
+    InstallFlowTest testFlow(inv, installOutput, std::cin);
+    testFlow.Execute();
+    INFO(installOutput.str());
+
+    // Verify proper message is printed
+    REQUIRE(installOutput.str().find("No app found matching input criteria.") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_SearchFoundMultipleApp", "[InstallFlow]")
+{
+    std::ostringstream installOutput;
+    AppInstaller::CLI::Invocation inv{ {""} };
+    inv.AddArg(AppInstaller::CLI::ARG_QUERY, "TestQueryReturnTwo");
+    InstallFlowTest testFlow(inv, installOutput, std::cin);
+    testFlow.Execute();
+    INFO(installOutput.str());
+
+    // Verify proper message is printed
+    REQUIRE(installOutput.str().find("Multiple apps found matching input criteria. Please refine the input.") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_SearchAndShowAppInfo", "[ShowFlow]")
+{
+    std::ostringstream showOutput;
+    AppInstaller::CLI::Invocation inv{ {""} };
+    inv.AddArg(AppInstaller::CLI::ARG_QUERY, "TestQueryReturnOne");
+    ShowFlowTest testFlow(inv, showOutput, std::cin);
+    testFlow.Execute();
+    INFO(showOutput.str());
+
+    // Verify AppInfo is printed
+    REQUIRE(showOutput.str().find("Id: AppInstallerCliTest.TestInstaller") != std::string::npos);
+    REQUIRE(showOutput.str().find("Name: AppInstaller Test Installer") != std::string::npos);
+    REQUIRE(showOutput.str().find("Version: 1.0.0.0") != std::string::npos);
+    REQUIRE(showOutput.str().find("--Installer Download Url: https://ThisIsNotUsed") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_SearchAndShowAppVersion", "[ShowFlow]")
+{
+    std::ostringstream showOutput;
+    AppInstaller::CLI::Invocation inv{ {""} };
+    inv.AddArg(AppInstaller::CLI::ARG_QUERY, "TestQueryReturnOne");
+    inv.AddArg(AppInstaller::CLI::ARG_LISTVERSIONS);
+    ShowFlowTest testFlow(inv, showOutput, std::cin);
+    testFlow.Execute();
+    INFO(showOutput.str());
+
+    // Verify App version is printed
+    REQUIRE(showOutput.str().find("Version: 1.0.0.0") != std::string::npos);
+    // No manifest info is printed
+    REQUIRE(showOutput.str().find("--Installer Download Url: https://ThisIsNotUsed") == std::string::npos);
 }

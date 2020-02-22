@@ -5,8 +5,9 @@
 #include "Localization.h"
 
 #include "InstallCommand.h"
-#include "DescribeCommand.h"
+#include "ShowCommand.h"
 #include "SourceCommand.h"
+#include "SearchCommand.h"
 
 namespace AppInstaller::CLI
 {
@@ -14,8 +15,9 @@ namespace AppInstaller::CLI
     {
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
             std::make_unique<InstallCommand>(),
-            std::make_unique<DescribeCommand>(),
+            std::make_unique<ShowCommand>(),
             std::make_unique<SourceCommand>(),
+            std::make_unique<SearchCommand>(),
         });
     }
 

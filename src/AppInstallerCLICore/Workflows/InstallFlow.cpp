@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #include "pch.h"
+#include "Commands/Common.h"
 #include "InstallFlow.h"
 #include "ManifestComparator.h"
 #include "ShellExecuteInstallerHandler.h"
@@ -12,11 +13,34 @@ using namespace winrt::Windows::Management::Deployment;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 
-namespace AppInstaller::Workflow {
-
-    void InstallFlow::Install()
+namespace AppInstaller::Workflow
+{
+    void InstallFlow::Execute()
     {
-        ProcessManifest();
+        if (m_argsRef.Contains(CLI::ARG_MANIFEST))
+        {
+            m_manifest = Manifest::Manifest::CreateFromPath(*(m_argsRef.GetArg(CLI::ARG_MANIFEST)));
+            InstallInternal();
+        }
+        else
+        {
+            WorkflowBase::IndexSearch();
+
+            if (WorkflowBase::EnsureOneMatchFromSearchResult())
+            {
+                GetManifest();
+                InstallInternal();
+            }
+        }
+    }
+
+    void InstallFlow::InstallInternal()
+    {
+        Logging::Telemetry().LogManifestFields(m_manifest.Name, m_manifest.Version);
+
+        // Select Installer
+        ManifestComparator manifestComparator(m_manifest, m_reporter);
+        m_selectedInstaller = manifestComparator.GetPreferredInstaller(m_argsRef);
 
         auto installerHandler = GetInstallerHandler();
 
@@ -24,22 +48,18 @@ namespace AppInstaller::Workflow {
         installerHandler->Install();
     }
 
-    void InstallFlow::ProcessManifest()
+    void InstallFlow::GetManifest()
     {
-        ManifestComparator manifestComparator(m_packageManifest, m_reporter);
+        auto app = m_searchResult.Matches.at(0).Application.get();
 
-        m_selectedLocalization = manifestComparator.GetPreferredLocalization(std::locale(""));
+        AICLI_LOG(CLI, Info, << "Found one app. App id: " << app->GetId() << " App name: " << app->GetName());
+        m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Found app: " + app->GetName());
 
-        m_reporter.ShowPackageInfo(
-            m_packageManifest.Name,
-            m_packageManifest.Version,
-            m_packageManifest.Author,
-            m_selectedLocalization.Description,
-            m_selectedLocalization.Homepage,
-            m_selectedLocalization.LicenseUrl
+        // Todo: handle failure if necessary after real search is in place
+        m_manifest = app->GetManifest(
+            m_argsRef.Contains(CLI::ARG_VERSION) ? *m_argsRef.GetArg(CLI::ARG_VERSION) : "",
+            m_argsRef.Contains(CLI::ARG_CHANNEL) ? *m_argsRef.GetArg(CLI::ARG_CHANNEL) : ""
         );
-
-        m_selectedInstaller = manifestComparator.GetPreferredInstaller(std::locale(""));
     }
 
     std::unique_ptr<InstallerHandlerBase> InstallFlow::GetInstallerHandler()

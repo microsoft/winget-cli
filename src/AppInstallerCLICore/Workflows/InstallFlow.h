@@ -3,28 +3,29 @@
 
 #pragma once
 #include "Common.h"
+#include "WorkflowBase.h"
 #include "Invocation.h"
 #include "InstallerHandlerBase.h"
 #include "WorkflowReporter.h"
 
 namespace AppInstaller::Workflow
 {
-    class InstallFlow
+    class InstallFlow : public WorkflowBase
     {
     public:
-        InstallFlow(AppInstaller::Manifest::Manifest manifest, const AppInstaller::CLI::Invocation& args, std::ostream& outStream, std::istream& inStream) :
-            m_packageManifest(manifest), m_reporter(outStream, inStream), m_argsRef(args) {}
+        InstallFlow(const AppInstaller::CLI::Invocation& args, std::ostream& outStream, std::istream& inStream) :
+            WorkflowBase(args, outStream, inStream) {}
 
-        void Install();
+        // Execute will perform a query against index and do app install if a target app is found.
+        // If a manifest is given with /manifest, use the manifest and no index search is performed.
+        void Execute();
 
     protected:
-        AppInstaller::Manifest::Manifest m_packageManifest;
+        AppInstaller::Manifest::Manifest m_manifest;
         AppInstaller::Manifest::ManifestInstaller m_selectedInstaller;
-        AppInstaller::Manifest::ManifestLocalization m_selectedLocalization;
-        WorkflowReporter m_reporter;
-        const AppInstaller::CLI::Invocation& m_argsRef;
 
-        virtual void ProcessManifest();
+        void GetManifest();
+        void InstallInternal();
 
         // Creates corresponding InstallerHandler according to InstallerType
         virtual std::unique_ptr<InstallerHandlerBase> GetInstallerHandler();
