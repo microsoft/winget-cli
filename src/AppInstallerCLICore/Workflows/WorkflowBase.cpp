@@ -23,7 +23,7 @@ namespace AppInstaller::Workflow
         }
     }
 
-    SearchResult WorkflowBase::IndexSearch()
+    void WorkflowBase::IndexSearch()
     {
         OpenIndexSource();
 
@@ -70,7 +70,7 @@ namespace AppInstaller::Workflow
             searchRequest.MaximumResults = std::stoi(*m_argsRef.GetArg(CLI::ARG_COUNT));
         }
 
-        return m_source->Search(searchRequest);
+        m_searchResult = m_source->Search(searchRequest);
     }
 
     bool WorkflowBase::EnsureOneMatchFromSearchResult()
@@ -102,7 +102,14 @@ namespace AppInstaller::Workflow
 
             // Todo: Assume versions are sorted when returned so we'll use the first one as the latest version
             // Need to call sort if the above is not the case.
-            m_reporter.ShowMsg(WorkflowReporter::Level::Info, app->GetId() + ", " + app->GetName() + ", " + allVersions.at(0).first);
+            std::string msg = app->GetId() + ", " + app->GetName() + ", " + allVersions.at(0).first;
+
+            if (match.MatchCriteria.Field != ApplicationMatchField::Id && match.MatchCriteria.Field != ApplicationMatchField::Name)
+            {
+                msg += ", [" + ApplicationMatchFieldToString(match.MatchCriteria.Field) + ": " + match.MatchCriteria.Value + "]";
+            }
+
+            m_reporter.ShowMsg(WorkflowReporter::Level::Info, msg);
         }
     }
 }

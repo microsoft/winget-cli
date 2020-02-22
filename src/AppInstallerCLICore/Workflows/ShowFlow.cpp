@@ -12,7 +12,7 @@ namespace AppInstaller::Workflow
 {
     void ShowFlow::Execute()
     {
-        m_searchResult = WorkflowBase::IndexSearch();
+        WorkflowBase::IndexSearch();
 
         if (WorkflowBase::EnsureOneMatchFromSearchResult())
         {

@@ -24,7 +24,7 @@ namespace AppInstaller::Workflow
         }
         else
         {
-            m_searchResult = WorkflowBase::IndexSearch();
+            WorkflowBase::IndexSearch();
 
             if (WorkflowBase::EnsureOneMatchFromSearchResult())
             {

@@ -100,4 +100,23 @@ namespace AppInstaller::Repository
         // The full set of results from the search.
         std::vector<ResultMatch> Matches;
     };
+
+    inline std::string ApplicationMatchFieldToString(ApplicationMatchField matchField)
+    {
+        switch (matchField)
+        {
+        case ApplicationMatchField::Command:
+            return "Command";
+        case ApplicationMatchField::Id:
+            return "Id";
+        case ApplicationMatchField::Moniker:
+            return "Moniker";
+        case ApplicationMatchField::Name:
+            return "Name";
+        case ApplicationMatchField::Tag:
+            return "Tag";
+        }
+
+        return "UnknownMatchField";
+    }
 }

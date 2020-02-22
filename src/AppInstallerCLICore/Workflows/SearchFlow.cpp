@@ -10,7 +10,7 @@ namespace AppInstaller::Workflow
 {
     void SearchFlow::Execute()
     {
-        m_searchResult = WorkflowBase::IndexSearch();
+        WorkflowBase::IndexSearch();
 
         ProcessSearchResult();
     }
