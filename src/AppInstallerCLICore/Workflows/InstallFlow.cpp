@@ -17,20 +17,21 @@ namespace AppInstaller::Workflow
 {
     void InstallFlow::Execute()
     {
-        m_searchResult = WorkflowBase::IndexSearch();
-
-        if (WorkflowBase::EnsureOneMatchFromSearchResult())
+        if (m_argsRef.Contains(CLI::ARG_MANIFEST))
         {
-            GetManifest();
+            m_manifest = Manifest::Manifest::CreateFromPath(*(m_argsRef.GetArg(CLI::ARG_MANIFEST)));
             InstallInternal();
         }
-    }
+        else
+        {
+            m_searchResult = WorkflowBase::IndexSearch();
 
-    void InstallFlow::Install(const Manifest::Manifest& manifest)
-    {
-        m_manifest = manifest;
-
-        InstallInternal();
+            if (WorkflowBase::EnsureOneMatchFromSearchResult())
+            {
+                GetManifest();
+                InstallInternal();
+            }
+        }
     }
 
     void InstallFlow::InstallInternal()

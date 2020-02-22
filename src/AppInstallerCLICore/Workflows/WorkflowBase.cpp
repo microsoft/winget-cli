@@ -98,7 +98,11 @@ namespace AppInstaller::Workflow
         for (auto& match : m_searchResult.Matches)
         {
             auto app = match.Application.get();
-            m_reporter.ShowMsg(WorkflowReporter::Level::Info, "App Id: " + app->GetId() + ", App name: " + app->GetName());
+            auto allVersions = app->GetVersions();
+
+            // Todo: Assume versions are sorted when returned so we'll use the first one as the latest version
+            // Need to call sort if the above is not the case.
+            m_reporter.ShowMsg(WorkflowReporter::Level::Info, app->GetId() + ", " + app->GetName() + ", " + allVersions.at(0).first);
         }
     }
 }

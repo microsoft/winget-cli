@@ -17,10 +17,8 @@ namespace AppInstaller::Workflow
             WorkflowBase(args, outStream, inStream) {}
 
         // Execute will perform a query against index and do app install if a target app is found.
+        // If a manifest is given with /manifest, use the manifest and no index search is performed.
         void Execute();
-
-        // Install an app with the given manifest, no query against index is performed.
-        void Install(const Manifest::Manifest& manifest);
 
     protected:
         AppInstaller::Manifest::Manifest m_manifest;

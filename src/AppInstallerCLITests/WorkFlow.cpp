@@ -177,12 +177,11 @@ TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
-    auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yml"));
-
     std::ostringstream installOutput;
     AppInstaller::CLI::Invocation inv{ {""} };
+    inv.AddArg(AppInstaller::CLI::ARG_MANIFEST, TestDataFile("InstallFlowTest_Exe.yml").GetPath().u8string());
     InstallFlowTest testFlow(inv, installOutput, std::cin);
-    testFlow.Install(manifest);
+    testFlow.Execute();
     INFO(installOutput.str());
 
     // Verify Installer is called and parameters are passed in.
@@ -199,12 +198,11 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
-    auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_NoApplicableArchitecture.yml"));
-
     std::ostringstream installOutput;
     AppInstaller::CLI::Invocation inv{ {""} };
+    inv.AddArg(AppInstaller::CLI::ARG_MANIFEST, TestDataFile("InstallFlowTest_NoApplicableArchitecture.yml").GetPath().u8string());
     InstallFlowTest testFlow(inv, installOutput, std::cin);
-    REQUIRE_THROWS_WITH(testFlow.Install(manifest), Catch::Contains("No installer with applicable architecture found."));
+    REQUIRE_THROWS_WITH(testFlow.Execute(), Catch::Contains("No installer with applicable architecture found."));
     INFO(installOutput.str());
 
     // Verify Installer is called and parameters are passed in.
@@ -215,13 +213,12 @@ TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow]")
 {
     TestCommon::TempFile installResultPath("TestMsixInstalled.txt");
 
-    // Todo: point to files from our repo when the repo goes public
-    auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Msix_DownloadFlow.yml"));
-
     std::ostringstream installOutput;
     AppInstaller::CLI::Invocation inv{ {""} };
+    // Todo: point to files from our repo when the repo goes public
+    inv.AddArg(AppInstaller::CLI::ARG_MANIFEST, TestDataFile("InstallFlowTest_Msix_DownloadFlow.yml").GetPath().u8string());
     InstallFlowTest testFlow(inv, installOutput, std::cin);
-    testFlow.Install(manifest);
+    testFlow.Execute();
     INFO(installOutput.str());
 
     // Verify Installer is called and a local file is used as package Uri.
@@ -237,13 +234,12 @@ TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow]")
 {
     TestCommon::TempFile installResultPath("TestMsixInstalled.txt");
 
-    // Todo: point to files from our repo when the repo goes public
-    auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Msix_StreamingFlow.yml"));
-
     std::ostringstream installOutput;
     AppInstaller::CLI::Invocation inv{ {""} };
+    // Todo: point to files from our repo when the repo goes public
+    inv.AddArg(AppInstaller::CLI::ARG_MANIFEST, TestDataFile("InstallFlowTest_Msix_StreamingFlow.yml").GetPath().u8string());
     InstallFlowTest testFlow(inv, installOutput, std::cin);
-    testFlow.Install(manifest);
+    testFlow.Execute();
     INFO(installOutput.str());
 
     // Verify Installer is called and a http address is used as package Uri.

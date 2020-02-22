@@ -59,7 +59,9 @@ namespace AppInstaller::Workflow
     {
         auto app = m_searchResult.Matches.at(0).Application.get();
 
-        m_reporter.ShowMsg(WorkflowReporter::Level::Info, "App Id: " + app->GetId() + ", App name: " + app->GetName());
+        m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Id: " + app->GetId());
+        m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Name: " + app->GetName());
+
         for (auto& version : app->GetVersions())
         {
             m_reporter.ShowMsg(WorkflowReporter::Level::Info, "  Version: " + version.first + ", Channel: " + version.second);

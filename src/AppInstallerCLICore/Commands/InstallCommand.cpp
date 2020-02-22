@@ -41,17 +41,7 @@ namespace AppInstaller::CLI
     {
         InstallFlow appInstall(inv, out, in);
 
-        if (inv.Contains(ARG_MANIFEST))
-        {
-            std::string manifest = *(inv.GetArg(ARG_MANIFEST));
-            Manifest::Manifest packageManifest = Manifest::Manifest::CreateFromPath(manifest);
-
-            appInstall.Install(packageManifest);
-        }
-        else
-        {
-            appInstall.Execute();
-        }
+        appInstall.Execute();
     }
 
     void InstallCommand::ValidateArguments(Invocation& inv) const
