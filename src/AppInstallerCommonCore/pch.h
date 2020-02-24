@@ -33,8 +33,11 @@
 #include <AppxPackaging.h>
 
 #include <chrono>
+#include <cwctype>
 #include <filesystem>
 #include <fstream>
+#include <functional>
+#include <future>
 #include <iomanip>
 #include <limits>
 #include <memory>
@@ -44,5 +47,3 @@
 #include <string_view>
 #include <type_traits>
 #include <vector>
-#include <future>
-#include <cwctype>

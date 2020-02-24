@@ -4,6 +4,7 @@
 #include <atomic>
 #include <future>
 #include <optional>
+#include <type_traits>
 
 namespace AppInstaller
 {
@@ -85,15 +86,35 @@ namespace AppInstaller
             std::atomic<IFutureProgress*> m_receiver = nullptr;
             std::atomic_bool m_cancelled = false;
         };
+
+        // Helper to determine template type info.
+        template <typename T>
+        struct TemplateDeduction
+        {
+            using t = T;
+        };
+
+        template <template<typename> typename T, typename U>
+        struct TemplateDeduction<T<U>>
+        {
+            using t = T<void>;
+        };
+
+        template <typename T>
+        using TemplateDeduction_t = typename TemplateDeduction<T>::t;
     }
 
     // Future wrapper that enables progress to be hooked up by caller.
     template <typename Result>
     struct Future
     {
-        using Task = std::packaged_task<Result(IPromiseKeeperProgress&)>;
+        using Task = std::packaged_task<Result(IPromiseKeeperProgress*)>;
+        using GetResult = std::conditional_t<std::is_same_v<std::optional<void>, details::TemplateDeduction_t<Result>>, Result, std::optional<Result>>;
 
         Future(Task&& task) : m_task(std::move(task)) {}
+
+        template <typename F>
+        explicit Future(F&& f) : m_task(std::move(f)) {}
 
         Future(const Future&) = delete;
         Future& operator=(const Future&) = delete;
@@ -102,16 +123,16 @@ namespace AppInstaller
         Future& operator=(Future&&) = default;
 
         // Cancel the processing of the future, if possible.
-        void Cancel() { m_progress.m_canceled = true; }
+        void Cancel() { m_progress.m_cancelled = true; }
 
         // Gets the result, waiting as required.
         // If cancelled, result depends on promise keeper.
-        std::optional<Result> Get()
+        GetResult Get()
         {
             m_progress.OnStarted();
 
             std::future future = m_task.get_future();
-            m_task(m_progress);
+            m_task(&m_progress);
 
             Result result = future.get();
             if (m_progress.IsCancelled())
