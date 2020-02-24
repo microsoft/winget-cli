@@ -3,6 +3,7 @@
 #pragma once
 #include <atomic>
 #include <future>
+#include <optional>
 
 namespace AppInstaller
 {
@@ -25,18 +26,33 @@ namespace AppInstaller
         // If maximum is 0, the maximum is unknown.
         virtual void OnProgress(uint64_t current, uint64_t maximum, FutureProgressType type) = 0;
 
-        virtual void OnCanceled() = 0;
-
-        virtual void OnCompleted() = 0;
+        // Called when the future is done processing.
+        virtual void OnCompleted(bool cancelled) = 0;
     };
 
+    // Callback interface given to the promise keeper to work with.
+    struct IPromiseKeeper
+    {
+        // Called as progress is made.
+        // If maximum is 0, the maximum is unknown.
+        virtual void OnProgress(uint64_t current, uint64_t maximum, FutureProgressType type) = 0;
+
+        // Returns a value indicating if the future has been cancelled.
+        virtual bool IsCancelled() = 0;
+    };
+
+    namespace details
+    {
+        
+    }
+
     // Future wrapper that enables progress to be hooked up by caller.
-    template <typename Result, typename... Args>
+    template <typename Result>
     struct Future
     {
-        using Task = std::packaged_task<Result, Args...>;
+        using Task = std::packaged_task<Result(IPromiseKeeper&)>;
 
-        Future(Task&& task, FutureProgressType type = FutureProgressType::None);
+        Future(Task&& task) : m_task(std::move(task)) {}
 
         Future(const Future&) = delete;
         Future& operator=(const Future&) = delete;
@@ -45,24 +61,22 @@ namespace AppInstaller
         Future& operator=(Future&&) = default;
 
         // Cancel the processing of the future, if possible.
-        void Cancel();
+        void Cancel() { m_canceled = true; }
 
         // Gets the result, waiting as required.
         // If cancelled, result depends on promise keeper.
-        T Get();
+        std::optional<Result> Get()
+        {
 
-        // Gets the progress type.
-        FutureProgressType GetProgressType() const { return m_progressType; }
+        }
 
         // Sets the progress receiver.
-        // If the future has already started, the OnStarted function will be called synchronously.
-        void SetProgressReceiver(IFutureProgress* receiver);
+        void SetProgressReceiver(IFutureProgress* receiver) { m_receiver = receiver; }
 
     private:
         Task m_task;
-        std::shared_future m_future;
-        FutureProgressType m_progressType;
-        std::atomic_bool m_hasStarted;
-        std::atomic_bool m_canceled;
+        std::future m_future;
+        std::atomic<IFutureProgress*> m_receiver = nullptr;
+        std::atomic_bool m_canceled = false;
     };
 }
