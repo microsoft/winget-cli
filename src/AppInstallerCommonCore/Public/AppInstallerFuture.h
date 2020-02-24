@@ -31,7 +31,7 @@ namespace AppInstaller
     };
 
     // Callback interface given to the promise keeper to work with.
-    struct IPromiseKeeper
+    struct IPromiseKeeperProgress
     {
         // Called as progress is made.
         // If maximum is 0, the maximum is unknown.
@@ -43,14 +43,55 @@ namespace AppInstaller
 
     namespace details
     {
-        
+        struct PromiseKeeperProgress : public IPromiseKeeperProgress
+        {
+            void OnStarted()
+            {
+                IFutureProgress* receiver = GetFutureProgress();
+                if (receiver)
+                {
+                    receiver->OnStarted();
+                }
+            }
+
+            void OnProgress(uint64_t current, uint64_t maximum, FutureProgressType type) override
+            {
+                IFutureProgress* receiver = GetFutureProgress();
+                if (receiver)
+                {
+                    receiver->OnProgress(current, maximum, type);
+                }
+            }
+
+            void OnCompleted(bool cancelled)
+            {
+                IFutureProgress* receiver = GetFutureProgress();
+                if (receiver)
+                {
+                    receiver->OnCompleted(cancelled);
+                }
+            }
+
+            bool IsCancelled() override
+            {
+                return m_cancelled.load();
+            }
+
+            IFutureProgress* GetFutureProgress()
+            {
+                return m_receiver.load();
+            }
+
+            std::atomic<IFutureProgress*> m_receiver = nullptr;
+            std::atomic_bool m_cancelled = false;
+        };
     }
 
     // Future wrapper that enables progress to be hooked up by caller.
     template <typename Result>
     struct Future
     {
-        using Task = std::packaged_task<Result(IPromiseKeeper&)>;
+        using Task = std::packaged_task<Result(IPromiseKeeperProgress&)>;
 
         Future(Task&& task) : m_task(std::move(task)) {}
 
@@ -61,22 +102,35 @@ namespace AppInstaller
         Future& operator=(Future&&) = default;
 
         // Cancel the processing of the future, if possible.
-        void Cancel() { m_canceled = true; }
+        void Cancel() { m_progress.m_canceled = true; }
 
         // Gets the result, waiting as required.
         // If cancelled, result depends on promise keeper.
         std::optional<Result> Get()
         {
+            m_progress.OnStarted();
 
+            std::future future = m_task.get_future();
+            m_task(m_progress);
+
+            Result result = future.get();
+            if (m_progress.IsCancelled())
+            {
+                m_progress.OnCompleted(true);
+                return {};
+            }
+            else
+            {
+                m_progress.OnCompleted(false);
+                return result;
+            }
         }
 
         // Sets the progress receiver.
-        void SetProgressReceiver(IFutureProgress* receiver) { m_receiver = receiver; }
+        void SetProgressReceiver(IFutureProgress* receiver) { m_progress.m_receiver = receiver; }
 
     private:
         Task m_task;
-        std::future m_future;
-        std::atomic<IFutureProgress*> m_receiver = nullptr;
-        std::atomic_bool m_canceled = false;
+        details::PromiseKeeperProgress m_progress;
     };
 }
