@@ -65,6 +65,9 @@
     <ClCompile Include="Synchronization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Future.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
@@ -98,6 +101,8 @@
     <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_WithSwitches.yml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_WithSwitches.yml" />
+    <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_WithSwitches.yml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

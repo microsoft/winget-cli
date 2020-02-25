@@ -18,20 +18,16 @@ namespace AppInstaller::Workflow
 
         AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
 
-        auto downloader = Downloader::StartDownloadAsync(
+        auto future = DownloadAsync(
             m_manifestInstallerRef.Url,
             tempInstallerPath,
-            true,
-            &m_downloaderCallback);
+            true);
 
-        auto downloadResult = downloader->Wait();
+        future.SetProgressReceiver(&m_reporterRef);
 
-        if (downloadResult == DownloaderResult::Failed)
-        {
-            m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Package download failed.");
-            THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED), "Package download failed");
-        }
-        else if (downloadResult == DownloaderResult::Canceled)
+        auto hash = future.Get();
+
+        if (!hash)
         {
             m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Package download canceled.");
             THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED), "Package download canceled");
@@ -40,13 +36,13 @@ namespace AppInstaller::Workflow
         if (!std::equal(
             m_manifestInstallerRef.Sha256.begin(),
             m_manifestInstallerRef.Sha256.end(),
-            downloader->GetDownloadHash().begin()))
+            hash.value().begin()))
         {
             AICLI_LOG(CLI, Error,
                 << "Package hash verification failed. SHA256 in manifest: "
                 << SHA256::ConvertToString(m_manifestInstallerRef.Sha256)
                 << " SHA256 from download: "
-                << SHA256::ConvertToString(downloader->GetDownloadHash()));
+                << SHA256::ConvertToString(hash.value()));
 
             if (!m_reporterRef.PromptForBoolResponse(WorkflowReporter::Level::Warning, "Package hash verification failed. Continue?"))
             {
@@ -61,57 +57,5 @@ namespace AppInstaller::Workflow
         }
 
         m_downloadedInstaller = tempInstallerPath;
-    }
-
-    void InstallerHandlerBase::DownloaderCallback::OnStarted(LONGLONG totalBytes)
-    {
-        m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Starting installer download ...");
-        m_useProgressBar = totalBytes > 0;
-
-        if (m_useProgressBar)
-        {
-            m_reporterRef.ShowProgress(true, 0);
-        }
-        else
-        {
-            m_reporterRef.ShowIndefiniteProgress(true);
-        }
-    }
-
-    void InstallerHandlerBase::DownloaderCallback::OnProgress(LONGLONG bytesDownloaded, LONGLONG totalBytes)
-    {
-        if (m_useProgressBar)
-        {
-            int progressPercent = static_cast<int>(100 * bytesDownloaded / totalBytes);
-            m_reporterRef.ShowProgress(true, progressPercent);
-        }
-    }
-
-    void InstallerHandlerBase::DownloaderCallback::OnCanceled()
-    {
-        if (m_useProgressBar)
-        {
-            m_reporterRef.ShowProgress(false, 0);
-        }
-        else
-        {
-            m_reporterRef.ShowIndefiniteProgress(false);
-        }
-
-        m_reporterRef.ShowMsg(WorkflowReporter::Level::Warning, "Installer download canceled.");
-    }
-
-    void InstallerHandlerBase::DownloaderCallback::OnCompleted()
-    {
-        if (m_useProgressBar)
-        {
-            m_reporterRef.ShowProgress(false, 0);
-        }
-        else
-        {
-            m_reporterRef.ShowIndefiniteProgress(false);
-        }
-
-        m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Installer download completed.");
     }
 }

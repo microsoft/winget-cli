@@ -17,10 +17,10 @@
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
 using namespace TestCommon;
-using namespace AppInstaller::Workflow;
-using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
+using namespace AppInstaller::Utility;
+using namespace AppInstaller::Workflow;
 
 class MsixInstallerHandlerTest : public MsixInstallerHandler
 {
@@ -32,7 +32,7 @@ public:
 
 protected:
 
-    std::future<void> ExecuteInstallerAsync(const Uri& uri) override
+    AppInstaller::Future<void> ExecuteInstallerAsync(const Uri& uri) override
     {
         std::filesystem::path temp = std::filesystem::temp_directory_path();
         temp /= "TestMsixInstalled.txt";
@@ -42,7 +42,7 @@ protected:
 
         file.close();
 
-        co_return;
+        return AppInstaller::Future<void>([](AppInstaller::IPromiseKeeperProgress*) {});
     }
 };
 

@@ -173,9 +173,11 @@
     <ClInclude Include="HttpStream\HttpRandomAccessStream.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\AppInstallerDateTime.h" />
+    <ClInclude Include="Public\AppInstallerDeployment.h" />
     <ClInclude Include="Public\AppInstallerDownloader.h" />
     <ClInclude Include="Public\AppInstallerErrors.h" />
     <ClInclude Include="Public\AppInstallerFileLogger.h" />
+    <ClInclude Include="Public\AppInstallerFuture.h" />
     <ClInclude Include="Public\AppInstallerLanguageUtilities.h" />
     <ClInclude Include="Public\AppInstallerMsixInfo.h" />
     <ClInclude Include="Public\AppInstallerRuntime.h" />
@@ -193,6 +195,7 @@
     <ClCompile Include="AppInstallerLogging.cpp" />
     <ClCompile Include="AppInstallerStrings.cpp" />
     <ClCompile Include="DateTime.cpp" />
+    <ClCompile Include="Deployment.cpp" />
     <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="FileLogger.cpp" />
     <ClCompile Include="HttpStream\HttpClientWrapper.cpp" />
