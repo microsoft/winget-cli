@@ -50,9 +50,6 @@
     <ClCompile Include="Downloader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InstallFlow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LanguageUtilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -62,7 +59,13 @@
     <ClCompile Include="Sources.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WorkFlow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Synchronization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Future.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -98,6 +101,8 @@
     <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_WithSwitches.yml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_WithSwitches.yml" />
+    <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_WithSwitches.yml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

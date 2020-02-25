@@ -15,7 +15,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> InstallCommand::GetArguments() const
     {
         return {
-            Argument{ ARG_APPLICATION, LOCME("The name of the application to install"), ArgumentType::Positional, false },
+            Argument{ ARG_QUERY, LOCME("The name of the application to install"), ArgumentType::Positional, false },
             Argument{ ARG_MANIFEST, LOCME("The path to the manifest of the application to install"), ArgumentType::Standard, false },
             Argument{ ARG_INTERACTIVE, LOCME("The application installation is interactive. User input is needed."), ArgumentType::Flag, false },
             Argument{ ARG_SILENT, LOCME("The application installation is silent."), ArgumentType::Flag, false },
@@ -39,34 +39,23 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const
     {
-        if (inv.Contains(ARG_MANIFEST))
-        {
-            std::string manifest = *(inv.GetArg(ARG_MANIFEST));
-            Manifest::Manifest packageManifest = Manifest::Manifest::CreateFromPath(manifest);
+        InstallFlow appInstall(inv, out, in);
 
-            Logging::Telemetry().LogManifestFields(packageManifest.Name, packageManifest.Version);
-
-            InstallFlow packageInstall(packageManifest, inv, out, in);
-            packageInstall.Install();
-        }
-        else
-        {
-            out << "Not supported!" << std::endl;
-        }
+        appInstall.Execute();
     }
 
     void InstallCommand::ValidateArguments(Invocation& inv) const
     {
         Command::ValidateArguments(inv);
 
-        if (!inv.Contains(ARG_APPLICATION) && !inv.Contains(ARG_MANIFEST))
+        if (!inv.Contains(ARG_QUERY) && !inv.Contains(ARG_MANIFEST))
         {
-            throw CommandException(LOCME("Required argument not provided"), ARG_APPLICATION);
+            throw CommandException(LOCME("Required argument not provided"), ARG_QUERY);
         }
 
         if (inv.Contains(ARG_SILENT) && inv.Contains(ARG_INTERACTIVE))
         {
-            throw CommandException(LOCME("More than one install behavior argument provided"), ARG_APPLICATION);
+            throw CommandException(LOCME("More than one install behavior argument provided"), ARG_QUERY);
         }
     }
 }

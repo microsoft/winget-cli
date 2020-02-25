@@ -1,9 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #pragma once
+#include "AppInstallerFuture.h"
 
-#include "AppInstallerDownloader.h"
+#include <atomic>
+#include <future>
+#include <istream>
+#include <ostream>
+#include <string>
 
 namespace AppInstaller::Workflow
 {
@@ -31,7 +35,7 @@ namespace AppInstaller::Workflow
     public:
         ProgressBar(std::ostream& stream) : out(stream) {};
 
-        void ShowProgress(bool running, int progress);
+        void ShowProgress(bool running, uint64_t progress);
 
     private:
         std::atomic<bool> m_isVisible = false;
@@ -40,10 +44,8 @@ namespace AppInstaller::Workflow
 
     // WorkflowReporter should be the central place to show workflow status to user.
     // Todo: need to implement actual console output to show color, progress bar, etc
-    class WorkflowReporter
+    struct WorkflowReporter : public IFutureProgress
     {
-    public:
-
         enum class Level
         {
             Verbose,
@@ -55,26 +57,23 @@ namespace AppInstaller::Workflow
         WorkflowReporter(std::ostream& outStream, std::istream& inStream) :
             out(outStream), in(inStream), m_progressBar(outStream), m_spinner(outStream) {};
 
-        void ShowPackageInfo(
-            const std::string& name,
-            const std::string& version,
-            const std::string& author,
-            const std::string& description,
-            const std::string& homepage,
-            const std::string& licenseUrl);
-
         bool PromptForBoolResponse(Level level, const std::string& msg);
 
         void ShowMsg(Level level, const std::string& msg);
 
         // Used to show definite progress.
         // running: shows progress bar if set to true, dismisses progress bar if set to false
-        void ShowProgress(bool running, int progress);
+        void ShowProgress(bool running, uint64_t progress);
 
         // Used to show indefinite progress. Currently an indefinite spinner is the form of
         // showing indefinite progress.
         // running: shows indefinite progress if set to true, stops indefinite progress if set to false
         void ShowIndefiniteProgress(bool running);
+
+        // IFutureProgress
+        void OnStarted() override;
+        void OnProgress(uint64_t current, uint64_t maximum, FutureProgressType type) override;
+        void OnCompleted(bool cancelled) override;
 
     private:
         std::ostream& out;

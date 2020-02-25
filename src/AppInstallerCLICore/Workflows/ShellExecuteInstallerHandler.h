@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #pragma once
 #include "InstallerHandlerBase.h"
+#include <AppInstallerFuture.h>
 
 namespace AppInstaller::Workflow
 {
@@ -21,7 +21,7 @@ namespace AppInstaller::Workflow
         void Install() override;
 
     protected:
-        std::future<DWORD> ExecuteInstallerAsync(const std::filesystem::path& filePath, const std::string& args);
+        Future<DWORD> ExecuteInstallerAsync(const std::filesystem::path& filePath, const std::string& args);
 
         // The known default arg format if the corresponding arg is not specified in the manifest
         // i.e. If silent switch is not specified in manifest and installer type is msi, /quiet will be returned.

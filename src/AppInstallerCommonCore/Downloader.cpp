@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #include "pch.h"
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerDownloader.h"
@@ -12,27 +11,13 @@ using namespace AppInstaller::Runtime;
 
 namespace AppInstaller::Utility
 {
-    std::unique_ptr<Downloader> Downloader::StartDownloadAsync(
-        const std::string& url,
-        const std::filesystem::path& dest,
-        bool computeHash,
-        IDownloaderCallback* callback)
+    namespace
     {
-        // std::make_unique cannot access private constructor
-        auto downloader = std::unique_ptr<Downloader>(new Downloader());
-
-        downloader->m_downloadTask = std::async(std::launch::async, &Downloader::DownloadInternal, downloader.get(), url, dest, computeHash, callback);
-
-        return downloader;
-    }
-
-    DownloaderResult Downloader::DownloadInternal(
-        const std::string& url,
-        const std::filesystem::path& dest,
-        bool computeHash,
-        IDownloaderCallback* callback)
-    {
-        try
+        std::vector<BYTE> DownloadAsyncInternal(
+            IPromiseKeeperProgress* progress,
+            const std::string& url,
+            const std::filesystem::path& dest,
+            bool computeHash)
         {
             AICLI_LOG(CLI, Info, << "Downloading url: " << url << " , dest: " << dest);
 
@@ -96,21 +81,12 @@ namespace AppInstaller::Utility
             DWORD bytesRead = 0;
             LONGLONG bytesDownloaded = 0;
 
-            if (callback)
-            {
-                callback->OnStarted(contentLength);
-            }
-
             do
             {
-                if (m_cancelled)
+                if (progress->IsCancelled())
                 {
-                    if (callback)
-                    {
-                        callback->OnCanceled();
-                    }
-
-                    return DownloaderResult::Canceled;
+                    AICLI_LOG(CLI, Info, << "Download cancelled.");
+                    return {};
                 }
 
                 readSuccess = InternetReadFile(urlFile.get(), buffer.get(), bufferSize, &bytesRead);
@@ -126,74 +102,35 @@ namespace AppInstaller::Utility
 
                 bytesDownloaded += bytesRead;
 
-                if (callback && bytesRead != 0)
+                if (bytesRead != 0)
                 {
-                    callback->OnProgress(bytesDownloaded, contentLength);
+                    progress->OnProgress(bytesDownloaded, contentLength, FutureProgressType::Bytes);
                 }
 
             } while (bytesRead != 0);
 
             outfile.flush();
 
+            std::vector<BYTE> result;
             if (computeHash)
             {
-                m_downloadHash = hashEngine.Get();
-                AICLI_LOG(CLI, Info, << "Download hash: " << SHA256::ConvertToString(m_downloadHash));
-            }
-
-            if (callback)
-            {
-                callback->OnCompleted();
+                result = hashEngine.Get();
+                AICLI_LOG(CLI, Info, << "Download hash: " << SHA256::ConvertToString(result));
             }
 
             AICLI_LOG(CLI, Info, << "Download completed.");
 
-            return DownloaderResult::Success;
-        }
-        catch (const wil::ResultException& e)
-        {
-            AICLI_LOG(Fail, Error, << "Download failed. HResult: " << e.GetErrorCode() << " Reason: " << e.what());
-            return DownloaderResult::Failed;
-        }
-        catch (const std::exception& e)
-        {
-            AICLI_LOG(Fail, Error, << "Download failed. Reason: " << e.what());
-            return DownloaderResult::Failed;
+            return result;
         }
     }
 
-    DownloaderResult Downloader::Cancel()
+    Future<std::vector<BYTE>> DownloadAsync(
+        const std::string& url,
+        const std::filesystem::path& dest,
+        bool computeHash)
     {
-        if (!m_downloadTask.valid())
-        {
-            THROW_HR_MSG(E_UNEXPECTED, "No active download found. Cancel failed.");
-        }
-
-        if (!m_cancelled)
-        {
-            m_cancelled = true;
-        }
-
-        return m_downloadTask.get();
+        THROW_HR_IF(E_INVALIDARG, url.empty());
+        THROW_HR_IF(E_INVALIDARG, dest.empty());
+        return Future<std::vector<BYTE>>(std::bind(DownloadAsyncInternal, std::placeholders::_1, url, dest, computeHash));
     }
-
-    DownloaderResult Downloader::Wait()
-    {
-        if (!m_downloadTask.valid())
-        {
-            THROW_HR_MSG(E_UNEXPECTED, "No active download found. Wait failed.");
-        }
-
-        return m_downloadTask.get();
-    }
-
-    std::vector<BYTE> Downloader::GetDownloadHash()
-    {
-        if (m_downloadHash.size() == 0)
-        {
-            THROW_HR_MSG(E_UNEXPECTED, "Invalid sha256 length. Download in progress or hash calculation not requested.");
-        }
-
-        return m_downloadHash;
-    };
 }

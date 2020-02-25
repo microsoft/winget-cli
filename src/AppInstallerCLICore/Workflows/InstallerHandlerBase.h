@@ -29,36 +29,16 @@ namespace AppInstaller::Workflow
         virtual void Cancel() { THROW_HR(E_NOTIMPL); }
 
     protected:
-
-        // This will be triggered by file downloader to report download progress
-        class DownloaderCallback : public AppInstaller::Utility::IDownloaderCallback
-        {
-        public:
-            DownloaderCallback(WorkflowReporter& reporter) : m_reporterRef(reporter) {};
-
-            void OnStarted(LONGLONG totalBytes) override;
-            void OnProgress(LONGLONG bytesDownloaded, LONGLONG totalBytes) override;
-            void OnCanceled() override;
-            void OnCompleted() override;
-
-        private:
-            WorkflowReporter& m_reporterRef;
-
-            // This determines if definite progress bar or indefinite progress bar should be shown.
-            bool m_useProgressBar = true;
-        };
-
         InstallerHandlerBase(
             const Manifest::ManifestInstaller& manifestInstaller,
             const CLI::Invocation& args,
             WorkflowReporter& reporter) :
-            m_manifestInstallerRef(manifestInstaller), m_reporterRef(reporter), m_downloaderCallback(reporter), m_argsRef(args) {};
+            m_manifestInstallerRef(manifestInstaller), m_reporterRef(reporter), m_argsRef(args) {};
 
         const Manifest::ManifestInstaller& m_manifestInstallerRef;
         const CLI::Invocation& m_argsRef;
         WorkflowReporter& m_reporterRef;
         std::filesystem::path m_downloadedInstaller;
-        DownloaderCallback m_downloaderCallback;
     };
 }
 

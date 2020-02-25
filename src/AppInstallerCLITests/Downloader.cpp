@@ -14,17 +14,18 @@ TEST_CASE("DownloadValidFileAndVerifyHash", "[Downloader]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     // Todo: point to files from our repo when the repo goes public
-    auto downloader = Downloader::StartDownloadAsync("https://raw.githubusercontent.com/microsoft/msix-packaging/master/LICENSE", tempFile.GetPath(), true);
+    auto future = DownloadAsync("https://raw.githubusercontent.com/microsoft/msix-packaging/master/LICENSE", tempFile.GetPath(), true);
 
-    auto result = downloader->Wait();
+    auto result = future.Get();
 
-    REQUIRE(result == DownloaderResult::Success);
+    REQUIRE(result.has_value());
+    auto resultHash = result.value();
 
     auto expectedHash = SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b759");
     REQUIRE(std::equal(
         expectedHash.begin(),
         expectedHash.end(),
-        downloader->GetDownloadHash().begin()));
+        resultHash.begin()));
 
     REQUIRE(std::filesystem::file_size(tempFile.GetPath()) > 0);
 }
@@ -34,21 +35,16 @@ TEST_CASE("DownloadValidFileAndCancel", "[Downloader]")
     TestCommon::TempFile tempFile("downloader_test"s, ".test"s);
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    auto downloader = Downloader::StartDownloadAsync("https://aka.ms/win32-x64-user-stable", tempFile.GetPath(), true);
+    auto future = DownloadAsync("https://aka.ms/win32-x64-user-stable", tempFile.GetPath(), true);
 
-    DownloaderResult waitResult;
-    std::thread waitThread([&downloader, &waitResult] { waitResult = downloader->Wait(); });
+    std::optional<std::vector<BYTE>> waitResult;
+    std::thread waitThread([&future, &waitResult] { waitResult = future.Get(); });
 
-    DownloaderResult cancelResult;
-    std::thread cancelThread([&downloader, &cancelResult] { cancelResult = downloader->Cancel();});
+    future.Cancel();
 
     waitThread.join();
-    cancelThread.join();
 
-    REQUIRE(waitResult == cancelResult);
-    REQUIRE(waitResult == DownloaderResult::Canceled);
-
-    REQUIRE_THROWS(downloader->GetDownloadHash());
+    REQUIRE(!waitResult.has_value());
 }
 
 TEST_CASE("DownloadUnreachableUrl", "[Downloader]")
@@ -56,11 +52,7 @@ TEST_CASE("DownloadUnreachableUrl", "[Downloader]")
     TestCommon::TempFile tempFile("downloader_test"s, ".test"s);
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    auto downloader = Downloader::StartDownloadAsync("https://does_not_exist.com/", tempFile.GetPath(), true);
+    auto future = DownloadAsync("https://does_not_exist.com/", tempFile.GetPath(), true);
 
-    auto result = downloader->Wait();
-
-    REQUIRE(result == DownloaderResult::Failed);
-
-    REQUIRE_THROWS(downloader->GetDownloadHash());
+    REQUIRE_THROWS_HR(future.Get(), WININET_E_NAME_NOT_RESOLVED);
 }

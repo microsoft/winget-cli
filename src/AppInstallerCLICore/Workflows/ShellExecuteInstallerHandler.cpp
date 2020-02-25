@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #include "pch.h"
 #include "Common.h"
 #include "Commands/Common.h"
@@ -24,31 +23,33 @@ namespace AppInstaller::Workflow
         AICLI_LOG(CLI, Info, << "Installer args: " << installerArgs);
 
         RenameDownloadedInstaller();
-        std::future<DWORD> installTask = ExecuteInstallerAsync(m_downloadedInstaller, installerArgs);
 
-        m_reporterRef.ShowIndefiniteProgress(true);
+        Future<DWORD> installTask = ExecuteInstallerAsync(m_downloadedInstaller, installerArgs);
+        installTask.SetProgressReceiver(&m_reporterRef);
+        auto installResult = installTask.Get();
 
-        installTask.wait();
-
-        m_reporterRef.ShowIndefiniteProgress(false);
-
-        auto installResult = installTask.get();
-
-        if (installResult != 0)
+        if (!installResult)
         {
-            m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Install failed. Exit code: " + std::to_string(installResult));
+            m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Installation cancelled");
+        }
+        else if (installResult.value() != 0)
+        {
+            m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Install failed. Exit code: " + std::to_string(installResult.value()));
 
             THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED),
-                "Install failed. Installer task returned: %u", installResult);
+                "Install failed. Installer task returned: %u", installResult.value());
         }
-
-        m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Successfully installed!");
+        else
+        {
+            m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Successfully installed!");
+        }
     }
 
-    std::future<DWORD> ShellExecuteInstallerHandler::ExecuteInstallerAsync(const std::filesystem::path& filePath, const std::string& args)
+    Future<DWORD> ShellExecuteInstallerHandler::ExecuteInstallerAsync(const std::filesystem::path& filePath, const std::string& args)
     {
         AICLI_LOG(CLI, Info, << "Staring installer. Path: " << filePath);
-        return std::async(std::launch::async, [this, filePath, args]
+        int showValue = m_argsRef.Contains(CLI::ARG_INTERACTIVE) ? SW_SHOW : SW_HIDE;
+        return Future<DWORD>([filePath, args, showValue] (IPromiseKeeperProgress* progress)
             {
                 SHELLEXECUTEINFOA execInfo = { 0 };
                 execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
@@ -56,20 +57,34 @@ namespace AppInstaller::Workflow
                 std::string filePathUTF8Str = Utility::ConvertToUTF8(filePath.c_str());
                 execInfo.lpFile = filePathUTF8Str.c_str();
                 execInfo.lpParameters = args.c_str();
-                execInfo.nShow = m_argsRef.Contains(CLI::ARG_INTERACTIVE) ? SW_SHOW : SW_HIDE;
+                execInfo.nShow = showValue;
                 if (!ShellExecuteExA(&execInfo) || !execInfo.hProcess)
                 {
                     return GetLastError();
                 }
+                
+                wil::unique_process_handle process{ execInfo.hProcess };
 
                 // Wait for installation to finish
-                WaitForSingleObject(execInfo.hProcess, INFINITE);
+                while (!progress->IsCancelled())
+                {
+                    DWORD waitResult = WaitForSingleObject(process.get(), 250);
+                    if (waitResult == WAIT_OBJECT_0)
+                    {
+                        break;
+                    }
+                    if (waitResult != WAIT_TIMEOUT)
+                    {
+                        THROW_LAST_ERROR_MSG("Unexpected WaitForSingleObjectResult: %d", waitResult);
+                    }
+                }
 
-                // Get exe exit code
-                DWORD exitCode;
-                GetExitCodeProcess(execInfo.hProcess, &exitCode);
+                DWORD exitCode = 0;
 
-                CloseHandle(execInfo.hProcess);
+                if (!progress->IsCancelled())
+                {
+                    GetExitCodeProcess(process.get(), &exitCode);
+                }
 
                 return exitCode;
             });

@@ -6,66 +6,21 @@
 
 namespace AppInstaller::Workflow
 {
-    void WorkflowReporter::ShowPackageInfo(
-        const std::string& name,
-        const std::string& version,
-        const std::string& author,
-        const std::string& description,
-        const std::string& homepage,
-        const std::string& licenseUrl
-    )
-    {
-        out << "Name: " << name << std::endl;
-        out << "Version: " << version << std::endl;
-        out << "Author: " << author << std::endl;
-        out << "Description: " << description << std::endl;
-        out << "Homepage: " << homepage << std::endl;
-        out << "License: " << licenseUrl << std::endl;
-    }
-
-    bool WorkflowReporter::PromptForBoolResponse(Level level, const std::string& msg)
-    {
-        UNREFERENCED_PARAMETER(level);
-
-        out << msg << " (Y|N)" << std::endl;
-
-        char response;
-        in.get(response);
-
-        return tolower(response) == 'y';
-    }
-
-    void WorkflowReporter::ShowMsg(Level level, const std::string& msg)
-    {
-        UNREFERENCED_PARAMETER(level);
-
-        // Todo: color output using level and possibly other factors.
-        out << msg << std::endl;
-    }
-
-    void WorkflowReporter::ShowIndefiniteProgress(bool running)
-    {
-        if (running)
-        {
-            m_spinner.ShowSpinner();
-        }
-        else
-        {
-            m_spinner.StopSpinner();
-        }
-    }
-
-    void WorkflowReporter::ShowProgress(bool running, int progress)
-    {
-        m_progressBar.ShowProgress(running, progress);
-    }
-
     void IndefiniteSpinner::ShowSpinner()
     {
         if (!m_spinnerJob.valid() && !m_spinnerRunning && !m_canceled)
         {
             m_spinnerRunning = true;
             m_spinnerJob = std::async(std::launch::async, &IndefiniteSpinner::ShowSpinnerInternal, this);
+        }
+    }
+
+    void IndefiniteSpinner::StopSpinner()
+    {
+        if (!m_canceled && m_spinnerJob.valid() && m_spinnerRunning)
+        {
+            m_canceled = true;
+            m_spinnerJob.get();
         }
     }
 
@@ -89,16 +44,7 @@ namespace AppInstaller::Workflow
         m_spinnerRunning = false;
     }
 
-    void IndefiniteSpinner::StopSpinner()
-    {
-        if (!m_canceled && m_spinnerJob.valid() && m_spinnerRunning)
-        {
-            m_canceled = true;
-            m_spinnerJob.wait();
-        }
-    }
-
-    void ProgressBar::ShowProgress(bool running, int progress)
+    void ProgressBar::ShowProgress(bool running, uint64_t progress)
     {
         if (running)
         {
@@ -120,5 +66,62 @@ namespace AppInstaller::Workflow
                 m_isVisible = false;
             }
         }
+    }
+
+    bool WorkflowReporter::PromptForBoolResponse(Level level, const std::string& msg)
+    {
+        UNREFERENCED_PARAMETER(level);
+
+        out << msg << " (Y|N)" << std::endl;
+
+        char response;
+        in.get(response);
+
+        return tolower(response) == 'y';
+    }
+
+    void WorkflowReporter::ShowMsg(Level level, const std::string& msg)
+    {
+        UNREFERENCED_PARAMETER(level);
+
+        // Todo: color output using level and possibly other factors.
+        out << msg << std::endl;
+    }
+
+    void WorkflowReporter::ShowProgress(bool running, uint64_t progress)
+    {
+        m_progressBar.ShowProgress(running, progress);
+    }
+
+    void WorkflowReporter::ShowIndefiniteProgress(bool running)
+    {
+        if (running)
+        {
+            m_spinner.ShowSpinner();
+        }
+        else
+        {
+            m_spinner.StopSpinner();
+        }
+    }
+
+    // TODO: Better handling of generic progress facility
+    void WorkflowReporter::OnStarted()
+    {
+        ShowIndefiniteProgress(true);
+    }
+
+    void WorkflowReporter::OnProgress(uint64_t current, uint64_t maximum, FutureProgressType type)
+    {
+        UNREFERENCED_PARAMETER(type);
+        ShowIndefiniteProgress(false);
+        ShowProgress(true, (maximum ? static_cast<uint64_t>((static_cast<double>(current) / maximum) * 100) : current));
+    }
+
+    void WorkflowReporter::OnCompleted(bool cancelled)
+    {
+        UNREFERENCED_PARAMETER(cancelled);
+        ShowIndefiniteProgress(false);
+        ShowProgress(false, 0);
     }
 }

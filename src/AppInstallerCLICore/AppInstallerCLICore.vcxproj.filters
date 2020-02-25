@@ -36,9 +36,6 @@
     <ClInclude Include="Commands\InstallCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
-    <ClInclude Include="Commands\DescribeCommand.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
     <ClInclude Include="Command.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -75,8 +72,23 @@
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h">
       <Filter>Workflows</Filter>
     </ClInclude>
+    <ClInclude Include="Workflows\WorkflowBase.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
     <ClInclude Include="Commands\SourceCommand.h">
       <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\ShowCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\SearchCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\SearchFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\ShowFlow.h">
+      <Filter>Workflows</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -89,17 +101,11 @@
     <ClCompile Include="Commands\InstallCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
-    <ClCompile Include="Commands\DescribeCommand.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
     <ClCompile Include="Command.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Core.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Workflows\InstallFlow.cpp">
-      <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="Workflows\ManifestComparator.cpp">
       <Filter>Workflows</Filter>
@@ -116,8 +122,26 @@
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
+    <ClCompile Include="Workflows\WorkflowBase.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ShowCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\SearchCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\SearchFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
     <ClCompile Include="Commands\SourceCommand.cpp">
       <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\ShowFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\InstallFlow.cpp">
+      <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
