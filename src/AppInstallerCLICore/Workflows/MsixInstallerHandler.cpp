@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #include "pch.h"
 #include "Common.h"
 #include "MsixInstallerHandler.h"
+#include <AppInstallerDeployment.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
@@ -63,57 +63,21 @@ namespace AppInstaller::Workflow
             THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED), "Installer not downloaded yet");
         }
 
-        auto installTask = ExecuteInstallerAsync(
-            m_useStreaming ? Uri(Utility::ConvertToUTF16(m_manifestInstallerRef.Url)) : Uri(m_downloadedInstaller.c_str()));
+        Uri target = m_useStreaming ? Uri(Utility::ConvertToUTF16(m_manifestInstallerRef.Url)) : Uri(m_downloadedInstaller.c_str());
 
-        installTask.get();
+        auto installTask = ExecuteInstallerAsync(target);
+        installTask.SetProgressReceiver(&m_reporterRef);
+
+        m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Starting package install...");
+        installTask.Get();
+        m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Successfully installed.");
     }
 
-    std::future<void> MsixInstallerHandler::ExecuteInstallerAsync(const Uri& uri)
+    Future<void> MsixInstallerHandler::ExecuteInstallerAsync(const winrt::Windows::Foundation::Uri& uri)
     {
-        PackageManager packageManager;
         DeploymentOptions deploymentOptions =
             DeploymentOptions::ForceApplicationShutdown |
             DeploymentOptions::ForceTargetApplicationShutdown;
-
-        m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Starting package install...");
-        m_reporterRef.ShowProgress(true, 0);
-
-        // RequestAddPackageAsync will invoke smart screen.
-        auto deployOperation = packageManager.RequestAddPackageAsync(
-            uri,
-            nullptr, /*dependencyPackageUris*/
-            deploymentOptions,
-            nullptr, /*targetVolume*/
-            nullptr, /*optionalAndRelatedPackageFamilyNames*/
-            nullptr /*relatedPackageUris*/);
-
-        AsyncOperationProgressHandler<DeploymentResult, DeploymentProgress> progressCallback(
-            [this](const IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress>&, DeploymentProgress progress)
-            {
-                // Todo: might need to tweak progress reporting logic to account
-                // for the time before DeploymentRequest is dequeued.
-                m_reporterRef.ShowProgress(true, progress.percentage);
-            }
-        );
-
-        // Set progress callback.
-        deployOperation.Progress(progressCallback);
-
-        co_await deployOperation;
-
-        auto deployResult = deployOperation.GetResults();
-
-        m_reporterRef.ShowProgress(false, 0);
-
-        if (!SUCCEEDED(deployResult.ExtendedErrorCode()))
-        {
-            m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Install failed. Reason: " + Utility::ConvertToUTF8(deployResult.ErrorText()));
-
-            THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED),
-                "Install failed. Installer task returned: %u", deployResult.ExtendedErrorCode());
-        }
-
-        m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Successfully installed.");
+        return Deployment::RequestAddPackageAsync(uri, deploymentOptions);
     }
 }

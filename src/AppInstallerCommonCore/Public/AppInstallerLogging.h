@@ -34,6 +34,7 @@ namespace AppInstaller::Logging
         SQL,
         Repo,
         YAML,
+        Core,
         Test,
         All,
     };

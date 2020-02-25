@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <wil/resource.h>
+
 #include <atomic>
 #include <future>
 #include <optional>
 #include <type_traits>
+#include <utility>
 
 namespace AppInstaller
 {
@@ -109,7 +112,9 @@ namespace AppInstaller
     struct Future
     {
         using Task = std::packaged_task<Result(IPromiseKeeperProgress*)>;
-        using GetResult = std::conditional_t<std::is_same_v<std::optional<void>, details::TemplateDeduction_t<Result>>, Result, std::optional<Result>>;
+        // If the incoming Result type is void or std::optional, just use that as the return type for Get.
+        // Otherwise, wrap it in std::optional.
+        using GetResult = std::conditional_t<std::is_same_v<void, Result> || std::is_same_v<std::optional<void>, details::TemplateDeduction_t<Result>>, Result, std::optional<Result>>;
 
         Future(Task&& task) : m_task(std::move(task)) {}
 
@@ -134,16 +139,27 @@ namespace AppInstaller
             std::future future = m_task.get_future();
             m_task(&m_progress);
 
-            Result result = future.get();
+            auto scopeExit = wil::scope_exit([&]()
+                {
+                    if (m_progress.IsCancelled())
+                    {
+                        m_progress.OnCompleted(true);
+                    }
+                    else
+                    {
+                        m_progress.OnCompleted(false);
+                    }
+                });
+
+            future.wait();
+
             if (m_progress.IsCancelled())
             {
-                m_progress.OnCompleted(true);
-                return {};
+                return HandleDefaultReturn<GetResult>::Return();
             }
             else
             {
-                m_progress.OnCompleted(false);
-                return result;
+                return future.get();
             }
         }
 
@@ -151,6 +167,12 @@ namespace AppInstaller
         void SetProgressReceiver(IFutureProgress* receiver) { m_progress.m_receiver = receiver; }
 
     private:
+        template <typename T>
+        struct HandleDefaultReturn { static T Return() { return T{}; } };
+
+        template <>
+        struct HandleDefaultReturn<void> { static void Return() {} };
+
         Task m_task;
         details::PromiseKeeperProgress m_progress;
     };

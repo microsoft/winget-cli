@@ -42,7 +42,7 @@ TEST_CASE("Future_Basic", "[Future]")
 {
     int input = 42;
 
-    Future<int> f{ std::packaged_task<int(IPromiseKeeperProgress&)>{ [input](IPromiseKeeperProgress&) { return input; } } };
+    Future<int> f{ std::packaged_task<int(IPromiseKeeperProgress*)>{ [input](IPromiseKeeperProgress*) { return input; } } };
     int result = f.Get().value();
 
     REQUIRE(input == result);
@@ -52,7 +52,7 @@ TEST_CASE("Future_Optional", "[Future]")
 {
     int input = 42;
 
-    Future<std::optional<int>> f{ std::packaged_task<std::optional<int>(IPromiseKeeperProgress&)>{ [input](IPromiseKeeperProgress&) { return input; } } };
+    Future<std::optional<int>> f{ std::packaged_task<std::optional<int>(IPromiseKeeperProgress*)>{ [input](IPromiseKeeperProgress*) { return input; } } };
     int result = f.Get().value();
 
     REQUIRE(input == result);
@@ -76,9 +76,9 @@ TEST_CASE("Future_Callbacks", "[Future]")
     futureProgress.Progress = [&](uint64_t p, uint64_t m, FutureProgressType t) { progressActual = p; maximumActual = m; typeActual = t; };
     futureProgress.Completed = [&](bool c) { cancelledActual = c; };
 
-    Future<std::optional<int>> f{ std::packaged_task<std::optional<int>(IPromiseKeeperProgress&)>{
-        [&](IPromiseKeeperProgress& p) {
-            p.OnProgress(progress, maximum, type);
+    Future<std::optional<int>> f{ std::packaged_task<std::optional<int>(IPromiseKeeperProgress*)>{
+        [&](IPromiseKeeperProgress* p) {
+            p->OnProgress(progress, maximum, type);
             return input;
         }
     } };
@@ -106,10 +106,10 @@ TEST_CASE("Future_Cancelled", "[Future]")
     FutureProgressType typeActual = FutureProgressType::None;
     bool cancelledActual = false;
 
-    Future<std::optional<int>> f{ std::packaged_task<std::optional<int>(IPromiseKeeperProgress&)>{
-        [&](IPromiseKeeperProgress& p) {
-            p.OnProgress(progress, maximum, type);
-            if (p.IsCancelled())
+    Future<std::optional<int>> f{ std::packaged_task<std::optional<int>(IPromiseKeeperProgress*)>{
+        [&](IPromiseKeeperProgress* p) {
+            p->OnProgress(progress, maximum, type);
+            if (p->IsCancelled())
             {
                 return 0;
             }

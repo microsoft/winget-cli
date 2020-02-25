@@ -62,21 +62,29 @@ namespace AppInstaller::Workflow
                 {
                     return GetLastError();
                 }
+                
+                wil::unique_process_handle process{ execInfo.hProcess };
 
                 // Wait for installation to finish
                 while (!progress->IsCancelled())
                 {
-                    WaitForSingleObject(execInfo.hProcess, 250);
+                    DWORD waitResult = WaitForSingleObject(process.get(), 250);
+                    if (waitResult == WAIT_OBJECT_0)
+                    {
+                        break;
+                    }
+                    if (waitResult != WAIT_TIMEOUT)
+                    {
+                        THROW_LAST_ERROR_MSG("Unexpected WaitForSingleObjectResult: %d", waitResult);
+                    }
                 }
 
                 DWORD exitCode = 0;
 
                 if (!progress->IsCancelled())
                 {
-                    GetExitCodeProcess(execInfo.hProcess, &exitCode);
+                    GetExitCodeProcess(process.get(), &exitCode);
                 }
-
-                CloseHandle(execInfo.hProcess);
 
                 return exitCode;
             });
