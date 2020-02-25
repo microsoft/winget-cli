@@ -20,7 +20,7 @@ namespace AppInstaller::Workflow
         if (!m_canceled && m_spinnerJob.valid() && m_spinnerRunning)
         {
             m_canceled = true;
-            m_spinnerJob.wait();
+            m_spinnerJob.get();
         }
     }
 
@@ -115,7 +115,7 @@ namespace AppInstaller::Workflow
     {
         UNREFERENCED_PARAMETER(type);
         ShowIndefiniteProgress(false);
-        ShowProgress(true, (maximum ? static_cast<uint64_t>(static_cast<double>(current) / maximum) : current));
+        ShowProgress(true, (maximum ? static_cast<uint64_t>((static_cast<double>(current) / maximum) * 100) : current));
     }
 
     void WorkflowReporter::OnCompleted(bool cancelled)
