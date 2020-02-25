@@ -17,51 +17,49 @@ namespace AppInstaller::Deployment
         }
     }
 
-    Future<void> RequestAddPackageAsync(
+    void RequestAddPackageAsync(
         const winrt::Windows::Foundation::Uri& uri,
-        winrt::Windows::Management::Deployment::DeploymentOptions options)
+        winrt::Windows::Management::Deployment::DeploymentOptions options,
+        IProgressCallback& callback)
     {
-        return Future<void>([uri, options](IPromiseKeeperProgress* pkp)
+        using namespace winrt::Windows::Foundation;
+        using namespace winrt::Windows::Management::Deployment;
+
+        size_t id = GetDeploymentOperationId();
+        AICLI_LOG(Core, Info, << "Starting RequestAddPackage operation #" << id << ": " << Utility::ConvertToUTF8(uri.AbsoluteUri().c_str()));
+
+        PackageManager packageManager;
+
+        // RequestAddPackageAsync will invoke smart screen.
+        auto deployOperation = packageManager.RequestAddPackageAsync(
+            uri,
+            nullptr, /*dependencyPackageUris*/
+            options,
+            nullptr, /*targetVolume*/
+            nullptr, /*optionalAndRelatedPackageFamilyNames*/
+            nullptr /*relatedPackageUris*/);
+
+        AsyncOperationProgressHandler<DeploymentResult, DeploymentProgress> progressCallback(
+            [&callback](const IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress>&, DeploymentProgress progress)
             {
-                using namespace winrt::Windows::Foundation;
-                using namespace winrt::Windows::Management::Deployment;
+                callback.OnProgress(progress.percentage, 100, ProgressType::Percent);
+            }
+        );
 
-                size_t id = GetDeploymentOperationId();
-                AICLI_LOG(Core, Info, << "Starting RequestAddPackage operation #" << id << ": " << Utility::ConvertToUTF8(uri.AbsoluteUri().c_str()));
+        // Set progress callback.
+        deployOperation.Progress(progressCallback);
 
-                PackageManager packageManager;
+        auto deployResult = deployOperation.GetResults();
 
-                // RequestAddPackageAsync will invoke smart screen.
-                auto deployOperation = packageManager.RequestAddPackageAsync(
-                    uri,
-                    nullptr, /*dependencyPackageUris*/
-                    options,
-                    nullptr, /*targetVolume*/
-                    nullptr, /*optionalAndRelatedPackageFamilyNames*/
-                    nullptr /*relatedPackageUris*/);
+        if (!SUCCEEDED(deployResult.ExtendedErrorCode()))
+        {
+            AICLI_LOG(Core, Error, << "Deployment failed #" << id << ": " << Utility::ConvertToUTF8(deployResult.ErrorText()));
 
-                AsyncOperationProgressHandler<DeploymentResult, DeploymentProgress> progressCallback(
-                    [pkp](const IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress>&, DeploymentProgress progress)
-                    {
-                        pkp->OnProgress(progress.percentage, 100, FutureProgressType::Percent);
-                    }
-                );
-
-                // Set progress callback.
-                deployOperation.Progress(progressCallback);
-
-                auto deployResult = deployOperation.GetResults();
-
-                if (!SUCCEEDED(deployResult.ExtendedErrorCode()))
-                {
-                    AICLI_LOG(Core, Error, << "Deployment failed #" << id << ": " << Utility::ConvertToUTF8(deployResult.ErrorText()));
-
-                    THROW_HR_MSG(deployResult.ExtendedErrorCode(), "Install failed: %s", Utility::ConvertToUTF8(deployResult.ErrorText()).c_str());
-                }
-                else
-                {
-                    AICLI_LOG(Core, Info, << "Successfully deployed #" << id);
-                }
-            });
+            THROW_HR_MSG(deployResult.ExtendedErrorCode(), "Install failed: %s", Utility::ConvertToUTF8(deployResult.ErrorText()).c_str());
+        }
+        else
+        {
+            AICLI_LOG(Core, Info, << "Successfully deployed #" << id);
+        }
     }
 }

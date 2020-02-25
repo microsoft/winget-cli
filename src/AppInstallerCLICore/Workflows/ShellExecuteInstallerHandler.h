@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 #pragma once
 #include "InstallerHandlerBase.h"
-#include <AppInstallerFuture.h>
+#include <AppInstallerProgress.h>
+
+#include <optional>
 
 namespace AppInstaller::Workflow
 {
@@ -21,11 +23,7 @@ namespace AppInstaller::Workflow
         void Install() override;
 
     protected:
-        Future<DWORD> ExecuteInstallerAsync(const std::filesystem::path& filePath, const std::string& args);
-
-        // The known default arg format if the corresponding arg is not specified in the manifest
-        // i.e. If silent switch is not specified in manifest and installer type is msi, /quiet will be returned.
-        std::string GetDefaultArg(std::string_view argType);
+        static std::optional<DWORD> ExecuteInstaller(const std::filesystem::path& filePath, const std::string& args, bool interactive, IProgressCallback& progress);
 
         // Construct the installer arg string from appropriate source(known args, manifest) according to command line args.
         // Token is not replaced with actual values yet.
