@@ -54,7 +54,7 @@ namespace AppInstaller::Deployment
 
                 if (!SUCCEEDED(deployResult.ExtendedErrorCode()))
                 {
-                    AICLI_LOG(Core, Error, << "Deployement failed #" << id << ": " << Utility::ConvertToUTF8(deployResult.ErrorText()));
+                    AICLI_LOG(Core, Error, << "Deployment failed #" << id << ": " << Utility::ConvertToUTF8(deployResult.ErrorText()));
 
                     THROW_HR_MSG(deployResult.ExtendedErrorCode(), "Install failed: %s", Utility::ConvertToUTF8(deployResult.ErrorText()).c_str());
                 }
