@@ -24,11 +24,12 @@ namespace AppInstaller::Workflow
 
         RenameDownloadedInstaller();
 
-         auto installResult = m_reporterRef.ExecuteWithProgress(std::bind(ExecuteInstaller,
-            m_downloadedInstaller,
-            installerArgs,
-             m_argsRef.Contains(CLI::ARG_INTERACTIVE),
-            std::placeholders::_1));
+        auto installResult = m_reporterRef.ExecuteWithProgress(
+            std::bind(ExecuteInstaller,
+                m_downloadedInstaller,
+                installerArgs,
+                m_argsRef.Contains(CLI::ARG_INTERACTIVE),
+                std::placeholders::_1));
 
         if (!installResult)
         {
