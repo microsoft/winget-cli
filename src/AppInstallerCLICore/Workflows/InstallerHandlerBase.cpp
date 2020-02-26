@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #include "pch.h"
 #include "Common.h"
 #include "InstallerHandlerBase.h"
 
-using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::Workflow
@@ -14,18 +12,15 @@ namespace AppInstaller::Workflow
     {
         // Todo: Rework the path logic. The new path logic should work with MOTW.
         std::filesystem::path tempInstallerPath = Runtime::GetPathToTemp();
-        tempInstallerPath /= SHA256::ConvertToString(m_manifestInstallerRef.Sha256);
+        tempInstallerPath /= Utility::SHA256::ConvertToString(m_manifestInstallerRef.Sha256);
 
         AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
 
-        auto future = DownloadAsync(
+        auto hash = m_reporterRef.ExecuteWithProgress(std::bind(Utility::Download,
             m_manifestInstallerRef.Url,
             tempInstallerPath,
-            true);
-
-        future.SetProgressReceiver(&m_reporterRef);
-
-        auto hash = future.Get();
+            std::placeholders::_1,
+            true));
 
         if (!hash)
         {
@@ -40,9 +35,9 @@ namespace AppInstaller::Workflow
         {
             AICLI_LOG(CLI, Error,
                 << "Package hash verification failed. SHA256 in manifest: "
-                << SHA256::ConvertToString(m_manifestInstallerRef.Sha256)
+                << Utility::SHA256::ConvertToString(m_manifestInstallerRef.Sha256)
                 << " SHA256 from download: "
-                << SHA256::ConvertToString(hash.value()));
+                << Utility::SHA256::ConvertToString(hash.value()));
 
             if (!m_reporterRef.PromptForBoolResponse(WorkflowReporter::Level::Warning, "Package hash verification failed. Continue?"))
             {

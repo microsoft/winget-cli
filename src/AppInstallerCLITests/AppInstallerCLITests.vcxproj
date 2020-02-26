@@ -152,7 +152,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Downloader.cpp" />
-    <ClCompile Include="Future.cpp" />
     <ClCompile Include="WorkFlow.cpp" />
     <ClCompile Include="LanguageUtilities.cpp" />
     <ClCompile Include="main.cpp">

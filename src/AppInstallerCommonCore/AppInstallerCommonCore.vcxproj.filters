@@ -84,10 +84,10 @@
     <ClInclude Include="Public\AppInstallerSynchronization.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="Public\AppInstallerFuture.h">
+    <ClInclude Include="Public\AppInstallerDeployment.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="Public\AppInstallerDeployment.h">
+    <ClInclude Include="Public\AppInstallerProgress.h">
       <Filter>Public</Filter>
     </ClInclude>
   </ItemGroup>

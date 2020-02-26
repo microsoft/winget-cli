@@ -5,6 +5,7 @@
 #include "AppInstallerDownloader.h"
 #include "AppInstallerSHA256.h"
 
+using namespace AppInstaller;
 using namespace AppInstaller::Utility;
 using namespace std::string_literals;
 
@@ -14,9 +15,8 @@ TEST_CASE("DownloadValidFileAndVerifyHash", "[Downloader]")
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     // Todo: point to files from our repo when the repo goes public
-    auto future = DownloadAsync("https://raw.githubusercontent.com/microsoft/msix-packaging/master/LICENSE", tempFile.GetPath(), true);
-
-    auto result = future.Get();
+    ProgressCallback callback;
+    auto result = Download("https://raw.githubusercontent.com/microsoft/msix-packaging/master/LICENSE", tempFile.GetPath(), callback, true);
 
     REQUIRE(result.has_value());
     auto resultHash = result.value();
@@ -35,12 +35,15 @@ TEST_CASE("DownloadValidFileAndCancel", "[Downloader]")
     TestCommon::TempFile tempFile("downloader_test"s, ".test"s);
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    auto future = DownloadAsync("https://aka.ms/win32-x64-user-stable", tempFile.GetPath(), true);
+    ProgressCallback callback;
 
     std::optional<std::vector<BYTE>> waitResult;
-    std::thread waitThread([&future, &waitResult] { waitResult = future.Get(); });
+    std::thread waitThread([&]
+        {
+            waitResult = Download("https://aka.ms/win32-x64-user-stable", tempFile.GetPath(), callback, true);
+        });
 
-    future.Cancel();
+    callback.Cancel();
 
     waitThread.join();
 
@@ -52,7 +55,7 @@ TEST_CASE("DownloadUnreachableUrl", "[Downloader]")
     TestCommon::TempFile tempFile("downloader_test"s, ".test"s);
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    auto future = DownloadAsync("https://does_not_exist.com/", tempFile.GetPath(), true);
+    ProgressCallback callback;
 
-    REQUIRE_THROWS_HR(future.Get(), WININET_E_NAME_NOT_RESOLVED);
+    REQUIRE_THROWS_HR(Download("https://does_not_exist.com/", tempFile.GetPath(), callback, true), WININET_E_NAME_NOT_RESOLVED);
 }

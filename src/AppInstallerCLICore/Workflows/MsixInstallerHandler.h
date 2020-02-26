@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #pragma once
 #include "InstallerHandlerBase.h"
-#include <AppInstallerFuture.h>
 
 namespace AppInstaller::Workflow
 {
@@ -27,6 +26,6 @@ namespace AppInstaller::Workflow
         // If use streaming install vs download install.
         bool m_useStreaming = true;
 
-        virtual Future<void> ExecuteInstallerAsync(const winrt::Windows::Foundation::Uri& uri);
+        virtual void ExecuteInstallerAsync(const winrt::Windows::Foundation::Uri& uri);
     };
 }

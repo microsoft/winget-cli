@@ -32,7 +32,7 @@ public:
 
 protected:
 
-    AppInstaller::Future<void> ExecuteInstallerAsync(const Uri& uri) override
+    void ExecuteInstallerAsync(const Uri& uri) override
     {
         std::filesystem::path temp = std::filesystem::temp_directory_path();
         temp /= "TestMsixInstalled.txt";
@@ -41,8 +41,6 @@ protected:
         file << AppInstaller::Utility::ConvertToUTF8(uri.ToString());
 
         file.close();
-
-        return AppInstaller::Future<void>([](AppInstaller::IPromiseKeeperProgress*) {});
     }
 };
 
