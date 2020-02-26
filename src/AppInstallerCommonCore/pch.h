@@ -15,6 +15,7 @@
 #include <wil/safecast.h>
 #include <wil/resource.h>
 
+#include <winrt/Windows.ApplicationModel.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Security.Cryptography.h>

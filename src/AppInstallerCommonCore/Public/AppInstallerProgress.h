@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <atomic>
+#include <functional>
 
 namespace AppInstaller
 {
@@ -24,6 +25,9 @@ namespace AppInstaller
 
         // Returns a value indicating if the future has been cancelled.
         virtual bool IsCancelled() = 0;
+
+        // Sets a cancellation function that will be called when the operation is to be cancelled.
+        virtual void SetCancellationFunction(std::function<void()>&& f) = 0;
     };
 
     // Implementation of IProgressCallback.
@@ -46,9 +50,18 @@ namespace AppInstaller
             return m_cancelled.load();
         }
 
+        void SetCancellationFunction(std::function<void()>&& f) override
+        {
+            m_cancellationFunction = std::move(f);
+        }
+
         void Cancel()
         {
             m_cancelled = true;
+            if (m_cancellationFunction)
+            {
+                m_cancellationFunction();
+            }
         }
 
         IProgressCallback* GetCallback()
@@ -59,5 +72,6 @@ namespace AppInstaller
     private:
         std::atomic<IProgressCallback*> m_callback = nullptr;
         std::atomic_bool m_cancelled = false;
+        std::function<void()> m_cancellationFunction;
     };
 }

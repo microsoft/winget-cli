@@ -86,7 +86,7 @@ namespace AppInstaller::Repository::Microsoft
                 THROW_HR(E_NOTIMPL);
             }
 
-            void Update(SourceDetails& details) override
+            void Update(SourceDetails& details, IProgressCallback& progress) override
             {
                 if (details.Type.empty())
                 {
@@ -119,15 +119,19 @@ namespace AppInstaller::Repository::Microsoft
                 auto optionalPackage = GetPackageFromDetails(details);
                 if (optionalPackage)
                 {
-                    // Mark package as not in use if it is already installed.
-                    optionalPackage.SetInUseAsync(false).get();
+                    // TODO: Actual implementation
                 }
-
-
+                else
+                {
+                    winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(packageLocation));
+                    Deployment::RequestAddPackageAsync(uri, winrt::Windows::Management::Deployment::DeploymentOptions::None, progress);
+                }
             }
 
-            void Remove(const SourceDetails& details) override
+            void Remove(const SourceDetails& details, IProgressCallback& progress) override
             {
+                using namespace std::chrono_literals;
+
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
                 auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
 
@@ -138,19 +142,15 @@ namespace AppInstaller::Repository::Microsoft
                     return;
                 }
 
-                // Mark package as not in use
-                optionalPackage.SetInUseAsync(false).get();
-
                 // Remove package
                 std::vector<winrt::hstring> packageList;
                 packageList.emplace_back(optionalPackage.Id().FamilyName());
 
-                auto currentCatalog = winrt::Windows::ApplicationModel::PackageCatalog::OpenForCurrentPackage();
-                auto removeResult = currentCatalog.RemoveOptionalPackagesAsync(std::move(packageList)).get();
-                if (FAILED(removeResult.ExtendedError()))
+                auto removeResult = Deployment::RemoveOptionalPackagesAsync(std::move(packageList), progress);
+                if (FAILED(removeResult))
                 {
                     AICLI_LOG(Repo, Error, << "Failed to remove package for source: " << details.Name << " => " << GetPackageFamilyNameFromDetails(details) <<
-                        " [0x" << std::hex << std::setw(8) << std::setfill('0') << removeResult.ExtendedError() << "]");
+                        " [0x" << std::hex << std::setw(8) << std::setfill('0') << removeResult << "]");
                 }
             }
         };

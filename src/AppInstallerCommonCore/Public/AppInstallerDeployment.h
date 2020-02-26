@@ -7,9 +7,14 @@
 
 namespace AppInstaller::Deployment
 {
-    // Calls winrt::Windows::Management::Deployment::PackageManager::RequestAddPackageAsync as a Future.
+    // Calls winrt::Windows::Management::Deployment::PackageManager::RequestAddPackageAsync
     void RequestAddPackageAsync(
         const winrt::Windows::Foundation::Uri& uri, 
         winrt::Windows::Management::Deployment::DeploymentOptions options,
+        IProgressCallback& callback);
+
+    // Calls winrt::Windows::ApplicationModel::PackageCatalog::RemoveOptionalPackagesAsync
+    winrt::hresult RemoveOptionalPackagesAsync(
+        std::vector<winrt::hstring>&& packages,
         IProgressCallback& callback);
 }

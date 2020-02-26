@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <Public/AppInstallerRepositorySearch.h>
+#include <AppInstallerRepositorySearch.h>
+#include <AppInstallerProgress.h>
 
 #include <chrono>
 #include <memory>
@@ -47,17 +48,17 @@ namespace AppInstaller::Repository
     std::vector<SourceDetails> GetSources();
 
     // Adds a new source for the user.
-    void AddSource(std::string name, std::string type, std::string arg);
+    void AddSource(std::string name, std::string type, std::string arg, IProgressCallback& progress);
 
     // Opens an existing source.
     // Passing an empty string as the name of the source will return a source that aggregates all others.
-    std::unique_ptr<ISource> OpenSource(std::string_view name = {});
+    std::unique_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress);
 
     // Updates an existing source.
     // Return value indicates whether the named source was found.
-    bool UpdateSource(std::string_view name);
+    bool UpdateSource(std::string_view name, IProgressCallback& progress);
 
     // Removes an existing source.
     // Return value indicates whether the named source was found.
-    bool RemoveSource(std::string_view name);
+    bool RemoveSource(std::string_view name, IProgressCallback& progress);
 }

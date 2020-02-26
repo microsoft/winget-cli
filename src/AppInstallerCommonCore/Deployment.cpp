@@ -49,7 +49,8 @@ namespace AppInstaller::Deployment
         // Set progress callback.
         deployOperation.Progress(progressCallback);
 
-        auto deployResult = deployOperation.GetResults();
+        callback.SetCancellationFunction([&]() { deployOperation.Cancel(); });
+        auto deployResult = deployOperation.get();
 
         if (!SUCCEEDED(deployResult.ExtendedErrorCode()))
         {
@@ -61,5 +62,20 @@ namespace AppInstaller::Deployment
         {
             AICLI_LOG(Core, Info, << "Successfully deployed #" << id);
         }
+    }
+
+    winrt::hresult RemoveOptionalPackagesAsync(
+        std::vector<winrt::hstring>&& packages,
+        IProgressCallback& callback)
+    {
+        using namespace winrt::Windows::Management::Deployment;
+        PackageManager packageManager;
+        UNREFERENCED_PARAMETER(packageManager);
+
+        auto currentCatalog = winrt::Windows::ApplicationModel::PackageCatalog::OpenForCurrentPackage();
+        auto removeOperation = currentCatalog.RemoveOptionalPackagesAsync(std::move(packages));
+
+        callback.SetCancellationFunction([&]() { removeOperation.Cancel(); });
+        return removeOperation.get().ExtendedError();
     }
 }

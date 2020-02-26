@@ -9,6 +9,7 @@
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
 
+using namespace AppInstaller;
 using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Utility;
@@ -113,12 +114,12 @@ struct TestSourceFactory : public ISourceFactory
         return m_Create(details);
     }
 
-    void Update(SourceDetails& details) override
+    void Update(SourceDetails& details, IProgressCallback&) override
     {
         m_Update(details);
     }
 
-    void Remove(const SourceDetails& details) override
+    void Remove(const SourceDetails& details, IProgressCallback&) override
     {
         m_Remove(details);
     }
@@ -215,7 +216,8 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
     factory.m_Update = [&](SourceDetails& sd) { updateCalledOnFactory = true; sd.Data = data; };
     TestHook_SetSourceFactoryOverride(type, factory);
 
-    AddSource(name, type, arg);
+    ProgressCallback progress;
+    AddSource(name, type, arg, progress);
 
     REQUIRE(updateCalledOnFactory);
 
@@ -244,7 +246,8 @@ TEST_CASE("RepoSources_AddMultipleSources", "[sources]")
     factory1.m_Update = [&](SourceDetails& sd) { sd.Data = data; };
     TestHook_SetSourceFactoryOverride(type, factory1);
 
-    AddSource(name, type, arg);
+    ProgressCallback progress;
+    AddSource(name, type, arg, progress);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 1);
@@ -259,7 +262,7 @@ TEST_CASE("RepoSources_AddMultipleSources", "[sources]")
     factory2.m_Update = [&](SourceDetails& sd) { sd.Data = data + suffix[1]; };
     TestHook_SetSourceFactoryOverride(type + suffix[1], factory2);
 
-    AddSource(name + suffix[1], type + suffix[1], arg + suffix[1]);
+    AddSource(name + suffix[1], type + suffix[1], arg + suffix[1], progress);
 
     sources = GetSources();
     REQUIRE(sources.size() == 2);
@@ -292,7 +295,8 @@ TEST_CASE("RepoSources_UpdateSource", "[sources]")
     factory.m_Update = [&](SourceDetails& sd) { updateCalledOnFactory = true; sd.Data = data; };
     TestHook_SetSourceFactoryOverride(type, factory);
 
-    AddSource(name, type, arg);
+    ProgressCallback progress;
+    AddSource(name, type, arg, progress);
 
     REQUIRE(updateCalledOnFactory);
 
@@ -310,7 +314,7 @@ TEST_CASE("RepoSources_UpdateSource", "[sources]")
     auto now = std::chrono::system_clock::now();
     factory.m_Update = [&](SourceDetails& sd) { updateCalledOnFactory = true; sd.LastUpdateTime = now; };
 
-    UpdateSource(name);
+    UpdateSource(name, progress);
 
     REQUIRE(updateCalledOnFactory);
 
@@ -339,12 +343,13 @@ TEST_CASE("RepoSources_RemoveSource", "[sources]")
     factory.m_Remove = [&](const SourceDetails&) { removeCalledOnFactory = true; };
     TestHook_SetSourceFactoryOverride(type, factory);
 
-    AddSource(name, type, arg);
+    ProgressCallback progress;
+    AddSource(name, type, arg, progress);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 1);
 
-    RemoveSource(name);
+    RemoveSource(name, progress);
 
     REQUIRE(removeCalledOnFactory);
 
@@ -371,6 +376,9 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
     TestHook_SetSourceFactoryOverride(type, factory);
 
     SetSetting(s_RepositorySettings_UserSources, s_SingleSource);
+
+    ProgressCallback progress;
+    auto source = OpenSource(name, progress);
 
     REQUIRE(updateCalledOnFactory);
 

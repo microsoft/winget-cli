@@ -191,18 +191,18 @@ namespace AppInstaller::Repository
             return GetFactoryForType(details.Type)->Create(details);
         }
 
-        void UpdateSourceFromDetails(SourceDetails& details)
+        void UpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
         {
-            GetFactoryForType(details.Type)->Update(details);
+            GetFactoryForType(details.Type)->Update(details, progress);
         }
 
-        void RemoveSourceFromDetails(const SourceDetails& details)
+        void RemoveSourceFromDetails(const SourceDetails& details, IProgressCallback& progress)
         {
             auto factory = GetFactoryForType(details.Type);
 
             if (factory->IsInitialized(details))
             {
-                factory->Remove(details);
+                factory->Remove(details, progress);
             }
             else
             {
@@ -216,7 +216,7 @@ namespace AppInstaller::Repository
         return GetSourcesFromSetting(s_RepositorySettings_UserSources);
     }
 
-    void AddSource(std::string name, std::string type, std::string arg)
+    void AddSource(std::string name, std::string type, std::string arg, IProgressCallback& progress)
     {
         THROW_HR_IF(E_INVALIDARG, name.empty());
 
@@ -234,7 +234,7 @@ namespace AppInstaller::Repository
         details.Arg = std::move(arg);
         details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
 
-        UpdateSourceFromDetails(details);
+        UpdateSourceFromDetails(details, progress);
 
         AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
 
@@ -244,7 +244,7 @@ namespace AppInstaller::Repository
         SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
     }
 
-    std::unique_ptr<ISource> OpenSource(std::string_view name)
+    std::unique_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress)
     {
         std::vector<SourceDetails> currentSources = GetSources();
 
@@ -259,7 +259,7 @@ namespace AppInstaller::Repository
             {
                 // TODO: Create aggregate source here.  For now, just get the first in the list.
                 AICLI_LOG(Repo, Info, << "Default source requested, using first source: " << currentSources[0].Name);
-                return OpenSource(currentSources[0].Name);
+                return OpenSource(currentSources[0].Name, progress);
             }
         }
         else
@@ -277,7 +277,7 @@ namespace AppInstaller::Repository
                 if (!CheckIfInitializedFromDetails(*itr))
                 {
                     AICLI_LOG(Repo, Info, << "Source needs to be initialized during open: " << itr->Name);
-                    UpdateSourceFromDetails(*itr);
+                    UpdateSourceFromDetails(*itr, progress);
                     SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
                 }
                 return CreateSourceFromDetails(*itr);
@@ -285,7 +285,7 @@ namespace AppInstaller::Repository
         }
     }
 
-    bool UpdateSource(std::string_view name)
+    bool UpdateSource(std::string_view name, IProgressCallback& progress)
     {
         THROW_HR_IF(E_INVALIDARG, name.empty());
 
@@ -300,14 +300,14 @@ namespace AppInstaller::Repository
         else
         {
             AICLI_LOG(Repo, Info, << "Named source to be updated, found: " << itr->Name);
-            UpdateSourceFromDetails(*itr);
+            UpdateSourceFromDetails(*itr, progress);
 
             SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
             return true;
         }
     }
 
-    bool RemoveSource(std::string_view name)
+    bool RemoveSource(std::string_view name, IProgressCallback& progress)
     {
         THROW_HR_IF(E_INVALIDARG, name.empty());
 
@@ -322,7 +322,7 @@ namespace AppInstaller::Repository
         else
         {
             AICLI_LOG(Repo, Info, << "Named source to be removed, found: " << itr->Name);
-            RemoveSourceFromDetails(*itr);
+            RemoveSourceFromDetails(*itr, progress);
 
             currentSources.erase(itr);
             SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);

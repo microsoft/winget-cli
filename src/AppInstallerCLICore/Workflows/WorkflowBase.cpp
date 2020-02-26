@@ -13,14 +13,13 @@ namespace AppInstaller::Workflow
 {
     void WorkflowBase::OpenIndexSource()
     {
+        std::string sourceName;
         if (m_argsRef.Contains(CLI::ARG_SOURCE))
         {
-            m_source = OpenSource(*m_argsRef.GetArg(CLI::ARG_SOURCE));
+            sourceName = *m_argsRef.GetArg(CLI::ARG_SOURCE);
         }
-        else
-        {
-            m_source = OpenSource();
-        }
+
+        m_source = m_reporter.ExecuteWithProgress(std::bind(OpenSource, sourceName, std::placeholders::_1));
     }
 
     void WorkflowBase::IndexSearch()
