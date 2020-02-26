@@ -1,11 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <wil/resource.h>
 #include <atomic>
 #include <functional>
 
 namespace AppInstaller
 {
+    // Forward declaration
+    struct ProgressCallback;
+    struct IProgressCallback;
+
+    namespace details
+    {
+        // For SetCancellationFunction return.
+        inline void RemoveCancellationFunction(IProgressCallback* callback);
+    }
+
     // The semantic meaning of the progress values.
     enum class ProgressType
     {
@@ -19,6 +30,8 @@ namespace AppInstaller
     // Also enables the caller to request cancellation.
     struct IProgressCallback
     {
+        using CancelFunctionRemoval = wil::unique_any<IProgressCallback*, decltype(&details::RemoveCancellationFunction), details::RemoveCancellationFunction>;
+
         // Called as progress is made.
         // If maximum is 0, the maximum is unknown.
         virtual void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) = 0;
@@ -27,7 +40,7 @@ namespace AppInstaller
         virtual bool IsCancelled() = 0;
 
         // Sets a cancellation function that will be called when the operation is to be cancelled.
-        virtual void SetCancellationFunction(std::function<void()>&& f) = 0;
+        [[nodiscard]] virtual CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) = 0;
     };
 
     // Implementation of IProgressCallback.
@@ -50,9 +63,17 @@ namespace AppInstaller
             return m_cancelled.load();
         }
 
-        void SetCancellationFunction(std::function<void()>&& f) override
+        [[nodiscard]] IProgressCallback::CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) override
         {
             m_cancellationFunction = std::move(f);
+            if (m_cancellationFunction)
+            {
+                return IProgressCallback::CancelFunctionRemoval(this);
+            }
+            else
+            {
+                return {};
+            }
         }
 
         void Cancel()
@@ -74,4 +95,12 @@ namespace AppInstaller
         std::atomic_bool m_cancelled = false;
         std::function<void()> m_cancellationFunction;
     };
+
+    namespace details
+    {
+        inline void RemoveCancellationFunction(IProgressCallback* callback)
+        {
+            (void)callback->SetCancellationFunction(nullptr);
+        }
+    }
 }

@@ -75,7 +75,7 @@ namespace AppInstaller::Workflow
         // IProgressCallback
         void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
         bool IsCancelled() override { return false; }
-        void SetCancellationFunction(std::function<void()>&&) override {}
+        [[nodiscard]] IProgressCallback::CancelFunctionRemoval SetCancellationFunction(std::function<void()>&&) override { return {}; }
 
         // Runs the given callable of type: auto(IProgressCallback&)
         template <typename F>

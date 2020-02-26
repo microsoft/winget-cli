@@ -178,14 +178,14 @@ namespace AppInstaller::CLI
         if (inv.Contains(s_SourceCommand_ArgName_Name))
         {
             const std::string& name = *inv.GetArg(s_SourceCommand_ArgName_Name);
-            out << LOCME("Updating source: ") << name << "..." << std::flush;
+            out << LOCME("Updating source: ") << name << "..." << std::endl;
             if (!reporter.ExecuteWithProgress(std::bind(Repository::UpdateSource, name, std::placeholders::_1)))
             {
                 out << std::endl << LOCME("  Could not find a source by that name.") << std::endl;
             }
             else
             {
-                out << LOCME(" Done") << std::endl;
+                out << LOCME("Done") << std::endl;
             }
         }
         else
@@ -195,9 +195,9 @@ namespace AppInstaller::CLI
             std::vector<Repository::SourceDetails> sources = Repository::GetSources();
             for (const auto& sd : sources)
             {
-                out << LOCME("  Updating source: ") << sd.Name << "..." << std::flush;
+                out << LOCME("Updating source: ") << sd.Name << "..." << std::endl;
                 reporter.ExecuteWithProgress(std::bind(Repository::UpdateSource, sd.Name, std::placeholders::_1));
-                out << LOCME(" Done.") << std::endl;
+                out << LOCME("Done.") << std::endl;
             }
         }
     }

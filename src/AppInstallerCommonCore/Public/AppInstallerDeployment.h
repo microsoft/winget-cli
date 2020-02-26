@@ -13,8 +13,8 @@ namespace AppInstaller::Deployment
         winrt::Windows::Management::Deployment::DeploymentOptions options,
         IProgressCallback& callback);
 
-    // Calls winrt::Windows::ApplicationModel::PackageCatalog::RemoveOptionalPackagesAsync
-    winrt::hresult RemoveOptionalPackagesAsync(
-        std::vector<winrt::hstring>&& packages,
-        IProgressCallback& callback);
+    // Calls winrt::Windows::Management::Deployment::PackageManager::RemovePackageAsync,
+    // but *DOES NOT WAIT FOR A RESULT*.  As this is used for removing an optional package
+    // we will simply complete our actions 
+    void RemovePackageFireAndForget(winrt::hstring packageFullName);
 }

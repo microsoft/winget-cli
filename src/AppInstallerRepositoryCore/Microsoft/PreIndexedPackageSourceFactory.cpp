@@ -28,23 +28,90 @@ namespace AppInstaller::Repository::Microsoft
             return result;
         }
 
-        // Source factory for running within a packaged context
-        struct PackagedContextFactory : public ISourceFactory
+        // Gets the package family name from the details.
+        std::string GetPackageFamilyNameFromDetails(const SourceDetails& details)
         {
-            // Gets the package family name from the details.
-            std::string GetPackageFamilyNameFromDetails(const SourceDetails& details)
+            THROW_HR_IF(E_UNEXPECTED, details.Data.empty());
+            return details.Data;
+        }
+
+        // Creates a name for the cross process reader-writer lock given the details.
+        std::string CreateNameForCPRWL(const SourceDetails& details)
+        {
+            // The only relevant data is the package family name
+            return "PreIndexedSourceCPRWL_"s + GetPackageFamilyNameFromDetails(details);
+        }
+
+        // The base class for a package that comes from a preindexed packaged source.
+        struct PreIndexedFactoryBase : public ISourceFactory
+        {
+            bool IsInitialized(const SourceDetails& details) override final
             {
-                THROW_HR_IF(E_UNEXPECTED, details.Data.empty());
-                return details.Data;
+                return !details.Data.empty();
             }
 
-            // Creates a name for the cross process reader-writer lock given the details.
-            std::string CreateNameForCPRWL(const SourceDetails& details)
+            std::unique_ptr<ISource> Create(const SourceDetails& details) override final
             {
-                // The only relevant data is the package family name
-                return "PreIndexedSourceCPRWL_"s + GetPackageFamilyNameFromDetails(details);
+                THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
+
+                auto lock = Synchronization::CrossProcessReaderWriteLock::LockForRead(CreateNameForCPRWL(details));
+                return CreateInternal(details, std::move(lock));
             }
 
+            virtual std::unique_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) = 0;
+
+            void Update(SourceDetails& details, IProgressCallback& progress) override final
+            {
+                if (details.Type.empty())
+                {
+                    // With more than one source implementation, we will probably need to probe first
+                    details.Type = PreIndexedPackageSourceFactory::Type();
+                    AICLI_LOG(Repo, Info, << "Initializing source type: " << details.Name << " => " << details.Type);
+                }
+                else
+                {
+                    THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
+                }
+
+                std::string packageLocation = GetPackageLocation(details);
+
+                if (!IsInitialized(details))
+                {
+                    AICLI_LOG(Repo, Info, << "Initializing source from: " << details.Name << " => " << packageLocation);
+
+                    // If not initialized, we need to open the package and get the family name.
+                    Msix::MsixInfo packageInfo(packageLocation);
+                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.GetIsBundle());
+                    details.Data = packageInfo.GetPackageFamilyName();
+
+                    AICLI_LOG(Repo, Info, << "Found package family name: " << details.Name << " => " << details.Data);
+                }
+
+                auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
+
+                UpdateInternal(packageLocation, details, progress);
+
+                details.LastUpdateTime = std::chrono::system_clock::now();
+            }
+
+            virtual void UpdateInternal(std::string packageLocation, SourceDetails& details, IProgressCallback& progress) = 0;
+
+            void Remove(const SourceDetails& details, IProgressCallback& progress) override final
+            {
+                using namespace std::chrono_literals;
+
+                THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
+                auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
+
+                RemoveInternal(details, progress);
+            }
+
+            virtual void RemoveInternal(const SourceDetails& details, IProgressCallback&) = 0;
+        };
+
+        // Source factory for running within a packaged context
+        struct PackagedContextFactory : public PreIndexedFactoryBase
+        {
             // *Should only be called when under a CrossProcessReaderWriteLock*
             auto GetPackageFromDetails(const SourceDetails& details)
             {
@@ -74,84 +141,33 @@ namespace AppInstaller::Repository::Microsoft
                 return Package{ nullptr };
             }
 
-            bool IsInitialized(const SourceDetails& details) override
+            std::unique_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) override
             {
-                return !details.Data.empty();
-            }
-
-            std::unique_ptr<ISource> Create(const SourceDetails& details) override
-            {
-                THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
-
+                UNREFERENCED_PARAMETER(details);
+                UNREFERENCED_PARAMETER(lock);
                 THROW_HR(E_NOTIMPL);
             }
 
-            void Update(SourceDetails& details, IProgressCallback& progress) override
+            void UpdateInternal(std::string packageLocation, SourceDetails&, IProgressCallback& progress) override
             {
-                if (details.Type.empty())
-                {
-                    // With more than one source implementation, we will probably need to probe first
-                    details.Type = PreIndexedPackageSourceFactory::Type();
-                    AICLI_LOG(Repo, Info, << "Initializing source type: " << details.Name << " => " << details.Type);
-                }
-                else
-                {
-                    THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
-                }
-
-                std::string packageLocation = GetPackageLocation(details);
-
-                if (!IsInitialized(details))
-                {
-                    AICLI_LOG(Repo, Info, << "Initializing source from: " << details.Name << " => " << packageLocation);
-
-                    // If not initialized, we need to open the package and get the family name.
-                    Msix::MsixInfo packageInfo(packageLocation);
-                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.GetIsBundle());
-                    details.Data = packageInfo.GetPackageFamilyName();
-
-                    AICLI_LOG(Repo, Info, << "Found package family name: " << details.Name << " => " << details.Data);
-                }
-
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
-
-                // Get the package referenced by the details
-                auto optionalPackage = GetPackageFromDetails(details);
-                if (optionalPackage)
-                {
-                    // TODO: Actual implementation
-                }
-                else
-                {
-                    winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(packageLocation));
-                    Deployment::RequestAddPackageAsync(uri, winrt::Windows::Management::Deployment::DeploymentOptions::None, progress);
-                }
+                winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(packageLocation));
+                Deployment::RequestAddPackageAsync(uri, winrt::Windows::Management::Deployment::DeploymentOptions::None, progress);
             }
 
-            void Remove(const SourceDetails& details, IProgressCallback& progress) override
+            void RemoveInternal(const SourceDetails& details, IProgressCallback&) override
             {
-                using namespace std::chrono_literals;
-
-                THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
-
                 // Get the package referenced by the details
                 auto optionalPackage = GetPackageFromDetails(details);
                 if (!optionalPackage)
                 {
+                    AICLI_LOG(Repo, Info, << "Package not found by family name " << details.Data);
                     return;
                 }
 
-                // Remove package
-                std::vector<winrt::hstring> packageList;
-                packageList.emplace_back(optionalPackage.Id().FamilyName());
-
-                auto removeResult = Deployment::RemoveOptionalPackagesAsync(std::move(packageList), progress);
-                if (FAILED(removeResult))
-                {
-                    AICLI_LOG(Repo, Error, << "Failed to remove package for source: " << details.Name << " => " << GetPackageFamilyNameFromDetails(details) <<
-                        " [0x" << std::hex << std::setw(8) << std::setfill('0') << removeResult << "]");
-                }
+                // Begin package removal, but let it run its course without waiting.
+                // This pattern is required due to the inability to use SetInUseAsync from a full trust process.
+                AICLI_LOG(Repo, Info, << "Removing package " << Utility::ConvertToUTF8(optionalPackage.Id().FullName()));
+                Deployment::RemovePackageFireAndForget(optionalPackage.Id().FullName());
             }
         };
     }
