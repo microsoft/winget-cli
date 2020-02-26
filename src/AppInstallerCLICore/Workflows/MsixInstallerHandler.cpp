@@ -65,19 +65,16 @@ namespace AppInstaller::Workflow
 
         Uri target = m_useStreaming ? Uri(Utility::ConvertToUTF16(m_manifestInstallerRef.Url)) : Uri(m_downloadedInstaller.c_str());
 
-        auto installTask = ExecuteInstallerAsync(target);
-        installTask.SetProgressReceiver(&m_reporterRef);
-
         m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Starting package install...");
-        installTask.Get();
+        ExecuteInstallerAsync(target);
         m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Successfully installed.");
     }
 
-    Future<void> MsixInstallerHandler::ExecuteInstallerAsync(const winrt::Windows::Foundation::Uri& uri)
+    void MsixInstallerHandler::ExecuteInstallerAsync(const winrt::Windows::Foundation::Uri& uri)
     {
         DeploymentOptions deploymentOptions =
             DeploymentOptions::ForceApplicationShutdown |
             DeploymentOptions::ForceTargetApplicationShutdown;
-        return Deployment::RequestAddPackageAsync(uri, deploymentOptions);
+        m_reporterRef.ExecuteWithProgress(std::bind(Deployment::RequestAddPackageAsync, uri, deploymentOptions, std::placeholders::_1));
     }
 }

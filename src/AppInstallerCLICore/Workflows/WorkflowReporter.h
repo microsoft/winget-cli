@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "AppInstallerFuture.h"
+#include "AppInstallerProgress.h"
+
+#include <wil/resource.h>
 
 #include <atomic>
 #include <future>
@@ -44,7 +46,7 @@ namespace AppInstaller::Workflow
 
     // WorkflowReporter should be the central place to show workflow status to user.
     // Todo: need to implement actual console output to show color, progress bar, etc
-    struct WorkflowReporter : public IFutureProgress
+    struct WorkflowReporter : public IProgressCallback
     {
         enum class Level
         {
@@ -70,10 +72,24 @@ namespace AppInstaller::Workflow
         // running: shows indefinite progress if set to true, stops indefinite progress if set to false
         void ShowIndefiniteProgress(bool running);
 
-        // IFutureProgress
-        void OnStarted() override;
-        void OnProgress(uint64_t current, uint64_t maximum, FutureProgressType type) override;
-        void OnCompleted(bool cancelled) override;
+        // IProgressCallback
+        void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
+        bool IsCancelled() override { return false; }
+
+        // Runs the given callable of type: auto(IProgressCallback&)
+        template <typename F>
+        auto ExecuteWithProgress(F&& f)
+        {
+            ProgressCallback callback(this);
+            ShowIndefiniteProgress(true);
+
+            auto hideProgress = wil::scope_exit([this]()
+                {
+                    ShowIndefiniteProgress(false);
+                    ShowProgress(false, 0);
+                });
+            return f(callback);
+        }
 
     private:
         std::ostream& out;

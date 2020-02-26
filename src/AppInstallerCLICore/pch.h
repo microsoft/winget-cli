@@ -13,11 +13,13 @@
 
 #include <iostream>
 #include <fstream>
-#include <memory>
-#include <sstream>
-#include <vector>
 #include <future>
+#include <functional>
+#include <memory>
+#include <optional>
+#include <sstream>
 #include <string_view>
+#include <vector>
 
 #include <yaml-cpp\yaml.h>
 

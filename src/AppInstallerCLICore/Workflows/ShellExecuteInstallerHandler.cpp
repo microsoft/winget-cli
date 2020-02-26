@@ -24,13 +24,16 @@ namespace AppInstaller::Workflow
 
         RenameDownloadedInstaller();
 
-        Future<DWORD> installTask = ExecuteInstallerAsync(m_downloadedInstaller, installerArgs);
-        installTask.SetProgressReceiver(&m_reporterRef);
-        auto installResult = installTask.Get();
+        auto installResult = m_reporterRef.ExecuteWithProgress(
+            std::bind(ExecuteInstaller,
+                m_downloadedInstaller,
+                installerArgs,
+                m_argsRef.Contains(CLI::ARG_INTERACTIVE),
+                std::placeholders::_1));
 
         if (!installResult)
         {
-            m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Installation cancelled");
+            m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Installation abandoned");
         }
         else if (installResult.value() != 0)
         {
@@ -45,49 +48,48 @@ namespace AppInstaller::Workflow
         }
     }
 
-    Future<DWORD> ShellExecuteInstallerHandler::ExecuteInstallerAsync(const std::filesystem::path& filePath, const std::string& args)
+    std::optional<DWORD> ShellExecuteInstallerHandler::ExecuteInstaller(const std::filesystem::path& filePath, const std::string& args, bool interactive, IProgressCallback& progress)
     {
         AICLI_LOG(CLI, Info, << "Staring installer. Path: " << filePath);
-        int showValue = m_argsRef.Contains(CLI::ARG_INTERACTIVE) ? SW_SHOW : SW_HIDE;
-        return Future<DWORD>([filePath, args, showValue] (IPromiseKeeperProgress* progress)
-            {
-                SHELLEXECUTEINFOA execInfo = { 0 };
-                execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-                execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-                std::string filePathUTF8Str = Utility::ConvertToUTF8(filePath.c_str());
-                execInfo.lpFile = filePathUTF8Str.c_str();
-                execInfo.lpParameters = args.c_str();
-                execInfo.nShow = showValue;
-                if (!ShellExecuteExA(&execInfo) || !execInfo.hProcess)
-                {
-                    return GetLastError();
-                }
+
+        SHELLEXECUTEINFOA execInfo = { 0 };
+        execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+        execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+        std::string filePathUTF8Str = Utility::ConvertToUTF8(filePath.c_str());
+        execInfo.lpFile = filePathUTF8Str.c_str();
+        execInfo.lpParameters = args.c_str();
+        execInfo.nShow = interactive ? SW_SHOW : SW_HIDE;
+        if (!ShellExecuteExA(&execInfo) || !execInfo.hProcess)
+        {
+            return GetLastError();
+        }
                 
-                wil::unique_process_handle process{ execInfo.hProcess };
+        wil::unique_process_handle process{ execInfo.hProcess };
 
-                // Wait for installation to finish
-                while (!progress->IsCancelled())
-                {
-                    DWORD waitResult = WaitForSingleObject(process.get(), 250);
-                    if (waitResult == WAIT_OBJECT_0)
-                    {
-                        break;
-                    }
-                    if (waitResult != WAIT_TIMEOUT)
-                    {
-                        THROW_LAST_ERROR_MSG("Unexpected WaitForSingleObjectResult: %d", waitResult);
-                    }
-                }
+        // Wait for installation to finish
+        while (!progress.IsCancelled())
+        {
+            DWORD waitResult = WaitForSingleObject(process.get(), 250);
+            if (waitResult == WAIT_OBJECT_0)
+            {
+                break;
+            }
+            if (waitResult != WAIT_TIMEOUT)
+            {
+                THROW_LAST_ERROR_MSG("Unexpected WaitForSingleObjectResult: %d", waitResult);
+            }
+        }
 
-                DWORD exitCode = 0;
-
-                if (!progress->IsCancelled())
-                {
-                    GetExitCodeProcess(process.get(), &exitCode);
-                }
-
-                return exitCode;
-            });
+        if (progress.IsCancelled())
+        {
+            return {};
+        }
+        else
+        {
+            DWORD exitCode = 0;
+            GetExitCodeProcess(process.get(), &exitCode);
+            return exitCode;
+        }
     }
 
     std::string ShellExecuteInstallerHandler::GetInstallerArgsTemplate()

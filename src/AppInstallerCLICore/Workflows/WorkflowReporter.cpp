@@ -28,6 +28,10 @@ namespace AppInstaller::Workflow
     {
         char spinnerChars[] = { '-', '\\', '|', '/' };
 
+        // First wait for a small amount of time to enable a fast task to skip
+        // showing anything, or a progress task to skip straight to progress.
+        Sleep(100);
+
         for (int i = 0; !m_canceled; i++) {
             out << '\b' << spinnerChars[i] << std::flush;
 
@@ -36,7 +40,7 @@ namespace AppInstaller::Workflow
                 i = -1;
             }
 
-            Sleep(300);
+            Sleep(250);
         }
 
         out << '\b';
@@ -105,23 +109,10 @@ namespace AppInstaller::Workflow
         }
     }
 
-    // TODO: Better handling of generic progress facility
-    void WorkflowReporter::OnStarted()
-    {
-        ShowIndefiniteProgress(true);
-    }
-
-    void WorkflowReporter::OnProgress(uint64_t current, uint64_t maximum, FutureProgressType type)
+    void WorkflowReporter::OnProgress(uint64_t current, uint64_t maximum, ProgressType type)
     {
         UNREFERENCED_PARAMETER(type);
         ShowIndefiniteProgress(false);
         ShowProgress(true, (maximum ? static_cast<uint64_t>((static_cast<double>(current) / maximum) * 100) : current));
-    }
-
-    void WorkflowReporter::OnCompleted(bool cancelled)
-    {
-        UNREFERENCED_PARAMETER(cancelled);
-        ShowIndefiniteProgress(false);
-        ShowProgress(false, 0);
     }
 }
