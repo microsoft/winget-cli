@@ -181,6 +181,7 @@ namespace AppInstaller::Repository::Microsoft
                 std::filesystem::path result = Runtime::GetPathToLocalState();
                 result /= PreIndexedPackageSourceFactory::Type();
                 result /= GetPackageFamilyNameFromDetails(details);
+                return result;
             }
 
             std::unique_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) override

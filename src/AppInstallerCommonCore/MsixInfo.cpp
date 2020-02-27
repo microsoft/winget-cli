@@ -25,6 +25,84 @@ namespace AppInstaller::Msix
 
             return result;
         }
+
+        // Writes the stream (from current location) to the given file.
+        void WriteStreamToFile(IStream* stream, UINT64 expectedSize, const std::filesystem::path& target, IProgressCallback& progress)
+        {
+            std::filesystem::path tempFile = target;
+            tempFile += ".dnld";
+
+            {
+                std::ofstream file(tempFile, std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
+
+                constexpr ULONG bufferSize = 1 << 20;
+                std::unique_ptr<char[]> buffer = std::make_unique<char[]>(bufferSize);
+
+                UINT64 totalBytesRead = 0;
+
+                while (!progress.IsCancelled())
+                {
+                    ULONG bytesRead = 0;
+                    HRESULT hr = stream->Read(buffer.get(), bufferSize, &bytesRead);
+
+                    if (bytesRead)
+                    {
+                        // If we got bytes, just accept them and keep going.
+                        LOG_IF_FAILED(hr);
+
+                        file.write(buffer.get(), bytesRead);
+                        totalBytesRead += bytesRead;
+                    }
+                    else
+                    {
+                        // If given a size, and we have read it all, quit
+                        if (expectedSize && totalBytesRead == expectedSize)
+                        {
+                            break;
+                        }
+
+                        // If the stream returned an error, throw it
+                        THROW_IF_FAILED(hr);
+
+                        // If we were given a size and didn't reach it, throw our own error;
+                        // otherwise assume that this is just normal EOF.
+                        if (expectedSize)
+                        {
+                            THROW_WIN32(ERROR_HANDLE_EOF);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            std::filesystem::path backupFile = target;
+            backupFile += ".bkup";
+            if (std::filesystem::exists(target))
+            {
+                if (std::filesystem::exists(backupFile))
+                {
+                    std::filesystem::remove(backupFile);
+                }
+                std::filesystem::rename(target, backupFile);
+            }
+
+            std::filesystem::rename(tempFile, target);
+        }
+
+        // Writes the appx file to the given file.
+        void WriteAppxFileToFile(IAppxFile* appxFile, const std::filesystem::path& target, IProgressCallback& progress)
+        {
+            UINT64 size = 0;
+            THROW_IF_FAILED(appxFile->GetSize(&size));
+
+            ComPtr<IStream> stream;
+            THROW_IF_FAILED(appxFile->GetStream(&stream));
+
+            WriteStreamToFile(stream.Get(), size, target, progress);
+        }
     }
 
     bool GetBundleReader(
@@ -207,11 +285,33 @@ namespace AppInstaller::Msix
 
     void MsixInfo::WriteToFile(std::string_view packageFile, const std::filesystem::path& target, IProgressCallback& progress)
     {
+        std::wstring fileUTF16 = Utility::ConvertToUTF16(packageFile);
 
+        ComPtr<IAppxFile> appxFile;
+        if (m_isBundle)
+        {
+            THROW_IF_FAILED(m_bundleReader->GetPayloadPackage(fileUTF16.c_str(), &appxFile));
+        }
+        else
+        {
+            THROW_IF_FAILED(m_packageReader->GetPayloadFile(fileUTF16.c_str(), &appxFile));
+        }
+
+        WriteAppxFileToFile(appxFile.Get(), target, progress);
     }
 
     void MsixInfo::WriteManifestToFile(const std::filesystem::path& target, IProgressCallback& progress)
     {
+        ComPtr<IAppxFile> appxFile;
+        if (m_isBundle)
+        {
+            THROW_IF_FAILED(m_bundleReader->GetFootprintFile(APPX_BUNDLE_FOOTPRINT_FILE_TYPE_MANIFEST, &appxFile));
+        }
+        else
+        {
+            THROW_IF_FAILED(m_packageReader->GetFootprintFile(APPX_FOOTPRINT_FILE_TYPE_MANIFEST, &appxFile));
+        }
 
+        WriteAppxFileToFile(appxFile.Get(), target, progress);
     }
 }
