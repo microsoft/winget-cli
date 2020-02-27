@@ -23,6 +23,11 @@ namespace AppInstaller::Msix
         IStream* inputStream,
         IAppxPackageReader** reader);
 
+    // Function to create an Appx manifest reader given the input file name.
+    void GetManifestReader(
+        IStream* inputStream,
+        IAppxManifestReader** reader);
+
     // MsixInfo class handles all appx/msix related query.
     struct MsixInfo
     {

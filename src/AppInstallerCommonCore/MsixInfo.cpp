@@ -12,9 +12,24 @@ using namespace AppInstaller::Utility::HttpStream;
 
 namespace AppInstaller::Msix
 {
+    namespace
+    {
+        // Gets the version from the manifest reader.
+        UINT64 GetVersionFromManifestReader(IAppxManifestReader* reader)
+        {
+            ComPtr<IAppxManifestPackageId> packageId;
+            THROW_IF_FAILED(reader->GetPackageId(&packageId));
+
+            UINT64 result = 0;
+            THROW_IF_FAILED(packageId->GetVersion(&result));
+
+            return result;
+        }
+    }
+
     bool GetBundleReader(
-        _In_ IStream* inputStream,
-        _Outptr_ IAppxBundleReader** reader)
+        IStream* inputStream,
+        IAppxBundleReader** reader)
     {
         ComPtr<IAppxBundleFactory> bundleFactory;
 
@@ -45,10 +60,9 @@ namespace AppInstaller::Msix
     }
 
     bool GetPackageReader(
-        _In_ IStream* inputStream,
-        _Outptr_ IAppxPackageReader** reader)
+        IStream* inputStream,
+        IAppxPackageReader** reader)
     {
-
         ComPtr<IAppxFactory> appxFactory;
 
         // Create a new Appx factory
@@ -76,6 +90,22 @@ namespace AppInstaller::Msix
         {
             THROW_HR(hr);
         }
+    }
+
+    void GetManifestReader(
+        IStream* inputStream,
+        IAppxManifestReader** reader)
+    {
+        ComPtr<IAppxFactory> appxFactory;
+
+        THROW_IF_FAILED(CoCreateInstance(
+            __uuidof(AppxFactory),
+            nullptr,
+            CLSCTX_INPROC_SERVER,
+            __uuidof(IAppxFactory),
+            (LPVOID*)(&appxFactory)));
+
+        THROW_IF_FAILED(appxFactory->CreateManifestReader(inputStream, reader));
     }
 
     MsixInfo::MsixInfo(const std::string& uriStr)
@@ -156,5 +186,32 @@ namespace AppInstaller::Msix
         THROW_IF_FAILED(packageId->GetPackageFamilyName(&familyName));
 
         return Utility::ConvertToUTF8(familyName.get());
+    }
+
+    bool MsixInfo::IsNewerThan(const std::filesystem::path& otherManifest)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, m_isBundle);
+
+        ComPtr<IStream> otherStream;
+        THROW_IF_FAILED(SHCreateStreamOnFileEx(otherManifest.c_str(), 
+            STGM_READ | STGM_SHARE_DENY_WRITE | STGM_FAILIFTHERE, 0, FALSE, nullptr, &otherStream));
+
+        ComPtr<IAppxManifestReader> otherReader;
+        GetManifestReader(otherStream.Get(), &otherReader);
+
+        ComPtr<IAppxManifestReader> manifestReader;
+        THROW_IF_FAILED(m_packageReader->GetManifest(&manifestReader));
+
+        return (GetVersionFromManifestReader(manifestReader.Get()) > GetVersionFromManifestReader(otherReader.Get()));
+    }
+
+    void MsixInfo::WriteToFile(std::string_view packageFile, const std::filesystem::path& target, IProgressCallback& progress)
+    {
+
+    }
+
+    void MsixInfo::WriteManifestToFile(const std::filesystem::path& target, IProgressCallback& progress)
+    {
+
     }
 }

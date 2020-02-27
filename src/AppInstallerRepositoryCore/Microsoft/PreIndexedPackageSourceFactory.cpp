@@ -55,6 +55,7 @@ namespace AppInstaller::Repository::Microsoft
             std::unique_ptr<ISource> Create(const SourceDetails& details) override final
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
+                THROW_HR_IF(E_UNEXPECTED, !IsInitialized(details));
 
                 auto lock = Synchronization::CrossProcessReaderWriteLock::LockForRead(CreateNameForCPRWL(details));
                 return CreateInternal(details, std::move(lock));
@@ -100,8 +101,6 @@ namespace AppInstaller::Repository::Microsoft
 
             void Remove(const SourceDetails& details, IProgressCallback& progress) override final
             {
-                using namespace std::chrono_literals;
-
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
                 auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
 
@@ -254,7 +253,7 @@ namespace AppInstaller::Repository::Microsoft
         }
         else
         {
-            THROW_HR(E_NOTIMPL);
+            return std::make_unique<DesktopContextFactory>();
         }
     }
 }
