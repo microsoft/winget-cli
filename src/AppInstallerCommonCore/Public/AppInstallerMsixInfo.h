@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerProgress.h>
 #include <AppxPackaging.h>
 #include <wrl/client.h>
+#include <filesystem>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace AppInstaller::Msix
@@ -41,6 +44,15 @@ namespace AppInstaller::Msix
 
         // Gets the package family name.
         std::string GetPackageFamilyName();
+
+        // Gets a value indicating whether the referenced info is newer than the given manifest.
+        bool IsNewerThan(const std::filesystem::path& otherManifest);
+
+        // Writes the package file to the given path.
+        void WriteToFile(std::string_view packageFile, const std::filesystem::path& target, IProgressCallback& progress);
+
+        // Writes the package's manifest to the given path.
+        void WriteManifestToFile(const std::filesystem::path& target, IProgressCallback& progress);
 
     private:
         bool m_isBundle;

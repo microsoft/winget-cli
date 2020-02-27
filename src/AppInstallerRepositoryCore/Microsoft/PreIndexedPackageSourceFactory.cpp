@@ -12,7 +12,9 @@ namespace AppInstaller::Repository::Microsoft
     namespace
     {
         // TODO: Insert more final name here when available
-        static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageFileName = "AppInstallerSQLLiteIndex.msix"sv;
+        static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageFileName = "index.msix"sv;
+        static constexpr std::string_view s_PreIndexedPackageSourceFactory_AppxManifestFileName = "AppxManifest.xml"sv;
+        static constexpr std::string_view s_PreIndexedPackageSourceFactory_IndexFileName = "index.db"sv;
 
         // Construct the package location from the given details.
         // Currently expects that the arg is an https uri pointing to the root of the data.
@@ -168,6 +170,78 @@ namespace AppInstaller::Repository::Microsoft
                 // This pattern is required due to the inability to use SetInUseAsync from a full trust process.
                 AICLI_LOG(Repo, Info, << "Removing package " << Utility::ConvertToUTF8(optionalPackage.Id().FullName()));
                 Deployment::RemovePackageFireAndForget(optionalPackage.Id().FullName());
+            }
+        };
+
+        // Source factory for running outside of a package.
+        struct DesktopContextFactory : public PreIndexedFactoryBase
+        {
+            // Constructs the location that we will write files to.
+            std::filesystem::path GetStatePathFromDetails(const SourceDetails& details)
+            {
+                std::filesystem::path result = Runtime::GetPathToLocalState();
+                result /= PreIndexedPackageSourceFactory::Type();
+                result /= GetPackageFamilyNameFromDetails(details);
+            }
+
+            std::unique_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) override
+            {
+                UNREFERENCED_PARAMETER(details);
+                UNREFERENCED_PARAMETER(lock);
+                THROW_HR(E_NOTIMPL);
+            }
+
+            void UpdateInternal(std::string packageLocation, SourceDetails& details, IProgressCallback& progress) override
+            {
+                // We will extract the manifest and index files directly to this location
+                std::filesystem::path packageState = GetStatePathFromDetails(details);
+                std::filesystem::create_directories(packageState);
+
+                Msix::MsixInfo packageInfo(packageLocation);
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.GetIsBundle());
+
+                if (progress.IsCancelled())
+                {
+                    AICLI_LOG(Repo, Info, << "Cancelling update upon request");
+                    return;
+                }
+
+                std::filesystem::path manifestPath = packageState / s_PreIndexedPackageSourceFactory_AppxManifestFileName;
+                std::filesystem::path indexPath = packageState / s_PreIndexedPackageSourceFactory_IndexFileName;
+
+                if (std::filesystem::exists(manifestPath) && std::filesystem::exists(indexPath))
+                {
+                    // If we already have a manifest, use it to determine if we need to update or not.
+                    if (!packageInfo.IsNewerThan(manifestPath))
+                    {
+                        AICLI_LOG(Repo, Info, << "Remote source data was not newer than existing, no update needed");
+                        return;
+                    }
+                }
+
+                if (progress.IsCancelled())
+                {
+                    AICLI_LOG(Repo, Info, << "Cancelling update upon request");
+                    return;
+                }
+
+                packageInfo.WriteToFile(s_PreIndexedPackageSourceFactory_IndexFileName, indexPath, progress);
+                packageInfo.WriteManifestToFile(manifestPath, progress);
+            }
+
+            void RemoveInternal(const SourceDetails& details, IProgressCallback&) override
+            {
+                std::filesystem::path packageState = GetStatePathFromDetails(details);
+
+                if (!std::filesystem::exists(packageState))
+                {
+                    AICLI_LOG(Repo, Info, << "No state found for source: " << packageState.u8string());
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Info, << "Removing state found for source: " << packageState.u8string());
+                    std::filesystem::remove_all(packageState);
+                }
             }
         };
     }
