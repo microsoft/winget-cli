@@ -53,18 +53,20 @@ namespace AppInstaller::Repository::Microsoft
         // If the function succeeds, the manifest has been added.
         void AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
 
-        // Updates the manifest at the repository relative path in the index.
+        // Updates the manifest with matching { Id, Version, Channel } in the index.
         // The return value indicates whether the index was modified by the function.
         bool UpdateManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);
 
-        // Updates the manifest at the repository relative path in the index.
+        // Updates the manifest with matching { Id, Version, Channel } in the index.
         // The return value indicates whether the index was modified by the function.
         bool UpdateManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
 
-        // Removes the manifest at the repository relative path from the index.
+        // Removes the manifest with matching { Id, Version, Channel } from the index.
+        // Path is currently ignored.
         void RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);
 
-        // Removes the manifest at the repository relative path from the index.
+        // Removes the manifest with matching { Id, Version, Channel } from the index.
+        // Path is currently ignored.
         void RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
 
         // Removes data that is no longer needed for an index that is to be published.

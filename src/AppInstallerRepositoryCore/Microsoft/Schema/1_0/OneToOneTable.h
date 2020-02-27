@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "SQLiteWrapper.h"
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -12,6 +13,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
         // Creates the table.
         void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName);
+
+        // Selects the value from the table, returning the rowid if it exists.
+        std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value);
 
         // Ensures that the values exists in the table.
         SQLite::rowid_t OneToOneTableEnsureExists(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value);
@@ -49,6 +53,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         static constexpr std::string_view ValueName()
         {
             return TableInfo::ValueName();
+        }
+
+        // Selects the value from the table, returning the rowid if it exists.
+        static std::optional<SQLite::rowid_t> SelectIdByValue(SQLite::Connection& connection, std::string_view value)
+        {
+            return details::OneToOneTableSelectIdByValue(connection, TableInfo::TableName(), TableInfo::ValueName(), value);
         }
 
         // Ensures that the given value exists in the table, returning the rowid.

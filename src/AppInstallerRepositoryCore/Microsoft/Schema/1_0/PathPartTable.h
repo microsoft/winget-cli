@@ -12,6 +12,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     // A table that represents a single manifest
     struct PathPartTable
     {
+        // The id type
+        using id_t = SQLite::rowid_t;
+
         // Creates the table.
         static void Create(SQLite::Connection& connection);
 

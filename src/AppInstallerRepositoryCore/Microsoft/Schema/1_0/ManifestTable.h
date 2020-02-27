@@ -13,7 +13,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     namespace details
     {
         // Selects a manifest by the given value id.
-        std::optional<SQLite::rowid_t> ManifestTableSelectByValueId(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t id);
+        std::optional<SQLite::rowid_t> ManifestTableSelectByValueIds(
+            SQLite::Connection& connection,
+            std::initializer_list<std::string_view> values,
+            std::initializer_list<SQLite::rowid_t> ids);
 
         // Gets the requested ids for the manifest with the given rowid.
         SQLite::Statement ManifestTableGetIdsById_Statement(
@@ -56,10 +59,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         static SQLite::rowid_t Insert(SQLite::Connection& connection, std::initializer_list<ManifestOneToOneValue> values);
 
         // Select the first rowid of the manifest with the given value.
-        template <typename Table>
-        static std::optional<SQLite::rowid_t> SelectByValueId(SQLite::Connection& connection, SQLite::rowid_t id)
+        template <typename... Tables>
+        static std::optional<SQLite::rowid_t> SelectByValueIds(SQLite::Connection& connection, std::initializer_list<SQLite::rowid_t> ids)
         {
-            return details::ManifestTableSelectByValueId(connection, Table::ValueName(), id);
+            static_assert(sizeof...(Tables) >= 1);
+            return details::ManifestTableSelectByValueIds(connection, { Tables::ValueName()... }, ids);
         }
 
         // Gets the ids requested for the manifest with the given rowid.
