@@ -22,18 +22,29 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             createTableBuilder.Execute(connection);
         }
 
+        std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value)
+        {
+            SQLite::Builder::StatementBuilder selectBuilder;
+            selectBuilder.Select(SQLite::RowIDName).From(tableName).Where(valueName).Equals(value);
+
+            SQLite::Statement select = selectBuilder.Prepare(connection);
+
+            if (select.Step())
+            {
+                return select.GetColumn<SQLite::rowid_t>(0);
+            }
+            else
+            {
+                return {};
+            }
+        }
+
         SQLite::rowid_t OneToOneTableEnsureExists(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value)
         {
+            auto selectResult = OneToOneTableSelectIdByValue(connection, tableName, valueName, value);
+            if (selectResult)
             {
-                SQLite::Builder::StatementBuilder selectBuilder;
-                selectBuilder.Select(SQLite::RowIDName).From(tableName).Where(valueName).Equals(value);
-
-                SQLite::Statement select = selectBuilder.Prepare(connection);
-
-                if (select.Step())
-                {
-                    return select.GetColumn<SQLite::rowid_t>(0);
-                }
+                return selectResult.value();
             }
 
             SQLite::Builder::StatementBuilder insertBuilder;
@@ -47,7 +58,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         void OneToOneTableDeleteIfNotNeededById(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id)
         {
             // If a manifest is found that references this id, then we are done.
-            if (ManifestTableSelectByValueId(connection, valueName, id))
+            if (ManifestTableSelectByValueIds(connection, { valueName }, { id }))
             {
                 return;
             }

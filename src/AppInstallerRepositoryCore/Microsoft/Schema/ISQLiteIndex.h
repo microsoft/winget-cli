@@ -29,10 +29,12 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Adds the manifest at the repository relative path to the index.
         virtual void AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
 
-        // Updates the manifest at the repository relative path in the index.
+        // Updates the manifest with matching { Id, Version, Channel } in the index.
+        // The return value indicates whether the index was modified by the function.
         virtual bool UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
 
-        // Removes the manifest at the repository relative path from the index.
+        // Removes the manifest with matching { Id, Version, Channel } from the index.
+        // Path is currently ignored.
         virtual void RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
 
         // Removes data that is no longer needed for an index that is to be published.

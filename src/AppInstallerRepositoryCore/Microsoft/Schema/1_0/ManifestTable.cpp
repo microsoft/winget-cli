@@ -14,12 +14,40 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     namespace details
     {
-        std::optional<SQLite::rowid_t> ManifestTableSelectByValueId(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t id)
+        std::optional<SQLite::rowid_t> ManifestTableSelectByValueIds(
+            SQLite::Connection& connection,
+            std::initializer_list<std::string_view> values,
+            std::initializer_list<SQLite::rowid_t> ids)
         {
+            THROW_HR_IF(E_INVALIDARG, values.size() != ids.size());
+
             SQLite::Builder::StatementBuilder builder;
-            builder.Select(SQLite::RowIDName).From(s_ManifestTable_Table_Name).Where(valueName).Equals(id).Limit(1);
+            builder.Select(SQLite::RowIDName).From(s_ManifestTable_Table_Name);
+            
+            bool isFirst = true;
+
+            for (const auto& value : values)
+            {
+                if (isFirst)
+                {
+                    builder.Where(value).Equals(SQLite::Builder::Unbound);
+                    isFirst = false;
+                }
+                else
+                {
+                    builder.And(value).Equals(SQLite::Builder::Unbound);
+                }
+            }
+
+            builder.Limit(1);
 
             SQLite::Statement select = builder.Prepare(connection);
+
+            int bindIndex = 0;
+            for (const auto& id : ids)
+            {
+                select.Bind(++bindIndex, id);
+            }
 
             if (select.Step())
             {

@@ -301,6 +301,87 @@ TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex][V1_0]")
     REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
 }
 
+TEST_CASE("SQLiteIndex_UpdateManifestChangePath", "[sqliteindex][V1_0]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string manifestPath = "test/id/test.id-1.0.0.yml";
+    Manifest manifest;
+    manifest.Id = "test.id";
+    manifest.Name = "Test Name";
+    manifest.AppMoniker = "testmoniker";
+    manifest.Version = "1.0.0";
+    manifest.Channel = "test";
+    manifest.Tags = { "t1", "t2" };
+    manifest.Commands = { "test1", "test2" };
+
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
+
+        index.AddManifest(manifest, manifestPath);
+    }
+
+    {
+        // Open it directly to directly test table state
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+        REQUIRE(!Schema::V1_0::ManifestTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::IdTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::NameTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::MonikerTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::VersionTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::ChannelTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::PathPartTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::TagsTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::CommandsTable::IsEmpty(connection));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        manifestPath = "test/newid/test.newid-1.0.0.yml";
+
+        // Update with path update should indicate change
+        REQUIRE(index.UpdateManifest(manifest, manifestPath));
+    }
+
+    {
+        // Open it directly to directly test table state
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+        REQUIRE(!Schema::V1_0::ManifestTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::IdTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::NameTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::MonikerTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::VersionTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::ChannelTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::PathPartTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::TagsTable::IsEmpty(connection));
+        REQUIRE(!Schema::V1_0::CommandsTable::IsEmpty(connection));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        // Now remove manifest, with unknown path
+        index.RemoveManifest(manifest, "");
+    }
+
+    // Open it directly to directly test table state
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+    REQUIRE(Schema::V1_0::ManifestTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::IdTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::NameTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::MonikerTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::VersionTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ChannelTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::PathPartTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::TagsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
+}
+
 TEST_CASE("PathPartTable_EnsurePathExists_Negative_Paths", "[sqliteindex][V1_0]")
 {
     // Open it directly to directly test pathpart table
