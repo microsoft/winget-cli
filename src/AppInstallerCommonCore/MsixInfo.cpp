@@ -52,6 +52,7 @@ namespace AppInstaller::Msix
 
                         file.write(buffer.get(), bytesRead);
                         totalBytesRead += bytesRead;
+                        progress.OnProgress(totalBytesRead, expectedSize, ProgressType::Bytes);
                     }
                     else
                     {
