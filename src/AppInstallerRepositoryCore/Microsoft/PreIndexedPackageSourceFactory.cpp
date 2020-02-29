@@ -11,7 +11,6 @@ namespace AppInstaller::Repository::Microsoft
 {
     namespace
     {
-        // TODO: Insert more final name here when available
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageFileName = "index.msix"sv;
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_AppxManifestFileName = "AppxManifest.xml"sv;
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_IndexFileName = "index.db"sv;

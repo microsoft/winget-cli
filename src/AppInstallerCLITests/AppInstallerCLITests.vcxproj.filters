@@ -65,6 +65,9 @@
     <ClCompile Include="Synchronization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MsixInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

@@ -31,7 +31,7 @@ namespace AppInstaller::Msix
     // MsixInfo class handles all appx/msix related query.
     struct MsixInfo
     {
-        MsixInfo(const std::string& uriStr);
+        MsixInfo(std::string_view uriStr);
 
         MsixInfo(const MsixInfo&) = default;
         MsixInfo& operator=(const MsixInfo&) = default;

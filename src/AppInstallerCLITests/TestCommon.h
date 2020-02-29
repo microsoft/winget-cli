@@ -34,7 +34,8 @@ namespace TestCommon
         ~TempFile();
 
         const std::filesystem::path& GetPath() const { return _filepath; }
-        operator const std::string () const { return _filepath.u8string(); }
+        operator const std::filesystem::path& () const { return _filepath; }
+        operator const std::string() const { return _filepath.u8string(); }
 
         static void SetDestructorBehavior(TempFileDestructionBehavior behavior);
 

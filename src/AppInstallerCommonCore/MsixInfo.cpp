@@ -4,6 +4,7 @@
 #include "Public/AppInstallerMsixInfo.h"
 #include "HttpStream/HttpRandomAccessStream.h"
 #include "Public/AppInstallerStrings.h"
+#include "Public/AppInstallerDownloader.h"
 
 
 using namespace winrt::Windows::Storage::Streams;
@@ -187,16 +188,25 @@ namespace AppInstaller::Msix
         THROW_IF_FAILED(appxFactory->CreateManifestReader(inputStream, reader));
     }
 
-    MsixInfo::MsixInfo(const std::string& uriStr)
+    MsixInfo::MsixInfo(std::string_view uriStr)
     {
-        // Get an IStream from the input uri and try to create package or bundler reader.
-        winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(uriStr));
-        IRandomAccessStream randomAccessStream = HttpRandomAccessStream::CreateAsync(uri).get();
+        if (Utility::IsUrlRemote(uriStr))
+        {
+            // Get an IStream from the input uri and try to create package or bundler reader.
+            winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(uriStr));
+            IRandomAccessStream randomAccessStream = HttpRandomAccessStream::CreateAsync(uri).get();
 
-        ::IUnknown* rasAsIUnknown = (::IUnknown*)winrt::get_abi(randomAccessStream);
-        THROW_IF_FAILED(CreateStreamOverRandomAccessStream(
-            rasAsIUnknown,
-            IID_PPV_ARGS(m_stream.ReleaseAndGetAddressOf())));
+            ::IUnknown* rasAsIUnknown = (::IUnknown*)winrt::get_abi(randomAccessStream);
+            THROW_IF_FAILED(CreateStreamOverRandomAccessStream(
+                rasAsIUnknown,
+                IID_PPV_ARGS(m_stream.ReleaseAndGetAddressOf())));
+        }
+        else
+        {
+            std::filesystem::path path(uriStr);
+            THROW_IF_FAILED(SHCreateStreamOnFileEx(path.c_str(),
+                STGM_READ | STGM_SHARE_DENY_WRITE | STGM_FAILIFTHERE, 0, FALSE, nullptr, &m_stream));
+        }
 
         if (GetBundleReader(m_stream.Get(), &m_bundleReader))
         {
@@ -209,7 +219,7 @@ namespace AppInstaller::Msix
         else
         {
             THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_INSTALL_OPEN_PACKAGE_FAILED),
-                "Failed to open uri as msix package or bundle. Uri: %s", uriStr.c_str());
+                "Failed to open uri as msix package or bundle. Uri: %s", uriStr.data());
         }
     }
 
