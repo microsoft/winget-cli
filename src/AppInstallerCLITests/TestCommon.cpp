@@ -65,7 +65,7 @@ namespace TestCommon
         switch (s_TempFileDestructorBehavior)
         {
         case TempFileDestructionBehavior::Delete:
-            std::filesystem::remove(_filepath);
+            std::filesystem::remove_all(_filepath);
             break;
         case TempFileDestructionBehavior::Keep:
             break;
@@ -100,6 +100,19 @@ namespace TestCommon
         }
     }
 
+    TempDirectory::TempDirectory(const std::string& baseName, bool create)
+    {
+        _filepath = GetTempFilePath(baseName, "");
+        if (create)
+        {
+            if (std::filesystem::exists(_filepath))
+            {
+                std::filesystem::remove_all(_filepath);
+            }
+            std::filesystem::create_directories(_filepath);
+        }
+    }
+
     std::filesystem::path TestDataFile::GetPath() const
     {
         std::filesystem::path result = s_TestDataFileBasePath;
@@ -110,5 +123,23 @@ namespace TestCommon
     void TestDataFile::SetTestDataBasePath(const std::filesystem::path& path)
     {
         s_TestDataFileBasePath = path;
+    }
+
+    void TestProgress::OnProgress(uint64_t current, uint64_t maximum, AppInstaller::ProgressType type)
+    {
+        if (m_OnProgress)
+        {
+            m_OnProgress(current, maximum, type);
+        }
+    }
+
+    bool TestProgress::IsCancelled()
+    {
+        return false;
+    }
+
+    AppInstaller::IProgressCallback::CancelFunctionRemoval TestProgress::SetCancellationFunction(std::function<void()>&&)
+    {
+        return {};
     }
 }

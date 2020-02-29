@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="MsixInfo.cpp" />
+    <ClCompile Include="PreIndexedPackageSource.cpp" />
     <ClCompile Include="WorkFlow.cpp" />
     <ClCompile Include="LanguageUtilities.cpp" />
     <ClCompile Include="main.cpp">

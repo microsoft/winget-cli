@@ -62,9 +62,5 @@ TEST_CASE("MsixInfo_WriteFile", "[msixinfo]")
 
     msix.WriteToFile("index.db", file, callback);
 
-    wil::unique_handle actualFile(CreateFile(file.GetPath().c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr));
-    LARGE_INTEGER size{};
-    REQUIRE(GetFileSizeEx(actualFile.get(), &size));
-
-    REQUIRE(1 == size.QuadPart);
+    REQUIRE(1 == std::filesystem::file_size(file));
 }

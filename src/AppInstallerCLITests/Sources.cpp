@@ -4,7 +4,7 @@
 #include "TestCommon.h"
 #include "TestHooks.h"
 
-#include <Public/AppInstallerRepositorySource.h>
+#include <AppInstallerRepositorySource.h>
 #include <AppInstallerDateTime.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
