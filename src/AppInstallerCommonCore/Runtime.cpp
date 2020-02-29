@@ -45,7 +45,21 @@ namespace AppInstaller::Runtime
         {
             auto result = winrt::Windows::Storage::ApplicationData::Current().LocalSettings();
 
-            for (const auto& part : name.parent_path())
+            std::filesystem::path pathToUse;
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (!s_Settings_TestHook_ForcedContainerPrepend.empty())
+            {
+                pathToUse = s_Settings_TestHook_ForcedContainerPrepend;
+                pathToUse /= name;
+            }
+            else
+#endif
+            {
+                pathToUse = name;
+            }
+
+            for (const auto& part : pathToUse.parent_path())
             {
                 auto partHstring = winrt::to_hstring(part.c_str());
                 result = result.CreateContainer(partHstring, winrt::Windows::Storage::ApplicationDataCreateDisposition::Always);
@@ -71,6 +85,14 @@ namespace AppInstaller::Runtime
 
             std::filesystem::path result = localAppDataPath;
             result /= "Microsoft/AppInstaller";
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (!s_Settings_TestHook_ForcedContainerPrepend.empty())
+            {
+                result /= s_Settings_TestHook_ForcedContainerPrepend;
+            }
+#endif
+
             return result;
         }
 
@@ -171,7 +193,16 @@ namespace AppInstaller::Runtime
     {
         if (IsRunningInPackagedContext())
         {
-            return { winrt::Windows::Storage::ApplicationData::Current().LocalFolder().Path().c_str() };
+            std::filesystem::path result = winrt::Windows::Storage::ApplicationData::Current().LocalFolder().Path().c_str();
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (!s_Settings_TestHook_ForcedContainerPrepend.empty())
+            {
+                result /= s_Settings_TestHook_ForcedContainerPrepend;
+            }
+#endif
+
+            return result;
         }
         else
         {

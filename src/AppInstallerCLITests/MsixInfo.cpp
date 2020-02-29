@@ -9,21 +9,24 @@ using namespace std::string_view_literals;
 using namespace TestCommon;
 using namespace AppInstaller;
 
-constexpr std::string_view s_Msix_url = "https://github.com/microsoft/msix-packaging/blob/master/src/test/testData/unpack/TestAppxPackage_x64.appx?raw=true";
+constexpr std::string_view s_MsixFile_1 = "index.1.0.0.0.msix";
+constexpr std::string_view s_MsixFile_2 = "index.2.0.0.0.msix";
 
 TEST_CASE("MsixInfo_GetPackageFamilyName", "[msixinfo]")
 {
-    Msix::MsixInfo msix(s_Msix_url);
+    TestDataFile index(s_MsixFile_1);
+    Msix::MsixInfo msix(index.GetPath().u8string());
 
-    std::string expectedFamilyName = "20477fca-282d-49fb-b03e-371dca074f0f_8wekyb3d8bbwe";
+    std::string expectedFamilyName = "AppInstallerCLITestsFakeIndex_125rzkzqaqjwj";
     std::string actualFamilyName = msix.GetPackageFamilyName();
 
     REQUIRE(expectedFamilyName == actualFamilyName);
 }
 
-TEST_CASE("MsixInfo_WriteManifestAndCompare", "[msixinfo]")
+TEST_CASE("MsixInfo_WriteManifestAndCompareToSelf", "[msixinfo]")
 {
-    Msix::MsixInfo msix(s_Msix_url);
+    TestDataFile index(s_MsixFile_1);
+    Msix::MsixInfo msix(index.GetPath().u8string());
 
     TempFile manifest{ "msixtest_manifest"s, ".xml"s };
     ProgressCallback callback;
@@ -33,18 +36,35 @@ TEST_CASE("MsixInfo_WriteManifestAndCompare", "[msixinfo]")
     REQUIRE(!msix.IsNewerThan(manifest));
 }
 
+TEST_CASE("MsixInfo_WriteManifestAndCompareToOlder", "[msixinfo]")
+{
+    TestDataFile index1(s_MsixFile_1);
+    Msix::MsixInfo msix1(index1.GetPath().u8string());
+
+    TempFile manifest{ "msixtest_manifest"s, ".xml"s };
+    ProgressCallback callback;
+
+    msix1.WriteManifestToFile(manifest, callback);
+
+    TestDataFile index2(s_MsixFile_2);
+    Msix::MsixInfo msix2(index2.GetPath().u8string());
+
+    REQUIRE(msix2.IsNewerThan(manifest));
+}
+
 TEST_CASE("MsixInfo_WriteFile", "[msixinfo]")
 {
-    Msix::MsixInfo msix(s_Msix_url);
+    TestDataFile index(s_MsixFile_1);
+    Msix::MsixInfo msix(index.GetPath().u8string());
 
     TempFile file{ "msixtest_file"s, ".bin"s };
     ProgressCallback callback;
 
-    msix.WriteToFile("TestAppxPackage.winmd", file, callback);
+    msix.WriteToFile("index.db", file, callback);
 
     wil::unique_handle actualFile(CreateFile(file.GetPath().c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr));
     LARGE_INTEGER size{};
     REQUIRE(GetFileSizeEx(actualFile.get(), &size));
 
-    REQUIRE(3072 == size.QuadPart);
+    REQUIRE(1 == size.QuadPart);
 }

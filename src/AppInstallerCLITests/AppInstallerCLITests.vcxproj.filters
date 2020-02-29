@@ -104,5 +104,11 @@
     <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_WithSwitches.yml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\index.1.0.0.0.msix">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\index.2.0.0.0.msix">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

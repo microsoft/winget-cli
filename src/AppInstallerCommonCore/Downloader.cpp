@@ -131,8 +131,8 @@ namespace AppInstaller::Utility
         constexpr std::string_view s_https_start = "https://"sv;
 
         // Very simple choice right now: "does it start with http:// or https://"?
-        if (CaseInsensitiveEquals(url.substr(s_http_start.length()), s_http_start) ||
-            CaseInsensitiveEquals(url.substr(s_https_start.length()), s_https_start))
+        if (CaseInsensitiveEquals(url.substr(0, s_http_start.length()), s_http_start) ||
+            CaseInsensitiveEquals(url.substr(0, s_https_start.length()), s_https_start))
         {
             return true;
         }
