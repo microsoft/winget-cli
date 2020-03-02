@@ -34,6 +34,6 @@ namespace AppInstaller::Repository::Microsoft
         const SourceDetails& GetDetails() const override;
 
         // Execute a search on the source.
-        SearchResult Search(const SearchRequest& request) const override;
+        SearchResult Search(const SearchRequest& request) override;
     };
 }

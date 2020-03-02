@@ -72,22 +72,22 @@ struct TestSource : public ISource
     {
         TestApplication(const Manifest manifest) : m_manifest(manifest) {}
 
-        Manifest GetManifest(std::string_view, std::string_view) const override
+        Manifest GetManifest(std::string_view, std::string_view) override
         {
             return m_manifest;
         }
 
-        std::string GetId() const override
+        std::string GetId() override
         {
             return m_manifest.Id;
         }
 
-        std::string GetName() const override
+        std::string GetName() override
         {
             return m_manifest.Name;
         }
 
-        std::vector<std::pair<std::string, std::string>> GetVersions() const override
+        std::vector<std::pair<std::string, std::string>> GetVersions() override
         {
             std::vector<std::pair<std::string, std::string>> result;
             result.emplace_back(std::make_pair(m_manifest.Version, m_manifest.Channel));
@@ -97,7 +97,7 @@ struct TestSource : public ISource
         Manifest m_manifest;
     };
 
-    SearchResult Search(const SearchRequest& request) const override
+    SearchResult Search(const SearchRequest& request) override
     {
         SearchResult result;
         if (request.Query.has_value())

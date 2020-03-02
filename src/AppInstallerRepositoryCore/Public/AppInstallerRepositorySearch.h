@@ -67,19 +67,21 @@ namespace AppInstaller::Repository
     struct IApplication
     {
         // Gets the id of the application.
-        virtual std::string GetId() const = 0;
+        virtual std::string GetId() = 0;
 
         // Gets the name of the application (the latest name).
-        virtual std::string GetName() const = 0;
+        virtual std::string GetName() = 0;
 
         // Gets a manifest for this application.
         // An empty version implies 'latest'.
         // An empty channel is the 'general audience'.
-        virtual Manifest::Manifest GetManifest(std::string_view version, std::string_view channel) const = 0;
+        virtual Manifest::Manifest GetManifest(std::string_view version, std::string_view channel) = 0;
 
         // Gets all versions of this application.
         // The pair is <version, channel>.
-        virtual std::vector<std::pair<std::string, std::string>> GetVersions() const = 0;
+        // The versions will be returned in sorted, desceding order.
+        //  Ex. { 4, 3, 2, 1 }
+        virtual std::vector<std::pair<std::string, std::string>> GetVersions() = 0;
     };
 
     // A single result from the search.
@@ -91,7 +93,7 @@ namespace AppInstaller::Repository
         // The highest order field on which the application matched the search.
         ApplicationMatchFilter MatchCriteria;
 
-        ResultMatch(std::unique_ptr<IApplication> a, ApplicationMatchFilter f) : Application(std::move(a)), MatchCriteria(std::move(f)) {}
+        ResultMatch(std::unique_ptr<IApplication>&& a, ApplicationMatchFilter f) : Application(std::move(a)), MatchCriteria(std::move(f)) {}
     };
 
     // Search result data.
@@ -101,22 +103,24 @@ namespace AppInstaller::Repository
         std::vector<ResultMatch> Matches;
     };
 
-    inline std::string ApplicationMatchFieldToString(ApplicationMatchField matchField)
+    inline std::string_view ApplicationMatchFieldToString(ApplicationMatchField matchField)
     {
+        using namespace std::string_view_literals;
+
         switch (matchField)
         {
         case ApplicationMatchField::Command:
-            return "Command";
+            return "Command"sv;
         case ApplicationMatchField::Id:
-            return "Id";
+            return "Id"sv;
         case ApplicationMatchField::Moniker:
-            return "Moniker";
+            return "Moniker"sv;
         case ApplicationMatchField::Name:
-            return "Name";
+            return "Name"sv;
         case ApplicationMatchField::Tag:
-            return "Tag";
+            return "Tag"sv;
         }
 
-        return "UnknownMatchField";
+        return "UnknownMatchField"sv;
     }
 }

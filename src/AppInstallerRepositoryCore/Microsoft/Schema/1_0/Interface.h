@@ -16,5 +16,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         bool UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) override;
         void RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) override;
         void PrepareForPackaging(SQLite::Connection& connection) override;
+        std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> Search(SQLite::Connection& connection, const SearchRequest& request) override;
+        std::optional<std::string> GetIdStringById(SQLite::Connection& connection, SQLite::rowid_t id) override;
+        std::optional<std::string> GetNameStringById(SQLite::Connection& connection, SQLite::rowid_t id) override;
+        std::optional<std::string> GetPathStringByKey(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel) override;
+        std::vector<std::pair<std::string, std::string>> GetVersionsById(SQLite::Connection& connection, SQLite::rowid_t id) override;
     };
 }

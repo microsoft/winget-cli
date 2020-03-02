@@ -40,7 +40,7 @@ namespace AppInstaller::Repository::Microsoft
         THROW_HR(E_NOTIMPL);
     }
 
-    SearchResult PreIndexedSource::Search(const SearchRequest& request) const
+    SearchResult PreIndexedSource::Search(const SearchRequest& request)
     {
         UNREFERENCED_PARAMETER(request);
         THROW_HR(E_NOTIMPL);

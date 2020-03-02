@@ -82,7 +82,7 @@ struct TestSource : public ISource
         return m_details;
     }
 
-    SearchResult Search(const SearchRequest& request) const override
+    SearchResult Search(const SearchRequest& request) override
     {
         UNREFERENCED_PARAMETER(request);
         return {};

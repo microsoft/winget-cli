@@ -188,6 +188,7 @@
     <ClInclude Include="Microsoft\Schema\MetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\Version.h" />
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
+    <ClInclude Include="Microsoft\SQLiteIndexSource.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="SourceFactory.h" />
     <ClInclude Include="SQLiteStatementBuilder.h" />
@@ -208,6 +209,7 @@
     <ClCompile Include="Microsoft\Schema\MetadataTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />
+    <ClCompile Include="Microsoft\SQLiteIndexSource.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

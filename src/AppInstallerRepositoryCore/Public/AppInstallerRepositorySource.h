@@ -40,7 +40,7 @@ namespace AppInstaller::Repository
         virtual const SourceDetails& GetDetails() const = 0;
 
         // Execute a search on the source.
-        virtual SearchResult Search(const SearchRequest& request) const = 0;
+        virtual SearchResult Search(const SearchRequest& request) = 0;
     };
 
     // Gets the details for all sources.

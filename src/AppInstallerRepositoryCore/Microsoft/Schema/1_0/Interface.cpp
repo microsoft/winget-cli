@@ -55,6 +55,36 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return result;
         }
 
+        // Gets a manifest id by the given key values.
+        std::optional<SQLite::rowid_t> GetManifestIdByKey(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version = "", std::string_view channel = "")
+        {
+            std::optional<SQLite::rowid_t> channelIdOpt = ChannelTable::SelectIdByValue(connection, channel);
+            if (!channelIdOpt)
+            {
+                AICLI_LOG(Repo, Info, << "Did not find a Channel { " << channel << " }");
+                return {};
+            }
+
+            std::optional<SQLite::rowid_t> versionIdOpt;
+
+            if (version.empty())
+            {
+                versionIdOpt = ManifestTable::GetLatestVersionForIdAndChannel(connection, id, channelIdOpt.value());
+            }
+            else
+            {
+                versionIdOpt = VersionTable::SelectIdByValue(connection, version);
+            }
+
+            if (!versionIdOpt)
+            {
+                AICLI_LOG(Repo, Info, << "Did not find a Version { " << version << " }");
+                return {};
+            }
+
+            return ManifestTable::SelectByValueIds<IdTable, VersionTable, ChannelTable>(connection, { id, versionIdOpt.value(), channelIdOpt.value() });
+        }
+
         // Updates the manifest column and related table based on the given value.
         template <typename Table>
         void UpdateManifestValueById(SQLite::Connection& connection, const typename Table::value_t& value, SQLite::rowid_t manifestId)
@@ -257,5 +287,67 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Builder::StatementBuilder builder;
         builder.Vacuum();
         builder.Execute(connection);
+    }
+
+    std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> Interface::Search(SQLite::Connection& connection, const SearchRequest& request)
+    {
+        // Initial implementation handles only exact match on id, future change will implement more.
+        // TODO: Handle more MatchTypes
+        // TODO: Handle more query fields
+        // TODO: Handle filters
+        // TODO: Handle maximum count
+
+        if (request.Query)
+        {
+            std::optional<SQLite::rowid_t> id = IdTable::SelectIdByValue(connection, request.Query->Value);
+            if (id)
+            {
+                return { { id.value(), ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, request.Query->Value) } };
+            }
+        }
+        else
+        {
+            // No query, for now we simply return nothing
+            return {};
+        }
+    }
+
+    std::optional<std::string> Interface::GetIdStringById(SQLite::Connection& connection, SQLite::rowid_t id)
+    {
+        return IdTable::SelectValueById(connection, id);
+    }
+
+    std::optional<std::string> Interface::GetNameStringById(SQLite::Connection& connection, SQLite::rowid_t id)
+    {
+        std::optional<SQLite::rowid_t> manifestIdOpt = GetManifestIdByKey(connection, id);
+
+        if (!manifestIdOpt)
+        {
+            AICLI_LOG(Repo, Info, << "Did not find manifest by Id id: " << id);
+            return {};
+        }
+
+        auto [name] = ManifestTable::GetValuesById<NameTable>(connection, manifestIdOpt.value());
+        return name;
+    }
+
+    std::optional<std::string> Interface::GetPathStringByKey(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel)
+    {
+        std::optional<SQLite::rowid_t> manifestIdOpt = GetManifestIdByKey(connection, id, version, channel);
+
+        if (!manifestIdOpt)
+        {
+            AICLI_LOG(Repo, Info, << "Did not find manifest for: " << id << ", " << version << ", " << channel);
+            return {};
+        }
+
+        auto [pathPartId] = ManifestTable::GetIdsById<PathPartTable>(connection, manifestIdOpt.value());
+
+        return PathPartTable::GetPathByLeafId(connection, pathPartId);
+    }
+
+    std::vector<std::pair<std::string, std::string>> Interface::GetVersionsById(SQLite::Connection& connection, SQLite::rowid_t id)
+    {
+        return ManifestTable::GetVersionsForId(connection, id);
     }
 }
