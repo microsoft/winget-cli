@@ -39,6 +39,23 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
         }
 
+        std::optional<std::string> OneToOneTableSelectValueById(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id)
+        {
+            SQLite::Builder::StatementBuilder selectBuilder;
+            selectBuilder.Select(valueName).From(tableName).Where(SQLite::RowIDName).Equals(id);
+
+            SQLite::Statement select = selectBuilder.Prepare(connection);
+
+            if (select.Step())
+            {
+                return select.GetColumn<std::string>(0);
+            }
+            else
+            {
+                return {};
+            }
+        }
+
         SQLite::rowid_t OneToOneTableEnsureExists(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value)
         {
             auto selectResult = OneToOneTableSelectIdByValue(connection, tableName, valueName, value);

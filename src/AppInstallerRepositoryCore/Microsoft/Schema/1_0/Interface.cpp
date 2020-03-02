@@ -69,7 +69,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             if (version.empty())
             {
-                versionIdOpt = ManifestTable::GetLatestVersionForIdAndChannel(connection, id, channelIdOpt.value());
+                auto versions = ManifestTable::GetAllValuesByIds<VersionTable, IdTable, ChannelTable>(connection, { id, channelIdOpt.value() });
+                if (versions.empty())
+                {
+                    AICLI_LOG(Repo, Info, << "Did not find any Versions { " << id << ", " << channel << " }");
+                    return {};
+                }
+
+                // TODO: Implement version sort, for now assume latest == lastest
+                const std::string& latestVersion = versions[versions.size()];
+
+                versionIdOpt = VersionTable::SelectIdByValue(connection, latestVersion);
             }
             else
             {
@@ -304,6 +314,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             {
                 return { { id.value(), ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, request.Query->Value) } };
             }
+            else
+            {
+                return {};
+            }
         }
         else
         {
@@ -343,11 +357,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         auto [pathPartId] = ManifestTable::GetIdsById<PathPartTable>(connection, manifestIdOpt.value());
 
-        return PathPartTable::GetPathByLeafId(connection, pathPartId);
+        return PathPartTable::GetPathById(connection, pathPartId);
     }
 
     std::vector<std::pair<std::string, std::string>> Interface::GetVersionsById(SQLite::Connection& connection, SQLite::rowid_t id)
     {
-        return ManifestTable::GetVersionsForId(connection, id);
+        auto versionsAndChannels = ManifestTable::GetAllValuesById<IdTable, VersionTable, ChannelTable>(connection, id);
+
+        // TODO: Implement version sort, for now assume latest == lastest
+        std::reverse(versionsAndChannels.begin(), versionsAndChannels.end());
+
+        std::vector<std::pair<std::string, std::string>> result;
+        result.reserve(versionsAndChannels.size());
+        for (auto&& vac : versionsAndChannels)
+        {
+            result.emplace_back(std::make_pair(std::move(std::get<0>(vac)), std::move(std::get<1>(vac))));
+        }
+        return result;
     }
 }
