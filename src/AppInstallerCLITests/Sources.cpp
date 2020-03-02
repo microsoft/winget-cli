@@ -4,11 +4,12 @@
 #include "TestCommon.h"
 #include "TestHooks.h"
 
-#include <Public/AppInstallerRepositorySource.h>
+#include <AppInstallerRepositorySource.h>
 #include <AppInstallerDateTime.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
 
+using namespace AppInstaller;
 using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Utility;
@@ -94,25 +95,31 @@ struct TestSource : public ISource
 // Helper that allows some lambdas to be wrapped into a source factory.
 struct TestSourceFactory : public ISourceFactory
 {
+    using IsInitializedFunctor = std::function<bool(const SourceDetails&)>;
     using CreateFunctor = std::function<std::unique_ptr<ISource>(const SourceDetails&)>;
     using UpdateFunctor = std::function<void(SourceDetails&)>;
     using RemoveFunctor = std::function<void(const SourceDetails&)>;
 
     TestSourceFactory() :
-        m_Create(TestSource::Create), m_Update([](SourceDetails&) {}), m_Remove([](const SourceDetails&) {}) {}
+        m_isInit([](const SourceDetails&) { return true; }), m_Create(TestSource::Create), m_Update([](SourceDetails&) {}), m_Remove([](const SourceDetails&) {}) {}
 
     // ISourceFactory
+    bool IsInitialized(const SourceDetails& details) override
+    {
+        return m_isInit(details);
+    }
+
     std::unique_ptr<ISource> Create(const SourceDetails& details) override
     {
         return m_Create(details);
     }
 
-    void Update(SourceDetails& details) override
+    void Update(SourceDetails& details, IProgressCallback&) override
     {
         m_Update(details);
     }
 
-    void Remove(const SourceDetails& details) override
+    void Remove(const SourceDetails& details, IProgressCallback&) override
     {
         m_Remove(details);
     }
@@ -123,6 +130,7 @@ struct TestSourceFactory : public ISourceFactory
         return [this]() { return std::make_unique<TestSourceFactory>(*this); };
     }
 
+    IsInitializedFunctor m_isInit;
     CreateFunctor m_Create;
     UpdateFunctor m_Update;
     RemoveFunctor m_Remove;
@@ -208,7 +216,8 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
     factory.m_Update = [&](SourceDetails& sd) { updateCalledOnFactory = true; sd.Data = data; };
     TestHook_SetSourceFactoryOverride(type, factory);
 
-    AddSource(name, type, arg);
+    ProgressCallback progress;
+    AddSource(name, type, arg, progress);
 
     REQUIRE(updateCalledOnFactory);
 
@@ -237,7 +246,8 @@ TEST_CASE("RepoSources_AddMultipleSources", "[sources]")
     factory1.m_Update = [&](SourceDetails& sd) { sd.Data = data; };
     TestHook_SetSourceFactoryOverride(type, factory1);
 
-    AddSource(name, type, arg);
+    ProgressCallback progress;
+    AddSource(name, type, arg, progress);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 1);
@@ -252,7 +262,7 @@ TEST_CASE("RepoSources_AddMultipleSources", "[sources]")
     factory2.m_Update = [&](SourceDetails& sd) { sd.Data = data + suffix[1]; };
     TestHook_SetSourceFactoryOverride(type + suffix[1], factory2);
 
-    AddSource(name + suffix[1], type + suffix[1], arg + suffix[1]);
+    AddSource(name + suffix[1], type + suffix[1], arg + suffix[1], progress);
 
     sources = GetSources();
     REQUIRE(sources.size() == 2);
@@ -285,7 +295,8 @@ TEST_CASE("RepoSources_UpdateSource", "[sources]")
     factory.m_Update = [&](SourceDetails& sd) { updateCalledOnFactory = true; sd.Data = data; };
     TestHook_SetSourceFactoryOverride(type, factory);
 
-    AddSource(name, type, arg);
+    ProgressCallback progress;
+    AddSource(name, type, arg, progress);
 
     REQUIRE(updateCalledOnFactory);
 
@@ -303,7 +314,7 @@ TEST_CASE("RepoSources_UpdateSource", "[sources]")
     auto now = std::chrono::system_clock::now();
     factory.m_Update = [&](SourceDetails& sd) { updateCalledOnFactory = true; sd.LastUpdateTime = now; };
 
-    UpdateSource(name);
+    UpdateSource(name, progress);
 
     REQUIRE(updateCalledOnFactory);
 
@@ -332,15 +343,51 @@ TEST_CASE("RepoSources_RemoveSource", "[sources]")
     factory.m_Remove = [&](const SourceDetails&) { removeCalledOnFactory = true; };
     TestHook_SetSourceFactoryOverride(type, factory);
 
-    AddSource(name, type, arg);
+    ProgressCallback progress;
+    AddSource(name, type, arg, progress);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 1);
 
-    RemoveSource(name);
+    RemoveSource(name, progress);
 
     REQUIRE(removeCalledOnFactory);
 
     sources = GetSources();
     REQUIRE(sources.empty());
+}
+
+TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
+{
+    using namespace std::chrono_literals;
+
+    RemoveSetting(s_RepositorySettings_UserSources);
+    TestHook_ClearSourceFactoryOverrides();
+
+    std::string name = "testName";
+    std::string type = "testType";
+    std::string arg = "testArg";
+    std::string data = "testDataOnUpdate";
+
+    bool updateCalledOnFactory = false;
+    TestSourceFactory factory;
+    factory.m_isInit = [](const SourceDetails&) { return false; };
+    factory.m_Update = [&](SourceDetails& sd) { updateCalledOnFactory = true; sd.Data = data; };
+    TestHook_SetSourceFactoryOverride(type, factory);
+
+    SetSetting(s_RepositorySettings_UserSources, s_SingleSource);
+
+    ProgressCallback progress;
+    auto source = OpenSource(name, progress);
+
+    REQUIRE(updateCalledOnFactory);
+
+    std::vector<SourceDetails> sources = GetSources();
+    REQUIRE(sources.size() == 1);
+
+    REQUIRE(sources[0].Name == name);
+    REQUIRE(sources[0].Type == type);
+    REQUIRE(sources[0].Arg == arg);
+    REQUIRE(sources[0].Data == data);
+    REQUIRE(sources[0].LastUpdateTime == ConvertUnixEpochToSystemClock(0));
 }

@@ -49,7 +49,8 @@ namespace AppInstaller::Deployment
         // Set progress callback.
         deployOperation.Progress(progressCallback);
 
-        auto deployResult = deployOperation.GetResults();
+        auto removeCancel = callback.SetCancellationFunction([&]() { deployOperation.Cancel(); });
+        auto deployResult = deployOperation.get();
 
         if (!SUCCEEDED(deployResult.ExtendedErrorCode()))
         {
@@ -61,5 +62,12 @@ namespace AppInstaller::Deployment
         {
             AICLI_LOG(Core, Info, << "Successfully deployed #" << id);
         }
+    }
+
+    void RemovePackageFireAndForget(winrt::hstring packageFullName)
+    {
+        using namespace winrt::Windows::Management::Deployment;
+        PackageManager packageManager;
+        (void)packageManager.RemovePackageAsync(packageFullName, RemovalOptions::None);
     }
 }

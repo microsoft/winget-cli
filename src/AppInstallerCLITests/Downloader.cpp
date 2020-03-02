@@ -50,12 +50,12 @@ TEST_CASE("DownloadValidFileAndCancel", "[Downloader]")
     REQUIRE(!waitResult.has_value());
 }
 
-TEST_CASE("DownloadUnreachableUrl", "[Downloader]")
+TEST_CASE("DownloadInvalidUrl", "[Downloader]")
 {
     TestCommon::TempFile tempFile("downloader_test"s, ".test"s);
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     ProgressCallback callback;
 
-    REQUIRE_THROWS_HR(Download("https://does_not_exist.com/", tempFile.GetPath(), callback, true), WININET_E_NAME_NOT_RESOLVED);
+    REQUIRE_THROWS_HR(Download("blargle-flargle-fluff", tempFile.GetPath(), callback, true), WININET_E_UNRECOGNIZED_SCHEME);
 }

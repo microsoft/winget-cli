@@ -17,6 +17,9 @@ namespace AppInstaller::Runtime
     // Gets the path to the temp location.
     std::filesystem::path GetPathToTemp();
 
+    // Gets the path to the local state location.
+    std::filesystem::path GetPathToLocalState();
+
     // Gets a stream containing the named setting's value, if present.
     // If the setting does not exist, returns an empty value.
     std::unique_ptr<std::istream> GetSettingStream(std::filesystem::path name);
