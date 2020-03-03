@@ -65,6 +65,12 @@
     <ClCompile Include="Synchronization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MsixInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PreIndexedPackageSource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
@@ -99,6 +105,12 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_WithSwitches.yml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\index.1.0.0.0.msix">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\index.2.0.0.0.msix">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>

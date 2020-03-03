@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace AppInstaller::Utility
@@ -19,4 +20,7 @@ namespace AppInstaller::Utility
         const std::filesystem::path& dest,
         IProgressCallback& progress,
         bool computeHash = false);
+
+    // Determines if the given url is a remote location.
+    bool IsUrlRemote(std::string_view url);
 }

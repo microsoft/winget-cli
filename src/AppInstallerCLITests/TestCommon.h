@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerProgress.h>
 #include <wil/result.h>
 
 #include <filesystem>
+#include <functional>
 #include <string>
 
 #define SQLITE_MEMORY_DB_CONNECTION_TARGET ":memory:"
@@ -34,14 +36,22 @@ namespace TestCommon
         ~TempFile();
 
         const std::filesystem::path& GetPath() const { return _filepath; }
-        operator const std::string () const { return _filepath.u8string(); }
+        operator const std::filesystem::path& () const { return _filepath; }
+        operator const std::string() const { return _filepath.u8string(); }
 
         static void SetDestructorBehavior(TempFileDestructionBehavior behavior);
 
         static void SetTestFailed(bool failed);
 
-    private:
+    protected:
+        TempFile() = default;
         std::filesystem::path _filepath;
+    };
+
+    // Use to create a temporary directory for testing.
+    struct TempDirectory : public TempFile
+    {
+        TempDirectory(const std::string& baseName, bool create = true);
     };
 
     // Use this to find a test data file when testing.
@@ -77,5 +87,16 @@ namespace TestCommon
 
     private:
         HRESULT m_expectedHR = S_OK;
+    };
+
+    // An IProgressCallback that is easily hooked.
+    struct TestProgress : public AppInstaller::IProgressCallback
+    {
+        // Inherited via IProgressCallback
+        void OnProgress(uint64_t current, uint64_t maximum, AppInstaller::ProgressType type) override;
+        bool IsCancelled() override;
+        CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) override;
+
+        std::function<void(uint64_t, uint64_t, AppInstaller::ProgressType)> m_OnProgress;
     };
 }

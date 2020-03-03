@@ -1,6 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerProgress.h>
+#include <AppxPackaging.h>
+#include <wrl/client.h>
+#include <filesystem>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace AppInstaller::Msix
 {
@@ -16,10 +23,15 @@ namespace AppInstaller::Msix
         IStream* inputStream,
         IAppxPackageReader** reader);
 
+    // Function to create an Appx manifest reader given the input file name.
+    void GetManifestReader(
+        IStream* inputStream,
+        IAppxManifestReader** reader);
+
     // MsixInfo class handles all appx/msix related query.
     struct MsixInfo
     {
-        MsixInfo(const std::string& uriStr);
+        MsixInfo(std::string_view uriStr);
 
         MsixInfo(const MsixInfo&) = default;
         MsixInfo& operator=(const MsixInfo&) = default;
@@ -34,6 +46,18 @@ namespace AppInstaller::Msix
 
         // Full content of AppxSignature.p7x
         std::vector<byte> GetSignature();
+
+        // Gets the package family name.
+        std::string GetPackageFamilyName();
+
+        // Gets a value indicating whether the referenced info is newer than the given manifest.
+        bool IsNewerThan(const std::filesystem::path& otherManifest);
+
+        // Writes the package file to the given path.
+        void WriteToFile(std::string_view packageFile, const std::filesystem::path& target, IProgressCallback& progress);
+
+        // Writes the package's manifest to the given path.
+        void WriteManifestToFile(const std::filesystem::path& target, IProgressCallback& progress);
 
     private:
         bool m_isBundle;

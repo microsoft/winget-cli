@@ -8,6 +8,10 @@ namespace AppInstaller::Runtime
 {
     namespace
     {
+        using namespace std::string_view_literals;
+        constexpr std::string_view s_AppDataDir_Settings = "Settings";
+        constexpr std::string_view s_AppDataDir_State = "State";
+
         // Gets a boolean indicating whether the current process has identity.
         bool DoesCurrentProcessHaveIdentity()
         {
@@ -25,15 +29,6 @@ namespace AppInstaller::Runtime
             THROW_HR_IF(E_INVALIDARG, !name.has_relative_path());
             THROW_HR_IF(E_INVALIDARG, name.has_root_path());
             THROW_HR_IF(E_INVALIDARG, !name.has_filename());
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-            if (!s_Settings_TestHook_ForcedContainerPrepend.empty())
-            {
-                std::filesystem::path result = s_Settings_TestHook_ForcedContainerPrepend;
-                result /= name;
-                name = std::move(result);
-            }
-#endif
         }
 
         // Gets the container within LocalSettings for the given path.
@@ -41,7 +36,21 @@ namespace AppInstaller::Runtime
         {
             auto result = winrt::Windows::Storage::ApplicationData::Current().LocalSettings();
 
-            for (const auto& part : name.parent_path())
+            std::filesystem::path pathToUse;
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (!s_Settings_TestHook_ForcedContainerPrepend.empty())
+            {
+                pathToUse = s_Settings_TestHook_ForcedContainerPrepend;
+                pathToUse /= name;
+            }
+            else
+#endif
+            {
+                pathToUse = name;
+            }
+
+            for (const auto& part : pathToUse.parent_path())
             {
                 auto partHstring = winrt::to_hstring(part.c_str());
                 result = result.CreateContainer(partHstring, winrt::Windows::Storage::ApplicationDataCreateDisposition::Always);
@@ -67,22 +76,34 @@ namespace AppInstaller::Runtime
 
             std::filesystem::path result = localAppDataPath;
             result /= "Microsoft/AppInstaller";
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (!s_Settings_TestHook_ForcedContainerPrepend.empty())
+            {
+                result /= s_Settings_TestHook_ForcedContainerPrepend;
+            }
+#endif
+
             return result;
         }
 
-        // Gets the path to the settings root.
+        // Gets the path to the app data relative directory.
         // Creates the directory if it does not already exist.
-        std::filesystem::path GetPathToSettingsRoot()
+        std::filesystem::path GetPathToAppDataDir(const std::filesystem::path& relative)
         {
+            THROW_HR_IF(E_INVALIDARG, !relative.has_relative_path());
+            THROW_HR_IF(E_INVALIDARG, relative.has_root_path());
+            THROW_HR_IF(E_INVALIDARG, !relative.has_filename());
+
             std::filesystem::path result = GetPathToAppDataRoot();
-            result /= "Settings";
+            result /= relative;
 
             if (std::filesystem::exists(result))
             {
                 if (!std::filesystem::is_directory(result))
                 {
                     // STATUS_NOT_A_DIRECTORY: A requested opened file is not a directory.
-                    THROW_NTSTATUS_MSG(0xC0000103, "Settings is not a directory");
+                    THROW_NTSTATUS_MSG(0xC0000103, "AppData location is not a directory");
                 }
             }
             else
@@ -97,7 +118,7 @@ namespace AppInstaller::Runtime
         // Creates the directory if it does not already exist.
         std::filesystem::path GetPathToSettings(const std::filesystem::path& name)
         {
-            std::filesystem::path result = GetPathToAppDataRoot();
+            std::filesystem::path result = GetPathToAppDataDir(s_AppDataDir_Settings);
             if (name.has_parent_path())
             {
                 result /= name.parent_path();
@@ -156,6 +177,27 @@ namespace AppInstaller::Runtime
             wchar_t tempPath[MAX_PATH + 1];
             DWORD tempChars = GetTempPathW(ARRAYSIZE(tempPath), tempPath);
             return { std::wstring_view{ tempPath, static_cast<size_t>(tempChars) } };
+        }
+    }
+
+    std::filesystem::path GetPathToLocalState()
+    {
+        if (IsRunningInPackagedContext())
+        {
+            std::filesystem::path result = winrt::Windows::Storage::ApplicationData::Current().LocalFolder().Path().c_str();
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (!s_Settings_TestHook_ForcedContainerPrepend.empty())
+            {
+                result /= s_Settings_TestHook_ForcedContainerPrepend;
+            }
+#endif
+
+            return result;
+        }
+        else
+        {
+            return GetPathToAppDataDir(s_AppDataDir_State);
         }
     }
 

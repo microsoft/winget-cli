@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "SourceCommand.h"
 #include "Localization.h"
+#include "Workflows/WorkflowReporter.h"
 
 
 namespace AppInstaller::CLI
@@ -61,7 +62,7 @@ namespace AppInstaller::CLI
         };
     }
 
-    void SourceAddCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream&) const
+    void SourceAddCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const
     {
         std::string name = *inv.GetArg(s_SourceCommand_ArgName_Name);
         std::string arg = *inv.GetArg(s_SourceCommand_ArgName_Arg);
@@ -79,8 +80,8 @@ namespace AppInstaller::CLI
             out << "  " << LOCME("Type: ") << type << std::endl;
         }
 
-        // TODO: Needs to be hooked up to a reporter when real source construction happens.
-        Repository::AddSource(std::move(name), std::move(type), std::move(arg));
+        Workflow::WorkflowReporter reporter(out, in);
+        reporter.ExecuteWithProgress(std::bind(Repository::AddSource, std::move(name), std::move(type), std::move(arg), std::placeholders::_1));
 
         out << LOCME("Done") << std::endl;
     }
@@ -170,15 +171,17 @@ namespace AppInstaller::CLI
         };
     }
 
-    void SourceUpdateCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream&) const
+    void SourceUpdateCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const
     {
+        Workflow::WorkflowReporter reporter(out, in);
+
         if (inv.Contains(s_SourceCommand_ArgName_Name))
         {
             const std::string& name = *inv.GetArg(s_SourceCommand_ArgName_Name);
             out << LOCME("Updating source: ") << name << "..." << std::endl;
-            if (!Repository::UpdateSource(name))
+            if (!reporter.ExecuteWithProgress(std::bind(Repository::UpdateSource, name, std::placeholders::_1)))
             {
-                out << LOCME("Could not find a source by that name.") << std::endl;
+                out << std::endl << LOCME("  Could not find a source by that name.") << std::endl;
             }
             else
             {
@@ -192,9 +195,9 @@ namespace AppInstaller::CLI
             std::vector<Repository::SourceDetails> sources = Repository::GetSources();
             for (const auto& sd : sources)
             {
-                out << LOCME("  Updating source: ") << sd.Name << "..." << std::flush;
-                Repository::UpdateSource(sd.Name);
-                out << LOCME(" Done.") << std::endl;
+                out << LOCME("Updating source: ") << sd.Name << "..." << std::endl;
+                reporter.ExecuteWithProgress(std::bind(Repository::UpdateSource, sd.Name, std::placeholders::_1));
+                out << LOCME("Done.") << std::endl;
             }
         }
     }
@@ -218,11 +221,13 @@ namespace AppInstaller::CLI
         };
     }
 
-    void SourceRemoveCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream&) const
+    void SourceRemoveCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const
     {
+        Workflow::WorkflowReporter reporter(out, in);
+
         const std::string& name = *inv.GetArg(s_SourceCommand_ArgName_Name);
         out << LOCME("Removing source: ") << name << "..." << std::endl;
-        if (!Repository::RemoveSource(name))
+        if (!reporter.ExecuteWithProgress(std::bind(Repository::RemoveSource, name, std::placeholders::_1)))
         {
             out << LOCME("Could not find a source by that name.") << std::endl;
         }

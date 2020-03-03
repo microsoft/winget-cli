@@ -7,9 +7,14 @@
 
 namespace AppInstaller::Deployment
 {
-    // Calls winrt::Windows::Management::Deployment::PackageManager::RequestAddPackageAsync as a Future.
+    // Calls winrt::Windows::Management::Deployment::PackageManager::RequestAddPackageAsync
     void RequestAddPackageAsync(
         const winrt::Windows::Foundation::Uri& uri, 
         winrt::Windows::Management::Deployment::DeploymentOptions options,
         IProgressCallback& callback);
+
+    // Calls winrt::Windows::Management::Deployment::PackageManager::RemovePackageAsync,
+    // but *DOES NOT WAIT FOR A RESULT*.  As this is used for removing an optional package
+    // we will simply complete our actions 
+    void RemovePackageFireAndForget(winrt::hstring packageFullName);
 }
