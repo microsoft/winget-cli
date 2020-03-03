@@ -3,6 +3,8 @@
 #pragma once
 #include "pch.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
+#include "Microsoft/SQLiteIndex.h"
+#include "Microsoft/SQLiteIndexSource.h"
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -143,9 +145,19 @@ namespace AppInstaller::Repository::Microsoft
 
             std::unique_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) override
             {
-                UNREFERENCED_PARAMETER(details);
-                UNREFERENCED_PARAMETER(lock);
-                THROW_HR(E_NOTIMPL);
+                auto optionalPackage = GetPackageFromDetails(details);
+                if (!optionalPackage)
+                {
+                    AICLI_LOG(Repo, Info, << "Package not found by family name " << details.Data);
+                    THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
+                }
+
+                std::filesystem::path packageLocation = optionalPackage.InstalledLocation().Path().c_str();
+                packageLocation /= s_PreIndexedPackageSourceFactory_IndexFileName;
+
+                SQLiteIndex index = SQLiteIndex::Open(packageLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
+
+                return std::make_unique<SQLiteIndexSource>(details, std::move(index), std::move(lock));
             }
 
             void UpdateInternal(std::string packageLocation, SourceDetails&, IProgressCallback& progress) override
@@ -185,9 +197,12 @@ namespace AppInstaller::Repository::Microsoft
 
             std::unique_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) override
             {
-                UNREFERENCED_PARAMETER(details);
-                UNREFERENCED_PARAMETER(lock);
-                THROW_HR(E_NOTIMPL);
+                std::filesystem::path packageLocation = GetStatePathFromDetails(details);
+                packageLocation /= s_PreIndexedPackageSourceFactory_IndexFileName;
+
+                SQLiteIndex index = SQLiteIndex::Open(packageLocation.u8string(), SQLiteIndex::OpenDisposition::Read);
+
+                return std::make_unique<SQLiteIndexSource>(details, std::move(index), std::move(lock));
             }
 
             void UpdateInternal(std::string packageLocation, SourceDetails& details, IProgressCallback& progress) override

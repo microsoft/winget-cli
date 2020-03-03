@@ -495,6 +495,28 @@ TEST_CASE("SQLiteIndex_Search_IdExactMatch", "[sqliteindex]")
     REQUIRE(results[0].second.Value == manifest.Id);
 }
 
+TEST_CASE("SQLiteIndex_Search_MultipleMatch", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest manifest;
+    std::string relativePath;
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+
+    manifest.Version = "2.0.0";
+    index.AddManifest(manifest, relativePath + "2");
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Exact, manifest.Id);
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 1);
+
+    auto result = index.GetVersionsById(results[0].first);
+    REQUIRE(result.size() == 2);
+}
+
 TEST_CASE("SQLiteIndex_Search_NoMatch", "[sqliteindex]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
