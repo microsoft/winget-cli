@@ -59,8 +59,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         std::optional<SQLite::rowid_t> GetManifestIdByKey(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version = "", std::string_view channel = "")
         {
             std::optional<SQLite::rowid_t> channelIdOpt = ChannelTable::SelectIdByValue(connection, channel);
-            if (!channelIdOpt)
+            if (!channelIdOpt && !channel.empty())
             {
+                // If an empty channel was given but none was found, we will just not filter on channel.
                 AICLI_LOG(Repo, Info, << "Did not find a Channel { " << channel << " }");
                 return {};
             }
@@ -69,7 +70,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             if (version.empty())
             {
-                auto versions = ManifestTable::GetAllValuesByIds<VersionTable, IdTable, ChannelTable>(connection, { id, channelIdOpt.value() });
+                std::vector<std::string> versions;
+                
+                if (channelIdOpt)
+                {
+                    versions = ManifestTable::GetAllValuesByIds<VersionTable, IdTable, ChannelTable>(connection, { id, channelIdOpt.value() });
+                }
+                else
+                {
+                    versions = ManifestTable::GetAllValuesByIds<VersionTable, IdTable>(connection, { id });
+                }
+
                 if (versions.empty())
                 {
                     AICLI_LOG(Repo, Info, << "Did not find any Versions { " << id << ", " << channel << " }");
@@ -77,7 +88,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 }
 
                 // TODO: Implement version sort, for now assume latest == lastest
-                const std::string& latestVersion = versions[versions.size()];
+                const std::string& latestVersion = versions[versions.size() - 1];
 
                 versionIdOpt = VersionTable::SelectIdByValue(connection, latestVersion);
             }
@@ -92,7 +103,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 return {};
             }
 
-            return ManifestTable::SelectByValueIds<IdTable, VersionTable, ChannelTable>(connection, { id, versionIdOpt.value(), channelIdOpt.value() });
+            if (channelIdOpt)
+            {
+                return ManifestTable::SelectByValueIds<IdTable, VersionTable, ChannelTable>(connection, { id, versionIdOpt.value(), channelIdOpt.value() });
+            }
+            else
+            {
+                return ManifestTable::SelectByValueIds<IdTable, VersionTable>(connection, { id, versionIdOpt.value() });
+            }
         }
 
         // Updates the manifest column and related table based on the given value.

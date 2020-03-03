@@ -189,7 +189,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             if (select.Step())
             {
                 std::string partValue = select.GetColumn<std::string>(1);
-                result = partValue + '/' + result;
+                if (result.empty())
+                {
+                    result = partValue;
+                }
+                else
+                {
+                    result = partValue + '/' + result;
+                }
 
                 if (select.GetColumnIsNull(0))
                 {
