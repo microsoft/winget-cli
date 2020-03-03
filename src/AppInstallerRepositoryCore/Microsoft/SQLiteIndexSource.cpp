@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Microsoft/SQLiteIndexSource.h"
+#include "Microsoft/PreIndexedPackageSourceFactory.h"
 
 
 namespace AppInstaller::Repository::Microsoft
@@ -36,9 +37,23 @@ namespace AppInstaller::Repository::Microsoft
                 }
                 fullPath += relativePath;
 
-                // TODO: Enlighten for remote
-                // This is for local
-                return Manifest::Manifest::CreateFromPath(fullPath);
+                if (Utility::IsUrlRemote(fullPath))
+                {
+                    std::filesystem::path tempFile = Runtime::GetPathToTemp();
+                    tempFile /= PreIndexedPackageSourceFactory::Type();
+                    tempFile /= relativePath;
+
+                    AICLI_LOG(Repo, Info, << "Downloading manifest to temp file");
+                    ProgressCallback emptyCallback;
+                    (void)Utility::Download(fullPath, tempFile, emptyCallback);
+
+                    return Manifest::Manifest::CreateFromPath(tempFile);
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Info, << "Opening manifest from local file: " << fullPath);
+                    return Manifest::Manifest::CreateFromPath(fullPath);
+                }
             }
 
             std::vector<std::pair<std::string, std::string>> GetVersions() override

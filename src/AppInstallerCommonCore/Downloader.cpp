@@ -69,6 +69,7 @@ namespace AppInstaller::Utility
             nullptr);
         AICLI_LOG(CLI, Verbose, << "Download size: " << contentLength);
 
+        std::filesystem::create_directories(dest.parent_path());
         std::ofstream outfile(dest, std::ofstream::binary);
 
         // Setup hash engine
