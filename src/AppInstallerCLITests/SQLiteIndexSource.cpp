@@ -12,7 +12,7 @@ using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Repository::SQLite;
 
-SQLiteIndexSource SimpleTestSetup(const std::string& filePath, SourceDetails& details, Manifest& manifest, std::string& relativePath)
+std::shared_ptr<SQLiteIndexSource> SimpleTestSetup(const std::string& filePath, SourceDetails& details, Manifest& manifest, std::string& relativePath)
 {
     SQLiteIndex index = SQLiteIndex::CreateNew(filePath, Schema::Version::Latest());
 
@@ -28,7 +28,7 @@ SQLiteIndexSource SimpleTestSetup(const std::string& filePath, SourceDetails& de
     details.Arg = testManifest.GetPath().parent_path().u8string();
     details.Data = "";
 
-    return SQLiteIndexSource(details, std::move(index));
+    return std::make_shared<SQLiteIndexSource>(details, std::move(index));
 }
 
 TEST_CASE("SQLiteIndexSource_Search_IdExactMatch", "[sqliteindexsource]")
@@ -39,12 +39,12 @@ TEST_CASE("SQLiteIndexSource_Search_IdExactMatch", "[sqliteindexsource]")
     SourceDetails details;
     Manifest manifest;
     std::string relativePath;
-    SQLiteIndexSource source = SimpleTestSetup(tempFile, details, manifest, relativePath);
+    std::shared_ptr<SQLiteIndexSource> source = SimpleTestSetup(tempFile, details, manifest, relativePath);
 
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, manifest.Id);
 
-    auto results = source.Search(request);
+    auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
     REQUIRE(results.Matches[0].Application);
     REQUIRE(results.Matches[0].MatchCriteria.Field == ApplicationMatchField::Id);
@@ -60,12 +60,12 @@ TEST_CASE("SQLiteIndexSource_Search_NoMatch", "[sqliteindexsource]")
     SourceDetails details;
     Manifest manifest;
     std::string relativePath;
-    SQLiteIndexSource source = SimpleTestSetup(tempFile, details, manifest, relativePath);
+    std::shared_ptr<SQLiteIndexSource> source = SimpleTestSetup(tempFile, details, manifest, relativePath);
 
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, "THIS DOES NOT MATCH ANYTHING!");
 
-    auto results = source.Search(request);
+    auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 0);
 }
 
@@ -77,12 +77,12 @@ TEST_CASE("SQLiteIndexSource_Id", "[sqliteindexsource]")
     SourceDetails details;
     Manifest manifest;
     std::string relativePath;
-    SQLiteIndexSource source = SimpleTestSetup(tempFile, details, manifest, relativePath);
+    std::shared_ptr<SQLiteIndexSource> source = SimpleTestSetup(tempFile, details, manifest, relativePath);
 
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, manifest.Id);
 
-    auto results = source.Search(request);
+    auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
     REQUIRE(results.Matches[0].Application);
     IApplication* app = results.Matches[0].Application.get();
@@ -98,12 +98,12 @@ TEST_CASE("SQLiteIndexSource_Name", "[sqliteindexsource]")
     SourceDetails details;
     Manifest manifest;
     std::string relativePath;
-    SQLiteIndexSource source = SimpleTestSetup(tempFile, details, manifest, relativePath);
+    std::shared_ptr<SQLiteIndexSource> source = SimpleTestSetup(tempFile, details, manifest, relativePath);
 
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, manifest.Id);
 
-    auto results = source.Search(request);
+    auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
     REQUIRE(results.Matches[0].Application);
     IApplication* app = results.Matches[0].Application.get();
@@ -119,12 +119,12 @@ TEST_CASE("SQLiteIndexSource_Versions", "[sqliteindexsource]")
     SourceDetails details;
     Manifest manifest;
     std::string relativePath;
-    SQLiteIndexSource source = SimpleTestSetup(tempFile, details, manifest, relativePath);
+    std::shared_ptr<SQLiteIndexSource> source = SimpleTestSetup(tempFile, details, manifest, relativePath);
 
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, manifest.Id);
 
-    auto results = source.Search(request);
+    auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
     REQUIRE(results.Matches[0].Application);
     IApplication* app = results.Matches[0].Application.get();
@@ -143,12 +143,12 @@ TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
     SourceDetails details;
     Manifest manifest;
     std::string relativePath;
-    SQLiteIndexSource source = SimpleTestSetup(tempFile, details, manifest, relativePath);
+    std::shared_ptr<SQLiteIndexSource> source = SimpleTestSetup(tempFile, details, manifest, relativePath);
 
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, manifest.Id);
 
-    auto results = source.Search(request);
+    auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
     REQUIRE(results.Matches[0].Application);
     IApplication* app = results.Matches[0].Application.get();
