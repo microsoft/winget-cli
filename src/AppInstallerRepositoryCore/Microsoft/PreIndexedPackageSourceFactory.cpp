@@ -53,7 +53,7 @@ namespace AppInstaller::Repository::Microsoft
                 return !details.Data.empty();
             }
 
-            std::unique_ptr<ISource> Create(const SourceDetails& details) override final
+            std::shared_ptr<ISource> Create(const SourceDetails& details) override final
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
                 THROW_HR_IF(E_UNEXPECTED, !IsInitialized(details));
@@ -62,7 +62,7 @@ namespace AppInstaller::Repository::Microsoft
                 return CreateInternal(details, std::move(lock));
             }
 
-            virtual std::unique_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) = 0;
+            virtual std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) = 0;
 
             void Update(SourceDetails& details, IProgressCallback& progress) override final
             {
@@ -143,7 +143,7 @@ namespace AppInstaller::Repository::Microsoft
                 return Package{ nullptr };
             }
 
-            std::unique_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) override
+            std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) override
             {
                 auto optionalPackage = GetPackageFromDetails(details);
                 if (!optionalPackage)
@@ -157,7 +157,7 @@ namespace AppInstaller::Repository::Microsoft
 
                 SQLiteIndex index = SQLiteIndex::Open(packageLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
 
-                return std::make_unique<SQLiteIndexSource>(details, std::move(index), std::move(lock));
+                return std::make_shared<SQLiteIndexSource>(details, std::move(index), std::move(lock));
             }
 
             void UpdateInternal(std::string packageLocation, SourceDetails&, IProgressCallback& progress) override
@@ -195,14 +195,14 @@ namespace AppInstaller::Repository::Microsoft
                 return result;
             }
 
-            std::unique_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) override
+            std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) override
             {
                 std::filesystem::path packageLocation = GetStatePathFromDetails(details);
                 packageLocation /= s_PreIndexedPackageSourceFactory_IndexFileName;
 
                 SQLiteIndex index = SQLiteIndex::Open(packageLocation.u8string(), SQLiteIndex::OpenDisposition::Read);
 
-                return std::make_unique<SQLiteIndexSource>(details, std::move(index), std::move(lock));
+                return std::make_shared<SQLiteIndexSource>(details, std::move(index), std::move(lock));
             }
 
             void UpdateInternal(std::string packageLocation, SourceDetails& details, IProgressCallback& progress) override

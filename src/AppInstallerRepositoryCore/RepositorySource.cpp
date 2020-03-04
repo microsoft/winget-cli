@@ -186,7 +186,7 @@ namespace AppInstaller::Repository
             return GetFactoryForType(details.Type)->IsInitialized(details);
         }
 
-        std::unique_ptr<ISource> CreateSourceFromDetails(const SourceDetails& details)
+        std::shared_ptr<ISource> CreateSourceFromDetails(const SourceDetails& details)
         {
             return GetFactoryForType(details.Type)->Create(details);
         }
@@ -244,7 +244,7 @@ namespace AppInstaller::Repository
         SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
     }
 
-    std::unique_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress)
+    std::shared_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress)
     {
         std::vector<SourceDetails> currentSources = GetSources();
 
@@ -329,6 +329,33 @@ namespace AppInstaller::Repository
 
             return true;
         }
+    }
+
+    std::string SearchRequest::ToString() const
+    {
+        std::ostringstream result;
+
+        result << "Query:";
+        if (Query)
+        {
+            result << '\'' << Query.value().Value << "'[" << MatchTypeToString(Query.value().Type) << ']';
+        }
+        else
+        {
+            result << "[none]";
+        }
+
+        for (const auto& filter : Filters)
+        {
+            result << " Filter:" << ApplicationMatchFieldToString(filter.Field) << "='" << filter.Value << "'[" << MatchTypeToString(filter.Type) << "]";
+        }
+
+        if (MaximumResults)
+        {
+            result << " Limit:" << MaximumResults;
+        }
+
+        return result.str();
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

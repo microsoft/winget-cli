@@ -52,7 +52,7 @@ namespace AppInstaller::Repository
 
     // Opens an existing source.
     // Passing an empty string as the name of the source will return a source that aggregates all others.
-    std::unique_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress);
+    std::shared_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress);
 
     // Updates an existing source.
     // Return value indicates whether the named source was found.

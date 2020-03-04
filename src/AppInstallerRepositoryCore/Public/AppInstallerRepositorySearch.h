@@ -61,6 +61,9 @@ namespace AppInstaller::Repository
         // The maximum number of results to return.
         // The default of 0 will place no limit.
         size_t MaximumResults{};
+
+        // Returns a string summarizing the search request.
+        std::string ToString() const;
     };
 
     // A single application result from a search.
@@ -102,6 +105,25 @@ namespace AppInstaller::Repository
         // The full set of results from the search.
         std::vector<ResultMatch> Matches;
     };
+
+    inline std::string_view MatchTypeToString(MatchType type)
+    {
+        using namespace std::string_view_literals;
+
+        switch (type)
+        {
+        case MatchType::Exact:
+            return "Exact"sv;
+        case MatchType::Substring:
+            return "Substring"sv;
+        case MatchType::Wildcard:
+            return "Wildcard"sv;
+        case MatchType::Fuzzy:
+            return "Fuzzy"sv;
+        }
+
+        return "UnknownMatchType"sv;
+    }
 
     inline std::string_view ApplicationMatchFieldToString(ApplicationMatchField matchField)
     {

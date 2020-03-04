@@ -11,16 +11,15 @@ using namespace AppInstaller::Runtime;
 
 namespace AppInstaller::Utility
 {
-    std::optional<std::vector<BYTE>> Download(
+    std::optional<std::vector<BYTE>> DownloadToStream(
         const std::string& url,
-        const std::filesystem::path& dest,
+        std::ostream& dest,
         IProgressCallback& progress,
         bool computeHash)
     {
         THROW_HR_IF(E_INVALIDARG, url.empty());
-        THROW_HR_IF(E_INVALIDARG, dest.empty());
 
-        AICLI_LOG(CLI, Info, << "Downloading url: " << url << " , dest: " << dest);
+        AICLI_LOG(CLI, Info, << "Downloading from url: " << url);
 
         wil::unique_hinternet session(InternetOpenA(
             "appinstaller-cli",
@@ -69,9 +68,6 @@ namespace AppInstaller::Utility
             nullptr);
         AICLI_LOG(CLI, Verbose, << "Download size: " << contentLength);
 
-        std::filesystem::create_directories(dest.parent_path());
-        std::ofstream outfile(dest, std::ofstream::binary);
-
         // Setup hash engine
         SHA256 hashEngine;
         std::string contentHash;
@@ -100,7 +96,7 @@ namespace AppInstaller::Utility
                 hashEngine.Add(buffer.get(), bytesRead);
             }
 
-            outfile.write((char*)buffer.get(), bytesRead);
+            dest.write((char*)buffer.get(), bytesRead);
 
             bytesDownloaded += bytesRead;
 
@@ -111,7 +107,7 @@ namespace AppInstaller::Utility
 
         } while (bytesRead != 0);
 
-        outfile.flush();
+        dest.flush();
 
         std::vector<BYTE> result;
         if (computeHash)
@@ -123,6 +119,23 @@ namespace AppInstaller::Utility
         AICLI_LOG(CLI, Info, << "Download completed.");
 
         return result;
+    }
+
+    std::optional<std::vector<BYTE>> Download(
+        const std::string& url,
+        const std::filesystem::path& dest,
+        IProgressCallback& progress,
+        bool computeHash)
+    {
+        THROW_HR_IF(E_INVALIDARG, url.empty());
+        THROW_HR_IF(E_INVALIDARG, dest.empty());
+
+        AICLI_LOG(CLI, Info, << "Downloading to path: " << dest);
+
+        std::filesystem::create_directories(dest.parent_path());
+        std::ofstream outfile(dest, std::ofstream::binary);
+
+        return DownloadToStream(url, outfile, progress, computeHash);
     }
 
     bool IsUrlRemote(std::string_view url)

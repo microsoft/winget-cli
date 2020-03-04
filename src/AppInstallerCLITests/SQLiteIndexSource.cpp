@@ -135,7 +135,7 @@ TEST_CASE("SQLiteIndexSource_Versions", "[sqliteindexsource]")
     REQUIRE(result[0].second == manifest.Channel);
 }
 
-TEST_CASE("SQLiteIndexSource_PathString", "[sqliteindexsource]")
+TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());

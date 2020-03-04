@@ -5,11 +5,13 @@
 #include "Public/AppInstallerRepositorySource.h"
 #include <AppInstallerSynchronization.h>
 
+#include <memory>
+
 
 namespace AppInstaller::Repository::Microsoft
 {
     // A source that holds a SQLiteIndex and lock.
-    struct SQLiteIndexSource : public ISource
+    struct SQLiteIndexSource : public std::enable_shared_from_this<SQLiteIndexSource>, public ISource
     {
         SQLiteIndexSource(const SourceDetails& details, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock = {});
 
@@ -27,6 +29,10 @@ namespace AppInstaller::Repository::Microsoft
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) override;
 
+        // Gets the index.
+        SQLiteIndex& GetIndex() { return m_index; }
+
+    private:
         SourceDetails m_details;
         Synchronization::CrossProcessReaderWriteLock m_lock;
         SQLiteIndex m_index;

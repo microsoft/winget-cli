@@ -72,9 +72,9 @@ struct TestSource : public ISource
     TestSource() = default;
     TestSource(const SourceDetails& details) : m_details(details) {}
 
-    static std::unique_ptr<ISource> Create(const SourceDetails& details)
+    static std::shared_ptr<ISource> Create(const SourceDetails& details)
     {
-        return std::make_unique<TestSource>(details);
+        return std::make_shared<TestSource>(details);
     }
 
     // ISource
@@ -96,7 +96,7 @@ struct TestSource : public ISource
 struct TestSourceFactory : public ISourceFactory
 {
     using IsInitializedFunctor = std::function<bool(const SourceDetails&)>;
-    using CreateFunctor = std::function<std::unique_ptr<ISource>(const SourceDetails&)>;
+    using CreateFunctor = std::function<std::shared_ptr<ISource>(const SourceDetails&)>;
     using UpdateFunctor = std::function<void(SourceDetails&)>;
     using RemoveFunctor = std::function<void(const SourceDetails&)>;
 
@@ -109,7 +109,7 @@ struct TestSourceFactory : public ISourceFactory
         return m_isInit(details);
     }
 
-    std::unique_ptr<ISource> Create(const SourceDetails& details) override
+    std::shared_ptr<ISource> Create(const SourceDetails& details) override
     {
         return m_Create(details);
     }

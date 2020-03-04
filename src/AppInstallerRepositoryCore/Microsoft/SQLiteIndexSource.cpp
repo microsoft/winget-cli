@@ -12,26 +12,27 @@ namespace AppInstaller::Repository::Microsoft
         // The IApplication impl for SQLiteIndexSource.
         struct Application : public IApplication
         {
-            Application(SQLiteIndexSource* source, SQLiteIndex::IdType id) :
+            Application(std::shared_ptr<SQLiteIndexSource>& source, SQLiteIndex::IdType id) :
                 m_id(id), m_source(source) {}
 
             // Inherited via IApplication
             std::string GetId() override
             {
-                return GetIndex().GetIdStringById(m_id).value();
+                return GetSource()->GetIndex().GetIdStringById(m_id).value();
             }
 
             std::string GetName() override
             {
-                return GetIndex().GetNameStringById(m_id).value();
+                return GetSource()->GetIndex().GetNameStringById(m_id).value();
             }
 
             Manifest::Manifest GetManifest(std::string_view version, std::string_view channel) override
             {
-                std::string relativePath = GetIndex().GetPathStringByKey(m_id, version, channel).value();
+                std::shared_ptr<SQLiteIndexSource> source = GetSource();
+                std::string relativePath = source->GetIndex().GetPathStringByKey(m_id, version, channel).value();
 
-                std::string fullPath = m_source->m_details.Arg;
-                if (fullPath[fullPath.length()] != '/')
+                std::string fullPath = source->GetDetails().Arg;
+                if (fullPath.back() != '/')
                 {
                     fullPath += '/';
                 }
@@ -39,15 +40,16 @@ namespace AppInstaller::Repository::Microsoft
 
                 if (Utility::IsUrlRemote(fullPath))
                 {
-                    std::filesystem::path tempFile = Runtime::GetPathToTemp();
-                    tempFile /= PreIndexedPackageSourceFactory::Type();
-                    tempFile /= relativePath;
+                    std::ostringstream manifestStream;
 
-                    AICLI_LOG(Repo, Info, << "Downloading manifest to temp file");
+                    AICLI_LOG(Repo, Info, << "Downloading manifest");
                     ProgressCallback emptyCallback;
-                    (void)Utility::Download(fullPath, tempFile, emptyCallback);
+                    (void)Utility::DownloadToStream(fullPath, manifestStream, emptyCallback);
 
-                    return Manifest::Manifest::CreateFromPath(tempFile);
+                    std::string manifestContents = manifestStream.str();
+                    AICLI_LOG(Repo, Verbose, << "Manifest contents: " << manifestContents);
+
+                    return Manifest::Manifest::Create(manifestContents);
                 }
                 else
                 {
@@ -58,17 +60,18 @@ namespace AppInstaller::Repository::Microsoft
 
             std::vector<std::pair<std::string, std::string>> GetVersions() override
             {
-                return GetIndex().GetVersionsById(m_id);
+                return GetSource()->GetIndex().GetVersionsById(m_id);
             }
 
         private:
-            SQLiteIndex& GetIndex()
+            std::shared_ptr<SQLiteIndexSource> GetSource()
             {
-                return m_source->m_index;
+                std::shared_ptr<SQLiteIndexSource> source = m_source.lock();
+                THROW_HR_IF(E_NOT_VALID_STATE, !source);
+                return source;
             }
 
-            // TODO: Convert to shared_ptr on OpenSource and all the downstream effects so we can be safer here
-            SQLiteIndexSource* m_source;
+            std::weak_ptr<SQLiteIndexSource> m_source;
             SQLiteIndex::IdType m_id;
         };
     }
@@ -88,9 +91,10 @@ namespace AppInstaller::Repository::Microsoft
         auto indexResults = m_index.Search(request);
 
         SearchResult result;
+        std::shared_ptr<SQLiteIndexSource> sharedThis = shared_from_this();
         for (auto& indexResult : indexResults)
         {
-            result.Matches.emplace_back(std::make_unique<Application>(this, indexResult.first), std::move(indexResult.second));
+            result.Matches.emplace_back(std::make_unique<Application>(sharedThis, indexResult.first), std::move(indexResult.second));
         }
         return result;
     }

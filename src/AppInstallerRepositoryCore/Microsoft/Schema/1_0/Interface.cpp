@@ -339,8 +339,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
         else
         {
-            // No query, for now we simply return nothing
-            return {};
+            // No query, get everything
+            std::vector<SQLite::rowid_t> ids = IdTable::GetAllRowIds(connection);
+
+            std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> result;
+            for (SQLite::rowid_t id : ids)
+            {
+                result.emplace_back(std::make_pair(id, ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Wildcard, "")));
+            }
+            return result;
         }
     }
 
