@@ -3,16 +3,14 @@
 #include "pch.h"
 #include "SourceCommand.h"
 #include "Localization.h"
-#include "Workflows/WorkflowReporter.h"
-
 
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
 
-    constexpr std::string_view s_SourceCommand_ArgName_Name = "name";
-    constexpr std::string_view s_SourceCommand_ArgName_Type = "type";
-    constexpr std::string_view s_SourceCommand_ArgName_Arg = "arg";
+    constexpr std::string_view s_SourceCommand_ArgName_Name = "name"sv;
+    constexpr std::string_view s_SourceCommand_ArgName_Type = "type"sv;
+    constexpr std::string_view s_SourceCommand_ArgName_Arg = "arg"sv;
 
     std::vector<std::unique_ptr<Command>> SourceCommand::GetCommands() const
     {
@@ -36,9 +34,9 @@ namespace AppInstaller::CLI
         };
     }
 
-    void SourceCommand::ExecuteInternal(Invocation&, std::ostream& out, std::istream&) const
+    void SourceCommand::ExecuteInternal(ExecutionContext& context) const
     {
-        OutputHelp(out);
+        OutputHelp(context.Reporter);
     }
 
     std::vector<Argument> SourceAddCommand::GetArguments() const
@@ -62,28 +60,47 @@ namespace AppInstaller::CLI
         };
     }
 
-    void SourceAddCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const
+    void SourceAddCommand::ExecuteInternal(ExecutionContext& context) const
     {
-        std::string name = *inv.GetArg(s_SourceCommand_ArgName_Name);
-        std::string arg = *inv.GetArg(s_SourceCommand_ArgName_Arg);
+        std::string name = *context.Args.GetArg(ExecutionArgs::ExecutionArgType::SourceName);
+        std::string arg = *context.Args.GetArg(ExecutionArgs::ExecutionArgType::SourceArg);
         std::string type;
-        if (inv.Contains(s_SourceCommand_ArgName_Type))
+        if (context.Args.Contains(ExecutionArgs::ExecutionArgType::SourceType))
         {
-            type = *inv.GetArg(s_SourceCommand_ArgName_Type);
+            type = *context.Args.GetArg(ExecutionArgs::ExecutionArgType::SourceType);
         }
 
-        out << LOCME("Adding source:") << std::endl;
-        out << "  " << LOCME("Name: ") << name << std::endl;
-        out << "  " << LOCME("Arg: ") << arg << std::endl;
+        context.Reporter.ShowMsg("Adding source:");
+        context.Reporter.ShowMsg("  Name: " + name);
+        context.Reporter.ShowMsg("  Arg: " + arg);
         if (!type.empty())
         {
-            out << "  " << LOCME("Type: ") << type << std::endl;
+            context.Reporter.ShowMsg("  Type: " + type);
         }
 
-        Workflow::WorkflowReporter reporter(out, in);
-        reporter.ExecuteWithProgress(std::bind(Repository::AddSource, std::move(name), std::move(type), std::move(arg), std::placeholders::_1));
+        context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, std::move(name), std::move(type), std::move(arg), std::placeholders::_1));
 
-        out << LOCME("Done") << std::endl;
+        context.Reporter.ShowMsg("Done");
+    }
+
+    ExecutionArgs::ExecutionArgType SourceAddCommand::GetExecutionArgType(std::string_view argName) const
+    {
+        if (argName == s_SourceCommand_ArgName_Name)
+        {
+            return ExecutionArgs::ExecutionArgType::SourceName;
+        }
+        else if (argName == s_SourceCommand_ArgName_Arg)
+        {
+            return ExecutionArgs::ExecutionArgType::SourceArg;
+        }
+        else if (argName == s_SourceCommand_ArgName_Type)
+        {
+            return ExecutionArgs::ExecutionArgType::SourceType;
+        }
+        else
+        {
+            THROW_HR(E_UNEXPECTED);
+        }
     }
 
     std::vector<Argument> SourceListCommand::GetArguments() const
@@ -105,50 +122,64 @@ namespace AppInstaller::CLI
         };
     }
 
-    void SourceListCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream&) const
+    void SourceListCommand::ExecuteInternal(ExecutionContext& context) const
     {
         std::vector<Repository::SourceDetails> sources = Repository::GetSources();
 
-        if (inv.Contains(s_SourceCommand_ArgName_Name))
+        if (context.Args.Contains(ExecutionArgs::ExecutionArgType::SourceName))
         {
-            const std::string& name = *inv.GetArg(s_SourceCommand_ArgName_Name);
+            const std::string& name = *context.Args.GetArg(ExecutionArgs::ExecutionArgType::SourceName);
             auto itr = std::find_if(sources.begin(), sources.end(), [name](const Repository::SourceDetails& sd) { return Utility::CaseInsensitiveEquals(sd.Name, name); });
 
             if (itr == sources.end())
             {
-                out << LOCME("No source with the given name was found: ") << name << std::endl;
+                context.Reporter.ShowMsg("No source with the given name was found: " + name);
             }
             else
             {
-                out << LOCME("Name") << ": " << itr->Name << std::endl;
-                out << LOCME("Type") << ": " << itr->Type << std::endl;
-                out << LOCME("Arg") << ": " << itr->Arg << std::endl;
-                out << LOCME("Data") << ": " << itr->Data << std::endl;
+                context.Reporter.ShowMsg("Name: " + itr->Name);
+                context.Reporter.ShowMsg("Type: " + itr->Type);
+                context.Reporter.ShowMsg("Arg: " + itr->Arg);
+                context.Reporter.ShowMsg("Data: " + itr->Data);
                 if (itr->LastUpdateTime == Utility::ConvertUnixEpochToSystemClock(0))
                 {
-                    out << LOCME("Last Update") << ": <never>" << std::endl;
+                    context.Reporter.ShowMsg("Last Update: <never>");
                 }
                 else
                 {
-                    out << LOCME("Last Update") << ": " << itr->LastUpdateTime << std::endl;
+                    std::stringstream stream;
+                    stream << itr->LastUpdateTime;
+                    context.Reporter.ShowMsg("Last Update: " + stream.str());
                 }
             }
         }
         else
         {
-            out << LOCME("Current sources:") << std::endl;
+            context.Reporter.ShowMsg("Current sources:");
 
             if (sources.empty())
             {
-                out << LOCME("  <none>") << std::endl;
+                context.Reporter.ShowMsg("  <none>");
             }
             else
             {
                 for (const auto& source : sources)
                 {
-                    out << "  " << source.Name << " => " << source.Arg << std::endl;
+                    context.Reporter.ShowMsg("  " + source.Name + " => " + source.Arg);
                 }
             }
+        }
+    }
+
+    ExecutionArgs::ExecutionArgType SourceListCommand::GetExecutionArgType(std::string_view argName) const
+    {
+        if (argName == s_SourceCommand_ArgName_Name)
+        {
+            return ExecutionArgs::ExecutionArgType::SourceName;
+        }
+        else
+        {
+            THROW_HR(E_UNEXPECTED);
         }
     }
 
@@ -171,34 +202,45 @@ namespace AppInstaller::CLI
         };
     }
 
-    void SourceUpdateCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const
+    void SourceUpdateCommand::ExecuteInternal(ExecutionContext& context) const
     {
-        Workflow::WorkflowReporter reporter(out, in);
-
-        if (inv.Contains(s_SourceCommand_ArgName_Name))
+        if (context.Args.Contains(ExecutionArgs::ExecutionArgType::SourceName))
         {
-            const std::string& name = *inv.GetArg(s_SourceCommand_ArgName_Name);
-            out << LOCME("Updating source: ") << name << "..." << std::endl;
-            if (!reporter.ExecuteWithProgress(std::bind(Repository::UpdateSource, name, std::placeholders::_1)))
+            const std::string& name = *context.Args.GetArg(ExecutionArgs::ExecutionArgType::SourceName);
+            context.Reporter.ShowMsg("Updating source: " + name + "...");
+            if (!context.Reporter.ExecuteWithProgress(std::bind(Repository::UpdateSource, name, std::placeholders::_1)))
             {
-                out << std::endl << LOCME("  Could not find a source by that name.") << std::endl;
+                context.Reporter.EmptyLine();
+                context.Reporter.ShowMsg("  Could not find a source by that name.", ExecutionReporter::Level::Warning);
             }
             else
             {
-                out << LOCME("Done") << std::endl;
+                context.Reporter.ShowMsg("Done");
             }
         }
         else
         {
-            out << LOCME("Updating all sources...") << std::endl;
+            context.Reporter.ShowMsg("Updating all sources...");
 
             std::vector<Repository::SourceDetails> sources = Repository::GetSources();
             for (const auto& sd : sources)
             {
-                out << LOCME("Updating source: ") << sd.Name << "..." << std::endl;
-                reporter.ExecuteWithProgress(std::bind(Repository::UpdateSource, sd.Name, std::placeholders::_1));
-                out << LOCME("Done.") << std::endl;
+                context.Reporter.ShowMsg("Updating source: " + sd.Name + "...");
+                context.Reporter.ExecuteWithProgress(std::bind(Repository::UpdateSource, sd.Name, std::placeholders::_1));
+                context.Reporter.ShowMsg(LOCME("Done.") );
             }
+        }
+    }
+
+    ExecutionArgs::ExecutionArgType SourceUpdateCommand::GetExecutionArgType(std::string_view argName) const
+    {
+        if (argName == s_SourceCommand_ArgName_Name)
+        {
+            return ExecutionArgs::ExecutionArgType::SourceName;
+        }
+        else
+        {
+            THROW_HR(E_UNEXPECTED);
         }
     }
 
@@ -221,19 +263,29 @@ namespace AppInstaller::CLI
         };
     }
 
-    void SourceRemoveCommand::ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const
+    void SourceRemoveCommand::ExecuteInternal(ExecutionContext& context) const
     {
-        Workflow::WorkflowReporter reporter(out, in);
-
-        const std::string& name = *inv.GetArg(s_SourceCommand_ArgName_Name);
-        out << LOCME("Removing source: ") << name << "..." << std::endl;
-        if (!reporter.ExecuteWithProgress(std::bind(Repository::RemoveSource, name, std::placeholders::_1)))
+        const std::string& name = *context.Args.GetArg(ExecutionArgs::ExecutionArgType::SourceName);
+        context.Reporter.ShowMsg("Removing source: " + name + "...");
+        if (!context.Reporter.ExecuteWithProgress(std::bind(Repository::RemoveSource, name, std::placeholders::_1)))
         {
-            out << LOCME("Could not find a source by that name.") << std::endl;
+            context.Reporter.ShowMsg("Could not find a source by that name.", ExecutionReporter::Level::Warning);
         }
         else
         {
-            out << LOCME("Done") << std::endl;
+            context.Reporter.ShowMsg("Done");
         }
     }
+
+    ExecutionArgs::ExecutionArgType SourceRemoveCommand::GetExecutionArgType(std::string_view argName) const
+    {
+        if (argName == s_SourceCommand_ArgName_Name)
+        {
+            return ExecutionArgs::ExecutionArgType::SourceName;
+        }
+        {
+            THROW_HR(E_UNEXPECTED);
+        }
+    }
+
 }

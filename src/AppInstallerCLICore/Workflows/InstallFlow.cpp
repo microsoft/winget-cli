@@ -2,14 +2,12 @@
 // Licensed under the MIT License.
 
 #include "pch.h"
-#include "Commands/Common.h"
 #include "InstallFlow.h"
 #include "ManifestComparator.h"
 #include "ShellExecuteInstallerHandler.h"
 #include "MsixInstallerHandler.h"
 
-using namespace winrt::Windows::Foundation;
-using namespace winrt::Windows::Management::Deployment;
+using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 
@@ -17,9 +15,9 @@ namespace AppInstaller::Workflow
 {
     void InstallFlow::Execute()
     {
-        if (m_argsRef.Contains(CLI::ARG_MANIFEST))
+        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Manifest))
         {
-            m_manifest = Manifest::Manifest::CreateFromPath(*(m_argsRef.GetArg(CLI::ARG_MANIFEST)));
+            m_manifest = Manifest::Manifest::CreateFromPath(*(m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Manifest)));
             InstallInternal();
         }
         else
@@ -39,7 +37,7 @@ namespace AppInstaller::Workflow
         Logging::Telemetry().LogManifestFields(m_manifest.Name, m_manifest.Version);
 
         // Select Installer
-        ManifestComparator manifestComparator(m_manifest, m_reporter);
+        ManifestComparator manifestComparator(m_manifest, m_reporterRef);
         m_selectedInstaller = manifestComparator.GetPreferredInstaller(m_argsRef);
 
         auto installerHandler = GetInstallerHandler();
@@ -53,12 +51,12 @@ namespace AppInstaller::Workflow
         auto app = m_searchResult.Matches.at(0).Application.get();
 
         AICLI_LOG(CLI, Info, << "Found one app. App id: " << app->GetId() << " App name: " << app->GetName());
-        m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Found app: " + app->GetName());
+        m_reporterRef.ShowMsg("Found app: " + app->GetName());
 
         // Todo: handle failure if necessary after real search is in place
         m_manifest = app->GetManifest(
-            m_argsRef.Contains(CLI::ARG_VERSION) ? *m_argsRef.GetArg(CLI::ARG_VERSION) : "",
-            m_argsRef.Contains(CLI::ARG_CHANNEL) ? *m_argsRef.GetArg(CLI::ARG_CHANNEL) : ""
+            m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Version) ? *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Version) : "",
+            m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Channel) ? *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Channel) : ""
         );
     }
 
@@ -72,9 +70,9 @@ namespace AppInstaller::Workflow
         case ManifestInstaller::InstallerTypeEnum::Msi:
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
         case ManifestInstaller::InstallerTypeEnum::Wix:
-            return std::make_unique<ShellExecuteInstallerHandler>(m_selectedInstaller, m_argsRef, m_reporter);
+            return std::make_unique<ShellExecuteInstallerHandler>(m_selectedInstaller, m_contextRef);
         case ManifestInstaller::InstallerTypeEnum::Msix:
-            return std::make_unique<MsixInstallerHandler>(m_selectedInstaller, m_argsRef, m_reporter);
+            return std::make_unique<MsixInstallerHandler>(m_selectedInstaller, m_contextRef);
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }

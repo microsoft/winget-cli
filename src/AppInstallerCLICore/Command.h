@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "Invocation.h"
-#include "ExecutionArgs.h"
+#include "ExecutionContext.h"
 
 #define APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR      '-'
 #define APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_STRING    "-"
@@ -96,20 +96,20 @@ namespace AppInstaller::CLI
         virtual std::string ShortDescription() const { return {}; }
         virtual std::vector<std::string> GetLongDescription() const { return {}; }
 
-        virtual void OutputIntroHeader(std::ostream& out) const;
-        virtual void OutputHelp(std::ostream& out, const CommandException* exception = nullptr) const;
+        virtual void OutputIntroHeader(ExecutionReporter& reporter) const;
+        virtual void OutputHelp(ExecutionReporter& reporter, const CommandException* exception = nullptr) const;
 
         virtual std::unique_ptr<Command> FindInvokedCommand(Invocation& inv) const;
         virtual void ParseArguments(Invocation& inv) const;
         virtual void ValidateArguments(Invocation& inv) const;
         virtual void PopulateExecutionArgs(const Invocation& inv, ExecutionArgs& args) const;
 
-        virtual void Execute(Invocation& inv, std::ostream& out, std::istream& in) const;
+        virtual void Execute(ExecutionContext& context) const;
 
     protected:
-        virtual void ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const;
+        virtual void ExecuteInternal(ExecutionContext& context) const;
 
-        virtual ExecutionArgs::ExecutionArgType GetExecutionArgType(std::string_view argName) const;
+        virtual ExecutionArgs::ExecutionArgType GetExecutionArgType(std::string_view) const { THROW_HR(E_NOTIMPL); };
 
     private:
         std::string_view m_name;

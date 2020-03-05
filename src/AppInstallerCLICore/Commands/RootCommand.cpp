@@ -29,10 +29,8 @@ namespace AppInstaller::CLI
         };
     }
 
-    void RootCommand::ExecuteInternal(Invocation&, std::ostream& out, std::istream& in) const
+    void RootCommand::ExecuteInternal(ExecutionContext& context) const
     {
-        UNREFERENCED_PARAMETER(in);
-
-        OutputHelp(out);
+        OutputHelp(context.Reporter);
     }
 }

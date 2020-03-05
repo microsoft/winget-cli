@@ -59,9 +59,11 @@ namespace AppInstaller::CLI
         ExecutionReporter(std::ostream& outStream, std::istream& inStream) :
             out(outStream), in(inStream), m_progressBar(outStream), m_spinner(outStream) {};
 
-        bool PromptForBoolResponse(Level level, const std::string& msg);
+        void EmptyLine() { out << std::endl; }
 
-        void ShowMsg(Level level, const std::string& msg);
+        bool PromptForBoolResponse(const std::string& msg, Level level = Level::Info);
+
+        void ShowMsg(const std::string& msg, Level level = Level::Info);
 
         // Used to show definite progress.
         // running: shows progress bar if set to true, dismisses progress bar if set to false

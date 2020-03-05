@@ -37,9 +37,17 @@ namespace AppInstaller::CLI
             Override, //Override args are (and the only args) directly passed to installer
             InstallLocation,
 
+            //Source Command
+            SourceName,
+            SourceType,
+            SourceArg,
+
             // Other
             ListVersions, // Used in Show command to list all available versions of an app
+            Help, // Show command usage
         };
+
+        bool Contains(ExecutionArgType arg) const { return (m_parsedArgs.count(arg) != 0); }
 
         const std::vector<std::string>* GetArgs(ExecutionArgType arg) const
         {

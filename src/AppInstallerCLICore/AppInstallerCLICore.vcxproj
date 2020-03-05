@@ -169,12 +169,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Command.h" />
-    <ClInclude Include="Commands\Common.h" />
     <ClInclude Include="Commands\SearchCommand.h" />
     <ClInclude Include="Commands\ShowCommand.h" />
     <ClInclude Include="Commands\InstallCommand.h" />
     <ClInclude Include="Commands\RootCommand.h" />
     <ClInclude Include="Commands\SourceCommand.h" />
+    <ClInclude Include="ExecutionArgs.h" />
+    <ClInclude Include="ExecutionContext.h" />
+    <ClInclude Include="ExecutionReporter.h" />
     <ClInclude Include="Invocation.h" />
     <ClInclude Include="Localization.h" />
     <ClInclude Include="pch.h" />
@@ -189,7 +191,6 @@
     <ClInclude Include="Workflows\MsixInstallerHandler.h" />
     <ClInclude Include="Workflows\ShowFlow.h" />
     <ClInclude Include="Workflows\WorkflowBase.h" />
-    <ClInclude Include="Workflows\WorkflowReporter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Command.cpp" />
@@ -199,6 +200,7 @@
     <ClCompile Include="Commands\RootCommand.cpp" />
     <ClCompile Include="Commands\SourceCommand.cpp" />
     <ClCompile Include="Core.cpp" />
+    <ClCompile Include="ExecutionReporter.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
@@ -210,7 +212,6 @@
     <ClCompile Include="Workflows\MsixInstallerHandler.cpp" />
     <ClCompile Include="Workflows\ShowFlow.cpp" />
     <ClCompile Include="Workflows\WorkflowBase.cpp" />
-    <ClCompile Include="Workflows\WorkflowReporter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

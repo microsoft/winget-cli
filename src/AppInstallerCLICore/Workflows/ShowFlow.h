@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 #pragma once
-#include "Invocation.h"
+#include "ExecutionContext.h"
 #include "WorkflowBase.h"
 
 namespace AppInstaller::Workflow
@@ -10,8 +10,7 @@ namespace AppInstaller::Workflow
     class ShowFlow : public WorkflowBase
     {
     public:
-        ShowFlow(const AppInstaller::CLI::Invocation& args, std::ostream& outStream, std::istream& inStream) :
-            WorkflowBase(args, outStream, inStream) {}
+        ShowFlow(AppInstaller::CLI::ExecutionContext& context) : WorkflowBase(context) {}
 
         void Execute();;
 

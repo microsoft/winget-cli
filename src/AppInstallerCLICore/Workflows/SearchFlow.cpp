@@ -20,7 +20,7 @@ namespace AppInstaller::Workflow
         if (m_searchResult.Matches.size() == 0)
         {
             AICLI_LOG(CLI, Info, << "No app found matching input criteria");
-            m_reporter.ShowMsg(WorkflowReporter::Level::Info, "No app found matching input criteria.");
+            m_reporterRef.ShowMsg("No app found matching input criteria.");
         }
         else
         {

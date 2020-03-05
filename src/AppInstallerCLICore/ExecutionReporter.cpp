@@ -72,7 +72,7 @@ namespace AppInstaller::CLI
         }
     }
 
-    bool ExecutionReporter::PromptForBoolResponse(Level level, const std::string& msg)
+    bool ExecutionReporter::PromptForBoolResponse(const std::string& msg, Level level)
     {
         UNREFERENCED_PARAMETER(level);
 
@@ -84,7 +84,7 @@ namespace AppInstaller::CLI
         return tolower(response) == 'y';
     }
 
-    void ExecutionReporter::ShowMsg(Level level, const std::string& msg)
+    void ExecutionReporter::ShowMsg(const std::string& msg, Level level)
     {
         UNREFERENCED_PARAMETER(level);
 

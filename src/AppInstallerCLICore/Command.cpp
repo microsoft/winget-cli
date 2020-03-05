@@ -6,53 +6,53 @@
 
 namespace AppInstaller::CLI
 {
-    void Command::OutputIntroHeader(std::ostream& out) const
+    void Command::OutputIntroHeader(ExecutionReporter& reporter) const
     {
-        out << "AppInstaller Command Line" << std::endl;
-        out << "Copyright (c) Microsoft Corporation" << std::endl;
+        reporter.ShowMsg("AppInstaller Command Line");
+        reporter.ShowMsg("Copyright (c) Microsoft Corporation");
     }
 
-    void Command::OutputHelp(std::ostream& out, const CommandException* exception) const
+    void Command::OutputHelp(ExecutionReporter& reporter, const CommandException* exception) const
     {
-        OutputIntroHeader(out);
-        out << std::endl;
+        OutputIntroHeader(reporter);
+        reporter.EmptyLine();
 
         if (exception)
         {
-            out << exception->Message() << " : '" << exception->Param() << '\'' << std::endl;
-            out << std::endl;
+            reporter.ShowMsg(exception->Message() + " : '" + std::string(exception->Param()) + '\'', ExecutionReporter::Level::Error);
+            reporter.EmptyLine();
         }
 
         for (const auto& line : GetLongDescription())
         {
-            out << line << std::endl;
+            reporter.ShowMsg(line);
         }
-        out << std::endl;
+        reporter.EmptyLine();
 
         auto commands = GetCommands();
         if (!commands.empty())
         {
-            out << LOCME("The following commands are available:") << std::endl;
-            out << std::endl;
+            reporter.ShowMsg(LOCME("The following commands are available:"));
+            reporter.EmptyLine();
 
             for (const auto& command : commands)
             {
-                out << "  " << command->Name() << std::endl;
-                out << "    " << command->ShortDescription() << std::endl;
+                reporter.ShowMsg("  " + std::string(command->Name()));
+                reporter.ShowMsg("    " + command->ShortDescription());
             }
 
-            out << std::endl;
-            out << LOCME("For more details on a specific command, pass it the help argument.") << " [" << APPINSTALLER_CLI_HELP_ARGUMENT << "]" << std::endl;
+            reporter.EmptyLine();
+            reporter.ShowMsg(std::string(LOCME("For more details on a specific command, pass it the help argument.")) + " [" + APPINSTALLER_CLI_HELP_ARGUMENT + "]");
         }
         else
         {
-            out << LOCME("The following arguments are available:") << std::endl;
-            out << std::endl;
+            reporter.ShowMsg(LOCME("The following arguments are available:"));
+            reporter.EmptyLine();
 
             for (const auto& arg : GetArguments())
             {
-                out << "  " << arg.Name() << std::endl;
-                out << "    " << arg.Description() << std::endl;
+                reporter.ShowMsg("  " + std::string(arg.Name()));
+                reporter.ShowMsg("    " + arg.Description());
             }
         }
     }
@@ -180,8 +180,13 @@ namespace AppInstaller::CLI
 
         for (const auto& invArg : *invArgs)
         {
-            auto execArgType = GetExecutionArgType(invArg.first);
+            if (invArg.first == APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING)
+            {
+                args.AddArg(ExecutionArgs::ExecutionArgType::Help);
+                continue;
+            }
 
+            auto execArgType = GetExecutionArgType(invArg.first);
             if (invArg.second.empty())
             {
                 // Flag
@@ -197,22 +202,22 @@ namespace AppInstaller::CLI
         }
     }
 
-    void Command::Execute(Invocation& inv, std::ostream& out, std::istream& in) const
+    void Command::Execute(ExecutionContext& context) const
     {
         AICLI_LOG(CLI, Info, << "Executing command: " << Name());
-        if (inv.Contains(APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING))
+        if (context.Args.Contains(ExecutionArgs::ExecutionArgType::Help))
         {
-            OutputHelp(out);
+            OutputHelp(context.Reporter);
         }
         else
         {
-            ExecuteInternal(inv, out, in);
+            ExecuteInternal(context);
         }
     }
 
-    void Command::ExecuteInternal(Invocation&, std::ostream& out, std::istream&) const
+    void Command::ExecuteInternal(ExecutionContext& context) const
     {
-        out << LOCME("Oops, we forgot to do this...") << std::endl;
+        context.Reporter.ShowMsg(LOCME("Oops, we forgot to do this..."), ExecutionReporter::Level::Error);
         THROW_HR(E_NOTIMPL);
     }
 }

@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 #include "pch.h"
-#include "Commands/Common.h"
 #include "WorkflowBase.h"
 #include "Public/AppInstallerRepositorySearch.h"
 #include "Public/AppInstallerRepositorySource.h"
 
+using namespace AppInstaller::CLI;
 using namespace AppInstaller::Repository;
 
 namespace AppInstaller::Workflow
@@ -14,12 +14,12 @@ namespace AppInstaller::Workflow
     void WorkflowBase::OpenIndexSource()
     {
         std::string sourceName;
-        if (m_argsRef.Contains(CLI::ARG_SOURCE))
+        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Source))
         {
-            sourceName = *m_argsRef.GetArg(CLI::ARG_SOURCE);
+            sourceName = *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Source);
         }
 
-        m_source = m_reporter.ExecuteWithProgress(std::bind(OpenSource, sourceName, std::placeholders::_1));
+        m_source = m_reporterRef.ExecuteWithProgress(std::bind(OpenSource, sourceName, std::placeholders::_1));
     }
 
     void WorkflowBase::IndexSearch()
@@ -28,45 +28,45 @@ namespace AppInstaller::Workflow
 
         // Construct query
         MatchType matchType = MatchType::Fuzzy;
-        if (m_argsRef.Contains(CLI::ARG_EXACT))
+        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Exact))
         {
             matchType = MatchType::Exact;
         }
 
         SearchRequest searchRequest;
-        if (m_argsRef.Contains(CLI::ARG_QUERY))
+        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Query))
         {
-            searchRequest.Query.emplace(RequestMatch(matchType, *m_argsRef.GetArg(CLI::ARG_QUERY)));
+            searchRequest.Query.emplace(RequestMatch(matchType, *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Query)));
         }
 
-        if (m_argsRef.Contains(CLI::ARG_ID))
+        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Id))
         {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, *m_argsRef.GetArg(CLI::ARG_ID)));
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Id)));
         }
 
-        if (m_argsRef.Contains(CLI::ARG_NAME))
+        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Name))
         {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, *m_argsRef.GetArg(CLI::ARG_NAME)));
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Name)));
         }
 
-        if (m_argsRef.Contains(CLI::ARG_MONIKER))
+        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Moniker))
         {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, *m_argsRef.GetArg(CLI::ARG_MONIKER)));
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Moniker)));
         }
 
-        if (m_argsRef.Contains(CLI::ARG_TAG))
+        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Tag))
         {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Tag, matchType, *m_argsRef.GetArg(CLI::ARG_TAG)));
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Tag, matchType, *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Tag)));
         }
 
-        if (m_argsRef.Contains(CLI::ARG_COMMAND))
+        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Command))
         {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Command, matchType, *m_argsRef.GetArg(CLI::ARG_COMMAND)));
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Command, matchType, *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Command)));
         }
 
-        if (m_argsRef.Contains(CLI::ARG_COUNT))
+        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Count))
         {
-            searchRequest.MaximumResults = std::stoi(*m_argsRef.GetArg(CLI::ARG_COUNT));
+            searchRequest.MaximumResults = std::stoi(*m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Count));
         }
 
         m_searchResult = m_source->Search(searchRequest);
@@ -77,14 +77,14 @@ namespace AppInstaller::Workflow
         if (m_searchResult.Matches.size() == 0)
         {
             AICLI_LOG(CLI, Info, << "No app found matching input criteria");
-            m_reporter.ShowMsg(WorkflowReporter::Level::Info, "No app found matching input criteria.");
+            m_reporterRef.ShowMsg("No app found matching input criteria.");
             return false;
         }
 
         if (m_searchResult.Matches.size() > 1)
         {
             AICLI_LOG(CLI, Info, << "Multiple apps found matching input criteria");
-            m_reporter.ShowMsg(WorkflowReporter::Level::Info, "Multiple apps found matching input criteria. Please refine the input.");
+            m_reporterRef.ShowMsg("Multiple apps found matching input criteria. Please refine the input.");
             ReportSearchResult();
             return false;
         }
@@ -108,7 +108,7 @@ namespace AppInstaller::Workflow
                 msg += ", [" + ApplicationMatchFieldToString(match.MatchCriteria.Field) + ": " + match.MatchCriteria.Value + "]";
             }
 
-            m_reporter.ShowMsg(WorkflowReporter::Level::Info, msg);
+            m_reporterRef.ShowMsg(msg);
         }
     }
 }

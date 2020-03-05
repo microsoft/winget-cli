@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Common.h"
-#include "Commands/Common.h"
 #include "ShellExecuteInstallerHandler.h"
 
+using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 
@@ -17,7 +17,7 @@ namespace AppInstaller::Workflow
             THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED), "Installer not downloaded yet");
         }
 
-        m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Installing package ...");
+        m_reporterRef.ShowMsg("Installing package ...");
 
         std::string installerArgs = GetInstallerArgs();
         AICLI_LOG(CLI, Info, << "Installer args: " << installerArgs);
@@ -28,23 +28,23 @@ namespace AppInstaller::Workflow
             std::bind(ExecuteInstaller,
                 m_downloadedInstaller,
                 installerArgs,
-                m_argsRef.Contains(CLI::ARG_INTERACTIVE),
+                m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Interactive),
                 std::placeholders::_1));
 
         if (!installResult)
         {
-            m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Installation abandoned");
+            m_reporterRef.ShowMsg("Installation abandoned", ExecutionReporter::Level::Error);
         }
         else if (installResult.value() != 0)
         {
-            m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Install failed. Exit code: " + std::to_string(installResult.value()));
+            m_reporterRef.ShowMsg("Install failed. Exit code: " + std::to_string(installResult.value()), ExecutionReporter::Level::Error);
 
             THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED),
                 "Install failed. Installer task returned: %u", installResult.value());
         }
         else
         {
-            m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Successfully installed!");
+            m_reporterRef.ShowMsg("Successfully installed!");
         }
     }
 
@@ -98,11 +98,11 @@ namespace AppInstaller::Workflow
         const std::map<ManifestInstaller::InstallerSwitchType, std::string>& installerSwitches = m_manifestInstallerRef.Switches;
 
         // Construct install experience arg.
-        if (m_argsRef.Contains(CLI::ARG_SILENT) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Silent) != installerSwitches.end())
+        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Silent) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Silent) != installerSwitches.end())
         {
             installerArgs += installerSwitches.at(ManifestInstaller::InstallerSwitchType::Silent);
         }
-        else if (m_argsRef.Contains(CLI::ARG_INTERACTIVE) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Interactive) != installerSwitches.end())
+        else if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Interactive) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Interactive) != installerSwitches.end())
         {
             installerArgs += installerSwitches.at(ManifestInstaller::InstallerSwitchType::Interactive);
         }
@@ -112,13 +112,13 @@ namespace AppInstaller::Workflow
         }
 
         // Construct language arg if necessary.
-        if (m_argsRef.Contains(CLI::ARG_LANGUAGE) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Language) != installerSwitches.end())
+        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Language) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Language) != installerSwitches.end())
         {
             installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::Language);
         }
 
         // Construct install location arg if necessary.
-        if (m_argsRef.Contains(CLI::ARG_INSTALLLOCATION) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::InstallLocation) != installerSwitches.end())
+        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::InstallLocation) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::InstallLocation) != installerSwitches.end())
         {
             installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::InstallLocation);
         }
@@ -142,9 +142,9 @@ namespace AppInstaller::Workflow
     {
         // Populate <LogPath> with value from command line or temp path.
         std::string logPath;
-        if (m_argsRef.Contains(CLI::ARG_LOG))
+        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Log))
         {
-            logPath = *m_argsRef.GetArg(CLI::ARG_LOG);
+            logPath = *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Log);
         }
         else
         {
@@ -152,8 +152,11 @@ namespace AppInstaller::Workflow
         }
         Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_LOGPATH), logPath);
 
-        // Populate <InstallPath> with value from command line or current path.
-        Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_INSTALLPATH), *m_argsRef.GetArg(CLI::ARG_INSTALLLOCATION));
+        // Populate <InstallPath> with value from command line.
+        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::InstallLocation))
+        {
+            Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_INSTALLPATH), *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::InstallLocation));
+        }
 
         // Todo: language token support will be implemented later
     }
@@ -161,9 +164,9 @@ namespace AppInstaller::Workflow
     std::string ShellExecuteInstallerHandler::GetInstallerArgs()
     {
         // If override switch is specified, use the override value as installer args.
-        if (m_argsRef.Contains(CLI::ARG_OVERRIDE))
+        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Override))
         {
-            return *m_argsRef.GetArg(CLI::ARG_OVERRIDE);
+            return *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Override);
         }
 
         std::string installerArgs = GetInstallerArgsTemplate();
