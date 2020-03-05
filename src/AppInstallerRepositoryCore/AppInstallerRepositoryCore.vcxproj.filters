@@ -108,6 +108,9 @@
     <ClInclude Include="Microsoft\PreIndexedPackageSourceFactory.h">
       <Filter>Microsoft</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\SQLiteIndexSource.h">
+      <Filter>Microsoft</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -156,6 +159,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\PreIndexedPackageSourceFactory.cpp">
+      <Filter>Microsoft</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\SQLiteIndexSource.cpp">
       <Filter>Microsoft</Filter>
     </ClCompile>
   </ItemGroup>

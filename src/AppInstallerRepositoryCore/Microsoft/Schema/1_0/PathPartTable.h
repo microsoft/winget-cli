@@ -3,6 +3,8 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include <filesystem>
+#include <optional>
+#include <string>
 #include <string_view>
 #include <tuple>
 
@@ -30,6 +32,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // In all cases except createIfNotFound == false and result bool == false, the int64_t value
         // will be valid and the rowid of the final path part in the path.
         static std::tuple<bool, SQLite::rowid_t> EnsurePathExists(SQLite::Connection& connection, const std::filesystem::path& relativePath, bool createIfNotFound);
+
+        // Gets the path string using the given id as the leaf.
+        static std::optional<std::string> GetPathById(SQLite::Connection& connection, SQLite::rowid_t id);
 
         // Removes the path that terminates at the given id.
         // Will not remove a path part if it is referenced.

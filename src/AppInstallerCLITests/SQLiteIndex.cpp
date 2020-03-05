@@ -19,8 +19,28 @@
 using namespace std::string_literals;
 using namespace TestCommon;
 using namespace AppInstaller::Manifest;
+using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Repository::SQLite;
+
+SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std::string& relativePath)
+{
+    SQLiteIndex index = SQLiteIndex::CreateNew(filePath, Schema::Version::Latest());
+
+    manifest.Id = "test.id";
+    manifest.Name = "Test Name";
+    manifest.AppMoniker = "testmoniker";
+    manifest.Version = "1.0.0";
+    manifest.Channel = "test";
+    manifest.Tags = { "t1", "t2" };
+    manifest.Commands = { "test1", "test2" };
+
+    relativePath = "test/id/1.0.0.yml";
+
+    index.AddManifest(manifest, relativePath);
+
+    return index;
+}
 
 TEST_CASE("SQLiteIndexCreateLatestAndReopen", "[sqliteindex]")
 {
@@ -65,18 +85,10 @@ TEST_CASE("SQLiteIndexCreateAndAddManifest", "[sqliteindex]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, Schema::Version::Latest());
-
     Manifest manifest;
-    manifest.Id = "test.id";
-    manifest.Name = "Test Name";
-    manifest.AppMoniker = "testmoniker";
-    manifest.Version = "1.0.0";
-    manifest.Channel = "test";
-    manifest.Tags = { "t1", "t2" };
-    manifest.Commands = { "test1", "test2" };
+    std::string relativePath;
 
-    index.AddManifest(manifest, "test/id/test.id-1.0.0.yml");
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
 }
 
 TEST_CASE("SQLiteIndexCreateAndAddManifestFile", "[sqliteindex]")
@@ -462,4 +474,146 @@ TEST_CASE("SQLiteIndex_PrepareForPackaging", "[sqliteindex]")
     index.AddManifest(manifestFile, manifestPath);
 
     index.PrepareForPackaging();
+}
+
+TEST_CASE("SQLiteIndex_Search_IdExactMatch", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest manifest;
+    std::string relativePath;
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Exact, manifest.Id);
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 1);
+    REQUIRE(results[0].second.Field == ApplicationMatchField::Id);
+    REQUIRE(results[0].second.Type == MatchType::Exact);
+    REQUIRE(results[0].second.Value == manifest.Id);
+}
+
+TEST_CASE("SQLiteIndex_Search_MultipleMatch", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest manifest;
+    std::string relativePath;
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+
+    manifest.Version = "2.0.0";
+    index.AddManifest(manifest, relativePath + "2");
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Exact, manifest.Id);
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 1);
+
+    auto result = index.GetVersionsById(results[0].first);
+    REQUIRE(result.size() == 2);
+}
+
+TEST_CASE("SQLiteIndex_Search_NoMatch", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest manifest;
+    std::string relativePath;
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Exact, "THIS DOES NOT MATCH ANYTHING!");
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 0);
+}
+
+TEST_CASE("SQLiteIndex_IdString", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest manifest;
+    std::string relativePath;
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Exact, manifest.Id);
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 1);
+
+    auto result = index.GetIdStringById(results[0].first);
+    REQUIRE(result.has_value());
+    REQUIRE(result.value() == manifest.Id);
+}
+
+TEST_CASE("SQLiteIndex_NameString", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest manifest;
+    std::string relativePath;
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Exact, manifest.Id);
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 1);
+
+    auto result = index.GetNameStringById(results[0].first);
+    REQUIRE(result.has_value());
+    REQUIRE(result.value() == manifest.Name);
+}
+
+TEST_CASE("SQLiteIndex_PathString", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest manifest;
+    std::string relativePath;
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Exact, manifest.Id);
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 1);
+
+    auto specificResult = index.GetPathStringByKey(results[0].first, manifest.Version, manifest.Channel);
+    REQUIRE(specificResult.has_value());
+    REQUIRE(specificResult.value() == relativePath);
+
+    auto latestResult = index.GetPathStringByKey(results[0].first, "", manifest.Channel);
+    REQUIRE(latestResult.has_value());
+    REQUIRE(latestResult.value() == relativePath);
+}
+
+TEST_CASE("SQLiteIndex_Versions", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest manifest;
+    std::string relativePath;
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Exact, manifest.Id);
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 1);
+
+    auto result = index.GetVersionsById(results[0].first);
+    REQUIRE(result.size() == 1);
+    REQUIRE(result[0].first == manifest.Version);
+    REQUIRE(result[0].second == manifest.Channel);
 }

@@ -104,6 +104,66 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return result;
         }
 
+        SQLite::Statement ManifestTableGetAllValuesByIds_Statement(
+            SQLite::Connection& connection,
+            std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
+            std::initializer_list<std::string_view> idColumns,
+            std::initializer_list<SQLite::rowid_t> ids)
+        {
+            using QCol = SQLite::Builder::QualifiedColumn;
+
+            THROW_HR_IF(E_INVALIDARG, idColumns.size() != ids.size());
+
+            SQLite::Builder::StatementBuilder builder;
+            builder.Select(valueColumns).From(s_ManifestTable_Table_Name);
+
+            for (const auto& valueColumn : valueColumns)
+            {
+                builder.Join(valueColumn.Table).On(QCol{ s_ManifestTable_Table_Name, valueColumn.Column }, QCol{ valueColumn.Table, SQLite::RowIDName });
+            }
+
+            bool isFirst = true;
+
+            for (const auto& idColumn : idColumns)
+            {
+                if (isFirst)
+                {
+                    builder.Where(idColumn).Equals(SQLite::Builder::Unbound);
+                    isFirst = false;
+                }
+                else
+                {
+                    builder.And(idColumn).Equals(SQLite::Builder::Unbound);
+                }
+            }
+
+            SQLite::Statement select = builder.Prepare(connection);
+
+            int bindIndex = 0;
+            for (const auto& id : ids)
+            {
+                select.Bind(++bindIndex, id);
+            }
+
+            return select;
+        }
+
+        std::vector<std::string> ManifestTableGetAllValuesByIds(
+            SQLite::Connection& connection,
+            std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
+            std::initializer_list<std::string_view> idColumns,
+            std::initializer_list<SQLite::rowid_t> ids)
+        {
+            auto select = ManifestTableGetAllValuesByIds_Statement(connection, valueColumns, idColumns, ids);
+
+            std::vector<std::string> result;
+            while (select.Step())
+            {
+                result.emplace_back(select.GetColumn<std::string>(0));
+            }
+            return result;
+        }
+
         void ManifestTableUpdateValueIdById(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t value, SQLite::rowid_t id)
         {
             SQLite::Builder::StatementBuilder builder;

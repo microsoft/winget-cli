@@ -170,6 +170,63 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return { (createIfNotFound ? partsAdded : true), parent.value() };
     }
 
+    std::optional<std::string> PathPartTable::GetPathById(SQLite::Connection& connection, SQLite::rowid_t id)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.Select({ s_PathPartTable_ParentValue_Name, s_PathPartTable_PartValue_Name }).
+            From(s_PathPartTable_Table_Name).Where(SQLite::RowIDName).Equals(SQLite::Builder::Unbound);
+
+        SQLite::Statement select = builder.Prepare(connection);
+
+        SQLite::rowid_t currentPart = id;
+        std::string result;
+
+        while (true)
+        {
+            select.Reset();
+            select.Bind(1, currentPart);
+
+            if (select.Step())
+            {
+                std::string partValue = select.GetColumn<std::string>(1);
+                if (result.empty())
+                {
+                    result = partValue;
+                }
+                else
+                {
+                    result = partValue + '/' + result;
+                }
+
+                if (select.GetColumnIsNull(0))
+                {
+                    // If the parent of this column is null, then we have reached the relative root
+                    break;
+                }
+                else
+                {
+                    currentPart = select.GetColumn<SQLite::rowid_t>(0);
+                }
+            }
+            else
+            {
+                if (currentPart == id)
+                {
+                    // The given id did not reference an actual path
+                    return {};
+                }
+                else
+                {
+                    // We found a broken path
+                    AICLI_LOG(Repo, Error, << "Path part references an invalid parent: " << currentPart);
+                    THROW_HR(APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED);
+                }
+            }
+        }
+
+        return result;
+    }
+
     void PathPartTable::RemovePathById(SQLite::Connection& connection, SQLite::rowid_t id)
     {
         SQLite::rowid_t currentPartToRemove = id;

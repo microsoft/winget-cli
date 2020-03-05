@@ -7,6 +7,7 @@
 
 #include <AppInstallerDateTime.h>
 #include <AppInstallerDeployment.h>
+#include <AppInstallerDownloader.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerMsixInfo.h>
@@ -23,6 +24,7 @@
 #include <winrt/Windows.ApplicationModel.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.Storage.h>
 
 #include <algorithm>
 #include <filesystem>
