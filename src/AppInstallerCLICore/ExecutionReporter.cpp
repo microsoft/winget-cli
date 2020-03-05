@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 #include "pch.h"
-#include "WorkflowReporter.h"
+#include "ExecutionReporter.h"
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI
 {
     void IndefiniteSpinner::ShowSpinner()
     {
@@ -72,7 +72,7 @@ namespace AppInstaller::Workflow
         }
     }
 
-    bool WorkflowReporter::PromptForBoolResponse(Level level, const std::string& msg)
+    bool ExecutionReporter::PromptForBoolResponse(Level level, const std::string& msg)
     {
         UNREFERENCED_PARAMETER(level);
 
@@ -84,7 +84,7 @@ namespace AppInstaller::Workflow
         return tolower(response) == 'y';
     }
 
-    void WorkflowReporter::ShowMsg(Level level, const std::string& msg)
+    void ExecutionReporter::ShowMsg(Level level, const std::string& msg)
     {
         UNREFERENCED_PARAMETER(level);
 
@@ -92,12 +92,12 @@ namespace AppInstaller::Workflow
         out << msg << std::endl;
     }
 
-    void WorkflowReporter::ShowProgress(bool running, uint64_t progress)
+    void ExecutionReporter::ShowProgress(bool running, uint64_t progress)
     {
         m_progressBar.ShowProgress(running, progress);
     }
 
-    void WorkflowReporter::ShowIndefiniteProgress(bool running)
+    void ExecutionReporter::ShowIndefiniteProgress(bool running)
     {
         if (running)
         {
@@ -109,7 +109,7 @@ namespace AppInstaller::Workflow
         }
     }
 
-    void WorkflowReporter::OnProgress(uint64_t current, uint64_t maximum, ProgressType type)
+    void ExecutionReporter::OnProgress(uint64_t current, uint64_t maximum, ProgressType type)
     {
         UNREFERENCED_PARAMETER(type);
         ShowIndefiniteProgress(false);

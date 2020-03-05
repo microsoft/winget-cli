@@ -8,8 +8,6 @@ namespace AppInstaller::CLI
 {
     struct Invocation
     {
-        using ArgString = char const*;
-
         Invocation(std::vector<std::string>&& args) : m_args(std::move(args)) {}
 
         struct iterator
@@ -40,6 +38,11 @@ namespace AppInstaller::CLI
         iterator begin() { return { m_currentFirstArg, m_args }; }
         iterator end() { return { m_args.size(), m_args }; }
         void consume(const iterator& i) { m_currentFirstArg = i.index() + 1; }
+
+        const std::map<std::string_view, std::vector<std::string>>* GetAllArgs() const
+        {
+            return &m_parsedArgs;
+        }
 
         bool Contains(std::string_view name) const { return (m_parsedArgs.count(name) != 0); }
         const std::vector<std::string>* GetArgs(std::string_view name) const

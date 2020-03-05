@@ -11,7 +11,7 @@
 #include <ostream>
 #include <string>
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI
 {
     // Class to print a indefinite spinner.
     class IndefiniteSpinner
@@ -46,7 +46,7 @@ namespace AppInstaller::Workflow
 
     // WorkflowReporter should be the central place to show workflow status to user.
     // Todo: need to implement actual console output to show color, progress bar, etc
-    struct WorkflowReporter : public IProgressCallback
+    struct ExecutionReporter : public IProgressCallback
     {
         enum class Level
         {
@@ -56,7 +56,7 @@ namespace AppInstaller::Workflow
             Error,
         };
 
-        WorkflowReporter(std::ostream& outStream, std::istream& inStream) :
+        ExecutionReporter(std::ostream& outStream, std::istream& inStream) :
             out(outStream), in(inStream), m_progressBar(outStream), m_spinner(outStream) {};
 
         bool PromptForBoolResponse(Level level, const std::string& msg);

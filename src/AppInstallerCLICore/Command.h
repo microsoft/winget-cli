@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "Invocation.h"
+#include "ExecutionArgs.h"
 
 #define APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR      '-'
 #define APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_STRING    "-"
@@ -101,11 +102,14 @@ namespace AppInstaller::CLI
         virtual std::unique_ptr<Command> FindInvokedCommand(Invocation& inv) const;
         virtual void ParseArguments(Invocation& inv) const;
         virtual void ValidateArguments(Invocation& inv) const;
+        virtual void PopulateExecutionArgs(const Invocation& inv, ExecutionArgs& args) const;
 
         virtual void Execute(Invocation& inv, std::ostream& out, std::istream& in) const;
 
     protected:
         virtual void ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const;
+
+        virtual ExecutionArgs::ExecutionArgType GetExecutionArgType(std::string_view argName) const;
 
     private:
         std::string_view m_name;

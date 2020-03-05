@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Public/AppInstallerCLICore.h"
 #include "Commands/RootCommand.h"
+#include "ExecutionContext.h"
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -22,6 +23,8 @@ namespace AppInstaller::CLI
         Logging::EnableWilFailureTelemetry();
 
         Logging::Telemetry().LogStartup();
+
+        ExecutionContext context{ std::cout, std::cin };
 
         // Convert incoming wide char args to UTF8
         std::vector<std::string> utf8Args;
@@ -58,6 +61,7 @@ namespace AppInstaller::CLI
 
             commandToExecute->ParseArguments(invocation);
             commandToExecute->ValidateArguments(invocation);
+            commandToExecute->PopulateExecutionArgs(invocation, context.Args);
         }
         // Exceptions specific to parsing the arguments of a command
         catch (const CommandException& ce)

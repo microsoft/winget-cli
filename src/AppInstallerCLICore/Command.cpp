@@ -174,6 +174,29 @@ namespace AppInstaller::CLI
         }
     }
 
+    void Command::PopulateExecutionArgs(const Invocation& inv, ExecutionArgs& args) const
+    {
+        auto invArgs = inv.GetAllArgs();
+
+        for (const auto& invArg : *invArgs)
+        {
+            auto execArgType = GetExecutionArgType(invArg.first);
+
+            if (invArg.second.empty())
+            {
+                // Flag
+                args.AddArg(execArgType);
+            }
+            else
+            {
+                for (const auto& argValue : invArg.second)
+                {
+                    args.AddArg(execArgType, argValue);
+                }
+            }
+        }
+    }
+
     void Command::Execute(Invocation& inv, std::ostream& out, std::istream& in) const
     {
         AICLI_LOG(CLI, Info, << "Executing command: " << Name());
