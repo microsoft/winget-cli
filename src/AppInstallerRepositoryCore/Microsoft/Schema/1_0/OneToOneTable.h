@@ -5,6 +5,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_0
@@ -16,6 +17,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Selects the value from the table, returning the rowid if it exists.
         std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value);
+
+        // Selects the value from the table, returning the rowid if it exists.
+        std::optional<std::string> OneToOneTableSelectValueById(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id);
+
+        // Gets all row ids from the table.
+        std::vector<SQLite::rowid_t> OneToOneTableGetAllRowIds(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName);
 
         // Ensures that the values exists in the table.
         SQLite::rowid_t OneToOneTableEnsureExists(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value);
@@ -59,6 +66,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         static std::optional<SQLite::rowid_t> SelectIdByValue(SQLite::Connection& connection, std::string_view value)
         {
             return details::OneToOneTableSelectIdByValue(connection, TableInfo::TableName(), TableInfo::ValueName(), value);
+        }
+
+        // Selects the value from the table, returning it if it exists.
+        static std::optional<value_t> SelectValueById(SQLite::Connection& connection, id_t id)
+        {
+            return details::OneToOneTableSelectValueById(connection, TableInfo::TableName(), TableInfo::ValueName(), id);
+        }
+
+        // Gets all row ids from the table.
+        static std::vector<SQLite::rowid_t> GetAllRowIds(SQLite::Connection& connection)
+        {
+            return details::OneToOneTableGetAllRowIds(connection, TableInfo::TableName(), TableInfo::ValueName());
         }
 
         // Ensures that the given value exists in the table, returning the rowid.

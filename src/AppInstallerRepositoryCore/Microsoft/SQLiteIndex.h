@@ -2,20 +2,27 @@
 // Licensed under the MIT License.
 #pragma once
 #include "SQLiteWrapper.h"
-#include "Microsoft/Schema/Version.h"
 #include "Manifest/Manifest.h"
+#include "Microsoft/Schema/Version.h"
+#include "Public/AppInstallerRepositorySearch.h"
+#include <AppInstallerLanguageUtilities.h>
 
 #include <chrono>
 #include <filesystem>
 #include <limits>
 #include <memory>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace AppInstaller::Repository::Microsoft
 {
     // Holds the connection to the database, as well as the appropriate functionality to interface with it.
     struct SQLiteIndex
     {
+        // An id that refers to a specific application.
+        using IdType = SQLite::rowid_t;
+
         SQLiteIndex(const SQLiteIndex&) = delete;
         SQLiteIndex& operator=(const SQLiteIndex&) = delete;
 
@@ -71,6 +78,22 @@ namespace AppInstaller::Repository::Microsoft
 
         // Removes data that is no longer needed for an index that is to be published.
         void PrepareForPackaging();
+
+        // Performs a search based on the given criteria.
+        std::vector<std::pair<IdType, ApplicationMatchFilter>> Search(const SearchRequest& request);
+
+        // Gets the Id string for the given id, if present.
+        std::optional<std::string> GetIdStringById(IdType id);
+
+        // Gets the Name string for the given id, if present.
+        std::optional<std::string> GetNameStringById(IdType id);
+
+        // Gets the relative path string for the given { id, version, channel }, if present.
+        // If version is empty, gets the value for the 'latest' version.
+        std::optional<std::string> GetPathStringByKey(IdType id, std::string_view version, std::string_view channel);
+
+        // Gets all versions and channels for the given id.
+        std::vector<std::pair<std::string, std::string>> GetVersionsById(IdType id);
 
     private:
         // Constructor used to open an existing index.

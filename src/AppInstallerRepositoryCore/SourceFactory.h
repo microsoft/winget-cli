@@ -18,7 +18,7 @@ namespace AppInstaller::Repository
         virtual bool IsInitialized(const SourceDetails& details) = 0;
 
         // Creates a source object from the given details.
-        virtual std::unique_ptr<ISource> Create(const SourceDetails& details) = 0;
+        virtual std::shared_ptr<ISource> Create(const SourceDetails& details) = 0;
 
         // Updates the source from the given details, writing back to the details any changes.
         virtual void Update(SourceDetails& details, IProgressCallback& progress) = 0;

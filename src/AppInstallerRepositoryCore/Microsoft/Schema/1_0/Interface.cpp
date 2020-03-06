@@ -55,6 +55,64 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return result;
         }
 
+        // Gets a manifest id by the given key values.
+        std::optional<SQLite::rowid_t> GetManifestIdByKey(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version = "", std::string_view channel = "")
+        {
+            std::optional<SQLite::rowid_t> channelIdOpt = ChannelTable::SelectIdByValue(connection, channel);
+            if (!channelIdOpt && !channel.empty())
+            {
+                // If an empty channel was given but none was found, we will just not filter on channel.
+                AICLI_LOG(Repo, Info, << "Did not find a Channel { " << channel << " }");
+                return {};
+            }
+
+            std::optional<SQLite::rowid_t> versionIdOpt;
+
+            if (version.empty())
+            {
+                std::vector<std::string> versions;
+                
+                if (channelIdOpt)
+                {
+                    versions = ManifestTable::GetAllValuesByIds<VersionTable, IdTable, ChannelTable>(connection, { id, channelIdOpt.value() });
+                }
+                else
+                {
+                    versions = ManifestTable::GetAllValuesByIds<VersionTable, IdTable>(connection, { id });
+                }
+
+                if (versions.empty())
+                {
+                    AICLI_LOG(Repo, Info, << "Did not find any Versions { " << id << ", " << channel << " }");
+                    return {};
+                }
+
+                // TODO: Implement version sort, for now assume latest == lastest
+                const std::string& latestVersion = versions[versions.size() - 1];
+
+                versionIdOpt = VersionTable::SelectIdByValue(connection, latestVersion);
+            }
+            else
+            {
+                versionIdOpt = VersionTable::SelectIdByValue(connection, version);
+            }
+
+            if (!versionIdOpt)
+            {
+                AICLI_LOG(Repo, Info, << "Did not find a Version { " << version << " }");
+                return {};
+            }
+
+            if (channelIdOpt)
+            {
+                return ManifestTable::SelectByValueIds<IdTable, VersionTable, ChannelTable>(connection, { id, versionIdOpt.value(), channelIdOpt.value() });
+            }
+            else
+            {
+                return ManifestTable::SelectByValueIds<IdTable, VersionTable>(connection, { id, versionIdOpt.value() });
+            }
+        }
+
         // Updates the manifest column and related table based on the given value.
         template <typename Table>
         void UpdateManifestValueById(SQLite::Connection& connection, const typename Table::value_t& value, SQLite::rowid_t manifestId)
@@ -257,5 +315,89 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Builder::StatementBuilder builder;
         builder.Vacuum();
         builder.Execute(connection);
+    }
+
+    std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> Interface::Search(SQLite::Connection& connection, const SearchRequest& request)
+    {
+        // Initial implementation handles only exact match on id, future change will implement more.
+        // TODO: Handle more MatchTypes
+        // TODO: Handle more query fields
+        // TODO: Handle filters
+        // TODO: Handle maximum count
+
+        if (request.Query)
+        {
+            std::optional<SQLite::rowid_t> id = IdTable::SelectIdByValue(connection, request.Query->Value);
+            if (id)
+            {
+                return { { id.value(), ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, request.Query->Value) } };
+            }
+            else
+            {
+                return {};
+            }
+        }
+        else
+        {
+            // No query, get everything
+            std::vector<SQLite::rowid_t> ids = IdTable::GetAllRowIds(connection);
+
+            std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> result;
+            for (SQLite::rowid_t id : ids)
+            {
+                result.emplace_back(std::make_pair(id, ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Wildcard, "")));
+            }
+            return result;
+        }
+    }
+
+    std::optional<std::string> Interface::GetIdStringById(SQLite::Connection& connection, SQLite::rowid_t id)
+    {
+        return IdTable::SelectValueById(connection, id);
+    }
+
+    std::optional<std::string> Interface::GetNameStringById(SQLite::Connection& connection, SQLite::rowid_t id)
+    {
+        std::optional<SQLite::rowid_t> manifestIdOpt = GetManifestIdByKey(connection, id);
+
+        if (!manifestIdOpt)
+        {
+            AICLI_LOG(Repo, Info, << "Did not find manifest by Id id: " << id);
+            return {};
+        }
+
+        auto [name] = ManifestTable::GetValuesById<NameTable>(connection, manifestIdOpt.value());
+        return name;
+    }
+
+    std::optional<std::string> Interface::GetPathStringByKey(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel)
+    {
+        std::optional<SQLite::rowid_t> manifestIdOpt = GetManifestIdByKey(connection, id, version, channel);
+
+        if (!manifestIdOpt)
+        {
+            AICLI_LOG(Repo, Info, << "Did not find manifest for: " << id << ", " << version << ", " << channel);
+            return {};
+        }
+
+        auto [pathPartId] = ManifestTable::GetIdsById<PathPartTable>(connection, manifestIdOpt.value());
+
+        return PathPartTable::GetPathById(connection, pathPartId);
+    }
+
+    std::vector<std::pair<std::string, std::string>> Interface::GetVersionsById(SQLite::Connection& connection, SQLite::rowid_t id)
+    {
+        auto versionsAndChannels = ManifestTable::GetAllValuesById<IdTable, VersionTable, ChannelTable>(connection, id);
+
+        // TODO: Implement version sort, for now assume latest == lastest
+        std::reverse(versionsAndChannels.begin(), versionsAndChannels.end());
+
+        std::vector<std::pair<std::string, std::string>> result;
+        result.reserve(versionsAndChannels.size());
+        for (auto&& vac : versionsAndChannels)
+        {
+            result.emplace_back(std::make_pair(std::move(std::get<0>(vac)), std::move(std::get<1>(vac))));
+        }
+        return result;
     }
 }
