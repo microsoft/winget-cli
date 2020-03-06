@@ -26,7 +26,7 @@ namespace AppInstaller::Workflow
 
         void ReportSearchResult();
 
-        std::unique_ptr<AppInstaller::Repository::ISource> m_source;
+        std::shared_ptr<AppInstaller::Repository::ISource> m_source;
         AppInstaller::Repository::SearchResult m_searchResult;
     };
 }

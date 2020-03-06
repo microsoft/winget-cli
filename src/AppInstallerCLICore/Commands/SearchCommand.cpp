@@ -23,7 +23,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> SearchCommand::GetArguments() const
     {
         return {
-            Argument{ s_SearchCommand_ArgName_Query, ExecutionArgs::Type::Query, LOCME("The query used to search for an app"), ArgumentType::Positional, true },
+            Argument{ s_SearchCommand_ArgName_Query, ExecutionArgs::Type::Query, LOCME("The query used to search for an app"), ArgumentType::Positional, false },
             Argument{ s_SearchCommand_ArgName_Id, ExecutionArgs::Type::Id, LOCME("If specified, filter the results by id"), ArgumentType::Standard },
             Argument{ s_SearchCommand_ArgName_Name, ExecutionArgs::Type::Name, LOCME("If specified, filter the results by name"), ArgumentType::Standard },
             Argument{ s_SearchCommand_ArgName_Moniker, ExecutionArgs::Type::Moniker, LOCME("If specified, filter the results by app moniker"), ArgumentType::Standard },

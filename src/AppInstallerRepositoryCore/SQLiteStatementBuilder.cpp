@@ -284,6 +284,18 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::OrderBy(std::string_view column)
+    {
+        OutputColumns(m_stream, " ORDER BY ", column);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::OrderBy(const QualifiedColumn& column)
+    {
+        OutputColumns(m_stream, " ORDER BY ", column);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::InsertInto(std::string_view table)
     {
         OutputOperationAndTable(m_stream, "INSERT INTO", table);

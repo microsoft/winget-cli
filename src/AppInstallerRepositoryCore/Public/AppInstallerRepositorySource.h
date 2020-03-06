@@ -41,7 +41,7 @@ namespace AppInstaller::Repository
         virtual const SourceDetails& GetDetails() const = 0;
 
         // Execute a search on the source.
-        virtual SearchResult Search(const SearchRequest& request) const = 0;
+        virtual SearchResult Search(const SearchRequest& request) = 0;
     };
 
     // Gets the details for all sources.
@@ -52,7 +52,7 @@ namespace AppInstaller::Repository
 
     // Opens an existing source.
     // Passing an empty string as the name of the source will return a source that aggregates all others.
-    std::unique_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress);
+    std::shared_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress);
 
     // Updates an existing source.
     // Return value indicates whether the named source was found.

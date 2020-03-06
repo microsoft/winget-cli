@@ -197,6 +197,33 @@ namespace AppInstaller::Repository::Microsoft
         m_interface->PrepareForPackaging(m_dbconn);
     }
 
+    std::vector<std::pair<SQLiteIndex::IdType, ApplicationMatchFilter>> SQLiteIndex::Search(const SearchRequest& request)
+    {
+        AICLI_LOG(Repo, Info, << "Performing search: " << request.ToString());
+
+        return m_interface->Search(m_dbconn, request);
+    }
+
+    std::optional<std::string> SQLiteIndex::GetIdStringById(IdType id)
+    {
+        return m_interface->GetIdStringById(m_dbconn, id);
+    }
+
+    std::optional<std::string> SQLiteIndex::GetNameStringById(IdType id)
+    {
+        return m_interface->GetNameStringById(m_dbconn, id);
+    }
+
+    std::optional<std::string> SQLiteIndex::GetPathStringByKey(IdType id, std::string_view version, std::string_view channel)
+    {
+        return m_interface->GetPathStringByKey(m_dbconn, id, version, channel);
+    }
+
+    std::vector<std::pair<std::string, std::string>> SQLiteIndex::GetVersionsById(IdType id)
+    {
+        return m_interface->GetVersionsById(m_dbconn, id);
+    }
+
     // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus
     // should be consistent across systems.
     void SQLiteIndex::SetLastWriteTime()

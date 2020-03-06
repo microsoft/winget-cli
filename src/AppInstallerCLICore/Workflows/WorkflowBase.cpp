@@ -105,7 +105,9 @@ namespace AppInstaller::Workflow
 
             if (match.MatchCriteria.Field != ApplicationMatchField::Id && match.MatchCriteria.Field != ApplicationMatchField::Name)
             {
-                msg += ", [" + ApplicationMatchFieldToString(match.MatchCriteria.Field) + ": " + match.MatchCriteria.Value + "]";
+                msg += ", [";
+                msg += ApplicationMatchFieldToString(match.MatchCriteria.Field);
+                msg += ": " + match.MatchCriteria.Value + "]";
             }
 
             m_reporterRef.ShowMsg(msg);

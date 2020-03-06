@@ -18,6 +18,9 @@ namespace AppInstaller::Synchronization
     // - No upgrade from reader to writer.
     struct CrossProcessReaderWriteLock
     {
+        // Create unheld lock.
+        CrossProcessReaderWriteLock() = default;
+
         ~CrossProcessReaderWriteLock();
 
         CrossProcessReaderWriteLock(const CrossProcessReaderWriteLock&) = delete;
