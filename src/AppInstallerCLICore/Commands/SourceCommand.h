@@ -29,7 +29,6 @@ namespace AppInstaller::CLI
 
     protected:
         virtual void ExecuteInternal(ExecutionContext& context) const override;
-        ExecutionArgs::ExecutionArgType GetExecutionArgType(std::string_view argName) const override;
     };
 
     struct SourceListCommand final : public Command
@@ -43,7 +42,6 @@ namespace AppInstaller::CLI
 
     protected:
         virtual void ExecuteInternal(ExecutionContext& context) const override;
-        ExecutionArgs::ExecutionArgType GetExecutionArgType(std::string_view argName) const override;
     };
 
     struct SourceUpdateCommand final : public Command
@@ -57,7 +55,6 @@ namespace AppInstaller::CLI
 
     protected:
         virtual void ExecuteInternal(ExecutionContext& context) const override;
-        ExecutionArgs::ExecutionArgType GetExecutionArgType(std::string_view argName) const override;
     };
 
     struct SourceRemoveCommand final : public Command
@@ -71,6 +68,5 @@ namespace AppInstaller::CLI
 
     protected:
         virtual void ExecuteInternal(ExecutionContext& context) const override;
-        ExecutionArgs::ExecutionArgType GetExecutionArgType(std::string_view argName) const override;
     };
 }

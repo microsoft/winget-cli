@@ -14,9 +14,9 @@ namespace AppInstaller::Workflow
     void WorkflowBase::OpenIndexSource()
     {
         std::string sourceName;
-        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Source))
+        if (m_argsRef.Contains(ExecutionArgs::Type::Source))
         {
-            sourceName = *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Source);
+            sourceName = *m_argsRef.GetArg(ExecutionArgs::Type::Source);
         }
 
         m_source = m_reporterRef.ExecuteWithProgress(std::bind(OpenSource, sourceName, std::placeholders::_1));
@@ -28,45 +28,45 @@ namespace AppInstaller::Workflow
 
         // Construct query
         MatchType matchType = MatchType::Fuzzy;
-        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Exact))
+        if (m_argsRef.Contains(ExecutionArgs::Type::Exact))
         {
             matchType = MatchType::Exact;
         }
 
         SearchRequest searchRequest;
-        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Query))
+        if (m_argsRef.Contains(ExecutionArgs::Type::Query))
         {
-            searchRequest.Query.emplace(RequestMatch(matchType, *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Query)));
+            searchRequest.Query.emplace(RequestMatch(matchType, *m_argsRef.GetArg(ExecutionArgs::Type::Query)));
         }
 
-        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Id))
+        if (m_argsRef.Contains(ExecutionArgs::Type::Id))
         {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Id)));
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, *m_argsRef.GetArg(ExecutionArgs::Type::Id)));
         }
 
-        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Name))
+        if (m_argsRef.Contains(ExecutionArgs::Type::Name))
         {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Name)));
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, *m_argsRef.GetArg(ExecutionArgs::Type::Name)));
         }
 
-        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Moniker))
+        if (m_argsRef.Contains(ExecutionArgs::Type::Moniker))
         {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Moniker)));
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, *m_argsRef.GetArg(ExecutionArgs::Type::Moniker)));
         }
 
-        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Tag))
+        if (m_argsRef.Contains(ExecutionArgs::Type::Tag))
         {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Tag, matchType, *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Tag)));
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Tag, matchType, *m_argsRef.GetArg(ExecutionArgs::Type::Tag)));
         }
 
-        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Command))
+        if (m_argsRef.Contains(ExecutionArgs::Type::Command))
         {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Command, matchType, *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Command)));
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Command, matchType, *m_argsRef.GetArg(ExecutionArgs::Type::Command)));
         }
 
-        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Count))
+        if (m_argsRef.Contains(ExecutionArgs::Type::Count))
         {
-            searchRequest.MaximumResults = std::stoi(*m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Count));
+            searchRequest.MaximumResults = std::stoi(*m_argsRef.GetArg(ExecutionArgs::Type::Count));
         }
 
         m_searchResult = m_source->Search(searchRequest);

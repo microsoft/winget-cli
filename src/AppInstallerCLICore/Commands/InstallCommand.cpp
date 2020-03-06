@@ -31,20 +31,20 @@ namespace AppInstaller::CLI
     std::vector<Argument> InstallCommand::GetArguments() const
     {
         return {
-            Argument{ s_InstallCommand_ArgName_Query, LOCME("The name of the application to install"), ArgumentType::Positional, false },
-            Argument{ s_InstallCommand_ArgName_Manifest, LOCME("The path to the manifest of the application to install"), ArgumentType::Standard, false },
-            Argument{ s_InstallCommand_ArgName_Id, LOCME("The id of the application to show info"), ArgumentType::Standard },
-            Argument{ s_InstallCommand_ArgName_Name, LOCME("If specified, filter the results by name"), ArgumentType::Standard },
-            Argument{ s_InstallCommand_ArgName_Moniker, LOCME("If specified, filter the results by app moniker"), ArgumentType::Standard },
-            Argument{ s_InstallCommand_ArgName_Version, LOCME("If specified, use the specified version. Default is the latest version"), ArgumentType::Standard },
-            Argument{ s_InstallCommand_ArgName_Channel, LOCME("If specified, use the specified channel. Default is general audience"), ArgumentType::Standard },
-            Argument{ s_InstallCommand_ArgName_Source, LOCME("If specified, find app using the specified source. Default is all source"), ArgumentType::Standard },
-            Argument{ s_InstallCommand_ArgName_Exact, LOCME("If specified, find app using exact match"), ArgumentType::Flag },
-            Argument{ s_InstallCommand_ArgName_Interactive, LOCME("The application installation is interactive. User input is needed."), ArgumentType::Flag, false },
-            Argument{ s_InstallCommand_ArgName_Silent, LOCME("The application installation is silent."), ArgumentType::Flag, false },
-            Argument{ s_InstallCommand_ArgName_Language, LOCME("Preferred language if application installation supports multiple languages."), ArgumentType::Standard, false },
-            Argument{ s_InstallCommand_ArgName_Log, LOCME("Preferred log location if application installation supports custom log path."), ArgumentType::Standard, false },
-            Argument{ s_InstallCommand_ArgName_Override, LOCME("Override switches to be passed on to application installer."), ArgumentType::Standard, false },
+            Argument{ s_InstallCommand_ArgName_Query, ExecutionArgs::Type::Query, LOCME("The name of the application to install"), ArgumentType::Positional, false },
+            Argument{ s_InstallCommand_ArgName_Manifest, ExecutionArgs::Type::Manifest, LOCME("The path to the manifest of the application to install"), ArgumentType::Standard, false },
+            Argument{ s_InstallCommand_ArgName_Id, ExecutionArgs::Type::Id, LOCME("The id of the application to show info"), ArgumentType::Standard },
+            Argument{ s_InstallCommand_ArgName_Name, ExecutionArgs::Type::Name, LOCME("If specified, filter the results by name"), ArgumentType::Standard },
+            Argument{ s_InstallCommand_ArgName_Moniker, ExecutionArgs::Type::Moniker, LOCME("If specified, filter the results by app moniker"), ArgumentType::Standard },
+            Argument{ s_InstallCommand_ArgName_Version, ExecutionArgs::Type::Version, LOCME("If specified, use the specified version. Default is the latest version"), ArgumentType::Standard },
+            Argument{ s_InstallCommand_ArgName_Channel, ExecutionArgs::Type::Channel, LOCME("If specified, use the specified channel. Default is general audience"), ArgumentType::Standard },
+            Argument{ s_InstallCommand_ArgName_Source, ExecutionArgs::Type::Source, LOCME("If specified, find app using the specified source. Default is all source"), ArgumentType::Standard },
+            Argument{ s_InstallCommand_ArgName_Exact, ExecutionArgs::Type::Exact, LOCME("If specified, find app using exact match"), ArgumentType::Flag },
+            Argument{ s_InstallCommand_ArgName_Interactive, ExecutionArgs::Type::Interactive, LOCME("The application installation is interactive. User input is needed."), ArgumentType::Flag, false },
+            Argument{ s_InstallCommand_ArgName_Silent, ExecutionArgs::Type::Silent, LOCME("The application installation is silent."), ArgumentType::Flag, false },
+            Argument{ s_InstallCommand_ArgName_Language, ExecutionArgs::Type::Language, LOCME("Preferred language if application installation supports multiple languages."), ArgumentType::Standard, false },
+            Argument{ s_InstallCommand_ArgName_Log, ExecutionArgs::Type::Log, LOCME("Preferred log location if application installation supports custom log path."), ArgumentType::Standard, false },
+            Argument{ s_InstallCommand_ArgName_Override, ExecutionArgs::Type::Override, LOCME("Override switches to be passed on to application installer."), ArgumentType::Standard, false },
         };
     }
 
@@ -67,82 +67,18 @@ namespace AppInstaller::CLI
         appInstall.Execute();
     }
 
-    void InstallCommand::ValidateArguments(Invocation& inv) const
+    void InstallCommand::ValidateArguments(ExecutionArgs& execArgs) const
     {
-        Command::ValidateArguments(inv);
+        Command::ValidateArguments(execArgs);
 
-        if (!inv.Contains(s_InstallCommand_ArgName_Query) && !inv.Contains(s_InstallCommand_ArgName_Manifest))
+        if (!execArgs.Contains(ExecutionArgs::Type::Query) && !execArgs.Contains(ExecutionArgs::Type::Manifest))
         {
             throw CommandException(LOCME("Required argument not provided"), s_InstallCommand_ArgName_Query);
         }
 
-        if (inv.Contains(s_InstallCommand_ArgName_Silent) && inv.Contains(s_InstallCommand_ArgName_Interactive))
+        if (execArgs.Contains(ExecutionArgs::Type::Silent) && execArgs.Contains(ExecutionArgs::Type::Interactive))
         {
             throw CommandException(LOCME("More than one install behavior argument provided"), s_InstallCommand_ArgName_Query);
-        }
-    }
-
-    ExecutionArgs::ExecutionArgType InstallCommand::GetExecutionArgType(std::string_view argName) const
-    {
-        if (argName == s_InstallCommand_ArgName_Query)
-        {
-            return ExecutionArgs::ExecutionArgType::Query;
-        }
-        else if (argName == s_InstallCommand_ArgName_Manifest)
-        {
-            return ExecutionArgs::ExecutionArgType::Manifest;
-        }
-        else if (argName == s_InstallCommand_ArgName_Id)
-        {
-            return ExecutionArgs::ExecutionArgType::Id;
-        }
-        else if (argName == s_InstallCommand_ArgName_Name)
-        {
-            return ExecutionArgs::ExecutionArgType::Name;
-        }
-        else if (argName == s_InstallCommand_ArgName_Moniker)
-        {
-            return ExecutionArgs::ExecutionArgType::Moniker;
-        }
-        else if (argName == s_InstallCommand_ArgName_Version)
-        {
-            return ExecutionArgs::ExecutionArgType::Version;
-        }
-        else if (argName == s_InstallCommand_ArgName_Channel)
-        {
-            return ExecutionArgs::ExecutionArgType::Channel;
-        }
-        else if (argName == s_InstallCommand_ArgName_Source)
-        {
-            return ExecutionArgs::ExecutionArgType::Source;
-        }
-        else if (argName == s_InstallCommand_ArgName_Exact)
-        {
-            return ExecutionArgs::ExecutionArgType::Exact;
-        }
-        else if (argName == s_InstallCommand_ArgName_Interactive)
-        {
-            return ExecutionArgs::ExecutionArgType::Interactive;
-        }
-        else if (argName == s_InstallCommand_ArgName_Silent)
-        {
-            return ExecutionArgs::ExecutionArgType::Silent;
-        }
-        else if (argName == s_InstallCommand_ArgName_Language)
-        {
-            return ExecutionArgs::ExecutionArgType::Language;
-        }
-        else if (argName == s_InstallCommand_ArgName_Log)
-        {
-            return ExecutionArgs::ExecutionArgType::Log;
-        }
-        else if (argName == s_InstallCommand_ArgName_Override)
-        {
-            return ExecutionArgs::ExecutionArgType::Override;
-        }
-        else
-        {
-            THROW_HR(E_UNEXPECTED);
         }
     }
 }

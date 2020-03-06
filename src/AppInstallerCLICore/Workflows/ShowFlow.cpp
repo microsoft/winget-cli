@@ -16,7 +16,7 @@ namespace AppInstaller::Workflow
 
         if (WorkflowBase::EnsureOneMatchFromSearchResult())
         {
-            if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::ListVersions))
+            if (m_argsRef.Contains(ExecutionArgs::Type::ListVersions))
             {
                 ShowAppVersion();
             }
@@ -32,8 +32,8 @@ namespace AppInstaller::Workflow
         auto app = m_searchResult.Matches.at(0).Application.get();
 
         auto manifest = app->GetManifest(
-            m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Version) ? *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Version) : "",
-            m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Channel) ? *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Channel) : ""
+            m_argsRef.Contains(ExecutionArgs::Type::Version) ? *m_argsRef.GetArg(ExecutionArgs::Type::Version) : "",
+            m_argsRef.Contains(ExecutionArgs::Type::Channel) ? *m_argsRef.GetArg(ExecutionArgs::Type::Channel) : ""
         );
 
         ManifestComparator manifestComparator(manifest, m_reporterRef);

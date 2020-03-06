@@ -16,6 +16,5 @@ namespace AppInstaller::CLI
 
     protected:
         void ExecuteInternal(AppInstaller::CLI::ExecutionContext& context) const override;
-        ExecutionArgs::ExecutionArgType GetExecutionArgType(std::string_view argName) const override;
     };
 }

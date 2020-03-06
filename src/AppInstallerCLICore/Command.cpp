@@ -88,7 +88,7 @@ namespace AppInstaller::CLI
         throw CommandException(LOCME("Unrecognized command"), *itr);
     }
 
-    void Command::ParseArguments(Invocation& inv) const
+    void Command::ParseArguments(Invocation& inv, ExecutionArgs& execArgs) const
     {
         auto definedArgs = GetArguments();
         auto positionalSearchItr = definedArgs.begin();
@@ -99,7 +99,7 @@ namespace AppInstaller::CLI
             {
                 // Positional argument, find the next appropriate one if the current itr isn't one or has hit its limit.
                 if (positionalSearchItr != definedArgs.end() &&
-                    (positionalSearchItr->Type() != ArgumentType::Positional || inv.GetCount(positionalSearchItr->Name()) == positionalSearchItr->Limit()))
+                    (positionalSearchItr->Type() != ArgumentType::Positional || execArgs.GetCount(positionalSearchItr->ExecArgType()) == positionalSearchItr->Limit()))
                 {
                     for (++positionalSearchItr; positionalSearchItr != definedArgs.end() && positionalSearchItr->Type() != ArgumentType::Positional; ++positionalSearchItr);
                 }
@@ -109,7 +109,7 @@ namespace AppInstaller::CLI
                     throw CommandException(LOCME("Found a positional argument when none was expected"), *incomingArgsItr);
                 }
 
-                inv.AddArg(positionalSearchItr->Name(), *incomingArgsItr);
+                execArgs.AddArg(positionalSearchItr->ExecArgType(), *incomingArgsItr);
             }
             else
             {
@@ -124,7 +124,7 @@ namespace AppInstaller::CLI
                     {
                         if (arg.Type() == ArgumentType::Flag)
                         {
-                            inv.AddArg(arg.Name());
+                            execArgs.AddArg(arg.ExecArgType());
                         }
                         else
                         {
@@ -133,7 +133,7 @@ namespace AppInstaller::CLI
                             {
                                 throw CommandException(LOCME("Argument value required, but none found"), *incomingArgsItr);
                             }
-                            inv.AddArg(arg.Name(), *incomingArgsItr);
+                            execArgs.AddArg(arg.ExecArgType(), *incomingArgsItr);
                         }
                         argFound = true;
                         break;
@@ -142,7 +142,7 @@ namespace AppInstaller::CLI
 
                 if (argName == APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING)
                 {
-                    inv.AddArg(APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING);
+                    execArgs.AddArg(ExecutionArgs::Type::Help);
                 }
                 else if (!argFound)
                 {
@@ -152,52 +152,24 @@ namespace AppInstaller::CLI
         }
     }
 
-    void Command::ValidateArguments(Invocation& inv) const
+    void Command::ValidateArguments(ExecutionArgs& execArgs) const
     {
         // If help is asked for, don't bother validating anything else
-        if (inv.Contains(APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING))
+        if (execArgs.Contains(ExecutionArgs::Type::Help))
         {
             return;
         }
 
         for (const auto& arg : GetArguments())
         {
-            if (arg.Required() && !inv.Contains(arg.Name()))
+            if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
             {
                 throw CommandException(LOCME("Required argument not provided"), arg.Name());
             }
 
-            if (arg.Limit() < inv.GetCount(arg.Name()))
+            if (arg.Limit() < execArgs.GetCount(arg.ExecArgType()))
             {
                 throw CommandException(LOCME("Argument provided more times than allowed"), arg.Name());
-            }
-        }
-    }
-
-    void Command::PopulateExecutionArgs(const Invocation& inv, ExecutionArgs& args) const
-    {
-        auto invArgs = inv.GetAllArgs();
-
-        for (const auto& invArg : *invArgs)
-        {
-            if (invArg.first == APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING)
-            {
-                args.AddArg(ExecutionArgs::ExecutionArgType::Help);
-                continue;
-            }
-
-            auto execArgType = GetExecutionArgType(invArg.first);
-            if (invArg.second.empty())
-            {
-                // Flag
-                args.AddArg(execArgType);
-            }
-            else
-            {
-                for (const auto& argValue : invArg.second)
-                {
-                    args.AddArg(execArgType, argValue);
-                }
             }
         }
     }
@@ -205,7 +177,7 @@ namespace AppInstaller::CLI
     void Command::Execute(ExecutionContext& context) const
     {
         AICLI_LOG(CLI, Info, << "Executing command: " << Name());
-        if (context.Args.Contains(ExecutionArgs::ExecutionArgType::Help))
+        if (context.Args.Contains(ExecutionArgs::Type::Help))
         {
             OutputHelp(context.Reporter);
         }

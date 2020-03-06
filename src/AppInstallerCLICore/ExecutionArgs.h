@@ -9,7 +9,7 @@ namespace AppInstaller::CLI
 {
     struct ExecutionArgs
     {
-        enum class ExecutionArgType
+        enum class Type
         {
             // Args to specify where to get app
             Query, // Query to be performed against index
@@ -47,15 +47,15 @@ namespace AppInstaller::CLI
             Help, // Show command usage
         };
 
-        bool Contains(ExecutionArgType arg) const { return (m_parsedArgs.count(arg) != 0); }
+        bool Contains(Type arg) const { return (m_parsedArgs.count(arg) != 0); }
 
-        const std::vector<std::string>* GetArgs(ExecutionArgType arg) const
+        const std::vector<std::string>* GetArgs(Type arg) const
         {
             auto itr = m_parsedArgs.find(arg);
             return (itr == m_parsedArgs.end() ? nullptr : &(itr->second));
         }
 
-        const std::string* GetArg(ExecutionArgType arg) const
+        const std::string* GetArg(Type arg) const
         {
             auto itr = m_parsedArgs.find(arg);
 
@@ -67,22 +67,22 @@ namespace AppInstaller::CLI
             return &(itr->second[0]);
         }
 
-        size_t GetCount(ExecutionArgType arg) const
+        size_t GetCount(Type arg) const
         {
             auto args = GetArgs(arg);
             return (args ? args->size() : 0);
         }
 
-        bool AddArg(ExecutionArgType arg)
+        bool AddArg(Type arg)
         {
             return m_parsedArgs[arg].empty();
         }
-        void AddArg(ExecutionArgType arg, std::string value)
+        void AddArg(Type arg, std::string value)
         {
             m_parsedArgs[arg].emplace_back(std::move(value));
         }
 
     private:
-        std::map<ExecutionArgType, std::vector<std::string>> m_parsedArgs;
+        std::map<Type, std::vector<std::string>> m_parsedArgs;
     };
 }

@@ -15,9 +15,9 @@ namespace AppInstaller::Workflow
 {
     void InstallFlow::Execute()
     {
-        if (m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Manifest))
+        if (m_argsRef.Contains(ExecutionArgs::Type::Manifest))
         {
-            m_manifest = Manifest::Manifest::CreateFromPath(*(m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Manifest)));
+            m_manifest = Manifest::Manifest::CreateFromPath(*(m_argsRef.GetArg(ExecutionArgs::Type::Manifest)));
             InstallInternal();
         }
         else
@@ -55,8 +55,8 @@ namespace AppInstaller::Workflow
 
         // Todo: handle failure if necessary after real search is in place
         m_manifest = app->GetManifest(
-            m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Version) ? *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Version) : "",
-            m_argsRef.Contains(ExecutionArgs::ExecutionArgType::Channel) ? *m_argsRef.GetArg(ExecutionArgs::ExecutionArgType::Channel) : ""
+            m_argsRef.Contains(ExecutionArgs::Type::Version) ? *m_argsRef.GetArg(ExecutionArgs::Type::Version) : "",
+            m_argsRef.Contains(ExecutionArgs::Type::Channel) ? *m_argsRef.GetArg(ExecutionArgs::Type::Channel) : ""
         );
     }
 

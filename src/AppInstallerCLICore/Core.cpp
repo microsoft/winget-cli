@@ -59,9 +59,8 @@ namespace AppInstaller::CLI
 
             Logging::Telemetry().LogCommand(commandToExecute->Name());
 
-            commandToExecute->ParseArguments(invocation);
-            commandToExecute->ValidateArguments(invocation);
-            commandToExecute->PopulateExecutionArgs(invocation, context.Args);
+            commandToExecute->ParseArguments(invocation, context.Args);
+            commandToExecute->ValidateArguments(context.Args);
         }
         // Exceptions specific to parsing the arguments of a command
         catch (const CommandException& ce)

@@ -39,51 +39,8 @@ namespace AppInstaller::CLI
         iterator end() { return { m_args.size(), m_args }; }
         void consume(const iterator& i) { m_currentFirstArg = i.index() + 1; }
 
-        const std::map<std::string_view, std::vector<std::string>>* GetAllArgs() const
-        {
-            return &m_parsedArgs;
-        }
-
-        bool Contains(std::string_view name) const { return (m_parsedArgs.count(name) != 0); }
-        const std::vector<std::string>* GetArgs(std::string_view name) const
-        {
-            auto itr = m_parsedArgs.find(name);
-            return (itr == m_parsedArgs.end() ? nullptr : &(itr->second));
-        }
-
-        const std::string* GetArg(std::string_view name) const
-        {
-            auto itr = m_parsedArgs.find(name);
-
-            if (itr == m_parsedArgs.end())
-            {
-                return nullptr;
-            }
-
-            return &(itr->second[0]);
-        }
-
-        size_t GetCount(std::string_view name) const
-        {
-            auto args = GetArgs(name);
-            return (args ? args->size() : 0);
-        }
-
-        bool AddArg(std::string_view name)
-        {
-            AICLI_LOG(CLI, Verbose, << "Found flag: " << name);
-            return m_parsedArgs[name].empty();
-        }
-        void AddArg(std::string_view name, std::string value)
-        {
-            AICLI_LOG(CLI, Verbose, << "Found argument with value: " << name << " => " << value);
-            m_parsedArgs[name].emplace_back(std::move(value));
-        }
-
     private:
         std::vector<std::string> m_args;
         size_t m_currentFirstArg = 0;
-
-        std::map<std::string_view, std::vector<std::string>> m_parsedArgs;
     };
 }
