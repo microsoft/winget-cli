@@ -15,7 +15,7 @@ namespace AppInstaller::CLI
         virtual std::vector<std::string> GetLongDescription() const override;
 
     protected:
-        virtual void ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const;
+        virtual void ExecuteInternal(ExecutionContext& context) const;
     };
 
     struct SourceAddCommand final : public Command
@@ -28,7 +28,7 @@ namespace AppInstaller::CLI
         virtual std::vector<std::string> GetLongDescription() const override;
 
     protected:
-        virtual void ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const;
+        virtual void ExecuteInternal(ExecutionContext& context) const override;
     };
 
     struct SourceListCommand final : public Command
@@ -41,7 +41,7 @@ namespace AppInstaller::CLI
         virtual std::vector<std::string> GetLongDescription() const override;
 
     protected:
-        virtual void ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const;
+        virtual void ExecuteInternal(ExecutionContext& context) const override;
     };
 
     struct SourceUpdateCommand final : public Command
@@ -54,7 +54,7 @@ namespace AppInstaller::CLI
         virtual std::vector<std::string> GetLongDescription() const override;
 
     protected:
-        virtual void ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const;
+        virtual void ExecuteInternal(ExecutionContext& context) const override;
     };
 
     struct SourceRemoveCommand final : public Command
@@ -67,6 +67,6 @@ namespace AppInstaller::CLI
         virtual std::vector<std::string> GetLongDescription() const override;
 
     protected:
-        virtual void ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const;
+        virtual void ExecuteInternal(ExecutionContext& context) const override;
     };
 }

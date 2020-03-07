@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 #pragma once
-#include "pch.h"
-#include "Invocation.h"
-#include "WorkflowReporter.h"
+#include <string>
+#include "Manifest/Manifest.h"
+#include "ExecutionContext.h"
 
 namespace AppInstaller::Workflow
 {
@@ -31,13 +31,12 @@ namespace AppInstaller::Workflow
     protected:
         InstallerHandlerBase(
             const Manifest::ManifestInstaller& manifestInstaller,
-            const CLI::Invocation& args,
-            WorkflowReporter& reporter) :
-            m_manifestInstallerRef(manifestInstaller), m_reporterRef(reporter), m_argsRef(args) {};
+            AppInstaller::CLI::ExecutionContext& context) :
+            m_manifestInstallerRef(manifestInstaller), m_reporterRef(context.Reporter), m_argsRef(context.Args) {};
 
         const Manifest::ManifestInstaller& m_manifestInstallerRef;
-        const CLI::Invocation& m_argsRef;
-        WorkflowReporter& m_reporterRef;
+        const AppInstaller::CLI::ExecutionArgs& m_argsRef;
+        AppInstaller::CLI::ExecutionReporter& m_reporterRef;
         std::filesystem::path m_downloadedInstaller;
     };
 }

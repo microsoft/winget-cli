@@ -4,17 +4,15 @@
 #pragma once
 #include "Common.h"
 #include "WorkflowBase.h"
-#include "Invocation.h"
 #include "InstallerHandlerBase.h"
-#include "WorkflowReporter.h"
+#include "ExecutionContext.h"
 
 namespace AppInstaller::Workflow
 {
     class InstallFlow : public WorkflowBase
     {
     public:
-        InstallFlow(const AppInstaller::CLI::Invocation& args, std::ostream& outStream, std::istream& inStream) :
-            WorkflowBase(args, outStream, inStream) {}
+        InstallFlow(AppInstaller::CLI::ExecutionContext& context) : WorkflowBase(context) {}
 
         // Execute will perform a query against index and do app install if a target app is found.
         // If a manifest is given with /manifest, use the manifest and no index search is performed.
