@@ -16,6 +16,9 @@
 #include "Microsoft/Schema/1_0/TagsTable.h"
 #include "Microsoft/Schema/1_0/CommandsTable.h"
 
+#include "Microsoft/Schema/1_0/SearchResultsTable.h"
+
+
 namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
     namespace
@@ -319,36 +322,74 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> Interface::Search(SQLite::Connection& connection, const SearchRequest& request)
     {
-        // Initial implementation handles only exact match on id, future change will implement more.
-        // TODO: Handle more MatchTypes
-        // TODO: Handle more query fields
-        // TODO: Handle filters
-        // TODO: Handle maximum count
-
-        if (request.Query)
+        // If no query or filters, get everything
+        if (!request.Query && request.Filters.empty())
         {
-            std::optional<SQLite::rowid_t> id = IdTable::SelectIdByValue(connection, request.Query->Value);
-            if (id)
-            {
-                return { { id.value(), ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, request.Query->Value) } };
-            }
-            else
-            {
-                return {};
-            }
-        }
-        else
-        {
-            // No query, get everything
-            std::vector<SQLite::rowid_t> ids = IdTable::GetAllRowIds(connection);
+            std::vector<SQLite::rowid_t> ids = IdTable::GetAllRowIds(connection, request.MaximumResults);
 
             std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> result;
             for (SQLite::rowid_t id : ids)
             {
-                result.emplace_back(std::make_pair(id, ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Wildcard, "")));
+                result.emplace_back(std::make_pair(id, ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Wildcard, {})));
             }
             return result;
         }
+
+        // First phase, create the search results table and populate it with the initial results.
+        // If the Query is provided, we search across many fields and put results in together.
+        // If not, we take the first filter and use it as the initial results search.
+        SearchResultsTable resultsTable(connection);
+        size_t filterIndex = 0;
+
+        if (request.Query)
+        {
+            // Perform searches across multiple tables to populate the initial results.
+            const RequestMatch& query = request.Query.value();
+
+            for (MatchType match : GetMatchTypeOrder(query.Type))
+            {
+                SearchOnField(connection, resultsTable, ApplicationMatchField::Id, match, query.Value);
+                SearchOnField(connection, resultsTable, ApplicationMatchField::Name, match, query.Value);
+                SearchOnField(connection, resultsTable, ApplicationMatchField::Moniker, match, query.Value);
+                SearchOnField(connection, resultsTable, ApplicationMatchField::Command, match, query.Value);
+                SearchOnField(connection, resultsTable, ApplicationMatchField::Tag, match, query.Value);
+            }
+        }
+        else
+        {
+            THROW_HR_IF(E_UNEXPECTED, request.Filters.empty());
+
+            // Perform search for just the field matching this filter
+            const ApplicationMatchFilter& filter = request.Filters[0];
+
+            for (MatchType match : GetMatchTypeOrder(filter.Type))
+            {
+                SearchOnField(connection, resultsTable, filter.Field, match, filter.Value);
+            }
+
+            // Skip the filter as we already know everything matches
+            filterIndex = 1;
+        }
+
+        // Remove any duplicate manifest entries
+        resultsTable.RemoveDuplicateManifestRows(connection);
+
+        // Second phase, for remaining filters, flag matching search results, then remove unflagged values.
+        for (size_t i = filterIndex; i < request.Filters.size(); ++i)
+        {
+            const ApplicationMatchFilter& filter = request.Filters[i];
+
+            resultsTable.PrepareToFilter(connection);
+
+            for (MatchType match : GetMatchTypeOrder(filter.Type))
+            {
+                FilterOnField(connection, resultsTable, filter.Field, match, filter.Value);
+            }
+
+            resultsTable.CompleteFilter(connection);
+        }
+
+        return resultsTable.GetSearchResults(connection, request.MaximumResults);
     }
 
     std::optional<std::string> Interface::GetIdStringById(SQLite::Connection& connection, SQLite::rowid_t id)

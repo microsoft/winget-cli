@@ -75,7 +75,9 @@ namespace AppInstaller::Repository::SQLite::Builder
     enum class Type
     {
         Int,
+        Bool = Int,
         Int64,
+        RowId = Int64,
         Text,
     };
 
@@ -94,6 +96,11 @@ namespace AppInstaller::Repository::SQLite::Builder
         // Indicate that the column is not able to be null.
         // Allow for data driven construction with input value.
         ColumnBuilder& NotNull(bool isTrue = true);
+
+        // Indicate the default value for the column.
+        // Note that a default value is not considered constant if it is bound,
+        // so this function directly places the incoming value into the SQL statement.
+        ColumnBuilder& Default(int64_t value);
 
         // Indicate that the column is unique.
         // Allow for data driven construction with input value.
@@ -241,6 +248,11 @@ namespace AppInstaller::Repository::SQLite::Builder
         // The initializer_list form enables the table name to be constructed from multiple parts.
         StatementBuilder& CreateTable(std::string_view table);
         StatementBuilder& CreateTable(std::initializer_list<std::string_view> table);
+
+        // Begin an table deletion statement.
+        // The initializer_list form enables the table name to be constructed from multiple parts.
+        StatementBuilder& DropTable(std::string_view table);
+        StatementBuilder& DropTable(std::initializer_list<std::string_view> table);
 
         // Begin an index creation statement.
         // The initializer_list form enables the table name to be constructed from multiple parts.

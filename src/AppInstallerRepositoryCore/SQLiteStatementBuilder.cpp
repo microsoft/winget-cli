@@ -114,6 +114,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    ColumnBuilder& ColumnBuilder::Default(int64_t value)
+    {
+        m_stream << " DEFAULT " << value;
+        return *this;
+    }
+
     ColumnBuilder& ColumnBuilder::Unique(bool isTrue)
     {
         if (isTrue)
@@ -413,6 +419,18 @@ namespace AppInstaller::Repository::SQLite::Builder
     StatementBuilder& StatementBuilder::CreateTable(std::initializer_list<std::string_view> table)
     {
         OutputOperationAndTable(m_stream, "CREATE TABLE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::DropTable(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "DROP TABLE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::DropTable(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, "DROP TABLE", table);
         return *this;
     }
 

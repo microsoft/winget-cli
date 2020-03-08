@@ -200,6 +200,9 @@ namespace AppInstaller::Repository::SQLite
         // Note that this does not clear data bindings.
         void Reset();
 
+        // Determines if the statement owns an underlying object.
+        operator bool() const { return static_cast<bool>(m_stmt); }
+
     private:
         Statement(Connection& connection, std::string_view sql, bool persistent);
 
