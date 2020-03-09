@@ -121,6 +121,8 @@ namespace AppInstaller::Repository
             return "Wildcard"sv;
         case MatchType::Fuzzy:
             return "Fuzzy"sv;
+        case MatchType::FuzzySubstring:
+            return "FuzzySubstring"sv;
         }
 
         return "UnknownMatchType"sv;
