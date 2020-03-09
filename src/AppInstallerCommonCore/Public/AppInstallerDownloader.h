@@ -34,4 +34,7 @@ namespace AppInstaller::Utility
 
     // Determines if the given url is a remote location.
     bool IsUrlRemote(std::string_view url);
+
+    // Apply Mark of the web if the target file is on NTFS, otherwise does nothing.
+    void ApplyMotwIfApplicable(const std::filesystem::path& filePath);
 }

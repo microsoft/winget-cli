@@ -19,7 +19,7 @@ namespace AppInstaller::Utility
     {
         THROW_HR_IF(E_INVALIDARG, url.empty());
 
-        AICLI_LOG(CLI, Info, << "Downloading from url: " << url);
+        AICLI_LOG(Core, Info, << "Downloading from url: " << url);
 
         wil::unique_hinternet session(InternetOpenA(
             "appinstaller-cli",
@@ -50,11 +50,11 @@ namespace AppInstaller::Utility
 
         if (requestStatus != HTTP_STATUS_OK)
         {
-            AICLI_LOG(CLI, Error, << "Download request failed. Returned status: " << requestStatus);
+            AICLI_LOG(Core, Error, << "Download request failed. Returned status: " << requestStatus);
             THROW_HR_MSG(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, requestStatus), "Download request status is not success.");
         }
 
-        AICLI_LOG(CLI, Verbose, << "Download request status success.");
+        AICLI_LOG(Core, Verbose, << "Download request status success.");
 
         // Get content length. Don't fail the download if failed.
         LONGLONG contentLength = 0;
@@ -66,7 +66,7 @@ namespace AppInstaller::Utility
             &contentLength,
             &cbContentLength,
             nullptr);
-        AICLI_LOG(CLI, Verbose, << "Download size: " << contentLength);
+        AICLI_LOG(Core, Verbose, << "Download size: " << contentLength);
 
         // Setup hash engine
         SHA256 hashEngine;
@@ -83,7 +83,7 @@ namespace AppInstaller::Utility
         {
             if (progress.IsCancelled())
             {
-                AICLI_LOG(CLI, Info, << "Download cancelled.");
+                AICLI_LOG(Core, Info, << "Download cancelled.");
                 return {};
             }
 
@@ -113,10 +113,10 @@ namespace AppInstaller::Utility
         if (computeHash)
         {
             result = hashEngine.Get();
-            AICLI_LOG(CLI, Info, << "Download hash: " << SHA256::ConvertToString(result));
+            AICLI_LOG(Core, Info, << "Download hash: " << SHA256::ConvertToString(result));
         }
 
-        AICLI_LOG(CLI, Info, << "Download completed.");
+        AICLI_LOG(Core, Info, << "Download completed.");
 
         return result;
     }
@@ -130,12 +130,18 @@ namespace AppInstaller::Utility
         THROW_HR_IF(E_INVALIDARG, url.empty());
         THROW_HR_IF(E_INVALIDARG, dest.empty());
 
-        AICLI_LOG(CLI, Info, << "Downloading to path: " << dest);
+        AICLI_LOG(Core, Info, << "Downloading to path: " << dest);
 
         std::filesystem::create_directories(dest.parent_path());
         std::ofstream outfile(dest, std::ofstream::binary);
 
-        return DownloadToStream(url, outfile, progress, computeHash);
+        auto result = DownloadToStream(url, outfile, progress, computeHash);
+
+        outfile.close();
+
+        ApplyMotwIfApplicable(dest);
+
+        return result;
     }
 
     bool IsUrlRemote(std::string_view url)
@@ -152,5 +158,53 @@ namespace AppInstaller::Utility
         }
 
         return false;
+    }
+
+    void ApplyMotwIfApplicable(const std::filesystem::path& filePath)
+    {
+        AICLI_LOG(Core, Info, << "Started applying motw to " << filePath);
+
+        {
+            // Check the file system the input file is on.
+            wil::unique_hfile fileHandle{ CreateFileW(
+                filePath.c_str(), /*lpFileName*/
+                GENERIC_READ, /*dwDesiredAccess*/
+                0, /*dwShareMode*/
+                NULL, /*lpSecurityAttributes*/
+                OPEN_EXISTING, /*dwCreationDisposition*/
+                FILE_ATTRIBUTE_NORMAL, /*dwFlagsAndAttributes*/
+                NULL /*hTemplateFile*/) };
+
+            THROW_LAST_ERROR_IF(fileHandle.get() == INVALID_HANDLE_VALUE);
+
+            wchar_t fileSystemName[MAX_PATH];
+            THROW_LAST_ERROR_IF(!GetVolumeInformationByHandleW(
+                fileHandle.get(), /*hFile*/
+                NULL, /*lpVolumeNameBuffer*/
+                0, /*nVolumeNameSize*/
+                NULL, /*lpVolumeSerialNumber*/
+                NULL, /*lpMaximumComponentLength*/
+                NULL, /*lpFileSystemFlags*/
+                fileSystemName, /*lpFileSystemNameBuffer*/
+                MAX_PATH /*nFileSystemNameSize*/));
+
+            if (_wcsicmp(fileSystemName, L"NTFS") != 0)
+            {
+                AICLI_LOG(Core, Info, << "File system is not NTFS. Skipped applying motw");
+                return;
+            }
+        }
+
+        // Zone Indentifier stream name
+        // https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/6e3f7352-d11c-4d76-8c39-2516a9df36e8
+        std::filesystem::path motwPath(filePath);
+        motwPath += L":Zone.Identifier:$DATA";
+
+        // Apply mark of the web. ZoneId 3 means downloaded from internet.
+        std::ofstream motwStream(motwPath);
+        motwStream << "[ZoneTransfer]" << std::endl;
+        motwStream << "ZoneId=3" << std::endl;
+
+        AICLI_LOG(Core, Info, << "Finished applying motw");
     }
 }
