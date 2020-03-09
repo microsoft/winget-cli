@@ -24,7 +24,7 @@ namespace AppInstaller::Repository::SQLite
 
     namespace details
     {
-        template <typename T>
+        template <typename T, typename = void>
         struct ParameterSpecificsImpl
         {
             static void Bind(sqlite3_stmt*, int, T&&)
@@ -75,6 +75,19 @@ namespace AppInstaller::Repository::SQLite
         {
             static void Bind(sqlite3_stmt* stmt, int index, bool v);
             static bool GetColumn(sqlite3_stmt* stmt, int column);
+        };
+
+        template <typename E>
+        struct ParameterSpecificsImpl<E, typename std::enable_if_t<std::is_enum_v<E>>>
+        {
+            static void Bind(sqlite3_stmt* stmt, int index, E v)
+            {
+                ParameterSpecificsImpl<std::underlying_type_t<E>>::Bind(stmt, index, ToIntegral(v));
+            }
+            static E GetColumn(sqlite3_stmt* stmt, int column)
+            {
+                return ToEnum<E>(ParameterSpecificsImpl<std::underlying_type_t<E>>::GetColumn(stmt, column));
+            }
         };
 
         template <typename T>

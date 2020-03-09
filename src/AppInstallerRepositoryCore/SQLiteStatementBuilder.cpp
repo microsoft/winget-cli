@@ -63,6 +63,31 @@ namespace AppInstaller::Repository::SQLite::Builder
             }
         }
 
+        void OutputAggregate(std::ostream& out, Aggregate op)
+        {
+            out << ' ';
+            switch (op)
+            {
+            case Aggregate::Min:
+                out << "MIN";
+                break;
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
+
+        void OutputColumns(std::ostream& out, Aggregate op, std::string_view column)
+        {
+            OutputAggregate(out, op);
+            out << "([" << column << "])";
+        }
+
+        void OutputColumns(std::ostream& out, Aggregate op, const QualifiedColumn& column)
+        {
+            OutputAggregate(out, op);
+            out << '(' << column << ')';
+        }
+
         // Use to output operation and table name, such as " FROM [table]"
         void OutputOperationAndTable(std::ostream& out, std::string_view op, std::string_view table)
         {
@@ -177,6 +202,7 @@ namespace AppInstaller::Repository::SQLite::Builder
     StatementBuilder& StatementBuilder::Select()
     {
         m_stream << "SELECT ";
+        m_needsComma = false;
         return *this;
     }
 
@@ -309,6 +335,18 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::GroupBy(std::string_view column)
+    {
+        OutputColumns(m_stream, " GROUP BY ", column);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::GroupBy(const QualifiedColumn& column)
+    {
+        OutputColumns(m_stream, " GROUP BY ", column);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::OrderBy(std::string_view column)
     {
         OutputColumns(m_stream, " ORDER BY ", column);
@@ -403,8 +441,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         {
             m_stream << ", ";
         }
-        OutputColumns(m_stream, "min(", column);
-        m_stream << ")";
+        OutputColumns(m_stream, aggOp, column);
         m_needsComma = true;
         return *this;
     }
@@ -415,8 +452,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         {
             m_stream << ", ";
         }
-        OutputColumns(m_stream, "min(", column);
-        m_stream << ")";
+        OutputColumns(m_stream, aggOp, column);
         m_needsComma = true;
         return *this;
     }

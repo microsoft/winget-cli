@@ -208,6 +208,10 @@ namespace AppInstaller::Repository::SQLite::Builder
         // Set the join constraint.
         StatementBuilder& On(const QualifiedColumn& column1, const QualifiedColumn& column2);
 
+        // Specify the grouping to use.
+        StatementBuilder& GroupBy(std::string_view column);
+        StatementBuilder& GroupBy(const QualifiedColumn& column);
+
         // Specify the ordering to use.
         StatementBuilder& OrderBy(std::string_view column);
         StatementBuilder& OrderBy(const QualifiedColumn& column);

@@ -180,10 +180,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             // OR
             //      SELECT manifest.rowid as m, tags.tag as v from manifest join tags_map on manifest.rowid = tags_map.manifest
             //      join tags on tags_map.tag = tags.rowid where tags.tag = <value>
-            builder.Select().BeginColumns();
-            builder.Column(QCol(s_ManifestTable_Table_Name, SQLite::RowIDName)).As(manifestAlias);
-            builder.Column(column).As(valueAlias);
-            builder.EndColumns();
+            builder.Select().
+                Column(QCol(s_ManifestTable_Table_Name, SQLite::RowIDName)).As(manifestAlias).
+                Column(column).As(valueAlias);
 
             if (isOneToOne)
             {
@@ -225,7 +224,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
     }
 
-    std::string_view GetTableName()
+    std::string_view ManifestTable::TableName()
     {
         return s_ManifestTable_Table_Name;
     }

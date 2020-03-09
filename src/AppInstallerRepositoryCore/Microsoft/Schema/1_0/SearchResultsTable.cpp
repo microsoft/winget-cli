@@ -95,16 +95,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         //      (SELECT manifest.rowid as m, manifest.id as v from manifest join ids on manifest.id = ids.rowid where ids.id = <value>) AS valueTable
         // Where the subselect is built by the owning table.
         StatementBuilder builder;
-        builder.InsertInto(GetQualifiedName()).Select().BeginColumns();
-
-        builder.Column(QualifiedColumn(s_SearchResultsTable_SubSelect_TableAlias, s_SearchResultsTable_SubSelect_ManifestAlias));
-        builder.Value(ToIntegral(field));
-        builder.Value(ToIntegral(match));
-        builder.Column(QualifiedColumn(s_SearchResultsTable_SubSelect_TableAlias, s_SearchResultsTable_SubSelect_ValueAlias));
-        builder.Value(sortOrdinal);
-        builder.Value(false);
-
-        builder.EndColumns().From().BeginParenthetical();
+        builder.InsertInto(GetQualifiedName()).Select().
+            Column(QualifiedColumn(s_SearchResultsTable_SubSelect_TableAlias, s_SearchResultsTable_SubSelect_ManifestAlias)).
+            Value(field).
+            Value(match).
+            Column(QualifiedColumn(s_SearchResultsTable_SubSelect_TableAlias, s_SearchResultsTable_SubSelect_ValueAlias)).
+            Value(sortOrdinal).
+            Value(false).
+        From().BeginParenthetical();
 
         bool useLike = (match != MatchType::Exact);
         int bindIndex = 0;
@@ -163,16 +161,37 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         constexpr std::string_view tempTableAlias = "t"sv;
 
         using namespace SQLite::Builder;
+        using QCol = QualifiedColumn;
 
+        // Select all unique ids from the results table, and their highest ordered match.
         // The goal is a statement like this:
         //  SELECT m.id, field, match, value, min(sort) from <temp> join manifest on rowid = manifest group by m.id order by t.sort
+        // Through the "group by m.id", we will only ever have one row per id, and the "min(sort)" returns us one of the rows that matched
+        // through the earliest search.  We also order by the sort value to have the earliest search matches first in the list
         StatementBuilder builder;
-        builder.Select().BeginColumns();
+        builder.Select().
+            Column(QCol(ManifestTable::TableName(), IdTable::ValueName())).
+            Column(QCol(tempTableAlias, s_SearchResultsTable_MatchField)).
+            Column(QCol(tempTableAlias, s_SearchResultsTable_MatchType)).
+            Column(QCol(tempTableAlias, s_SearchResultsTable_MatchValue)).
+            Column(Aggregate::Min, QCol(tempTableAlias, s_SearchResultsTable_SortValue)).
+        From(GetQualifiedName()).As(tempTableAlias).
+            Join(ManifestTable::TableName()).On(QCol(tempTableAlias, s_SearchResultsTable_Manifest), QCol(ManifestTable::TableName(), SQLite::RowIDName)).
+            GroupBy(QCol(ManifestTable::TableName(), IdTable::ValueName())).OrderBy(QCol(tempTableAlias, s_SearchResultsTable_SortValue));
 
-        builder.Column(QualifiedColumn(ManifestTable::GetTableName(), IdTable::ValueName()));
-        builder.Column(QualifiedColumn(tempTableAlias, s_SearchResultsTable_MatchField));
-        builder.Column(QualifiedColumn(tempTableAlias, s_SearchResultsTable_MatchType));
-        builder.Column(QualifiedColumn(tempTableAlias, s_SearchResultsTable_MatchValue));
-        builder.Column(Aggregate::Min, QualifiedColumn(tempTableAlias, s_SearchResultsTable_SortValue));
+        if (limit)
+        {
+            builder.Limit(limit);
+        }
+
+        SQLite::Statement select = builder.Prepare(m_connection);
+
+        std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> result;
+        while (select.Step())
+        {
+            result.emplace_back(select.GetColumn<SQLite::rowid_t>(0), 
+                ApplicationMatchFilter(select.GetColumn<ApplicationMatchField>(1), select.GetColumn<MatchType>(2), select.GetColumn<std::string>(3)));
+        }
+        return result;
     }
 }

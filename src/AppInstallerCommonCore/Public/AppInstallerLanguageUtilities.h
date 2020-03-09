@@ -59,4 +59,18 @@ namespace AppInstaller
     {
         return static_cast<std::underlying_type_t<E>>(e);
     }
+
+    // Get the enum value for an integral.
+    template <typename E>
+    inline std::enable_if_t<std::is_enum_v<E>, E> ToEnum(std::underlying_type_t<E> ut)
+    {
+        return static_cast<E>(ut);
+    }
+}
+
+// Enable enums to be output generically (as their integral value).
+template <typename E>
+std::enable_if_t<std::is_enum_v<E>, std::ostream&> operator<<(std::ostream& out, E e)
+{
+    return out << AppInstaller::ToIntegral(e);
 }

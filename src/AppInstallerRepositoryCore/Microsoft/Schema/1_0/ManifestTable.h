@@ -77,7 +77,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     struct ManifestTable
     {
         // Get the table name.
-        static std::string_view GetTableName();
+        static std::string_view TableName();
 
         // Creates the table.
         static void Create(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values);
