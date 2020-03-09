@@ -11,6 +11,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
     namespace details
     {
+        // Returns the map table name for a given table.
+        std::string OneToManyTableGetMapTableName(std::string_view tableName);
+
+        // Returns the manifest column name.
+        std::string_view OneToManyTableGetManifestColumnName();
+
         // Create the tables.
         void CreateOneToManyTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName);
 
@@ -38,6 +44,24 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     template <typename TableInfo>
     struct OneToManyTable
     {
+        // The name of the table.
+        static constexpr std::string_view TableName()
+        {
+            return TableInfo::TableName();
+        }
+
+        // The value name of the table.
+        static constexpr std::string_view ValueName()
+        {
+            return TableInfo::ValueName();
+        }
+
+        // Value indicating type.
+        static constexpr bool IsOneToOne()
+        {
+            return false;
+        }
+
         // Creates the table.
         static void Create(SQLite::Connection& connection)
         {

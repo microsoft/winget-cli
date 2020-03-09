@@ -210,6 +210,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::From()
+    {
+        m_stream << " FROM ";
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::From(std::string_view table)
     {
         OutputOperationAndTable(m_stream, " FROM", table);
@@ -237,6 +243,19 @@ namespace AppInstaller::Repository::SQLite::Builder
     StatementBuilder& StatementBuilder::Equals(details::unbound_t)
     {
         AppendOpAndBinder(Op::Equals);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Like(details::unbound_t)
+    {
+        AppendOpAndBinder(Op::Like);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Escape(std::string_view escapeChar)
+    {
+        THROW_HR_IF(E_INVALIDARG, escapeChar.length() != 1);
+        AddBindFunctor(AppendOpAndBinder(Op::Escape), escapeChar);
         return *this;
     }
 
@@ -378,6 +397,30 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::Column(Aggregate aggOp, std::string_view column)
+    {
+        if (m_needsComma)
+        {
+            m_stream << ", ";
+        }
+        OutputColumns(m_stream, "min(", column);
+        m_stream << ")";
+        m_needsComma = true;
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Column(Aggregate aggOp, const QualifiedColumn& column)
+    {
+        if (m_needsComma)
+        {
+            m_stream << ", ";
+        }
+        OutputColumns(m_stream, "min(", column);
+        m_stream << ")";
+        m_needsComma = true;
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::Column(const details::SubBuilder& column)
     {
         if (m_needsComma)
@@ -507,6 +550,24 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::BeginParenthetical()
+    {
+        m_stream << '(';
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::EndParenthetical()
+    {
+        m_stream << ')';
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::As(std::string_view alias)
+    {
+        OutputOperationAndTable(m_stream, " AS", alias);
+        return *this;
+    }
+
     Statement StatementBuilder::Prepare(Connection& connection, bool persistent)
     {
         Statement result = Statement::Create(connection, m_stream.str(), persistent);
@@ -528,6 +589,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         {
         case Op::Equals:
             m_stream << " = ?";
+            break;
+        case Op::Like:
+            m_stream << " LIKE ?";
+            break;
+        case Op::Escape:
+            m_stream << " ESCAPE ?";
             break;
         default:
             THROW_HR(E_UNEXPECTED);

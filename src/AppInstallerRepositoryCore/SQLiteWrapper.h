@@ -70,6 +70,13 @@ namespace AppInstaller::Repository::SQLite
             static int64_t GetColumn(sqlite3_stmt* stmt, int column);
         };
 
+        template <>
+        struct ParameterSpecificsImpl<bool>
+        {
+            static void Bind(sqlite3_stmt* stmt, int index, bool v);
+            static bool GetColumn(sqlite3_stmt* stmt, int column);
+        };
+
         template <typename T>
         using ParameterSpecifics = ParameterSpecificsImpl<std::decay_t<T>>;
     }
@@ -251,4 +258,10 @@ namespace AppInstaller::Repository::SQLite
         Statement m_rollbackTo;
         Statement m_release;
     };
+
+    // The escape character used in the EscapeStringForLike function.
+    extern std::string_view EscapeCharForLike;
+
+    // Escapes the given input string for passing to a like operation.
+    std::string EscapeStringForLike(std::string_view value);
 }

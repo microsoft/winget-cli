@@ -52,4 +52,11 @@ namespace AppInstaller
         template <typename T>
         FoldHelper& operator,(T&&) { return *this; }
     };
+
+    // Get the integral value for an enum.
+    template <typename E>
+    inline std::enable_if_t<std::is_enum_v<E>, std::underlying_type_t<E>> ToIntegral(E e)
+    {
+        return static_cast<std::underlying_type_t<E>>(e);
+    }
 }

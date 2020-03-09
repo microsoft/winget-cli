@@ -16,9 +16,8 @@ namespace AppInstaller::Repository::SQLite
         wchar_t guidAsString[MAX_PATH];
         THROW_HR_IF(E_UNEXPECTED, StringFromGUID2(tempName, guidAsString, MAX_PATH) == 0);
 
-        m_name = "[temp].[";
+        m_name = "temp].[";
         m_name += Utility::ConvertToUTF8(guidAsString);
-        m_name += ']';
     }
 
     TempTable::~TempTable()

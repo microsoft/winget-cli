@@ -62,6 +62,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return TableInfo::ValueName();
         }
 
+        // Value indicating type.
+        static constexpr bool IsOneToOne()
+        {
+            return true;
+        }
+
         // Selects the value from the table, returning the rowid if it exists.
         static std::optional<SQLite::rowid_t> SelectIdByValue(SQLite::Connection& connection, std::string_view value)
         {

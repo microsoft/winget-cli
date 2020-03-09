@@ -19,6 +19,7 @@ namespace AppInstaller::Repository
         Substring,
         Wildcard,
         Fuzzy,
+        FuzzySubstring,
     };
 
     // The field to match on.

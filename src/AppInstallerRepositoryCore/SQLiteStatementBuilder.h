@@ -81,6 +81,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         Text,
     };
 
+    // Aggregate functions.
+    enum class Aggregate
+    {
+        Min
+    };
+
     // Helper used when creating a table.
     struct ColumnBuilder : public details::SubBuilderBase
     {
@@ -154,6 +160,7 @@ namespace AppInstaller::Repository::SQLite::Builder
 
         // Indicate the table that the statement will be operating on.
         // The initializer_list form enables the table name to be constructed from multiple parts.
+        StatementBuilder& From();
         StatementBuilder& From(std::string_view table);
         StatementBuilder& From(std::initializer_list<std::string_view> table);
 
@@ -183,6 +190,9 @@ namespace AppInstaller::Repository::SQLite::Builder
         }
         StatementBuilder& Equals(details::unbound_t);
         StatementBuilder& Equals(std::nullptr_t);
+
+        StatementBuilder& Like(details::unbound_t);
+        StatementBuilder& Escape(std::string_view escapeChar);
 
         StatementBuilder& IsNull();
 
@@ -216,11 +226,13 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& Columns(const QualifiedColumn& column);
         StatementBuilder& Columns(std::initializer_list<QualifiedColumn> columns);
 
-        // Set the columns for a create table statement.
+        // Set the columns for a select or create table statement.
         StatementBuilder& Columns(std::initializer_list<details::SubBuilder> columns);
         StatementBuilder& BeginColumns();
         StatementBuilder& Column(std::string_view column);
         StatementBuilder& Column(const QualifiedColumn& column);
+        StatementBuilder& Column(Aggregate aggOp, std::string_view column);
+        StatementBuilder& Column(Aggregate aggOp, const QualifiedColumn& column);
         StatementBuilder& Column(const details::SubBuilder& column);
         StatementBuilder& EndColumns();
 
@@ -284,6 +296,17 @@ namespace AppInstaller::Repository::SQLite::Builder
         // Output the set portion of an update statement.
         StatementBuilder& Vacuum();
 
+        // General purpose functions to begin and end a parenthetical expression.
+        StatementBuilder& BeginParenthetical();
+        StatementBuilder& EndParenthetical();
+
+        // Assign an alias to the previous item.
+        StatementBuilder& As(std::string_view alias);
+
+        // Gets the last bound index.
+        // A value of zero indicates that nothing has been bound.
+        int GetLastBindIndex() const { return m_bindIndex - 1; }
+
         // Prepares and returns the statement, applying any bindings that were requested.
         Statement Prepare(Connection& connection, bool persistent = false);
 
@@ -293,7 +316,9 @@ namespace AppInstaller::Repository::SQLite::Builder
     private:
         enum class Op
         {
-            Equals
+            Equals,
+            Like,
+            Escape
         };
 
         // Appends given the operation.

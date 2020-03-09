@@ -45,6 +45,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids);
 
+        // Builds the search select statement base on the given values.
+        int ManifestTableBuildSearchStatement(
+            SQLite::Builder::StatementBuilder& builder,
+            const SQLite::Builder::QualifiedColumn& column,
+            bool isOneToOne,
+            std::string_view manifestAlias,
+            std::string_view valueAlias,
+            bool useLike);
+
         // Update the value of a single column for the manifest with the given rowid.
         void ManifestTableUpdateValueIdById(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t value, SQLite::rowid_t id);
     }
@@ -67,6 +76,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     // A table that represents a single manifest
     struct ManifestTable
     {
+        // Get the table name.
+        static std::string_view GetTableName();
+
         // Creates the table.
         static void Create(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values);
 
@@ -113,6 +125,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 result.emplace_back(stmt.GetRow<ValueTables::value_t...>());
             }
             return result;
+        }
+
+        // Builds the search select statement base on the given values.
+        template <typename Table>
+        static int BuildSearchStatement(SQLite::Builder::StatementBuilder& builder, std::string_view manifestAlias, std::string_view valueAlias, bool useLike)
+        {
+            return details::ManifestTableBuildSearchStatement(builder, SQLite::Builder::QualifiedColumn{ Table::TableName(), Table::ValueName() }, Table::IsOneToOne(), manifestAlias, valueAlias, useLike);
         }
 
         // Update the value of a single column for the manifest with the given rowid.

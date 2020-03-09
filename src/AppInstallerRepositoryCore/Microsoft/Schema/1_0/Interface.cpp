@@ -128,6 +128,26 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             Table::DeleteIfNotNeededById(connection, oldValueId);
         }
+
+        // Gets the ordering of matches to execute, with more specific matches coming first.
+        std::vector<MatchType> GetMatchTypeOrder(MatchType type)
+        {
+            switch (type)
+            {
+            case MatchType::Exact:
+                return { MatchType::Exact };
+            case MatchType::Substring:
+                return { MatchType::Exact, MatchType::Substring };
+            case MatchType::Wildcard:
+                return { MatchType::Wildcard };
+            case MatchType::Fuzzy:
+                return { MatchType::Exact, MatchType::Substring, MatchType::Fuzzy };
+            case MatchType::FuzzySubstring:
+                return { MatchType::Exact, MatchType::Substring, MatchType::Fuzzy, MatchType::FuzzySubstring };
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
     }
 
     Schema::Version Interface::GetVersion() const
@@ -348,11 +368,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             for (MatchType match : GetMatchTypeOrder(query.Type))
             {
-                SearchOnField(connection, resultsTable, ApplicationMatchField::Id, match, query.Value);
-                SearchOnField(connection, resultsTable, ApplicationMatchField::Name, match, query.Value);
-                SearchOnField(connection, resultsTable, ApplicationMatchField::Moniker, match, query.Value);
-                SearchOnField(connection, resultsTable, ApplicationMatchField::Command, match, query.Value);
-                SearchOnField(connection, resultsTable, ApplicationMatchField::Tag, match, query.Value);
+                resultsTable.SearchOnField(ApplicationMatchField::Id, match, query.Value);
+                resultsTable.SearchOnField(ApplicationMatchField::Name, match, query.Value);
+                resultsTable.SearchOnField(ApplicationMatchField::Moniker, match, query.Value);
+                resultsTable.SearchOnField(ApplicationMatchField::Command, match, query.Value);
+                resultsTable.SearchOnField(ApplicationMatchField::Tag, match, query.Value);
             }
         }
         else
@@ -364,7 +384,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             for (MatchType match : GetMatchTypeOrder(filter.Type))
             {
-                SearchOnField(connection, resultsTable, filter.Field, match, filter.Value);
+                resultsTable.SearchOnField(filter.Field, match, filter.Value);
             }
 
             // Skip the filter as we already know everything matches
@@ -372,24 +392,24 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Remove any duplicate manifest entries
-        resultsTable.RemoveDuplicateManifestRows(connection);
+        resultsTable.RemoveDuplicateManifestRows();
 
         // Second phase, for remaining filters, flag matching search results, then remove unflagged values.
         for (size_t i = filterIndex; i < request.Filters.size(); ++i)
         {
             const ApplicationMatchFilter& filter = request.Filters[i];
 
-            resultsTable.PrepareToFilter(connection);
+            resultsTable.PrepareToFilter();
 
             for (MatchType match : GetMatchTypeOrder(filter.Type))
             {
-                FilterOnField(connection, resultsTable, filter.Field, match, filter.Value);
+                resultsTable.FilterOnField(filter.Field, match, filter.Value);
             }
 
-            resultsTable.CompleteFilter(connection);
+            resultsTable.CompleteFilter();
         }
 
-        return resultsTable.GetSearchResults(connection, request.MaximumResults);
+        return resultsTable.GetSearchResults(request.MaximumResults);
     }
 
     std::optional<std::string> Interface::GetIdStringById(SQLite::Connection& connection, SQLite::rowid_t id)
