@@ -28,7 +28,6 @@ namespace AppInstaller::Workflow
             std::bind(ExecuteInstaller,
                 m_downloadedInstaller,
                 installerArgs,
-                m_argsRef.Contains(ExecutionArgs::Type::Interactive),
                 std::placeholders::_1));
 
         if (!installResult)
@@ -48,7 +47,7 @@ namespace AppInstaller::Workflow
         }
     }
 
-    std::optional<DWORD> ShellExecuteInstallerHandler::ExecuteInstaller(const std::filesystem::path& filePath, const std::string& args, bool interactive, IProgressCallback& progress)
+    std::optional<DWORD> ShellExecuteInstallerHandler::ExecuteInstaller(const std::filesystem::path& filePath, const std::string& args, IProgressCallback& progress)
     {
         AICLI_LOG(CLI, Info, << "Staring installer. Path: " << filePath);
 
@@ -58,7 +57,9 @@ namespace AppInstaller::Workflow
         std::string filePathUTF8Str = Utility::ConvertToUTF8(filePath.c_str());
         execInfo.lpFile = filePathUTF8Str.c_str();
         execInfo.lpParameters = args.c_str();
-        execInfo.nShow = interactive ? SW_SHOW : SW_HIDE;
+        // Some installer forces UI. Setting to SW_HIDE will hide installer UI and installation will hang forever.
+        // Verified setting to SW_SHOW does not hurt silent mode since no UI will be shown.
+        execInfo.nShow = SW_SHOW;
         if (!ShellExecuteExA(&execInfo) || !execInfo.hProcess)
         {
             return GetLastError();
@@ -194,6 +195,7 @@ namespace AppInstaller::Workflow
             break;
         }
 
+        // std::filesystem::rename() handles motw correctly if applicable.
         std::filesystem::rename(m_downloadedInstaller, renamedDownloadedInstaller);
 
         m_downloadedInstaller.assign(renamedDownloadedInstaller);
