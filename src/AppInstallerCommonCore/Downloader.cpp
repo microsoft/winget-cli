@@ -133,15 +133,15 @@ namespace AppInstaller::Utility
         AICLI_LOG(Core, Info, << "Downloading to path: " << dest);
 
         std::filesystem::create_directories(dest.parent_path());
-        std::ofstream outfile(dest, std::ofstream::binary);
 
-        auto result = DownloadToStream(url, outfile, progress, computeHash);
-
-        outfile.close();
-
+        std::ofstream emptyDestFile(dest);
+        emptyDestFile.close();
         ApplyMotwIfApplicable(dest);
 
-        return result;
+        // Use std::ofstream::app to append to previous empty file so that it will not
+        // create a new file and clear motw.
+        std::ofstream outfile(dest, std::ofstream::binary | std::ofstream::app);
+        return DownloadToStream(url, outfile, progress, computeHash);
     }
 
     bool IsUrlRemote(std::string_view url)
