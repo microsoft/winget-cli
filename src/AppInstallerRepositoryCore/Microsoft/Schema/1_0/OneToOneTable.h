@@ -22,7 +22,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         std::optional<std::string> OneToOneTableSelectValueById(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id);
 
         // Gets all row ids from the table.
-        std::vector<SQLite::rowid_t> OneToOneTableGetAllRowIds(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName);
+        std::vector<SQLite::rowid_t> OneToOneTableGetAllRowIds(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, size_t limit);
 
         // Ensures that the values exists in the table.
         SQLite::rowid_t OneToOneTableEnsureExists(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value);
@@ -62,6 +62,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return TableInfo::ValueName();
         }
 
+        // Value indicating type.
+        static constexpr bool IsOneToOne()
+        {
+            return true;
+        }
+
         // Selects the value from the table, returning the rowid if it exists.
         static std::optional<SQLite::rowid_t> SelectIdByValue(SQLite::Connection& connection, std::string_view value)
         {
@@ -75,9 +81,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Gets all row ids from the table.
-        static std::vector<SQLite::rowid_t> GetAllRowIds(SQLite::Connection& connection)
+        static std::vector<SQLite::rowid_t> GetAllRowIds(SQLite::Connection& connection, size_t limit = 0)
         {
-            return details::OneToOneTableGetAllRowIds(connection, TableInfo::TableName(), TableInfo::ValueName());
+            return details::OneToOneTableGetAllRowIds(connection, TableInfo::TableName(), TableInfo::ValueName(), limit);
         }
 
         // Ensures that the given value exists in the table, returning the rowid.

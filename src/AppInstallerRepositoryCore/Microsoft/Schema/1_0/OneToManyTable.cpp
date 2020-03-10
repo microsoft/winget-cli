@@ -84,6 +84,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             };
         }
 
+        std::string OneToManyTableGetMapTableName(std::string_view tableName)
+        {
+            std::string result(tableName);
+            result += s_OneToManyTable_MapTable_Suffix;
+            return result;
+        }
+
+        std::string_view OneToManyTableGetManifestColumnName()
+        {
+            return s_OneToManyTable_MapTable_ManifestName;
+        }
+
         void CreateOneToManyTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName)
         {
             using namespace SQLite::Builder;

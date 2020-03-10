@@ -56,10 +56,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
         }
 
-        std::vector<SQLite::rowid_t> OneToOneTableGetAllRowIds(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName)
+        std::vector<SQLite::rowid_t> OneToOneTableGetAllRowIds(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, size_t limit)
         {
             SQLite::Builder::StatementBuilder selectBuilder;
             selectBuilder.Select(SQLite::RowIDName).From(tableName).OrderBy(valueName);
+
+            if (limit)
+            {
+                selectBuilder.Limit(limit);
+            }
 
             SQLite::Statement select = selectBuilder.Prepare(connection);
 

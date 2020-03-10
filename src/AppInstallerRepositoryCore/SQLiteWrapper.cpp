@@ -77,6 +77,16 @@ namespace AppInstaller::Repository::SQLite
         {
             return sqlite3_column_int64(stmt, column);
         }
+
+        void ParameterSpecificsImpl<bool>::Bind(sqlite3_stmt* stmt, int index, bool v)
+        {
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_int(stmt, index, (v ? 1 : 0)));
+        }
+
+        bool ParameterSpecificsImpl<bool>::GetColumn(sqlite3_stmt* stmt, int column)
+        {
+            return (sqlite3_column_int(stmt, column) != 0);
+        }
     }
 
     Connection::Connection(const std::string& target, OpenDisposition disposition, OpenFlags flags)
@@ -220,5 +230,28 @@ namespace AppInstaller::Repository::SQLite
             m_release.Step(true);
             m_inProgress = false;
         }
+    }
+
+    std::string_view EscapeCharForLike = "'"sv;
+
+    std::string EscapeStringForLike(std::string_view value)
+    {
+        constexpr char singleChar = '_';
+        constexpr char multiChar = '%';
+        char escapeChar = EscapeCharForLike[0];
+
+        std::string result;
+        result.reserve(value.length());
+
+        for (char c : value)
+        {
+            if (c == singleChar || c == multiChar || c == escapeChar)
+            {
+                result.append(1, escapeChar);
+            }
+            result.append(1, c);
+        }
+
+        return result;
     }
 }

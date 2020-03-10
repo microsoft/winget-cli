@@ -19,6 +19,7 @@ namespace AppInstaller::Repository
         Substring,
         Wildcard,
         Fuzzy,
+        FuzzySubstring,
     };
 
     // The field to match on.
@@ -120,6 +121,8 @@ namespace AppInstaller::Repository
             return "Wildcard"sv;
         case MatchType::Fuzzy:
             return "Fuzzy"sv;
+        case MatchType::FuzzySubstring:
+            return "FuzzySubstring"sv;
         }
 
         return "UnknownMatchType"sv;

@@ -24,7 +24,7 @@ namespace AppInstaller::Repository::SQLite
 
     namespace details
     {
-        template <typename T>
+        template <typename T, typename = void>
         struct ParameterSpecificsImpl
         {
             static void Bind(sqlite3_stmt*, int, T&&)
@@ -68,6 +68,26 @@ namespace AppInstaller::Repository::SQLite
         {
             static void Bind(sqlite3_stmt* stmt, int index, int64_t v);
             static int64_t GetColumn(sqlite3_stmt* stmt, int column);
+        };
+
+        template <>
+        struct ParameterSpecificsImpl<bool>
+        {
+            static void Bind(sqlite3_stmt* stmt, int index, bool v);
+            static bool GetColumn(sqlite3_stmt* stmt, int column);
+        };
+
+        template <typename E>
+        struct ParameterSpecificsImpl<E, typename std::enable_if_t<std::is_enum_v<E>>>
+        {
+            static void Bind(sqlite3_stmt* stmt, int index, E v)
+            {
+                ParameterSpecificsImpl<std::underlying_type_t<E>>::Bind(stmt, index, ToIntegral(v));
+            }
+            static E GetColumn(sqlite3_stmt* stmt, int column)
+            {
+                return ToEnum<E>(ParameterSpecificsImpl<std::underlying_type_t<E>>::GetColumn(stmt, column));
+            }
         };
 
         template <typename T>
@@ -200,6 +220,9 @@ namespace AppInstaller::Repository::SQLite
         // Note that this does not clear data bindings.
         void Reset();
 
+        // Determines if the statement owns an underlying object.
+        operator bool() const { return static_cast<bool>(m_stmt); }
+
     private:
         Statement(Connection& connection, std::string_view sql, bool persistent);
 
@@ -248,4 +271,10 @@ namespace AppInstaller::Repository::SQLite
         Statement m_rollbackTo;
         Statement m_release;
     };
+
+    // The escape character used in the EscapeStringForLike function.
+    extern std::string_view EscapeCharForLike;
+
+    // Escapes the given input string for passing to a like operation.
+    std::string EscapeStringForLike(std::string_view value);
 }
