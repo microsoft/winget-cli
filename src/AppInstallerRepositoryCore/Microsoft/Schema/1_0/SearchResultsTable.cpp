@@ -31,6 +31,32 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         constexpr std::string_view s_SearchResultsTable_SubSelect_ManifestAlias = "m"sv;
         constexpr std::string_view s_SearchResultsTable_SubSelect_ValueAlias = "v"sv;
 
+        bool MatchUsesLike(MatchType match)
+        {
+            return (match != MatchType::Exact);
+        }
+
+        int BuildSearchStatement(SQLite::Builder::StatementBuilder& builder, ApplicationMatchField field, MatchType match)
+        {
+            bool useLike = MatchUsesLike(match);
+
+            switch (field)
+            {
+            case ApplicationMatchField::Id:
+                return ManifestTable::BuildSearchStatement<IdTable>(builder, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, useLike);
+            case ApplicationMatchField::Name:
+                return ManifestTable::BuildSearchStatement<NameTable>(builder, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, useLike);
+            case ApplicationMatchField::Moniker:
+                return ManifestTable::BuildSearchStatement<MonikerTable>(builder, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, useLike);
+            case ApplicationMatchField::Tag:
+                return ManifestTable::BuildSearchStatement<TagsTable>(builder, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, useLike);
+            case ApplicationMatchField::Command:
+                return ManifestTable::BuildSearchStatement<CommandsTable>(builder, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, useLike);
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
+
         void ExecuteStatementForMatchType(SQLite::Statement& statement, MatchType match, int bindIndex, bool escapeValueForLike, std::string_view value)
         {
             // TODO: Implement these more complex match types
@@ -118,34 +144,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             Value(false).
         From().BeginParenthetical();
 
-        bool useLike = (match != MatchType::Exact);
-        int bindIndex = 0;
-
-        switch (field)
-        {
-        case ApplicationMatchField::Id:
-            bindIndex = ManifestTable::BuildSearchStatement<IdTable>(builder, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, useLike);
-            break;
-        case ApplicationMatchField::Name:
-            bindIndex = ManifestTable::BuildSearchStatement<NameTable>(builder, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, useLike);
-            break;
-        case ApplicationMatchField::Moniker:
-            bindIndex = ManifestTable::BuildSearchStatement<MonikerTable>(builder, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, useLike);
-            break;
-        case ApplicationMatchField::Tag:
-            bindIndex = ManifestTable::BuildSearchStatement<TagsTable>(builder, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, useLike);
-            break;
-        case ApplicationMatchField::Command:
-            bindIndex = ManifestTable::BuildSearchStatement<CommandsTable>(builder, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, useLike);
-            break;
-        default:
-            THROW_HR(E_UNEXPECTED);
-        }
+        // Add the field specific portion
+        int bindIndex = BuildSearchStatement(builder, field, match);
 
         builder.EndParenthetical().As(s_SearchResultsTable_SubSelect_TableAlias);
 
         SQLite::Statement statement = builder.Prepare(m_connection);
-        ExecuteStatementForMatchType(statement, match, bindIndex, useLike, value);
+        ExecuteStatementForMatchType(statement, match, bindIndex, MatchUsesLike(match), value);
     }
 
     void SearchResultsTable::RemoveDuplicateManifestRows()
@@ -189,19 +194,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Create an update statement to mark rows that are found by the search.
         // This will arbitrarily choose one of the rows if multiple have the same lowest sort order.
         // The goal is a statement like this:
-        //      DELETE from <temp> where rowid not in (
-        //          SELECT rowid from (
-        //              SELECT rowid, min(sort) from <temp> group by manifest
+        //      UPDATE <temp> set filter = 1 where manifest in (
+        //          SELECT m from (
+        //              SELECT manifest.rowid as m, manifest.id as v from manifest join ids on manifest.id = ids.rowid where ids.id = <value>
         //          )
         //      )
         StatementBuilder builder;
-        builder.DeleteFrom(GetQualifiedName()).Where(SQLite::RowIDName).Not().In().BeginParenthetical().
-            Select(SQLite::RowIDName).From().BeginParenthetical().
-            Select().Column(SQLite::RowIDName).Column(Aggregate::Min, s_SearchResultsTable_SortValue).From(GetQualifiedName()).GroupBy(s_SearchResultsTable_Manifest).
-            EndParenthetical().
-            EndParenthetical();
+        builder.Update(GetQualifiedName()).Set().Column(s_SearchResultsTable_Filter).Equals(true).Where(s_SearchResultsTable_Manifest).In().BeginParenthetical().
+            Select(s_SearchResultsTable_SubSelect_ManifestAlias).From().BeginParenthetical();
 
-        builder.Execute(m_connection);
+        // Add the field specific portion
+        int bindIndex = BuildSearchStatement(builder, field, match);
+
+        builder.EndParenthetical().EndParenthetical();
+
+        SQLite::Statement statement = builder.Prepare(m_connection);
+        ExecuteStatementForMatchType(statement, match, bindIndex, MatchUsesLike(match), value);
     }
 
     void SearchResultsTable::CompleteFilter()
