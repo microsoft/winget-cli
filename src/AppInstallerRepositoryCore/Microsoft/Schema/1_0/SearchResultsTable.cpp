@@ -65,21 +65,35 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
         using namespace SQLite::Builder;
 
-        StatementBuilder builder;
-        builder.CreateTable(GetQualifiedName()).BeginColumns();
+        {
+            StatementBuilder builder;
+            builder.CreateTable(GetQualifiedName()).BeginColumns();
 
-        builder.Column(ColumnBuilder(s_SearchResultsTable_Manifest, Type::RowId).NotNull());
-        builder.Column(ColumnBuilder(s_SearchResultsTable_MatchField, Type::Int).NotNull());
-        builder.Column(ColumnBuilder(s_SearchResultsTable_MatchType, Type::Int).NotNull());
-        builder.Column(ColumnBuilder(s_SearchResultsTable_MatchValue, Type::Text).NotNull());
-        builder.Column(ColumnBuilder(s_SearchResultsTable_SortValue, Type::Int).NotNull());
-        builder.Column(ColumnBuilder(s_SearchResultsTable_Filter, Type::Bool).NotNull());
+            builder.Column(ColumnBuilder(s_SearchResultsTable_Manifest, Type::RowId).NotNull());
+            builder.Column(ColumnBuilder(s_SearchResultsTable_MatchField, Type::Int).NotNull());
+            builder.Column(ColumnBuilder(s_SearchResultsTable_MatchType, Type::Int).NotNull());
+            builder.Column(ColumnBuilder(s_SearchResultsTable_MatchValue, Type::Text).NotNull());
+            builder.Column(ColumnBuilder(s_SearchResultsTable_SortValue, Type::Int).NotNull());
+            builder.Column(ColumnBuilder(s_SearchResultsTable_Filter, Type::Bool).NotNull());
 
-        builder.EndColumns();
+            builder.EndColumns();
 
-        builder.Execute(m_connection);
+            builder.Execute(m_connection);
+        }
 
         InitDropStatement(m_connection);
+
+        {
+            SQLite::Builder::QualifiedTable index = GetQualifiedName();
+            std::string indexName(index.Table);
+            indexName += "_i_m";
+            index.Table = indexName;
+
+            StatementBuilder builder;
+            builder.CreateIndex(indexName).On(GetQualifiedName().Table).Columns(s_SearchResultsTable_Manifest);
+
+            builder.Execute(m_connection);
+        }
     }
 
     void SearchResultsTable::SearchOnField(ApplicationMatchField field, MatchType match, std::string_view value)
@@ -136,12 +150,33 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     void SearchResultsTable::RemoveDuplicateManifestRows()
     {
+        using namespace SQLite::Builder;
 
+        // Create a delete statement to leave only one row with a given manifest.
+        // This will arbitrarily choose one of the rows if multiple have the same lowest sort order.
+        // The goal is a statement like this:
+        //      DELETE from <temp> where rowid not in (
+        //          SELECT rowid from (
+        //              SELECT rowid, min(sort) from <temp> group by manifest
+        //          )
+        //      )
+        StatementBuilder builder;
+        builder.DeleteFrom(GetQualifiedName()).Where(SQLite::RowIDName).Not().In().BeginParenthetical().
+            Select(SQLite::RowIDName).From().BeginParenthetical().
+                Select().Column(SQLite::RowIDName).Column(Aggregate::Min, s_SearchResultsTable_SortValue).From(GetQualifiedName()).GroupBy(s_SearchResultsTable_Manifest).
+            EndParenthetical().
+        EndParenthetical();
+
+        builder.Execute(m_connection);
     }
 
     void SearchResultsTable::PrepareToFilter()
     {
+        // Reset all filter values to unselected
+        SQLite::Builder::StatementBuilder builder;
+        builder.Update(GetQualifiedName()).Set().Column(s_SearchResultsTable_Filter).Equals(false);
 
+        builder.Execute(m_connection);
     }
 
     void SearchResultsTable::FilterOnField(ApplicationMatchField field, MatchType match, std::string_view value)
@@ -149,11 +184,33 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         UNREFERENCED_PARAMETER(field);
         UNREFERENCED_PARAMETER(match);
         UNREFERENCED_PARAMETER(value);
+        using namespace SQLite::Builder;
+
+        // Create an update statement to mark rows that are found by the search.
+        // This will arbitrarily choose one of the rows if multiple have the same lowest sort order.
+        // The goal is a statement like this:
+        //      DELETE from <temp> where rowid not in (
+        //          SELECT rowid from (
+        //              SELECT rowid, min(sort) from <temp> group by manifest
+        //          )
+        //      )
+        StatementBuilder builder;
+        builder.DeleteFrom(GetQualifiedName()).Where(SQLite::RowIDName).Not().In().BeginParenthetical().
+            Select(SQLite::RowIDName).From().BeginParenthetical().
+            Select().Column(SQLite::RowIDName).Column(Aggregate::Min, s_SearchResultsTable_SortValue).From(GetQualifiedName()).GroupBy(s_SearchResultsTable_Manifest).
+            EndParenthetical().
+            EndParenthetical();
+
+        builder.Execute(m_connection);
     }
 
     void SearchResultsTable::CompleteFilter()
     {
+        // Delete all unselected values
+        SQLite::Builder::StatementBuilder builder;
+        builder.DeleteFrom(GetQualifiedName()).Where(s_SearchResultsTable_Filter).Equals(false);
 
+        builder.Execute(m_connection);
     }
 
     std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> SearchResultsTable::GetSearchResults(size_t limit)

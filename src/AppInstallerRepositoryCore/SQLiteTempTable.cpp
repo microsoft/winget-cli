@@ -3,11 +3,12 @@
 #pragma once
 #include "pch.h"
 #include "SQLiteTempTable.h"
-#include "SQLiteStatementBuilder.h"
 
 
 namespace AppInstaller::Repository::SQLite
 {
+    using namespace std::string_view_literals;
+
     TempTable::TempTable()
     {
         GUID tempName;
@@ -16,8 +17,7 @@ namespace AppInstaller::Repository::SQLite
         wchar_t guidAsString[MAX_PATH];
         THROW_HR_IF(E_UNEXPECTED, StringFromGUID2(tempName, guidAsString, MAX_PATH) == 0);
 
-        m_name = "temp].[";
-        m_name += Utility::ConvertToUTF8(guidAsString);
+        m_name = Utility::ConvertToUTF8(guidAsString);
     }
 
     TempTable::~TempTable()
@@ -26,6 +26,11 @@ namespace AppInstaller::Repository::SQLite
         {
             m_dropTableStatement.Execute();
         }
+    }
+
+    Builder::QualifiedTable TempTable::GetQualifiedName() const
+    {
+        return Builder::QualifiedTable("temp"sv, m_name);
     }
 
     void TempTable::InitDropStatement(Connection& connection)
