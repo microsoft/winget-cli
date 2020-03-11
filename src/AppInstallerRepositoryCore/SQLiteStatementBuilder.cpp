@@ -8,13 +8,21 @@ namespace AppInstaller::Repository::SQLite::Builder
 {
     std::ostream& operator<<(std::ostream& out, const QualifiedColumn& column)
     {
-        out << '[' << column.Table << "].[" << column.Column << ']';
+        if (!column.Table.empty())
+        {
+            out << '[' << column.Table << "].";
+        }
+        out << '[' << column.Column << ']';
         return out;
     }
 
     std::ostream& operator<<(std::ostream& out, const QualifiedTable& table)
     {
-        out << '[' << table.Schema << "].[" << table.Table << ']';
+        if (!table.Schema.empty())
+        {
+            out << '[' << table.Schema << "].";
+        }
+        out << '[' << table.Table << ']';
         return out;
     }
 

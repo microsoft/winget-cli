@@ -27,6 +27,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         constexpr std::string_view s_SearchResultsTable_SortValue = "sort"sv;
         constexpr std::string_view s_SearchResultsTable_Filter = "filter"sv;
 
+        constexpr std::string_view s_SearchResultsTable_Index_Suffix = "_i_m"sv;
+
         constexpr std::string_view s_SearchResultsTable_SubSelect_TableAlias = "valueTable"sv;
         constexpr std::string_view s_SearchResultsTable_SubSelect_ManifestAlias = "m"sv;
         constexpr std::string_view s_SearchResultsTable_SubSelect_ValueAlias = "v"sv;
@@ -112,7 +114,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         {
             SQLite::Builder::QualifiedTable index = GetQualifiedName();
             std::string indexName(index.Table);
-            indexName += "_i_m";
+            indexName += s_SearchResultsTable_Index_Suffix;
             index.Table = indexName;
 
             StatementBuilder builder;
@@ -186,9 +188,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     void SearchResultsTable::FilterOnField(ApplicationMatchField field, MatchType match, std::string_view value)
     {
-        UNREFERENCED_PARAMETER(field);
-        UNREFERENCED_PARAMETER(match);
-        UNREFERENCED_PARAMETER(value);
         using namespace SQLite::Builder;
 
         // Create an update statement to mark rows that are found by the search.

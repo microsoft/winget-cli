@@ -818,6 +818,10 @@ TEST_CASE("SQLiteIndex_Search_QueryAndFilter", "[sqliteindex]")
 
     auto results = index.Search(request);
     REQUIRE(results.size() == 1);
+
+    auto result = index.GetIdStringById(results[0].first);
+    REQUIRE(result.has_value());
+    REQUIRE(result.value() == "Id2");
 }
 
 TEST_CASE("SQLiteIndex_Search_QueryAndMultipleFilters", "[sqliteindex]")
@@ -843,4 +847,8 @@ TEST_CASE("SQLiteIndex_Search_QueryAndMultipleFilters", "[sqliteindex]")
 
     auto results = index.Search(request);
     REQUIRE(results.size() == 1);
+
+    auto result = index.GetIdStringById(results[0].first);
+    REQUIRE(result.has_value());
+    REQUIRE(result.value() == "Id3");
 }
