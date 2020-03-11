@@ -755,7 +755,7 @@ TEST_CASE("SQLiteIndex_Search_ExactBeforeSubstring", "[sqliteindex]")
     REQUIRE(index.GetIdStringById(results[1].first) == "Id2");
 }
 
-TEST_CASE("SQLiteIndex_Search_Filter", "[sqliteindex]")
+TEST_CASE("SQLiteIndex_Search_SingleFilter", "[sqliteindex]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -799,4 +799,48 @@ TEST_CASE("SQLiteIndex_Search_Multimatch", "[sqliteindex]")
 
     auto results = index.Search(request);
     REQUIRE(results.size() == 3);
+}
+
+TEST_CASE("SQLiteIndex_Search_QueryAndFilter", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Nope", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1" },
+        { "Id2", "Na", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
+        { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
+        });
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Substring, "Id");
+    request.Filters.emplace_back(ApplicationMatchField::Name, MatchType::Substring, "Na");
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 1);
+}
+
+TEST_CASE("SQLiteIndex_Search_QueryAndMultipleFilters", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name", "Moniker", "Version", "Channel", { "foot" }, { "com34" }, "Path1" },
+        { "Id1", "Name1", "Moniker", "Version1", "Channel", { "floor" }, { "com3" }, "Path2" },
+        { "Id2", "Name", "Moniker", "Version", "", {}, { "Command" }, "Path3" },
+        { "Id2", "Name", "Moniker", "Version", "Channel", {}, { "Command" }, "Path4" },
+        { "Id3", "Tagit", "Moniker", "Version1", "", { "foo" }, { "com3" }, "Path5" },
+        { "Id3", "Tagit", "Moniker", "Version2", "", { "foo" }, { "com3" }, "Path6" },
+        { "Id3", "Tagit", "new", "Version3", "", { "foo" }, { "com3" }, "Path7" },
+        });
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Substring, "tag");
+    request.Filters.emplace_back(ApplicationMatchField::Command, MatchType::Exact, "com3");
+    request.Filters.emplace_back(ApplicationMatchField::Tag, MatchType::Substring, "foo");
+    request.Filters.emplace_back(ApplicationMatchField::Moniker, MatchType::Substring, "new");
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 1);
 }

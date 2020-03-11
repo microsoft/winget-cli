@@ -141,9 +141,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             case MatchType::Wildcard:
                 return { MatchType::Wildcard };
             case MatchType::Fuzzy:
-                return { MatchType::Exact, MatchType::Substring, MatchType::Fuzzy };
+                return { MatchType::Exact, MatchType::Fuzzy };
             case MatchType::FuzzySubstring:
-                return { MatchType::Exact, MatchType::Substring, MatchType::Fuzzy, MatchType::FuzzySubstring };
+                return { MatchType::Exact, MatchType::Fuzzy, MatchType::Substring, MatchType::FuzzySubstring };
             default:
                 THROW_HR(E_UNEXPECTED);
             }
