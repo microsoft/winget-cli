@@ -141,9 +141,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             case MatchType::Wildcard:
                 return { MatchType::Wildcard };
             case MatchType::Fuzzy:
-                return { MatchType::Exact, MatchType::Substring, MatchType::Fuzzy };
+                return { MatchType::Exact, MatchType::Fuzzy };
             case MatchType::FuzzySubstring:
-                return { MatchType::Exact, MatchType::Substring, MatchType::Fuzzy, MatchType::FuzzySubstring };
+                return { MatchType::Exact, MatchType::Fuzzy, MatchType::Substring, MatchType::FuzzySubstring };
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -379,7 +379,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         {
             THROW_HR_IF(E_UNEXPECTED, request.Filters.empty());
 
-            // Perform search for just the field matching this filter
+            // Perform search for just the field matching the first filter
             const ApplicationMatchFilter& filter = request.Filters[0];
 
             for (MatchType match : GetMatchTypeOrder(filter.Type))

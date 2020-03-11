@@ -61,6 +61,16 @@ namespace AppInstaller::Repository::SQLite::Builder
     // Pass this value to indicate that the number of rows is to be selected.
     __declspec_selectany_ details::rowcount_t RowCount;
 
+    // A qualified table reference.
+    struct QualifiedTable
+    {
+        std::string_view Schema;
+        std::string_view Table;
+
+        explicit QualifiedTable(std::string_view table) : Table(table) {}
+        explicit QualifiedTable(std::string_view schema, std::string_view table) : Schema(schema), Table(table) {}
+    };
+
     // A qualified column reference.
     struct QualifiedColumn
     {
@@ -162,6 +172,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         // The initializer_list form enables the table name to be constructed from multiple parts.
         StatementBuilder& From();
         StatementBuilder& From(std::string_view table);
+        StatementBuilder& From(QualifiedTable table);
         StatementBuilder& From(std::initializer_list<std::string_view> table);
 
         // Begin a filter clause on the given column.
@@ -194,6 +205,9 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& Like(details::unbound_t);
         StatementBuilder& Escape(std::string_view escapeChar);
 
+        StatementBuilder& Not();
+        StatementBuilder& In();
+
         StatementBuilder& IsNull();
 
         // Operators for combining filter clauses.
@@ -203,6 +217,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         // Begin a join clause.
         // The initializer_list form enables the table name to be constructed from multiple parts.
         StatementBuilder& Join(std::string_view table);
+        StatementBuilder& Join(QualifiedTable table);
         StatementBuilder& Join(std::initializer_list<std::string_view> table);
 
         // Set the join constraint.
@@ -222,6 +237,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         // Begin an insert statement for the given table.
         // The initializer_list form enables the table name to be constructed from multiple parts.
         StatementBuilder& InsertInto(std::string_view table);
+        StatementBuilder& InsertInto(QualifiedTable table);
         StatementBuilder& InsertInto(std::initializer_list<std::string_view> table);
 
         // Set the columns for a statement (typically insert).
@@ -263,21 +279,25 @@ namespace AppInstaller::Repository::SQLite::Builder
         // Begin a table creation statement.
         // The initializer_list form enables the table name to be constructed from multiple parts.
         StatementBuilder& CreateTable(std::string_view table);
+        StatementBuilder& CreateTable(QualifiedTable table);
         StatementBuilder& CreateTable(std::initializer_list<std::string_view> table);
 
         // Begin an table deletion statement.
         // The initializer_list form enables the table name to be constructed from multiple parts.
         StatementBuilder& DropTable(std::string_view table);
+        StatementBuilder& DropTable(QualifiedTable table);
         StatementBuilder& DropTable(std::initializer_list<std::string_view> table);
 
         // Begin an index creation statement.
         // The initializer_list form enables the table name to be constructed from multiple parts.
         StatementBuilder& CreateIndex(std::string_view table);
+        StatementBuilder& CreateIndex(QualifiedTable table);
         StatementBuilder& CreateIndex(std::initializer_list<std::string_view> table);
 
         // Begin an index deletion statement.
         // The initializer_list form enables the table name to be constructed from multiple parts.
         StatementBuilder& DropIndex(std::string_view table);
+        StatementBuilder& DropIndex(QualifiedTable table);
         StatementBuilder& DropIndex(std::initializer_list<std::string_view> table);
 
         // Set index target table.
@@ -287,11 +307,13 @@ namespace AppInstaller::Repository::SQLite::Builder
         // Begin a delete statement.
         // The initializer_list form enables the table name to be constructed from multiple parts.
         StatementBuilder& DeleteFrom(std::string_view table);
+        StatementBuilder& DeleteFrom(QualifiedTable table);
         StatementBuilder& DeleteFrom(std::initializer_list<std::string_view> table);
 
         // Begin an update statement.
         // The initializer_list form enables the table name to be constructed from multiple parts.
         StatementBuilder& Update(std::string_view table);
+        StatementBuilder& Update(QualifiedTable table);
         StatementBuilder& Update(std::initializer_list<std::string_view> table);
 
         // Output the set portion of an update statement.

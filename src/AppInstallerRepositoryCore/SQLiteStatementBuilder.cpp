@@ -8,7 +8,21 @@ namespace AppInstaller::Repository::SQLite::Builder
 {
     std::ostream& operator<<(std::ostream& out, const QualifiedColumn& column)
     {
-        out << '[' << column.Table << "].[" << column.Column << ']';
+        if (!column.Table.empty())
+        {
+            out << '[' << column.Table << "].";
+        }
+        out << '[' << column.Column << ']';
+        return out;
+    }
+
+    std::ostream& operator<<(std::ostream& out, const QualifiedTable& table)
+    {
+        if (!table.Schema.empty())
+        {
+            out << '[' << table.Schema << "].";
+        }
+        out << '[' << table.Table << ']';
         return out;
     }
 
@@ -92,6 +106,11 @@ namespace AppInstaller::Repository::SQLite::Builder
         void OutputOperationAndTable(std::ostream& out, std::string_view op, std::string_view table)
         {
             out << op << " [" << table << ']';
+        }
+
+        void OutputOperationAndTable(std::ostream& out, std::string_view op, QualifiedTable table)
+        {
+            out << op << table;
         }
 
         void OutputOperationAndTable(std::ostream& out, std::string_view op, std::initializer_list<std::string_view> table)
@@ -248,6 +267,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::From(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, " FROM", table);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::From(std::initializer_list<std::string_view> table)
     {
         OutputOperationAndTable(m_stream, " FROM", table);
@@ -293,6 +318,18 @@ namespace AppInstaller::Repository::SQLite::Builder
         THROW_HR(E_NOTIMPL);
     }
 
+    StatementBuilder& StatementBuilder::Not()
+    {
+        m_stream << " NOT";
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::In()
+    {
+        m_stream << " IN";
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::IsNull()
     {
         m_stream << " IS NULL";
@@ -312,6 +349,12 @@ namespace AppInstaller::Repository::SQLite::Builder
     }
 
     StatementBuilder& StatementBuilder::Join(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, " JOIN", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Join(QualifiedTable table)
     {
         OutputOperationAndTable(m_stream, " JOIN", table);
         return *this;
@@ -360,6 +403,12 @@ namespace AppInstaller::Repository::SQLite::Builder
     }
 
     StatementBuilder& StatementBuilder::InsertInto(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "INSERT INTO", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::InsertInto(QualifiedTable table)
     {
         OutputOperationAndTable(m_stream, "INSERT INTO", table);
         return *this;
@@ -495,6 +544,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::CreateTable(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE TABLE", table);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::CreateTable(std::initializer_list<std::string_view> table)
     {
         OutputOperationAndTable(m_stream, "CREATE TABLE", table);
@@ -502,6 +557,12 @@ namespace AppInstaller::Repository::SQLite::Builder
     }
 
     StatementBuilder& StatementBuilder::DropTable(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "DROP TABLE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::DropTable(QualifiedTable table)
     {
         OutputOperationAndTable(m_stream, "DROP TABLE", table);
         return *this;
@@ -519,6 +580,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::CreateIndex(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE INDEX", table);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::CreateIndex(std::initializer_list<std::string_view> table)
     {
         OutputOperationAndTable(m_stream, "CREATE INDEX", table);
@@ -526,6 +593,12 @@ namespace AppInstaller::Repository::SQLite::Builder
     }
 
     StatementBuilder& StatementBuilder::DropIndex(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "DROP INDEX", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::DropIndex(QualifiedTable table)
     {
         OutputOperationAndTable(m_stream, "DROP INDEX", table);
         return *this;
@@ -555,6 +628,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::DeleteFrom(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, "DELETE FROM", table);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::DeleteFrom(std::initializer_list<std::string_view> table)
     {
         OutputOperationAndTable(m_stream, "DELETE FROM", table);
@@ -562,6 +641,12 @@ namespace AppInstaller::Repository::SQLite::Builder
     }
 
     StatementBuilder& StatementBuilder::Update(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "UPDATE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Update(QualifiedTable table)
     {
         OutputOperationAndTable(m_stream, "UPDATE", table);
         return *this;

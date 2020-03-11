@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "SQLiteWrapper.h"
+#include "SQLiteStatementBuilder.h"
 
 
 namespace AppInstaller::Repository::SQLite
@@ -21,7 +22,7 @@ namespace AppInstaller::Repository::SQLite
 
     protected:
         // Gets the qualified name of the temp table.
-        const std::string& GetQualifiedName() const { return m_name; }
+        Builder::QualifiedTable GetQualifiedName() const;
 
         // Prepares the drop table statement for use in destructor.
         // It needs to be run by the derived class after the table is actually created.
