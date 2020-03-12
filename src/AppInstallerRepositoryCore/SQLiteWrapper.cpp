@@ -105,9 +105,14 @@ namespace AppInstaller::Repository::SQLite
         return result;
     }
 
-    int64_t Connection::GetLastInsertRowID()
+    rowid_t Connection::GetLastInsertRowID()
     {
         return sqlite3_last_insert_rowid(m_dbconn.get());
+    }
+
+    int Connection::GetChanges()
+    {
+        return sqlite3_changes(m_dbconn.get());
     }
 
     Statement::Statement(Connection& connection, std::string_view sql, bool persistent)

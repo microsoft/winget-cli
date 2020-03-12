@@ -27,7 +27,7 @@ namespace AppInstaller::Workflow
         OpenIndexSource();
 
         // Construct query
-        MatchType matchType = MatchType::Fuzzy;
+        MatchType matchType = MatchType::Substring;
         if (m_argsRef.Contains(ExecutionArgs::Type::Exact))
         {
             matchType = MatchType::Exact;
