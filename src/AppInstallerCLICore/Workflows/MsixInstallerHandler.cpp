@@ -27,8 +27,7 @@ namespace AppInstaller::Workflow
             Msix::MsixInfo msixInfo(m_manifestInstallerRef.Url);
             auto signature = msixInfo.GetSignature();
 
-            SHA256::HashBuffer signatureHash;
-            SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()), signatureHash);
+            auto signatureHash = SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
 
             if (!std::equal(
                 m_manifestInstallerRef.SignatureSha256.begin(),
