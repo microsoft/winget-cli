@@ -141,9 +141,24 @@ TEST_CASE("SQLiteIndexCreateAndAddManifestFile", "[sqliteindex]")
     std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yml" };
 
     index.AddManifest(manifestFile, manifestPath);
+}
 
-    // Attempting to add again should fail
-    REQUIRE_THROWS_HR(index.AddManifest(manifestFile, manifestPath), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
+TEST_CASE("SQLiteIndexCreateAndAddManifestDuplicate", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest manifest;
+    std::string relativePath;
+
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+
+    // Attempting to add the same manifest at a different path should fail.
+    REQUIRE_THROWS_HR(index.AddManifest(manifest, "differentpath.yml"), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
+
+    // Attempting to add a different manifest at the same path should fail.
+    manifest.Id += "-new";
+    REQUIRE_THROWS_HR(index.AddManifest(manifest, relativePath), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
 }
 
 TEST_CASE("SQLiteIndex_RemoveManifestFile_NotPresent", "[sqliteindex]")

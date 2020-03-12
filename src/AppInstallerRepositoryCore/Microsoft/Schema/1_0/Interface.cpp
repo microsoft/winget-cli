@@ -23,8 +23,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
     namespace
     {
-        // Gets an existing manifest by its rowid.
-        // The return value contains the path leaf and manifest rowid, if they exist.
+        // Gets an existing manifest by its rowid., if it exists.
         std::optional<SQLite::rowid_t> GetExistingManifestId(SQLite::Connection& connection, const Manifest::Manifest& manifest)
         {
             std::optional<SQLite::rowid_t> idId = IdTable::SelectIdByValue(connection, manifest.Id);
@@ -184,11 +183,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     void Interface::AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
+        auto manifestResult = GetExistingManifestId(connection, manifest);
+
+        // If this manifest is already present, we can't add it.
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), manifestResult.has_value());
+
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addmanifest_v1_0");
 
         auto [pathAdded, pathLeafId] = PathPartTable::EnsurePathExists(connection, relativePath, true);
 
-        // If we get false from the function, this manifest already exists in the index.
+        // If we get false from the function, this manifest path already exists in the index.
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), !pathAdded);
 
         // Ensure that all of the 1:1 data exists.
