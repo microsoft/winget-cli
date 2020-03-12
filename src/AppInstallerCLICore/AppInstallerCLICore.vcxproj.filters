@@ -93,6 +93,9 @@
     <ClInclude Include="ExecutionArgs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\HashCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -145,6 +148,9 @@
     </ClCompile>
     <ClCompile Include="ExecutionReporter.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\HashCommand.cpp">
+      <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -42,6 +42,10 @@ namespace AppInstaller::CLI
             SourceType,
             SourceArg,
 
+            //Hash Command
+            HashFile,
+            Msix, // Flag to indicate the input file is msix
+
             // Other
             ListVersions, // Used in Show command to list all available versions of an app
             Help, // Show command usage
