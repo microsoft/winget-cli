@@ -76,14 +76,14 @@ namespace AppInstaller::Workflow
     {
         if (m_searchResult.Matches.size() == 0)
         {
-            AICLI_LOG(CLI, Info, << "No app found matching input criteria");
+            Logging::Telemetry().LogNoAppMatch();
             m_reporterRef.ShowMsg("No app found matching input criteria.");
             return false;
         }
 
         if (m_searchResult.Matches.size() > 1)
         {
-            AICLI_LOG(CLI, Info, << "Multiple apps found matching input criteria");
+            Logging::Telemetry().LogMultiAppMatch();
             m_reporterRef.ShowMsg("Multiple apps found matching input criteria. Please refine the input.");
             ReportSearchResult();
             return false;
@@ -110,6 +110,7 @@ namespace AppInstaller::Workflow
                 msg += ": " + match.MatchCriteria.Value + "]";
             }
 
+            Logging::Telemetry().LogSearchResultCount(m_searchResult.Matches.size());
             m_reporterRef.ShowMsg(msg);
         }
     }

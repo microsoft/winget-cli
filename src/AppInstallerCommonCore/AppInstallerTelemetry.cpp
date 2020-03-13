@@ -158,6 +158,93 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Info, << "AppInstallerCLI, Name [" << name << "], Version [" << version << ']');
     }
 
+    void TelemetryTraceLogger::LogNoAppMatch() noexcept
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "NoAppMatch",
+                GetActivityId(),
+                nullptr,
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+
+        AICLI_LOG(CLI, Info, << "No app found matching input criteria");
+    }
+
+    void TelemetryTraceLogger::LogMultiAppMatch() noexcept
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "MultiAppMatch",
+                GetActivityId(),
+                nullptr,
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+
+        AICLI_LOG(CLI, Info, << "Multiple apps found matching input criteria");
+    }
+
+    void TelemetryTraceLogger::LogAppFound(const std::string& name, const std::string& id) noexcept
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "AppFound",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingCountedString(name.c_str(), static_cast<ULONG>(name.size()), "AppName"),
+                TraceLoggingCountedString(id.c_str(), static_cast<ULONG>(id.size()), "id"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+
+        AICLI_LOG(CLI, Info, << "Found one app. App id: " << id << " App name: " << name);
+    }
+
+    void TelemetryTraceLogger::LogSelectedInstaller(int arch, const std::string& url, const std::string& installerType, const std::string& scope, const std::string& language) noexcept
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "SelectedInstaller",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingInt32(arch, "Arch"),
+                TraceLoggingCountedString(url.c_str(), static_cast<ULONG>(url.size()), "URL"),
+                TraceLoggingCountedString(installerType.c_str(), static_cast<ULONG>(installerType.size()), "InstallerType"),
+                TraceLoggingCountedString(scope.c_str(), static_cast<ULONG>(scope.size()), "Scope"),
+                TraceLoggingCountedString(language.c_str(), static_cast<ULONG>(language.size()), "Language"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+
+        AICLI_LOG(CLI, Info, << "Completed installer selection.");
+        AICLI_LOG(CLI, Verbose, << "Selected installer arch: " << arch);
+        AICLI_LOG(CLI, Verbose, << "Selected installer url: " << url);
+        AICLI_LOG(CLI, Verbose, << "Selected installer InstallerType: " << installerType);
+        AICLI_LOG(CLI, Verbose, << "Selected installer scope: " << scope);
+        AICLI_LOG(CLI, Verbose, << "Selected installer language: " << language);
+
+    }
+
+    void TelemetryTraceLogger::LogSearchResultCount(ULONG resultCount) noexcept
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "SearchResultCount",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingUInt64(resultCount, "ResultCount"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+    }
+
     void EnableWilFailureTelemetry()
     {
         wil::SetResultLoggingCallback(wilResultLoggingCallback);
