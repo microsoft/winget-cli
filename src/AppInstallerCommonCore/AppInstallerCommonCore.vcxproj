@@ -187,6 +187,7 @@
     <ClInclude Include="Public\AppInstallerTelemetry.h" />
     <ClInclude Include="Public\AppInstallerLogging.h" />
     <ClInclude Include="Public\AppInstallerArchitecture.h" />
+    <ClInclude Include="Public\AppInstallerVersions.h" />
     <ClInclude Include="Telemetry\MicrosoftTelemetry.h" />
     <ClInclude Include="Telemetry\TraceLogging.h" />
     <ClInclude Include="Telemetry\WinEventLogLevels.h" />
@@ -211,6 +212,7 @@
     <ClCompile Include="Synchronization.cpp" />
     <ClCompile Include="Telemetry\TraceLogging.cpp" />
     <ClCompile Include="Architecture.cpp" />
+    <ClCompile Include="Versions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

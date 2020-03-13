@@ -90,6 +90,9 @@
     <ClInclude Include="Public\AppInstallerProgress.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="Public\AppInstallerVersions.h">
+      <Filter>Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -141,6 +144,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Deployment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Versions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
