@@ -39,6 +39,21 @@ namespace AppInstaller::Logging
 
         // Logs the Manifest fields.
         void LogManifestFields(const std::string& name, const std::string& version) noexcept;
+         
+        //Logs when there is no matching App found for search
+        void LogNoAppMatch() noexcept;
+
+        //Logs when there is multiple matching Apps found for search
+        void LogMultiAppMatch() noexcept;
+
+        //Logs the name and Id of app found
+        void LogAppFound(const std::string& name, const std::string& id) noexcept;
+
+        //Logs the selected installer details
+        void LogSelectedInstaller(int arch, const std::string& url, const std::string& installerType, const std::string& scope, const std::string& language) noexcept;
+
+        //Logs the Search Result
+        void LogSearchResult(const std::string& msg) noexcept;
 
     private:
         TelemetryTraceLogger();

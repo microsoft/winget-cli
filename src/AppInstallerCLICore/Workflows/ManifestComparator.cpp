@@ -54,12 +54,7 @@ namespace AppInstaller::Workflow
 
         ManifestInstaller selectedInstaller = m_manifestRef.Installers[0];
 
-        AICLI_LOG(CLI, Info, << "Completed installer selection.");
-        AICLI_LOG(CLI, Verbose, << "Selected installer arch: " << (int)selectedInstaller.Arch);
-        AICLI_LOG(CLI, Verbose, << "Selected installer url: " << selectedInstaller.Url);
-        AICLI_LOG(CLI, Verbose, << "Selected installer InstallerType: " << Manifest::ManifestInstaller::InstallerTypeToString(selectedInstaller.InstallerType));
-        AICLI_LOG(CLI, Verbose, << "Selected installer scope: " << selectedInstaller.Scope);
-        AICLI_LOG(CLI, Verbose, << "Selected installer language: " << selectedInstaller.Language);
+        Logging::Telemetry().LogSelectedInstaller((int)selectedInstaller.Arch, selectedInstaller.Url, Manifest::ManifestInstaller::InstallerTypeToString(selectedInstaller.InstallerType), selectedInstaller.Scope, selectedInstaller.Language);
 
         return selectedInstaller;
     }

@@ -50,7 +50,7 @@ namespace AppInstaller::Workflow
     {
         auto app = m_searchResult.Matches.at(0).Application.get();
 
-        AICLI_LOG(CLI, Info, << "Found one app. App id: " << app->GetId() << " App name: " << app->GetName());
+        Logging::Telemetry().LogManifestFields(app->GetName(), app->GetId());
         m_reporterRef.ShowMsg("Found app: " + app->GetName());
 
         // Todo: handle failure if necessary after real search is in place
