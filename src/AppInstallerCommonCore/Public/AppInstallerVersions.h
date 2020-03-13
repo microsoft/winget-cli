@@ -26,6 +26,8 @@ namespace AppInstaller::Utility
         // The default characters to split a version string on.
         constexpr static std::string_view DefaultSplitChars = "."sv;
 
+        Version(const std::string& version, std::string_view splitChars = DefaultSplitChars) :
+            Version(std::string(version), splitChars) {}
         Version(std::string&& version, std::string_view splitChars = DefaultSplitChars);
 
         // Gets the full version string used to construct the Version.
@@ -57,6 +59,7 @@ namespace AppInstaller::Utility
     // Compared lexographically.
     struct Channel
     {
+        Channel(const std::string& channel) : m_channel(channel) {}
         Channel(std::string&& channel) : m_channel(std::move(channel)) {}
 
         const std::string& ToString() const { return m_channel; }

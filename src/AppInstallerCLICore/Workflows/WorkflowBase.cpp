@@ -101,7 +101,7 @@ namespace AppInstaller::Workflow
 
             // Todo: Assume versions are sorted when returned so we'll use the first one as the latest version
             // Need to call sort if the above is not the case.
-            std::string msg = app->GetId() + ", " + app->GetName() + ", " + allVersions.at(0).first;
+            std::string msg = app->GetId() + ", " + app->GetName() + ", " + allVersions.at(0).GetVersion().ToString();
 
             if (match.MatchCriteria.Field != ApplicationMatchField::Id && match.MatchCriteria.Field != ApplicationMatchField::Name)
             {

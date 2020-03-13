@@ -6,6 +6,7 @@
 #include "Microsoft/Schema/Version.h"
 #include "Public/AppInstallerRepositorySearch.h"
 #include <AppInstallerLanguageUtilities.h>
+#include <AppInstallerVersions.h>
 
 #include <chrono>
 #include <filesystem>
@@ -93,7 +94,7 @@ namespace AppInstaller::Repository::Microsoft
         std::optional<std::string> GetPathStringByKey(IdType id, std::string_view version, std::string_view channel);
 
         // Gets all versions and channels for the given id.
-        std::vector<std::pair<std::string, std::string>> GetVersionsById(IdType id);
+        std::vector<Utility::VersionAndChannel> GetVersionsById(IdType id);
 
     private:
         // Constructor used to open an existing index.
