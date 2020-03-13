@@ -8,6 +8,7 @@
 #include "ShowCommand.h"
 #include "SourceCommand.h"
 #include "SearchCommand.h"
+#include "HashCommand.h"
 
 namespace AppInstaller::CLI
 {
@@ -18,6 +19,7 @@ namespace AppInstaller::CLI
             std::make_unique<ShowCommand>(),
             std::make_unique<SourceCommand>(),
             std::make_unique<SearchCommand>(),
+            std::make_unique<HashCommand>(),
         });
     }
 

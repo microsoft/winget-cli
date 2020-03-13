@@ -169,6 +169,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Command.h" />
+    <ClInclude Include="Commands\HashCommand.h" />
     <ClInclude Include="Commands\SearchCommand.h" />
     <ClInclude Include="Commands\ShowCommand.h" />
     <ClInclude Include="Commands\InstallCommand.h" />
@@ -194,6 +195,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Command.cpp" />
+    <ClCompile Include="Commands\HashCommand.cpp" />
     <ClCompile Include="Commands\SearchCommand.cpp" />
     <ClCompile Include="Commands\ShowCommand.cpp" />
     <ClCompile Include="Commands\InstallCommand.cpp" />

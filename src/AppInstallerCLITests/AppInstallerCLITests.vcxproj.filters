@@ -74,6 +74,9 @@
     <ClCompile Include="SQLiteIndexSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HashCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Versions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -117,6 +120,9 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\index.2.0.0.0.msix">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\TestSignedApp.msix">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>
