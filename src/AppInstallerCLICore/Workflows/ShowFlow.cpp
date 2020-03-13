@@ -62,10 +62,11 @@ namespace AppInstaller::Workflow
 
         m_reporterRef.ShowMsg("Id: " + app->GetId());
         m_reporterRef.ShowMsg("Name: " + app->GetName());
+        m_reporterRef.ShowMsg("Versions:");
 
         for (auto& version : app->GetVersions())
         {
-            m_reporterRef.ShowMsg("  Version: " + version.first + ", Channel: " + version.second);
+            m_reporterRef.ShowMsg("  " + version.ToString());
         }
     }
 }

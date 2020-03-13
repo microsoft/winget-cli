@@ -23,6 +23,7 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Repository::SQLite;
+using namespace AppInstaller::Utility;
 
 SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std::string& relativePath)
 {
@@ -668,8 +669,56 @@ TEST_CASE("SQLiteIndex_Versions", "[sqliteindex]")
 
     auto result = index.GetVersionsById(results[0].first);
     REQUIRE(result.size() == 1);
-    REQUIRE(result[0].first == manifest.Version);
-    REQUIRE(result[0].second == manifest.Channel);
+    REQUIRE(result[0].GetVersion().ToString() == manifest.Version);
+    REQUIRE(result[0].GetChannel().ToString() == manifest.Channel);
+}
+
+TEST_CASE("SQLiteIndex_Search_VersionSorting", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::vector<VersionAndChannel> sortedList =
+    {
+        { Version("15.0.0"), Channel("") },
+        { Version("14.0.0"), Channel("") },
+        { Version("13.2.0-bugfix"), Channel("") },
+        { Version("13.2.0"), Channel("") },
+        { Version("13.0.0"), Channel("") },
+        { Version("16.0.0"), Channel("alpha") },
+        { Version("15.8.0"), Channel("alpha") },
+        { Version("15.1.0"), Channel("beta") },
+    };
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id", "Name", "Moniker", "14.0.0", "", { "foot" }, { "com34" }, "Path1" },
+        { "Id", "Name", "Moniker", "16.0.0", "alpha", { "floor" }, { "com3" }, "Path2" },
+        { "Id", "Name", "Moniker", "15.0.0", "", {}, { "Command" }, "Path3" },
+        { "Id", "Name", "Moniker", "13.2.0", "", {}, { "Command" }, "Path4" },
+        { "Id", "Name", "Moniker", "15.1.0", "beta", { "foo" }, { "com3" }, "Path5" },
+        { "Id", "Name", "Moniker", "15.8.0", "alpha", { "foo" }, { "com3" }, "Path6" },
+        { "Id", "Name", "Moniker", "13.2.0-bugfix", "", { "foo" }, { "com3" }, "Path7" },
+        { "Id", "Name", "Moniker", "13.0.0", "", { "foo" }, { "com3" }, "Path8" },
+        });
+
+    SearchRequest request;
+    request.Filters.emplace_back(ApplicationMatchField::Id, MatchType::Exact, "Id");
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 1);
+
+    auto result = index.GetVersionsById(results[0].first);
+    REQUIRE(result.size() == sortedList.size());
+
+    for (size_t i = 0; i < result.size(); ++i)
+    {
+        const VersionAndChannel& sortedVAC = sortedList[i];
+        const VersionAndChannel& resultVAC = result[i];
+
+        INFO(i);
+        REQUIRE(sortedVAC.GetVersion().ToString() == resultVAC.GetVersion().ToString());
+        REQUIRE(sortedVAC.GetChannel().ToString() == resultVAC.GetChannel().ToString());
+    }
 }
 
 TEST_CASE("SQLiteIndex_SearchResultsTableSearches", "[sqliteindex][V1_0]")

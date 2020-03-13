@@ -58,7 +58,7 @@ namespace AppInstaller::Repository::Microsoft
                 }
             }
 
-            std::vector<std::pair<std::string, std::string>> GetVersions() override
+            std::vector<Utility::VersionAndChannel> GetVersions() override
             {
                 return GetSource()->GetIndex().GetVersionsById(m_id);
             }

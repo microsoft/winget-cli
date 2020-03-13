@@ -72,26 +72,34 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             if (version.empty())
             {
-                std::vector<std::string> versions;
+                std::vector<std::string> versionStrings;
                 
                 if (channelIdOpt)
                 {
-                    versions = ManifestTable::GetAllValuesByIds<VersionTable, IdTable, ChannelTable>(connection, { id, channelIdOpt.value() });
+                    versionStrings = ManifestTable::GetAllValuesByIds<VersionTable, IdTable, ChannelTable>(connection, { id, channelIdOpt.value() });
                 }
                 else
                 {
-                    versions = ManifestTable::GetAllValuesByIds<VersionTable, IdTable>(connection, { id });
+                    versionStrings = ManifestTable::GetAllValuesByIds<VersionTable, IdTable>(connection, { id });
                 }
 
-                if (versions.empty())
+                if (versionStrings.empty())
                 {
                     AICLI_LOG(Repo, Info, << "Did not find any Versions { " << id << ", " << channel << " }");
                     return {};
                 }
 
-                // TODO: Implement version sort, for now assume latest == lastest
-                const std::string& latestVersion = versions[versions.size() - 1];
+                // Convert the strings to Versions and sort them
+                std::vector<Utility::Version> versions;
+                for (std::string& v : versionStrings)
+                {
+                    versions.emplace_back(std::move(v));
+                }
 
+                std::sort(versions.begin(), versions.end());
+
+                // Get the first version in the list and its rowid
+                const std::string& latestVersion = versions[0].ToString();
                 versionIdOpt = VersionTable::SelectIdByValue(connection, latestVersion);
             }
             else
@@ -450,19 +458,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return PathPartTable::GetPathById(connection, pathPartId);
     }
 
-    std::vector<std::pair<std::string, std::string>> Interface::GetVersionsById(SQLite::Connection& connection, SQLite::rowid_t id)
+    std::vector<Utility::VersionAndChannel> Interface::GetVersionsById(SQLite::Connection& connection, SQLite::rowid_t id)
     {
         auto versionsAndChannels = ManifestTable::GetAllValuesById<IdTable, VersionTable, ChannelTable>(connection, id);
 
-        // TODO: Implement version sort, for now assume latest == lastest
-        std::reverse(versionsAndChannels.begin(), versionsAndChannels.end());
-
-        std::vector<std::pair<std::string, std::string>> result;
+        std::vector<Utility::VersionAndChannel> result;
         result.reserve(versionsAndChannels.size());
         for (auto&& vac : versionsAndChannels)
         {
-            result.emplace_back(std::make_pair(std::move(std::get<0>(vac)), std::move(std::get<1>(vac))));
+            result.emplace_back(Utility::Version{ std::move(std::get<0>(vac)) }, Utility::Channel{ std::move(std::get<1>(vac)) });
         }
+
+        std::sort(result.begin(), result.end());
+
         return result;
     }
 }

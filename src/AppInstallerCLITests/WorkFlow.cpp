@@ -85,10 +85,10 @@ struct TestSource : public ISource
             return m_manifest.Name;
         }
 
-        std::vector<std::pair<std::string, std::string>> GetVersions() override
+        std::vector<VersionAndChannel> GetVersions() override
         {
-            std::vector<std::pair<std::string, std::string>> result;
-            result.emplace_back(std::make_pair(m_manifest.Version, m_manifest.Channel));
+            std::vector<VersionAndChannel> result;
+            result.emplace_back(Version(m_manifest.Version), Channel(m_manifest.Channel));
             return result;
         }
 
@@ -420,7 +420,7 @@ TEST_CASE("InstallFlow_SearchAndShowAppVersion", "[ShowFlow]")
     INFO(showOutput.str());
 
     // Verify App version is printed
-    REQUIRE(showOutput.str().find("Version: 1.0.0.0") != std::string::npos);
+    REQUIRE(showOutput.str().find("1.0.0.0") != std::string::npos);
     // No manifest info is printed
     REQUIRE(showOutput.str().find("--Installer Download Url: https://ThisIsNotUsed") == std::string::npos);
 }

@@ -219,7 +219,7 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->GetPathStringByKey(m_dbconn, id, version, channel);
     }
 
-    std::vector<std::pair<std::string, std::string>> SQLiteIndex::GetVersionsById(IdType id)
+    std::vector<Utility::VersionAndChannel> SQLiteIndex::GetVersionsById(IdType id)
     {
         return m_interface->GetVersionsById(m_dbconn, id);
     }
