@@ -20,6 +20,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         std::optional<std::string> GetIdStringById(SQLite::Connection& connection, SQLite::rowid_t id) override;
         std::optional<std::string> GetNameStringById(SQLite::Connection& connection, SQLite::rowid_t id) override;
         std::optional<std::string> GetPathStringByKey(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel) override;
-        std::vector<std::pair<std::string, std::string>> GetVersionsById(SQLite::Connection& connection, SQLite::rowid_t id) override;
+        std::vector<Utility::VersionAndChannel> GetVersionsById(SQLite::Connection& connection, SQLite::rowid_t id) override;
     };
 }

@@ -6,53 +6,53 @@
 
 namespace AppInstaller::CLI
 {
-    void Command::OutputIntroHeader(std::ostream& out) const
+    void Command::OutputIntroHeader(ExecutionReporter& reporter) const
     {
-        out << "AppInstaller Command Line" << std::endl;
-        out << "Copyright (c) Microsoft Corporation" << std::endl;
+        reporter.ShowMsg("AppInstaller Command Line");
+        reporter.ShowMsg("Copyright (c) Microsoft Corporation");
     }
 
-    void Command::OutputHelp(std::ostream& out, const CommandException* exception) const
+    void Command::OutputHelp(ExecutionReporter& reporter, const CommandException* exception) const
     {
-        OutputIntroHeader(out);
-        out << std::endl;
+        OutputIntroHeader(reporter);
+        reporter.EmptyLine();
 
         if (exception)
         {
-            out << exception->Message() << " : '" << exception->Param() << '\'' << std::endl;
-            out << std::endl;
+            reporter.ShowMsg(exception->Message() + " : '" + std::string(exception->Param()) + '\'', ExecutionReporter::Level::Error);
+            reporter.EmptyLine();
         }
 
         for (const auto& line : GetLongDescription())
         {
-            out << line << std::endl;
+            reporter.ShowMsg(line);
         }
-        out << std::endl;
+        reporter.EmptyLine();
 
         auto commands = GetCommands();
         if (!commands.empty())
         {
-            out << LOCME("The following commands are available:") << std::endl;
-            out << std::endl;
+            reporter.ShowMsg(LOCME("The following commands are available:"));
+            reporter.EmptyLine();
 
             for (const auto& command : commands)
             {
-                out << "  " << command->Name() << std::endl;
-                out << "    " << command->ShortDescription() << std::endl;
+                reporter.ShowMsg("  " + std::string(command->Name()));
+                reporter.ShowMsg("    " + command->ShortDescription());
             }
 
-            out << std::endl;
-            out << LOCME("For more details on a specific command, pass it the help argument.") << " [" << APPINSTALLER_CLI_HELP_ARGUMENT << "]" << std::endl;
+            reporter.EmptyLine();
+            reporter.ShowMsg(std::string(LOCME("For more details on a specific command, pass it the help argument.")) + " [" + APPINSTALLER_CLI_HELP_ARGUMENT + "]");
         }
         else
         {
-            out << LOCME("The following arguments are available:") << std::endl;
-            out << std::endl;
+            reporter.ShowMsg(LOCME("The following arguments are available:"));
+            reporter.EmptyLine();
 
             for (const auto& arg : GetArguments())
             {
-                out << "  " << arg.Name() << std::endl;
-                out << "    " << arg.Description() << std::endl;
+                reporter.ShowMsg("  " + std::string(arg.Name()));
+                reporter.ShowMsg("    " + arg.Description());
             }
         }
     }
@@ -88,7 +88,7 @@ namespace AppInstaller::CLI
         throw CommandException(LOCME("Unrecognized command"), *itr);
     }
 
-    void Command::ParseArguments(Invocation& inv) const
+    void Command::ParseArguments(Invocation& inv, ExecutionArgs& execArgs) const
     {
         auto definedArgs = GetArguments();
         auto positionalSearchItr = definedArgs.begin();
@@ -99,7 +99,7 @@ namespace AppInstaller::CLI
             {
                 // Positional argument, find the next appropriate one if the current itr isn't one or has hit its limit.
                 if (positionalSearchItr != definedArgs.end() &&
-                    (positionalSearchItr->Type() != ArgumentType::Positional || inv.GetCount(positionalSearchItr->Name()) == positionalSearchItr->Limit()))
+                    (positionalSearchItr->Type() != ArgumentType::Positional || execArgs.GetCount(positionalSearchItr->ExecArgType()) == positionalSearchItr->Limit()))
                 {
                     for (++positionalSearchItr; positionalSearchItr != definedArgs.end() && positionalSearchItr->Type() != ArgumentType::Positional; ++positionalSearchItr);
                 }
@@ -109,7 +109,7 @@ namespace AppInstaller::CLI
                     throw CommandException(LOCME("Found a positional argument when none was expected"), *incomingArgsItr);
                 }
 
-                inv.AddArg(positionalSearchItr->Name(), *incomingArgsItr);
+                execArgs.AddArg(positionalSearchItr->ExecArgType(), *incomingArgsItr);
             }
             else
             {
@@ -124,7 +124,7 @@ namespace AppInstaller::CLI
                     {
                         if (arg.Type() == ArgumentType::Flag)
                         {
-                            inv.AddArg(arg.Name());
+                            execArgs.AddArg(arg.ExecArgType());
                         }
                         else
                         {
@@ -133,7 +133,7 @@ namespace AppInstaller::CLI
                             {
                                 throw CommandException(LOCME("Argument value required, but none found"), *incomingArgsItr);
                             }
-                            inv.AddArg(arg.Name(), *incomingArgsItr);
+                            execArgs.AddArg(arg.ExecArgType(), *incomingArgsItr);
                         }
                         argFound = true;
                         break;
@@ -142,7 +142,7 @@ namespace AppInstaller::CLI
 
                 if (argName == APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING)
                 {
-                    inv.AddArg(APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING);
+                    execArgs.AddArg(ExecutionArgs::Type::Help);
                 }
                 else if (!argFound)
                 {
@@ -152,44 +152,44 @@ namespace AppInstaller::CLI
         }
     }
 
-    void Command::ValidateArguments(Invocation& inv) const
+    void Command::ValidateArguments(ExecutionArgs& execArgs) const
     {
         // If help is asked for, don't bother validating anything else
-        if (inv.Contains(APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING))
+        if (execArgs.Contains(ExecutionArgs::Type::Help))
         {
             return;
         }
 
         for (const auto& arg : GetArguments())
         {
-            if (arg.Required() && !inv.Contains(arg.Name()))
+            if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
             {
                 throw CommandException(LOCME("Required argument not provided"), arg.Name());
             }
 
-            if (arg.Limit() < inv.GetCount(arg.Name()))
+            if (arg.Limit() < execArgs.GetCount(arg.ExecArgType()))
             {
                 throw CommandException(LOCME("Argument provided more times than allowed"), arg.Name());
             }
         }
     }
 
-    void Command::Execute(Invocation& inv, std::ostream& out, std::istream& in) const
+    void Command::Execute(ExecutionContext& context) const
     {
         AICLI_LOG(CLI, Info, << "Executing command: " << Name());
-        if (inv.Contains(APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING))
+        if (context.Args.Contains(ExecutionArgs::Type::Help))
         {
-            OutputHelp(out);
+            OutputHelp(context.Reporter);
         }
         else
         {
-            ExecuteInternal(inv, out, in);
+            ExecuteInternal(context);
         }
     }
 
-    void Command::ExecuteInternal(Invocation&, std::ostream& out, std::istream&) const
+    void Command::ExecuteInternal(ExecutionContext& context) const
     {
-        out << LOCME("Oops, we forgot to do this...") << std::endl;
+        context.Reporter.ShowMsg(LOCME("Oops, we forgot to do this..."), ExecutionReporter::Level::Error);
         THROW_HR(E_NOTIMPL);
     }
 }

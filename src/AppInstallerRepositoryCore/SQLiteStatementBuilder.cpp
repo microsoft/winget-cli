@@ -8,7 +8,21 @@ namespace AppInstaller::Repository::SQLite::Builder
 {
     std::ostream& operator<<(std::ostream& out, const QualifiedColumn& column)
     {
-        out << '[' << column.Table << "].[" << column.Column << ']';
+        if (!column.Table.empty())
+        {
+            out << '[' << column.Table << "].";
+        }
+        out << '[' << column.Column << ']';
+        return out;
+    }
+
+    std::ostream& operator<<(std::ostream& out, const QualifiedTable& table)
+    {
+        if (!table.Schema.empty())
+        {
+            out << '[' << table.Schema << "].";
+        }
+        out << '[' << table.Table << ']';
         return out;
     }
 
@@ -63,10 +77,40 @@ namespace AppInstaller::Repository::SQLite::Builder
             }
         }
 
+        void OutputAggregate(std::ostream& out, Aggregate op)
+        {
+            out << ' ';
+            switch (op)
+            {
+            case Aggregate::Min:
+                out << "MIN";
+                break;
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
+
+        void OutputColumns(std::ostream& out, Aggregate op, std::string_view column)
+        {
+            OutputAggregate(out, op);
+            out << "([" << column << "])";
+        }
+
+        void OutputColumns(std::ostream& out, Aggregate op, const QualifiedColumn& column)
+        {
+            OutputAggregate(out, op);
+            out << '(' << column << ')';
+        }
+
         // Use to output operation and table name, such as " FROM [table]"
         void OutputOperationAndTable(std::ostream& out, std::string_view op, std::string_view table)
         {
             out << op << " [" << table << ']';
+        }
+
+        void OutputOperationAndTable(std::ostream& out, std::string_view op, QualifiedTable table)
+        {
+            out << op << table;
         }
 
         void OutputOperationAndTable(std::ostream& out, std::string_view op, std::initializer_list<std::string_view> table)
@@ -111,6 +155,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         {
             m_stream << " NOT NULL";
         }
+        return *this;
+    }
+
+    ColumnBuilder& ColumnBuilder::Default(int64_t value)
+    {
+        m_stream << " DEFAULT " << value;
         return *this;
     }
 
@@ -171,6 +221,7 @@ namespace AppInstaller::Repository::SQLite::Builder
     StatementBuilder& StatementBuilder::Select()
     {
         m_stream << "SELECT ";
+        m_needsComma = false;
         return *this;
     }
 
@@ -204,7 +255,19 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::From()
+    {
+        m_stream << " FROM ";
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::From(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, " FROM", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::From(QualifiedTable table)
     {
         OutputOperationAndTable(m_stream, " FROM", table);
         return *this;
@@ -234,12 +297,37 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::Like(details::unbound_t)
+    {
+        AppendOpAndBinder(Op::Like);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Escape(std::string_view escapeChar)
+    {
+        THROW_HR_IF(E_INVALIDARG, escapeChar.length() != 1);
+        AddBindFunctor(AppendOpAndBinder(Op::Escape), escapeChar);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::Equals(std::nullptr_t)
     {
         // This is almost certainly not what you want.
         // In SQL, value = NULL is always false.
         // Use StatementBuilder::IsNull instead.
         THROW_HR(E_NOTIMPL);
+    }
+
+    StatementBuilder& StatementBuilder::Not()
+    {
+        m_stream << " NOT";
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::In()
+    {
+        m_stream << " IN";
+        return *this;
     }
 
     StatementBuilder& StatementBuilder::IsNull()
@@ -266,6 +354,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::Join(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, " JOIN", table);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::Join(std::initializer_list<std::string_view> table)
     {
         OutputOperationAndTable(m_stream, " JOIN", table);
@@ -284,6 +378,18 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::GroupBy(std::string_view column)
+    {
+        OutputColumns(m_stream, " GROUP BY ", column);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::GroupBy(const QualifiedColumn& column)
+    {
+        OutputColumns(m_stream, " GROUP BY ", column);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::OrderBy(std::string_view column)
     {
         OutputColumns(m_stream, " ORDER BY ", column);
@@ -297,6 +403,12 @@ namespace AppInstaller::Repository::SQLite::Builder
     }
 
     StatementBuilder& StatementBuilder::InsertInto(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "INSERT INTO", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::InsertInto(QualifiedTable table)
     {
         OutputOperationAndTable(m_stream, "INSERT INTO", table);
         return *this;
@@ -372,6 +484,28 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::Column(Aggregate aggOp, std::string_view column)
+    {
+        if (m_needsComma)
+        {
+            m_stream << ", ";
+        }
+        OutputColumns(m_stream, aggOp, column);
+        m_needsComma = true;
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Column(Aggregate aggOp, const QualifiedColumn& column)
+    {
+        if (m_needsComma)
+        {
+            m_stream << ", ";
+        }
+        OutputColumns(m_stream, aggOp, column);
+        m_needsComma = true;
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::Column(const details::SubBuilder& column)
     {
         if (m_needsComma)
@@ -410,13 +544,43 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::CreateTable(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE TABLE", table);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::CreateTable(std::initializer_list<std::string_view> table)
     {
         OutputOperationAndTable(m_stream, "CREATE TABLE", table);
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::DropTable(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "DROP TABLE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::DropTable(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, "DROP TABLE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::DropTable(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, "DROP TABLE", table);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::CreateIndex(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE INDEX", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::CreateIndex(QualifiedTable table)
     {
         OutputOperationAndTable(m_stream, "CREATE INDEX", table);
         return *this;
@@ -429,6 +593,12 @@ namespace AppInstaller::Repository::SQLite::Builder
     }
 
     StatementBuilder& StatementBuilder::DropIndex(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "DROP INDEX", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::DropIndex(QualifiedTable table)
     {
         OutputOperationAndTable(m_stream, "DROP INDEX", table);
         return *this;
@@ -458,6 +628,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::DeleteFrom(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, "DELETE FROM", table);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::DeleteFrom(std::initializer_list<std::string_view> table)
     {
         OutputOperationAndTable(m_stream, "DELETE FROM", table);
@@ -465,6 +641,12 @@ namespace AppInstaller::Repository::SQLite::Builder
     }
 
     StatementBuilder& StatementBuilder::Update(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "UPDATE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Update(QualifiedTable table)
     {
         OutputOperationAndTable(m_stream, "UPDATE", table);
         return *this;
@@ -489,6 +671,24 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::BeginParenthetical()
+    {
+        m_stream << '(';
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::EndParenthetical()
+    {
+        m_stream << ')';
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::As(std::string_view alias)
+    {
+        OutputOperationAndTable(m_stream, " AS", alias);
+        return *this;
+    }
+
     Statement StatementBuilder::Prepare(Connection& connection, bool persistent)
     {
         Statement result = Statement::Create(connection, m_stream.str(), persistent);
@@ -510,6 +710,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         {
         case Op::Equals:
             m_stream << " = ?";
+            break;
+        case Op::Like:
+            m_stream << " LIKE ?";
+            break;
+        case Op::Escape:
+            m_stream << " ESCAPE ?";
             break;
         default:
             THROW_HR(E_UNEXPECTED);

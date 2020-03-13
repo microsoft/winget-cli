@@ -28,6 +28,15 @@ TEST_CASE("DownloadValidFileAndVerifyHash", "[Downloader]")
         resultHash.begin()));
 
     REQUIRE(std::filesystem::file_size(tempFile.GetPath()) > 0);
+
+    // Verify motw content
+    std::filesystem::path motwFile(tempFile);
+    motwFile += ":Zone.Identifier:$data";
+    std::ifstream motwStream(motwFile);
+    std::stringstream motwContent;
+    motwContent << motwStream.rdbuf();
+    std::string motwContentStr = motwContent.str();
+    REQUIRE(motwContentStr.find("ZoneId=3") != std::string::npos);
 }
 
 TEST_CASE("DownloadValidFileAndCancel", "[Downloader]")

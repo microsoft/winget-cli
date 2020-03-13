@@ -7,6 +7,7 @@
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
+using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 
@@ -26,8 +27,7 @@ namespace AppInstaller::Workflow
             Msix::MsixInfo msixInfo(m_manifestInstallerRef.Url);
             auto signature = msixInfo.GetSignature();
 
-            SHA256::HashBuffer signatureHash;
-            SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()), signatureHash);
+            auto signatureHash = SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
 
             if (!std::equal(
                 m_manifestInstallerRef.SignatureSha256.begin(),
@@ -40,16 +40,16 @@ namespace AppInstaller::Workflow
                     << "Signature SHA256 from download: "
                     << SHA256::ConvertToString(signatureHash));
 
-                if (!m_reporterRef.PromptForBoolResponse(WorkflowReporter::Level::Warning, "Package hash verification failed. Continue?"))
+                if (!m_reporterRef.PromptForBoolResponse("Package hash verification failed. Continue?", ExecutionReporter::Level::Warning))
                 {
-                    m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Canceled. Package hash mismatch.");
+                    m_reporterRef.ShowMsg("Canceled. Package hash mismatch.", ExecutionReporter::Level::Error);
                     THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED), "Package installation canceled");
                 }
             }
             else
             {
                 AICLI_LOG(CLI, Info, << "Msix package signature hash verified");
-                m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Successfully verified SHA256.");
+                m_reporterRef.ShowMsg("Successfully verified SHA256.");
             }
 
             m_useStreaming = true;
@@ -65,9 +65,9 @@ namespace AppInstaller::Workflow
 
         Uri target = m_useStreaming ? Uri(Utility::ConvertToUTF16(m_manifestInstallerRef.Url)) : Uri(m_downloadedInstaller.c_str());
 
-        m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Starting package install...");
+        m_reporterRef.ShowMsg("Starting package install...");
         ExecuteInstallerAsync(target);
-        m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Successfully installed.");
+        m_reporterRef.ShowMsg("Successfully installed.");
     }
 
     void MsixInstallerHandler::ExecuteInstallerAsync(const winrt::Windows::Foundation::Uri& uri)

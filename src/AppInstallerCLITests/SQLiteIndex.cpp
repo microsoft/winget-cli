@@ -15,6 +15,7 @@
 #include <Microsoft/Schema/1_0/ManifestTable.h>
 #include <Microsoft/Schema/1_0/TagsTable.h>
 #include <Microsoft/Schema/1_0/CommandsTable.h>
+#include <Microsoft/Schema/1_0/SearchResultsTable.h>
 
 using namespace std::string_literals;
 using namespace TestCommon;
@@ -22,6 +23,7 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Repository::SQLite;
+using namespace AppInstaller::Utility;
 
 SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std::string& relativePath)
 {
@@ -38,6 +40,44 @@ SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std
     relativePath = "test/id/1.0.0.yml";
 
     index.AddManifest(manifest, relativePath);
+
+    return index;
+}
+
+struct IndexFields
+{
+    std::string Id;
+    std::string Name;
+    std::string Moniker;
+    std::string Version;
+    std::string Channel;
+    std::vector<std::string> Tags;
+    std::vector<std::string> Commands;
+    std::string Path;
+};
+
+SQLiteIndex SearchTestSetup(const std::string& filePath, std::initializer_list<IndexFields> data = {}, Schema::Version version = Schema::Version::Latest())
+{
+    SQLiteIndex index = SQLiteIndex::CreateNew(filePath, version);
+
+    Manifest manifest;
+
+    auto addFunc = [&](const IndexFields& d) {
+        manifest.Id = d.Id;
+        manifest.Name = d.Name;
+        manifest.AppMoniker = d.Moniker;
+        manifest.Version = d.Version;
+        manifest.Channel = d.Channel;
+        manifest.Tags = d.Tags;
+        manifest.Commands = d.Commands;
+
+        index.AddManifest(manifest, d.Path);
+    };
+
+    for (const auto& d : data)
+    {
+        addFunc(d);
+    }
 
     return index;
 }
@@ -102,9 +142,24 @@ TEST_CASE("SQLiteIndexCreateAndAddManifestFile", "[sqliteindex]")
     std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yml" };
 
     index.AddManifest(manifestFile, manifestPath);
+}
 
-    // Attempting to add again should fail
-    REQUIRE_THROWS_HR(index.AddManifest(manifestFile, manifestPath), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
+TEST_CASE("SQLiteIndexCreateAndAddManifestDuplicate", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest manifest;
+    std::string relativePath;
+
+    SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+
+    // Attempting to add the same manifest at a different path should fail.
+    REQUIRE_THROWS_HR(index.AddManifest(manifest, "differentpath.yml"), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
+
+    // Attempting to add a different manifest at the same path should fail.
+    manifest.Id += "-new";
+    REQUIRE_THROWS_HR(index.AddManifest(manifest, relativePath), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
 }
 
 TEST_CASE("SQLiteIndex_RemoveManifestFile_NotPresent", "[sqliteindex]")
@@ -614,6 +669,250 @@ TEST_CASE("SQLiteIndex_Versions", "[sqliteindex]")
 
     auto result = index.GetVersionsById(results[0].first);
     REQUIRE(result.size() == 1);
-    REQUIRE(result[0].first == manifest.Version);
-    REQUIRE(result[0].second == manifest.Channel);
+    REQUIRE(result[0].GetVersion().ToString() == manifest.Version);
+    REQUIRE(result[0].GetChannel().ToString() == manifest.Channel);
+}
+
+TEST_CASE("SQLiteIndex_Search_VersionSorting", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::vector<VersionAndChannel> sortedList =
+    {
+        { Version("15.0.0"), Channel("") },
+        { Version("14.0.0"), Channel("") },
+        { Version("13.2.0-bugfix"), Channel("") },
+        { Version("13.2.0"), Channel("") },
+        { Version("13.0.0"), Channel("") },
+        { Version("16.0.0"), Channel("alpha") },
+        { Version("15.8.0"), Channel("alpha") },
+        { Version("15.1.0"), Channel("beta") },
+    };
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id", "Name", "Moniker", "14.0.0", "", { "foot" }, { "com34" }, "Path1" },
+        { "Id", "Name", "Moniker", "16.0.0", "alpha", { "floor" }, { "com3" }, "Path2" },
+        { "Id", "Name", "Moniker", "15.0.0", "", {}, { "Command" }, "Path3" },
+        { "Id", "Name", "Moniker", "13.2.0", "", {}, { "Command" }, "Path4" },
+        { "Id", "Name", "Moniker", "15.1.0", "beta", { "foo" }, { "com3" }, "Path5" },
+        { "Id", "Name", "Moniker", "15.8.0", "alpha", { "foo" }, { "com3" }, "Path6" },
+        { "Id", "Name", "Moniker", "13.2.0-bugfix", "", { "foo" }, { "com3" }, "Path7" },
+        { "Id", "Name", "Moniker", "13.0.0", "", { "foo" }, { "com3" }, "Path8" },
+        });
+
+    SearchRequest request;
+    request.Filters.emplace_back(ApplicationMatchField::Id, MatchType::Exact, "Id");
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 1);
+
+    auto result = index.GetVersionsById(results[0].first);
+    REQUIRE(result.size() == sortedList.size());
+
+    for (size_t i = 0; i < result.size(); ++i)
+    {
+        const VersionAndChannel& sortedVAC = sortedList[i];
+        const VersionAndChannel& resultVAC = result[i];
+
+        INFO(i);
+        REQUIRE(sortedVAC.GetVersion().ToString() == resultVAC.GetVersion().ToString());
+        REQUIRE(sortedVAC.GetChannel().ToString() == resultVAC.GetChannel().ToString());
+    }
+}
+
+TEST_CASE("SQLiteIndex_SearchResultsTableSearches", "[sqliteindex][V1_0]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Manifest manifest;
+    std::string relativePath;
+    {
+        (void)SimpleTestSetup(tempFile, manifest, relativePath);
+    }
+
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
+    Schema::V1_0::SearchResultsTable search(connection);
+
+    std::string value = "test";
+
+    // Perform every type of field and match search
+    for (auto field : { ApplicationMatchField::Id, ApplicationMatchField::Name, ApplicationMatchField::Moniker, ApplicationMatchField::Tag, ApplicationMatchField::Command })
+    {
+        for (auto match : { MatchType::Exact, MatchType::Fuzzy, MatchType::FuzzySubstring, MatchType::Substring, MatchType::Wildcard })
+        {
+            search.SearchOnField(field, match, value);
+        }
+    }
+}
+
+TEST_CASE("SQLiteIndex_Search_EmptySearch", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile,{
+        { "Id1", "Name", "Moniker", "Version1", "Channel", { "Tag" }, { "Command" }, "Path1" },
+        { "Id1", "Name", "Moniker", "Version2", "Channel", { "Tag" }, { "Command" }, "Path2" },
+        { "Id2", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
+        { "Id3", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path4" },
+        });
+
+    SearchRequest request;
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 3);
+}
+
+TEST_CASE("SQLiteIndex_Search_Exact", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1" },
+        { "Id2", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
+        });
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Exact, "Id");
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 1);
+}
+
+TEST_CASE("SQLiteIndex_Search_Substring", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1" },
+        { "Id2", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
+        });
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Substring, "Id");
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 2);
+}
+
+TEST_CASE("SQLiteIndex_Search_ExactBeforeSubstring", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id2", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1" },
+        { "Id", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
+        });
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Substring, "Id");
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 2);
+
+    REQUIRE(index.GetIdStringById(results[0].first) == "Id");
+    REQUIRE(index.GetIdStringById(results[1].first) == "Id2");
+}
+
+TEST_CASE("SQLiteIndex_Search_SingleFilter", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1" },
+        { "Id2", "Na", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
+        { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
+        });
+
+    SearchRequest request;
+    request.Filters.emplace_back(ApplicationMatchField::Name, MatchType::Substring, "a");
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 2);
+
+    request.Filters[0].Value = "e";
+
+    results = index.Search(request);
+    REQUIRE(results.size() == 1);
+}
+
+TEST_CASE("SQLiteIndex_Search_Multimatch", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1" },
+        { "Id1", "Name1", "Moniker", "Version1", "Channel", { "Tag" }, { "Command" }, "Path2" },
+        { "Id2", "Name", "Moniker", "Version", "", { "Tag" }, { "Command" }, "Path3" },
+        { "Id2", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path4" },
+        { "Id3", "Name", "Moniker", "Version1", "", { "Tag" }, { "Command" }, "Path5" },
+        { "Id3", "Name", "Moniker", "Version2", "", { "Tag" }, { "Command" }, "Path6" },
+        { "Id3", "Name", "Moniker", "Version3", "", { "Tag" }, { "Command" }, "Path7" },
+        });
+
+    SearchRequest request;
+    // An empty string should match all substrings
+    request.Query = RequestMatch(MatchType::Substring, "");
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 3);
+}
+
+TEST_CASE("SQLiteIndex_Search_QueryAndFilter", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Nope", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1" },
+        { "Id2", "Na", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
+        { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
+        });
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Substring, "Id");
+    request.Filters.emplace_back(ApplicationMatchField::Name, MatchType::Substring, "Na");
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 1);
+
+    auto result = index.GetIdStringById(results[0].first);
+    REQUIRE(result.has_value());
+    REQUIRE(result.value() == "Id2");
+}
+
+TEST_CASE("SQLiteIndex_Search_QueryAndMultipleFilters", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name", "Moniker", "Version", "Channel", { "foot" }, { "com34" }, "Path1" },
+        { "Id1", "Name1", "Moniker", "Version1", "Channel", { "floor" }, { "com3" }, "Path2" },
+        { "Id2", "Name", "Moniker", "Version", "", {}, { "Command" }, "Path3" },
+        { "Id2", "Name", "Moniker", "Version", "Channel", {}, { "Command" }, "Path4" },
+        { "Id3", "Tagit", "Moniker", "Version1", "", { "foo" }, { "com3" }, "Path5" },
+        { "Id3", "Tagit", "Moniker", "Version2", "", { "foo" }, { "com3" }, "Path6" },
+        { "Id3", "Tagit", "new", "Version3", "", { "foo" }, { "com3" }, "Path7" },
+        });
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Substring, "tag");
+    request.Filters.emplace_back(ApplicationMatchField::Command, MatchType::Exact, "com3");
+    request.Filters.emplace_back(ApplicationMatchField::Tag, MatchType::Substring, "foo");
+    request.Filters.emplace_back(ApplicationMatchField::Moniker, MatchType::Substring, "new");
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 1);
+
+    auto result = index.GetIdStringById(results[0].first);
+    REQUIRE(result.has_value());
+    REQUIRE(result.value() == "Id3");
 }

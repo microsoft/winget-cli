@@ -128,13 +128,34 @@ namespace AppInstaller::Utility {
         return resultBuffer;
     }
 
-    bool SHA256::ComputeHash(std::uint8_t* buffer, std::uint32_t cbBuffer, HashBuffer& hash)
+    std::vector<uint8_t> SHA256::ComputeHash(std::uint8_t* buffer, std::uint32_t cbBuffer)
     {
         SHA256 hasher;
         hasher.Add(buffer, cbBuffer);
-        hasher.Get(hash);
 
-        return true;
+        std::vector<uint8_t> result;
+        hasher.Get(result);
+
+        return result;
+    }
+
+    std::vector<uint8_t> SHA256::ComputeHash(std::istream& in)
+    {
+        const int bufferSize = 1024 * 1024; // 1MB
+        auto buffer = std::make_unique<uint8_t[]>(bufferSize);
+
+        SHA256 hasher;
+
+        while (!in.eof())
+        {
+            in.read((char*)(buffer.get()), bufferSize);
+            hasher.Add(buffer.get(), in.gcount());
+        }
+        
+        std::vector<uint8_t> result;
+        hasher.Get(result);
+
+        return result;
     }
 
     void SHA256::SHA256ContextDeleter::operator()(SHA256Context* context)

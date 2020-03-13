@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Public/AppInstallerCLICore.h"
 #include "Commands/RootCommand.h"
+#include "ExecutionContext.h"
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -22,6 +23,8 @@ namespace AppInstaller::CLI
         Logging::EnableWilFailureTelemetry();
 
         Logging::Telemetry().LogStartup();
+
+        ExecutionContext context{ std::cout, std::cin };
 
         // Convert incoming wide char args to UTF8
         std::vector<std::string> utf8Args;
@@ -56,34 +59,34 @@ namespace AppInstaller::CLI
 
             Logging::Telemetry().LogCommand(commandToExecute->Name());
 
-            commandToExecute->ParseArguments(invocation);
-            commandToExecute->ValidateArguments(invocation);
+            commandToExecute->ParseArguments(invocation, context.Args);
+            commandToExecute->ValidateArguments(context.Args);
         }
         // Exceptions specific to parsing the arguments of a command
         catch (const CommandException& ce)
         {
-            commandToExecute->OutputHelp(std::cout, &ce);
+            commandToExecute->OutputHelp(context.Reporter, &ce);
             AICLI_LOG(CLI, Error, << "Error encountered parsing command line: " << ce.Message());
             return APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS;
         }
 
         try
         {
-            commandToExecute->Execute(invocation, std::cout, std::cin);
+            commandToExecute->Execute(context);
         }
         // Exceptions that may occur in the process of executing an arbitrary command
         catch (const winrt::hresult_error& hre)
         {
             // TODO: Better error output
             std::string message = Utility::ConvertToUTF8(hre.message());
-            std::cout << "An error occured while executing the command: " << message << std::endl;
+            context.Reporter.ShowMsg("An error occured while executing the command: " + message, ExecutionReporter::Level::Error);
             AICLI_LOG(CLI, Error, << "Error encountered executing command: " << message);
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
         catch (const std::exception& e)
         {
             // TODO: Better error output
-            std::cout << "An error occured while executing the command: " << e.what() << std::endl;
+            context.Reporter.ShowMsg("An error occured while executing the command: " + std::string(e.what()), ExecutionReporter::Level::Error);
             AICLI_LOG(CLI, Error, << "Error encountered executing command: " << e.what());
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }

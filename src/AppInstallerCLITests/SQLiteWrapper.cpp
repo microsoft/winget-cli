@@ -260,6 +260,32 @@ TEST_CASE("SQLiteWrapperSavepointReuse", "[sqlitewrapper]")
     }
 }
 
+TEST_CASE("SQLiteWrapper_EscapeStringForLike", "[sqlitewrapper]")
+{
+    std::string escape(EscapeCharForLike);
+
+    std::string input = "test";
+    std::string output = EscapeStringForLike(input);
+    REQUIRE(input == output);
+
+    input = EscapeCharForLike;
+    output = EscapeStringForLike(input);
+    REQUIRE((input + input) == output);
+
+    input = "%";
+    output = EscapeStringForLike(input);
+    REQUIRE((escape + input) == output);
+
+    input = "_";
+    output = EscapeStringForLike(input);
+    REQUIRE((escape + input) == output);
+
+    input = "%_A_%";
+    std::string expected = escape + "%" + escape + "_A" + escape + "_" + escape + "%";
+    output = EscapeStringForLike(input);
+    REQUIRE(expected == output);
+}
+
 TEST_CASE("SQLBuilder_SimpleSelectBind", "[sqlbuilder]")
 {
     Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);

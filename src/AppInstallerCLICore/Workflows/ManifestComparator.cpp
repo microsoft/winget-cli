@@ -3,9 +3,9 @@
 
 #include "pch.h"
 #include "Common.h"
-#include "WorkflowReporter.h"
 #include "ManifestComparator.h"
 
+using namespace AppInstaller::CLI;
 using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::Workflow
@@ -38,7 +38,7 @@ namespace AppInstaller::Workflow
         return true;
     }
 
-    ManifestInstaller ManifestComparator::GetPreferredInstaller(const AppInstaller::CLI::Invocation&)
+    ManifestInstaller ManifestComparator::GetPreferredInstaller(const ExecutionArgs&)
     {
         AICLI_LOG(CLI, Info, << "Starting installer selection.");
 
@@ -48,7 +48,7 @@ namespace AppInstaller::Workflow
         // If the first one is inapplicable, then no installer is applicable.
         if (Utility::IsApplicableArchitecture(m_manifestRef.Installers[0].Arch) == -1)
         {
-            m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "No applicable installer found.");
+            m_reporterRef.ShowMsg("No applicable installer found.", ExecutionReporter::Level::Error);
             THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_WORKFLOW_FAILED), "No installer with applicable architecture found.");
         }
 
@@ -57,14 +57,14 @@ namespace AppInstaller::Workflow
         AICLI_LOG(CLI, Info, << "Completed installer selection.");
         AICLI_LOG(CLI, Verbose, << "Selected installer arch: " << (int)selectedInstaller.Arch);
         AICLI_LOG(CLI, Verbose, << "Selected installer url: " << selectedInstaller.Url);
-        AICLI_LOG(CLI, Verbose, << "Selected installer InstallerType: " << selectedInstaller.InstallerType);
+        AICLI_LOG(CLI, Verbose, << "Selected installer InstallerType: " << Manifest::ManifestInstaller::InstallerTypeToString(selectedInstaller.InstallerType));
         AICLI_LOG(CLI, Verbose, << "Selected installer scope: " << selectedInstaller.Scope);
         AICLI_LOG(CLI, Verbose, << "Selected installer language: " << selectedInstaller.Language);
 
         return selectedInstaller;
     }
 
-    ManifestLocalization ManifestComparator::GetPreferredLocalization(const AppInstaller::CLI::Invocation&)
+    ManifestLocalization ManifestComparator::GetPreferredLocalization(const ExecutionArgs&)
     {
         AICLI_LOG(CLI, Info, << "Starting localization selection.");
 

@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "Invocation.h"
+#include "ExecutionContext.h"
 
 #define APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR      '-'
 #define APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_STRING    "-"
@@ -42,17 +43,17 @@ namespace AppInstaller::CLI
 
     struct Argument
     {
-        Argument(std::string_view name, std::string desc) :
-            m_name(name), m_desc(std::move(desc)) {}
+        Argument(std::string_view name, ExecutionArgs::Type execArgType, std::string desc) :
+            m_name(name), m_execArgType(execArgType), m_desc(std::move(desc)) {}
 
-        Argument(std::string_view name, std::string desc, bool required) :
-            m_name(name), m_desc(std::move(desc)), m_required(required) {}
+        Argument(std::string_view name, ExecutionArgs::Type execArgType, std::string desc, bool required) :
+            m_name(name), m_execArgType(execArgType), m_desc(std::move(desc)), m_required(required) {}
 
-        Argument(std::string_view name, std::string desc, ArgumentType type) :
-            m_name(name), m_desc(std::move(desc)), m_type(type) {}
+        Argument(std::string_view name, ExecutionArgs::Type execArgType, std::string desc, ArgumentType type) :
+            m_name(name), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type) {}
 
-        Argument(std::string_view name, std::string desc, ArgumentType type, bool required) :
-            m_name(name), m_desc(std::move(desc)), m_type(type), m_required(required) {}
+        Argument(std::string_view name, ExecutionArgs::Type execArgType, std::string desc, ArgumentType type, bool required) :
+            m_name(name), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_required(required) {}
 
         ~Argument() = default;
 
@@ -63,6 +64,7 @@ namespace AppInstaller::CLI
         Argument& operator=(Argument&&) = default;
 
         std::string_view Name() const { return m_name; }
+        ExecutionArgs::Type ExecArgType() const { return m_execArgType; }
         std::string Description() const { return m_desc; }
         bool Required() const { return m_required; }
         ArgumentType Type() const { return m_type; }
@@ -70,6 +72,7 @@ namespace AppInstaller::CLI
 
     private:
         std::string_view m_name;
+        ExecutionArgs::Type m_execArgType;
         std::string m_desc;
         bool m_required = false;
         ArgumentType m_type = ArgumentType::Standard;
@@ -95,17 +98,17 @@ namespace AppInstaller::CLI
         virtual std::string ShortDescription() const { return {}; }
         virtual std::vector<std::string> GetLongDescription() const { return {}; }
 
-        virtual void OutputIntroHeader(std::ostream& out) const;
-        virtual void OutputHelp(std::ostream& out, const CommandException* exception = nullptr) const;
+        virtual void OutputIntroHeader(ExecutionReporter& reporter) const;
+        virtual void OutputHelp(ExecutionReporter& reporter, const CommandException* exception = nullptr) const;
 
         virtual std::unique_ptr<Command> FindInvokedCommand(Invocation& inv) const;
-        virtual void ParseArguments(Invocation& inv) const;
-        virtual void ValidateArguments(Invocation& inv) const;
+        virtual void ParseArguments(Invocation& inv, ExecutionArgs& execArgs) const;
+        virtual void ValidateArguments(ExecutionArgs& execArgs) const;
 
-        virtual void Execute(Invocation& inv, std::ostream& out, std::istream& in) const;
+        virtual void Execute(ExecutionContext& context) const;
 
     protected:
-        virtual void ExecuteInternal(Invocation& inv, std::ostream& out, std::istream& in) const;
+        virtual void ExecuteInternal(ExecutionContext& context) const;
 
     private:
         std::string_view m_name;

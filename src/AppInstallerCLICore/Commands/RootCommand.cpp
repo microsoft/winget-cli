@@ -8,6 +8,7 @@
 #include "ShowCommand.h"
 #include "SourceCommand.h"
 #include "SearchCommand.h"
+#include "HashCommand.h"
 
 namespace AppInstaller::CLI
 {
@@ -18,6 +19,7 @@ namespace AppInstaller::CLI
             std::make_unique<ShowCommand>(),
             std::make_unique<SourceCommand>(),
             std::make_unique<SearchCommand>(),
+            std::make_unique<HashCommand>(),
         });
     }
 
@@ -29,10 +31,8 @@ namespace AppInstaller::CLI
         };
     }
 
-    void RootCommand::ExecuteInternal(Invocation&, std::ostream& out, std::istream& in) const
+    void RootCommand::ExecuteInternal(ExecutionContext& context) const
     {
-        UNREFERENCED_PARAMETER(in);
-
-        OutputHelp(out);
+        OutputHelp(context.Reporter);
     }
 }

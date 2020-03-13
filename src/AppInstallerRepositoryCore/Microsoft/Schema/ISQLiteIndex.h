@@ -5,6 +5,7 @@
 #include "Manifest/Manifest.h"
 #include "Microsoft/Schema/Version.h"
 #include "Public/AppInstallerRepositorySearch.h"
+#include <AppInstallerVersions.h>
 
 #include <filesystem>
 
@@ -55,7 +56,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         virtual std::optional<std::string> GetPathStringByKey(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel) = 0;
 
         // Gets all versions and channels for the given id.
-        virtual std::vector<std::pair<std::string, std::string>> GetVersionsById(SQLite::Connection& connection, SQLite::rowid_t id) = 0;
+        virtual std::vector<Utility::VersionAndChannel> GetVersionsById(SQLite::Connection& connection, SQLite::rowid_t id) = 0;
     };
 
 

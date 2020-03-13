@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <Manifest/Manifest.h>
+#include <AppInstallerVersions.h>
 
 #include <memory>
 #include <optional>
@@ -19,6 +20,7 @@ namespace AppInstaller::Repository
         Substring,
         Wildcard,
         Fuzzy,
+        FuzzySubstring,
     };
 
     // The field to match on.
@@ -81,10 +83,9 @@ namespace AppInstaller::Repository
         virtual Manifest::Manifest GetManifest(std::string_view version, std::string_view channel) = 0;
 
         // Gets all versions of this application.
-        // The pair is <version, channel>.
-        // The versions will be returned in sorted, desceding order.
+        // The versions will be returned in sorted, descending order.
         //  Ex. { 4, 3, 2, 1 }
-        virtual std::vector<std::pair<std::string, std::string>> GetVersions() = 0;
+        virtual std::vector<Utility::VersionAndChannel> GetVersions() = 0;
     };
 
     // A single result from the search.
@@ -120,6 +121,8 @@ namespace AppInstaller::Repository
             return "Wildcard"sv;
         case MatchType::Fuzzy:
             return "Fuzzy"sv;
+        case MatchType::FuzzySubstring:
+            return "FuzzySubstring"sv;
         }
 
         return "UnknownMatchType"sv;

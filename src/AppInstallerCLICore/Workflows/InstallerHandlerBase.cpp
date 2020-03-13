@@ -4,6 +4,7 @@
 #include "Common.h"
 #include "InstallerHandlerBase.h"
 
+using namespace AppInstaller::CLI;
 using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::Workflow
@@ -24,7 +25,7 @@ namespace AppInstaller::Workflow
 
         if (!hash)
         {
-            m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Package download canceled.");
+            m_reporterRef.ShowMsg("Package download canceled.");
             THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED), "Package download canceled");
         }
 
@@ -39,16 +40,16 @@ namespace AppInstaller::Workflow
                 << " SHA256 from download: "
                 << Utility::SHA256::ConvertToString(hash.value()));
 
-            if (!m_reporterRef.PromptForBoolResponse(WorkflowReporter::Level::Warning, "Package hash verification failed. Continue?"))
+            if (!m_reporterRef.PromptForBoolResponse("Package hash verification failed. Continue?", ExecutionReporter::Level::Warning))
             {
-                m_reporterRef.ShowMsg(WorkflowReporter::Level::Error, "Canceled. Package hash mismatch.");
+                m_reporterRef.ShowMsg("Canceled. Package hash mismatch.", ExecutionReporter::Level::Error);
                 THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED), "Package installation canceled");
             }
         }
         else
         {
             AICLI_LOG(CLI, Info, << "Downloaded installer hash verified");
-            m_reporterRef.ShowMsg(WorkflowReporter::Level::Info, "Successfully verified SHA256.");
+            m_reporterRef.ShowMsg("Successfully verified SHA256.");
         }
 
         m_downloadedInstaller = tempInstallerPath;

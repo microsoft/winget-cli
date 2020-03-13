@@ -5,9 +5,9 @@
 
 namespace AppInstaller::CLI
 {
-    struct SearchCommand final : public Command
+    struct HashCommand final : public Command
     {
-        SearchCommand() : Command("search") {}
+        HashCommand() : Command("hash") {}
 
         virtual std::vector<Argument> GetArguments() const override;
 

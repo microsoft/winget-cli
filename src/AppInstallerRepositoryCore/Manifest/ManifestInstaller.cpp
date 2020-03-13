@@ -150,38 +150,38 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    std::ostream& operator<<(std::ostream& out, const ManifestInstaller::InstallerTypeEnum& installerType)
+    std::string ManifestInstaller::InstallerTypeToString(ManifestInstaller::InstallerTypeEnum installerType)
     {
+        std::string result = "Unknown";
+
         switch (installerType)
         {
         case ManifestInstaller::InstallerTypeEnum::Exe:
-            out << "Exe";
+            result = "Exe";
             break;
         case ManifestInstaller::InstallerTypeEnum::Inno:
-            out << "Inno";
+            result = "Inno";
             break;
         case ManifestInstaller::InstallerTypeEnum::Msi:
-            out << "Msi";
+            result = "Msi";
             break;
         case ManifestInstaller::InstallerTypeEnum::Msix:
-            out << "Msix";
+            result = "Msix";
             break;
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
-            out << "Nullsoft";
+            result = "Nullsoft";
             break;
         case ManifestInstaller::InstallerTypeEnum::Wix:
-            out << "Wix";
+            result = "Wix";
             break;
         case ManifestInstaller::InstallerTypeEnum::Zip:
-            out << "Zip";
+            result = "Zip";
             break;
         case ManifestInstaller::InstallerTypeEnum::Burn:
-            out << "Burn";
+            result = "Burn";
             break;
-        default:
-            out << "Unknown";
         }
 
-        return out;
+        return result;
     }
 }

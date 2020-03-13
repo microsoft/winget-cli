@@ -16,12 +16,14 @@
 #include "Microsoft/Schema/1_0/TagsTable.h"
 #include "Microsoft/Schema/1_0/CommandsTable.h"
 
+#include "Microsoft/Schema/1_0/SearchResultsTable.h"
+
+
 namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
     namespace
     {
-        // Gets an existing manifest by its rowid.
-        // The return value contains the path leaf and manifest rowid, if they exist.
+        // Gets an existing manifest by its rowid., if it exists.
         std::optional<SQLite::rowid_t> GetExistingManifestId(SQLite::Connection& connection, const Manifest::Manifest& manifest)
         {
             std::optional<SQLite::rowid_t> idId = IdTable::SelectIdByValue(connection, manifest.Id);
@@ -70,26 +72,34 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             if (version.empty())
             {
-                std::vector<std::string> versions;
+                std::vector<std::string> versionStrings;
                 
                 if (channelIdOpt)
                 {
-                    versions = ManifestTable::GetAllValuesByIds<VersionTable, IdTable, ChannelTable>(connection, { id, channelIdOpt.value() });
+                    versionStrings = ManifestTable::GetAllValuesByIds<VersionTable, IdTable, ChannelTable>(connection, { id, channelIdOpt.value() });
                 }
                 else
                 {
-                    versions = ManifestTable::GetAllValuesByIds<VersionTable, IdTable>(connection, { id });
+                    versionStrings = ManifestTable::GetAllValuesByIds<VersionTable, IdTable>(connection, { id });
                 }
 
-                if (versions.empty())
+                if (versionStrings.empty())
                 {
                     AICLI_LOG(Repo, Info, << "Did not find any Versions { " << id << ", " << channel << " }");
                     return {};
                 }
 
-                // TODO: Implement version sort, for now assume latest == lastest
-                const std::string& latestVersion = versions[versions.size() - 1];
+                // Convert the strings to Versions and sort them
+                std::vector<Utility::Version> versions;
+                for (std::string& v : versionStrings)
+                {
+                    versions.emplace_back(std::move(v));
+                }
 
+                std::sort(versions.begin(), versions.end());
+
+                // Get the first version in the list and its rowid
+                const std::string& latestVersion = versions[0].ToString();
                 versionIdOpt = VersionTable::SelectIdByValue(connection, latestVersion);
             }
             else
@@ -124,6 +134,26 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             ManifestTable::UpdateValueIdById<Table>(connection, manifestId, newValueId);
 
             Table::DeleteIfNotNeededById(connection, oldValueId);
+        }
+
+        // Gets the ordering of matches to execute, with more specific matches coming first.
+        std::vector<MatchType> GetMatchTypeOrder(MatchType type)
+        {
+            switch (type)
+            {
+            case MatchType::Exact:
+                return { MatchType::Exact };
+            case MatchType::Substring:
+                return { MatchType::Exact, MatchType::Substring };
+            case MatchType::Wildcard:
+                return { MatchType::Wildcard };
+            case MatchType::Fuzzy:
+                return { MatchType::Exact, MatchType::Fuzzy };
+            case MatchType::FuzzySubstring:
+                return { MatchType::Exact, MatchType::Fuzzy, MatchType::Substring, MatchType::FuzzySubstring };
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
         }
     }
 
@@ -161,11 +191,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     void Interface::AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
+        auto manifestResult = GetExistingManifestId(connection, manifest);
+
+        // If this manifest is already present, we can't add it.
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), manifestResult.has_value());
+
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addmanifest_v1_0");
 
         auto [pathAdded, pathLeafId] = PathPartTable::EnsurePathExists(connection, relativePath, true);
 
-        // If we get false from the function, this manifest already exists in the index.
+        // If we get false from the function, this manifest path already exists in the index.
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), !pathAdded);
 
         // Ensure that all of the 1:1 data exists.
@@ -319,36 +354,74 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> Interface::Search(SQLite::Connection& connection, const SearchRequest& request)
     {
-        // Initial implementation handles only exact match on id, future change will implement more.
-        // TODO: Handle more MatchTypes
-        // TODO: Handle more query fields
-        // TODO: Handle filters
-        // TODO: Handle maximum count
-
-        if (request.Query)
+        // If no query or filters, get everything
+        if (!request.Query && request.Filters.empty())
         {
-            std::optional<SQLite::rowid_t> id = IdTable::SelectIdByValue(connection, request.Query->Value);
-            if (id)
-            {
-                return { { id.value(), ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, request.Query->Value) } };
-            }
-            else
-            {
-                return {};
-            }
-        }
-        else
-        {
-            // No query, get everything
-            std::vector<SQLite::rowid_t> ids = IdTable::GetAllRowIds(connection);
+            std::vector<SQLite::rowid_t> ids = IdTable::GetAllRowIds(connection, request.MaximumResults);
 
             std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> result;
             for (SQLite::rowid_t id : ids)
             {
-                result.emplace_back(std::make_pair(id, ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Wildcard, "")));
+                result.emplace_back(std::make_pair(id, ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Wildcard, {})));
             }
             return result;
         }
+
+        // First phase, create the search results table and populate it with the initial results.
+        // If the Query is provided, we search across many fields and put results in together.
+        // If not, we take the first filter and use it as the initial results search.
+        SearchResultsTable resultsTable(connection);
+        size_t filterIndex = 0;
+
+        if (request.Query)
+        {
+            // Perform searches across multiple tables to populate the initial results.
+            const RequestMatch& query = request.Query.value();
+
+            for (MatchType match : GetMatchTypeOrder(query.Type))
+            {
+                resultsTable.SearchOnField(ApplicationMatchField::Id, match, query.Value);
+                resultsTable.SearchOnField(ApplicationMatchField::Name, match, query.Value);
+                resultsTable.SearchOnField(ApplicationMatchField::Moniker, match, query.Value);
+                resultsTable.SearchOnField(ApplicationMatchField::Command, match, query.Value);
+                resultsTable.SearchOnField(ApplicationMatchField::Tag, match, query.Value);
+            }
+        }
+        else
+        {
+            THROW_HR_IF(E_UNEXPECTED, request.Filters.empty());
+
+            // Perform search for just the field matching the first filter
+            const ApplicationMatchFilter& filter = request.Filters[0];
+
+            for (MatchType match : GetMatchTypeOrder(filter.Type))
+            {
+                resultsTable.SearchOnField(filter.Field, match, filter.Value);
+            }
+
+            // Skip the filter as we already know everything matches
+            filterIndex = 1;
+        }
+
+        // Remove any duplicate manifest entries
+        resultsTable.RemoveDuplicateManifestRows();
+
+        // Second phase, for remaining filters, flag matching search results, then remove unflagged values.
+        for (size_t i = filterIndex; i < request.Filters.size(); ++i)
+        {
+            const ApplicationMatchFilter& filter = request.Filters[i];
+
+            resultsTable.PrepareToFilter();
+
+            for (MatchType match : GetMatchTypeOrder(filter.Type))
+            {
+                resultsTable.FilterOnField(filter.Field, match, filter.Value);
+            }
+
+            resultsTable.CompleteFilter();
+        }
+
+        return resultsTable.GetSearchResults(request.MaximumResults);
     }
 
     std::optional<std::string> Interface::GetIdStringById(SQLite::Connection& connection, SQLite::rowid_t id)
@@ -385,19 +458,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return PathPartTable::GetPathById(connection, pathPartId);
     }
 
-    std::vector<std::pair<std::string, std::string>> Interface::GetVersionsById(SQLite::Connection& connection, SQLite::rowid_t id)
+    std::vector<Utility::VersionAndChannel> Interface::GetVersionsById(SQLite::Connection& connection, SQLite::rowid_t id)
     {
         auto versionsAndChannels = ManifestTable::GetAllValuesById<IdTable, VersionTable, ChannelTable>(connection, id);
 
-        // TODO: Implement version sort, for now assume latest == lastest
-        std::reverse(versionsAndChannels.begin(), versionsAndChannels.end());
-
-        std::vector<std::pair<std::string, std::string>> result;
+        std::vector<Utility::VersionAndChannel> result;
         result.reserve(versionsAndChannels.size());
         for (auto&& vac : versionsAndChannels)
         {
-            result.emplace_back(std::make_pair(std::move(std::get<0>(vac)), std::move(std::get<1>(vac))));
+            result.emplace_back(Utility::Version{ std::move(std::get<0>(vac)) }, Utility::Channel{ std::move(std::get<1>(vac)) });
         }
+
+        std::sort(result.begin(), result.end());
+
         return result;
     }
 }

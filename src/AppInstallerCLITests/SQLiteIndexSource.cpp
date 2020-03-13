@@ -131,8 +131,8 @@ TEST_CASE("SQLiteIndexSource_Versions", "[sqliteindexsource]")
 
     auto result = app->GetVersions();
     REQUIRE(result.size() == 1);
-    REQUIRE(result[0].first == manifest.Version);
-    REQUIRE(result[0].second == manifest.Channel);
+    REQUIRE(result[0].GetVersion().ToString() == manifest.Version);
+    REQUIRE(result[0].GetChannel().ToString() == manifest.Channel);
 }
 
 TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
