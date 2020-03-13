@@ -110,7 +110,7 @@ namespace AppInstaller::Workflow
                 msg += ": " + match.MatchCriteria.Value + "]";
             }
 
-            Logging::Telemetry().LogSearchResult(msg);
+            Logging::Telemetry().LogSearchResultCount(m_searchResult.Matches.size());
             m_reporterRef.ShowMsg(msg);
         }
     }

@@ -231,15 +231,15 @@ namespace AppInstaller::Logging
 
     }
 
-    void TelemetryTraceLogger::LogSearchResult(const std::string& msg) noexcept
+    void TelemetryTraceLogger::LogSearchResultCount(ULONG resultCount) noexcept
     {
         if (g_IsTelemetryProviderEnabled)
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
-                "SearchResult",
+                "SearchResultCount",
                 GetActivityId(),
                 nullptr,
-                TraceLoggingCountedString(msg.c_str(), static_cast<ULONG>(msg.size()), "Msg"),
+                TraceLoggingUInt64(resultCount, "ResultCount"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
