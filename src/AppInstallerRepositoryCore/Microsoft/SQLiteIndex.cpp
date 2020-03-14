@@ -109,6 +109,7 @@ namespace AppInstaller::Repository::Microsoft
     SQLiteIndex::SQLiteIndex(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags) :
         m_dbconn(SQLite::Connection::Create(target, disposition, flags))
     {
+        m_dbconn.EnableICU();
         m_version = Schema::Version::GetSchemaVersion(m_dbconn);
         AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
         m_interface = m_version.CreateISQLiteIndex();
@@ -118,6 +119,7 @@ namespace AppInstaller::Repository::Microsoft
     SQLiteIndex::SQLiteIndex(const std::string& target, Schema::Version version) :
         m_dbconn(SQLite::Connection::Create(target, SQLite::Connection::OpenDisposition::Create))
     {
+        m_dbconn.EnableICU();
         m_interface = version.CreateISQLiteIndex();
         m_version = m_interface->GetVersion();
     }

@@ -7,14 +7,14 @@ namespace AppInstaller::Manifest
 {
     namespace
     {
-        std::vector<std::string> SplitMultiValueField(const std::string& input)
+        std::vector<Manifest::string_t> SplitMultiValueField(const std::string& input)
         {
             if (input.empty())
             {
                 return {};
             }
 
-            std::vector<std::string> result;
+            std::vector<Manifest::string_t> result;
             size_t currentPos = 0;
             while (currentPos < input.size())
             {

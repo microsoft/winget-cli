@@ -16,6 +16,9 @@ namespace AppInstaller::CLI
     {
         init_apartment();
 
+        // Set output to UTF8
+        LOG_LAST_ERROR_IF(!SetConsoleOutputCP(CP_UTF8));
+
         // Enable logging (*all* for now, TODO: add common arguments to allow control of logging)
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);

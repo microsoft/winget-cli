@@ -70,7 +70,7 @@ struct TestSource : public ISource
     {
         TestApplication(const Manifest manifest) : m_manifest(manifest) {}
 
-        Manifest GetManifest(std::string_view, std::string_view) override
+        Manifest GetManifest(const NormalizedString&, const NormalizedString&) override
         {
             return m_manifest;
         }

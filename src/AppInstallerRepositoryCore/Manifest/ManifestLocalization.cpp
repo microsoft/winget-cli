@@ -13,15 +13,15 @@ namespace AppInstaller::Manifest
 
         // Optional
         this->Description = localizationNode["Description"] ?
-            localizationNode["Description"].as<std::string>() :
+            string_t(localizationNode["Description"].as<std::string>()) :
             defaultLocalization.Description;
 
         this->Homepage = localizationNode["Homepage"] ?
-            localizationNode["Homepage"].as<std::string>() :
+            string_t(localizationNode["Homepage"].as<std::string>()) :
             defaultLocalization.Homepage;
 
         this->LicenseUrl = localizationNode["LicenseUrl"] ?
-            localizationNode["LicenseUrl"].as<std::string>() :
+            string_t(localizationNode["LicenseUrl"].as<std::string>()) :
             defaultLocalization.LicenseUrl;
     }
 }

@@ -9,7 +9,7 @@ using namespace TestCommon;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Utility;
 
-using MultiValue = std::vector<std::string>;
+using MultiValue = std::vector<NormalizedString>;
 bool operator==(const MultiValue& a, const MultiValue& b)
 {
     if (a.size() != b.size())

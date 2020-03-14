@@ -51,8 +51,8 @@ struct IndexFields
     std::string Moniker;
     std::string Version;
     std::string Channel;
-    std::vector<std::string> Tags;
-    std::vector<std::string> Commands;
+    std::vector<NormalizedString> Tags;
+    std::vector<NormalizedString> Commands;
     std::string Path;
 };
 
@@ -915,4 +915,27 @@ TEST_CASE("SQLiteIndex_Search_QueryAndMultipleFilters", "[sqliteindex]")
     auto result = index.GetIdStringById(results[0].first);
     REQUIRE(result.has_value());
     REQUIRE(result.value() == "Id3");
+}
+
+TEST_CASE("SQLiteIndex_Search_SimpleICULike", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    // Insert decomposed character: [upper] A + umlaut
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { u8"\x41\x308wesomeApp", "HasUmlaut", "Moniker", "Version", "Channel", { "foot" }, { "com34" }, "Path1" },
+        { u8"AwesomeApp", "Nope", "Moniker", "Version", "Channel", { "foot" }, { "com34" }, "Path2" },
+        });
+
+    SearchRequest request;
+    // Search for anything containing: [lower] a + umlaut
+    request.Filters.emplace_back(ApplicationMatchField::Id, MatchType::Substring, u8"\xE4");
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 1);
+
+    auto result = index.GetNameStringById(results[0].first);
+    REQUIRE(result.has_value());
+    REQUIRE(result.value() == "HasUmlaut");
 }

@@ -96,7 +96,7 @@ namespace AppInstaller::Workflow
     std::string ShellExecuteInstallerHandler::GetInstallerArgsTemplate()
     {
         std::string installerArgs = "";
-        const std::map<ManifestInstaller::InstallerSwitchType, std::string>& installerSwitches = m_manifestInstallerRef.Switches;
+        const std::map<ManifestInstaller::InstallerSwitchType, Utility::NormalizedString>& installerSwitches = m_manifestInstallerRef.Switches;
 
         // Construct install experience arg.
         if (m_argsRef.Contains(ExecutionArgs::Type::Silent) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Silent) != installerSwitches.end())
