@@ -149,9 +149,9 @@ namespace AppInstaller::Utility {
         while (!in.eof())
         {
             in.read((char*)(buffer.get()), bufferSize);
-            hasher.Add(buffer.get(), in.gcount());
+            hasher.Add(buffer.get(), static_cast<size_t>(in.gcount()));
         }
-        
+
         std::vector<uint8_t> result;
         hasher.Get(result);
 

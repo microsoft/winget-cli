@@ -10,6 +10,8 @@
 #define SQLITE_DIRECTONLY       0x000080000
 #define SQLITE_INNOCUOUS        0x000200000
 
+#define STDCALL_FOR_INTEROP __stdcall
+
 // Adapted from the file icu.c (v 1.7 2007/12/13 21:54:11) to use the built-in Windows SQLite and ICU binaries.
 
 // This file implements an integration between the ICU library
@@ -72,7 +74,7 @@ static void icuFunctionError(
 /*
 ** Version of sqlite3_free() that is always a function, never a macro.
 */
-static void xFree(void* p) {
+static void STDCALL_FOR_INTEROP xFree(void* p) {
     sqlite3_free(p);
 }
 
@@ -204,7 +206,7 @@ static int icuLikeCompare(
 **
 ** is mapped to like(B, A, E).
 */
-static void icuLikeFunc(
+static void STDCALL_FOR_INTEROP icuLikeFunc(
     sqlite3_context* context,
     int argc,
     sqlite3_value** argv
@@ -247,7 +249,7 @@ static void icuLikeFunc(
 ** Function to delete compiled regexp objects. Registered as
 ** a destructor function with sqlite3_set_auxdata().
 */
-static void icuRegexpDelete(void* p) {
+static void STDCALL_FOR_INTEROP icuRegexpDelete(void* p) {
     URegularExpression* pExpr = (URegularExpression*)p;
     uregex_close(pExpr);
 }
@@ -271,7 +273,7 @@ static void icuRegexpDelete(void* p) {
 **     uregex_matches()
 **     uregex_close()
 */
-static void icuRegexpFunc(sqlite3_context* p, int nArg, sqlite3_value** apArg) {
+static void STDCALL_FOR_INTEROP icuRegexpFunc(sqlite3_context* p, int nArg, sqlite3_value** apArg) {
     UErrorCode status = U_ZERO_ERROR;
     URegularExpression* pExpr;
     UBool res;
@@ -355,7 +357,7 @@ static void icuRegexpFunc(sqlite3_context* p, int nArg, sqlite3_value** apArg) {
 **
 ** http://www.icu-project.org/userguide/posix.html#case_mappings
 */
-static void icuCaseFunc16(sqlite3_context* p, int nArg, sqlite3_value** apArg) {
+static void STDCALL_FOR_INTEROP icuCaseFunc16(sqlite3_context* p, int nArg, sqlite3_value** apArg) {
     const UChar* zInput;            /* Pointer to input string */
     UChar* zOutput = 0;             /* Pointer to output buffer */
     int nInput;                     /* Size of utf-16 input string in bytes */
@@ -418,7 +420,7 @@ static void icuCaseFunc16(sqlite3_context* p, int nArg, sqlite3_value** apArg) {
 ** Collation sequence destructor function. The pCtx argument points to
 ** a UCollator structure previously allocated using ucol_open().
 */
-static void icuCollationDel(void* pCtx) {
+static void STDCALL_FOR_INTEROP icuCollationDel(void* pCtx) {
     UCollator* p = (UCollator*)pCtx;
     ucol_close(p);
 }
@@ -427,7 +429,7 @@ static void icuCollationDel(void* pCtx) {
 ** Collation sequence comparison function. The pCtx argument points to
 ** a UCollator structure previously allocated using ucol_open().
 */
-static int icuCollationColl(
+static int STDCALL_FOR_INTEROP icuCollationColl(
     void* pCtx,
     int nLeft,
     const void* zLeft,
@@ -459,7 +461,7 @@ static int icuCollationColl(
 ** "en_AU", "tr_TR" etc.) and <collation-name> is the name of the
 ** collation sequence to create.
 */
-static void icuLoadCollation(
+static void STDCALL_FOR_INTEROP icuLoadCollation(
     sqlite3_context* p,
     int nArg,
     sqlite3_value** apArg
@@ -506,7 +508,7 @@ SQLITE_PRIVATE int sqlite3IcuInit(sqlite3* db) {
         unsigned char nArg;                       /* Number of arguments */
         unsigned int enc;                         /* Optimal text encoding */
         unsigned char iContext;                   /* sqlite3_user_data() context */
-        void (*xFunc)(sqlite3_context*, int, sqlite3_value**);
+        void (STDCALL_FOR_INTEROP *xFunc)(sqlite3_context*, int, sqlite3_value**);
     } scalars[] = {
       {"icu_load_collation",2,SQLITE_UTF8 | SQLITE_DIRECTONLY,1, icuLoadCollation},
   #if !defined(SQLITE_CORE) || defined(SQLITE_ENABLE_ICU)

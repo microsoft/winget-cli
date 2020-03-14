@@ -89,7 +89,7 @@ namespace AppInstaller::Utility
                 // New guess is negative of the return value.
                 cchEstimate = -cchEstimate;
 
-                THROW_HR_IF_MSG(E_UNEXPECTED, cchEstimate <= result.size(), "New estimate should never be less than previous value");
+                THROW_HR_IF_MSG(E_UNEXPECTED, static_cast<size_t>(cchEstimate) <= result.size(), "New estimate should never be less than previous value");
             }
         }
     }
@@ -141,7 +141,9 @@ namespace AppInstaller::Utility
         auto offset = stream.tellg() - currentPos;
         stream.seekg(currentPos);
 
-        std::string result(offset, '\0');
+        // Don't allow use of this API for reading very large streams.
+        THROW_HR_IF(E_OUTOFMEMORY, offset > static_cast<std::streamoff>(std::numeric_limits<uint32_t>::max()));
+        std::string result(static_cast<size_t>(offset), '\0');
         stream.read(&result[0], offset);
 
         return result;
