@@ -11,13 +11,39 @@ using namespace AppInstaller::CLI;
 
 namespace AppInstaller::CLI
 {
+    namespace
+    {
+        // RAII class to restore the console output codepage.
+        struct ConsoleOuputCPRestore
+        {
+            ConsoleOuputCPRestore(UINT cpToChangeTo)
+            {
+                m_previousCP = GetConsoleOutputCP();
+                LOG_LAST_ERROR_IF(!SetConsoleOutputCP(cpToChangeTo));
+            }
+
+            ~ConsoleOuputCPRestore()
+            {
+                SetConsoleOutputCP(m_previousCP);
+            }
+
+            ConsoleOuputCPRestore(const ConsoleOuputCPRestore&) = delete;
+            ConsoleOuputCPRestore& operator=(const ConsoleOuputCPRestore&) = delete;
+
+            ConsoleOuputCPRestore(ConsoleOuputCPRestore&&) = delete;
+            ConsoleOuputCPRestore& operator=(ConsoleOuputCPRestore&&) = delete;
+
+        private:
+            UINT m_previousCP = 0;
+        };
+    }
 
     int CoreMain(int argc, wchar_t const** argv) try
     {
         init_apartment();
 
         // Set output to UTF8
-        LOG_LAST_ERROR_IF(!SetConsoleOutputCP(CP_UTF8));
+        ConsoleOuputCPRestore utf8CP(CP_UTF8);
 
         // Enable logging (*all* for now, TODO: add common arguments to allow control of logging)
         Logging::Log().EnableChannel(Logging::Channel::All);
