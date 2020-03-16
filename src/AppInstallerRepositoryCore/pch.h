@@ -28,6 +28,7 @@
 #include <winrt/Windows.Storage.h>
 
 #include <algorithm>
+#include <chrono>
 #include <filesystem>
 #include <initializer_list>
 #include <iomanip>
