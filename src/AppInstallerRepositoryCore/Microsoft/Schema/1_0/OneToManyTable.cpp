@@ -126,7 +126,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         void OneToManyTableEnsureExistsAndInsert(SQLite::Connection& connection,
             std::string_view tableName, std::string_view valueName,
-            const std::vector<std::string>& values, SQLite::rowid_t manifestId)
+            const std::vector<Utility::NormalizedString>& values, SQLite::rowid_t manifestId)
         {
             SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } + "_ensureandinsert_v1_0");
 
@@ -149,7 +149,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         bool OneToManyTableUpdateIfNeededByManifestId(SQLite::Connection& connection,
             std::string_view tableName, std::string_view valueName,
-            const std::vector<std::string>& values, SQLite::rowid_t manifestId)
+            const std::vector<Utility::NormalizedString>& values, SQLite::rowid_t manifestId)
         {
             std::vector<SQLite::rowid_t> oldValueIds = GetValueIdsByManifestId(connection, tableName, valueName, manifestId);
             bool modificationNeeded = false;

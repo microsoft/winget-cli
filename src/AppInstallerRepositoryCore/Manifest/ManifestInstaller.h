@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <AppInstallerArchitecture.h>
+#include <AppInstallerStrings.h>
 #include <yaml-cpp/yaml.h>
 
 #include <string>
@@ -18,6 +19,7 @@ namespace AppInstaller::Manifest
     class ManifestInstaller
     {
     public:
+        using string_t = Utility::NormalizedString;
 
         enum class InstallerTypeEnum
         {
@@ -47,7 +49,7 @@ namespace AppInstaller::Manifest
         AppInstaller::Utility::Architecture Arch;
 
         // Required
-        std::string Url;
+        string_t Url;
 
         // Required
         std::vector<BYTE> Sha256;
@@ -57,28 +59,28 @@ namespace AppInstaller::Manifest
         std::vector<BYTE> SignatureSha256;
 
         // Empty means default
-        std::string Language;
+        string_t Language;
 
         // Name TBD
-        std::string Scope;
+        string_t Scope;
 
         // If present, has more precedence than root
         InstallerTypeEnum InstallerType;
 
         // If present, has more precedence than root
-        std::map<InstallerSwitchType, std::string> Switches;
+        std::map<InstallerSwitchType, string_t> Switches;
 
         static InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
 
-        static std::map<InstallerSwitchType, std::string> GetDefaultKnownSwitches(InstallerTypeEnum installerType);
+        static std::map<InstallerSwitchType, string_t> GetDefaultKnownSwitches(InstallerTypeEnum installerType);
 
         // Populates InstallerSwitches
         // The value declared in the manifest takes precedence, then value in the manifest root, then default known values.
         static void PopulateSwitchesFields(
             const YAML::Node* switchesNode,
-            std::map<InstallerSwitchType, std::string>& switches,
-            const std::map<InstallerSwitchType, std::string>* manifestRootSwitches = nullptr,
-            const std::map<InstallerSwitchType, std::string>* defaultKnownSwitches = nullptr);
+            std::map<InstallerSwitchType, string_t>& switches,
+            const std::map<InstallerSwitchType, string_t>* manifestRootSwitches = nullptr,
+            const std::map<InstallerSwitchType, string_t>* defaultKnownSwitches = nullptr);
 
         // Populates one Installer Switch
         // The value declared in the manifest takes precedence, then value in the manifest root, then default known values.
@@ -86,9 +88,9 @@ namespace AppInstaller::Manifest
             const YAML::Node* switchesNode,
             const std::string& switchName,
             InstallerSwitchType switchType,
-            std::map<InstallerSwitchType, std::string>& switches,
-            const std::map<InstallerSwitchType, std::string>* manifestRootSwitches,
-            const std::map<InstallerSwitchType, std::string>* defaultKnownSwitches);
+            std::map<InstallerSwitchType, string_t>& switches,
+            const std::map<InstallerSwitchType, string_t>* manifestRootSwitches,
+            const std::map<InstallerSwitchType, string_t>* defaultKnownSwitches);
 
         // Populates ManifestInstaller
         // defaultInstaller: if an optional field is not found in the YAML node, the field will be populated with value from defaultInstaller.

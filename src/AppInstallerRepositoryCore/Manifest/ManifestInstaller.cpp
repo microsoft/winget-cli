@@ -26,7 +26,7 @@ namespace AppInstaller::Manifest
             ConvertToInstallerTypeEnum(installerNode["InstallerType"].as<std::string>()) :
             defaultInstaller.InstallerType;
 
-        std::map<InstallerSwitchType, std::string> defaultKnownSwitches = GetDefaultKnownSwitches(this->InstallerType);
+        std::map<InstallerSwitchType, string_t> defaultKnownSwitches = GetDefaultKnownSwitches(this->InstallerType);
 
         if (installerNode["Switches"])
         {
@@ -41,9 +41,9 @@ namespace AppInstaller::Manifest
 
     void ManifestInstaller::PopulateSwitchesFields(
         const YAML::Node* switchesNode,
-        std::map<InstallerSwitchType, std::string>& switches,
-        const std::map<InstallerSwitchType, std::string>* manifestRootSwitches,
-        const std::map<InstallerSwitchType, std::string>* defaultKnownSwitches)
+        std::map<InstallerSwitchType, string_t>& switches,
+        const std::map<InstallerSwitchType, string_t>* manifestRootSwitches,
+        const std::map<InstallerSwitchType, string_t>* defaultKnownSwitches)
     {
         PopulateOneSwitchField(switchesNode, "Custom", InstallerSwitchType::Custom, switches, manifestRootSwitches, defaultKnownSwitches);
         PopulateOneSwitchField(switchesNode, "Silent", InstallerSwitchType::Silent, switches, manifestRootSwitches, defaultKnownSwitches);
@@ -58,9 +58,9 @@ namespace AppInstaller::Manifest
         const YAML::Node* switchesNode,
         const std::string& switchName,
         InstallerSwitchType switchType,
-        std::map<InstallerSwitchType, std::string>& switches,
-        const std::map<InstallerSwitchType, std::string>* manifestRootSwitches,
-        const std::map<InstallerSwitchType, std::string>* defaultKnownSwitches)
+        std::map<InstallerSwitchType, string_t>& switches,
+        const std::map<InstallerSwitchType, string_t>* manifestRootSwitches,
+        const std::map<InstallerSwitchType, string_t>* defaultKnownSwitches)
     {
         if (switchesNode && (*switchesNode)[switchName])
         {
@@ -76,7 +76,7 @@ namespace AppInstaller::Manifest
         }
     }
 
-    std::map<ManifestInstaller::InstallerSwitchType, std::string> ManifestInstaller::GetDefaultKnownSwitches(InstallerTypeEnum installerType)
+    std::map<ManifestInstaller::InstallerSwitchType, ManifestInstaller::string_t> ManifestInstaller::GetDefaultKnownSwitches(InstallerTypeEnum installerType)
     {
         switch (installerType)
         {
@@ -85,25 +85,25 @@ namespace AppInstaller::Manifest
         case ManifestInstaller::InstallerTypeEnum::Msi:
             return
             {
-                {InstallerSwitchType::Silent, "/quiet"},
-                {InstallerSwitchType::SilentWithProgress, "/passive"},
-                {InstallerSwitchType::Log, "/log \"" + std::string(ARG_TOKEN_LOGPATH) + "\""},
-                {InstallerSwitchType::InstallLocation, "TARGETDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\""}
+                {InstallerSwitchType::Silent, string_t("/quiet")},
+                {InstallerSwitchType::SilentWithProgress, string_t("/passive")},
+                {InstallerSwitchType::Log, string_t("/log \"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
+                {InstallerSwitchType::InstallLocation, string_t("TARGETDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
             };
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
             return
             {
-                {InstallerSwitchType::Silent, "/S"},
-                {InstallerSwitchType::SilentWithProgress, "/S"},
-                {InstallerSwitchType::InstallLocation, "/D=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\""}
+                {InstallerSwitchType::Silent, string_t("/S")},
+                {InstallerSwitchType::SilentWithProgress, string_t("/S")},
+                {InstallerSwitchType::InstallLocation, string_t("/D=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
             };
         case ManifestInstaller::InstallerTypeEnum::Inno:
             return
             {
-                {InstallerSwitchType::Silent, "/VERYSILENT"},
-                {InstallerSwitchType::SilentWithProgress, "/SILENT"},
-                {InstallerSwitchType::Log, "/LOG=\"" + std::string(ARG_TOKEN_LOGPATH) + "\""},
-                {InstallerSwitchType::InstallLocation, "/DIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\""}
+                {InstallerSwitchType::Silent, string_t("/VERYSILENT")},
+                {InstallerSwitchType::SilentWithProgress, string_t("/SILENT")},
+                {InstallerSwitchType::Log, string_t("/LOG=\"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
+                {InstallerSwitchType::InstallLocation, string_t("/DIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
             };
         }
         return {};

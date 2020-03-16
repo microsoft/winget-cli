@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <Manifest/Manifest.h>
+#include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
 
 #include <memory>
@@ -37,9 +38,9 @@ namespace AppInstaller::Repository
     struct RequestMatch
     {
         MatchType Type;
-        std::string Value;
+        Utility::NormalizedString Value;
 
-        RequestMatch(MatchType t, std::string v) : Type(t), Value(std::move(v)) {}
+        RequestMatch(MatchType t, const std::string& v) : Type(t), Value(v) {}
     };
 
     // A match on a specific field to be performed during a search.
@@ -47,7 +48,7 @@ namespace AppInstaller::Repository
     {
         ApplicationMatchField Field;
 
-        ApplicationMatchFilter(ApplicationMatchField f, MatchType t, std::string v) : RequestMatch(t, std::move(v)), Field(f) {}
+        ApplicationMatchFilter(ApplicationMatchField f, MatchType t, const std::string& v) : RequestMatch(t, v), Field(f) {}
     };
 
     // Container for data used to filter the available manifests in a source.
@@ -80,7 +81,7 @@ namespace AppInstaller::Repository
         // Gets a manifest for this application.
         // An empty version implies 'latest'.
         // An empty channel is the 'general audience'.
-        virtual Manifest::Manifest GetManifest(std::string_view version, std::string_view channel) = 0;
+        virtual Manifest::Manifest GetManifest(const Utility::NormalizedString& version, const Utility::NormalizedString& channel) = 0;
 
         // Gets all versions of this application.
         // The versions will be returned in sorted, descending order.

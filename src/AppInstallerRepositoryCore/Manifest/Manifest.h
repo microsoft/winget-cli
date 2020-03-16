@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "AppInstallerErrors.h"
 #include "ManifestInstaller.h"
 #include "ManifestLocalization.h"
+#include <AppInstallerErrors.h>
+#include <AppInstallerStrings.h>
 #include <yaml-cpp/yaml.h>
 
 #include <wil/result.h>
@@ -23,38 +24,40 @@ namespace AppInstaller::Manifest
     // Our representation of the parsed manifest file.
     struct Manifest
     {
-        // Required
-        std::string Id;
+        using string_t = Utility::NormalizedString;
 
         // Required
-        std::string Name;
+        string_t Id;
 
         // Required
-        std::string Version;
+        string_t Name;
 
-        std::string AppMoniker;
+        // Required
+        string_t Version;
 
-        std::string Publisher;
+        string_t AppMoniker;
 
-        std::string Channel;
+        string_t Publisher;
 
-        std::string Author;
+        string_t Channel;
 
-        std::string License;
+        string_t Author;
 
-        std::string MinOSVersion;
+        string_t License;
 
-        // Comma separated values
-        std::vector<std::string> Tags;
-
-        // Comma separated values
-        std::vector<std::string> Commands;
+        string_t MinOSVersion;
 
         // Comma separated values
-        std::vector<std::string> Protocols;
+        std::vector<string_t> Tags;
 
         // Comma separated values
-        std::vector<std::string> FileExtensions;
+        std::vector<string_t> Commands;
+
+        // Comma separated values
+        std::vector<string_t> Protocols;
+
+        // Comma separated values
+        std::vector<string_t> FileExtensions;
 
         std::vector<ManifestInstaller> Installers;
 
@@ -62,13 +65,13 @@ namespace AppInstaller::Manifest
 
         ManifestInstaller::InstallerTypeEnum InstallerType;
 
-        std::map<ManifestInstaller::InstallerSwitchType, std::string> Switches;
+        std::map<ManifestInstaller::InstallerSwitchType, string_t> Switches;
 
-        std::string Description;
+        string_t Description;
 
-        std::string Homepage;
+        string_t Homepage;
 
-        std::string LicenseUrl;
+        string_t LicenseUrl;
 
         void PopulateManifestFields(const YAML::Node& rootNode);
 

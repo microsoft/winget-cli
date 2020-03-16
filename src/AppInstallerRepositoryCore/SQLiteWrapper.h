@@ -135,6 +135,9 @@ namespace AppInstaller::Repository::SQLite
 
         ~Connection() = default;
 
+        // Enables the ICU integrations on this connection.
+        void EnableICU();
+
         // Gets the last inerted rowid to the database.
         rowid_t GetLastInsertRowID();
 

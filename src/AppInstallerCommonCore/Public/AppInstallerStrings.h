@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 
+#include <ostream>
 #include <string>
 #include <string_view>
 
@@ -15,6 +16,62 @@ namespace AppInstaller::Utility
 
     // Converts the given UTF8 string to UTF16
     std::wstring ConvertToUTF16(std::string_view input);
+
+    // Normalizes a UTF8 string to the given form.
+    std::string Normalize(std::string_view input, NORM_FORM form = NORM_FORM::NormalizationKC);
+
+    // Normalizes a UTF16 string to the given form.
+    std::wstring Normalize(std::wstring_view input, NORM_FORM form = NORM_FORM::NormalizationKC);
+
+    // Type to hold and force a normalized UTF8 string.
+    template <NORM_FORM Form = NORM_FORM::NormalizationKC>
+    struct NormalizedUTF8 : public std::string
+    {
+        NormalizedUTF8() = default;
+
+        template <size_t Size>
+        NormalizedUTF8(const char (&s)[Size]) : std::string(Normalize(std::string_view{ s, (s[Size - 1] == '\0' ? Size - 1 : Size) }, Form)) {}
+
+        NormalizedUTF8(std::string_view sv) : std::string(Normalize(sv, Form)) {}
+
+        NormalizedUTF8(const std::string& s) : std::string(Normalize(s, Form)) {}
+        NormalizedUTF8(std::string&& s) : std::string(Normalize(s, Form)) {}
+
+        NormalizedUTF8(std::wstring_view sv) : std::string(ConvertToUTF8(Normalize(sv, Form))) {}
+
+        NormalizedUTF8(const NormalizedUTF8& other) = default;
+        NormalizedUTF8& operator=(const NormalizedUTF8& other) = default;
+
+        NormalizedUTF8(NormalizedUTF8&& other) = default;
+        NormalizedUTF8& operator=(NormalizedUTF8&& other) = default;
+
+        template <size_t Size>
+        NormalizedUTF8& operator=(const char(&s)[Size])
+        {
+            assign(Normalize(std::string_view{ s, (s[Size - 1] == '\0' ? Size - 1 : Size) }, Form));
+            return *this;
+        }
+
+        NormalizedUTF8& operator=(std::string_view sv)
+        {
+            assign(Normalize(sv, Form));
+            return *this;
+        }
+
+        NormalizedUTF8& operator=(const std::string& s)
+        {
+            assign(Normalize(s, Form));
+            return *this;
+        }
+
+        NormalizedUTF8& operator=(std::string&& s)
+        {
+            assign(Normalize(s, Form));
+            return *this;
+        }
+    };
+
+    using NormalizedString = NormalizedUTF8<>;
 
     // Get the lower case version of the given std::string
     std::string ToLower(std::string_view in);

@@ -13,6 +13,11 @@ namespace AppInstaller::Utility
 
     std::string ConvertToUTF8(std::wstring_view input)
     {
+        if (input.empty())
+        {
+            return {};
+        }
+
         int utf8ByteCount = WideCharToMultiByte(CP_UTF8, 0, input.data(), wil::safe_cast<int>(input.length()), nullptr, 0, nullptr, nullptr);
         THROW_LAST_ERROR_IF(utf8ByteCount == 0);
 
@@ -28,6 +33,11 @@ namespace AppInstaller::Utility
 
     std::wstring ConvertToUTF16(std::string_view input)
     {
+        if (input.empty())
+        {
+            return {};
+        }
+
         int utf16CharCount = MultiByteToWideChar(CP_UTF8, 0, input.data(), wil::safe_cast<int>(input.length()), nullptr, 0);
         THROW_LAST_ERROR_IF(utf16CharCount == 0);
 
@@ -39,6 +49,49 @@ namespace AppInstaller::Utility
         FAIL_FAST_HR_IF(E_UNEXPECTED, utf16CharCount != utf16CharsWritten);
 
         return result;
+    }
+
+    std::string Normalize(std::string_view input, NORM_FORM form)
+    {
+        if (input.empty())
+        {
+            return {};
+        }
+
+        return ConvertToUTF8(Normalize(ConvertToUTF16(input), form));
+    }
+
+    std::wstring Normalize(std::wstring_view input, NORM_FORM form)
+    {
+        if (input.empty())
+        {
+            return {};
+        }
+
+        std::wstring result;
+
+        int cchEstimate = NormalizeString(form, input.data(), static_cast<int>(input.length()), NULL, 0);
+        for (;;)
+        {
+            result.resize(cchEstimate);
+            cchEstimate = NormalizeString(form, input.data(), static_cast<int>(input.length()), &result[0], cchEstimate);
+
+            if (cchEstimate > 0)
+            {
+                result.resize(cchEstimate);
+                return result;
+            }
+            else
+            {
+                DWORD dwError = GetLastError();
+                THROW_LAST_ERROR_IF(dwError != ERROR_INSUFFICIENT_BUFFER);
+
+                // New guess is negative of the return value.
+                cchEstimate = -cchEstimate;
+
+                THROW_HR_IF_MSG(E_UNEXPECTED, static_cast<size_t>(cchEstimate) <= result.size(), "New estimate should never be less than previous value");
+            }
+        }
     }
 
     std::string ToLower(std::string_view in)
@@ -88,7 +141,9 @@ namespace AppInstaller::Utility
         auto offset = stream.tellg() - currentPos;
         stream.seekg(currentPos);
 
-        std::string result(offset, '\0');
+        // Don't allow use of this API for reading very large streams.
+        THROW_HR_IF(E_OUTOFMEMORY, offset > static_cast<std::streamoff>(std::numeric_limits<uint32_t>::max()));
+        std::string result(static_cast<size_t>(offset), '\0');
         stream.read(&result[0], offset);
 
         return result;

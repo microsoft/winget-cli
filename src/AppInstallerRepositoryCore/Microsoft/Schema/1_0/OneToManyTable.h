@@ -23,12 +23,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Ensures that the value exists and inserts mapping entries.
         void OneToManyTableEnsureExistsAndInsert(SQLite::Connection& connection,
             std::string_view tableName, std::string_view valueName, 
-            const std::vector<std::string>& values, SQLite::rowid_t manifestId);
+            const std::vector<Utility::NormalizedString>& values, SQLite::rowid_t manifestId);
 
         // Updates the mapping table to represent the given values for the manifest.
         bool OneToManyTableUpdateIfNeededByManifestId(SQLite::Connection& connection,
             std::string_view tableName, std::string_view valueName,
-            const std::vector<std::string>& values, SQLite::rowid_t manifestId);
+            const std::vector<Utility::NormalizedString>& values, SQLite::rowid_t manifestId);
 
         // Deletes the mapping rows for the given manifest, then removes any unused data rows.
         void OneToManyTableDeleteIfNotNeededByManifestId(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t manifestId);
@@ -69,13 +69,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Ensures that all values exist in the data table, and inserts into the mapping table for the given manifest id.
-        static void EnsureExistsAndInsert(SQLite::Connection& connection, const std::vector<std::string>& values, SQLite::rowid_t manifestId)
+        static void EnsureExistsAndInsert(SQLite::Connection& connection, const std::vector<Utility::NormalizedString>& values, SQLite::rowid_t manifestId)
         {
             details::OneToManyTableEnsureExistsAndInsert(connection, TableInfo::TableName(), TableInfo::ValueName(), values, manifestId);
         }
 
         // Updates the mapping table to represent the given values for the manifest.
-        static bool UpdateIfNeededByManifestId(SQLite::Connection& connection, const std::vector<std::string>& values, SQLite::rowid_t manifestId)
+        static bool UpdateIfNeededByManifestId(SQLite::Connection& connection, const std::vector<Utility::NormalizedString>& values, SQLite::rowid_t manifestId)
         {
             return details::OneToManyTableUpdateIfNeededByManifestId(connection, TableInfo::TableName(), TableInfo::ValueName(), values, manifestId);
         }

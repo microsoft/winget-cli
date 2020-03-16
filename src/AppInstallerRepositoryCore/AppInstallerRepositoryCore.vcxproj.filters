@@ -28,6 +28,9 @@
     <Filter Include="Public">
       <UniqueIdentifier>{69ce2e35-fe7f-41af-bd47-91a70131d167}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ICU">
+      <UniqueIdentifier>{dac1a359-45ac-4456-8a83-f7df10058197}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -117,6 +120,9 @@
     <ClInclude Include="Microsoft\Schema\1_0\SearchResultsTable.h">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClInclude>
+    <ClInclude Include="ICU\SQLiteICU.h">
+      <Filter>ICU</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -175,6 +181,9 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_0\SearchResultsTable.cpp">
       <Filter>Microsoft\Schema\1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="ICU\SQLiteICU.c">
+      <Filter>ICU</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SQLiteWrapper.h"
+#include "ICU/SQLiteICU.h"
 
 #include <wil/result_macros.h>
 
@@ -103,6 +104,12 @@ namespace AppInstaller::Repository::SQLite
         THROW_IF_SQLITE_FAILED(sqlite3_extended_result_codes(result.m_dbconn.get(), 1));
 
         return result;
+    }
+
+    void Connection::EnableICU()
+    {
+        AICLI_LOG(SQL, Info, << "Enabling ICU");
+        THROW_IF_SQLITE_FAILED(sqlite3IcuInit(m_dbconn.get()));
     }
 
     rowid_t Connection::GetLastInsertRowID()
