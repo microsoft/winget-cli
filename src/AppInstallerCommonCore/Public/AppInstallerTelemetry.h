@@ -53,7 +53,7 @@ namespace AppInstaller::Logging
         void LogSelectedInstaller(int arch, const std::string& url, const std::string& installerType, const std::string& scope, const std::string& language) noexcept;
 
         //Logs the Search Result
-        void LogSearchResultCount(ULONG resultCount) noexcept;
+        void LogSearchResultCount(uint64_t resultCount) noexcept;
 
     private:
         TelemetryTraceLogger();
