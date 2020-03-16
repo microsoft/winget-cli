@@ -37,6 +37,11 @@ steps:
       AppInstallerCLITests.exe -logto AICLI.log -s -r junit -o TEST-AppInstallerCLI-$(_artifact).xml
     workingDirectory: 'src\x64\Release\AppInstallerCLITests\'
 
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: 'gci -Recurse "$(appxPackageDir)"'
+
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: 'src\x64\Release\AppInstallerCLITests\AICLI.log'
