@@ -231,7 +231,7 @@ namespace AppInstaller::Logging
 
     }
 
-    void TelemetryTraceLogger::LogSearchResultCount(ULONG resultCount) noexcept
+    void TelemetryTraceLogger::LogSearchResultCount(uint64_t resultCount) noexcept
     {
         if (g_IsTelemetryProviderEnabled)
         {
