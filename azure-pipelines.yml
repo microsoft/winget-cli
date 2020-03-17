@@ -60,7 +60,7 @@ steps:
 - task: PowerShell@2
   displayName: Run Tests Packaged
   inputs:
-    filePath: 'AppInstallerCLITests\Run-TestsInPackage.ps1'
+    filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
     arguments: '-Args "~[pips]" -BuildRoot x64\Release -PackageRoot AppInstallerCLIPackage\bin\x64\Release -LogTarget x64\Release\AICLI-Packaged.log -TestResultsTarget x64\Release\TEST-AppInstallerCLI-Packaged.xml'
     workingDirectory: 'src'
 
