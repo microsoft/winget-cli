@@ -220,7 +220,7 @@ namespace AppInstaller::Repository
                 return true;
             }
 
-            // TODO: Enable some amount of user control over this
+            // TODO: Enable some amount of user control over this.
             constexpr static auto s_DefaultAutoUpdateTime = 12h;
 
             auto timeSinceLastUpdate = std::chrono::system_clock::now() - details.LastUpdateTime;
