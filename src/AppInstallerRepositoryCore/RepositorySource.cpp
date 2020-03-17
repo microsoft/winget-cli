@@ -8,6 +8,7 @@
 
 namespace AppInstaller::Repository
 {
+    using namespace std::chrono_literals;
     using namespace std::string_view_literals;
     constexpr std::string_view s_RepositorySettings_UserSources = "usersources"sv;
 
@@ -209,6 +210,30 @@ namespace AppInstaller::Repository
                 AICLI_LOG(Repo, Info, << "Uninitialized source being removed, making it a no-op: " << details.Name);
             }
         }
+
+        // Determines whether (and logs why) a source should be updated before it is opened.
+        bool ShouldUpdateBeforeOpen(const SourceDetails& details)
+        {
+            if (!CheckIfInitializedFromDetails(details))
+            {
+                AICLI_LOG(Repo, Info, << "Source needs to be initialized during open: " << details.Name);
+                return true;
+            }
+
+            // TODO: Enable some amount of user control over this.
+            constexpr static auto s_DefaultAutoUpdateTime = 12h;
+
+            auto timeSinceLastUpdate = std::chrono::system_clock::now() - details.LastUpdateTime;
+            if (timeSinceLastUpdate > s_DefaultAutoUpdateTime)
+            {
+                AICLI_LOG(Repo, Info, << "Source past auto update time [" << 
+                    std::chrono::duration_cast<std::chrono::hours>(s_DefaultAutoUpdateTime).count() << " hours]; it has been at least " << 
+                    std::chrono::duration_cast<std::chrono::hours>(timeSinceLastUpdate).count() << " hours");
+                return true;
+            }
+
+            return false;
+        }
     }
 
     std::vector<SourceDetails> GetSources()
@@ -274,9 +299,8 @@ namespace AppInstaller::Repository
             else
             {
                 AICLI_LOG(Repo, Info, << "Named source requested, found: " << itr->Name);
-                if (!CheckIfInitializedFromDetails(*itr))
+                if (ShouldUpdateBeforeOpen(*itr))
                 {
-                    AICLI_LOG(Repo, Info, << "Source needs to be initialized during open: " << itr->Name);
                     UpdateSourceFromDetails(*itr, progress);
                     SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
                 }
