@@ -221,6 +221,7 @@
     <CopyFileToFolders Include="TestData\TestSignedApp.msix">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <None Include="Run-TestsInPackage.ps1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerCLICore\AppInstallerCLICore.vcxproj">
