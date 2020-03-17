@@ -31,7 +31,9 @@ param(
     [string]$TestResultsTarget,
 
     [Parameter(Mandatory=$false)]
-    [string]$Args
+    [string]$Args,
+
+    [switch]$Wait
 )
 
 if ([String]::IsNullOrEmpty($BuildRoot))
@@ -71,7 +73,11 @@ Add-AppxPackage -Register $Local:ManifestPath
 $Local:TestExePath = Join-Path $BuildRoot "AppInstallerCLITests\AppInstallerCLITests.exe"
 $Local:TestArgs = $Args
 
-if (![String]::IsNullOrEmpty($LogTarget))
+if ([String]::IsNullOrEmpty($LogTarget))
+{
+    $Local:TestArgs = $Local:TestArgs + " -log"
+}
+else
 {
     $Local:TestArgs = $Local:TestArgs + " -logto ""$LogTarget"""
 }
@@ -79,6 +85,11 @@ if (![String]::IsNullOrEmpty($LogTarget))
 if (![String]::IsNullOrEmpty($TestResultsTarget))
 {
     $Local:TestArgs = $Local:TestArgs + " -s -r junit -o ""$TestResultsTarget"""
+}
+
+if ($Wait)
+{
+    $Local:TestArgs = $Local:TestArgs + " -wait"
 }
 
 Write-Host "Executing tests at path: $Local:TestExePath"

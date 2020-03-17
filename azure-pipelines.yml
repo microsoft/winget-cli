@@ -19,12 +19,15 @@ variables:
 
 steps:
 - task: NuGetToolInstaller@1
+  displayName: Install Nuget
 
 - task: NuGetCommand@2
+  displayName: Restore Packages
   inputs:
     restoreSolution: '$(solution)'
 
 - task: VSBuild@1
+  displayName: Build Solution
   inputs:
     platform: 'x86'
     solution: '$(solution)'
@@ -32,31 +35,53 @@ steps:
     msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload'
 
 - task: CmdLine@2
+  displayName: Run Tests Unpackaged
   inputs:
     script: |
-      AppInstallerCLITests.exe -logto AICLI.log -s -r junit -o TEST-AppInstallerCLI-$(_artifact).xml
+      AppInstallerCLITests.exe -logto AICLI-Unpackaged.log -s -r junit -o TEST-AppInstallerCLI-Unpackaged.xml
     workingDirectory: 'src\x64\Release\AppInstallerCLITests\'
 
-- task: PowerShell@2
-  inputs:
-    targetType: 'inline'
-    script: 'gci -Recurse "$(appxPackageDir)"'
-
 - task: PublishBuildArtifacts@1
+  displayName: Publish Unpackaged Log
   inputs:
-    PathtoPublish: 'src\x64\Release\AppInstallerCLITests\AICLI.log'
-    ArtifactName: 'TestPassLog'
+    PathtoPublish: 'src\x64\Release\AppInstallerCLITests\AICLI-Unpackaged.log'
+    ArtifactName: 'TestPassUnpackagedLog'
     publishLocation: 'Container'
   condition: succeededOrFailed()
 
 - task: PublishBuildArtifacts@1
+  displayName: Publish Unpackaged Output
   inputs:
-    PathtoPublish: 'src\x64\Release\AppInstallerCLITests\TEST-AppInstallerCLI-$(_artifact).xml'
-    ArtifactName: 'TestPassOutput'
+    PathtoPublish: 'src\x64\Release\AppInstallerCLITests\TEST-AppInstallerCLI-Unpackaged.xml'
+    ArtifactName: 'TestPassUnpackagedOutput'
+    publishLocation: 'Container'
+  condition: succeededOrFailed()
+
+- task: PowerShell@2
+  displayName: Run Tests Packaged
+  inputs:
+    filePath: 'AppInstallerCLITests\Run-TestsInPackage.ps1'
+    arguments: '-Args "~[pips]" -BuildRoot x64\Release -PackageRoot AppInstallerCLIPackage\bin\x64\Release -LogTarget x64\Release\AICLI-Packaged.log -TestResultsTarget x64\Release\TEST-AppInstallerCLI-Packaged.xml'
+    workingDirectory: 'src'
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish Packaged Log
+  inputs:
+    PathtoPublish: 'src\x64\Release\AICLI-Packaged.log'
+    ArtifactName: 'TestPassPackagedLog'
+    publishLocation: 'Container'
+  condition: succeededOrFailed()
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish Packaged Output
+  inputs:
+    PathtoPublish: 'src\x64\Release\TEST-AppInstallerCLI-Packaged.xml'
+    ArtifactName: 'TestPassPackagedOutput'
     publishLocation: 'Container'
   condition: succeededOrFailed()
 
 - task: PublishTestResults@2
+  displayName: Publish Test Results
   inputs:
     testResultsFormat: 'JUnit'
     testResultsFiles: '**/TEST-*.xml'
@@ -64,12 +89,14 @@ steps:
   condition: succeededOrFailed()
 
 - task: PublishBuildArtifacts@1
+  displayName: Publish CLI Binary
   inputs:
     PathtoPublish: 'src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'
     ArtifactName: 'AppInstallerCLI.exe'
     publishLocation: 'Container'
 
 - task: ComponentGovernanceComponentDetection@0
+  displayName: Component Governance
   inputs:
     scanType: 'Register'
     verbosity: 'Verbose'

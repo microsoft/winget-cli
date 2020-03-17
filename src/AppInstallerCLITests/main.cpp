@@ -3,6 +3,7 @@
 #define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
 #include <winrt/Windows.Foundation.h>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -49,6 +50,7 @@ int main(int argc, char** argv)
     init_apartment();
 
     bool hasSetTestDataBasePath = false;
+    bool waitBeforeReturn = false;
 
     std::vector<char*> args;
     for (int i = 0; i < argc; ++i)
@@ -79,6 +81,10 @@ int main(int argc, char** argv)
                 hasSetTestDataBasePath = true;
             }
         }
+        else if ("-wait"s == argv[i])
+        {
+            waitBeforeReturn = true;
+        }
         else
         {
             args.push_back(argv[i]);
@@ -108,5 +114,13 @@ int main(int argc, char** argv)
     // This prevents test runs from trashing the users actual settings.
     AppInstaller::Runtime::TestHook_ForceContainerPrepend("AutoTestContainer");
 
-    return Catch::Session().run(static_cast<int>(args.size()), args.data());
+    int result = Catch::Session().run(static_cast<int>(args.size()), args.data());
+
+    if (waitBeforeReturn)
+    {
+        // Wait for some input before returning
+        std::cin.get();
+    }
+
+    return result;
 }

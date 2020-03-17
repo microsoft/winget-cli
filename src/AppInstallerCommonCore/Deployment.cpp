@@ -56,7 +56,8 @@ namespace AppInstaller::Deployment
         {
             AICLI_LOG(Core, Error, << "Deployment failed #" << id << ": " << Utility::ConvertToUTF8(deployResult.ErrorText()));
 
-            THROW_HR_MSG(deployResult.ExtendedErrorCode(), "Install failed: %s", Utility::ConvertToUTF8(deployResult.ErrorText()).c_str());
+            // Note that while the format string is char*, it gets converted to wchar before being used and thus %s needs a wchar.
+            THROW_HR_MSG(deployResult.ExtendedErrorCode(), "Install failed: %s", deployResult.ErrorText().c_str());
         }
         else
         {
