@@ -69,7 +69,11 @@ if (![String]::IsNullOrEmpty($TestResultsTarget))
 }
 
 # Register the package; this requires the local package to have been deployed at least once or it won't be built.
-$Local:ManifestPath = Join-Path $PackageRoot "AppX\AppxManifest.xml"
+$Local:ManifestPath = Join-Path $PackageRoot "AppxManifest.xml"
+if (-not (Test-Path $Local:ManifestPath))
+{
+    $Local:ManifestPath = Join-Path $PackageRoot "AppX\AppxManifest.xml"
+}
 Write-Host "Registering manifest at path: $Local:ManifestPath"
 Add-AppxPackage -Register $Local:ManifestPath
 
