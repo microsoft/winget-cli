@@ -7,12 +7,12 @@
 
 namespace AppInstaller::Workflow
 {
-    class ShowFlow : public WorkflowBase
+    class ShowFlow : public SingleManifestWorkflow
     {
     public:
-        ShowFlow(AppInstaller::CLI::ExecutionContext& context) : WorkflowBase(context) {}
+        ShowFlow(AppInstaller::CLI::ExecutionContext& context) : SingleManifestWorkflow(context) {}
 
-        void Execute();;
+        void Execute();
 
     protected:
 

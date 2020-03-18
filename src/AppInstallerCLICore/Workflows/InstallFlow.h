@@ -9,20 +9,16 @@
 
 namespace AppInstaller::Workflow
 {
-    class InstallFlow : public WorkflowBase
+    class InstallFlow : public SingleManifestWorkflow
     {
     public:
-        InstallFlow(AppInstaller::CLI::ExecutionContext& context) : WorkflowBase(context) {}
+        InstallFlow(AppInstaller::CLI::ExecutionContext& context) : SingleManifestWorkflow(context) {}
 
         // Execute will perform a query against index and do app install if a target app is found.
         // If a manifest is given with /manifest, use the manifest and no index search is performed.
         void Execute();
 
     protected:
-        AppInstaller::Manifest::Manifest m_manifest;
-        AppInstaller::Manifest::ManifestInstaller m_selectedInstaller;
-
-        void GetManifest();
         void InstallInternal();
 
         // Creates corresponding InstallerHandler according to InstallerType

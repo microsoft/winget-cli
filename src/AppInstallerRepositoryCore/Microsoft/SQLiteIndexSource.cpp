@@ -26,10 +26,15 @@ namespace AppInstaller::Repository::Microsoft
                 return GetSource()->GetIndex().GetNameStringById(m_id).value();
             }
 
-            Manifest::Manifest GetManifest(const Utility::NormalizedString& version, const Utility::NormalizedString& channel) override
+            std::optional<Manifest::Manifest> GetManifest(const Utility::NormalizedString& version, const Utility::NormalizedString& channel) override
             {
                 std::shared_ptr<SQLiteIndexSource> source = GetSource();
-                std::string relativePath = source->GetIndex().GetPathStringByKey(m_id, version, channel).value();
+                std::optional<std::string> relativePathOpt = source->GetIndex().GetPathStringByKey(m_id, version, channel);
+                if (!relativePathOpt)
+                {
+                    return {};
+                }
+                std::string relativePath = relativePathOpt.value();
 
                 std::string fullPath = source->GetDetails().Arg;
                 if (fullPath.back() != '/')

@@ -12,7 +12,7 @@ namespace AppInstaller::Workflow
 {
     void ShowFlow::Execute()
     {
-        if (WorkflowBase::IndexSearch() && WorkflowBase::EnsureOneMatchFromSearchResult())
+        if (IndexSearch() && EnsureOneMatchFromSearchResult())
         {
             if (m_argsRef.Contains(ExecutionArgs::Type::ListVersions))
             {
@@ -27,31 +27,27 @@ namespace AppInstaller::Workflow
 
     void ShowFlow::ShowAppInfo()
     {
-        auto app = m_searchResult.Matches.at(0).Application.get();
+        if (GetManifest())
+        {
+            SelectInstaller();
+            ManifestComparator manifestComparator(m_manifest, m_reporterRef);
+            auto selectedLocalization = manifestComparator.GetPreferredLocalization(m_argsRef);
 
-        auto manifest = app->GetManifest(
-            m_argsRef.Contains(ExecutionArgs::Type::Version) ? *m_argsRef.GetArg(ExecutionArgs::Type::Version) : "",
-            m_argsRef.Contains(ExecutionArgs::Type::Channel) ? *m_argsRef.GetArg(ExecutionArgs::Type::Channel) : ""
-        );
+            m_reporterRef.ShowMsg("Id: " + m_manifest.Id);
+            m_reporterRef.ShowMsg("Name: " + m_manifest.Name);
+            m_reporterRef.ShowMsg("Version: " + m_manifest.Version);
+            m_reporterRef.ShowMsg("Author: " + m_manifest.Author);
+            m_reporterRef.ShowMsg("AppMoniker: " + m_manifest.AppMoniker);
+            m_reporterRef.ShowMsg("Description: " + selectedLocalization.Description);
+            m_reporterRef.ShowMsg("Homepage: " + selectedLocalization.Homepage);
+            m_reporterRef.ShowMsg("License: " + selectedLocalization.LicenseUrl);
 
-        ManifestComparator manifestComparator(manifest, m_reporterRef);
-        auto selectedLocalization = manifestComparator.GetPreferredLocalization(m_argsRef);
-        auto selectedInstaller = manifestComparator.GetPreferredInstaller(m_argsRef);
-
-        m_reporterRef.ShowMsg("Id: " + manifest.Id);
-        m_reporterRef.ShowMsg("Name: " + manifest.Name);
-        m_reporterRef.ShowMsg("Version: " + manifest.Version);
-        m_reporterRef.ShowMsg("Author: " + manifest.Author);
-        m_reporterRef.ShowMsg("AppMoniker: " + manifest.AppMoniker);
-        m_reporterRef.ShowMsg("Description: " + selectedLocalization.Description);
-        m_reporterRef.ShowMsg("Homepage: " + selectedLocalization.Homepage);
-        m_reporterRef.ShowMsg("License: " + selectedLocalization.LicenseUrl);
-
-        m_reporterRef.ShowMsg("Installer info:" + manifest.Id);
-        m_reporterRef.ShowMsg("--Installer Language: " + selectedInstaller.Language);
-        m_reporterRef.ShowMsg("--Installer SHA256: " + Utility::SHA256::ConvertToString(selectedInstaller.Sha256));
-        m_reporterRef.ShowMsg("--Installer Download Url: " + selectedInstaller.Url);
-        m_reporterRef.ShowMsg("--Installer Type: " + Manifest::ManifestInstaller::InstallerTypeToString(selectedInstaller.InstallerType));
+            m_reporterRef.ShowMsg("Installer info:" + m_manifest.Id);
+            m_reporterRef.ShowMsg("--Installer Language: " + m_selectedInstaller.Language);
+            m_reporterRef.ShowMsg("--Installer SHA256: " + Utility::SHA256::ConvertToString(m_selectedInstaller.Sha256));
+            m_reporterRef.ShowMsg("--Installer Download Url: " + m_selectedInstaller.Url);
+            m_reporterRef.ShowMsg("--Installer Type: " + Manifest::ManifestInstaller::InstallerTypeToString(m_selectedInstaller.InstallerType));
+        }
     }
 
     void ShowFlow::ShowAppVersion()

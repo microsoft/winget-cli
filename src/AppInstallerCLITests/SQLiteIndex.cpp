@@ -721,6 +721,56 @@ TEST_CASE("SQLiteIndex_Search_VersionSorting", "[sqliteindex]")
     }
 }
 
+TEST_CASE("SQLiteIndex_PathString_VersionSorting", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::vector<VersionAndChannel> sortedList =
+    {
+        { Version("15.0.0"), Channel("") },
+        { Version("14.0.0"), Channel("") },
+        { Version("13.2.0-bugfix"), Channel("") },
+        { Version("13.2.0"), Channel("") },
+        { Version("13.0.0"), Channel("") },
+        { Version("16.0.0"), Channel("alpha") },
+        { Version("15.8.0"), Channel("alpha") },
+        { Version("15.1.0"), Channel("beta") },
+    };
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id", "Name", "Moniker", "14.0.0", "", { "foot" }, { "com34" }, "Path1" },
+        { "Id", "Name", "Moniker", "16.0.0", "alpha", { "floor" }, { "com3" }, "Path2" },
+        { "Id", "Name", "Moniker", "15.0.0", "", {}, { "Command" }, "Path3" },
+        { "Id", "Name", "Moniker", "13.2.0", "", {}, { "Command" }, "Path4" },
+        { "Id", "Name", "Moniker", "15.1.0", "beta", { "foo" }, { "com3" }, "Path5" },
+        { "Id", "Name", "Moniker", "15.8.0", "alpha", { "foo" }, { "com3" }, "Path6" },
+        { "Id", "Name", "Moniker", "13.2.0-bugfix", "", { "foo" }, { "com3" }, "Path7" },
+        { "Id", "Name", "Moniker", "13.0.0", "", { "foo" }, { "com3" }, "Path8" },
+        });
+
+    SearchRequest request;
+    request.Filters.emplace_back(ApplicationMatchField::Id, MatchType::Exact, "Id");
+
+    auto results = index.Search(request);
+    REQUIRE(results.size() == 1);
+
+    auto result = index.GetPathStringByKey(results[0].first, "", "");
+    REQUIRE(result.has_value());
+    REQUIRE(result.value() == "Path3");
+
+    result = index.GetPathStringByKey(results[0].first, "", "alpha");
+    REQUIRE(result.has_value());
+    REQUIRE(result.value() == "Path2");
+
+    result = index.GetPathStringByKey(results[0].first, "", "beta");
+    REQUIRE(result.has_value());
+    REQUIRE(result.value() == "Path5");
+
+    result = index.GetPathStringByKey(results[0].first, "", "gamma");
+    REQUIRE(!result.has_value());
+}
+
 TEST_CASE("SQLiteIndex_SearchResultsTableSearches", "[sqliteindex][V1_0]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };

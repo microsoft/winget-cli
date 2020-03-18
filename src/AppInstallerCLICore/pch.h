@@ -31,6 +31,7 @@
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerMsixInfo.h>
+#include <AppInstallerRepositorySearch.h>
 #include <AppInstallerRepositorySource.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerSHA256.h>

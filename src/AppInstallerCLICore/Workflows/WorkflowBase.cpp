@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #include "pch.h"
 #include "WorkflowBase.h"
-#include "Public/AppInstallerRepositorySearch.h"
-#include "Public/AppInstallerRepositorySource.h"
+#include "ManifestComparator.h"
 
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Repository;
@@ -104,26 +102,6 @@ namespace AppInstaller::Workflow
         return true;
     }
 
-    bool WorkflowBase::EnsureOneMatchFromSearchResult()
-    {
-        if (m_searchResult.Matches.size() == 0)
-        {
-            Logging::Telemetry().LogNoAppMatch();
-            m_reporterRef.ShowMsg("No app found matching input criteria.");
-            return false;
-        }
-
-        if (m_searchResult.Matches.size() > 1)
-        {
-            Logging::Telemetry().LogMultiAppMatch();
-            m_reporterRef.ShowMsg("Multiple apps found matching input criteria. Please refine the input.");
-            ReportSearchResult();
-            return false;
-        }
-
-        return true;
-    }
-
     void WorkflowBase::ReportSearchResult()
     {
         for (auto& match : m_searchResult.Matches)
@@ -145,5 +123,65 @@ namespace AppInstaller::Workflow
             Logging::Telemetry().LogSearchResultCount(m_searchResult.Matches.size());
             m_reporterRef.ShowMsg(msg);
         }
+    }
+
+    bool SingleManifestWorkflow::EnsureOneMatchFromSearchResult()
+    {
+        if (m_searchResult.Matches.size() == 0)
+        {
+            Logging::Telemetry().LogNoAppMatch();
+            m_reporterRef.ShowMsg("No app found matching input criteria.");
+            return false;
+        }
+
+        if (m_searchResult.Matches.size() > 1)
+        {
+            Logging::Telemetry().LogMultiAppMatch();
+            m_reporterRef.ShowMsg("Multiple apps found matching input criteria. Please refine the input.");
+            ReportSearchResult();
+            return false;
+        }
+
+        return true;
+    }
+
+    bool SingleManifestWorkflow::GetManifest()
+    {
+        auto app = m_searchResult.Matches.at(0).Application.get();
+
+        Logging::Telemetry().LogManifestFields(app->GetName(), app->GetId());
+
+        std::string_view version = (m_argsRef.Contains(ExecutionArgs::Type::Version) ? *m_argsRef.GetArg(ExecutionArgs::Type::Version) : std::string_view{});
+        std::string_view channel = (m_argsRef.Contains(ExecutionArgs::Type::Channel) ? *m_argsRef.GetArg(ExecutionArgs::Type::Channel) : std::string_view{});
+
+        std::optional<Manifest::Manifest> manifest = app->GetManifest(version, channel);
+
+        if (!manifest)
+        {
+            std::string message = "No version found matching ";
+            if (!version.empty())
+            {
+                message += version;
+            }
+            if (!channel.empty())
+            {
+                message += '[';
+                message += channel;
+                message += ']';
+            }
+
+            m_reporterRef.ShowMsg(message, ExecutionReporter::Level::Warning);
+            return false;
+        }
+
+        m_manifest = std::move(manifest.value());
+
+        return true;
+    }
+
+    void SingleManifestWorkflow::SelectInstaller()
+    {
+        ManifestComparator manifestComparator(m_manifest, m_reporterRef);
+        m_selectedInstaller = manifestComparator.GetPreferredInstaller(m_argsRef);
     }
 }
