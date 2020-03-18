@@ -37,7 +37,8 @@ namespace AppInstaller::Workflow
                 {
                     noSources = false;
 
-                    m_reporterRef.ShowMsg("No sources match the given value '" + *m_argsRef.GetArg(ExecutionArgs::Type::Source) + "'");
+                    m_reporterRef.ShowMsg("No sources match the given value '" + *m_argsRef.GetArg(ExecutionArgs::Type::Source) + "'",
+                        ExecutionReporter::Level::Warning);
                     m_reporterRef.ShowMsg("The configured sources are:");
                     for (const auto& details : sources)
                     {
@@ -48,7 +49,8 @@ namespace AppInstaller::Workflow
 
             if (noSources)
             {
-                m_reporterRef.ShowMsg("No sources defined; add one with 'source add'");
+                m_reporterRef.ShowMsg("No sources defined; add one with 'source add'",
+                    ExecutionReporter::Level::Warning);
             }
 
             return false;
