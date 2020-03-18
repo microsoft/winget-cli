@@ -20,7 +20,7 @@ namespace AppInstaller::Workflow
 
         virtual void OpenIndexSource();
 
-        void IndexSearch();
+        bool IndexSearch();
 
         bool EnsureOneMatchFromSearchResult();
 

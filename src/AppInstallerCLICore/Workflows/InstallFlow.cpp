@@ -22,9 +22,7 @@ namespace AppInstaller::Workflow
         }
         else
         {
-            WorkflowBase::IndexSearch();
-
-            if (WorkflowBase::EnsureOneMatchFromSearchResult())
+            if (WorkflowBase::IndexSearch() && WorkflowBase::EnsureOneMatchFromSearchResult())
             {
                 GetManifest();
                 InstallInternal();
