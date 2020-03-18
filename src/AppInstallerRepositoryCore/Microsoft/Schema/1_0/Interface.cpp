@@ -98,8 +98,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
                 std::sort(versions.begin(), versions.end());
 
-                // Get the first version in the list and its rowid
-                const std::string& latestVersion = versions[0].ToString();
+                // Get the last version in the list (the highest version) and its rowid
+                const std::string& latestVersion = versions.back().ToString();
                 versionIdOpt = VersionTable::SelectIdByValue(connection, latestVersion);
             }
             else
