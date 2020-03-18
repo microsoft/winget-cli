@@ -81,7 +81,7 @@ namespace AppInstaller::Repository
         // Gets a manifest for this application.
         // An empty version implies 'latest'.
         // An empty channel is the 'general audience'.
-        virtual Manifest::Manifest GetManifest(const Utility::NormalizedString& version, const Utility::NormalizedString& channel) = 0;
+        virtual std::optional<Manifest::Manifest> GetManifest(const Utility::NormalizedString& version, const Utility::NormalizedString& channel) = 0;
 
         // Gets all versions of this application.
         // The versions will be returned in sorted, descending order.

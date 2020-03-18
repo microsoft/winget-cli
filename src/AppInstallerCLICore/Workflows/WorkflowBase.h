@@ -22,11 +22,23 @@ namespace AppInstaller::Workflow
 
         bool IndexSearch();
 
-        bool EnsureOneMatchFromSearchResult();
-
         void ReportSearchResult();
 
         std::shared_ptr<AppInstaller::Repository::ISource> m_source;
         AppInstaller::Repository::SearchResult m_searchResult;
+    };
+
+    // A workflow that requires a single manifest to operate properly.
+    class SingleManifestWorkflow : public WorkflowBase
+    {
+    protected:
+        using WorkflowBase::WorkflowBase;
+
+        bool EnsureOneMatchFromSearchResult();
+        bool GetManifest();
+        void SelectInstaller();
+
+        AppInstaller::Manifest::Manifest m_manifest;
+        AppInstaller::Manifest::ManifestInstaller m_selectedInstaller;
     };
 }

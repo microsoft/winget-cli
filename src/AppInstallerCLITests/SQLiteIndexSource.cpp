@@ -154,14 +154,19 @@ TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
     IApplication* app = results.Matches[0].Application.get();
 
     auto specificResult = app->GetManifest(manifest.Version, manifest.Channel);
-    REQUIRE(specificResult.Id == manifest.Id);
-    REQUIRE(specificResult.Name == manifest.Name);
-    REQUIRE(specificResult.Version == manifest.Version);
-    REQUIRE(specificResult.Channel == manifest.Channel);
+    REQUIRE(specificResult.has_value());
+    REQUIRE(specificResult->Id == manifest.Id);
+    REQUIRE(specificResult->Name == manifest.Name);
+    REQUIRE(specificResult->Version == manifest.Version);
+    REQUIRE(specificResult->Channel == manifest.Channel);
 
     auto latestResult = app->GetManifest("", manifest.Channel);
-    REQUIRE(latestResult.Id == manifest.Id);
-    REQUIRE(latestResult.Name == manifest.Name);
-    REQUIRE(latestResult.Version == manifest.Version);
-    REQUIRE(latestResult.Channel == manifest.Channel);
+    REQUIRE(latestResult.has_value());
+    REQUIRE(latestResult->Id == manifest.Id);
+    REQUIRE(latestResult->Name == manifest.Name);
+    REQUIRE(latestResult->Version == manifest.Version);
+    REQUIRE(latestResult->Channel == manifest.Channel);
+
+    auto noResult = app->GetManifest("blargle", "flargle");
+    REQUIRE(!noResult.has_value());
 }

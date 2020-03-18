@@ -3,7 +3,6 @@
 
 #include "pch.h"
 #include "InstallFlow.h"
-#include "ManifestComparator.h"
 #include "ShellExecuteInstallerHandler.h"
 #include "MsixInstallerHandler.h"
 
@@ -18,44 +17,27 @@ namespace AppInstaller::Workflow
         if (m_argsRef.Contains(ExecutionArgs::Type::Manifest))
         {
             m_manifest = Manifest::Manifest::CreateFromPath(*(m_argsRef.GetArg(ExecutionArgs::Type::Manifest)));
-            InstallInternal();
         }
         else
         {
-            if (WorkflowBase::IndexSearch() && WorkflowBase::EnsureOneMatchFromSearchResult())
+            if (!IndexSearch() || !EnsureOneMatchFromSearchResult() || !GetManifest())
             {
-                GetManifest();
-                InstallInternal();
+                return;
             }
         }
+
+        SelectInstaller();
+        InstallInternal();
     }
 
     void InstallFlow::InstallInternal()
     {
         Logging::Telemetry().LogManifestFields(m_manifest.Name, m_manifest.Version);
 
-        // Select Installer
-        ManifestComparator manifestComparator(m_manifest, m_reporterRef);
-        m_selectedInstaller = manifestComparator.GetPreferredInstaller(m_argsRef);
-
         auto installerHandler = GetInstallerHandler();
 
         installerHandler->Download();
         installerHandler->Install();
-    }
-
-    void InstallFlow::GetManifest()
-    {
-        auto app = m_searchResult.Matches.at(0).Application.get();
-
-        Logging::Telemetry().LogManifestFields(app->GetName(), app->GetId());
-        m_reporterRef.ShowMsg("Found app: " + app->GetName());
-
-        // Todo: handle failure if necessary after real search is in place
-        m_manifest = app->GetManifest(
-            m_argsRef.Contains(ExecutionArgs::Type::Version) ? *m_argsRef.GetArg(ExecutionArgs::Type::Version) : "",
-            m_argsRef.Contains(ExecutionArgs::Type::Channel) ? *m_argsRef.GetArg(ExecutionArgs::Type::Channel) : ""
-        );
     }
 
     std::unique_ptr<InstallerHandlerBase> InstallFlow::GetInstallerHandler()
