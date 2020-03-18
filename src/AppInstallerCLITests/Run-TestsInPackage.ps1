@@ -16,6 +16,10 @@
     The file path to place the test result file in.
 .PARAMETER Args
     Additional args to pass to the tests.
+.PARAMETER Wait
+    Have the test process wait for user input before exiting.
+.PARAMETER ScriptWait
+    Have the script wait for the output files to be freed before exiting.
 #>
 param(
     [Parameter(Mandatory=$false)]
@@ -33,8 +37,31 @@ param(
     [Parameter(Mandatory=$false)]
     [string]$Args,
 
-    [switch]$Wait
+    [switch]$Wait,
+
+    [switch]$ScriptWait
 )
+
+function Wait-ForFileClose([string]$Path)
+{
+    $Local:FileInfo = [System.IO.FileInfo]::new($Path)
+    $Local:SleepCount = 0
+
+    while ($Local:SleepCount -lt 300)
+    {
+        try
+        {
+            [System.IO.FileStream] $Local:Stream = $Local:FileInfo.OpenWrite()
+            $Local:Stream.Dispose()
+            break
+        }
+        catch
+        {
+            Start-Sleep 1
+            $Local:SleepCount = $Local:SleepCount + 1
+        }
+    }
+}
 
 if ([String]::IsNullOrEmpty($BuildRoot))
 {
@@ -103,3 +130,19 @@ if ($Wait)
 Write-Host "Executing tests at path: $Local:TestExePath"
 Write-Host "Executing tests with args: $Local:TestArgs"
 Invoke-CommandInDesktopPackage -PackageFamilyName AppInstallerCLI_8wekyb3d8bbwe -AppId AppInst -Command $Local:TestExePath -Args $Local:TestArgs
+
+if ($ScriptWait)
+{
+    Write-Host "Waiting for output files to be closed..."
+    Start-Sleep 5
+    if (![String]::IsNullOrEmpty($LogTarget))
+    {
+        Wait-ForFileClose $LogTarget
+    }
+
+    if (![String]::IsNullOrEmpty($TestResultsTarget))
+    {
+        Wait-ForFileClose $TestResultsTarget
+    }
+    Write-Host "Done"
+}

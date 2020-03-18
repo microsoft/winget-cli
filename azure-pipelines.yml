@@ -69,7 +69,7 @@ steps:
   displayName: Run Tests Packaged
   inputs:
     filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
-    arguments: '-Args "~[pips]" -BuildRoot x64\Release -PackageRoot AppInstallerCLIPackage\bin\x64\Release -LogTarget x64\Release\AICLI-Packaged.log -TestResultsTarget x64\Release\TEST-AppInstallerCLI-Packaged.xml'
+    arguments: '-Args "~[pips]" -BuildRoot x64\Release -PackageRoot AppInstallerCLIPackage\bin\x64\Release -LogTarget x64\Release\AICLI-Packaged.log -TestResultsTarget x64\Release\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
     workingDirectory: 'src'
 
 - task: PublishBuildArtifacts@1
