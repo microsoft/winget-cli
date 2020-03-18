@@ -22,9 +22,39 @@ namespace AppInstaller::Workflow
         m_source = m_reporterRef.ExecuteWithProgress(std::bind(OpenSource, sourceName, std::placeholders::_1));
     }
 
-    void WorkflowBase::IndexSearch()
+    bool WorkflowBase::IndexSearch()
     {
         OpenIndexSource();
+        if (!m_source)
+        {
+            bool noSources = true;
+
+            if (m_argsRef.Contains(ExecutionArgs::Type::Source))
+            {
+                // A bad name was given, try to help.
+                std::vector<SourceDetails> sources = GetSources();
+                if (!sources.empty())
+                {
+                    noSources = false;
+
+                    m_reporterRef.ShowMsg("No sources match the given value '" + *m_argsRef.GetArg(ExecutionArgs::Type::Source) + "'",
+                        ExecutionReporter::Level::Warning);
+                    m_reporterRef.ShowMsg("The configured sources are:");
+                    for (const auto& details : sources)
+                    {
+                        m_reporterRef.ShowMsg("  " + details.Name);
+                    }
+                }
+            }
+
+            if (noSources)
+            {
+                m_reporterRef.ShowMsg("No sources defined; add one with 'source add'",
+                    ExecutionReporter::Level::Warning);
+            }
+
+            return false;
+        }
 
         // Construct query
         MatchType matchType = MatchType::Substring;
@@ -70,6 +100,8 @@ namespace AppInstaller::Workflow
         }
 
         m_searchResult = m_source->Search(searchRequest);
+
+        return true;
     }
 
     bool WorkflowBase::EnsureOneMatchFromSearchResult()

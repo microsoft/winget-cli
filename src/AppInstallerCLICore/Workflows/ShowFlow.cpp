@@ -12,9 +12,7 @@ namespace AppInstaller::Workflow
 {
     void ShowFlow::Execute()
     {
-        WorkflowBase::IndexSearch();
-
-        if (WorkflowBase::EnsureOneMatchFromSearchResult())
+        if (WorkflowBase::IndexSearch() && WorkflowBase::EnsureOneMatchFromSearchResult())
         {
             if (m_argsRef.Contains(ExecutionArgs::Type::ListVersions))
             {
