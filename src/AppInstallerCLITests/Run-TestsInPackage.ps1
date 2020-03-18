@@ -54,13 +54,17 @@ Write-Host "Using PackageRoot = $PackageRoot"
 
 if (![String]::IsNullOrEmpty($LogTarget))
 {
-    $LogTarget = Resolve-Path $LogTarget
+    $Local:temp = Split-Path -Parent $LogTarget
+    $Local:temp = Resolve-Path $Local:temp
+    $LogTarget = Join-Path $Local:temp (Split-Path -Leaf $LogTarget)
     Write-Host "Using LogTarget = $LogTarget"
 }
 
 if (![String]::IsNullOrEmpty($TestResultsTarget))
 {
-    $TestResultsTarget = Resolve-Path $TestResultsTarget
+    $Local:temp = Split-Path -Parent $TestResultsTarget
+    $Local:temp = Resolve-Path $Local:temp
+    $TestResultsTarget = Join-Path $Local:temp (Split-Path -Leaf $TestResultsTarget)
     Write-Host "Using TestResultsTarget = $TestResultsTarget"
 }
 
