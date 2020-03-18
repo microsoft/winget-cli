@@ -150,7 +150,6 @@ namespace AppInstaller::Workflow
         auto app = m_searchResult.Matches.at(0).Application.get();
 
         Logging::Telemetry().LogManifestFields(app->GetName(), app->GetId());
-        m_reporterRef.ShowMsg("Found app: " + app->GetName());
 
         std::string_view version = (m_argsRef.Contains(ExecutionArgs::Type::Version) ? *m_argsRef.GetArg(ExecutionArgs::Type::Version) : std::string_view{});
         std::string_view channel = (m_argsRef.Contains(ExecutionArgs::Type::Channel) ? *m_argsRef.GetArg(ExecutionArgs::Type::Channel) : std::string_view{});
