@@ -27,7 +27,30 @@ namespace AppInstaller::Workflow
         OpenIndexSource();
         if (!m_source)
         {
-            m_reporterRef.ShowMsg("No sources defined; add one with 'source add'");
+            bool noSources = true;
+
+            if (m_argsRef.Contains(ExecutionArgs::Type::Source))
+            {
+                // A bad name was given, try to help.
+                std::vector<SourceDetails> sources = GetSources();
+                if (!sources.empty())
+                {
+                    noSources = false;
+
+                    m_reporterRef.ShowMsg("No sources match the given value '" + *m_argsRef.GetArg(ExecutionArgs::Type::Source) + "'");
+                    m_reporterRef.ShowMsg("The configured sources are:");
+                    for (const auto& details : sources)
+                    {
+                        m_reporterRef.ShowMsg("  " + details.Name);
+                    }
+                }
+            }
+
+            if (noSources)
+            {
+                m_reporterRef.ShowMsg("No sources defined; add one with 'source add'");
+            }
+
             return false;
         }
 
