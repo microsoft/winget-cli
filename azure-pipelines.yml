@@ -58,6 +58,14 @@ steps:
   condition: succeededOrFailed()
 
 - task: PowerShell@2
+  displayName: Install Dependencies
+  inputs:
+    targetType: 'inline'
+    script: |
+      Add-AppxPackage AppxPackages\AppInstallerCLIPackage_0.0.0.2_Test\Dependencies\x64\Microsoft.VCLibs.x64.14.00.Desktop.appx
+    workingDirectory: $(appxPackageDir)
+
+- task: PowerShell@2
   displayName: Run Tests Packaged
   inputs:
     filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
