@@ -87,6 +87,8 @@ namespace AppInstaller::Repository
         // The versions will be returned in sorted, descending order.
         //  Ex. { 4, 3, 2, 1 }
         virtual std::vector<Utility::VersionAndChannel> GetVersions() = 0;
+
+        virtual ~IApplication() = default;
     };
 
     // A single result from the search.

@@ -21,6 +21,14 @@ namespace AppInstaller::Manifest
         ManifestException() : wil::ResultException(APPINSTALLER_CLI_ERROR_MANIFEST_FAILED) {}
     };
 
+    struct ManifestFieldInfo
+    {
+        std::string Name;
+        //std::function<void(std::string)> PopulateFunc;
+        std::string RegExpr;
+        bool Required;
+    };
+
     // Our representation of the parsed manifest file.
     struct Manifest
     {
