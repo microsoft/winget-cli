@@ -19,6 +19,8 @@ variables:
 
 jobs:
 - job: 'GetReleaseTag'
+  variables:
+    runCodesignValidationInjection: ${{ false }}
   steps:
   - task: CmdLine@2
     name: task1

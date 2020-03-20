@@ -17,7 +17,7 @@ param(
     [int]$BuildVersion = 0
 )
 
-$Local:GitDescribeText = git describe --tags;
+$Local:GitDescribeText = (git describe --tags 2> $null);
 Write-Host "Git describe: $Local:GitDescribeText"
 
 $Local:Major = 0;
