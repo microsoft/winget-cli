@@ -115,7 +115,10 @@ namespace AppInstaller::CLI::Execution
     {
         // The goal of this is to return output to its previous state.
         // For now, we assume this means "default".
-        m_out << VirtualTerminal::TextFormat::Default;
+        if (m_consoleMode.IsVTEnabled())
+        {
+            m_out << VirtualTerminal::TextFormat::Default;
+        }
     }
 
     Reporter::OutputStream Reporter::GetOutputStream(Level level)
