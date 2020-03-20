@@ -50,13 +50,13 @@ jobs:
       arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer)'
       workingDirectory: 'src'
   
-  #- task: VSBuild@1
-  #  displayName: Build Solution
-  #  inputs:
-  #    platform: 'x86'
-  #    solution: '$(solution)'
-  #    configuration: '$(buildConfiguration)'
-  #    msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload'
+  - task: VSBuild@1
+    displayName: Build Solution
+    inputs:
+      platform: 'x86'
+      solution: '$(solution)'
+      configuration: '$(buildConfiguration)'
+      msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload'
   
   - task: CmdLine@2
     displayName: Run Tests Unpackaged
