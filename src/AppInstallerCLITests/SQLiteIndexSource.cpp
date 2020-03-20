@@ -16,7 +16,7 @@ std::shared_ptr<SQLiteIndexSource> SimpleTestSetup(const std::string& filePath, 
 {
     SQLiteIndex index = SQLiteIndex::CreateNew(filePath, Schema::Version::Latest());
 
-    TestDataFile testManifest("GoodManifest.yml");
+    TestDataFile testManifest("Manifest-Good.yaml");
     manifest = Manifest::CreateFromPath(testManifest);
 
     relativePath = testManifest.GetPath().filename().u8string();

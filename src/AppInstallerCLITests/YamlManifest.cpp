@@ -30,7 +30,7 @@ bool operator==(const MultiValue& a, const MultiValue& b)
 
 TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
 {
-    Manifest manifest = Manifest::CreateFromPath(TestDataFile("GoodManifest.yml"));
+    Manifest manifest = Manifest::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
 
     REQUIRE(manifest.Id == "microsoft.msixsdk");
     REQUIRE(manifest.Name == "MSIX SDK");
@@ -108,5 +108,5 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
 
 TEST_CASE("ReadBadManifestAndVerifyThrow", "[PackageManifestHelper]")
 {
-    REQUIRE_THROWS_WITH(Manifest::CreateFromPath(TestDataFile("BadManifest-MissingName.yml")), Catch::Contains("invalid node; first invalid key: \"Name\""));
+    REQUIRE_THROWS_WITH(Manifest::CreateFromPath(TestDataFile("BadManifest-MissingName.yaml")), Catch::Contains("invalid node; first invalid key: \"Name\""));
 }
