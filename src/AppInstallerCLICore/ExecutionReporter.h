@@ -65,6 +65,8 @@ namespace AppInstaller::CLI::Execution
         Reporter(std::ostream& outStream, std::istream& inStream) :
             m_out(outStream), m_in(inStream), m_progressBar(outStream), m_spinner(outStream) {}
 
+        ~Reporter();
+
         // Holds output formatting information.
         struct OutputStream
         {
