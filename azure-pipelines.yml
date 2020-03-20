@@ -22,13 +22,13 @@ jobs:
   variables:
     runCodesignValidationInjection: ${{ false }}
   steps:
-  - task: CmdLine@2
-    name: task1
-    displayName: Git Describe
+  - task: PowerShell@2
+    name: 'task1'
+    displayName: Update Binary Version
     inputs:
-      script: |
-        set VERSION_TAG=git describe --tags
-        echo ##vso[task.setvariable variable=tag;isOutput=true]%VERSION_TAG%
+      filePath: 'src\binver\Update-BinVer.ps1'
+      arguments: '-OutVar'
+      workingDirectory: 'src'
 
 - job: 'Build'
   dependsOn: 'GetReleaseTag'
@@ -50,13 +50,13 @@ jobs:
       arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer)'
       workingDirectory: 'src'
   
-  - task: VSBuild@1
-    displayName: Build Solution
-    inputs:
-      platform: 'x86'
-      solution: '$(solution)'
-      configuration: '$(buildConfiguration)'
-      msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload'
+#  - task: VSBuild@1
+#    displayName: Build Solution
+#    inputs:
+#      platform: 'x86'
+#      solution: '$(solution)'
+#      configuration: '$(buildConfiguration)'
+#      msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload'
   
   - task: CmdLine@2
     displayName: Run Tests Unpackaged

@@ -8,13 +8,17 @@
     The file to update with version information.  If not given, simply outputs the version info.
 .PARAMETER BuildVersion
     The build version to use.
+.PARAMETER OutVar
+    Output a pipeline variable with the version.
 #>
 param(
     [Parameter(Mandatory=$false)]
     [string]$TargetFile,
     
     [Parameter(Mandatory=$false)]
-    [int]$BuildVersion = 0
+    [int]$BuildVersion = 0,
+
+    [switch]$OutVar
 )
 
 $ErrorActionPreference = 'SilentlyContinue'
@@ -38,6 +42,11 @@ else
 }
 
 Write-Host "Using version: $Local:Major.$Local:Minor.$Local:Revision.$BuildVersion"
+
+if ($OutVar)
+{
+    Write-Host "##vso[task.setvariable variable=tag;isOutput=true]$Local:Major.$Local:Minor.$Local:Revision"
+}
 
 if (![String]::IsNullOrEmpty($TargetFile))
 {
