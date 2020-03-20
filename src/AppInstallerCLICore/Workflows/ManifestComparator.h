@@ -26,14 +26,14 @@ namespace AppInstaller::Workflow
     class ManifestComparator
     {
     public:
-        ManifestComparator(AppInstaller::Manifest::Manifest& manifest, AppInstaller::CLI::ExecutionReporter& reporter) : m_manifestRef(manifest), m_reporterRef(reporter) {}
+        ManifestComparator(AppInstaller::Manifest::Manifest& manifest, AppInstaller::CLI::Execution::Reporter& reporter) : m_manifestRef(manifest), m_reporterRef(reporter) {}
 
-        AppInstaller::Manifest::ManifestInstaller GetPreferredInstaller(const AppInstaller::CLI::ExecutionArgs& args);
-        AppInstaller::Manifest::ManifestLocalization GetPreferredLocalization(const AppInstaller::CLI::ExecutionArgs& args);
+        AppInstaller::Manifest::ManifestInstaller GetPreferredInstaller(const AppInstaller::CLI::Execution::Args& args);
+        AppInstaller::Manifest::ManifestLocalization GetPreferredLocalization(const AppInstaller::CLI::Execution::Args& args);
 
     private:
         AppInstaller::Manifest::Manifest& m_manifestRef;
-        AppInstaller::CLI::ExecutionReporter& m_reporterRef;
+        AppInstaller::CLI::Execution::Reporter& m_reporterRef;
     };
 
 }

@@ -10,7 +10,7 @@ namespace AppInstaller::Workflow
     class ShowFlow : public SingleManifestWorkflow
     {
     public:
-        ShowFlow(AppInstaller::CLI::ExecutionContext& context) : SingleManifestWorkflow(context) {}
+        ShowFlow(AppInstaller::CLI::Execution::Context& context) : SingleManifestWorkflow(context) {}
 
         void Execute();
 

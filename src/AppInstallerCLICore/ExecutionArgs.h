@@ -5,9 +5,9 @@
 #include <map>
 #include <vector>
 
-namespace AppInstaller::CLI
+namespace AppInstaller::CLI::Execution
 {
-    struct ExecutionArgs
+    struct Args
     {
         enum class Type
         {
