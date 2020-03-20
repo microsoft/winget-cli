@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include <binver/version.h>
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
 
@@ -162,7 +163,7 @@ namespace AppInstaller::Runtime
         }
         else
         {
-            return "unknown"s;
+            return VER_FILE_VERSION_STR;
         }
     }
 
