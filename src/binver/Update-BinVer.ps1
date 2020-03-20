@@ -17,7 +17,9 @@ param(
     [int]$BuildVersion = 0
 )
 
-$Local:GitDescribeText = (git describe --tags 2> $null);
+$ErrorActionPreference = 'SilentlyContinue'
+$Local:GitDescribeText = git describe --tags;
+$ErrorActionPreference = 'Continue'
 Write-Host "Git describe: $Local:GitDescribeText"
 
 $Local:Major = 0;
