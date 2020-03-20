@@ -20,4 +20,7 @@
   <ItemGroup>
     <ResourceCompile Include="$(MSBuildThisFileDirectory)binver\version.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Update-BinVer.ps1" />
+  </ItemGroup>
 </Project>
