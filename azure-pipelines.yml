@@ -23,9 +23,10 @@ jobs:
   - task: CmdLine@2
     name: task1
     displayName: Git Describe
-    script: |
-      set VERSION_TAG=git describe --tags
-      echo ##vso[task.setvariable variable=tag;isOutput=true]%VERSION_TAG%
+    inputs:
+      script: |
+        set VERSION_TAG=git describe --tags
+        echo ##vso[task.setvariable variable=tag;isOutput=true]%VERSION_TAG%
 
 - job: 'Build'
   dependsOn: 'GetReleaseTag'
