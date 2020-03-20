@@ -3,32 +3,15 @@
 #pragma once
 #include "ManifestInstaller.h"
 #include "ManifestLocalization.h"
-#include <AppInstallerErrors.h>
+#include "ManifestValidation.h"
 #include <AppInstallerStrings.h>
-#include <yaml-cpp/yaml.h>
-
-#include <wil/result.h>
 
 #include <filesystem>
 #include <string>
-#include <optional>
 #include <vector>
 
 namespace AppInstaller::Manifest
 {
-    struct ManifestException : public wil::ResultException
-    {
-        ManifestException() : wil::ResultException(APPINSTALLER_CLI_ERROR_MANIFEST_FAILED) {}
-    };
-
-    struct ManifestFieldInfo
-    {
-        std::string Name;
-        //std::function<void(std::string)> PopulateFunc;
-        std::string RegExpr;
-        bool Required;
-    };
-
     // Our representation of the parsed manifest file.
     struct Manifest
     {
@@ -43,9 +26,10 @@ namespace AppInstaller::Manifest
         // Required
         string_t Version;
 
-        string_t AppMoniker;
-
+        // Required
         string_t Publisher;
+
+        string_t AppMoniker;
 
         string_t Channel;
 
@@ -67,13 +51,7 @@ namespace AppInstaller::Manifest
         // Comma separated values
         std::vector<string_t> FileExtensions;
 
-        std::vector<ManifestInstaller> Installers;
-
-        std::vector<ManifestLocalization> Localization;
-
-        ManifestInstaller::InstallerTypeEnum InstallerType;
-
-        std::map<ManifestInstaller::InstallerSwitchType, string_t> Switches;
+        ManifestInstaller::InstallerTypeEnum InstallerType = ManifestInstaller::InstallerTypeEnum::Unknown;
 
         string_t Description;
 
@@ -81,10 +59,21 @@ namespace AppInstaller::Manifest
 
         string_t LicenseUrl;
 
-        void PopulateManifestFields(const YAML::Node& rootNode);
+        std::map<ManifestInstaller::InstallerSwitchType, string_t> Switches;
+
+        std::vector<ManifestInstaller> Installers;
+
+        std::vector<ManifestLocalization> Localization;
+
+        std::vector<ValidationError> PopulateManifestFields(const YAML::Node& rootNode);
 
         static Manifest CreateFromPath(const std::filesystem::path& inputFile);
 
         static Manifest Create(const std::string& input);
+
+    private:
+        YAML::Node m_switchesNode;
+        YAML::Node m_installersNode;
+        YAML::Node m_localizationNode;
     };
 }

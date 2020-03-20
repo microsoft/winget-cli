@@ -6,22 +6,21 @@
 
 namespace AppInstaller::Manifest
 {
-    void ManifestLocalization::PopulateLocalizationFields(const YAML::Node& localizationNode, const ManifestLocalization& defaultLocalization)
+    std::vector<ValidationError> ManifestLocalization::PopulateLocalizationFields(const YAML::Node& localizationNode, const ManifestLocalization& defaultLocalization)
     {
-        // Required
-        this->Language = localizationNode["Language"].as<std::string>();
+        // Populates default values first
+        this->Description = defaultLocalization.Description;
+        this->Homepage = defaultLocalization.Homepage;
+        this->LicenseUrl = defaultLocalization.LicenseUrl;
 
-        // Optional
-        this->Description = localizationNode["Description"] ?
-            string_t(localizationNode["Description"].as<std::string>()) :
-            defaultLocalization.Description;
+        const std::vector<ManifestFieldInfo> FieldInfos =
+        {
+            { "Language", [this](const YAML::Node& value) { Language = value.as<std::string>(); }, true },
+            { "Description", [this](const YAML::Node& value) { Description = value.as<std::string>(); } },
+            { "Homepage", [this](const YAML::Node& value) { Homepage = value.as<std::string>(); } },
+            { "LicenseUrl", [this](const YAML::Node& value) { LicenseUrl = value.as<std::string>(); } },
+        };
 
-        this->Homepage = localizationNode["Homepage"] ?
-            string_t(localizationNode["Homepage"].as<std::string>()) :
-            defaultLocalization.Homepage;
-
-        this->LicenseUrl = localizationNode["LicenseUrl"] ?
-            string_t(localizationNode["LicenseUrl"].as<std::string>()) :
-            defaultLocalization.LicenseUrl;
+        return ValidateAndProcessFields(localizationNode, FieldInfos);
     }
 }

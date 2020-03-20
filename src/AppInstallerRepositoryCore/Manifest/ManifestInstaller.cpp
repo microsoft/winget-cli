@@ -6,74 +6,59 @@
 
 namespace AppInstaller::Manifest
 {
-    void ManifestInstaller::PopulateInstallerFields(const YAML::Node& installerNode, const ManifestInstaller& defaultInstaller)
+    std::vector<ValidationError> ManifestInstaller::PopulateInstallerFields(const YAML::Node& installerNode, const ManifestInstaller& defaultInstaller)
     {
-        // Required fields
-        this->Arch = Utility::ConvertToArchitectureEnum(installerNode["Arch"].as<std::string>());
-        this->Url = installerNode["Url"].as<std::string>();
-        this->Sha256 = Utility::SHA256::ConvertToBytes(installerNode["Sha256"].as<std::string>());
+        this->InstallerType = defaultInstaller.InstallerType;
 
-        if (installerNode["SignatureSha256"])
+        const std::vector<ManifestFieldInfo> InstallerFieldInfos =
         {
-            this->SignatureSha256 = Utility::SHA256::ConvertToBytes(installerNode["SignatureSha256"].as<std::string>());
+            { "Arch", [this](const YAML::Node& value) { Arch = Utility::ConvertToArchitectureEnum(value.as<std::string>()); }, true },
+            { "Url", [this](const YAML::Node& value) { Url = value.as<std::string>(); }, true },
+            { "Sha256", [this](const YAML::Node& value) { Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); }, true },
+            { "SignatureSha256", [this](const YAML::Node& value) { SignatureSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); } },
+            { "Language", [this](const YAML::Node& value) { Language = value.as<std::string>(); } },
+            { "Scope", [this](const YAML::Node& value) { Scope = value.as<std::string>(); } },
+            { "InstallerType", [this](const YAML::Node& value) { InstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); } },
+            { "Switches", [this](const YAML::Node& value) { m_switchesNode = value; } },
+        };
+
+        auto resultErrors = ValidateAndProcessFields(installerNode, InstallerFieldInfos);
+
+        // Populate default known switches
+        this->Switches = GetDefaultKnownSwitches(this->InstallerType);
+
+        // Override with switches from manifest root if applicable
+        for (auto const& keyValuePair : defaultInstaller.Switches)
+        {
+            this->Switches[keyValuePair.first] = keyValuePair.second;
         }
 
-        // Optional fields.
-        this->Language = installerNode["Language"] ? installerNode["Language"].as<std::string>() : "";
-        this->Scope = installerNode["Scope"] ? installerNode["Scope"].as<std::string>() : "";
-
-        this->InstallerType = installerNode["InstallerType"] ?
-            ConvertToInstallerTypeEnum(installerNode["InstallerType"].as<std::string>()) :
-            defaultInstaller.InstallerType;
-
-        std::map<InstallerSwitchType, string_t> defaultKnownSwitches = GetDefaultKnownSwitches(this->InstallerType);
-
-        if (installerNode["Switches"])
+        // Override with switches from installer if applicable
+        if (!m_switchesNode.IsNull())
         {
-            YAML::Node switchesNode = installerNode["Switches"];
-            PopulateSwitchesFields(&switchesNode, this->Switches, &(defaultInstaller.Switches), &defaultKnownSwitches);
+            auto errors = PopulateSwitchesFields(m_switchesNode, this->Switches);
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
         }
-        else
-        {
-            PopulateSwitchesFields(nullptr, this->Switches, &(defaultInstaller.Switches), &defaultKnownSwitches);
-        }
+
+        return resultErrors;
     }
 
-    void ManifestInstaller::PopulateSwitchesFields(
-        const YAML::Node* switchesNode,
-        std::map<InstallerSwitchType, string_t>& switches,
-        const std::map<InstallerSwitchType, string_t>* manifestRootSwitches,
-        const std::map<InstallerSwitchType, string_t>* defaultKnownSwitches)
+    std::vector<ValidationError> ManifestInstaller::PopulateSwitchesFields(
+        const YAML::Node& switchesNode,
+        std::map<InstallerSwitchType, string_t>& switches)
     {
-        PopulateOneSwitchField(switchesNode, "Custom", InstallerSwitchType::Custom, switches, manifestRootSwitches, defaultKnownSwitches);
-        PopulateOneSwitchField(switchesNode, "Silent", InstallerSwitchType::Silent, switches, manifestRootSwitches, defaultKnownSwitches);
-        PopulateOneSwitchField(switchesNode, "SilentWithProgress", InstallerSwitchType::SilentWithProgress, switches, manifestRootSwitches, defaultKnownSwitches);
-        PopulateOneSwitchField(switchesNode, "Interactive", InstallerSwitchType::Interactive, switches, manifestRootSwitches, defaultKnownSwitches);
-        PopulateOneSwitchField(switchesNode, "Language", InstallerSwitchType::Language, switches, manifestRootSwitches, defaultKnownSwitches);
-        PopulateOneSwitchField(switchesNode, "Log", InstallerSwitchType::Log, switches, manifestRootSwitches, defaultKnownSwitches);
-        PopulateOneSwitchField(switchesNode, "InstallLocation", InstallerSwitchType::InstallLocation, switches, manifestRootSwitches, defaultKnownSwitches);
-    }
+        const std::vector<ManifestFieldInfo> SwitchesFieldInfos =
+        {
+            { "Custom", [&](const YAML::Node& value) { switches[InstallerSwitchType::Custom] = value.as<std::string>(); } },
+            { "Silent", [&](const YAML::Node& value) { switches[InstallerSwitchType::Silent] = value.as<std::string>(); } },
+            { "SilentWithProgress", [&](const YAML::Node& value) { switches[InstallerSwitchType::SilentWithProgress] = value.as<std::string>(); } },
+            { "Interactive", [&](const YAML::Node& value) { switches[InstallerSwitchType::Interactive] = value.as<std::string>(); } },
+            { "Language", [&](const YAML::Node& value) { switches[InstallerSwitchType::Language] = value.as<std::string>(); } },
+            { "Log", [&](const YAML::Node& value) { switches[InstallerSwitchType::Log] = value.as<std::string>(); } },
+            { "InstallLocation", [&](const YAML::Node& value) { switches[InstallerSwitchType::InstallLocation] = value.as<std::string>(); } },
+        };
 
-    void ManifestInstaller::PopulateOneSwitchField(
-        const YAML::Node* switchesNode,
-        const std::string& switchName,
-        InstallerSwitchType switchType,
-        std::map<InstallerSwitchType, string_t>& switches,
-        const std::map<InstallerSwitchType, string_t>* manifestRootSwitches,
-        const std::map<InstallerSwitchType, string_t>* defaultKnownSwitches)
-    {
-        if (switchesNode && (*switchesNode)[switchName])
-        {
-            switches.emplace(switchType, (*switchesNode)[switchName].as<std::string>());
-        }
-        else if (manifestRootSwitches && manifestRootSwitches->find(switchType) != manifestRootSwitches->end())
-        {
-            switches.emplace(switchType, manifestRootSwitches->at(switchType));
-        }
-        else if (defaultKnownSwitches && defaultKnownSwitches->find(switchType) != defaultKnownSwitches->end())
-        {
-            switches.emplace(switchType, defaultKnownSwitches->at(switchType));
-        }
+        return ValidateAndProcessFields(switchesNode, SwitchesFieldInfos);
     }
 
     std::map<ManifestInstaller::InstallerSwitchType, ManifestInstaller::string_t> ManifestInstaller::GetDefaultKnownSwitches(InstallerTypeEnum installerType)

@@ -36,35 +36,38 @@ namespace AppInstaller::Manifest
         }
     }
 
-    void Manifest::PopulateManifestFields(const YAML::Node& rootNode)
+    std::vector<ValidationError> Manifest::PopulateManifestFields(const YAML::Node& rootNode)
     {
-        // Required fields
-        this->Id = rootNode["Id"].as<std::string>();
-        this->Name = rootNode["Name"].as<std::string>();
-        this->Version = rootNode["Version"].as<std::string>();
-        this->Publisher = rootNode["Publisher"].as<std::string>();
-
-        // Optional fields.
-        this->AppMoniker = rootNode["AppMoniker"] ? rootNode["AppMoniker"].as<std::string>() : "";
-        this->Channel = rootNode["Channel"] ? rootNode["Channel"].as<std::string>() : "";
-        this->Author = rootNode["Author"] ? rootNode["Author"].as<std::string>() : "";
-        this->License = rootNode["License"] ? rootNode["License"].as<std::string>() : "";
-        this->MinOSVersion = rootNode["MinOSVersion"] ? rootNode["MinOSVersion"].as<std::string>() : "";
-        this->Tags = SplitMultiValueField(rootNode["Tags"] ? rootNode["Tags"].as<std::string>() : "");
-        this->Commands = SplitMultiValueField(rootNode["Commands"] ? rootNode["Commands"].as<std::string>() : "");
-        this->Protocols = SplitMultiValueField(rootNode["Protocols"] ? rootNode["Protocols"].as<std::string>() : "");
-        this->FileExtensions = SplitMultiValueField(rootNode["FileExtensions"] ? rootNode["FileExtensions"].as<std::string>() : "");
-        this->InstallerType = rootNode["InstallerType"] ?
-            ManifestInstaller::ConvertToInstallerTypeEnum(rootNode["InstallerType"].as<std::string>()) :
-            ManifestInstaller::InstallerTypeEnum::Unknown;
-        this->Description = rootNode["Description"] ? rootNode["Description"].as<std::string>() : "";
-        this->Homepage = rootNode["Homepage"] ? rootNode["Homepage"].as<std::string>() : "";
-        this->LicenseUrl = rootNode["LicenseUrl"] ? rootNode["LicenseUrl"].as<std::string>() : "";
-
-        if (rootNode["Switches"])
+        const std::vector<ManifestFieldInfo> FieldInfos =
         {
-            YAML::Node switchesNode = rootNode["Switches"];
-            ManifestInstaller::PopulateSwitchesFields(&switchesNode, this->Switches);
+            { "Id", [this](const YAML::Node& value) { Id = value.as<std::string>(); }, true },
+            { "Name", [this](const YAML::Node& value) { Name = value.as<std::string>(); }, true },
+            { "Version", [this](const YAML::Node& value) { Version = value.as<std::string>(); }, true },
+            { "Publisher", [this](const YAML::Node& value) { Publisher = value.as<std::string>(); }, true },
+            { "AppMoniker", [this](const YAML::Node& value) { AppMoniker = value.as<std::string>(); } },
+            { "Channel", [this](const YAML::Node& value) { Channel = value.as<std::string>(); } },
+            { "Author", [this](const YAML::Node& value) { Author = value.as<std::string>(); } },
+            { "License", [this](const YAML::Node& value) { License = value.as<std::string>(); } },
+            { "MinOSVersion", [this](const YAML::Node& value) { MinOSVersion = value.as<std::string>(); } },
+            { "Tags", [this](const YAML::Node& value) { Tags = SplitMultiValueField(value.as<std::string>()); } },
+            { "Commands", [this](const YAML::Node& value) { Commands = SplitMultiValueField(value.as<std::string>()); } },
+            { "Protocols", [this](const YAML::Node& value) { Protocols = SplitMultiValueField(value.as<std::string>()); } },
+            { "FileExtensions", [this](const YAML::Node& value) { FileExtensions = SplitMultiValueField(value.as<std::string>()); } },
+            { "InstallerType", [this](const YAML::Node& value) { InstallerType = ManifestInstaller::ConvertToInstallerTypeEnum(value.as<std::string>()); } },
+            { "Description", [this](const YAML::Node& value) { Description = value.as<std::string>(); } },
+            { "Homepage", [this](const YAML::Node& value) { Homepage = value.as<std::string>(); } },
+            { "LicenseUrl", [this](const YAML::Node& value) { LicenseUrl = value.as<std::string>(); } },
+            { "Switches", [this](const YAML::Node& value) { m_switchesNode = value; } },
+            { "Installers", [this](const YAML::Node& value) { m_installersNode = value; }, true },
+            { "Localization", [this](const YAML::Node& value) { m_localizationNode = value; } },
+        };
+
+        std::vector<ValidationError> resultErrors = ValidateAndProcessFields(rootNode, FieldInfos);
+
+        if (!m_switchesNode.IsNull())
+        {
+            auto errors = ManifestInstaller::PopulateSwitchesFields(m_switchesNode, this->Switches);
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
         }
 
         // Create default ManifestInstaller to be used to populate default value when optional fields are not found.
@@ -72,11 +75,11 @@ namespace AppInstaller::Manifest
         defaultInstaller.InstallerType = this->InstallerType;
         defaultInstaller.Switches = this->Switches;
 
-        YAML::Node installersNode = rootNode["Installers"];
-        for (std::size_t i = 0; i < installersNode.size(); i++) {
-            YAML::Node installerNode = installersNode[i];
+        for (std::size_t i = 0; i < m_installersNode.size(); i++) {
+            YAML::Node installerNode = m_installersNode[i];
             ManifestInstaller installer;
-            installer.PopulateInstallerFields(installerNode, defaultInstaller);
+            auto errors = installer.PopulateInstallerFields(installerNode, defaultInstaller);
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
             this->Installers.emplace_back(std::move(installer));
         }
 
@@ -86,16 +89,18 @@ namespace AppInstaller::Manifest
         defaultLocalization.Homepage = this->Homepage;
         defaultLocalization.LicenseUrl = this->LicenseUrl;
 
-        if (rootNode["Localization"])
+        if (!m_localizationNode.IsNull())
         {
-            YAML::Node localizationsNode = rootNode["Localization"];
-            for (std::size_t i = 0; i < localizationsNode.size(); i++) {
-                YAML::Node localizationNode = localizationsNode[i];
+            for (std::size_t i = 0; i < m_localizationNode.size(); i++) {
+                YAML::Node localizationNode = m_localizationNode[i];
                 ManifestLocalization localization;
-                localization.PopulateLocalizationFields(localizationNode, defaultLocalization);
+                auto errors = localization.PopulateLocalizationFields(localizationNode, defaultLocalization);
+                std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
                 this->Localization.emplace_back(std::move(localization));
             }
         }
+
+        return resultErrors;
     }
 
     Manifest Manifest::CreateFromPath(const std::filesystem::path& inputFile)

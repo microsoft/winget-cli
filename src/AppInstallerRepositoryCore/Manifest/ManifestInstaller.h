@@ -8,6 +8,8 @@
 #include <string>
 #include <map>
 
+#include "ManifestValidation.h"
+
 namespace AppInstaller::Manifest
 {
     using namespace std::string_view_literals;
@@ -16,9 +18,8 @@ namespace AppInstaller::Manifest
     static constexpr std::string_view ARG_TOKEN_LOGPATH = "<LOGPATH>"sv;
     static constexpr std::string_view ARG_TOKEN_INSTALLPATH = "<INSTALLPATH>"sv;
 
-    class ManifestInstaller
+    struct ManifestInstaller
     {
-    public:
         using string_t = Utility::NormalizedString;
 
         enum class InstallerTypeEnum
@@ -76,26 +77,17 @@ namespace AppInstaller::Manifest
 
         // Populates InstallerSwitches
         // The value declared in the manifest takes precedence, then value in the manifest root, then default known values.
-        static void PopulateSwitchesFields(
-            const YAML::Node* switchesNode,
-            std::map<InstallerSwitchType, string_t>& switches,
-            const std::map<InstallerSwitchType, string_t>* manifestRootSwitches = nullptr,
-            const std::map<InstallerSwitchType, string_t>* defaultKnownSwitches = nullptr);
-
-        // Populates one Installer Switch
-        // The value declared in the manifest takes precedence, then value in the manifest root, then default known values.
-        static void PopulateOneSwitchField(
-            const YAML::Node* switchesNode,
-            const std::string& switchName,
-            InstallerSwitchType switchType,
-            std::map<InstallerSwitchType, string_t>& switches,
-            const std::map<InstallerSwitchType, string_t>* manifestRootSwitches,
-            const std::map<InstallerSwitchType, string_t>* defaultKnownSwitches);
+        static std::vector<ValidationError> PopulateSwitchesFields(
+            const YAML::Node& switchesNode,
+            std::map<InstallerSwitchType, string_t>& switches);
 
         // Populates ManifestInstaller
         // defaultInstaller: if an optional field is not found in the YAML node, the field will be populated with value from defaultInstaller.
-        void PopulateInstallerFields(const YAML::Node& installerNode, const ManifestInstaller& defaultInstaller);
+        std::vector<ValidationError> PopulateInstallerFields(const YAML::Node& installerNode, const ManifestInstaller& defaultInstaller);
 
         static std::string InstallerTypeToString(InstallerTypeEnum installerType);
+
+    private:
+        YAML::Node m_switchesNode;
     };
 }
