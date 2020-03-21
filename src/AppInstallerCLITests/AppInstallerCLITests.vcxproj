@@ -114,7 +114,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
@@ -124,7 +124,7 @@
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</TreatWarningAsError>
     </ClCompile>
     <Link>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
@@ -143,8 +143,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -244,6 +244,9 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-DuplicateKey.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-IdInvalid.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-IdMissing.yaml">

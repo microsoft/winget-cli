@@ -28,7 +28,7 @@ bool operator==(const MultiValue& a, const MultiValue& b)
     return true;
 }
 
-TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
+TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
 {
     Manifest manifest = Manifest::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
 
@@ -106,7 +106,17 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
     REQUIRE(localization1.LicenseUrl == "https://github.com/microsoft/msix-packaging/blob/master/LICENSE-es-MX");
 }
 
-TEST_CASE("ReadBadManifestAndVerifyThrow", "[PackageManifestHelper]")
+/*void TestManifest(const std::filesystem::path& manifestPath, const std::string& expectedError = "")
+{
+
+}*/
+
+TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
+{
+    REQUIRE_THROWS_WITH(Manifest::CreateFromPath(TestDataFile("BadManifest-MissingName.yaml")), Catch::Contains("invalid node; first invalid key: \"Name\""));
+}
+
+TEST_CASE("ReadBadManifests", "[ManifestValidation]")
 {
     REQUIRE_THROWS_WITH(Manifest::CreateFromPath(TestDataFile("BadManifest-MissingName.yaml")), Catch::Contains("invalid node; first invalid key: \"Name\""));
 }

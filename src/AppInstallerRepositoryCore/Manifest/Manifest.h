@@ -65,11 +65,11 @@ namespace AppInstaller::Manifest
 
         std::vector<ManifestLocalization> Localization;
 
-        std::vector<ValidationError> PopulateManifestFields(const YAML::Node& rootNode);
+        std::vector<ValidationError> PopulateManifestFields(const YAML::Node& rootNode, bool extraValidation);
 
-        static Manifest CreateFromPath(const std::filesystem::path& inputFile);
+        static Manifest CreateFromPath(const std::filesystem::path& inputFile, bool extraValidation = false);
 
-        static Manifest Create(const std::string& input);
+        static Manifest Create(const std::string& input, bool extraValidation = false);
 
     private:
         YAML::Node m_switchesNode;

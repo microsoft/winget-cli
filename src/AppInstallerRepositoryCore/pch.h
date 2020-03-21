@@ -4,6 +4,7 @@
 
 #define NOMINMAX
 #include <windows.h>
+#include <urlmon.h>
 
 #include <AppInstallerDateTime.h>
 #include <AppInstallerDeployment.h>

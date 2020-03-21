@@ -6,7 +6,7 @@
 
 namespace AppInstaller::Manifest
 {
-    std::vector<ValidationError> ManifestInstaller::PopulateInstallerFields(const YAML::Node& installerNode, const ManifestInstaller& defaultInstaller)
+    std::vector<ValidationError> ManifestInstaller::PopulateInstallerFields(const YAML::Node& installerNode, const ManifestInstaller& defaultInstaller, bool extraValidation)
     {
         this->InstallerType = defaultInstaller.InstallerType;
 
@@ -14,7 +14,7 @@ namespace AppInstaller::Manifest
         {
             { "Arch", [this](const YAML::Node& value) { Arch = Utility::ConvertToArchitectureEnum(value.as<std::string>()); }, true },
             { "Url", [this](const YAML::Node& value) { Url = value.as<std::string>(); }, true },
-            { "Sha256", [this](const YAML::Node& value) { Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); }, true },
+            { "Sha256", [this](const YAML::Node& value) { Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); }, true, "^[A-Fa-f0-9]{64}$" },
             { "SignatureSha256", [this](const YAML::Node& value) { SignatureSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); } },
             { "Language", [this](const YAML::Node& value) { Language = value.as<std::string>(); } },
             { "Scope", [this](const YAML::Node& value) { Scope = value.as<std::string>(); } },
@@ -38,6 +38,32 @@ namespace AppInstaller::Manifest
         {
             auto errors = PopulateSwitchesFields(m_switchesNode, this->Switches);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+        }
+
+        // Extra semantic validations after basic validation and field population
+        if (extraValidation)
+        {
+            if (Arch == Utility::Architecture::Unknown)
+            {
+                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Arch");
+            }
+
+            if (InstallerType == InstallerTypeEnum::Unknown)
+            {
+                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "InstallerType");
+            }
+
+            if (InstallerType == InstallerTypeEnum::Exe &&
+                (Switches.find(InstallerSwitchType::SilentWithProgress) == Switches.end() ||
+                    Switches.find(InstallerSwitchType::SilentWithProgress) == Switches.end()))
+            {
+                resultErrors.emplace_back(ManifestError::ExeInstallerMissingSilentSwitches);
+            }
+
+            if (IsValidURL(NULL, Utility::ConvertToUTF16(Url).c_str(), 0) == S_FALSE)
+            {
+                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Url", Url);
+            }
         }
 
         return resultErrors;

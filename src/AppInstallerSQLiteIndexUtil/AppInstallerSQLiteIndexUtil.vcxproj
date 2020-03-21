@@ -137,9 +137,9 @@
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Source.def</ModuleDefinitionFile>
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Source.def</ModuleDefinitionFile>
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Source.def</ModuleDefinitionFile>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
@@ -151,7 +151,7 @@
     <Link>
       <SubSystem Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Windows</SubSystem>
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Source.def</ModuleDefinitionFile>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
@@ -181,10 +181,10 @@
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Source.def</ModuleDefinitionFile>
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Source.def</ModuleDefinitionFile>
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Source.def</ModuleDefinitionFile>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

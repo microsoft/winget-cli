@@ -117,6 +117,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-DuplicateKey-DifferentCase-lower.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-IdInvalid.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-IdMissing.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
