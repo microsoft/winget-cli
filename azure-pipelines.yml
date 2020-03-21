@@ -35,6 +35,7 @@ jobs:
 
 - job: 'Build'
   dependsOn: 'GetReleaseTag'
+  condition: always()
   variables:
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
   steps:
