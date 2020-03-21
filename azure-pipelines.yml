@@ -23,7 +23,7 @@ jobs:
     runCodesignValidationInjection: ${{ false }}
   steps:
   - task: PowerShell@2
-    name: 'task1'
+    name: 'GetTag'
     displayName: Get Release Tag
     inputs:
       filePath: 'src\binver\Update-BinVer.ps1'
@@ -33,7 +33,7 @@ jobs:
 - job: 'Build'
   dependsOn: 'GetReleaseTag'
   variables:
-    BuildVer: $[counter(dependencies.GetReleaseTag.outputs['task1.tag'], 1)]
+    BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
   steps:
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
