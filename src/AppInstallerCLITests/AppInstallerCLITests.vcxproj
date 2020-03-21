@@ -300,9 +300,6 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-SwitchInvalid.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Bad-SwitchWithoutKeys.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-UnknownProperty.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

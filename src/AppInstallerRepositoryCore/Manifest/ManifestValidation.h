@@ -14,9 +14,9 @@ namespace AppInstaller::Manifest
     namespace ManifestError
     {
         const char* const InvalidRootNode = "Manifest: Encountered unexpected root node.";
-        const char* const KeyUnknown = "Manifest: Unknown key.";
-        const char* const KeyIsNotPascalCase = "Manifest: All keys should be PascalCased.";
-        const char* const KeyDuplicate = "Manifest: Duplicate key found in the manifest.";
+        const char* const FieldUnknown = "Manifest: Unknown field.";
+        const char* const FieldIsNotPascalCase = "Manifest: All field names should be PascalCased.";
+        const char* const FieldDuplicate = "Manifest: Duplicate field found in the manifest.";
         const char* const RequiredFieldEmpty = "Manifest: Required field with empty value.";
         const char* const RequiredFieldMissing = "Manifest: Required field missing.";
         const char* const InvalidFieldValue = "Manifest: Invalid field value.";
@@ -61,14 +61,14 @@ namespace AppInstaller::Manifest
 
                 for (auto const& error : m_errors)
                 {
-                    m_message += error.Message;
+                    m_message += error.Message + ' ';
                     if (!error.Field.empty())
                     {
-                        m_message += "Field: " + error.Field;
+                        m_message += "Field: " + error.Field + ' ';
                     }
                     if (!error.Value.empty())
                     {
-                        m_message += "Value: " + error.Value;
+                        m_message += "Value: " + error.Value + ' ';
                     }
                     if (error.Line >= 0 && error.Column >= 0)
                     {

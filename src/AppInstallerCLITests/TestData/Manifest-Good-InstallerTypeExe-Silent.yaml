@@ -10,3 +10,4 @@ Installers:
     InstallerType: Exe
     Switches:
       Silent: /s
+      SilentWithProgress: /s

@@ -171,9 +171,6 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-SwitchInvalid.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Bad-SwitchWithoutKeys.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-UnknownProperty.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>

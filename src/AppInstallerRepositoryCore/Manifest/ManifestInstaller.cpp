@@ -9,6 +9,7 @@ namespace AppInstaller::Manifest
     std::vector<ValidationError> ManifestInstaller::PopulateInstallerFields(const YAML::Node& installerNode, const ManifestInstaller& defaultInstaller, bool extraValidation)
     {
         this->InstallerType = defaultInstaller.InstallerType;
+        this->Scope = "user";
 
         const std::vector<ManifestFieldInfo> InstallerFieldInfos =
         {

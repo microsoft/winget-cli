@@ -37,15 +37,13 @@ namespace AppInstaller::Manifest
                 // Make sure the found key is in Pascal Case
                 if (key != fieldInfo.Name)
                 {
-                    errors.emplace_back(ManifestError::KeyIsNotPascalCase, key, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column);
-                    continue;
+                    errors.emplace_back(ManifestError::FieldIsNotPascalCase, key, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column);
                 }
 
                 // Make sure it's not a duplicate key
                 if (!processedFields.insert(fieldInfo.Name).second)
                 {
-                    errors.emplace_back(ManifestError::KeyDuplicate, fieldInfo.Name, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column);
-                    continue;
+                    errors.emplace_back(ManifestError::FieldDuplicate, fieldInfo.Name, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column);
                 }
 
                 // Validate non empty value is provided for required fields
@@ -56,7 +54,6 @@ namespace AppInstaller::Manifest
                         ((valueNode.IsMap() || valueNode.IsSequence()) && valueNode.size() == 0))  // Map or sequence type should have size greater than 0
                     {
                         errors.emplace_back(ManifestError::RequiredFieldEmpty, fieldInfo.Name, "", valueNode.Mark().line, valueNode.Mark().column);
-                        continue;
                     }
                 }
 
@@ -72,11 +69,14 @@ namespace AppInstaller::Manifest
                     }
                 }
 
-                fieldInfo.ProcessFunc(valueNode);
+                if (!valueNode.IsNull())
+                {
+                    fieldInfo.ProcessFunc(valueNode);
+                }
             }
             else
             {
-                errors.emplace_back(ManifestError::KeyUnknown, key, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column);
+                errors.emplace_back(ManifestError::FieldUnknown, key, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column);
             }
         }
 
