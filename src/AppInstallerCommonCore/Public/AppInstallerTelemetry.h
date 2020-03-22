@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-
 #include <wil/result_macros.h>
 
 #include <string_view>
@@ -38,21 +37,32 @@ namespace AppInstaller::Logging
         void LogCommandSuccess(std::string_view commandName) noexcept;
 
         // Logs the Manifest fields.
-        void LogManifestFields(const std::string& name, const std::string& version) noexcept;
+        void LogManifestFields(std::string_view id, std::string_view name, std::string_view version) noexcept;
          
-        //Logs when there is no matching App found for search
+        // Logs when there is no matching App found for search
         void LogNoAppMatch() noexcept;
 
-        //Logs when there is multiple matching Apps found for search
+        // Logs when there is multiple matching Apps found for search
         void LogMultiAppMatch() noexcept;
 
-        //Logs the name and Id of app found
-        void LogAppFound(const std::string& name, const std::string& id) noexcept;
+        // Logs the name and Id of app found
+        void LogAppFound(std::string_view name, std::string_view id) noexcept;
 
-        //Logs the selected installer details
-        void LogSelectedInstaller(int arch, const std::string& url, const std::string& installerType, const std::string& scope, const std::string& language) noexcept;
+        // Logs the selected installer details
+        void LogSelectedInstaller(int arch, std::string_view url, std::string_view installerType, std::string_view scope, std::string_view language) noexcept;
 
-        //Logs the Search Result
+        // Logs details of a search request.
+        void LogSearchRequest(
+            std::string_view query,
+            std::string_view id,
+            std::string_view name,
+            std::string_view moniker,
+            std::string_view tag,
+            std::string_view command,
+            size_t maximum,
+            std::string_view request);
+
+        // Logs the Search Result
         void LogSearchResultCount(uint64_t resultCount) noexcept;
 
     private:

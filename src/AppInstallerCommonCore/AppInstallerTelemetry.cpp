@@ -7,6 +7,8 @@
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
 
+#define AICLI_TraceLoggingStringView(_sv_,_name_) TraceLoggingCountedString(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
+
 // Helper to print a GUID
 std::ostream& operator<<(std::ostream& out, const GUID& guid)
 {
@@ -117,7 +119,7 @@ namespace AppInstaller::Logging
                 "CommandFound",
                 GetActivityId(),
                 nullptr,
-                TraceLoggingCountedString(commandName.data(), static_cast<ULONG>(commandName.size()), "Command"),
+                AICLI_TraceLoggingStringView(commandName, "Command"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
@@ -133,7 +135,7 @@ namespace AppInstaller::Logging
                 "CommandSuccess",
                 GetActivityId(),
                 nullptr,
-                TraceLoggingCountedString(commandName.data(), static_cast<ULONG>(commandName.size()), "Command"),
+                AICLI_TraceLoggingStringView(commandName, "Command"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
@@ -141,7 +143,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Info, << "Leaf command succeeded: " << commandName);
     }
 
-    void TelemetryTraceLogger::LogManifestFields(const std::string& name, const std::string& version) noexcept
+    void TelemetryTraceLogger::LogManifestFields(std::string_view id, std::string_view name, std::string_view version) noexcept
     {
         if (g_IsTelemetryProviderEnabled)
         {
@@ -149,8 +151,9 @@ namespace AppInstaller::Logging
                 "ManifestFields",
                 GetActivityId(),
                 nullptr,
-                TraceLoggingCountedString(name.c_str(), static_cast<ULONG>(name.size()),"Name"),
-                TraceLoggingCountedString(version.c_str(), static_cast<ULONG>(version.size()), "Version"),
+                AICLI_TraceLoggingStringView(id, "Id"),
+                AICLI_TraceLoggingStringView(name,"Name"),
+                AICLI_TraceLoggingStringView(version, "Version"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance|PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
@@ -188,7 +191,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Info, << "Multiple apps found matching input criteria");
     }
 
-    void TelemetryTraceLogger::LogAppFound(const std::string& name, const std::string& id) noexcept
+    void TelemetryTraceLogger::LogAppFound(std::string_view name, std::string_view id) noexcept
     {
         if (g_IsTelemetryProviderEnabled)
         {
@@ -196,8 +199,8 @@ namespace AppInstaller::Logging
                 "AppFound",
                 GetActivityId(),
                 nullptr,
-                TraceLoggingCountedString(name.c_str(), static_cast<ULONG>(name.size()), "AppName"),
-                TraceLoggingCountedString(id.c_str(), static_cast<ULONG>(id.size()), "id"),
+                AICLI_TraceLoggingStringView(name, "AppName"),
+                AICLI_TraceLoggingStringView(id, "id"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
@@ -205,7 +208,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Info, << "Found one app. App id: " << id << " App name: " << name);
     }
 
-    void TelemetryTraceLogger::LogSelectedInstaller(int arch, const std::string& url, const std::string& installerType, const std::string& scope, const std::string& language) noexcept
+    void TelemetryTraceLogger::LogSelectedInstaller(int arch, std::string_view url, std::string_view installerType, std::string_view scope, std::string_view language) noexcept
     {
         if (g_IsTelemetryProviderEnabled)
         {
@@ -214,10 +217,10 @@ namespace AppInstaller::Logging
                 GetActivityId(),
                 nullptr,
                 TraceLoggingInt32(arch, "Arch"),
-                TraceLoggingCountedString(url.c_str(), static_cast<ULONG>(url.size()), "URL"),
-                TraceLoggingCountedString(installerType.c_str(), static_cast<ULONG>(installerType.size()), "InstallerType"),
-                TraceLoggingCountedString(scope.c_str(), static_cast<ULONG>(scope.size()), "Scope"),
-                TraceLoggingCountedString(language.c_str(), static_cast<ULONG>(language.size()), "Language"),
+                AICLI_TraceLoggingStringView(url, "URL"),
+                AICLI_TraceLoggingStringView(installerType, "InstallerType"),
+                AICLI_TraceLoggingStringView(scope, "Scope"),
+                AICLI_TraceLoggingStringView(language, "Language"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
@@ -228,7 +231,35 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Verbose, << "Selected installer InstallerType: " << installerType);
         AICLI_LOG(CLI, Verbose, << "Selected installer scope: " << scope);
         AICLI_LOG(CLI, Verbose, << "Selected installer language: " << language);
+    }
 
+    void TelemetryTraceLogger::LogSearchRequest(
+        std::string_view query,
+        std::string_view id,
+        std::string_view name,
+        std::string_view moniker,
+        std::string_view tag,
+        std::string_view command,
+        size_t maximum,
+        std::string_view request)
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "SearchRequest",
+                GetActivityId(),
+                nullptr,
+                AICLI_TraceLoggingStringView(query, "Query"),
+                AICLI_TraceLoggingStringView(id, "Id"),
+                AICLI_TraceLoggingStringView(name, "Name"),
+                AICLI_TraceLoggingStringView(moniker, "Moniker"),
+                AICLI_TraceLoggingStringView(tag, "Tag"),
+                AICLI_TraceLoggingStringView(command, "Command"),
+                TraceLoggingUInt64(static_cast<UINT64>(maximum), "Maximum"),
+                AICLI_TraceLoggingStringView(request, "Request"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
     }
 
     void TelemetryTraceLogger::LogSearchResultCount(uint64_t resultCount) noexcept
