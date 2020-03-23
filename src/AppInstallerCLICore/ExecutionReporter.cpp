@@ -85,14 +85,12 @@ namespace AppInstaller::CLI::Execution
 
     void Reporter::OutputStream::ApplyFormat()
     {
-        if (m_isVTEnabled)
+        // Only apply format if m_applyFormatAtOne == 1 coming into this function.
+        if (m_isVTEnabled && m_applyFormatAtOne)
         {
-            if (m_applyFormatAtOne)
+            if (!--m_applyFormatAtOne)
             {
-                if (!--m_applyFormatAtOne)
-                {
-                    m_out << m_format;
-                }
+                m_out << m_format;
             }
         }
     }
@@ -106,7 +104,9 @@ namespace AppInstaller::CLI::Execution
     Reporter::OutputStream& Reporter::OutputStream::operator<<(const VirtualTerminal::Sequence& sequence)
     {
         m_out << sequence;
-        // Apply format after next output
+        // An incoming sequence will be valid for 1 "standard" output after this one.
+        // We set this to 2 to make that happen, because when it is 1, we will output
+        // the format for the current OutputStream.
         m_applyFormatAtOne = 2;
         return *this;
     }
