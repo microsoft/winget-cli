@@ -67,6 +67,8 @@ namespace AppInstaller::Manifest
 
         std::vector<ValidationError> PopulateManifestFields(const YAML::Node& rootNode, bool extraValidation);
 
+        // extraValidation Bool to set if manifest creation should perform extra validation that client does not need.
+        // e.g. Channel should be null. Client code does not need this check to work properly.
         static Manifest CreateFromPath(const std::filesystem::path& inputFile, bool extraValidation = false);
 
         static Manifest Create(const std::string& input, bool extraValidation = false);

@@ -37,6 +37,7 @@ namespace AppInstaller::Manifest
             Message(message), Field(field), Value(value), Line(line), Column(column) {}
     };
 
+    // This struct contains individual app manifest field info
     struct ManifestFieldInfo
     {
         std::string Name;
@@ -45,6 +46,10 @@ namespace AppInstaller::Manifest
         std::string RegEx = "";
     };
 
+    // This method takes YAML root node and list of manifest field info.
+    // Yaml-cpp does not support case insensitive search and it allows duplicate keys. If duplicate keys exist,
+    // the value is undefined. So in this method, we will iterate through the node map and process each individual
+    // pair ourselves. This also helps with generating aggregated error rather than throwing on first failure.
     std::vector<ValidationError> ValidateAndProcessFields(const YAML::Node& rootNode, const std::vector<ManifestFieldInfo> fieldInfos);
 
     struct ManifestException : public wil::ResultException

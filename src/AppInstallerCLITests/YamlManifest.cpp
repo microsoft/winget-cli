@@ -177,7 +177,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-VersionInvalid.yaml", "Manifest: Invalid field value. Field: Version" },
         { "Manifest-Bad-VersionMissing.yaml", "Manifest: Required field missing. Field: Version" },
     };
-    
+
     for (auto const& testCase : TestCases)
     {
         TestManifest(testCase.first, testCase.second);

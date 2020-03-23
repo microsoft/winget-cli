@@ -16,6 +16,7 @@ namespace AppInstaller::Manifest
             return errors;
         }
 
+        // Keeps track of already processed fields. Used to check duplicate fields or missing required fields.
         std::set<std::string> processedFields;
 
         for (auto const& keyValuePair : rootNode)
@@ -57,7 +58,7 @@ namespace AppInstaller::Manifest
                     }
                 }
 
-                // Validate value against regex
+                // Validate value against regex if applicable
                 if (!fieldInfo.RegEx.empty())
                 {
                     std::string value = valueNode.as<std::string>();
