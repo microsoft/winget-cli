@@ -62,12 +62,12 @@ namespace AppInstaller::CLI
 
     void SourceAddCommand::ExecuteInternal(Execution::Context& context) const
     {
-        std::string name = *context.Args.GetArg(Execution::Args::Type::SourceName);
-        std::string arg = *context.Args.GetArg(Execution::Args::Type::SourceArg);
+        std::string name(context.Args.GetArg(Execution::Args::Type::SourceName));
+        std::string arg(context.Args.GetArg(Execution::Args::Type::SourceArg));
         std::string type;
         if (context.Args.Contains(Execution::Args::Type::SourceType))
         {
-            type = *context.Args.GetArg(Execution::Args::Type::SourceType);
+            type = context.Args.GetArg(Execution::Args::Type::SourceType);
         }
 
         context.Reporter.ShowMsg("Adding source:");
@@ -108,12 +108,12 @@ namespace AppInstaller::CLI
 
         if (context.Args.Contains(Execution::Args::Type::SourceName))
         {
-            const std::string& name = *context.Args.GetArg(Execution::Args::Type::SourceName);
+            auto name = context.Args.GetArg(Execution::Args::Type::SourceName);
             auto itr = std::find_if(sources.begin(), sources.end(), [name](const Repository::SourceDetails& sd) { return Utility::CaseInsensitiveEquals(sd.Name, name); });
 
             if (itr == sources.end())
             {
-                context.Reporter.ShowMsg("No source with the given name was found: " + name);
+                context.Reporter.Info() << "No source with the given name was found: " << name << std::endl;
             }
             else
             {
@@ -174,8 +174,8 @@ namespace AppInstaller::CLI
     {
         if (context.Args.Contains(Execution::Args::Type::SourceName))
         {
-            const std::string& name = *context.Args.GetArg(Execution::Args::Type::SourceName);
-            context.Reporter.ShowMsg("Updating source: " + name + "...");
+            auto name = context.Args.GetArg(Execution::Args::Type::SourceName);
+            context.Reporter.Info() << "Updating source: " << name << "..." << std::endl;
             if (!context.Reporter.ExecuteWithProgress(std::bind(Repository::UpdateSource, name, std::placeholders::_1)))
             {
                 context.Reporter.EmptyLine();
@@ -221,8 +221,8 @@ namespace AppInstaller::CLI
 
     void SourceRemoveCommand::ExecuteInternal(Execution::Context& context) const
     {
-        const std::string& name = *context.Args.GetArg(Execution::Args::Type::SourceName);
-        context.Reporter.ShowMsg("Removing source: " + name + "...");
+        auto name = context.Args.GetArg(Execution::Args::Type::SourceName);
+        context.Reporter.Info() << "Removing source: " << name << "..." << std::endl;
         if (!context.Reporter.ExecuteWithProgress(std::bind(Repository::RemoveSource, name, std::placeholders::_1)))
         {
             context.Reporter.ShowMsg("Could not find a source by that name.", Execution::Reporter::Level::Warning);

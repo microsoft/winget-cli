@@ -34,7 +34,7 @@ namespace AppInstaller::CLI
     void HashCommand::ExecuteInternal(Execution::Context& context) const
     {
         auto inputFile = context.Args.GetArg(Execution::Args::Type::HashFile);
-        std::ifstream inStream{ *inputFile, std::ifstream::binary };
+        std::ifstream inStream{ inputFile, std::ifstream::binary };
 
         context.Reporter.ShowMsg("File Hash: " + Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHash(inStream)));
 
@@ -42,7 +42,7 @@ namespace AppInstaller::CLI
         {
             try
             {
-                Msix::MsixInfo msixInfo{ *inputFile };
+                Msix::MsixInfo msixInfo{ inputFile };
                 auto signature = msixInfo.GetSignature();
                 auto signatureHash = Utility::SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
 

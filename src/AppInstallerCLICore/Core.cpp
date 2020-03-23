@@ -86,6 +86,7 @@ namespace AppInstaller::CLI
                 commandToExecute = foundCommand.get();
             }
 
+            // TODO: Log full command (so source::add) rather than just leaf command
             Logging::Telemetry().LogCommand(commandToExecute->Name());
 
             commandToExecute->ParseArguments(invocation, context.Args);

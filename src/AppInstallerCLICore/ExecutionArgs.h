@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <string>
+#include <string_view>
 #include <map>
 #include <vector>
 
@@ -59,16 +60,16 @@ namespace AppInstaller::CLI::Execution
             return (itr == m_parsedArgs.end() ? nullptr : &(itr->second));
         }
 
-        const std::string* GetArg(Type arg) const
+        std::string_view GetArg(Type arg) const
         {
             auto itr = m_parsedArgs.find(arg);
 
             if (itr == m_parsedArgs.end())
             {
-                return nullptr;
+                return {};
             }
 
-            return &(itr->second[0]);
+            return itr->second[0];
         }
 
         size_t GetCount(Type arg) const
