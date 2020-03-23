@@ -35,7 +35,7 @@ namespace AppInstaller::Workflow
                 {
                     noSources = false;
 
-                    m_reporterRef.Warn() << "No sources match the given value '" << m_argsRef.GetArg(Execution::Args::Type::Source) << "'";
+                    m_reporterRef.Warn() << "No sources match the given value '" << m_argsRef.GetArg(Execution::Args::Type::Source) << "'" << std::endl;
                     m_reporterRef.ShowMsg("The configured sources are:");
                     for (const auto& details : sources)
                     {
