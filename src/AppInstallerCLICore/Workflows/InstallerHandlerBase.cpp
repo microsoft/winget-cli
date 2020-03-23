@@ -40,9 +40,9 @@ namespace AppInstaller::Workflow
                 << " SHA256 from download: "
                 << Utility::SHA256::ConvertToString(hash.value()));
 
-            if (!m_reporterRef.PromptForBoolResponse("Package hash verification failed. Continue?", ExecutionReporter::Level::Warning))
+            if (!m_reporterRef.PromptForBoolResponse("Package hash verification failed. Continue?", Execution::Reporter::Level::Warning))
             {
-                m_reporterRef.ShowMsg("Canceled. Package hash mismatch.", ExecutionReporter::Level::Error);
+                m_reporterRef.ShowMsg("Canceled. Package hash mismatch.", Execution::Reporter::Level::Error);
                 THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED), "Package installation canceled");
             }
         }

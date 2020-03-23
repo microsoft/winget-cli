@@ -15,7 +15,7 @@ namespace AppInstaller::CLI
         std::vector<std::string> GetLongDescription() const override;
 
     protected:
-        void ExecuteInternal(ExecutionContext& context) const override;
-        void ValidateArguments(ExecutionArgs& execArgs) const override;
+        void ExecuteInternal(Execution::Context& context) const override;
+        void ValidateArguments(Execution::Args& execArgs) const override;
     };
 }

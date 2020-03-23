@@ -37,6 +37,7 @@
 #include <string_view>
 #include <sstream>
 #include <system_error>
+#include <thread>
 #include <tuple>
 #include <type_traits>
 #include <utility>

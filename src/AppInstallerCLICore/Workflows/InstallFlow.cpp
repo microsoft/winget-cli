@@ -14,9 +14,9 @@ namespace AppInstaller::Workflow
 {
     void InstallFlow::Execute()
     {
-        if (m_argsRef.Contains(ExecutionArgs::Type::Manifest))
+        if (m_argsRef.Contains(Execution::Args::Type::Manifest))
         {
-            m_manifest = Manifest::Manifest::CreateFromPath(*(m_argsRef.GetArg(ExecutionArgs::Type::Manifest)));
+            m_manifest = Manifest::Manifest::CreateFromPath(*(m_argsRef.GetArg(Execution::Args::Type::Manifest)));
         }
         else
         {

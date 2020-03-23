@@ -31,7 +31,7 @@ namespace AppInstaller::CLI
         };
     }
 
-    void RootCommand::ExecuteInternal(ExecutionContext& context) const
+    void RootCommand::ExecuteInternal(Execution::Context& context) const
     {
         OutputHelp(context.Reporter);
     }

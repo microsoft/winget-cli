@@ -17,8 +17,11 @@ variables:
   buildConfiguration: 'Release'
   appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
 
+# Do not set the build version for a PR build.
+
 jobs:
 - job: 'GetReleaseTag'
+  condition: not(eq(variables['Build.Reason'], 'PullRequest'))
   variables:
     runCodesignValidationInjection: ${{ false }}
   steps:
@@ -32,6 +35,7 @@ jobs:
 
 - job: 'Build'
   dependsOn: 'GetReleaseTag'
+  condition: always()
   variables:
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
   steps:
@@ -45,6 +49,7 @@ jobs:
   
   - task: PowerShell@2
     displayName: Update Binary Version
+    condition: not(eq(variables['Build.Reason'], 'PullRequest'))
     inputs:
       filePath: 'src\binver\Update-BinVer.ps1'
       arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer)'

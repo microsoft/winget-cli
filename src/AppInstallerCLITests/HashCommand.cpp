@@ -11,9 +11,9 @@ using namespace AppInstaller::CLI;
 TEST_CASE("HashCommandWithTestMsix", "[Sha256Hash]")
 {
     std::ostringstream hashOutput;
-    ExecutionContext context{ hashOutput, std::cin };
-    context.Args.AddArg(ExecutionArgs::Type::HashFile, TestDataFile("TestSignedApp.msix").GetPath().u8string());
-    context.Args.AddArg(ExecutionArgs::Type::Msix);
+    Execution::Context context{ hashOutput, std::cin };
+    context.Args.AddArg(Execution::Args::Type::HashFile, TestDataFile("TestSignedApp.msix").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Msix);
     HashCommand hashCommand;
 
     hashCommand.Execute(context);
