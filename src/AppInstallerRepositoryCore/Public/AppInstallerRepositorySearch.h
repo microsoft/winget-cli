@@ -40,7 +40,7 @@ namespace AppInstaller::Repository
         MatchType Type;
         Utility::NormalizedString Value;
 
-        RequestMatch(MatchType t, const std::string& v) : Type(t), Value(v) {}
+        RequestMatch(MatchType t, std::string_view v) : Type(t), Value(v) {}
     };
 
     // A match on a specific field to be performed during a search.
@@ -48,7 +48,7 @@ namespace AppInstaller::Repository
     {
         ApplicationMatchField Field;
 
-        ApplicationMatchFilter(ApplicationMatchField f, MatchType t, const std::string& v) : RequestMatch(t, v), Field(f) {}
+        ApplicationMatchFilter(ApplicationMatchField f, MatchType t, std::string_view v) : RequestMatch(t, v), Field(f) {}
     };
 
     // Container for data used to filter the available manifests in a source.

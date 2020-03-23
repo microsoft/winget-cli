@@ -145,7 +145,7 @@ namespace AppInstaller::Workflow
         std::string logPath;
         if (m_argsRef.Contains(Execution::Args::Type::Log))
         {
-            logPath = *m_argsRef.GetArg(Execution::Args::Type::Log);
+            logPath = m_argsRef.GetArg(Execution::Args::Type::Log);
         }
         else
         {
@@ -156,7 +156,7 @@ namespace AppInstaller::Workflow
         // Populate <InstallPath> with value from command line.
         if (m_argsRef.Contains(Execution::Args::Type::InstallLocation))
         {
-            Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_INSTALLPATH), *m_argsRef.GetArg(Execution::Args::Type::InstallLocation));
+            Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_INSTALLPATH), m_argsRef.GetArg(Execution::Args::Type::InstallLocation));
         }
 
         // Todo: language token support will be implemented later
@@ -167,7 +167,7 @@ namespace AppInstaller::Workflow
         // If override switch is specified, use the override value as installer args.
         if (m_argsRef.Contains(Execution::Args::Type::Override))
         {
-            return *m_argsRef.GetArg(Execution::Args::Type::Override);
+            return std::string{ m_argsRef.GetArg(Execution::Args::Type::Override) };
         }
 
         std::string installerArgs = GetInstallerArgsTemplate();
