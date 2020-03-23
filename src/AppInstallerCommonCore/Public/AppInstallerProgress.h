@@ -26,15 +26,22 @@ namespace AppInstaller
         Percent,
     };
 
-    // Callback interface given to the worker to report to.
-    // Also enables the caller to request cancellation.
-    struct IProgressCallback
+    // Interface that only receives progress, and does not participate in cancellation.
+    // This allows a sink be simple, and let ProgressCallback handle the complications
+    // of cancel state.
+    struct IProgressSink
     {
-        using CancelFunctionRemoval = wil::unique_any<IProgressCallback*, decltype(&details::RemoveCancellationFunction), details::RemoveCancellationFunction>;
 
         // Called as progress is made.
         // If maximum is 0, the maximum is unknown.
         virtual void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) = 0;
+    };
+
+    // Callback interface given to the worker to report to.
+    // Also enables the caller to request cancellation.
+    struct IProgressCallback : public IProgressSink
+    {
+        using CancelFunctionRemoval = wil::unique_any<IProgressCallback*, decltype(&details::RemoveCancellationFunction), details::RemoveCancellationFunction>;
 
         // Returns a value indicating if the future has been cancelled.
         virtual bool IsCancelled() = 0;
@@ -47,14 +54,14 @@ namespace AppInstaller
     struct ProgressCallback : public IProgressCallback
     {
         ProgressCallback() = default;
-        ProgressCallback(IProgressCallback* callback) : m_callback(callback) {}
+        ProgressCallback(IProgressSink* sink) : m_sink(sink) {}
 
         void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override
         {
-            IProgressCallback* callback = GetCallback();
-            if (callback)
+            IProgressSink* sink = GetSink();
+            if (sink)
             {
-                callback->OnProgress(current, maximum, type);
+                sink->OnProgress(current, maximum, type);
             }
         }
 
@@ -85,13 +92,13 @@ namespace AppInstaller
             }
         }
 
-        IProgressCallback* GetCallback()
+        IProgressSink* GetSink()
         {
-            return m_callback.load();
+            return m_sink.load();
         }
 
     private:
-        std::atomic<IProgressCallback*> m_callback = nullptr;
+        std::atomic<IProgressSink*> m_sink = nullptr;
         std::atomic_bool m_cancelled = false;
         std::function<void()> m_cancellationFunction;
     };

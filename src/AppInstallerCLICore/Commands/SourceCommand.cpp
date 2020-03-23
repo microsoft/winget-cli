@@ -34,7 +34,7 @@ namespace AppInstaller::CLI
         };
     }
 
-    void SourceCommand::ExecuteInternal(ExecutionContext& context) const
+    void SourceCommand::ExecuteInternal(Execution::Context& context) const
     {
         OutputHelp(context.Reporter);
     }
@@ -42,9 +42,9 @@ namespace AppInstaller::CLI
     std::vector<Argument> SourceAddCommand::GetArguments() const
     {
         return {
-            Argument{ s_SourceCommand_ArgName_Name, ExecutionArgs::Type::SourceName, LOCME("Name of the source for future reference"), ArgumentType::Positional, true },
-            Argument{ s_SourceCommand_ArgName_Arg, ExecutionArgs::Type::SourceArg, LOCME("Argument given to the source"), ArgumentType::Positional, true },
-            Argument{ s_SourceCommand_ArgName_Type, ExecutionArgs::Type::SourceType, LOCME("Type of the source"), ArgumentType::Positional, false },
+            Argument{ s_SourceCommand_ArgName_Name, Execution::Args::Type::SourceName, LOCME("Name of the source for future reference"), ArgumentType::Positional, true },
+            Argument{ s_SourceCommand_ArgName_Arg, Execution::Args::Type::SourceArg, LOCME("Argument given to the source"), ArgumentType::Positional, true },
+            Argument{ s_SourceCommand_ArgName_Type, Execution::Args::Type::SourceType, LOCME("Type of the source"), ArgumentType::Positional, false },
         };
     }
 
@@ -60,14 +60,14 @@ namespace AppInstaller::CLI
         };
     }
 
-    void SourceAddCommand::ExecuteInternal(ExecutionContext& context) const
+    void SourceAddCommand::ExecuteInternal(Execution::Context& context) const
     {
-        std::string name = *context.Args.GetArg(ExecutionArgs::Type::SourceName);
-        std::string arg = *context.Args.GetArg(ExecutionArgs::Type::SourceArg);
+        std::string name = *context.Args.GetArg(Execution::Args::Type::SourceName);
+        std::string arg = *context.Args.GetArg(Execution::Args::Type::SourceArg);
         std::string type;
-        if (context.Args.Contains(ExecutionArgs::Type::SourceType))
+        if (context.Args.Contains(Execution::Args::Type::SourceType))
         {
-            type = *context.Args.GetArg(ExecutionArgs::Type::SourceType);
+            type = *context.Args.GetArg(Execution::Args::Type::SourceType);
         }
 
         context.Reporter.ShowMsg("Adding source:");
@@ -86,7 +86,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> SourceListCommand::GetArguments() const
     {
         return {
-            Argument{ s_SourceCommand_ArgName_Name, ExecutionArgs::Type::SourceName, LOCME("Name of the source to list full details for"), ArgumentType::Positional, false },
+            Argument{ s_SourceCommand_ArgName_Name, Execution::Args::Type::SourceName, LOCME("Name of the source to list full details for"), ArgumentType::Positional, false },
         };
     }
 
@@ -102,13 +102,13 @@ namespace AppInstaller::CLI
         };
     }
 
-    void SourceListCommand::ExecuteInternal(ExecutionContext& context) const
+    void SourceListCommand::ExecuteInternal(Execution::Context& context) const
     {
         std::vector<Repository::SourceDetails> sources = Repository::GetSources();
 
-        if (context.Args.Contains(ExecutionArgs::Type::SourceName))
+        if (context.Args.Contains(Execution::Args::Type::SourceName))
         {
-            const std::string& name = *context.Args.GetArg(ExecutionArgs::Type::SourceName);
+            const std::string& name = *context.Args.GetArg(Execution::Args::Type::SourceName);
             auto itr = std::find_if(sources.begin(), sources.end(), [name](const Repository::SourceDetails& sd) { return Utility::CaseInsensitiveEquals(sd.Name, name); });
 
             if (itr == sources.end())
@@ -154,7 +154,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> SourceUpdateCommand::GetArguments() const
     {
         return {
-            Argument{ s_SourceCommand_ArgName_Name, ExecutionArgs::Type::SourceName, LOCME("Name of the source to update"), ArgumentType::Positional, false },
+            Argument{ s_SourceCommand_ArgName_Name, Execution::Args::Type::SourceName, LOCME("Name of the source to update"), ArgumentType::Positional, false },
         };
     }
 
@@ -170,16 +170,16 @@ namespace AppInstaller::CLI
         };
     }
 
-    void SourceUpdateCommand::ExecuteInternal(ExecutionContext& context) const
+    void SourceUpdateCommand::ExecuteInternal(Execution::Context& context) const
     {
-        if (context.Args.Contains(ExecutionArgs::Type::SourceName))
+        if (context.Args.Contains(Execution::Args::Type::SourceName))
         {
-            const std::string& name = *context.Args.GetArg(ExecutionArgs::Type::SourceName);
+            const std::string& name = *context.Args.GetArg(Execution::Args::Type::SourceName);
             context.Reporter.ShowMsg("Updating source: " + name + "...");
             if (!context.Reporter.ExecuteWithProgress(std::bind(Repository::UpdateSource, name, std::placeholders::_1)))
             {
                 context.Reporter.EmptyLine();
-                context.Reporter.ShowMsg("  Could not find a source by that name.", ExecutionReporter::Level::Warning);
+                context.Reporter.ShowMsg("  Could not find a source by that name.", Execution::Reporter::Level::Warning);
             }
             else
             {
@@ -203,7 +203,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> SourceRemoveCommand::GetArguments() const
     {
         return {
-            Argument{ s_SourceCommand_ArgName_Name, ExecutionArgs::Type::SourceName, LOCME("Name of the source to remove"), ArgumentType::Positional, true },
+            Argument{ s_SourceCommand_ArgName_Name, Execution::Args::Type::SourceName, LOCME("Name of the source to remove"), ArgumentType::Positional, true },
         };
     }
 
@@ -219,13 +219,13 @@ namespace AppInstaller::CLI
         };
     }
 
-    void SourceRemoveCommand::ExecuteInternal(ExecutionContext& context) const
+    void SourceRemoveCommand::ExecuteInternal(Execution::Context& context) const
     {
-        const std::string& name = *context.Args.GetArg(ExecutionArgs::Type::SourceName);
+        const std::string& name = *context.Args.GetArg(Execution::Args::Type::SourceName);
         context.Reporter.ShowMsg("Removing source: " + name + "...");
         if (!context.Reporter.ExecuteWithProgress(std::bind(Repository::RemoveSource, name, std::placeholders::_1)))
         {
-            context.Reporter.ShowMsg("Could not find a source by that name.", ExecutionReporter::Level::Warning);
+            context.Reporter.ShowMsg("Could not find a source by that name.", Execution::Reporter::Level::Warning);
         }
         else
         {

@@ -11,7 +11,7 @@ namespace AppInstaller::Workflow
     public:
         MsixInstallerHandler(
             const Manifest::ManifestInstaller& manifestInstaller,
-            AppInstaller::CLI::ExecutionContext& context) :
+            AppInstaller::CLI::Execution::Context& context) :
             InstallerHandlerBase(manifestInstaller, context) {}
 
         // Download method just checks installer signature hash if signature hash

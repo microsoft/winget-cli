@@ -38,7 +38,7 @@ namespace AppInstaller::Workflow
         return true;
     }
 
-    ManifestInstaller ManifestComparator::GetPreferredInstaller(const ExecutionArgs&)
+    ManifestInstaller ManifestComparator::GetPreferredInstaller(const Execution::Args&)
     {
         AICLI_LOG(CLI, Info, << "Starting installer selection.");
 
@@ -48,7 +48,7 @@ namespace AppInstaller::Workflow
         // If the first one is inapplicable, then no installer is applicable.
         if (Utility::IsApplicableArchitecture(m_manifestRef.Installers[0].Arch) == -1)
         {
-            m_reporterRef.ShowMsg("No applicable installer found.", ExecutionReporter::Level::Error);
+            m_reporterRef.ShowMsg("No applicable installer found.", Execution::Reporter::Level::Error);
             THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_WORKFLOW_FAILED), "No installer with applicable architecture found.");
         }
 
@@ -59,7 +59,7 @@ namespace AppInstaller::Workflow
         return selectedInstaller;
     }
 
-    ManifestLocalization ManifestComparator::GetPreferredLocalization(const ExecutionArgs&)
+    ManifestLocalization ManifestComparator::GetPreferredLocalization(const Execution::Args&)
     {
         AICLI_LOG(CLI, Info, << "Starting localization selection.");
 

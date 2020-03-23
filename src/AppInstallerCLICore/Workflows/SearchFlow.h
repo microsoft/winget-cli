@@ -10,7 +10,7 @@ namespace AppInstaller::Workflow
     class SearchFlow : public WorkflowBase
     {
     public:
-        SearchFlow(AppInstaller::CLI::ExecutionContext& context) : WorkflowBase(context) {}
+        SearchFlow(AppInstaller::CLI::Execution::Context& context) : WorkflowBase(context) {}
 
         void Execute();;
 
