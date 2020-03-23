@@ -328,6 +328,43 @@ TEST_CASE("RepoSources_UpdateSource", "[sources]")
     REQUIRE((now - sources[0].LastUpdateTime) < 1s);
 }
 
+TEST_CASE("RepoSources_UpdateSourceRetries", "[sources]")
+{
+    using namespace std::chrono_literals;
+
+    RemoveSetting(s_RepositorySettings_UserSources);
+    TestHook_ClearSourceFactoryOverrides();
+
+    std::string name = "thisIsTheName";
+    std::string type = "thisIsTheType";
+    std::string arg = "thisIsTheArg";
+    std::string data = "thisIsTheData";
+
+    TestSourceFactory factory;
+    TestHook_SetSourceFactoryOverride(type, factory);
+
+    ProgressCallback progress;
+    AddSource(name, type, arg, progress);
+
+    // Reset for a call to update
+    bool updateShouldThrow = false;
+    bool updateCalledOnFactoryAgain = false;
+    factory.m_Update = [&](SourceDetails& sd)
+    {
+        if (updateShouldThrow)
+        {
+            updateShouldThrow = false;
+            THROW_HR(E_ACCESSDENIED);
+        }
+        updateCalledOnFactoryAgain = true;
+        sd.Data = data;
+    };
+
+    UpdateSource(name, progress);
+
+    REQUIRE(updateCalledOnFactoryAgain);
+}
+
 TEST_CASE("RepoSources_RemoveSource", "[sources]")
 {
     RemoveSetting(s_RepositorySettings_UserSources);

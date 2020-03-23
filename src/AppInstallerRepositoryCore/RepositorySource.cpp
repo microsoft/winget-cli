@@ -194,7 +194,21 @@ namespace AppInstaller::Repository
 
         void UpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
         {
-            GetFactoryForType(details.Type)->Update(details, progress);
+            auto factory = GetFactoryForType(details.Type);
+
+            // Attempt to update; if it fails, wait a short time and retry.
+            try
+            {
+                factory->Update(details, progress);
+                return;
+            }
+            CATCH_LOG();
+
+            AICLI_LOG(Repo, Info, << "Source update failed, waiting a bit and retrying: " << details.Name);
+            std::this_thread::sleep_for(2s);
+
+            // If this one fails, maybe the problem is persistent.
+            factory->Update(details, progress);
         }
 
         void RemoveSourceFromDetails(const SourceDetails& details, IProgressCallback& progress)
@@ -221,14 +235,14 @@ namespace AppInstaller::Repository
             }
 
             // TODO: Enable some amount of user control over this.
-            constexpr static auto s_DefaultAutoUpdateTime = 12h;
+            constexpr static auto s_DefaultAutoUpdateTime = 5min;
 
             auto timeSinceLastUpdate = std::chrono::system_clock::now() - details.LastUpdateTime;
             if (timeSinceLastUpdate > s_DefaultAutoUpdateTime)
             {
                 AICLI_LOG(Repo, Info, << "Source past auto update time [" << 
-                    std::chrono::duration_cast<std::chrono::hours>(s_DefaultAutoUpdateTime).count() << " hours]; it has been at least " << 
-                    std::chrono::duration_cast<std::chrono::hours>(timeSinceLastUpdate).count() << " hours");
+                    std::chrono::duration_cast<std::chrono::minutes>(s_DefaultAutoUpdateTime).count() << " mins]; it has been at least " << 
+                    std::chrono::duration_cast<std::chrono::minutes>(timeSinceLastUpdate).count() << " mins");
                 return true;
             }
 
