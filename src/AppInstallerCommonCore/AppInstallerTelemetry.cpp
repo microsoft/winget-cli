@@ -199,7 +199,7 @@ namespace AppInstaller::Logging
                 "AppFound",
                 GetActivityId(),
                 nullptr,
-                AICLI_TraceLoggingStringView(name, "AppName"),
+                AICLI_TraceLoggingStringView(name, "Name"),
                 AICLI_TraceLoggingStringView(id, "Id"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
