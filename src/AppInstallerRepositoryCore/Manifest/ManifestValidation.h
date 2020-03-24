@@ -33,8 +33,8 @@ namespace AppInstaller::Manifest
         int Line;
         int Column;
 
-        ValidationError(std::string message, std::string field = "", std::string value = "", int line = -1, int column = -1) :
-            Message(message), Field(field), Value(value), Line(line), Column(column) {}
+        ValidationError(std::string message, std::string field = {}, std::string value = {}, int line = -1, int column = -1) :
+            Message(std::move(message)), Field(std::move(field)), Value(std::move(value)), Line(line), Column(column) {}
     };
 
     // This struct contains individual app manifest field info
@@ -43,18 +43,18 @@ namespace AppInstaller::Manifest
         std::string Name;
         std::function<void(const YAML::Node&)> ProcessFunc;
         bool Required = false;
-        std::string RegEx = "";
+        std::string RegEx = {};
     };
 
     // This method takes YAML root node and list of manifest field info.
     // Yaml-cpp does not support case insensitive search and it allows duplicate keys. If duplicate keys exist,
     // the value is undefined. So in this method, we will iterate through the node map and process each individual
     // pair ourselves. This also helps with generating aggregated error rather than throwing on first failure.
-    std::vector<ValidationError> ValidateAndProcessFields(const YAML::Node& rootNode, const std::vector<ManifestFieldInfo> fieldInfos);
+    std::vector<ValidationError> ValidateAndProcessFields(const YAML::Node& rootNode, const std::vector<ManifestFieldInfo> fieldInfos, bool fullValidation);
 
     struct ManifestException : public wil::ResultException
     {
-        ManifestException(std::vector<ValidationError>&& errors) :
+        ManifestException(std::vector<ValidationError>&& errors = {}) :
             m_errors(std::move(errors)), wil::ResultException(APPINSTALLER_CLI_ERROR_MANIFEST_FAILED) {}
 
         const char* what() const noexcept override

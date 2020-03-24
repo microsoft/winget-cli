@@ -79,15 +79,13 @@ namespace AppInstaller::Manifest
         // The value declared in the manifest takes precedence, then value in the manifest root, then default known values.
         static std::vector<ValidationError> PopulateSwitchesFields(
             const YAML::Node& switchesNode,
-            std::map<InstallerSwitchType, string_t>& switches);
+            std::map<InstallerSwitchType, string_t>& switches,
+            bool fullValidation);
 
         // Populates ManifestInstaller
         // defaultInstaller: if an optional field is not found in the YAML node, the field will be populated with value from defaultInstaller.
-        std::vector<ValidationError> PopulateInstallerFields(const YAML::Node& installerNode, const ManifestInstaller& defaultInstaller, bool extraValidation = false);
+        std::vector<ValidationError> PopulateInstallerFields(const YAML::Node& installerNode, const ManifestInstaller& defaultInstaller, bool fullValidation);
 
         static std::string InstallerTypeToString(InstallerTypeEnum installerType);
-
-    private:
-        YAML::Node m_switchesNode;
     };
 }

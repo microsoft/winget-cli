@@ -106,7 +106,7 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(localization1.LicenseUrl == "https://github.com/microsoft/msix-packaging/blob/master/LICENSE-es-MX");
 }
 
-void TestManifest(const std::filesystem::path& manifestPath, const std::string& expectedError = "")
+void TestManifest(const std::filesystem::path& manifestPath, const std::string& expectedError = {})
 {
     if (expectedError.empty())
     {

@@ -36,8 +36,12 @@ namespace AppInstaller::Manifest
         }
     }
 
-    std::vector<ValidationError> Manifest::PopulateManifestFields(const YAML::Node& rootNode, bool extraValidation)
+    std::vector<ValidationError> Manifest::PopulateManifestFields(const YAML::Node& rootNode, bool fullValidation)
     {
+        YAML::Node switchesNode;
+        YAML::Node installersNode;
+        YAML::Node localizationsNode;
+
         const std::vector<ManifestFieldInfo> FieldInfos =
         {
             { "Id", [this](const YAML::Node& value) { Id = value.as<std::string>(); }, true, "^[\\S]+\\.[\\S]+$" },
@@ -59,16 +63,16 @@ namespace AppInstaller::Manifest
             { "Description", [this](const YAML::Node& value) { Description = value.as<std::string>(); } },
             { "Homepage", [this](const YAML::Node& value) { Homepage = value.as<std::string>(); } },
             { "LicenseUrl", [this](const YAML::Node& value) { LicenseUrl = value.as<std::string>(); } },
-            { "Switches", [this](const YAML::Node& value) { m_switchesNode = value; } },
-            { "Installers", [this](const YAML::Node& value) { m_installersNode = value; }, true },
-            { "Localization", [this](const YAML::Node& value) { m_localizationNode = value; } },
+            { "Switches", [&](const YAML::Node& value) { switchesNode = value; } },
+            { "Installers", [&](const YAML::Node& value) { installersNode = value; }, true },
+            { "Localization", [&](const YAML::Node& value) { localizationsNode = value; } },
         };
 
-        std::vector<ValidationError> resultErrors = ValidateAndProcessFields(rootNode, FieldInfos);
+        std::vector<ValidationError> resultErrors = ValidateAndProcessFields(rootNode, FieldInfos, fullValidation);
 
-        if (!m_switchesNode.IsNull())
+        if (!switchesNode.IsNull())
         {
-            auto errors = ManifestInstaller::PopulateSwitchesFields(m_switchesNode, this->Switches);
+            auto errors = ManifestInstaller::PopulateSwitchesFields(switchesNode, this->Switches, fullValidation);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
         }
 
@@ -77,10 +81,10 @@ namespace AppInstaller::Manifest
         defaultInstaller.InstallerType = this->InstallerType;
         defaultInstaller.Switches = this->Switches;
 
-        for (std::size_t i = 0; i < m_installersNode.size(); i++) {
-            YAML::Node installerNode = m_installersNode[i];
+        for (std::size_t i = 0; i < installersNode.size(); i++) {
+            YAML::Node installerNode = installersNode[i];
             ManifestInstaller installer;
-            auto errors = installer.PopulateInstallerFields(installerNode, defaultInstaller, extraValidation);
+            auto errors = installer.PopulateInstallerFields(installerNode, defaultInstaller, fullValidation);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
             this->Installers.emplace_back(std::move(installer));
         }
@@ -91,27 +95,28 @@ namespace AppInstaller::Manifest
         defaultLocalization.Homepage = this->Homepage;
         defaultLocalization.LicenseUrl = this->LicenseUrl;
 
-        if (!m_localizationNode.IsNull())
+        if (!localizationsNode.IsNull())
         {
-            for (std::size_t i = 0; i < m_localizationNode.size(); i++) {
-                YAML::Node localizationNode = m_localizationNode[i];
+            for (std::size_t i = 0; i < localizationsNode.size(); i++) {
+                YAML::Node localizationNode = localizationsNode[i];
                 ManifestLocalization localization;
-                auto errors = localization.PopulateLocalizationFields(localizationNode, defaultLocalization);
+                auto errors = localization.PopulateLocalizationFields(localizationNode, defaultLocalization, fullValidation);
                 std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
                 this->Localization.emplace_back(std::move(localization));
             }
         }
 
         // Extra semantic validations after basic validation and field population
-        if (extraValidation)
+        if (fullValidation)
         {
-            // Channel is not supported
+            // Channel is not supported currently
             if (!Channel.empty())
             {
                 resultErrors.emplace_back(ManifestError::FieldNotSupported, "Channel", Channel);
             }
 
             // Check duplicate installer entry. {installerType, arch, language and scope} combination is the key.
+            // Todo: use the comparator from ManifestComparator when that one is fully implemented.
             auto installerCmp = [](const ManifestInstaller& in1, const ManifestInstaller& in2)
             {
                 if (in1.InstallerType != in2.InstallerType)
@@ -152,7 +157,7 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
-    Manifest Manifest::CreateFromPath(const std::filesystem::path& inputFile, bool extraValidation)
+    Manifest Manifest::CreateFromPath(const std::filesystem::path& inputFile, bool fullValidation)
     {
         Manifest manifest;
         std::vector<ValidationError> errors;
@@ -160,15 +165,15 @@ namespace AppInstaller::Manifest
         try
         {
             YAML::Node rootNode = YAML::LoadFile(inputFile.u8string());
-            errors = manifest.PopulateManifestFields(rootNode, extraValidation);
+            errors = manifest.PopulateManifestFields(rootNode, fullValidation);
         }
-        catch (std::runtime_error& e)
+        catch (std::exception& e)
         {
             AICLI_LOG(YAML, Error, << "Failed to create manifest from file: " << inputFile.u8string());
-            THROW_EXCEPTION_MSG(ManifestException(std::move(errors)), e.what());
+            THROW_EXCEPTION_MSG(ManifestException(), e.what());
         }
 
-        if (errors.size() > 0)
+        if (!errors.empty())
         {
             THROW_EXCEPTION(ManifestException(std::move(errors)));
         }
@@ -176,7 +181,7 @@ namespace AppInstaller::Manifest
         return manifest;
     }
 
-    Manifest Manifest::Create(const std::string& input, bool extraValidation)
+    Manifest Manifest::Create(const std::string& input, bool fullValidation)
     {
         Manifest manifest;
         std::vector<ValidationError> errors;
@@ -184,15 +189,15 @@ namespace AppInstaller::Manifest
         try
         {
             YAML::Node rootNode = YAML::Load(input);
-            errors = manifest.PopulateManifestFields(rootNode, extraValidation);
+            errors = manifest.PopulateManifestFields(rootNode, fullValidation);
         }
-        catch (std::runtime_error& e)
+        catch (std::exception& e)
         {
             AICLI_LOG(YAML, Error, << "Failed to create manifest: " << input);
-            THROW_EXCEPTION_MSG(ManifestException(std::move(errors)), e.what());
+            THROW_EXCEPTION_MSG(ManifestException(), e.what());
         }
 
-        if (errors.size() > 0)
+        if (!errors.empty())
         {
             THROW_EXCEPTION(ManifestException(std::move(errors)));
         }

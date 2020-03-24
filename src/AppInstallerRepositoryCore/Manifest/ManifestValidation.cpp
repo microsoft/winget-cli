@@ -6,7 +6,7 @@
 
 namespace AppInstaller::Manifest
 {
-    std::vector<ValidationError> ValidateAndProcessFields(const YAML::Node& rootNode, const std::vector<ManifestFieldInfo> fieldInfos)
+    std::vector<ValidationError> ValidateAndProcessFields(const YAML::Node& rootNode, const std::vector<ManifestFieldInfo> fieldInfos, bool fullValidation)
     {
         std::vector<ValidationError> errors;
 
@@ -59,7 +59,7 @@ namespace AppInstaller::Manifest
                 }
 
                 // Validate value against regex if applicable
-                if (!fieldInfo.RegEx.empty())
+                if (fullValidation && !fieldInfo.RegEx.empty())
                 {
                     std::string value = valueNode.as<std::string>();
                     std::regex pattern{ fieldInfo.RegEx };
@@ -77,7 +77,11 @@ namespace AppInstaller::Manifest
             }
             else
             {
-                errors.emplace_back(ManifestError::FieldUnknown, key, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column);
+                // Forward compatibility for future fields
+                if (fullValidation)
+                {
+                    errors.emplace_back(ManifestError::FieldUnknown, key, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column);
+                }
             }
         }
 

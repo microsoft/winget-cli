@@ -65,17 +65,12 @@ namespace AppInstaller::Manifest
 
         std::vector<ManifestLocalization> Localization;
 
-        std::vector<ValidationError> PopulateManifestFields(const YAML::Node& rootNode, bool extraValidation);
+        std::vector<ValidationError> PopulateManifestFields(const YAML::Node& rootNode, bool fullValidation);
 
-        // extraValidation Bool to set if manifest creation should perform extra validation that client does not need.
+        // fullValidation Bool to set if manifest creation should perform extra validation that client does not need.
         // e.g. Channel should be null. Client code does not need this check to work properly.
-        static Manifest CreateFromPath(const std::filesystem::path& inputFile, bool extraValidation = false);
+        static Manifest CreateFromPath(const std::filesystem::path& inputFile, bool fullValidation = false);
 
-        static Manifest Create(const std::string& input, bool extraValidation = false);
-
-    private:
-        YAML::Node m_switchesNode;
-        YAML::Node m_installersNode;
-        YAML::Node m_localizationNode;
+        static Manifest Create(const std::string& input, bool fullValidation = false);
     };
 }

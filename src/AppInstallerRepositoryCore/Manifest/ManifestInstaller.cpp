@@ -6,8 +6,9 @@
 
 namespace AppInstaller::Manifest
 {
-    std::vector<ValidationError> ManifestInstaller::PopulateInstallerFields(const YAML::Node& installerNode, const ManifestInstaller& defaultInstaller, bool extraValidation)
+    std::vector<ValidationError> ManifestInstaller::PopulateInstallerFields(const YAML::Node& installerNode, const ManifestInstaller& defaultInstaller, bool fullValidation)
     {
+        YAML::Node switchesNode;
         this->InstallerType = defaultInstaller.InstallerType;
         this->Scope = "user";
 
@@ -20,10 +21,10 @@ namespace AppInstaller::Manifest
             { "Language", [this](const YAML::Node& value) { Language = value.as<std::string>(); } },
             { "Scope", [this](const YAML::Node& value) { Scope = value.as<std::string>(); } },
             { "InstallerType", [this](const YAML::Node& value) { InstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); } },
-            { "Switches", [this](const YAML::Node& value) { m_switchesNode = value; } },
+            { "Switches", [&](const YAML::Node& value) { switchesNode = value; } },
         };
 
-        auto resultErrors = ValidateAndProcessFields(installerNode, InstallerFieldInfos);
+        auto resultErrors = ValidateAndProcessFields(installerNode, InstallerFieldInfos, fullValidation);
 
         // Populate default known switches
         this->Switches = GetDefaultKnownSwitches(this->InstallerType);
@@ -35,14 +36,14 @@ namespace AppInstaller::Manifest
         }
 
         // Override with switches from installer if applicable
-        if (!m_switchesNode.IsNull())
+        if (!switchesNode.IsNull())
         {
-            auto errors = PopulateSwitchesFields(m_switchesNode, this->Switches);
+            auto errors = PopulateSwitchesFields(switchesNode, this->Switches, fullValidation);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
         }
 
         // Extra semantic validations after basic validation and field population
-        if (extraValidation)
+        if (fullValidation)
         {
             if (Arch == Utility::Architecture::Unknown)
             {
@@ -56,7 +57,7 @@ namespace AppInstaller::Manifest
 
             if (InstallerType == InstallerTypeEnum::Exe &&
                 (Switches.find(InstallerSwitchType::SilentWithProgress) == Switches.end() ||
-                    Switches.find(InstallerSwitchType::SilentWithProgress) == Switches.end()))
+                 Switches.find(InstallerSwitchType::Silent) == Switches.end()))
             {
                 resultErrors.emplace_back(ManifestError::ExeInstallerMissingSilentSwitches);
             }
@@ -72,7 +73,8 @@ namespace AppInstaller::Manifest
 
     std::vector<ValidationError> ManifestInstaller::PopulateSwitchesFields(
         const YAML::Node& switchesNode,
-        std::map<InstallerSwitchType, string_t>& switches)
+        std::map<InstallerSwitchType, string_t>& switches,
+        bool fullValidation)
     {
         const std::vector<ManifestFieldInfo> SwitchesFieldInfos =
         {
@@ -85,7 +87,7 @@ namespace AppInstaller::Manifest
             { "InstallLocation", [&](const YAML::Node& value) { switches[InstallerSwitchType::InstallLocation] = value.as<std::string>(); } },
         };
 
-        return ValidateAndProcessFields(switchesNode, SwitchesFieldInfos);
+        return ValidateAndProcessFields(switchesNode, SwitchesFieldInfos, fullValidation);
     }
 
     std::map<ManifestInstaller::InstallerSwitchType, ManifestInstaller::string_t> ManifestInstaller::GetDefaultKnownSwitches(InstallerTypeEnum installerType)

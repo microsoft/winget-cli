@@ -6,7 +6,7 @@
 
 namespace AppInstaller::Manifest
 {
-    std::vector<ValidationError> ManifestLocalization::PopulateLocalizationFields(const YAML::Node& localizationNode, const ManifestLocalization& defaultLocalization)
+    std::vector<ValidationError> ManifestLocalization::PopulateLocalizationFields(const YAML::Node& localizationNode, const ManifestLocalization& defaultLocalization, bool fullValidation)
     {
         // Populates default values first
         this->Description = defaultLocalization.Description;
@@ -21,6 +21,6 @@ namespace AppInstaller::Manifest
             { "LicenseUrl", [this](const YAML::Node& value) { LicenseUrl = value.as<std::string>(); } },
         };
 
-        return ValidateAndProcessFields(localizationNode, FieldInfos);
+        return ValidateAndProcessFields(localizationNode, FieldInfos, fullValidation);
     }
 }
