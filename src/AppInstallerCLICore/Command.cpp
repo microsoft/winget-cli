@@ -6,9 +6,22 @@
 
 namespace AppInstaller::CLI
 {
+    using namespace std::string_view_literals;
+
+    constexpr std::string_view s_Command_NameSeparator = "::"sv;
+
+    Command::Command(std::string_view name, std::string_view parent) :
+        m_name(name)
+    {
+        m_fullName.reserve(parent.length() + s_Command_NameSeparator.length() + name.length());
+        m_fullName = parent;
+        m_fullName += s_Command_NameSeparator;
+        m_fullName += name;
+    }
+
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
-        reporter.ShowMsg("AppInstaller Command Line");
+        reporter.Info() << "AppInstaller Command Line [" << Runtime::GetClientVersion() << ']' << std::endl;
         reporter.ShowMsg("Copyright (c) Microsoft Corporation");
     }
 
@@ -57,7 +70,7 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::unique_ptr<Command> Command::FindInvokedCommand(Invocation& inv) const
+    std::unique_ptr<Command> Command::FindSubCommand(Invocation& inv) const
     {
         auto itr = inv.begin();
         if (itr == inv.end() || (*itr)[0] == APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
@@ -75,16 +88,15 @@ namespace AppInstaller::CLI
 
         for (auto& command : commands)
         {
-            if (*itr == command->Name())
+            if (Utility::CaseInsensitiveEquals(*itr, command->Name()))
             {
                 AICLI_LOG(CLI, Info, << "Found subcommand: " << *itr);
                 inv.consume(itr);
-                std::unique_ptr<Command> subcommand = command->FindInvokedCommand(inv);
-                // If we found a subcommand, return it.  Otherwise, this is the one.
-                return (subcommand ? std::move(subcommand) : std::move(command));
+                return std::move(command);
             }
         }
 
+        // TODO: If we get to a large number of commands, do a fuzzy search much like git
         throw CommandException(LOCME("Unrecognized command"), *itr);
     }
 

@@ -7,7 +7,7 @@ namespace AppInstaller::CLI
 {
     struct HashCommand final : public Command
     {
-        HashCommand() : Command("hash") {}
+        HashCommand(std::string_view parent) : Command("hash", parent) {}
 
         virtual std::vector<Argument> GetArguments() const override;
 

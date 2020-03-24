@@ -15,11 +15,11 @@ namespace AppInstaller::CLI
     std::vector<std::unique_ptr<Command>> RootCommand::GetCommands() const
     {
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
-            std::make_unique<InstallCommand>(),
-            std::make_unique<ShowCommand>(),
-            std::make_unique<SourceCommand>(),
-            std::make_unique<SearchCommand>(),
-            std::make_unique<HashCommand>(),
+            std::make_unique<InstallCommand>(Name()),
+            std::make_unique<ShowCommand>(Name()),
+            std::make_unique<SourceCommand>(Name()),
+            std::make_unique<SearchCommand>(Name()),
+            std::make_unique<HashCommand>(Name()),
         });
     }
 

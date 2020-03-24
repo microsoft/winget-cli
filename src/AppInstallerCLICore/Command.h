@@ -81,7 +81,7 @@ namespace AppInstaller::CLI
 
     struct Command
     {
-        Command(std::string_view name) : m_name(name) {}
+        Command(std::string_view name, std::string_view parent);
         virtual ~Command() = default;
 
         Command(const Command&) = default;
@@ -91,6 +91,7 @@ namespace AppInstaller::CLI
         Command& operator=(Command&&) = default;
 
         std::string_view Name() const { return m_name; }
+        const std::string& FullName() const { return m_fullName; }
 
         virtual std::vector<std::unique_ptr<Command>> GetCommands() const { return {}; }
         virtual std::vector<Argument> GetArguments() const { return {}; }
@@ -101,7 +102,7 @@ namespace AppInstaller::CLI
         virtual void OutputIntroHeader(Execution::Reporter& reporter) const;
         virtual void OutputHelp(Execution::Reporter& reporter, const CommandException* exception = nullptr) const;
 
-        virtual std::unique_ptr<Command> FindInvokedCommand(Invocation& inv) const;
+        virtual std::unique_ptr<Command> FindSubCommand(Invocation& inv) const;
         virtual void ParseArguments(Invocation& inv, Execution::Args& execArgs) const;
         virtual void ValidateArguments(Execution::Args& execArgs) const;
 
@@ -112,6 +113,7 @@ namespace AppInstaller::CLI
 
     private:
         std::string_view m_name;
+        std::string m_fullName;
     };
 
     template <typename Container>

@@ -7,7 +7,7 @@ namespace AppInstaller::CLI
 {
     struct RootCommand final : public Command
     {
-        RootCommand() : Command("root") {}
+        RootCommand() : Command("root", {}) {}
 
         virtual std::vector<std::unique_ptr<Command>> GetCommands() const override;
 

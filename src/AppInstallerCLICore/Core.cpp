@@ -71,38 +71,35 @@ namespace AppInstaller::CLI
                 return strstr.str();
             }());
 
-        RootCommand root;
         Invocation invocation{ std::move(utf8Args) };
 
         // The root command is our fallback in the event of very bad or very little input
-        Command* commandToExecute = &root;
-        std::unique_ptr<Command> foundCommand;
+        std::unique_ptr<Command> command = std::make_unique<RootCommand>();
 
         try
         {
-            foundCommand = root.FindInvokedCommand(invocation);
-            if (foundCommand)
+            std::unique_ptr<Command> subCommand = command->FindSubCommand(invocation);
+            while (subCommand)
             {
-                commandToExecute = foundCommand.get();
+                command = std::move(subCommand);
+                subCommand = command->FindSubCommand(invocation);
             }
+            Logging::Telemetry().LogCommand(command->FullName());
 
-            // TODO: Log full command (so source::add) rather than just leaf command
-            Logging::Telemetry().LogCommand(commandToExecute->Name());
-
-            commandToExecute->ParseArguments(invocation, context.Args);
-            commandToExecute->ValidateArguments(context.Args);
+            command->ParseArguments(invocation, context.Args);
+            command->ValidateArguments(context.Args);
         }
         // Exceptions specific to parsing the arguments of a command
         catch (const CommandException& ce)
         {
-            commandToExecute->OutputHelp(context.Reporter, &ce);
+            command->OutputHelp(context.Reporter, &ce);
             AICLI_LOG(CLI, Error, << "Error encountered parsing command line: " << ce.Message());
             return APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS;
         }
 
         try
         {
-            commandToExecute->Execute(context);
+            command->Execute(context);
         }
         // Exceptions that may occur in the process of executing an arbitrary command
         catch (const winrt::hresult_error& hre)
@@ -121,7 +118,7 @@ namespace AppInstaller::CLI
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
 
-        Logging::Telemetry().LogCommandSuccess(commandToExecute->Name());
+        Logging::Telemetry().LogCommandSuccess(command->FullName());
         return 0;
     }
     // End of the line exceptions that are not ever expected.
