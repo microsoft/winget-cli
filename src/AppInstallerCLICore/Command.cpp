@@ -7,7 +7,6 @@
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
-
     constexpr std::string_view s_Command_NameSeparator = "::"sv;
 
     Command::Command(std::string_view name, std::string_view parent) :
@@ -100,14 +99,33 @@ namespace AppInstaller::CLI
         throw CommandException(LOCME("Unrecognized command"), *itr);
     }
 
+    // Parse arguments as such:
+    //  1. If argument starts with a single -, only the single character alias is considered.
+    //      a. If the named argument alias (a) needs a VALUE, it can be provided in these ways:
+    //          -aVALUE
+    //          -a VALUE
+    //      b. If the argument is a flag, additional characters after are treated as if they start
+    //          with a -, repeatedly until the end of the argument is reached.  Fails if non-flags hit.
+    //  2. If the argument starts with a double --, only the full name is considered.
+    //      a. If the named argument (arg) needs a VALUE, it can be provided in these ways:
+    //          --arg=VALUE
+    //          --arg VALUE
+    //  3. If the argument does not start with any -, it is considered the next positional argument.
+    //  4. If the argument is only a double --, all further arguments are only considered as positional.
     void Command::ParseArguments(Invocation& inv, Execution::Args& execArgs) const
     {
         auto definedArgs = GetArguments();
+        Argument::GetCommon(definedArgs);
         auto positionalSearchItr = definedArgs.begin();
+
+        // The user can override processing '-blah' as an argument name by passing '--'.
+        bool onlyPositionalArgsRemain = false;
 
         for (auto incomingArgsItr = inv.begin(); incomingArgsItr != inv.end(); ++incomingArgsItr)
         {
-            if ((*incomingArgsItr)[0] != APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
+            const std::string& currArg = *incomingArgsItr;
+
+            if (onlyPositionalArgsRemain || currArg.empty() || currArg[0] != APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
             {
                 // Positional argument, find the next appropriate one if the current itr isn't one or has hit its limit.
                 if (positionalSearchItr != definedArgs.end() &&
@@ -118,25 +136,99 @@ namespace AppInstaller::CLI
 
                 if (positionalSearchItr == definedArgs.end())
                 {
-                    throw CommandException(LOCME("Found a positional argument when none was expected"), *incomingArgsItr);
+                    throw CommandException(LOCME("Found a positional argument when none was expected"), currArg);
                 }
 
-                execArgs.AddArg(positionalSearchItr->ExecArgType(), *incomingArgsItr);
+                execArgs.AddArg(positionalSearchItr->ExecArgType(), currArg);
             }
+            // The currentArg must not be empty, and starts with a -
+            else if (currArg.length() == 1)
+            {
+                throw CommandException(LOCME("Invalid argument specifier"), currArg);
+            }
+            // Now it must be at least 2 chars
+            else if (currArg[1] != APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
+            {
+                // Parse the single character alias argument
+                char lowerArg = static_cast<char>(std::tolower(currArg[1]));
+
+                auto itr = std::find_if(definedArgs.begin(), definedArgs.end(), [&](const Argument& arg) { return (lowerArg = arg.Alias()); });
+                if (itr == definedArgs.end())
+                {
+                    throw CommandException(LOCME("Argument alias was not recognized for the current command"), currArg);
+                }
+
+                if (itr->Type() == ArgumentType::Flag)
+                {
+                    execArgs.AddArg(itr->ExecArgType());
+
+                    for (size_t i = 2; i < currArg.length(); ++i)
+                    {
+                        lowerArg = static_cast<char>(std::tolower(currArg[i]));
+
+                        auto itr2 = std::find_if(definedArgs.begin(), definedArgs.end(), [&](const Argument& arg) { return (lowerArg = arg.Alias()); });
+                        if (itr2 == definedArgs.end())
+                        {
+                            throw CommandException(LOCME("Adjoined flag alias not found"), currArg);
+                        }
+                        else if (itr2->Type() != ArgumentType::Flag)
+                        {
+                            throw CommandException(LOCME("Adjoined alias is not a flag"), currArg);
+                        }
+                        else
+                        {
+                            execArgs.AddArg(itr2->ExecArgType());
+                        }
+                    }
+                }
+                else if (currArg.length() > 2)
+                {
+                    execArgs.AddArg(itr->ExecArgType(), currArg.substr(2));
+                }
+                else
+                {
+                    ++incomingArgsItr;
+                    if (incomingArgsItr == inv.end())
+                    {
+                        throw CommandException(LOCME("Argument value required, but none found"), *incomingArgsItr);
+                    }
+                    execArgs.AddArg(itr->ExecArgType(), *incomingArgsItr);
+                }
+            }
+            // The currentArg is at least 2 chars, both of which are --
+            else if (currArg.length() == 2)
+            {
+                onlyPositionalArgsRemain = true;
+            }
+            // The currentArg is more than 2 chars, both of which are --
             else
             {
                 // This is an arg name, find it and process its value if needed.
-                // Skip the name identifier char.
-                std::string argName = incomingArgsItr->substr(1);
+                // Skip the double arg identifier chars.
+                std::string argName = currArg.substr(2);
                 bool argFound = false;
+
+                bool hasValue = false;
+                std::string argValue;
+                size_t splitChar = argName.find_first_of(APPINSTALLER_CLI_ARGUMENT_SPLIT_CHAR);
+                if (splitChar != std::string::npos)
+                {
+                    hasValue = true;
+                    argValue = argName.substr(splitChar + 1);
+                    argName.resize(splitChar);
+                }
 
                 for (const auto& arg : definedArgs)
                 {
-                    if (argName == arg.Name())
+                    if (Utility::CaseInsensitiveEquals(argName, arg.Name()))
                     {
                         if (arg.Type() == ArgumentType::Flag)
                         {
                             execArgs.AddArg(arg.ExecArgType());
+                        }
+                        else if (hasValue)
+                        {
+                            execArgs.AddArg(arg.ExecArgType(), std::move(argValue));
                         }
                         else
                         {
@@ -152,11 +244,7 @@ namespace AppInstaller::CLI
                     }
                 }
 
-                if (argName == APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING)
-                {
-                    execArgs.AddArg(Execution::Args::Type::Help);
-                }
-                else if (!argFound)
+                if (!argFound)
                 {
                     throw CommandException(LOCME("Argument name was not recognized for the current command"), *incomingArgsItr);
                 }
@@ -172,18 +260,7 @@ namespace AppInstaller::CLI
             return;
         }
 
-        for (const auto& arg : GetArguments())
-        {
-            if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
-            {
-                throw CommandException(LOCME("Required argument not provided"), arg.Name());
-            }
-
-            if (arg.Limit() < execArgs.GetCount(arg.ExecArgType()))
-            {
-                throw CommandException(LOCME("Argument provided more times than allowed"), arg.Name());
-            }
-        }
+        ValidateArgumentsInternal(execArgs);
     }
 
     void Command::Execute(Execution::Context& context) const
@@ -196,6 +273,22 @@ namespace AppInstaller::CLI
         else
         {
             ExecuteInternal(context);
+        }
+    }
+
+    void Command::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        for (const auto& arg : GetArguments())
+        {
+            if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
+            {
+                throw CommandException(LOCME("Required argument not provided"), arg.Name());
+            }
+
+            if (arg.Limit() < execArgs.GetCount(arg.ExecArgType()))
+            {
+                throw CommandException(LOCME("Argument provided more times than allowed"), arg.Name());
+            }
         }
     }
 

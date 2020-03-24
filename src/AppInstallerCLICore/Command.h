@@ -1,21 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include "Argument.h"
+#include "ExecutionContext.h"
+#include "Invocation.h"
+
 #include <initializer_list>
 #include <memory>
 #include <ostream>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 
-#include "Invocation.h"
-#include "ExecutionContext.h"
-
-#define APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR      '-'
-#define APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_STRING    "-"
-#define APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_CHAR       '?'
-#define APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING     "?"
-#define APPINSTALLER_CLI_HELP_ARGUMENT          APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_STRING APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING
 
 namespace AppInstaller::CLI
 {
@@ -29,54 +26,6 @@ namespace AppInstaller::CLI
     private:
         std::string m_message;
         std::string_view m_param;
-    };
-
-    enum class ArgumentType
-    {
-        // Argument requires specifying the name before the value.
-        Standard,
-        // Argument value can be specified alone; position indicates argument name.
-        Positional,
-        // Only argument name can be specified and indicates a bool value.
-        Flag,
-    };
-
-    struct Argument
-    {
-        Argument(std::string_view name, Execution::Args::Type execArgType, std::string desc) :
-            m_name(name), m_execArgType(execArgType), m_desc(std::move(desc)) {}
-
-        Argument(std::string_view name, Execution::Args::Type execArgType, std::string desc, bool required) :
-            m_name(name), m_execArgType(execArgType), m_desc(std::move(desc)), m_required(required) {}
-
-        Argument(std::string_view name, Execution::Args::Type execArgType, std::string desc, ArgumentType type) :
-            m_name(name), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type) {}
-
-        Argument(std::string_view name, Execution::Args::Type execArgType, std::string desc, ArgumentType type, bool required) :
-            m_name(name), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_required(required) {}
-
-        ~Argument() = default;
-
-        Argument(const Argument&) = default;
-        Argument& operator=(const Argument&) = default;
-
-        Argument(Argument&&) = default;
-        Argument& operator=(Argument&&) = default;
-
-        std::string_view Name() const { return m_name; }
-        Execution::Args::Type ExecArgType() const { return m_execArgType; }
-        std::string Description() const { return m_desc; }
-        bool Required() const { return m_required; }
-        ArgumentType Type() const { return m_type; }
-        size_t Limit() const { return m_countLimit; }
-
-    private:
-        std::string_view m_name;
-        Execution::Args::Type m_execArgType;
-        std::string m_desc;
-        bool m_required = false;
-        ArgumentType m_type = ArgumentType::Standard;
-        size_t m_countLimit = 1;
     };
 
     struct Command
@@ -109,6 +58,7 @@ namespace AppInstaller::CLI
         virtual void Execute(Execution::Context& context) const;
 
     protected:
+        virtual void ValidateArgumentsInternal(Execution::Args& execArgs) const;
         virtual void ExecuteInternal(Execution::Context& context) const;
 
     private:

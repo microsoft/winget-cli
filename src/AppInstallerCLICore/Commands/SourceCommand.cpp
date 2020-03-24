@@ -6,11 +6,15 @@
 
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Execution;
     using namespace std::string_view_literals;
 
     constexpr std::string_view s_SourceCommand_ArgName_Name = "name"sv;
+    constexpr char s_SourceCommand_ArgAlias_Name = 'n';
     constexpr std::string_view s_SourceCommand_ArgName_Type = "type"sv;
+    constexpr char s_SourceCommand_ArgAlias_Type = 't';
     constexpr std::string_view s_SourceCommand_ArgName_Arg = "arg"sv;
+    constexpr char s_SourceCommand_ArgAlias_Arg = 'a';
 
     std::vector<std::unique_ptr<Command>> SourceCommand::GetCommands() const
     {
@@ -42,9 +46,9 @@ namespace AppInstaller::CLI
     std::vector<Argument> SourceAddCommand::GetArguments() const
     {
         return {
-            Argument{ s_SourceCommand_ArgName_Name, Execution::Args::Type::SourceName, LOCME("Name of the source for future reference"), ArgumentType::Positional, true },
-            Argument{ s_SourceCommand_ArgName_Arg, Execution::Args::Type::SourceArg, LOCME("Argument given to the source"), ArgumentType::Positional, true },
-            Argument{ s_SourceCommand_ArgName_Type, Execution::Args::Type::SourceType, LOCME("Type of the source"), ArgumentType::Positional, false },
+            Argument{ s_SourceCommand_ArgName_Name, s_SourceCommand_ArgAlias_Name, Args::Type::SourceName, LOCME("Name of the source for future reference"), ArgumentType::Positional, true },
+            Argument{ s_SourceCommand_ArgName_Arg, s_SourceCommand_ArgAlias_Arg, Args::Type::SourceArg, LOCME("Argument given to the source"), ArgumentType::Positional, true },
+            Argument{ s_SourceCommand_ArgName_Type, s_SourceCommand_ArgAlias_Type, Args::Type::SourceType, LOCME("Type of the source"), ArgumentType::Positional },
         };
     }
 
@@ -86,7 +90,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> SourceListCommand::GetArguments() const
     {
         return {
-            Argument{ s_SourceCommand_ArgName_Name, Execution::Args::Type::SourceName, LOCME("Name of the source to list full details for"), ArgumentType::Positional, false },
+            Argument{ s_SourceCommand_ArgName_Name, s_SourceCommand_ArgAlias_Name, Args::Type::SourceName, LOCME("Name of the source to list full details for"), ArgumentType::Positional },
         };
     }
 
@@ -154,7 +158,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> SourceUpdateCommand::GetArguments() const
     {
         return {
-            Argument{ s_SourceCommand_ArgName_Name, Execution::Args::Type::SourceName, LOCME("Name of the source to update"), ArgumentType::Positional, false },
+            Argument{ s_SourceCommand_ArgName_Name, s_SourceCommand_ArgAlias_Name, Args::Type::SourceName, LOCME("Name of the source to update"), ArgumentType::Positional },
         };
     }
 
@@ -203,7 +207,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> SourceRemoveCommand::GetArguments() const
     {
         return {
-            Argument{ s_SourceCommand_ArgName_Name, Execution::Args::Type::SourceName, LOCME("Name of the source to remove"), ArgumentType::Positional, true },
+            Argument{ s_SourceCommand_ArgName_Name, s_SourceCommand_ArgAlias_Name, Args::Type::SourceName, LOCME("Name of the source to remove"), ArgumentType::Positional, true },
         };
     }
 
