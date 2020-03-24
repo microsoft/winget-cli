@@ -15,7 +15,7 @@ namespace AppInstaller::Workflow
     public:
         ShellExecuteInstallerHandler(
             const Manifest::ManifestInstaller& manifestInstaller,
-            AppInstaller::CLI::ExecutionContext& context) :
+            AppInstaller::CLI::Execution::Context& context) :
             InstallerHandlerBase(manifestInstaller, context) {};
 
         // Install is done though invoking SheelExecute on downloaded installer.

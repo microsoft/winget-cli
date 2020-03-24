@@ -6,20 +6,20 @@
 
 namespace AppInstaller::CLI
 {
-    void Command::OutputIntroHeader(ExecutionReporter& reporter) const
+    void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
         reporter.ShowMsg("AppInstaller Command Line");
         reporter.ShowMsg("Copyright (c) Microsoft Corporation");
     }
 
-    void Command::OutputHelp(ExecutionReporter& reporter, const CommandException* exception) const
+    void Command::OutputHelp(Execution::Reporter& reporter, const CommandException* exception) const
     {
         OutputIntroHeader(reporter);
         reporter.EmptyLine();
 
         if (exception)
         {
-            reporter.ShowMsg(exception->Message() + " : '" + std::string(exception->Param()) + '\'', ExecutionReporter::Level::Error);
+            reporter.ShowMsg(exception->Message() + " : '" + std::string(exception->Param()) + '\'', Execution::Reporter::Level::Error);
             reporter.EmptyLine();
         }
 
@@ -88,7 +88,7 @@ namespace AppInstaller::CLI
         throw CommandException(LOCME("Unrecognized command"), *itr);
     }
 
-    void Command::ParseArguments(Invocation& inv, ExecutionArgs& execArgs) const
+    void Command::ParseArguments(Invocation& inv, Execution::Args& execArgs) const
     {
         auto definedArgs = GetArguments();
         auto positionalSearchItr = definedArgs.begin();
@@ -142,7 +142,7 @@ namespace AppInstaller::CLI
 
                 if (argName == APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING)
                 {
-                    execArgs.AddArg(ExecutionArgs::Type::Help);
+                    execArgs.AddArg(Execution::Args::Type::Help);
                 }
                 else if (!argFound)
                 {
@@ -152,10 +152,10 @@ namespace AppInstaller::CLI
         }
     }
 
-    void Command::ValidateArguments(ExecutionArgs& execArgs) const
+    void Command::ValidateArguments(Execution::Args& execArgs) const
     {
         // If help is asked for, don't bother validating anything else
-        if (execArgs.Contains(ExecutionArgs::Type::Help))
+        if (execArgs.Contains(Execution::Args::Type::Help))
         {
             return;
         }
@@ -174,10 +174,10 @@ namespace AppInstaller::CLI
         }
     }
 
-    void Command::Execute(ExecutionContext& context) const
+    void Command::Execute(Execution::Context& context) const
     {
         AICLI_LOG(CLI, Info, << "Executing command: " << Name());
-        if (context.Args.Contains(ExecutionArgs::Type::Help))
+        if (context.Args.Contains(Execution::Args::Type::Help))
         {
             OutputHelp(context.Reporter);
         }
@@ -187,9 +187,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    void Command::ExecuteInternal(ExecutionContext& context) const
+    void Command::ExecuteInternal(Execution::Context& context) const
     {
-        context.Reporter.ShowMsg(LOCME("Oops, we forgot to do this..."), ExecutionReporter::Level::Error);
+        context.Reporter.ShowMsg(LOCME("Oops, we forgot to do this..."), Execution::Reporter::Level::Error);
         THROW_HR(E_NOTIMPL);
     }
 }

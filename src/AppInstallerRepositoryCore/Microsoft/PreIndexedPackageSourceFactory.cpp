@@ -160,8 +160,38 @@ namespace AppInstaller::Repository::Microsoft
                 return std::make_shared<SQLiteIndexSource>(details, std::move(index), std::move(lock));
             }
 
-            void UpdateInternal(std::string packageLocation, SourceDetails&, IProgressCallback& progress) override
+            void UpdateInternal(std::string packageLocation, SourceDetails& details, IProgressCallback& progress) override
             {
+                // Check if the package is newer before calling into deployment.
+                // This can save us a lot of time over letting deployment detect same version.
+                auto optionalPackage = GetPackageFromDetails(details);
+                if (optionalPackage)
+                {
+                    Msix::MsixInfo packageInfo(packageLocation);
+                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.GetIsBundle());
+
+                    if (progress.IsCancelled())
+                    {
+                        AICLI_LOG(Repo, Info, << "Cancelling update upon request");
+                        return;
+                    }
+
+                    std::filesystem::path packagePath = optionalPackage.InstalledLocation().Path().c_str();
+                    std::filesystem::path manifestPath = packagePath / s_PreIndexedPackageSourceFactory_AppxManifestFileName;
+
+                    if (!packageInfo.IsNewerThan(manifestPath))
+                    {
+                        AICLI_LOG(Repo, Info, << "Remote source data was not newer than existing, no update needed");
+                        return;
+                    }
+                }
+
+                if (progress.IsCancelled())
+                {
+                    AICLI_LOG(Repo, Info, << "Cancelling update upon request");
+                    return;
+                }
+
                 winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(packageLocation));
                 Deployment::RequestAddPackageAsync(uri, winrt::Windows::Management::Deployment::DeploymentOptions::None, progress);
             }
@@ -199,6 +229,12 @@ namespace AppInstaller::Repository::Microsoft
             {
                 std::filesystem::path packageLocation = GetStatePathFromDetails(details);
                 packageLocation /= s_PreIndexedPackageSourceFactory_IndexFileName;
+
+                if (!std::filesystem::exists(packageLocation))
+                {
+                    AICLI_LOG(Repo, Info, << "Data not found by family name " << details.Data);
+                    THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
+                }
 
                 SQLiteIndex index = SQLiteIndex::Open(packageLocation.u8string(), SQLiteIndex::OpenDisposition::Read);
 

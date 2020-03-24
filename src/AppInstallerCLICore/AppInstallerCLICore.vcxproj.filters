@@ -96,6 +96,9 @@
     <ClInclude Include="Commands\HashCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="VTSupport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -151,6 +154,9 @@
     </ClCompile>
     <ClCompile Include="Commands\HashCommand.cpp">
       <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="VTSupport.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -12,7 +12,7 @@ namespace AppInstaller::Workflow
     class InstallFlow : public SingleManifestWorkflow
     {
     public:
-        InstallFlow(AppInstaller::CLI::ExecutionContext& context) : SingleManifestWorkflow(context) {}
+        InstallFlow(AppInstaller::CLI::Execution::Context& context) : SingleManifestWorkflow(context) {}
 
         // Execute will perform a query against index and do app install if a target app is found.
         // If a manifest is given with /manifest, use the manifest and no index search is performed.

@@ -14,8 +14,8 @@ namespace AppInstaller::CLI
     std::vector<Argument> HashCommand::GetArguments() const
     {
         return {
-            Argument{ s_HashCommand_ArgName_File, ExecutionArgs::Type::HashFile, LOCME("The input file to be hashed."), ArgumentType::Positional, true },
-            Argument{ s_HashCommand_ArgName_Msix, ExecutionArgs::Type::Msix, LOCME("If specified, the input file will be treated as msix. Signature hash will be provided if exists."), ArgumentType::Flag },
+            Argument{ s_HashCommand_ArgName_File, Execution::Args::Type::HashFile, LOCME("The input file to be hashed."), ArgumentType::Positional, true },
+            Argument{ s_HashCommand_ArgName_Msix, Execution::Args::Type::Msix, LOCME("If specified, the input file will be treated as msix. Signature hash will be provided if exists."), ArgumentType::Flag },
         };
     }
 
@@ -31,18 +31,18 @@ namespace AppInstaller::CLI
         };
     }
 
-    void HashCommand::ExecuteInternal(ExecutionContext& context) const
+    void HashCommand::ExecuteInternal(Execution::Context& context) const
     {
-        auto inputFile = context.Args.GetArg(ExecutionArgs::Type::HashFile);
-        std::ifstream inStream{ *inputFile, std::ifstream::binary };
+        auto inputFile = context.Args.GetArg(Execution::Args::Type::HashFile);
+        std::ifstream inStream{ inputFile, std::ifstream::binary };
 
         context.Reporter.ShowMsg("File Hash: " + Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHash(inStream)));
 
-        if (context.Args.Contains(ExecutionArgs::Type::Msix))
+        if (context.Args.Contains(Execution::Args::Type::Msix))
         {
             try
             {
-                Msix::MsixInfo msixInfo{ *inputFile };
+                Msix::MsixInfo msixInfo{ inputFile };
                 auto signature = msixInfo.GetSignature();
                 auto signatureHash = Utility::SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
 
@@ -52,7 +52,7 @@ namespace AppInstaller::CLI
             {
                 context.Reporter.ShowMsg(
                     "Failed to calculate signature hash. Please verify the input file is a valid signed msix.",
-                    ExecutionReporter::Level::Warning);
+                    Execution::Reporter::Level::Warning);
             }
         }
     }

@@ -14,7 +14,7 @@ namespace AppInstaller::Workflow
     {
         if (IndexSearch() && EnsureOneMatchFromSearchResult())
         {
-            if (m_argsRef.Contains(ExecutionArgs::Type::ListVersions))
+            if (m_argsRef.Contains(Execution::Args::Type::ListVersions))
             {
                 ShowAppVersion();
             }

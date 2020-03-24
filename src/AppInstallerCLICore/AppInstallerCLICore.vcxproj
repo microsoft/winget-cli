@@ -187,6 +187,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\AppInstallerCLICore.h" />
     <ClInclude Include="Search\Search.h" />
+    <ClInclude Include="VTSupport.h" />
     <ClInclude Include="Workflows\Common.h" />
     <ClInclude Include="Workflows\SearchFlow.h" />
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
@@ -210,6 +211,7 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="VTSupport.cpp" />
     <ClCompile Include="Workflows\SearchFlow.cpp" />
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
     <ClCompile Include="Workflows\InstallerHandlerBase.cpp" />

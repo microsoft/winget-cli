@@ -4,13 +4,19 @@
 #include "ExecutionReporter.h"
 #include "ExecutionArgs.h"
 
-namespace AppInstaller::CLI
+namespace AppInstaller::CLI::Execution
 {
-    struct ExecutionContext
+    // The context within which all commands execute.
+    // Contains inout/output via Execution::Reporter and
+    // arguments via Execution::Args.
+    struct Context
     {
-        ExecutionReporter Reporter;
-        ExecutionArgs Args;
+        // The path for console input/output for all functionality.
+        Reporter Reporter;
 
-        ExecutionContext(std::ostream& out, std::istream& in) : Reporter(out, in) {}
+        // The arguments given to execute with.
+        Args Args;
+
+        Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
     };
 }

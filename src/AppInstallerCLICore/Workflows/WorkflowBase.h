@@ -11,12 +11,12 @@ namespace AppInstaller::Workflow
     class WorkflowBase
     {
     protected:
-        WorkflowBase(AppInstaller::CLI::ExecutionContext& context) :
+        WorkflowBase(AppInstaller::CLI::Execution::Context& context) :
             m_contextRef(context), m_reporterRef(context.Reporter), m_argsRef(context.Args) {}
 
-        AppInstaller::CLI::ExecutionContext& m_contextRef;
-        AppInstaller::CLI::ExecutionReporter& m_reporterRef;
-        const AppInstaller::CLI::ExecutionArgs& m_argsRef;
+        AppInstaller::CLI::Execution::Context& m_contextRef;
+        AppInstaller::CLI::Execution::Reporter& m_reporterRef;
+        const AppInstaller::CLI::Execution::Args& m_argsRef;
 
         virtual void OpenIndexSource();
 

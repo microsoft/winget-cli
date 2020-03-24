@@ -12,9 +12,9 @@ namespace AppInstaller::Workflow
     void WorkflowBase::OpenIndexSource()
     {
         std::string sourceName;
-        if (m_argsRef.Contains(ExecutionArgs::Type::Source))
+        if (m_argsRef.Contains(Execution::Args::Type::Source))
         {
-            sourceName = *m_argsRef.GetArg(ExecutionArgs::Type::Source);
+            sourceName = m_argsRef.GetArg(Execution::Args::Type::Source);
         }
 
         m_source = m_reporterRef.ExecuteWithProgress(std::bind(OpenSource, sourceName, std::placeholders::_1));
@@ -27,7 +27,7 @@ namespace AppInstaller::Workflow
         {
             bool noSources = true;
 
-            if (m_argsRef.Contains(ExecutionArgs::Type::Source))
+            if (m_argsRef.Contains(Execution::Args::Type::Source))
             {
                 // A bad name was given, try to help.
                 std::vector<SourceDetails> sources = GetSources();
@@ -35,8 +35,7 @@ namespace AppInstaller::Workflow
                 {
                     noSources = false;
 
-                    m_reporterRef.ShowMsg("No sources match the given value '" + *m_argsRef.GetArg(ExecutionArgs::Type::Source) + "'",
-                        ExecutionReporter::Level::Warning);
+                    m_reporterRef.Warn() << "No sources match the given value '" << m_argsRef.GetArg(Execution::Args::Type::Source) << "'" << std::endl;
                     m_reporterRef.ShowMsg("The configured sources are:");
                     for (const auto& details : sources)
                     {
@@ -48,7 +47,7 @@ namespace AppInstaller::Workflow
             if (noSources)
             {
                 m_reporterRef.ShowMsg("No sources defined; add one with 'source add'",
-                    ExecutionReporter::Level::Warning);
+                    Execution::Reporter::Level::Warning);
             }
 
             return false;
@@ -56,47 +55,56 @@ namespace AppInstaller::Workflow
 
         // Construct query
         MatchType matchType = MatchType::Substring;
-        if (m_argsRef.Contains(ExecutionArgs::Type::Exact))
+        if (m_argsRef.Contains(Execution::Args::Type::Exact))
         {
             matchType = MatchType::Exact;
         }
 
         SearchRequest searchRequest;
-        if (m_argsRef.Contains(ExecutionArgs::Type::Query))
+        if (m_argsRef.Contains(Execution::Args::Type::Query))
         {
-            searchRequest.Query.emplace(RequestMatch(matchType, *m_argsRef.GetArg(ExecutionArgs::Type::Query)));
+            searchRequest.Query.emplace(RequestMatch(matchType, m_argsRef.GetArg(Execution::Args::Type::Query)));
         }
 
-        if (m_argsRef.Contains(ExecutionArgs::Type::Id))
+        if (m_argsRef.Contains(Execution::Args::Type::Id))
         {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, *m_argsRef.GetArg(ExecutionArgs::Type::Id)));
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, m_argsRef.GetArg(Execution::Args::Type::Id)));
         }
 
-        if (m_argsRef.Contains(ExecutionArgs::Type::Name))
+        if (m_argsRef.Contains(Execution::Args::Type::Name))
         {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, *m_argsRef.GetArg(ExecutionArgs::Type::Name)));
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, m_argsRef.GetArg(Execution::Args::Type::Name)));
         }
 
-        if (m_argsRef.Contains(ExecutionArgs::Type::Moniker))
+        if (m_argsRef.Contains(Execution::Args::Type::Moniker))
         {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, *m_argsRef.GetArg(ExecutionArgs::Type::Moniker)));
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, m_argsRef.GetArg(Execution::Args::Type::Moniker)));
         }
 
-        if (m_argsRef.Contains(ExecutionArgs::Type::Tag))
+        if (m_argsRef.Contains(Execution::Args::Type::Tag))
         {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Tag, matchType, *m_argsRef.GetArg(ExecutionArgs::Type::Tag)));
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Tag, matchType, m_argsRef.GetArg(Execution::Args::Type::Tag)));
         }
 
-        if (m_argsRef.Contains(ExecutionArgs::Type::Command))
+        if (m_argsRef.Contains(Execution::Args::Type::Command))
         {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Command, matchType, *m_argsRef.GetArg(ExecutionArgs::Type::Command)));
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Command, matchType, m_argsRef.GetArg(Execution::Args::Type::Command)));
         }
 
-        if (m_argsRef.Contains(ExecutionArgs::Type::Count))
+        if (m_argsRef.Contains(Execution::Args::Type::Count))
         {
-            searchRequest.MaximumResults = std::stoi(*m_argsRef.GetArg(ExecutionArgs::Type::Count));
+            searchRequest.MaximumResults = std::stoi(std::string(m_argsRef.GetArg(Execution::Args::Type::Count)));
         }
 
+        Logging::Telemetry().LogSearchRequest(
+            m_argsRef.GetArg(Execution::Args::Type::Query),
+            m_argsRef.GetArg(Execution::Args::Type::Id),
+            m_argsRef.GetArg(Execution::Args::Type::Name),
+            m_argsRef.GetArg(Execution::Args::Type::Moniker),
+            m_argsRef.GetArg(Execution::Args::Type::Tag),
+            m_argsRef.GetArg(Execution::Args::Type::Command),
+            searchRequest.MaximumResults,
+            searchRequest.ToString());
         m_searchResult = m_source->Search(searchRequest);
 
         return true;
@@ -149,10 +157,8 @@ namespace AppInstaller::Workflow
     {
         auto app = m_searchResult.Matches.at(0).Application.get();
 
-        Logging::Telemetry().LogManifestFields(app->GetName(), app->GetId());
-
-        std::string_view version = (m_argsRef.Contains(ExecutionArgs::Type::Version) ? *m_argsRef.GetArg(ExecutionArgs::Type::Version) : std::string_view{});
-        std::string_view channel = (m_argsRef.Contains(ExecutionArgs::Type::Channel) ? *m_argsRef.GetArg(ExecutionArgs::Type::Channel) : std::string_view{});
+        std::string_view version = m_argsRef.GetArg(Execution::Args::Type::Version);
+        std::string_view channel = m_argsRef.GetArg(Execution::Args::Type::Channel);
 
         std::optional<Manifest::Manifest> manifest = app->GetManifest(version, channel);
 
@@ -170,11 +176,12 @@ namespace AppInstaller::Workflow
                 message += ']';
             }
 
-            m_reporterRef.ShowMsg(message, ExecutionReporter::Level::Warning);
+            m_reporterRef.ShowMsg(message, Execution::Reporter::Level::Warning);
             return false;
         }
 
         m_manifest = std::move(manifest.value());
+        Logging::Telemetry().LogManifestFields(m_manifest.Id, m_manifest.Name, m_manifest.Version);
 
         return true;
     }
