@@ -4,6 +4,7 @@
 
 #define NOMINMAX
 #include <windows.h>
+#include <urlmon.h>
 
 #include <AppInstallerDateTime.h>
 #include <AppInstallerDeployment.h>
@@ -41,6 +42,8 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+#include <functional>
+#include <regex>
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
 #include <functional>

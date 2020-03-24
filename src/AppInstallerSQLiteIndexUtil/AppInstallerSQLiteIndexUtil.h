@@ -10,6 +10,9 @@ extern "C"
     // A string taken in by the utility; in UTF16.
     typedef wchar_t const* const APPINSTALLER_SQLITE_INDEX_STRING;
 
+    // A string returned by the utility; in UTF16.
+    typedef BSTR APPINSTALLER_SQLITE_INDEX_STRING_OUT;
+
 #define APPINSTALLER_SQLITE_INDEX_API HRESULT __stdcall
 
 #define APPINSTALLER_SQLITE_INDEX_VERSION_LATEST ((UINT32)-1)
@@ -64,4 +67,11 @@ extern "C"
     // Removes data that is no longer needed for an index that is to be published.
     APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexPrepareForPackaging(
         APPINSTALLER_SQLITE_INDEX_HANDLE index);
+
+    // Validates a given manifest. Returns a bool for validation result and
+    // a string representing validation errors if validation failed.
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerValidateManifest(
+        APPINSTALLER_SQLITE_INDEX_STRING manifestPath,
+        bool* succeeded,
+        APPINSTALLER_SQLITE_INDEX_STRING_OUT* failureMessage);
 }

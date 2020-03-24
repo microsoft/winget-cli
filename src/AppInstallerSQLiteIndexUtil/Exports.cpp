@@ -4,6 +4,7 @@
 #include "AppInstallerSQLiteIndexUtil.h"
 
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository::Microsoft;
 
 extern "C"
@@ -143,6 +144,32 @@ extern "C"
         THROW_HR_IF(E_INVALIDARG, !index);
 
         reinterpret_cast<SQLiteIndex*>(index)->PrepareForPackaging();
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
+    APPINSTALLER_SQLITE_INDEX_API AppInstallerValidateManifest(
+        APPINSTALLER_SQLITE_INDEX_STRING manifestPath,
+        bool* succeeded,
+        APPINSTALLER_SQLITE_INDEX_STRING_OUT* failureMessage) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !manifestPath);
+        THROW_HR_IF(E_INVALIDARG, !succeeded);
+
+        try
+        {
+            (void)Manifest::CreateFromPath(manifestPath, true);
+            *succeeded = true;
+        }
+        catch (const ManifestException& e)
+        {
+            *succeeded = false;
+            if (failureMessage)
+            {
+                *failureMessage = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorMessage()).c_str());
+            }
+        }
 
         return S_OK;
     }

@@ -28,9 +28,9 @@ bool operator==(const MultiValue& a, const MultiValue& b)
     return true;
 }
 
-TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
+TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
 {
-    Manifest manifest = Manifest::CreateFromPath(TestDataFile("GoodManifest.yml"));
+    Manifest manifest = Manifest::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
 
     REQUIRE(manifest.Id == "microsoft.msixsdk");
     REQUIRE(manifest.Name == "MSIX SDK");
@@ -106,7 +106,80 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[PackageManifestHelper]")
     REQUIRE(localization1.LicenseUrl == "https://github.com/microsoft/msix-packaging/blob/master/LICENSE-es-MX");
 }
 
-TEST_CASE("ReadBadManifestAndVerifyThrow", "[PackageManifestHelper]")
+void TestManifest(const std::filesystem::path& manifestPath, const std::string& expectedError = {})
 {
-    REQUIRE_THROWS_WITH(Manifest::CreateFromPath(TestDataFile("BadManifest-MissingName.yml")), Catch::Contains("invalid node; first invalid key: \"Name\""));
+    if (expectedError.empty())
+    {
+        CHECK_NOTHROW(Manifest::CreateFromPath(TestDataFile(manifestPath), true));
+    }
+    else
+    {
+        CHECK_THROWS_WITH(Manifest::CreateFromPath(TestDataFile(manifestPath), true), Catch::Contains(expectedError));
+    }
+}
+
+TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
+{
+    std::string TestCases[] =
+    {
+        "Manifest-Good-InstallerTypeExeRoot-Silent.yaml",
+        "Manifest-Good-InstallerTypeExeRoot-SilentRoot.yaml",
+        "Manifest-Good-InstallerTypeExe-Silent.yaml",
+        "Manifest-Good-InstallerTypeExe-SilentRoot.yaml",
+        "Manifest-Good-Installeruniqueness-DefaultLang.yaml",
+        "Manifest-Good-Installeruniqueness-DiffLangs.yaml",
+        "Manifest-Good-InstallerUniqueness-DiffScope.yaml",
+        "Manifest-Good-Minimum.yaml",
+        "Manifest-Good-Minimum-InstallerType.yaml",
+        "Manifest-Good-Switches.yaml",
+    };
+
+    for (auto const& testCase : TestCases)
+    {
+        TestManifest(testCase);
+    }
+}
+
+TEST_CASE("ReadBadManifests", "[ManifestValidation]")
+{
+    std::pair<std::string, std::string> TestCases[] =
+    {
+        { "Manifest-Bad-ArchInvalid.yaml", "Manifest: Invalid field value. Field: Arch" },
+        { "Manifest-Bad-ArchMissing.yaml", "Manifest: Required field missing. Field: Arch" },
+        { "Manifest-Bad-Channel-NotSupported.yaml", "Manifest: Field is not supported. Field: Channel" },
+        { "Manifest-Bad-DifferentCase-camelCase.yaml", "Manifest: All field names should be PascalCased. Field: installerType" },
+        { "Manifest-Bad-DifferentCase-lower.yaml", "Manifest: All field names should be PascalCased. Field: installertype" },
+        { "Manifest-Bad-DifferentCase-UPPER.yaml", "Manifest: All field names should be PascalCased. Field: INSTALLERTYPE" },
+        { "Manifest-Bad-DuplicateKey.yaml", "Manifest: Duplicate field found in the manifest." },
+        { "Manifest-Bad-DuplicateKey-DifferentCase.yaml", "Manifest: Duplicate field found in the manifest." },
+        { "Manifest-Bad-DuplicateKey-DifferentCase-lower.yaml", "Manifest: Duplicate field found in the manifest." },
+        { "Manifest-Bad-IdInvalid.yaml", "Manifest: Invalid field value. Field: Id" },
+        { "Manifest-Bad-IdMissing.yaml", "Manifest: Required field missing. Field: Id" },
+        { "Manifest-Bad-InstallersMissing.yaml", "Manifest: Required field missing. Field: Installers" },
+        { "Manifest-Bad-InstallerTypeExe-NoSilent.yaml", "Manifest: Silent switches are required for InstallerType exe." },
+        { "Manifest-Bad-InstallerTypeExe-NoSilentRoot.yaml", "Manifest: Silent switches are required for InstallerType exe." },
+        { "Manifest-Bad-InstallerTypeExeRoot-NoSilent.yaml", "Manifest: Silent switches are required for InstallerType exe." },
+        { "Manifest-Bad-InstallerTypeExeRoot-NoSilentRoot.yaml", "Manifest: Silent switches are required for InstallerType exe." },
+        { "Manifest-Bad-InstallerTypeInvalid.yaml", "Manifest: Invalid field value. Field: InstallerType" },
+        { "Manifest-Bad-InstallerTypeMissing.yaml", "Manifest: Invalid field value. Field: InstallerType" },
+        { "Manifest-Bad-InstallerUniqueness.yaml", "Manifest: Duplicate installer entry found." },
+        { "Manifest-Bad-InstallerUniqueness-DefaultScope.yaml", "Manifest: Duplicate installer entry found." },
+        { "Manifest-Bad-InstallerUniqueness-DefaultValues.yaml", "Manifest: Duplicate installer entry found." },
+        { "Manifest-Bad-InstallerUniqueness-SameLang.yaml", "Manifest: Duplicate installer entry found." },
+        { "Manifest-Bad-NameMissing.yaml", "Manifest: Required field missing. Field: Name" },
+        { "Manifest-Bad-PublisherMissing.yaml", "Manifest: Required field missing. Field: Publisher" },
+        { "Manifest-Bad-Sha256Invalid.yaml", "Manifest: Invalid field value. Field: Sha256" },
+        { "Manifest-Bad-Sha256Missing.yaml", "Manifest: Required field missing. Field: Sha256" },
+        { "Manifest-Bad-SwitchInvalid.yaml", "Manifest: Unknown field. Field: NotASwitch" },
+        { "Manifest-Bad-UnknownProperty.yaml", "Manifest: Unknown field. Field: Fake" },
+        { "Manifest-Bad-UrlInvalid.yaml", "Manifest: Invalid field value. Field: Url" },
+        { "Manifest-Bad-UrlMissing.yaml", "Manifest: Required field missing. Field: Url" },
+        { "Manifest-Bad-VersionInvalid.yaml", "Manifest: Invalid field value. Field: Version" },
+        { "Manifest-Bad-VersionMissing.yaml", "Manifest: Required field missing. Field: Version" },
+    };
+
+    for (auto const& testCase : TestCases)
+    {
+        TestManifest(testCase.first, testCase.second);
+    }
 }

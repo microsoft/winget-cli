@@ -37,7 +37,7 @@ SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std
     manifest.Tags = { "t1", "t2" };
     manifest.Commands = { "test1", "test2" };
 
-    relativePath = "test/id/1.0.0.yml";
+    relativePath = "test/id/1.0.0.yaml";
 
     index.AddManifest(manifest, relativePath);
 
@@ -138,8 +138,8 @@ TEST_CASE("SQLiteIndexCreateAndAddManifestFile", "[sqliteindex]")
 
     SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, Schema::Version::Latest());
 
-    TestDataFile manifestFile{ "GoodManifest.yml" };
-    std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yml" };
+    TestDataFile manifestFile{ "Manifest-Good.yaml" };
+    std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yaml" };
 
     index.AddManifest(manifestFile, manifestPath);
 }
@@ -155,7 +155,7 @@ TEST_CASE("SQLiteIndexCreateAndAddManifestDuplicate", "[sqliteindex]")
     SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
 
     // Attempting to add the same manifest at a different path should fail.
-    REQUIRE_THROWS_HR(index.AddManifest(manifest, "differentpath.yml"), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
+    REQUIRE_THROWS_HR(index.AddManifest(manifest, "differentpath.yaml"), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
 
     // Attempting to add a different manifest at the same path should fail.
     manifest.Id += "-new";
@@ -166,8 +166,8 @@ TEST_CASE("SQLiteIndex_RemoveManifestFile_NotPresent", "[sqliteindex]")
 {
     SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
 
-    TestDataFile manifestFile{ "GoodManifest.yml" };
-    std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yml" };
+    TestDataFile manifestFile{ "Manifest-Good.yaml" };
+    std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yaml" };
 
     REQUIRE_THROWS_HR(index.RemoveManifest(manifestFile, manifestPath), E_NOT_SET);
 }
@@ -177,7 +177,7 @@ TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex][V1_0]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    std::string manifest1Path = "test/id/test.id-1.0.0.yml";
+    std::string manifest1Path = "test/id/test.id-1.0.0.yaml";
     Manifest manifest1;
     manifest1.Id = "test.id";
     manifest1.Name = "Test Name";
@@ -187,7 +187,7 @@ TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex][V1_0]")
     manifest1.Tags = { "t1", "t2" };
     manifest1.Commands = { "test1", "test2" };
 
-    std::string manifest2Path = "test/woah/test.id-1.0.0.yml";
+    std::string manifest2Path = "test/woah/test.id-1.0.0.yaml";
     Manifest manifest2;
     manifest2.Id = "test.woah";
     manifest2.Name = "Test Name WOAH";
@@ -252,8 +252,8 @@ TEST_CASE("SQLiteIndex_RemoveManifestFile", "[sqliteindex][V1_0]")
     {
         SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
 
-        TestDataFile manifestFile{ "GoodManifest.yml" };
-        std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yml" };
+        TestDataFile manifestFile{ "Manifest-Good.yaml" };
+        std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yaml" };
 
         index.AddManifest(manifestFile, manifestPath);
 
@@ -280,7 +280,7 @@ TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex][V1_0]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    std::string manifestPath = "test/id/test.id-1.0.0.yml";
+    std::string manifestPath = "test/id/test.id-1.0.0.yaml";
     Manifest manifest;
     manifest.Id = "test.id";
     manifest.Name = "Test Name";
@@ -373,7 +373,7 @@ TEST_CASE("SQLiteIndex_UpdateManifestChangePath", "[sqliteindex][V1_0]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    std::string manifestPath = "test/id/test.id-1.0.0.yml";
+    std::string manifestPath = "test/id/test.id-1.0.0.yaml";
     Manifest manifest;
     manifest.Id = "test.id";
     manifest.Name = "Test Name";
@@ -407,7 +407,7 @@ TEST_CASE("SQLiteIndex_UpdateManifestChangePath", "[sqliteindex][V1_0]")
     {
         SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
 
-        manifestPath = "test/newid/test.newid-1.0.0.yml";
+        manifestPath = "test/newid/test.newid-1.0.0.yaml";
 
         // Update with path update should indicate change
         REQUIRE(index.UpdateManifest(manifest, manifestPath));
@@ -523,8 +523,8 @@ TEST_CASE("SQLiteIndex_PrepareForPackaging", "[sqliteindex]")
 
     SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, Schema::Version::Latest());
 
-    TestDataFile manifestFile{ "GoodManifest.yml" };
-    std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yml" };
+    TestDataFile manifestFile{ "Manifest-Good.yaml" };
+    std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yaml" };
 
     index.AddManifest(manifestFile, manifestPath);
 

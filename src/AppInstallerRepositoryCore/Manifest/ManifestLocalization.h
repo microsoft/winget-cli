@@ -3,7 +3,7 @@
 #pragma once
 #include <string>
 
-namespace YAML { class Node; }
+#include "ManifestValidation.h"
 
 namespace AppInstaller::Manifest
 {
@@ -23,6 +23,6 @@ namespace AppInstaller::Manifest
 
         // Populates ManifestLocalization
         // defaultLocalization: if an optional field is not found in the YAML node, the field will be populated with value from defaultLocalization.
-        void PopulateLocalizationFields(const YAML::Node& localizationNode, const ManifestLocalization& defaultLocalization);
+        std::vector<ValidationError> PopulateLocalizationFields(const YAML::Node& localizationNode, const ManifestLocalization& defaultLocalization, bool fullValidation);
     };
 }

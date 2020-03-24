@@ -115,7 +115,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
       <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalOptions>%(AdditionalOptions) /permissive- /bigobj</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /permissive- /bigobj /D _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
@@ -176,6 +176,7 @@
     <ClInclude Include="Manifest\Manifest.h" />
     <ClInclude Include="Manifest\ManifestInstaller.h" />
     <ClInclude Include="Manifest\ManifestLocalization.h" />
+    <ClInclude Include="Manifest\ManifestValidation.h" />
     <ClInclude Include="Microsoft\PreIndexedPackageSourceFactory.h" />
     <ClInclude Include="Microsoft\Schema\1_0\ChannelTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\CommandsTable.h" />
@@ -217,6 +218,7 @@
     <ClCompile Include="Manifest\Manifest.cpp" />
     <ClCompile Include="Manifest\ManifestInstaller.cpp" />
     <ClCompile Include="Manifest\ManifestLocalization.cpp" />
+    <ClCompile Include="Manifest\ManifestValidation.cpp" />
     <ClCompile Include="Microsoft\PreIndexedPackageSourceFactory.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\Interface.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\ManifestTable.cpp" />

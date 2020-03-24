@@ -123,6 +123,9 @@
     <ClInclude Include="ICU\SQLiteICU.h">
       <Filter>ICU</Filter>
     </ClInclude>
+    <ClInclude Include="Manifest\ManifestValidation.h">
+      <Filter>Manifest</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -184,6 +187,9 @@
     </ClCompile>
     <ClCompile Include="ICU\SQLiteICU.c">
       <Filter>ICU</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\ManifestValidation.cpp">
+      <Filter>Manifest</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
