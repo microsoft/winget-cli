@@ -150,6 +150,8 @@ namespace AppInstaller::Workflow
             return false;
         }
 
+        auto app = m_searchResult.Matches.at(0).Application.get();
+        Logging::Telemetry().LogAppFound(app->GetName(), app->GetId());
         return true;
     }
 
