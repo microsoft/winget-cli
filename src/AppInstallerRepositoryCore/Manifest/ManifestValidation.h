@@ -57,36 +57,57 @@ namespace AppInstaller::Manifest
         ManifestException(std::vector<ValidationError>&& errors = {}) :
             m_errors(std::move(errors)), wil::ResultException(APPINSTALLER_CLI_ERROR_MANIFEST_FAILED) {}
 
-        const char* what() const noexcept override
+        // Error message without wil diagnostic info
+        const std::string& GetManifestErrorMessage() const noexcept
         {
-            if (m_message.empty())
+            if (m_manifestErrorMessage.empty())
             {
-                m_message = ResultException::what();
-                m_message += "Invalid manifest:\n";
-
-                for (auto const& error : m_errors)
+                if (m_errors.empty())
                 {
-                    m_message += error.Message + ' ';
-                    if (!error.Field.empty())
+                    // Syntax error, Yaml-cpp error is stored in FailureInfo
+                    m_manifestErrorMessage = Utility::ConvertToUTF8(GetFailureInfo().pszMessage);
+                }
+                else
+                {
+                    for (auto const& error : m_errors)
                     {
-                        m_message += "Field: " + error.Field + ' ';
+                        m_manifestErrorMessage += error.Message;
+                        if (!error.Field.empty())
+                        {
+                            m_manifestErrorMessage += " Field: " + error.Field;
+                        }
+                        if (!error.Value.empty())
+                        {
+                            m_manifestErrorMessage += " Value: " + error.Value;
+                        }
+                        if (error.Line >= 0 && error.Column >= 0)
+                        {
+                            m_manifestErrorMessage += " Line: " + std::to_string(error.Line) + ", Column: " + std::to_string(error.Column);
+                        }
+                        m_manifestErrorMessage += '\n';
                     }
-                    if (!error.Value.empty())
-                    {
-                        m_message += "Value: " + error.Value + ' ';
-                    }
-                    if (error.Line >= 0 && error.Column >= 0)
-                    {
-                        m_message += "Line: " + std::to_string(error.Line) + ", Column: " + std::to_string(error.Column);
-                    }
-                    m_message += '\n';
                 }
             }
-            return m_message.c_str();
+            return m_manifestErrorMessage;
+        }
+
+        const char* what() const noexcept override
+        {
+            if (m_whatMessage.empty())
+            {
+                m_whatMessage = ResultException::what();
+
+                if (!m_errors.empty())
+                {
+                    m_whatMessage += GetManifestErrorMessage();
+                }
+            }
+            return m_whatMessage.c_str();
         }
 
     private:
         std::vector<ValidationError> m_errors;
-        mutable std::string m_message;
+        mutable std::string m_whatMessage;
+        mutable std::string m_manifestErrorMessage;
     };
 }

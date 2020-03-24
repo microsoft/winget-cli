@@ -12,6 +12,7 @@
 #include <Public/AppInstallerLogging.h>
 #include <Public/AppInstallerTelemetry.h>
 #include <Microsoft/SQLiteIndex.h>
+#include <Manifest/Manifest.h>
 
 #include <wil/result_macros.h>
 

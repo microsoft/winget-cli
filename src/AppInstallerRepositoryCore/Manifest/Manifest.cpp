@@ -167,7 +167,7 @@ namespace AppInstaller::Manifest
             YAML::Node rootNode = YAML::LoadFile(inputFile.u8string());
             errors = manifest.PopulateManifestFields(rootNode, fullValidation);
         }
-        catch (std::exception& e)
+        catch (const std::exception& e)
         {
             AICLI_LOG(YAML, Error, << "Failed to create manifest from file: " << inputFile.u8string());
             THROW_EXCEPTION_MSG(ManifestException(), e.what());
@@ -191,7 +191,7 @@ namespace AppInstaller::Manifest
             YAML::Node rootNode = YAML::Load(input);
             errors = manifest.PopulateManifestFields(rootNode, fullValidation);
         }
-        catch (std::exception& e)
+        catch (const std::exception& e)
         {
             AICLI_LOG(YAML, Error, << "Failed to create manifest: " << input);
             THROW_EXCEPTION_MSG(ManifestException(), e.what());
