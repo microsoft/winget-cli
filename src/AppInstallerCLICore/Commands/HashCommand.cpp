@@ -21,11 +21,9 @@ namespace AppInstaller::CLI
         return LOCME("Helper to hash installer files");
     }
 
-    std::vector<std::string> HashCommand::GetLongDescription() const
+    std::string HashCommand::GetLongDescription() const
     {
-        return {
-            LOCME("Helper to hash installer files"),
-        };
+        return LOCME("Helper to hash installer files");
     }
 
     void HashCommand::ExecuteInternal(Execution::Context& context) const

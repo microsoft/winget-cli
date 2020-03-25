@@ -30,11 +30,9 @@ namespace AppInstaller::CLI
         return LOCME("Shows info of the given application");
     }
 
-    std::vector<std::string> ShowCommand::GetLongDescription() const
+    std::string ShowCommand::GetLongDescription() const
     {
-        return {
-            LOCME("Shows info of the given application"),
-        };
+        return LOCME("Shows info of the given application");
     }
 
     void ShowCommand::ExecuteInternal(Execution::Context& context) const

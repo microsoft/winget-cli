@@ -12,16 +12,24 @@ namespace AppInstaller::CLI
     Command::Command(std::string_view name, std::string_view parent) :
         m_name(name)
     {
-        m_fullName.reserve(parent.length() + s_Command_NameSeparator.length() + name.length());
-        m_fullName = parent;
-        m_fullName += s_Command_NameSeparator;
-        m_fullName += name;
+        if (!parent.empty())
+        {
+            m_fullName.reserve(parent.length() + s_Command_NameSeparator.length() + name.length());
+            m_fullName = parent;
+            m_fullName += s_Command_NameSeparator;
+            m_fullName += name;
+        }
+        else
+        {
+            m_fullName = name;
+        }
     }
 
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
-        reporter.Info() << "AppInstaller Command Line [" << Runtime::GetClientVersion() << ']' << std::endl;
-        reporter.ShowMsg("Copyright (c) Microsoft Corporation");
+        reporter.Info() <<
+            "AppInstaller Command Line [" << Runtime::GetClientVersion() << ']' << std::endl <<
+            "Copyright (c) Microsoft Corporation" << std::endl;
     }
 
     void Command::OutputHelp(Execution::Reporter& reporter, const CommandException* exception) const
@@ -31,55 +39,119 @@ namespace AppInstaller::CLI
 
         if (exception)
         {
-            reporter.ShowMsg(exception->Message() + " : '" + std::string(exception->Param()) + '\'', Execution::Reporter::Level::Error);
-            reporter.EmptyLine();
+            reporter.Error() <<
+                exception->Message() << " : '" << exception->Param() << '\'' << std::endl <<
+                std::endl;
         }
 
-        // TODO: Auto-split based on console width
-        for (const auto& line : GetLongDescription())
+        auto infoOut = reporter.Info();
+        infoOut <<
+            GetLongDescription() << std::endl <<
+            std::endl;
+
+        // Example usage for this command, if applicable
+        auto arguments = GetArguments();
+        bool needsExePart = true;
+
+        for (const auto& arg : arguments)
         {
-            reporter.ShowMsg(line);
-        }
-        reporter.EmptyLine();
+            if (arg.Visibility() == Visibility::Example)
+            {
+                if (needsExePart)
+                {
+                    infoOut << "<exe>";
+                    needsExePart = false;
+                }
 
-        // TODO: Output example
+                infoOut << ' ';
+
+                if (!arg.Required())
+                {
+                    infoOut << '[';
+                }
+
+                if (arg.Type() == ArgumentType::Positional)
+                {
+                    infoOut << '[';
+                }
+
+                if (arg.Alias() == APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER)
+                {
+                    infoOut << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Name();
+                }
+                else
+                {
+                    infoOut << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias();
+                }
+
+                if (arg.Type() == ArgumentType::Positional)
+                {
+                    infoOut << ']';
+                }
+
+                if (arg.Type() != ArgumentType::Flag)
+                {
+                    infoOut << " <" << arg.Name() << '>';
+                }
+
+                if (!arg.Required())
+                {
+                    infoOut << ']';
+                }
+            }
+        }
+
+        if (!needsExePart)
+        {
+            infoOut <<
+                std::endl <<
+                std::endl;
+        }
 
         auto commands = GetCommands();
         if (!commands.empty())
         {
             if (Name() == FullName())
             {
-                reporter.ShowMsg(LOCME("The following commands are available:"));
+                infoOut << LOCME("The following commands are available:") << std::endl;
             }
             else
             {
-                reporter.ShowMsg(LOCME("The following sub-commands are available:"));
+                infoOut << LOCME("The following sub-commands are available:") << std::endl;
             }
 
             // TODO: Create table output functionality in reporter
             for (const auto& command : commands)
             {
-                reporter.Info() << "  " << command->Name() << "  " << command->ShortDescription() << std::endl;
+                infoOut << "  " << command->Name() << "  " << command->ShortDescription() << std::endl;
             }
 
-            reporter.EmptyLine();
-            reporter.ShowMsg(std::string(LOCME("For more details on a specific command, pass it the help argument.")) + " [" + APPINSTALLER_CLI_HELP_ARGUMENT + "]");
+            infoOut <<
+                std::endl <<
+                LOCME("For more details on a specific command, pass it the help argument.") << " [" << APPINSTALLER_CLI_HELP_ARGUMENT << ']' << std::endl;
         }
 
-        auto arguments = GetArguments();
         if (!arguments.empty())
         {
             if (!commands.empty())
             {
-                reporter.EmptyLine();
+                infoOut << std::endl;
             }
 
-            reporter.ShowMsg(LOCME("The following arguments are available:"));
+            infoOut << LOCME("The following arguments are available:") << std::endl;
 
-            // TODO: Respect visibility
+            // TODO: Create table output functionality in reporter
             for (const auto& arg : GetArguments())
             {
-                reporter.Info() << "  " << arg.Name() << "  " << arg.Description() << std::endl;
+                if (arg.Visibility() != Visibility::Hidden)
+                {
+                    infoOut << "  ";
+                    if (arg.Alias() != APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER)
+                    {
+                        infoOut << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << ',';
+                    }
+                    infoOut << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Name() << "  " << arg.Description() << std::endl;
+                }
             }
         }
     }
@@ -165,9 +237,9 @@ namespace AppInstaller::CLI
             else if (currArg[1] != APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
             {
                 // Parse the single character alias argument
-                char lowerArg = static_cast<char>(std::tolower(currArg[1]));
+                char currChar = currArg[1];
 
-                auto itr = std::find_if(definedArgs.begin(), definedArgs.end(), [&](const Argument& arg) { return (lowerArg == arg.Alias()); });
+                auto itr = std::find_if(definedArgs.begin(), definedArgs.end(), [&](const Argument& arg) { return (currChar == arg.Alias()); });
                 if (itr == definedArgs.end())
                 {
                     throw CommandException(LOCME("Argument alias was not recognized for the current command"), currArg);
@@ -179,9 +251,9 @@ namespace AppInstaller::CLI
 
                     for (size_t i = 2; i < currArg.length(); ++i)
                     {
-                        lowerArg = static_cast<char>(std::tolower(currArg[i]));
+                        currChar = currArg[i];
 
-                        auto itr2 = std::find_if(definedArgs.begin(), definedArgs.end(), [&](const Argument& arg) { return (lowerArg == arg.Alias()); });
+                        auto itr2 = std::find_if(definedArgs.begin(), definedArgs.end(), [&](const Argument& arg) { return (currChar == arg.Alias()); });
                         if (itr2 == definedArgs.end())
                         {
                             throw CommandException(LOCME("Adjoined flag alias not found"), currArg);

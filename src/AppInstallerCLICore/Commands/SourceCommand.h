@@ -12,7 +12,7 @@ namespace AppInstaller::CLI
         virtual std::vector<std::unique_ptr<Command>> GetCommands() const override;
 
         virtual std::string ShortDescription() const override;
-        virtual std::vector<std::string> GetLongDescription() const override;
+        virtual std::string GetLongDescription() const override;
 
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const;
@@ -25,7 +25,7 @@ namespace AppInstaller::CLI
         virtual std::vector<Argument> GetArguments() const override;
 
         virtual std::string ShortDescription() const override;
-        virtual std::vector<std::string> GetLongDescription() const override;
+        virtual std::string GetLongDescription() const override;
 
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const override;
@@ -38,7 +38,7 @@ namespace AppInstaller::CLI
         virtual std::vector<Argument> GetArguments() const override;
 
         virtual std::string ShortDescription() const override;
-        virtual std::vector<std::string> GetLongDescription() const override;
+        virtual std::string GetLongDescription() const override;
 
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const override;
@@ -51,7 +51,7 @@ namespace AppInstaller::CLI
         virtual std::vector<Argument> GetArguments() const override;
 
         virtual std::string ShortDescription() const override;
-        virtual std::vector<std::string> GetLongDescription() const override;
+        virtual std::string GetLongDescription() const override;
 
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const override;
@@ -64,7 +64,7 @@ namespace AppInstaller::CLI
         virtual std::vector<Argument> GetArguments() const override;
 
         virtual std::string ShortDescription() const override;
-        virtual std::vector<std::string> GetLongDescription() const override;
+        virtual std::string GetLongDescription() const override;
 
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const override;

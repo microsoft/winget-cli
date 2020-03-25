@@ -82,6 +82,7 @@ namespace AppInstaller::CLI
         bool Required() const { return m_required; }
         ArgumentType Type() const { return m_type; }
         size_t Limit() const { return m_countLimit; }
+        Visibility Visibility() const { return m_visibility; }
 
         Argument& SetRequired(bool required) { m_required = required; return *this; }
 
@@ -92,7 +93,7 @@ namespace AppInstaller::CLI
         std::string m_desc;
         bool m_required = false;
         ArgumentType m_type = ArgumentType::Standard;
-        Visibility m_visibility = Visibility::Example;
+        ::AppInstaller::CLI::Visibility m_visibility = Visibility::Example;
         size_t m_countLimit = 1;
     };
 }

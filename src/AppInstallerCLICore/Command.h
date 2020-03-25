@@ -46,7 +46,7 @@ namespace AppInstaller::CLI
         virtual std::vector<Argument> GetArguments() const { return {}; }
 
         virtual std::string ShortDescription() const { return {}; }
-        virtual std::vector<std::string> GetLongDescription() const { return {}; }
+        virtual std::string GetLongDescription() const { return {}; }
 
         virtual void OutputIntroHeader(Execution::Reporter& reporter) const;
         virtual void OutputHelp(Execution::Reporter& reporter, const CommandException* exception = nullptr) const;

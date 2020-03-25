@@ -42,11 +42,9 @@ namespace AppInstaller::CLI
         return LOCME("Installs the given application");
     }
 
-    std::vector<std::string> InstallCommand::GetLongDescription() const
+    std::string InstallCommand::GetLongDescription() const
     {
-        return {
-            LOCME("Installs the given application"),
-        };
+        return LOCME("Installs the given application");
     }
 
     void InstallCommand::ExecuteInternal(Execution::Context& context) const

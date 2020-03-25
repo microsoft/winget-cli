@@ -12,7 +12,7 @@ namespace AppInstaller::CLI
         std::vector<Argument> GetArguments() const override;
 
         std::string ShortDescription() const override;
-        std::vector<std::string> GetLongDescription() const override;
+        std::string GetLongDescription() const override;
 
     protected:
         void ValidateArgumentsInternal(Execution::Args& execArgs) const override;

@@ -31,11 +31,9 @@ namespace AppInstaller::CLI
         return LOCME("Manage sources of applications");
     }
 
-    std::vector<std::string> SourceCommand::GetLongDescription() const
+    std::string SourceCommand::GetLongDescription() const
     {
-        return {
-            LOCME("Manage sources of applications"),
-        };
+        return LOCME("Manage sources of applications");
     }
 
     void SourceCommand::ExecuteInternal(Execution::Context& context) const
@@ -57,11 +55,9 @@ namespace AppInstaller::CLI
         return LOCME("Add a new source");
     }
 
-    std::vector<std::string> SourceAddCommand::GetLongDescription() const
+    std::string SourceAddCommand::GetLongDescription() const
     {
-        return {
-            LOCME("Add a new source"),
-        };
+        return LOCME("Add a new source");
     }
 
     void SourceAddCommand::ExecuteInternal(Execution::Context& context) const
@@ -99,11 +95,9 @@ namespace AppInstaller::CLI
         return LOCME("List current sources");
     }
 
-    std::vector<std::string> SourceListCommand::GetLongDescription() const
+    std::string SourceListCommand::GetLongDescription() const
     {
-        return {
-            LOCME("List current sources"),
-        };
+        return LOCME("List current sources");
     }
 
     void SourceListCommand::ExecuteInternal(Execution::Context& context) const
@@ -167,11 +161,9 @@ namespace AppInstaller::CLI
         return LOCME("Update current sources");
     }
 
-    std::vector<std::string> SourceUpdateCommand::GetLongDescription() const
+    std::string SourceUpdateCommand::GetLongDescription() const
     {
-        return {
-            LOCME("Update current sources"),
-        };
+        return LOCME("Update current sources");
     }
 
     void SourceUpdateCommand::ExecuteInternal(Execution::Context& context) const
@@ -216,11 +208,9 @@ namespace AppInstaller::CLI
         return LOCME("Remove current sources");
     }
 
-    std::vector<std::string> SourceRemoveCommand::GetLongDescription() const
+    std::string SourceRemoveCommand::GetLongDescription() const
     {
-        return {
-            LOCME("Remove current sources"),
-        };
+        return LOCME("Remove current sources");
     }
 
     void SourceRemoveCommand::ExecuteInternal(Execution::Context& context) const

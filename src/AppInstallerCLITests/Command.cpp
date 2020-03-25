@@ -35,7 +35,7 @@ std::string GetArgumentAlias(const Argument& arg)
 }
 
 template <typename Enumerable, typename Op>
-void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enumerable& e, Op& op)
+void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enumerable& e, Op& op, bool requireLower = true)
 {
     INFO(info);
     std::unordered_set<std::string> values;
@@ -48,8 +48,12 @@ void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enu
             continue;
         }
         INFO(valString);
-        std::string lowerVal = Utility::ToLower(valString);
-        REQUIRE(valString == lowerVal);
+
+        if (requireLower)
+        {
+            std::string lowerVal = Utility::ToLower(valString);
+            REQUIRE(valString == lowerVal);
+        }
 
         REQUIRE(values.find(valString) == values.end());
 
@@ -64,14 +68,26 @@ void EnsureCommandConsistency(const Command& command)
     auto args = command.GetArguments();
     Argument::GetCommon(args);
     EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument names", args, GetArgumentName);
-    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument alias", args, GetArgumentAlias);
+    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument alias", args, GetArgumentAlias, false);
 
     // No = allowed in arguments
+    // All positional args should be listed first
+    bool foundNonPositional = false;
     for (const auto& arg : command.GetArguments())
     {
         INFO(command.FullName());
         INFO(arg.Name());
+
         REQUIRE(arg.Name().find_first_of(APPINSTALLER_CLI_ARGUMENT_SPLIT_CHAR) == std::string_view::npos);
+
+        if (arg.Type() == ArgumentType::Positional)
+        {
+            REQUIRE(!foundNonPositional);
+        }
+        else
+        {
+            foundNonPositional = true;
+        }
     }
 
     // Recurse for all subcommands
@@ -89,6 +105,7 @@ void EnsureCommandConsistency(const Command& command)
 //  5. No argument alias collisions
 //  6. All argument alias are lower cased
 //  7. No argument names contain '='
+//  8. All positional arguments are first in the list
 TEST_CASE("EnsureCommandTreeConsistency", "[command]")
 {
     RootCommand root;

@@ -23,16 +23,28 @@ namespace AppInstaller::CLI
         });
     }
 
-    std::vector<std::string> RootCommand::GetLongDescription() const
+    std::vector<Argument> RootCommand::GetArguments() const
     {
-        return {
-            LOCME("AppInstaller command line utility enables installing applications from the"),
-            LOCME("command line."),
+        return
+        {
+            Argument{ "version", 'v', Execution::Args::Type::ListVersions, LOCME("Display the version of the tool"), ArgumentType::Flag, Visibility::Help },
         };
+    }
+
+    std::string RootCommand::GetLongDescription() const
+    {
+        return LOCME("AppInstaller command line utility enables installing applications from the command line.");
     }
 
     void RootCommand::ExecuteInternal(Execution::Context& context) const
     {
-        OutputHelp(context.Reporter);
+        if (context.Args.Contains(Execution::Args::Type::ListVersions))
+        {
+            context.Reporter.Info() << Runtime::GetClientVersion() << std::endl;
+        }
+        else
+        {
+            OutputHelp(context.Reporter);
+        }
     }
 }
