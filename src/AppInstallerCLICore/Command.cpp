@@ -35,36 +35,51 @@ namespace AppInstaller::CLI
             reporter.EmptyLine();
         }
 
+        // TODO: Auto-split based on console width
         for (const auto& line : GetLongDescription())
         {
             reporter.ShowMsg(line);
         }
         reporter.EmptyLine();
 
+        // TODO: Output example
+
         auto commands = GetCommands();
         if (!commands.empty())
         {
-            reporter.ShowMsg(LOCME("The following commands are available:"));
-            reporter.EmptyLine();
+            if (Name() == FullName())
+            {
+                reporter.ShowMsg(LOCME("The following commands are available:"));
+            }
+            else
+            {
+                reporter.ShowMsg(LOCME("The following sub-commands are available:"));
+            }
 
+            // TODO: Create table output functionality in reporter
             for (const auto& command : commands)
             {
-                reporter.ShowMsg("  " + std::string(command->Name()));
-                reporter.ShowMsg("    " + command->ShortDescription());
+                reporter.Info() << "  " << command->Name() << "  " << command->ShortDescription() << std::endl;
             }
 
             reporter.EmptyLine();
             reporter.ShowMsg(std::string(LOCME("For more details on a specific command, pass it the help argument.")) + " [" + APPINSTALLER_CLI_HELP_ARGUMENT + "]");
         }
-        else
-        {
-            reporter.ShowMsg(LOCME("The following arguments are available:"));
-            reporter.EmptyLine();
 
+        auto arguments = GetArguments();
+        if (!arguments.empty())
+        {
+            if (!commands.empty())
+            {
+                reporter.EmptyLine();
+            }
+
+            reporter.ShowMsg(LOCME("The following arguments are available:"));
+
+            // TODO: Respect visibility
             for (const auto& arg : GetArguments())
             {
-                reporter.ShowMsg("  " + std::string(arg.Name()));
-                reporter.ShowMsg("    " + arg.Description());
+                reporter.Info() << "  " << arg.Name() << "  " << arg.Description() << std::endl;
             }
         }
     }
@@ -152,7 +167,7 @@ namespace AppInstaller::CLI
                 // Parse the single character alias argument
                 char lowerArg = static_cast<char>(std::tolower(currArg[1]));
 
-                auto itr = std::find_if(definedArgs.begin(), definedArgs.end(), [&](const Argument& arg) { return (lowerArg = arg.Alias()); });
+                auto itr = std::find_if(definedArgs.begin(), definedArgs.end(), [&](const Argument& arg) { return (lowerArg == arg.Alias()); });
                 if (itr == definedArgs.end())
                 {
                     throw CommandException(LOCME("Argument alias was not recognized for the current command"), currArg);
@@ -166,7 +181,7 @@ namespace AppInstaller::CLI
                     {
                         lowerArg = static_cast<char>(std::tolower(currArg[i]));
 
-                        auto itr2 = std::find_if(definedArgs.begin(), definedArgs.end(), [&](const Argument& arg) { return (lowerArg = arg.Alias()); });
+                        auto itr2 = std::find_if(definedArgs.begin(), definedArgs.end(), [&](const Argument& arg) { return (lowerArg == arg.Alias()); });
                         if (itr2 == definedArgs.end())
                         {
                             throw CommandException(LOCME("Adjoined flag alias not found"), currArg);
@@ -190,7 +205,7 @@ namespace AppInstaller::CLI
                     ++incomingArgsItr;
                     if (incomingArgsItr == inv.end())
                     {
-                        throw CommandException(LOCME("Argument value required, but none found"), *incomingArgsItr);
+                        throw CommandException(LOCME("Argument value required, but none found"), currArg);
                     }
                     execArgs.AddArg(itr->ExecArgType(), *incomingArgsItr);
                 }
@@ -224,6 +239,11 @@ namespace AppInstaller::CLI
                     {
                         if (arg.Type() == ArgumentType::Flag)
                         {
+                            if (hasValue)
+                            {
+                                throw CommandException(LOCME("Flag argument cannot contain adjoined value"), currArg);
+                            }
+
                             execArgs.AddArg(arg.ExecArgType());
                         }
                         else if (hasValue)
@@ -235,7 +255,7 @@ namespace AppInstaller::CLI
                             ++incomingArgsItr;
                             if (incomingArgsItr == inv.end())
                             {
-                                throw CommandException(LOCME("Argument value required, but none found"), *incomingArgsItr);
+                                throw CommandException(LOCME("Argument value required, but none found"), currArg);
                             }
                             execArgs.AddArg(arg.ExecArgType(), *incomingArgsItr);
                         }
