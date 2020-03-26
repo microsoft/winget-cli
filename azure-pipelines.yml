@@ -24,7 +24,7 @@ jobs:
   condition: not(eq(variables['Build.Reason'], 'PullRequest'))
   variables:
     runCodesignValidationInjection: ${{ false }}
-    skipComponentGovernanceDetection: ${{ false }}
+    skipComponentGovernanceDetection: ${{ true }}
   steps:
   - task: PowerShell@2
     name: 'GetTag'
