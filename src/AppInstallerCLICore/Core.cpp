@@ -109,14 +109,14 @@ namespace AppInstaller::CLI
         {
             // TODO: Better error output
             std::string message = Utility::ConvertToUTF8(hre.message());
-            context.Reporter.ShowMsg("An error occured while executing the command: " + message, Execution::Reporter::Level::Error);
+            context.Reporter.ShowMsg("An error occurred while executing the command: " + message, Execution::Reporter::Level::Error);
             AICLI_LOG(CLI, Error, << "Error encountered executing command: " << message);
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
         catch (const std::exception& e)
         {
             // TODO: Better error output
-            context.Reporter.ShowMsg("An error occured while executing the command: " + std::string(e.what()), Execution::Reporter::Level::Error);
+            context.Reporter.ShowMsg("An error occurred while executing the command: " + std::string(e.what()), Execution::Reporter::Level::Error);
             AICLI_LOG(CLI, Error, << "Error encountered executing command: " << e.what());
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
