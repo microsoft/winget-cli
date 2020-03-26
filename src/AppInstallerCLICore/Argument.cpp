@@ -45,13 +45,13 @@ namespace AppInstaller::CLI
         case Args::Type::Silent:
             return Argument{ "silent", 'h', Args::Type::Silent, LOCME("Request silent installation"), ArgumentType::Flag };
         case Args::Type::Language:
-            return Argument{ "lang", 'l', Args::Type::Language, LOCME("Language to install (if supported)"), ArgumentType::Standard, Visibility::Hidden };
+            return Argument{ "lang", 'a', Args::Type::Language, LOCME("Language to install (if supported)"), ArgumentType::Standard, Visibility::Hidden };
         case Args::Type::Log:
             return Argument{ "log", 'o', Args::Type::Log, LOCME("Log location (if supported)"), ArgumentType::Standard };
         case Args::Type::Override:
-            return Argument{ "override", None, Args::Type::Override, LOCME("Override arguments to be passed on to the installer"), ArgumentType::Standard };
+            return Argument{ "override", None, Args::Type::Override, LOCME("Override arguments to be passed on to the installer"), ArgumentType::Standard, Visibility::Help };
         case Args::Type::InstallLocation:
-            return Argument{ "location", None, Args::Type::InstallLocation, LOCME("Location to install to (if supported)"), ArgumentType::Standard };
+            return Argument{ "location", 'l', Args::Type::InstallLocation, LOCME("Location to install to (if supported)"), ArgumentType::Standard };
         case Args::Type::HashFile:
             return Argument{ "file", 'f', Args::Type::HashFile, LOCME("File to be hashed"), ArgumentType::Positional, true };
         case Args::Type::Msix:

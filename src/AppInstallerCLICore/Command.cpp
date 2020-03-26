@@ -120,10 +120,16 @@ namespace AppInstaller::CLI
                 infoOut << LOCME("The following sub-commands are available:") << std::endl;
             }
 
-            // TODO: Create table output functionality in reporter
+            size_t maxCommandNameLength = 0;
             for (const auto& command : commands)
             {
-                infoOut << "  " << command->Name() << "  " << command->ShortDescription() << std::endl;
+                maxCommandNameLength = std::max(maxCommandNameLength, command->Name().length());
+            }
+
+            for (const auto& command : commands)
+            {
+                size_t fillChars = (maxCommandNameLength - command->Name().length()) + 2;
+                infoOut << "  " << command->Name() << std::string(fillChars, ' ') << command->ShortDescription() << std::endl;
             }
 
             infoOut <<
@@ -140,17 +146,32 @@ namespace AppInstaller::CLI
 
             infoOut << LOCME("The following arguments are available:") << std::endl;
 
-            // TODO: Create table output functionality in reporter
+            std::vector<std::string> argNames;
+            size_t maxArgNameLength = 0;
             for (const auto& arg : GetArguments())
             {
                 if (arg.Visibility() != Visibility::Hidden)
                 {
-                    infoOut << "  ";
+                    std::ostringstream strstr;
                     if (arg.Alias() != APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER)
                     {
-                        infoOut << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << ',';
+                        strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << ',';
                     }
-                    infoOut << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Name() << "  " << arg.Description() << std::endl;
+                    strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Name();
+
+                    argNames.emplace_back(strstr.str());
+                    maxArgNameLength = std::max(maxArgNameLength, argNames.back().length());
+                }
+            }
+
+            size_t i = 0;
+            for (const auto& arg : GetArguments())
+            {
+                if (arg.Visibility() != Visibility::Hidden)
+                {
+                    const std::string& argName = argNames[i++];
+                    size_t fillChars = (maxArgNameLength - argName.length()) + 2;
+                    infoOut << "  " << argName << std::string(fillChars, ' ') << arg.Description() << std::endl;
                 }
             }
         }

@@ -27,7 +27,6 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Channel),
             Argument::ForType(Execution::Args::Type::Source),
             Argument::ForType(Execution::Args::Type::Exact),
-            Argument::ForType(Execution::Args::Type::ListVersions),
             Argument::ForType(Execution::Args::Type::Interactive),
             Argument::ForType(Execution::Args::Type::Silent),
             Argument::ForType(Execution::Args::Type::Language),
@@ -56,8 +55,6 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        Command::ValidateArguments(execArgs);
-
         // TODO: Maybe one day implement argument groups
         if (!execArgs.Contains(Execution::Args::Type::Query) && !execArgs.Contains(Execution::Args::Type::Manifest))
         {
