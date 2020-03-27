@@ -293,6 +293,22 @@ TEST_CASE("ParseArguments_FlagThenNonFlag", "[command]")
     REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[1]);
 }
 
+TEST_CASE("ParseArguments_NameUsingAliasSpecifier", "[command]")
+{
+    Args args;
+    TestCommand command({
+            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
+            Argument{ "std1", 's', Args::Type::Command, "", ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
+            Argument{ "flag1", 'f', Args::Type::Exact, "", ArgumentType::Flag },
+        });
+
+    std::vector<std::string> values{ "another", "-flag1" };
+    Invocation inv{ std::vector<std::string>(values) };
+
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[1]);
+}
+
 TEST_CASE("ParseArguments_AliasWithAdjoinedValue", "[command]")
 {
     Args args;
@@ -302,12 +318,12 @@ TEST_CASE("ParseArguments_AliasWithAdjoinedValue", "[command]")
             Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
         });
 
-    std::vector<std::string> values{ "-sVal1" };
+    std::vector<std::string> values{ "-s=Val1" };
     Invocation inv{ std::vector<std::string>(values) };
 
     command.ParseArguments(inv, args);
 
-    RequireValueParsedToArg(values[0].substr(2), command.m_args[1], args);
+    RequireValueParsedToArg(values[0].substr(3), command.m_args[1], args);
 }
 
 TEST_CASE("ParseArguments_AliasWithSeparatedValue", "[command]")

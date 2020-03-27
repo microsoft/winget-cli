@@ -76,11 +76,10 @@ namespace AppInstaller::CLI::Execution
             void AddFormat(const VirtualTerminal::Sequence& sequence);
 
             template <typename T>
-            std::enable_if_t<!std::is_same_v<VirtualTerminal::Sequence, std::decay_t<T>>, OutputStream&>
-                operator<<(T&& t)
+            OutputStream& operator<<(const T& t)
             {
                 ApplyFormat();
-                m_out << std::forward<T>(t);
+                m_out << t;
                 return *this;
             }
 

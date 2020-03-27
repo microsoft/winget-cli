@@ -272,7 +272,7 @@ namespace AppInstaller::CLI
     // Parse arguments as such:
     //  1. If argument starts with a single -, only the single character alias is considered.
     //      a. If the named argument alias (a) needs a VALUE, it can be provided in these ways:
-    //          -aVALUE
+    //          -a=VALUE
     //          -a VALUE
     //      b. If the argument is a flag, additional characters after are treated as if they start
     //          with a -, repeatedly until the end of the argument is reached.  Fails if non-flags hit.
@@ -353,7 +353,14 @@ namespace AppInstaller::CLI
                 }
                 else if (currArg.length() > 2)
                 {
-                    execArgs.AddArg(itr->ExecArgType(), currArg.substr(2));
+                    if (currArg[2] == APPINSTALLER_CLI_ARGUMENT_SPLIT_CHAR)
+                    {
+                        execArgs.AddArg(itr->ExecArgType(), currArg.substr(3));
+                    }
+                    else
+                    {
+                        throw CommandException(LOCME("Only the single character alias can occur after a single -"), currArg);
+                    }
                 }
                 else
                 {
