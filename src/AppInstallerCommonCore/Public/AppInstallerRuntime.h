@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerVersions.h>
+
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -29,4 +31,8 @@ namespace AppInstaller::Runtime
 
     // Deletes the given setting.
     void RemoveSetting(std::filesystem::path name);
+
+    // Determines whether the current OS version is >= the given one.
+    // We treat the given Version struct as a standard 4 part Windows OS version.
+    bool IsCurrentOSVersionGreaterThanOrEqual(const Utility::Version& version);
 }

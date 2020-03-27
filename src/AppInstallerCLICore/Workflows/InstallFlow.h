@@ -21,6 +21,9 @@ namespace AppInstaller::Workflow
     protected:
         void InstallInternal();
 
+        // Verifies the OS version is capable of supporting the application.
+        bool VerifyOSVersion();
+
         // Creates corresponding InstallerHandler according to InstallerType
         virtual std::unique_ptr<InstallerHandlerBase> GetInstallerHandler();
     };

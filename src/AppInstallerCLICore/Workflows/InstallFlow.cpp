@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #include "pch.h"
 #include "InstallFlow.h"
 #include "ShellExecuteInstallerHandler.h"
@@ -28,8 +27,11 @@ namespace AppInstaller::Workflow
             m_reporterRef.ShowMsg("Found app: " + m_searchResult.Matches[0].Application->GetName());
         }
 
-        SelectInstaller();
-        InstallInternal();
+        if (VerifyOSVersion())
+        {
+            SelectInstaller();
+            InstallInternal();
+        }
     }
 
     void InstallFlow::InstallInternal()
@@ -38,6 +40,20 @@ namespace AppInstaller::Workflow
 
         installerHandler->Download();
         installerHandler->Install();
+    }
+
+    bool InstallFlow::VerifyOSVersion()
+    {
+        if (!m_manifest.MinOSVersion.empty() &&
+            !Runtime::IsCurrentOSVersionGreaterThanOrEqual(Version(m_manifest.MinOSVersion)))
+        {
+            m_reporterRef.Error() << "Cannot install application, as it requires a higher OS version: " << m_manifest.MinOSVersion << std::endl;
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     std::unique_ptr<InstallerHandlerBase> InstallFlow::GetInstallerHandler()
