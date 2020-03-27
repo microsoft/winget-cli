@@ -31,7 +31,6 @@ namespace AppInstaller
     // of cancel state.
     struct IProgressSink
     {
-
         // Called as progress is made.
         // If maximum is 0, the maximum is unknown.
         virtual void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) = 0;

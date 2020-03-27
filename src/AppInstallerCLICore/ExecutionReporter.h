@@ -50,8 +50,8 @@ namespace AppInstaller::CLI::Execution
         };
     }
 
-    // WorkflowReporter should be the central place to show workflow status to user.
-    // Todo: need to implement actual console output to show color, progress bar, etc
+    // Reporter should be the central place to show workflow status to user.
+    // Todo: need to implement actual console output to show progress bar, etc
     struct Reporter : public IProgressSink
     {
         enum class Level
@@ -134,15 +134,27 @@ namespace AppInstaller::CLI::Execution
         auto ExecuteWithProgress(F&& f)
         {
             ProgressCallback callback(this);
+            SetProgressCallback(&callback);
             ShowIndefiniteProgress(true);
 
             auto hideProgress = wil::scope_exit([this]()
                 {
+                    SetProgressCallback(nullptr);
                     ShowIndefiniteProgress(false);
                     ShowProgress(false, 0);
                 });
             return f(callback);
         }
+
+        // Enables reception of CTRL signals.
+        // Only one reporter can be enabled to handle CTRL signals at a time.
+        void EnableCtrlHandler(bool enabled = true);
+
+        // Sets the in progress callback.
+        void SetProgressCallback(ProgressCallback* callback);
+
+        // Cancels the in progress task.
+        void CancelInProgressTask(bool force);
 
     private:
         std::ostream& m_out;
@@ -150,5 +162,8 @@ namespace AppInstaller::CLI::Execution
         VirtualTerminal::ConsoleModeRestore m_consoleMode;
         details::IndefiniteSpinner m_spinner;
         details::ProgressBar m_progressBar;
+        DestructionToken m_disableCtrlHandlerOnExit = false;
+        wil::srwlock m_progressCallbackLock;
+        std::atomic<ProgressCallback*> m_progressCallback;
     };
 }
