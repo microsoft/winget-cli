@@ -15,11 +15,11 @@ namespace AppInstaller::CLI
     std::vector<std::unique_ptr<Command>> RootCommand::GetCommands() const
     {
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
-            std::make_unique<InstallCommand>(Name()),
-            std::make_unique<ShowCommand>(Name()),
-            std::make_unique<SourceCommand>(Name()),
-            std::make_unique<SearchCommand>(Name()),
-            std::make_unique<HashCommand>(Name()),
+            std::make_unique<InstallCommand>(FullName()),
+            std::make_unique<ShowCommand>(FullName()),
+            std::make_unique<SourceCommand>(FullName()),
+            std::make_unique<SearchCommand>(FullName()),
+            std::make_unique<HashCommand>(FullName()),
         });
     }
 
@@ -40,7 +40,7 @@ namespace AppInstaller::CLI
     {
         if (context.Args.Contains(Execution::Args::Type::ListVersions))
         {
-            context.Reporter.Info() << Runtime::GetClientVersion() << std::endl;
+            context.Reporter.Info() << 'v' << Runtime::GetClientVersion() << std::endl;
         }
         else
         {

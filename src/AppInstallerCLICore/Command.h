@@ -39,6 +39,9 @@ namespace AppInstaller::CLI
         Command(Command&&) = default;
         Command& operator=(Command&&) = default;
 
+        // The character used to split between commands and their parents in FullName.
+        constexpr static char ParentSplitChar = ':';
+
         std::string_view Name() const { return m_name; }
         const std::string& FullName() const { return m_fullName; }
 

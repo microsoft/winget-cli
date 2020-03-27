@@ -78,6 +78,7 @@ namespace AppInstaller::CLI::VirtualTerminal
         {
             Sequence BrightRed = AICLI_VT_TEXTFORMAT(91);
             Sequence BrightYellow = AICLI_VT_TEXTFORMAT(93);
+            Sequence BrightWhite = AICLI_VT_TEXTFORMAT(97);
         }
 
         namespace Background

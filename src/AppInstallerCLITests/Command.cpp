@@ -70,6 +70,15 @@ void EnsureCommandConsistency(const Command& command)
     EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument names", args, GetArgumentName);
     EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument alias", args, GetArgumentAlias, false);
 
+    // No : allowed in commands
+    for (const auto& comm : command.GetCommands())
+    {
+        INFO(command.FullName());
+        INFO(comm->Name());
+
+        REQUIRE(comm->Name().find_first_of(Command::ParentSplitChar) == std::string_view::npos);
+    }
+
     // No = allowed in arguments
     // All positional args should be listed first
     bool foundNonPositional = false;

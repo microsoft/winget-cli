@@ -76,7 +76,8 @@ namespace AppInstaller::CLI::Execution
             void AddFormat(const VirtualTerminal::Sequence& sequence);
 
             template <typename T>
-            OutputStream& operator<<(T&& t)
+            std::enable_if_t<!std::is_same_v<VirtualTerminal::Sequence, std::decay_t<T>>, OutputStream&>
+                operator<<(T&& t)
             {
                 ApplyFormat();
                 m_out << std::forward<T>(t);
@@ -151,4 +152,8 @@ namespace AppInstaller::CLI::Execution
         details::IndefiniteSpinner m_spinner;
         details::ProgressBar m_progressBar;
     };
+
+    // Indirection to enable change without tracking down every place
+    extern VirtualTerminal::Sequence HelpCommandEmphasis;
+    extern VirtualTerminal::Sequence HelpArgumentEmphasis;
 }

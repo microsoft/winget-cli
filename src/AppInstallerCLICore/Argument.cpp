@@ -41,7 +41,7 @@ namespace AppInstaller::CLI
         case Args::Type::Channel:
             return Argument{ "channel", 'c', Args::Type::Channel, LOCME("Use the specified channel; default is general audience"), ArgumentType::Standard, Visibility::Hidden };
         case Args::Type::Interactive:
-            return Argument{ "interactive", 'i', Args::Type::Interactive, LOCME("Requset interactive installation; user input may be needed"), ArgumentType::Flag };
+            return Argument{ "interactive", 'i', Args::Type::Interactive, LOCME("Request interactive installation; user input may be needed"), ArgumentType::Flag };
         case Args::Type::Silent:
             return Argument{ "silent", 'h', Args::Type::Silent, LOCME("Request silent installation"), ArgumentType::Flag };
         case Args::Type::Language:

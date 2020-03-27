@@ -6,6 +6,9 @@
 
 namespace AppInstaller::CLI::Execution
 {
+    VirtualTerminal::Sequence HelpCommandEmphasis = VirtualTerminal::TextFormat::Foreground::BrightWhite;
+    VirtualTerminal::Sequence HelpArgumentEmphasis = VirtualTerminal::TextFormat::Foreground::BrightWhite;
+
     namespace details
     {
         void IndefiniteSpinner::ShowSpinner()

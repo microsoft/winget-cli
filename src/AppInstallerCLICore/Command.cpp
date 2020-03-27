@@ -7,16 +7,15 @@
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
-    constexpr std::string_view s_Command_NameSeparator = "::"sv;
 
     Command::Command(std::string_view name, std::string_view parent) :
         m_name(name)
     {
         if (!parent.empty())
         {
-            m_fullName.reserve(parent.length() + s_Command_NameSeparator.length() + name.length());
+            m_fullName.reserve(parent.length() + 1 + name.length());
             m_fullName = parent;
-            m_fullName += s_Command_NameSeparator;
+            m_fullName += ParentSplitChar;
             m_fullName += name;
         }
         else
@@ -28,15 +27,17 @@ namespace AppInstaller::CLI
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
         reporter.Info() <<
-            "AppInstaller Command Line [" << Runtime::GetClientVersion() << ']' << std::endl <<
+            "AppInstaller Command Line v" << Runtime::GetClientVersion() << std::endl <<
             "Copyright (c) Microsoft Corporation" << std::endl;
     }
 
     void Command::OutputHelp(Execution::Reporter& reporter, const CommandException* exception) const
     {
+        // Header
         OutputIntroHeader(reporter);
         reporter.EmptyLine();
 
+        // Error if given
         if (exception)
         {
             reporter.Error() <<
@@ -44,24 +45,64 @@ namespace AppInstaller::CLI
                 std::endl;
         }
 
+        // Description
         auto infoOut = reporter.Info();
         infoOut <<
             GetLongDescription() << std::endl <<
             std::endl;
 
-        // Example usage for this command, if applicable
-        auto arguments = GetArguments();
-        bool needsExePart = true;
+        // Example usage for this command
+        std::string commandChain = FullName();
+        size_t firstSplit = commandChain.find_first_of(ParentSplitChar);
+        if (firstSplit == std::string::npos)
+        {
+            commandChain.clear();
+        }
+        else
+        {
+            commandChain = commandChain.substr(firstSplit);
+            for (char& c : commandChain)
+            {
+                if (c == ParentSplitChar)
+                {
+                    c = ' ';
+                }
+            }
+        }
 
+        // Output the command preamble and command chain
+        infoOut << "usage: <exe>" << commandChain;
+
+        auto commands = GetCommands();
+        auto arguments = GetArguments();
+
+        bool hasArguments = false;
+        bool hasOptions = false;
+
+        // Output the command token, made optional if arguments are present.
+        if (!commands.empty())
+        {
+            infoOut << ' ';
+
+            if (!arguments.empty())
+            {
+                infoOut << '[';
+            }
+
+            infoOut << "<command>";
+
+            if (!arguments.empty())
+            {
+                infoOut << ']';
+            }
+        }
+
+        // Arguments are required by a test to have all positionals first.
         for (const auto& arg : arguments)
         {
-            if (arg.Visibility() == Visibility::Example)
+            if (arg.Type() == ArgumentType::Positional)
             {
-                if (needsExePart)
-                {
-                    infoOut << "<exe>";
-                    needsExePart = false;
-                }
+                hasArguments = true;
 
                 infoOut << ' ';
 
@@ -70,10 +111,7 @@ namespace AppInstaller::CLI
                     infoOut << '[';
                 }
 
-                if (arg.Type() == ArgumentType::Positional)
-                {
-                    infoOut << '[';
-                }
+                infoOut << '[';
 
                 if (arg.Alias() == APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER)
                 {
@@ -84,31 +122,25 @@ namespace AppInstaller::CLI
                     infoOut << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias();
                 }
 
-                if (arg.Type() == ArgumentType::Positional)
-                {
-                    infoOut << ']';
-                }
-
-                if (arg.Type() != ArgumentType::Flag)
-                {
-                    infoOut << " <" << arg.Name() << '>';
-                }
+                infoOut << "] <" << arg.Name() << '>';
 
                 if (!arg.Required())
                 {
                     infoOut << ']';
                 }
             }
+            else
+            {
+                hasOptions = true;
+                infoOut << " [<options>]";
+                break;
+            }
         }
 
-        if (!needsExePart)
-        {
-            infoOut <<
-                std::endl <<
-                std::endl;
-        }
+        infoOut <<
+            std::endl <<
+            std::endl;
 
-        auto commands = GetCommands();
         if (!commands.empty())
         {
             if (Name() == FullName())
@@ -129,7 +161,7 @@ namespace AppInstaller::CLI
             for (const auto& command : commands)
             {
                 size_t fillChars = (maxCommandNameLength - command->Name().length()) + 2;
-                infoOut << "  " << command->Name() << std::string(fillChars, ' ') << command->ShortDescription() << std::endl;
+                infoOut << "  " << Execution::HelpCommandEmphasis << command->Name() << std::string(fillChars, ' ') << command->ShortDescription() << std::endl;
             }
 
             infoOut <<
@@ -143,8 +175,6 @@ namespace AppInstaller::CLI
             {
                 infoOut << std::endl;
             }
-
-            infoOut << LOCME("The following arguments are available:") << std::endl;
 
             std::vector<std::string> argNames;
             size_t maxArgNameLength = 0;
@@ -164,14 +194,46 @@ namespace AppInstaller::CLI
                 }
             }
 
-            size_t i = 0;
-            for (const auto& arg : GetArguments())
+            if (hasArguments)
             {
-                if (arg.Visibility() != Visibility::Hidden)
+                infoOut << LOCME("The following arguments are available:") << std::endl;
+
+                size_t i = 0;
+                for (const auto& arg : GetArguments())
                 {
-                    const std::string& argName = argNames[i++];
-                    size_t fillChars = (maxArgNameLength - argName.length()) + 2;
-                    infoOut << "  " << argName << std::string(fillChars, ' ') << arg.Description() << std::endl;
+                    if (arg.Visibility() != Visibility::Hidden)
+                    {
+                        const std::string& argName = argNames[i++];
+                        if (arg.Type() == ArgumentType::Positional)
+                        {
+                            size_t fillChars = (maxArgNameLength - argName.length()) + 2;
+                            infoOut << "  " << Execution::HelpArgumentEmphasis << argName << std::string(fillChars, ' ') << arg.Description() << std::endl;
+                        }
+                    }
+                }
+            }
+
+            if (hasOptions)
+            {
+                if (hasArguments)
+                {
+                    infoOut << std::endl;
+                }
+
+                infoOut << LOCME("The following options are available:") << std::endl;
+
+                size_t i = 0;
+                for (const auto& arg : GetArguments())
+                {
+                    if (arg.Visibility() != Visibility::Hidden)
+                    {
+                        const std::string& argName = argNames[i++];
+                        if (arg.Type() != ArgumentType::Positional)
+                        {
+                            size_t fillChars = (maxArgNameLength - argName.length()) + 2;
+                            infoOut << "  " << Execution::HelpArgumentEmphasis << argName << std::string(fillChars, ' ') << arg.Description() << std::endl;
+                        }
+                    }
                 }
             }
         }
