@@ -164,7 +164,7 @@ namespace AppInstaller::CLI::Execution
             m_out << VirtualTerminal::TextFormat::Default;
         }
 
-        if (m_disableCtrlHandler)
+        if (m_disableCtrlHandlerOnExit)
         {
             EnableCtrlHandler(false);
         }
@@ -239,7 +239,7 @@ namespace AppInstaller::CLI::Execution
     void Reporter::EnableCtrlHandler(bool enabled)
     {
         SetCtrlHandlerReporter(enabled ? this : nullptr);
-        m_disableCtrlHandler = enabled;
+        m_disableCtrlHandlerOnExit = enabled;
     }
 
     void Reporter::SetProgressCallback(ProgressCallback* callback)

@@ -162,7 +162,7 @@ namespace AppInstaller::CLI::Execution
         VirtualTerminal::ConsoleModeRestore m_consoleMode;
         details::IndefiniteSpinner m_spinner;
         details::ProgressBar m_progressBar;
-        DestructionToken m_disableCtrlHandler = false;
+        DestructionToken m_disableCtrlHandlerOnExit = false;
         wil::srwlock m_progressCallbackLock;
         std::atomic<ProgressCallback*> m_progressCallback;
     };
