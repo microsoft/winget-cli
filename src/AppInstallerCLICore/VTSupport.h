@@ -66,6 +66,7 @@ namespace AppInstaller::CLI::VirtualTerminal
         {
             extern Sequence BrightRed;
             extern Sequence BrightYellow;
+            extern Sequence BrightWhite;
         }
 
         namespace Background

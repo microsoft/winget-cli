@@ -153,6 +153,7 @@
     <ClInclude Include="TestHooks.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Command.cpp" />
     <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="HashCommand.cpp" />
     <ClCompile Include="MsixInfo.cpp" />

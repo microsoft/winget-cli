@@ -8,14 +8,11 @@ namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
 
-    constexpr std::string_view s_HashCommand_ArgName_File = "file"sv;
-    constexpr std::string_view s_HashCommand_ArgName_Msix = "msix"sv;
-
     std::vector<Argument> HashCommand::GetArguments() const
     {
         return {
-            Argument{ s_HashCommand_ArgName_File, Execution::Args::Type::HashFile, LOCME("The input file to be hashed."), ArgumentType::Positional, true },
-            Argument{ s_HashCommand_ArgName_Msix, Execution::Args::Type::Msix, LOCME("If specified, the input file will be treated as msix. Signature hash will be provided if exists."), ArgumentType::Flag },
+            Argument::ForType(Execution::Args::Type::HashFile),
+            Argument::ForType(Execution::Args::Type::Msix),
         };
     }
 
@@ -24,11 +21,9 @@ namespace AppInstaller::CLI
         return LOCME("Helper to hash installer files");
     }
 
-    std::vector<std::string> HashCommand::GetLongDescription() const
+    std::string HashCommand::GetLongDescription() const
     {
-        return {
-            LOCME("Helper to hash installer files"),
-        };
+        return LOCME("Helper to hash installer files");
     }
 
     void HashCommand::ExecuteInternal(Execution::Context& context) const

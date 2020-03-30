@@ -172,6 +172,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Argument.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="Commands\HashCommand.h" />
     <ClInclude Include="Commands\SearchCommand.h" />
@@ -199,6 +200,7 @@
     <ClInclude Include="Workflows\WorkflowBase.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Argument.cpp" />
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Commands\HashCommand.cpp" />
     <ClCompile Include="Commands\SearchCommand.cpp" />

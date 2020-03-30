@@ -99,6 +99,9 @@
     <ClInclude Include="VTSupport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Argument.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -156,6 +159,9 @@
       <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="VTSupport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Argument.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

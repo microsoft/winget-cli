@@ -76,10 +76,10 @@ namespace AppInstaller::CLI::Execution
             void AddFormat(const VirtualTerminal::Sequence& sequence);
 
             template <typename T>
-            OutputStream& operator<<(T&& t)
+            OutputStream& operator<<(const T& t)
             {
                 ApplyFormat();
-                m_out << std::forward<T>(t);
+                m_out << t;
                 return *this;
             }
 
@@ -166,4 +166,8 @@ namespace AppInstaller::CLI::Execution
         wil::srwlock m_progressCallbackLock;
         std::atomic<ProgressCallback*> m_progressCallback;
     };
+
+    // Indirection to enable change without tracking down every place
+    extern VirtualTerminal::Sequence HelpCommandEmphasis;
+    extern VirtualTerminal::Sequence HelpArgumentEmphasis;
 }

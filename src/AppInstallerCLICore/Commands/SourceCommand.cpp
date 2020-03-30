@@ -6,19 +6,23 @@
 
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Execution;
     using namespace std::string_view_literals;
 
     constexpr std::string_view s_SourceCommand_ArgName_Name = "name"sv;
+    constexpr char s_SourceCommand_ArgAlias_Name = 'n';
     constexpr std::string_view s_SourceCommand_ArgName_Type = "type"sv;
+    constexpr char s_SourceCommand_ArgAlias_Type = 't';
     constexpr std::string_view s_SourceCommand_ArgName_Arg = "arg"sv;
+    constexpr char s_SourceCommand_ArgAlias_Arg = 'a';
 
     std::vector<std::unique_ptr<Command>> SourceCommand::GetCommands() const
     {
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
-            std::make_unique<SourceAddCommand>(),
-            std::make_unique<SourceListCommand>(),
-            std::make_unique<SourceUpdateCommand>(),
-            std::make_unique<SourceRemoveCommand>(),
+            std::make_unique<SourceAddCommand>(FullName()),
+            std::make_unique<SourceListCommand>(FullName()),
+            std::make_unique<SourceUpdateCommand>(FullName()),
+            std::make_unique<SourceRemoveCommand>(FullName()),
             });
     }
 
@@ -27,11 +31,9 @@ namespace AppInstaller::CLI
         return LOCME("Manage sources of applications");
     }
 
-    std::vector<std::string> SourceCommand::GetLongDescription() const
+    std::string SourceCommand::GetLongDescription() const
     {
-        return {
-            LOCME("Manage sources of applications"),
-        };
+        return LOCME("Manage sources of applications");
     }
 
     void SourceCommand::ExecuteInternal(Execution::Context& context) const
@@ -42,9 +44,9 @@ namespace AppInstaller::CLI
     std::vector<Argument> SourceAddCommand::GetArguments() const
     {
         return {
-            Argument{ s_SourceCommand_ArgName_Name, Execution::Args::Type::SourceName, LOCME("Name of the source for future reference"), ArgumentType::Positional, true },
-            Argument{ s_SourceCommand_ArgName_Arg, Execution::Args::Type::SourceArg, LOCME("Argument given to the source"), ArgumentType::Positional, true },
-            Argument{ s_SourceCommand_ArgName_Type, Execution::Args::Type::SourceType, LOCME("Type of the source"), ArgumentType::Positional, false },
+            Argument{ s_SourceCommand_ArgName_Name, s_SourceCommand_ArgAlias_Name, Args::Type::SourceName, LOCME("Name of the source for future reference"), ArgumentType::Positional, true },
+            Argument{ s_SourceCommand_ArgName_Arg, s_SourceCommand_ArgAlias_Arg, Args::Type::SourceArg, LOCME("Argument given to the source"), ArgumentType::Positional, true },
+            Argument{ s_SourceCommand_ArgName_Type, s_SourceCommand_ArgAlias_Type, Args::Type::SourceType, LOCME("Type of the source"), ArgumentType::Positional },
         };
     }
 
@@ -53,11 +55,9 @@ namespace AppInstaller::CLI
         return LOCME("Add a new source");
     }
 
-    std::vector<std::string> SourceAddCommand::GetLongDescription() const
+    std::string SourceAddCommand::GetLongDescription() const
     {
-        return {
-            LOCME("Add a new source"),
-        };
+        return LOCME("Add a new source");
     }
 
     void SourceAddCommand::ExecuteInternal(Execution::Context& context) const
@@ -86,7 +86,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> SourceListCommand::GetArguments() const
     {
         return {
-            Argument{ s_SourceCommand_ArgName_Name, Execution::Args::Type::SourceName, LOCME("Name of the source to list full details for"), ArgumentType::Positional, false },
+            Argument{ s_SourceCommand_ArgName_Name, s_SourceCommand_ArgAlias_Name, Args::Type::SourceName, LOCME("Name of the source to list full details for"), ArgumentType::Positional },
         };
     }
 
@@ -95,11 +95,9 @@ namespace AppInstaller::CLI
         return LOCME("List current sources");
     }
 
-    std::vector<std::string> SourceListCommand::GetLongDescription() const
+    std::string SourceListCommand::GetLongDescription() const
     {
-        return {
-            LOCME("List current sources"),
-        };
+        return LOCME("List current sources");
     }
 
     void SourceListCommand::ExecuteInternal(Execution::Context& context) const
@@ -154,7 +152,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> SourceUpdateCommand::GetArguments() const
     {
         return {
-            Argument{ s_SourceCommand_ArgName_Name, Execution::Args::Type::SourceName, LOCME("Name of the source to update"), ArgumentType::Positional, false },
+            Argument{ s_SourceCommand_ArgName_Name, s_SourceCommand_ArgAlias_Name, Args::Type::SourceName, LOCME("Name of the source to update"), ArgumentType::Positional },
         };
     }
 
@@ -163,11 +161,9 @@ namespace AppInstaller::CLI
         return LOCME("Update current sources");
     }
 
-    std::vector<std::string> SourceUpdateCommand::GetLongDescription() const
+    std::string SourceUpdateCommand::GetLongDescription() const
     {
-        return {
-            LOCME("Update current sources"),
-        };
+        return LOCME("Update current sources");
     }
 
     void SourceUpdateCommand::ExecuteInternal(Execution::Context& context) const
@@ -203,7 +199,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> SourceRemoveCommand::GetArguments() const
     {
         return {
-            Argument{ s_SourceCommand_ArgName_Name, Execution::Args::Type::SourceName, LOCME("Name of the source to remove"), ArgumentType::Positional, true },
+            Argument{ s_SourceCommand_ArgName_Name, s_SourceCommand_ArgAlias_Name, Args::Type::SourceName, LOCME("Name of the source to remove"), ArgumentType::Positional, true },
         };
     }
 
@@ -212,11 +208,9 @@ namespace AppInstaller::CLI
         return LOCME("Remove current sources");
     }
 
-    std::vector<std::string> SourceRemoveCommand::GetLongDescription() const
+    std::string SourceRemoveCommand::GetLongDescription() const
     {
-        return {
-            LOCME("Remove current sources"),
-        };
+        return LOCME("Remove current sources");
     }
 
     void SourceRemoveCommand::ExecuteInternal(Execution::Context& context) const
