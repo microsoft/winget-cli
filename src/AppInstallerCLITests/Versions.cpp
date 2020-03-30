@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include <AppInstallerRuntime.h>
 #include <AppInstallerVersions.h>
 
+using namespace AppInstaller;
 using namespace AppInstaller::Utility;
 
 
@@ -135,4 +137,13 @@ TEST_CASE("VersionAndChannelSort", "[versions]")
         REQUIRE(sortedVAC.GetVersion().ToString() == jumbledVAC.GetVersion().ToString());
         REQUIRE(sortedVAC.GetChannel().ToString() == jumbledVAC.GetChannel().ToString());
     }
+}
+
+TEST_CASE("MinOsVersion_Check", "[versions]")
+{
+    // Just verify that we are greater than Win 7 and less than far future Win 10.
+    // Unfortunately, an unmanifested process will also pass these validations,
+    // but an unmanifested process also can't use Windows APIs to determine the actual version.
+    REQUIRE(Runtime::IsCurrentOSVersionGreaterThanOrEqual(Version("6.1")));
+    REQUIRE(!Runtime::IsCurrentOSVersionGreaterThanOrEqual(Version("10.0.65535")));
 }

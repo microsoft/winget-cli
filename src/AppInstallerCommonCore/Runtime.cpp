@@ -273,6 +273,40 @@ namespace AppInstaller::Runtime
         }
     }
 
+    bool IsCurrentOSVersionGreaterThanOrEqual(const Utility::Version& version)
+    {
+        DWORD versionParts[3] = {};
+
+        for (size_t i = 0; i < ARRAYSIZE(versionParts) && i < version.GetParts().size(); ++i)
+        {
+            versionParts[i] = static_cast<DWORD>(std::min(static_cast<decltype(version.GetParts()[i].Integer)>(std::numeric_limits<DWORD>::max()), version.GetParts()[i].Integer));
+        }
+
+        OSVERSIONINFOEXW osVersionInfo{};
+        osVersionInfo.dwOSVersionInfoSize = sizeof(osVersionInfo);
+        osVersionInfo.dwMajorVersion = versionParts[0];
+        osVersionInfo.dwMinorVersion = versionParts[1];
+        osVersionInfo.dwBuildNumber = versionParts[2];
+        osVersionInfo.wServicePackMajor = 0;
+        osVersionInfo.wServicePackMinor = 0;
+
+        DWORD mask = VER_MAJORVERSION | VER_MINORVERSION | VER_BUILDNUMBER | VER_SERVICEPACKMAJOR | VER_SERVICEPACKMINOR;
+
+        DWORDLONG conditions = 0;
+        VER_SET_CONDITION(conditions, VER_MAJORVERSION, VER_GREATER_EQUAL);
+        VER_SET_CONDITION(conditions, VER_MINORVERSION, VER_GREATER_EQUAL);
+        VER_SET_CONDITION(conditions, VER_BUILDNUMBER, VER_GREATER_EQUAL);
+        VER_SET_CONDITION(conditions, VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
+        VER_SET_CONDITION(conditions, VER_SERVICEPACKMINOR, VER_GREATER_EQUAL);
+
+        BOOL result = VerifyVersionInfoW(&osVersionInfo, mask, conditions);
+        if (!result)
+        {
+            THROW_LAST_ERROR_IF(GetLastError() != ERROR_OLD_WIN_VERSION);
+        }
+        return !!result;
+    }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
     void TestHook_ForceContainerPrepend(const std::filesystem::path& prepend)
     {
