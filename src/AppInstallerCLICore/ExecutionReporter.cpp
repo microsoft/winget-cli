@@ -9,6 +9,50 @@ namespace AppInstaller::CLI::Execution
     VirtualTerminal::Sequence HelpCommandEmphasis = VirtualTerminal::TextFormat::Foreground::BrightWhite;
     VirtualTerminal::Sequence HelpArgumentEmphasis = VirtualTerminal::TextFormat::Foreground::BrightWhite;
 
+    namespace
+    {
+        // The reporter that will receive CTRL signals
+        Reporter* s_reporterForCtrlHandler = nullptr;
+
+        BOOL WINAPI CtrlHandlerForReporter(DWORD ctrlType)
+        {
+            switch (ctrlType)
+            {
+            case CTRL_C_EVENT:
+            case CTRL_BREAK_EVENT:
+                s_reporterForCtrlHandler->CancelInProgressTask(false);
+                return TRUE;
+            // According to MSDN, we should never receive these due to having gdi32/user32 loaded in our process.
+            // But handle them as a force terminate anyway.
+            case CTRL_CLOSE_EVENT:
+            case CTRL_LOGOFF_EVENT:
+            case CTRL_SHUTDOWN_EVENT:
+                s_reporterForCtrlHandler->CancelInProgressTask(true);
+                return TRUE;
+            default:
+                AICLI_LOG(CLI, Info, << "Got unrecognized CTRL type: " << ctrlType);
+                return FALSE;
+            }
+        }
+
+        void SetCtrlHandlerReporter(Reporter* reporter)
+        {
+            // Only one is allowed right now.
+            THROW_HR_IF(E_UNEXPECTED, s_reporterForCtrlHandler != nullptr && reporter != nullptr);
+
+            if (reporter == nullptr)
+            {
+                LOG_IF_WIN32_BOOL_FALSE(SetConsoleCtrlHandler(CtrlHandlerForReporter, FALSE));
+                s_reporterForCtrlHandler = nullptr;
+            }
+            else
+            {
+                s_reporterForCtrlHandler = reporter;
+                LOG_IF_WIN32_BOOL_FALSE(SetConsoleCtrlHandler(CtrlHandlerForReporter, TRUE));
+            }
+        }
+    }
+
     namespace details
     {
         void IndefiniteSpinner::ShowSpinner()
@@ -122,6 +166,11 @@ namespace AppInstaller::CLI::Execution
         {
             m_out << VirtualTerminal::TextFormat::Default;
         }
+
+        if (m_disableCtrlHandlerOnExit)
+        {
+            EnableCtrlHandler(false);
+        }
     }
 
     Reporter::OutputStream Reporter::GetOutputStream(Level level)
@@ -188,5 +237,29 @@ namespace AppInstaller::CLI::Execution
         UNREFERENCED_PARAMETER(type);
         ShowIndefiniteProgress(false);
         ShowProgress(true, (maximum ? static_cast<uint64_t>((static_cast<double>(current) / maximum) * 100) : current));
+    }
+
+    void Reporter::EnableCtrlHandler(bool enabled)
+    {
+        SetCtrlHandlerReporter(enabled ? this : nullptr);
+        m_disableCtrlHandlerOnExit = enabled;
+    }
+
+    void Reporter::SetProgressCallback(ProgressCallback* callback)
+    {
+        auto lock = m_progressCallbackLock.lock_exclusive();
+        m_progressCallback = callback;
+    }
+
+    void Reporter::CancelInProgressTask(bool force)
+    {
+        // TODO: Maybe ask the user if they really want to cancel?
+        UNREFERENCED_PARAMETER(force);
+        auto lock = m_progressCallbackLock.lock_shared();
+        ProgressCallback* callback = m_progressCallback.load();
+        if (callback)
+        {
+            callback->Cancel();
+        }
     }
 }

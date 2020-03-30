@@ -1,0 +1,6 @@
+# Bad manifest. Installers missing
+Id: microsoft.msixsdk
+Name: MSIX SDK
+Version: 1.7.32
+InstallerType: Zip
+Publisher: Microsoft

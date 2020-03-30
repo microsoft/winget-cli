@@ -102,7 +102,7 @@ namespace AppInstaller::Logging
                 "ClientStartup",
                 GetActivityId(),
                 nullptr,
-                TraceLoggingCountedString(version.c_str(), static_cast<ULONG>(version.size()), "version"),
+                TraceLoggingCountedString(version.c_str(), static_cast<ULONG>(version.size()), "Version"),
                 TraceLoggingWideString(GetCommandLineW(), "commandlineargs"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance|PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
@@ -199,8 +199,8 @@ namespace AppInstaller::Logging
                 "AppFound",
                 GetActivityId(),
                 nullptr,
-                AICLI_TraceLoggingStringView(name, "AppName"),
-                AICLI_TraceLoggingStringView(id, "id"),
+                AICLI_TraceLoggingStringView(name, "Name"),
+                AICLI_TraceLoggingStringView(id, "Id"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }

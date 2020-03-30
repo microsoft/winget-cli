@@ -72,6 +72,8 @@ namespace AppInstaller::Repository
     // A single application result from a search.
     struct IApplication
     {
+        virtual ~IApplication() = default;
+
         // Gets the id of the application.
         virtual std::string GetId() = 0;
 
