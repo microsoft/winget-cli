@@ -14,10 +14,12 @@ namespace AppInstaller::CLI::Execution
 {
     // Names a peice of data stored in the context by a workflow step.
     // Must start at 0 to enable direct access to variant in Context.
+    // Max must be last and unused.
     enum class Data : size_t
     {
         Source,
         SearchResult,
+        SourceList,
         Max
     };
 
@@ -39,6 +41,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::SearchResult>
         {
             using value_t = Repository::SearchResult;
+        };
+
+        template <>
+        struct DataMapping<Data::SourceList>
+        {
+            using value_t = std::vector<Repository::SourceDetails>;
         };
 
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.
@@ -65,6 +73,12 @@ namespace AppInstaller::CLI::Execution
         // The arguments given to execute with.
         Args Args;
 
+        // Returns a value indicating whether the context is terminated.
+        bool IsTerminated() const { return m_isTerminated; }
+
+        // Set the context to the terminated state.
+        void Terminate() { m_isTerminated = true; }
+
         // Adds a value to the context data, or overwrites an existing entry.
         // This must be used to create the intial data entry, but Get can be used to modify.
         template <Data D>
@@ -83,6 +97,18 @@ namespace AppInstaller::CLI::Execution
         }
 
     private:
+        bool m_isTerminated = false;
         std::map<Data, details::DataVariant> m_data;
     };
+}
+
+// Passes the context to Callable T if it has not been terminated; returns the context.
+template <typename T>
+AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, T&& t)
+{
+    if (!context.IsTerminated())
+    {
+        t(context);
+    }
+    return context;
 }
