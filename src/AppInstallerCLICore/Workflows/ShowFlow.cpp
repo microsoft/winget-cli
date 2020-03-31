@@ -52,7 +52,7 @@ namespace AppInstaller::Workflow
 
     void ShowFlow::ShowAppVersion()
     {
-        auto app = m_searchResult.Matches.at(0).Application.get();
+        auto app = m_contextRef.Get<Execution::Data::SearchResult>().Matches.at(0).Application.get();
 
         m_reporterRef.ShowMsg("Id: " + app->GetId());
         m_reporterRef.ShowMsg("Name: " + app->GetName());

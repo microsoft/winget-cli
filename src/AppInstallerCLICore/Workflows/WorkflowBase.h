@@ -23,9 +23,6 @@ namespace AppInstaller::Workflow
         bool IndexSearch();
 
         void ReportSearchResult();
-
-        std::shared_ptr<AppInstaller::Repository::ISource> m_source;
-        AppInstaller::Repository::SearchResult m_searchResult;
     };
 
     // A workflow that requires a single manifest to operate properly.

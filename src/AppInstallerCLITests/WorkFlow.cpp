@@ -150,7 +150,7 @@ protected:
 
     void OpenIndexSource() override
     {
-        m_source = std::make_unique<TestSource>();
+        m_contextRef.Add<Execution::Data::Source>(std::make_shared<TestSource>());
     }
 };
 
@@ -163,7 +163,7 @@ protected:
 
     void OpenIndexSource() override
     {
-        m_source = std::make_unique<TestSource>();
+        m_contextRef.Add<Execution::Data::Source>(std::make_shared<TestSource>());
     }
 };
 

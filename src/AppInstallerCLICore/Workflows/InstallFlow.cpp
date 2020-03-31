@@ -24,7 +24,7 @@ namespace AppInstaller::Workflow
             {
                 return;
             }
-            m_reporterRef.ShowMsg("Found app: " + m_searchResult.Matches[0].Application->GetName());
+            m_reporterRef.ShowMsg("Found app: " + m_contextRef.Get<Execution::Data::SearchResult>().Matches[0].Application->GetName());
         }
 
         if (VerifyOSVersion())

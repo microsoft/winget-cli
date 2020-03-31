@@ -17,13 +17,14 @@ namespace AppInstaller::Workflow
             sourceName = m_argsRef.GetArg(Execution::Args::Type::Source);
         }
 
-        m_source = m_reporterRef.ExecuteWithProgress(std::bind(OpenSource, sourceName, std::placeholders::_1));
+        m_contextRef.Add<Execution::Data::Source>(m_reporterRef.ExecuteWithProgress(std::bind(OpenSource, sourceName, std::placeholders::_1)));
     }
 
     bool WorkflowBase::IndexSearch()
     {
         OpenIndexSource();
-        if (!m_source)
+        auto& source = m_contextRef.Get<Execution::Data::Source>();
+        if (!source)
         {
             bool noSources = true;
 
@@ -105,14 +106,15 @@ namespace AppInstaller::Workflow
             m_argsRef.GetArg(Execution::Args::Type::Command),
             searchRequest.MaximumResults,
             searchRequest.ToString());
-        m_searchResult = m_source->Search(searchRequest);
+        m_contextRef.Add<Execution::Data::SearchResult>(source->Search(searchRequest));
 
         return true;
     }
 
     void WorkflowBase::ReportSearchResult()
     {
-        for (auto& match : m_searchResult.Matches)
+        auto& searchResult = m_contextRef.Get<Execution::Data::SearchResult>();
+        for (auto& match : searchResult.Matches)
         {
             auto app = match.Application.get();
             auto allVersions = app->GetVersions();
@@ -128,21 +130,22 @@ namespace AppInstaller::Workflow
                 msg += ": " + match.MatchCriteria.Value + "]";
             }
 
-            Logging::Telemetry().LogSearchResultCount(m_searchResult.Matches.size());
+            Logging::Telemetry().LogSearchResultCount(searchResult.Matches.size());
             m_reporterRef.ShowMsg(msg);
         }
     }
 
     bool SingleManifestWorkflow::EnsureOneMatchFromSearchResult()
     {
-        if (m_searchResult.Matches.size() == 0)
+        auto& searchResult = m_contextRef.Get<Execution::Data::SearchResult>();
+        if (searchResult.Matches.size() == 0)
         {
             Logging::Telemetry().LogNoAppMatch();
             m_reporterRef.ShowMsg("No app found matching input criteria.");
             return false;
         }
 
-        if (m_searchResult.Matches.size() > 1)
+        if (searchResult.Matches.size() > 1)
         {
             Logging::Telemetry().LogMultiAppMatch();
             m_reporterRef.ShowMsg("Multiple apps found matching input criteria. Please refine the input.");
@@ -150,14 +153,14 @@ namespace AppInstaller::Workflow
             return false;
         }
 
-        auto app = m_searchResult.Matches.at(0).Application.get();
+        auto app = searchResult.Matches.at(0).Application.get();
         Logging::Telemetry().LogAppFound(app->GetName(), app->GetId());
         return true;
     }
 
     bool SingleManifestWorkflow::GetManifest()
     {
-        auto app = m_searchResult.Matches.at(0).Application.get();
+        auto app = m_contextRef.Get<Execution::Data::SearchResult>().Matches.at(0).Application.get();
 
         std::string_view version = m_argsRef.GetArg(Execution::Args::Type::Version);
         std::string_view channel = m_argsRef.GetArg(Execution::Args::Type::Channel);

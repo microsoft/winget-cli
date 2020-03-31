@@ -18,7 +18,7 @@ namespace AppInstaller::Workflow
 
     void SearchFlow::ProcessSearchResult()
     {
-        if (m_searchResult.Matches.size() == 0)
+        if (m_contextRef.Get<CLI::Execution::Data::SearchResult>().Matches.size() == 0)
         {
             Logging::Telemetry().LogNoAppMatch();
             m_reporterRef.ShowMsg("No app found matching input criteria.");
