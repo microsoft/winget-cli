@@ -132,7 +132,14 @@ jobs:
       PathtoPublish: 'src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'
       ArtifactName: 'AppInstallerCLI.exe'
       publishLocation: 'Container'
-  
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish SQLite Util Binary
+    inputs:
+      PathtoPublish: 'src\x64\Release\AppInstallerSQLiteIndexUtil\AppInstallerSQLiteIndexUtil.dll'
+      ArtifactName: 'AppInstallerSQLiteIndexUtil.dll'
+      publishLocation: 'Container'
+
   - task: ComponentGovernanceComponentDetection@0
     displayName: Component Governance
     inputs:
