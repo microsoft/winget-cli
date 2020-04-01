@@ -6,36 +6,53 @@
 #include "Public/AppInstallerRepositorySearch.h"
 #include "Public/AppInstallerRepositorySource.h"
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI::Workflow
 {
-    class WorkflowBase
-    {
-    protected:
-        WorkflowBase(AppInstaller::CLI::Execution::Context& context) :
-            m_contextRef(context), m_reporterRef(context.Reporter), m_argsRef(context.Args) {}
+    // Creates the source object.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: Source
+    void OpenSource(Execution::Context& context);
 
-        AppInstaller::CLI::Execution::Context& m_contextRef;
-        AppInstaller::CLI::Execution::Reporter& m_reporterRef;
-        const AppInstaller::CLI::Execution::Args& m_argsRef;
+    // Performs a search on the source.
+    // Required Args: None
+    // Inputs: Source
+    // Outputs: SearchResult
+    void SourceSearch(Execution::Context& context);
 
-        virtual void OpenIndexSource();
+    // Outputs the search results.
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: None
+    void ReportSearchResult(Execution::Context& context);
 
-        bool IndexSearch();
+    // Ensures that there is only one result in the search.
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: None
+    void EnsureOneMatchFromSearchResult(Execution::Context& context);
 
-        void ReportSearchResult();
-    };
+    // Gets the manifest from a search result.
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: Manifest
+    void GetManifestFromSearchResult(Execution::Context& context);
 
-    // A workflow that requires a single manifest to operate properly.
-    class SingleManifestWorkflow : public WorkflowBase
-    {
-    protected:
-        using WorkflowBase::WorkflowBase;
+    // Composite flow that produces a manifest; either from one given on the command line or by searching.
+    // Required Args: Manifest
+    // Inputs: None
+    // Outputs: Manifest
+    void GetManifestFromArg(Execution::Context& context);
 
-        bool EnsureOneMatchFromSearchResult();
-        bool GetManifest();
-        void SelectInstaller();
+    // Composite flow that produces a manifest; either from one given on the command line or by searching.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: Manifest
+    void GetManifest(Execution::Context& context);
 
-        AppInstaller::Manifest::Manifest m_manifest;
-        AppInstaller::Manifest::ManifestInstaller m_selectedInstaller;
-    };
+    // Selects the installer from the manifest.
+    // Required Args: None
+    // Inputs: Manifest
+    // Outputs: Installer
+    void SelectInstaller(Execution::Context& context);
 }

@@ -13,7 +13,7 @@ namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
 
-    constexpr std::string_view s_InstallCommand_ArgName_QueryOrManifest = "query|manifest"sv;
+    constexpr std::string_view s_InstallCommand_ArgName_SilentAndInteractive = "silent|interactive"sv;
 
     std::vector<Argument> InstallCommand::GetArguments() const
     {
@@ -55,15 +55,9 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        // TODO: Maybe one day implement argument groups
-        if (!execArgs.Contains(Execution::Args::Type::Query) && !execArgs.Contains(Execution::Args::Type::Manifest))
-        {
-            throw CommandException(LOCME("Required argument not provided"), s_InstallCommand_ArgName_QueryOrManifest);
-        }
-
         if (execArgs.Contains(Execution::Args::Type::Silent) && execArgs.Contains(Execution::Args::Type::Interactive))
         {
-            throw CommandException(LOCME("More than one install behavior argument provided"), s_InstallCommand_ArgName_QueryOrManifest);
+            throw CommandException(LOCME("More than one install behavior argument provided"), s_InstallCommand_ArgName_SilentAndInteractive);
         }
     }
 }

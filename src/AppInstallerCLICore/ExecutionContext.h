@@ -3,6 +3,7 @@
 #pragma once
 #include <AppInstallerRepositorySearch.h>
 #include <AppInstallerRepositorySource.h>
+#include <Manifest/Manifest.h>
 #include "ExecutionReporter.h"
 #include "ExecutionArgs.h"
 
@@ -20,6 +21,8 @@ namespace AppInstaller::CLI::Execution
         Source,
         SearchResult,
         SourceList,
+        Manifest,
+        Installer,
         Max
     };
 
@@ -47,6 +50,18 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::SourceList>
         {
             using value_t = std::vector<Repository::SourceDetails>;
+        };
+
+        template <>
+        struct DataMapping<Data::Manifest>
+        {
+            using value_t = Manifest::Manifest;
+        };
+
+        template <>
+        struct DataMapping<Data::Installer>
+        {
+            using value_t = Manifest::ManifestInstaller;
         };
 
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.

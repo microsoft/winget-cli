@@ -102,7 +102,7 @@
     <ClInclude Include="Argument.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Workflows\SourceFlows.h">
+    <ClInclude Include="Workflows\SourceFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
   </ItemGroup>
@@ -167,7 +167,7 @@
     <ClCompile Include="Argument.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Workflows\SourceFlows.cpp">
+    <ClCompile Include="Workflows\SourceFlow.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>

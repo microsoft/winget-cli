@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "pch.h"
-#include "SourceFlows.h"
+#include "SourceFlow.h"
 
 namespace AppInstaller::CLI::Workflow
 {

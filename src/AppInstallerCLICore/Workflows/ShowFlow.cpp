@@ -5,10 +5,9 @@
 #include "ShowFlow.h"
 #include "ManifestComparator.h"
 
-using namespace AppInstaller::CLI;
 using namespace AppInstaller::Repository;
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI::Workflow
 {
     void ShowFlow::Execute()
     {

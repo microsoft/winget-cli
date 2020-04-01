@@ -4,7 +4,7 @@
 #pragma once
 #include "ExecutionContext.h"
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI::Workflow
 {
     // This is used in sorting the list of available installers to get the best match.
     struct InstallerComparator

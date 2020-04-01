@@ -197,7 +197,7 @@
     <ClInclude Include="Workflows\ManifestComparator.h" />
     <ClInclude Include="Workflows\MsixInstallerHandler.h" />
     <ClInclude Include="Workflows\ShowFlow.h" />
-    <ClInclude Include="Workflows\SourceFlows.h" />
+    <ClInclude Include="Workflows\SourceFlow.h" />
     <ClInclude Include="Workflows\WorkflowBase.h" />
   </ItemGroup>
   <ItemGroup>
@@ -222,7 +222,7 @@
     <ClCompile Include="Workflows\ManifestComparator.cpp" />
     <ClCompile Include="Workflows\MsixInstallerHandler.cpp" />
     <ClCompile Include="Workflows\ShowFlow.cpp" />
-    <ClCompile Include="Workflows\SourceFlows.cpp" />
+    <ClCompile Include="Workflows\SourceFlow.cpp" />
     <ClCompile Include="Workflows\WorkflowBase.cpp" />
   </ItemGroup>
   <ItemGroup>

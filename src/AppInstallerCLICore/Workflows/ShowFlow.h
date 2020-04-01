@@ -5,7 +5,7 @@
 #include "ExecutionContext.h"
 #include "WorkflowBase.h"
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI::Workflow
 {
     class ShowFlow : public SingleManifestWorkflow
     {

@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "SourceCommand.h"
 #include "Localization.h"
-#include "Workflows/SourceFlows.h"
+#include "Workflows/SourceFlow.h"
 
 namespace AppInstaller::CLI
 {
