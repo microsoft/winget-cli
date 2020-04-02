@@ -33,6 +33,7 @@ namespace AppInstaller::CLI
         {
             AICLI_LOG(CLI, Error, << "Input file does not exist. Path: " << inputFile);
             context.Reporter.Error() << "The input manifest file does not exist. Path: " << inputFile << std::endl;
+            return;
         }
 
         try
