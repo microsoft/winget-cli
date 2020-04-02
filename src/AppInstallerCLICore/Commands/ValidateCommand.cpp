@@ -17,12 +17,12 @@ namespace AppInstaller::CLI
 
     std::string ValidateCommand::ShortDescription() const
     {
-        return LOCME("Helper to validate a manifest file");
+        return LOCME("Validates a manifest file");
     }
 
     std::string ValidateCommand::GetLongDescription() const
     {
-        return LOCME("Helper to validate a manifest file");
+        return LOCME("Validates a manifest using a strict set of guidelines. This is intended to enable you to check your manifest before submitting to a repo.");
     }
 
     void ValidateCommand::ExecuteInternal(Execution::Context& context) const

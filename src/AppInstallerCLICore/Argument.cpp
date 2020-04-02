@@ -61,7 +61,7 @@ namespace AppInstaller::CLI
         case Args::Type::Help:
             return Argument{ "help", APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_CHAR, Args::Type::Help, LOCME("Shows help about the selected command"), ArgumentType::Flag };
         case Args::Type::ValidateManifest:
-            return Argument{ "manifest", None, Args::Type::ValidateManifest, LOCME("The path to the manifest of the application to be validated"), ArgumentType::Positional, true };
+            return Argument{ "manifest", None, Args::Type::ValidateManifest, LOCME("The path to the manifest to be validated"), ArgumentType::Positional, true };
         default:
             THROW_HR(E_UNEXPECTED);
         }
