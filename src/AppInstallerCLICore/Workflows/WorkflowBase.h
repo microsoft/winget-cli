@@ -67,7 +67,7 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Manifest
     void GetManifest(Execution::Context& context);
 
-    // Selects the installer from the manifest.
+    // Selects the installer from the manifest, if one is applicable.
     // Required Args: None
     // Inputs: Manifest
     // Outputs: Installer

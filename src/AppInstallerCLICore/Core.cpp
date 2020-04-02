@@ -105,22 +105,28 @@ namespace AppInstaller::CLI
         // Exceptions that may occur in the process of executing an arbitrary command
         catch (const winrt::hresult_error& hre)
         {
-            // TODO: Better error output
             std::string message = Utility::ConvertToUTF8(hre.message());
-            context.Reporter.ShowMsg("An error occurred while executing the command: " + message, Execution::Reporter::Level::Error);
-            AICLI_LOG(CLI, Error, << "Error encountered executing command: " << message);
-            return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
+            Logging::Telemetry().LogException(command->FullName(), "winrt::hresult_error", message);
+            context.Reporter.Error() <<
+                "An unexpected error occurred while executing the command: " << std::endl <<
+                message << std::endl;
+            return hre.code();
         }
         catch (const std::exception& e)
         {
-            // TODO: Better error output
-            context.Reporter.ShowMsg("An error occurred while executing the command: " + std::string(e.what()), Execution::Reporter::Level::Error);
-            AICLI_LOG(CLI, Error, << "Error encountered executing command: " << e.what());
+            Logging::Telemetry().LogException(command->FullName(), "std::exception", e.what());
+            context.Reporter.Error() <<
+                "An unexpected error occurred while executing the command: " << std::endl <<
+                e.what() << std::endl;
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
 
-        Logging::Telemetry().LogCommandSuccess(command->FullName());
-        return 0;
+        if (SUCCEEDED(context.GetTerminationHR()))
+        {
+            Logging::Telemetry().LogCommandSuccess(command->FullName());
+        }
+
+        return context.GetTerminationHR();
     }
     // End of the line exceptions that are not ever expected.
     // Telemetry cannot be reliable beyond this point, so don't let these happen.

@@ -5,47 +5,40 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "MsixInstallerHandler.h"
 
-using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI::Workflow
 {
-    void InstallFlow::Execute()
+    void EnsureMinOSVersion(Execution::Context& context)
     {
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
 
-        if (VerifyOSVersion())
+        if (!manifest.MinOSVersion.empty() &&
+            !Runtime::IsCurrentOSVersionGreaterThanOrEqual(Version(manifest.MinOSVersion)))
         {
-            SelectInstaller();
-            InstallInternal();
+            context.Reporter.Error() << "Cannot install application, as it requires a higher OS version: " << manifest.MinOSVersion << std::endl;
+            AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_OLD_WIN_VERSION));
         }
     }
 
-    void InstallFlow::InstallInternal()
+    void EnsureApplicableInstaller(Execution::Context& context)
     {
-        auto installerHandler = GetInstallerHandler();
+        const auto& installer = context.Get<Execution::Data::Installer>();
 
-        installerHandler->Download();
-        installerHandler->Install();
-    }
-
-    bool InstallFlow::VerifyOSVersion()
-    {
-        if (!m_manifest.MinOSVersion.empty() &&
-            !Runtime::IsCurrentOSVersionGreaterThanOrEqual(Version(m_manifest.MinOSVersion)))
+        if (!installer.has_value())
         {
-            m_reporterRef.Error() << "Cannot install application, as it requires a higher OS version: " << m_manifest.MinOSVersion << std::endl;
-            return false;
-        }
-        else
-        {
-            return true;
+            context.Reporter.Error() << "No installers are applicable to the current system" << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
     }
 
-    std::unique_ptr<InstallerHandlerBase> InstallFlow::GetInstallerHandler()
+    void GetInstallerHandler(Execution::Context& context)
     {
-        switch (m_selectedInstaller.InstallerType)
+        const auto& installer = context.Get<Execution::Data::Installer>();
+        std::unique_ptr<InstallerHandlerBase> installerHandler;
+
+        switch (installer->InstallerType)
         {
         case ManifestInstaller::InstallerTypeEnum::Exe:
         case ManifestInstaller::InstallerTypeEnum::Burn:
@@ -53,11 +46,29 @@ namespace AppInstaller::Workflow
         case ManifestInstaller::InstallerTypeEnum::Msi:
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
         case ManifestInstaller::InstallerTypeEnum::Wix:
-            return std::make_unique<ShellExecuteInstallerHandler>(m_selectedInstaller, m_contextRef);
+            installerHandler = std::make_unique<ShellExecuteInstallerHandler>(installer.value(), context);
+            break;
         case ManifestInstaller::InstallerTypeEnum::Msix:
-            return std::make_unique<MsixInstallerHandler>(m_selectedInstaller, m_contextRef);
+            installerHandler = std::make_unique<MsixInstallerHandler>(installer.value(), context);
+            break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
+
+        context.Add<Execution::Data::InstallerHandler>(std::move(installerHandler));
+    }
+
+    void DownloadInstaller(Execution::Context& context)
+    {
+        const auto& handler = context.Get<Execution::Data::InstallerHandler>();
+
+        handler->Download();
+    }
+
+    void ExecuteInstaller(Execution::Context& context)
+    {
+        const auto& handler = context.Get<Execution::Data::InstallerHandler>();
+
+        handler->Install();
     }
 }

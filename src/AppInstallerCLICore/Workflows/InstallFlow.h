@@ -1,27 +1,37 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "InstallerHandlerBase.h"
 #include "ExecutionContext.h"
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI::Workflow
 {
-    class InstallFlow : public SingleManifestWorkflow
-    {
-    public:
-        InstallFlow(AppInstaller::CLI::Execution::Context& context) : SingleManifestWorkflow(context) {}
+    // Ensures that the current OS version is greater than or equal to the one in the manifest.
+    // Required Args: None
+    // Inputs: Manifest
+    // Outputs: None
+    void EnsureMinOSVersion(Execution::Context& context);
 
-        // Execute will perform a query against index and do app install if a target app is found.
-        // If a manifest is given with /manifest, use the manifest and no index search is performed.
-        void Execute();
+    // Ensures that there is an applicable installer.
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: None
+    void EnsureApplicableInstaller(Execution::Context& context);
 
-    protected:
-        void InstallInternal();
+    // Gets the source list, filtering it if SourceName is present.
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: InstallerHandler
+    void GetInstallerHandler(Execution::Context& context);
 
-        // Verifies the OS version is capable of supporting the application.
-        bool VerifyOSVersion();
+    // Downloads any files necessary via the InstallerHandler.
+    // Required Args: None
+    // Inputs: InstallerHandler
+    // Outputs: None
+    void DownloadInstaller(Execution::Context& context);
 
-        // Creates corresponding InstallerHandler according to InstallerType
-        virtual std::unique_ptr<InstallerHandlerBase> GetInstallerHandler();
-    };
+    // Executes the installer via the InstallerHandler.
+    // Required Args: None
+    // Inputs: InstallerHandler
+    // Outputs: None
+    void ExecuteInstaller(Execution::Context& context);
 }

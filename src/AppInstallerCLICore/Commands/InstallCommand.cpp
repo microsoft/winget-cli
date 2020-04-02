@@ -50,7 +50,12 @@ namespace AppInstaller::CLI
     {
         context <<
             Workflow::GetManifest <<
-            ;
+            Workflow::EnsureMinOSVersion <<
+            Workflow::SelectInstaller <<
+            Workflow::EnsureApplicableInstaller <<
+            Workflow::GetInstallerHandler <<
+            Workflow::DownloadInstaller <<
+            Workflow::ExecuteInstaller;
     }
 
     void InstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const

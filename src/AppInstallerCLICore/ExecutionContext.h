@@ -1,15 +1,29 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerLogging.h>
 #include <AppInstallerRepositorySearch.h>
 #include <AppInstallerRepositorySource.h>
 #include <Manifest/Manifest.h>
 #include "ExecutionReporter.h"
 #include "ExecutionArgs.h"
+#include "Workflows/InstallerHandlerBase.h"
 
 #include <map>
 #include <utility>
 #include <variant>
+
+
+// Terminates the Context with some logging to indicate the location.
+// Also returns from the current function.
+#define AICLI_TERMINATE_CONTEXT_ARGS(_context_,_hr_) \
+    ::AppInstaller::Logging::Telemetry().LogCommandTermination(_hr_, __FILE__, __LINE__); \
+    _context_.Terminate(_hr_); \
+    return
+
+// Terminates the Context namd 'context' with some logging to indicate the location.
+// Also returns from the current function.
+#define AICLI_TERMINATE_CONTEXT(_hr_)   AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_)
 
 namespace AppInstaller::CLI::Execution
 {
@@ -23,6 +37,7 @@ namespace AppInstaller::CLI::Execution
         SourceList,
         Manifest,
         Installer,
+        InstallerHandler,
         Max
     };
 
@@ -64,6 +79,12 @@ namespace AppInstaller::CLI::Execution
             using value_t = std::optional<Manifest::ManifestInstaller>;
         };
 
+        template <>
+        struct DataMapping<Data::InstallerHandler>
+        {
+            using value_t = std::unique_ptr<Workflow::InstallerHandlerBase>;
+        };
+
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.
         template <size_t... I>
         inline auto Deduce(std::index_sequence<I...>) { return std::variant<std::monostate, DataMapping<static_cast<Data>(I)>::value_t...>{}; }
@@ -91,8 +112,11 @@ namespace AppInstaller::CLI::Execution
         // Returns a value indicating whether the context is terminated.
         bool IsTerminated() const { return m_isTerminated; }
 
+        // Gets the HRESULT reason for the termination.
+        HRESULT GetTerminationHR() const { return m_terminationHR; }
+
         // Set the context to the terminated state.
-        void Terminate() { m_isTerminated = true; }
+        void Terminate(HRESULT hr) { m_isTerminated = true; m_terminationHR = hr; }
 
         // Adds a value to the context data, or overwrites an existing entry.
         // This must be used to create the intial data entry, but Get can be used to modify.
@@ -113,6 +137,7 @@ namespace AppInstaller::CLI::Execution
 
     private:
         bool m_isTerminated = false;
+        HRESULT m_terminationHR = S_OK;
         std::map<Data, details::DataVariant> m_data;
     };
 }
