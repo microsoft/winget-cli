@@ -61,7 +61,7 @@ namespace AppInstaller::CLI::Execution
         template <>
         struct DataMapping<Data::Installer>
         {
-            using value_t = Manifest::ManifestInstaller;
+            using value_t = std::optional<Manifest::ManifestInstaller>;
         };
 
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.

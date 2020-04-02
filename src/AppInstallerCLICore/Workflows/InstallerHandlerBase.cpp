@@ -1,13 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Common.h"
 #include "InstallerHandlerBase.h"
 
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Manifest;
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI::Workflow
 {
     void InstallerHandlerBase::Download()
     {

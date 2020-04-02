@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "HashCommand.h"
 #include "Localization.h"
+#include "Workflows/WorkflowBase.h"
 
 namespace AppInstaller::CLI
 {
@@ -28,27 +29,34 @@ namespace AppInstaller::CLI
 
     void HashCommand::ExecuteInternal(Execution::Context& context) const
     {
-        auto inputFile = context.Args.GetArg(Execution::Args::Type::HashFile);
-        std::ifstream inStream{ inputFile, std::ifstream::binary };
-
-        context.Reporter.ShowMsg("File Hash: " + Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHash(inStream)));
-
-        if (context.Args.Contains(Execution::Args::Type::Msix))
+        context <<
+            Workflow::VerifyFile(Execution::Args::Type::HashFile) <<
+            [](Execution::Context& context)
         {
-            try
-            {
-                Msix::MsixInfo msixInfo{ inputFile };
-                auto signature = msixInfo.GetSignature();
-                auto signatureHash = Utility::SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
+            auto inputFile = context.Args.GetArg(Execution::Args::Type::HashFile);
+            std::ifstream inStream{ inputFile, std::ifstream::binary };
 
-                context.Reporter.ShowMsg("Signature Hash: " + Utility::SHA256::ConvertToString(signatureHash));
-            }
-            catch (const wil::ResultException&)
+            context.Reporter.Info() << "File Hash: " + Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHash(inStream)) << std::endl;
+
+            if (context.Args.Contains(Execution::Args::Type::Msix))
             {
-                context.Reporter.ShowMsg(
-                    "Failed to calculate signature hash. Please verify the input file is a valid signed msix.",
-                    Execution::Reporter::Level::Warning);
+                try
+                {
+                    Msix::MsixInfo msixInfo{ inputFile };
+                    auto signature = msixInfo.GetSignature();
+                    auto signatureHash = Utility::SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
+
+                    context.Reporter.Info() << "Signature Hash: " + Utility::SHA256::ConvertToString(signatureHash) << std::endl;
+                }
+                catch (const wil::ResultException&)
+                {
+                    context.Reporter.Warn() << 
+                        "Failed to calculate MSIX signature hash." << std::endl <<
+                        "Please verify that the input file is a valid, signed MSIX." << std::endl;
+                    context.Terminate();
+                    return;
+                }
             }
-        }
+        };
     }
 }

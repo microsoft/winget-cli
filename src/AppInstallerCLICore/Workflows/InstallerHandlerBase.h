@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #pragma once
 #include <string>
 #include "Manifest/Manifest.h"
 #include "ExecutionContext.h"
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI::Workflow
 {
     using namespace std::string_view_literals;
 

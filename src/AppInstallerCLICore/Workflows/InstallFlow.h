@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #pragma once
-#include "Common.h"
-#include "WorkflowBase.h"
 #include "InstallerHandlerBase.h"
 #include "ExecutionContext.h"
 

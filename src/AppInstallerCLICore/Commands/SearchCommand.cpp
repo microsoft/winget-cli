@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "SearchCommand.h"
 #include "Localization.h"
-#include "Workflows/SearchFlow.h"
+#include "Workflows/WorkflowBase.h"
 
 namespace AppInstaller::CLI
 {
@@ -37,8 +37,10 @@ namespace AppInstaller::CLI
 
     void SearchCommand::ExecuteInternal(Context& context) const
     {
-        Workflow::SearchFlow appSearch{ context };
-
-        appSearch.Execute();
+        context <<
+            Workflow::OpenSource <<
+            Workflow::SearchSource <<
+            Workflow::EnsureMatchesFromSearchResult <<
+            Workflow::ReportSearchResult;
     }
 }

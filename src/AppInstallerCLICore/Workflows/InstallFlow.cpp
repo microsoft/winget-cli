@@ -13,19 +13,6 @@ namespace AppInstaller::Workflow
 {
     void InstallFlow::Execute()
     {
-        if (m_argsRef.Contains(Execution::Args::Type::Manifest))
-        {
-            m_manifest = Manifest::Manifest::CreateFromPath(m_argsRef.GetArg(Execution::Args::Type::Manifest));
-            Logging::Telemetry().LogManifestFields(m_manifest.Id, m_manifest.Name, m_manifest.Version);
-        }
-        else
-        {
-            if (!IndexSearch() || !EnsureOneMatchFromSearchResult() || !GetManifest())
-            {
-                return;
-            }
-            m_reporterRef.ShowMsg("Found app: " + m_contextRef.Get<Execution::Data::SearchResult>().Matches[0].Application->GetName());
-        }
 
         if (VerifyOSVersion())
         {

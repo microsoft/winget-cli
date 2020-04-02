@@ -1,14 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Common.h"
 #include "ShellExecuteInstallerHandler.h"
 
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI::Workflow
 {
     void ShellExecuteInstallerHandler::Install()
     {

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Common.h"
 #include "MsixInstallerHandler.h"
 #include <AppInstallerDeployment.h>
 
@@ -11,7 +10,7 @@ using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI::Workflow
 {
     void MsixInstallerHandler::Download()
     {

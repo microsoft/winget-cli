@@ -6,7 +6,7 @@
 
 #include <optional>
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI::Workflow
 {
     // ShellExecuteInstallerHandler handles installers run through ShellExecute.
     // Exe, Wix, Nullsoft, Msi and Inno should be handled by this installer handler.

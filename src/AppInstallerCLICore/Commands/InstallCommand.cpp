@@ -3,8 +3,8 @@
 #include "pch.h"
 #include "InstallCommand.h"
 #include "Localization.h"
-#include "Manifest\Manifest.h"
-#include "Workflows\InstallFlow.h"
+#include "Workflows/InstallFlow.h"
+#include "Workflows/WorkflowBase.h"
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Workflow;
@@ -48,9 +48,9 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ExecuteInternal(Execution::Context& context) const
     {
-        InstallFlow appInstall(context);
-
-        appInstall.Execute();
+        context <<
+            Workflow::GetManifest <<
+            ;
     }
 
     void InstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const

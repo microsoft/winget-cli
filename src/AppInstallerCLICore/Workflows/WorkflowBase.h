@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #pragma once
 #include "ExecutionContext.h"
-#include "Public/AppInstallerRepositorySearch.h"
-#include "Public/AppInstallerRepositorySource.h"
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -18,13 +15,19 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: Source
     // Outputs: SearchResult
-    void SourceSearch(Execution::Context& context);
+    void SearchSource(Execution::Context& context);
 
     // Outputs the search results.
     // Required Args: None
     // Inputs: SearchResult
     // Outputs: None
     void ReportSearchResult(Execution::Context& context);
+
+    // Ensures that there is only one result in the search.
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: None
+    void EnsureMatchesFromSearchResult(Execution::Context& context);
 
     // Ensures that there is only one result in the search.
     // Required Args: None
@@ -38,7 +41,21 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Manifest
     void GetManifestFromSearchResult(Execution::Context& context);
 
-    // Composite flow that produces a manifest; either from one given on the command line or by searching.
+    // Ensures the the file exists and is not a directory.
+    // Required Args: the one given
+    // Inputs: None
+    // Outputs: None
+    struct VerifyFile
+    {
+        VerifyFile(Execution::Args::Type arg) : m_arg(arg) {}
+
+        void operator()(Execution::Context& context);
+
+    private:
+        Execution::Args::Type m_arg;
+    };
+
+    // Opens the manifest file provided on the command line.
     // Required Args: Manifest
     // Inputs: None
     // Outputs: Manifest

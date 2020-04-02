@@ -9,6 +9,20 @@ namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::Repository;
 
+    namespace
+    {
+        void EnsureMatchesFromSearchResult(Execution::Context& context, Repository::SearchResult& searchResult)
+        {
+            if (searchResult.Matches.size() == 0)
+            {
+                Logging::Telemetry().LogNoAppMatch();
+                context.Reporter.Info() << "No app found matching input criteria." << std::endl;
+                context.Terminate();
+                return;
+            }
+        }
+    }
+
     void OpenSource(Execution::Context& context)
     {
         std::string sourceName;
@@ -52,7 +66,7 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::Source>(std::move(source));
     }
 
-    void SourceSearch(Execution::Context& context)
+    void SearchSource(Execution::Context& context)
     {
         auto& args = context.Args;
 
@@ -133,16 +147,16 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void EnsureMatchesFromSearchResult(Execution::Context& context)
+    {
+        EnsureMatchesFromSearchResult(context, context.Get<Execution::Data::SearchResult>());
+    }
+
     void EnsureOneMatchFromSearchResult(Execution::Context& context)
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
-        if (searchResult.Matches.size() == 0)
-        {
-            Logging::Telemetry().LogNoAppMatch();
-            context.Reporter.Info() << "No app found matching input criteria." << std::endl;
-            context.Terminate();
-            return;
-        }
+
+        EnsureMatchesFromSearchResult(context, searchResult);
 
         if (searchResult.Matches.size() > 1)
         {
@@ -187,27 +201,35 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::Manifest>(std::move(manifest.value()));
     }
 
+    void VerifyFile::operator()(Execution::Context& context)
+    {
+        std::filesystem::path path = context.Args.GetArg(m_arg);
+
+        if (!std::filesystem::exists(path))
+        {
+            context.Reporter.Error() << "File does not exist: " << path.u8string() << std::endl;
+            context.Terminate();
+            return;
+        }
+
+        if (std::filesystem::is_directory(path))
+        {
+            context.Reporter.Error() << "Path is a directory: " << path.u8string() << std::endl;
+            context.Terminate();
+            return;
+        }
+    }
+
     void GetManifestFromArg(Execution::Context& context)
     {
-        std::filesystem::path manifestPath = context.Args.GetArg(Execution::Args::Type::Manifest);
-
-        if (!std::filesystem::exists(manifestPath))
+        context <<
+            VerifyFile(Execution::Args::Type::Manifest) <<
+            [](Execution::Context& context)
         {
-            context.Reporter.Error() << "File does not exist: " << manifestPath.u8string() << std::endl;
-            context.Terminate();
-            return;
-        }
-
-        if (std::filesystem::is_directory(manifestPath))
-        {
-            context.Reporter.Error() << "Path is a directory: " << manifestPath.u8string() << std::endl;
-            context.Terminate();
-            return;
-        }
-
-        Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(manifestPath);
-        Logging::Telemetry().LogManifestFields(manifest.Id, manifest.Name, manifest.Version);
-        context.Add<Execution::Data::Manifest>(std::move(manifest));
+            Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(context.Args.GetArg(Execution::Args::Type::Manifest));
+            Logging::Telemetry().LogManifestFields(manifest.Id, manifest.Name, manifest.Version);
+            context.Add<Execution::Data::Manifest>(std::move(manifest));
+        };
     }
 
     void GetManifest(Execution::Context& context)
@@ -220,7 +242,7 @@ namespace AppInstaller::CLI::Workflow
         {
             context <<
                 OpenSource <<
-                SourceSearch <<
+                SearchSource <<
                 EnsureOneMatchFromSearchResult <<
                 GetManifestFromSearchResult;
         }
@@ -228,7 +250,7 @@ namespace AppInstaller::CLI::Workflow
 
     void SelectInstaller(Execution::Context& context)
     {
-        ManifestComparator manifestComparator(m_manifest, m_reporterRef);
-        m_selectedInstaller = manifestComparator.GetPreferredInstaller(m_argsRef);
+        ManifestComparator manifestComparator(context.Args);
+        context.Add<Execution::Data::Installer>(manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>()));
     }
 }

@@ -4,6 +4,7 @@
 #include "ShowCommand.h"
 #include "Localization.h"
 #include "Workflows/ShowFlow.h"
+#include "Workflows/WorkflowBase.h"
 
 namespace AppInstaller::CLI
 {
@@ -35,7 +36,29 @@ namespace AppInstaller::CLI
 
     void ShowCommand::ExecuteInternal(Execution::Context& context) const
     {
-        context <<
-            Workflow::
+        if (context.Args.Contains(Execution::Args::Type::ListVersions))
+        {
+            if (context.Args.Contains(Execution::Args::Type::Manifest))
+            {
+                context <<
+                    Workflow::GetManifestFromArg <<
+                    Workflow::ShowManifestVersion;
+            }
+            else
+            {
+                context <<
+                    Workflow::OpenSource <<
+                    Workflow::SearchSource <<
+                    Workflow::EnsureOneMatchFromSearchResult <<
+                    Workflow::ShowAppVersions;
+            }
+        }
+        else
+        {
+            context <<
+                Workflow::GetManifest <<
+                Workflow::SelectInstaller <<
+                Workflow::ShowManifestInfo;
+        }
     }
 }

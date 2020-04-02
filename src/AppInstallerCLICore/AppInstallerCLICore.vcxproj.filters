@@ -54,9 +54,6 @@
     <ClInclude Include="Workflows\ManifestComparator.h">
       <Filter>Workflows</Filter>
     </ClInclude>
-    <ClInclude Include="Workflows\Common.h">
-      <Filter>Workflows</Filter>
-    </ClInclude>
     <ClInclude Include="Workflows\InstallerHandlerBase.h">
       <Filter>Workflows</Filter>
     </ClInclude>
@@ -77,9 +74,6 @@
     </ClInclude>
     <ClInclude Include="Commands\SearchCommand.h">
       <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="Workflows\SearchFlow.h">
-      <Filter>Workflows</Filter>
     </ClInclude>
     <ClInclude Include="Workflows\ShowFlow.h">
       <Filter>Workflows</Filter>
@@ -142,9 +136,6 @@
     </ClCompile>
     <ClCompile Include="Commands\SearchCommand.cpp">
       <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="Workflows\SearchFlow.cpp">
-      <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="Commands\SourceCommand.cpp">
       <Filter>Commands</Filter>

@@ -3,7 +3,7 @@
 #pragma once
 #include "InstallerHandlerBase.h"
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI::Workflow
 {
     // MsixInstallerHandler handles appx/msix installers.
     class MsixInstallerHandler : public InstallerHandlerBase

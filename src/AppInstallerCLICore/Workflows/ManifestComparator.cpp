@@ -8,7 +8,7 @@
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Manifest;
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI::Workflow
 {
     bool InstallerComparator::operator() (const ManifestInstaller& installer1, const ManifestInstaller& installer2)
     {
@@ -38,48 +38,49 @@ namespace AppInstaller::Workflow
         return true;
     }
 
-    ManifestInstaller ManifestComparator::GetPreferredInstaller(const Execution::Args&)
+    std::optional<Manifest::ManifestInstaller> ManifestComparator::GetPreferredInstaller(const Manifest::Manifest& manifest)
     {
         AICLI_LOG(CLI, Info, << "Starting installer selection.");
 
         // Sorting the list of availlable installers according to rules defined in InstallerComparator.
-        std::sort(m_manifestRef.Installers.begin(), m_manifestRef.Installers.end(), InstallerComparator());
+        auto installers = manifest.Installers;
+        std::sort(installers.begin(), installers.end(), InstallerComparator());
 
         // If the first one is inapplicable, then no installer is applicable.
-        if (Utility::IsApplicableArchitecture(m_manifestRef.Installers[0].Arch) == -1)
+        if (Utility::IsApplicableArchitecture(installers[0].Arch) == -1)
         {
-            m_reporterRef.ShowMsg("No applicable installer found.", Execution::Reporter::Level::Error);
-            THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_WORKFLOW_FAILED), "No installer with applicable architecture found.");
+            return {};
         }
 
-        ManifestInstaller selectedInstaller = m_manifestRef.Installers[0];
+        ManifestInstaller& selectedInstaller = installers[0];
 
         Logging::Telemetry().LogSelectedInstaller((int)selectedInstaller.Arch, selectedInstaller.Url, Manifest::ManifestInstaller::InstallerTypeToString(selectedInstaller.InstallerType), selectedInstaller.Scope, selectedInstaller.Language);
 
-        return selectedInstaller;
+        return std::move(selectedInstaller);
     }
 
-    ManifestLocalization ManifestComparator::GetPreferredLocalization(const Execution::Args&)
+    Manifest::ManifestLocalization ManifestComparator::GetPreferredLocalization(const Manifest::Manifest& manifest)
     {
         AICLI_LOG(CLI, Info, << "Starting localization selection.");
 
         ManifestLocalization selectedLocalization;
 
         // Sorting the list of availlable localizations according to rules defined in LocalizationComparator.
-        if (!m_manifestRef.Localization.empty())
+        if (!manifest.Localization.empty())
         {
-            std::sort(m_manifestRef.Localization.begin(), m_manifestRef.Localization.end(), LocalizationComparator());
+            auto localization = manifest.Localization;
+            std::sort(localization.begin(), localization.end(), LocalizationComparator());
 
             // TODO: needs to check language applicability here
 
-            selectedLocalization = m_manifestRef.Localization[0];
+            selectedLocalization = localization[0];
         }
         else
         {
             // Pupulate default from package manifest
-            selectedLocalization.Description = m_manifestRef.Description;
-            selectedLocalization.Homepage = m_manifestRef.Homepage;
-            selectedLocalization.LicenseUrl = m_manifestRef.LicenseUrl;
+            selectedLocalization.Description = manifest.Description;
+            selectedLocalization.Homepage = manifest.Homepage;
+            selectedLocalization.LicenseUrl = manifest.LicenseUrl;
         }
 
         AICLI_LOG(CLI, Info, << "Completed localization selection. Selected localization language: " << selectedLocalization.Language);
