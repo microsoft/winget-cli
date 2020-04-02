@@ -31,12 +31,14 @@ namespace AppInstaller::Workflow
     protected:
         InstallerHandlerBase(
             const Manifest::ManifestInstaller& manifestInstaller,
-            AppInstaller::CLI::Execution::Context& context) :
-            m_manifestInstallerRef(manifestInstaller), m_reporterRef(context.Reporter), m_argsRef(context.Args) {};
+            AppInstaller::CLI::Execution::Context& context,
+            std::string installerName) :
+            m_manifestInstallerRef(manifestInstaller), m_reporterRef(context.Reporter), m_argsRef(context.Args), m_installerName(std::move(installerName)) {};
 
         const Manifest::ManifestInstaller& m_manifestInstallerRef;
         const AppInstaller::CLI::Execution::Args& m_argsRef;
         AppInstaller::CLI::Execution::Reporter& m_reporterRef;
+        std::string m_installerName;
         std::filesystem::path m_downloadedInstaller;
     };
 }

@@ -29,6 +29,14 @@ namespace AppInstaller::CLI
     void HashCommand::ExecuteInternal(Execution::Context& context) const
     {
         auto inputFile = context.Args.GetArg(Execution::Args::Type::HashFile);
+
+        if (!std::filesystem::exists(inputFile))
+        {
+            AICLI_LOG(CLI, Error, << "Input file does not exist. Path: " << inputFile);
+            context.Reporter.ShowMsg("The input file does not exist. Path: " + std::string(inputFile), Execution::Reporter::Level::Error);
+            return;
+        }
+
         std::ifstream inStream{ inputFile, std::ifstream::binary };
 
         context.Reporter.ShowMsg("File Hash: " + Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHash(inStream)));

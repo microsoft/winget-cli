@@ -27,7 +27,7 @@ class MsixInstallerHandlerTest : public MsixInstallerHandler
 public:
     MsixInstallerHandlerTest(
         const ManifestInstaller& manifestInstaller,
-        Execution::Context& context) : MsixInstallerHandler(manifestInstaller, context) {};
+        Execution::Context& context) : MsixInstallerHandler(manifestInstaller, context, "test") {};
 
 protected:
 
@@ -48,7 +48,7 @@ class ShellExecuteInstallerHandlerTest : public ShellExecuteInstallerHandler
 public:
     ShellExecuteInstallerHandlerTest(
         const ManifestInstaller& manifestInstaller,
-        Execution::Context& context) : ShellExecuteInstallerHandler(manifestInstaller, context) {};
+        Execution::Context& context) : ShellExecuteInstallerHandler(manifestInstaller, context, "test") {};
 
     void Download() override
     {

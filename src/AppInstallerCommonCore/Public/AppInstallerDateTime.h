@@ -12,6 +12,9 @@ namespace AppInstaller::Utility
     // Time is also assumed to be after the epoch.
     void OutputTimepoint(std::ostream& stream, const std::chrono::system_clock::time_point& time);
 
+    // Gets the current time as a string.
+    std::string GetCurrentTimepointStr();
+
     // Gets the current time as a unix epoch value.
     int64_t GetCurrentUnixEpoch();
 
