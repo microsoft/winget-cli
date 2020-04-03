@@ -48,13 +48,12 @@ namespace AppInstaller::CLI
 
                     context.Reporter.Info() << "Signature Hash: " + Utility::SHA256::ConvertToString(signatureHash) << std::endl;
                 }
-                catch (const wil::ResultException&)
+                catch (const wil::ResultException& re)
                 {
                     context.Reporter.Warn() << 
                         "Failed to calculate MSIX signature hash." << std::endl <<
                         "Please verify that the input file is a valid, signed MSIX." << std::endl;
-                    context.Terminate();
-                    return;
+                    AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
                 }
             }
         };

@@ -123,14 +123,17 @@ namespace AppInstaller::Utility
         return nonWhitespaceNotFound;
     }
 
-    void FindAndReplace(std::string& inputStr, std::string_view token, std::string_view value)
+    bool FindAndReplace(std::string& inputStr, std::string_view token, std::string_view value)
     {
+        bool result = false;
         std::string::size_type pos = 0u;
         while ((pos = inputStr.find(token, pos)) != std::string::npos)
         {
+            result = true;
             inputStr.replace(pos, token.length(), value);
             pos += value.length();
         }
+        return result;
     }
 
     std::string ReadEntireStream(std::istream& stream)

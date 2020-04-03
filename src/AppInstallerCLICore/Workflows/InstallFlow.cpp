@@ -3,8 +3,10 @@
 #include "pch.h"
 #include "InstallFlow.h"
 #include "ShellExecuteInstallerHandler.h"
-#include "MsixInstallerHandler.h"
 
+
+using namespace winrt::Windows::Foundation;
+using namespace winrt::Windows::Management::Deployment;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 
@@ -33,12 +35,11 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void GetInstallerHandler(Execution::Context& context)
+    void DownloadInstaller(Execution::Context& context)
     {
-        const auto& installer = context.Get<Execution::Data::Installer>();
-        std::unique_ptr<InstallerHandlerBase> installerHandler;
+        const auto& installer = context.Get<Execution::Data::Installer>().value();
 
-        switch (installer->InstallerType)
+        switch (installer.InstallerType)
         {
         case ManifestInstaller::InstallerTypeEnum::Exe:
         case ManifestInstaller::InstallerTypeEnum::Burn:
@@ -46,29 +47,134 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::Msi:
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
         case ManifestInstaller::InstallerTypeEnum::Wix:
-            installerHandler = std::make_unique<ShellExecuteInstallerHandler>(installer.value(), context);
+            context << DownloadInstallerFile;
             break;
         case ManifestInstaller::InstallerTypeEnum::Msix:
-            installerHandler = std::make_unique<MsixInstallerHandler>(installer.value(), context);
+            if (installer.SignatureSha256.empty())
+            {
+                context << DownloadInstallerFile;
+            }
+            else
+            {
+                context << GetMsixSignatureHash;
+            }
             break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
-
-        context.Add<Execution::Data::InstallerHandler>(std::move(installerHandler));
     }
 
-    void DownloadInstaller(Execution::Context& context)
+    void DownloadInstallerFile(Execution::Context& context)
     {
-        const auto& handler = context.Get<Execution::Data::InstallerHandler>();
+        const auto& installer = context.Get<Execution::Data::Installer>().value();
 
-        handler->Download();
+        // Todo: Rework the path logic. The new path logic should work with MOTW.
+        std::filesystem::path tempInstallerPath = Runtime::GetPathToTemp();
+        tempInstallerPath /= Utility::SHA256::ConvertToString(installer.Sha256);
+
+        AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
+
+        auto hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
+            installer.Url,
+            tempInstallerPath,
+            std::placeholders::_1,
+            true));
+
+        if (!hash)
+        {
+            context.Reporter.Info() << "Package download canceled." << std::endl;
+            AICLI_TERMINATE_CONTEXT(E_ABORT);
+        }
+
+        context.Add<Execution::Data::HashPair>(std::make_pair(installer.Sha256, hash.value()));
+        context.Add<Execution::Data::InstallerPath>(std::move(tempInstallerPath));
+    }
+
+    void GetMsixSignatureHash(Execution::Context& context)
+    {
+        const auto& installer = context.Get<Execution::Data::Installer>().value();
+
+        // Signature hash provided. No download needed. Just verify signature hash.
+        Msix::MsixInfo msixInfo(installer.Url);
+        auto signature = msixInfo.GetSignature();
+
+        auto signatureHash = SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
+
+        context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));
+    }
+
+    void VerifyInstallerHash(Execution::Context& context)
+    {
+        const auto& hashPair = context.Get<Execution::Data::HashPair>();
+
+        if (!std::equal(
+            hashPair.first.begin(),
+            hashPair.first.end(),
+            hashPair.second.begin()))
+        {
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            Logging::Telemetry().LogInstallerHashMismatch(manifest.Id, manifest.Version, manifest.Channel, hashPair.first, hashPair.second);
+
+            if (!context.Reporter.PromptForBoolResponse("Installer hash verification failed. Continue?", Execution::Reporter::Level::Warning))
+            {
+                context.Reporter.Error() << "Canceled. Installer hash mismatch." << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
+            }
+        }
+        else
+        {
+            AICLI_LOG(CLI, Info, << "Installer hash verified");
+            context.Reporter.Info() << "Successfully verified installer hash." << std::endl;
+        }
     }
 
     void ExecuteInstaller(Execution::Context& context)
     {
-        const auto& handler = context.Get<Execution::Data::InstallerHandler>();
+        const auto& installer = context.Get<Execution::Data::Installer>().value();
 
-        handler->Install();
+        switch (installer.InstallerType)
+        {
+        case ManifestInstaller::InstallerTypeEnum::Exe:
+        case ManifestInstaller::InstallerTypeEnum::Burn:
+        case ManifestInstaller::InstallerTypeEnum::Inno:
+        case ManifestInstaller::InstallerTypeEnum::Msi:
+        case ManifestInstaller::InstallerTypeEnum::Nullsoft:
+        case ManifestInstaller::InstallerTypeEnum::Wix:
+            context << ShellExecuteInstall;
+            break;
+        case ManifestInstaller::InstallerTypeEnum::Msix:
+            context << MsixInstall;
+            break;
+        default:
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+        }
+    }
+
+    void ShellExecuteInstall(Execution::Context& context)
+    {
+        Workflow::ShellExecuteInstallerHandler handler;
+        handler.Install(context);
+    }
+
+    void MsixInstall(Execution::Context& context)
+    {
+        Uri uri = nullptr;
+        if (context.Contains(Execution::Data::InstallerPath))
+        {
+            uri = Uri(context.Get<Execution::Data::InstallerPath>().c_str());
+        }
+        else
+        {
+            uri = Uri(Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->Url));
+        }
+
+        context.Reporter.Info() << "Starting package install..." << std::endl;
+
+        DeploymentOptions deploymentOptions =
+            DeploymentOptions::ForceApplicationShutdown |
+            DeploymentOptions::ForceTargetApplicationShutdown;
+        context.Reporter.ExecuteWithProgress(std::bind(Deployment::RequestAddPackageAsync, uri, deploymentOptions, std::placeholders::_1));
+
+        context.Reporter.ShowMsg("Successfully installed.");
     }
 }

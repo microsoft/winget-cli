@@ -9,40 +9,42 @@ using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::CLI::Workflow
 {
-    void ShellExecuteInstallerHandler::Install()
+    void ShellExecuteInstallerHandler::Install(Execution::Context& context)
     {
-        if (m_downloadedInstaller.empty())
-        {
-            THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED), "Installer not downloaded yet");
-        }
+        context.Reporter.Info() << "Installing ..." << std::endl;
 
-        m_reporterRef.ShowMsg("Installing package ...");
-
-        std::string installerArgs = GetInstallerArgs();
+        std::string installerArgs = GetInstallerArgs(context);
         AICLI_LOG(CLI, Info, << "Installer args: " << installerArgs);
 
-        RenameDownloadedInstaller();
+        RenameDownloadedInstaller(context);
 
-        auto installResult = m_reporterRef.ExecuteWithProgress(
+        auto installResult = context.Reporter.ExecuteWithProgress(
             std::bind(ExecuteInstaller,
-                m_downloadedInstaller,
+                context.Get<Execution::Data::InstallerPath>(),
                 installerArgs,
                 std::placeholders::_1));
 
         if (!installResult)
         {
-            m_reporterRef.ShowMsg("Installation abandoned", Execution::Reporter::Level::Error);
+            context.Reporter.Warn() << "Installation abandoned" << std::endl;
+            AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
         else if (installResult.value() != 0)
         {
-            m_reporterRef.ShowMsg("Install failed. Exit code: " + std::to_string(installResult.value()), Execution::Reporter::Level::Error);
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, "ShellExecute", installResult.value());
 
-            THROW_EXCEPTION_MSG(WorkflowException(APPINSTALLER_CLI_ERROR_INSTALLFLOW_FAILED),
-                "Install failed. Installer task returned: %u", installResult.value());
+            context.Reporter.Error() << "Installer failed with exit code: " << installResult.value() << std::endl;
+            if (!m_logLocation.empty())
+            {
+                context.Reporter.Info() << "Installer log is available at: " << m_logLocation << std::endl;
+            }
+
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED);
         }
         else
         {
-            m_reporterRef.ShowMsg("Successfully installed!");
+            context.Reporter.Info() << "Successfully installed!" << std::endl;
         }
     }
 
@@ -53,7 +55,7 @@ namespace AppInstaller::CLI::Workflow
         SHELLEXECUTEINFOA execInfo = { 0 };
         execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
         execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-        std::string filePathUTF8Str = Utility::ConvertToUTF8(filePath.c_str());
+        std::string filePathUTF8Str = filePath.u8string();
         execInfo.lpFile = filePathUTF8Str.c_str();
         execInfo.lpParameters = args.c_str();
         // Some installer forces UI. Setting to SW_HIDE will hide installer UI and installation will hang forever.
@@ -92,17 +94,17 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    std::string ShellExecuteInstallerHandler::GetInstallerArgsTemplate()
+    std::string ShellExecuteInstallerHandler::GetInstallerArgsTemplate(Execution::Context& context)
     {
         std::string installerArgs = "";
-        const std::map<ManifestInstaller::InstallerSwitchType, Utility::NormalizedString>& installerSwitches = m_manifestInstallerRef.Switches;
+        const std::map<ManifestInstaller::InstallerSwitchType, Utility::NormalizedString>& installerSwitches = context.Get<Execution::Data::Installer>()->Switches;
 
         // Construct install experience arg.
-        if (m_argsRef.Contains(Execution::Args::Type::Silent) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Silent) != installerSwitches.end())
+        if (context.Args.Contains(Execution::Args::Type::Silent) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Silent) != installerSwitches.end())
         {
             installerArgs += installerSwitches.at(ManifestInstaller::InstallerSwitchType::Silent);
         }
-        else if (m_argsRef.Contains(Execution::Args::Type::Interactive) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Interactive) != installerSwitches.end())
+        else if (context.Args.Contains(Execution::Args::Type::Interactive) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Interactive) != installerSwitches.end())
         {
             installerArgs += installerSwitches.at(ManifestInstaller::InstallerSwitchType::Interactive);
         }
@@ -112,13 +114,13 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // Construct language arg if necessary.
-        if (m_argsRef.Contains(Execution::Args::Type::Language) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Language) != installerSwitches.end())
+        if (context.Args.Contains(Execution::Args::Type::Language) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Language) != installerSwitches.end())
         {
             installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::Language);
         }
 
         // Construct install location arg if necessary.
-        if (m_argsRef.Contains(Execution::Args::Type::InstallLocation) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::InstallLocation) != installerSwitches.end())
+        if (context.Args.Contains(Execution::Args::Type::InstallLocation) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::InstallLocation) != installerSwitches.end())
         {
             installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::InstallLocation);
         }
@@ -138,49 +140,54 @@ namespace AppInstaller::CLI::Workflow
         return installerArgs;
     }
 
-    void ShellExecuteInstallerHandler::PopulateInstallerArgsTemplate(std::string& installerArgs)
+    void ShellExecuteInstallerHandler::PopulateInstallerArgsTemplate(Execution::Context& context, std::string& installerArgs)
     {
         // Populate <LogPath> with value from command line or temp path.
         std::string logPath;
-        if (m_argsRef.Contains(Execution::Args::Type::Log))
+        if (context.Args.Contains(Execution::Args::Type::Log))
         {
-            logPath = m_argsRef.GetArg(Execution::Args::Type::Log);
+            logPath = context.Args.GetArg(Execution::Args::Type::Log);
         }
         else
         {
-            logPath = Utility::ConvertToUTF8(m_downloadedInstaller.c_str()) + ".log";
+            logPath = Utility::ConvertToUTF8(context.Get<Execution::Data::InstallerPath>().c_str()) + ".log";
         }
-        Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_LOGPATH), logPath);
+
+        if (Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_LOGPATH), logPath))
+        {
+            m_logLocation = logPath;
+        }
 
         // Populate <InstallPath> with value from command line.
-        if (m_argsRef.Contains(Execution::Args::Type::InstallLocation))
+        if (context.Args.Contains(Execution::Args::Type::InstallLocation))
         {
-            Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_INSTALLPATH), m_argsRef.GetArg(Execution::Args::Type::InstallLocation));
+            Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_INSTALLPATH), context.Args.GetArg(Execution::Args::Type::InstallLocation));
         }
 
         // Todo: language token support will be implemented later
     }
 
-    std::string ShellExecuteInstallerHandler::GetInstallerArgs()
+    std::string ShellExecuteInstallerHandler::GetInstallerArgs(Execution::Context& context)
     {
         // If override switch is specified, use the override value as installer args.
-        if (m_argsRef.Contains(Execution::Args::Type::Override))
+        if (context.Args.Contains(Execution::Args::Type::Override))
         {
-            return std::string{ m_argsRef.GetArg(Execution::Args::Type::Override) };
+            return std::string{ context.Args.GetArg(Execution::Args::Type::Override) };
         }
 
-        std::string installerArgs = GetInstallerArgsTemplate();
+        std::string installerArgs = GetInstallerArgsTemplate(context);
 
-        PopulateInstallerArgsTemplate(installerArgs);
+        PopulateInstallerArgsTemplate(context, installerArgs);
 
         return installerArgs;
     }
 
-    void ShellExecuteInstallerHandler::RenameDownloadedInstaller()
+    void ShellExecuteInstallerHandler::RenameDownloadedInstaller(Execution::Context& context)
     {
-        std::filesystem::path renamedDownloadedInstaller(m_downloadedInstaller);
+        auto& installerPath = context.Get<Execution::Data::InstallerPath>();
+        std::filesystem::path renamedDownloadedInstaller(installerPath);
 
-        switch(m_manifestInstallerRef.InstallerType)
+        switch(context.Get<Execution::Data::Installer>()->InstallerType)
         {
         case ManifestInstaller::InstallerTypeEnum::Burn:
         case ManifestInstaller::InstallerTypeEnum::Exe:
@@ -195,9 +202,9 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // std::filesystem::rename() handles motw correctly if applicable.
-        std::filesystem::rename(m_downloadedInstaller, renamedDownloadedInstaller);
+        std::filesystem::rename(installerPath, renamedDownloadedInstaller);
 
-        m_downloadedInstaller.assign(renamedDownloadedInstaller);
-        AICLI_LOG(CLI, Info, << "Successfully renamed downloaded installer. Path: " << m_downloadedInstaller );
+        installerPath.assign(renamedDownloadedInstaller);
+        AICLI_LOG(CLI, Info, << "Successfully renamed downloaded installer. Path: " << installerPath);
     }
 }

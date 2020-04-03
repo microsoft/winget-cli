@@ -103,6 +103,15 @@ namespace AppInstaller::CLI
             command->Execute(context);
         }
         // Exceptions that may occur in the process of executing an arbitrary command
+        catch (const wil::ResultException& re)
+        {
+            // Even though they are logged at their source, log again here for completeness.
+            Logging::Telemetry().LogException(command->FullName(), "wil::ResultException", re.what());
+            context.Reporter.Error() <<
+                "An unexpected error occurred while executing the command: " << std::endl <<
+                re.what() << std::endl;
+            return re.GetErrorCode();
+        }
         catch (const winrt::hresult_error& hre)
         {
             std::string message = Utility::ConvertToUTF8(hre.message());
@@ -120,6 +129,14 @@ namespace AppInstaller::CLI
                 e.what() << std::endl;
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
+        catch (...)
+        {
+            LOG_CAUGHT_EXCEPTION();
+            Logging::Telemetry().LogException(command->FullName(), "unknown", {});
+            context.Reporter.Error() <<
+                "An unexpected error occurred while executing the command" << std::endl;
+            return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
+        }
 
         if (SUCCEEDED(context.GetTerminationHR()))
         {
@@ -130,14 +147,6 @@ namespace AppInstaller::CLI
     }
     // End of the line exceptions that are not ever expected.
     // Telemetry cannot be reliable beyond this point, so don't let these happen.
-    catch (const winrt::hresult_error&)
-    {
-        return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
-    }
-    catch (const std::exception&)
-    {
-        return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
-    }
     catch (...)
     {
         return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;

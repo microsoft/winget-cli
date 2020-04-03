@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #include "pch.h"
-#include "Common.h"
 #include "ManifestComparator.h"
 
 using namespace AppInstaller::CLI;

@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <Manifest/Manifest.h>
 #include "ExecutionArgs.h"
+#include <Manifest/Manifest.h>
 
 #include <optional>
 

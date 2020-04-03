@@ -28,6 +28,7 @@
 #include <AppxPackaging.h>
 
 #include <AppInstallerDateTime.h>
+#include <AppInstallerDeployment.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>

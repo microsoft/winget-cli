@@ -7,23 +7,32 @@
 #include <Manifest/Manifest.h>
 #include "ExecutionReporter.h"
 #include "ExecutionArgs.h"
-#include "Workflows/InstallerHandlerBase.h"
 
+#include <filesystem>
 #include <map>
 #include <utility>
 #include <variant>
+#include <vector>
 
 
 // Terminates the Context with some logging to indicate the location.
 // Also returns from the current function.
 #define AICLI_TERMINATE_CONTEXT_ARGS(_context_,_hr_) \
-    ::AppInstaller::Logging::Telemetry().LogCommandTermination(_hr_, __FILE__, __LINE__); \
-    _context_.Terminate(_hr_); \
-    return
+    do { \
+        HRESULT AICLI_TERMINATE_CONTEXT_ARGS_hr = _hr_; \
+        ::AppInstaller::Logging::Telemetry().LogCommandTermination(AICLI_TERMINATE_CONTEXT_ARGS_hr, __FILE__, __LINE__); \
+        _context_.Terminate(AICLI_TERMINATE_CONTEXT_ARGS_hr); \
+        return; \
+    } while(0,0)
 
 // Terminates the Context namd 'context' with some logging to indicate the location.
 // Also returns from the current function.
 #define AICLI_TERMINATE_CONTEXT(_hr_)   AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_)
+
+namespace AppInstaller::CLI::Workflow
+{
+    class InstallerHandlerBase;
+}
 
 namespace AppInstaller::CLI::Execution
 {
@@ -37,7 +46,8 @@ namespace AppInstaller::CLI::Execution
         SourceList,
         Manifest,
         Installer,
-        InstallerHandler,
+        HashPair,
+        InstallerPath,
         Max
     };
 
@@ -80,9 +90,15 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::InstallerHandler>
+        struct DataMapping<Data::HashPair>
         {
-            using value_t = std::unique_ptr<Workflow::InstallerHandlerBase>;
+            using value_t = std::pair<std::vector<uint8_t>, std::vector<uint8_t>>;
+        };
+
+        template <>
+        struct DataMapping<Data::InstallerPath>
+        {
+            using value_t = std::filesystem::path;
         };
 
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.
@@ -125,6 +141,9 @@ namespace AppInstaller::CLI::Execution
         {
             m_data[D].emplace<details::DataIndex(D)>(std::forward<typename details::DataMapping<D>::value_t>(v));
         }
+
+        // Return a value indicating whether the given data type is stored in the context.
+        bool Contains(Data d) { return (m_data.find(d) != m_data.end()); }
 
         // Gets context data; which can be modified in place.
         template <Data D>

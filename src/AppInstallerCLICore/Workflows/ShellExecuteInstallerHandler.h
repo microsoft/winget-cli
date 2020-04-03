@@ -1,40 +1,41 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "InstallerHandlerBase.h"
 #include <AppInstallerProgress.h>
+#include "ExecutionContext.h"
 
+#include <filesystem>
 #include <optional>
 
 namespace AppInstaller::CLI::Workflow
 {
     // ShellExecuteInstallerHandler handles installers run through ShellExecute.
     // Exe, Wix, Nullsoft, Msi and Inno should be handled by this installer handler.
-    class ShellExecuteInstallerHandler : public InstallerHandlerBase
+    class ShellExecuteInstallerHandler
     {
     public:
-        ShellExecuteInstallerHandler(
-            const Manifest::ManifestInstaller& manifestInstaller,
-            AppInstaller::CLI::Execution::Context& context) :
-            InstallerHandlerBase(manifestInstaller, context) {};
+        ShellExecuteInstallerHandler() = default;
 
-        // Install is done though invoking SheelExecute on downloaded installer.
-        void Install() override;
+        // Install is done though invoking ShellExecute on downloaded installer.
+        void Install(Execution::Context& context);
 
     protected:
         static std::optional<DWORD> ExecuteInstaller(const std::filesystem::path& filePath, const std::string& args, IProgressCallback& progress);
 
         // Construct the installer arg string from appropriate source(known args, manifest) according to command line args.
         // Token is not replaced with actual values yet.
-        std::string GetInstallerArgsTemplate();
+        std::string GetInstallerArgsTemplate(Execution::Context& context);
 
         // Replace tokens in the installer arg string with appropriate values.
-        void PopulateInstallerArgsTemplate(std::string& installerArgs);
+        void PopulateInstallerArgsTemplate(Execution::Context& context, std::string& installerArgs);
 
-        std::string GetInstallerArgs();
+        // Gets the installer args from the context.
+        std::string GetInstallerArgs(Execution::Context& context);
 
         // This method appends appropriate extension to the downloaded installer.
         // ShellExecute uses file extension to launch the installer appropriately.
-        virtual void RenameDownloadedInstaller();
+        virtual void RenameDownloadedInstaller(Execution::Context& context);
+
+        std::filesystem::path m_logLocation;
     };
 }

@@ -9,7 +9,6 @@
 #include "Workflows/InstallFlow.h"
 #include "Workflows/ShowFlow.h"
 #include "Workflows/ShellExecuteInstallerHandler.h"
-#include "Workflows/MsixInstallerHandler.h"
 #include "Public/AppInstallerRepositorySource.h"
 #include "Public/AppInstallerRepositorySearch.h"
 
@@ -17,10 +16,10 @@ using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
+using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Utility;
-using namespace AppInstaller::Workflow;
 
 class MsixInstallerHandlerTest : public MsixInstallerHandler
 {

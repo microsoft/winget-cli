@@ -17,50 +17,43 @@ namespace AppInstaller::CLI::Workflow
             {
                 Logging::Telemetry().LogNoAppMatch();
                 context.Reporter.Info() << "No app found matching input criteria." << std::endl;
-                context.Terminate();
-                return;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
             }
         }
     }
 
     void OpenSource(Execution::Context& context)
     {
-        std::string sourceName;
+        std::string_view sourceName;
         if (context.Args.Contains(Execution::Args::Type::Source))
         {
             sourceName = context.Args.GetArg(Execution::Args::Type::Source);
         }
 
-        std::shared_ptr<Repository::ISource> source = context.Reporter.ExecuteWithProgress(std::bind(OpenSource, sourceName, std::placeholders::_1));
+        std::shared_ptr<Repository::ISource> source = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1));
 
         if (!source)
         {
-            bool noSources = true;
+            std::vector<SourceDetails> sources = GetSources();
 
-            if (context.Args.Contains(Execution::Args::Type::Source))
+            if (context.Args.Contains(Execution::Args::Type::Source) && !sources.empty())
             {
                 // A bad name was given, try to help.
-                std::vector<SourceDetails> sources = GetSources();
-                if (!sources.empty())
+                context.Reporter.Error() << "No sources match the given value: " << sourceName << std::endl;
+                context.Reporter.Info() << "The configured sources are:" << std::endl;
+                for (const auto& details : sources)
                 {
-                    noSources = false;
-
-                    context.Reporter.Error() << "No sources match the given value: " << sourceName << std::endl;
-                    context.Reporter.Info() << "The configured sources are:" << std::endl;
-                    for (const auto& details : sources)
-                    {
-                        context.Reporter.Info() << "  " << details.Name << std::endl;
-                    }
+                    context.Reporter.Info() << "  " << details.Name << std::endl;
                 }
-            }
 
-            if (noSources)
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
+            }
+            else
             {
+                // Even if a name was given, there are no sources
                 context.Reporter.Error() << "No sources defined; add one with 'source add'" << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED);
             }
-
-            context.Terminate();
-            return;
         }
 
         context.Add<Execution::Data::Source>(std::move(source));
@@ -163,8 +156,7 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogMultiAppMatch();
             context.Reporter.Warn() << "Multiple apps found matching input criteria. Please refine the input." << std::endl;
             context << ReportSearchResult;
-            context.Terminate();
-            return;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
         }
 
         auto app = searchResult.Matches.at(0).Application.get();
@@ -193,8 +185,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             context.Reporter.Error() << std::endl;
-            context.Terminate();
-            return;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
         }
 
         Logging::Telemetry().LogManifestFields(manifest->Id, manifest->Name, manifest->Version);
@@ -208,15 +199,13 @@ namespace AppInstaller::CLI::Workflow
         if (!std::filesystem::exists(path))
         {
             context.Reporter.Error() << "File does not exist: " << path.u8string() << std::endl;
-            context.Terminate();
-            return;
+            AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND));
         }
 
         if (std::filesystem::is_directory(path))
         {
             context.Reporter.Error() << "Path is a directory: " << path.u8string() << std::endl;
-            context.Terminate();
-            return;
+            AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_DIRECTORY_NOT_SUPPORTED));
         }
     }
 

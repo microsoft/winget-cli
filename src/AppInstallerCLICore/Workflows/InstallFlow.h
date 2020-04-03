@@ -5,6 +5,12 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    using namespace std::string_view_literals;
+
+    // Token specified in installer args will be replaced by proper value.
+    static constexpr std::string_view ARG_TOKEN_LOGPATH = "<LOGPATH>"sv;
+    static constexpr std::string_view ARG_TOKEN_INSTALLPATH = "<INSTALLPATH>"sv;
+
     // Ensures that the current OS version is greater than or equal to the one in the manifest.
     // Required Args: None
     // Inputs: Manifest
@@ -17,21 +23,45 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void EnsureApplicableInstaller(Execution::Context& context);
 
-    // Gets the source list, filtering it if SourceName is present.
+    // Composite flow that chooses what to do based on the installer type.
     // Required Args: None
     // Inputs: Installer
-    // Outputs: InstallerHandler
-    void GetInstallerHandler(Execution::Context& context);
-
-    // Downloads any files necessary via the InstallerHandler.
-    // Required Args: None
-    // Inputs: InstallerHandler
     // Outputs: None
     void DownloadInstaller(Execution::Context& context);
 
-    // Executes the installer via the InstallerHandler.
+    // Downloads the file referenced by the Installer.
     // Required Args: None
-    // Inputs: InstallerHandler
+    // Inputs: Installer
+    // Outputs: HashPair, InstallerPath
+    void DownloadInstallerFile(Execution::Context& context);
+
+    // Computes the hash of the MSIX signature file.
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: HashPair
+    void GetMsixSignatureHash(Execution::Context& context);
+
+    // Gets the source list, filtering it if SourceName is present.
+    // Required Args: None
+    // Inputs: HashPair
+    // Outputs: SourceList
+    void VerifyInstallerHash(Execution::Context& context);
+
+    // Composite flow that chooses what to do based on the installer type.
+    // Required Args: None
+    // Inputs: Installer, InstallerPath
     // Outputs: None
     void ExecuteInstaller(Execution::Context& context);
+
+    // Runs the installer via ShellExecute.
+    // Required Args: None
+    // Inputs: Installer, InstallerPath
+    // Outputs: None
+    void ShellExecuteInstall(Execution::Context& context);
+
+    // Deploys the MSIX.
+    // Required Args: None
+    // Inputs: InstallerPath?
+    // Outputs: None
+    void MsixInstall(Execution::Context& context);
 }

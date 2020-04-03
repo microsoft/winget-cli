@@ -7,7 +7,7 @@
 #include "Workflows/WorkflowBase.h"
 
 using namespace AppInstaller::Manifest;
-using namespace AppInstaller::Workflow;
+using namespace AppInstaller::CLI::Workflow;
 
 namespace AppInstaller::CLI
 {
@@ -53,8 +53,8 @@ namespace AppInstaller::CLI
             Workflow::EnsureMinOSVersion <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
-            Workflow::GetInstallerHandler <<
             Workflow::DownloadInstaller <<
+            Workflow::VerifyInstallerHash <<
             Workflow::ExecuteInstaller;
     }
 

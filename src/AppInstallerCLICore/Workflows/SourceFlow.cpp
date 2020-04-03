@@ -23,8 +23,7 @@ namespace AppInstaller::CLI::Workflow
             if (!source)
             {
                 context.Reporter.Error() << "Did not find a source named: " << name << std::endl;
-                context.Terminate();
-                return;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
             }
 
             std::vector<Repository::SourceDetails> sources;
@@ -51,29 +50,27 @@ namespace AppInstaller::CLI::Workflow
                 // Name and arg match, indicate this to the user and bail.
                 context.Reporter.Info() << "A source with the given name already exists and refers to the same location: " << std::endl <<
                     "  " << source->Name << " -> " << source->Arg << std::endl;
-                context.Terminate();
-                return;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS);
             }
             else
             {
                 context.Reporter.Error() << "A source with the given name already exists and refers to a different location: " << std::endl <<
                     "  " << source->Name << " -> " << source->Arg << std::endl;
-                context.Terminate();
-                return;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS);
             }
         }
 
         // Now check if the URL is already in use under a different name
         auto sourceList = context.Get<Execution::Data::SourceList>();
+        std::string_view type = context.Args.GetArg(Args::Type::SourceType);
 
         for (const auto& details : sourceList)
         {
-            if (!details.Arg.empty() && details.Arg == arg)
+            if (!details.Arg.empty() && details.Arg == arg && details.Type == type)
             {
                 context.Reporter.Error() << "A source with a different name already refers to this location: " << std::endl <<
                     "  " << details.Name << " -> " << details.Arg << std::endl;
-                context.Terminate();
-                return;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS);
             }
         }
     }
