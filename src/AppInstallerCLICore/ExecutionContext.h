@@ -154,6 +154,13 @@ namespace AppInstaller::CLI::Execution
             return std::get<details::DataIndex(D)>(itr->second);
         }
 
+        using WorkflowMethod = Context & (*)(Context&);
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        // Enable tests to override behavior
+        virtual bool ShouldExecuteWorkflowMethod(WorkflowMethod) { return true; }
+#endif
+
     private:
         bool m_isTerminated = false;
         HRESULT m_terminationHR = S_OK;
@@ -161,9 +168,24 @@ namespace AppInstaller::CLI::Execution
     };
 }
 
+// Passes the context to the function if it has not been terminated; returns the context.
+inline AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, AppInstaller::CLI::Execution::Context::WorkflowMethod t)
+{
+    if (!context.IsTerminated())
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (context.ShouldExecuteWorkflowMethod(t))
+#endif
+        {
+            t(context);
+        }
+    }
+    return context;
+}
+
 // Passes the context to Callable T if it has not been terminated; returns the context.
 template <typename T>
-AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, T&& t)
+AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, const T& t)
 {
     if (!context.IsTerminated())
     {

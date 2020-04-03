@@ -2,20 +2,22 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
-#include "AppInstallerLogging.h"
-#include "Manifest/Manifest.h"
-#include "AppInstallerDownloader.h"
-#include "AppInstallerStrings.h"
-#include "Workflows/InstallFlow.h"
-#include "Workflows/ShowFlow.h"
-#include "Workflows/ShellExecuteInstallerHandler.h"
-#include "Public/AppInstallerRepositorySource.h"
-#include "Public/AppInstallerRepositorySearch.h"
+#include <AppInstallerLogging.h>
+#include <Manifest/Manifest.h>
+#include <AppInstallerDownloader.h>
+#include <AppInstallerStrings.h>
+#include <Workflows/InstallFlow.h>
+#include <Workflows/ShowFlow.h>
+#include <Workflows/ShellExecuteInstallerHandler.h>
+#include <Workflows/WorkflowBase.h>
+#include <Public/AppInstallerRepositorySource.h>
+#include <Public/AppInstallerRepositorySearch.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
+using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
@@ -45,21 +47,13 @@ protected:
 class ShellExecuteInstallerHandlerTest : public ShellExecuteInstallerHandler
 {
 public:
-    ShellExecuteInstallerHandlerTest(
-        const ManifestInstaller& manifestInstaller,
-        Execution::Context& context) : ShellExecuteInstallerHandler(manifestInstaller, context) {};
+    ShellExecuteInstallerHandlerTest() = default;
 
-    void Download() override
+    void RenameDownloadedInstaller(Context&) override {};
+
+    std::string TestInstallerArgs(Context& context)
     {
-        this->m_downloadedInstaller = TestDataFile("AppInstallerTestExeInstaller.exe");
-    }
-
-    void RenameDownloadedInstaller() override {};
-
-    std::string TestInstallerArgs()
-    {
-        Download();
-        return ShellExecuteInstallerHandler::GetInstallerArgs();
+        return ShellExecuteInstallerHandler::GetInstallerArgs(context);
     }
 };
 
@@ -173,8 +167,13 @@ TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
     std::ostringstream installOutput;
     Execution::Context context{ installOutput, std::cin };
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
-    InstallFlowTest testFlow(context);
-    testFlow.Execute();
+
+    context <<
+        GetManifestFromArg <<
+        SelectInstaller <<
+        [](Context& context) { context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe")); } <<
+        [](Context& context) {  };
+
     INFO(installOutput.str());
 
     // Verify Installer is called and parameters are passed in.

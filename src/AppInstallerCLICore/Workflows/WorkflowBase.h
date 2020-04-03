@@ -49,7 +49,7 @@ namespace AppInstaller::CLI::Workflow
     {
         VerifyFile(Execution::Args::Type arg) : m_arg(arg) {}
 
-        void operator()(Execution::Context& context);
+        void operator()(Execution::Context& context) const;
 
     private:
         Execution::Args::Type m_arg;

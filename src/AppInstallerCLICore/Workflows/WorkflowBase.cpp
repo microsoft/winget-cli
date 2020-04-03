@@ -192,7 +192,7 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::Manifest>(std::move(manifest.value()));
     }
 
-    void VerifyFile::operator()(Execution::Context& context)
+    void VerifyFile::operator()(Execution::Context& context) const
     {
         std::filesystem::path path = context.Args.GetArg(m_arg);
 
