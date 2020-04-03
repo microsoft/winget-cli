@@ -1,10 +1,47 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "ExecutionContext.h"
+#include "ExecutionArgs.h"
+
+#include <string>
+#include <string_view>
+
+
+namespace AppInstaller::CLI::Execution
+{
+    struct Context;
+}
 
 namespace AppInstaller::CLI::Workflow
 {
+    // A task in the workflow.
+    struct WorkflowTask
+    {
+        using Func = void (*)(Execution::Context&);
+
+        WorkflowTask(Func f) : m_isFunc(true), m_func(f) {}
+        WorkflowTask(std::string_view name) : m_name(name) {}
+
+        virtual ~WorkflowTask() = default;
+
+        WorkflowTask(const WorkflowTask&) = default;
+        WorkflowTask& operator=(const WorkflowTask&) = default;
+
+        WorkflowTask(WorkflowTask&&) = default;
+        WorkflowTask& operator=(WorkflowTask&&) = default;
+
+        bool operator==(const WorkflowTask& other) const;
+
+        virtual void operator()(Execution::Context& context) const;
+
+        const std::string& GetName() const { return m_name; }
+
+    private:
+        bool m_isFunc = false;
+        Func m_func = nullptr;
+        std::string m_name;
+    };
+
     // Creates the source object.
     // Required Args: None
     // Inputs: None
@@ -45,11 +82,11 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: the one given
     // Inputs: None
     // Outputs: None
-    struct VerifyFile
+    struct VerifyFile : public WorkflowTask
     {
-        VerifyFile(Execution::Args::Type arg) : m_arg(arg) {}
+        VerifyFile(Execution::Args::Type arg) : WorkflowTask("VerifyFile"), m_arg(arg) {}
 
-        void operator()(Execution::Context& context) const;
+        void operator()(Execution::Context& context) const override;
 
     private:
         Execution::Args::Type m_arg;
@@ -73,3 +110,9 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Installer
     void SelectInstaller(Execution::Context& context);
 }
+
+// Passes the context to the function if it has not been terminated; returns the context.
+AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, AppInstaller::CLI::Workflow::WorkflowTask::Func f);
+
+// Passes the context to the task if it has not been terminated; returns the context.
+AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, const AppInstaller::CLI::Workflow::WorkflowTask& task);

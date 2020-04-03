@@ -61,7 +61,7 @@ namespace AppInstaller::CLI::Workflow
 
     // Deploys the MSIX.
     // Required Args: None
-    // Inputs: InstallerPath?
+    // Inputs: Manifest?, Installer || InstallerPath
     // Outputs: None
     void MsixInstall(Execution::Context& context);
 }

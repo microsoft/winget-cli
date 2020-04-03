@@ -9,17 +9,139 @@ using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::CLI::Workflow
 {
-    void ShellExecuteInstallerHandler::Install(Execution::Context& context)
+    namespace
+    {
+        // ShellExecutes the given path.
+        std::optional<DWORD> InvokeShellExecute(const std::filesystem::path& filePath, const std::string& args, IProgressCallback& progress)
+        {
+            AICLI_LOG(CLI, Info, << "Staring installer. Path: " << filePath);
+
+            SHELLEXECUTEINFOA execInfo = { 0 };
+            execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+            execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+            std::string filePathUTF8Str = filePath.u8string();
+            execInfo.lpFile = filePathUTF8Str.c_str();
+            execInfo.lpParameters = args.c_str();
+            // Some installer forces UI. Setting to SW_HIDE will hide installer UI and installation will hang forever.
+            // Verified setting to SW_SHOW does not hurt silent mode since no UI will be shown.
+            execInfo.nShow = SW_SHOW;
+            if (!ShellExecuteExA(&execInfo) || !execInfo.hProcess)
+            {
+                return GetLastError();
+            }
+
+            wil::unique_process_handle process{ execInfo.hProcess };
+
+            // Wait for installation to finish
+            while (!progress.IsCancelled())
+            {
+                DWORD waitResult = WaitForSingleObject(process.get(), 250);
+                if (waitResult == WAIT_OBJECT_0)
+                {
+                    break;
+                }
+                if (waitResult != WAIT_TIMEOUT)
+                {
+                    THROW_LAST_ERROR_MSG("Unexpected WaitForSingleObjectResult: %d", waitResult);
+                }
+            }
+
+            if (progress.IsCancelled())
+            {
+                return {};
+            }
+            else
+            {
+                DWORD exitCode = 0;
+                GetExitCodeProcess(process.get(), &exitCode);
+                return exitCode;
+            }
+        }
+
+        // Gets the escaped isntaller args.
+        std::string GetInstallerArgsTemplate(Execution::Context& context)
+        {
+            std::string installerArgs = "";
+            const std::map<ManifestInstaller::InstallerSwitchType, Utility::NormalizedString>& installerSwitches = context.Get<Execution::Data::Installer>()->Switches;
+
+            // Construct install experience arg.
+            if (context.Args.Contains(Execution::Args::Type::Silent) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Silent) != installerSwitches.end())
+            {
+                installerArgs += installerSwitches.at(ManifestInstaller::InstallerSwitchType::Silent);
+            }
+            else if (context.Args.Contains(Execution::Args::Type::Interactive) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Interactive) != installerSwitches.end())
+            {
+                installerArgs += installerSwitches.at(ManifestInstaller::InstallerSwitchType::Interactive);
+            }
+            else if (installerSwitches.find(ManifestInstaller::InstallerSwitchType::SilentWithProgress) != installerSwitches.end())
+            {
+                installerArgs += installerSwitches.at(ManifestInstaller::InstallerSwitchType::SilentWithProgress);
+            }
+
+            // Construct language arg if necessary.
+            if (context.Args.Contains(Execution::Args::Type::Language) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Language) != installerSwitches.end())
+            {
+                installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::Language);
+            }
+
+            // Construct install location arg if necessary.
+            if (context.Args.Contains(Execution::Args::Type::InstallLocation) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::InstallLocation) != installerSwitches.end())
+            {
+                installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::InstallLocation);
+            }
+
+            // Construct log path arg.
+            if (installerSwitches.find(ManifestInstaller::InstallerSwitchType::Log) != installerSwitches.end())
+            {
+                installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::Log);
+            }
+
+            // Construct custom arg.
+            if (installerSwitches.find(ManifestInstaller::InstallerSwitchType::Custom) != installerSwitches.end())
+            {
+                installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::Custom);
+            }
+
+            return installerArgs;
+        }
+
+        // Applies values to the template.
+        void PopulateInstallerArgsTemplate(Execution::Context& context, std::string& installerArgs)
+        {
+            // Populate <LogPath> with value from command line or temp path.
+            std::string logPath;
+            if (context.Args.Contains(Execution::Args::Type::Log))
+            {
+                logPath = context.Args.GetArg(Execution::Args::Type::Log);
+            }
+            else
+            {
+                logPath = Utility::ConvertToUTF8(context.Get<Execution::Data::InstallerPath>().c_str()) + ".log";
+            }
+
+            if (Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_LOGPATH), logPath))
+            {
+                context.Add<Execution::Data::LogPath>(logPath);
+            }
+
+            // Populate <InstallPath> with value from command line.
+            if (context.Args.Contains(Execution::Args::Type::InstallLocation))
+            {
+                Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_INSTALLPATH), context.Args.GetArg(Execution::Args::Type::InstallLocation));
+            }
+
+            // Todo: language token support will be implemented later
+        }
+    }
+
+    void ShellExecuteInstallImpl(Execution::Context& context)
     {
         context.Reporter.Info() << "Installing ..." << std::endl;
 
-        std::string installerArgs = GetInstallerArgs(context);
-        AICLI_LOG(CLI, Info, << "Installer args: " << installerArgs);
-
-        RenameDownloadedInstaller(context);
+        const std::string& installerArgs = context.Get<Execution::Data::InstallerArgs>();
 
         auto installResult = context.Reporter.ExecuteWithProgress(
-            std::bind(ExecuteInstaller,
+            std::bind(InvokeShellExecute,
                 context.Get<Execution::Data::InstallerPath>(),
                 installerArgs,
                 std::placeholders::_1));
@@ -35,9 +157,9 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, "ShellExecute", installResult.value());
 
             context.Reporter.Error() << "Installer failed with exit code: " << installResult.value() << std::endl;
-            if (!m_logLocation.empty())
+            if (context.Contains(Execution::Data::LogPath))
             {
-                context.Reporter.Info() << "Installer log is available at: " << m_logLocation << std::endl;
+                context.Reporter.Info() << "Installer log is available at: " << context.Get<Execution::Data::LogPath>().u8string() << std::endl;
             }
 
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED);
@@ -48,141 +170,24 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    std::optional<DWORD> ShellExecuteInstallerHandler::ExecuteInstaller(const std::filesystem::path& filePath, const std::string& args, IProgressCallback& progress)
-    {
-        AICLI_LOG(CLI, Info, << "Staring installer. Path: " << filePath);
-
-        SHELLEXECUTEINFOA execInfo = { 0 };
-        execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-        execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-        std::string filePathUTF8Str = filePath.u8string();
-        execInfo.lpFile = filePathUTF8Str.c_str();
-        execInfo.lpParameters = args.c_str();
-        // Some installer forces UI. Setting to SW_HIDE will hide installer UI and installation will hang forever.
-        // Verified setting to SW_SHOW does not hurt silent mode since no UI will be shown.
-        execInfo.nShow = SW_SHOW;
-        if (!ShellExecuteExA(&execInfo) || !execInfo.hProcess)
-        {
-            return GetLastError();
-        }
-                
-        wil::unique_process_handle process{ execInfo.hProcess };
-
-        // Wait for installation to finish
-        while (!progress.IsCancelled())
-        {
-            DWORD waitResult = WaitForSingleObject(process.get(), 250);
-            if (waitResult == WAIT_OBJECT_0)
-            {
-                break;
-            }
-            if (waitResult != WAIT_TIMEOUT)
-            {
-                THROW_LAST_ERROR_MSG("Unexpected WaitForSingleObjectResult: %d", waitResult);
-            }
-        }
-
-        if (progress.IsCancelled())
-        {
-            return {};
-        }
-        else
-        {
-            DWORD exitCode = 0;
-            GetExitCodeProcess(process.get(), &exitCode);
-            return exitCode;
-        }
-    }
-
-    std::string ShellExecuteInstallerHandler::GetInstallerArgsTemplate(Execution::Context& context)
-    {
-        std::string installerArgs = "";
-        const std::map<ManifestInstaller::InstallerSwitchType, Utility::NormalizedString>& installerSwitches = context.Get<Execution::Data::Installer>()->Switches;
-
-        // Construct install experience arg.
-        if (context.Args.Contains(Execution::Args::Type::Silent) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Silent) != installerSwitches.end())
-        {
-            installerArgs += installerSwitches.at(ManifestInstaller::InstallerSwitchType::Silent);
-        }
-        else if (context.Args.Contains(Execution::Args::Type::Interactive) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Interactive) != installerSwitches.end())
-        {
-            installerArgs += installerSwitches.at(ManifestInstaller::InstallerSwitchType::Interactive);
-        }
-        else if (installerSwitches.find(ManifestInstaller::InstallerSwitchType::SilentWithProgress) != installerSwitches.end())
-        {
-            installerArgs += installerSwitches.at(ManifestInstaller::InstallerSwitchType::SilentWithProgress);
-        }
-
-        // Construct language arg if necessary.
-        if (context.Args.Contains(Execution::Args::Type::Language) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Language) != installerSwitches.end())
-        {
-            installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::Language);
-        }
-
-        // Construct install location arg if necessary.
-        if (context.Args.Contains(Execution::Args::Type::InstallLocation) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::InstallLocation) != installerSwitches.end())
-        {
-            installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::InstallLocation);
-        }
-
-        // Construct log path arg.
-        if (installerSwitches.find(ManifestInstaller::InstallerSwitchType::Log) != installerSwitches.end())
-        {
-            installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::Log);
-        }
-
-        // Construct custom arg.
-        if (installerSwitches.find(ManifestInstaller::InstallerSwitchType::Custom) != installerSwitches.end())
-        {
-            installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::Custom);
-        }
-
-        return installerArgs;
-    }
-
-    void ShellExecuteInstallerHandler::PopulateInstallerArgsTemplate(Execution::Context& context, std::string& installerArgs)
-    {
-        // Populate <LogPath> with value from command line or temp path.
-        std::string logPath;
-        if (context.Args.Contains(Execution::Args::Type::Log))
-        {
-            logPath = context.Args.GetArg(Execution::Args::Type::Log);
-        }
-        else
-        {
-            logPath = Utility::ConvertToUTF8(context.Get<Execution::Data::InstallerPath>().c_str()) + ".log";
-        }
-
-        if (Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_LOGPATH), logPath))
-        {
-            m_logLocation = logPath;
-        }
-
-        // Populate <InstallPath> with value from command line.
-        if (context.Args.Contains(Execution::Args::Type::InstallLocation))
-        {
-            Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_INSTALLPATH), context.Args.GetArg(Execution::Args::Type::InstallLocation));
-        }
-
-        // Todo: language token support will be implemented later
-    }
-
-    std::string ShellExecuteInstallerHandler::GetInstallerArgs(Execution::Context& context)
+    void GetInstallerArgs(Execution::Context& context)
     {
         // If override switch is specified, use the override value as installer args.
         if (context.Args.Contains(Execution::Args::Type::Override))
         {
-            return std::string{ context.Args.GetArg(Execution::Args::Type::Override) };
+            context.Add<Execution::Data::InstallerArgs>(std::string{ context.Args.GetArg(Execution::Args::Type::Override) });
+            return;
         }
 
         std::string installerArgs = GetInstallerArgsTemplate(context);
 
         PopulateInstallerArgsTemplate(context, installerArgs);
 
-        return installerArgs;
+        AICLI_LOG(CLI, Info, << "Installer args: " << installerArgs);
+        context.Add<Execution::Data::InstallerArgs>(std::move(installerArgs));
     }
 
-    void ShellExecuteInstallerHandler::RenameDownloadedInstaller(Execution::Context& context)
+    void RenameDownloadedInstaller(Execution::Context& context)
     {
         auto& installerPath = context.Get<Execution::Data::InstallerPath>();
         std::filesystem::path renamedDownloadedInstaller(installerPath);

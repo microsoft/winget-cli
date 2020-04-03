@@ -4,6 +4,7 @@
 #include "SourceCommand.h"
 #include "Localization.h"
 #include "Workflows/SourceFlow.h"
+#include "Workflows/WorkflowBase.h"
 
 namespace AppInstaller::CLI
 {

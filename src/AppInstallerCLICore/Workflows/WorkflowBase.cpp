@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "WorkflowBase.h"
+#include "ExecutionContext.h"
 #include "ManifestComparator.h"
 
 
@@ -20,6 +21,28 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
             }
         }
+    }
+
+    bool WorkflowTask::operator==(const WorkflowTask& other) const
+    {
+        if (m_isFunc && other.m_isFunc)
+        {
+            return m_func == other.m_func;
+        }
+        else if (!m_isFunc && !other.m_isFunc)
+        {
+            return m_name == other.m_name;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    void WorkflowTask::operator()(Execution::Context& context) const
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_isFunc);
+        m_func(context);
     }
 
     void OpenSource(Execution::Context& context)
@@ -242,4 +265,23 @@ namespace AppInstaller::CLI::Workflow
         ManifestComparator manifestComparator(context.Args);
         context.Add<Execution::Data::Installer>(manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>()));
     }
+}
+
+AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, AppInstaller::CLI::Workflow::WorkflowTask::Func f)
+{
+    return (context << AppInstaller::CLI::Workflow::WorkflowTask(f));
+}
+
+AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, const AppInstaller::CLI::Workflow::WorkflowTask& task)
+{
+    if (!context.IsTerminated())
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (context.ShouldExecuteWorkflowTask(task))
+#endif
+        {
+            task(context);
+        }
+    }
+    return context;
 }

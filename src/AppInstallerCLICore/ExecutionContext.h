@@ -10,6 +10,7 @@
 
 #include <filesystem>
 #include <map>
+#include <string>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -31,7 +32,7 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    class InstallerHandlerBase;
+    struct WorkflowTask;
 }
 
 namespace AppInstaller::CLI::Execution
@@ -48,6 +49,8 @@ namespace AppInstaller::CLI::Execution
         Installer,
         HashPair,
         InstallerPath,
+        LogPath,
+        InstallerArgs,
         Max
     };
 
@@ -101,6 +104,18 @@ namespace AppInstaller::CLI::Execution
             using value_t = std::filesystem::path;
         };
 
+        template <>
+        struct DataMapping<Data::LogPath>
+        {
+            using value_t = std::filesystem::path;
+        };
+
+        template <>
+        struct DataMapping<Data::InstallerArgs>
+        {
+            using value_t = std::string;
+        };
+
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.
         template <size_t... I>
         inline auto Deduce(std::index_sequence<I...>) { return std::variant<std::monostate, DataMapping<static_cast<Data>(I)>::value_t...>{}; }
@@ -118,6 +133,8 @@ namespace AppInstaller::CLI::Execution
     struct Context
     {
         Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
+
+        virtual ~Context() = default;
 
         // The path for console input/output for all functionality.
         Reporter Reporter;
@@ -154,11 +171,9 @@ namespace AppInstaller::CLI::Execution
             return std::get<details::DataIndex(D)>(itr->second);
         }
 
-        using WorkflowMethod = Context & (*)(Context&);
-
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
-        virtual bool ShouldExecuteWorkflowMethod(WorkflowMethod) { return true; }
+        virtual bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask&) { return true; }
 #endif
 
     private:
@@ -166,30 +181,4 @@ namespace AppInstaller::CLI::Execution
         HRESULT m_terminationHR = S_OK;
         std::map<Data, details::DataVariant> m_data;
     };
-}
-
-// Passes the context to the function if it has not been terminated; returns the context.
-inline AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, AppInstaller::CLI::Execution::Context::WorkflowMethod t)
-{
-    if (!context.IsTerminated())
-    {
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        if (context.ShouldExecuteWorkflowMethod(t))
-#endif
-        {
-            t(context);
-        }
-    }
-    return context;
-}
-
-// Passes the context to Callable T if it has not been terminated; returns the context.
-template <typename T>
-AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, const T& t)
-{
-    if (!context.IsTerminated())
-    {
-        t(context);
-    }
-    return context;
 }

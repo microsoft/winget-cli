@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "InstallFlow.h"
 #include "ShellExecuteInstallerHandler.h"
+#include "WorkflowBase.h"
 
 
 using namespace winrt::Windows::Foundation;
@@ -152,8 +153,10 @@ namespace AppInstaller::CLI::Workflow
 
     void ShellExecuteInstall(Execution::Context& context)
     {
-        Workflow::ShellExecuteInstallerHandler handler;
-        handler.Install(context);
+        context <<
+            GetInstallerArgs <<
+            RenameDownloadedInstaller <<
+            ShellExecuteInstallImpl;
     }
 
     void MsixInstall(Execution::Context& context)
@@ -170,11 +173,19 @@ namespace AppInstaller::CLI::Workflow
 
         context.Reporter.Info() << "Starting package install..." << std::endl;
 
-        DeploymentOptions deploymentOptions =
-            DeploymentOptions::ForceApplicationShutdown |
-            DeploymentOptions::ForceTargetApplicationShutdown;
-        context.Reporter.ExecuteWithProgress(std::bind(Deployment::RequestAddPackageAsync, uri, deploymentOptions, std::placeholders::_1));
+        try
+        {
+            DeploymentOptions deploymentOptions =
+                DeploymentOptions::ForceApplicationShutdown |
+                DeploymentOptions::ForceTargetApplicationShutdown;
+            context.Reporter.ExecuteWithProgress(std::bind(Deployment::RequestAddPackageAsync, uri, deploymentOptions, std::placeholders::_1));
+        }
+        catch (const wil::ResultException& re)
+        {
+            context.Reporter.Error() << Utility::ConvertToUTF8(re.GetFailureInfo().pszMessage) << std::endl;
+            AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
+        }
 
-        context.Reporter.ShowMsg("Successfully installed.");
+        context.Reporter.Info() << "Successfully installed." << std::endl;
     }
 }
