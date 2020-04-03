@@ -10,19 +10,6 @@ namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::Repository;
 
-    namespace
-    {
-        void EnsureMatchesFromSearchResult(Execution::Context& context, Repository::SearchResult& searchResult)
-        {
-            if (searchResult.Matches.size() == 0)
-            {
-                Logging::Telemetry().LogNoAppMatch();
-                context.Reporter.Info() << "No app found matching input criteria." << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
-            }
-        }
-    }
-
     bool WorkflowTask::operator==(const WorkflowTask& other) const
     {
         if (m_isFunc && other.m_isFunc)
@@ -165,25 +152,35 @@ namespace AppInstaller::CLI::Workflow
 
     void EnsureMatchesFromSearchResult(Execution::Context& context)
     {
-        EnsureMatchesFromSearchResult(context, context.Get<Execution::Data::SearchResult>());
+        auto& searchResult = context.Get<Execution::Data::SearchResult>();
+
+        if (searchResult.Matches.size() == 0)
+        {
+            Logging::Telemetry().LogNoAppMatch();
+            context.Reporter.Info() << "No app found matching input criteria." << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
+        }
     }
 
     void EnsureOneMatchFromSearchResult(Execution::Context& context)
     {
-        auto& searchResult = context.Get<Execution::Data::SearchResult>();
-
-        EnsureMatchesFromSearchResult(context, searchResult);
-
-        if (searchResult.Matches.size() > 1)
+        context <<
+            EnsureMatchesFromSearchResult <<
+            [](Execution::Context& context)
         {
-            Logging::Telemetry().LogMultiAppMatch();
-            context.Reporter.Warn() << "Multiple apps found matching input criteria. Please refine the input." << std::endl;
-            context << ReportSearchResult;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
-        }
+            auto& searchResult = context.Get<Execution::Data::SearchResult>();
 
-        auto app = searchResult.Matches.at(0).Application.get();
-        Logging::Telemetry().LogAppFound(app->GetName(), app->GetId());
+            if (searchResult.Matches.size() > 1)
+            {
+                Logging::Telemetry().LogMultiAppMatch();
+                context.Reporter.Warn() << "Multiple apps found matching input criteria. Please refine the input." << std::endl;
+                context << ReportSearchResult;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
+            }
+
+            auto app = searchResult.Matches.at(0).Application.get();
+            Logging::Telemetry().LogAppFound(app->GetName(), app->GetId());
+        };
     }
 
     void GetManifestFromSearchResult(Execution::Context& context)

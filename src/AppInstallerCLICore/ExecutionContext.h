@@ -167,7 +167,7 @@ namespace AppInstaller::CLI::Execution
         typename details::DataMapping<D>::value_t& Get()
         {
             auto itr = m_data.find(D);
-            THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), itr == m_data.end());
+            THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), itr == m_data.end(), "Get(%d)", D);
             return std::get<details::DataIndex(D)>(itr->second);
         }
 

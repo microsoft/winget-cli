@@ -166,8 +166,12 @@ void OverrideForShellExecute(TestContext& context)
 {
     context.Override({ DownloadInstallerFile, [](TestContext& context)
     {
-        // Intentionally leave off the extension so that RenameDownloadedInstaller can put it on
-        context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller"));
+        context.Add<Data::HashPair>({ {}, {} });
+        context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
+    } });
+
+    context.Override({ RenameDownloadedInstaller, [](TestContext&)
+    {
     } });
 }
 
@@ -181,7 +185,7 @@ void OverrideForMSIX(TestContext& context)
 
         if (context.Contains(Execution::Data::InstallerPath))
         {
-            file << context.Get<Execution::Data::InstallerPath>();
+            file << context.Get<Execution::Data::InstallerPath>().u8string();
         }
         else
         {
@@ -253,7 +257,8 @@ TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow]")
     REQUIRE(installResultFile.is_open());
     std::string installResultStr;
     std::getline(installResultFile, installResultStr);
-    REQUIRE(installResultStr.find("file://") != std::string::npos);
+    Uri uri = Uri(ConvertToUTF16(installResultStr));
+    REQUIRE(uri.SchemeName() == L"file");
 }
 
 TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow]")
@@ -276,7 +281,8 @@ TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow]")
     REQUIRE(installResultFile.is_open());
     std::string installResultStr;
     std::getline(installResultFile, installResultStr);
-    REQUIRE(installResultStr.find("https://") != std::string::npos);
+    Uri uri = Uri(ConvertToUTF16(installResultStr));
+    REQUIRE(uri.SchemeName() == L"https");
 }
 
 TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
@@ -287,6 +293,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         // Default Msi type with no args passed in, no switches specified in manifest
         auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Msi_NoSwitches.yaml"));
         context.Add<Data::Installer>(manifest.Installers.at(0));
+        context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
         REQUIRE(installerArgs.find("/passive") != std::string::npos);
@@ -332,6 +339,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         // Default Inno type with no args passed in, no switches specified in manifest
         auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Inno_NoSwitches.yaml"));
         context.Add<Data::Installer>(manifest.Installers.at(0));
+        context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
         REQUIRE(installerArgs.find("/SILENT") != std::string::npos);
@@ -456,7 +464,7 @@ TEST_CASE("InstallFlow_SearchAndShowAppInfo", "[ShowFlow]")
     REQUIRE(showOutput.str().find("Id: AppInstallerCliTest.TestInstaller") != std::string::npos);
     REQUIRE(showOutput.str().find("Name: AppInstaller Test Installer") != std::string::npos);
     REQUIRE(showOutput.str().find("Version: 1.0.0.0") != std::string::npos);
-    REQUIRE(showOutput.str().find("--Installer Download Url: https://ThisIsNotUsed") != std::string::npos);
+    REQUIRE(showOutput.str().find("  Download Url: https://ThisIsNotUsed") != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_SearchAndShowAppVersion", "[ShowFlow]")
@@ -474,5 +482,5 @@ TEST_CASE("InstallFlow_SearchAndShowAppVersion", "[ShowFlow]")
     // Verify App version is printed
     REQUIRE(showOutput.str().find("1.0.0.0") != std::string::npos);
     // No manifest info is printed
-    REQUIRE(showOutput.str().find("--Installer Download Url: https://ThisIsNotUsed") == std::string::npos);
+    REQUIRE(showOutput.str().find("  Download Url: https://ThisIsNotUsed") == std::string::npos);
 }
