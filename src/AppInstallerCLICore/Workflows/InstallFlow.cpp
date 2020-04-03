@@ -182,6 +182,9 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (const wil::ResultException& re)
         {
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, "MSIX", re.GetErrorCode());
+
             context.Reporter.Error() << Utility::ConvertToUTF8(re.GetFailureInfo().pszMessage) << std::endl;
             AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
         }
