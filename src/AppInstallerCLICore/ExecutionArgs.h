@@ -47,6 +47,9 @@ namespace AppInstaller::CLI::Execution
             HashFile,
             Msix, // Flag to indicate the input file is msix
 
+            //Validate Command
+            ValidateManifest,
+
             // Other
             ListVersions, // Used in Show command to list all available versions of an app
             Help, // Show command usage

@@ -180,6 +180,7 @@
     <ClInclude Include="Commands\InstallCommand.h" />
     <ClInclude Include="Commands\RootCommand.h" />
     <ClInclude Include="Commands\SourceCommand.h" />
+    <ClInclude Include="Commands\ValidateCommand.h" />
     <ClInclude Include="ExecutionArgs.h" />
     <ClInclude Include="ExecutionContext.h" />
     <ClInclude Include="ExecutionReporter.h" />
@@ -208,6 +209,7 @@
     <ClCompile Include="Commands\InstallCommand.cpp" />
     <ClCompile Include="Commands\RootCommand.cpp" />
     <ClCompile Include="Commands\SourceCommand.cpp" />
+    <ClCompile Include="Commands\ValidateCommand.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="ExecutionReporter.cpp" />
     <ClCompile Include="pch.cpp">
