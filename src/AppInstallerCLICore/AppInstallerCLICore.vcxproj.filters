@@ -149,6 +149,9 @@
     <ClCompile Include="Workflows\SourceFlow.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
+    <ClCompile Include="ExecutionContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

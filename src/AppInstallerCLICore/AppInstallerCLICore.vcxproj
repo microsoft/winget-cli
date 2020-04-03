@@ -206,6 +206,7 @@
     <ClCompile Include="Commands\RootCommand.cpp" />
     <ClCompile Include="Commands\SourceCommand.cpp" />
     <ClCompile Include="Core.cpp" />
+    <ClCompile Include="ExecutionContext.cpp" />
     <ClCompile Include="ExecutionReporter.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

@@ -134,13 +134,17 @@ namespace AppInstaller::CLI::Execution
     {
         Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
 
-        virtual ~Context() = default;
+        virtual ~Context();
 
         // The path for console input/output for all functionality.
         Reporter Reporter;
 
         // The arguments given to execute with.
         Args Args;
+
+        // Enables reception of CTRL signals.
+        // Only one context can be enabled to handle CTRL signals at a time.
+        void EnableCtrlHandler(bool enabled = true);
 
         // Returns a value indicating whether the context is terminated.
         bool IsTerminated() const { return m_isTerminated; }
@@ -177,6 +181,7 @@ namespace AppInstaller::CLI::Execution
 #endif
 
     private:
+        DestructionToken m_disableCtrlHandlerOnExit = false;
         bool m_isTerminated = false;
         HRESULT m_terminationHR = S_OK;
         std::map<Data, details::DataVariant> m_data;

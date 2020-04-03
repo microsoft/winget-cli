@@ -54,7 +54,7 @@ namespace AppInstaller::CLI
         Logging::Telemetry().LogStartup();
 
         Execution::Context context{ std::cout, std::cin };
-        context.Reporter.EnableCtrlHandler();
+        context.EnableCtrlHandler();
 
         // Convert incoming wide char args to UTF8
         std::vector<std::string> utf8Args;
