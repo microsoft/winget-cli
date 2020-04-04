@@ -21,8 +21,6 @@ namespace AppInstaller::Logging
             m_filePath = Runtime::GetPathToTemp();
             m_filePath /= AICLI_FILELOGGER_DEFAULT_DIRECTORY;
 
-            std::filesystem::create_directories(m_filePath);
-
             auto timepointStr = Utility::GetCurrentTimepointStr();
             std::replace(timepointStr.begin(), timepointStr.end(), ':', '-');
             std::replace(timepointStr.begin(), timepointStr.end(), ' ', '-');
