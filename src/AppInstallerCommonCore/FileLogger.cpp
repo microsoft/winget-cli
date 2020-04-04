@@ -6,9 +6,7 @@
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerDateTime.h"
 
-#define AICLI_FILELOGGER_DEFAULT_DIRECTORY "AICLI"
-#define AICLI_FILELOGGER_DEFAULT_FILE_PREFIX "AICLI-"
-#define AICLI_FILELOGGER_DEFAULT_FILE_EXT ".log"
+#define AICLI_FILELOGGER_DEFAULT_FILE "AICLI.log"
 
 namespace AppInstaller::Logging
 {
@@ -19,13 +17,7 @@ namespace AppInstaller::Logging
         {
             m_name = "file";
             m_filePath = Runtime::GetPathToTemp();
-            m_filePath /= AICLI_FILELOGGER_DEFAULT_DIRECTORY;
-
-            auto timepointStr = Utility::GetCurrentTimepointStr();
-            std::replace(timepointStr.begin(), timepointStr.end(), ':', '-');
-            std::replace(timepointStr.begin(), timepointStr.end(), ' ', '-');
-
-            m_filePath /= AICLI_FILELOGGER_DEFAULT_FILE_PREFIX + timepointStr + AICLI_FILELOGGER_DEFAULT_FILE_EXT;
+            m_filePath /= AICLI_FILELOGGER_DEFAULT_FILE;
         }
         else
         {

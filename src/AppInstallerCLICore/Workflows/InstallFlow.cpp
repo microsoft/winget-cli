@@ -15,15 +15,7 @@ namespace AppInstaller::Workflow
     {
         if (m_argsRef.Contains(Execution::Args::Type::Manifest))
         {
-            auto manifestPath = m_argsRef.GetArg(Execution::Args::Type::Manifest);
-            if (!std::filesystem::exists(manifestPath))
-            {
-                AICLI_LOG(CLI, Error, << "Input file does not exist. Path: " << manifestPath);
-                m_reporterRef.ShowMsg("The input manifest file does not exist. Path: " + std::string(manifestPath), Execution::Reporter::Level::Error);
-                return;
-            }
-
-            m_manifest = Manifest::Manifest::CreateFromPath(manifestPath);
+            m_manifest = Manifest::Manifest::CreateFromPath(m_argsRef.GetArg(Execution::Args::Type::Manifest));
             Logging::Telemetry().LogManifestFields(m_manifest.Id, m_manifest.Name, m_manifest.Version);
         }
         else
@@ -66,9 +58,6 @@ namespace AppInstaller::Workflow
 
     std::unique_ptr<InstallerHandlerBase> InstallFlow::GetInstallerHandler()
     {
-        // This installerName will be used as download name
-        std::string installerName = m_manifest.Id + '.' + m_manifest.Version;
-
         switch (m_selectedInstaller.InstallerType)
         {
         case ManifestInstaller::InstallerTypeEnum::Exe:
@@ -77,9 +66,9 @@ namespace AppInstaller::Workflow
         case ManifestInstaller::InstallerTypeEnum::Msi:
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
         case ManifestInstaller::InstallerTypeEnum::Wix:
-            return std::make_unique<ShellExecuteInstallerHandler>(m_selectedInstaller, m_contextRef, installerName);
+            return std::make_unique<ShellExecuteInstallerHandler>(m_selectedInstaller, m_contextRef);
         case ManifestInstaller::InstallerTypeEnum::Msix:
-            return std::make_unique<MsixInstallerHandler>(m_selectedInstaller, m_contextRef, installerName);
+            return std::make_unique<MsixInstallerHandler>(m_selectedInstaller, m_contextRef);
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }

@@ -62,8 +62,7 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::ExeInstallerMissingSilentSwitches);
             }
 
-            // Check empty string before calling IsValidUrl to avoid duplicate error reporting.
-            if (!Url.empty() && IsValidURL(NULL, Utility::ConvertToUTF16(Url).c_str(), 0) == S_FALSE)
+            if (IsValidURL(NULL, Utility::ConvertToUTF16(Url).c_str(), 0) == S_FALSE)
             {
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Url", Url);
             }

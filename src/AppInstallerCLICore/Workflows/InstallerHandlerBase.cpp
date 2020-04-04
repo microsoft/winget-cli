@@ -11,8 +11,9 @@ namespace AppInstaller::Workflow
 {
     void InstallerHandlerBase::Download()
     {
+        // Todo: Rework the path logic. The new path logic should work with MOTW.
         std::filesystem::path tempInstallerPath = Runtime::GetPathToTemp();
-        tempInstallerPath /= m_installerName;
+        tempInstallerPath /= Utility::SHA256::ConvertToString(m_manifestInstallerRef.Sha256);
 
         AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
 

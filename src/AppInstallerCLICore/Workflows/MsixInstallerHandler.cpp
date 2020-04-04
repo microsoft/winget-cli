@@ -15,39 +15,18 @@ namespace AppInstaller::Workflow
 {
     void MsixInstallerHandler::Download()
     {
-        m_useStreaming = false;
-        std::optional<Msix::MsixInfo> msixInfo;
-
-        if (!m_manifestInstallerRef.SignatureSha256.empty())
-        {
-            try
-            {
-                msixInfo = std::optional<Msix::MsixInfo>(std::in_place, m_manifestInstallerRef.Url);
-                m_useStreaming = true;
-            }
-            catch (const winrt::hresult_error& e)
-            {
-                if (e.code() == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED))
-                {
-                    // Server does not support range request, use download
-                    m_useStreaming = false;
-                }
-                else
-                {
-                    throw;
-                }
-            }
-        }
-
-        if (!m_useStreaming)
+        if (m_manifestInstallerRef.SignatureSha256.empty())
         {
             // Signature hash not provided. Go with download flow.
             InstallerHandlerBase::Download();
+            m_useStreaming = false;
         }
         else
         {
-            // Signature hash provided and host server supports streaming. Just verify signature hash.
-            auto signature = msixInfo.value().GetSignature();
+            // Signature hash provided. No download needed. Just verify signature hash.
+            Msix::MsixInfo msixInfo(m_manifestInstallerRef.Url);
+            auto signature = msixInfo.GetSignature();
+
             auto signatureHash = SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
 
             if (!std::equal(
@@ -72,6 +51,8 @@ namespace AppInstaller::Workflow
                 AICLI_LOG(CLI, Info, << "Msix package signature hash verified");
                 m_reporterRef.ShowMsg("Successfully verified SHA256.");
             }
+
+            m_useStreaming = true;
         }
     }
 

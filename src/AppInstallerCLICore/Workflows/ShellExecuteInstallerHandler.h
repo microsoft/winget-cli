@@ -15,9 +15,8 @@ namespace AppInstaller::Workflow
     public:
         ShellExecuteInstallerHandler(
             const Manifest::ManifestInstaller& manifestInstaller,
-            AppInstaller::CLI::Execution::Context& context,
-            std::string installerName) :
-            InstallerHandlerBase(manifestInstaller, context, installerName) {};
+            AppInstaller::CLI::Execution::Context& context) :
+            InstallerHandlerBase(manifestInstaller, context) {};
 
         // Install is done though invoking SheelExecute on downloaded installer.
         void Install() override;
