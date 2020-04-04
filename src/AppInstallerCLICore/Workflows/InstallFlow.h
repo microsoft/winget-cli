@@ -25,7 +25,7 @@ namespace AppInstaller::CLI::Workflow
 
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None
-    // Inputs: Installer
+    // Inputs: Manifest, Installer
     // Outputs: None
     void DownloadInstaller(Execution::Context& context);
 

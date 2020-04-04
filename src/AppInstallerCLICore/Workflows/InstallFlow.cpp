@@ -57,6 +57,7 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
+                // Signature hash provided. No download needed. Just verify signature hash.
                 context << GetMsixSignatureHash;
             }
             break;
@@ -67,11 +68,12 @@ namespace AppInstaller::CLI::Workflow
 
     void DownloadInstallerFile(Execution::Context& context)
     {
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
         const auto& installer = context.Get<Execution::Data::Installer>().value();
 
         // Todo: Rework the path logic. The new path logic should work with MOTW.
         std::filesystem::path tempInstallerPath = Runtime::GetPathToTemp();
-        tempInstallerPath /= Utility::SHA256::ConvertToString(installer.Sha256);
+        tempInstallerPath /= manifest.Id + '.' + manifest.Version;
 
         AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
 
@@ -93,15 +95,37 @@ namespace AppInstaller::CLI::Workflow
 
     void GetMsixSignatureHash(Execution::Context& context)
     {
-        const auto& installer = context.Get<Execution::Data::Installer>().value();
+        // We use this when the server won't support streaming install to swap to download.
+        bool downloadInstead = false;
 
-        // Signature hash provided. No download needed. Just verify signature hash.
-        Msix::MsixInfo msixInfo(installer.Url);
-        auto signature = msixInfo.GetSignature();
+        try
+        {
+            const auto& installer = context.Get<Execution::Data::Installer>().value();
 
-        auto signatureHash = SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
+            Msix::MsixInfo msixInfo(installer.Url);
+            auto signature = msixInfo.GetSignature();
 
-        context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));
+            auto signatureHash = SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
+
+            context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));
+        }
+        catch (const winrt::hresult_error& e)
+        {
+            if (e.code() == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED))
+            {
+                // Server does not support range request, use download
+                downloadInstead = true;
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        if (downloadInstead)
+        {
+            context << DownloadInstallerFile;
+        }
     }
 
     void VerifyInstallerHash(Execution::Context& context)
