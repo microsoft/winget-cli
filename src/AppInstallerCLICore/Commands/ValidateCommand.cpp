@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ValidateCommand.h"
 #include "Localization.h"
+#include "Workflows/WorkflowBase.h"
 
 namespace AppInstaller::CLI
 {
@@ -27,24 +28,22 @@ namespace AppInstaller::CLI
 
     void ValidateCommand::ExecuteInternal(Execution::Context& context) const
     {
-        auto inputFile = context.Args.GetArg(Execution::Args::Type::ValidateManifest);
+        context <<
+            Workflow::VerifyFile(Execution::Args::Type::ValidateManifest) <<
+            [](Execution::Context& context)
+        {
+            auto inputFile = context.Args.GetArg(Execution::Args::Type::ValidateManifest);
 
-        if (!std::filesystem::exists(inputFile))
-        {
-            AICLI_LOG(CLI, Error, << "Input file does not exist. Path: " << inputFile);
-            context.Reporter.Error() << "The input manifest file does not exist. Path: " << inputFile << std::endl;
-            return;
-        }
-
-        try
-        {
-            Manifest::Manifest::CreateFromPath(inputFile, true);
-            context.Reporter.Info() << "Manifest validation succeeded." << std::endl;
-        }
-        catch (const Manifest::ManifestException& e)
-        {
-            context.Reporter.Warn() << "Manifest validation failed." << std::endl;
-            context.Reporter.Warn() << e.GetManifestErrorMessage() << std::endl;
-        }
+            try
+            {
+                (void)Manifest::Manifest::CreateFromPath(inputFile, true);
+                context.Reporter.Info() << "Manifest validation succeeded." << std::endl;
+            }
+            catch (const Manifest::ManifestException & e)
+            {
+                context.Reporter.Warn() << "Manifest validation failed." << std::endl;
+                context.Reporter.Warn() << e.GetManifestErrorMessage() << std::endl;
+            }
+        };
     }
 }
