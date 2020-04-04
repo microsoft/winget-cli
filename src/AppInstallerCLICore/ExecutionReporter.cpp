@@ -161,11 +161,6 @@ namespace AppInstaller::CLI::Execution
         return tolower(response) == 'y';
     }
 
-    void Reporter::ShowMsg(const std::string& msg, Level level)
-    {
-        GetOutputStream(level) << msg << std::endl;
-    }
-
     void Reporter::ShowProgress(bool running, uint64_t progress)
     {
         m_progressBar.ShowProgress(running, progress);

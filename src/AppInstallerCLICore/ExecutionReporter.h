@@ -115,8 +115,6 @@ namespace AppInstaller::CLI::Execution
 
         bool PromptForBoolResponse(const std::string& msg, Level level = Level::Info);
 
-        void ShowMsg(const std::string& msg, Level level = Level::Info);
-
         // Used to show definite progress.
         // running: shows progress bar if set to true, dismisses progress bar if set to false
         void ShowProgress(bool running, uint64_t progress);
