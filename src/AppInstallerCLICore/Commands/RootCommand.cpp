@@ -9,6 +9,7 @@
 #include "SourceCommand.h"
 #include "SearchCommand.h"
 #include "HashCommand.h"
+#include "ValidateCommand.h"
 
 namespace AppInstaller::CLI
 {
@@ -20,6 +21,7 @@ namespace AppInstaller::CLI
             std::make_unique<SourceCommand>(FullName()),
             std::make_unique<SearchCommand>(FullName()),
             std::make_unique<HashCommand>(FullName()),
+            std::make_unique<ValidateCommand>(FullName()),
         });
     }
 

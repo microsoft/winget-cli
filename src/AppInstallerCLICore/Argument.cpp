@@ -66,6 +66,8 @@ namespace AppInstaller::CLI
             return Argument{ "arg", 'a', Args::Type::SourceArg, LOCME("Argument given to the source"), ArgumentType::Positional, true };
         case Args::Type::SourceType:
             return Argument{ "type", 't', Args::Type::SourceType, LOCME("Type of the source"), ArgumentType::Positional };
+        case Args::Type::ValidateManifest:
+            return Argument{ "manifest", None, Args::Type::ValidateManifest, LOCME("The path to the manifest to be validated"), ArgumentType::Positional, true };
         default:
             THROW_HR(E_UNEXPECTED);
         }
