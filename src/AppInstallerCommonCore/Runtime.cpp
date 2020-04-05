@@ -5,6 +5,8 @@
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
 
+#define AICLI_DEFAULT_TEMP_DIRECTORY "AICLI"
+
 namespace AppInstaller::Runtime
 {
     namespace
@@ -169,16 +171,24 @@ namespace AppInstaller::Runtime
 
     std::filesystem::path GetPathToTemp()
     {
+        std::filesystem::path result;
+
         if (IsRunningInPackagedContext())
         {
-            return { winrt::Windows::Storage::ApplicationData::Current().TemporaryFolder().Path().c_str() };
+            result.assign(winrt::Windows::Storage::ApplicationData::Current().TemporaryFolder().Path().c_str());
         }
         else
         {
             wchar_t tempPath[MAX_PATH + 1];
             DWORD tempChars = GetTempPathW(ARRAYSIZE(tempPath), tempPath);
-            return { std::wstring_view{ tempPath, static_cast<size_t>(tempChars) } };
+            result.assign(std::wstring_view{ tempPath, static_cast<size_t>(tempChars) });
         }
+
+        result /= AICLI_DEFAULT_TEMP_DIRECTORY;
+
+        std::filesystem::create_directories(result);
+
+        return result;
     }
 
     std::filesystem::path GetPathToLocalState()
