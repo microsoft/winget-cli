@@ -60,7 +60,7 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ReportSearchResult(Execution::Context& context);
 
-    // Ensures that there is only one result in the search.
+    // Ensures that there is at least one result in the search.
     // Required Args: None
     // Inputs: SearchResult
     // Outputs: None

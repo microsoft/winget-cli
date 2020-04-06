@@ -317,7 +317,7 @@ namespace AppInstaller::Logging
         if (g_IsTelemetryProviderEnabled)
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
-                "SearchRequest",
+                "HashMismatch",
                 GetActivityId(),
                 nullptr,
                 AICLI_TraceLoggingStringView(id, "Id"),

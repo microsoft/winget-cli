@@ -71,7 +71,6 @@ namespace AppInstaller::CLI::Workflow
         const auto& manifest = context.Get<Execution::Data::Manifest>();
         const auto& installer = context.Get<Execution::Data::Installer>().value();
 
-        // Todo: Rework the path logic. The new path logic should work with MOTW.
         std::filesystem::path tempInstallerPath = Runtime::GetPathToTemp();
         tempInstallerPath /= manifest.Id + '.' + manifest.Version;
 

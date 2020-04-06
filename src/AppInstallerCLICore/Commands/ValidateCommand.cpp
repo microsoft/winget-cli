@@ -39,7 +39,7 @@ namespace AppInstaller::CLI
                 (void)Manifest::Manifest::CreateFromPath(inputFile, true);
                 context.Reporter.Info() << "Manifest validation succeeded." << std::endl;
             }
-            catch (const Manifest::ManifestException & e)
+            catch (const Manifest::ManifestException& e)
             {
                 context.Reporter.Warn() << "Manifest validation failed." << std::endl;
                 context.Reporter.Warn() << e.GetManifestErrorMessage() << std::endl;

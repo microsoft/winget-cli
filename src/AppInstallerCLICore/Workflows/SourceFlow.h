@@ -23,9 +23,9 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void CheckSourceListAgainstAdd(Execution::Context& context);
 
-    // Adds the 
+    // Adds the source.
     // Required Args: SourceName, SourceArg
-    // Inputs: SourceList
+    // Inputs: None
     // Outputs: None
     void AddSource(Execution::Context& context);
 
