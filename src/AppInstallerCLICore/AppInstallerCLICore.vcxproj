@@ -190,14 +190,11 @@
     <ClInclude Include="Public\AppInstallerCLICore.h" />
     <ClInclude Include="Search\Search.h" />
     <ClInclude Include="VTSupport.h" />
-    <ClInclude Include="Workflows\Common.h" />
-    <ClInclude Include="Workflows\SearchFlow.h" />
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
-    <ClInclude Include="Workflows\InstallerHandlerBase.h" />
     <ClInclude Include="Workflows\InstallFlow.h" />
     <ClInclude Include="Workflows\ManifestComparator.h" />
-    <ClInclude Include="Workflows\MsixInstallerHandler.h" />
     <ClInclude Include="Workflows\ShowFlow.h" />
+    <ClInclude Include="Workflows\SourceFlow.h" />
     <ClInclude Include="Workflows\WorkflowBase.h" />
   </ItemGroup>
   <ItemGroup>
@@ -211,18 +208,17 @@
     <ClCompile Include="Commands\SourceCommand.cpp" />
     <ClCompile Include="Commands\ValidateCommand.cpp" />
     <ClCompile Include="Core.cpp" />
+    <ClCompile Include="ExecutionContext.cpp" />
     <ClCompile Include="ExecutionReporter.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="VTSupport.cpp" />
-    <ClCompile Include="Workflows\SearchFlow.cpp" />
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
-    <ClCompile Include="Workflows\InstallerHandlerBase.cpp" />
     <ClCompile Include="Workflows\InstallFlow.cpp" />
     <ClCompile Include="Workflows\ManifestComparator.cpp" />
-    <ClCompile Include="Workflows\MsixInstallerHandler.cpp" />
     <ClCompile Include="Workflows\ShowFlow.cpp" />
+    <ClCompile Include="Workflows\SourceFlow.cpp" />
     <ClCompile Include="Workflows\WorkflowBase.cpp" />
   </ItemGroup>
   <ItemGroup>

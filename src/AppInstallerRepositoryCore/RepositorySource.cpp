@@ -255,6 +255,22 @@ namespace AppInstaller::Repository
         return GetSourcesFromSetting(s_RepositorySettings_UserSources);
     }
 
+    std::optional<SourceDetails> GetSource(std::string_view name)
+    {
+        // Check all sources for the given name.
+        std::vector<SourceDetails> currentSources = GetSources();
+
+        auto itr = FindSourceByName(currentSources, name);
+        if (itr == currentSources.end())
+        {
+            return {};
+        }
+        else
+        {
+            return *itr;
+        }
+    }
+
     void AddSource(std::string name, std::string type, std::string arg, IProgressCallback& progress)
     {
         THROW_HR_IF(E_INVALIDARG, name.empty());

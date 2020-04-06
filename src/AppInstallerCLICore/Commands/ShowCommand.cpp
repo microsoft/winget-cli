@@ -3,17 +3,16 @@
 #include "pch.h"
 #include "ShowCommand.h"
 #include "Localization.h"
-#include "Workflows\ShowFlow.h"
+#include "Workflows/ShowFlow.h"
+#include "Workflows/WorkflowBase.h"
 
 namespace AppInstaller::CLI
 {
-    using namespace AppInstaller::Workflow;
-    using namespace std::string_view_literals;
-
     std::vector<Argument> ShowCommand::GetArguments() const
     {
         return {
             Argument::ForType(Execution::Args::Type::Query),
+            Argument::ForType(Execution::Args::Type::Manifest),
             Argument::ForType(Execution::Args::Type::Id),
             Argument::ForType(Execution::Args::Type::Name),
             Argument::ForType(Execution::Args::Type::Moniker),
@@ -27,18 +26,39 @@ namespace AppInstaller::CLI
 
     std::string ShowCommand::ShortDescription() const
     {
-        return LOCME("Shows info of the given application");
+        return LOCME("Shows info about an application");
     }
 
     std::string ShowCommand::GetLongDescription() const
     {
-        return LOCME("Shows info of the given application");
+        return LOCME("Shows information on a specific application.");
     }
 
     void ShowCommand::ExecuteInternal(Execution::Context& context) const
     {
-        ShowFlow appShowInfo{ context };
-
-        appShowInfo.Execute();
+        if (context.Args.Contains(Execution::Args::Type::ListVersions))
+        {
+            if (context.Args.Contains(Execution::Args::Type::Manifest))
+            {
+                context <<
+                    Workflow::GetManifestFromArg <<
+                    Workflow::ShowManifestVersion;
+            }
+            else
+            {
+                context <<
+                    Workflow::OpenSource <<
+                    Workflow::SearchSource <<
+                    Workflow::EnsureOneMatchFromSearchResult <<
+                    Workflow::ShowAppVersions;
+            }
+        }
+        else
+        {
+            context <<
+                Workflow::GetManifest <<
+                Workflow::SelectInstaller <<
+                Workflow::ShowManifestInfo;
+        }
     }
 }

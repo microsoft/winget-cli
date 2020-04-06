@@ -83,7 +83,8 @@ namespace AppInstaller::Utility
     bool IsEmptyOrWhitespace(std::wstring_view str);
 
     // Find token in the input string and replace with value.
-    void FindAndReplace(std::string& inputStr, std::string_view token, std::string_view value);
+    // Returns a value indicating whether a replacement occurred.
+    bool FindAndReplace(std::string& inputStr, std::string_view token, std::string_view value);
 
     // Reads the entire stream into a string.
     std::string ReadEntireStream(std::istream& stream);

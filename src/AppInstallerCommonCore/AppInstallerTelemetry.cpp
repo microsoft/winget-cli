@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerTelemetry.h"
-
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerRuntime.h"
+#include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
 
 #define AICLI_TraceLoggingStringView(_sv_,_name_) TraceLoggingCountedString(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
@@ -143,6 +143,42 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Info, << "Leaf command succeeded: " << commandName);
     }
 
+    void TelemetryTraceLogger::LogCommandTermination(HRESULT hr, std::string_view file, size_t line) noexcept
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "CommandTermination",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingHResult(hr, "hr"),
+                AICLI_TraceLoggingStringView(file, "File"),
+                TraceLoggingUInt64(static_cast<UINT64>(line), "Line"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+
+        AICLI_LOG(CLI, Error, << "Terminating context: 0x" << std::hex << std::setw(8) << std::setfill('0') << hr << " at " << file << ":" << line);
+    }
+
+    void TelemetryTraceLogger::LogException(std::string_view commandName, std::string_view type, std::string_view message) noexcept
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "Exception",
+                GetActivityId(),
+                nullptr,
+                AICLI_TraceLoggingStringView(commandName, "Command"),
+                AICLI_TraceLoggingStringView(type, "Type"),
+                AICLI_TraceLoggingStringView(message, "Message"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+
+        AICLI_LOG(CLI, Error, << "Caught " << type << ": " << message);
+    }
+
     void TelemetryTraceLogger::LogManifestFields(std::string_view id, std::string_view name, std::string_view version) noexcept
     {
         if (g_IsTelemetryProviderEnabled)
@@ -274,6 +310,51 @@ namespace AppInstaller::Logging
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
+    }
+
+    void TelemetryTraceLogger::LogInstallerHashMismatch(std::string_view id, std::string_view version, std::string_view channel, const std::vector<uint8_t>& expected, const std::vector<uint8_t>& actual)
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "HashMismatch",
+                GetActivityId(),
+                nullptr,
+                AICLI_TraceLoggingStringView(id, "Id"),
+                AICLI_TraceLoggingStringView(version, "Version"),
+                AICLI_TraceLoggingStringView(channel, "Channel"),
+                TraceLoggingBinary(expected.data(), static_cast<ULONG>(expected.size()), "Expected"),
+                TraceLoggingBinary(actual.data(), static_cast<ULONG>(actual.size()), "Actual"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+
+        AICLI_LOG(CLI, Error,
+            << "Package hash verification failed. SHA256 in manifest ["
+            << Utility::SHA256::ConvertToString(expected)
+            << "] does not match download ["
+            << Utility::SHA256::ConvertToString(actual)
+            << ']');
+    }
+
+    void TelemetryTraceLogger::LogInstallerFailure(std::string_view id, std::string_view version, std::string_view channel, std::string_view type, uint32_t errorCode)
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "InstallerFailure",
+                GetActivityId(),
+                nullptr,
+                AICLI_TraceLoggingStringView(id, "Id"),
+                AICLI_TraceLoggingStringView(version, "Version"),
+                AICLI_TraceLoggingStringView(channel, "Channel"),
+                AICLI_TraceLoggingStringView(type, "Type"),
+                TraceLoggingUInt32(errorCode, "ErrorCode"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+
+        AICLI_LOG(CLI, Error, << type << " installer failed: " << errorCode);
     }
 
     void EnableWilFailureTelemetry()

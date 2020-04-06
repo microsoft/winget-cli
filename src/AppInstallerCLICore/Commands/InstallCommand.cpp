@@ -3,17 +3,17 @@
 #include "pch.h"
 #include "InstallCommand.h"
 #include "Localization.h"
-#include "Manifest\Manifest.h"
-#include "Workflows\InstallFlow.h"
+#include "Workflows/InstallFlow.h"
+#include "Workflows/WorkflowBase.h"
 
 using namespace AppInstaller::Manifest;
-using namespace AppInstaller::Workflow;
+using namespace AppInstaller::CLI::Workflow;
 
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
 
-    constexpr std::string_view s_InstallCommand_ArgName_QueryOrManifest = "query|manifest"sv;
+    constexpr std::string_view s_InstallCommand_ArgName_SilentAndInteractive = "silent|interactive"sv;
 
     std::vector<Argument> InstallCommand::GetArguments() const
     {
@@ -48,22 +48,21 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ExecuteInternal(Execution::Context& context) const
     {
-        InstallFlow appInstall(context);
-
-        appInstall.Execute();
+        context <<
+            Workflow::GetManifest <<
+            Workflow::EnsureMinOSVersion <<
+            Workflow::SelectInstaller <<
+            Workflow::EnsureApplicableInstaller <<
+            Workflow::DownloadInstaller <<
+            Workflow::VerifyInstallerHash <<
+            Workflow::ExecuteInstaller;
     }
 
     void InstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        // TODO: Maybe one day implement argument groups
-        if (!execArgs.Contains(Execution::Args::Type::Query) && !execArgs.Contains(Execution::Args::Type::Manifest))
-        {
-            throw CommandException(LOCME("Required argument not provided"), s_InstallCommand_ArgName_QueryOrManifest);
-        }
-
         if (execArgs.Contains(Execution::Args::Type::Silent) && execArgs.Contains(Execution::Args::Type::Interactive))
         {
-            throw CommandException(LOCME("More than one install behavior argument provided"), s_InstallCommand_ArgName_QueryOrManifest);
+            throw CommandException(LOCME("More than one install behavior argument provided"), s_InstallCommand_ArgName_SilentAndInteractive);
         }
     }
 }

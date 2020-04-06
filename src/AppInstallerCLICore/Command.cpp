@@ -476,7 +476,7 @@ namespace AppInstaller::CLI
 
     void Command::ExecuteInternal(Execution::Context& context) const
     {
-        context.Reporter.ShowMsg(LOCME("Oops, we forgot to do this..."), Execution::Reporter::Level::Error);
+        context.Reporter.Error() << LOCME("Oops, we forgot to do this...") << std::endl;
         THROW_HR(E_NOTIMPL);
     }
 }

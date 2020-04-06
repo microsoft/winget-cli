@@ -60,6 +60,12 @@ namespace AppInstaller::CLI
             return Argument{ "versions", None, Args::Type::ListVersions, LOCME("Show available versions of the app"), ArgumentType::Flag };
         case Args::Type::Help:
             return Argument{ "help", APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_CHAR, Args::Type::Help, LOCME("Shows help about the selected command"), ArgumentType::Flag };
+        case Args::Type::SourceName:
+            return Argument{ "name", 'n', Args::Type::SourceName, LOCME("Name of the source"), ArgumentType::Positional, false };
+        case Args::Type::SourceArg:
+            return Argument{ "arg", 'a', Args::Type::SourceArg, LOCME("Argument given to the source"), ArgumentType::Positional, true };
+        case Args::Type::SourceType:
+            return Argument{ "type", 't', Args::Type::SourceType, LOCME("Type of the source"), ArgumentType::Positional };
         case Args::Type::ValidateManifest:
             return Argument{ "manifest", None, Args::Type::ValidateManifest, LOCME("The path to the manifest to be validated"), ArgumentType::Positional, true };
         default:

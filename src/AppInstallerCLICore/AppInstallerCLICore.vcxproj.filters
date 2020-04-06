@@ -54,15 +54,6 @@
     <ClInclude Include="Workflows\ManifestComparator.h">
       <Filter>Workflows</Filter>
     </ClInclude>
-    <ClInclude Include="Workflows\Common.h">
-      <Filter>Workflows</Filter>
-    </ClInclude>
-    <ClInclude Include="Workflows\InstallerHandlerBase.h">
-      <Filter>Workflows</Filter>
-    </ClInclude>
-    <ClInclude Include="Workflows\MsixInstallerHandler.h">
-      <Filter>Workflows</Filter>
-    </ClInclude>
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h">
       <Filter>Workflows</Filter>
     </ClInclude>
@@ -77,9 +68,6 @@
     </ClInclude>
     <ClInclude Include="Commands\SearchCommand.h">
       <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="Workflows\SearchFlow.h">
-      <Filter>Workflows</Filter>
     </ClInclude>
     <ClInclude Include="Workflows\ShowFlow.h">
       <Filter>Workflows</Filter>
@@ -101,6 +89,9 @@
     </ClInclude>
     <ClInclude Include="Argument.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\SourceFlow.h">
+      <Filter>Workflows</Filter>
     </ClInclude>
     <ClInclude Include="Commands\ValidateCommand.h">
       <Filter>Commands</Filter>
@@ -125,12 +116,6 @@
     <ClCompile Include="Workflows\ManifestComparator.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
-    <ClCompile Include="Workflows\InstallerHandlerBase.cpp">
-      <Filter>Workflows</Filter>
-    </ClCompile>
-    <ClCompile Include="Workflows\MsixInstallerHandler.cpp">
-      <Filter>Workflows</Filter>
-    </ClCompile>
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
@@ -142,9 +127,6 @@
     </ClCompile>
     <ClCompile Include="Commands\SearchCommand.cpp">
       <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="Workflows\SearchFlow.cpp">
-      <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="Commands\SourceCommand.cpp">
       <Filter>Commands</Filter>
@@ -165,6 +147,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Argument.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\SourceFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="ExecutionContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Commands\ValidateCommand.cpp">

@@ -5,62 +5,74 @@
 #include "ShowFlow.h"
 #include "ManifestComparator.h"
 
-using namespace AppInstaller::CLI;
 using namespace AppInstaller::Repository;
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI::Workflow
 {
-    void ShowFlow::Execute()
+    namespace
     {
-        if (IndexSearch() && EnsureOneMatchFromSearchResult())
+        void OutputVersionAndChannel(Execution::Context& context, std::string_view version, std::string_view channel)
         {
-            if (m_argsRef.Contains(Execution::Args::Type::ListVersions))
+            auto out = context.Reporter.Info();
+
+            out << "  " << version;
+            if (!channel.empty())
             {
-                ShowAppVersion();
+                out << '[' << channel << ']';
             }
-            else
-            {
-                ShowAppInfo();
-            }
+            out << std::endl;
         }
     }
 
-    void ShowFlow::ShowAppInfo()
+    void ShowManifestInfo(Execution::Context& context)
     {
-        if (GetManifest())
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
+        const auto& installer = context.Get<Execution::Data::Installer>();
+
+        ManifestComparator manifestComparator(context.Args);
+        auto selectedLocalization = manifestComparator.GetPreferredLocalization(manifest);
+
+        // TODO: Come up with a prettier format
+        context.Reporter.Info() << "Id: " + manifest.Id << std::endl;
+        context.Reporter.Info() << "Name: " + manifest.Name << std::endl;
+        context.Reporter.Info() << "Version: " + manifest.Version << std::endl;
+        context.Reporter.Info() << "Author: " + manifest.Author << std::endl;
+        context.Reporter.Info() << "AppMoniker: " + manifest.AppMoniker << std::endl;
+        context.Reporter.Info() << "Description: " + selectedLocalization.Description << std::endl;
+        context.Reporter.Info() << "Homepage: " + selectedLocalization.Homepage << std::endl;
+        context.Reporter.Info() << "License: " + selectedLocalization.LicenseUrl << std::endl;
+
+        context.Reporter.Info() << "Installer:" << std::endl;
+        if (installer)
         {
-            SelectInstaller();
-            ManifestComparator manifestComparator(m_manifest, m_reporterRef);
-            auto selectedLocalization = manifestComparator.GetPreferredLocalization(m_argsRef);
-
-            m_reporterRef.ShowMsg("Id: " + m_manifest.Id);
-            m_reporterRef.ShowMsg("Name: " + m_manifest.Name);
-            m_reporterRef.ShowMsg("Version: " + m_manifest.Version);
-            m_reporterRef.ShowMsg("Author: " + m_manifest.Author);
-            m_reporterRef.ShowMsg("AppMoniker: " + m_manifest.AppMoniker);
-            m_reporterRef.ShowMsg("Description: " + selectedLocalization.Description);
-            m_reporterRef.ShowMsg("Homepage: " + selectedLocalization.Homepage);
-            m_reporterRef.ShowMsg("License: " + selectedLocalization.LicenseUrl);
-
-            m_reporterRef.ShowMsg("Installer info:" + m_manifest.Id);
-            m_reporterRef.ShowMsg("--Installer Language: " + m_selectedInstaller.Language);
-            m_reporterRef.ShowMsg("--Installer SHA256: " + Utility::SHA256::ConvertToString(m_selectedInstaller.Sha256));
-            m_reporterRef.ShowMsg("--Installer Download Url: " + m_selectedInstaller.Url);
-            m_reporterRef.ShowMsg("--Installer Type: " + Manifest::ManifestInstaller::InstallerTypeToString(m_selectedInstaller.InstallerType));
+            context.Reporter.Info() << "  Language: " + installer->Language << std::endl;
+            context.Reporter.Info() << "  SHA256: " + Utility::SHA256::ConvertToString(installer->Sha256) << std::endl;
+            context.Reporter.Info() << "  Download Url: " + installer->Url << std::endl;
+            context.Reporter.Info() << "  Type: " + Manifest::ManifestInstaller::InstallerTypeToString(installer->InstallerType) << std::endl;
+        }
+        else
+        {
+            context.Reporter.Warn() << "  No installers are applicable to the current system" << std::endl;
         }
     }
 
-    void ShowFlow::ShowAppVersion()
+    void ShowManifestVersion(Execution::Context& context)
     {
-        auto app = m_searchResult.Matches.at(0).Application.get();
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
 
-        m_reporterRef.ShowMsg("Id: " + app->GetId());
-        m_reporterRef.ShowMsg("Name: " + app->GetName());
-        m_reporterRef.ShowMsg("Versions:");
+        context.Reporter.Info() << manifest.Id << ", " << manifest.Name << std::endl;
+        OutputVersionAndChannel(context, manifest.Version, manifest.Channel);
+    }
+
+    void ShowAppVersions(Execution::Context& context)
+    {
+        auto app = context.Get<Execution::Data::SearchResult>().Matches.at(0).Application.get();
+
+        context.Reporter.Info() << app->GetId() << ", " << app->GetName() << std::endl;
 
         for (auto& version : app->GetVersions())
         {
-            m_reporterRef.ShowMsg("  " + version.ToString());
+            OutputVersionAndChannel(context, version.GetVersion().ToString(), version.GetChannel().ToString());
         }
     }
 }

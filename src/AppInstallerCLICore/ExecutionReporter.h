@@ -115,8 +115,6 @@ namespace AppInstaller::CLI::Execution
 
         bool PromptForBoolResponse(const std::string& msg, Level level = Level::Info);
 
-        void ShowMsg(const std::string& msg, Level level = Level::Info);
-
         // Used to show definite progress.
         // running: shows progress bar if set to true, dismisses progress bar if set to false
         void ShowProgress(bool running, uint64_t progress);
@@ -146,10 +144,6 @@ namespace AppInstaller::CLI::Execution
             return f(callback);
         }
 
-        // Enables reception of CTRL signals.
-        // Only one reporter can be enabled to handle CTRL signals at a time.
-        void EnableCtrlHandler(bool enabled = true);
-
         // Sets the in progress callback.
         void SetProgressCallback(ProgressCallback* callback);
 
@@ -162,7 +156,6 @@ namespace AppInstaller::CLI::Execution
         VirtualTerminal::ConsoleModeRestore m_consoleMode;
         details::IndefiniteSpinner m_spinner;
         details::ProgressBar m_progressBar;
-        DestructionToken m_disableCtrlHandlerOnExit = false;
         wil::srwlock m_progressCallbackLock;
         std::atomic<ProgressCallback*> m_progressCallback;
     };

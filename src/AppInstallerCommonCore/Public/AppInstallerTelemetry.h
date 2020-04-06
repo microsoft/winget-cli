@@ -4,6 +4,7 @@
 #include <wil/result_macros.h>
 
 #include <string_view>
+#include <vector>
 
 namespace AppInstaller::Logging
 {
@@ -36,6 +37,12 @@ namespace AppInstaller::Logging
         // Logs the invoked command success.
         void LogCommandSuccess(std::string_view commandName) noexcept;
 
+        // Logs the invoked command termination.
+        void LogCommandTermination(HRESULT hr, std::string_view file, size_t line) noexcept;
+
+        // Logs the invoked command termination.
+        void LogException(std::string_view commandName, std::string_view type, std::string_view message) noexcept;
+
         // Logs the Manifest fields.
         void LogManifestFields(std::string_view id, std::string_view name, std::string_view version) noexcept;
          
@@ -64,6 +71,12 @@ namespace AppInstaller::Logging
 
         // Logs the Search Result
         void LogSearchResultCount(uint64_t resultCount) noexcept;
+
+        // Logs a mismatch between the expected and actual hash values.
+        void LogInstallerHashMismatch(std::string_view id, std::string_view version, std::string_view channel, const std::vector<uint8_t>& expected, const std::vector<uint8_t>& actual);
+
+        // Logs a faild installation attempt.
+        void LogInstallerFailure(std::string_view id, std::string_view version, std::string_view channel, std::string_view type, uint32_t errorCode);
 
     private:
         TelemetryTraceLogger();

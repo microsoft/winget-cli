@@ -1,44 +1,118 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #pragma once
-#include "ExecutionContext.h"
-#include "Public/AppInstallerRepositorySearch.h"
-#include "Public/AppInstallerRepositorySource.h"
+#include "ExecutionArgs.h"
 
-namespace AppInstaller::Workflow
+#include <string>
+#include <string_view>
+
+
+namespace AppInstaller::CLI::Execution
 {
-    class WorkflowBase
-    {
-    protected:
-        WorkflowBase(AppInstaller::CLI::Execution::Context& context) :
-            m_contextRef(context), m_reporterRef(context.Reporter), m_argsRef(context.Args) {}
-
-        AppInstaller::CLI::Execution::Context& m_contextRef;
-        AppInstaller::CLI::Execution::Reporter& m_reporterRef;
-        const AppInstaller::CLI::Execution::Args& m_argsRef;
-
-        virtual void OpenIndexSource();
-
-        bool IndexSearch();
-
-        void ReportSearchResult();
-
-        std::shared_ptr<AppInstaller::Repository::ISource> m_source;
-        AppInstaller::Repository::SearchResult m_searchResult;
-    };
-
-    // A workflow that requires a single manifest to operate properly.
-    class SingleManifestWorkflow : public WorkflowBase
-    {
-    protected:
-        using WorkflowBase::WorkflowBase;
-
-        bool EnsureOneMatchFromSearchResult();
-        bool GetManifest();
-        void SelectInstaller();
-
-        AppInstaller::Manifest::Manifest m_manifest;
-        AppInstaller::Manifest::ManifestInstaller m_selectedInstaller;
-    };
+    struct Context;
 }
+
+namespace AppInstaller::CLI::Workflow
+{
+    // A task in the workflow.
+    struct WorkflowTask
+    {
+        using Func = void (*)(Execution::Context&);
+
+        WorkflowTask(Func f) : m_isFunc(true), m_func(f) {}
+        WorkflowTask(std::string_view name) : m_name(name) {}
+
+        virtual ~WorkflowTask() = default;
+
+        WorkflowTask(const WorkflowTask&) = default;
+        WorkflowTask& operator=(const WorkflowTask&) = default;
+
+        WorkflowTask(WorkflowTask&&) = default;
+        WorkflowTask& operator=(WorkflowTask&&) = default;
+
+        bool operator==(const WorkflowTask& other) const;
+
+        virtual void operator()(Execution::Context& context) const;
+
+        const std::string& GetName() const { return m_name; }
+
+    private:
+        bool m_isFunc = false;
+        Func m_func = nullptr;
+        std::string m_name;
+    };
+
+    // Creates the source object.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: Source
+    void OpenSource(Execution::Context& context);
+
+    // Performs a search on the source.
+    // Required Args: None
+    // Inputs: Source
+    // Outputs: SearchResult
+    void SearchSource(Execution::Context& context);
+
+    // Outputs the search results.
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: None
+    void ReportSearchResult(Execution::Context& context);
+
+    // Ensures that there is at least one result in the search.
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: None
+    void EnsureMatchesFromSearchResult(Execution::Context& context);
+
+    // Ensures that there is only one result in the search.
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: None
+    void EnsureOneMatchFromSearchResult(Execution::Context& context);
+
+    // Gets the manifest from a search result.
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: Manifest
+    void GetManifestFromSearchResult(Execution::Context& context);
+
+    // Ensures the the file exists and is not a directory.
+    // Required Args: the one given
+    // Inputs: None
+    // Outputs: None
+    struct VerifyFile : public WorkflowTask
+    {
+        VerifyFile(Execution::Args::Type arg) : WorkflowTask("VerifyFile"), m_arg(arg) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Execution::Args::Type m_arg;
+    };
+
+    // Opens the manifest file provided on the command line.
+    // Required Args: Manifest
+    // Inputs: None
+    // Outputs: Manifest
+    void GetManifestFromArg(Execution::Context& context);
+
+    // Composite flow that produces a manifest; either from one given on the command line or by searching.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: Manifest
+    void GetManifest(Execution::Context& context);
+
+    // Selects the installer from the manifest, if one is applicable.
+    // Required Args: None
+    // Inputs: Manifest
+    // Outputs: Installer
+    void SelectInstaller(Execution::Context& context);
+}
+
+// Passes the context to the function if it has not been terminated; returns the context.
+AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, AppInstaller::CLI::Workflow::WorkflowTask::Func f);
+
+// Passes the context to the task if it has not been terminated; returns the context.
+AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, const AppInstaller::CLI::Workflow::WorkflowTask& task);
