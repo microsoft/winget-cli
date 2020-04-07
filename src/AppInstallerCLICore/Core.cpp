@@ -109,12 +109,12 @@ namespace AppInstaller::CLI
             Logging::Telemetry().LogException(command->FullName(), "wil::ResultException", re.what());
             context.Reporter.Error() <<
                 "An unexpected error occurred while executing the command: " << std::endl <<
-                re.what() << std::endl;
+                GetUserPresentableMessage(re) << std::endl;
             return re.GetErrorCode();
         }
         catch (const winrt::hresult_error& hre)
         {
-            std::string message = Utility::ConvertToUTF8(hre.message());
+            std::string message = GetUserPresentableMessage(hre);
             Logging::Telemetry().LogException(command->FullName(), "winrt::hresult_error", message);
             context.Reporter.Error() <<
                 "An unexpected error occurred while executing the command: " << std::endl <<
@@ -126,7 +126,7 @@ namespace AppInstaller::CLI
             Logging::Telemetry().LogException(command->FullName(), "std::exception", e.what());
             context.Reporter.Error() <<
                 "An unexpected error occurred while executing the command: " << std::endl <<
-                e.what() << std::endl;
+                GetUserPresentableMessage(e) << std::endl;
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
         catch (...)
