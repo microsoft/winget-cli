@@ -179,7 +179,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Error, << "Caught " << type << ": " << message);
     }
 
-    void TelemetryTraceLogger::LogManifestFields(std::string_view id, std::string_view name, std::string_view version) noexcept
+    void TelemetryTraceLogger::LogManifestFields(std::string_view id, std::string_view name, std::string_view version, bool localManifest) noexcept
     {
         if (g_IsTelemetryProviderEnabled)
         {
@@ -190,6 +190,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(id, "Id"),
                 AICLI_TraceLoggingStringView(name,"Name"),
                 AICLI_TraceLoggingStringView(version, "Version"),
+                TraceLoggingBool(localManifest, "IsManifestLocal"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance|PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }

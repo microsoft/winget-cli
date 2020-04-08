@@ -208,7 +208,7 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
         }
 
-        Logging::Telemetry().LogManifestFields(manifest->Id, manifest->Name, manifest->Version);
+        Logging::Telemetry().LogManifestFields(manifest->Id, manifest->Name, manifest->Version, FALSE);
         context.Add<Execution::Data::Manifest>(std::move(manifest.value()));
     }
 
@@ -236,7 +236,7 @@ namespace AppInstaller::CLI::Workflow
             [](Execution::Context& context)
         {
             Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(context.Args.GetArg(Execution::Args::Type::Manifest));
-            Logging::Telemetry().LogManifestFields(manifest.Id, manifest.Name, manifest.Version);
+            Logging::Telemetry().LogManifestFields(manifest.Id, manifest.Name, manifest.Version, TRUE);
             context.Add<Execution::Data::Manifest>(std::move(manifest));
         };
     }
@@ -245,6 +245,7 @@ namespace AppInstaller::CLI::Workflow
     {
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
+
             context << GetManifestFromArg;
         }
         else
