@@ -17,7 +17,7 @@ TEST_CASE("MsixInfo_GetPackageFamilyName", "[msixinfo]")
     TestDataFile index(s_MsixFile_1);
     Msix::MsixInfo msix(index.GetPath().u8string());
 
-    std::string expectedFullName = "AppInstallerCLITestsFakeIndex_125rzkzqaqjwj";
+    std::string expectedFullName = "AppInstallerCLITestsFakeIndex_1.0.0.0_neutral__125rzkzqaqjwj";
     std::string actualFullName = msix.GetPackageFullName();
 
     REQUIRE(expectedFullName == actualFullName);
