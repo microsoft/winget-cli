@@ -24,7 +24,9 @@ namespace AppInstaller::CLI::VirtualTerminal
             {
                 if (!GetConsoleMode(hOut, &m_previousMode))
                 {
-                    LOG_LAST_ERROR();
+                    // If the user redirects output, the handle will be invalid for this function.
+                    // Don't log it in that case.
+                    LOG_LAST_ERROR_IF(GetLastError() != ERROR_INVALID_HANDLE);
                 }
                 else
                 {

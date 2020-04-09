@@ -188,6 +188,44 @@ namespace AppInstaller::Msix
         THROW_IF_FAILED(appxFactory->CreateManifestReader(inputStream, reader));
     }
 
+    std::string GetPackageFamilyNameFromFullName(std::string_view fullName)
+    {
+        std::wstring result;
+        result.resize(PACKAGE_FAMILY_NAME_MAX_LENGTH + 1);
+        UINT32 size = static_cast<UINT32>(result.size());
+        THROW_IF_WIN32_ERROR(PackageFamilyNameFromFullName(Utility::ConvertToUTF16(fullName).c_str(), &size, &result[0]));
+        result.resize(size - 1);
+        return Utility::ConvertToUTF8(result);
+    }
+
+    std::optional<std::filesystem::path> GetPackageLocationFromFullName(std::string_view fullName)
+    {
+        std::wstring fn = Utility::ConvertToUTF16(fullName);
+
+        UINT32 length = 0;
+        LONG returnVal = GetStagedPackagePathByFullName(fn.c_str(), &length, nullptr);
+        if (returnVal != ERROR_INSUFFICIENT_BUFFER)
+        {
+            LOG_WIN32(returnVal);
+            return {};
+        }
+
+        THROW_HR_IF(E_UNEXPECTED, length == 0);
+
+        std::wstring result;
+        result.resize(length);
+
+        returnVal = GetStagedPackagePathByFullName(fn.c_str(), &length, &result[0]);
+        if (returnVal != ERROR_SUCCESS)
+        {
+            LOG_WIN32(returnVal);
+            return {};
+        }
+
+        result.resize(length - 1);
+        return { result };
+    }
+
     MsixInfo::MsixInfo(std::string_view uriStr)
     {
         if (Utility::IsUrlRemote(uriStr))
@@ -255,7 +293,7 @@ namespace AppInstaller::Msix
         return signatureContent;
     }
 
-    std::string MsixInfo::GetPackageFamilyName()
+    std::string MsixInfo::GetPackageFullName()
     {
         ComPtr<IAppxManifestPackageId> packageId;
         if (m_isBundle)
@@ -271,10 +309,10 @@ namespace AppInstaller::Msix
             THROW_IF_FAILED(manifestReader->GetPackageId(&packageId));
         }
 
-        wil::unique_cotaskmem_string familyName;
-        THROW_IF_FAILED(packageId->GetPackageFamilyName(&familyName));
+        wil::unique_cotaskmem_string fullName;
+        THROW_IF_FAILED(packageId->GetPackageFullName(&fullName));
 
-        return Utility::ConvertToUTF8(familyName.get());
+        return Utility::ConvertToUTF8(fullName.get());
     }
 
     bool MsixInfo::IsNewerThan(const std::filesystem::path& otherManifest)

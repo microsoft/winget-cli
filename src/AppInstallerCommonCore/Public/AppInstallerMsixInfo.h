@@ -5,6 +5,7 @@
 #include <AppxPackaging.h>
 #include <wrl/client.h>
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -28,6 +29,12 @@ namespace AppInstaller::Msix
         IStream* inputStream,
         IAppxManifestReader** reader);
 
+    // Gets the package family name from the given full name.
+    std::string GetPackageFamilyNameFromFullName(std::string_view fullName);
+
+    // Gets the package location from the given full name.
+    std::optional<std::filesystem::path> GetPackageLocationFromFullName(std::string_view fullName);
+
     // MsixInfo class handles all appx/msix related query.
     struct MsixInfo
     {
@@ -47,8 +54,8 @@ namespace AppInstaller::Msix
         // Full content of AppxSignature.p7x
         std::vector<byte> GetSignature();
 
-        // Gets the package family name.
-        std::string GetPackageFamilyName();
+        // Gets the package full name.
+        std::string GetPackageFullName();
 
         // Gets a value indicating whether the referenced info is newer than the given manifest.
         bool IsNewerThan(const std::filesystem::path& otherManifest);
