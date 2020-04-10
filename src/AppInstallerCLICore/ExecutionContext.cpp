@@ -78,12 +78,15 @@ namespace AppInstaller::CLI::Execution
     {
         if (Args.Contains(Args::Type::NoVT))
         {
-            Reporter.DisableVT();
+            Reporter.SetStyle(VisualStyle::NoVT);
         }
-
-        if (Args.Contains(Args::Type::RainbowProgress))
+        else if (Args.Contains(Args::Type::PlainStyle))
         {
-            Reporter.EnableRainbow(true);
+            Reporter.SetStyle(VisualStyle::Rainbow);
+        }
+        else if (Args.Contains(Args::Type::RainbowStyle))
+        {
+            Reporter.SetStyle(VisualStyle::Rainbow);
         }
     }
 }

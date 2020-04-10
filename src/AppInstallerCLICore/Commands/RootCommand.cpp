@@ -24,7 +24,7 @@ namespace AppInstaller::CLI
             Execution::Reporter& r = context.Reporter;
 
             r.Info() << "No progress occurs" << std::endl;
-            context.Reporter.ExecuteWithProgress([](ProgressCallback&) { std::this_thread::sleep_for(2s); });
+            context.Reporter.ExecuteWithProgress([](ProgressCallback&) { std::this_thread::sleep_for(10s); });
 
             if (context.IsTerminated()) return;
 

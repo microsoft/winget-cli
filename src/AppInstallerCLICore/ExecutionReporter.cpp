@@ -90,11 +90,14 @@ namespace AppInstaller::CLI::Execution
         return result;
     }
 
-    void Reporter::DisableVT()
+    void Reporter::SetStyle(VisualStyle style)
     {
-        m_spinner.DisableVT();
-        m_progressBar.DisableVT();
-        m_consoleMode.DisableVT();
+        m_spinner.SetStyle(style);
+        m_progressBar.SetStyle(style);
+        if (style == VisualStyle::NoVT)
+        {
+            m_consoleMode.DisableVT();
+        }
     }
 
     bool Reporter::PromptForBoolResponse(const std::string& msg, Level level)

@@ -77,11 +77,8 @@ namespace AppInstaller::CLI::Execution
 
         void EmptyLine() { m_out << std::endl; }
 
-        // Disables VT output.
-        void DisableVT();
-
-        // Enables rainbow progress bar display.
-        void EnableRainbow(bool enable) { m_progressBar.EnableRainbow(enable); }
+        // Sets the visual style (mostly for progress currently)
+        void SetStyle(VisualStyle style);
 
         bool PromptForBoolResponse(const std::string& msg, Level level = Level::Info);
 

@@ -83,6 +83,9 @@ namespace AppInstaller::CLI::VirtualTerminal
         // Returns all attributes to the default state prior to modification
         extern Sequence Default;
 
+        // Swaps foreground and background colors
+        extern Sequence Negative;
+
         // A color, used in constructed sequences.
         struct Color
         {

@@ -16,24 +16,53 @@
 
 namespace AppInstaller::CLI::Execution
 {
-    // Displays an indefinite spinner.
-    struct IndefiniteSpinner
+    // The visual style of the progress bar.
+    enum class VisualStyle
     {
-        IndefiniteSpinner(std::ostream& stream, bool enableVT) : 
-            m_out(stream), m_enableVT(enableVT) {}
+        NoVT,
+        Plain,
+        Accent,
+        Rainbow,
+    };
+
+    namespace details
+    {
+        // Shared functionality for progress visualizers.
+        struct ProgressVisualizerBase
+        {
+            ProgressVisualizerBase(std::ostream& stream, bool enableVT) :
+                m_out(stream), m_enableVT(enableVT) {}
+
+            void SetStyle(VisualStyle style) { m_style = style; }
+
+        protected:
+            std::ostream& m_out;
+            VisualStyle m_style = VisualStyle::Accent;
+
+            bool UseVT() const { return m_enableVT && m_style != VisualStyle::NoVT; }
+
+            // Applies the selected visual style.
+            void ApplyStyle(size_t i, size_t max, bool enabled);
+
+        private:
+            bool m_enableVT = false;
+        };
+    }
+
+    // Displays an indefinite spinner.
+    struct IndefiniteSpinner : public details::ProgressVisualizerBase
+    {
+        IndefiniteSpinner(std::ostream& stream, bool enableVT) :
+            details::ProgressVisualizerBase(stream, enableVT) {}
 
         void ShowSpinner();
 
         void StopSpinner();
 
-        void DisableVT() { m_enableVT = false; }
-
     private:
-        bool m_enableVT = false;
         std::atomic<bool> m_canceled = false;
         std::atomic<bool> m_spinnerRunning = false;
         std::future<void> m_spinnerJob;
-        std::ostream& m_out;
 
         void ShowSpinnerInternalNoVT();
 
@@ -41,23 +70,18 @@ namespace AppInstaller::CLI::Execution
     };
 
     // Displays progress 
-    class ProgressBar
+    class ProgressBar : public details::ProgressVisualizerBase
     {
     public:
         ProgressBar(std::ostream& stream, bool enableVT) :
-            m_out(stream), m_enableVT(enableVT) {}
+            details::ProgressVisualizerBase(stream, enableVT) {}
 
         void ShowProgress(bool running, uint64_t current, uint64_t maximum, ProgressType type);
 
-        void DisableVT() { m_enableVT = false; }
-
-        void EnableRainbow(bool enable) { m_enableRainbow = enable; }
+        void SetStyle(VisualStyle style) { m_style = style; }
 
     private:
-        bool m_enableVT = false;
-        bool m_enableRainbow = false;
         std::atomic<bool> m_isVisible = false;
-        std::ostream& m_out;
         uint64_t m_lastCurrent = 0;
 
         void OutputBytes(uint64_t byteCount);

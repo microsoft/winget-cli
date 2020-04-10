@@ -106,6 +106,7 @@ namespace AppInstaller::CLI::VirtualTerminal
 #define AICLI_VT_TEXTFORMAT(_id_)       AICLI_VT_CSI #_id_ "m"
 
         Sequence Default = AICLI_VT_TEXTFORMAT(0);
+        Sequence Negative = AICLI_VT_TEXTFORMAT(7);
 
         Color Color::GetAccentColor()
         {

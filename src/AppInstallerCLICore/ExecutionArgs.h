@@ -53,7 +53,8 @@ namespace AppInstaller::CLI::Execution
             // Other
             ListVersions, // Used in Show command to list all available versions of an app
             NoVT, // Disable VirtualTerminal outputs
-            RainbowProgress, // Makes progress bars display as a rainbow
+            PlainStyle, // Makes progress display as plain
+            RainbowStyle, // Makes progress display as a rainbow
             Help, // Show command usage
         };
 

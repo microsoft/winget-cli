@@ -94,12 +94,43 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
+    namespace details
+    {
+        void ProgressVisualizerBase::ApplyStyle(size_t i, size_t max, bool enabled)
+        {
+            switch (m_style)
+            {
+            case AppInstaller::CLI::Execution::VisualStyle::NoVT:
+                // No VT means no style set
+                break;
+            case AppInstaller::CLI::Execution::VisualStyle::Plain:
+                if (enabled)
+                {
+                    m_out << TextFormat::Default;
+                }
+                else
+                {
+                    m_out << TextFormat::Negative;
+                }
+                break;
+            case AppInstaller::CLI::Execution::VisualStyle::Accent:
+                SetColor(m_out, TextFormat::Color::GetAccentColor(), enabled);
+                break;
+            case AppInstaller::CLI::Execution::VisualStyle::Rainbow:
+                SetRainbowColor(m_out, i, max, enabled);
+                break;
+            default:
+                LOG_HR(E_UNEXPECTED);
+            }
+        }
+    }
+
     void IndefiniteSpinner::ShowSpinner()
     {
         if (!m_spinnerJob.valid() && !m_spinnerRunning && !m_canceled)
         {
             m_spinnerRunning = true;
-            m_spinnerJob = std::async(std::launch::async, (m_enableVT ? &IndefiniteSpinner::ShowSpinnerInternalWithVT : &IndefiniteSpinner::ShowSpinnerInternalNoVT), this);
+            m_spinnerJob = std::async(std::launch::async, (UseVT() ? &IndefiniteSpinner::ShowSpinnerInternalWithVT : &IndefiniteSpinner::ShowSpinnerInternalNoVT), this);
         }
     }
 
@@ -123,14 +154,10 @@ namespace AppInstaller::CLI::Execution
         // Indent two spaces for the spinner, but three here so that we can overwrite it in the loop.
         m_out << "   ";
 
-        for (int i = 0; !m_canceled; i++) {
-            m_out << '\b' << spinnerChars[i] << std::flush;
-
-            if (i == 3)
-            {
-                i = -1;
-            }
-
+        for (size_t i = 0; !m_canceled; ++i) {
+            constexpr size_t repititionCount = 20;
+            ApplyStyle(i % repititionCount, repititionCount, true);
+            m_out << '\b' << spinnerChars[i % ARRAYSIZE(spinnerChars)] << std::flush;
             Sleep(250);
         }
 
@@ -152,7 +179,7 @@ namespace AppInstaller::CLI::Execution
             ClearLine();
         }
 
-        if (m_enableVT)
+        if (UseVT())
         {
             ShowProgressWithVT(running, current, maximum, type);
         }
@@ -201,7 +228,7 @@ namespace AppInstaller::CLI::Execution
 
     void ProgressBar::ClearLine()
     {
-        if (m_enableVT)
+        if (UseVT())
         {
             m_out << TextModification::EraseLineEntirely;
         }
@@ -294,14 +321,7 @@ namespace AppInstaller::CLI::Execution
 
                 for (size_t i = 0; i < blockWidth; ++i)
                 {
-                    if (m_enableRainbow)
-                    {
-                        SetRainbowColor(m_out, i, blockWidth, i < blocksOn);
-                    }
-                    else
-                    {
-                        SetColor(m_out, accent, i < blocksOn);
-                    }
+                    ApplyStyle(i, blockWidth, i < blocksOn);
                     m_out << blockOn;
                 }
 
