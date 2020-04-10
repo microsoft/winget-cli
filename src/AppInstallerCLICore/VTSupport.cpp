@@ -85,18 +85,18 @@ namespace AppInstaller::CLI::VirtualTerminal
         {
 #define AICLI_VT_SIMPLE_CURSORPOSITON(_c_) AICLI_VT_ESCAPE #_c_
 
-            Sequence UpOne = AICLI_VT_SIMPLE_CURSORPOSITON(A);
-            Sequence DownOne = AICLI_VT_SIMPLE_CURSORPOSITON(B);
-            Sequence ForwardOne = AICLI_VT_SIMPLE_CURSORPOSITON(C);
-            Sequence BackwardOne = AICLI_VT_SIMPLE_CURSORPOSITON(D);
+            const Sequence UpOne = AICLI_VT_SIMPLE_CURSORPOSITON(A);
+            const Sequence DownOne = AICLI_VT_SIMPLE_CURSORPOSITON(B);
+            const Sequence ForwardOne = AICLI_VT_SIMPLE_CURSORPOSITON(C);
+            const Sequence BackwardOne = AICLI_VT_SIMPLE_CURSORPOSITON(D);
         }
 
         namespace Visibility
         {
-            Sequence EnableBlink = AICLI_VT_CSI "?12h";
-            Sequence DisableBlink = AICLI_VT_CSI "?12l";
-            Sequence EnableShow = AICLI_VT_CSI "?25h";
-            Sequence DisableShow = AICLI_VT_CSI "?25l";
+            const Sequence EnableBlink = AICLI_VT_CSI "?12h";
+            const Sequence DisableBlink = AICLI_VT_CSI "?12l";
+            const Sequence EnableShow = AICLI_VT_CSI "?25h";
+            const Sequence DisableShow = AICLI_VT_CSI "?25l";
         }
     }
 
@@ -105,8 +105,8 @@ namespace AppInstaller::CLI::VirtualTerminal
 // Define a text formatting sequence with an integer id
 #define AICLI_VT_TEXTFORMAT(_id_)       AICLI_VT_CSI #_id_ "m"
 
-        Sequence Default = AICLI_VT_TEXTFORMAT(0);
-        Sequence Negative = AICLI_VT_TEXTFORMAT(7);
+        const Sequence Default = AICLI_VT_TEXTFORMAT(0);
+        const Sequence Negative = AICLI_VT_TEXTFORMAT(7);
 
         Color Color::GetAccentColor()
         {
@@ -116,9 +116,9 @@ namespace AppInstaller::CLI::VirtualTerminal
 
         namespace Foreground
         {
-            Sequence BrightRed = AICLI_VT_TEXTFORMAT(91);
-            Sequence BrightYellow = AICLI_VT_TEXTFORMAT(93);
-            Sequence BrightWhite = AICLI_VT_TEXTFORMAT(97);
+            const Sequence BrightRed = AICLI_VT_TEXTFORMAT(91);
+            const Sequence BrightYellow = AICLI_VT_TEXTFORMAT(93);
+            const Sequence BrightWhite = AICLI_VT_TEXTFORMAT(97);
 
             ConstructedSequence Extended(const Color& color)
             {
@@ -136,8 +136,8 @@ namespace AppInstaller::CLI::VirtualTerminal
 
     namespace TextModification
     {
-        Sequence EraseLineForward = AICLI_VT_CSI "0K";
-        Sequence EraseLineBackward = AICLI_VT_CSI "1K";
-        Sequence EraseLineEntirely = AICLI_VT_CSI "2K";
+        const Sequence EraseLineForward = AICLI_VT_CSI "0K";
+        const Sequence EraseLineBackward = AICLI_VT_CSI "1K";
+        const Sequence EraseLineEntirely = AICLI_VT_CSI "2K";
     }
 }

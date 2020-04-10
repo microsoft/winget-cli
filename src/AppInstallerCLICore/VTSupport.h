@@ -63,28 +63,28 @@ namespace AppInstaller::CLI::VirtualTerminal
     {
         namespace Position
         {
-            extern Sequence UpOne;
-            extern Sequence DownOne;
-            extern Sequence ForwardOne;
-            extern Sequence BackwardOne;
+            extern const Sequence UpOne;
+            extern const Sequence DownOne;
+            extern const Sequence ForwardOne;
+            extern const Sequence BackwardOne;
         }
 
         namespace Visibility
         {
-            extern Sequence EnableBlink;
-            extern Sequence DisableBlink;
-            extern Sequence EnableShow;
-            extern Sequence DisableShow;
+            extern const Sequence EnableBlink;
+            extern const Sequence DisableBlink;
+            extern const Sequence EnableShow;
+            extern const Sequence DisableShow;
         }
     }
 
     namespace TextFormat
     {
         // Returns all attributes to the default state prior to modification
-        extern Sequence Default;
+        extern const Sequence Default;
 
         // Swaps foreground and background colors
-        extern Sequence Negative;
+        extern const Sequence Negative;
 
         // A color, used in constructed sequences.
         struct Color
@@ -98,9 +98,9 @@ namespace AppInstaller::CLI::VirtualTerminal
 
         namespace Foreground
         {
-            extern Sequence BrightRed;
-            extern Sequence BrightYellow;
-            extern Sequence BrightWhite;
+            extern const Sequence BrightRed;
+            extern const Sequence BrightYellow;
+            extern const Sequence BrightWhite;
 
             ConstructedSequence Extended(const Color& color);
         }
@@ -109,15 +109,13 @@ namespace AppInstaller::CLI::VirtualTerminal
         {
 
         }
-
-        //ConstructedSequence ScreenColor
     }
 
     namespace TextModification
     {
-        extern Sequence EraseLineForward;
-        extern Sequence EraseLineBackward;
-        extern Sequence EraseLineEntirely;
+        extern const Sequence EraseLineForward;
+        extern const Sequence EraseLineBackward;
+        extern const Sequence EraseLineEntirely;
     }
 }
 
