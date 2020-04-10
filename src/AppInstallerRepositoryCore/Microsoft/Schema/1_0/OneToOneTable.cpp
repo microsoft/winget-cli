@@ -106,7 +106,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             builder.Execute(connection);
         }
 
-        bool OneToOneTableIsEmpty(SQLite::Connection& connection, std::string_view tableName)
+        uint64_t OneToOneTableGetCount(SQLite::Connection& connection, std::string_view tableName)
         {
             SQLite::Builder::StatementBuilder builder;
             builder.Select(SQLite::Builder::RowCount).From(tableName);
@@ -115,7 +115,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             THROW_HR_IF(E_UNEXPECTED, !countStatement.Step());
 
-            return (countStatement.GetColumn<int>(0) == 0);
+            return static_cast<uint64_t>(countStatement.GetColumn<SQLite::rowid_t>(0));
+        }
+
+        bool OneToOneTableIsEmpty(SQLite::Connection& connection, std::string_view tableName)
+        {
+            return (OneToOneTableGetCount(connection, tableName) == 0);
         }
     }
 }

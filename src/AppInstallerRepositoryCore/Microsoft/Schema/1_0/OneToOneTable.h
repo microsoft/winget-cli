@@ -30,6 +30,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Removes the given row by its rowid if it is no longer referenced.
         void OneToOneTableDeleteIfNotNeededById(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id);
 
+        // Gets the total number of rows in the table.
+        uint64_t OneToOneTableGetCount(SQLite::Connection& connection, std::string_view tableName);
+
         // Determines if the table is empty.
         bool OneToOneTableIsEmpty(SQLite::Connection& connection, std::string_view tableName);
     }
@@ -102,6 +105,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         static void PrepareForPackaging(SQLite::Connection&)
         {
             // There is currently nothing to do for these tables.
+        }
+
+        // Gets the total number of rows in the table.
+        static uint64_t GetCount(SQLite::Connection& connection)
+        {
+            return details::OneToOneTableGetCount(connection, TableInfo::TableName());
         }
 
         // Determines if the table is empty.
