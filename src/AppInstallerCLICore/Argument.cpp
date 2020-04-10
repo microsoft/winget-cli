@@ -68,6 +68,10 @@ namespace AppInstaller::CLI
             return Argument{ "type", 't', Args::Type::SourceType, LOCME("Type of the source"), ArgumentType::Positional };
         case Args::Type::ValidateManifest:
             return Argument{ "manifest", None, Args::Type::ValidateManifest, LOCME("The path to the manifest to be validated"), ArgumentType::Positional, true };
+        case Args::Type::NoVT:
+            return Argument{ "no-vt", None, Args::Type::NoVT, LOCME("Disables VirtualTerminal display"), ArgumentType::Flag, Visibility::Hidden };
+        case Args::Type::RainbowProgress:
+            return Argument{ "rainbow", None, Args::Type::RainbowProgress, LOCME("Progress bars display a rainbow of colors"), ArgumentType::Flag, Visibility::Hidden };
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -76,5 +80,7 @@ namespace AppInstaller::CLI
     void Argument::GetCommon(std::vector<Argument>& args)
     {
         args.push_back(ForType(Args::Type::Help));
+        args.push_back(ForType(Args::Type::NoVT));
+        args.push_back(ForType(Args::Type::RainbowProgress));
     }
 }

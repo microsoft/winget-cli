@@ -73,4 +73,17 @@ namespace AppInstaller::CLI::Execution
         SetCtrlHandlerContext(enabled ? this : nullptr);
         m_disableCtrlHandlerOnExit = enabled;
     }
+
+    void Context::UpdateForArgs()
+    {
+        if (Args.Contains(Args::Type::NoVT))
+        {
+            Reporter.DisableVT();
+        }
+
+        if (Args.Contains(Args::Type::RainbowProgress))
+        {
+            Reporter.EnableRainbow(true);
+        }
+    }
 }

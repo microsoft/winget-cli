@@ -146,6 +146,9 @@ namespace AppInstaller::CLI::Execution
         // Only one context can be enabled to handle CTRL signals at a time.
         void EnableCtrlHandler(bool enabled = true);
 
+        // Applies changes based on the parsed args.
+        void UpdateForArgs();
+
         // Returns a value indicating whether the context is terminated.
         bool IsTerminated() const { return m_isTerminated; }
 

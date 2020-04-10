@@ -22,6 +22,8 @@ namespace AppInstaller::CLI::VirtualTerminal
         ConsoleModeRestore(ConsoleModeRestore&&) = default;
         ConsoleModeRestore& operator=(ConsoleModeRestore&&) = default;
 
+        void DisableVT() { m_isVTEnabled = false; }
+
         bool IsVTEnabled() const { return m_isVTEnabled; }
 
     private:
@@ -57,22 +59,62 @@ namespace AppInstaller::CLI::VirtualTerminal
     // Below are mapped to the sequences described here:
     // https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 
+    namespace Cursor
+    {
+        namespace Position
+        {
+            extern Sequence UpOne;
+            extern Sequence DownOne;
+            extern Sequence ForwardOne;
+            extern Sequence BackwardOne;
+        }
+
+        namespace Visibility
+        {
+            extern Sequence EnableBlink;
+            extern Sequence DisableBlink;
+            extern Sequence EnableShow;
+            extern Sequence DisableShow;
+        }
+    }
+
     namespace TextFormat
     {
         // Returns all attributes to the default state prior to modification
         extern Sequence Default;
+
+        // A color, used in constructed sequences.
+        struct Color
+        {
+            uint8_t R;
+            uint8_t G;
+            uint8_t B;
+
+            static Color GetAccentColor();
+        };
 
         namespace Foreground
         {
             extern Sequence BrightRed;
             extern Sequence BrightYellow;
             extern Sequence BrightWhite;
+
+            ConstructedSequence Extended(const Color& color);
         }
 
         namespace Background
         {
 
         }
+
+        //ConstructedSequence ScreenColor
+    }
+
+    namespace TextModification
+    {
+        extern Sequence EraseLineForward;
+        extern Sequence EraseLineBackward;
+        extern Sequence EraseLineEntirely;
     }
 }
 

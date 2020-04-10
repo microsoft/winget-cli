@@ -183,6 +183,7 @@
     <ClInclude Include="Commands\ValidateCommand.h" />
     <ClInclude Include="ExecutionArgs.h" />
     <ClInclude Include="ExecutionContext.h" />
+    <ClInclude Include="ExecutionProgress.h" />
     <ClInclude Include="ExecutionReporter.h" />
     <ClInclude Include="Invocation.h" />
     <ClInclude Include="Localization.h" />
@@ -209,6 +210,7 @@
     <ClCompile Include="Commands\ValidateCommand.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="ExecutionContext.cpp" />
+    <ClCompile Include="ExecutionProgress.cpp" />
     <ClCompile Include="ExecutionReporter.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

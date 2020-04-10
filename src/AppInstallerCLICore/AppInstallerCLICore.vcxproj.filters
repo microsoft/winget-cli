@@ -96,6 +96,9 @@
     <ClInclude Include="Commands\ValidateCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="ExecutionProgress.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -157,6 +160,9 @@
     </ClCompile>
     <ClCompile Include="Commands\ValidateCommand.cpp">
       <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="ExecutionProgress.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
