@@ -76,7 +76,9 @@ namespace AppInstaller::CLI::Execution
         ProgressBar(std::ostream& stream, bool enableVT) :
             details::ProgressVisualizerBase(stream, enableVT) {}
 
-        void ShowProgress(bool running, uint64_t current, uint64_t maximum, ProgressType type);
+        void ShowProgress(uint64_t current, uint64_t maximum, ProgressType type);
+
+        void EndProgress(bool hideProgressWhenDone);
 
         void SetStyle(VisualStyle style) { m_style = style; }
 
@@ -84,12 +86,10 @@ namespace AppInstaller::CLI::Execution
         std::atomic<bool> m_isVisible = false;
         uint64_t m_lastCurrent = 0;
 
-        void OutputBytes(uint64_t byteCount);
-
         void ClearLine();
 
-        void ShowProgressNoVT(bool running, uint64_t current, uint64_t maximum, ProgressType type);
+        void ShowProgressNoVT(uint64_t current, uint64_t maximum, ProgressType type);
 
-        void ShowProgressWithVT(bool running, uint64_t current, uint64_t maximum, ProgressType type);
+        void ShowProgressWithVT(uint64_t current, uint64_t maximum, ProgressType type);
     };
 }

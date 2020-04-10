@@ -40,7 +40,7 @@ namespace AppInstaller::CLI::Workflow
             sourceName = context.Args.GetArg(Execution::Args::Type::Source);
         }
 
-        std::shared_ptr<Repository::ISource> source = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1));
+        std::shared_ptr<Repository::ISource> source = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1), true);
 
         if (!source)
         {

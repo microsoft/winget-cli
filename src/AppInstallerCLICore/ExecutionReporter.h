@@ -92,7 +92,7 @@ namespace AppInstaller::CLI::Execution
 
         // Runs the given callable of type: auto(IProgressCallback&)
         template <typename F>
-        auto ExecuteWithProgress(F&& f)
+        auto ExecuteWithProgress(F&& f, bool hideProgressWhenDone = false)
         {
             if (m_consoleMode.IsVTEnabled())
             {
@@ -103,11 +103,11 @@ namespace AppInstaller::CLI::Execution
             SetProgressCallback(&callback);
             ShowIndefiniteProgress(true);
 
-            auto hideProgress = wil::scope_exit([this]()
+            auto hideProgress = wil::scope_exit([this, hideProgressWhenDone]()
                 {
                     SetProgressCallback(nullptr);
                     ShowIndefiniteProgress(false);
-                    m_progressBar.ShowProgress(false, 0, 0, ProgressType::None);
+                    m_progressBar.EndProgress(hideProgressWhenDone);
 
                     if (m_consoleMode.IsVTEnabled())
                     {

@@ -126,9 +126,8 @@ namespace AppInstaller::CLI::Execution
 
     void Reporter::OnProgress(uint64_t current, uint64_t maximum, ProgressType type)
     {
-        UNREFERENCED_PARAMETER(type);
         ShowIndefiniteProgress(false);
-        m_progressBar.ShowProgress(true, current, maximum, type);
+        m_progressBar.ShowProgress(current, maximum, type);
     }
 
     void Reporter::SetProgressCallback(ProgressCallback* callback)

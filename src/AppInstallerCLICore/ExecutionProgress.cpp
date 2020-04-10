@@ -41,6 +41,41 @@ namespace AppInstaller::CLI::Execution
             return s_bytesFormatData[ARRAYSIZE(s_bytesFormatData) - 1];
         }
 
+        void OutputBytes(std::ostream& out, uint64_t byteCount)
+        {
+            const BytesFormatData& bfd = GetFormatForSize(byteCount);
+
+            uint64_t integralAmount = byteCount >> bfd.PowerOfTwo;
+            uint64_t remainder = byteCount & ((1ull << bfd.PowerOfTwo) - 1);
+            size_t remainderDigits = 0;
+
+            if (integralAmount < 10)
+            {
+                remainder *= 100;
+                remainderDigits = 2;
+            }
+            else if (integralAmount < 100)
+            {
+                remainder *= 10;
+                remainderDigits = 1;
+            }
+            else if (integralAmount < 1000)
+            {
+                // Put an extra space to ensure a consistent 4 chars per numeric output
+                out << ' ';
+            }
+
+            out << integralAmount;
+
+            if (remainderDigits)
+            {
+                remainder = remainder >> bfd.PowerOfTwo;
+                out << '.' << std::setw(remainderDigits) << std::setfill('0') << remainder;
+            }
+
+            out << ' ' << bfd.Name;
+        }
+
         void SetColor(std::ostream& out, const TextFormat::Color& color, bool enabled)
         {
             if (enabled)
@@ -172,198 +207,160 @@ namespace AppInstaller::CLI::Execution
         ShowSpinnerInternalNoVT();
     }
 
-    void ProgressBar::ShowProgress(bool running, uint64_t current, uint64_t maximum, ProgressType type)
+    void ProgressBar::ShowProgress(uint64_t current, uint64_t maximum, ProgressType type)
     {
-        if (running && current < m_lastCurrent)
+        if (current < m_lastCurrent)
         {
             ClearLine();
         }
 
         if (UseVT())
         {
-            ShowProgressWithVT(running, current, maximum, type);
+            ShowProgressWithVT(current, maximum, type);
         }
         else
         {
-            ShowProgressNoVT(running, current, maximum, type);
+            ShowProgressNoVT(current, maximum, type);
         }
 
         m_lastCurrent = current;
+        m_isVisible = true;
     }
 
-    void ProgressBar::OutputBytes(uint64_t byteCount)
+    void ProgressBar::EndProgress(bool hideProgressWhenDone)
     {
-        const BytesFormatData& bfd = GetFormatForSize(byteCount);
-
-        uint64_t integralAmount = byteCount >> bfd.PowerOfTwo;
-        uint64_t remainder = byteCount & ((1ull << bfd.PowerOfTwo) - 1);
-        size_t remainderDigits = 0;
-
-        if (integralAmount < 10)
+        if (m_isVisible)
         {
-            remainder *= 100;
-            remainderDigits = 2;
+            if (hideProgressWhenDone)
+            {
+                ClearLine();
+            }
+            else
+            {
+                m_out << std::endl;
+            }
+            m_isVisible = false;
         }
-        else if (integralAmount < 100)
-        {
-            remainder *= 10;
-            remainderDigits = 1;
-        }
-        else if (integralAmount < 1000)
-        {
-            // Put an extra space to ensure a consistent 4 chars per numeric output
-            m_out << ' ';
-        }
-
-        m_out << integralAmount;
-
-        if (remainderDigits)
-        {
-            remainder = remainder >> bfd.PowerOfTwo;
-            m_out << '.' << std::setw(remainderDigits) << std::setfill('0') << remainder;
-        }
-
-        m_out << ' ' << bfd.Name;
     }
 
     void ProgressBar::ClearLine()
     {
         if (UseVT())
         {
-            m_out << TextModification::EraseLineEntirely;
+            m_out << TextModification::EraseLineEntirely << '\r';
         }
         else
         {
-            // Best effort when no VT
+            // Best effort when no VT (arbitrary number of spaces that seems to work)
             m_out << "\r                                                              \r";
         }
     }
 
-    void ProgressBar::ShowProgressNoVT(bool running, uint64_t current, uint64_t maximum, ProgressType type)
+    void ProgressBar::ShowProgressNoVT(uint64_t current, uint64_t maximum, ProgressType type)
     {
-        if (running)
+        m_out << "\r  ";
+
+        if (maximum)
         {
-            m_out << "\r  ";
+            const char* const blockOn = u8"\x2588";
+            const char* const blockOff = u8"\x2592";
+            constexpr size_t blockWidth = 30;
 
-            if (maximum)
+            double percentage = static_cast<double>(current) / maximum;
+            size_t blocksOn = static_cast<size_t>(std::floor(percentage * blockWidth));
+
+            for (size_t i = 0; i < blocksOn; ++i)
             {
-                const char* const blockOn = u8"\x2588";
-                const char* const blockOff = u8"\x2592";
-                constexpr size_t blockWidth = 30;
-
-                double percentage = static_cast<double>(current) / maximum;
-                size_t blocksOn = static_cast<size_t>(std::floor(percentage * blockWidth));
-
-                for (size_t i = 0; i < blocksOn; ++i)
-                {
-                    m_out << blockOn;
-                }
-
-                for (size_t i = 0; i < blockWidth - blocksOn; ++i)
-                {
-                    m_out << blockOff;
-                }
-
-                m_out << "  ";
-
-                switch (type)
-                {
-                case AppInstaller::ProgressType::Bytes:
-                    OutputBytes(current);
-                    m_out << " / ";
-                    OutputBytes(maximum);
-                    break;
-                case AppInstaller::ProgressType::Percent:
-                default:
-                    m_out << static_cast<int>(percentage * 100) << '%';
-                    break;
-                }
-            }
-            else
-            {
-                switch (type)
-                {
-                case AppInstaller::ProgressType::Bytes:
-                    OutputBytes(current);
-                    break;
-                case AppInstaller::ProgressType::Percent:
-                    m_out << current << '%';
-                    break;
-                default:
-                    m_out << current << " unknowns";
-                    break;
-                }
+                m_out << blockOn;
             }
 
-            m_isVisible = true;
+            for (size_t i = 0; i < blockWidth - blocksOn; ++i)
+            {
+                m_out << blockOff;
+            }
+
+            m_out << "  ";
+
+            switch (type)
+            {
+            case AppInstaller::ProgressType::Bytes:
+                OutputBytes(m_out, current);
+                m_out << " / ";
+                OutputBytes(m_out, maximum);
+                break;
+            case AppInstaller::ProgressType::Percent:
+            default:
+                m_out << static_cast<int>(percentage * 100) << '%';
+                break;
+            }
         }
-        else if (m_isVisible)
+        else
         {
-            m_out << std::endl;
-            m_isVisible = false;
+            switch (type)
+            {
+            case AppInstaller::ProgressType::Bytes:
+                OutputBytes(m_out, current);
+                break;
+            case AppInstaller::ProgressType::Percent:
+                m_out << current << '%';
+                break;
+            default:
+                m_out << current << " unknowns";
+                break;
+            }
         }
     }
 
-    void ProgressBar::ShowProgressWithVT(bool running, uint64_t current, uint64_t maximum, ProgressType type)
+    void ProgressBar::ShowProgressWithVT(uint64_t current, uint64_t maximum, ProgressType type)
     {
-        if (running)
+        m_out << "\r  ";
+
+        if (maximum)
         {
-            m_out << "\r  ";
+            const char* const blockOn = u8"\x2588";
+            constexpr size_t blockWidth = 30;
 
-            if (maximum)
+            double percentage = static_cast<double>(current) / maximum;
+            size_t blocksOn = static_cast<size_t>(std::floor(percentage * blockWidth));
+            TextFormat::Color accent = TextFormat::Color::GetAccentColor();
+
+            for (size_t i = 0; i < blockWidth; ++i)
             {
-                const char* const blockOn = u8"\x2588";
-                constexpr size_t blockWidth = 30;
-
-                double percentage = static_cast<double>(current) / maximum;
-                size_t blocksOn = static_cast<size_t>(std::floor(percentage * blockWidth));
-                TextFormat::Color accent = TextFormat::Color::GetAccentColor();
-
-                for (size_t i = 0; i < blockWidth; ++i)
-                {
-                    ApplyStyle(i, blockWidth, i < blocksOn);
-                    m_out << blockOn;
-                }
-
-                m_out << TextFormat::Default;
-
-                m_out << "  ";
-
-                switch (type)
-                {
-                case AppInstaller::ProgressType::Bytes:
-                    OutputBytes(current);
-                    m_out << " / ";
-                    OutputBytes(maximum);
-                    break;
-                case AppInstaller::ProgressType::Percent:
-                default:
-                    m_out << static_cast<int>(percentage * 100) << '%';
-                    break;
-                }
-            }
-            else
-            {
-                switch (type)
-                {
-                case AppInstaller::ProgressType::Bytes:
-                    OutputBytes(current);
-                    break;
-                case AppInstaller::ProgressType::Percent:
-                    m_out << current << '%';
-                    break;
-                default:
-                    m_out << current << " unknowns";
-                    break;
-                }
+                ApplyStyle(i, blockWidth, i < blocksOn);
+                m_out << blockOn;
             }
 
-            m_isVisible = true;
+            m_out << TextFormat::Default;
+
+            m_out << "  ";
+
+            switch (type)
+            {
+            case AppInstaller::ProgressType::Bytes:
+                OutputBytes(m_out, current);
+                m_out << " / ";
+                OutputBytes(m_out, maximum);
+                break;
+            case AppInstaller::ProgressType::Percent:
+            default:
+                m_out << static_cast<int>(percentage * 100) << '%';
+                break;
+            }
         }
-        else if (m_isVisible)
+        else
         {
-            m_out << std::endl;
-            m_isVisible = false;
+            switch (type)
+            {
+            case AppInstaller::ProgressType::Bytes:
+                OutputBytes(m_out, current);
+                break;
+            case AppInstaller::ProgressType::Percent:
+                m_out << current << '%';
+                break;
+            default:
+                m_out << current << " unknowns";
+                break;
+            }
         }
     }
 }
