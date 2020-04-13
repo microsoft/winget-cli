@@ -96,6 +96,9 @@
     <ClInclude Include="Commands\ValidateCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="TableOutput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
