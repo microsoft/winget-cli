@@ -3,6 +3,7 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include "SQLiteTempTable.h"
+#include "Microsoft/Schema/ISQLiteIndex.h"
 #include "AppInstallerRepositorySearch.h"
 
 #include <utility>
@@ -38,7 +39,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         void CompleteFilter();
 
         // Gets the results from the table.
-        std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> GetSearchResults(size_t limit = 0);
+        ISQLiteIndex::SearchResult GetSearchResults(size_t limit = 0);
 
     private:
         SQLite::Connection& m_connection;

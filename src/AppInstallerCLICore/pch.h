@@ -12,11 +12,13 @@
 
 #include <wil/result_macros.h>
 
+#include <array>
 #include <iostream>
 #include <fstream>
 #include <future>
 #include <functional>
 #include <memory>
+#include <numeric>
 #include <optional>
 #include <sstream>
 #include <string_view>

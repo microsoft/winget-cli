@@ -352,18 +352,21 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         builder.Execute(connection);
     }
 
-    std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> Interface::Search(SQLite::Connection& connection, const SearchRequest& request)
+    ISQLiteIndex::SearchResult Interface::Search(SQLite::Connection& connection, const SearchRequest& request)
     {
         // If no query or filters, get everything
         if (!request.Query && request.Filters.empty())
         {
             std::vector<SQLite::rowid_t> ids = IdTable::GetAllRowIds(connection, request.MaximumResults);
 
-            std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> result;
+            SearchResult result;
             for (SQLite::rowid_t id : ids)
             {
-                result.emplace_back(std::make_pair(id, ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Wildcard, {})));
+                result.Matches.emplace_back(std::make_pair(id, ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Wildcard, {})));
             }
+
+            result.Truncated = (request.MaximumResults && IdTable::GetCount(connection) > request.MaximumResults);
+
             return result;
         }
 

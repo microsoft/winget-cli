@@ -20,6 +20,14 @@ namespace AppInstaller::Repository::Microsoft::Schema
     {
         virtual ~ISQLiteIndex() = default;
 
+        // The non-version specific return value of Search.
+        // New fields must have initializers to their down-schema defaults.
+        struct SearchResult
+        {
+            std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> Matches;
+            bool Truncated = false;
+        };
+
         // Version 1.0
 
         // Gets the schema version that this index interface is built for.
@@ -43,7 +51,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         virtual void PrepareForPackaging(SQLite::Connection& connection) = 0;
 
         // Performs a search based on the given criteria.
-        virtual std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> Search(SQLite::Connection& connection, const SearchRequest& request) = 0;
+        virtual SearchResult Search(SQLite::Connection& connection, const SearchRequest& request) = 0;
 
         // Gets the Id string for the given id, if present.
         virtual std::optional<std::string> GetIdStringById(SQLite::Connection& connection, SQLite::rowid_t id) = 0;
