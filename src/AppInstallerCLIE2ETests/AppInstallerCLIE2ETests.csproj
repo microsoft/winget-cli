@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCLIE2ETests\</OutDir>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -16,6 +16,12 @@
 
   <ItemGroup>
     <Folder Include="TestData\Manifests\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="TestData\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
