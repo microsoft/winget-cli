@@ -74,6 +74,8 @@ namespace AppInstaller::CLI
             return Argument{ "rainbow", None, Args::Type::RainbowStyle, LOCME("Progress display a rainbow of colors"), ArgumentType::Flag, Visibility::Hidden };
         case Args::Type::PlainStyle:
             return Argument{ "plain", None, Args::Type::PlainStyle, LOCME("Progress display as the default color"), ArgumentType::Flag, Visibility::Hidden };
+        case Args::Type::Force:
+            return Argument{ "force", None, Args::Type::Force, LOCME("Execute the command without prompts"), ArgumentType::Flag };
         default:
             THROW_HR(E_UNEXPECTED);
         }

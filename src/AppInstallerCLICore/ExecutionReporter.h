@@ -80,6 +80,7 @@ namespace AppInstaller::CLI::Execution
         // Sets the visual style (mostly for progress currently)
         void SetStyle(VisualStyle style);
 
+        // Prompts the user, return true if they consented.
         bool PromptForBoolResponse(const std::string& msg, Level level = Level::Info);
 
         // Used to show indefinite progress. Currently an indefinite spinner is the form of

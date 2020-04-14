@@ -59,7 +59,16 @@ namespace AppInstaller::CLI::Workflow
             sourceName = context.Args.GetArg(Execution::Args::Type::Source);
         }
 
-        std::shared_ptr<Repository::ISource> source = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1), true);
+        std::shared_ptr<Repository::ISource> source;
+        try
+        {
+            source = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1), true);
+        }
+        catch (...)
+        {
+            context.Reporter.Error() << "Failed to open the source; try removing and re-adding it" << std::endl;
+            throw;
+        }
 
         if (!source)
         {

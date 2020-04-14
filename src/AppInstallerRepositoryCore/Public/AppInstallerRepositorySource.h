@@ -65,4 +65,8 @@ namespace AppInstaller::Repository
     // Removes an existing source.
     // Return value indicates whether the named source was found.
     bool RemoveSource(std::string_view name, IProgressCallback& progress);
+
+    // Drops an existing source, with no attempt to clean up its data.
+    // Return value indicates whether the named source was found.
+    bool DropSource(std::string_view name);
 }

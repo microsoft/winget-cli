@@ -385,6 +385,29 @@ namespace AppInstaller::Repository
         }
     }
 
+    bool DropSource(std::string_view name)
+    {
+        THROW_HR_IF(E_INVALIDARG, name.empty());
+
+        std::vector<SourceDetails> currentSources = GetSourcesFromSetting(s_RepositorySettings_UserSources);
+        auto itr = FindSourceByName(currentSources, name);
+
+        if (itr == currentSources.end())
+        {
+            AICLI_LOG(Repo, Info, << "Named source to be dropped, but not found: " << name);
+            return false;
+        }
+        else
+        {
+            AICLI_LOG(Repo, Info, << "Named source to be dropped, found: " << itr->Name);
+
+            currentSources.erase(itr);
+            SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
+
+            return true;
+        }
+    }
+
     std::string SearchRequest::ToString() const
     {
         std::ostringstream result;

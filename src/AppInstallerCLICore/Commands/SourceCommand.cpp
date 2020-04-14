@@ -133,4 +133,31 @@ namespace AppInstaller::CLI
             Workflow::GetSourceListWithFilter <<
             Workflow::RemoveSources;
     }
+
+    std::vector<Argument> SourceResetCommand::GetArguments() const
+    {
+        return {
+            Argument::ForType(Args::Type::SourceName),
+            Argument::ForType(Args::Type::Force),
+        };
+    }
+
+    std::string SourceResetCommand::ShortDescription() const
+    {
+        return LOCME("Reset sources");
+    }
+
+    std::string SourceResetCommand::GetLongDescription() const
+    {
+        return LOCME("This command drops existing sources, potentially leaving any local data behind. Without any argument, it will drop all sources and add the defaults. If a named source is provided, only that source will be dropped.");
+    }
+
+    void SourceResetCommand::ExecuteInternal(Context& context) const
+    {
+        context <<
+            Workflow::GetSourceListWithFilter <<
+            Workflow::QueryUserForSourceReset <<
+            Workflow::ResetSourceList <<
+            Workflow::AddDefaultSourcesIfNeeded;
+    }
 }

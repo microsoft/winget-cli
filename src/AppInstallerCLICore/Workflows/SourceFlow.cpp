@@ -3,6 +3,7 @@
 #pragma once
 #include "pch.h"
 #include "SourceFlow.h"
+#include "WorkflowBase.h"
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -167,5 +168,44 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.ExecuteWithProgress(std::bind(Repository::RemoveSource, sd.Name, std::placeholders::_1));
             context.Reporter.Info() << "Done." << std::endl;
         }
+    }
+
+    void QueryUserForSourceReset(Execution::Context& context)
+    {
+        const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
+
+        // If:
+        //  1. there are source and
+        //  2. a specific one was not specified and
+        //  3. the user did not specify the force option,
+        // then request permission to continue.
+        if (!sources.empty() &&
+            !context.Args.Contains(Execution::Args::Type::SourceName) &&
+            !context.Args.Contains(Execution::Args::Type::Force))
+        {
+            context.Reporter.Info() << "The following sources will be reset:" << std::endl;
+
+            context << ListSources;
+
+            if (!context.Reporter.PromptForBoolResponse("Do you wish to continue?"))
+            {
+                AICLI_TERMINATE_CONTEXT(E_ABORT);
+            }
+        }
+    }
+
+    void ResetSourceList(Execution::Context& context)
+    {
+        const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
+
+        for (const auto& source : sources)
+        {
+            Repository::DropSource();
+        }
+    }
+
+    void AddDefaultSourcesIfNeeded(Execution::Context& context)
+    {
+
     }
 }
