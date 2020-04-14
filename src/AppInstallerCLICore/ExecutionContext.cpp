@@ -73,4 +73,20 @@ namespace AppInstaller::CLI::Execution
         SetCtrlHandlerContext(enabled ? this : nullptr);
         m_disableCtrlHandlerOnExit = enabled;
     }
+
+    void Context::UpdateForArgs()
+    {
+        if (Args.Contains(Args::Type::NoVT))
+        {
+            Reporter.SetStyle(VisualStyle::NoVT);
+        }
+        else if (Args.Contains(Args::Type::PlainStyle))
+        {
+            Reporter.SetStyle(VisualStyle::Rainbow);
+        }
+        else if (Args.Contains(Args::Type::RainbowStyle))
+        {
+            Reporter.SetStyle(VisualStyle::Rainbow);
+        }
+    }
 }

@@ -1,55 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include "ExecutionProgress.h"
 #include "VTSupport.h"
 #include <AppInstallerProgress.h>
 
 #include <wil/resource.h>
 
 #include <atomic>
-#include <future>
 #include <istream>
 #include <ostream>
 #include <string>
-#include <vector>
 
 
 namespace AppInstaller::CLI::Execution
 {
-    namespace details
-    {
-        // Class to print a indefinite spinner.
-        class IndefiniteSpinner
-        {
-        public:
-            IndefiniteSpinner(std::ostream& stream) : m_out(stream) {}
-
-            void ShowSpinner();
-            void StopSpinner();
-
-        private:
-            std::atomic<bool> m_canceled = false;
-            std::atomic<bool> m_spinnerRunning = false;
-            std::future<void> m_spinnerJob;
-            std::ostream& m_out;
-
-            void ShowSpinnerInternal();
-        };
-
-        // Todo: Need to implement real progress bar. Only prints progress number now.
-        class ProgressBar
-        {
-        public:
-            ProgressBar(std::ostream& stream) : m_out(stream) {}
-
-            void ShowProgress(bool running, uint64_t progress);
-
-        private:
-            std::atomic<bool> m_isVisible = false;
-            std::ostream& m_out;
-        };
-    }
-
     // Reporter should be the central place to show workflow status to user.
     // Todo: need to implement actual console output to show progress bar, etc
     struct Reporter : public IProgressSink
@@ -62,8 +27,7 @@ namespace AppInstaller::CLI::Execution
             Error,
         };
 
-        Reporter(std::ostream& outStream, std::istream& inStream) :
-            m_out(outStream), m_in(inStream), m_progressBar(outStream), m_spinner(outStream) {}
+        Reporter(std::ostream& outStream, std::istream& inStream);
 
         ~Reporter();
 
@@ -113,11 +77,10 @@ namespace AppInstaller::CLI::Execution
 
         void EmptyLine() { m_out << std::endl; }
 
-        bool PromptForBoolResponse(const std::string& msg, Level level = Level::Info);
+        // Sets the visual style (mostly for progress currently)
+        void SetStyle(VisualStyle style);
 
-        // Used to show definite progress.
-        // running: shows progress bar if set to true, dismisses progress bar if set to false
-        void ShowProgress(bool running, uint64_t progress);
+        bool PromptForBoolResponse(const std::string& msg, Level level = Level::Info);
 
         // Used to show indefinite progress. Currently an indefinite spinner is the form of
         // showing indefinite progress.
@@ -129,17 +92,27 @@ namespace AppInstaller::CLI::Execution
 
         // Runs the given callable of type: auto(IProgressCallback&)
         template <typename F>
-        auto ExecuteWithProgress(F&& f)
+        auto ExecuteWithProgress(F&& f, bool hideProgressWhenDone = false)
         {
+            if (m_consoleMode.IsVTEnabled())
+            {
+                m_out << VirtualTerminal::Cursor::Visibility::DisableShow;
+            }
+
             ProgressCallback callback(this);
             SetProgressCallback(&callback);
             ShowIndefiniteProgress(true);
 
-            auto hideProgress = wil::scope_exit([this]()
+            auto hideProgress = wil::scope_exit([this, hideProgressWhenDone]()
                 {
                     SetProgressCallback(nullptr);
                     ShowIndefiniteProgress(false);
-                    ShowProgress(false, 0);
+                    m_progressBar.EndProgress(hideProgressWhenDone);
+
+                    if (m_consoleMode.IsVTEnabled())
+                    {
+                        m_out << VirtualTerminal::Cursor::Visibility::EnableShow;
+                    }
                 });
             return f(callback);
         }
@@ -154,13 +127,13 @@ namespace AppInstaller::CLI::Execution
         std::ostream& m_out;
         std::istream& m_in;
         VirtualTerminal::ConsoleModeRestore m_consoleMode;
-        details::IndefiniteSpinner m_spinner;
-        details::ProgressBar m_progressBar;
+        IndefiniteSpinner m_spinner;
+        ProgressBar m_progressBar;
         wil::srwlock m_progressCallbackLock;
         std::atomic<ProgressCallback*> m_progressCallback;
     };
 
     // Indirection to enable change without tracking down every place
-    extern VirtualTerminal::Sequence HelpCommandEmphasis;
-    extern VirtualTerminal::Sequence HelpArgumentEmphasis;
+    extern const VirtualTerminal::Sequence& HelpCommandEmphasis;
+    extern const VirtualTerminal::Sequence& HelpArgumentEmphasis;
 }

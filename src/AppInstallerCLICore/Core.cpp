@@ -88,6 +88,7 @@ namespace AppInstaller::CLI
             Logging::Telemetry().LogCommand(command->FullName());
 
             command->ParseArguments(invocation, context.Args);
+            context.UpdateForArgs();
             command->ValidateArguments(context.Args);
         }
         // Exceptions specific to parsing the arguments of a command

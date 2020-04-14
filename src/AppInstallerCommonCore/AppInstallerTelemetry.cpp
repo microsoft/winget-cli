@@ -7,7 +7,7 @@
 #include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
 
-#define AICLI_TraceLoggingStringView(_sv_,_name_) TraceLoggingCountedString(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
+#define AICLI_TraceLoggingStringView(_sv_,_name_) TraceLoggingCountedUtf8String(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
 
 // Helper to print a GUID
 std::ostream& operator<<(std::ostream& out, const GUID& guid)
