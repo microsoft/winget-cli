@@ -4,26 +4,12 @@
 #include "pch.h"
 #include "ShowFlow.h"
 #include "ManifestComparator.h"
+#include "TableOutput.h"
 
 using namespace AppInstaller::Repository;
 
 namespace AppInstaller::CLI::Workflow
 {
-    namespace
-    {
-        void OutputVersionAndChannel(Execution::Context& context, std::string_view version, std::string_view channel)
-        {
-            auto out = context.Reporter.Info();
-
-            out << "  " << version;
-            if (!channel.empty())
-            {
-                out << '[' << channel << ']';
-            }
-            out << std::endl;
-        }
-    }
-
     void ShowManifestInfo(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
@@ -33,8 +19,6 @@ namespace AppInstaller::CLI::Workflow
         auto selectedLocalization = manifestComparator.GetPreferredLocalization(manifest);
 
         // TODO: Come up with a prettier format
-        context.Reporter.Info() << "Id: " + manifest.Id << std::endl;
-        context.Reporter.Info() << "Name: " + manifest.Name << std::endl;
         context.Reporter.Info() << "Version: " + manifest.Version << std::endl;
         context.Reporter.Info() << "Author: " + manifest.Author << std::endl;
         context.Reporter.Info() << "AppMoniker: " + manifest.AppMoniker << std::endl;
@@ -60,19 +44,20 @@ namespace AppInstaller::CLI::Workflow
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
 
-        context.Reporter.Info() << manifest.Id << ", " << manifest.Name << std::endl;
-        OutputVersionAndChannel(context, manifest.Version, manifest.Channel);
+        Execution::TableOutput<2> table(context.Reporter, { "Version", "Channel" });
+        table.OutputLine({ manifest.Version, manifest.Channel });
+        table.Complete();
     }
 
     void ShowAppVersions(Execution::Context& context)
     {
         auto app = context.Get<Execution::Data::SearchResult>().Matches.at(0).Application.get();
 
-        context.Reporter.Info() << app->GetId() << ", " << app->GetName() << std::endl;
-
+        Execution::TableOutput<2> table(context.Reporter, { "Version", "Channel" });
         for (auto& version : app->GetVersions())
         {
-            OutputVersionAndChannel(context, version.GetVersion().ToString(), version.GetChannel().ToString());
+            table.OutputLine({ version.GetVersion().ToString(), version.GetChannel().ToString() });
         }
+        table.Complete();
     }
 }

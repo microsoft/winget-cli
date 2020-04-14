@@ -42,6 +42,7 @@ namespace AppInstaller::CLI
             {
                 context <<
                     Workflow::GetManifestFromArg <<
+                    Workflow::ReportManifestIdentity <<
                     Workflow::ShowManifestVersion;
             }
             else
@@ -50,6 +51,7 @@ namespace AppInstaller::CLI
                     Workflow::OpenSource <<
                     Workflow::SearchSource <<
                     Workflow::EnsureOneMatchFromSearchResult <<
+                    Workflow::ReportSearchResultIdentity <<
                     Workflow::ShowAppVersions;
             }
         }

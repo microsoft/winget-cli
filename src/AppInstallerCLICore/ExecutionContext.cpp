@@ -82,7 +82,7 @@ namespace AppInstaller::CLI::Execution
         }
         else if (Args.Contains(Args::Type::PlainStyle))
         {
-            Reporter.SetStyle(VisualStyle::Rainbow);
+            Reporter.SetStyle(VisualStyle::Plain);
         }
         else if (Args.Contains(Args::Type::RainbowStyle))
         {

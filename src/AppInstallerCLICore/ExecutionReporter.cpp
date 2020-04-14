@@ -10,6 +10,9 @@ namespace AppInstaller::CLI::Execution
 
     const Sequence& HelpCommandEmphasis = TextFormat::Foreground::BrightWhite;
     const Sequence& HelpArgumentEmphasis = TextFormat::Foreground::BrightWhite;
+    const Sequence& NameEmphasis = TextFormat::Foreground::BrightCyan;
+    const Sequence& IdEmphasis = TextFormat::Foreground::BrightCyan;
+    const Sequence& UrlEmphasis = TextFormat::Foreground::BrightBlue;
 
     Reporter::Reporter(std::ostream& outStream, std::istream& inStream) :
         m_out(outStream),

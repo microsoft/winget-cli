@@ -76,6 +76,8 @@ namespace AppInstaller::CLI::Workflow
 
         AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
 
+        context.Reporter.Info() << "Downloading " << Execution::UrlEmphasis << installer.Url << std::endl;
+
         auto hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
             installer.Url,
             tempInstallerPath,
@@ -141,14 +143,14 @@ namespace AppInstaller::CLI::Workflow
 
             if (!context.Reporter.PromptForBoolResponse("Installer hash verification failed. Continue?", Execution::Reporter::Level::Warning))
             {
-                context.Reporter.Error() << "Canceled. Installer hash mismatch." << std::endl;
+                context.Reporter.Error() << "Canceled; Installer hash mismatch" << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
             }
         }
         else
         {
             AICLI_LOG(CLI, Info, << "Installer hash verified");
-            context.Reporter.Info() << "Successfully verified installer hash." << std::endl;
+            context.Reporter.Info() << "Successfully verified installer hash" << std::endl;
         }
     }
 

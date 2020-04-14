@@ -98,6 +98,18 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Manifest
     void GetManifestFromArg(Execution::Context& context);
 
+    // Reports the search result's identity.
+    // Required Args: None
+    // Inputs: SearchResult (only 1)
+    // Outputs: None
+    void ReportSearchResultIdentity(Execution::Context& context);
+
+    // Reports the manifest's identity.
+    // Required Args: None
+    // Inputs: Manifest
+    // Outputs: None
+    void ReportManifestIdentity(Execution::Context& context);
+
     // Composite flow that produces a manifest; either from one given on the command line or by searching.
     // Required Args: None
     // Inputs: None

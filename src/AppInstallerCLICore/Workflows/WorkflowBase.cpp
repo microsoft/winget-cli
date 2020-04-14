@@ -27,6 +27,11 @@ namespace AppInstaller::CLI::Workflow
                 return {};
             }
         }
+
+        void ReportIdentity(Execution::Context& context, std::string_view name, std::string_view id)
+        {
+            context.Reporter.Info() << "Found " << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << ']' << std::endl;
+        }
     }
 
     bool WorkflowTask::operator==(const WorkflowTask& other) const
@@ -262,11 +267,25 @@ namespace AppInstaller::CLI::Workflow
         };
     }
 
+    void ReportSearchResultIdentity(Execution::Context& context)
+    {
+        auto app = context.Get<Execution::Data::SearchResult>().Matches.at(0).Application.get();
+        ReportIdentity(context, app->GetName(), app->GetId());
+    }
+
+    void ReportManifestIdentity(Execution::Context& context)
+    {
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
+        ReportIdentity(context, manifest.Name, manifest.Id);
+    }
+
     void GetManifest(Execution::Context& context)
     {
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
-            context << GetManifestFromArg;
+            context <<
+                GetManifestFromArg <<
+                ReportManifestIdentity;
         }
         else
         {
@@ -274,6 +293,7 @@ namespace AppInstaller::CLI::Workflow
                 OpenSource <<
                 SearchSource <<
                 EnsureOneMatchFromSearchResult <<
+                ReportSearchResultIdentity <<
                 GetManifestFromSearchResult;
         }
     }

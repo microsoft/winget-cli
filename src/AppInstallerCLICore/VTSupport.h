@@ -99,7 +99,11 @@ namespace AppInstaller::CLI::VirtualTerminal
         namespace Foreground
         {
             extern const Sequence BrightRed;
+            extern const Sequence BrightGreen;
             extern const Sequence BrightYellow;
+            extern const Sequence BrightBlue;
+            extern const Sequence BrightMagenta;
+            extern const Sequence BrightCyan;
             extern const Sequence BrightWhite;
 
             ConstructedSequence Extended(const Color& color);

@@ -95,6 +95,15 @@ namespace AppInstaller::CLI::Execution
                 }
             }
 
+            // If there are actually columns with data, then also bring in the minimum size
+            for (size_t i = 0; i < FieldCount; ++i)
+            {
+                if (m_columns[i].MaxLength)
+                {
+                    m_columns[i].MaxLength = std::max(m_columns[i].MaxLength, m_columns[i].MinLength);
+                }
+            }
+
             // Only output the extra space if:
             // 1. Not the last field
             m_columns[FieldCount - 1].SpaceAfter = false;
