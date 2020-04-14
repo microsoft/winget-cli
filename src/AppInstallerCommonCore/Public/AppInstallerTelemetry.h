@@ -44,7 +44,7 @@ namespace AppInstaller::Logging
         void LogException(std::string_view commandName, std::string_view type, std::string_view message) noexcept;
 
         // Logs the Manifest fields.
-        void LogManifestFields(std::string_view id, std::string_view name, std::string_view version) noexcept;
+        void LogManifestFields(std::string_view id, std::string_view name, std::string_view version, bool localManifest) noexcept;
          
         // Logs when there is no matching App found for search
         void LogNoAppMatch() noexcept;

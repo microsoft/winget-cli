@@ -190,6 +190,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\AppInstallerCLICore.h" />
     <ClInclude Include="Search\Search.h" />
+    <ClInclude Include="TableOutput.h" />
     <ClInclude Include="VTSupport.h" />
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
     <ClInclude Include="Workflows\InstallFlow.h" />

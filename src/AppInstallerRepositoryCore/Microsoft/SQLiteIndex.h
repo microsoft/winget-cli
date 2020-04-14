@@ -3,6 +3,7 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include "Manifest/Manifest.h"
+#include "Microsoft/Schema/ISQLiteIndex.h"
 #include "Microsoft/Schema/Version.h"
 #include "Public/AppInstallerRepositorySearch.h"
 #include <AppInstallerLanguageUtilities.h>
@@ -81,7 +82,7 @@ namespace AppInstaller::Repository::Microsoft
         void PrepareForPackaging();
 
         // Performs a search based on the given criteria.
-        std::vector<std::pair<IdType, ApplicationMatchFilter>> Search(const SearchRequest& request);
+        Schema::ISQLiteIndex::SearchResult Search(const SearchRequest& request);
 
         // Gets the Id string for the given id, if present.
         std::optional<std::string> GetIdStringById(IdType id);

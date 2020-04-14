@@ -99,6 +99,9 @@
     <ClInclude Include="ExecutionProgress.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TableOutput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

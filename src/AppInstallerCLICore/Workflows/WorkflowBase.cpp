@@ -4,11 +4,30 @@
 #include "WorkflowBase.h"
 #include "ExecutionContext.h"
 #include "ManifestComparator.h"
+#include "TableOutput.h"
 
 
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::Repository;
+
+    namespace
+    {
+        std::string GetMatchCriteriaDescriptor(const ResultMatch& match)
+        {
+            if (match.MatchCriteria.Field != ApplicationMatchField::Id && match.MatchCriteria.Field != ApplicationMatchField::Name)
+            {
+                std::string result{ ApplicationMatchFieldToString(match.MatchCriteria.Field) };
+                result += ": ";
+                result += match.MatchCriteria.Value;
+                return result;
+            }
+            else
+            {
+                return {};
+            }
+        }
+    }
 
     bool WorkflowTask::operator==(const WorkflowTask& other) const
     {
@@ -133,20 +152,22 @@ namespace AppInstaller::CLI::Workflow
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
         Logging::Telemetry().LogSearchResultCount(searchResult.Matches.size());
-        for (auto& match : searchResult.Matches)
+
+        Execution::TableOutput<4> table(context.Reporter, { "Name", "Id", "Version", "Matched" });
+
+        for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
-            auto app = match.Application.get();
+            auto app = searchResult.Matches[i].Application.get();
             auto allVersions = app->GetVersions();
 
-            // Assume versions are sorted when returned so we'll use the first one as the latest version
-            context.Reporter.Info() << app->GetId() << ", " << app->GetName() << ", " << allVersions.at(0).GetVersion().ToString();
+            table.OutputLine({ app->GetName(), app->GetId(), allVersions.at(0).GetVersion().ToString(), GetMatchCriteriaDescriptor(searchResult.Matches[i]) });
+        }
 
-            if (match.MatchCriteria.Field != ApplicationMatchField::Id && match.MatchCriteria.Field != ApplicationMatchField::Name)
-            {
-                context.Reporter.Info() << ", [" << ApplicationMatchFieldToString(match.MatchCriteria.Field) << ": " << match.MatchCriteria.Value << "]";
-            }
+        table.Complete();
 
-            context.Reporter.Info() << std::endl;
+        if (searchResult.Truncated)
+        {
+            context.Reporter.Info() << "<additional entries truncated due to result limit>" << std::endl;
         }
     }
 
@@ -208,7 +229,7 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
         }
 
-        Logging::Telemetry().LogManifestFields(manifest->Id, manifest->Name, manifest->Version);
+        Logging::Telemetry().LogManifestFields(manifest->Id, manifest->Name, manifest->Version, false);
         context.Add<Execution::Data::Manifest>(std::move(manifest.value()));
     }
 
@@ -236,7 +257,7 @@ namespace AppInstaller::CLI::Workflow
             [](Execution::Context& context)
         {
             Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(context.Args.GetArg(Execution::Args::Type::Manifest));
-            Logging::Telemetry().LogManifestFields(manifest.Id, manifest.Name, manifest.Version);
+            Logging::Telemetry().LogManifestFields(manifest.Id, manifest.Name, manifest.Version, true);
             context.Add<Execution::Data::Manifest>(std::move(manifest));
         };
     }

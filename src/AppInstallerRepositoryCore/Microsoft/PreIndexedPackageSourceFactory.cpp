@@ -35,6 +35,13 @@ namespace AppInstaller::Repository::Microsoft
         std::string GetPackageFamilyNameFromDetails(const SourceDetails& details)
         {
             THROW_HR_IF(E_UNEXPECTED, details.Data.empty());
+            return Msix::GetPackageFamilyNameFromFullName(details.Data);
+        }
+
+        // Gets the package full name from the details.
+        std::string GetPackageFullNameFromDetails(const SourceDetails& details)
+        {
+            THROW_HR_IF(E_UNEXPECTED, details.Data.empty());
             return details.Data;
         }
 
@@ -86,9 +93,9 @@ namespace AppInstaller::Repository::Microsoft
                     // If not initialized, we need to open the package and get the family name.
                     Msix::MsixInfo packageInfo(packageLocation);
                     THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.GetIsBundle());
-                    details.Data = packageInfo.GetPackageFamilyName();
+                    details.Data = packageInfo.GetPackageFullName();
 
-                    AICLI_LOG(Repo, Info, << "Found package family name: " << details.Name << " => " << details.Data);
+                    AICLI_LOG(Repo, Info, << "Found package full name: " << details.Name << " => " << details.Data);
                 }
 
                 auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
@@ -115,44 +122,21 @@ namespace AppInstaller::Repository::Microsoft
         struct PackagedContextFactory : public PreIndexedFactoryBase
         {
             // *Should only be called when under a CrossProcessReaderWriteLock*
-            auto GetPackageFromDetails(const SourceDetails& details)
+            std::optional<std::filesystem::path> GetPackageLocationFromDetails(const SourceDetails& details)
             {
-                using Package = winrt::Windows::ApplicationModel::Package;
-
-                std::wstring packageFamilyName = Utility::ConvertToUTF16(GetPackageFamilyNameFromDetails(details));
-
-                Package currentPackage = Package::Current();
-                auto dependencies = currentPackage.Dependencies();
-                for (uint32_t i = 0; i < dependencies.Size(); ++i)
-                {
-                    Package package = dependencies.GetAt(i);
-                    if (package.Id().FamilyName() == packageFamilyName)
-                    {
-                        if (package.IsOptional())
-                        {
-                            return package;
-                        }
-                        else
-                        {
-                            AICLI_LOG(Repo, Error, << "Source references a non-optional package: " << details.Name << " => " << GetPackageFamilyNameFromDetails(details));
-                            return Package{ nullptr };
-                        }
-                    }
-                }
-                AICLI_LOG(Repo, Error, << "Source references an unknown package: " << details.Name << " => " << GetPackageFamilyNameFromDetails(details));
-                return Package{ nullptr };
+                return Msix::GetPackageLocationFromFullName(GetPackageFullNameFromDetails(details));
             }
 
             std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) override
             {
-                auto optionalPackage = GetPackageFromDetails(details);
+                auto optionalPackage = GetPackageLocationFromDetails(details);
                 if (!optionalPackage)
                 {
-                    AICLI_LOG(Repo, Info, << "Package not found by family name " << details.Data);
+                    AICLI_LOG(Repo, Info, << "Package not found " << details.Data);
                     THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
                 }
 
-                std::filesystem::path packageLocation = optionalPackage.InstalledLocation().Path().c_str();
+                std::filesystem::path packageLocation = optionalPackage.value();
                 packageLocation /= s_PreIndexedPackageSourceFactory_IndexFileName;
 
                 SQLiteIndex index = SQLiteIndex::Open(packageLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
@@ -164,7 +148,7 @@ namespace AppInstaller::Repository::Microsoft
             {
                 // Check if the package is newer before calling into deployment.
                 // This can save us a lot of time over letting deployment detect same version.
-                auto optionalPackage = GetPackageFromDetails(details);
+                auto optionalPackage = GetPackageLocationFromDetails(details);
                 if (optionalPackage)
                 {
                     Msix::MsixInfo packageInfo(packageLocation);
@@ -176,7 +160,7 @@ namespace AppInstaller::Repository::Microsoft
                         return;
                     }
 
-                    std::filesystem::path packagePath = optionalPackage.InstalledLocation().Path().c_str();
+                    std::filesystem::path packagePath = optionalPackage.value();
                     std::filesystem::path manifestPath = packagePath / s_PreIndexedPackageSourceFactory_AppxManifestFileName;
 
                     if (!packageInfo.IsNewerThan(manifestPath))
@@ -184,6 +168,8 @@ namespace AppInstaller::Repository::Microsoft
                         AICLI_LOG(Repo, Info, << "Remote source data was not newer than existing, no update needed");
                         return;
                     }
+
+                    details.Data = packageInfo.GetPackageFullName();
                 }
 
                 if (progress.IsCancelled())
@@ -193,23 +179,20 @@ namespace AppInstaller::Repository::Microsoft
                 }
 
                 winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(packageLocation));
-                Deployment::RequestAddPackageAsync(uri, winrt::Windows::Management::Deployment::DeploymentOptions::None, progress);
+                Deployment::StageAndDelayRegisterPackageAsync(
+                    GetPackageFamilyNameFromDetails(details),
+                    uri,
+                    winrt::Windows::Management::Deployment::DeploymentOptions::None,
+                    winrt::Windows::Management::Deployment::DeploymentOptions::None,
+                    progress);
             }
 
             void RemoveInternal(const SourceDetails& details, IProgressCallback&) override
             {
-                // Get the package referenced by the details
-                auto optionalPackage = GetPackageFromDetails(details);
-                if (!optionalPackage)
-                {
-                    AICLI_LOG(Repo, Info, << "Package not found by family name " << details.Data);
-                    return;
-                }
-
                 // Begin package removal, but let it run its course without waiting.
                 // This pattern is required due to the inability to use SetInUseAsync from a full trust process.
-                AICLI_LOG(Repo, Info, << "Removing package " << Utility::ConvertToUTF8(optionalPackage.Id().FullName()));
-                Deployment::RemovePackageFireAndForget(optionalPackage.Id().FullName());
+                AICLI_LOG(Repo, Info, << "Removing package " << GetPackageFullNameFromDetails(details));
+                Deployment::RemovePackageFireAndForget(GetPackageFullNameFromDetails(details));
             }
         };
 
@@ -232,7 +215,7 @@ namespace AppInstaller::Repository::Microsoft
 
                 if (!std::filesystem::exists(packageLocation))
                 {
-                    AICLI_LOG(Repo, Info, << "Data not found by family name " << details.Data);
+                    AICLI_LOG(Repo, Info, << "Data not found at " << packageLocation);
                     THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
                 }
 
