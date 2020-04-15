@@ -16,6 +16,7 @@ variables:
   buildPlatform: 'x86|x64|ARM'
   buildConfiguration: 'Release'
   appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
+  appxVersion: '0.0.0.2'
 
 # Do not set the build version for a PR build.
 
@@ -62,13 +63,25 @@ jobs:
       arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer)'
       workingDirectory: 'src'
   
+  - task: DownloadSecureFile@1
+    name: signingCert
+    displayName: 'Download signing certificate'
+    inputs:
+      secureFile: 'AppInstallerTest.pfx'
+  
   - task: VSBuild@1
     displayName: Build Solution
     inputs:
       platform: 'x86'
       solution: '$(solution)'
       configuration: '$(buildConfiguration)'
-      msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload'
+      msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" 
+                    /p:AppxPackageDir="$(appxPackageDir)" 
+                    /p:AppxBundle=Always 
+                    /p:UapAppxPackageBuildMode=StoreUpload 
+                    /p:AppxPackageSigningEnabled=true 
+                    /p:PackageCertificateThumbprint="" 
+                    /p:PackageCertificateKeyFile="$(signingCert.secureFilePath)"'
   
   - task: CmdLine@2
     displayName: Run Tests Unpackaged
@@ -98,7 +111,7 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        Add-AppxPackage AppInstallerCLIPackage_0.0.0.2_Test\Dependencies\x64\Microsoft.VCLibs.x64.14.00.Desktop.appx
+        Add-AppxPackage AppInstallerCLIPackage_$(appxVersion)_Test\Dependencies\x64\Microsoft.VCLibs.x64.14.00.Desktop.appx
       workingDirectory: $(appxPackageDir)
   
   - task: PowerShell@2
@@ -138,14 +151,21 @@ jobs:
       PathtoPublish: 'src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'
       ArtifactName: 'AppInstallerCLI.exe'
       publishLocation: 'Container'
-
+  
   - task: PublishBuildArtifacts@1
     displayName: Publish SQLite Util Binary
     inputs:
       PathtoPublish: 'src\x64\Release\AppInstallerSQLiteIndexUtil\AppInstallerSQLiteIndexUtil.dll'
       ArtifactName: 'AppInstallerSQLiteIndexUtil.dll'
       publishLocation: 'Container'
-
+  
+  - task: PublishBuildArtifacts@1
+    displayName: Publish AppxBundle
+    inputs:
+      PathtoPublish: '$(appxPackageDir)AppInstallerCLIPackage_$(appxVersion)_Test\AppInstallerCLIPackage_$(appxVersion)_x86_x64_ARM.appxbundle'
+      ArtifactName: 'AppInstallerCLIPackage_$(appxVersion)_x86_x64_ARM.appxbundle'
+      publishLocation: 'Container'
+  
   - task: ComponentGovernanceComponentDetection@0
     displayName: Component Governance
     inputs:
