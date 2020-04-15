@@ -224,6 +224,6 @@
     <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.191111.2\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.191111.2\build\native\Microsoft.Windows.CppWinRT.targets'))" />
   </Target>
   <Target Name="AfterBuild">
-    <Copy SourceFiles="$(OutDir)\$(TargetFileName)" DestinationFolder="$(SolutionDir)\AnyCPU\$(Configuration)\AppInstallerCLIE2ETests" ContinueOnError="true" />
+    <Copy SourceFiles="$(OutDir)\$(TargetFileName)" DestinationFolder="$(SolutionDir)\AnyCPU\$(Configuration)\AppInstallerCLIE2ETests" ContinueOnError="true" Condition="'$(Platform)'=='x64'"/>
   </Target>
 </Project>

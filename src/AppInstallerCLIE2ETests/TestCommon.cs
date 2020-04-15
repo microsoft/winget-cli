@@ -43,11 +43,14 @@ namespace AppInstallerCLIE2ETests
             if (!string.IsNullOrEmpty(stdIn))
             {
                 p.StartInfo.RedirectStandardInput = true;
-                StreamWriter stdInWriter = p.StandardInput;
-                stdInWriter.Write(stdIn);
             }
 
             p.Start();
+
+            if (!string.IsNullOrEmpty(stdIn))
+            {
+                p.StandardInput.Write(stdIn);
+            }
 
             if (p.WaitForExit(timeOut))
             {
