@@ -23,6 +23,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void EnsureApplicableInstaller(Execution::Context& context);
 
+    // Ensures that there is an applicable installer.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void ShowInstallationDisclaimer(Execution::Context& context);
+
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None
     // Inputs: Manifest, Installer

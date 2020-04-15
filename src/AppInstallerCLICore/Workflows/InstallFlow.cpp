@@ -36,6 +36,13 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void ShowInstallationDisclaimer(Execution::Context& context)
+    {
+        context.Reporter.Info() << 
+            "This application is licensed to you by its owner." << std::endl <<
+            "Microsoft is not responsible for, nor does it grant any licenses to, third-party packages." << std::endl;
+    }
+
     void DownloadInstaller(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>().value();
