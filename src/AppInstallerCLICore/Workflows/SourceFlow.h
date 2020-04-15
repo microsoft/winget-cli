@@ -49,7 +49,7 @@ namespace AppInstaller::CLI::Workflow
 
     // Removes the sources in SourceList.
     // Required Args: None
-    // Inputs: SourceList
+    // Inputs: None
     // Outputs: None
     void QueryUserForSourceReset(Execution::Context& context);
 
@@ -63,5 +63,11 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: None
     // Outputs: None
-    void AddDefaultSourcesIfNeeded(Execution::Context& context);
+    void ResetAllSources(Execution::Context& context);
+
+    // Removes the sources in SourceList.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void AddDefaultSources(Execution::Context& context);
 }

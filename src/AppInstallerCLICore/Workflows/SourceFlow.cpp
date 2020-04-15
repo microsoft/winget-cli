@@ -172,24 +172,21 @@ namespace AppInstaller::CLI::Workflow
 
     void QueryUserForSourceReset(Execution::Context& context)
     {
-        const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
-
-        // If:
-        //  1. there are source and
-        //  2. a specific one was not specified and
-        //  3. the user did not specify the force option,
-        // then request permission to continue.
-        if (!sources.empty() &&
-            !context.Args.Contains(Execution::Args::Type::SourceName) &&
-            !context.Args.Contains(Execution::Args::Type::Force))
+        if (!context.Args.Contains(Execution::Args::Type::Force))
         {
-            context.Reporter.Info() << "The following sources will be reset:" << std::endl;
+            context << GetSourceListWithFilter;
+            const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
 
-            context << ListSources;
-
-            if (!context.Reporter.PromptForBoolResponse("Do you wish to continue?"))
+            if (!sources.empty())
             {
-                AICLI_TERMINATE_CONTEXT(E_ABORT);
+                context.Reporter.Info() << "The following sources will be reset:" << std::endl;
+
+                context << ListSources;
+
+                if (!context.Reporter.PromptForBoolResponse("Do you wish to continue?"))
+                {
+                    AICLI_TERMINATE_CONTEXT(E_ABORT);
+                }
             }
         }
     }
@@ -200,12 +197,22 @@ namespace AppInstaller::CLI::Workflow
 
         for (const auto& source : sources)
         {
-            Repository::DropSource();
+            context.Reporter.Info() << "Reseting source: " << source.Name << " ...";
+            Repository::DropSource(source.Name);
+            context.Reporter.Info() << " Done." << std::endl;
         }
     }
 
-    void AddDefaultSourcesIfNeeded(Execution::Context& context)
+    void ResetAllSources(Execution::Context& context)
     {
+        context.Reporter.Info() << "Reseting all sources ...";
+        Repository::DropSource({});
+        context.Reporter.Info() << " Done." << std::endl;
+    }
 
+    void AddDefaultSources(Execution::Context& context)
+    {
+        context.Reporter.Info() << "Adding default sources ..." << std::endl;
+        context.Reporter.ExecuteWithProgress(Repository::AddDefaultSources);
     }
 }

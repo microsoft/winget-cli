@@ -17,6 +17,7 @@ namespace AppInstaller::CLI
             std::make_unique<SourceListCommand>(FullName()),
             std::make_unique<SourceUpdateCommand>(FullName()),
             std::make_unique<SourceRemoveCommand>(FullName()),
+            std::make_unique<SourceResetCommand>(FullName()),
             });
     }
 
@@ -154,10 +155,18 @@ namespace AppInstaller::CLI
 
     void SourceResetCommand::ExecuteInternal(Context& context) const
     {
-        context <<
-            Workflow::GetSourceListWithFilter <<
-            Workflow::QueryUserForSourceReset <<
-            Workflow::ResetSourceList <<
-            Workflow::AddDefaultSourcesIfNeeded;
+        if (context.Args.Contains(Args::Type::SourceName))
+        {
+            context <<
+                Workflow::GetSourceListWithFilter <<
+                Workflow::ResetSourceList;
+        }
+        else
+        {
+            context <<
+                Workflow::QueryUserForSourceReset <<
+                Workflow::ResetAllSources <<
+                Workflow::AddDefaultSources;
+        }
     }
 }
