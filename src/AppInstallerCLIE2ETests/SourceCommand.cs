@@ -8,12 +8,10 @@ namespace AppInstallerCLIE2ETests
     public class SourceCommand
     {
         [SetUp]
+        [TearDown]
         public void Setup()
         {
             TestCommon.RunAICLICommand("source", $"remove {Constants.TestSourceName}");
-
-            // There's a deployment bug that if the last optional package is removed, the main package will also be removed.
-            Assert.True(TestCommon.InstallMsix(TestCommon.GetTestFile(Constants.AICLIPackageFile)));
         }
 
         [Test]
@@ -71,9 +69,6 @@ namespace AppInstallerCLIE2ETests
             result = TestCommon.RunAICLICommand("source", $"remove -n {Constants.TestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
-
-            // There's a deployment bug that if the last optional package is removed, the main package will also be removed.
-            Assert.True(TestCommon.InstallMsix(TestCommon.GetTestFile(Constants.AICLIPackageFile)));
 
             // List should show no source
             result = TestCommon.RunAICLICommand("source", "list");

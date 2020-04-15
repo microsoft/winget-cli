@@ -28,7 +28,8 @@ namespace AppInstallerCLIE2ETests
         public static RunCommandResult RunAICLICommand(string command, string parameters, string stdIn = null, int timeOut = 60000)
         {
             string inputMsg =
-                    "Command: " + command +
+                    "AICLI path: " + AICLIPath +
+                    " Command: " + command +
                     " Parameters: " + parameters +
                     (string.IsNullOrEmpty(stdIn) ? "" : " StdIn: " + stdIn) +
                     " Timeout: " + timeOut;

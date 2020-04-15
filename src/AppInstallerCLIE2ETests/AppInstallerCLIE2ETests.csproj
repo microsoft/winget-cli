@@ -23,4 +23,10 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Test.runsettings">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

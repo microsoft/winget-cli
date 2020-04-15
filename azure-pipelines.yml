@@ -154,7 +154,8 @@ jobs:
     inputs:
       testSelector: 'testAssemblies'
       testAssemblyVer2: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
-      overrideTestrunParameters: '-PackagedContext false -AICLIPath src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'
+      runSettingsFile: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\Test.runsettings'
+      overrideTestrunParameters: '-PackagedContext false -AICLIPath $(system.defaultWorkingDirectory)\src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'
   
   - task: PublishBuildArtifacts@1
     displayName: Publish CLI Binary

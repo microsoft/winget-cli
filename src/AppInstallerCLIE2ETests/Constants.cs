@@ -19,6 +19,11 @@ namespace AppInstallerCLIE2ETests
         public const string AICLIPackageFile = "AppInstallerCLIPackage.appxbundle";
         public const string AICLIPackageName = "AppInstallerCLI";
 
+        // Todo: there's a deployment bug that if the last optional package is removed, the main package is also removed.
+        // We should remove this when the deployment bug is fixed.
+        public const string PlaceholderPackageFile = "PlaceholderPackage.msix";
+        public const string PlaceholderPackageName = "AppInstallerSQLiteIndex-e2etest-placeholder";
+
         // Todo: switch to use prod index when available
         public const string TestSourceUrl = @"https://pkgmgr-int.azureedge.net/cache";
         public const string TestSourceName = @"TestSource";

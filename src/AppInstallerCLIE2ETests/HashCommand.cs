@@ -7,13 +7,6 @@ namespace AppInstallerCLIE2ETests
 
     public class HashCommand
     {
-        [SetUp]
-        public void Setup()
-        {
-            // There's a deployment bug that if the last optional package is removed, the main package will also be removed.
-            Assert.True(TestCommon.InstallMsix(TestCommon.GetTestFile(Constants.AICLIPackageFile)));
-        }
-
         [Test]
         public void HashCommands()
         {
@@ -23,10 +16,10 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("9b4c49ad7e47afd97d2e666e93347745e1647c55f1a7ebba6d31b7dd5f69ee68"));
 
             // Hash msix
-            result = TestCommon.RunAICLICommand("hash", TestCommon.GetTestDataFile("Microsoft.VCLibs.x86.14.00.Desktop.appx") + " -m");
+            result = TestCommon.RunAICLICommand("hash", TestCommon.GetTestDataFile(Constants.PlaceholderPackageFile) + " -m");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("e1c21e8bd053ec28881dff284f611221c1adb139daba39aaa719d76e53ccdf8d"));
-            Assert.True(result.StdOut.Contains("779a33f6ea5a39ac57bd6ba4ef805a8b751b63bd63d1b0df91f8ebee20e2395a"));
+            Assert.True(result.StdOut.Contains("08917b781939a7796746b5e2349e1f1d83b6c15599b60cd3f62816f15e565fc4"));
+            Assert.True(result.StdOut.Contains("223b318c4b1154a1fb72b1bc23422810faa5ce899a8e774ba2a02834b2058f00"));
 
             // The input is not msix but -m is used
             result = TestCommon.RunAICLICommand("hash", TestCommon.GetTestDataFile("AppInstallerTest.cer") + " -m");

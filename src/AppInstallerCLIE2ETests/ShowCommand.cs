@@ -10,9 +10,6 @@ namespace AppInstallerCLIE2ETests
         [SetUp]
         public void Setup()
         {
-            // There's a deployment bug that if the last optional package is removed, the main package will also be removed.
-            Assert.True(TestCommon.InstallMsix(TestCommon.GetTestFile(Constants.AICLIPackageFile)));
-
             Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source", $"add {Constants.TestSourceName} {Constants.TestSourceUrl}").ExitCode);
         }
 
@@ -20,9 +17,6 @@ namespace AppInstallerCLIE2ETests
         public void TearDown()
         {
             TestCommon.RunAICLICommand("source", $"remove {Constants.TestSourceName}");
-
-            // There's a deployment bug that if the last optional package is removed, the main package will also be removed.
-            Assert.True(TestCommon.InstallMsix(TestCommon.GetTestFile(Constants.AICLIPackageFile)));
         }
 
         [Test]

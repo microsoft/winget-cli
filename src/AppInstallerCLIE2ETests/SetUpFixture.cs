@@ -53,7 +53,8 @@ namespace AppInstallerCLIE2ETests
 
             if (TestCommon.IsPackagedContext)
             {
-                Assert.True(TestCommon.InstallMsix(TestCommon.GetTestFile(TestCommon.AICLIPackagePath)));
+                Assert.True(TestCommon.InstallMsix(TestCommon.AICLIPackagePath));
+                Assert.True(TestCommon.InstallMsix(TestCommon.GetTestDataFile(Constants.PlaceholderPackageFile)));
             }
         }
 
@@ -70,6 +71,7 @@ namespace AppInstallerCLIE2ETests
 
             if (TestCommon.IsPackagedContext)
             {
+                TestCommon.RemoveMsix(Constants.PlaceholderPackageName);
                 TestCommon.RemoveMsix(Constants.AICLIPackageName);
             }
         }
