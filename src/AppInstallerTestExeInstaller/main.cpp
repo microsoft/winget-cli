@@ -17,7 +17,7 @@ int main(int argc, const char** argv)
         outContent << argv[i] << ' ';
 
         // Supports custom install path.
-        if (_stricmp(argv[i], "/InstallDir") && ++i < argc)
+        if (_stricmp(argv[i], "/InstallDir") == 0 && ++i < argc)
         {
             outFilePath = argv[i];
             outContent << argv[i] << ' ';
