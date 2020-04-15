@@ -42,8 +42,6 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)));
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.IndexPackageCert)));
 
-            Assert.True(TestCommon.InstallMsix(TestCommon.GetTestDataFile(Constants.FrameworkPackageFile)));
-
             if (TestCommon.IsPackagedContext)
             {
                 Assert.True(TestCommon.InstallMsix(TestCommon.GetTestFile(Constants.AICLIPackageFile)));
@@ -63,10 +61,8 @@ namespace AppInstallerCLIE2ETests
 
             if (TestCommon.IsPackagedContext)
             {
-                TestCommon.RemoveMsix(Constants.AICLIPackagePFN);
+                TestCommon.RemoveMsix(Constants.AICLIPackageName);
             }
-
-            TestCommon.RemoveMsix(Constants.FrameworkPackagePFN);
         }
 
         // Returns whether there's a change to the dev mode state after execution

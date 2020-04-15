@@ -128,9 +128,9 @@ namespace AppInstallerCLIE2ETests
             return RunCommand("powershell", $"Add-AppxPackage \"{file}\"");
         }
 
-        public static bool RemoveMsix(string pfn)
+        public static bool RemoveMsix(string name)
         {
-            return RunCommand("powershell", $"Remove-AppxPackage \"{pfn}\"");
+            return RunCommand("powershell", $"Get-AppxPacjage \"{name}\" | Remove-AppxPackage");
         }
     }
 }

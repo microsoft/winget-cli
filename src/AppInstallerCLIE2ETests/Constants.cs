@@ -15,10 +15,8 @@ namespace AppInstallerCLIE2ETests
         public const string IndexPackageCert = "IndexPackageInt.cer";
         public const string IndexPackageCertThumbprint = "1da968e670a0257f61628aad20c60c64fdecd41a";
 
-        public const string FrameworkPackageFile = "Microsoft.VCLibs.x86.14.00.Desktop.appx";
-        public const string FrameworkPackagePFN = "Microsoft.VCLibs.140.00.UWPDesktop_8wekyb3d8bbwe";
-        public const string AICLIPackageFile = "Microsoft.VCLibs.x86.14.00.Desktop.appx";
-        public const string AICLIPackagePFN = "Microsoft.VCLibs.x86.14.00.Desktop.appx";
+        public const string AICLIPackageFile = "AppInstallerCLIPackage.appxbundle";
+        public const string AICLIPackageName = "AppInstallerCLI";
 
         // Todo: switch to use prod index when available
         public const string TestSourceUrl = @"https://pkgmgr-int.azureedge.net/cache";
@@ -55,7 +53,6 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_NO_SOURCES_DEFINED = unchecked((int)0x8A150015);
             public const int ERROR_MULTIPLE_APPLICATIONS_FOUND = unchecked((int)0x8A150016);
             public const int ERROR_NO_MANIFEST_FOUND = unchecked((int)0x8A150017);
-
         }
     }
 }

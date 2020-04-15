@@ -7,6 +7,13 @@ namespace AppInstallerCLIE2ETests
 
     public class ValidateCommand
     {
+        [SetUp]
+        public void Setup()
+        {
+            // There's a deployment bug that if the last optional package is removed, the main package will also be removed.
+            Assert.True(TestCommon.InstallMsix(TestCommon.GetTestFile(Constants.AICLIPackageFile)));
+        }
+
         [Test]
         public void ValidateCommands()
         {
