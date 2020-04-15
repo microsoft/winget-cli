@@ -48,6 +48,12 @@ jobs:
     inputs:
       restoreSolution: '$(solution)'
   
+  - task: DotNetCoreCLI@2
+    displayName: DotNet Restore
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
+  
   - task: PowerShell@2
     displayName: Update Binary Version
     condition: not(eq(variables['Build.Reason'], 'PullRequest'))

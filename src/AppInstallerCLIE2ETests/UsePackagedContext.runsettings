@@ -3,6 +3,6 @@
 <RunSettings>
   <!-- Parameters used by tests at run time -->
   <TestRunParameters>
-    <Parameter name="UsePackagedContext" value="true" />
+    <Parameter name="PackagedContext" value="true" />
   </TestRunParameters>
 </RunSettings>
