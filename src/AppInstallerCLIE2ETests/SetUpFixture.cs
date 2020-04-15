@@ -37,6 +37,15 @@ namespace AppInstallerCLIE2ETests
                 }
             }
 
+            if (TestContext.Parameters.Exists(Constants.AICLIPackagePathParameter))
+            {
+                TestCommon.AICLIPackagePath = TestContext.Parameters.Get(Constants.AICLIPackagePathParameter);
+            }
+            else
+            {
+                TestCommon.AICLIPackagePath = TestCommon.GetTestFile(Constants.AICLIPackageFile);
+            }
+
             ShouldDisableDevModeOnExit = EnableDevMode(true);
 
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)));
@@ -44,7 +53,7 @@ namespace AppInstallerCLIE2ETests
 
             if (TestCommon.IsPackagedContext)
             {
-                Assert.True(TestCommon.InstallMsix(TestCommon.GetTestFile(Constants.AICLIPackageFile)));
+                Assert.True(TestCommon.InstallMsix(TestCommon.GetTestFile(TestCommon.AICLIPackagePath)));
             }
         }
 

@@ -7,6 +7,7 @@ namespace AppInstallerCLIE2ETests
     {
         public const string PackagedContextParameter = "PackagedContext";
         public const string AICLIPathParameter = "AICLIPath";
+        public const string AICLIPackagePathParameter = "AICLIPackagePath";
         public const string VerboseLoggingParameter = "VerboseLogging";
 
         public const string AppInstallerTestCert = "AppInstallerTest.cer";

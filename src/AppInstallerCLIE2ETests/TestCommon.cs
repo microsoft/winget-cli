@@ -12,6 +12,8 @@ namespace AppInstallerCLIE2ETests
     {
         public static string AICLIPath { get; set; }
 
+        public static string AICLIPackagePath { get; set; }
+
         public static bool IsPackagedContext { get; set; }
 
         public static bool VerboseLogging { get; set; }
@@ -130,7 +132,7 @@ namespace AppInstallerCLIE2ETests
 
         public static bool RemoveMsix(string name)
         {
-            return RunCommand("powershell", $"Get-AppxPacjage \"{name}\" | Remove-AppxPackage");
+            return RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage");
         }
     }
 }

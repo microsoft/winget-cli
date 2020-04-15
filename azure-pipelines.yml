@@ -16,7 +16,6 @@ variables:
   buildPlatform: 'x86|x64|ARM'
   buildConfiguration: 'Release'
   appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
-  appxVersion: '0.0.0.2'
 
 # Do not set the build version for a PR build.
 
@@ -84,14 +83,14 @@ jobs:
                     /p:PackageCertificateKeyFile="$(signingCert.secureFilePath)"'
   
   - task: CmdLine@2
-    displayName: Run Tests Unpackaged
+    displayName: Run Unit Tests Unpackaged
     inputs:
       script: |
         AppInstallerCLITests.exe -logto AICLI-Unpackaged.log -s -r junit -o TEST-AppInstallerCLI-Unpackaged.xml
       workingDirectory: 'src\x64\Release\AppInstallerCLITests\'
   
   - task: PublishBuildArtifacts@1
-    displayName: Publish Unpackaged Log
+    displayName: Publish Unit Tests Unpackaged Log
     inputs:
       PathtoPublish: 'src\x64\Release\AppInstallerCLITests\AICLI-Unpackaged.log'
       ArtifactName: 'TestPassUnpackagedLog'
@@ -99,7 +98,7 @@ jobs:
     condition: succeededOrFailed()
   
   - task: PublishBuildArtifacts@1
-    displayName: Publish Unpackaged Output
+    displayName: Publish Unit Tests Unpackaged Output
     inputs:
       PathtoPublish: 'src\x64\Release\AppInstallerCLITests\TEST-AppInstallerCLI-Unpackaged.xml'
       ArtifactName: 'TestPassUnpackagedOutput'
@@ -107,22 +106,22 @@ jobs:
     condition: succeededOrFailed()
   
   - task: PowerShell@2
-    displayName: Install Dependencies
+    displayName: Install Tests Dependencies
     inputs:
       targetType: 'inline'
       script: |
-        Add-AppxPackage AppInstallerCLIPackage_$(appxVersion)_Test\Dependencies\x64\Microsoft.VCLibs.x64.14.00.Desktop.appx
+        Add-AppxPackage AppInstallerCLIPackage_0.0.0.2_Test\Dependencies\x64\Microsoft.VCLibs.x64.14.00.Desktop.appx
       workingDirectory: $(appxPackageDir)
   
   - task: PowerShell@2
-    displayName: Run Tests Packaged
+    displayName: Run Unit Tests Packaged
     inputs:
       filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
       arguments: '-Args "~[pips]" -BuildRoot x64\Release -PackageRoot AppInstallerCLIPackage\bin\x64\Release -LogTarget x64\Release\AICLI-Packaged.log -TestResultsTarget x64\Release\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
       workingDirectory: 'src'
   
   - task: PublishBuildArtifacts@1
-    displayName: Publish Packaged Log
+    displayName: Publish Unit Tests Packaged Log
     inputs:
       PathtoPublish: 'src\x64\Release\AICLI-Packaged.log'
       ArtifactName: 'TestPassPackagedLog'
@@ -130,7 +129,7 @@ jobs:
     condition: succeededOrFailed()
   
   - task: PublishBuildArtifacts@1
-    displayName: Publish Packaged Output
+    displayName: Publish Unit Tests Packaged Output
     inputs:
       PathtoPublish: 'src\x64\Release\TEST-AppInstallerCLI-Packaged.xml'
       ArtifactName: 'TestPassPackagedOutput'
@@ -138,12 +137,24 @@ jobs:
     condition: succeededOrFailed()
   
   - task: PublishTestResults@2
-    displayName: Publish Test Results
+    displayName: Publish Unit Test Results
     inputs:
       testResultsFormat: 'JUnit'
       testResultsFiles: '**/TEST-*.xml'
       failTaskOnFailedTests: true
     condition: succeededOrFailed()
+
+  - task: VisualStudioTestPlatformInstaller@1
+    displayName: Prepare VSTest for E2E Tests
+    inputs:
+      packageFeedSelector: 'nugetOrg'
+
+  - task: VSTest@2
+    displayName: Run E2E Tests Unpackaged
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
+      overrideTestrunParameters: '-PackagedContext false -AICLIPath src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'
   
   - task: PublishBuildArtifacts@1
     displayName: Publish CLI Binary
@@ -157,13 +168,6 @@ jobs:
     inputs:
       PathtoPublish: 'src\x64\Release\AppInstallerSQLiteIndexUtil\AppInstallerSQLiteIndexUtil.dll'
       ArtifactName: 'AppInstallerSQLiteIndexUtil.dll'
-      publishLocation: 'Container'
-  
-  - task: PublishBuildArtifacts@1
-    displayName: Publish AppxBundle
-    inputs:
-      PathtoPublish: '$(appxPackageDir)AppInstallerCLIPackage_$(appxVersion)_Test\AppInstallerCLIPackage_$(appxVersion)_x86_x64_ARM.appxbundle'
-      ArtifactName: 'AppInstallerCLIPackage_$(appxVersion)_x86_x64_ARM.appxbundle'
       publishLocation: 'Container'
   
   - task: ComponentGovernanceComponentDetection@0
