@@ -1,13 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package 
-  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" 
-  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" 
-  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5" 
-  xmlns:uap8="http://schemas.microsoft.com/appx/manifest/uap/windows10/8" 
-  xmlns:wincap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/windowscapabilities" 
-  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities" 
-  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10" 
-  IgnorableNamespaces="uap uap5 uap8 wincap rescap desktop">
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap uap5 rescap">
   <Identity Name="AppInstallerCLI" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" Version="0.0.0.2" />
   <Properties>
     <DisplayName>App Installer CLI</DisplayName>
@@ -28,7 +25,7 @@
       <Extensions>
         <uap5:Extension Category="windows.appExecutionAlias">
           <uap5:AppExecutionAlias>
-            <uap8:ExecutionAlias Alias="AppInst.exe" />
+            <uap5:ExecutionAlias Alias="AppInst.exe" />
           </uap5:AppExecutionAlias>
         </uap5:Extension>
       </Extensions>

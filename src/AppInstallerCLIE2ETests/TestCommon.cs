@@ -110,6 +110,11 @@ namespace AppInstallerCLIE2ETests
                 result.ExitCode = p.ExitCode;
                 result.StdOut = p.StandardOutput.ReadToEnd();
                 result.StdErr = p.StandardError.ReadToEnd();
+
+                if (VerboseLogging)
+                {
+                    TestContext.Out.WriteLine($"Command run finished. {fileName} {args} {timeOut}. Output: {result.StdOut} Error: {result.StdErr}");
+                }
             }
             else
             {
