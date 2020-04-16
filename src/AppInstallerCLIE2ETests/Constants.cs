@@ -12,6 +12,7 @@ namespace AppInstallerCLIE2ETests
 
         public const string AppInstallerTestCert = "AppInstallerTest.cer";
         public const string AppInstallerTestCertThumbprint = "d03e7a688b388b1edde8476a627531c49db88017";
+
         // Todo: not needed if switch to use prod index
         public const string IndexPackageCert = "IndexPackageInt.cer";
         public const string IndexPackageCertThumbprint = "1da968e670a0257f61628aad20c60c64fdecd41a";
@@ -23,10 +24,6 @@ namespace AppInstallerCLIE2ETests
         // We should remove this when the deployment bug is fixed.
         public const string PlaceholderPackageFile = "PlaceholderPackage.msix";
         public const string PlaceholderPackageName = "AppInstallerSQLiteIndex-e2etest-placeholder";
-
-        // Todo: switch to use prod index when available
-        public const string TestSourceUrl = @"https://pkgmgr-int.azureedge.net/cache";
-        public const string TestSourceName = @"TestSource";
 
         public class ErrorCode
         {

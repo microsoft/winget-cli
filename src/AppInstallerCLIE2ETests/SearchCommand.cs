@@ -4,19 +4,26 @@
 namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
+    using System.Threading;
 
     public class SearchCommand
     {
+        // Todo: use created test source when available
+        private const string SearchTestSourceUrl = @"https://pkgmgr-int.azureedge.net/cache";
+        private const string SearchTestSourceName = @"SearchTestSource";
+
         [SetUp]
         public void Setup()
         {
-            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source", $"add {Constants.TestSourceName} {Constants.TestSourceUrl}").ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{SearchTestSourceName} {SearchTestSourceUrl}").ExitCode);
         }
 
         [TearDown]
         public void TearDown()
         {
-            TestCommon.RunAICLICommand("source", $"remove {Constants.TestSourceName}");
+            TestCommon.RunAICLICommand("source remove", SearchTestSourceName);
+
+            TestCommon.WaitForDeploymentFinish();
         }
 
         [Test]

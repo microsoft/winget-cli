@@ -7,6 +7,7 @@ namespace AppInstallerCLIE2ETests
     using System;
     using System.Diagnostics;
     using System.IO;
+    using System.Threading;
 
     public class TestCommon
     {
@@ -48,7 +49,16 @@ namespace AppInstallerCLIE2ETests
                 p.StartInfo.RedirectStandardInput = true;
             }
 
-            p.Start();
+            try
+            {
+                p.Start();
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                // App may be updating, give another try.
+                WaitForDeploymentFinish();
+                p.Start();
+            }
 
             if (!string.IsNullOrEmpty(stdIn))
             {
@@ -134,6 +144,17 @@ namespace AppInstallerCLIE2ETests
         public static bool RemoveMsix(string name)
         {
             return RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage");
+        }
+
+        public static void WaitForDeploymentFinish()
+        {
+            if (IsPackagedContext)
+            {
+                // Since we are doing a lot index add/remove, and some of the methods are fire and forget.
+                // Sometimes process start will fail because app is updating.
+                // Or index package is not completely added, removed.
+                Thread.Sleep(5000);
+            }
         }
     }
 }

@@ -7,23 +7,28 @@ namespace AppInstallerCLIE2ETests
 
     public class SourceCommand
     {
-        [SetUp]
+        // Todo: switch to use prod index when available
+        private const string SourceTestSourceUrl = @"https://pkgmgr-int.azureedge.net/cache";
+        private const string SourceTestSourceName = @"SourceTestSource";
+
         [TearDown]
-        public void Setup()
+        public void TearDown()
         {
-            TestCommon.RunAICLICommand("source", $"remove {Constants.TestSourceName}");
+            TestCommon.RunAICLICommand("source remove", SourceTestSourceName);
+
+            TestCommon.WaitForDeploymentFinish();
         }
 
         [Test]
         public void SourceCommands()
         {
             // Add test source should succeed
-            var result = TestCommon.RunAICLICommand("source", $"add {Constants.TestSourceName} {Constants.TestSourceUrl}");
+            var result = TestCommon.RunAICLICommand("source add", $"{SourceTestSourceName} {SourceTestSourceUrl}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
 
             // Add source with duplicate name should fail
-            result = TestCommon.RunAICLICommand("source", $"add {Constants.TestSourceName} https://microsoft.com");
+            result = TestCommon.RunAICLICommand("source add", $"{SourceTestSourceName} https://microsoft.com");
             Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_ALREADY_EXISTS, result.ExitCode);
             Assert.True(result.StdOut.Contains("A source with the given name already exists and refers to a different location"));
 
@@ -35,15 +40,15 @@ namespace AppInstallerCLIE2ETests
             // List when source exists
             result = TestCommon.RunAICLICommand("source", "list");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("TestSource -> https://pkgmgr-int.azureedge.net/cache"));
+            Assert.True(result.StdOut.Contains("https://pkgmgr-int.azureedge.net/cache"));
 
             // List when source name matches, it shows detailed info
-            result = TestCommon.RunAICLICommand("source", $"list -n {Constants.TestSourceName}");
+            result = TestCommon.RunAICLICommand("source", $"list -n {SourceTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Name   : TestSource"));
-            Assert.True(result.StdOut.Contains("Arg    : https://pkgmgr-int.azureedge.net/cache"));
-            Assert.True(result.StdOut.Contains("Data   : AppInstallerSQLiteIndex-int_2020.413.2430.751_neutral__g4ype1skzj3jy"));
-            Assert.True(result.StdOut.Contains("Updated: "));
+            Assert.True(result.StdOut.Contains("SourceTestSource"));
+            Assert.True(result.StdOut.Contains("https://pkgmgr-int.azureedge.net/cache"));
+            Assert.True(result.StdOut.Contains("AppInstallerSQLiteIndex-int"));
+            Assert.True(result.StdOut.Contains("Updated"));
 
             // List when source name does not match
             result = TestCommon.RunAICLICommand("source", "list -n UnknownName");
@@ -51,7 +56,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Did not find a source named: UnknownName"));
 
             // Update should succeed
-            result = TestCommon.RunAICLICommand("source", $"update -n {Constants.TestSourceName}");
+            result = TestCommon.RunAICLICommand("source", $"update -n {SourceTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
 
@@ -66,7 +71,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Did not find a source named: UnknownName"));
 
             // Remove with a good name should succeed
-            result = TestCommon.RunAICLICommand("source", $"remove -n {Constants.TestSourceName}");
+            result = TestCommon.RunAICLICommand("source", $"remove -n {SourceTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
 
