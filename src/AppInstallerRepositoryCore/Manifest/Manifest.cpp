@@ -25,6 +25,7 @@ namespace AppInstaller::Manifest
                 }
 
                 std::string splitVal = input.substr(currentPos, splitPos - currentPos);
+                Utility::Trim(splitVal);
                 if (!splitVal.empty())
                 {
                     result.emplace_back(std::move(splitVal));
