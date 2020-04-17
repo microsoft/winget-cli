@@ -6,6 +6,7 @@ namespace AppInstallerCLIE2ETests
     using Microsoft.Win32;
     using NUnit.Framework;
     using System;
+    using System.IO;
 
     [SetUpFixture]
     public class SetUpFixture
@@ -15,11 +16,17 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void Setup()
         {
-            TestCommon.IsPackagedContext = TestContext.Parameters.Exists(Constants.PackagedContextParameter) &&
+            TestCommon.PackagedContext = TestContext.Parameters.Exists(Constants.PackagedContextParameter) &&
                 TestContext.Parameters.Get(Constants.PackagedContextParameter).Equals("true", StringComparison.OrdinalIgnoreCase);
 
             TestCommon.VerboseLogging = TestContext.Parameters.Exists(Constants.VerboseLoggingParameter) &&
                 TestContext.Parameters.Get(Constants.VerboseLoggingParameter).Equals("true", StringComparison.OrdinalIgnoreCase);
+
+            TestCommon.LooseFileRegistration = TestContext.Parameters.Exists(Constants.LooseFileRegistrationParameter) &&
+                    TestContext.Parameters.Get(Constants.LooseFileRegistrationParameter).Equals("true", StringComparison.OrdinalIgnoreCase);
+
+            TestCommon.InvokeCommandInDesktopPackage = TestContext.Parameters.Exists(Constants.InvokeCommandInDesktopPackageParameter) &&
+                TestContext.Parameters.Get(Constants.InvokeCommandInDesktopPackageParameter).Equals("true", StringComparison.OrdinalIgnoreCase);
 
             if (TestContext.Parameters.Exists(Constants.AICLIPathParameter))
             {
@@ -27,7 +34,7 @@ namespace AppInstallerCLIE2ETests
             }
             else
             {
-                if (TestCommon.IsPackagedContext)
+                if (TestCommon.PackagedContext)
                 {
                     TestCommon.AICLIPath = "AppInst.exe";
                 }
@@ -43,7 +50,12 @@ namespace AppInstallerCLIE2ETests
             }
             else
             {
-                TestCommon.AICLIPackagePath = TestCommon.GetTestFile(Constants.AICLIPackageFile);
+                TestCommon.AICLIPackagePath = TestCommon.GetTestFile("AppInstallerCLIPackage.appxbundle");
+            }
+
+            if (TestCommon.LooseFileRegistration && TestCommon.InvokeCommandInDesktopPackage)
+            {
+                TestCommon.AICLIPath = Path.Combine(TestCommon.AICLIPackagePath, TestCommon.AICLIPath);
             }
 
             ShouldDisableDevModeOnExit = EnableDevMode(true);
@@ -51,9 +63,16 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)));
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.IndexPackageCert)));
 
-            if (TestCommon.IsPackagedContext)
+            if (TestCommon.PackagedContext)
             {
-                Assert.True(TestCommon.InstallMsix(TestCommon.AICLIPackagePath));
+                if (TestCommon.LooseFileRegistration)
+                {
+                    Assert.True(TestCommon.InstallMsixRegister(TestCommon.AICLIPackagePath));
+                }
+                else
+                {
+                    Assert.True(TestCommon.InstallMsix(TestCommon.AICLIPackagePath));
+                }
                 Assert.True(TestCommon.InstallMsix(TestCommon.GetTestDataFile(Constants.PlaceholderPackageFile)));
             }
         }
@@ -69,7 +88,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RunCommand("certutil.exe", $"-delstore \"TRUSTEDPEOPLE\" {Constants.AppInstallerTestCertThumbprint}");
             TestCommon.RunCommand("certutil.exe", $"-delstore \"TRUSTEDPEOPLE\" {Constants.IndexPackageCertThumbprint}");
 
-            if (TestCommon.IsPackagedContext)
+            if (TestCommon.PackagedContext)
             {
                 TestCommon.RemoveMsix(Constants.PlaceholderPackageName);
                 TestCommon.RemoveMsix(Constants.AICLIPackageName);

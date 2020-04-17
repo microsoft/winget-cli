@@ -75,6 +75,8 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
 
+            TestCommon.WaitForDeploymentFinish();
+
             // List should show no source
             result = TestCommon.RunAICLICommand("source", "list");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);

@@ -15,9 +15,13 @@ namespace AppInstallerCLIE2ETests
 
         public static string AICLIPackagePath { get; set; }
 
-        public static bool IsPackagedContext { get; set; }
+        public static bool PackagedContext { get; set; }
 
         public static bool VerboseLogging { get; set; }
+
+        public static bool LooseFileRegistration { get; set; }
+
+        public static bool InvokeCommandInDesktopPackage { get; set; }
 
         public struct RunCommandResult
         {
@@ -35,8 +39,20 @@ namespace AppInstallerCLIE2ETests
                     (string.IsNullOrEmpty(stdIn) ? "" : " StdIn: " + stdIn) +
                     " Timeout: " + timeOut;
 
-            TestContext.Out.WriteLine("Started command run. " + inputMsg);
+            TestContext.Out.WriteLine($"Starting command run. {inputMsg} InvokeCommandInDesktopPackage: {InvokeCommandInDesktopPackage}");
 
+            if (InvokeCommandInDesktopPackage)
+            {
+                return RunAICLICommandViaInvokeCommandInDesktopPackage(command, parameters, stdIn, timeOut);
+            }
+            else
+            {
+                return RunAICLICommandViaDirectProcess(command, parameters, stdIn, timeOut);
+            }
+        }
+
+        public static RunCommandResult RunAICLICommandViaDirectProcess(string command, string parameters, string stdIn = null, int timeOut = 60000)
+        {
             RunCommandResult result = new RunCommandResult();
             Process p = new Process();
             p.StartInfo = new ProcessStartInfo(AICLIPath, command + ' ' + parameters);
@@ -49,16 +65,7 @@ namespace AppInstallerCLIE2ETests
                 p.StartInfo.RedirectStandardInput = true;
             }
 
-            try
-            {
-                p.Start();
-            }
-            catch (System.ComponentModel.Win32Exception)
-            {
-                // App may be updating, give another try.
-                WaitForDeploymentFinish();
-                p.Start();
-            }
+            p.Start();
 
             if (!string.IsNullOrEmpty(stdIn))
             {
@@ -75,18 +82,60 @@ namespace AppInstallerCLIE2ETests
 
                 if (!string.IsNullOrEmpty(result.StdErr))
                 {
-                    TestContext.Error.WriteLine("Command run error. " + inputMsg + " Error: " + result.StdErr);
+                    TestContext.Error.WriteLine("Command run error. Error: " + result.StdErr);
                 }
 
                 if (VerboseLogging && !string.IsNullOrEmpty(result.StdOut))
                 {
-                    TestContext.Out.WriteLine("Command run output. " + inputMsg + " Output: " + result.StdOut);
+                    TestContext.Out.WriteLine("Command run output. Output: " + result.StdOut);
                 }
             }
             else
             {
-                throw new TimeoutException("Command run timed out. " + inputMsg);
+                throw new TimeoutException("Command run timed out.");
             }
+
+            return result;
+        }
+
+        public static RunCommandResult RunAICLICommandViaInvokeCommandInDesktopPackage(string command, string parameters, string stdIn = null, int timeOut = 60000)
+        {
+            string cmdCommandPiped = "";
+            if (!string.IsNullOrEmpty(stdIn))
+            {
+                cmdCommandPiped += $"echo {stdIn} | ";
+            }
+
+            string workDirectory = GetRandomTestDir();
+            string exitCodeFile = Path.Combine(workDirectory, "ExitCode.txt");
+            string stdOutFile = Path.Combine(workDirectory, "StdOut.txt");
+            string stdErrFile = Path.Combine(workDirectory, "StdErr.txt");
+
+            cmdCommandPiped += $"{AICLIPath} {command} {parameters} > {stdOutFile} 2> {stdErrFile} & call echo %^ERRORLEVEL% > {exitCodeFile}";
+
+            string psCommand = $"Invoke-CommandInDesktopPackage -PackageFamilyName {Constants.AICLIPackageFamilyName} -AppId {Constants.AICLIAppId} -PreventBreakaway -Command cmd.exe -Args '/c \"{cmdCommandPiped}\"'";
+
+            var psInvokeResult = RunCommandWithResult("powershell", psCommand);
+
+            if (psInvokeResult.ExitCode != 0)
+            {
+                // PS invocation failed, return result and no need to check piped output.
+                return psInvokeResult;
+            }
+
+            // The PS command just launches the app and immediately returns, we'll have to wait the timeOut specified here
+            int waitedTime = 0;
+            while (!File.Exists(exitCodeFile) && waitedTime <= timeOut)
+            {
+                Thread.Sleep(1000);
+                waitedTime += 1000;
+            }
+
+            RunCommandResult result = new RunCommandResult();
+
+            result.ExitCode = File.Exists(exitCodeFile) ? int.Parse(File.ReadAllText(exitCodeFile).Trim()) : unchecked((int)0x80004005);
+            result.StdOut = File.Exists(stdOutFile) ? File.ReadAllText(stdOutFile) : "";
+            result.StdErr = File.Exists(stdErrFile) ? File.ReadAllText(stdErrFile) : "";
 
             return result;
         }
@@ -136,7 +185,7 @@ namespace AppInstallerCLIE2ETests
 
         public static string GetRandomTestDir()
         {
-            string randDir = Path.Combine(TestContext.CurrentContext.TestDirectory, Path.GetRandomFileName());
+            string randDir = Path.Combine(TestContext.CurrentContext.TestDirectory, Path.Combine("WorkDirectory", Path.GetRandomFileName()));
             Directory.CreateDirectory(randDir);
             return randDir;
         }
@@ -146,6 +195,12 @@ namespace AppInstallerCLIE2ETests
             return RunCommand("powershell", $"Add-AppxPackage \"{file}\"");
         }
 
+        public static bool InstallMsixRegister(string packagePath)
+        {
+            string manifestFile = Path.Combine(packagePath, "AppxManifest.xml");
+            return RunCommand("powershell", $"Add-AppxPackage -Register \"{manifestFile}\"");
+        }
+
         public static bool RemoveMsix(string name)
         {
             return RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage");
@@ -153,7 +208,7 @@ namespace AppInstallerCLIE2ETests
 
         public static void WaitForDeploymentFinish()
         {
-            if (IsPackagedContext)
+            if (PackagedContext)
             {
                 // Since we are doing a lot index add/remove, and some of the methods are fire and forget.
                 // Sometimes process start will fail because app is updating.
