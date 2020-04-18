@@ -33,17 +33,17 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("A source with the given name already exists and refers to a different location"));
 
             // Add source with invalid url should fail
-            result = TestCommon.RunAICLICommand("source", "add AnotherSource https://microsoft.com");
+            result = TestCommon.RunAICLICommand("source add", "AnotherSource https://microsoft.com");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_RANGES_PROCESSED, result.ExitCode);
             Assert.True(result.StdOut.Contains("error occurred while executing the command"));
 
-            // List when source exists
-            result = TestCommon.RunAICLICommand("source", "list");
+            // List with no args should list all available sources
+            result = TestCommon.RunAICLICommand("source list", "");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("https://pkgmgr-int.azureedge.net/cache"));
 
             // List when source name matches, it shows detailed info
-            result = TestCommon.RunAICLICommand("source", $"list -n {SourceTestSourceName}");
+            result = TestCommon.RunAICLICommand("source list", $"-n {SourceTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("SourceTestSource"));
             Assert.True(result.StdOut.Contains("https://pkgmgr-int.azureedge.net/cache"));
@@ -51,34 +51,34 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Updated"));
 
             // List when source name does not match
-            result = TestCommon.RunAICLICommand("source", "list -n UnknownName");
+            result = TestCommon.RunAICLICommand("source list", "-n UnknownName");
             Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Did not find a source named: UnknownName"));
+            Assert.True(result.StdOut.Contains("Did not find a source named"));
 
             // Update should succeed
-            result = TestCommon.RunAICLICommand("source", $"update -n {SourceTestSourceName}");
+            result = TestCommon.RunAICLICommand("source update", $"-n {SourceTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
 
             // Update with bad name should fail
-            result = TestCommon.RunAICLICommand("source", "update -n UnknownName");
+            result = TestCommon.RunAICLICommand("source update", "-n UnknownName");
             Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
             Assert.True(result.StdOut.Contains("Did not find a source named: UnknownName"));
 
             // Remove with a bad name should fail
-            result = TestCommon.RunAICLICommand("source", "remove -n UnknownName");
+            result = TestCommon.RunAICLICommand("source remove", "-n UnknownName");
             Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
             Assert.True(result.StdOut.Contains("Did not find a source named: UnknownName"));
 
             // Remove with a good name should succeed
-            result = TestCommon.RunAICLICommand("source", $"remove -n {SourceTestSourceName}");
+            result = TestCommon.RunAICLICommand("source remove", $"-n {SourceTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
 
             TestCommon.WaitForDeploymentFinish();
 
-            // List should show no source
-            result = TestCommon.RunAICLICommand("source", "list");
+            // List should show no source available
+            result = TestCommon.RunAICLICommand("source list", "");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("<none>"));
         }

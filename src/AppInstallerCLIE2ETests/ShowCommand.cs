@@ -21,7 +21,7 @@ namespace AppInstallerCLIE2ETests
         [TearDown]
         public void TearDown()
         {
-            TestCommon.RunAICLICommand("source", $"remove {ShowTestSourceName}");
+            TestCommon.RunAICLICommand("source remove", ShowTestSourceName);
 
             TestCommon.WaitForDeploymentFinish();
         }

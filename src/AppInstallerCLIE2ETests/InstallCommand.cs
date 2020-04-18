@@ -19,13 +19,13 @@ namespace AppInstallerCLIE2ETests
         /*[SetUp]
         public void Setup()
         {
-            Assert.AreEqual(TestCommon.RunAICLICommand("source", $"add {InstallTestSourceName} {InstallTestSourceUrl}").ExitCode, 0);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{InstallTestSourceName} {InstallTestSourceUrl}").ExitCode);
         }
 
         [TearDown]
         public void TearDown()
         {
-            TestCommon.RunAICLICommand("source", $"remove {InstallTestSourceName}");
+            TestCommon.RunAICLICommand("source remove", InstallTestSourceName);
             TestCommon.WaitForDeploymentFinish();
         }
 
