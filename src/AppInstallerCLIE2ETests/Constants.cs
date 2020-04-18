@@ -5,6 +5,7 @@ namespace AppInstallerCLIE2ETests
 {
     public class Constants
     {
+        // Runtime test parameters
         public const string PackagedContextParameter = "PackagedContext";
         public const string AICLIPathParameter = "AICLIPath";
         public const string AICLIPackagePathParameter = "AICLIPackagePath";
@@ -15,7 +16,7 @@ namespace AppInstallerCLIE2ETests
         public const string AppInstallerTestCert = "AppInstallerTest.cer";
         public const string AppInstallerTestCertThumbprint = "d03e7a688b388b1edde8476a627531c49db88017";
 
-        // Todo: not needed if switch to use prod index
+        // Todo: not needed if switch to use prod index for source tests
         public const string IndexPackageCert = "IndexPackageInt.cer";
         public const string IndexPackageCertThumbprint = "1da968e670a0257f61628aad20c60c64fdecd41a";
 
@@ -34,6 +35,7 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_FILE_NOT_FOUND = unchecked((int)0x80070002);
             public const int ERROR_NO_RANGES_PROCESSED = unchecked((int)0x80070138);
             public const int OPC_E_ZIP_MISSING_END_OF_CENTRAL_DIRECTORY = unchecked((int)0x8051100f);
+            public const int ERROR_OLD_WIN_VERSION = unchecked((int)0x8007047e);
 
             // AICLI custom HResults
             public const int ERROR_INTERNAL_ERROR = unchecked((int)0x8A150001);

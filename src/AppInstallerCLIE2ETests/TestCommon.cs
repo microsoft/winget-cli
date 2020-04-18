@@ -98,6 +98,14 @@ namespace AppInstallerCLIE2ETests
             return result;
         }
 
+        // This method is used when the test is run in an OS that does not support AppExecutionAlias. E,g, our build machine.
+        // There is not any existing API that'll activate a packaged app and wait for result, and not possible to capture the stdIn and stdOut.
+        // This method tries to call Invoke-CommandInDesktopPackage PS command to make test executable run in packaged context.
+        // Since Invoke-CommandInDesktopPackage just launches the executable and return, we use cmd pipe to get execution results.
+        // The final constructed command will look like:
+        //   Invoke-CommandInDesktopPackage ...... -Command cmd.exe -Args '-c <cmd command>'
+        //   where <cmd command> will look like: "echo stdIn | appinst.exe args > stdout.txt 2> stderr.txt & echo %ERRORLEVEL% > exitcode.txt"
+        // Then this method will read the piped result and return as RunCommandResult.
         public static RunCommandResult RunAICLICommandViaInvokeCommandInDesktopPackage(string command, string parameters, string stdIn = null, int timeOut = 60000)
         {
             string cmdCommandPiped = "";

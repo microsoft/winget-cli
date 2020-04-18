@@ -8,7 +8,7 @@ namespace AppInstallerCLIE2ETests
     public class SourceCommand
     {
         // Todo: switch to use prod index when available
-        private const string SourceTestSourceUrl = @"https://pkgmgr-int.azureedge.net/cache";
+        private const string SourceTestSourceUrl = @"https://winget-int.azureedge.net/cache";
         private const string SourceTestSourceName = @"SourceTestSource";
 
         [TearDown]
@@ -40,13 +40,13 @@ namespace AppInstallerCLIE2ETests
             // List with no args should list all available sources
             result = TestCommon.RunAICLICommand("source list", "");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("https://pkgmgr-int.azureedge.net/cache"));
+            Assert.True(result.StdOut.Contains("https://winget-int.azureedge.net/cache"));
 
             // List when source name matches, it shows detailed info
             result = TestCommon.RunAICLICommand("source list", $"-n {SourceTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("SourceTestSource"));
-            Assert.True(result.StdOut.Contains("https://pkgmgr-int.azureedge.net/cache"));
+            Assert.True(result.StdOut.Contains("https://winget-int.azureedge.net/cache"));
             Assert.True(result.StdOut.Contains("AppInstallerSQLiteIndex-int"));
             Assert.True(result.StdOut.Contains("Updated"));
 

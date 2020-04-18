@@ -16,6 +16,7 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void Setup()
         {
+            // Read TestParameters and set runtime variables
             TestCommon.PackagedContext = TestContext.Parameters.Exists(Constants.PackagedContextParameter) &&
                 TestContext.Parameters.Get(Constants.PackagedContextParameter).Equals("true", StringComparison.OrdinalIgnoreCase);
 
@@ -36,6 +37,7 @@ namespace AppInstallerCLIE2ETests
             {
                 if (TestCommon.PackagedContext)
                 {
+                    // For packaged context, default to AppExecutionAlias
                     TestCommon.AICLIPath = "AppInst.exe";
                 }
                 else

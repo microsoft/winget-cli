@@ -9,7 +9,7 @@ namespace AppInstallerCLIE2ETests
     public class ShowCommand
     {
         // Todo: use created test source when available
-        private const string ShowTestSourceUrl = @"https://pkgmgr-int.azureedge.net/cache";
+        private const string ShowTestSourceUrl = @"https://winget-int.azureedge.net/cache";
         private const string ShowTestSourceName = @"ShowTestSource";
 
         [SetUp]
