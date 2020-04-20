@@ -134,10 +134,17 @@ jobs:
       publishLocation: 'Container'
 
   - task: PublishBuildArtifacts@1
-    displayName: Publish SQLite Util Binary
+    displayName: Publish Util Binary
     inputs:
-      PathtoPublish: 'src\x64\Release\AppInstallerSQLiteIndexUtil\AppInstallerSQLiteIndexUtil.dll'
-      ArtifactName: 'AppInstallerSQLiteIndexUtil.dll'
+      PathtoPublish: 'src\x64\Release\WinGetUtil\WinGetUtil.dll'
+      ArtifactName: 'WinGetUtil.dll'
+      publishLocation: 'Container'
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Util Symbols
+    inputs:
+      PathtoPublish: 'src\x64\Release\WinGetUtil\WinGetUtil.pdb'
+      ArtifactName: 'WinGetUtil.pdb'
       publishLocation: 'Container'
 
   - task: ComponentGovernanceComponentDetection@0
