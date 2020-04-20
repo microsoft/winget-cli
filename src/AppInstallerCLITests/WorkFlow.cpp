@@ -461,10 +461,10 @@ TEST_CASE("InstallFlow_SearchAndShowAppInfo", "[ShowFlow]")
     INFO(showOutput.str());
 
     // Verify AppInfo is printed
-    REQUIRE(showOutput.str().find("Id: AppInstallerCliTest.TestInstaller") != std::string::npos);
-    REQUIRE(showOutput.str().find("Name: AppInstaller Test Installer") != std::string::npos);
-    REQUIRE(showOutput.str().find("Version: 1.0.0.0") != std::string::npos);
-    REQUIRE(showOutput.str().find("  Download Url: https://ThisIsNotUsed") != std::string::npos);
+    REQUIRE(showOutput.str().find("AppInstallerCliTest.TestInstaller") != std::string::npos);
+    REQUIRE(showOutput.str().find("AppInstaller Test Installer") != std::string::npos);
+    REQUIRE(showOutput.str().find("1.0.0.0") != std::string::npos);
+    REQUIRE(showOutput.str().find("https://ThisIsNotUsed") != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_SearchAndShowAppVersion", "[ShowFlow]")

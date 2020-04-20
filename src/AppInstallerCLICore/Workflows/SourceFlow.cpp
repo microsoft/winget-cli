@@ -3,6 +3,7 @@
 #pragma once
 #include "pch.h"
 #include "SourceFlow.h"
+#include "TableOutput.h"
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -121,18 +122,19 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            context.Reporter.Info() << "Current sources:" << std::endl;
 
             if (sources.empty())
             {
-                context.Reporter.Info() << "  <none>" << std::endl;
+                context.Reporter.Info() << "There are no sources configured." << std::endl;
             }
             else
             {
+                Execution::TableOutput<2> table(context.Reporter, { "Name", "Arg" });
                 for (const auto& source : sources)
                 {
-                    context.Reporter.Info() << "  " << source.Name << " -> " << source.Arg << std::endl;
+                    table.OutputLine({ source.Name, source.Arg });
                 }
+                table.Complete();
             }
         }
     }
