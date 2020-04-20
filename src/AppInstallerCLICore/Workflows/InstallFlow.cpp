@@ -36,6 +36,13 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void ShowInstallationDisclaimer(Execution::Context& context)
+    {
+        context.Reporter.Info() << 
+            "This application is licensed to you by its owner." << std::endl <<
+            "Microsoft is not responsible for, nor does it grant any licenses to, third-party packages." << std::endl;
+    }
+
     void DownloadInstaller(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>().value();
@@ -75,6 +82,8 @@ namespace AppInstaller::CLI::Workflow
         tempInstallerPath /= manifest.Id + '.' + manifest.Version;
 
         AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
+
+        context.Reporter.Info() << "Downloading " << Execution::UrlEmphasis << installer.Url << std::endl;
 
         auto hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
             installer.Url,
@@ -141,14 +150,14 @@ namespace AppInstaller::CLI::Workflow
 
             if (!context.Reporter.PromptForBoolResponse("Installer hash verification failed. Continue?", Execution::Reporter::Level::Warning))
             {
-                context.Reporter.Error() << "Canceled. Installer hash mismatch." << std::endl;
+                context.Reporter.Error() << "Canceled; Installer hash mismatch" << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
             }
         }
         else
         {
             AICLI_LOG(CLI, Info, << "Installer hash verified");
-            context.Reporter.Info() << "Successfully verified installer hash." << std::endl;
+            context.Reporter.Info() << "Successfully verified installer hash" << std::endl;
         }
     }
 

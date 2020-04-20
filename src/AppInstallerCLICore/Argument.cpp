@@ -19,7 +19,7 @@ namespace AppInstaller::CLI
         case Args::Type::Query:
             return Argument{ "query", 'q', Args::Type::Query, LOCME("The query used to search for an app"), ArgumentType::Positional };
         case Args::Type::Manifest:
-            return Argument{ "manifest", 'm', Args::Type::Manifest, LOCME("The path to the manifest of the application to install"), ArgumentType::Standard, Visibility::Help };
+            return Argument{ "manifest", 'm', Args::Type::Manifest, LOCME("The path to the manifest of the application"), ArgumentType::Standard, Visibility::Help };
         case Args::Type::Id:
             return Argument{ "id", None, Args::Type::Id, LOCME("Filter results by id"), ArgumentType::Standard, Visibility::Help };
         case Args::Type::Name:

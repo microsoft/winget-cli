@@ -119,7 +119,11 @@ namespace AppInstaller::CLI::VirtualTerminal
         namespace Foreground
         {
             const Sequence BrightRed = AICLI_VT_TEXTFORMAT(91);
+            const Sequence BrightGreen = AICLI_VT_TEXTFORMAT(92);
             const Sequence BrightYellow = AICLI_VT_TEXTFORMAT(93);
+            const Sequence BrightBlue = AICLI_VT_TEXTFORMAT(94);
+            const Sequence BrightMagenta = AICLI_VT_TEXTFORMAT(95);
+            const Sequence BrightCyan = AICLI_VT_TEXTFORMAT(96);
             const Sequence BrightWhite = AICLI_VT_TEXTFORMAT(97);
 
             ConstructedSequence Extended(const Color& color)
