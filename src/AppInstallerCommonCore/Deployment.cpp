@@ -57,20 +57,23 @@ namespace AppInstaller::Deployment
 
             ~DelayRegisterStorage()
             {
-                PackageManager packageManager;
-
-                for (const auto& fn : m_familyNames)
+                if (!m_familyNames.empty())
                 {
-                    size_t id = GetDeploymentOperationId();
-                    AICLI_LOG(Core, Info, << "Starting RegisterPackageByFamilyName operation #" << id << ": " << fn);
+                    PackageManager packageManager;
 
-                    winrt::hstring familyName = Utility::ConvertToUTF16(fn).c_str();
-                    (void)packageManager.RegisterPackageByFamilyNameAsync(
-                        familyName,
-                        nullptr,
-                        winrt::Windows::Management::Deployment::DeploymentOptions::None,
-                        nullptr,
-                        nullptr);
+                    for (const auto& fn : m_familyNames)
+                    {
+                        size_t id = GetDeploymentOperationId();
+                        AICLI_LOG(Core, Info, << "Starting RegisterPackageByFamilyName operation #" << id << ": " << fn);
+
+                        winrt::hstring familyName = Utility::ConvertToUTF16(fn).c_str();
+                        (void)packageManager.RegisterPackageByFamilyNameAsync(
+                            familyName,
+                            nullptr,
+                            winrt::Windows::Management::Deployment::DeploymentOptions::None,
+                            nullptr,
+                            nullptr);
+                    }
                 }
             }
 
