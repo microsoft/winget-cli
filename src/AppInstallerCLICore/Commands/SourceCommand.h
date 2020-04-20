@@ -69,4 +69,17 @@ namespace AppInstaller::CLI
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const override;
     };
+
+    struct SourceResetCommand final : public Command
+    {
+        SourceResetCommand(std::string_view parent) : Command("reset", parent) {}
+
+        virtual std::vector<Argument> GetArguments() const override;
+
+        virtual std::string ShortDescription() const override;
+        virtual std::string GetLongDescription() const override;
+
+    protected:
+        virtual void ExecuteInternal(Execution::Context& context) const override;
+    };
 }

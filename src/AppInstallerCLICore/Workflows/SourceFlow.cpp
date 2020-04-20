@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "SourceFlow.h"
 #include "TableOutput.h"
+#include "WorkflowBase.h"
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -169,5 +170,51 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.ExecuteWithProgress(std::bind(Repository::RemoveSource, sd.Name, std::placeholders::_1));
             context.Reporter.Info() << "Done." << std::endl;
         }
+    }
+
+    void QueryUserForSourceReset(Execution::Context& context)
+    {
+        if (!context.Args.Contains(Execution::Args::Type::Force))
+        {
+            context << GetSourceListWithFilter;
+            const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
+
+            if (!sources.empty())
+            {
+                context.Reporter.Info() << "The following sources will be reset:" << std::endl;
+
+                context << ListSources;
+
+                if (!context.Reporter.PromptForBoolResponse("Do you wish to continue?"))
+                {
+                    AICLI_TERMINATE_CONTEXT(E_ABORT);
+                }
+            }
+        }
+    }
+
+    void ResetSourceList(Execution::Context& context)
+    {
+        const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
+
+        for (const auto& source : sources)
+        {
+            context.Reporter.Info() << "Reseting source: " << source.Name << " ...";
+            Repository::DropSource(source.Name);
+            context.Reporter.Info() << " Done." << std::endl;
+        }
+    }
+
+    void ResetAllSources(Execution::Context& context)
+    {
+        context.Reporter.Info() << "Reseting all sources ...";
+        Repository::DropSource({});
+        context.Reporter.Info() << " Done." << std::endl;
+    }
+
+    void AddDefaultSources(Execution::Context& context)
+    {
+        context.Reporter.Info() << "Adding default sources ..." << std::endl;
+        context.Reporter.ExecuteWithProgress(Repository::AddDefaultSources);
     }
 }

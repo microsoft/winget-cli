@@ -54,6 +54,9 @@ namespace AppInstaller::Repository
     // Adds a new source for the user.
     void AddSource(std::string name, std::string type, std::string arg, IProgressCallback& progress);
 
+    // Adds the default sources.
+    void AddDefaultSources(IProgressCallback& progress);
+
     // Opens an existing source.
     // Passing an empty string as the name of the source will return a source that aggregates all others.
     std::shared_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress);
@@ -65,4 +68,9 @@ namespace AppInstaller::Repository
     // Removes an existing source.
     // Return value indicates whether the named source was found.
     bool RemoveSource(std::string_view name, IProgressCallback& progress);
+
+    // Drops an existing source, with no attempt to clean up its data.
+    // Return value indicates whether the named source was found.
+    // Passing an empty string drops all sources.
+    bool DropSource(std::string_view name);
 }
