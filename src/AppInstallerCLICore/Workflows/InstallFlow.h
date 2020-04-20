@@ -23,7 +23,7 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void EnsureApplicableInstaller(Execution::Context& context);
 
-    // Ensures that there is an applicable installer.
+    // Shows the installation disclaimer.
     // Required Args: None
     // Inputs: None
     // Outputs: None
