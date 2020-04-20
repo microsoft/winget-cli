@@ -53,6 +53,7 @@ namespace AppInstaller::CLI
             Workflow::EnsureMinOSVersion <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
+            Workflow::ShowInstallationDisclaimer <<
             Workflow::DownloadInstaller <<
             Workflow::VerifyInstallerHash <<
             Workflow::ExecuteInstaller;
