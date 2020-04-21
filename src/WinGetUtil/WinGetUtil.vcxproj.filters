@@ -18,7 +18,7 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AppInstallerSQLiteIndexUtil.h">
+    <ClInclude Include="WinGetUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

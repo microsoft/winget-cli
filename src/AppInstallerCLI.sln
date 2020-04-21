@@ -27,7 +27,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YamlCppLib", "YamlCppLib\Ya
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppInstallerCommonCore", "AppInstallerCommonCore\AppInstallerCommonCore.vcxproj", "{5890D6ED-7C3B-40F3-B436-B54F640D9E65}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppInstallerSQLiteIndexUtil", "AppInstallerSQLiteIndexUtil\AppInstallerSQLiteIndexUtil.vcxproj", "{FB313532-38B0-4676-9303-AB200AA13576}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinGetUtil", "WinGetUtil\WinGetUtil.vcxproj", "{FB313532-38B0-4676-9303-AB200AA13576}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppInstallerTestExeInstaller", "AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.vcxproj", "{6CB84692-5994-407D-B9BD-9216AF77FE83}"
 EndProject

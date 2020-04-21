@@ -8,7 +8,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{FB313532-38B0-4676-9303-AB200AA13576}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>AppInstallerSQLiteIndexUtil</RootNamespace>
+    <RootNamespace>WinGetUtil</RootNamespace>
     <WindowsTargetPlatformVersion Condition=" '$(WindowsTargetPlatformVersion)' == '' ">10.0.18362.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.16299.0</WindowsTargetPlatformMinVersion>
     <WindowsSDKDesktopARMSupport>true</WindowsSDKDesktopARMSupport>
@@ -214,7 +214,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AppInstallerSQLiteIndexUtil.h" />
+    <ClInclude Include="WinGetUtil.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
