@@ -57,7 +57,7 @@ namespace AppInstallerCLIE2ETests
             // Show with --versions list the versions
             result = TestCommon.RunAICLICommand("show", "VisualStudioCode --versions");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode, Visual Studio Code"));
+            Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
             Assert.True(result.StdOut.Contains("1.41.1"));
         }
     }
