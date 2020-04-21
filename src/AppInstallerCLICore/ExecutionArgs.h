@@ -51,6 +51,7 @@ namespace AppInstaller::CLI::Execution
             ValidateManifest,
 
             // Other
+            Force,      // Generic flag to enable a command to skip some check
             ListVersions, // Used in Show command to list all available versions of an app
             NoVT, // Disable VirtualTerminal outputs
             PlainStyle, // Makes progress display as plain

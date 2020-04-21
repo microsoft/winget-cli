@@ -17,6 +17,7 @@ namespace AppInstaller::CLI
             std::make_unique<SourceListCommand>(FullName()),
             std::make_unique<SourceUpdateCommand>(FullName()),
             std::make_unique<SourceRemoveCommand>(FullName()),
+            std::make_unique<SourceResetCommand>(FullName()),
             });
     }
 
@@ -132,5 +133,40 @@ namespace AppInstaller::CLI
         context <<
             Workflow::GetSourceListWithFilter <<
             Workflow::RemoveSources;
+    }
+
+    std::vector<Argument> SourceResetCommand::GetArguments() const
+    {
+        return {
+            Argument::ForType(Args::Type::SourceName),
+            Argument::ForType(Args::Type::Force),
+        };
+    }
+
+    std::string SourceResetCommand::ShortDescription() const
+    {
+        return LOCME("Reset sources");
+    }
+
+    std::string SourceResetCommand::GetLongDescription() const
+    {
+        return LOCME("This command drops existing sources, potentially leaving any local data behind. Without any argument, it will drop all sources and add the defaults. If a named source is provided, only that source will be dropped.");
+    }
+
+    void SourceResetCommand::ExecuteInternal(Context& context) const
+    {
+        if (context.Args.Contains(Args::Type::SourceName))
+        {
+            context <<
+                Workflow::GetSourceListWithFilter <<
+                Workflow::ResetSourceList;
+        }
+        else
+        {
+            context <<
+                Workflow::QueryUserForSourceReset <<
+                Workflow::ResetAllSources <<
+                Workflow::AddDefaultSources;
+        }
     }
 }

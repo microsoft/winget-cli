@@ -36,3 +36,17 @@ TEST_CASE("NormalizedString", "[strings]")
     std::string_view input2 = u8"\xFB01";
     REQUIRE(NormalizedString(input2) == u8"fi");
 }
+
+TEST_CASE("Trim", "[strings]")
+{
+    std::string str;
+    REQUIRE(Trim(str.assign("")) == "");
+    REQUIRE(Trim(str.assign(" ")) == "");
+    REQUIRE(Trim(str.assign(" \t ")) == "");
+    REQUIRE(Trim(str.assign(" a")) == "a");
+    REQUIRE(Trim(str.assign("bght ")) == "bght");
+    REQUIRE(Trim(str.assign("\tStuff\f")) == "Stuff");
+    REQUIRE(Trim(str.assign("Multiple words")) == "Multiple words");
+    REQUIRE(Trim(str.assign("         Multiple words")) == "Multiple words");
+    REQUIRE(Trim(str.assign("Much after is taken \f\n\r\t\v\v\t\r\n\f ")) == "Much after is taken");
+}

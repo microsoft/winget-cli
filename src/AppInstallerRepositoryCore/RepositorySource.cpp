@@ -102,14 +102,14 @@ namespace AppInstaller::Repository
             return true;
         }
 
-        // Gets the source details from a particular setting.
-        std::vector<SourceDetails> GetSourcesFromSetting(std::string_view settingName)
+        // Gets the source details from a particular setting, or an empty optional if no setting exists.
+        std::optional<std::vector<SourceDetails>> TryGetSourcesFromSetting(std::string_view settingName)
         {
             auto sourcesStream = Runtime::GetSettingStream(settingName);
             if (!sourcesStream)
             {
-                // TODO: Handle first run scenario and configure default source(s).
-                //       Note that this case is different than the one in which all sources have been removed.
+                // Handle first run scenario and configure default source(s).
+                // Note that this case is different than the one in which all sources have been removed.
                 return {};
             }
             else
@@ -117,6 +117,22 @@ namespace AppInstaller::Repository
                 std::vector<SourceDetails> result;
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCES_INVALID, !TryReadSourceDetails(settingName, *sourcesStream, result));
                 return result;
+            }
+        }
+
+        // Gets the source details from a particular setting.
+        std::vector<SourceDetails> GetSourcesFromSetting(std::string_view settingName)
+        {
+            return TryGetSourcesFromSetting(settingName).value_or(std::vector<SourceDetails>{});
+        }
+
+        // If there is no setting value at all, adds the default sources.
+        void AddDefaultSourcesIfNeeded(IProgressCallback& progress)
+        {
+            auto sourcesStream = Runtime::GetSettingStream(s_RepositorySettings_UserSources);
+            if (!sourcesStream)
+            {
+                AddDefaultSources(progress);
             }
         }
 
@@ -299,8 +315,16 @@ namespace AppInstaller::Repository
         SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
     }
 
+    void AddDefaultSources(IProgressCallback& progress)
+    {
+        UNREFERENCED_PARAMETER(progress);
+        // TODO: Create list of default sources
+    }
+
     std::shared_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress)
     {
+        AddDefaultSourcesIfNeeded(progress);
+
         std::vector<SourceDetails> currentSources = GetSources();
 
         if (name.empty())
@@ -382,6 +406,35 @@ namespace AppInstaller::Repository
             SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
 
             return true;
+        }
+    }
+
+    bool DropSource(std::string_view name)
+    {
+        if (name.empty())
+        {
+            Runtime::RemoveSetting(s_RepositorySettings_UserSources);
+            return true;
+        }
+        else
+        {
+            std::vector<SourceDetails> currentSources = GetSourcesFromSetting(s_RepositorySettings_UserSources);
+            auto itr = FindSourceByName(currentSources, name);
+
+            if (itr == currentSources.end())
+            {
+                AICLI_LOG(Repo, Info, << "Named source to be dropped, but not found: " << name);
+                return false;
+            }
+            else
+            {
+                AICLI_LOG(Repo, Info, << "Named source to be dropped, found: " << itr->Name);
+
+                currentSources.erase(itr);
+                SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
+
+                return true;
+            }
         }
     }
 
