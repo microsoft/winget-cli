@@ -192,6 +192,7 @@
     <ClInclude Include="Public\AppInstallerLogging.h" />
     <ClInclude Include="Public\AppInstallerArchitecture.h" />
     <ClInclude Include="Public\AppInstallerVersions.h" />
+    <ClInclude Include="Public\winget\ExtensionCatalog.h" />
     <ClInclude Include="Telemetry\MicrosoftTelemetry.h" />
     <ClInclude Include="Telemetry\TraceLogging.h" />
     <ClInclude Include="Telemetry\WinEventLogLevels.h" />
@@ -203,6 +204,7 @@
     <ClCompile Include="Deployment.cpp" />
     <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="Errors.cpp" />
+    <ClCompile Include="ExtensionCatalog.cpp" />
     <ClCompile Include="FileLogger.cpp" />
     <ClCompile Include="HttpStream\HttpClientWrapper.cpp" />
     <ClCompile Include="HttpStream\HttpLocalCache.cpp" />
