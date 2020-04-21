@@ -255,5 +255,8 @@
     <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_NoSwitches.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-Spaces.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

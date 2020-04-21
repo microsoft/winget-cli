@@ -86,6 +86,9 @@ namespace AppInstaller::Utility
     // Returns a value indicating whether a replacement occurred.
     bool FindAndReplace(std::string& inputStr, std::string_view token, std::string_view value);
 
+    // Removes whitespace from the beginning and end of the string.
+    std::string& Trim(std::string& str);
+
     // Reads the entire stream into a string.
     std::string ReadEntireStream(std::istream& stream);
 }
