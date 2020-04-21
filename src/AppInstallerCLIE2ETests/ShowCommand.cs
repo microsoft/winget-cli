@@ -51,8 +51,8 @@ namespace AppInstallerCLIE2ETests
             // Show with 1 search match shows detailed manifest info
             result = TestCommon.RunAICLICommand("show", "VisualStudioCode");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Id: Microsoft.VisualStudioCode"));
-            Assert.True(result.StdOut.Contains("Name: Visual Studio Code"));
+            Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
+            Assert.True(result.StdOut.Contains("Visual Studio Code"));
 
             // Show with --versions list the versions
             result = TestCommon.RunAICLICommand("show", "VisualStudioCode --versions");
