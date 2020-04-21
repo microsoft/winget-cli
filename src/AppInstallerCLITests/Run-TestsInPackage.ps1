@@ -131,9 +131,6 @@ Write-Host "Executing tests at path: $Local:TestExePath"
 Write-Host "Executing tests with args: $Local:TestArgs"
 Invoke-CommandInDesktopPackage -PackageFamilyName AppInstallerCLI_8wekyb3d8bbwe -AppId AppInst -Command $Local:TestExePath -Args $Local:TestArgs
 
-Write-Host "Remove registered package"
-Get-AppxPackage AppInstallerCLI | Remove-AppxPackage
-
 if ($ScriptWait)
 {
     Write-Host "Waiting for output files to be closed..."
@@ -148,4 +145,7 @@ if ($ScriptWait)
         Wait-ForFileClose $TestResultsTarget
     }
     Write-Host "Done"
+
+    Write-Host "Remove registered package"
+    Get-AppxPackage AppInstallerCLI | Remove-AppxPackage
 }
