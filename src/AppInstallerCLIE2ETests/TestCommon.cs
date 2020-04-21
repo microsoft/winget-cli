@@ -131,7 +131,7 @@ namespace AppInstallerCLIE2ETests
                 return psInvokeResult;
             }
 
-            // The PS command just launches the app and immediately returns, we'll have to wait the timeOut specified here
+            // The PS command just launches the app and immediately returns, we'll have to wait for up to the timeOut specified here
             int waitedTime = 0;
             while (!File.Exists(exitCodeFile) && waitedTime <= timeOut)
             {
