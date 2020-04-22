@@ -49,41 +49,6 @@ namespace AppInstaller::Deployment
                 AICLI_LOG(Core, Info, << "Successfully deployed #" << id);
             }
         }
-
-        // Type that exists simply to enabled a fire and forget register call as we exit.
-        struct DelayRegisterStorage
-        {
-            DelayRegisterStorage() = default;
-
-            ~DelayRegisterStorage()
-            {
-                PackageManager packageManager;
-
-                for (const auto& fn : m_familyNames)
-                {
-                    size_t id = GetDeploymentOperationId();
-                    AICLI_LOG(Core, Info, << "Starting RegisterPackageByFamilyName operation #" << id << ": " << fn);
-
-                    winrt::hstring familyName = Utility::ConvertToUTF16(fn).c_str();
-                    (void)packageManager.RegisterPackageByFamilyNameAsync(
-                        familyName,
-                        nullptr,
-                        winrt::Windows::Management::Deployment::DeploymentOptions::None,
-                        nullptr,
-                        nullptr);
-                }
-            }
-
-            void Add(std::string_view familyName)
-            {
-                m_familyNames.emplace_back(familyName);
-            }
-
-        private:
-            std::vector<std::string> m_familyNames;
-        };
-
-        DelayRegisterStorage s_delayRegisterStorage;
     }
 
     void RequestAddPackageAsync(
@@ -106,32 +71,6 @@ namespace AppInstaller::Deployment
             nullptr /*relatedPackageUris*/);
 
         WaitForDeployment(deployOperation, id, callback);
-    }
-
-    void StageAndDelayRegisterPackageAsync(
-        std::string_view packageFamilyName,
-        const winrt::Windows::Foundation::Uri& uri,
-        winrt::Windows::Management::Deployment::DeploymentOptions stageOptions,
-        winrt::Windows::Management::Deployment::DeploymentOptions,
-        IProgressCallback& callback)
-    {
-        size_t id = GetDeploymentOperationId();
-        AICLI_LOG(Core, Info, << "Starting StagePackage operation #" << id << ": " << Utility::ConvertToUTF8(uri.AbsoluteUri().c_str()));
-
-        PackageManager packageManager;
-
-        // RequestAddPackageAsync will invoke smart screen.
-        auto deployOperation = packageManager.StagePackageAsync(
-            uri,
-            nullptr, /*dependencyPackageUris*/
-            stageOptions,
-            nullptr, /*targetVolume*/
-            nullptr, /*optionalAndRelatedPackageFamilyNames*/
-            nullptr /*relatedPackageUris*/);
-
-        WaitForDeployment(deployOperation, id, callback);
-
-        s_delayRegisterStorage.Add(packageFamilyName);
     }
 
     void RemovePackageFireAndForget(std::string_view packageFullName)
