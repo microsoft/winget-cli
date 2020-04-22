@@ -43,7 +43,7 @@ namespace AppInstaller::Utility
     {
         static_assert(std::is_same_v<int64_t, decltype(time(nullptr))>, "time returns a 64-bit integer");
         time_t now = time(nullptr);
-       return static_cast<int64_t>(now);
+        return static_cast<int64_t>(now);
     }
 
     int64_t ConvertSystemClockToUnixEpoch(const std::chrono::system_clock::time_point& time)

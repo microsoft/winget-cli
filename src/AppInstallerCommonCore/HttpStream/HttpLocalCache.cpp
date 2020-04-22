@@ -154,7 +154,7 @@ namespace AppInstaller::Utility::HttpStream
         // To make things easy, we will download the contiguous range that includes all the unsatisfiable ranges.
         // Note that in theory, this may include cached pages. However, this situation is rarely expected to happen,
         // if at all. The package reader usually reads things in chunks of 64 KB or less, so, we should expect to 
-        // always have up to two statisfiable and unsatisfiable pages in total.
+        // always have up to two satisfiable and unsatisfiable pages in total.
         UINT64 fileSize = httpClientWrapper->GetFullFileSize();
         ULONG64 downloadJobStartPosition = 0U;
         ULONG64 downloadJobEndPosition = 0U;

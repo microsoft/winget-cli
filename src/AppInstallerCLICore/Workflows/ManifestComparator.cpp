@@ -10,7 +10,7 @@ namespace AppInstaller::CLI::Workflow
 {
     bool InstallerComparator::operator() (const ManifestInstaller& installer1, const ManifestInstaller& installer2)
     {
-        // Todo: Comapre only architecture for now. Need more work and spec.
+        // Todo: Compare only architecture for now. Need more work and spec.
         if (Utility::IsApplicableArchitecture(installer1.Arch) < Utility::IsApplicableArchitecture(installer2.Arch))
         {
             return false;
@@ -40,7 +40,7 @@ namespace AppInstaller::CLI::Workflow
     {
         AICLI_LOG(CLI, Info, << "Starting installer selection.");
 
-        // Sorting the list of availlable installers according to rules defined in InstallerComparator.
+        // Sorting the list of available installers according to rules defined in InstallerComparator.
         auto installers = manifest.Installers;
         std::sort(installers.begin(), installers.end(), InstallerComparator());
 
@@ -63,7 +63,7 @@ namespace AppInstaller::CLI::Workflow
 
         ManifestLocalization selectedLocalization;
 
-        // Sorting the list of availlable localizations according to rules defined in LocalizationComparator.
+        // Sorting the list of available localizations according to rules defined in LocalizationComparator.
         if (!manifest.Localization.empty())
         {
             auto localization = manifest.Localization;
@@ -75,7 +75,7 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            // Pupulate default from package manifest
+            // Populate default from package manifest
             selectedLocalization.Description = manifest.Description;
             selectedLocalization.Homepage = manifest.Homepage;
             selectedLocalization.LicenseUrl = manifest.LicenseUrl;
