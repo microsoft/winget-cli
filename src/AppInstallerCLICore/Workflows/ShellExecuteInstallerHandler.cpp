@@ -14,7 +14,7 @@ namespace AppInstaller::CLI::Workflow
         // ShellExecutes the given path.
         std::optional<DWORD> InvokeShellExecute(const std::filesystem::path& filePath, const std::string& args, IProgressCallback& progress)
         {
-            AICLI_LOG(CLI, Info, << "Staring installer. Path: " << filePath);
+            AICLI_LOG(CLI, Info, << "Starting installer. Path: " << filePath);
 
             SHELLEXECUTEINFOA execInfo = { 0 };
             execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
@@ -22,7 +22,7 @@ namespace AppInstaller::CLI::Workflow
             std::string filePathUTF8Str = filePath.u8string();
             execInfo.lpFile = filePathUTF8Str.c_str();
             execInfo.lpParameters = args.c_str();
-            // Some installer forces UI. Setting to SW_HIDE will hide installer UI and installation will hang forever.
+            // Some installers force UI. Setting to SW_HIDE will hide installer UI and installation will hang forever.
             // Verified setting to SW_SHOW does not hurt silent mode since no UI will be shown.
             execInfo.nShow = SW_SHOW;
             if (!ShellExecuteExA(&execInfo) || !execInfo.hProcess)
@@ -58,7 +58,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        // Gets the escaped isntaller args.
+        // Gets the escaped installer args.
         std::string GetInstallerArgsTemplate(Execution::Context& context)
         {
             std::string installerArgs = "";

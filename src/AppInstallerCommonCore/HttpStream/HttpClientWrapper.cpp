@@ -14,7 +14,7 @@ using namespace winrt::Windows::Web::Http::Headers;
 using namespace winrt::Windows::Web::Http::Filters;
 
 // Note: this class is used by the HttpRandomAccessStream which is passed to the AppxPackaging COM API
-// All exceptions thrown accross dll boundaries should be WinRT exception not custom exceptions.
+// All exceptions thrown across dll boundaries should be WinRT exception not custom exceptions.
 // The HRESULTs will be mapped to UI error code by the appropriate component
 namespace AppInstaller::Utility::HttpStream
 {

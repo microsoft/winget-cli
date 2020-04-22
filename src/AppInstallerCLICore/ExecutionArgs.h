@@ -88,6 +88,7 @@ namespace AppInstaller::CLI::Execution
         {
             return m_parsedArgs[arg].empty();
         }
+
         void AddArg(Type arg, std::string value)
         {
             m_parsedArgs[arg].emplace_back(std::move(value));
