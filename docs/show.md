@@ -1,20 +1,9 @@
----
-title: Windows Package Manager
-description: This document describes the Windows Package Manager command: show.
-ms.date: 5/1/2020
-ms.topic: article
-keywords:  
-ms.localizationpriority: medium
-ms.custom:  
----
-
-
 # show Command
-The <b>show</b> command is used to display details on the application to be installed.
+The <b>show</b> command is used to display details on the specified application.
 
 The <b>show</b> command will give you the details on the source of the application as well as the metadata associated with the application.
 
-The <b>show</b> command will only show meta data associated with the application.  If the submitted excluded some metadata, then the data will not be rendered.
+The <b>show</b> command will only show metadata associated with the application.  If the submitted application excludes some metadata, then the data will not be displayed.
 
 usage: <code> winget show [[-q] \<query>] [\<options>]</code>
 
@@ -23,22 +12,26 @@ The following arguments are available:
 
 ## Options
 The following options are available:  
- * **-m,--manifest** The path to the manifest of the application to install
- * **--id**           Filter results by id
- * **--name**         Filter results by name
- * **--moniker**      Filter results by app moniker
- * **-v,--version**   Use the specified version;default is the latest version
-  * **-s,--source**    Find app using the specified source
-  * **-e,--exact**     Find app using exact match
-   * **--versions**     Show available versions of the app
+| option  | description|
+| --------------: | :------------- |
+| **-m,--manifest** | The path to the manifest of the application to install
+| **--id**         |  Filter results by id
+| **--name**   |      Filter results by name
+| **--moniker**   |  Filter results by app moniker
+| **-v,--version** |  Use the specified version;default is the latest version
+| **-s,--source** |   Find app using the specified source
+| **-e,--exact**     | Find app using exact match
+| **--versions**    | Show available versions of the app
+|<img width=100   />|<img width=500 />  |
 
 
 
 ## Multiple Selections 
-If the query provided to winget does not result in a single application.  Then winget will display the results of the search.  This will provide you with the additional data necessary to refine the search.
+If the query provided to winget does not result in a single application, then winget will display the results of the search.  This will provide you with the additional data necessary to refine the search.
 
 ## Results of show
-If a single application is detected the following data will be displayed.
+If a single application is detected, the following data will be displayed.
+
 ### Meta data
  * **Id**           Id of the application
  * **Name**         Name of the application
@@ -51,7 +44,7 @@ If a single application is detected the following data will be displayed.
   * **LicenseUrl**           The URL to the license file of the application
   * **Homepage**           Homepage of the application
   * **Tags**     The tags provided to assist in searching     
- * **Command**           The Commands supported by the application
+ * **Command**           The commands supported by the application
 * **Channel**       The details on whether the application is preview or release
 * **Minimmum OS Version**          
 ### Installer details
