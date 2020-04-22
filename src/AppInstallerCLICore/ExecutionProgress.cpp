@@ -189,9 +189,10 @@ namespace AppInstaller::CLI::Execution
         // Indent two spaces for the spinner, but three here so that we can overwrite it in the loop.
         m_out << "   ";
 
-        for (size_t i = 0; !m_canceled; ++i) {
-            constexpr size_t repititionCount = 20;
-            ApplyStyle(i % repititionCount, repititionCount, true);
+        for (size_t i = 0; !m_canceled; ++i)
+        {
+            constexpr size_t repetitionCount = 20;
+            ApplyStyle(i % repetitionCount, repetitionCount, true);
             m_out << '\b' << spinnerChars[i % ARRAYSIZE(spinnerChars)] << std::flush;
             Sleep(250);
         }
