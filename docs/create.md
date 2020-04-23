@@ -8,6 +8,7 @@ To assist in creating a manifest file, the following sub commands have been prov
 | --------------: | :------------- |
 | **validate** |  the validated sub command takes a manifest file as an argument, and then verifies its compliance with the YAML specification as well as the repository requirements.   For details on the requirements, see [YamlSpec.md](https://github.com/microsoft/winget-pkgs/YamlSpec.md).
 | **hash**         |  the hash sub command takes a binary installer as input and will report the hash values to use in the manifest file.
+| **-?, --help** |  get additional help on this command
 |<img width=100   />|<img width=500 />  |
 
 

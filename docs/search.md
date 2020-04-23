@@ -6,7 +6,12 @@ The <b>search</b> command can show all applications available, or it can be filt
 usage: <code> winget search [[-q] \<query>] [\<options>] </code>
 
 The following arguments are available:  
->-q,--query     The query used to search for an app
+| argument  | description|
+| --------------: | :------------- |
+| **-q,--query** |  the query used to search for an app
+| **-?, --help** |  get additional help on this command
+|<img width=100   />|<img width=500 />  |
+
 
 ## Show all
 If the search command includes no filters or options, it will display all available applications in the default source.  You can also search for all applications in another source if you pass in just the <b>source</B> option.

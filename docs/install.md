@@ -10,6 +10,7 @@ The following arguments are available:
 | option      | description|
 | -------------: | :-------------|  
 | **-q,--query**  |  The query used to search for an app |
+| **-?, --help** |  get additional help on this command
 | <img width=100/> | <img width=500/>|
 
 

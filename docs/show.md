@@ -7,8 +7,13 @@ The <b>show</b> command will only show metadata associated with the application.
 
 usage: <code> winget show [[-q] \<query>] [\<options>]</code>
 
-The following arguments are available:
->-q,--query     The query used to search for an app
+The following arguments are available:  
+| argument  | description|
+| --------------: | :------------- |
+| **-q,--query** |  the query used to search for an app
+| **-?, --help** |  get additional help on this command
+|<img width=100   />|<img width=500 />  |
+
 
 ## Options
 The following options are available:  

@@ -5,6 +5,13 @@ A source provides the data for you to discover and install applications. Only ad
 
 usage: <code> winget source \<sub command> \<options> </code>
 
+The following arguments are available:  
+| argument  | description|
+| --------------: | :------------- |
+| **-?, --help** |  get additional help on this command
+|<img width=100   />|<img width=500 />  |
+
+
 ## Sub Commands 
 Source supports a number of sub-commands for manipulating the sources.  The following sub-commands are supported:
 
@@ -24,6 +31,7 @@ The  <b>source</b> command supports the following options:
 |  **-n,--name** | the name to identify the source by |
 |  **-a,--arg** | the URL or UNC of the source |
 |  **-t,--type** | the type of source |
+| **-?, --help** |  get additional help on this command |
 |<img width=100   />|<img width=500 />  |
 
 ## add
