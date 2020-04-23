@@ -23,7 +23,7 @@ constexpr std::string_view s_MsixFile_1 = "index.1.0.0.0.msix";
 constexpr std::string_view s_MsixFile_2 = "index.2.0.0.0.msix";
 constexpr std::string_view s_Msix_FamilyName = "AppInstallerCLITestsFakeIndex_125rzkzqaqjwj";
 constexpr std::string_view s_AppxManifestFileName = "AppxManifest.xml"sv;
-constexpr std::string_view s_IndexMsixName = "index.msix"sv;
+constexpr std::string_view s_IndexMsixName = "source.msix"sv;
 constexpr std::string_view s_IndexFileName = "index.db"sv;
 
 void CopyIndexFileToDirectory(const fs::path& from, const fs::path& to)

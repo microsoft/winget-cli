@@ -13,7 +13,7 @@ namespace AppInstaller::Repository::Microsoft
 {
     namespace
     {
-        static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageFileName = "index.msix"sv;
+        static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageFileName = "source.msix"sv;
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_AppxManifestFileName = "AppxManifest.xml"sv;
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_IndexFileName = "index.db"sv;
         // TODO: This being hard coded to force using the Public directory name is not ideal.
