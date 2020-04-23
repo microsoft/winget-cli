@@ -1,0 +1,13 @@
+LIBRARY     WinGetUtil
+EXPORTS
+    WinGetLoggingInit
+    WinGetLoggingTerm
+    WinGetSQLiteIndexCreate
+    WinGetSQLiteIndexOpen
+    WinGetSQLiteIndexClose
+    WinGetSQLiteIndexAddManifest
+    WinGetSQLiteIndexUpdateManifest
+    WinGetSQLiteIndexRemoveManifest
+    WinGetSQLiteIndexPrepareForPackaging
+    WinGetValidateManifest
+    WinGetDownload

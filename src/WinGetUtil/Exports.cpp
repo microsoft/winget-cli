@@ -1,7 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "AppInstallerSQLiteIndexUtil.h"
+#include "WinGetUtil.h"
+
+#include <AppInstallerDownloader.h>
+#include <AppInstallerFileLogger.h>
+#include <AppInstallerLogging.h>
+#include <AppInstallerStrings.h>
+#include <AppInstallerTelemetry.h>
+#include <Manifest/Manifest.h>
+#include <Microsoft/SQLiteIndex.h>
 
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
@@ -9,7 +17,7 @@ using namespace AppInstaller::Repository::Microsoft;
 
 extern "C"
 {
-    APPINSTALLER_SQLITE_INDEX_API AppInstallerLoggingInit(APPINSTALLER_SQLITE_INDEX_STRING logPath) try
+    WINGET_UTIL_API WinGetLoggingInit(WINGET_STRING logPath) try
     {
         THROW_HR_IF(E_INVALIDARG, !logPath);
 
@@ -33,7 +41,7 @@ extern "C"
     }
     CATCH_RETURN()
 
-    APPINSTALLER_SQLITE_INDEX_API AppInstallerLoggingTerm(APPINSTALLER_SQLITE_INDEX_STRING logPath) try
+    WINGET_UTIL_API WinGetLoggingTerm(WINGET_STRING logPath) try
     {
         if (logPath)
         {
@@ -49,7 +57,7 @@ extern "C"
     }
     CATCH_RETURN()
 
-    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexCreate(APPINSTALLER_SQLITE_INDEX_STRING filePath, UINT32 majorVersion, UINT32 minorVersion, APPINSTALLER_SQLITE_INDEX_HANDLE* index) try
+    WINGET_UTIL_API WinGetSQLiteIndexCreate(WINGET_STRING filePath, UINT32 majorVersion, UINT32 minorVersion, WINGET_SQLITE_INDEX_HANDLE* index) try
     {
         THROW_HR_IF(E_INVALIDARG, !filePath);
         THROW_HR_IF(E_INVALIDARG, !index);
@@ -60,13 +68,13 @@ extern "C"
 
         std::unique_ptr<SQLiteIndex> result = std::make_unique<SQLiteIndex>(SQLiteIndex::CreateNew(filePathUtf8, internalVersion));
 
-        *index = static_cast<APPINSTALLER_SQLITE_INDEX_HANDLE>(result.release());
+        *index = static_cast<WINGET_SQLITE_INDEX_HANDLE>(result.release());
 
         return S_OK;
     }
     CATCH_RETURN()
 
-    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexOpen(APPINSTALLER_SQLITE_INDEX_STRING filePath, APPINSTALLER_SQLITE_INDEX_HANDLE* index) try
+    WINGET_UTIL_API WinGetSQLiteIndexOpen(WINGET_STRING filePath, WINGET_SQLITE_INDEX_HANDLE* index) try
     {
         THROW_HR_IF(E_INVALIDARG, !filePath);
         THROW_HR_IF(E_INVALIDARG, !index);
@@ -76,13 +84,13 @@ extern "C"
 
         std::unique_ptr<SQLiteIndex> result = std::make_unique<SQLiteIndex>(SQLiteIndex::Open(filePathUtf8, SQLiteIndex::OpenDisposition::ReadWrite));
 
-        *index = static_cast<APPINSTALLER_SQLITE_INDEX_HANDLE>(result.release());
+        *index = static_cast<WINGET_SQLITE_INDEX_HANDLE>(result.release());
 
         return S_OK;
     }
     CATCH_RETURN()
 
-    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexClose(APPINSTALLER_SQLITE_INDEX_HANDLE index) try
+    WINGET_UTIL_API WinGetSQLiteIndexClose(WINGET_SQLITE_INDEX_HANDLE index) try
     {
         std::unique_ptr<SQLiteIndex> toClose(reinterpret_cast<SQLiteIndex*>(index));
 
@@ -90,9 +98,9 @@ extern "C"
     }
     CATCH_RETURN()
 
-    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexAddManifest(
-        APPINSTALLER_SQLITE_INDEX_HANDLE index, 
-        APPINSTALLER_SQLITE_INDEX_STRING manifestPath, APPINSTALLER_SQLITE_INDEX_STRING relativePath) try
+    WINGET_UTIL_API WinGetSQLiteIndexAddManifest(
+        WINGET_SQLITE_INDEX_HANDLE index, 
+        WINGET_STRING manifestPath, WINGET_STRING relativePath) try
     {
         THROW_HR_IF(E_INVALIDARG, !index);
         THROW_HR_IF(E_INVALIDARG, !manifestPath);
@@ -104,11 +112,11 @@ extern "C"
     }
     CATCH_RETURN()
 
-    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexUpdateManifest(
-        APPINSTALLER_SQLITE_INDEX_HANDLE index,
-        APPINSTALLER_SQLITE_INDEX_STRING manifestPath,
-        APPINSTALLER_SQLITE_INDEX_STRING relativePath,
-        bool* indexModified) try
+    WINGET_UTIL_API WinGetSQLiteIndexUpdateManifest(
+        WINGET_SQLITE_INDEX_HANDLE index,
+        WINGET_STRING manifestPath,
+        WINGET_STRING relativePath,
+        BOOL* indexModified) try
     {
         THROW_HR_IF(E_INVALIDARG, !index);
         THROW_HR_IF(E_INVALIDARG, !manifestPath);
@@ -117,16 +125,16 @@ extern "C"
         bool result = reinterpret_cast<SQLiteIndex*>(index)->UpdateManifest(manifestPath, relativePath);
         if (indexModified)
         {
-            *indexModified = result;
+            *indexModified = (result ? TRUE : FALSE);
         }
 
         return S_OK;
     }
     CATCH_RETURN()
 
-    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexRemoveManifest(
-        APPINSTALLER_SQLITE_INDEX_HANDLE index, 
-        APPINSTALLER_SQLITE_INDEX_STRING manifestPath, APPINSTALLER_SQLITE_INDEX_STRING relativePath) try
+    WINGET_UTIL_API WinGetSQLiteIndexRemoveManifest(
+        WINGET_SQLITE_INDEX_HANDLE index, 
+        WINGET_STRING manifestPath, WINGET_STRING relativePath) try
     {
         THROW_HR_IF(E_INVALIDARG, !index);
         THROW_HR_IF(E_INVALIDARG, !manifestPath);
@@ -138,8 +146,8 @@ extern "C"
     }
     CATCH_RETURN()
 
-    APPINSTALLER_SQLITE_INDEX_API AppInstallerSQLiteIndexPrepareForPackaging(
-        APPINSTALLER_SQLITE_INDEX_HANDLE index) try
+    WINGET_UTIL_API WinGetSQLiteIndexPrepareForPackaging(
+        WINGET_SQLITE_INDEX_HANDLE index) try
     {
         THROW_HR_IF(E_INVALIDARG, !index);
 
@@ -149,10 +157,10 @@ extern "C"
     }
     CATCH_RETURN()
 
-    APPINSTALLER_SQLITE_INDEX_API AppInstallerValidateManifest(
-        APPINSTALLER_SQLITE_INDEX_STRING manifestPath,
-        bool* succeeded,
-        APPINSTALLER_SQLITE_INDEX_STRING_OUT* failureMessage) try
+    WINGET_UTIL_API WinGetValidateManifest(
+        WINGET_STRING manifestPath,
+        BOOL* succeeded,
+        WINGET_STRING_OUT* failureMessage) try
     {
         THROW_HR_IF(E_INVALIDARG, !manifestPath);
         THROW_HR_IF(E_INVALIDARG, !succeeded);
@@ -160,15 +168,45 @@ extern "C"
         try
         {
             (void)Manifest::CreateFromPath(manifestPath, true);
-            *succeeded = true;
+            *succeeded = TRUE;
         }
         catch (const ManifestException& e)
         {
-            *succeeded = false;
+            *succeeded = FALSE;
             if (failureMessage)
             {
                 *failureMessage = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorMessage()).c_str());
             }
+        }
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
+    WINGET_UTIL_API WinGetDownload(
+        WINGET_STRING url,
+        WINGET_STRING filePath,
+        BYTE* sha256Hash,
+        UINT32 sha256HashLength) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !url);
+        THROW_HR_IF(E_INVALIDARG, !filePath);
+
+        bool computeHash = sha256Hash != nullptr && sha256HashLength != 0;
+        THROW_HR_IF(E_INVALIDARG, !computeHash && (sha256Hash != nullptr || sha256HashLength != 0));
+        THROW_HR_IF(E_INVALIDARG, computeHash && sha256HashLength != 32);
+
+        AppInstaller::ProgressCallback callback;
+        auto hashValue = Download(ConvertToUTF8(url), filePath, callback, computeHash);
+
+        // At this point, if computeHash is set we have verified that the buffer is valid and 32 bytes.
+        if (computeHash)
+        {
+            const auto& hash = hashValue.value();
+
+            // The SHA 256 hash length should always be 32 bytes.
+            THROW_HR_IF(E_UNEXPECTED, hash.size() != sha256HashLength);
+            std::copy(hash.begin(), hash.end(), sha256Hash);
         }
 
         return S_OK;

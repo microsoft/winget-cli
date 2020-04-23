@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<RunSettings>
+  <!-- 
+  Parameters used by tests at run time.
+
+       PackagedContext: Indicates if the test should be run under packaged context
+       VerboseLogging: Turn on/off verbose logging in the test result
+       AICLIPath: The AICLI executable under test.
+                  If using loose file registration and using Invoke-Command when
+                  AppExecutionAlias is not available, this will be relative path to package root.
+       AICLIPackagePath: Used in packaged context. Path to the package containing executable under test.
+                         If LooseFileRegistration is true, this should be path to unpackaged root.
+       LooseFileRegistration: Bool to set if loose file registration should be used.
+       InvokeCommandInDesktopPackage: Bool to indicate using Invoke-CommandInDesktopPackage for test execution.
+                                      This is used when AppExecutionAlias is not available, or disabled.
+  -->
+  <TestRunParameters>
+    <Parameter name="PackagedContext" value="true" />
+    <Parameter name="VerboseLogging" value="false" />
+    <Parameter name="AICLIPath" value="AppInst.exe" />
+    <Parameter name="AICLIPackagePath" value="AppInstallerCLIPackage.appxbundle" />
+    <Parameter name="LooseFileRegistration" value="false" />
+    <Parameter name="InvokeCommandInDesktopPackage" value="false" />
+  </TestRunParameters>
+</RunSettings>
