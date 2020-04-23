@@ -24,6 +24,8 @@ namespace AppInstallerCLIE2ETests
         public const string AICLIPackageName = "AppInstallerCLI";
         public const string AICLIAppId = "AppInst";
 
+        public const string TestPackage = "TestPackage.msix";
+
         public class ErrorCode
         {
             public const int S_OK = 0;
