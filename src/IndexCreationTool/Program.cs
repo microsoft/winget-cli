@@ -10,7 +10,8 @@ namespace IndexCreationTool
     class Program
     {
         public const string IndexName = @"index.db";
-        public const string IndexPackageName = @"index.msix";
+        public const string IndexPathInPackage = @"Public\index.db";
+        public const string IndexPackageName = @"source.msix";
 
         static void Main(string[] args)
         {
@@ -61,7 +62,7 @@ namespace IndexCreationTool
                     using (StreamWriter outputFile = new StreamWriter("MappingFile.txt"))
                     {
                         outputFile.WriteLine("[Files]");
-                        outputFile.WriteLine($"\"{IndexName}\" \"{IndexName}\"");
+                        outputFile.WriteLine($"\"{IndexName}\" \"{IndexPathInPackage}\"");
                         outputFile.WriteLine($"\"{appxManifestPath}\" \"AppxManifest.xml\"");
                     }
 
