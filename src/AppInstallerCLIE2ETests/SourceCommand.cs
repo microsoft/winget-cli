@@ -47,7 +47,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("SourceTestSource"));
             Assert.True(result.StdOut.Contains("https://winget-int.azureedge.net/cache"));
-            Assert.True(result.StdOut.Contains("AppInstallerSQLiteIndex-int"));
+            Assert.True(result.StdOut.Contains("Microsoft.Winget.Source.int"));
             Assert.True(result.StdOut.Contains("Updated"));
 
             // List when source name does not match

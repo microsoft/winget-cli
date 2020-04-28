@@ -133,6 +133,7 @@ jobs:
       script: |
         AppInstallerCLITests.exe -logto AICLI-Unpackaged-x86.log -s -r junit -o TEST-AppInstallerCLI-Unpackaged-x86.xml
       workingDirectory: 'src\x86\Release\AppInstallerCLITests\'
+    condition: succeededOrFailed()
   
   - task: PublishBuildArtifacts@1
     displayName: Publish Unit Tests Unpackaged Log x86
@@ -157,6 +158,7 @@ jobs:
       script: |
         Add-AppxPackage AppInstallerCLIPackage_0.0.0.2_Test\Dependencies\x86\Microsoft.VCLibs.x86.14.00.Desktop.appx
       workingDirectory: $(appxPackageDir)
+    condition: succeededOrFailed()
   
   - task: PowerShell@2
     displayName: Run Unit Tests Packaged x86
@@ -164,6 +166,7 @@ jobs:
       filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
       arguments: '-Args "~[pips]" -BuildRoot x86\Release -PackageRoot AppInstallerCLIPackage\bin\x86\Release -LogTarget x86\Release\AICLI-Packaged-x86.log -TestResultsTarget x86\Release\TEST-AppInstallerCLI-Packaged-x86.xml -ScriptWait'
       workingDirectory: 'src'
+    condition: succeededOrFailed()
   
   - task: PublishBuildArtifacts@1
     displayName: Publish Unit Tests Packaged Log x86
@@ -193,6 +196,7 @@ jobs:
     displayName: Prepare VSTest for E2E Tests
     inputs:
       packageFeedSelector: 'nugetOrg'
+    condition: succeededOrFailed()
 
   - task: VSTest@2
     displayName: Run E2E Tests Unpackaged x64
@@ -202,6 +206,7 @@ jobs:
       runSettingsFile: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\Test.runsettings'
       overrideTestrunParameters: '-PackagedContext false
                                   -AICLIPath $(system.defaultWorkingDirectory)\src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'
+    condition: succeededOrFailed()
 
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x64
@@ -214,6 +219,7 @@ jobs:
                                   -AICLIPath AppInstallerCLI\AppInstallerCLI.exe
                                   -LooseFileRegistration true
                                   -InvokeCommandInDesktopPackage true'
+    condition: succeededOrFailed()
 
   - task: VSTest@2
     displayName: Run E2E Tests Unpackaged x86
@@ -223,6 +229,7 @@ jobs:
       runSettingsFile: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\Test.runsettings'
       overrideTestrunParameters: '-PackagedContext false
                                   -AICLIPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerCLI\AppInstallerCLI.exe'
+    condition: succeededOrFailed()
 
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x86
@@ -235,6 +242,7 @@ jobs:
                                   -AICLIPath AppInstallerCLI\AppInstallerCLI.exe
                                   -LooseFileRegistration true
                                   -InvokeCommandInDesktopPackage true'
+    condition: succeededOrFailed()
   
   - task: PublishBuildArtifacts@1
     displayName: Publish CLI Binary
