@@ -33,8 +33,7 @@ Search strings can be filtered with the following options:
 The string will be treated as a substring.  The search by default is also case insensitive.  
 For example, "winget search micro" will return the following:
 * Microsoft
-* mīcrō
-* microsoft
+* microscope
 * MyMicro
 
 ## Search options
