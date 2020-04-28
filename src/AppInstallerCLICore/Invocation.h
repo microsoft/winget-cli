@@ -6,6 +6,7 @@
 
 namespace AppInstaller::CLI
 {
+    // Contains the raw command line arguments and functionality to iterate and consume them.
     struct Invocation
     {
         Invocation(std::vector<std::string>&& args) : m_args(std::move(args)) {}

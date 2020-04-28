@@ -97,10 +97,11 @@ namespace AppInstaller::Repository::Microsoft
 
         SearchResult result;
         std::shared_ptr<SQLiteIndexSource> sharedThis = shared_from_this();
-        for (auto& indexResult : indexResults)
+        for (auto& indexResult : indexResults.Matches)
         {
             result.Matches.emplace_back(std::make_unique<Application>(sharedThis, indexResult.first), std::move(indexResult.second));
         }
+        result.Truncated = indexResults.Truncated;
         return result;
     }
 }

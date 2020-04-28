@@ -14,7 +14,7 @@ TEST_CASE("HashCommandWithTestMsix", "[Sha256Hash]")
     Execution::Context context{ hashOutput, std::cin };
     context.Args.AddArg(Execution::Args::Type::HashFile, TestDataFile("TestSignedApp.msix").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::Msix);
-    HashCommand hashCommand;
+    HashCommand hashCommand({});
 
     hashCommand.Execute(context);
 

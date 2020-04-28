@@ -47,8 +47,15 @@ namespace AppInstaller::CLI::Execution
             HashFile,
             Msix, // Flag to indicate the input file is msix
 
+            //Validate Command
+            ValidateManifest,
+
             // Other
+            Force,      // Generic flag to enable a command to skip some check
             ListVersions, // Used in Show command to list all available versions of an app
+            NoVT, // Disable VirtualTerminal outputs
+            PlainStyle, // Makes progress display as plain
+            RainbowStyle, // Makes progress display as a rainbow
             Help, // Show command usage
         };
 
@@ -82,6 +89,7 @@ namespace AppInstaller::CLI::Execution
         {
             return m_parsedArgs[arg].empty();
         }
+
         void AddArg(Type arg, std::string value)
         {
             m_parsedArgs[arg].emplace_back(std::move(value));

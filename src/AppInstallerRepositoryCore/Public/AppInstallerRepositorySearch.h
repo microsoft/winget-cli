@@ -108,6 +108,9 @@ namespace AppInstaller::Repository
     {
         // The full set of results from the search.
         std::vector<ResultMatch> Matches;
+
+        // If true, the results were truncated by the given SearchRequest::MaximumResults.
+        bool Truncated = false;
     };
 
     inline std::string_view MatchTypeToString(MatchType type)

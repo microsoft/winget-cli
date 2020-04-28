@@ -106,6 +106,22 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(localization1.LicenseUrl == "https://github.com/microsoft/msix-packaging/blob/master/LICENSE-es-MX");
 }
 
+TEST_CASE("ReadGoodManifestWithSpaces", "[ManifestValidation]")
+{
+    Manifest manifest = Manifest::CreateFromPath(TestDataFile("Manifest-Good-Spaces.yaml"));
+
+    REQUIRE(manifest.Id == "microsoft.msixsdk");
+    REQUIRE(manifest.Name == "MSIX SDK");
+    REQUIRE(manifest.AppMoniker == "msixsdk");
+    REQUIRE(manifest.Version == "1.7.32");
+    REQUIRE(manifest.Channel == "release");
+    REQUIRE(manifest.MinOSVersion == "0.0.0.0");
+    REQUIRE(manifest.Tags == MultiValue{ "msix", "appx" });
+    REQUIRE(manifest.Commands == MultiValue{ "makemsix", "makeappx" });
+    REQUIRE(manifest.Protocols == MultiValue{ "protocol1", "protocol2" });
+    REQUIRE(manifest.FileExtensions == MultiValue{ "appx", "appxbundle", "msix", "msixbundle" });
+}
+
 void TestManifest(const std::filesystem::path& manifestPath, const std::string& expectedError = {})
 {
     if (expectedError.empty())

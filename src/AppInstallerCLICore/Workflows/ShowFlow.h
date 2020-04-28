@@ -1,22 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #pragma once
 #include "ExecutionContext.h"
-#include "WorkflowBase.h"
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI::Workflow
 {
-    class ShowFlow : public SingleManifestWorkflow
-    {
-    public:
-        ShowFlow(AppInstaller::CLI::Execution::Context& context) : SingleManifestWorkflow(context) {}
+    // Shows information on an application.
+    // Required Args: None
+    // Inputs: Manifest, Installer
+    // Outputs: None
+    void ShowManifestInfo(Execution::Context& context);
 
-        void Execute();
+    // Shows the version for the specific manifest.
+    // Required Args: None
+    // Inputs: Manifest
+    // Outputs: None
+    void ShowManifestVersion(Execution::Context& context);
 
-    protected:
-
-        void ShowAppInfo();
-        void ShowAppVersion();
-    };
+    // Shows all versions for an application.
+    // Required Args: None
+    // Inputs: SearchResult [only operates on first match]
+    // Outputs: None
+    void ShowAppVersions(Execution::Context& context);
 }

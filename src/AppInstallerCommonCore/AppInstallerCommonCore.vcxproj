@@ -202,6 +202,7 @@
     <ClCompile Include="DateTime.cpp" />
     <ClCompile Include="Deployment.cpp" />
     <ClCompile Include="Downloader.cpp" />
+    <ClCompile Include="Errors.cpp" />
     <ClCompile Include="FileLogger.cpp" />
     <ClCompile Include="HttpStream\HttpClientWrapper.cpp" />
     <ClCompile Include="HttpStream\HttpLocalCache.cpp" />

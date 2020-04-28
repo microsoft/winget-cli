@@ -22,6 +22,8 @@ namespace AppInstaller::CLI::VirtualTerminal
         ConsoleModeRestore(ConsoleModeRestore&&) = default;
         ConsoleModeRestore& operator=(ConsoleModeRestore&&) = default;
 
+        void DisableVT() { m_isVTEnabled = false; }
+
         bool IsVTEnabled() const { return m_isVTEnabled; }
 
     private:
@@ -57,21 +59,67 @@ namespace AppInstaller::CLI::VirtualTerminal
     // Below are mapped to the sequences described here:
     // https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 
+    namespace Cursor
+    {
+        namespace Position
+        {
+            extern const Sequence UpOne;
+            extern const Sequence DownOne;
+            extern const Sequence ForwardOne;
+            extern const Sequence BackwardOne;
+        }
+
+        namespace Visibility
+        {
+            extern const Sequence EnableBlink;
+            extern const Sequence DisableBlink;
+            extern const Sequence EnableShow;
+            extern const Sequence DisableShow;
+        }
+    }
+
     namespace TextFormat
     {
         // Returns all attributes to the default state prior to modification
-        extern Sequence Default;
+        extern const Sequence Default;
+
+        // Swaps foreground and background colors
+        extern const Sequence Negative;
+
+        // A color, used in constructed sequences.
+        struct Color
+        {
+            uint8_t R;
+            uint8_t G;
+            uint8_t B;
+
+            static Color GetAccentColor();
+        };
 
         namespace Foreground
         {
-            extern Sequence BrightRed;
-            extern Sequence BrightYellow;
+            extern const Sequence BrightRed;
+            extern const Sequence BrightGreen;
+            extern const Sequence BrightYellow;
+            extern const Sequence BrightBlue;
+            extern const Sequence BrightMagenta;
+            extern const Sequence BrightCyan;
+            extern const Sequence BrightWhite;
+
+            ConstructedSequence Extended(const Color& color);
         }
 
         namespace Background
         {
 
         }
+    }
+
+    namespace TextModification
+    {
+        extern const Sequence EraseLineForward;
+        extern const Sequence EraseLineBackward;
+        extern const Sequence EraseLineEntirely;
     }
 }
 
