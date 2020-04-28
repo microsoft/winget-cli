@@ -21,6 +21,7 @@ Source supports a number of sub-commands for manipulating the sources.  The foll
 |  **list** | enumerates the list of enabled sources |
 |  **update** | updates a source |
 |  **remove** | removes a source |
+|  **reset** | resets the winget back to the initial configuration  |
 |<img width=100   />|<img width=500 />  |
 
 
@@ -99,9 +100,16 @@ usage: <code> winget source add [-n, --name] \<name>
 For example:  
 > winget source remove --name Contoso   
 
+## reset
+<b>reset</b> is the sub-command that will reset the client back to its original configuration.  The <b>reset</b> sub-command will remove all sources and set the source to the default.  This sub-command should only be used in rare cases.\
+
+usage: <code> winget source reset
+For example:  
+> winget source reset
+
+
 ## Default Repository
 The Windows Package Manager will ship with a default repository.  You can identify the repository by using the list command.  
 For example:  
 > winget source list  
 
-## Common Errors

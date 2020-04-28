@@ -22,7 +22,7 @@ The options allow you to customize the install experience to meet your needs.
 | **--id**    |     id will limit the install to the id of the application.   |  
 | **--name**   |    name will limit the search to the name of the application. |  
 | **--moniker**   |  moniker will limit the search to the moniker listed for the application.|  
-| **-v, --version**  |   version allows you to specify and exact version to install.  If not specified, latest will install the highest versioned application. |  
+| **-v, --version**  |   version allows you to specify an exact version to install.  If not specified, latest will install the highest versioned application. |  
 | **--tag**   |      tag will limit the search to the tags listed for the application. |  
 | **-s, -source**   |   source needs to be followed by the source name and will restrict the search to the source name provided. |  
 | **-e, -exact**   |     exact will force to use the exact string in the query.  It will not use the default behavior of a substring.  In addition the string will be case sensitive. |  
