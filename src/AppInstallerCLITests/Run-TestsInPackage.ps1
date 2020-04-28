@@ -145,4 +145,7 @@ if ($ScriptWait)
         Wait-ForFileClose $TestResultsTarget
     }
     Write-Host "Done"
+
+    Write-Host "Remove registered package"
+    Get-AppxPackage AppInstallerCLI | Remove-AppxPackage
 }

@@ -7,12 +7,12 @@ namespace AppInstaller::CLI
 {
     struct SearchCommand final : public Command
     {
-        SearchCommand() : Command("search") {}
+        SearchCommand(std::string_view parent) : Command("search", parent) {}
 
         virtual std::vector<Argument> GetArguments() const override;
 
         virtual std::string ShortDescription() const override;
-        virtual std::vector<std::string> GetLongDescription() const override;
+        virtual std::string GetLongDescription() const override;
 
     protected:
         void ExecuteInternal(Execution::Context& context) const override;

@@ -24,7 +24,7 @@ jobs:
   condition: not(eq(variables['Build.Reason'], 'PullRequest'))
   variables:
     runCodesignValidationInjection: ${{ false }}
-    skipComponentGovernanceDetection: ${{ false }}
+    skipComponentGovernanceDetection: ${{ true }}
   steps:
   - task: PowerShell@2
     name: 'GetTag'
@@ -48,6 +48,12 @@ jobs:
     inputs:
       restoreSolution: '$(solution)'
   
+  - task: DotNetCoreCLI@2
+    displayName: DotNet Restore
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
+  
   - task: PowerShell@2
     displayName: Update Binary Version
     condition: not(eq(variables['Build.Reason'], 'PullRequest'))
@@ -62,33 +68,36 @@ jobs:
       platform: 'x86'
       solution: '$(solution)'
       configuration: '$(buildConfiguration)'
-      msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload'
+      msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" 
+                    /p:AppxPackageDir="$(appxPackageDir)" 
+                    /p:AppxBundle=Always 
+                    /p:UapAppxPackageBuildMode=StoreUpload'
   
   - task: CmdLine@2
-    displayName: Run Tests Unpackaged
+    displayName: Run Unit Tests Unpackaged x64
     inputs:
       script: |
-        AppInstallerCLITests.exe -logto AICLI-Unpackaged.log -s -r junit -o TEST-AppInstallerCLI-Unpackaged.xml
+        AppInstallerCLITests.exe -logto AICLI-Unpackaged-x64.log -s -r junit -o TEST-AppInstallerCLI-Unpackaged-x64.xml
       workingDirectory: 'src\x64\Release\AppInstallerCLITests\'
   
   - task: PublishBuildArtifacts@1
-    displayName: Publish Unpackaged Log
+    displayName: Publish Unit Tests Unpackaged Log x64
     inputs:
-      PathtoPublish: 'src\x64\Release\AppInstallerCLITests\AICLI-Unpackaged.log'
+      PathtoPublish: 'src\x64\Release\AppInstallerCLITests\AICLI-Unpackaged-x64.log'
       ArtifactName: 'TestPassUnpackagedLog'
       publishLocation: 'Container'
     condition: succeededOrFailed()
   
   - task: PublishBuildArtifacts@1
-    displayName: Publish Unpackaged Output
+    displayName: Publish Unit Tests Unpackaged Output x64
     inputs:
-      PathtoPublish: 'src\x64\Release\AppInstallerCLITests\TEST-AppInstallerCLI-Unpackaged.xml'
+      PathtoPublish: 'src\x64\Release\AppInstallerCLITests\TEST-AppInstallerCLI-Unpackaged-x64.xml'
       ArtifactName: 'TestPassUnpackagedOutput'
       publishLocation: 'Container'
     condition: succeededOrFailed()
   
   - task: PowerShell@2
-    displayName: Install Dependencies
+    displayName: Install Tests Dependencies x64
     inputs:
       targetType: 'inline'
       script: |
@@ -96,41 +105,156 @@ jobs:
       workingDirectory: $(appxPackageDir)
   
   - task: PowerShell@2
-    displayName: Run Tests Packaged
+    displayName: Run Unit Tests Packaged x64
     inputs:
       filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
-      arguments: '-Args "~[pips]" -BuildRoot x64\Release -PackageRoot AppInstallerCLIPackage\bin\x64\Release -LogTarget x64\Release\AICLI-Packaged.log -TestResultsTarget x64\Release\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
+      arguments: '-Args "~[pips]" -BuildRoot x64\Release -PackageRoot AppInstallerCLIPackage\bin\x64\Release -LogTarget x64\Release\AICLI-Packaged-x64.log -TestResultsTarget x64\Release\TEST-AppInstallerCLI-Packaged-x64.xml -ScriptWait'
       workingDirectory: 'src'
   
   - task: PublishBuildArtifacts@1
-    displayName: Publish Packaged Log
+    displayName: Publish Unit Tests Packaged Log x64
     inputs:
-      PathtoPublish: 'src\x64\Release\AICLI-Packaged.log'
+      PathtoPublish: 'src\x64\Release\AICLI-Packaged-x64.log'
       ArtifactName: 'TestPassPackagedLog'
       publishLocation: 'Container'
     condition: succeededOrFailed()
   
   - task: PublishBuildArtifacts@1
-    displayName: Publish Packaged Output
+    displayName: Publish Unit Tests Packaged Output x64
     inputs:
-      PathtoPublish: 'src\x64\Release\TEST-AppInstallerCLI-Packaged.xml'
+      PathtoPublish: 'src\x64\Release\TEST-AppInstallerCLI-Packaged-x64.xml'
+      ArtifactName: 'TestPassPackagedOutput'
+      publishLocation: 'Container'
+    condition: succeededOrFailed()
+
+  - task: CmdLine@2
+    displayName: Run Unit Tests Unpackaged x86
+    inputs:
+      script: |
+        AppInstallerCLITests.exe -logto AICLI-Unpackaged-x86.log -s -r junit -o TEST-AppInstallerCLI-Unpackaged-x86.xml
+      workingDirectory: 'src\x86\Release\AppInstallerCLITests\'
+  
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Unit Tests Unpackaged Log x86
+    inputs:
+      PathtoPublish: 'src\x86\Release\AppInstallerCLITests\AICLI-Unpackaged-x86.log'
+      ArtifactName: 'TestPassUnpackagedLog'
+      publishLocation: 'Container'
+    condition: succeededOrFailed()
+  
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Unit Tests Unpackaged Output x86
+    inputs:
+      PathtoPublish: 'src\x86\Release\AppInstallerCLITests\TEST-AppInstallerCLI-Unpackaged-x86.xml'
+      ArtifactName: 'TestPassUnpackagedOutput'
+      publishLocation: 'Container'
+    condition: succeededOrFailed()
+  
+  - task: PowerShell@2
+    displayName: Install Tests Dependencies x86
+    inputs:
+      targetType: 'inline'
+      script: |
+        Add-AppxPackage AppInstallerCLIPackage_0.0.0.2_Test\Dependencies\x86\Microsoft.VCLibs.x86.14.00.Desktop.appx
+      workingDirectory: $(appxPackageDir)
+  
+  - task: PowerShell@2
+    displayName: Run Unit Tests Packaged x86
+    inputs:
+      filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
+      arguments: '-Args "~[pips]" -BuildRoot x86\Release -PackageRoot AppInstallerCLIPackage\bin\x86\Release -LogTarget x86\Release\AICLI-Packaged-x86.log -TestResultsTarget x86\Release\TEST-AppInstallerCLI-Packaged-x86.xml -ScriptWait'
+      workingDirectory: 'src'
+  
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Unit Tests Packaged Log x86
+    inputs:
+      PathtoPublish: 'src\x86\Release\AICLI-Packaged-x86.log'
+      ArtifactName: 'TestPassPackagedLog'
+      publishLocation: 'Container'
+    condition: succeededOrFailed()
+  
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Unit Tests Packaged Output x86
+    inputs:
+      PathtoPublish: 'src\x86\Release\TEST-AppInstallerCLI-Packaged-x86.xml'
       ArtifactName: 'TestPassPackagedOutput'
       publishLocation: 'Container'
     condition: succeededOrFailed()
   
   - task: PublishTestResults@2
-    displayName: Publish Test Results
+    displayName: Publish Unit Test Results
     inputs:
       testResultsFormat: 'JUnit'
       testResultsFiles: '**/TEST-*.xml'
       failTaskOnFailedTests: true
     condition: succeededOrFailed()
+
+  - task: VisualStudioTestPlatformInstaller@1
+    displayName: Prepare VSTest for E2E Tests
+    inputs:
+      packageFeedSelector: 'nugetOrg'
+
+  - task: VSTest@2
+    displayName: Run E2E Tests Unpackaged x64
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
+      runSettingsFile: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\Test.runsettings'
+      overrideTestrunParameters: '-PackagedContext false
+                                  -AICLIPath $(system.defaultWorkingDirectory)\src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'
+
+  - task: VSTest@2
+    displayName: Run E2E Tests Packaged x64
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
+      runSettingsFile: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\Test.runsettings'
+      overrideTestrunParameters: '-PackagedContext true
+                                  -AICLIPackagePath $(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x64\Release
+                                  -AICLIPath AppInstallerCLI\AppInstallerCLI.exe
+                                  -LooseFileRegistration true
+                                  -InvokeCommandInDesktopPackage true'
+
+  - task: VSTest@2
+    displayName: Run E2E Tests Unpackaged x86
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
+      runSettingsFile: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\Test.runsettings'
+      overrideTestrunParameters: '-PackagedContext false
+                                  -AICLIPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerCLI\AppInstallerCLI.exe'
+
+  - task: VSTest@2
+    displayName: Run E2E Tests Packaged x86
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
+      runSettingsFile: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\Test.runsettings'
+      overrideTestrunParameters: '-PackagedContext true
+                                  -AICLIPackagePath $(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x86\Release
+                                  -AICLIPath AppInstallerCLI\AppInstallerCLI.exe
+                                  -LooseFileRegistration true
+                                  -InvokeCommandInDesktopPackage true'
   
   - task: PublishBuildArtifacts@1
     displayName: Publish CLI Binary
     inputs:
       PathtoPublish: 'src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'
       ArtifactName: 'AppInstallerCLI.exe'
+      publishLocation: 'Container'
+  
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Util Binary
+    inputs:
+      PathtoPublish: 'src\x64\Release\WinGetUtil\WinGetUtil.dll'
+      ArtifactName: 'WinGetUtil.dll'
+      publishLocation: 'Container'
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Util Symbols
+    inputs:
+      PathtoPublish: 'src\x64\Release\WinGetUtil\WinGetUtil.pdb'
+      ArtifactName: 'WinGetUtil.pdb'
       publishLocation: 'Container'
   
   - task: ComponentGovernanceComponentDetection@0

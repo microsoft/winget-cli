@@ -7,12 +7,12 @@ namespace AppInstaller::CLI
 {
     struct SourceCommand final : public Command
     {
-        SourceCommand() : Command("source") {}
+        SourceCommand(std::string_view parent) : Command("source", parent) {}
 
         virtual std::vector<std::unique_ptr<Command>> GetCommands() const override;
 
         virtual std::string ShortDescription() const override;
-        virtual std::vector<std::string> GetLongDescription() const override;
+        virtual std::string GetLongDescription() const override;
 
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const;
@@ -20,12 +20,12 @@ namespace AppInstaller::CLI
 
     struct SourceAddCommand final : public Command
     {
-        SourceAddCommand() : Command("add") {}
+        SourceAddCommand(std::string_view parent) : Command("add", parent) {}
 
         virtual std::vector<Argument> GetArguments() const override;
 
         virtual std::string ShortDescription() const override;
-        virtual std::vector<std::string> GetLongDescription() const override;
+        virtual std::string GetLongDescription() const override;
 
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const override;
@@ -33,12 +33,12 @@ namespace AppInstaller::CLI
 
     struct SourceListCommand final : public Command
     {
-        SourceListCommand() : Command("list") {}
+        SourceListCommand(std::string_view parent) : Command("list", parent) {}
 
         virtual std::vector<Argument> GetArguments() const override;
 
         virtual std::string ShortDescription() const override;
-        virtual std::vector<std::string> GetLongDescription() const override;
+        virtual std::string GetLongDescription() const override;
 
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const override;
@@ -46,12 +46,12 @@ namespace AppInstaller::CLI
 
     struct SourceUpdateCommand final : public Command
     {
-        SourceUpdateCommand() : Command("update") {}
+        SourceUpdateCommand(std::string_view parent) : Command("update", parent) {}
 
         virtual std::vector<Argument> GetArguments() const override;
 
         virtual std::string ShortDescription() const override;
-        virtual std::vector<std::string> GetLongDescription() const override;
+        virtual std::string GetLongDescription() const override;
 
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const override;
@@ -59,12 +59,25 @@ namespace AppInstaller::CLI
 
     struct SourceRemoveCommand final : public Command
     {
-        SourceRemoveCommand() : Command("remove") {}
+        SourceRemoveCommand(std::string_view parent) : Command("remove", parent) {}
 
         virtual std::vector<Argument> GetArguments() const override;
 
         virtual std::string ShortDescription() const override;
-        virtual std::vector<std::string> GetLongDescription() const override;
+        virtual std::string GetLongDescription() const override;
+
+    protected:
+        virtual void ExecuteInternal(Execution::Context& context) const override;
+    };
+
+    struct SourceResetCommand final : public Command
+    {
+        SourceResetCommand(std::string_view parent) : Command("reset", parent) {}
+
+        virtual std::vector<Argument> GetArguments() const override;
+
+        virtual std::string ShortDescription() const override;
+        virtual std::string GetLongDescription() const override;
 
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const override;

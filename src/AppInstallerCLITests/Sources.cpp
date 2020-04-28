@@ -74,7 +74,8 @@ struct TestSource : public ISource
 
     static std::shared_ptr<ISource> Create(const SourceDetails& details)
     {
-        return std::make_shared<TestSource>(details);
+        // using return std::make_shared<TestSource>(details); will crash the x86 test during destruction.
+        return std::shared_ptr<ISource>(new TestSource(details));
     }
 
     // ISource

@@ -110,8 +110,9 @@ namespace AppInstaller::Utility
         result = m_version.ToString();
         if (!m_channel.ToString().empty())
         {
-            result += ", ";
+            result += '[';
             result += m_channel.ToString();
+            result += ']';
         }
         return result;
     }

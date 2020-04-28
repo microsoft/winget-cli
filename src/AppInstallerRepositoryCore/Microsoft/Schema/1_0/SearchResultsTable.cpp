@@ -224,7 +224,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         AICLI_LOG(Repo, Verbose, << "Filter deleted " << m_connection.GetChanges() << " rows");
     }
 
-    std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> SearchResultsTable::GetSearchResults(size_t limit)
+    ISQLiteIndex::SearchResult SearchResultsTable::GetSearchResults(size_t limit)
     {
         constexpr std::string_view tempTableAlias = "t"sv;
 
@@ -247,19 +247,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             Join(ManifestTable::TableName()).On(QCol(tempTableAlias, s_SearchResultsTable_Manifest), QCol(ManifestTable::TableName(), SQLite::RowIDName)).
             GroupBy(QCol(ManifestTable::TableName(), IdTable::ValueName())).OrderBy(QCol(tempTableAlias, s_SearchResultsTable_SortValue));
 
-        if (limit)
-        {
-            builder.Limit(limit);
-        }
-
         SQLite::Statement select = builder.Prepare(m_connection);
 
-        std::vector<std::pair<SQLite::rowid_t, ApplicationMatchFilter>> result;
+        ISQLiteIndex::SearchResult result;
         while (select.Step())
         {
-            result.emplace_back(select.GetColumn<SQLite::rowid_t>(0), 
+            if (limit && result.Matches.size() >= limit)
+            {
+                break;
+            }
+
+            result.Matches.emplace_back(select.GetColumn<SQLite::rowid_t>(0), 
                 ApplicationMatchFilter(select.GetColumn<ApplicationMatchField>(1), select.GetColumn<MatchType>(2), select.GetColumn<std::string>(3)));
         }
+
+        result.Truncated = (select.GetState() != SQLite::Statement::State::Completed);
+
         return result;
     }
 }

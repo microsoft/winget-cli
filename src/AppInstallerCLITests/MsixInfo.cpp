@@ -17,10 +17,10 @@ TEST_CASE("MsixInfo_GetPackageFamilyName", "[msixinfo]")
     TestDataFile index(s_MsixFile_1);
     Msix::MsixInfo msix(index.GetPath().u8string());
 
-    std::string expectedFamilyName = "AppInstallerCLITestsFakeIndex_125rzkzqaqjwj";
-    std::string actualFamilyName = msix.GetPackageFamilyName();
+    std::string expectedFullName = "AppInstallerCLITestsFakeIndex_1.0.0.0_neutral__125rzkzqaqjwj";
+    std::string actualFullName = msix.GetPackageFullName();
 
-    REQUIRE(expectedFamilyName == actualFamilyName);
+    REQUIRE(expectedFullName == actualFullName);
 }
 
 TEST_CASE("MsixInfo_WriteManifestAndCompareToSelf", "[msixinfo]")

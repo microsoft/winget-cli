@@ -6,79 +6,26 @@
 
 namespace AppInstaller::CLI::Execution
 {
-    namespace details
-    {
-        void IndefiniteSpinner::ShowSpinner()
-        {
-            if (!m_spinnerJob.valid() && !m_spinnerRunning && !m_canceled)
-            {
-                m_spinnerRunning = true;
-                m_spinnerJob = std::async(std::launch::async, &IndefiniteSpinner::ShowSpinnerInternal, this);
-            }
-        }
+    using namespace VirtualTerminal;
 
-        void IndefiniteSpinner::StopSpinner()
-        {
-            if (!m_canceled && m_spinnerJob.valid() && m_spinnerRunning)
-            {
-                m_canceled = true;
-                m_spinnerJob.get();
-            }
-        }
+    const Sequence& HelpCommandEmphasis = TextFormat::Foreground::BrightWhite;
+    const Sequence& HelpArgumentEmphasis = TextFormat::Foreground::BrightWhite;
+    const Sequence& NameEmphasis = TextFormat::Foreground::BrightCyan;
+    const Sequence& IdEmphasis = TextFormat::Foreground::BrightCyan;
+    const Sequence& UrlEmphasis = TextFormat::Foreground::BrightBlue;
 
-        void IndefiniteSpinner::ShowSpinnerInternal()
-        {
-            char spinnerChars[] = { '-', '\\', '|', '/' };
-
-            // First wait for a small amount of time to enable a fast task to skip
-            // showing anything, or a progress task to skip straight to progress.
-            Sleep(100);
-
-            for (int i = 0; !m_canceled; i++) {
-                m_out << '\b' << spinnerChars[i] << std::flush;
-
-                if (i == 3)
-                {
-                    i = -1;
-                }
-
-                Sleep(250);
-            }
-
-            m_out << '\b';
-            m_canceled = false;
-            m_spinnerRunning = false;
-        }
-
-        void ProgressBar::ShowProgress(bool running, uint64_t progress)
-        {
-            if (running)
-            {
-                if (m_isVisible)
-                {
-                    m_out << "\rProgress: " << progress;
-                }
-                else
-                {
-                    m_out << "Progress: " << progress;
-                    m_isVisible = true;
-                }
-            }
-            else
-            {
-                if (m_isVisible)
-                {
-                    m_out << std::endl;
-                    m_isVisible = false;
-                }
-            }
-        }
-    }
+    Reporter::Reporter(std::ostream& outStream, std::istream& inStream) :
+        m_out(outStream),
+        m_in(inStream),
+        m_consoleMode(),
+        m_progressBar(outStream, m_consoleMode.IsVTEnabled()),
+        m_spinner(outStream, m_consoleMode.IsVTEnabled())
+    {}
 
     Reporter::OutputStream::OutputStream(std::ostream& out, bool enableVT) :
         m_out(out), m_isVTEnabled(enableVT) {}
 
-    void Reporter::OutputStream::AddFormat(const VirtualTerminal::Sequence& sequence)
+    void Reporter::OutputStream::AddFormat(const Sequence& sequence)
     {
         m_format.append(sequence.Get());
     }
@@ -101,7 +48,7 @@ namespace AppInstaller::CLI::Execution
         return *this;
     }
 
-    Reporter::OutputStream& Reporter::OutputStream::operator<<(const VirtualTerminal::Sequence& sequence)
+    Reporter::OutputStream& Reporter::OutputStream::operator<<(const Sequence& sequence)
     {
         m_out << sequence;
         // An incoming sequence will be valid for 1 "standard" output after this one.
@@ -117,7 +64,7 @@ namespace AppInstaller::CLI::Execution
         // For now, we assume this means "default".
         if (m_consoleMode.IsVTEnabled())
         {
-            m_out << VirtualTerminal::TextFormat::Default;
+            m_out << TextFormat::Default;
         }
     }
 
@@ -128,22 +75,32 @@ namespace AppInstaller::CLI::Execution
         switch (level)
         {
         case Level::Verbose:
-            result.AddFormat(VirtualTerminal::TextFormat::Default);
+            result.AddFormat(TextFormat::Default);
             break;
         case Level::Info:
-            result.AddFormat(VirtualTerminal::TextFormat::Default);
+            result.AddFormat(TextFormat::Default);
             break;
         case Level::Warning:
-            result.AddFormat(VirtualTerminal::TextFormat::Foreground::BrightYellow);
+            result.AddFormat(TextFormat::Foreground::BrightYellow);
             break;
         case Level::Error:
-            result.AddFormat(VirtualTerminal::TextFormat::Foreground::BrightRed);
+            result.AddFormat(TextFormat::Foreground::BrightRed);
             break;
         default:
             THROW_HR(E_UNEXPECTED);
         }
 
         return result;
+    }
+
+    void Reporter::SetStyle(VisualStyle style)
+    {
+        m_spinner.SetStyle(style);
+        m_progressBar.SetStyle(style);
+        if (style == VisualStyle::NoVT)
+        {
+            m_consoleMode.DisableVT();
+        }
     }
 
     bool Reporter::PromptForBoolResponse(const std::string& msg, Level level)
@@ -156,16 +113,6 @@ namespace AppInstaller::CLI::Execution
         m_in.get(response);
 
         return tolower(response) == 'y';
-    }
-
-    void Reporter::ShowMsg(const std::string& msg, Level level)
-    {
-        GetOutputStream(level) << msg << std::endl;
-    }
-
-    void Reporter::ShowProgress(bool running, uint64_t progress)
-    {
-        m_progressBar.ShowProgress(running, progress);
     }
 
     void Reporter::ShowIndefiniteProgress(bool running)
@@ -182,8 +129,25 @@ namespace AppInstaller::CLI::Execution
 
     void Reporter::OnProgress(uint64_t current, uint64_t maximum, ProgressType type)
     {
-        UNREFERENCED_PARAMETER(type);
         ShowIndefiniteProgress(false);
-        ShowProgress(true, (maximum ? static_cast<uint64_t>((static_cast<double>(current) / maximum) * 100) : current));
+        m_progressBar.ShowProgress(current, maximum, type);
+    }
+
+    void Reporter::SetProgressCallback(ProgressCallback* callback)
+    {
+        auto lock = m_progressCallbackLock.lock_exclusive();
+        m_progressCallback = callback;
+    }
+
+    void Reporter::CancelInProgressTask(bool force)
+    {
+        // TODO: Maybe ask the user if they really want to cancel?
+        UNREFERENCED_PARAMETER(force);
+        auto lock = m_progressCallbackLock.lock_shared();
+        ProgressCallback* callback = m_progressCallback.load();
+        if (callback)
+        {
+            callback->Cancel();
+        }
     }
 }

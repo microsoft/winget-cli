@@ -27,11 +27,23 @@ namespace AppInstaller::Utility
         stream << std::setw(3) << std::setfill('0') << leftoverMillis.count();
     }
 
+    std::string GetCurrentTimeForFilename()
+    {
+        std::stringstream stream;
+        OutputTimepoint(stream, std::chrono::system_clock::now());
+
+        auto result = stream.str();
+        std::replace(result.begin(), result.end(), ':', '-');
+        std::replace(result.begin(), result.end(), ' ', '-');
+
+        return result;
+    }
+
     int64_t GetCurrentUnixEpoch()
     {
         static_assert(std::is_same_v<int64_t, decltype(time(nullptr))>, "time returns a 64-bit integer");
         time_t now = time(nullptr);
-       return static_cast<int64_t>(now);
+        return static_cast<int64_t>(now);
     }
 
     int64_t ConvertSystemClockToUnixEpoch(const std::chrono::system_clock::time_point& time)

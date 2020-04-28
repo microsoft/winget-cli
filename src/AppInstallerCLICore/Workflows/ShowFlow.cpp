@@ -4,63 +4,60 @@
 #include "pch.h"
 #include "ShowFlow.h"
 #include "ManifestComparator.h"
+#include "TableOutput.h"
 
-using namespace AppInstaller::CLI;
 using namespace AppInstaller::Repository;
 
-namespace AppInstaller::Workflow
+namespace AppInstaller::CLI::Workflow
 {
-    void ShowFlow::Execute()
+    void ShowManifestInfo(Execution::Context& context)
     {
-        if (IndexSearch() && EnsureOneMatchFromSearchResult())
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
+        const auto& installer = context.Get<Execution::Data::Installer>();
+
+        ManifestComparator manifestComparator(context.Args);
+        auto selectedLocalization = manifestComparator.GetPreferredLocalization(manifest);
+
+        // TODO: Come up with a prettier format
+        context.Reporter.Info() << "Version: " + manifest.Version << std::endl;
+        context.Reporter.Info() << "Author: " + manifest.Author << std::endl;
+        context.Reporter.Info() << "AppMoniker: " + manifest.AppMoniker << std::endl;
+        context.Reporter.Info() << "Description: " + selectedLocalization.Description << std::endl;
+        context.Reporter.Info() << "Homepage: " + selectedLocalization.Homepage << std::endl;
+        context.Reporter.Info() << "License: " + selectedLocalization.LicenseUrl << std::endl;
+
+        context.Reporter.Info() << "Installer:" << std::endl;
+        if (installer)
         {
-            if (m_argsRef.Contains(Execution::Args::Type::ListVersions))
-            {
-                ShowAppVersion();
-            }
-            else
-            {
-                ShowAppInfo();
-            }
+            context.Reporter.Info() << "  Language: " + installer->Language << std::endl;
+            context.Reporter.Info() << "  SHA256: " + Utility::SHA256::ConvertToString(installer->Sha256) << std::endl;
+            context.Reporter.Info() << "  Download Url: " + installer->Url << std::endl;
+            context.Reporter.Info() << "  Type: " + Manifest::ManifestInstaller::InstallerTypeToString(installer->InstallerType) << std::endl;
+        }
+        else
+        {
+            context.Reporter.Warn() << "  No installers are applicable to the current system" << std::endl;
         }
     }
 
-    void ShowFlow::ShowAppInfo()
+    void ShowManifestVersion(Execution::Context& context)
     {
-        if (GetManifest())
-        {
-            SelectInstaller();
-            ManifestComparator manifestComparator(m_manifest, m_reporterRef);
-            auto selectedLocalization = manifestComparator.GetPreferredLocalization(m_argsRef);
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
 
-            m_reporterRef.ShowMsg("Id: " + m_manifest.Id);
-            m_reporterRef.ShowMsg("Name: " + m_manifest.Name);
-            m_reporterRef.ShowMsg("Version: " + m_manifest.Version);
-            m_reporterRef.ShowMsg("Author: " + m_manifest.Author);
-            m_reporterRef.ShowMsg("AppMoniker: " + m_manifest.AppMoniker);
-            m_reporterRef.ShowMsg("Description: " + selectedLocalization.Description);
-            m_reporterRef.ShowMsg("Homepage: " + selectedLocalization.Homepage);
-            m_reporterRef.ShowMsg("License: " + selectedLocalization.LicenseUrl);
-
-            m_reporterRef.ShowMsg("Installer info:" + m_manifest.Id);
-            m_reporterRef.ShowMsg("--Installer Language: " + m_selectedInstaller.Language);
-            m_reporterRef.ShowMsg("--Installer SHA256: " + Utility::SHA256::ConvertToString(m_selectedInstaller.Sha256));
-            m_reporterRef.ShowMsg("--Installer Download Url: " + m_selectedInstaller.Url);
-            m_reporterRef.ShowMsg("--Installer Type: " + Manifest::ManifestInstaller::InstallerTypeToString(m_selectedInstaller.InstallerType));
-        }
+        Execution::TableOutput<2> table(context.Reporter, { "Version", "Channel" });
+        table.OutputLine({ manifest.Version, manifest.Channel });
+        table.Complete();
     }
 
-    void ShowFlow::ShowAppVersion()
+    void ShowAppVersions(Execution::Context& context)
     {
-        auto app = m_searchResult.Matches.at(0).Application.get();
+        auto app = context.Get<Execution::Data::SearchResult>().Matches.at(0).Application.get();
 
-        m_reporterRef.ShowMsg("Id: " + app->GetId());
-        m_reporterRef.ShowMsg("Name: " + app->GetName());
-        m_reporterRef.ShowMsg("Versions:");
-
+        Execution::TableOutput<2> table(context.Reporter, { "Version", "Channel" });
         for (auto& version : app->GetVersions())
         {
-            m_reporterRef.ShowMsg("  " + version.ToString());
+            table.OutputLine({ version.GetVersion().ToString(), version.GetChannel().ToString() });
         }
+        table.Complete();
     }
 }

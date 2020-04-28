@@ -199,7 +199,7 @@ namespace AppInstaller::Repository::Microsoft
         m_interface->PrepareForPackaging(m_dbconn);
     }
 
-    std::vector<std::pair<SQLiteIndex::IdType, ApplicationMatchFilter>> SQLiteIndex::Search(const SearchRequest& request)
+    Schema::ISQLiteIndex::SearchResult SQLiteIndex::Search(const SearchRequest& request)
     {
         AICLI_LOG(Repo, Info, << "Performing search: " << request.ToString());
 

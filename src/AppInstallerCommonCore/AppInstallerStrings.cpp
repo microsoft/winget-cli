@@ -5,6 +5,13 @@
 
 namespace AppInstaller::Utility
 {
+    // Same as std::isspace(char)
+#define AICLI_SPACE_CHARS " \f\n\r\t\v"sv
+
+    using namespace std::string_view_literals;
+    constexpr std::string_view s_SpaceChars = AICLI_SPACE_CHARS;
+    constexpr std::wstring_view s_WideSpaceChars = L"" AICLI_SPACE_CHARS;
+
     bool CaseInsensitiveEquals(std::string_view a, std::string_view b)
     {
         // TODO: When we bring in ICU, do this correctly.
@@ -118,19 +125,39 @@ namespace AppInstaller::Utility
         }
 
         std::wstring inputAsWStr(str.data());
-        bool nonWhitespaceNotFound = inputAsWStr.find_last_not_of(L" \t\v\f") == std::wstring::npos;
+        bool nonWhitespaceNotFound = inputAsWStr.find_last_not_of(s_WideSpaceChars) == std::wstring::npos;
 
         return nonWhitespaceNotFound;
     }
 
-    void FindAndReplace(std::string& inputStr, std::string_view token, std::string_view value)
+    bool FindAndReplace(std::string& inputStr, std::string_view token, std::string_view value)
     {
+        bool result = false;
         std::string::size_type pos = 0u;
         while ((pos = inputStr.find(token, pos)) != std::string::npos)
         {
+            result = true;
             inputStr.replace(pos, token.length(), value);
             pos += value.length();
         }
+        return result;
+    }
+
+    std::string& Trim(std::string& str)
+    {
+        size_t begin = str.find_first_not_of(s_SpaceChars);
+        size_t end = str.find_last_not_of(s_SpaceChars);
+
+        if (begin == std::string_view::npos || end == std::string_view::npos)
+        {
+            str.clear();
+        }
+        else
+        {
+            str = str.substr(begin, (end - begin) + 1);
+        }
+
+        return str;
     }
 
     std::string ReadEntireStream(std::istream& stream)
