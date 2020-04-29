@@ -139,7 +139,7 @@ namespace AppInstallerCLIE2ETests
                 waitedTime += 1000;
             }
 
-            if (!File.Exists(exitCodeFile))
+            if (waitedTime >= timeOut)
             {
                 throw new TimeoutException("Command run timed out.");
             }
