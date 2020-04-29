@@ -30,6 +30,7 @@ namespace AppInstaller::CLI
         return
         {
             Argument{ "version", 'v', Execution::Args::Type::ListVersions, LOCME("Display the version of the tool"), ArgumentType::Flag, Visibility::Help },
+            Argument{ "info", 'v', Execution::Args::Type::ListVersions, LOCME("Display general info of the tool"), ArgumentType::Flag, Visibility::Help },
         };
     }
 

@@ -122,80 +122,110 @@ TEST_CASE("ReadGoodManifestWithSpaces", "[ManifestValidation]")
     REQUIRE(manifest.FileExtensions == MultiValue{ "appx", "appxbundle", "msix", "msixbundle" });
 }
 
-void TestManifest(const std::filesystem::path& manifestPath, const std::string& expectedError = {})
+struct ManifestExceptionMatcher : public Catch::MatcherBase<ManifestException>
 {
-    if (expectedError.empty())
+    ManifestExceptionMatcher(std::string expectedMessage, bool expectedWarningOnly) :
+        m_expectedMessage(expectedMessage), m_expectedWarningOnly(expectedWarningOnly) {}
+
+    // Performs the test for this matcher
+    bool match(ManifestException const& e) const override
     {
-        CHECK_NOTHROW(Manifest::CreateFromPath(TestDataFile(manifestPath), true));
+        return e.GetManifestErrorMessage().find(m_expectedMessage) != std::string::npos &&
+            e.IsWarningOnly() == m_expectedWarningOnly;
+    }
+
+    virtual std::string describe() const override {
+        std::ostringstream ss;
+        ss << std::boolalpha << "Expected exception message: " << m_expectedMessage << "Expected IsWarningOnly: " << m_expectedWarningOnly;
+        return ss.str();
+    }
+
+private:
+    std::string m_expectedMessage;
+    bool m_expectedWarningOnly;
+};
+
+void TestManifest(const std::filesystem::path& manifestPath, const std::string& expectedMessage = {}, bool expectedWarningOnly = false)
+{
+    if (expectedMessage.empty())
+    {
+        CHECK_NOTHROW(Manifest::CreateFromPath(TestDataFile(manifestPath), true, true));
     }
     else
     {
-        CHECK_THROWS_WITH(Manifest::CreateFromPath(TestDataFile(manifestPath), true), Catch::Contains(expectedError));
+        CHECK_THROWS_MATCHES(Manifest::CreateFromPath(TestDataFile(manifestPath), true, true), ManifestException, ManifestExceptionMatcher(expectedMessage, expectedWarningOnly));
     }
 }
 
+struct ManifestTestCase
+{
+    std::string TestFile;
+    std::string ExpectedMessage = {};
+    bool IsWarningOnly = false;
+};
+
 TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
 {
-    std::string TestCases[] =
+    ManifestTestCase TestCases[] =
     {
-        "Manifest-Good-InstallerTypeExeRoot-Silent.yaml",
-        "Manifest-Good-InstallerTypeExeRoot-SilentRoot.yaml",
-        "Manifest-Good-InstallerTypeExe-Silent.yaml",
-        "Manifest-Good-InstallerTypeExe-SilentRoot.yaml",
-        "Manifest-Good-Installeruniqueness-DefaultLang.yaml",
-        "Manifest-Good-Installeruniqueness-DiffLangs.yaml",
-        "Manifest-Good-InstallerUniqueness-DiffScope.yaml",
-        "Manifest-Good-Minimum.yaml",
-        "Manifest-Good-Minimum-InstallerType.yaml",
-        "Manifest-Good-Switches.yaml",
+        { "Manifest-Good-InstallerTypeExeRoot-Silent.yaml" },
+        { "Manifest-Good-InstallerTypeExeRoot-SilentRoot.yaml" },
+        { "Manifest-Good-InstallerTypeExe-Silent.yaml" },
+        { "Manifest-Good-InstallerTypeExe-SilentRoot.yaml" },
+        { "Manifest-Good-Installeruniqueness-DefaultLang.yaml" },
+        { "Manifest-Good-Installeruniqueness-DiffLangs.yaml" },
+        { "Manifest-Good-InstallerUniqueness-DiffScope.yaml" },
+        { "Manifest-Good-Minimum.yaml" },
+        { "Manifest-Good-Minimum-InstallerType.yaml" },
+        { "Manifest-Good-Switches.yaml" },
     };
 
     for (auto const& testCase : TestCases)
     {
-        TestManifest(testCase);
+        TestManifest(testCase.TestFile);
     }
 }
 
 TEST_CASE("ReadBadManifests", "[ManifestValidation]")
 {
-    std::pair<std::string, std::string> TestCases[] =
+    ManifestTestCase TestCases[] =
     {
-        { "Manifest-Bad-ArchInvalid.yaml", "Manifest: Invalid field value. Field: Arch" },
-        { "Manifest-Bad-ArchMissing.yaml", "Manifest: Required field missing. Field: Arch" },
-        { "Manifest-Bad-Channel-NotSupported.yaml", "Manifest: Field is not supported. Field: Channel" },
-        { "Manifest-Bad-DifferentCase-camelCase.yaml", "Manifest: All field names should be PascalCased. Field: installerType" },
-        { "Manifest-Bad-DifferentCase-lower.yaml", "Manifest: All field names should be PascalCased. Field: installertype" },
-        { "Manifest-Bad-DifferentCase-UPPER.yaml", "Manifest: All field names should be PascalCased. Field: INSTALLERTYPE" },
-        { "Manifest-Bad-DuplicateKey.yaml", "Manifest: Duplicate field found in the manifest." },
-        { "Manifest-Bad-DuplicateKey-DifferentCase.yaml", "Manifest: Duplicate field found in the manifest." },
-        { "Manifest-Bad-DuplicateKey-DifferentCase-lower.yaml", "Manifest: Duplicate field found in the manifest." },
-        { "Manifest-Bad-IdInvalid.yaml", "Manifest: Invalid field value. Field: Id" },
-        { "Manifest-Bad-IdMissing.yaml", "Manifest: Required field missing. Field: Id" },
-        { "Manifest-Bad-InstallersMissing.yaml", "Manifest: Required field missing. Field: Installers" },
-        { "Manifest-Bad-InstallerTypeExe-NoSilent.yaml", "Manifest: Silent switches are required for InstallerType exe." },
-        { "Manifest-Bad-InstallerTypeExe-NoSilentRoot.yaml", "Manifest: Silent switches are required for InstallerType exe." },
-        { "Manifest-Bad-InstallerTypeExeRoot-NoSilent.yaml", "Manifest: Silent switches are required for InstallerType exe." },
-        { "Manifest-Bad-InstallerTypeExeRoot-NoSilentRoot.yaml", "Manifest: Silent switches are required for InstallerType exe." },
-        { "Manifest-Bad-InstallerTypeInvalid.yaml", "Manifest: Invalid field value. Field: InstallerType" },
-        { "Manifest-Bad-InstallerTypeMissing.yaml", "Manifest: Invalid field value. Field: InstallerType" },
-        { "Manifest-Bad-InstallerUniqueness.yaml", "Manifest: Duplicate installer entry found." },
-        { "Manifest-Bad-InstallerUniqueness-DefaultScope.yaml", "Manifest: Duplicate installer entry found." },
-        { "Manifest-Bad-InstallerUniqueness-DefaultValues.yaml", "Manifest: Duplicate installer entry found." },
-        { "Manifest-Bad-InstallerUniqueness-SameLang.yaml", "Manifest: Duplicate installer entry found." },
-        { "Manifest-Bad-NameMissing.yaml", "Manifest: Required field missing. Field: Name" },
-        { "Manifest-Bad-PublisherMissing.yaml", "Manifest: Required field missing. Field: Publisher" },
-        { "Manifest-Bad-Sha256Invalid.yaml", "Manifest: Invalid field value. Field: Sha256" },
-        { "Manifest-Bad-Sha256Missing.yaml", "Manifest: Required field missing. Field: Sha256" },
-        { "Manifest-Bad-SwitchInvalid.yaml", "Manifest: Unknown field. Field: NotASwitch" },
-        { "Manifest-Bad-UnknownProperty.yaml", "Manifest: Unknown field. Field: Fake" },
-        { "Manifest-Bad-UrlInvalid.yaml", "Manifest: Invalid field value. Field: Url" },
-        { "Manifest-Bad-UrlMissing.yaml", "Manifest: Required field missing. Field: Url" },
-        { "Manifest-Bad-VersionInvalid.yaml", "Manifest: Invalid field value. Field: Version" },
-        { "Manifest-Bad-VersionMissing.yaml", "Manifest: Required field missing. Field: Version" },
+        { "Manifest-Bad-ArchInvalid.yaml", "Invalid field value. Field: Arch" },
+        { "Manifest-Bad-ArchMissing.yaml", "Required field missing. Field: Arch" },
+        { "Manifest-Bad-Channel-NotSupported.yaml", "Field is not supported. Field: Channel" },
+        { "Manifest-Bad-DifferentCase-camelCase.yaml", "All field names should be PascalCased. Field: installerType" },
+        { "Manifest-Bad-DifferentCase-lower.yaml", "All field names should be PascalCased. Field: installertype" },
+        { "Manifest-Bad-DifferentCase-UPPER.yaml", "All field names should be PascalCased. Field: INSTALLERTYPE" },
+        { "Manifest-Bad-DuplicateKey.yaml", "Duplicate field found in the manifest." },
+        { "Manifest-Bad-DuplicateKey-DifferentCase.yaml", "Duplicate field found in the manifest." },
+        { "Manifest-Bad-DuplicateKey-DifferentCase-lower.yaml", "Duplicate field found in the manifest." },
+        { "Manifest-Bad-IdInvalid.yaml", "Invalid field value. Field: Id" },
+        { "Manifest-Bad-IdMissing.yaml", "Required field missing. Field: Id" },
+        { "Manifest-Bad-InstallersMissing.yaml", "Required field missing. Field: Installers" },
+        { "Manifest-Bad-InstallerTypeExe-NoSilent.yaml", "Silent and SilentWithProgress switches are not specified for InstallerType exe.", true },
+        { "Manifest-Bad-InstallerTypeExe-NoSilentRoot.yaml", "Silent and SilentWithProgress switches are not specified for InstallerType exe.", true },
+        { "Manifest-Bad-InstallerTypeExeRoot-NoSilent.yaml", "Silent and SilentWithProgress switches are not specified for InstallerType exe.", true },
+        { "Manifest-Bad-InstallerTypeExeRoot-NoSilentRoot.yaml", "Silent and SilentWithProgress switches are not specified for InstallerType exe.", true },
+        { "Manifest-Bad-InstallerTypeInvalid.yaml", "Invalid field value. Field: InstallerType" },
+        { "Manifest-Bad-InstallerTypeMissing.yaml", "Invalid field value. Field: InstallerType" },
+        { "Manifest-Bad-InstallerUniqueness.yaml", "Duplicate installer entry found." },
+        { "Manifest-Bad-InstallerUniqueness-DefaultScope.yaml", "Duplicate installer entry found." },
+        { "Manifest-Bad-InstallerUniqueness-DefaultValues.yaml", "Duplicate installer entry found." },
+        { "Manifest-Bad-InstallerUniqueness-SameLang.yaml", "Duplicate installer entry found." },
+        { "Manifest-Bad-NameMissing.yaml", "Required field missing. Field: Name" },
+        { "Manifest-Bad-PublisherMissing.yaml", "Required field missing. Field: Publisher" },
+        { "Manifest-Bad-Sha256Invalid.yaml", "Invalid field value. Field: Sha256" },
+        { "Manifest-Bad-Sha256Missing.yaml", "Required field missing. Field: Sha256" },
+        { "Manifest-Bad-SwitchInvalid.yaml", "Unknown field. Field: NotASwitch" },
+        { "Manifest-Bad-UnknownProperty.yaml", "Unknown field. Field: Fake" },
+        { "Manifest-Bad-UrlInvalid.yaml", "Invalid field value. Field: Url" },
+        { "Manifest-Bad-UrlMissing.yaml", "Required field missing. Field: Url" },
+        { "Manifest-Bad-VersionInvalid.yaml", "Invalid field value. Field: Version" },
+        { "Manifest-Bad-VersionMissing.yaml", "Required field missing. Field: Version" },
     };
 
     for (auto const& testCase : TestCases)
     {
-        TestManifest(testCase.first, testCase.second);
+        TestManifest(testCase.TestFile, testCase.ExpectedMessage, testCase.IsWarningOnly);
     }
 }

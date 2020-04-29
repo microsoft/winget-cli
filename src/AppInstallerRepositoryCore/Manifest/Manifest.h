@@ -67,10 +67,11 @@ namespace AppInstaller::Manifest
 
         std::vector<ValidationError> PopulateManifestFields(const YAML::Node& rootNode, bool fullValidation);
 
-        // fullValidation Bool to set if manifest creation should perform extra validation that client does not need.
-        // e.g. Channel should be null. Client code does not need this check to work properly.
-        static Manifest CreateFromPath(const std::filesystem::path& inputFile, bool fullValidation = false);
+        // fullValidation: Bool to set if manifest creation should perform extra validation that client does not need.
+        //                 e.g. Channel should be null. Client code does not need this check to work properly.
+        // throwOnWarning: Bool to indicate if an exception should be thrown with only warnings detected in the manifest.
+        static Manifest CreateFromPath(const std::filesystem::path& inputFile, bool fullValidation = false, bool throwOnWarning = false);
 
-        static Manifest Create(const std::string& input, bool fullValidation = false);
+        static Manifest Create(const std::string& input, bool fullValidation = false, bool throwOnWarning = false);
     };
 }

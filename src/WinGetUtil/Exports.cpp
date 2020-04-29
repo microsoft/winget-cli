@@ -167,12 +167,12 @@ extern "C"
 
         try
         {
-            (void)Manifest::CreateFromPath(manifestPath, true);
+            (void)Manifest::CreateFromPath(manifestPath, true, true);
             *succeeded = TRUE;
         }
         catch (const ManifestException& e)
         {
-            *succeeded = FALSE;
+            *succeeded = e.IsWarningOnly();
             if (failureMessage)
             {
                 *failureMessage = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorMessage()).c_str());

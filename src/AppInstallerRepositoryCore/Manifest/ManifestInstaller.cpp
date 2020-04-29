@@ -59,7 +59,7 @@ namespace AppInstaller::Manifest
                 (Switches.find(InstallerSwitchType::SilentWithProgress) == Switches.end() ||
                  Switches.find(InstallerSwitchType::Silent) == Switches.end()))
             {
-                resultErrors.emplace_back(ManifestError::ExeInstallerMissingSilentSwitches);
+                resultErrors.emplace_back(ManifestError::ExeInstallerMissingSilentSwitches, "", "", -1, -1, ValidationError::Level::Warning);
             }
 
             // Check empty string before calling IsValidUrl to avoid duplicate error reporting.
