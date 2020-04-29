@@ -17,8 +17,8 @@ namespace AppInstallerCLIE2ETests
         public const string AppInstallerTestCertThumbprint = "d03e7a688b388b1edde8476a627531c49db88017";
 
         // Todo: not needed if switch to use prod index for source tests
-        public const string IndexPackageCert = "IndexPackageInt.cer";
-        public const string IndexPackageCertThumbprint = "1da968e670a0257f61628aad20c60c64fdecd41a";
+        public const string IndexPackageRootCert = "IndexPackageIntRoot.cer";
+        public const string IndexPackageRootCertThumbprint = "d17697cc206ed26e1a51f5bb96e9356d6d610b74";
 
         public const string AICLIPackageFamilyName = "AppInstallerCLI_8wekyb3d8bbwe";
         public const string AICLIPackageName = "AppInstallerCLI";
