@@ -73,12 +73,29 @@ jobs:
                     /p:AppxBundle=Always 
                     /p:UapAppxPackageBuildMode=StoreUpload'
   
+  - task: PowerShell@2
+    displayName: Install Tests Dependencies
+    inputs:
+      targetType: 'inline'
+      script: |
+        Add-AppxPackage AppInstallerCLIPackage_0.0.0.2_Test\Dependencies\x86\Microsoft.VCLibs.x86.14.00.Desktop.appx
+        Add-AppxPackage AppInstallerCLIPackage_0.0.0.2_Test\Dependencies\x64\Microsoft.VCLibs.x64.14.00.Desktop.appx
+      workingDirectory: $(appxPackageDir)
+
+  - task: VisualStudioTestPlatformInstaller@1
+    displayName: Prepare VSTest for E2E Tests
+    inputs:
+      packageFeedSelector: 'nugetOrg'
+
+# TODO: Convert tests to run based on the whether things have worked up to this point
+
   - task: CmdLine@2
     displayName: Run Unit Tests Unpackaged x64
     inputs:
       script: |
         AppInstallerCLITests.exe -logto AICLI-Unpackaged-x64.log -s -r junit -o TEST-AppInstallerCLI-Unpackaged-x64.xml
       workingDirectory: 'src\x64\Release\AppInstallerCLITests\'
+    condition: succeededOrFailed()
   
   - task: PublishBuildArtifacts@1
     displayName: Publish Unit Tests Unpackaged Log x64
@@ -97,19 +114,12 @@ jobs:
     condition: succeededOrFailed()
   
   - task: PowerShell@2
-    displayName: Install Tests Dependencies x64
-    inputs:
-      targetType: 'inline'
-      script: |
-        Add-AppxPackage AppInstallerCLIPackage_0.0.0.2_Test\Dependencies\x64\Microsoft.VCLibs.x64.14.00.Desktop.appx
-      workingDirectory: $(appxPackageDir)
-  
-  - task: PowerShell@2
     displayName: Run Unit Tests Packaged x64
     inputs:
       filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
       arguments: '-Args "~[pips]" -BuildRoot x64\Release -PackageRoot AppInstallerCLIPackage\bin\x64\Release -LogTarget x64\Release\AICLI-Packaged-x64.log -TestResultsTarget x64\Release\TEST-AppInstallerCLI-Packaged-x64.xml -ScriptWait'
       workingDirectory: 'src'
+    condition: succeededOrFailed()
   
   - task: PublishBuildArtifacts@1
     displayName: Publish Unit Tests Packaged Log x64
@@ -152,15 +162,6 @@ jobs:
     condition: succeededOrFailed()
   
   - task: PowerShell@2
-    displayName: Install Tests Dependencies x86
-    inputs:
-      targetType: 'inline'
-      script: |
-        Add-AppxPackage AppInstallerCLIPackage_0.0.0.2_Test\Dependencies\x86\Microsoft.VCLibs.x86.14.00.Desktop.appx
-      workingDirectory: $(appxPackageDir)
-    condition: succeededOrFailed()
-  
-  - task: PowerShell@2
     displayName: Run Unit Tests Packaged x86
     inputs:
       filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
@@ -190,12 +191,6 @@ jobs:
       testResultsFormat: 'JUnit'
       testResultsFiles: '**/TEST-*.xml'
       failTaskOnFailedTests: true
-    condition: succeededOrFailed()
-
-  - task: VisualStudioTestPlatformInstaller@1
-    displayName: Prepare VSTest for E2E Tests
-    inputs:
-      packageFeedSelector: 'nugetOrg'
     condition: succeededOrFailed()
 
   - task: VSTest@2
