@@ -63,7 +63,7 @@ namespace AppInstallerCLIE2ETests
             ShouldDisableDevModeOnExit = EnableDevMode(true);
 
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)));
-            Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.IndexPackageCert)));
+            Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"ROOT\" " + TestCommon.GetTestDataFile(Constants.IndexPackageRootCert)));
 
             if (TestCommon.PackagedContext)
             {
@@ -87,7 +87,7 @@ namespace AppInstallerCLIE2ETests
             }
 
             TestCommon.RunCommand("certutil.exe", $"-delstore \"TRUSTEDPEOPLE\" {Constants.AppInstallerTestCertThumbprint}");
-            TestCommon.RunCommand("certutil.exe", $"-delstore \"TRUSTEDPEOPLE\" {Constants.IndexPackageCertThumbprint}");
+            TestCommon.RunCommand("certutil.exe", $"-delstore \"ROOT\" {Constants.IndexPackageRootCertThumbprint}");
 
             if (TestCommon.PackagedContext)
             {
