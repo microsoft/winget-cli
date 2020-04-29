@@ -37,13 +37,28 @@ namespace AppInstaller::Manifest
         };
 
         std::string Message;
-        std::string Field;
-        std::string Value;
-        int Line;
-        int Column;
-        Level ErrorLevel;
+        std::string Field = {};
+        std::string Value = {};
+        int Line = -1;
+        int Column = -1;
+        Level ErrorLevel = Level::Error;
 
-        ValidationError(std::string message, std::string field = {}, std::string value = {}, int line = -1, int column = -1, Level level = Level::Error) :
+        ValidationError(std::string message) :
+            Message(std::move(message)) {}
+
+        ValidationError(std::string message, Level level) :
+            Message(std::move(message)), ErrorLevel(level) {}
+
+        ValidationError(std::string message, std::string field) :
+            Message(std::move(message)), Field(std::move(field)) {}
+
+        ValidationError(std::string message, std::string field, std::string value) :
+            Message(std::move(message)), Field(std::move(field)), Value(std::move(value)) {}
+
+        ValidationError(std::string message, std::string field, std::string value, int line, int column) :
+            Message(std::move(message)), Field(std::move(field)), Value(std::move(value)), Line(line), Column(column) {}
+
+        ValidationError(std::string message, std::string field, std::string value, int line, int column, Level level) :
             Message(std::move(message)), Field(std::move(field)), Value(std::move(value)), Line(line), Column(column), ErrorLevel(level) {}
     };
 

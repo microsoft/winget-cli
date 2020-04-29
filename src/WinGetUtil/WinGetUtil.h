@@ -73,7 +73,7 @@ extern "C"
     WINGET_UTIL_API WinGetValidateManifest(
         WINGET_STRING manifestPath,
         BOOL* succeeded,
-        WINGET_STRING_OUT* failureMessage);
+        WINGET_STRING_OUT* message);
 
     // Downloads a file to the given path, returning the SHA 256 hash of the file.
     WINGET_UTIL_API WinGetDownload(

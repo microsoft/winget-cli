@@ -47,14 +47,14 @@ namespace AppInstaller::CLI
 
             context.Reporter.Info() << std::endl <<
                 "Links:" << std::endl <<
-                "    Privacy Statement: https://aka.ms/winget-privacy" << std::endl <<
-                "    License agreement: https://aka.ms/winget-license" << std::endl <<
-                "    3rd Party Notices: https://aka.ms/winget-3rdPartyNotice" << std::endl <<
-                "    Homepage: https://aka.ms/mspm" << std::endl;
+                "  Privacy Statement: https://aka.ms/winget-privacy" << std::endl <<
+                "  License agreement: https://aka.ms/winget-license" << std::endl <<
+                "  3rd Party Notices: https://aka.ms/winget-3rdPartyNotice" << std::endl <<
+                "  Homepage:          https://aka.ms/winget" << std::endl;
         }
         else if (context.Args.Contains(Execution::Args::Type::ListVersions))
         {
-            context.Reporter.Info() << "Version: " << Runtime::GetClientVersion() << std::endl;
+            context.Reporter.Info() << 'v' << Runtime::GetClientVersion() << std::endl;
         }
         else
         {

@@ -43,14 +43,14 @@ namespace AppInstaller::CLI
             {
                 if (e.IsWarningOnly())
                 {
-                    context.Reporter.Info() << "Manifest validation succeeded with warnings." << std::endl;
+                    context.Reporter.Warn() << "Manifest validation succeeded with warnings." << std::endl;
                 }
                 else
                 {
-                    context.Reporter.Warn() << "Manifest validation failed." << std::endl;
+                    context.Reporter.Error() << "Manifest validation failed." << std::endl;
                 }
 
-                context.Reporter.Warn() << e.GetManifestErrorMessage() << std::endl;
+                context.Reporter.Info() << e.GetManifestErrorMessage() << std::endl;
             }
         };
     }
