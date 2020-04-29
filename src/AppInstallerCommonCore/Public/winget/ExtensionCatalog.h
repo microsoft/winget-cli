@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <winrt/Windows.ApplicationModel.h>
 #include <winrt/Windows.ApplicationModel.AppExtensions.h>
 
 #include <filesystem>
@@ -24,6 +25,9 @@ namespace AppInstaller::Deployment
 
         // Gets the location of the directory shared by the extension.
         std::filesystem::path GetPublicFolderPath() const;
+
+        // Get the version of the package.
+        winrt::Windows::ApplicationModel::PackageVersion GetPackageVersion() const;
 
     private:
         winrt::Windows::ApplicationModel::AppExtensions::AppExtension m_extension;

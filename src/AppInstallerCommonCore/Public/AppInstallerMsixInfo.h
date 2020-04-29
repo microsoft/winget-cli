@@ -3,7 +3,10 @@
 #pragma once
 #include <AppInstallerProgress.h>
 #include <AppxPackaging.h>
+
 #include <wrl/client.h>
+#include <winrt/Windows.ApplicationModel.h>
+
 #include <filesystem>
 #include <optional>
 #include <string>
@@ -59,6 +62,8 @@ namespace AppInstaller::Msix
 
         // Gets a value indicating whether the referenced info is newer than the given manifest.
         bool IsNewerThan(const std::filesystem::path& otherManifest);
+
+        bool IsNewerThan(const winrt::Windows::ApplicationModel::PackageVersion& otherVersion);
 
         // Writes the package file to the given path.
         void WriteToFile(std::string_view packageFile, const std::filesystem::path& target, IProgressCallback& progress);

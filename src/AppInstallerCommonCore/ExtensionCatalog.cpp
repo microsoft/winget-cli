@@ -22,6 +22,11 @@ namespace AppInstaller::Deployment
         return m_extension.GetPublicFolderAsync().get().Path().c_str();
     }
 
+    winrt::Windows::ApplicationModel::PackageVersion Extension::GetPackageVersion() const
+    {
+        return m_extension.Package().Id().Version();
+    }
+
     ExtensionCatalog::ExtensionCatalog(std::wstring_view extensionName)
     {
         m_catalog = AppExt::AppExtensionCatalog::Open(winrt::hstring(extensionName));

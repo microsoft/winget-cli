@@ -24,6 +24,8 @@ namespace AppInstaller::Deployment
             size_t id,
             IProgressCallback& callback)
         {
+            AICLI_LOG(Core, Info, << "Begin waiting for deployment #" << id);
+
             AsyncOperationProgressHandler<DeploymentResult, DeploymentProgress> progressCallback(
                 [&callback](const IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress>&, DeploymentProgress progress)
                 {
@@ -35,6 +37,9 @@ namespace AppInstaller::Deployment
             deployOperation.Progress(progressCallback);
 
             auto removeCancel = callback.SetCancellationFunction([&]() { deployOperation.Cancel(); });
+
+            AICLI_LOG(Core, Info, << "Begin blocking for deployment #" << id);
+
             auto deployResult = deployOperation.get();
 
             if (!SUCCEEDED(deployResult.ExtendedErrorCode()))
@@ -51,7 +56,7 @@ namespace AppInstaller::Deployment
         }
     }
 
-    void RequestAddPackageAsync(
+    void RequestAddPackage(
         const winrt::Windows::Foundation::Uri& uri,
         winrt::Windows::Management::Deployment::DeploymentOptions options,
         IProgressCallback& callback)
@@ -73,10 +78,17 @@ namespace AppInstaller::Deployment
         WaitForDeployment(deployOperation, id, callback);
     }
 
-    void RemovePackageFireAndForget(std::string_view packageFullName)
+    void RemovePackage(
+        std::string_view packageFullName,
+        IProgressCallback& callback)
     {
+        size_t id = GetDeploymentOperationId();
+        AICLI_LOG(Core, Info, << "Starting RemovePackage operation #" << id << ": " << packageFullName);
+
         PackageManager packageManager;
         winrt::hstring fullName = Utility::ConvertToUTF16(packageFullName).c_str();
-        (void)packageManager.RemovePackageAsync(fullName, RemovalOptions::None);
+        auto deployOperation = packageManager.RemovePackageAsync(fullName, RemovalOptions::None);
+
+        WaitForDeployment(deployOperation, id, callback);
     }
 }

@@ -163,10 +163,7 @@ namespace AppInstaller::Repository::Microsoft
                         return;
                     }
 
-                    std::filesystem::path packagePath = extension->GetPackagePath();
-                    std::filesystem::path manifestPath = packagePath / s_PreIndexedPackageSourceFactory_AppxManifestFileName;
-
-                    if (!packageInfo.IsNewerThan(manifestPath))
+                    if (!packageInfo.IsNewerThan(extension->GetPackageVersion()))
                     {
                         AICLI_LOG(Repo, Info, << "Remote source data was not newer than existing, no update needed");
                         return;
@@ -182,17 +179,17 @@ namespace AppInstaller::Repository::Microsoft
                 }
 
                 winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(packageLocation));
-                Deployment::RequestAddPackageAsync(
+                Deployment::RequestAddPackage(
                     uri,
                     winrt::Windows::Management::Deployment::DeploymentOptions::None,
                     progress);
             }
 
-            void RemoveInternal(const SourceDetails& details, IProgressCallback&) override
+            void RemoveInternal(const SourceDetails& details, IProgressCallback& callback) override
             {
                 // Begin package removal, but let it run its course without waiting.
                 AICLI_LOG(Repo, Info, << "Removing package " << GetPackageFullNameFromDetails(details));
-                Deployment::RemovePackageFireAndForget(GetPackageFullNameFromDetails(details));
+                Deployment::RemovePackage(GetPackageFullNameFromDetails(details), callback);
             }
         };
 

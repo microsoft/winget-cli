@@ -210,7 +210,7 @@ namespace AppInstaller::CLI::Workflow
             DeploymentOptions deploymentOptions =
                 DeploymentOptions::ForceApplicationShutdown |
                 DeploymentOptions::ForceTargetApplicationShutdown;
-            context.Reporter.ExecuteWithProgress(std::bind(Deployment::RequestAddPackageAsync, uri, deploymentOptions, std::placeholders::_1));
+            context.Reporter.ExecuteWithProgress(std::bind(Deployment::RequestAddPackage, uri, deploymentOptions, std::placeholders::_1));
         }
         catch (const wil::ResultException& re)
         {
