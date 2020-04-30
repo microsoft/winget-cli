@@ -39,6 +39,7 @@ namespace AppInstaller::Manifest
         std::string Message;
         std::string Field = {};
         std::string Value = {};
+        // line and column is 0 based
         int Line = -1;
         int Column = -1;
         Level ErrorLevel = Level::Error;
@@ -123,7 +124,7 @@ namespace AppInstaller::Manifest
                         }
                         if (error.Line >= 0 && error.Column >= 0)
                         {
-                            m_manifestErrorMessage += " Line: " + std::to_string(error.Line) + ", Column: " + std::to_string(error.Column);
+                            m_manifestErrorMessage += " Line: " + std::to_string(error.Line + 1) + ", Column: " + std::to_string(error.Column + 1);
                         }
                         m_manifestErrorMessage += '\n';
                     }
