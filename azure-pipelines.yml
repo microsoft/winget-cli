@@ -197,8 +197,8 @@ jobs:
     displayName: Run E2E Tests Unpackaged x64
     inputs:
       testSelector: 'testAssemblies'
-      testAssemblyVer2: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
-      runSettingsFile: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\Test.runsettings'
+      testAssemblyVer2: 'src\x64\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
+      runSettingsFile: 'src\x64\Release\AppInstallerCLIE2ETests\Test.runsettings'
       overrideTestrunParameters: '-PackagedContext false
                                   -AICLIPath $(system.defaultWorkingDirectory)\src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'
     condition: succeededOrFailed()
@@ -207,8 +207,8 @@ jobs:
     displayName: Run E2E Tests Packaged x64
     inputs:
       testSelector: 'testAssemblies'
-      testAssemblyVer2: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
-      runSettingsFile: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\Test.runsettings'
+      testAssemblyVer2: 'src\x64\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
+      runSettingsFile: 'src\x64\Release\AppInstallerCLIE2ETests\Test.runsettings'
       overrideTestrunParameters: '-PackagedContext true
                                   -AICLIPackagePath $(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x64\Release
                                   -AICLIPath AppInstallerCLI\AppInstallerCLI.exe
@@ -220,8 +220,8 @@ jobs:
     displayName: Run E2E Tests Unpackaged x86
     inputs:
       testSelector: 'testAssemblies'
-      testAssemblyVer2: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
-      runSettingsFile: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\Test.runsettings'
+      testAssemblyVer2: 'src\x86\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
+      runSettingsFile: 'src\x86\Release\AppInstallerCLIE2ETests\Test.runsettings'
       overrideTestrunParameters: '-PackagedContext false
                                   -AICLIPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerCLI\AppInstallerCLI.exe'
     condition: succeededOrFailed()
@@ -230,8 +230,8 @@ jobs:
     displayName: Run E2E Tests Packaged x86
     inputs:
       testSelector: 'testAssemblies'
-      testAssemblyVer2: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
-      runSettingsFile: 'src\AnyCPU\Release\AppInstallerCLIE2ETests\Test.runsettings'
+      testAssemblyVer2: 'src\x86\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
+      runSettingsFile: 'src\x86\Release\AppInstallerCLIE2ETests\Test.runsettings'
       overrideTestrunParameters: '-PackagedContext true
                                   -AICLIPackagePath $(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x86\Release
                                   -AICLIPath AppInstallerCLI\AppInstallerCLI.exe
