@@ -7,12 +7,9 @@ usage: <code> winget install [[-q] \<query>] [\<options>]</code>
 
 ## arguments
 The following arguments are available:
-| option      | description|
+| argument      | description|
 | -------------: | :-------------|  
 | **-q,--query**  |  The query used to search for an app |
-| **-?, --help** |  get additional help on this command
-| <img width=100/> | <img width=500/>|
-
 
 ## install options
 The options allow you to customize the install experience to meet your needs.
@@ -24,14 +21,13 @@ The options allow you to customize the install experience to meet your needs.
 | **--moniker**   |  moniker will limit the search to the moniker listed for the application.|  
 | **-v, --version**  |   version allows you to specify an exact version to install.  If not specified, latest will install the highest versioned application. |  
 | **--tag**   |      tag will limit the search to the tags listed for the application. |  
-| **-s, -source**   |   source needs to be followed by the source name and will restrict the search to the source name provided. |  
-| **-e, -exact**   |     exact will force to use the exact string in the query.  It will not use the default behavior of a substring.  In addition the string will be case sensitive. |  
-| **-i, -interactive**|  interactive will run the installer in interactive mode.  The default experience is show installer progress. |  
-| **-h, -silent**    |  silent will run the installer in silent mode.  This will suppress all UI. The default experience is show installer progress. |  
+| **-s, --source**   |   source needs to be followed by the source name and will restrict the search to the source name provided. |  
+| **-e, --exact**   |     exact will force to use the exact string in the query.  It will not use the default behavior of a substring.  In addition the string will be case sensitive. |  
+| **-i, --interactive**|  interactive will run the installer in interactive mode.  The default experience is show installer progress. |  
+| **-h, --silent**    |  silent will run the installer in silent mode.  This will suppress all UI. The default experience is show installer progress. |  
 | **-o, --log**      |   log allows you to direct the logging to a log file.  You must provide a path to a file that you have the write rights to.
-| **-override** |  Override is a string that will be passed directly to the installer.    | 
+| **--override** |  Override is a string that will be passed directly to the installer.    | 
 | **-l,--location** |      Location to install to (if supported)|
-|<img width=100   />|<img width=500 />  
 
 ## Multiple Selections 
 If the query provided to winget does not result in a single application, then winget will display the results of the search.  This will provide you with the additional data necessary to refine the search for a correct install. 
