@@ -11,9 +11,6 @@ The following arguments are available:
 | argument  | description|
 | --------------: | :------------- |
 | **-q,--query** |  the query used to search for an app
-| **-?, --help** |  get additional help on this command
-|<img width=100   />|<img width=500 />  |
-
 
 ## Options
 The following options are available:  
@@ -27,9 +24,6 @@ The following options are available:
 | **-s,--source** |   Find app using the specified source
 | **-e,--exact**     | Find app using exact match
 | **--versions**    | Show available versions of the app
-|<img width=100   />|<img width=500 />  |
-
-
 
 ## Multiple Selections 
 If the query provided to winget does not result in a single application, then winget will display the results of the search.  This will provide you with the additional data necessary to refine the search.
@@ -60,6 +54,3 @@ If a single application is detected, the following data will be displayed.
   * **Hash**           The Sha-256 of the installer 
   * **Scope**          Displays whether the installer is per machine or per user
  
-
-
-
