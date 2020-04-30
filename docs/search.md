@@ -9,9 +9,6 @@ The following arguments are available:
 | argument  | description|
 | --------------: | :------------- |
 | **-q,--query** |  the query used to search for an app
-| **-?, --help** |  get additional help on this command
-|<img width=100   />|<img width=500 />  |
-
 
 ## Show all
 If the search command includes no filters or options, it will display all available applications in the default source.  You can also search for all applications in another source if you pass in just the <b>source</B> option.
@@ -27,8 +24,6 @@ Search strings can be filtered with the following options:
 | **--moniker**  |    moniker will limit the search to the moniker specified. |
 |  **--tag**    |  tag will limit the search to the tags listed for the application. |
 | **--command**   |   name will limit the search to the name of the application. |
-|<img width=100   />|<img width=500 />  |
-
 
 The string will be treated as a substring.  The search by default is also case insensitive.  
 For example, "winget search micro" will return the following:
@@ -41,7 +36,6 @@ The search commands supports a number of options or filters to help limit the re
 
 | option  | description|
 | --------------: | :------------- |
-| **e, --exact**  |     exact will force to use the exact string in the query.  It will not use the default behavior of a substring.  In addition the string will be case sensitive. |  
+| **-e, --exact**  |     exact will force to use the exact string in the query.  It will not use the default behavior of a substring.  In addition the string will be case sensitive. |  
 | **-n, --count**      |  count will restrict the out put of the display to the count
 | **-s, --source**     |  source will restrict the search to the specified source name.  Click here for more information on <b> [source](source.md)</b>.
-|<img width=100   />|<img width=500 />  |
