@@ -36,13 +36,21 @@ namespace AppInstaller::CLI
 
             try
             {
-                (void)Manifest::Manifest::CreateFromPath(inputFile, true);
+                (void)Manifest::Manifest::CreateFromPath(inputFile, true, true);
                 context.Reporter.Info() << "Manifest validation succeeded." << std::endl;
             }
             catch (const Manifest::ManifestException& e)
             {
-                context.Reporter.Warn() << "Manifest validation failed." << std::endl;
-                context.Reporter.Warn() << e.GetManifestErrorMessage() << std::endl;
+                if (e.IsWarningOnly())
+                {
+                    context.Reporter.Warn() << "Manifest validation succeeded with warnings." << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Error() << "Manifest validation failed." << std::endl;
+                }
+
+                context.Reporter.Info() << e.GetManifestErrorMessage() << std::endl;
             }
         };
     }

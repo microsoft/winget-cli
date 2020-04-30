@@ -13,29 +13,54 @@ namespace AppInstaller::Manifest
 {
     namespace ManifestError
     {
-        const char* const InvalidRootNode = "Manifest: Encountered unexpected root node.";
-        const char* const FieldUnknown = "Manifest: Unknown field.";
-        const char* const FieldIsNotPascalCase = "Manifest: All field names should be PascalCased.";
-        const char* const FieldDuplicate = "Manifest: Duplicate field found in the manifest.";
-        const char* const RequiredFieldEmpty = "Manifest: Required field with empty value.";
-        const char* const RequiredFieldMissing = "Manifest: Required field missing.";
-        const char* const InvalidFieldValue = "Manifest: Invalid field value.";
-        const char* const ExeInstallerMissingSilentSwitches = "Manifest: Silent switches are required for InstallerType exe.";
-        const char* const FieldNotSupported = "Manifest: Field is not supported.";
-        const char* const DuplicateInstallerEntry = "Manifest: Duplicate installer entry found.";
+        const char* const ErrorMessagePrefix = "Manifest Error: ";
+        const char* const WarningMessagePrefix = "Manifest Warning: ";
+
+        const char* const InvalidRootNode = "Encountered unexpected root node.";
+        const char* const FieldUnknown = "Unknown field.";
+        const char* const FieldIsNotPascalCase = "All field names should be PascalCased.";
+        const char* const FieldDuplicate = "Duplicate field found in the manifest.";
+        const char* const RequiredFieldEmpty = "Required field with empty value.";
+        const char* const RequiredFieldMissing = "Required field missing.";
+        const char* const InvalidFieldValue = "Invalid field value.";
+        const char* const ExeInstallerMissingSilentSwitches = "Silent and SilentWithProgress switches are not specified for InstallerType exe. Please make sure the installer can run unattended.";
+        const char* const FieldNotSupported = "Field is not supported.";
+        const char* const DuplicateInstallerEntry = "Duplicate installer entry found.";
     }
 
     struct ValidationError
     {
-        std::string Message;
-        std::string Field;
-        std::string Value;
-        // line and column is 0 based
-        int Line;
-        int Column;
+        enum class Level
+        {
+            Warning,
+            Error
+        };
 
-        ValidationError(std::string message, std::string field = {}, std::string value = {}, int line = -1, int column = -1) :
+        std::string Message;
+        std::string Field = {};
+        std::string Value = {};
+        // line and column is 0 based
+        int Line = -1;
+        int Column = -1;
+        Level ErrorLevel = Level::Error;
+
+        ValidationError(std::string message) :
+            Message(std::move(message)) {}
+
+        ValidationError(std::string message, Level level) :
+            Message(std::move(message)), ErrorLevel(level) {}
+
+        ValidationError(std::string message, std::string field) :
+            Message(std::move(message)), Field(std::move(field)) {}
+
+        ValidationError(std::string message, std::string field, std::string value) :
+            Message(std::move(message)), Field(std::move(field)), Value(std::move(value)) {}
+
+        ValidationError(std::string message, std::string field, std::string value, int line, int column) :
             Message(std::move(message)), Field(std::move(field)), Value(std::move(value)), Line(line), Column(column) {}
+
+        ValidationError(std::string message, std::string field, std::string value, int line, int column, Level level) :
+            Message(std::move(message)), Field(std::move(field)), Value(std::move(value)), Line(line), Column(column), ErrorLevel(level) {}
     };
 
     // This struct contains individual app manifest field info
@@ -56,7 +81,14 @@ namespace AppInstaller::Manifest
     struct ManifestException : public wil::ResultException
     {
         ManifestException(std::vector<ValidationError>&& errors = {}) :
-            m_errors(std::move(errors)), wil::ResultException(APPINSTALLER_CLI_ERROR_MANIFEST_FAILED) {}
+            m_errors(std::move(errors)), wil::ResultException(APPINSTALLER_CLI_ERROR_MANIFEST_FAILED)
+        {
+            auto p = [&](ValidationError const& e) {
+                return e.ErrorLevel == ValidationError::Level::Error;
+            };
+
+            m_warningOnly = !m_errors.empty() && std::find_if(m_errors.begin(), m_errors.end(), p) == m_errors.end();
+        }
 
         // Error message without wil diagnostic info
         const std::string& GetManifestErrorMessage() const noexcept
@@ -72,7 +104,16 @@ namespace AppInstaller::Manifest
                 {
                     for (auto const& error : m_errors)
                     {
+                        if (error.ErrorLevel == ValidationError::Level::Error)
+                        {
+                            m_manifestErrorMessage += ManifestError::ErrorMessagePrefix;
+                        }
+                        else if (error.ErrorLevel == ValidationError::Level::Warning)
+                        {
+                            m_manifestErrorMessage += ManifestError::WarningMessagePrefix;
+                        }
                         m_manifestErrorMessage += error.Message;
+
                         if (!error.Field.empty())
                         {
                             m_manifestErrorMessage += " Field: " + error.Field;
@@ -90,6 +131,11 @@ namespace AppInstaller::Manifest
                 }
             }
             return m_manifestErrorMessage;
+        }
+
+        bool IsWarningOnly() const noexcept
+        {
+            return m_warningOnly;
         }
 
         const char* what() const noexcept override
@@ -110,5 +156,6 @@ namespace AppInstaller::Manifest
         std::vector<ValidationError> m_errors;
         mutable std::string m_whatMessage;
         mutable std::string m_manifestErrorMessage;
+        bool m_warningOnly;
     };
 }
