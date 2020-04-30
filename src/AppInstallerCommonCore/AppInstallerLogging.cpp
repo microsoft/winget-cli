@@ -39,6 +39,7 @@ namespace AppInstaller::Logging
         case Channel::SQL:  return "SQL";
         case Channel::Repo: return "REPO";
         case Channel::YAML: return "YAML";
+        case Channel::Core: return "CORE";
         case Channel::Test: return "TEST";
         default:            return "NONE";
         }

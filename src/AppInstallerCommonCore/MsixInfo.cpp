@@ -27,6 +27,17 @@ namespace AppInstaller::Msix
             return result;
         }
 
+        // Gets the UINT64 version from the version struct.
+        UINT64 GetVersionFromVersion(const winrt::Windows::ApplicationModel::PackageVersion& version)
+        {
+            UINT64 result = version.Major;
+            result = (result << 16) | version.Minor;
+            result = (result << 16) | version.Build;
+            result = (result << 16) | version.Revision;
+
+            return result;
+        }
+
         // Writes the stream (from current location) to the given file.
         void WriteStreamToFile(IStream* stream, UINT64 expectedSize, const std::filesystem::path& target, IProgressCallback& progress)
         {
@@ -330,6 +341,16 @@ namespace AppInstaller::Msix
         THROW_IF_FAILED(m_packageReader->GetManifest(&manifestReader));
 
         return (GetVersionFromManifestReader(manifestReader.Get()) > GetVersionFromManifestReader(otherReader.Get()));
+    }
+
+    bool MsixInfo::IsNewerThan(const winrt::Windows::ApplicationModel::PackageVersion& otherVersion)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, m_isBundle);
+
+        ComPtr<IAppxManifestReader> manifestReader;
+        THROW_IF_FAILED(m_packageReader->GetManifest(&manifestReader));
+
+        return (GetVersionFromManifestReader(manifestReader.Get()) > GetVersionFromVersion(otherVersion));
     }
 
     void MsixInfo::WriteToFile(std::string_view packageFile, const std::filesystem::path& target, IProgressCallback& progress)

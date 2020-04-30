@@ -60,7 +60,7 @@ TEST_CASE("MsixInfo_WriteFile", "[msixinfo]")
     TempFile file{ "msixtest_file"s, ".bin"s };
     ProgressCallback callback;
 
-    msix.WriteToFile("index.db", file, callback);
+    msix.WriteToFile("Public\\index.db", file, callback);
 
     REQUIRE(1 == std::filesystem::file_size(file));
 }

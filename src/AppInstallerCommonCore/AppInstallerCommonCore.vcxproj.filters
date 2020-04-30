@@ -22,6 +22,9 @@
     <Filter Include="HttpStream">
       <UniqueIdentifier>{a9c14af9-ca74-4945-a19c-9e99df23a5ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Public\winget">
+      <UniqueIdentifier>{41035fd6-dc74-4464-b9b1-4ffe95d6789c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -93,6 +96,9 @@
     <ClInclude Include="Public\AppInstallerVersions.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\ExtensionCatalog.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -150,6 +156,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Errors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtensionCatalog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

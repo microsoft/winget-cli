@@ -89,4 +89,18 @@ namespace AppInstaller::CLI::Execution
             Reporter.SetStyle(VisualStyle::Rainbow);
         }
     }
+
+    void Context::Terminate(HRESULT hr)
+    {
+        if (m_isTerminated && m_terminationHR == hr && hr == E_ABORT)
+        {
+            // If things aren't terminating fast enough for the user, they will probably press CTRL+C again.
+            // In that case, we should forcibly terminate.
+            // Unless we want to spin a separate thread for all work, we have to just exit here.
+            std::exit(hr);
+        }
+
+        m_isTerminated = true;
+        m_terminationHR = hr;
+    }
 }

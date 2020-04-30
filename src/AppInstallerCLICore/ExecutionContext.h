@@ -156,7 +156,7 @@ namespace AppInstaller::CLI::Execution
         HRESULT GetTerminationHR() const { return m_terminationHR; }
 
         // Set the context to the terminated state.
-        void Terminate(HRESULT hr) { m_isTerminated = true; m_terminationHR = hr; }
+        void Terminate(HRESULT hr);
 
         // Adds a value to the context data, or overwrites an existing entry.
         // This must be used to create the intial data entry, but Get can be used to modify.

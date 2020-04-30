@@ -139,6 +139,11 @@ namespace AppInstallerCLIE2ETests
                 waitedTime += 1000;
             }
 
+            if (waitedTime >= timeOut)
+            {
+                throw new TimeoutException("Command run timed out.");
+            }
+
             RunCommandResult result = new RunCommandResult();
 
             result.ExitCode = File.Exists(exitCodeFile) ? int.Parse(File.ReadAllText(exitCodeFile).Trim()) : unchecked((int)0x80004005);

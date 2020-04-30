@@ -24,10 +24,7 @@ namespace AppInstallerCLIE2ETests
         public const string AICLIPackageName = "AppInstallerCLI";
         public const string AICLIAppId = "AppInst";
 
-        // Todo: there's a deployment bug that if the last optional package is removed, the main package is also removed.
-        // We should remove this when the deployment bug is fixed.
-        public const string PlaceholderPackageFile = "PlaceholderPackage.msix";
-        public const string PlaceholderPackageName = "AppInstallerSQLiteIndex-e2etest-placeholder";
+        public const string TestPackage = "TestPackage.msix";
 
         public class ErrorCode
         {

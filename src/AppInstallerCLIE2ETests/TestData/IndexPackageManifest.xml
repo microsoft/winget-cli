@@ -9,19 +9,33 @@
             Version="1.0.0.0" />
 
   <Properties>
-    <DisplayName>AppInstallerSQLiteIndex for AppInstallerCLI.</DisplayName>
+    <DisplayName>Microsoft WinGet Source</DisplayName>
     <PublisherDisplayName>Microsoft Corporation</PublisherDisplayName>
     <Logo>Assets\AppPackageStoreLogo.png</Logo>
   </Properties>
 
   <Dependencies>
     <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.16299.0" MaxVersionTested="10.0.18287.0" />
-    <uap4:MainPackageDependency Name="Microsoft.DesktopAppInstaller" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"/>
-    <uap4:MainPackageDependency Name="AppInstallerCLI" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"/>
   </Dependencies>
 
+  <Applications>
+    <Application Id="SourceData">
+      <uap:VisualElements DisplayName="Source data for Microsoft WinGet" Square150x150Logo="Assets\AppPackageStoreLogo.scale-150.png" Square44x44Logo="Assets\AppPackageStoreLogo.scale-100.png" Description="Source data for Microsoft WinGet." BackgroundColor="#0078d7" AppListEntry="none" />
+      <Extensions>
+        <uap3:Extension Category="windows.appExtension">
+          <uap3:AppExtension Name="com.microsoft.winget.source"
+                             Id="IndexDB"
+                             DisplayName="Source data for Microsoft WinGet"
+                             Description="Source data for Microsoft WinGet"
+                             PublicFolder="Public">
+          </uap3:AppExtension>
+        </uap3:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
   <Resources>
-    <Resource Language="en-US" />
+    <Resource Language="und" />
   </Resources>
 
 </Package>

@@ -13,9 +13,11 @@ namespace AppInstaller::Repository::Microsoft
 {
     namespace
     {
-        static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageFileName = "index.msix"sv;
+        static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageFileName = "source.msix"sv;
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_AppxManifestFileName = "AppxManifest.xml"sv;
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_IndexFileName = "index.db"sv;
+        // TODO: This being hard coded to force using the Public directory name is not ideal.
+        static constexpr std::string_view s_PreIndexedPackageSourceFactory_IndexFilePath = "Public\\index.db"sv;
 
         // Construct the package location from the given details.
         // Currently expects that the arg is an https uri pointing to the root of the data.
@@ -90,7 +92,7 @@ namespace AppInstaller::Repository::Microsoft
                 {
                     AICLI_LOG(Repo, Info, << "Initializing source from: " << details.Name << " => " << packageLocation);
 
-                    // If not initialized, we need to open the package and get the family name.
+                    // If not initialized, we need to open the package and get the full name.
                     Msix::MsixInfo packageInfo(packageLocation);
                     THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.GetIsBundle());
                     details.Data = packageInfo.GetPackageFullName();
@@ -122,24 +124,25 @@ namespace AppInstaller::Repository::Microsoft
         struct PackagedContextFactory : public PreIndexedFactoryBase
         {
             // *Should only be called when under a CrossProcessReaderWriteLock*
-            std::optional<std::filesystem::path> GetPackageLocationFromDetails(const SourceDetails& details)
+            std::optional<Deployment::Extension> GetExtensionFromDetails(const SourceDetails& details)
             {
-                return Msix::GetPackageLocationFromFullName(GetPackageFullNameFromDetails(details));
+                Deployment::ExtensionCatalog catalog(Deployment::SourceExtensionName);
+                return catalog.FindByPackageFamilyAndId(GetPackageFamilyNameFromDetails(details), Deployment::IndexDBId);
             }
 
             std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) override
             {
-                auto optionalPackage = GetPackageLocationFromDetails(details);
-                if (!optionalPackage)
+                auto extension = GetExtensionFromDetails(details);
+                if (!extension)
                 {
                     AICLI_LOG(Repo, Info, << "Package not found " << details.Data);
                     THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
                 }
 
-                std::filesystem::path packageLocation = optionalPackage.value();
-                packageLocation /= s_PreIndexedPackageSourceFactory_IndexFileName;
+                std::filesystem::path indexLocation = extension->GetPublicFolderPath();
+                indexLocation /= s_PreIndexedPackageSourceFactory_IndexFileName;
 
-                SQLiteIndex index = SQLiteIndex::Open(packageLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
+                SQLiteIndex index = SQLiteIndex::Open(indexLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
 
                 return std::make_shared<SQLiteIndexSource>(details, std::move(index), std::move(lock));
             }
@@ -148,8 +151,8 @@ namespace AppInstaller::Repository::Microsoft
             {
                 // Check if the package is newer before calling into deployment.
                 // This can save us a lot of time over letting deployment detect same version.
-                auto optionalPackage = GetPackageLocationFromDetails(details);
-                if (optionalPackage)
+                auto extension = GetExtensionFromDetails(details);
+                if (extension)
                 {
                     Msix::MsixInfo packageInfo(packageLocation);
                     THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.GetIsBundle());
@@ -160,10 +163,7 @@ namespace AppInstaller::Repository::Microsoft
                         return;
                     }
 
-                    std::filesystem::path packagePath = optionalPackage.value();
-                    std::filesystem::path manifestPath = packagePath / s_PreIndexedPackageSourceFactory_AppxManifestFileName;
-
-                    if (!packageInfo.IsNewerThan(manifestPath))
+                    if (!packageInfo.IsNewerThan(extension->GetPackageVersion()))
                     {
                         AICLI_LOG(Repo, Info, << "Remote source data was not newer than existing, no update needed");
                         return;
@@ -179,20 +179,17 @@ namespace AppInstaller::Repository::Microsoft
                 }
 
                 winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(packageLocation));
-                Deployment::StageAndDelayRegisterPackageAsync(
-                    GetPackageFamilyNameFromDetails(details),
+                Deployment::RequestAddPackage(
                     uri,
-                    winrt::Windows::Management::Deployment::DeploymentOptions::None,
                     winrt::Windows::Management::Deployment::DeploymentOptions::None,
                     progress);
             }
 
-            void RemoveInternal(const SourceDetails& details, IProgressCallback&) override
+            void RemoveInternal(const SourceDetails& details, IProgressCallback& callback) override
             {
                 // Begin package removal, but let it run its course without waiting.
-                // This pattern is required due to the inability to use SetInUseAsync from a full trust process.
                 AICLI_LOG(Repo, Info, << "Removing package " << GetPackageFullNameFromDetails(details));
-                Deployment::RemovePackageFireAndForget(GetPackageFullNameFromDetails(details));
+                Deployment::RemovePackage(GetPackageFullNameFromDetails(details), callback);
             }
         };
 
@@ -258,7 +255,7 @@ namespace AppInstaller::Repository::Microsoft
                     return;
                 }
 
-                packageInfo.WriteToFile(s_PreIndexedPackageSourceFactory_IndexFileName, indexPath, progress);
+                packageInfo.WriteToFile(s_PreIndexedPackageSourceFactory_IndexFilePath, indexPath, progress);
                 packageInfo.WriteManifestToFile(manifestPath, progress);
             }
 
