@@ -139,8 +139,12 @@ namespace AppInstaller::Repository::Microsoft
                     THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
                 }
 
-                std::filesystem::path indexLocation = extension->GetPublicFolderPath();
-                indexLocation /= s_PreIndexedPackageSourceFactory_IndexFileName;
+                // To work around an issue with accessing the public folder, we are temporarily
+                // constructing the location ourself.  This was already the case for the non-packaged
+                // runtime, and we can fix both in the future.  The only problem with this is that
+                // the directory in the extension *must* be Public, rather than one set by the creator.
+                std::filesystem::path indexLocation = extension->GetPackagePath();
+                indexLocation /= s_PreIndexedPackageSourceFactory_IndexFilePath;
 
                 SQLiteIndex index = SQLiteIndex::Open(indexLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
 

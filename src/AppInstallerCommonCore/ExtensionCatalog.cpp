@@ -3,6 +3,7 @@
 #pragma once
 #include "pch.h"
 #include "winget/ExtensionCatalog.h"
+#include "AppInstallerErrors.h"
 #include "AppInstallerLogging.h"
 #include "AppInstallerStrings.h"
 
@@ -19,7 +20,9 @@ namespace AppInstaller::Deployment
 
     std::filesystem::path Extension::GetPublicFolderPath() const
     {
-        return m_extension.GetPublicFolderAsync().get().Path().c_str();
+        auto folder = m_extension.GetPublicFolderAsync().get();
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_EXTENSION_PUBLIC_FAILED, !folder);
+        return folder.Path().c_str();
     }
 
     winrt::Windows::ApplicationModel::PackageVersion Extension::GetPackageVersion() const
