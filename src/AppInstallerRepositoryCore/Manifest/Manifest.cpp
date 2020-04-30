@@ -158,7 +158,7 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
-    Manifest Manifest::CreateFromPath(const std::filesystem::path& inputFile, bool fullValidation)
+    Manifest Manifest::CreateFromPath(const std::filesystem::path& inputFile, bool fullValidation, bool throwOnWarning)
     {
         Manifest manifest;
         std::vector<ValidationError> errors;
@@ -170,19 +170,23 @@ namespace AppInstaller::Manifest
         }
         catch (const std::exception& e)
         {
-            AICLI_LOG(YAML, Error, << "Failed to create manifest from file: " << inputFile.u8string());
             THROW_EXCEPTION_MSG(ManifestException(), e.what());
         }
 
         if (!errors.empty())
         {
-            THROW_EXCEPTION(ManifestException(std::move(errors)));
+            ManifestException ex{ std::move(errors) };
+
+            if (throwOnWarning || !ex.IsWarningOnly())
+            {
+                THROW_EXCEPTION(ex);
+            }
         }
 
         return manifest;
     }
 
-    Manifest Manifest::Create(const std::string& input, bool fullValidation)
+    Manifest Manifest::Create(const std::string& input, bool fullValidation, bool throwOnWarning)
     {
         Manifest manifest;
         std::vector<ValidationError> errors;
@@ -194,13 +198,17 @@ namespace AppInstaller::Manifest
         }
         catch (const std::exception& e)
         {
-            AICLI_LOG(YAML, Error, << "Failed to create manifest: " << input);
             THROW_EXCEPTION_MSG(ManifestException(), e.what());
         }
 
         if (!errors.empty())
         {
-            THROW_EXCEPTION(ManifestException(std::move(errors)));
+            ManifestException ex{ std::move(errors) };
+
+            if (throwOnWarning || !ex.IsWarningOnly())
+            {
+                THROW_EXCEPTION(ex);
+            }
         }
 
         return manifest;

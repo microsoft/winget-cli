@@ -160,22 +160,22 @@ extern "C"
     WINGET_UTIL_API WinGetValidateManifest(
         WINGET_STRING manifestPath,
         BOOL* succeeded,
-        WINGET_STRING_OUT* failureMessage) try
+        WINGET_STRING_OUT* message) try
     {
         THROW_HR_IF(E_INVALIDARG, !manifestPath);
         THROW_HR_IF(E_INVALIDARG, !succeeded);
 
         try
         {
-            (void)Manifest::CreateFromPath(manifestPath, true);
+            (void)Manifest::CreateFromPath(manifestPath, true, true);
             *succeeded = TRUE;
         }
         catch (const ManifestException& e)
         {
-            *succeeded = FALSE;
-            if (failureMessage)
+            *succeeded = e.IsWarningOnly();
+            if (message)
             {
-                *failureMessage = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorMessage()).c_str());
+                *message = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorMessage()).c_str());
             }
         }
 

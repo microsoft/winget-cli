@@ -57,6 +57,7 @@ namespace AppInstaller::CLI::Execution
             PlainStyle, // Makes progress display as plain
             RainbowStyle, // Makes progress display as a rainbow
             Help, // Show command usage
+            Info, // Show general info about WinGet
         };
 
         bool Contains(Type arg) const { return (m_parsedArgs.count(arg) != 0); }

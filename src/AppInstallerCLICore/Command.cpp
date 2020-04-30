@@ -27,8 +27,8 @@ namespace AppInstaller::CLI
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
         reporter.Info() <<
-            "AppInstaller Command Line v" << Runtime::GetClientVersion() << std::endl <<
-            "Copyright (c) Microsoft Corporation" << std::endl;
+            "Windows Package Manager v" << Runtime::GetClientVersion() << std::endl <<
+            "Copyright (c) Microsoft Corporation. All rights reserved." << std::endl;
     }
 
     void Command::OutputHelp(Execution::Reporter& reporter, const CommandException* exception) const
