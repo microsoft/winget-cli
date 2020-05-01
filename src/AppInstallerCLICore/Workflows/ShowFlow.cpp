@@ -19,20 +19,22 @@ namespace AppInstaller::CLI::Workflow
         auto selectedLocalization = manifestComparator.GetPreferredLocalization(manifest);
 
         // TODO: Come up with a prettier format
-        context.Reporter.Info() << "Version: " + manifest.Version << std::endl;
-        context.Reporter.Info() << "Author: " + manifest.Author << std::endl;
-        context.Reporter.Info() << "AppMoniker: " + manifest.AppMoniker << std::endl;
-        context.Reporter.Info() << "Description: " + selectedLocalization.Description << std::endl;
-        context.Reporter.Info() << "Homepage: " + selectedLocalization.Homepage << std::endl;
-        context.Reporter.Info() << "License: " + selectedLocalization.LicenseUrl << std::endl;
-
+        context.Reporter.Info() << "Version: " << manifest.Version << std::endl;
+        context.Reporter.Info() << "Author: " << manifest.Author << std::endl;
+        context.Reporter.Info() << "Publisher: " << manifest.Publisher << std::endl;
+        context.Reporter.Info() << "AppMoniker: " << manifest.AppMoniker << std::endl;
+        context.Reporter.Info() << "Description: " << selectedLocalization.Description << std::endl;
+        context.Reporter.Info() << "Homepage: " << selectedLocalization.Homepage << std::endl;
+        context.Reporter.Info() << "License: " << manifest.License << std::endl;
+        context.Reporter.Info() << "License Url: " << selectedLocalization.LicenseUrl << std::endl;
         context.Reporter.Info() << "Installer:" << std::endl;
+
         if (installer)
         {
-            context.Reporter.Info() << "  Language: " + installer->Language << std::endl;
-            context.Reporter.Info() << "  SHA256: " + Utility::SHA256::ConvertToString(installer->Sha256) << std::endl;
-            context.Reporter.Info() << "  Download Url: " + installer->Url << std::endl;
-            context.Reporter.Info() << "  Type: " + Manifest::ManifestInstaller::InstallerTypeToString(installer->InstallerType) << std::endl;
+            context.Reporter.Info() << "  Language: " << installer->Language << std::endl;
+            context.Reporter.Info() << "  SHA256: " << Utility::SHA256::ConvertToString(installer->Sha256) << std::endl;
+            context.Reporter.Info() << "  Download Url: " << installer->Url << std::endl;
+            context.Reporter.Info() << "  Type: " << Manifest::ManifestInstaller::InstallerTypeToString(installer->InstallerType) << std::endl;
         }
         else
         {
