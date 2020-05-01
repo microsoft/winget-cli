@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modules>
+  <Module
+    name="Microsoft.Windows.WinGet"
+    tdbuildteamid="8343">
+    <File
+      location="Microsoft.Windows.WinGet"
+      path="%TFS_SOURCESDIRECTORY%\src\AppInstallerCLIPackage\Shared\Strings\en-us\winget.resw" />
+  </Module>
+</Modules>

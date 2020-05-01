@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Command.h"
 #include "Localization.h"
+#include "Resources.h"
 
 namespace AppInstaller::CLI
 {
@@ -145,11 +146,11 @@ namespace AppInstaller::CLI
         {
             if (Name() == FullName())
             {
-                infoOut << LOCME("The following commands are available:") << std::endl;
+                infoOut << Resources::GetInstance().ResolveWingetString(L"AvailableCommands").c_str() << std::endl;
             }
             else
             {
-                infoOut << LOCME("The following sub-commands are available:") << std::endl;
+                infoOut << Resources::GetInstance().ResolveWingetString(L"AvailableSubcommands").c_str() << std::endl;
             }
 
             size_t maxCommandNameLength = 0;
@@ -166,7 +167,8 @@ namespace AppInstaller::CLI
 
             infoOut <<
                 std::endl <<
-                LOCME("For more details on a specific command, pass it the help argument.") << " [" << APPINSTALLER_CLI_HELP_ARGUMENT << ']' << std::endl;
+                Resources::GetInstance().ResolveWingetString(L"HelpForDetails").c_str()
+                << " [" << APPINSTALLER_CLI_HELP_ARGUMENT << ']' << std::endl;
         }
 
         if (!arguments.empty())
@@ -196,7 +198,7 @@ namespace AppInstaller::CLI
 
             if (hasArguments)
             {
-                infoOut << LOCME("The following arguments are available:") << std::endl;
+                infoOut << Resources::GetInstance().ResolveWingetString(L"AvailableArguements").c_str() << std::endl;
 
                 size_t i = 0;
                 for (const auto& arg : GetArguments())
@@ -220,7 +222,7 @@ namespace AppInstaller::CLI
                     infoOut << std::endl;
                 }
 
-                infoOut << LOCME("The following options are available:") << std::endl;
+                infoOut << Resources::GetInstance().ResolveWingetString(L"AvailableOptions").c_str() << std::endl;
 
                 size_t i = 0;
                 for (const auto& arg : GetArguments())
@@ -266,7 +268,7 @@ namespace AppInstaller::CLI
         }
 
         // TODO: If we get to a large number of commands, do a fuzzy search much like git
-        throw CommandException(LOCME("Unrecognized command"), *itr);
+        throw CommandException(Resources::GetInstance().ResolveWingetString(L"UnrecognizedCommand"), *itr);
     }
 
     // Parse arguments as such:
@@ -306,7 +308,7 @@ namespace AppInstaller::CLI
 
                 if (positionalSearchItr == definedArgs.end())
                 {
-                    throw CommandException(LOCME("Found a positional argument when none was expected"), currArg);
+                    throw CommandException(Resources::GetInstance().ResolveWingetString(L"ExtraPositionalError"), currArg);
                 }
 
                 execArgs.AddArg(positionalSearchItr->ExecArgType(), currArg);
@@ -314,7 +316,7 @@ namespace AppInstaller::CLI
             // The currentArg must not be empty, and starts with a -
             else if (currArg.length() == 1)
             {
-                throw CommandException(LOCME("Invalid argument specifier"), currArg);
+                throw CommandException(Resources::GetInstance().ResolveWingetString(L"InvalidArgumentSpecifierError"), currArg);
             }
             // Now it must be at least 2 chars
             else if (currArg[1] != APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
@@ -325,7 +327,7 @@ namespace AppInstaller::CLI
                 auto itr = std::find_if(definedArgs.begin(), definedArgs.end(), [&](const Argument& arg) { return (currChar == arg.Alias()); });
                 if (itr == definedArgs.end())
                 {
-                    throw CommandException(LOCME("Argument alias was not recognized for the current command"), currArg);
+                    throw CommandException(Resources::GetInstance().ResolveWingetString(L"InvalidAliasError"), currArg);
                 }
 
                 if (itr->Type() == ArgumentType::Flag)
@@ -339,11 +341,11 @@ namespace AppInstaller::CLI
                         auto itr2 = std::find_if(definedArgs.begin(), definedArgs.end(), [&](const Argument& arg) { return (currChar == arg.Alias()); });
                         if (itr2 == definedArgs.end())
                         {
-                            throw CommandException(LOCME("Adjoined flag alias not found"), currArg);
+                            throw CommandException(Resources::GetInstance().ResolveWingetString(L"AdjoinedNotFoundError"), currArg);
                         }
                         else if (itr2->Type() != ArgumentType::Flag)
                         {
-                            throw CommandException(LOCME("Adjoined alias is not a flag"), currArg);
+                            throw CommandException(Resources::GetInstance().ResolveWingetString(L"AdjoinedNotFlagError"), currArg);
                         }
                         else
                         {
@@ -359,7 +361,7 @@ namespace AppInstaller::CLI
                     }
                     else
                     {
-                        throw CommandException(LOCME("Only the single character alias can occur after a single -"), currArg);
+                        throw CommandException(Resources::GetInstance().ResolveWingetString(L"SingleCharAfterDashError"), currArg);
                     }
                 }
                 else
@@ -367,7 +369,7 @@ namespace AppInstaller::CLI
                     ++incomingArgsItr;
                     if (incomingArgsItr == inv.end())
                     {
-                        throw CommandException(LOCME("Argument value required, but none found"), currArg);
+                        throw CommandException(Resources::GetInstance().ResolveWingetString(L"MissingArgumentError"), currArg);
                     }
                     execArgs.AddArg(itr->ExecArgType(), *incomingArgsItr);
                 }
@@ -403,7 +405,7 @@ namespace AppInstaller::CLI
                         {
                             if (hasValue)
                             {
-                                throw CommandException(LOCME("Flag argument cannot contain adjoined value"), currArg);
+                                throw CommandException(Resources::GetInstance().ResolveWingetString(L"FlagContainAdjoinedError"), currArg);
                             }
 
                             execArgs.AddArg(arg.ExecArgType());
@@ -417,7 +419,7 @@ namespace AppInstaller::CLI
                             ++incomingArgsItr;
                             if (incomingArgsItr == inv.end())
                             {
-                                throw CommandException(LOCME("Argument value required, but none found"), currArg);
+                                throw CommandException(Resources::GetInstance().ResolveWingetString(L"MissingArgumentError"), currArg);
                             }
                             execArgs.AddArg(arg.ExecArgType(), *incomingArgsItr);
                         }
@@ -428,7 +430,7 @@ namespace AppInstaller::CLI
 
                 if (!argFound)
                 {
-                    throw CommandException(LOCME("Argument name was not recognized for the current command"), *incomingArgsItr);
+                    throw CommandException(Resources::GetInstance().ResolveWingetString(L"InvalidNameError"), *incomingArgsItr);
                 }
             }
         }
@@ -464,19 +466,19 @@ namespace AppInstaller::CLI
         {
             if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
             {
-                throw CommandException(LOCME("Required argument not provided"), arg.Name());
+                throw CommandException(Resources::GetInstance().ResolveWingetString(L"RequiredArgError"), arg.Name());
             }
 
             if (arg.Limit() < execArgs.GetCount(arg.ExecArgType()))
             {
-                throw CommandException(LOCME("Argument provided more times than allowed"), arg.Name());
+                throw CommandException(Resources::GetInstance().ResolveWingetString(L"TooManyArgError"), arg.Name());
             }
         }
     }
 
     void Command::ExecuteInternal(Execution::Context& context) const
     {
-        context.Reporter.Error() << LOCME("Oops, we forgot to do this...") << std::endl;
+        context.Reporter.Error() << Resources::GetInstance().ResolveWingetString(L"PendingWorkError").c_str() << std::endl;
         THROW_HR(E_NOTIMPL);
     }
 }
