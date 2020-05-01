@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SourceCommand.h"
-#include "Localization.h"
 #include "Workflows/SourceFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "RootCommand.h"
-#include "Localization.h"
 
 #include "InstallCommand.h"
 #include "ShowCommand.h"

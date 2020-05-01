@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Command.h"
-#include "Localization.h"
 #include "Resources.h"
 
 namespace AppInstaller::CLI

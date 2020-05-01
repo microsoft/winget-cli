@@ -30,9 +30,6 @@
     <ClInclude Include="Commands\RootCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
-    <ClInclude Include="Localization.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Commands\InstallCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>

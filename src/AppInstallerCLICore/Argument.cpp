@@ -3,7 +3,6 @@
 #pragma once
 #include "pch.h"
 #include "Argument.h"
-#include "Localization.h"
 #include "Resources.h"
 
 

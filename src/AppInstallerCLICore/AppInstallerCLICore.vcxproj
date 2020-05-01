@@ -186,7 +186,6 @@
     <ClInclude Include="ExecutionProgress.h" />
     <ClInclude Include="ExecutionReporter.h" />
     <ClInclude Include="Invocation.h" />
-    <ClInclude Include="Localization.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\AppInstallerCLICore.h" />
     <ClInclude Include="Resources.h" />

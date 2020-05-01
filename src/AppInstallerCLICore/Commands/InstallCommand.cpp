@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "InstallCommand.h"
-#include "Localization.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
