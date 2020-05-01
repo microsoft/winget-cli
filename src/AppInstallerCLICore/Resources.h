@@ -13,13 +13,13 @@ namespace AppInstaller::CLI
     class Resources
     {
     public:
-        static Resources& GetInstance();
+        static const Resources& GetInstance();
 
         std::string ResolveWingetString(
-            std::wstring_view resKey);
+            std::wstring_view resKey) const;
 
         std::wstring ResolveWingetWString(
-            std::wstring_view resKey);
+            std::wstring_view resKey) const;
 
     private:
         winrt::Windows::ApplicationModel::Resources::ResourceLoader m_wingetLoader;

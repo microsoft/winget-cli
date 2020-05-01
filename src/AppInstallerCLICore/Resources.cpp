@@ -6,7 +6,7 @@
 
 namespace AppInstaller::CLI
 {
-    Resources& Resources::GetInstance()
+    const Resources& Resources::GetInstance()
     {
         static Resources instance;
         return instance;
@@ -18,13 +18,13 @@ namespace AppInstaller::CLI
     }
 
     std::string Resources::ResolveWingetString(
-        std::wstring_view resKey)
+        std::wstring_view resKey) const
     {
         return Utility::ConvertToUTF8(ResolveWingetWString(resKey));
     }
 
     std::wstring Resources::ResolveWingetWString(
-        std::wstring_view resKey)
+        std::wstring_view resKey) const
     {
         std::wstring localized(m_wingetLoader.GetString(resKey));
         return localized;
