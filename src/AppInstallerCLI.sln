@@ -22,6 +22,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "catch2", "catch2\catch2.vcxitems", "{5295E21E-9868-4DE2-A177-FBB97B36579B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppInstallerCLITests", "AppInstallerCLITests\AppInstallerCLITests.vcxproj", "{89B1AAB4-2BBC-4B65-9ED7-A01D5CF88230}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6AA3791A-0713-4548-A357-87A323E7AC3A} = {6AA3791A-0713-4548-A357-87A323E7AC3A}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YamlCppLib", "YamlCppLib\YamlCppLib.vcxproj", "{8BB94BB8-374F-4294-BCA1-C7811514A6B7}"
 EndProject
