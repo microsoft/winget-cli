@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "HashCommand.h"
-#include "Localization.h"
 #include "Workflows/WorkflowBase.h"
+#include "Resources.h"
 
 namespace AppInstaller::CLI
 {
@@ -19,12 +19,12 @@ namespace AppInstaller::CLI
 
     std::string HashCommand::ShortDescription() const
     {
-        return LOCME("Helper to hash installer files");
+        return Resources::GetInstance().ResolveWingetString(L"HashHelperDescription");
     }
 
     std::string HashCommand::GetLongDescription() const
     {
-        return LOCME("Helper to hash installer files");
+        return Resources::GetInstance().ResolveWingetString(L"HashHelperDescription");
     }
 
     void HashCommand::ExecuteInternal(Execution::Context& context) const

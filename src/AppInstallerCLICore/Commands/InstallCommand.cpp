@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "InstallCommand.h"
-#include "Localization.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/WorkflowBase.h"
+#include "Resources.h"
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::CLI::Workflow;
@@ -38,12 +38,12 @@ namespace AppInstaller::CLI
 
     std::string InstallCommand::ShortDescription() const
     {
-        return LOCME("Installs the given application");
+        return Resources::GetInstance().ResolveWingetString(L"InstallCommandDescription");
     }
 
     std::string InstallCommand::GetLongDescription() const
     {
-        return LOCME("Installs the given application");
+        return Resources::GetInstance().ResolveWingetString(L"InstallCommandDescription");
     }
 
     void InstallCommand::ExecuteInternal(Execution::Context& context) const
@@ -63,7 +63,7 @@ namespace AppInstaller::CLI
     {
         if (execArgs.Contains(Execution::Args::Type::Silent) && execArgs.Contains(Execution::Args::Type::Interactive))
         {
-            throw CommandException(LOCME("More than one install behavior argument provided"), s_InstallCommand_ArgName_SilentAndInteractive);
+            throw CommandException(Resources::GetInstance().ResolveWingetString(L"TooManyBehaviorsError"), s_InstallCommand_ArgName_SilentAndInteractive);
         }
     }
 }

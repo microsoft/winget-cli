@@ -186,9 +186,9 @@
     <ClInclude Include="ExecutionProgress.h" />
     <ClInclude Include="ExecutionReporter.h" />
     <ClInclude Include="Invocation.h" />
-    <ClInclude Include="Localization.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\AppInstallerCLICore.h" />
+    <ClInclude Include="Resources.h" />
     <ClInclude Include="Search\Search.h" />
     <ClInclude Include="TableOutput.h" />
     <ClInclude Include="VTSupport.h" />
@@ -216,6 +216,7 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Resources.cpp" />
     <ClCompile Include="VTSupport.cpp" />
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
     <ClCompile Include="Workflows\InstallFlow.cpp" />

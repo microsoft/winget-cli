@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SearchCommand.h"
-#include "Localization.h"
 #include "Workflows/WorkflowBase.h"
+#include "Resources.h"
 
 namespace AppInstaller::CLI
 {
@@ -27,12 +27,12 @@ namespace AppInstaller::CLI
 
     std::string SearchCommand::ShortDescription() const
     {
-        return LOCME("Find and show basic info of apps");
+        return Resources::GetInstance().ResolveWingetString(L"SearchCommandDescription");
     }
 
     std::string SearchCommand::GetLongDescription() const
     {
-        return LOCME("Find and show basic info of apps");
+        return Resources::GetInstance().ResolveWingetString(L"SearchCommandDescription").c_str();
     }
 
     void SearchCommand::ExecuteInternal(Context& context) const

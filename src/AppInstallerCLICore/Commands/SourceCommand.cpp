@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SourceCommand.h"
-#include "Localization.h"
 #include "Workflows/SourceFlow.h"
 #include "Workflows/WorkflowBase.h"
+#include "Resources.h"
 
 namespace AppInstaller::CLI
 {
@@ -23,12 +23,12 @@ namespace AppInstaller::CLI
 
     std::string SourceCommand::ShortDescription() const
     {
-        return LOCME("Manage sources of applications");
+        return Resources::GetInstance().ResolveWingetString(L"SourceCommandShortDescription");
     }
 
     std::string SourceCommand::GetLongDescription() const
     {
-        return LOCME("Manage sources with the sub-commands. A source provides the data for you to discover and install applications. Only add a new source if you trust it as a secure location.");
+        return Resources::GetInstance().ResolveWingetString(L"SourceCommandLongDescription");
     }
 
     void SourceCommand::ExecuteInternal(Context& context) const
@@ -47,12 +47,12 @@ namespace AppInstaller::CLI
 
     std::string SourceAddCommand::ShortDescription() const
     {
-        return LOCME("Add a new source");
+        return Resources::GetInstance().ResolveWingetString(L"SourceAddCommandShortDescription");
     }
 
     std::string SourceAddCommand::GetLongDescription() const
     {
-        return LOCME("Add a new source. A source provides the data for you to discover and install applications. Only add a new source if you trust it as a secure location.");
+        return Resources::GetInstance().ResolveWingetString(L"SourceAddCommandLongDescription");
     }
 
     void SourceAddCommand::ExecuteInternal(Context& context) const
@@ -72,12 +72,12 @@ namespace AppInstaller::CLI
 
     std::string SourceListCommand::ShortDescription() const
     {
-        return LOCME("List current sources");
+        return Resources::GetInstance().ResolveWingetString(L"SourceListCommandShortDescription");
     }
 
     std::string SourceListCommand::GetLongDescription() const
     {
-        return LOCME("List all current sources, or full details of a specific source.");
+        return Resources::GetInstance().ResolveWingetString(L"SourceListCommandLongDescription");
     }
 
     void SourceListCommand::ExecuteInternal(Context& context) const
@@ -96,12 +96,12 @@ namespace AppInstaller::CLI
 
     std::string SourceUpdateCommand::ShortDescription() const
     {
-        return LOCME("Update current sources");
+        return Resources::GetInstance().ResolveWingetString(L"SourceUpdateCommandShortDescription");
     }
 
     std::string SourceUpdateCommand::GetLongDescription() const
     {
-        return LOCME("Update all sources, or only a specific source.");
+        return Resources::GetInstance().ResolveWingetString(L"SourceUpdateCommandLongDescription");
     }
 
     void SourceUpdateCommand::ExecuteInternal(Context& context) const
@@ -120,12 +120,12 @@ namespace AppInstaller::CLI
 
     std::string SourceRemoveCommand::ShortDescription() const
     {
-        return LOCME("Remove current sources");
+        return Resources::GetInstance().ResolveWingetString(L"SourceRemoveCommandShortDescription");
     }
 
     std::string SourceRemoveCommand::GetLongDescription() const
     {
-        return LOCME("Remove a specific source.");
+        return Resources::GetInstance().ResolveWingetString(L"SourceRemoveCommandLongDescription");
     }
 
     void SourceRemoveCommand::ExecuteInternal(Context& context) const
@@ -145,12 +145,12 @@ namespace AppInstaller::CLI
 
     std::string SourceResetCommand::ShortDescription() const
     {
-        return LOCME("Reset sources");
+        return Resources::GetInstance().ResolveWingetString(L"SourceResetCommandShortDescription");
     }
 
     std::string SourceResetCommand::GetLongDescription() const
     {
-        return LOCME("This command drops existing sources, potentially leaving any local data behind. Without any argument, it will drop all sources and add the defaults. If a named source is provided, only that source will be dropped.");
+        return Resources::GetInstance().ResolveWingetString(L"SourceResetCommandLongDescription");
     }
 
     void SourceResetCommand::ExecuteInternal(Context& context) const

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "RootCommand.h"
-#include "Localization.h"
 
 #include "InstallCommand.h"
 #include "ShowCommand.h"
@@ -10,6 +9,7 @@
 #include "SearchCommand.h"
 #include "HashCommand.h"
 #include "ValidateCommand.h"
+#include "Resources.h"
 
 namespace AppInstaller::CLI
 {
@@ -29,14 +29,14 @@ namespace AppInstaller::CLI
     {
         return
         {
-            Argument{ "version", 'v', Execution::Args::Type::ListVersions, LOCME("Display the version of the tool"), ArgumentType::Flag, Visibility::Help },
-            Argument{ "info", APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER, Execution::Args::Type::Info, LOCME("Display general info of the tool"), ArgumentType::Flag, Visibility::Help },
+            Argument{ "version", 'v', Execution::Args::Type::ListVersions, Resources::GetInstance().ResolveWingetString(L"ToolVersionArgumentDescription").c_str(), ArgumentType::Flag, Visibility::Help },
+            Argument{ "info", APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER, Execution::Args::Type::Info, Resources::GetInstance().ResolveWingetString(L"ToolInfoArgumentDescription").c_str(), ArgumentType::Flag, Visibility::Help },
         };
     }
 
     std::string RootCommand::GetLongDescription() const
     {
-        return LOCME("AppInstaller command line utility enables installing applications from the command line.");
+        return Resources::GetInstance().ResolveWingetString(L"ToolDescription");
     }
 
     void RootCommand::ExecuteInternal(Execution::Context& context) const

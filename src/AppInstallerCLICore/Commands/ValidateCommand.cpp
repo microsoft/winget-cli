@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ValidateCommand.h"
-#include "Localization.h"
 #include "Workflows/WorkflowBase.h"
+#include "Resources.h"
 
 namespace AppInstaller::CLI
 {
@@ -18,12 +18,12 @@ namespace AppInstaller::CLI
 
     std::string ValidateCommand::ShortDescription() const
     {
-        return LOCME("Validates a manifest file");
+        return Resources::GetInstance().ResolveWingetString(L"ValidateCommandShortDescription");
     }
 
     std::string ValidateCommand::GetLongDescription() const
     {
-        return LOCME("Validates a manifest using a strict set of guidelines. This is intended to enable you to check your manifest before submitting to a repo.");
+        return Resources::GetInstance().ResolveWingetString(L"ValidateCommandLongDescription");
     }
 
     void ValidateCommand::ExecuteInternal(Execution::Context& context) const

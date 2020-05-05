@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ShowCommand.h"
-#include "Localization.h"
 #include "Workflows/ShowFlow.h"
 #include "Workflows/WorkflowBase.h"
+#include "Resources.h"
 
 namespace AppInstaller::CLI
 {
@@ -26,12 +26,12 @@ namespace AppInstaller::CLI
 
     std::string ShowCommand::ShortDescription() const
     {
-        return LOCME("Shows info about an application");
+        return Resources::GetInstance().ResolveWingetString(L"ShowCommandShortDescription");
     }
 
     std::string ShowCommand::GetLongDescription() const
     {
-        return LOCME("Shows information on a specific application.");
+        return Resources::GetInstance().ResolveWingetString(L"ShowCommandLongDescription");
     }
 
     void ShowCommand::ExecuteInternal(Execution::Context& context) const

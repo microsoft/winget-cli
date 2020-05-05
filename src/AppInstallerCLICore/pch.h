@@ -10,6 +10,8 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Management.Deployment.h>
 #include <winrt/Windows.UI.ViewManagement.h>
+#include <winrt/Windows.ApplicationModel.Resources.h>
+#include <winrt/Windows.ApplicationModel.Resources.Core.h>
 
 #include <wil/result_macros.h>
 
