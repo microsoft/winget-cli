@@ -184,25 +184,39 @@ namespace AppInstaller::Repository::Microsoft
 
                 // Due to complications with deployment, download the file and deploy from
                 // a local source while we investigate further.
-                std::filesystem::path tempFile = Runtime::GetPathToTemp();
-                tempFile /= GetPackageFullNameFromDetails(details) + ".msix";
+                bool download = Utility::IsUrlRemote(packageLocation);
+                std::filesystem::path tempFile;
+                winrt::Windows::Foundation::Uri uri = nullptr;
 
-                Utility::Download(packageLocation, tempFile, progress);
+                if (download)
+                {
+                    tempFile = Runtime::GetPathToTemp();
+                    tempFile /= GetPackageFullNameFromDetails(details) + ".msix";
 
-                winrt::Windows::Foundation::Uri uri(tempFile.c_str());
+                    Utility::Download(packageLocation, tempFile, progress);
+
+                    uri = winrt::Windows::Foundation::Uri(tempFile.c_str());
+                }
+                else
+                {
+                    uri = winrt::Windows::Foundation::Uri(Utility::ConvertToUTF16(packageLocation));
+                }
+
                 Deployment::RequestAddPackage(
                     uri,
                     winrt::Windows::Management::Deployment::DeploymentOptions::None,
                     progress);
 
-                // If successful, delete the file
-                std::filesystem::remove(tempFile);
+                if (download)
+                {
+                    // If successful, delete the file
+                    std::filesystem::remove(tempFile);
+                }
             }
 
             void RemoveInternal(const SourceDetails& details, IProgressCallback& callback) override
             {
-                // Begin package removal, but let it run its course without waiting.
-                AICLI_LOG(Repo, Info, << "Removing package " << GetPackageFullNameFromDetails(details));
+                AICLI_LOG(Repo, Info, << "Removing package: " << GetPackageFullNameFromDetails(details));
                 Deployment::RemovePackage(GetPackageFullNameFromDetails(details), callback);
             }
         };
