@@ -54,7 +54,7 @@ namespace AppInstaller::CLI
         }
         else if (context.Args.Contains(Execution::Args::Type::ListVersions))
         {
-            context.Reporter.Info() << 'v' << Runtime::GetClientVersion() << std::endl;
+            context.Reporter.Info() << 'v' << Runtime::GetClientVersion() << ' ' << Resources::GetInstance().ResolveWingetString(L"PreviewVersion").c_str() << std::endl;
         }
         else
         {
