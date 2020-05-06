@@ -20,7 +20,7 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_SourcesYaml_Source_LastUpdate = "LastUpdate"sv;
     constexpr std::string_view s_SourcesYaml_Source_IsDefault = "IsDefault"sv;
 
-    constexpr std::string_view s_Source_WingetCommunityDefault_Name = "winget-community"sv;
+    constexpr std::string_view s_Source_WingetCommunityDefault_Name = "winget"sv;
     constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://winget.azureedge.net/cache"sv;
 
     namespace

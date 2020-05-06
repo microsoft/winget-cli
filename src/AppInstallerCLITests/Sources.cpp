@@ -147,6 +147,7 @@ TEST_CASE("RepoSources_UserSettingDoesNotExist", "[sources]")
     std::vector<SourceDetails> sources = GetSources();
     // The default source is added when no source exists
     REQUIRE(sources.size() == 1);
+    REQUIRE(sources[0].IsDefault);
 }
 
 TEST_CASE("RepoSources_EmptySourcesList", "[sources]")
@@ -470,4 +471,5 @@ TEST_CASE("RepoSources_DropAllSources", "[sources]")
 
     sources = GetSources();
     REQUIRE(sources.size() == 1);
+    REQUIRE(sources[0].IsDefault);
 }
