@@ -94,7 +94,7 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 // Even if a name was given, there are no sources
-                context.Reporter.Error() << "No sources defined; add one with 'source add'" << std::endl;
+                context.Reporter.Error() << "No sources defined; add one with 'source add' or reset to defaults with 'source reset'" << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED);
             }
         }

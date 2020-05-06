@@ -165,8 +165,7 @@ namespace AppInstaller::CLI
         {
             context <<
                 Workflow::QueryUserForSourceReset <<
-                Workflow::ResetAllSources <<
-                Workflow::AddDefaultSources;
+                Workflow::ResetAllSources;
         }
     }
 }
