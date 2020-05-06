@@ -22,7 +22,7 @@ namespace AppInstaller::Utility
         AICLI_LOG(Core, Info, << "Downloading from url: " << url);
 
         wil::unique_hinternet session(InternetOpenA(
-            "appinstaller-cli",
+            "winget-cli",
             INTERNET_OPEN_TYPE_PRECONFIG,
             NULL,
             NULL,

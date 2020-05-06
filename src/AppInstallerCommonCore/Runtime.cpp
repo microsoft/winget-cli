@@ -78,7 +78,7 @@ namespace AppInstaller::Runtime
             localAppDataPath.resize(charCount - 1);
 
             std::filesystem::path result = localAppDataPath;
-            result /= "Microsoft/AppInstaller";
+            result /= "Microsoft/WinGet";
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
             if (!s_Settings_TestHook_ForcedContainerPrepend.empty())
