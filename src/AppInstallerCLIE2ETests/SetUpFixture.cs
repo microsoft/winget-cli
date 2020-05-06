@@ -38,7 +38,7 @@ namespace AppInstallerCLIE2ETests
                 if (TestCommon.PackagedContext)
                 {
                     // For packaged context, default to AppExecutionAlias
-                    TestCommon.AICLIPath = "AppInst.exe";
+                    TestCommon.AICLIPath = "WinGetDev.exe";
                 }
                 else
                 {
