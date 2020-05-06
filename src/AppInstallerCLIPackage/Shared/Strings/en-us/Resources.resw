@@ -119,6 +119,6 @@
   </resheader>
   <data name="DoNotAddStringsHere" xml:space="preserve">
     <value>Not Localized</value>
-    <comment>This file is required to establish the basic expected subresource in the resource map. It is not used to facilitate localization with other projects.</comment>
+    <comment>{Locked} This file is required to establish the basic expected subresource in the resource map. It is not used to facilitate localization with other projects.</comment>
   </data>
 </root>

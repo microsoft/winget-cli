@@ -214,6 +214,7 @@
   </data>
   <data name="NoVTArguementDescription" xml:space="preserve">
     <value>Disables VirtualTerminal display</value>
+    <comment>{Locked="VirtualTerminal"}</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Override arguments to be passed on to the installer</value>
