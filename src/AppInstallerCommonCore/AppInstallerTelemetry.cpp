@@ -108,7 +108,7 @@ namespace AppInstaller::Logging
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
-        AICLI_LOG(CLI, Info, << "AppInstallerCLI, version [" << version << "], activity [" << *GetActivityId() << ']');
+        AICLI_LOG(CLI, Info, << "WinGet, version [" << version << "], activity [" << *GetActivityId() << ']');
     }
  
     void TelemetryTraceLogger::LogCommand(std::string_view commandName) noexcept
@@ -195,7 +195,7 @@ namespace AppInstaller::Logging
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
-        AICLI_LOG(CLI, Info, << "AppInstallerCLI, Name [" << name << "], Version [" << version << ']');
+        AICLI_LOG(CLI, Info, << "Manifest fields: Name [" << name << "], Version [" << version << ']');
     }
 
     void TelemetryTraceLogger::LogNoAppMatch() noexcept

@@ -6,7 +6,7 @@
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerDateTime.h"
 
-#define AICLI_FILELOGGER_DEFAULT_FILE_PREFIX "AICLI-"
+#define AICLI_FILELOGGER_DEFAULT_FILE_PREFIX "WinGet-"
 #define AICLI_FILELOGGER_DEFAULT_FILE_EXT ".log"
 
 namespace AppInstaller::Logging
@@ -17,7 +17,7 @@ namespace AppInstaller::Logging
         if (filePath.empty())
         {
             m_name = "file";
-            m_filePath = Runtime::GetPathToTemp();
+            m_filePath = Runtime::GetPathToDefaultLogLocation();
             m_filePath /= AICLI_FILELOGGER_DEFAULT_FILE_PREFIX + Utility::GetCurrentTimeForFilename() + AICLI_FILELOGGER_DEFAULT_FILE_EXT;
         }
         else

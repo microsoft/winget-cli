@@ -5,7 +5,8 @@
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
 
-#define AICLI_DEFAULT_TEMP_DIRECTORY "AICLI"
+#define AICLI_DEFAULT_TEMP_DIRECTORY "WinGet"
+#define WINGET_DEFAULT_LOG_DIRECTORY "DiagOutputDir"
 
 namespace AppInstaller::Runtime
 {
@@ -209,6 +210,23 @@ namespace AppInstaller::Runtime
         else
         {
             return GetPathToAppDataDir(s_AppDataDir_State);
+        }
+    }
+
+    std::filesystem::path GetPathToDefaultLogLocation()
+    {
+        if (IsRunningInPackagedContext())
+        {
+            // To enable UIF collection through Feedback hub, we must put our logs here.
+            auto result = GetPathToLocalState() / WINGET_DEFAULT_LOG_DIRECTORY;
+
+            std::filesystem::create_directories(result);
+
+            return result;
+        }
+        else
+        {
+            return GetPathToTemp();
         }
     }
 
