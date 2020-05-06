@@ -1,0 +1,332 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AdjoinedNotFlagError" xml:space="preserve">
+    <value>Der adbeigetretenen Alias ist kein Kenn Zeichen.</value>
+  </data>
+  <data name="AdjoinedNotFoundError" xml:space="preserve">
+    <value>Adbeigetretenen Flag-Alias nicht gefunden</value>
+  </data>
+  <data name="AvailableArguements" xml:space="preserve">
+    <value>Die folgenden Argumente sind verfügbar:</value>
+  </data>
+  <data name="AvailableCommands" xml:space="preserve">
+    <value>Folgende Befehle sind verfügbar:</value>
+    <comment>Commands the tool supports</comment>
+  </data>
+  <data name="AvailableOptions" xml:space="preserve">
+    <value>Die folgenden Optionen sind verfügbar:</value>
+  </data>
+  <data name="AvailableSubcommands" xml:space="preserve">
+    <value>Die folgenden unter Befehle sind verfügbar:</value>
+    <comment>Nested commands that can be run in context of the selected command</comment>
+  </data>
+  <data name="ChannelArgumentDescription" xml:space="preserve">
+    <value>Den angegebenen Kanal verwenden; Standard Ziel Gruppe ist allgemein</value>
+  </data>
+  <data name="CommandArgumentDescription" xml:space="preserve">
+    <value>Ergebnisse nach Befehl Filtern</value>
+  </data>
+  <data name="CountArgumentDescription" xml:space="preserve">
+    <value>Nicht mehr als die angegebene Anzahl von Ergebnissen anzeigen</value>
+  </data>
+  <data name="ExactArgumentDescription" xml:space="preserve">
+    <value>App mithilfe exakter überein Stimmung suchen</value>
+  </data>
+  <data name="ExtraPositionalError" xml:space="preserve">
+    <value>Es wurde ein Positions Argument gefunden, bei dem kein Wert erwartet wurde.</value>
+  </data>
+  <data name="FileArgumentDescription" xml:space="preserve">
+    <value>Datei Hash</value>
+  </data>
+  <data name="FlagContainAdjoinedError" xml:space="preserve">
+    <value>Das Kenn Zeichen Argument darf keinen adbeigetretenen Wert enthalten.</value>
+  </data>
+  <data name="ForceArgumentDescription" xml:space="preserve">
+    <value>Befehl ohne Eingabe Aufforderung ausführen</value>
+  </data>
+  <data name="HashHelperDescription" xml:space="preserve">
+    <value>Hilfsprogramm zu Hash Installations Dateien</value>
+  </data>
+  <data name="HelpArgumentDescription" xml:space="preserve">
+    <value>Zeigt Hilfe zum ausgewählten Befehl an</value>
+  </data>
+  <data name="HelpForDetails" xml:space="preserve">
+    <value>Übergeben Sie das Hilfe Argument, um weitere Details zu einem bestimmten Befehl zu erhalten.</value>
+  </data>
+  <data name="IdArgumentDescription" xml:space="preserve">
+    <value>Ergebnisse nach ID filtern</value>
+  </data>
+  <data name="InstallCommandDescription" xml:space="preserve">
+    <value>Installiert die angegebene Anwendung</value>
+  </data>
+  <data name="InteractiveArgumentDescription" xml:space="preserve">
+    <value>Interaktive Installation anfordern; Benutzer Eingabe kann erforderlich sein</value>
+  </data>
+  <data name="InvalidAliasError" xml:space="preserve">
+    <value>Der Argument Alias wurde für den aktuellen Befehl nicht erkannt.</value>
+  </data>
+  <data name="InvalidArgumentSpecifierError" xml:space="preserve">
+    <value>Ungültiger Argument Bezeichner</value>
+  </data>
+  <data name="InvalidNameError" xml:space="preserve">
+    <value>Argument Name wurde für den aktuellen Befehl nicht erkannt.</value>
+  </data>
+  <data name="LanguageArgumentDescription" xml:space="preserve">
+    <value>Installations Sprache (falls unter stützt)</value>
+  </data>
+  <data name="LocationArgumentDescription" xml:space="preserve">
+    <value>Speicherort für Installation (falls unter stützt)</value>
+  </data>
+  <data name="LogArgumentDesciption" xml:space="preserve">
+    <value>Protokoll Speicherort (falls unter stützt)</value>
+  </data>
+  <data name="ManifestArgumentDescription" xml:space="preserve">
+    <value>Der Pfad zum Manifest der Anwendung.</value>
+  </data>
+  <data name="MissingArgumentError" xml:space="preserve">
+    <value>Ein Argument Wert ist erforderlich, aber keine gefunden.</value>
+  </data>
+  <data name="MonikerArgumentDescription" xml:space="preserve">
+    <value>Ergebnisse nach App-Moniker filtern</value>
+  </data>
+  <data name="MsixArgumentDescription" xml:space="preserve">
+    <value>Die Eingabe Datei wird als msix behandelt. der Signatur Hash wird angegeben, wenn er signiert ist.</value>
+  </data>
+  <data name="NameArgumentDescription" xml:space="preserve">
+    <value>Ergebnisse nach Namen filtern</value>
+  </data>
+  <data name="NoVTArguementDescription" xml:space="preserve">
+    <value>Deaktiviert die virtualterminal Anzeige.</value>
+  </data>
+  <data name="OverrideArgumentDescription" xml:space="preserve">
+    <value>Übergeben von Argumenten zum Installer über schreiben</value>
+  </data>
+  <data name="PendingWorkError" xml:space="preserve">
+    <value>Hoppla, diese... vergessen</value>
+  </data>
+  <data name="PlainArgumentDescription" xml:space="preserve">
+    <value>Status wird als Standard Farbe angezeigt</value>
+  </data>
+  <data name="QueryArgumentDescription" xml:space="preserve">
+    <value>Die Abfrage, die für die Suche nach einer App verwendet wird.</value>
+  </data>
+  <data name="RainbowArgumentDescription" xml:space="preserve">
+    <value>Status Anzeige eines Bogen mit Farben</value>
+  </data>
+  <data name="RequiredArgError" xml:space="preserve">
+    <value>Ein erforderliches Argument wurde nicht angegeben.</value>
+  </data>
+  <data name="SearchCommandDescription" xml:space="preserve">
+    <value>Grund Legende Informationen von Apps suchen und anzeigen</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Zeigt Informationen zu einer bestimmten Anwendung an.</value>
+  </data>
+  <data name="ShowCommandShortDescription" xml:space="preserve">
+    <value>Zeigt Informationen zu einer Anwendung</value>
+  </data>
+  <data name="SilentArgumentDescription" xml:space="preserve">
+    <value>Automatische Installation der Anforderung</value>
+  </data>
+  <data name="SingleCharAfterDashError" xml:space="preserve">
+    <value>Es kann nur jeweils ein Alias des einzelnen Zeichens ausgeführt werden</value>
+  </data>
+  <data name="SourceAddCommandLongDescription" xml:space="preserve">
+    <value>Fügen Sie eine neue Quelle hinzu. Eine Quelle stellt die Daten für Sie bereit, um Anwendungen zu ermitteln und zu installieren. Fügen Sie nur eine neue Quelle hinzu, wenn Sie als sicherer Speicherort vertrauen.</value>
+  </data>
+  <data name="SourceArgArgumentDescription" xml:space="preserve">
+    <value>Das für die Quelle angegebene Argument.</value>
+  </data>
+  <data name="SourceArgumentDescription" xml:space="preserve">
+    <value>App mithilfe der angegebenen Quelle suchen</value>
+  </data>
+  <data name="SourceCommandLongDescription" xml:space="preserve">
+    <value>Verwalten von Quellen mit den unter Befehlen. Eine Quelle stellt die Daten für Sie bereit, um Anwendungen zu ermitteln und zu installieren. Fügen Sie nur eine neue Quelle hinzu, wenn Sie als sicherer Speicherort vertrauen.</value>
+  </data>
+  <data name="SourceCommandShortDescription" xml:space="preserve">
+    <value>Anwendungs Quellen verwalten</value>
+  </data>
+  <data name="SourceListCommandLongDescription" xml:space="preserve">
+    <value>Listet alle aktuellen Quellen oder voll ständige Details einer bestimmten Quelle auf.</value>
+  </data>
+  <data name="SourceListCommandShortDescription" xml:space="preserve">
+    <value>Aktuelle Quellen auflisten</value>
+  </data>
+  <data name="SourceNameArgumentDescription" xml:space="preserve">
+    <value>Name der Quelle</value>
+  </data>
+  <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
+    <value>Entfernt eine bestimmte Quelle.</value>
+  </data>
+  <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
+    <value>Aktuelle Quellen entfernen</value>
+  </data>
+  <data name="SourceResetCommandLongDescription" xml:space="preserve">
+    <value>der Befehl verlässt vorhandene Quellen, potenziell alle lokalen Daten zurück. Ohne Argument werden alle Quellen verworfen, und die Standard Werte werden hinzu gefügt. Wenn eine benannte Quelle angegeben wird, wird nur die Quelle abgelegt.</value>
+  </data>
+  <data name="SourceResetCommandShortDescription" xml:space="preserve">
+    <value>Quellen zurück setzen</value>
+  </data>
+  <data name="SourceTypeArgumentDescription" xml:space="preserve">
+    <value>Typ der Quelle</value>
+  </data>
+  <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
+    <value>Aktualisiert alle Quellen oder nur eine bestimmte Quelle.</value>
+  </data>
+  <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
+    <value>Aktuelle Quellen aktualisieren</value>
+  </data>
+  <data name="TagArgumentDescription" xml:space="preserve">
+    <value>Ergebnisse nach Tag filtern</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Das Befehls Zeilen Hilfsprogramm "AppInstaller" ermöglicht die Installation von Anwendungen über die Befehls Zeile.</value>
+  </data>
+  <data name="ToolInfoArgumentDescription" xml:space="preserve">
+    <value>Allgemeine Informationen des Tools anzeigen</value>
+  </data>
+  <data name="ToolVersionArgumentDescription" xml:space="preserve">
+    <value>Zeigt die Version des Tools an.</value>
+  </data>
+  <data name="TooManyArgError" xml:space="preserve">
+    <value>Das Argument hat mehr Zeit als zulässig bereit gestellt.</value>
+  </data>
+  <data name="TooManyBehaviorsError" xml:space="preserve">
+    <value>Es wurde mehr als ein Installations Verhalten-Argument bereit gestellt.</value>
+  </data>
+  <data name="UnrecognizedCommand" xml:space="preserve">
+    <value>Unbekannter Befehl</value>
+  </data>
+  <data name="ValidateCommandLongDescription" xml:space="preserve">
+    <value>Überprüft ein Manifest unter Verwendung einer strenge Richtlinien Gruppe. Hiermit können Sie Ihr Manifest über prüfen, bevor es an ein REPO gesendet wird.</value>
+  </data>
+  <data name="ValidateCommandShortDescription" xml:space="preserve">
+    <value>Überprüft eine Manifestdatei</value>
+  </data>
+  <data name="ValidateManifestArgumentDescription" xml:space="preserve">
+    <value>Der Pfad zum über prüften Manifest</value>
+  </data>
+  <data name="VersionArgumentDescription" xml:space="preserve">
+    <value>Verwenden Sie die angegebene Version; Standard ist die neueste Version</value>
+  </data>
+  <data name="VersionsArgumentDescription" xml:space="preserve">
+    <value>Verfüg Bare Versionen der App anzeigen</value>
+  </data>
+</root>
