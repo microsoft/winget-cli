@@ -26,11 +26,8 @@ namespace AppInstaller::CLI
 
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
-        // TODO: When these strings are ported to resource file,
-        // Create both a Preview and a Non-Preview string. That way we can swap the value without
-        // incurring additional localization cost.
         reporter.Info() <<
-            "Windows Package Manager v" << Runtime::GetClientVersion() << " Preview"<< std::endl <<
+            "Windows Package Manager v" << Runtime::GetClientVersion() << " " << Resources::GetInstance().ResolveWingetString(L"PreviewVersion").c_str() << std::endl <<
             "Copyright (c) Microsoft Corporation. All rights reserved." << std::endl;
     }
 

@@ -224,6 +224,9 @@
   <data name="PlainArgumentDescription" xml:space="preserve">
     <value>Progress display as the default color</value>
   </data>
+  <data name="PreviewVersion" xml:space="preserve">
+    <value>Preview</value>
+  </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>The query used to search for an app</value>
   </data>
