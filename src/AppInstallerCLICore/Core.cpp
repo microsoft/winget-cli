@@ -63,7 +63,7 @@ namespace AppInstaller::CLI
             utf8Args.emplace_back(Utility::ConvertToUTF8(argv[i]));
         }
 
-        AICLI_LOG(CLI, Info, << "AppInstaller CLI invoked with arguments:" << [&]() {
+        AICLI_LOG(CLI, Info, << "WinGet invoked with arguments:" << [&]() {
                 std::stringstream strstr;
                 for (const auto& arg : utf8Args)
                 {

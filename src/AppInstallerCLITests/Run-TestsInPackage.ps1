@@ -129,7 +129,7 @@ if ($Wait)
 
 Write-Host "Executing tests at path: $Local:TestExePath"
 Write-Host "Executing tests with args: $Local:TestArgs"
-Invoke-CommandInDesktopPackage -PackageFamilyName AppInstallerCLI_8wekyb3d8bbwe -AppId AppInst -Command $Local:TestExePath -Args $Local:TestArgs
+Invoke-CommandInDesktopPackage -PackageFamilyName WinGetDevCLI_8wekyb3d8bbwe -AppId WinGetDev -Command $Local:TestExePath -Args $Local:TestArgs
 
 if ($ScriptWait)
 {
@@ -147,5 +147,5 @@ if ($ScriptWait)
     Write-Host "Done"
 
     Write-Host "Remove registered package"
-    Get-AppxPackage AppInstallerCLI | Remove-AppxPackage
+    Get-AppxPackage WinGetDevCLI | Remove-AppxPackage
 }

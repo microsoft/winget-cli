@@ -286,7 +286,7 @@
     <value>Remove current sources</value>
   </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
-    <value>his command drops existing sources, potentially leaving any local data behind. Without any argument, it will drop all sources and add the defaults. If a named source is provided, only that source will be dropped.</value>
+    <value>This command drops existing sources, potentially leaving any local data behind. Without any argument, it will drop all sources and add the defaults. If a named source is provided, only that source will be dropped.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Reset sources</value>
@@ -304,7 +304,7 @@
     <value>Filter results by tag</value>
   </data>
   <data name="ToolDescription" xml:space="preserve">
-    <value>AppInstaller command line utility enables installing applications from the command line.</value>
+    <value>WinGet command line utility enables installing applications from the command line.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Display general info of the tool</value>

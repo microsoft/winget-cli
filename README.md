@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/ms/pkg/_apis/build/status/microsoft.appinstaller-cli?branchName=master)](https://dev.azure.com/ms/pkg/_build/latest?definitionId=308&branchName=master)
+[![Build Status](https://dev.azure.com/ms/winget-cli/_apis/build/status/microsoft.winget-cli?branchName=master)](https://dev.azure.com/ms/winget-cli/_build/latest?definitionId=344&branchName=master)
 
 # Contributing
 

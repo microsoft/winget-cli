@@ -71,7 +71,7 @@ namespace AppInstaller::CLI
         }
 
         // Output the command preamble and command chain
-        infoOut << "usage: <exe>" << commandChain;
+        infoOut << "usage: winget" << commandChain;
 
         auto commands = GetCommands();
         auto arguments = GetArguments();
