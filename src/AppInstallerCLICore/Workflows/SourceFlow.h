@@ -47,19 +47,19 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void RemoveSources(Execution::Context& context);
 
-    // Removes the sources in SourceList.
+    // Asks the user if they are ok with dropping the sources in SourceList.
     // Required Args: None
-    // Inputs: None
+    // Inputs: SourceList
     // Outputs: None
     void QueryUserForSourceReset(Execution::Context& context);
 
-    // Removes the sources in SourceList.
+    // Drops the sources in SourceList.
     // Required Args: None
     // Inputs: SourceList
     // Outputs: None
     void ResetSourceList(Execution::Context& context);
 
-    // Removes the sources in SourceList.
+    // Drops all sources.
     // Required Args: None
     // Inputs: None
     // Outputs: None
