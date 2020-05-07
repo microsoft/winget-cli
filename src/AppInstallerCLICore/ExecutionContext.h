@@ -188,5 +188,6 @@ namespace AppInstaller::CLI::Execution
         bool m_isTerminated = false;
         HRESULT m_terminationHR = S_OK;
         std::map<Data, details::DataVariant> m_data;
+        size_t m_CtrlSignalCount = 0;
     };
 }

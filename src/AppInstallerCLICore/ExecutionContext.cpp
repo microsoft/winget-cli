@@ -26,7 +26,7 @@ namespace AppInstaller::CLI::Execution
             {
             case CTRL_C_EVENT:
             case CTRL_BREAK_EVENT:
-                context->Terminate(E_ABORT);
+                context->Terminate(APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED);
                 context->Reporter.CancelInProgressTask(false);
                 return TRUE;
                 // According to MSDN, we should never receive these due to having gdi32/user32 loaded in our process.
@@ -34,7 +34,7 @@ namespace AppInstaller::CLI::Execution
             case CTRL_CLOSE_EVENT:
             case CTRL_LOGOFF_EVENT:
             case CTRL_SHUTDOWN_EVENT:
-                context->Terminate(E_ABORT);
+                context->Terminate(APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED);
                 context->Reporter.CancelInProgressTask(true);
                 return TRUE;
             default:
@@ -92,12 +92,19 @@ namespace AppInstaller::CLI::Execution
 
     void Context::Terminate(HRESULT hr)
     {
-        if (m_isTerminated && m_terminationHR == hr && hr == E_ABORT)
+        if (hr == APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED)
         {
+            ++m_CtrlSignalCount;
+            // Use a more recognizable error
+            hr = E_ABORT;
+
             // If things aren't terminating fast enough for the user, they will probably press CTRL+C again.
             // In that case, we should forcibly terminate.
             // Unless we want to spin a separate thread for all work, we have to just exit here.
-            std::exit(hr);
+            if (m_CtrlSignalCount >= 2)
+            {
+                std::exit(hr);
+            }
         }
 
         m_isTerminated = true;
