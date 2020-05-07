@@ -330,6 +330,9 @@
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>The path to the manifest to be validated</value>
   </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Enables verbose logging for WinGet</value>
+  </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Use the specified version; default is the latest version</value>
   </data>

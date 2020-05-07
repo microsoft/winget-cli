@@ -45,7 +45,7 @@ namespace AppInstaller::CLI
         // Set output to UTF8
         ConsoleOuputCPRestore utf8CP(CP_UTF8);
 
-        // Enable logging (*all* for now, TODO: add common arguments to allow control of logging)
+        // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
         Logging::AddFileLogger();
@@ -88,7 +88,15 @@ namespace AppInstaller::CLI
             Logging::Telemetry().LogCommand(command->FullName());
 
             command->ParseArguments(invocation, context.Args);
+
+            // Change logging level to Info if Verbose not requested
+            if (!context.Args.Contains(Execution::Args::Type::VerboseLogs))
+            {
+                Logging::Log().SetLevel(Logging::Level::Info);
+            }
+
             context.UpdateForArgs();
+
             command->ValidateArguments(context.Args);
         }
         // Exceptions specific to parsing the arguments of a command

@@ -108,7 +108,7 @@ namespace AppInstaller::Repository::SQLite
 
     void Connection::EnableICU()
     {
-        AICLI_LOG(SQL, Info, << "Enabling ICU");
+        AICLI_LOG(SQL, Verbose, << "Enabling ICU");
         THROW_IF_SQLITE_FAILED(sqlite3IcuInit(m_dbconn.get()));
     }
 
