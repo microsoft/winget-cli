@@ -211,10 +211,4 @@ namespace AppInstaller::CLI::Workflow
         Repository::DropSource({});
         context.Reporter.Info() << " Done." << std::endl;
     }
-
-    void AddDefaultSources(Execution::Context& context)
-    {
-        context.Reporter.Info() << "Adding default sources ..." << std::endl;
-        context.Reporter.ExecuteWithProgress(Repository::AddDefaultSources);
-    }
 }

@@ -31,6 +31,9 @@ namespace AppInstaller::Repository
 
         // The last time that this source was updated.
         std::chrono::system_clock::time_point LastUpdateTime;
+
+        // This source is a default source; added for the user by the tool.
+        bool IsDefault = false;
     };
 
     // Interface for interacting with a source from outside of the repository lib.
@@ -53,9 +56,6 @@ namespace AppInstaller::Repository
 
     // Adds a new source for the user.
     void AddSource(std::string name, std::string type, std::string arg, IProgressCallback& progress);
-
-    // Adds the default sources.
-    void AddDefaultSources(IProgressCallback& progress);
 
     // Opens an existing source.
     // Passing an empty string as the name of the source will return a source that aggregates all others.

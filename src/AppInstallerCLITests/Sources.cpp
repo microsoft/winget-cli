@@ -46,11 +46,13 @@ Sources:
     Arg: testArg
     Data: testData
     LastUpdate: 0
+    IsDefault: 1
   - Name: testName2
     Type: testType2
     Arg: testArg2
     Data: testData2
     LastUpdate: 1
+    IsDefault: 0
   - Name: testName3
     Type: testType3
     Arg: testArg3
@@ -143,7 +145,9 @@ TEST_CASE("RepoSources_UserSettingDoesNotExist", "[sources]")
     RemoveSetting(s_RepositorySettings_UserSources);
 
     std::vector<SourceDetails> sources = GetSources();
-    REQUIRE(sources.empty());
+    // The default source is added when no source exists
+    REQUIRE(sources.size() == 1);
+    REQUIRE(sources[0].IsDefault);
 }
 
 TEST_CASE("RepoSources_EmptySourcesList", "[sources]")
@@ -185,6 +189,7 @@ TEST_CASE("RepoSources_ThreeSources", "[sources]")
         REQUIRE(sources[i].Arg == "testArg"s + suffix[i]);
         REQUIRE(sources[i].Data == "testData"s + suffix[i]);
         REQUIRE(sources[i].LastUpdateTime == ConvertUnixEpochToSystemClock(i));
+        REQUIRE(sources[i].IsDefault == (i == 0));
     }
 }
 
@@ -204,7 +209,7 @@ TEST_CASE("RepoSources_MissingField", "[sources]")
 
 TEST_CASE("RepoSources_AddSource", "[sources]")
 {
-    RemoveSetting(s_RepositorySettings_UserSources);
+    SetSetting(s_RepositorySettings_UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     std::string name = "thisIsTheName";
@@ -234,7 +239,7 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
 
 TEST_CASE("RepoSources_AddMultipleSources", "[sources]")
 {
-    RemoveSetting(s_RepositorySettings_UserSources);
+    SetSetting(s_RepositorySettings_UserSources, s_EmptySources);
 
     std::string name = "thisIsTheName";
     std::string type = "thisIsTheType";
@@ -283,7 +288,7 @@ TEST_CASE("RepoSources_UpdateSource", "[sources]")
 {
     using namespace std::chrono_literals;
 
-    RemoveSetting(s_RepositorySettings_UserSources);
+    SetSetting(s_RepositorySettings_UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     std::string name = "thisIsTheName";
@@ -333,7 +338,7 @@ TEST_CASE("RepoSources_UpdateSourceRetries", "[sources]")
 {
     using namespace std::chrono_literals;
 
-    RemoveSetting(s_RepositorySettings_UserSources);
+    SetSetting(s_RepositorySettings_UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     std::string name = "thisIsTheName";
@@ -368,7 +373,7 @@ TEST_CASE("RepoSources_UpdateSourceRetries", "[sources]")
 
 TEST_CASE("RepoSources_RemoveSource", "[sources]")
 {
-    RemoveSetting(s_RepositorySettings_UserSources);
+    SetSetting(s_RepositorySettings_UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     std::string name = "thisIsTheName";
@@ -399,7 +404,6 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
 {
     using namespace std::chrono_literals;
 
-    RemoveSetting(s_RepositorySettings_UserSources);
     TestHook_ClearSourceFactoryOverrides();
 
     std::string name = "testName";
@@ -428,4 +432,44 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
     REQUIRE(sources[0].Arg == arg);
     REQUIRE(sources[0].Data == data);
     REQUIRE(sources[0].LastUpdateTime == ConvertUnixEpochToSystemClock(0));
+}
+
+TEST_CASE("RepoSources_DropSourceByName", "[sources]")
+{
+    SetSetting(s_RepositorySettings_UserSources, s_ThreeSources);
+
+    std::vector<SourceDetails> sources = GetSources();
+    REQUIRE(sources.size() == 3);
+
+    DropSource("testName");
+
+    sources = GetSources();
+    REQUIRE(sources.size() == 2);
+
+    const char* suffix[2] = { "2", "3" };
+
+    for (size_t i = 0; i < 2; ++i)
+    {
+        INFO("Source #" << i);
+        REQUIRE(sources[i].Name == "testName"s + suffix[i]);
+        REQUIRE(sources[i].Type == "testType"s + suffix[i]);
+        REQUIRE(sources[i].Arg == "testArg"s + suffix[i]);
+        REQUIRE(sources[i].Data == "testData"s + suffix[i]);
+        REQUIRE(sources[i].LastUpdateTime == ConvertUnixEpochToSystemClock(i + 1));
+        REQUIRE(!sources[i].IsDefault);
+    }
+}
+
+TEST_CASE("RepoSources_DropAllSources", "[sources]")
+{
+    SetSetting(s_RepositorySettings_UserSources, s_ThreeSources);
+
+    std::vector<SourceDetails> sources = GetSources();
+    REQUIRE(sources.size() == 3);
+
+    DropSource({});
+
+    sources = GetSources();
+    REQUIRE(sources.size() == 1);
+    REQUIRE(sources[0].IsDefault);
 }

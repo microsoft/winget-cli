@@ -74,13 +74,6 @@ namespace AppInstallerCLIE2ETests
             result = TestCommon.RunAICLICommand("source remove", $"-n {SourceTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
-
-            TestCommon.WaitForDeploymentFinish();
-
-            // List should show no source available
-            result = TestCommon.RunAICLICommand("source list", "");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("There are no sources configured."));
         }
     }
 }
