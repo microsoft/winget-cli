@@ -76,6 +76,8 @@ namespace AppInstaller::CLI
             return Argument{ "plain", None, Args::Type::PlainStyle, Resources::GetInstance().ResolveWingetString(L"PlainArgumentDescription").c_str(), ArgumentType::Flag, Visibility::Hidden };
         case Args::Type::Force:
             return Argument{ "force", None, Args::Type::Force, Resources::GetInstance().ResolveWingetString(L"ForceArgumentDescription").c_str(), ArgumentType::Flag };
+        case Args::Type::VerboseLogs:
+            return Argument{ "verbose-logs", None, Args::Type::VerboseLogs, Resources::GetInstance().ResolveWingetString(L"VerboseLogsArgumentDescription").c_str(), ArgumentType::Flag };
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -87,5 +89,6 @@ namespace AppInstaller::CLI
         args.push_back(ForType(Args::Type::NoVT));
         args.push_back(ForType(Args::Type::RainbowStyle));
         args.push_back(ForType(Args::Type::PlainStyle));
+        args.push_back(ForType(Args::Type::VerboseLogs));
     }
 }
