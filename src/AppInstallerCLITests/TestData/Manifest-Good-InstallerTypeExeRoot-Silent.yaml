@@ -11,3 +11,4 @@ Installers:
     Switches:
       Silent: /s
       SilentWithProgress: /s
+ManifestVersion: 0.1.0

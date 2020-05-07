@@ -26,14 +26,19 @@ namespace AppInstaller::Utility
         // The default characters to split a version string on.
         constexpr static std::string_view DefaultSplitChars = "."sv;
 
-        Version(const std::string& version, std::string_view splitChars = DefaultSplitChars) :
-            Version(std::string(version), splitChars) {}
-        Version(std::string&& version, std::string_view splitChars = DefaultSplitChars);
+        Version(const std::string& version, std::string_view splitChars = DefaultSplitChars, bool removeTrailingEmptyVersion = true) :
+            Version(std::string(version), splitChars, removeTrailingEmptyVersion) {}
+        Version(std::string&& version, std::string_view splitChars = DefaultSplitChars, bool removeTrailingEmptyVersion = true);
 
         // Gets the full version string used to construct the Version.
         const std::string& ToString() const { return m_version; }
 
         bool operator<(const Version& other) const;
+        bool operator>(const Version& other) const;
+        bool operator<=(const Version& other) const;
+        bool operator>=(const Version& other) const;
+        bool operator==(const Version& other) const;
+        bool operator!=(const Version& other) const;
 
         // An individual version part in between split characters.
         struct Part
@@ -94,5 +99,16 @@ namespace AppInstaller::Utility
     private:
         Version m_version;
         Channel m_channel;
+    };
+
+    struct SemVer : public Version
+    {
+        uint64_t Major = 0;
+        uint64_t Minor = 0;
+        uint64_t Patch = 0;
+
+        SemVer(const std::string& version) :
+            SemVer(std::string(version)) {}
+        SemVer(std::string&& version);
     };
 }

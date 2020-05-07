@@ -9,3 +9,4 @@ Installers:
     InstallerType: inno
     Switches:
       InstallLocation: /InstallDir <INSTALLPATH>
+ManifestVersion: 0.1.0

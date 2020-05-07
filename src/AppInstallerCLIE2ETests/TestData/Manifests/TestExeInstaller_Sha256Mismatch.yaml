@@ -15,3 +15,4 @@ Installers:
       Language: /exeenus
       Log: /exelog <LOGPATH>
       InstallLocation: /InstallDir <INSTALLPATH>
+ManifestVersion: 0.1.0

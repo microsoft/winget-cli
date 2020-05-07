@@ -157,7 +157,8 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, "ShellExecute", installResult.value());
 
             context.Reporter.Error() << "Installer failed with exit code: " << installResult.value() << std::endl;
-            if (context.Contains(Execution::Data::LogPath))
+            // Show installer log path if exists
+            if (context.Contains(Execution::Data::LogPath) && std::filesystem::exists(context.Get<Execution::Data::LogPath>()))
             {
                 context.Reporter.Info() << "Installer log is available at: " << context.Get<Execution::Data::LogPath>().u8string() << std::endl;
             }

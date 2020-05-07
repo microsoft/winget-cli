@@ -39,9 +39,9 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INVALID_CL_ARGUMENTS = unchecked((int)0x8A150002);
             public const int ERROR_COMMAND_FAILED = unchecked((int)0x8A150003);
             public const int ERROR_MANIFEST_FAILED = unchecked((int)0x8A150004);
-            //public const int ERROR_WORKFLOW_FAILED = unchecked((int)0x8A150005) // Unused, can be repurposed
+            public const int ERROR_UNSUPPORTED_MANIFESTVERSION = unchecked((int)0x8A150005);
             public const int ERROR_SHELLEXEC_INSTALL_FAILED = unchecked((int)0x8A150006);
-            //public const int ERROR_RUNTIME_ERROR = unchecked((int)0x8A150007) // Unused, can be repurposed
+            //public const int ERROR_RUNTIME_ERROR = unchecked((int)0x8A150007); // Unused, can be repurposed
             public const int ERROR_DOWNLOAD_FAILED = unchecked((int)0x8A150008);
             public const int ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX = unchecked((int)0x8A150009);
             public const int ERROR_INDEX_INTEGRITY_COMPROMISED = unchecked((int)0x8A15000A);

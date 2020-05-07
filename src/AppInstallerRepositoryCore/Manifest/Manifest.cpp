@@ -39,41 +39,71 @@ namespace AppInstaller::Manifest
 
     std::vector<ValidationError> Manifest::PopulateManifestFields(const YAML::Node& rootNode, bool fullValidation)
     {
+        // Detect manifest version first to determine expected fields
+        // Use index to access ManifestVersion directly. If there're duplicates or other general errors, it'll be detected in later
+        // processing of iterating the whole manifest.
+        // Todo: make ManifestVersion required when all manifests in our repo have been updated to contain a ManifestVersion
+        if (rootNode["ManifestVersion"])
+        {
+            ManifestVersion = Utility::SemVer(rootNode["ManifestVersion"].as<std::string>());
+        }
+        else
+        {
+            ManifestVersion = PreviewManifestVersion;
+        }
+
+        // Check manifest version is supported
+        if (ManifestVersion.Major > MaxSupportedMajorVersion)
+        {
+            THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION), "Unsupported ManifestVersion: %S", ManifestVersion.ToString().c_str());
+        }
+
+        std::vector<ManifestFieldInfo> fieldInfos =
+        {
+            { "ManifestVersion", [this](const YAML::Node&) { /* ManifestVersion already processed */ }, false },
+        };
+
         YAML::Node switchesNode;
         YAML::Node installersNode;
         YAML::Node localizationsNode;
 
-        const std::vector<ManifestFieldInfo> FieldInfos =
+        if (ManifestVersion >= PreviewManifestVersion)
         {
-            { "Id", [this](const YAML::Node& value) { Id = value.as<std::string>(); Utility::Trim(Id); }, true, "^[\\S]+\\.[\\S]+$" },
-            { "Name", [this](const YAML::Node& value) { Name = value.as<std::string>(); Utility::Trim(Name); }, true },
-            { "Version", [this](const YAML::Node& value) { Version = value.as<std::string>(); Utility::Trim(Version); }, true,
-              "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){0,3}$" },
-            { "Publisher", [this](const YAML::Node& value) { Publisher = value.as<std::string>(); }, true },
-            { "AppMoniker", [this](const YAML::Node& value) { AppMoniker = value.as<std::string>(); Utility::Trim(AppMoniker); } },
-            { "Channel", [this](const YAML::Node& value) { Channel = value.as<std::string>(); Utility::Trim(Channel); } },
-            { "Author", [this](const YAML::Node& value) { Author = value.as<std::string>(); } },
-            { "License", [this](const YAML::Node& value) { License = value.as<std::string>(); } },
-            { "MinOSVersion", [this](const YAML::Node& value) { MinOSVersion = value.as<std::string>(); Utility::Trim(MinOSVersion); }, false,
-              "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){0,3}$" },
-            { "Tags", [this](const YAML::Node& value) { Tags = SplitMultiValueField(value.as<std::string>()); } },
-            { "Commands", [this](const YAML::Node& value) { Commands = SplitMultiValueField(value.as<std::string>()); } },
-            { "Protocols", [this](const YAML::Node& value) { Protocols = SplitMultiValueField(value.as<std::string>()); } },
-            { "FileExtensions", [this](const YAML::Node& value) { FileExtensions = SplitMultiValueField(value.as<std::string>()); } },
-            { "InstallerType", [this](const YAML::Node& value) { InstallerType = ManifestInstaller::ConvertToInstallerTypeEnum(value.as<std::string>()); } },
-            { "Description", [this](const YAML::Node& value) { Description = value.as<std::string>(); } },
-            { "Homepage", [this](const YAML::Node& value) { Homepage = value.as<std::string>(); } },
-            { "LicenseUrl", [this](const YAML::Node& value) { LicenseUrl = value.as<std::string>(); } },
-            { "Switches", [&](const YAML::Node& value) { switchesNode = value; } },
-            { "Installers", [&](const YAML::Node& value) { installersNode = value; }, true },
-            { "Localization", [&](const YAML::Node& value) { localizationsNode = value; } },
-        };
+            // Add preview fields
+            std::vector<ManifestFieldInfo> previewFieldInfos =
+            {
+                { "Id", [this](const YAML::Node& value) { Id = value.as<std::string>(); Utility::Trim(Id); }, true, "^[\\S]+\\.[\\S]+$" },
+                { "Name", [this](const YAML::Node& value) { Name = value.as<std::string>(); Utility::Trim(Name); }, true },
+                { "Version", [this](const YAML::Node& value) { Version = value.as<std::string>(); Utility::Trim(Version); }, true,
+                  "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){0,3}$" },
+                { "Publisher", [this](const YAML::Node& value) { Publisher = value.as<std::string>(); }, true },
+                { "AppMoniker", [this](const YAML::Node& value) { AppMoniker = value.as<std::string>(); Utility::Trim(AppMoniker); } },
+                { "Channel", [this](const YAML::Node& value) { Channel = value.as<std::string>(); Utility::Trim(Channel); } },
+                { "Author", [this](const YAML::Node& value) { Author = value.as<std::string>(); } },
+                { "License", [this](const YAML::Node& value) { License = value.as<std::string>(); } },
+                { "MinOSVersion", [this](const YAML::Node& value) { MinOSVersion = value.as<std::string>(); Utility::Trim(MinOSVersion); }, false,
+                  "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){0,3}$" },
+                { "Tags", [this](const YAML::Node& value) { Tags = SplitMultiValueField(value.as<std::string>()); } },
+                { "Commands", [this](const YAML::Node& value) { Commands = SplitMultiValueField(value.as<std::string>()); } },
+                { "Protocols", [this](const YAML::Node& value) { Protocols = SplitMultiValueField(value.as<std::string>()); } },
+                { "FileExtensions", [this](const YAML::Node& value) { FileExtensions = SplitMultiValueField(value.as<std::string>()); } },
+                { "InstallerType", [this](const YAML::Node& value) { InstallerType = ManifestInstaller::ConvertToInstallerTypeEnum(value.as<std::string>()); } },
+                { "Description", [this](const YAML::Node& value) { Description = value.as<std::string>(); } },
+                { "Homepage", [this](const YAML::Node& value) { Homepage = value.as<std::string>(); } },
+                { "LicenseUrl", [this](const YAML::Node& value) { LicenseUrl = value.as<std::string>(); } },
+                { "Switches", [&](const YAML::Node& value) { switchesNode = value; } },
+                { "Installers", [&](const YAML::Node& value) { installersNode = value; }, true },
+                { "Localization", [&](const YAML::Node& value) { localizationsNode = value; } },
+            };
 
-        std::vector<ValidationError> resultErrors = ValidateAndProcessFields(rootNode, FieldInfos, fullValidation);
+            std::move(previewFieldInfos.begin(), previewFieldInfos.end(), std::inserter(fieldInfos, fieldInfos.end()));
+        }
+
+        std::vector<ValidationError> resultErrors = ValidateAndProcessFields(rootNode, fieldInfos, fullValidation);
 
         if (!switchesNode.IsNull())
         {
-            auto errors = ManifestInstaller::PopulateSwitchesFields(switchesNode, this->Switches, fullValidation);
+            auto errors = ManifestInstaller::PopulateSwitchesFields(switchesNode, this->Switches, fullValidation, ManifestVersion);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
         }
 
@@ -85,7 +115,7 @@ namespace AppInstaller::Manifest
         for (std::size_t i = 0; i < installersNode.size(); i++) {
             YAML::Node installerNode = installersNode[i];
             ManifestInstaller installer;
-            auto errors = installer.PopulateInstallerFields(installerNode, defaultInstaller, fullValidation);
+            auto errors = installer.PopulateInstallerFields(installerNode, defaultInstaller, fullValidation, ManifestVersion);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
             this->Installers.emplace_back(std::move(installer));
         }
@@ -101,7 +131,7 @@ namespace AppInstaller::Manifest
             for (std::size_t i = 0; i < localizationsNode.size(); i++) {
                 YAML::Node localizationNode = localizationsNode[i];
                 ManifestLocalization localization;
-                auto errors = localization.PopulateLocalizationFields(localizationNode, defaultLocalization, fullValidation);
+                auto errors = localization.PopulateLocalizationFields(localizationNode, defaultLocalization, fullValidation, ManifestVersion);
                 std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
                 this->Localization.emplace_back(std::move(localization));
             }
@@ -168,6 +198,10 @@ namespace AppInstaller::Manifest
             YAML::Node rootNode = YAML::LoadFile(inputFile.u8string());
             errors = manifest.PopulateManifestFields(rootNode, fullValidation);
         }
+        catch (const ManifestException&)
+        {
+            throw;
+        }
         catch (const std::exception& e)
         {
             THROW_EXCEPTION_MSG(ManifestException(), e.what());
@@ -195,6 +229,10 @@ namespace AppInstaller::Manifest
         {
             YAML::Node rootNode = YAML::Load(input);
             errors = manifest.PopulateManifestFields(rootNode, fullValidation);
+        }
+        catch (const ManifestException&)
+        {
+            throw;
         }
         catch (const std::exception& e)
         {

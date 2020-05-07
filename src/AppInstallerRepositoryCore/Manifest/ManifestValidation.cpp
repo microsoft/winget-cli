@@ -6,7 +6,10 @@
 
 namespace AppInstaller::Manifest
 {
-    std::vector<ValidationError> ValidateAndProcessFields(const YAML::Node& rootNode, const std::vector<ManifestFieldInfo> fieldInfos, bool fullValidation)
+    std::vector<ValidationError> ValidateAndProcessFields(
+        const YAML::Node& rootNode,
+        const std::vector<ManifestFieldInfo> fieldInfos,
+        bool fullValidation)
     {
         std::vector<ValidationError> errors;
 
@@ -77,10 +80,10 @@ namespace AppInstaller::Manifest
             }
             else
             {
-                // Forward compatibility for future fields
+                // For full validation, also reports unrecognized fields as warning
                 if (fullValidation)
                 {
-                    errors.emplace_back(ManifestError::FieldUnknown, key, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column);
+                    errors.emplace_back(ManifestError::FieldUnknown, key, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column, ValidationError::Level::Warning);
                 }
             }
         }

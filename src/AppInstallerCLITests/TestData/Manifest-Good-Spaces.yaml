@@ -51,3 +51,4 @@ Localization:
     Description: El proyecto MSIX SDK es habilita desarrolladores de diferentes
     Homepage: https://github.com/microsoft/msix-packaging/es-MX
     LicenseUrl: https://github.com/microsoft/msix-packaging/blob/master/LICENSE-es-MX
+ManifestVersion: 0.1.0

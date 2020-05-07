@@ -5,7 +5,7 @@
 
 namespace AppInstaller::Utility
 {
-    Version::Version(std::string&& version, std::string_view splitChars) :
+    Version::Version(std::string&& version, std::string_view splitChars, bool removeTrailingEmptyVersion) :
         m_version(std::move(version))
     {
         size_t pos = 0;
@@ -20,17 +20,20 @@ namespace AppInstaller::Utility
             pos += length + 1;
         }
 
-        // Remove trailing empty versions (0 or empty)
-        while (!m_parts.empty())
+        if (removeTrailingEmptyVersion)
         {
-            const Part& part = m_parts.back();
-            if (part.Integer == 0 && part.Other.empty())
+            // Remove trailing empty versions (0 or empty)
+            while (!m_parts.empty())
             {
-                m_parts.pop_back();
-            }
-            else
-            {
-                break;
+                const Part& part = m_parts.back();
+                if (part.Integer == 0 && part.Other.empty())
+                {
+                    m_parts.pop_back();
+                }
+                else
+                {
+                    break;
+                }
             }
         }
     }
@@ -61,6 +64,44 @@ namespace AppInstaller::Utility
 
         // All parts tested were equal, so this is only less if there are more parts in other.
         return m_parts.size() < other.m_parts.size();
+    }
+
+    bool Version::operator>(const Version& other) const
+    {
+        return other < *this;
+    }
+
+    bool Version::operator<=(const Version& other) const
+    {
+        return !(*this > other);
+    }
+
+    bool Version::operator>=(const Version& other) const
+    {
+        return !(*this < other);
+    }
+
+    bool Version::operator==(const Version& other) const
+    {
+        if (m_parts.size() != other.m_parts.size())
+        {
+            return false;
+        }
+
+        for (size_t i = 0; i < m_parts.size(); ++i)
+        {
+            if (m_parts[i].Integer != other.m_parts[i].Integer)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool Version::operator!=(const Version& other) const
+    {
+        return !(*this == other);
     }
 
     Version::Part::Part(const std::string& part)
@@ -135,5 +176,19 @@ namespace AppInstaller::Utility
 
         // else m_verson >= other.m_version
         return false;
+    }
+
+    SemVer::SemVer(std::string&& version) :
+        Version(std::move(version), ".", false)
+    {
+        auto parts = Version::GetParts();
+        if (parts.size() != 3)
+        {
+            THROW_HR_MSG(E_INVALIDARG, "Invalid SemVer Input: %S", Version::ToString().c_str());
+        }
+
+        Major = parts[0].Integer;
+        Minor = parts[1].Integer;
+        Patch = parts[2].Integer;
     }
 }

@@ -177,6 +177,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-UnknownProperty.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-UnsupportedVersion.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-UrlInvalid.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
