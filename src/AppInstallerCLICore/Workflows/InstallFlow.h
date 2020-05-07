@@ -70,4 +70,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Manifest?, Installer || InstallerPath
     // Outputs: None
     void MsixInstall(Execution::Context& context);
+
+    // Deletes the installer file.
+    // Required Args: None
+    // Inputs: InstallerPath
+    // Outputs: None
+    void RemoveInstaller(Execution::Context& context);
 }

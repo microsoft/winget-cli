@@ -116,7 +116,19 @@ struct WorkflowTaskOverride
 // Enables overriding the behavior of specific workflow tasks.
 struct TestContext : public Context
 {
-    TestContext(std::ostream& out, std::istream& in) : Context(out, in) {}
+    TestContext(std::ostream& out, std::istream& in) : Context(out, in)
+    {
+        WorkflowTaskOverride wto
+        { RemoveInstaller, [](TestContext&)
+            {
+                // Do nothing; we never want to remove the test files.
+        } };
+
+        // Mark this one as used so that it doesn't anger the destructor.
+        wto.Used = true;
+
+        Override(wto);
+    }
 
     ~TestContext()
     {

@@ -56,7 +56,8 @@ namespace AppInstaller::CLI
             Workflow::ShowInstallationDisclaimer <<
             Workflow::DownloadInstaller <<
             Workflow::VerifyInstallerHash <<
-            Workflow::ExecuteInstaller;
+            Workflow::ExecuteInstaller <<
+            Workflow::RemoveInstaller;
     }
 
     void InstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
