@@ -35,6 +35,11 @@ namespace AppInstaller::CLI
         return Resources::GetInstance().ResolveWingetString(L"SearchCommandDescription").c_str();
     }
 
+    std::string SearchCommand::HelpLink() const
+    {
+        return "https://aka.ms/winget-command-search";
+    }
+
     void SearchCommand::ExecuteInternal(Context& context) const
     {
         context <<

@@ -27,7 +27,7 @@ namespace AppInstaller::CLI
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
         reporter.Info() <<
-            "Windows Package Manager v" << Runtime::GetClientVersion() << " " << Resources::GetInstance().ResolveWingetString(L"PreviewVersion").c_str() << std::endl <<
+            "Windows Package Manager v" << Runtime::GetClientVersion() << " " << Resources::GetInstance().ResolveWingetString(L"PreviewVersion") << std::endl <<
             "Copyright (c) Microsoft Corporation. All rights reserved." << std::endl;
     }
 
@@ -145,11 +145,11 @@ namespace AppInstaller::CLI
         {
             if (Name() == FullName())
             {
-                infoOut << Resources::GetInstance().ResolveWingetString(L"AvailableCommands").c_str() << std::endl;
+                infoOut << Resources::GetInstance().ResolveWingetString(L"AvailableCommands") << std::endl;
             }
             else
             {
-                infoOut << Resources::GetInstance().ResolveWingetString(L"AvailableSubcommands").c_str() << std::endl;
+                infoOut << Resources::GetInstance().ResolveWingetString(L"AvailableSubcommands") << std::endl;
             }
 
             size_t maxCommandNameLength = 0;
@@ -166,7 +166,7 @@ namespace AppInstaller::CLI
 
             infoOut <<
                 std::endl <<
-                Resources::GetInstance().ResolveWingetString(L"HelpForDetails").c_str()
+                Resources::GetInstance().ResolveWingetString(L"HelpForDetails")
                 << " [" << APPINSTALLER_CLI_HELP_ARGUMENT << ']' << std::endl;
         }
 
@@ -197,7 +197,7 @@ namespace AppInstaller::CLI
 
             if (hasArguments)
             {
-                infoOut << Resources::GetInstance().ResolveWingetString(L"AvailableArguements").c_str() << std::endl;
+                infoOut << Resources::GetInstance().ResolveWingetString(L"AvailableArguements") << std::endl;
 
                 size_t i = 0;
                 for (const auto& arg : GetArguments())
@@ -221,7 +221,7 @@ namespace AppInstaller::CLI
                     infoOut << std::endl;
                 }
 
-                infoOut << Resources::GetInstance().ResolveWingetString(L"AvailableOptions").c_str() << std::endl;
+                infoOut << Resources::GetInstance().ResolveWingetString(L"AvailableOptions") << std::endl;
 
                 size_t i = 0;
                 for (const auto& arg : GetArguments())
@@ -237,6 +237,13 @@ namespace AppInstaller::CLI
                     }
                 }
             }
+        }
+
+        // Finally, the link to the documentation pages
+        std::string helpLink = HelpLink();
+        if (!helpLink.empty())
+        {
+            infoOut << std::endl << Resources::GetInstance().ResolveWingetString(L"HelpLinkPreamble") << ' ' << helpLink << std::endl;
         }
     }
 
@@ -477,7 +484,7 @@ namespace AppInstaller::CLI
 
     void Command::ExecuteInternal(Execution::Context& context) const
     {
-        context.Reporter.Error() << Resources::GetInstance().ResolveWingetString(L"PendingWorkError").c_str() << std::endl;
+        context.Reporter.Error() << Resources::GetInstance().ResolveWingetString(L"PendingWorkError") << std::endl;
         THROW_HR(E_NOTIMPL);
     }
 }

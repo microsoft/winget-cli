@@ -14,6 +14,8 @@ namespace AppInstaller::CLI
         virtual std::string ShortDescription() const override;
         virtual std::string GetLongDescription() const override;
 
+        std::string HelpLink() const override;
+
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const;
     };
@@ -26,6 +28,8 @@ namespace AppInstaller::CLI
 
         virtual std::string ShortDescription() const override;
         virtual std::string GetLongDescription() const override;
+
+        std::string HelpLink() const override;
 
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const override;
@@ -40,6 +44,8 @@ namespace AppInstaller::CLI
         virtual std::string ShortDescription() const override;
         virtual std::string GetLongDescription() const override;
 
+        std::string HelpLink() const override;
+
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const override;
     };
@@ -52,6 +58,8 @@ namespace AppInstaller::CLI
 
         virtual std::string ShortDescription() const override;
         virtual std::string GetLongDescription() const override;
+
+        std::string HelpLink() const override;
 
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const override;
@@ -66,6 +74,8 @@ namespace AppInstaller::CLI
         virtual std::string ShortDescription() const override;
         virtual std::string GetLongDescription() const override;
 
+        std::string HelpLink() const override;
+
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const override;
     };
@@ -78,6 +88,8 @@ namespace AppInstaller::CLI
 
         virtual std::string ShortDescription() const override;
         virtual std::string GetLongDescription() const override;
+
+        std::string HelpLink() const override;
 
     protected:
         virtual void ExecuteInternal(Execution::Context& context) const override;
