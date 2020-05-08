@@ -5,7 +5,7 @@
 
 namespace AppInstaller::Utility
 {
-    Version::Version(std::string&& version, std::string_view splitChars, bool removeTrailingEmptyVersion) :
+    Version::Version(std::string&& version, std::string_view splitChars) :
         m_version(std::move(version))
     {
         size_t pos = 0;
@@ -20,20 +20,17 @@ namespace AppInstaller::Utility
             pos += length + 1;
         }
 
-        if (removeTrailingEmptyVersion)
+        // Remove trailing empty versions (0 or empty)
+        while (!m_parts.empty())
         {
-            // Remove trailing empty versions (0 or empty)
-            while (!m_parts.empty())
+            const Part& part = m_parts.back();
+            if (part.Integer == 0 && part.Other.empty())
             {
-                const Part& part = m_parts.back();
-                if (part.Integer == 0 && part.Other.empty())
-                {
-                    m_parts.pop_back();
-                }
-                else
-                {
-                    break;
-                }
+                m_parts.pop_back();
+            }
+            else
+            {
+                break;
             }
         }
     }
@@ -90,7 +87,7 @@ namespace AppInstaller::Utility
 
         for (size_t i = 0; i < m_parts.size(); ++i)
         {
-            if (m_parts[i].Integer != other.m_parts[i].Integer)
+            if (m_parts[i] != other.m_parts[i])
             {
                 return false;
             }
@@ -137,6 +134,16 @@ namespace AppInstaller::Utility
         return false;
     }
 
+    bool Version::Part::operator==(const Part& other) const
+    {
+        return Integer == other.Integer && Other == other.Other;
+    }
+
+    bool Version::Part::operator!=(const Part& other) const
+    {
+        return !(*this == other);
+    }
+
     bool Channel::operator<(const Channel& other) const
     {
         return m_channel < other.m_channel;
@@ -178,17 +185,16 @@ namespace AppInstaller::Utility
         return false;
     }
 
-    SemVer::SemVer(std::string&& version) :
-        Version(std::move(version), ".", false)
+    ManifestVer::ManifestVer(std::string version) : Version(std::move(version))
     {
-        auto parts = Version::GetParts();
-        if (parts.size() != 3)
+        if (m_parts.size() > 3)
         {
-            THROW_HR_MSG(E_INVALIDARG, "Invalid SemVer Input: %S", Version::ToString().c_str());
+            THROW_HR_MSG(E_INVALIDARG, "Invalid ManifestVersion Input: %S", m_version.c_str());
         }
 
-        Major = parts[0].Integer;
-        Minor = parts[1].Integer;
-        Patch = parts[2].Integer;
+        for (const auto& part : m_parts)
+        {
+            THROW_HR_IF_MSG(E_INVALIDARG, !part.Other.empty(), "Invalid ManifestVersion Input: %S", m_version.c_str());
+        }
     }
 }

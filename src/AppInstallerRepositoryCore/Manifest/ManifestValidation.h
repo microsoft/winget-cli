@@ -13,7 +13,7 @@ namespace YAML { class Node; }
 namespace AppInstaller::Manifest
 {
     static const uint64_t MaxSupportedMajorVersion = 1;
-    static const Utility::SemVer PreviewManifestVersion = Utility::SemVer("0.1.0");
+    static const Utility::ManifestVer PreviewManifestVersion = Utility::ManifestVer("0.1.0");
 
     namespace ManifestError
     {

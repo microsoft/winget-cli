@@ -26,9 +26,9 @@ namespace AppInstaller::Utility
         // The default characters to split a version string on.
         constexpr static std::string_view DefaultSplitChars = "."sv;
 
-        Version(const std::string& version, std::string_view splitChars = DefaultSplitChars, bool removeTrailingEmptyVersion = true) :
-            Version(std::string(version), splitChars, removeTrailingEmptyVersion) {}
-        Version(std::string&& version, std::string_view splitChars = DefaultSplitChars, bool removeTrailingEmptyVersion = true);
+        Version(const std::string& version, std::string_view splitChars = DefaultSplitChars) :
+            Version(std::string(version), splitChars) {}
+        Version(std::string&& version, std::string_view splitChars = DefaultSplitChars);
 
         // Gets the full version string used to construct the Version.
         const std::string& ToString() const { return m_version; }
@@ -46,6 +46,8 @@ namespace AppInstaller::Utility
             Part(const std::string& part);
 
             bool operator<(const Part& other) const;
+            bool operator==(const Part& other) const;
+            bool operator!=(const Part& other) const;
 
             uint64_t Integer = 0;
             std::string Other;
@@ -54,7 +56,7 @@ namespace AppInstaller::Utility
         // Gets the part breakdown for a given version; used for tests.
         const std::vector<Part>& GetParts() const { return m_parts; }
 
-    private:
+    protected:
         std::string m_version;
         std::vector<Part> m_parts;
     };
@@ -101,14 +103,15 @@ namespace AppInstaller::Utility
         Channel m_channel;
     };
 
-    struct SemVer : public Version
+    // ManifestVer is inherited from Version and is more restricted version.
+    // ManifestVer is used in the manifest to specify the version of app manifest itself.
+    // Currently ManifestVer is a 3 part version in the format of [0-65535].[0-65535].[0-65535]
+    struct ManifestVer : public Version
     {
-        uint64_t Major = 0;
-        uint64_t Minor = 0;
-        uint64_t Patch = 0;
+        ManifestVer(std::string version = "0.0.0");
 
-        SemVer(const std::string& version) :
-            SemVer(std::string(version)) {}
-        SemVer(std::string&& version);
+        uint64_t Major() { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }
+        uint64_t Minor() { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }
+        uint64_t Patch() { return m_parts.size() > 2 ? m_parts[2].Integer : 0; }
     };
 }

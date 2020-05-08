@@ -223,6 +223,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-UrlMissing.yaml", "Required field missing. Field: Url" },
         { "Manifest-Bad-VersionInvalid.yaml", "Invalid field value. Field: Version" },
         { "Manifest-Bad-VersionMissing.yaml", "Required field missing. Field: Version" },
+        { "Manifest-Bad-InvalidManifestVersionValue.yaml", "Invalid field value. Field: ManifestVersion" },
     };
 
     for (auto const& testCase : TestCases)

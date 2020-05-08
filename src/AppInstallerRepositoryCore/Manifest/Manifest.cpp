@@ -45,7 +45,17 @@ namespace AppInstaller::Manifest
         // Todo: make ManifestVersion required when all manifests in our repo have been updated to contain a ManifestVersion
         if (rootNode["ManifestVersion"])
         {
-            ManifestVersion = Utility::SemVer(rootNode["ManifestVersion"].as<std::string>());
+            auto manifestVersionValue = rootNode["ManifestVersion"].as<std::string>();
+
+            // For future compatibility, we allow input with channel or build metadata like 1.0.0-preview+build
+            // but build and metadata info will be ignored during processing now
+            auto pos = manifestVersionValue.find_first_of("-+");
+            if (pos != std::string::npos)
+            {
+                manifestVersionValue.erase(pos, std::string::npos);
+            }
+
+            ManifestVersion = Utility::ManifestVer(manifestVersionValue);
         }
         else
         {
@@ -53,20 +63,23 @@ namespace AppInstaller::Manifest
         }
 
         // Check manifest version is supported
-        if (ManifestVersion.Major > MaxSupportedMajorVersion)
+        if (ManifestVersion.Major() > MaxSupportedMajorVersion)
         {
             THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION), "Unsupported ManifestVersion: %S", ManifestVersion.ToString().c_str());
         }
 
         std::vector<ManifestFieldInfo> fieldInfos =
         {
-            { "ManifestVersion", [this](const YAML::Node&) { /* ManifestVersion already processed */ }, false },
+            { "ManifestVersion", [this](const YAML::Node&) { /* ManifestVersion already processed */ }, false,
+              "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){2}$" },
         };
 
         YAML::Node switchesNode;
         YAML::Node installersNode;
         YAML::Node localizationsNode;
 
+        // Todo: The FieldInfo can be a table with an entry specifying which version the field is introduced
+        // so that we can query applicable fields given a ManifestVersion
         if (ManifestVersion >= PreviewManifestVersion)
         {
             // Add preview fields
@@ -200,6 +213,7 @@ namespace AppInstaller::Manifest
         }
         catch (const ManifestException&)
         {
+            // Prevent ManifestException from being wrapped in another ManifestException
             throw;
         }
         catch (const std::exception& e)
@@ -232,6 +246,7 @@ namespace AppInstaller::Manifest
         }
         catch (const ManifestException&)
         {
+            // Prevent ManifestException from being wrapped in another ManifestException
             throw;
         }
         catch (const std::exception& e)

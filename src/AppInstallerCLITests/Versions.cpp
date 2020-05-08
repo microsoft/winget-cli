@@ -78,7 +78,15 @@ void RequireLessThan(std::string_view a, std::string_view b)
     Version vB{ std::string(b) };
 
     REQUIRE(vA < vB);
-    REQUIRE(!(vB < vA));
+    REQUIRE_FALSE(vB < vA);
+    REQUIRE(vA <= vB);
+    REQUIRE_FALSE(vB <= vA);
+    REQUIRE(vB > vA);
+    REQUIRE_FALSE(vA > vB);
+    REQUIRE(vB >= vA);
+    REQUIRE_FALSE(vA >= vB);
+    REQUIRE_FALSE(vA == vB);
+    REQUIRE(vA != vB);
 }
 
 void RequireEqual(std::string_view a, std::string_view b)
@@ -86,8 +94,12 @@ void RequireEqual(std::string_view a, std::string_view b)
     Version vA{ std::string(a) };
     Version vB{ std::string(b) };
 
-    REQUIRE(!(vA < vB));
-    REQUIRE(!(vB < vA));
+    REQUIRE(vA == vB);
+    REQUIRE_FALSE(vA != vB);
+    REQUIRE(vA <= vB);
+    REQUIRE(vA >= vB);
+    REQUIRE_FALSE(vA < vB);
+    REQUIRE_FALSE(vA > vB);
 }
 
 TEST_CASE("VersionCompare", "[versions]")

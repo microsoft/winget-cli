@@ -22,10 +22,10 @@ namespace AppInstaller
                 return "Executing command failed";
             case APPINSTALLER_CLI_ERROR_MANIFEST_FAILED:
                 return "Opening manifest failed";
-            case APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION:
-                return "Cannot process manifest. The manifest version is higher than supported. Please update the client.";
             case APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED:
                 return "Running ShellExecute failed";
+            case APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION:
+                return "Cannot process manifest. The manifest version is higher than supported. Please update the client.";
             case APPINSTALLER_CLI_ERROR_DOWNLOAD_FAILED:
                 return "Downloading installer failed";
             case APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX:

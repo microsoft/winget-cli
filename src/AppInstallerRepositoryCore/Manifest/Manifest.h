@@ -59,7 +59,7 @@ namespace AppInstaller::Manifest
 
         string_t LicenseUrl;
 
-        Utility::SemVer ManifestVersion = Utility::SemVer("0.0.0");
+        Utility::ManifestVer ManifestVersion;
 
         std::map<ManifestInstaller::InstallerSwitchType, string_t> Switches;
 
