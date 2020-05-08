@@ -6,11 +6,29 @@
 #include <functional>
 #include <wil/result.h>
 #include <AppInstallerErrors.h>
+#include <AppInstallerVersions.h>
 
 namespace YAML { class Node; }
 
 namespace AppInstaller::Manifest
 {
+    // ManifestVer is inherited from Utility::Version and is a more restricted version.
+    // ManifestVer is used to specify the version of app manifest itself.
+    // Currently ManifestVer is a 3 part version in the format of [0-65535].[0-65535].[0-65535]
+    struct ManifestVer : public Utility::Version
+    {
+        ManifestVer() = default;
+
+        ManifestVer(std::string version, bool fullValidation);
+
+        uint64_t Major() { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }
+        uint64_t Minor() { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }
+        uint64_t Patch() { return m_parts.size() > 2 ? m_parts[2].Integer : 0; }
+    };
+
+    static const uint64_t MaxSupportedMajorVersion = 1;
+    static const ManifestVer PreviewManifestVersion = ManifestVer("0.1.0", false);
+
     namespace ManifestError
     {
         const char* const ErrorMessagePrefix = "Manifest Error: ";
@@ -76,12 +94,15 @@ namespace AppInstaller::Manifest
     // Yaml-cpp does not support case insensitive search and it allows duplicate keys. If duplicate keys exist,
     // the value is undefined. So in this method, we will iterate through the node map and process each individual
     // pair ourselves. This also helps with generating aggregated error rather than throwing on first failure.
-    std::vector<ValidationError> ValidateAndProcessFields(const YAML::Node& rootNode, const std::vector<ManifestFieldInfo> fieldInfos, bool fullValidation);
+    std::vector<ValidationError> ValidateAndProcessFields(
+        const YAML::Node& rootNode,
+        const std::vector<ManifestFieldInfo> fieldInfos,
+        bool fullValidation);
 
     struct ManifestException : public wil::ResultException
     {
-        ManifestException(std::vector<ValidationError>&& errors = {}) :
-            m_errors(std::move(errors)), wil::ResultException(APPINSTALLER_CLI_ERROR_MANIFEST_FAILED)
+        ManifestException(std::vector<ValidationError>&& errors = {}, HRESULT hr = APPINSTALLER_CLI_ERROR_MANIFEST_FAILED) :
+            m_errors(std::move(errors)), wil::ResultException(hr)
         {
             auto p = [&](ValidationError const& e) {
                 return e.ErrorLevel == ValidationError::Level::Error;
@@ -90,6 +111,8 @@ namespace AppInstaller::Manifest
             m_warningOnly = !m_errors.empty() && std::find_if(m_errors.begin(), m_errors.end(), p) == m_errors.end();
         }
 
+        ManifestException(HRESULT hr) : ManifestException({}, hr) {}
+
         // Error message without wil diagnostic info
         const std::string& GetManifestErrorMessage() const noexcept
         {
@@ -97,7 +120,7 @@ namespace AppInstaller::Manifest
             {
                 if (m_errors.empty())
                 {
-                    // Syntax error, Yaml-cpp error is stored in FailureInfo
+                    // Syntax error, yaml-cpp error is stored in FailureInfo
                     m_manifestErrorMessage = Utility::ConvertToUTF8(GetFailureInfo().pszMessage);
                 }
                 else

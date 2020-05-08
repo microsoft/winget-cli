@@ -14,3 +14,4 @@ Installers:
         Silent: /mysilent
         Log: /mylog="<LOGPATH>"
         InstallLocation: /myinstalldir="<INSTALLPATH>"
+ManifestVersion: 0.1.0

@@ -159,6 +159,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerUniqueness-SameLang.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InvalidManifestVersionValue.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-NameMissing.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -175,6 +178,9 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-UnknownProperty.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-UnsupportedVersion.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-UrlInvalid.yaml">

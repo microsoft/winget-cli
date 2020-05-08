@@ -10,3 +10,4 @@ Installers:
     InstallerType: Exe
     Switches:
       Interactive: /i
+ManifestVersion: 0.1.0

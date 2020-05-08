@@ -23,6 +23,10 @@ namespace AppInstaller::Manifest
 
         // Populates ManifestLocalization
         // defaultLocalization: if an optional field is not found in the YAML node, the field will be populated with value from defaultLocalization.
-        std::vector<ValidationError> PopulateLocalizationFields(const YAML::Node& localizationNode, const ManifestLocalization& defaultLocalization, bool fullValidation);
+        std::vector<ValidationError> PopulateLocalizationFields(
+            const YAML::Node& localizationNode,
+            const ManifestLocalization& defaultLocalization,
+            bool fullValidation,
+            ManifestVer manifestVersion);
     };
 }
