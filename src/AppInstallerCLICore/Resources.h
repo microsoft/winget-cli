@@ -3,27 +3,42 @@
 #pragma once
 #include <string>
 #include <winrt/Windows.ApplicationModel.Resources.h>
-#include <winrt/Windows.ApplicationModel.Resources.Core.h>
 
-using namespace winrt::Windows::ApplicationModel::Resources;
-using namespace winrt::Windows::ApplicationModel::Resources::Core;
 
-namespace AppInstaller::CLI
+namespace AppInstaller::CLI::Resource
 {
-    class Resources
+    using namespace std::string_view_literals;
+
+#define WINGET_WIDE_STRINGIFY_HELP(_id_) L ## _id_
+#define WINGET_WIDE_STRINGIFY(_id_) WINGET_WIDE_STRINGIFY_HELP(_id_)
+#define WINGET_DEFINE_RESOURCE_ID(_id_) static constexpr std::wstring_view _id_ = WINGET_WIDE_STRINGIFY(#_id_) ## sv
+
+    // Resource string identifiers
+    struct String
+    {
+        static constexpr std::wstring_view SearchCommandDescription = L"SearchCommandDescription"sv;
+        WINGET_DEFINE_RESOURCE_ID(HashHelperDescription);
+    };
+
+    // A localized string
+    struct LocString : public std::string
+    {
+        LocString(std::wstring_view id);
+    };
+
+    // Utility class to load resources
+    class Loader
     {
     public:
-        static const Resources& GetInstance();
+        // Gets the singleton instance of the resource loader.
+        static const Loader& Instance();
 
-        std::string ResolveWingetString(
-            std::wstring_view resKey) const;
-
-        std::wstring ResolveWingetWString(
-            std::wstring_view resKey) const;
+        // Gets the the string resource value.
+        std::string ResolveString(std::wstring_view resKey) const;
 
     private:
         winrt::Windows::ApplicationModel::Resources::ResourceLoader m_wingetLoader;
 
-        Resources();
+        Loader();
     };
 }
