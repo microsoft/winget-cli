@@ -27,6 +27,6 @@ namespace AppInstaller::Manifest
             const YAML::Node& localizationNode,
             const ManifestLocalization& defaultLocalization,
             bool fullValidation,
-            Utility::ManifestVer manifestVersion);
+            ManifestVer manifestVersion);
     };
 }

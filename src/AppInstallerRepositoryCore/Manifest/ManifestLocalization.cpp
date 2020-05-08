@@ -10,7 +10,7 @@ namespace AppInstaller::Manifest
         const YAML::Node& localizationNode,
         const ManifestLocalization& defaultLocalization,
         bool fullValidation,
-        Utility::ManifestVer manifestVersion)
+        ManifestVer manifestVersion)
     {
         // Populates default values first
         this->Description = defaultLocalization.Description;

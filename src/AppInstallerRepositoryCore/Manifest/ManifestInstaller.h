@@ -81,7 +81,7 @@ namespace AppInstaller::Manifest
             const YAML::Node& switchesNode,
             std::map<InstallerSwitchType, string_t>& switches,
             bool fullValidation,
-            Utility::ManifestVer manifestVersion);
+            ManifestVer manifestVersion);
 
         // Populates ManifestInstaller
         // defaultInstaller: if an optional field is not found in the YAML node, the field will be populated with value from defaultInstaller.
@@ -89,7 +89,7 @@ namespace AppInstaller::Manifest
             const YAML::Node& installerNode,
             const ManifestInstaller& defaultInstaller,
             bool fullValidation,
-            Utility::ManifestVer manifestVersion);
+            ManifestVer manifestVersion);
 
         static std::string InstallerTypeToString(InstallerTypeEnum installerType);
     };

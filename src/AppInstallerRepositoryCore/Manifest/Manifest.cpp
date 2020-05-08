@@ -46,16 +46,7 @@ namespace AppInstaller::Manifest
         if (rootNode["ManifestVersion"])
         {
             auto manifestVersionValue = rootNode["ManifestVersion"].as<std::string>();
-
-            // For future compatibility, we allow input with channel or build metadata like 1.0.0-preview+build
-            // but build and metadata info will be ignored during processing now
-            auto pos = manifestVersionValue.find_first_of("-+");
-            if (pos != std::string::npos)
-            {
-                manifestVersionValue.erase(pos, std::string::npos);
-            }
-
-            ManifestVersion = Utility::ManifestVer(manifestVersionValue);
+            ManifestVersion = ManifestVer(manifestVersionValue, fullValidation);
         }
         else
         {
@@ -71,6 +62,7 @@ namespace AppInstaller::Manifest
         std::vector<ManifestFieldInfo> fieldInfos =
         {
             { "ManifestVersion", [this](const YAML::Node&) { /* ManifestVersion already processed */ }, false,
+              // Regex here is to prevent leading 0s in the version, this also keeps consistent with other versions in the manifest
               "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){2}$" },
         };
 

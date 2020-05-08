@@ -59,7 +59,7 @@ namespace AppInstaller::Manifest
 
         string_t LicenseUrl;
 
-        Utility::ManifestVer ManifestVersion;
+        ManifestVer ManifestVersion;
 
         std::map<ManifestInstaller::InstallerSwitchType, string_t> Switches;
 

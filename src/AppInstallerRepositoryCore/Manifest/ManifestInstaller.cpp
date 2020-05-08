@@ -10,7 +10,7 @@ namespace AppInstaller::Manifest
         const YAML::Node& installerNode,
         const ManifestInstaller& defaultInstaller,
         bool fullValidation,
-        Utility::ManifestVer manifestVersion)
+        ManifestVer manifestVersion)
     {
         YAML::Node switchesNode;
         this->InstallerType = defaultInstaller.InstallerType;
@@ -87,7 +87,7 @@ namespace AppInstaller::Manifest
         const YAML::Node& switchesNode,
         std::map<InstallerSwitchType, string_t>& switches,
         bool fullValidation,
-        Utility::ManifestVer manifestVersion)
+        ManifestVer manifestVersion)
     {
         std::vector<ManifestFieldInfo> fieldInfos;
 

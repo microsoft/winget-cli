@@ -99,4 +99,33 @@ namespace AppInstaller::Manifest
 
         return errors;
     }
+
+    ManifestVer::ManifestVer(std::string version, bool fullValidation) : Version(std::move(version), ".")
+    {
+        bool validationSuccess = true;
+
+        if (m_parts.size() > 3)
+        {
+            validationSuccess = false;
+        }
+        else
+        {
+            for (int i = 0; i < m_parts.size(); i++)
+            {
+                if (!m_parts[i].Other.empty() &&
+                    (i < 2 || fullValidation))
+                {
+                    validationSuccess = false;
+                    break;
+                }
+            }
+        }
+
+        if (!validationSuccess)
+        {
+            std::vector<ValidationError> errors;
+            errors.emplace_back(ManifestError::InvalidFieldValue, "ManifestVersion", m_version);
+            THROW_EXCEPTION(ManifestException(std::move(errors)));
+        }
+    }
 }

@@ -26,6 +26,8 @@ namespace AppInstaller::Utility
         // The default characters to split a version string on.
         constexpr static std::string_view DefaultSplitChars = "."sv;
 
+        Version() {};
+
         Version(const std::string& version, std::string_view splitChars = DefaultSplitChars) :
             Version(std::string(version), splitChars) {}
         Version(std::string&& version, std::string_view splitChars = DefaultSplitChars);
@@ -101,17 +103,5 @@ namespace AppInstaller::Utility
     private:
         Version m_version;
         Channel m_channel;
-    };
-
-    // ManifestVer is inherited from Version and is more restricted version.
-    // ManifestVer is used in the manifest to specify the version of app manifest itself.
-    // Currently ManifestVer is a 3 part version in the format of [0-65535].[0-65535].[0-65535]
-    struct ManifestVer : public Version
-    {
-        ManifestVer(std::string version = "0.0.0");
-
-        uint64_t Major() { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }
-        uint64_t Minor() { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }
-        uint64_t Patch() { return m_parts.size() > 2 ? m_parts[2].Integer : 0; }
     };
 }

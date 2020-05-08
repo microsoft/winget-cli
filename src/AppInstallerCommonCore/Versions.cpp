@@ -184,17 +184,4 @@ namespace AppInstaller::Utility
         // else m_verson >= other.m_version
         return false;
     }
-
-    ManifestVer::ManifestVer(std::string version) : Version(std::move(version))
-    {
-        if (m_parts.size() > 3)
-        {
-            THROW_HR_MSG(E_INVALIDARG, "Invalid ManifestVersion Input: %S", m_version.c_str());
-        }
-
-        for (const auto& part : m_parts)
-        {
-            THROW_HR_IF_MSG(E_INVALIDARG, !part.Other.empty(), "Invalid ManifestVersion Input: %S", m_version.c_str());
-        }
-    }
 }
