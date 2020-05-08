@@ -17,7 +17,7 @@ namespace AppInstaller::Manifest
     // Currently ManifestVer is a 3 part version in the format of [0-65535].[0-65535].[0-65535]
     struct ManifestVer : public Utility::Version
     {
-        ManifestVer() : Version() {}
+        ManifestVer() = default;
 
         ManifestVer(std::string version, bool fullValidation);
 

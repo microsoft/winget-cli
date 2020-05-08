@@ -26,7 +26,7 @@ namespace AppInstaller::Utility
         // The default characters to split a version string on.
         constexpr static std::string_view DefaultSplitChars = "."sv;
 
-        Version() {};
+        Version() = default;
 
         Version(const std::string& version, std::string_view splitChars = DefaultSplitChars) :
             Version(std::string(version), splitChars) {}
