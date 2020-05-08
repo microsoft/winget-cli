@@ -223,4 +223,15 @@ namespace AppInstaller::CLI::Workflow
 
         context.Reporter.Info() << "Successfully installed." << std::endl;
     }
+
+    void RemoveInstaller(Execution::Context& context)
+    {
+        // Path may not be present if installed from a URL for MSIX
+        if (context.Contains(Execution::Data::InstallerPath))
+        {
+            const auto& path = context.Get<Execution::Data::InstallerPath>();
+            AICLI_LOG(CLI, Info, << "Removing installer: " << path);
+            std::filesystem::remove(path);
+        }
+    }
 }
