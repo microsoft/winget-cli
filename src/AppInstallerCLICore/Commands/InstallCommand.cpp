@@ -46,6 +46,11 @@ namespace AppInstaller::CLI
         return Resources::GetInstance().ResolveWingetString(L"InstallCommandDescription");
     }
 
+    std::string InstallCommand::HelpLink() const
+    {
+        return "https://aka.ms/winget-command-install";
+    }
+
     void InstallCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<

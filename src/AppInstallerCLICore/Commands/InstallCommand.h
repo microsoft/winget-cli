@@ -14,6 +14,8 @@ namespace AppInstaller::CLI
         std::string ShortDescription() const override;
         std::string GetLongDescription() const override;
 
+        std::string HelpLink() const override;
+
     protected:
         void ValidateArgumentsInternal(Execution::Args& execArgs) const override;
         void ExecuteInternal(Execution::Context& context) const override;

@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>For more details on a specific command, pass it the help argument.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>More help can be found at:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filter results by id</value>
   </data>

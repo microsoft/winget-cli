@@ -27,6 +27,11 @@ namespace AppInstaller::CLI
         return Resources::GetInstance().ResolveWingetString(L"HashHelperDescription");
     }
 
+    std::string HashCommand::HelpLink() const
+    {
+        return "https://aka.ms/winget-command-hash";
+    }
+
     void HashCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<

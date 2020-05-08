@@ -26,6 +26,11 @@ namespace AppInstaller::CLI
         return Resources::GetInstance().ResolveWingetString(L"ValidateCommandLongDescription");
     }
 
+    std::string ValidateCommand::HelpLink() const
+    {
+        return "https://aka.ms/winget-command-validate";
+    }
+
     void ValidateCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<

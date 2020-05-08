@@ -34,6 +34,11 @@ namespace AppInstaller::CLI
         return Resources::GetInstance().ResolveWingetString(L"ShowCommandLongDescription");
     }
 
+    std::string ShowCommand::HelpLink() const
+    {
+        return "https://aka.ms/winget-command-show";
+    }
+
     void ShowCommand::ExecuteInternal(Execution::Context& context) const
     {
         if (context.Args.Contains(Execution::Args::Type::ListVersions))

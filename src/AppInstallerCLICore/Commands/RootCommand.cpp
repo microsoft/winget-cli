@@ -39,6 +39,11 @@ namespace AppInstaller::CLI
         return Resources::GetInstance().ResolveWingetString(L"ToolDescription");
     }
 
+    std::string RootCommand::HelpLink() const
+    {
+        return "https://aka.ms/winget-command-help";
+    }
+
     void RootCommand::ExecuteInternal(Execution::Context& context) const
     {
         if (context.Args.Contains(Execution::Args::Type::Info))
