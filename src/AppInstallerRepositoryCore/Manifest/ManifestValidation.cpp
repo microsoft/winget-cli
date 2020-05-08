@@ -110,7 +110,7 @@ namespace AppInstaller::Manifest
         }
         else
         {
-            for (int i = 0; i < m_parts.size(); i++)
+            for (size_t i = 0; i < m_parts.size(); i++)
             {
                 if (!m_parts[i].Other.empty() &&
                     (i < 2 || fullValidation))
