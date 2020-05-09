@@ -202,7 +202,7 @@ namespace AppInstaller::Runtime
         else
         {
             std::ostringstream strstr;
-            strstr << VERSION_MAJOR << '.' << VERSION_MINOR << '.' << VERSION_REVISION;
+            strstr << VERSION_MAJOR << '.' << VERSION_MINOR << '.' << VERSION_BUILD;
 
             return strstr.str();
         }

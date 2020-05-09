@@ -63,9 +63,9 @@ if (![String]::IsNullOrEmpty($TargetFile))
             {
                 $Local:ResultContent += "#define VERSION_MINOR $Local:Minor";
             }
-            elseif ($Local:line.StartsWith("#define VERSION_REVISION"))
+            elseif ($Local:line.StartsWith("#define VERSION_BUILD"))
             {
-                $Local:ResultContent += "#define VERSION_REVISION $BuildVersion";
+                $Local:ResultContent += "#define VERSION_BUILD $BuildVersion";
             }
             else
             {
