@@ -161,7 +161,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>Execute the command without prompts</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>Computes the hash of a local file, appropriate for entry into a manifest.  It can also compute the hash of the signature file of an MSIX package to enable streaming installations.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>Helper to hash installer files</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +179,10 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filter results by id</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Installs the selected application, either found by searching a configured source or directly from a manifest.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Installs the given application</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -240,7 +246,10 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>Required argument not provided</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>Searches for applications from configured sources.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Find and show basic info of apps</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">

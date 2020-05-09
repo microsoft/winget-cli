@@ -12,7 +12,7 @@ namespace AppInstaller::CLI
         std::vector<std::unique_ptr<Command>> GetCommands() const override;
         std::vector<Argument> GetArguments() const override;
 
-        std::string GetLongDescription() const override;
+        Resource::LocString LongDescription() const override;
 
         std::string HelpLink() const override;
 

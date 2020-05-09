@@ -4,6 +4,7 @@
 #include "Argument.h"
 #include "ExecutionContext.h"
 #include "Invocation.h"
+#include "Resources.h"
 
 #include <initializer_list>
 #include <memory>
@@ -48,8 +49,8 @@ namespace AppInstaller::CLI
         virtual std::vector<std::unique_ptr<Command>> GetCommands() const { return {}; }
         virtual std::vector<Argument> GetArguments() const { return {}; }
 
-        virtual std::string ShortDescription() const { return {}; }
-        virtual std::string GetLongDescription() const { return {}; }
+        virtual Resource::LocString ShortDescription() const { return {}; }
+        virtual Resource::LocString LongDescription() const { return {}; }
 
         virtual void OutputIntroHeader(Execution::Reporter& reporter) const;
         virtual void OutputHelp(Execution::Reporter& reporter, const CommandException* exception = nullptr) const;

@@ -36,14 +36,14 @@ namespace AppInstaller::CLI
         };
     }
 
-    std::string InstallCommand::ShortDescription() const
+    Resource::LocString InstallCommand::ShortDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"InstallCommandDescription");
+        return { Resource::String::InstallCommandShortDescription };
     }
 
-    std::string InstallCommand::GetLongDescription() const
+    Resource::LocString InstallCommand::LongDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"InstallCommandDescription");
+        return { Resource::String::InstallCommandLongDescription };
     }
 
     std::string InstallCommand::HelpLink() const

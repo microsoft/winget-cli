@@ -7,6 +7,11 @@
 
 namespace AppInstaller::CLI::Resource
 {
+    LocString::LocString(std::wstring_view id)
+    {
+        m_value = Loader::Instance().ResolveString(id);
+    }
+
     const Loader& Loader::Instance()
     {
         static Loader instance;

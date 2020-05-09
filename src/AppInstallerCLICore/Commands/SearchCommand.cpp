@@ -25,14 +25,14 @@ namespace AppInstaller::CLI
         };
     }
 
-    std::string SearchCommand::ShortDescription() const
+    Resource::LocString SearchCommand::ShortDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"SearchCommandDescription");
+        return { Resource::String::SearchCommandShortDescription };
     }
 
-    std::string SearchCommand::GetLongDescription() const
+    Resource::LocString SearchCommand::LongDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"SearchCommandDescription").c_str();
+        return { Resource::String::SearchCommandLongDescription };
     }
 
     std::string SearchCommand::HelpLink() const

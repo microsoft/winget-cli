@@ -17,14 +17,14 @@ namespace AppInstaller::CLI
         };
     }
 
-    std::string HashCommand::ShortDescription() const
+    Resource::LocString HashCommand::ShortDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"HashHelperDescription");
+        return { Resource::String::HashCommandShortDescription };
     }
 
-    std::string HashCommand::GetLongDescription() const
+    Resource::LocString HashCommand::LongDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"HashHelperDescription");
+        return { Resource::String::HashCommandLongDescription };
     }
 
     std::string HashCommand::HelpLink() const

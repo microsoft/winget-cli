@@ -34,9 +34,9 @@ namespace AppInstaller::CLI
         };
     }
 
-    std::string RootCommand::GetLongDescription() const
+    Resource::LocString RootCommand::LongDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"ToolDescription");
+        return { Resource::String::ToolDescription };
     }
 
     std::string RootCommand::HelpLink() const
