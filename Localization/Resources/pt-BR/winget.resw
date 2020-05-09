@@ -118,222 +118,222 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AdjoinedNotFlagError" xml:space="preserve">
-    <value>隣接するエイリアスはフラグではありません</value>
+    <value>Alias adjacente não é um sinalizador</value>
   </data>
   <data name="AdjoinedNotFoundError" xml:space="preserve">
-    <value>隣接するフラグのエイリアスが見つかりません</value>
+    <value>Alias de sinalizador adjacente não encontrado</value>
   </data>
   <data name="AvailableArguements" xml:space="preserve">
-    <value>次の引数を使用できます。</value>
+    <value>Os seguintes argumentos estão disponíveis:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
-    <value>使用できるコマンドは次のとおりです:</value>
+    <value>Os seguintes comandos estão disponíveis:</value>
     <comment>Commands the tool supports</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
-    <value>次のオプションを使用できます。</value>
+    <value>As seguintes opções estão disponíveis:</value>
   </data>
   <data name="AvailableSubcommands" xml:space="preserve">
-    <value>次のサブコマンドを使用できます。</value>
+    <value>Os seguintes subcomandos estão disponíveis:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
-    <value>指定されたチャネルを使用します。既定値は一般向けです</value>
+    <value>Usar o canal especificado; o padrão é público geral</value>
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
-    <value>コマンドによる結果のフィルター処理</value>
+    <value>Filtrar resultados por comando</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
-    <value>指定した数以下の結果を表示</value>
+    <value>Mostrar não mais do que o número especificado de resultados</value>
   </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>完全一致を使用してアプリを検索</value>
+    <value>Localizar o aplicativo usando uma correspondência exata</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
-    <value>必要なものが見つからないときに位置指定引数が見つかりました</value>
+    <value>Localizado um argumento posicional quando nenhum era esperado</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
-    <value>ハッシュするファイル</value>
+    <value>Arquivo em que será gerado o hash</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
-    <value>フラグ引数に隣接値を含めることはできません</value>
+    <value>Argumento sinalizado não pode conter valores adjacentes</value>
   </data>
   <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>ダイアログを表示せずコマンドを実行</value>
+    <value>Executar o comando sem avisos</value>
   </data>
   <data name="HashHelperDescription" xml:space="preserve">
-    <value>インストーラー ファイルをハッシュするヘルパー</value>
+    <value>Ajuda para arquivos do instalador de hash</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
-    <value>選択したコマンドに関するヘルプを表示</value>
+    <value>Mostra a ajuda sobre o comando selecionado</value>
   </data>
   <data name="HelpForDetails" xml:space="preserve">
-    <value>特定のコマンドの詳細については、それにヘルプ引数を渡します。</value>
+    <value>Para obter mais detalhes sobre um comando específico, passe o argumento help.</value>
   </data>
   <data name="IdArgumentDescription" xml:space="preserve">
-    <value>ID で結果をフィルター処理</value>
+    <value>Filtrar resultados por id</value>
   </data>
   <data name="InstallCommandDescription" xml:space="preserve">
-    <value>指定されたアプリケーションをインストール</value>
+    <value>Instala um determinado aplicativo</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
-    <value>対話式インストールを要求する;ユーザー入力が必要である可能性があります</value>
+    <value>Solicitar instalação interativa; a entrada do usuário pode ser necessária</value>
   </data>
   <data name="InvalidAliasError" xml:space="preserve">
-    <value>引数の別名が現在のコマンドに対して認識されませんでした</value>
+    <value>O alias do argumento não foi reconhecido para o comando atual</value>
   </data>
   <data name="InvalidArgumentSpecifierError" xml:space="preserve">
-    <value>引数の指定子が無効です</value>
+    <value>Especificador de argumento inválido</value>
   </data>
   <data name="InvalidNameError" xml:space="preserve">
-    <value>引数名が現在のコマンドに対して認識されませんでした</value>
+    <value>O nome do argumento não foi reconhecido para o comando atual</value>
   </data>
   <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>インストールする言語 (サポートされている場合)</value>
+    <value>Idioma para instalar (se houver suporte)</value>
   </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
-    <value>インストール先 (サポートされている場合)</value>
+    <value>Local para instalar (se houver suporte)</value>
   </data>
   <data name="LogArgumentDesciption" xml:space="preserve">
-    <value>ログの場所 (サポートされている場合)</value>
+    <value>Local do log (se houver suporte)</value>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>アプリケーションのマニフェストへのパス</value>
+    <value>O caminho para o manifesto do aplicativo</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
-    <value>引数値が必要ですが、見つかりません</value>
+    <value>Valor de argumento obrigatório, mas nenhum encontrado</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>アプリ モニカーで結果をフィルター処理</value>
+    <value>Filtrar resultados por moniker do aplicativo</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
-    <value>入力ファイルは msix として扱われます。署名された場合、署名ハッシュが提供されます</value>
+    <value>O arquivo de entrada será tratado como msix; hash de assinatura será fornecido se assinado</value>
   </data>
   <data name="NameArgumentDescription" xml:space="preserve">
-    <value>名前で結果をフィルター処理</value>
+    <value>Filtrar resultados por nome</value>
   </data>
   <data name="NoVTArguementDescription" xml:space="preserve">
-    <value>VirtualTerminal 表示を無効にする</value>
+    <value>Desabilita a exibição VirtualTerminal</value>
     <comment>{Locked="VirtualTerminal"}</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
-    <value>インストーラーに渡される引数を上書き</value>
+    <value>Substituir argumentos para passar para o instalador</value>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
-    <value>申し訳ございません。これを行うことを忘れました…</value>
+    <value>Opa, esquecemos de fazer isso...</value>
   </data>
   <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>既定の色としての進行状況の表示</value>
+    <value>Exibição de andamento como a cor padrão</value>
   </data>
   <data name="PreviewVersion" xml:space="preserve">
-    <value>プレビュー</value>
+    <value>Visualização</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>アプリの検索に使用されるクエリ</value>
+    <value>A consulta usada para pesquisar um aplicativo</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
-    <value>進行状況は虹の色を表示します</value>
+    <value>Exibição de progresso arco-íris de cores</value>
   </data>
   <data name="RequiredArgError" xml:space="preserve">
-    <value>必要な引数が指定されていません</value>
+    <value>Argumento necessário não fornecido</value>
   </data>
   <data name="SearchCommandDescription" xml:space="preserve">
-    <value>アプリの基本情報を見つけて表示</value>
+    <value>Localizar e mostrar informações básicas de aplicativos</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>特定のアプリケーションに関する情報を表示します。</value>
+    <value>Mostra informações de um aplicativo específico.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>アプリケーションに関する情報を表示</value>
+    <value>Mostra informações sobre um aplicativo</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
-    <value>サイレント インストールを要求</value>
+    <value>Solicitar uma instalação silenciosa</value>
   </data>
   <data name="SingleCharAfterDashError" xml:space="preserve">
-    <value>単一文字のエイリアスのみが単一の後に発生することができます-</value>
+    <value>Somente o alias de um único caractere pode ocorrer depois de um único</value>
   </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>新しいソースを追加します。ソースは、アプリケーションを検出してインストールするためのデータを提供します。安全な場所として信頼できる場合にのみ、新しいソースを追加してください。</value>
+    <value>Adicionar uma nova fonte. Uma fonte fornece os dados para você descobrir e instalar aplicativos. Adicione uma nova fonte apenas se você confiar nela como um local seguro.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
-    <value>新しいソースを追加</value>
+    <value>Adicionar uma nova origem</value>
   </data>
   <data name="SourceArgArgumentDescription" xml:space="preserve">
-    <value>ソースに与えられた引数</value>
+    <value>Argumento fornecido à fonte</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>指定されたリソースを使用してアプリを検索</value>
+    <value>Localizar o aplicativo usando a origem especificada</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>サブコマンドでソースを管理します。ソースは、アプリケーションを検出してインストールするためのデータを提供します。安全な場所として信頼できる場合にのみ、新しいソースを追加してください。</value>
+    <value>Gerencie fontes usando os subcomandos. Uma fonte fornece os dados para você descobrir e instalar aplicativos. Adicione uma nova fonte apenas se você confiar nela como um local seguro.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>アプリケーションのソースを管理</value>
+    <value>Gerenciar fontes de aplicativos</value>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
-    <value>現在のすべてのソース、または特定のソースの完全な詳細を一覧表示します。</value>
+    <value>Liste todas as fontes atuais ou todos os detalhes de uma fonte específica.</value>
   </data>
   <data name="SourceListCommandShortDescription" xml:space="preserve">
-    <value>現在のソースを一覧表示</value>
+    <value>Listar fontes atuais</value>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
-    <value>ソース名</value>
+    <value>Nome da fonte</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
-    <value>特定のソースを削除します。</value>
+    <value>Remover uma fonte específica.</value>
   </data>
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
-    <value>現在のソースを削除</value>
+    <value>Remover fontes atuais</value>
   </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
-    <value>このコマンドは既存のソースを削除し、ローカル データを潜在的に残します。引数がないと、すべてのソースが削除され、既定値が追加されます。名前付きソースが提供されている場合、そのソースのみが削除されます。</value>
+    <value>Esse comando descarta fontes existentes, deixando potencialmente todos os dados locais para trás. Sem nenhum argumento, ele removerá todas as fontes e adicionará os padrões. Se uma fonte nomeada for fornecida, só essa fonte será descartada.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
-    <value>ソースをリセット</value>
+    <value>Redefinir fontes</value>
   </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
-    <value>ソースのタイプ</value>
+    <value>Tipo da fonte</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
-    <value>すべてのソースを更新するか、特定のソースのみを更新します。</value>
+    <value>Atualizar todas as fontes ou apenas uma fonte específica.</value>
   </data>
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
-    <value>現在のソースを更新</value>
+    <value>Atualizar fontes atuais</value>
   </data>
   <data name="TagArgumentDescription" xml:space="preserve">
-    <value>タグ で結果をフィルター処理</value>
+    <value>Filtrar resultados por rótulo</value>
   </data>
   <data name="ToolDescription" xml:space="preserve">
-    <value>WinGet コマンド ライン ユーティリティを使用すると、コマンド ラインからアプリケーションをインストールできます。</value>
+    <value>O utilitário de linha de comando WinGet permite instalar aplicativos a partir da linha de comando.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
-    <value>ツールの一般情報を表示</value>
+    <value>Exibir informações gerais da ferramenta</value>
   </data>
   <data name="ToolVersionArgumentDescription" xml:space="preserve">
-    <value>ツールのバージョンを表示</value>
+    <value>Exibir a versão da ferramenta</value>
   </data>
   <data name="TooManyArgError" xml:space="preserve">
-    <value>引数が許可されたよりも多く提供されました</value>
+    <value>Argumento fornecido mais vezes do que o permitido</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>複数のインストール動作引数が提供されています</value>
+    <value>Mais de um argumento de comportamento de instalação fornecido</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
-    <value>認識されないコマンド</value>
+    <value>Comando não reconhecido</value>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
-    <value>厳密な一連のガイドラインを使用してマニフェストを検証します。これは、リポジトリに送信する前にマニフェストを確認できるようにするためのものです。</value>
+    <value>Valida um manifesto usando um conjunto estrito de diretrizes. O objetivo é permitir que você verifique o manifesto antes de enviá-lo para um repositório.</value>
   </data>
   <data name="ValidateCommandShortDescription" xml:space="preserve">
-    <value>マニフェスト ファイルを検証</value>
+    <value>Valida um arquivo de manifesto</value>
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
-    <value>検証するマニフェストへのパス</value>
+    <value>O caminho para o manifesto a ser validado</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
-    <value>指定されたバージョンを使用します。既定値は最新のバージョンです</value>
+    <value>Usar a versão especificada. O padrão é a versão mais recente</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>アプリの利用可能なバージョンを表示</value>
+    <value>Mostrar versões disponíveis do aplicativo</value>
   </data>
 </root>

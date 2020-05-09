@@ -117,8 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="DoNotAddStringsHere" xml:space="preserve">
-    <value>ローカライズされていません</value>
-    <comment>This file is required to establish the basic expected subresource in the resource map. It is not used to facilitate localization with other projects.</comment>
-  </data>
 </root>

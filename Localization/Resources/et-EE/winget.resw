@@ -118,222 +118,222 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AdjoinedNotFlagError" xml:space="preserve">
-    <value>隣接するエイリアスはフラグではありません</value>
+    <value>Külgnev pseudonüüm pole lipp</value>
   </data>
   <data name="AdjoinedNotFoundError" xml:space="preserve">
-    <value>隣接するフラグのエイリアスが見つかりません</value>
+    <value>Külgneva lipu pseudonüümi ei leitud</value>
   </data>
   <data name="AvailableArguements" xml:space="preserve">
-    <value>次の引数を使用できます。</value>
+    <value>Saadaval on järgmised argumendid:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
-    <value>使用できるコマンドは次のとおりです:</value>
+    <value>Saadaval on järgmised käsud:</value>
     <comment>Commands the tool supports</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
-    <value>次のオプションを使用できます。</value>
+    <value>Saadaval on järgmised variandid:</value>
   </data>
   <data name="AvailableSubcommands" xml:space="preserve">
-    <value>次のサブコマンドを使用できます。</value>
+    <value>Saadaval on järgmised alamkäsud:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
-    <value>指定されたチャネルを使用します。既定値は一般向けです</value>
+    <value>Saate kasutada määratud kanalit; vaikeväärtus on üldine vaatajaskond</value>
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
-    <value>コマンドによる結果のフィルター処理</value>
+    <value>Saate tulemeid käsu järgi filtreerida</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
-    <value>指定した数以下の結果を表示</value>
+    <value>Kuvatakse ainult määratud arv tulemeid, mitte rohkem</value>
   </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>完全一致を使用してアプリを検索</value>
+    <value>Saate rakenduse otsimiseks kasutada täpset vastet</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
-    <value>必要なものが見つからないときに位置指定引数が見つかりました</value>
+    <value>Leiti paigutusega argument, mida ei oodatud</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
-    <value>ハッシュするファイル</value>
+    <value>Räsitav fail</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
-    <value>フラグ引数に隣接値を含めることはできません</value>
+    <value>Lipuargument ei tohi sisaldada külgnevat väärtust</value>
   </data>
   <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>ダイアログを表示せずコマンドを実行</value>
+    <value>Käsk käivitatakse ilma viipadeta</value>
   </data>
   <data name="HashHelperDescription" xml:space="preserve">
-    <value>インストーラー ファイルをハッシュするヘルパー</value>
+    <value>Installerifailide räsimise abiline</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
-    <value>選択したコマンドに関するヘルプを表示</value>
+    <value>Kuvab abi valitud käsu kohta</value>
   </data>
   <data name="HelpForDetails" xml:space="preserve">
-    <value>特定のコマンドの詳細については、それにヘルプ引数を渡します。</value>
+    <value>Konkreetse käsu kohta täpsema teabe saamiseks edastage sellele spikriargument.</value>
   </data>
   <data name="IdArgumentDescription" xml:space="preserve">
-    <value>ID で結果をフィルター処理</value>
+    <value>Saate tulemeid ID järgi filtreerida</value>
   </data>
   <data name="InstallCommandDescription" xml:space="preserve">
-    <value>指定されたアプリケーションをインストール</value>
+    <value>Rakendus installitakse</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
-    <value>対話式インストールを要求する;ユーザー入力が必要である可能性があります</value>
+    <value>Saate taotleda interaktiivset installimist; vaja võib olla kasutaja sisendit</value>
   </data>
   <data name="InvalidAliasError" xml:space="preserve">
-    <value>引数の別名が現在のコマンドに対して認識されませんでした</value>
+    <value>Argumendi pseudonüümi pole praeguse käsu jaoks tuvastatud</value>
   </data>
   <data name="InvalidArgumentSpecifierError" xml:space="preserve">
-    <value>引数の指定子が無効です</value>
+    <value>Argumendi täpsusti ei sobi</value>
   </data>
   <data name="InvalidNameError" xml:space="preserve">
-    <value>引数名が現在のコマンドに対して認識されませんでした</value>
+    <value>Argumendi nime pole praeguse käsu jaoks tuvastatud</value>
   </data>
   <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>インストールする言語 (サポートされている場合)</value>
+    <value>Installitav keel (kui seda toetatakse)</value>
   </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
-    <value>インストール先 (サポートされている場合)</value>
+    <value>Installimise asukoht (kui seda toetatakse)</value>
   </data>
   <data name="LogArgumentDesciption" xml:space="preserve">
-    <value>ログの場所 (サポートされている場合)</value>
+    <value>Logi asukoht (kui seda toetatakse)</value>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>アプリケーションのマニフェストへのパス</value>
+    <value>Rakenduse manifesti tee</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
-    <value>引数値が必要ですが、見つかりません</value>
+    <value>Argumendi väärtus on nõutav, kuid seda ei leitud</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>アプリ モニカーで結果をフィルター処理</value>
+    <value>Saate tulemeid rakenduse nime järgi filtreerida</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
-    <value>入力ファイルは msix として扱われます。署名された場合、署名ハッシュが提供されます</value>
+    <value>Sisendfaili käideldakse msixina; allkirjastamise korral esitatakse allkirjaräsi</value>
   </data>
   <data name="NameArgumentDescription" xml:space="preserve">
-    <value>名前で結果をフィルター処理</value>
+    <value>Saate tulemeid nime järgi filtreerida</value>
   </data>
   <data name="NoVTArguementDescription" xml:space="preserve">
-    <value>VirtualTerminal 表示を無効にする</value>
+    <value>Keelab VirtualTerminali kuva</value>
     <comment>{Locked="VirtualTerminal"}</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
-    <value>インストーラーに渡される引数を上書き</value>
+    <value>Saate alistada installerile saadetavad argumendid</value>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
-    <value>申し訳ございません。これを行うことを忘れました…</value>
+    <value>Unustasime seda teha...</value>
   </data>
   <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>既定の色としての進行状況の表示</value>
+    <value>Edenemine kuvatakse vaikevärvina</value>
   </data>
   <data name="PreviewVersion" xml:space="preserve">
-    <value>プレビュー</value>
+    <value>Eelvaade</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>アプリの検索に使用されるクエリ</value>
+    <value>Rakenduse otsimiseks kasutatav päring</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
-    <value>進行状況は虹の色を表示します</value>
+    <value>Edenemisel kuvatakse värvide vikerkaar</value>
   </data>
   <data name="RequiredArgError" xml:space="preserve">
-    <value>必要な引数が指定されていません</value>
+    <value>Nõutavat argumenti pole esitatud</value>
   </data>
   <data name="SearchCommandDescription" xml:space="preserve">
-    <value>アプリの基本情報を見つけて表示</value>
+    <value>Saate rakendusi otsida ja vaadata nende kohta põhiteavet</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>特定のアプリケーションに関する情報を表示します。</value>
+    <value>Kuvatakse konkreetse rakenduse teave.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>アプリケーションに関する情報を表示</value>
+    <value>Kuvab rakenduse kohta teavet</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
-    <value>サイレント インストールを要求</value>
+    <value>Saate taotleda järelevalveta installi</value>
   </data>
   <data name="SingleCharAfterDashError" xml:space="preserve">
-    <value>単一文字のエイリアスのみが単一の後に発生することができます-</value>
+    <value>Pärast ühte - tohib esineda ainult ühemärgiline pseudonüüm</value>
   </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>新しいソースを追加します。ソースは、アプリケーションを検出してインストールするためのデータを提供します。安全な場所として信頼できる場合にのみ、新しいソースを追加してください。</value>
+    <value>Saate lisada uue allika. Allikas pakub teile rakenduste leidmiseks ja installimiseks vajalikke andmeid. Lisage uus allikas üksnes juhul, kui usaldate seda ja peate seda turvaliseks asukohaks.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
-    <value>新しいソースを追加</value>
+    <value>Saate lisada uue allika</value>
   </data>
   <data name="SourceArgArgumentDescription" xml:space="preserve">
-    <value>ソースに与えられた引数</value>
+    <value>Allikale antud argument</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>指定されたリソースを使用してアプリを検索</value>
+    <value>Saate rakendust määratud allika järgi otsida</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>サブコマンドでソースを管理します。ソースは、アプリケーションを検出してインストールするためのデータを提供します。安全な場所として信頼できる場合にのみ、新しいソースを追加してください。</value>
+    <value>Alamkäskude abil saate allikaid hallata. Allikas pakub teile rakenduste leidmiseks ja installimiseks vajalikke andmeid. Lisage uus allikas üksnes juhul, kui usaldate seda ja peate seda turvaliseks asukohaks.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>アプリケーションのソースを管理</value>
+    <value>Saate hallata rakenduste allikaid</value>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
-    <value>現在のすべてのソース、または特定のソースの完全な詳細を一覧表示します。</value>
+    <value>Kuvatakse kõigi praeguste allikate loend või kindla allika täielikud üksikasjad.</value>
   </data>
   <data name="SourceListCommandShortDescription" xml:space="preserve">
-    <value>現在のソースを一覧表示</value>
+    <value>Saate kuvada praeguste allikate loendi</value>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
-    <value>ソース名</value>
+    <value>Allika nimi</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
-    <value>特定のソースを削除します。</value>
+    <value>Saate mõne kindla allika eemaldada.</value>
   </data>
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
-    <value>現在のソースを削除</value>
+    <value>Saate praegused allikad eemaldada</value>
   </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
-    <value>このコマンドは既存のソースを削除し、ローカル データを潜在的に残します。引数がないと、すべてのソースが削除され、既定値が追加されます。名前付きソースが提供されている場合、そのソースのみが削除されます。</value>
+    <value>See käsk eemaldab olemasolevad allikad, jättes kohalikud andmed potentsiaalselt maha. Kui argumenti pole, eemaldatakse kõik allikad ja lisatakse vaikeallikad. Nimega allika sisestamise korral eemaldatakse ainult see allikas.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
-    <value>ソースをリセット</value>
+    <value>Saate allikad lähtestada</value>
   </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
-    <value>ソースのタイプ</value>
+    <value>Allika tüüp</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
-    <value>すべてのソースを更新するか、特定のソースのみを更新します。</value>
+    <value>Saate valida, kas värskendada kõiki allikaid või üksnes ühte kindlat allikat.</value>
   </data>
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
-    <value>現在のソースを更新</value>
+    <value>Saate praegused allikad värskendada</value>
   </data>
   <data name="TagArgumentDescription" xml:space="preserve">
-    <value>タグ で結果をフィルター処理</value>
+    <value>Saate tulemeid sildi järgi filtreerida</value>
   </data>
   <data name="ToolDescription" xml:space="preserve">
-    <value>WinGet コマンド ライン ユーティリティを使用すると、コマンド ラインからアプリケーションをインストールできます。</value>
+    <value>WinGeti käsureautiliit võimaldab rakendusi installida käsurea kaudu.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
-    <value>ツールの一般情報を表示</value>
+    <value>Kuva üldteavet tööriista kohta</value>
   </data>
   <data name="ToolVersionArgumentDescription" xml:space="preserve">
-    <value>ツールのバージョンを表示</value>
+    <value>Saate vaadata tööriista versiooni</value>
   </data>
   <data name="TooManyArgError" xml:space="preserve">
-    <value>引数が許可されたよりも多く提供されました</value>
+    <value>Argument on esitatud lubatust rohkem kordi</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>複数のインストール動作引数が提供されています</value>
+    <value>Esitatud on rohkem kui üks installikäitumise argument</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
-    <value>認識されないコマンド</value>
+    <value>Tundmatu käsk</value>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
-    <value>厳密な一連のガイドラインを使用してマニフェストを検証します。これは、リポジトリに送信する前にマニフェストを確認できるようにするためのものです。</value>
+    <value>Manifest valideeritakse rangete juhiste järgi. See võimaldab teil manifesti enne selle hoidlasse saatmist kontrollida.</value>
   </data>
   <data name="ValidateCommandShortDescription" xml:space="preserve">
-    <value>マニフェスト ファイルを検証</value>
+    <value>Manifestifail valideeritakse</value>
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
-    <value>検証するマニフェストへのパス</value>
+    <value>Valideeritava manifesti tee</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
-    <value>指定されたバージョンを使用します。既定値は最新のバージョンです</value>
+    <value>Saate kasutada määratud versiooni; vaikeväärtus on uusim versioon</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>アプリの利用可能なバージョンを表示</value>
+    <value>Saate vaadata rakenduse saadaolevaid versioone</value>
   </data>
 </root>

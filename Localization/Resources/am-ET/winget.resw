@@ -117,4 +117,66 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AdjoinedNotFlagError" xml:space="preserve">
+    <value>የተቀናጀ ተለዋጭ ስም ምልክት አይደለም</value>
+  </data>
+  <data name="AdjoinedNotFoundError" xml:space="preserve">
+    <value>የተገናኘ ምልክት ተለዋጭ ስም አልተገኘም</value>
+  </data>
+  <data name="AvailableArguements" xml:space="preserve">
+    <value>የሚከተሉት ነጋሪ እሴቶች ይገኛሉ:-</value>
+  </data>
+  <data name="AvailableCommands" xml:space="preserve">
+    <value>የሚከተሉት ትዕዛዞች ይገኛሉ:-</value>
+    <comment>Commands the tool supports</comment>
+  </data>
+  <data name="AvailableOptions" xml:space="preserve">
+    <value>የሚከተሉት አማራጮች ይገኛሉ:-</value>
+  </data>
+  <data name="AvailableSubcommands" xml:space="preserve">
+    <value>የሚከተሉት ንዑስ-ትዕዛዞች ይገኛሉ:-</value>
+    <comment>Nested commands that can be run in context of the selected command</comment>
+  </data>
+  <data name="ExtraPositionalError" xml:space="preserve">
+    <value>ማንም በማይጠበቅበት ጊዜ የቦታ ክርክር አገኘ</value>
+  </data>
+  <data name="FlagContainAdjoinedError" xml:space="preserve">
+    <value>ጠቋሚ ነጋሪ እሴት ተጓዳኝ እሴት ሊይዝ አይችልም</value>
+  </data>
+  <data name="HelpForDetails" xml:space="preserve">
+    <value>በአንድ የተወሰነ ትእዛዝ ላይ ተጨማሪ ዝርዝሮችን ለማግኘት የእገዛ ነጋሪ እሴቱን ያስተላልፉ።</value>
+  </data>
+  <data name="InvalidAliasError" xml:space="preserve">
+    <value>ነጋሪ እሴት ተለዋጭ ለአሁኑ ትእዛዝ አልታወቀም</value>
+  </data>
+  <data name="InvalidArgumentSpecifierError" xml:space="preserve">
+    <value>ትክክለኛ ያልሆነ የክርክር አመልካች</value>
+  </data>
+  <data name="InvalidNameError" xml:space="preserve">
+    <value>ነጋሪ እሴት ለአሁኑ ትዕዛዝ አልታወቀም</value>
+  </data>
+  <data name="MissingArgumentError" xml:space="preserve">
+    <value>ነጋሪ እሴት ዋጋ ያስፈልጋል፣ ግን አንዳቸውም አልተገኙም</value>
+  </data>
+  <data name="PendingWorkError" xml:space="preserve">
+    <value>ውይ፣ ይህንን ማድረግ ረስተናል...</value>
+  </data>
+  <data name="PreviewVersion" xml:space="preserve">
+    <value>ቅድመ ዕይታ</value>
+  </data>
+  <data name="RequiredArgError" xml:space="preserve">
+    <value>የሚፈለግ ሙግት አልተሰጠም</value>
+  </data>
+  <data name="SingleCharAfterDashError" xml:space="preserve">
+    <value>አንድ ነጠላ ቁምፊ ቅጽል ስም ብቻ ከአንድ ጊዜ በኋላ ሊከሰት ይችላል -</value>
+  </data>
+  <data name="TooManyArgError" xml:space="preserve">
+    <value>ነጋሪ እሴት ከሚፈቀደው በላይ ጊዜ ሰጥቷል</value>
+  </data>
+  <data name="TooManyBehaviorsError" xml:space="preserve">
+    <value>ከአንድ በላይ የጭነት ባህሪ ሙግት ቀርቧል</value>
+  </data>
+  <data name="UnrecognizedCommand" xml:space="preserve">
+    <value>ያልታወቀ ትእዛዝ</value>
+  </data>
 </root>

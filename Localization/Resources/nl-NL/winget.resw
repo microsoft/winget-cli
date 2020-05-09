@@ -118,222 +118,222 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AdjoinedNotFlagError" xml:space="preserve">
-    <value>隣接するエイリアスはフラグではありません</value>
+    <value>Verbonden alias is geen vlag</value>
   </data>
   <data name="AdjoinedNotFoundError" xml:space="preserve">
-    <value>隣接するフラグのエイリアスが見つかりません</value>
+    <value>Verbonden vlagalias niet gevonden</value>
   </data>
   <data name="AvailableArguements" xml:space="preserve">
-    <value>次の引数を使用できます。</value>
+    <value>De volgende argumenten zijn beschikbaar:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
-    <value>使用できるコマンドは次のとおりです:</value>
+    <value>De volgende opdrachten zijn beschikbaar:</value>
     <comment>Commands the tool supports</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
-    <value>次のオプションを使用できます。</value>
+    <value>De volgende opties zijn beschikbaar:</value>
   </data>
   <data name="AvailableSubcommands" xml:space="preserve">
-    <value>次のサブコマンドを使用できます。</value>
+    <value>De volgende subopdrachten zijn beschikbaar:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
-    <value>指定されたチャネルを使用します。既定値は一般向けです</value>
+    <value>Gebruik het opgegeven kanaal, standaard is algemene doelgroep</value>
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
-    <value>コマンドによる結果のフィルター処理</value>
+    <value>Resultaten filteren op opdracht</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
-    <value>指定した数以下の結果を表示</value>
+    <value>Niet meer dan het opgegeven aantal resultaten weergeven</value>
   </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>完全一致を使用してアプリを検索</value>
+    <value>App vinden met een exacte overeenkomst</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
-    <value>必要なものが見つからないときに位置指定引数が見つかりました</value>
+    <value>Er is een positioneel argument gevonden, terwijl er geen werd verwacht</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
-    <value>ハッシュするファイル</value>
+    <value>Bestand dat moet worden gehasht</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
-    <value>フラグ引数に隣接値を含めることはできません</value>
+    <value>Vlagargument mag geen verbonden waarde bevatten</value>
   </data>
   <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>ダイアログを表示せずコマンドを実行</value>
+    <value>De opdracht uitvoeren zonder vragen om invoer</value>
   </data>
   <data name="HashHelperDescription" xml:space="preserve">
-    <value>インストーラー ファイルをハッシュするヘルパー</value>
+    <value>Hulpelement voor het hashen van installatiebestanden</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
-    <value>選択したコマンドに関するヘルプを表示</value>
+    <value>Hiermee wordt informatie over de geselecteerde opdracht weergeven</value>
   </data>
   <data name="HelpForDetails" xml:space="preserve">
-    <value>特定のコマンドの詳細については、それにヘルプ引数を渡します。</value>
+    <value>Geef het Help-argument door voor meer informatie over een bepaalde opdracht.</value>
   </data>
   <data name="IdArgumentDescription" xml:space="preserve">
-    <value>ID で結果をフィルター処理</value>
+    <value>Resultaten filteren op ID</value>
   </data>
   <data name="InstallCommandDescription" xml:space="preserve">
-    <value>指定されたアプリケーションをインストール</value>
+    <value>De opgegeven toepassing installeren</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
-    <value>対話式インストールを要求する;ユーザー入力が必要である可能性があります</value>
+    <value>Interactieve installatie aanvragen, mogelijk is gebruikersinvoer nodig</value>
   </data>
   <data name="InvalidAliasError" xml:space="preserve">
-    <value>引数の別名が現在のコマンドに対して認識されませんでした</value>
+    <value>Argumentalias is niet herkend voor de huidige opdracht</value>
   </data>
   <data name="InvalidArgumentSpecifierError" xml:space="preserve">
-    <value>引数の指定子が無効です</value>
+    <value>Aanduiding ongeldig argument</value>
   </data>
   <data name="InvalidNameError" xml:space="preserve">
-    <value>引数名が現在のコマンドに対して認識されませんでした</value>
+    <value>Argumentnaam is niet herkend voor de huidige opdracht</value>
   </data>
   <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>インストールする言語 (サポートされている場合)</value>
+    <value>Te installeren taal (indien ondersteund)</value>
   </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
-    <value>インストール先 (サポートされている場合)</value>
+    <value>Locatie waarop moet worden geïnstalleerd (indien ondersteund)</value>
   </data>
   <data name="LogArgumentDesciption" xml:space="preserve">
-    <value>ログの場所 (サポートされている場合)</value>
+    <value>Locatie aan logboek toevoegen (indien ondersteund)</value>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>アプリケーションのマニフェストへのパス</value>
+    <value>Het pad naar het manifest van de toepassing</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
-    <value>引数値が必要ですが、見つかりません</value>
+    <value>Waarde voor argument vereist, maar niet gevonden</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>アプリ モニカーで結果をフィルター処理</value>
+    <value>Resultaten filteren op naam van de app</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
-    <value>入力ファイルは msix として扱われます。署名された場合、署名ハッシュが提供されます</value>
+    <value>Invoerbestanden worden behandeld als msix; indien ondertekend, wordt handtekeninghash geboden</value>
   </data>
   <data name="NameArgumentDescription" xml:space="preserve">
-    <value>名前で結果をフィルター処理</value>
+    <value>Resultaten filteren op naam</value>
   </data>
   <data name="NoVTArguementDescription" xml:space="preserve">
-    <value>VirtualTerminal 表示を無効にする</value>
+    <value>Hiermee wordt de weergave VirtualTerminal uitgeschakeld</value>
     <comment>{Locked="VirtualTerminal"}</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
-    <value>インストーラーに渡される引数を上書き</value>
+    <value>Opheffingsopdrachten die moeten worden doorgegeven aan het installatieprogramma</value>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
-    <value>申し訳ございません。これを行うことを忘れました…</value>
+    <value>Dit is vergeten...</value>
   </data>
   <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>既定の色としての進行状況の表示</value>
+    <value>Weergave van de voortgang in de standaardkleur</value>
   </data>
   <data name="PreviewVersion" xml:space="preserve">
-    <value>プレビュー</value>
+    <value>Voorbeeld</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>アプリの検索に使用されるクエリ</value>
+    <value>De query die is gebruikt om te zoeken naar een app</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
-    <value>進行状況は虹の色を表示します</value>
+    <value>Weergave van de voortgang in alle kleuren van de regenboog</value>
   </data>
   <data name="RequiredArgError" xml:space="preserve">
-    <value>必要な引数が指定されていません</value>
+    <value>Vereist argument niet ingevoerd</value>
   </data>
   <data name="SearchCommandDescription" xml:space="preserve">
-    <value>アプリの基本情報を見つけて表示</value>
+    <value>Basisgegevens van apps zoeken en weergeven</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>特定のアプリケーションに関する情報を表示します。</value>
+    <value>Hiermee word informatie van een specifieke toepassing weergegeven.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>アプリケーションに関する情報を表示</value>
+    <value>Toont informatie over een toepassing</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
-    <value>サイレント インストールを要求</value>
+    <value>Installatie op de achtergrond aanvragen</value>
   </data>
   <data name="SingleCharAfterDashError" xml:space="preserve">
-    <value>単一文字のエイリアスのみが単一の後に発生することができます-</value>
+    <value>Alleen het enkeltekenalias kan voorkomen na één -</value>
   </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>新しいソースを追加します。ソースは、アプリケーションを検出してインストールするためのデータを提供します。安全な場所として信頼できる場合にのみ、新しいソースを追加してください。</value>
+    <value>Voeg een nieuwe bron toe. Een bron biedt de gegevens waarmee u toepassingen kunt ontdekken en installeren. Voeg alleen een nieuwe bron toe als u deze vertrouwt als veilige locatie.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
-    <value>新しいソースを追加</value>
+    <value>Een nieuwe bron toevoegen</value>
   </data>
   <data name="SourceArgArgumentDescription" xml:space="preserve">
-    <value>ソースに与えられた引数</value>
+    <value>Argument dat aan de bron is gegeven</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>指定されたリソースを使用してアプリを検索</value>
+    <value>App zoeken die de opgegeven bron gebruikt</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>サブコマンドでソースを管理します。ソースは、アプリケーションを検出してインストールするためのデータを提供します。安全な場所として信頼できる場合にのみ、新しいソースを追加してください。</value>
+    <value>Beheer bronnen met subopdrachten. Een bron biedt de gegevens waarmee u toepassingen kunt ontdekken en installeren. Voeg alleen een nieuwe bron toe als u deze vertrouwt als veilige locatie.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>アプリケーションのソースを管理</value>
+    <value>Bronnen van toepassingen beheren</value>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
-    <value>現在のすべてのソース、または特定のソースの完全な詳細を一覧表示します。</value>
+    <value>Geef alle huidige bronnen of alle gegevens van een specifieke bron weer.</value>
   </data>
   <data name="SourceListCommandShortDescription" xml:space="preserve">
-    <value>現在のソースを一覧表示</value>
+    <value>Huidige bronnen weergeven</value>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
-    <value>ソース名</value>
+    <value>Naam van de bron</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
-    <value>特定のソースを削除します。</value>
+    <value>Verwijder een specifieke bron.</value>
   </data>
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
-    <value>現在のソースを削除</value>
+    <value>Huidige bronnen verwijderen</value>
   </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
-    <value>このコマンドは既存のソースを削除し、ローカル データを潜在的に残します。引数がないと、すべてのソースが削除され、既定値が追加されます。名前付きソースが提供されている場合、そのソースのみが削除されます。</value>
+    <value>Hiermee worden bestaande bronnen verwijderd en mogelijk lokale gegevens achtergelaten. Zonder argument worden alle bronnen verwijderd en de standaardinstellingen toegevoegd. Als er een bron wordt opgegeven, wordt alleen die bron verwijderd.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
-    <value>ソースをリセット</value>
+    <value>Bronnen opnieuw instellen</value>
   </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
-    <value>ソースのタイプ</value>
+    <value>Type van de bron</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
-    <value>すべてのソースを更新するか、特定のソースのみを更新します。</value>
+    <value>Update alle bronnen of alleen een specifieke bron.</value>
   </data>
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
-    <value>現在のソースを更新</value>
+    <value>Huidige bronnen updaten</value>
   </data>
   <data name="TagArgumentDescription" xml:space="preserve">
-    <value>タグ で結果をフィルター処理</value>
+    <value>Resultaten filteren op tag</value>
   </data>
   <data name="ToolDescription" xml:space="preserve">
-    <value>WinGet コマンド ライン ユーティリティを使用すると、コマンド ラインからアプリケーションをインストールできます。</value>
+    <value>Met het opdrachtregelprogramma WinGet kunnen toepassingen worden geïnstalleerd vanaf de opdrachtregel.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
-    <value>ツールの一般情報を表示</value>
+    <value>Algemene informatie van het hulpmiddel weergeven</value>
   </data>
   <data name="ToolVersionArgumentDescription" xml:space="preserve">
-    <value>ツールのバージョンを表示</value>
+    <value>De versie van het hulpmiddel weergeven</value>
   </data>
   <data name="TooManyArgError" xml:space="preserve">
-    <value>引数が許可されたよりも多く提供されました</value>
+    <value>Argument vaker ingevoerd dan toegestaan</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>複数のインストール動作引数が提供されています</value>
+    <value>Meer dan een argument voor installatiegedrag ingevoerd</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
-    <value>認識されないコマンド</value>
+    <value>Niet-herkende opdracht</value>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
-    <value>厳密な一連のガイドラインを使用してマニフェストを検証します。これは、リポジトリに送信する前にマニフェストを確認できるようにするためのものです。</value>
+    <value>Valideert een manifest met een strikte verzameling richtlijnen. Hiermee kunt u uw manifest controleren voordat u het indient bij een repo.</value>
   </data>
   <data name="ValidateCommandShortDescription" xml:space="preserve">
-    <value>マニフェスト ファイルを検証</value>
+    <value>Een manifestbestand valideren</value>
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
-    <value>検証するマニフェストへのパス</value>
+    <value>Het pad naar het manifest dat moet worden gevalideerd</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
-    <value>指定されたバージョンを使用します。既定値は最新のバージョンです</value>
+    <value>Gebruik de opgegeven versie, standaard is dit de nieuwste versie</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>アプリの利用可能なバージョンを表示</value>
+    <value>Beschikbare versies van de app weergeven</value>
   </data>
 </root>

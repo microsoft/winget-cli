@@ -117,4 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="HelpForDetails" xml:space="preserve">
+    <value>Hvis du vil ha mer informasjon om en bestemt kommando, må du angi hjelp-argumentet.</value>
+  </data>
+  <data name="InvalidAliasError" xml:space="preserve">
+    <value>Argument for alias ble ikke gjenkjent for gjeldende kommando</value>
+  </data>
 </root>

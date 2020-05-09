@@ -118,222 +118,222 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AdjoinedNotFlagError" xml:space="preserve">
-    <value>隣接するエイリアスはフラグではありません</value>
+    <value>근접한 별칭이 플래그가 아님</value>
   </data>
   <data name="AdjoinedNotFoundError" xml:space="preserve">
-    <value>隣接するフラグのエイリアスが見つかりません</value>
+    <value>근접한 플래그 별칭 찾을 수 없음</value>
   </data>
   <data name="AvailableArguements" xml:space="preserve">
-    <value>次の引数を使用できます。</value>
+    <value>다음 인수를 사용할 수 있음</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
-    <value>使用できるコマンドは次のとおりです:</value>
+    <value>다음 명령을 사용할 수 있음</value>
     <comment>Commands the tool supports</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
-    <value>次のオプションを使用できます。</value>
+    <value>다음 선택 사항을 사용할 수 있음</value>
   </data>
   <data name="AvailableSubcommands" xml:space="preserve">
-    <value>次のサブコマンドを使用できます。</value>
+    <value>다음 부명령어는 사용 할 수 없음</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
-    <value>指定されたチャネルを使用します。既定値は一般向けです</value>
+    <value>지정된 채널을 사용합니다(기본값은 일반 대상).</value>
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
-    <value>コマンドによる結果のフィルター処理</value>
+    <value>명령을 기준으로 결과 필터링</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
-    <value>指定した数以下の結果を表示</value>
+    <value>지정된 개수를 넘지 않는 결과 표시</value>
   </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>完全一致を使用してアプリを検索</value>
+    <value>정확한 일치를 사용하여 앱 찾기</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
-    <value>必要なものが見つからないときに位置指定引数が見つかりました</value>
+    <value>기대하는 항목이 없으면 위치 인수를 찾음</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
-    <value>ハッシュするファイル</value>
+    <value>해시할 파일</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
-    <value>フラグ引数に隣接値を含めることはできません</value>
+    <value>플래그 인수는 근접하는 값을 포함할 수 없음</value>
   </data>
   <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>ダイアログを表示せずコマンドを実行</value>
+    <value>메시지없이 명령을 실행</value>
   </data>
   <data name="HashHelperDescription" xml:space="preserve">
-    <value>インストーラー ファイルをハッシュするヘルパー</value>
+    <value>해시 설치 관리자 파일 도우미</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
-    <value>選択したコマンドに関するヘルプを表示</value>
+    <value>선택한 명령에 대한 도움말을 표시</value>
   </data>
   <data name="HelpForDetails" xml:space="preserve">
-    <value>特定のコマンドの詳細については、それにヘルプ引数を渡します。</value>
+    <value>특정 명령에 대한 자세한 내용을 보려면 도움말 인수에 해당 명령을 전달합니다.</value>
   </data>
   <data name="IdArgumentDescription" xml:space="preserve">
-    <value>ID で結果をフィルター処理</value>
+    <value>ID를 기준으로 결과 필터링</value>
   </data>
   <data name="InstallCommandDescription" xml:space="preserve">
-    <value>指定されたアプリケーションをインストール</value>
+    <value>지정된 응용 프로그램을 설치</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
-    <value>対話式インストールを要求する;ユーザー入力が必要である可能性があります</value>
+    <value>대화형 설치를 요청합니다(사용자 입력이 필요할 수 있음).</value>
   </data>
   <data name="InvalidAliasError" xml:space="preserve">
-    <value>引数の別名が現在のコマンドに対して認識されませんでした</value>
+    <value>현재 명령에 대해 인수 별칭을 인식할 수 없음</value>
   </data>
   <data name="InvalidArgumentSpecifierError" xml:space="preserve">
-    <value>引数の指定子が無効です</value>
+    <value>유효하지 않은 인수 특정자</value>
   </data>
   <data name="InvalidNameError" xml:space="preserve">
-    <value>引数名が現在のコマンドに対して認識されませんでした</value>
+    <value>현재 명령에 대해 인수 이름을 인식할 수 없음</value>
   </data>
   <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>インストールする言語 (サポートされている場合)</value>
+    <value>설치할 언어(지원되는 경우)</value>
   </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
-    <value>インストール先 (サポートされている場合)</value>
+    <value>설치할 위치(지원되는 경우)</value>
   </data>
   <data name="LogArgumentDesciption" xml:space="preserve">
-    <value>ログの場所 (サポートされている場合)</value>
+    <value>로그 위치(지원되는 경우)</value>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>アプリケーションのマニフェストへのパス</value>
+    <value>응용 프로그램의 매니페스트로의 경로</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
-    <value>引数値が必要ですが、見つかりません</value>
+    <value>인수 값이 필수이지만 아무것도 찾지 못했음</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>アプリ モニカーで結果をフィルター処理</value>
+    <value>앱 모니커를 기준으로 결과 필터링</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
-    <value>入力ファイルは msix として扱われます。署名された場合、署名ハッシュが提供されます</value>
+    <value>입력 파일이 msix로 처리됩니다(서명된 경우 서명 해시가 제공됨).</value>
   </data>
   <data name="NameArgumentDescription" xml:space="preserve">
-    <value>名前で結果をフィルター処理</value>
+    <value>이름을 기준으로 결과 필터링</value>
   </data>
   <data name="NoVTArguementDescription" xml:space="preserve">
-    <value>VirtualTerminal 表示を無効にする</value>
+    <value>VirtualTerminal 표시를 사용 안 함</value>
     <comment>{Locked="VirtualTerminal"}</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
-    <value>インストーラーに渡される引数を上書き</value>
+    <value>설치 관리자에 전달할 인수 재정의</value>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
-    <value>申し訳ございません。これを行うことを忘れました…</value>
+    <value>죄송합니다 .작업 수행을 하지 못했습니다.</value>
   </data>
   <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>既定の色としての進行状況の表示</value>
+    <value>기본 색깔로 진행률 표시</value>
   </data>
   <data name="PreviewVersion" xml:space="preserve">
-    <value>プレビュー</value>
+    <value>미리 보기</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>アプリの検索に使用されるクエリ</value>
+    <value>앱을 검색하는 데 사용되는 쿼리</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
-    <value>進行状況は虹の色を表示します</value>
+    <value>여러 가지 무지개의 색깔로 진행률 표시</value>
   </data>
   <data name="RequiredArgError" xml:space="preserve">
-    <value>必要な引数が指定されていません</value>
+    <value>필수 인수가 제공 되지 않음</value>
   </data>
   <data name="SearchCommandDescription" xml:space="preserve">
-    <value>アプリの基本情報を見つけて表示</value>
+    <value>앱의 기본 정보 찾기 및 표시</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>特定のアプリケーションに関する情報を表示します。</value>
+    <value>특정 응용 프로그램에 대한 정보를 표시합니다.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>アプリケーションに関する情報を表示</value>
+    <value>응용 프로그램에 대한 정보 표시</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
-    <value>サイレント インストールを要求</value>
+    <value>무인 설치 요청</value>
   </data>
   <data name="SingleCharAfterDashError" xml:space="preserve">
-    <value>単一文字のエイリアスのみが単一の後に発生することができます-</value>
+    <value>단일 문자 별칭만이 단일- 후에 나타남</value>
   </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>新しいソースを追加します。ソースは、アプリケーションを検出してインストールするためのデータを提供します。安全な場所として信頼できる場合にのみ、新しいソースを追加してください。</value>
+    <value>새 원본를 추가합니다. 원본은 응용 프로그램을 검색하고 설치하는 데 필요한 데이터를 제공합니다. 안전한 위치로 신뢰하는 경우에만 새 원본을 추가합니다.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
-    <value>新しいソースを追加</value>
+    <value>새 원본 추가</value>
   </data>
   <data name="SourceArgArgumentDescription" xml:space="preserve">
-    <value>ソースに与えられた引数</value>
+    <value>원본에 지정된 인수</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>指定されたリソースを使用してアプリを検索</value>
+    <value>지정한 원본을 사용하여 앱 찾기</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>サブコマンドでソースを管理します。ソースは、アプリケーションを検出してインストールするためのデータを提供します。安全な場所として信頼できる場合にのみ、新しいソースを追加してください。</value>
+    <value>원본은 응용 프로그램을 검색하고 설치하는 데 필요한 데이터를 제공합니다. 안전한 위치로서 신뢰하는 경우에만 새 원본을 추가합니다.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>アプリケーションのソースを管理</value>
+    <value>응용 프로그램의 원본 관리</value>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
-    <value>現在のすべてのソース、または特定のソースの完全な詳細を一覧表示します。</value>
+    <value>현재의 모든 원본 또는 특정 원본의 전체 세부 정보를 목록에 추가합니다.</value>
   </data>
   <data name="SourceListCommandShortDescription" xml:space="preserve">
-    <value>現在のソースを一覧表示</value>
+    <value>현재의 원본을 목록에 추가</value>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
-    <value>ソース名</value>
+    <value>원본의 이름</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
-    <value>特定のソースを削除します。</value>
+    <value>특정 원본을 제거합니다.</value>
   </data>
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
-    <value>現在のソースを削除</value>
+    <value>현재의 원본 제거</value>
   </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
-    <value>このコマンドは既存のソースを削除し、ローカル データを潜在的に残します。引数がないと、すべてのソースが削除され、既定値が追加されます。名前付きソースが提供されている場合、そのソースのみが削除されます。</value>
+    <value>이 명령은 기존 원본을 삭제하고, 잠정적으로 로컬 데이터는 그대로 둡니다. 인수가 없으면 모든 원본이 삭제되고 기본값이 추가됩니다. 명명된 원본이 제공되는 경우, 해당 원본만 삭제됩니다.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
-    <value>ソースをリセット</value>
+    <value>원본 재설정</value>
   </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
-    <value>ソースのタイプ</value>
+    <value>원본의 형식</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
-    <value>すべてのソースを更新するか、特定のソースのみを更新します。</value>
+    <value>모든 원본 또는 특정 원본만을 업데이트합니다.</value>
   </data>
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
-    <value>現在のソースを更新</value>
+    <value>현재의 원본을 업데이트</value>
   </data>
   <data name="TagArgumentDescription" xml:space="preserve">
-    <value>タグ で結果をフィルター処理</value>
+    <value>태그를 기준으로 결과 필터링</value>
   </data>
   <data name="ToolDescription" xml:space="preserve">
-    <value>WinGet コマンド ライン ユーティリティを使用すると、コマンド ラインからアプリケーションをインストールできます。</value>
+    <value>WinGet 명령줄 유틸리티를 사용하여 명령줄에서 응용 프로그램을 설치할 수 있습니다.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
-    <value>ツールの一般情報を表示</value>
+    <value>도구의 일반 정보를 표시</value>
   </data>
   <data name="ToolVersionArgumentDescription" xml:space="preserve">
-    <value>ツールのバージョンを表示</value>
+    <value>도구의 버전을 표시</value>
   </data>
   <data name="TooManyArgError" xml:space="preserve">
-    <value>引数が許可されたよりも多く提供されました</value>
+    <value>인수가 허용 되는 횟수 보다 더 많이 제공 됨</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>複数のインストール動作引数が提供されています</value>
+    <value>둘 이상의 설치 동작 인수가 제공 되었음</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
-    <value>認識されないコマンド</value>
+    <value>인식할 수 없는 명령임</value>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
-    <value>厳密な一連のガイドラインを使用してマニフェストを検証します。これは、リポジトリに送信する前にマニフェストを確認できるようにするためのものです。</value>
+    <value>엄격한 지침의 집합을 사용하여 매니페스트의 유효성을 검사합니다. 이 기능은 리포지토리를 제출하기 전에 매니페스트를 확인할 수 있도록 하기 위한 목적을 가지고 있습니다.</value>
   </data>
   <data name="ValidateCommandShortDescription" xml:space="preserve">
-    <value>マニフェスト ファイルを検証</value>
+    <value>매니페스트 파일의 유효성 검사</value>
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
-    <value>検証するマニフェストへのパス</value>
+    <value>유효성을 검사할 매니페스트로의 경로</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
-    <value>指定されたバージョンを使用します。既定値は最新のバージョンです</value>
+    <value>지정된 버전을 사용합니다. 기본값은 최신 버전입니다.</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>アプリの利用可能なバージョンを表示</value>
+    <value>사용 가능한 앱 버전 표시</value>
   </data>
 </root>

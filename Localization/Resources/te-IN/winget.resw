@@ -118,222 +118,218 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AdjoinedNotFlagError" xml:space="preserve">
-    <value>隣接するエイリアスはフラグではありません</value>
+    <value>ప్రక్కనే ఉన్న అలియాస్ జెండా కాదు</value>
   </data>
   <data name="AdjoinedNotFoundError" xml:space="preserve">
-    <value>隣接するフラグのエイリアスが見つかりません</value>
+    <value>ప్రక్కనే ఉన్న జెండా అలియాస్ కనుగొనబడలేదు</value>
   </data>
   <data name="AvailableArguements" xml:space="preserve">
-    <value>次の引数を使用できます。</value>
+    <value>కింది వాదనలు అందుబాటులో ఉన్నాయి:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
-    <value>使用できるコマンドは次のとおりです:</value>
+    <value>కింది ఆదేశాలు అందుబాటులో ఉన్నాయి:</value>
     <comment>Commands the tool supports</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
-    <value>次のオプションを使用できます。</value>
+    <value>కింది ఎంపికలు అందుబాటులో ఉన్నాయి:</value>
   </data>
   <data name="AvailableSubcommands" xml:space="preserve">
-    <value>次のサブコマンドを使用できます。</value>
+    <value>కింది ఉప ఆదేశాలు అందుబాటులో ఉన్నాయి:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
-    <value>指定されたチャネルを使用します。既定値は一般向けです</value>
+    <value>పేర్కొన్న ఛానెల్‌ని ఉపయోగించండి; సాధారణ ప్రేక్షకులు డిఫాల్ట్ అవుతారు</value>
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
-    <value>コマンドによる結果のフィルター処理</value>
+    <value>ఫలితాలను ఆదేశం ద్వారా ఫిల్టర్ చేయండి</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
-    <value>指定した数以下の結果を表示</value>
+    <value>పేర్కొన్న ఫలితాల సంఖ్య కంటే ఎక్కువ చూపించవద్దు</value>
   </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>完全一致を使用してアプリを検索</value>
+    <value>ఖచ్చితమైన సరిపోలికను ఉపయోగించి అనువర్తనాన్ని కనుగొనండి</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
-    <value>必要なものが見つからないときに位置指定引数が見つかりました</value>
+    <value>ఏదీ ఊహించనప్పుడు స్థాన వాదన కనుగొనబడింది</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
-    <value>ハッシュするファイル</value>
+    <value>హాష్ చేయవలసిన ఫైల్</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
-    <value>フラグ引数に隣接値を含めることはできません</value>
+    <value>జెండా వాదన ప్రక్కనే ఉన్న విలువను కలిగి ఉండకూడదు</value>
   </data>
   <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>ダイアログを表示せずコマンドを実行</value>
+    <value>ప్రాంప్ట్ లేకుండా ఆదేశాన్ని అమలు చేయండి</value>
   </data>
   <data name="HashHelperDescription" xml:space="preserve">
-    <value>インストーラー ファイルをハッシュするヘルパー</value>
+    <value>హాష్ ఇన్స్టాలర్ ఫైల్‌లకు సహాయకం</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
-    <value>選択したコマンドに関するヘルプを表示</value>
+    <value>ఎంచుకున్న ఆదేశం గురించి సహాయం చూపుతుంది</value>
   </data>
   <data name="HelpForDetails" xml:space="preserve">
-    <value>特定のコマンドの詳細については、それにヘルプ引数を渡します。</value>
+    <value>నిర్దిష్ట ఆదేశంపై మరిన్ని వివరాల కోసం, సహాయ వాదనను పంపండి.</value>
   </data>
   <data name="IdArgumentDescription" xml:space="preserve">
-    <value>ID で結果をフィルター処理</value>
+    <value>ఐడి ద్వారా ఫలితాలను ఫిల్టర్ చేయండి</value>
   </data>
   <data name="InstallCommandDescription" xml:space="preserve">
-    <value>指定されたアプリケーションをインストール</value>
+    <value>ఇచ్చిన అనువర్తనాన్ని వ్యవస్థాపిస్తుంది</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
-    <value>対話式インストールを要求する;ユーザー入力が必要である可能性があります</value>
+    <value>పరస్పర ‌వ్యవస్థాపన‌ను అభ్యర్థించండి; వినియోగదారు ఇన్పుట్ అవసరం కావచ్చు</value>
   </data>
   <data name="InvalidAliasError" xml:space="preserve">
-    <value>引数の別名が現在のコマンドに対して認識されませんでした</value>
+    <value>ప్రస్తుత ఆదేశానికి వాదన అలియాస్ గుర్తించబడలేదు</value>
   </data>
   <data name="InvalidArgumentSpecifierError" xml:space="preserve">
-    <value>引数の指定子が無効です</value>
+    <value>చెల్లని వాదన స్పెసిఫైయర్</value>
   </data>
   <data name="InvalidNameError" xml:space="preserve">
-    <value>引数名が現在のコマンドに対して認識されませんでした</value>
+    <value>ప్రస్తుత ఆదేశానికి వాదన పేరు గుర్తించబడలేదు</value>
   </data>
   <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>インストールする言語 (サポートされている場合)</value>
+    <value>వ్యవస్థాపించాల్సిన భాష (మద్దతు ఉంటే)</value>
   </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
-    <value>インストール先 (サポートされている場合)</value>
+    <value>వ్యవస్థాపించవలసిన స్థానం (మద్దతు ఉంటే)</value>
   </data>
   <data name="LogArgumentDesciption" xml:space="preserve">
-    <value>ログの場所 (サポートされている場合)</value>
+    <value>లాగ్ స్థానం (మద్దతు ఉంటే)</value>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>アプリケーションのマニフェストへのパス</value>
+    <value>అనువర్తనం యొక్క మానిఫెస్ట్‌కు మార్గం</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
-    <value>引数値が必要ですが、見つかりません</value>
+    <value>వాదన విలువ అవసరం, కానీ ఏదీ కనుగొనబడలేదు</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>アプリ モニカーで結果をフィルター処理</value>
+    <value>అనువర్తన మోనికర్ ద్వారా ఫలితాలను ఫిల్టర్ చేయండి</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
-    <value>入力ファイルは msix として扱われます。署名された場合、署名ハッシュが提供されます</value>
+    <value>ఇన్పుట్ ఫైల్ msix గా పరిగణించబడుతుంది; సంతకం చేస్తే సంతకం హాష్ అందించబడుతుంది</value>
   </data>
   <data name="NameArgumentDescription" xml:space="preserve">
-    <value>名前で結果をフィルター処理</value>
-  </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
-    <value>VirtualTerminal 表示を無効にする</value>
-    <comment>{Locked="VirtualTerminal"}</comment>
+    <value>ఫలితాలను పేరు ద్వారా ఫిల్టర్ చేయండి</value>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
-    <value>インストーラーに渡される引数を上書き</value>
+    <value>వ్యవస్థాపించవలసిన దానికి పంపాల్సిన వాదనలను భర్తీ చేయండి</value>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
-    <value>申し訳ございません。これを行うことを忘れました…</value>
+    <value>అయ్యో, మేము దీన్ని చేయడం మర్చిపోయాము...</value>
   </data>
   <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>既定の色としての進行状況の表示</value>
+    <value>డిఫాల్ట్ రంగుగా పురోగతి ప్రదర్శన</value>
   </data>
   <data name="PreviewVersion" xml:space="preserve">
-    <value>プレビュー</value>
+    <value>పరిదృశ్యం</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>アプリの検索に使用されるクエリ</value>
+    <value>అనువర్తనం కోసం శోధించడానికి ఉపయోగించే ప్రశ్న</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
-    <value>進行状況は虹の色を表示します</value>
+    <value>పురోగతి రంగుల ఇంద్రధనస్సును ప్రదర్శిస్తుంది</value>
   </data>
   <data name="RequiredArgError" xml:space="preserve">
-    <value>必要な引数が指定されていません</value>
+    <value>అవసరమైన వాదన అందించబడలేదు</value>
   </data>
   <data name="SearchCommandDescription" xml:space="preserve">
-    <value>アプリの基本情報を見つけて表示</value>
+    <value>అనువర్తనాల ప్రాథమిక సమాచారాన్ని కనుగొని చూపించు</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>特定のアプリケーションに関する情報を表示します。</value>
+    <value>నిర్దిష్ట అనువర్తనంపై సమాచారాన్ని చూపుతుంది.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>アプリケーションに関する情報を表示</value>
+    <value>అనువర్తనం గురించి సమాచారాన్ని చూపుతుంది</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
-    <value>サイレント インストールを要求</value>
+    <value>నిశ్శబ్ద వ్యవస్థాపన కోసం అభ్యర్థించండి</value>
   </data>
   <data name="SingleCharAfterDashError" xml:space="preserve">
-    <value>単一文字のエイリアスのみが単一の後に発生することができます-</value>
+    <value>ఒకే అక్షరం అలియాస్ మాత్రమే ఒకే తర్వాత సంభవిస్తుంది -</value>
   </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>新しいソースを追加します。ソースは、アプリケーションを検出してインストールするためのデータを提供します。安全な場所として信頼できる場合にのみ、新しいソースを追加してください。</value>
+    <value>క్రొత్త మూలాన్ని జోడించండి. అనువర్తనాలను కనుగొనడానికి మరియు వ్యవస్థాపించడానికి ఒక మూలం డేటాను అందిస్తుంది. క్రొత్త మూలాన్ని మీరు సురక్షిత ప్రదేశంగా విశ్వసిస్తే మాత్రమే జోడించండి.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
-    <value>新しいソースを追加</value>
+    <value>క్రొత్త మూలాన్ని జోడించండి</value>
   </data>
   <data name="SourceArgArgumentDescription" xml:space="preserve">
-    <value>ソースに与えられた引数</value>
+    <value>మూలానికి ఇచ్చిన వాదన</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>指定されたリソースを使用してアプリを検索</value>
+    <value>పేర్కొన్న మూలాన్ని ఉపయోగించి అనువర్తనాన్ని కనుగొనండి</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>サブコマンドでソースを管理します。ソースは、アプリケーションを検出してインストールするためのデータを提供します。安全な場所として信頼できる場合にのみ、新しいソースを追加してください。</value>
+    <value>ఉప ఆదేశాలతో మూలాలను నిర్వహించండి. అనువర్తనాలను కనుగొనడానికి మరియు వ్యవస్థాపించడానికి ఒక మూలం డేటాను అందిస్తుంది. క్రొత్త మూలాన్ని మీరు సురక్షిత ప్రదేశంగా విశ్వసిస్తే మాత్రమే జోడించండి.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>アプリケーションのソースを管理</value>
+    <value>అనువర్తనాల మూలాలను నిర్వహించండి</value>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
-    <value>現在のすべてのソース、または特定のソースの完全な詳細を一覧表示します。</value>
+    <value>అన్ని ప్రస్తుత వనరులను లేదా నిర్దిష్ట మూలం యొక్క పూర్తి వివరాలను జాబితా చేయండి.</value>
   </data>
   <data name="SourceListCommandShortDescription" xml:space="preserve">
-    <value>現在のソースを一覧表示</value>
+    <value>ప్రస్తుత మూలాలను జాబితా చేయండి</value>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
-    <value>ソース名</value>
+    <value>మూలం పేరు</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
-    <value>特定のソースを削除します。</value>
+    <value>నిర్దిష్ట మూలాన్ని తొలగించండి.</value>
   </data>
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
-    <value>現在のソースを削除</value>
+    <value>ప్రస్తుత మూలాలను తొలగించండి</value>
   </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
-    <value>このコマンドは既存のソースを削除し、ローカル データを潜在的に残します。引数がないと、すべてのソースが削除され、既定値が追加されます。名前付きソースが提供されている場合、そのソースのみが削除されます。</value>
+    <value>ఏదైనా స్థానిక డేటాను వదిలివేస్తూ, ఈ ఆదేశం ఇప్పటికే ఉన్న మూలాలను వదిలివేస్తుంది. ఎటువంటి వాదన లేకుండా, ఇది అన్ని మూలాలను వదిలివేసి డిఫాల్ట్‌లను జోడిస్తుంది. పేరు పెట్టబడిన మూలం అందించబడితే, ఆ మూలం మాత్రమే తొలగించబడుతుంది.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
-    <value>ソースをリセット</value>
+    <value>మూలాలను రీసెట్ చేయండి</value>
   </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
-    <value>ソースのタイプ</value>
+    <value>మూలం యొక్క రకం</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
-    <value>すべてのソースを更新するか、特定のソースのみを更新します。</value>
+    <value>అన్ని వనరులను నవీకరించండి లేదా నిర్దిష్ట మూలం మాత్రమే.</value>
   </data>
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
-    <value>現在のソースを更新</value>
+    <value>ప్రస్తుత మూలాలను నవీకరించండి</value>
   </data>
   <data name="TagArgumentDescription" xml:space="preserve">
-    <value>タグ で結果をフィルター処理</value>
+    <value>ట్యాగ్ ద్వారా ఫలితాలను ఫిల్టర్ చేయండి</value>
   </data>
   <data name="ToolDescription" xml:space="preserve">
-    <value>WinGet コマンド ライン ユーティリティを使用すると、コマンド ラインからアプリケーションをインストールできます。</value>
+    <value>WinGet కమాండ్ లైన్ యుటిలిటీ కమాండ్ లైన్ నుండి అనువర్తనాలను వ్యవస్థాపించడాన్ని అనుమతిస్తుంది.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
-    <value>ツールの一般情報を表示</value>
+    <value>సాధనం యొక్క సాధారణ సమాచారాన్ని ప్రదర్శించు</value>
   </data>
   <data name="ToolVersionArgumentDescription" xml:space="preserve">
-    <value>ツールのバージョンを表示</value>
+    <value>సాధనం యొక్క సంస్కరణను ప్రదర్శించు</value>
   </data>
   <data name="TooManyArgError" xml:space="preserve">
-    <value>引数が許可されたよりも多く提供されました</value>
+    <value>వాదన అనుమతించిన దానికంటే ఎక్కువ సార్లు అందించబడింది</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>複数のインストール動作引数が提供されています</value>
+    <value>ఒకటి కంటే ఎక్కువ వ్యవస్థాప ప్రవర్తన వాదన అందించబడింది</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
-    <value>認識されないコマンド</value>
+    <value>గుర్తించబడని ఆదేశం</value>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
-    <value>厳密な一連のガイドラインを使用してマニフェストを検証します。これは、リポジトリに送信する前にマニフェストを確認できるようにするためのものです。</value>
+    <value>కఠినమైన మార్గదర్శకాలను ఉపయోగించి మానిఫెస్ట్‌ను ధృవీకరిస్తుంది. ఇది రెపోకు సమర్పించే ముందు మీ మానిఫెస్ట్‌ను తనిఖీ చేయడానికి మిమ్మల్ని అనుమతిస్తుంది.</value>
   </data>
   <data name="ValidateCommandShortDescription" xml:space="preserve">
-    <value>マニフェスト ファイルを検証</value>
+    <value>మానిఫెస్ట్ ఫైల్‌ను ధృవీకరిస్తుంది</value>
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
-    <value>検証するマニフェストへのパス</value>
+    <value>మానిఫెస్ట్‌కు మార్గాన్ని ధృవీకరించాలి</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
-    <value>指定されたバージョンを使用します。既定値は最新のバージョンです</value>
+    <value>పేర్కొన్న సంస్కరణను ఉపయోగించండి; తాజా వెర్షన్ డిఫాల్ట్ అవుతుంది</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>アプリの利用可能なバージョンを表示</value>
+    <value>అనువర్తనం యొక్క అందుబాటులో ఉన్న సంస్కరణలను చూపించు</value>
   </data>
 </root>
