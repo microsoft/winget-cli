@@ -69,7 +69,7 @@ namespace AppInstaller::CLI
     {
         if (execArgs.Contains(Execution::Args::Type::Silent) && execArgs.Contains(Execution::Args::Type::Interactive))
         {
-            throw CommandException(Resources::GetInstance().ResolveWingetString(L"TooManyBehaviorsError"), s_InstallCommand_ArgName_SilentAndInteractive);
+            throw CommandException(Resource::String::TooManyBehaviorsError, s_InstallCommand_ArgName_SilentAndInteractive);
         }
     }
 }

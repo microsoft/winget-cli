@@ -16,14 +16,14 @@ namespace AppInstaller::CLI
         };
     }
 
-    std::string ValidateCommand::ShortDescription() const
+    Resource::LocString ValidateCommand::ShortDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"ValidateCommandShortDescription");
+        return Resource::LocString{ Resource::String::ValidateCommandShortDescription };
     }
 
-    std::string ValidateCommand::GetLongDescription() const
+    Resource::LocString ValidateCommand::LongDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"ValidateCommandLongDescription");
+        return Resource::LocString{ Resource::String::ValidateCommandLongDescription };
     }
 
     std::string ValidateCommand::HelpLink() const

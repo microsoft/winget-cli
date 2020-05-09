@@ -274,7 +274,7 @@ namespace AppInstaller::CLI
         }
 
         // TODO: If we get to a large number of commands, do a fuzzy search much like git
-        throw CommandException(Resources::GetInstance().ResolveWingetString(L"UnrecognizedCommand"), *itr);
+        throw CommandException(Resource::String::UnrecognizedCommand, *itr);
     }
 
     // Parse arguments as such:
@@ -314,7 +314,7 @@ namespace AppInstaller::CLI
 
                 if (positionalSearchItr == definedArgs.end())
                 {
-                    throw CommandException(Resources::GetInstance().ResolveWingetString(L"ExtraPositionalError"), currArg);
+                    throw CommandException(Resource::String::ExtraPositionalError, currArg);
                 }
 
                 execArgs.AddArg(positionalSearchItr->ExecArgType(), currArg);
@@ -322,7 +322,7 @@ namespace AppInstaller::CLI
             // The currentArg must not be empty, and starts with a -
             else if (currArg.length() == 1)
             {
-                throw CommandException(Resources::GetInstance().ResolveWingetString(L"InvalidArgumentSpecifierError"), currArg);
+                throw CommandException(Resource::String::InvalidArgumentSpecifierError, currArg);
             }
             // Now it must be at least 2 chars
             else if (currArg[1] != APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
@@ -333,7 +333,7 @@ namespace AppInstaller::CLI
                 auto itr = std::find_if(definedArgs.begin(), definedArgs.end(), [&](const Argument& arg) { return (currChar == arg.Alias()); });
                 if (itr == definedArgs.end())
                 {
-                    throw CommandException(Resources::GetInstance().ResolveWingetString(L"InvalidAliasError"), currArg);
+                    throw CommandException(Resource::String::InvalidAliasError, currArg);
                 }
 
                 if (itr->Type() == ArgumentType::Flag)

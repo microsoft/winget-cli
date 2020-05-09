@@ -19,13 +19,13 @@ namespace AppInstaller::CLI
 {
     struct CommandException
     {
-        CommandException(std::string message, std::string_view param) : m_message(message), m_param(param) {}
+        CommandException(Resource::LocString message, std::string_view param) : m_message(std::move(message)), m_param(param) {}
 
-        const std::string& Message() const { return m_message; }
+        const Resource::LocString& Message() const { return m_message; }
         const std::string_view Param() const { return m_param; }
 
     private:
-        std::string m_message;
+        Resource::LocString m_message;
         std::string_view m_param;
     };
 
