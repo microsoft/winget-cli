@@ -1,7 +1,7 @@
 # Minimum required
 Id: microsoft.msixsdk
 Name: MSIX SDK
-Version: 1.7.32
+Version: 1.07.32-beta
 Publisher: Microsoft
 InstallerType: Zip
 Installers:

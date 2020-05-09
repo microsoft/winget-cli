@@ -80,7 +80,7 @@ namespace AppInstaller::Manifest
                 { "Id", [this](const YAML::Node& value) { Id = value.as<std::string>(); Utility::Trim(Id); }, true, "^[\\S]+\\.[\\S]+$" },
                 { "Name", [this](const YAML::Node& value) { Name = value.as<std::string>(); Utility::Trim(Name); }, true },
                 { "Version", [this](const YAML::Node& value) { Version = value.as<std::string>(); Utility::Trim(Version); }, true,
-                  "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){0,3}$" },
+                  /* File name chars not allowed */ "^[^\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]+$" },
                 { "Publisher", [this](const YAML::Node& value) { Publisher = value.as<std::string>(); }, true },
                 { "AppMoniker", [this](const YAML::Node& value) { AppMoniker = value.as<std::string>(); Utility::Trim(AppMoniker); } },
                 { "Channel", [this](const YAML::Node& value) { Channel = value.as<std::string>(); Utility::Trim(Channel); } },
@@ -149,6 +149,16 @@ namespace AppInstaller::Manifest
             if (!Channel.empty())
             {
                 resultErrors.emplace_back(ManifestError::FieldNotSupported, "Channel", Channel);
+            }
+
+            try
+            {
+                // Version value should be successfully parsed
+                Utility::Version test{ Version };
+            }
+            catch (const std::exception&)
+            {
+                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Version", Version);
             }
 
             // Check duplicate installer entry. {installerType, arch, language and scope} combination is the key.
