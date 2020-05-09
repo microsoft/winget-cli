@@ -16,6 +16,12 @@ namespace AppInstaller::Runtime
     // Determines the current version of the client and returns it.
     std::string GetClientVersion();
 
+    // Determines the current version of the package if running in a packaged context.
+    std::string GetPackageVersion();
+
+    // Gets a string representation of the OS version for debugging purposes.
+    std::string GetOSVersion();
+
     // Gets the path to the temp location.
     std::filesystem::path GetPathToTemp();
 

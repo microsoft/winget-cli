@@ -6,7 +6,7 @@
   xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="uap uap3 uap5 rescap">
-  <Identity Name="WinGetDevCLI" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" Version="0.0.0.2" />
+  <Identity Name="WinGetDevCLI" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" Version="0.0.2.0" />
   <Properties>
     <DisplayName>WinGet Dev CLI</DisplayName>
     <PublisherDisplayName>Microsoft Corporation</PublisherDisplayName>

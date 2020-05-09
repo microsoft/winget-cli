@@ -2,16 +2,16 @@
 #define STRINGIZE(s) STRINGIZE2(s)
 
 #define VERSION_MAJOR               0
-#define VERSION_MINOR               0
+#define VERSION_MINOR               1
+#define VERSION_BUILD               0
 #define VERSION_REVISION            0
-#define VERSION_BUILD               2
 
 #define VER_FILE_DESCRIPTION_STR    "WinGet CLI"
-#define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_BUILD
+#define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION
 #define VER_FILE_VERSION_STR        STRINGIZE(VERSION_MAJOR)        \
                                     "." STRINGIZE(VERSION_MINOR)    \
-                                    "." STRINGIZE(VERSION_REVISION) \
                                     "." STRINGIZE(VERSION_BUILD)    \
+                                    "." STRINGIZE(VERSION_REVISION) \
 
 #define VER_PRODUCTNAME_STR         "WinGet CLI"
 #define VER_PRODUCT_VERSION         VER_FILE_VERSION
