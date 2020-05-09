@@ -117,4 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Қосымша анықтама алу үшін келесіге өтіңіз:</value>
+  </data>
+  <data name="InstallCommandDescription" xml:space="preserve">
+    <value>Берілген бағдарламаны орнатады</value>
+  </data>
+  <data name="PreviewVersion" xml:space="preserve">
+    <value>Алдын ала қарау</value>
+  </data>
+  <data name="QueryArgumentDescription" xml:space="preserve">
+    <value>Бағдарламаны іздеу үшін пайдаланылатын сұрау</value>
+  </data>
+  <data name="ShowCommandShortDescription" xml:space="preserve">
+    <value>Бағдарлама туралы ақпаратты көрсетеді</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>WinGet үшін журналды егжей-тегжейлі жүргізуге мүмкіндік береді</value>
+  </data>
 </root>
