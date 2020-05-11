@@ -16,6 +16,33 @@
 
 namespace AppInstaller::CLI::Execution
 {
+    namespace details
+    {
+        // List of approved types for output, others are potentially not localized.
+        template <typename T>
+        struct IsApprovedForOutput
+        {
+            static constexpr bool value = false;
+        };
+
+#define WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(_t_) \
+        template <> \
+        struct IsApprovedForOutput<_t_> \
+        { \
+            static constexpr bool value = true; \
+        }
+
+        // It is assumed that single char values need not be localized, as they are matched
+        // ordinally or they are punctuation / other.
+        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(char);
+        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Resource::StringId);
+        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Resource::LocString);
+        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Resource::LocIndView);
+        // Normalized strings come from user data and should therefore already by localized
+        // by how they are chosen (or there is no localized version).
+        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Utility::NormalizedString);
+    }
+
     // Reporter should be the central place to show workflow status to user.
     // Todo: need to implement actual console output to show progress bar, etc
     struct Reporter : public IProgressSink
@@ -43,6 +70,12 @@ namespace AppInstaller::CLI::Execution
             template <typename T>
             OutputStream& operator<<(const T& t)
             {
+                // TODO: Comment explaining the build error.
+                //static_assert(details::IsApprovedForOutput<std::decay_t<T>>::value, "This type may not be localized, see comment for more information");
+                if constexpr (!details::IsApprovedForOutput<std::decay_t<T>>::value)
+                {
+                    AICLI_LOG(CLI, Verbose, << "Needs localization: [" << typeid(T).name() << "] '" << t << '\'');
+                }
                 ApplyFormat();
                 m_out << t;
                 return *this;

@@ -27,7 +27,7 @@ namespace AppInstaller::CLI
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
         reporter.Info() <<
-            "Windows Package Manager v" << Runtime::GetClientVersion() << " " << Resource::String::PreviewVersion << std::endl <<
+            "Windows Package Manager v" << Runtime::GetClientVersion() << ' ' << Resource::String::PreviewVersion << std::endl <<
             "Copyright (c) Microsoft Corporation. All rights reserved." << std::endl;
     }
 

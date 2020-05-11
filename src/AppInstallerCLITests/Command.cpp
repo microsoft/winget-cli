@@ -164,7 +164,7 @@ void RequireValueParsedToArg(const std::string& value, const Argument& arg, cons
 }
 
 // Description used for tests; doesn't need to be anything in particular.
-static constexpr Resource::StringId DefaultDesc = L""sv;
+static constexpr Resource::StringId DefaultDesc{ L""sv };
 
 TEST_CASE("ParseArguments_MultiplePositional", "[command]")
 {

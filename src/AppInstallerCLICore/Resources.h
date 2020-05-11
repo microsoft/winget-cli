@@ -13,12 +13,12 @@ namespace AppInstaller::CLI::Resource
 
 #define WINGET_WIDE_STRINGIFY_HELP(_id_) L ## _id_
 #define WINGET_WIDE_STRINGIFY(_id_) WINGET_WIDE_STRINGIFY_HELP(_id_)
-#define WINGET_DEFINE_RESOURCE_STRINGID(_id_) static constexpr StringId _id_ = WINGET_WIDE_STRINGIFY(#_id_) ## sv
+#define WINGET_DEFINE_RESOURCE_STRINGID(_id_) static constexpr StringId _id_ { WINGET_WIDE_STRINGIFY(#_id_) ## sv }
 
     // A resource identifier
     struct StringId : public std::wstring_view
     {
-        constexpr StringId(std::wstring_view id) : std::wstring_view(id) {}
+        explicit constexpr StringId(std::wstring_view id) : std::wstring_view(id) {}
     };
 
     // Resource string identifiers.
@@ -123,6 +123,13 @@ namespace AppInstaller::CLI::Resource
 
     private:
         std::string m_value;
+    };
+
+    // A localization independent string view.
+    // Used as a wrapper around strings that do not need localization.
+    struct LocIndView : public std::string_view
+    {
+        explicit constexpr LocIndView(std::string_view sv) : std::string_view(sv) {}
     };
 
     // Utility class to load resources
