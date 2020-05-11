@@ -78,8 +78,8 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        Add-AppxPackage AppInstallerCLIPackage_0.0.0.2_Test\Dependencies\x86\Microsoft.VCLibs.x86.14.00.Desktop.appx
-        Add-AppxPackage AppInstallerCLIPackage_0.0.0.2_Test\Dependencies\x64\Microsoft.VCLibs.x64.14.00.Desktop.appx
+        Add-AppxPackage AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\x86\Microsoft.VCLibs.x86.14.00.Desktop.appx
+        Add-AppxPackage AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\x64\Microsoft.VCLibs.x64.14.00.Desktop.appx
       workingDirectory: $(appxPackageDir)
 
   - task: VisualStudioTestPlatformInstaller@1

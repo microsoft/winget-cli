@@ -6,7 +6,10 @@
 
 namespace AppInstaller::Manifest
 {
-    std::vector<ValidationError> ValidateAndProcessFields(const YAML::Node& rootNode, const std::vector<ManifestFieldInfo> fieldInfos, bool fullValidation)
+    std::vector<ValidationError> ValidateAndProcessFields(
+        const YAML::Node& rootNode,
+        const std::vector<ManifestFieldInfo> fieldInfos,
+        bool fullValidation)
     {
         std::vector<ValidationError> errors;
 
@@ -77,10 +80,10 @@ namespace AppInstaller::Manifest
             }
             else
             {
-                // Forward compatibility for future fields
+                // For full validation, also reports unrecognized fields as warning
                 if (fullValidation)
                 {
-                    errors.emplace_back(ManifestError::FieldUnknown, key, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column);
+                    errors.emplace_back(ManifestError::FieldUnknown, key, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column, ValidationError::Level::Warning);
                 }
             }
         }
@@ -95,5 +98,34 @@ namespace AppInstaller::Manifest
         }
 
         return errors;
+    }
+
+    ManifestVer::ManifestVer(std::string version, bool fullValidation) : Version(std::move(version), ".")
+    {
+        bool validationSuccess = true;
+
+        if (m_parts.size() > 3)
+        {
+            validationSuccess = false;
+        }
+        else
+        {
+            for (size_t i = 0; i < m_parts.size(); i++)
+            {
+                if (!m_parts[i].Other.empty() &&
+                    (i < 2 || fullValidation))
+                {
+                    validationSuccess = false;
+                    break;
+                }
+            }
+        }
+
+        if (!validationSuccess)
+        {
+            std::vector<ValidationError> errors;
+            errors.emplace_back(ManifestError::InvalidFieldValue, "ManifestVersion", m_version);
+            THROW_EXCEPTION(ManifestException(std::move(errors)));
+        }
     }
 }

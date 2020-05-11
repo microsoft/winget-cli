@@ -20,18 +20,39 @@ namespace AppInstaller::CLI::Workflow
 
         // TODO: Come up with a prettier format
         context.Reporter.Info() << "Version: " << manifest.Version << std::endl;
-        context.Reporter.Info() << "Author: " << manifest.Author << std::endl;
         context.Reporter.Info() << "Publisher: " << manifest.Publisher << std::endl;
-        context.Reporter.Info() << "AppMoniker: " << manifest.AppMoniker << std::endl;
-        context.Reporter.Info() << "Description: " << selectedLocalization.Description << std::endl;
-        context.Reporter.Info() << "Homepage: " << selectedLocalization.Homepage << std::endl;
-        context.Reporter.Info() << "License: " << manifest.License << std::endl;
-        context.Reporter.Info() << "License Url: " << selectedLocalization.LicenseUrl << std::endl;
-        context.Reporter.Info() << "Installer:" << std::endl;
+        if (!manifest.Author.empty())
+        {
+            context.Reporter.Info() << "Author: " << manifest.Author << std::endl;
+        }
+        if (!manifest.AppMoniker.empty())
+        {
+            context.Reporter.Info() << "AppMoniker: " << manifest.AppMoniker << std::endl;
+        }
+        if (!selectedLocalization.Description.empty())
+        {
+            context.Reporter.Info() << "Description: " << selectedLocalization.Description << std::endl;
+        }
+        if (!selectedLocalization.Homepage.empty())
+        {
+            context.Reporter.Info() << "Homepage: " << selectedLocalization.Homepage << std::endl;
+        }
+        if (!manifest.License.empty())
+        {
+            context.Reporter.Info() << "License: " << manifest.License << std::endl;
+        }
+        if (!selectedLocalization.LicenseUrl.empty())
+        {
+            context.Reporter.Info() << "License Url: " << selectedLocalization.LicenseUrl << std::endl;
+        }
 
+        context.Reporter.Info() << "Installer:" << std::endl;
         if (installer)
         {
-            context.Reporter.Info() << "  Language: " << installer->Language << std::endl;
+            if (!installer->Language.empty())
+            {
+                context.Reporter.Info() << "  Language: " << installer->Language << std::endl;
+            }
             context.Reporter.Info() << "  SHA256: " << Utility::SHA256::ConvertToString(installer->Sha256) << std::endl;
             context.Reporter.Info() << "  Download Url: " << installer->Url << std::endl;
             context.Reporter.Info() << "  Type: " << Manifest::ManifestInstaller::InstallerTypeToString(installer->InstallerType) << std::endl;

@@ -24,6 +24,49 @@ namespace AppInstaller::Runtime
             return (result != APPMODEL_ERROR_NO_PACKAGE);
         }
 
+        std::unique_ptr<byte[]> GetPACKAGE_ID()
+        {
+            UINT32 bufferLength = 0;
+            LONG gcpiResult = GetCurrentPackageId(&bufferLength, nullptr);
+            THROW_HR_IF(E_UNEXPECTED, gcpiResult != ERROR_INSUFFICIENT_BUFFER);
+
+            std::unique_ptr<byte[]> buffer = std::make_unique<byte[]>(bufferLength);
+
+            gcpiResult = GetCurrentPackageId(&bufferLength, buffer.get());
+            if (FAILED_WIN32_LOG(gcpiResult))
+            {
+                return {};
+            }
+
+            return buffer;
+        }
+
+        // Gets the package name; only succeeds if running in a packaged context.
+        std::string GetPackageName()
+        {
+            std::unique_ptr<byte[]> buffer = GetPACKAGE_ID();
+            if (!buffer)
+            {
+                return {};
+            }
+
+            PACKAGE_ID* packageId = reinterpret_cast<PACKAGE_ID*>(buffer.get());
+            return Utility::ConvertToUTF8(packageId->name);
+        }
+
+        // Gets the package version; only succeeds if running in a packaged context.
+        std::optional<PACKAGE_VERSION> GetPACKAGE_VERSION()
+        {
+            std::unique_ptr<byte[]> buffer = GetPACKAGE_ID();
+            if (!buffer)
+            {
+                return {};
+            }
+
+            PACKAGE_ID* packageId = reinterpret_cast<PACKAGE_ID*>(buffer.get());
+            return packageId->version;
+        }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         static std::filesystem::path s_Settings_TestHook_ForcedContainerPrepend;
 #endif
@@ -144,30 +187,69 @@ namespace AppInstaller::Runtime
 
         if (IsRunningInPackagedContext())
         {
-            UINT32 bufferLength = 0;
-            LONG gcpiResult = GetCurrentPackageId(&bufferLength, nullptr);
-            THROW_HR_IF(E_UNEXPECTED, gcpiResult != ERROR_INSUFFICIENT_BUFFER);
+            auto version = GetPACKAGE_VERSION();
 
-            std::unique_ptr<byte[]> buffer = std::make_unique<byte[]>(bufferLength);
-
-            gcpiResult = GetCurrentPackageId(&bufferLength, buffer.get());
-            if (FAILED_WIN32_LOG(gcpiResult))
+            if (!version)
             {
                 return "error"s;
             }
 
-            PACKAGE_ID* packageId = reinterpret_cast<PACKAGE_ID*>(buffer.get());
-            PACKAGE_VERSION& version = packageId->version;
-
             std::ostringstream strstr;
-            strstr << version.Major << '.' << version.Minor << '.' << version.Build << '.' << version.Revision;
+            strstr << VERSION_MAJOR << '.' << VERSION_MINOR << '.' << version->Build;
 
             return strstr.str();
         }
         else
         {
-            return VER_FILE_VERSION_STR;
+            std::ostringstream strstr;
+            strstr << VERSION_MAJOR << '.' << VERSION_MINOR << '.' << VERSION_BUILD;
+
+            return strstr.str();
         }
+    }
+
+    std::string GetPackageVersion()
+    {
+        using namespace std::string_literals;
+
+        if (IsRunningInPackagedContext())
+        {
+            auto version = GetPACKAGE_VERSION();
+
+            if (!version)
+            {
+                return "error"s;
+            }
+
+            std::ostringstream strstr;
+            strstr << GetPackageName() << " v" << version->Major << '.' << version->Minor << '.' << version->Build << '.' << version->Revision;
+
+            return strstr.str();
+        }
+        else
+        {
+            return "none";
+        }
+    }
+
+    std::string GetOSVersion()
+    {
+        winrt::Windows::System::Profile::AnalyticsInfo analyticsInfo{};
+        auto versionInfo = analyticsInfo.VersionInfo();
+
+        uint64_t version = std::stoull(Utility::ConvertToUTF8(versionInfo.DeviceFamilyVersion()));
+        uint16_t parts[4];
+
+        for (size_t i = 0; i < ARRAYSIZE(parts); ++i)
+        {
+            parts[i] = version & 0xFFFF;
+            version = version >> 16;
+        }
+
+        std::ostringstream strstr;
+        strstr << Utility::ConvertToUTF8(versionInfo.DeviceFamily()) << " v" << parts[3] << '.' << parts[2] << '.' << parts[1] << '.' << parts[0];
+
+        return strstr.str();
     }
 
     std::filesystem::path GetPathToTemp()

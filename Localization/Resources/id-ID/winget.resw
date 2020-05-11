@@ -1,0 +1,345 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AdjoinedNotFlagError" xml:space="preserve">
+    <value>Alias bergabungan bukan bendera</value>
+  </data>
+  <data name="AdjoinedNotFoundError" xml:space="preserve">
+    <value>Alias bendera bergabungan tidak ditemukan</value>
+  </data>
+  <data name="AvailableArguements" xml:space="preserve">
+    <value>Argumen berikut tersedia:</value>
+  </data>
+  <data name="AvailableCommands" xml:space="preserve">
+    <value>Perintah berikut tersedia:</value>
+    <comment>Commands the tool supports</comment>
+  </data>
+  <data name="AvailableOptions" xml:space="preserve">
+    <value>Opsi berikut tersedia:</value>
+  </data>
+  <data name="AvailableSubcommands" xml:space="preserve">
+    <value>Sub-perintah berikut tersedia:</value>
+    <comment>Nested commands that can be run in context of the selected command</comment>
+  </data>
+  <data name="ChannelArgumentDescription" xml:space="preserve">
+    <value>Gunakan saluran yang ditentukan; default adalah audiens umum</value>
+  </data>
+  <data name="CommandArgumentDescription" xml:space="preserve">
+    <value>Filter hasil menurut perintah</value>
+  </data>
+  <data name="CountArgumentDescription" xml:space="preserve">
+    <value>Tampilkan tidak lebih dari jumlah hasil yang ditentukan</value>
+  </data>
+  <data name="ExactArgumentDescription" xml:space="preserve">
+    <value>Temukan aplikasi menggunakan pencocokan yang sama persis</value>
+  </data>
+  <data name="ExtraPositionalError" xml:space="preserve">
+    <value>Menemukan argumen posisi ketika tidak ada yang diharapkan</value>
+  </data>
+  <data name="FileArgumentDescription" xml:space="preserve">
+    <value>File yang akan di-hash</value>
+  </data>
+  <data name="FlagContainAdjoinedError" xml:space="preserve">
+    <value>Argumen bendera tidak dapat berisi nilai bergabungan</value>
+  </data>
+  <data name="ForceArgumentDescription" xml:space="preserve">
+    <value>Jalankan perintah tanpa wantian</value>
+  </data>
+  <data name="HashHelperDescription" xml:space="preserve">
+    <value>Bantuan untuk melakukan hash file penginstal</value>
+  </data>
+  <data name="HelpArgumentDescription" xml:space="preserve">
+    <value>Tampilkan bantuan tentang perintah yang dipilih</value>
+  </data>
+  <data name="HelpForDetails" xml:space="preserve">
+    <value>Untuk detail selengkapnya tentang perintah tertentu, sampaikan argumen bantuan.</value>
+  </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Bantuan selengkapnya dapat ditemukan di:</value>
+  </data>
+  <data name="IdArgumentDescription" xml:space="preserve">
+    <value>Filter hasil menurut id</value>
+  </data>
+  <data name="InstallCommandDescription" xml:space="preserve">
+    <value>Instal aplikasi yang diberikan</value>
+  </data>
+  <data name="InteractiveArgumentDescription" xml:space="preserve">
+    <value>Meminta penginstalan interaktif; input pengguna mungkin diperlukan</value>
+  </data>
+  <data name="InvalidAliasError" xml:space="preserve">
+    <value>Alias argumen tidak dikenali untuk perintah saat ini</value>
+  </data>
+  <data name="InvalidArgumentSpecifierError" xml:space="preserve">
+    <value>Penentu argumen tidak valid</value>
+  </data>
+  <data name="InvalidNameError" xml:space="preserve">
+    <value>Nama argumen tidak dikenali untuk perintah saat ini</value>
+  </data>
+  <data name="LanguageArgumentDescription" xml:space="preserve">
+    <value>Bahasa untuk diinstal (jika didukung)</value>
+  </data>
+  <data name="LocationArgumentDescription" xml:space="preserve">
+    <value>Lokasi untuk diinstal (jika didukung)</value>
+  </data>
+  <data name="LogArgumentDesciption" xml:space="preserve">
+    <value>Catat lokasi (jika didukung)</value>
+  </data>
+  <data name="ManifestArgumentDescription" xml:space="preserve">
+    <value>Jalur ke manifes aplikasi</value>
+  </data>
+  <data name="MissingArgumentError" xml:space="preserve">
+    <value>Nilai argumen diperlukan, tetapi tidak ditemukan</value>
+  </data>
+  <data name="MonikerArgumentDescription" xml:space="preserve">
+    <value>Filter hasil menurut moniker aplikasi</value>
+  </data>
+  <data name="MsixArgumentDescription" xml:space="preserve">
+    <value>File input akan diperlakukan sebagai msix; hash tanda tangan akan disediakan jika ditandatangani</value>
+  </data>
+  <data name="NameArgumentDescription" xml:space="preserve">
+    <value>Filter hasil menurut nama</value>
+  </data>
+  <data name="NoVTArguementDescription" xml:space="preserve">
+    <value>Nonaktifkan tampilan VirtualTerminal</value>
+    <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="OverrideArgumentDescription" xml:space="preserve">
+    <value>Menimpa argumen untuk diteruskan ke penginstal</value>
+  </data>
+  <data name="PendingWorkError" xml:space="preserve">
+    <value>Ups, kami lupa melakukan ini...</value>
+  </data>
+  <data name="PlainArgumentDescription" xml:space="preserve">
+    <value>Tampilan kemajuan sebagai warna default</value>
+  </data>
+  <data name="PreviewVersion" xml:space="preserve">
+    <value>Pratinjau</value>
+  </data>
+  <data name="QueryArgumentDescription" xml:space="preserve">
+    <value>Kueri yang digunakan untuk mencari aplikasi</value>
+  </data>
+  <data name="RainbowArgumentDescription" xml:space="preserve">
+    <value>Kemajuan menampilkan warna pelangi</value>
+  </data>
+  <data name="RequiredArgError" xml:space="preserve">
+    <value>Argumen yang diperlukan tidak disediakan</value>
+  </data>
+  <data name="SearchCommandDescription" xml:space="preserve">
+    <value>Temukan dan tampilkan info dasar aplikasi</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Perlihatkan informasi tentang aplikasi tertentu.</value>
+  </data>
+  <data name="ShowCommandShortDescription" xml:space="preserve">
+    <value>Tampilkan info tentang aplikasi</value>
+  </data>
+  <data name="SilentArgumentDescription" xml:space="preserve">
+    <value>Minta instalasi senyap</value>
+  </data>
+  <data name="SingleCharAfterDashError" xml:space="preserve">
+    <value>Hanya alias karakter tunggal yang dapat terjadi setelah satu -</value>
+  </data>
+  <data name="SourceAddCommandLongDescription" xml:space="preserve">
+    <value>Tambahkan sumber baru. Sumber menyediakan data agar Anda dapat menemukan dan menginstal aplikasi. Cukup tambahkan sumber baru jika Anda mempercayainya sebagai lokasi yang aman.</value>
+  </data>
+  <data name="SourceAddCommandShortDescription" xml:space="preserve">
+    <value>Tambah sumber baru</value>
+  </data>
+  <data name="SourceArgArgumentDescription" xml:space="preserve">
+    <value>Argumen yang diberikan kepada sumber</value>
+  </data>
+  <data name="SourceArgumentDescription" xml:space="preserve">
+    <value>Temukan aplikasi menggunakan sumber yang ditentukan</value>
+  </data>
+  <data name="SourceCommandLongDescription" xml:space="preserve">
+    <value>Kelola sumber dengan sub-perintah. Sumber menyediakan data agar Anda dapat menemukan dan menginstal aplikasi. Hanya tambahkan sumber baru jika Anda mempercayainya sebagai lokasi yang aman.</value>
+  </data>
+  <data name="SourceCommandShortDescription" xml:space="preserve">
+    <value>Kelola sumber aplikasi</value>
+  </data>
+  <data name="SourceListCommandLongDescription" xml:space="preserve">
+    <value>Cantumkan semua sumber saat ini, atau detail lengkap dari sumber tertentu.</value>
+  </data>
+  <data name="SourceListCommandShortDescription" xml:space="preserve">
+    <value>Daftar sumber saat ini</value>
+  </data>
+  <data name="SourceNameArgumentDescription" xml:space="preserve">
+    <value>Nama sumber</value>
+  </data>
+  <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
+    <value>Hapus sumber tertentu.</value>
+  </data>
+  <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
+    <value>Hapus sumber saat ini</value>
+  </data>
+  <data name="SourceResetCommandLongDescription" xml:space="preserve">
+    <value>Perintah ini membuang sumber yang sudah ada, berpotensi meninggalkan semua data lokal. Tanpa ada argumen, perintah ini akan membuang semua sumber dan menambahkan default. Jika sumber bernama disediakan, hanya sumber itu saja yang akan dibuang.</value>
+  </data>
+  <data name="SourceResetCommandShortDescription" xml:space="preserve">
+    <value>Mengatur ulang sumber</value>
+  </data>
+  <data name="SourceTypeArgumentDescription" xml:space="preserve">
+    <value>Tipe sumber</value>
+  </data>
+  <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
+    <value>Perbarui semua sumber, atau hanya sumber tertentu.</value>
+  </data>
+  <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
+    <value>Perbarui sumber saat ini</value>
+  </data>
+  <data name="TagArgumentDescription" xml:space="preserve">
+    <value>Filter hasil menurut tag</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Utilitas baris perintah WinGet memungkinkan penginstalan aplikasi dari baris perintah.</value>
+  </data>
+  <data name="ToolInfoArgumentDescription" xml:space="preserve">
+    <value>Tampilkan info umum alat</value>
+  </data>
+  <data name="ToolVersionArgumentDescription" xml:space="preserve">
+    <value>Tampilkan versi alat ini</value>
+  </data>
+  <data name="TooManyArgError" xml:space="preserve">
+    <value>Argumen yang diberikan lebih banyak dari yang diizinkan</value>
+  </data>
+  <data name="TooManyBehaviorsError" xml:space="preserve">
+    <value>Ada lebih dari satu argumen perilaku penginstalan yang disediakan</value>
+  </data>
+  <data name="UnrecognizedCommand" xml:space="preserve">
+    <value>Perintah tidak dikenal</value>
+  </data>
+  <data name="ValidateCommandLongDescription" xml:space="preserve">
+    <value>Memvalidasi manifes menggunakan sekumpulan panduan yang ketat. Hal ini dimaksudkan agar Anda dapat memeriksa manifes sebelum mengirimkan ke repo.</value>
+  </data>
+  <data name="ValidateCommandShortDescription" xml:space="preserve">
+    <value>Validasi file manifes</value>
+  </data>
+  <data name="ValidateManifestArgumentDescription" xml:space="preserve">
+    <value>Jalur ke manifes untuk divalidasi</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Mengaktifkan pencatatan verbose untuk WinGet</value>
+  </data>
+  <data name="VersionArgumentDescription" xml:space="preserve">
+    <value>Gunakan versi yang ditentukan; default adalah versi terbaru</value>
+  </data>
+  <data name="VersionsArgumentDescription" xml:space="preserve">
+    <value>Perlihatkan versi yang tersedia dari aplikasi</value>
+  </data>
+</root>

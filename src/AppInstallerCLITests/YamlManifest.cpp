@@ -216,12 +216,14 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-PublisherMissing.yaml", "Required field missing. Field: Publisher" },
         { "Manifest-Bad-Sha256Invalid.yaml", "Invalid field value. Field: Sha256" },
         { "Manifest-Bad-Sha256Missing.yaml", "Required field missing. Field: Sha256" },
-        { "Manifest-Bad-SwitchInvalid.yaml", "Unknown field. Field: NotASwitch" },
-        { "Manifest-Bad-UnknownProperty.yaml", "Unknown field. Field: Fake" },
+        { "Manifest-Bad-SwitchInvalid.yaml", "Unknown field. Field: NotASwitch", true },
+        { "Manifest-Bad-UnknownProperty.yaml", "Unknown field. Field: Fake", true },
+        { "Manifest-Bad-UnsupportedVersion.yaml", "Unsupported ManifestVersion" },
         { "Manifest-Bad-UrlInvalid.yaml", "Invalid field value. Field: Url" },
         { "Manifest-Bad-UrlMissing.yaml", "Required field missing. Field: Url" },
         { "Manifest-Bad-VersionInvalid.yaml", "Invalid field value. Field: Version" },
         { "Manifest-Bad-VersionMissing.yaml", "Required field missing. Field: Version" },
+        { "Manifest-Bad-InvalidManifestVersionValue.yaml", "Invalid field value. Field: ManifestVersion" },
     };
 
     for (auto const& testCase : TestCases)

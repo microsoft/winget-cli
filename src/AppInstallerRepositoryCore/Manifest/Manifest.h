@@ -12,7 +12,7 @@
 
 namespace AppInstaller::Manifest
 {
-    // Our representation of the parsed manifest file.
+    // Representation of the parsed manifest file.
     struct Manifest
     {
         using string_t = Utility::NormalizedString;
@@ -58,6 +58,8 @@ namespace AppInstaller::Manifest
         string_t Homepage;
 
         string_t LicenseUrl;
+
+        ManifestVer ManifestVersion;
 
         std::map<ManifestInstaller::InstallerSwitchType, string_t> Switches;
 

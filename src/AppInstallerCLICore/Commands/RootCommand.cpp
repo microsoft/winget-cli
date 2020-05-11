@@ -50,7 +50,17 @@ namespace AppInstaller::CLI
         {
             OutputIntroHeader(context.Reporter);
 
-            context.Reporter.Info() << std::endl <<
+            auto info = context.Reporter.Info();
+
+            info << std::endl <<
+                "Windows: " << Runtime::GetOSVersion() << std::endl;
+
+            if (Runtime::IsRunningInPackagedContext())
+            {
+                info << "Package: " << Runtime::GetPackageVersion() << std::endl;
+            };
+
+            info << std::endl <<
                 "Links:" << std::endl <<
                 "  Privacy Statement: https://aka.ms/winget-privacy" << std::endl <<
                 "  License agreement: https://aka.ms/winget-license" << std::endl <<
@@ -59,7 +69,7 @@ namespace AppInstaller::CLI
         }
         else if (context.Args.Contains(Execution::Args::Type::ListVersions))
         {
-            context.Reporter.Info() << 'v' << Runtime::GetClientVersion() << ' ' << Resource::String::PreviewVersion << std::endl;
+            context.Reporter.Info() << 'v' << Runtime::GetClientVersion() << ' ' << Resource::String::PreviewVersion;
         }
         else
         {

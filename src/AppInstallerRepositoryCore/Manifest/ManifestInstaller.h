@@ -80,11 +80,16 @@ namespace AppInstaller::Manifest
         static std::vector<ValidationError> PopulateSwitchesFields(
             const YAML::Node& switchesNode,
             std::map<InstallerSwitchType, string_t>& switches,
-            bool fullValidation);
+            bool fullValidation,
+            ManifestVer manifestVersion);
 
         // Populates ManifestInstaller
         // defaultInstaller: if an optional field is not found in the YAML node, the field will be populated with value from defaultInstaller.
-        std::vector<ValidationError> PopulateInstallerFields(const YAML::Node& installerNode, const ManifestInstaller& defaultInstaller, bool fullValidation);
+        std::vector<ValidationError> PopulateInstallerFields(
+            const YAML::Node& installerNode,
+            const ManifestInstaller& defaultInstaller,
+            bool fullValidation,
+            ManifestVer manifestVersion);
 
         static std::string InstallerTypeToString(InstallerTypeEnum installerType);
     };

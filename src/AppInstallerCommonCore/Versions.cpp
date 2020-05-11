@@ -63,6 +63,44 @@ namespace AppInstaller::Utility
         return m_parts.size() < other.m_parts.size();
     }
 
+    bool Version::operator>(const Version& other) const
+    {
+        return other < *this;
+    }
+
+    bool Version::operator<=(const Version& other) const
+    {
+        return !(*this > other);
+    }
+
+    bool Version::operator>=(const Version& other) const
+    {
+        return !(*this < other);
+    }
+
+    bool Version::operator==(const Version& other) const
+    {
+        if (m_parts.size() != other.m_parts.size())
+        {
+            return false;
+        }
+
+        for (size_t i = 0; i < m_parts.size(); ++i)
+        {
+            if (m_parts[i] != other.m_parts[i])
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool Version::operator!=(const Version& other) const
+    {
+        return !(*this == other);
+    }
+
     Version::Part::Part(const std::string& part)
     {
         size_t end = 0;
@@ -94,6 +132,16 @@ namespace AppInstaller::Utility
 
         // else Other >= other.Other
         return false;
+    }
+
+    bool Version::Part::operator==(const Part& other) const
+    {
+        return Integer == other.Integer && Other == other.Other;
+    }
+
+    bool Version::Part::operator!=(const Part& other) const
+    {
+        return !(*this == other);
     }
 
     bool Channel::operator<(const Channel& other) const

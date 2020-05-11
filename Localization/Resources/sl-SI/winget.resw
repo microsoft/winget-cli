@@ -1,0 +1,296 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AvailableArguements" xml:space="preserve">
+    <value>Na voljo so ti argumenti:</value>
+  </data>
+  <data name="AvailableCommands" xml:space="preserve">
+    <value>Na voljo so ti ukazi:</value>
+    <comment>Commands the tool supports</comment>
+  </data>
+  <data name="AvailableOptions" xml:space="preserve">
+    <value>Na voljo so te možnosti:</value>
+  </data>
+  <data name="ChannelArgumentDescription" xml:space="preserve">
+    <value>Uporabite navedeni kanal; privzeto je splošno občinstvo.</value>
+  </data>
+  <data name="CommandArgumentDescription" xml:space="preserve">
+    <value>Filtriraj rezultate po ukazu</value>
+  </data>
+  <data name="CountArgumentDescription" xml:space="preserve">
+    <value>Prikaz več kot določenega števila rezultatov</value>
+  </data>
+  <data name="ExactArgumentDescription" xml:space="preserve">
+    <value>Iskanje programa z uporabo natančnega ujemanja</value>
+  </data>
+  <data name="FileArgumentDescription" xml:space="preserve">
+    <value>Datoteka, ki jo želite razpršiti</value>
+  </data>
+  <data name="ForceArgumentDescription" xml:space="preserve">
+    <value>Izvršitev ukaza brez poziva</value>
+  </data>
+  <data name="HashHelperDescription" xml:space="preserve">
+    <value>Pomočnik za razpršilne datoteke namestitve</value>
+  </data>
+  <data name="HelpArgumentDescription" xml:space="preserve">
+    <value>Pokaži pomoč za izbrani ukaz</value>
+  </data>
+  <data name="HelpForDetails" xml:space="preserve">
+    <value>Če želite več podrobnosti o določenem ukazu, ga vnesite argument pomoči.</value>
+  </data>
+  <data name="IdArgumentDescription" xml:space="preserve">
+    <value>Ukaz »Filtriraj rezultate po identifikaciji«</value>
+  </data>
+  <data name="InstallCommandDescription" xml:space="preserve">
+    <value>Namestitve danega programa</value>
+  </data>
+  <data name="InteractiveArgumentDescription" xml:space="preserve">
+    <value>Zahtevajte interaktivno namestitev; morda boste potrebovali vnos uporabnika</value>
+  </data>
+  <data name="InvalidAliasError" xml:space="preserve">
+    <value>Vzdevka argumenta ni bilo mogoče prepoznati za trenutni ukaz</value>
+  </data>
+  <data name="LanguageArgumentDescription" xml:space="preserve">
+    <value>Jezik, ki ga želite namestiti (če je podprt)</value>
+  </data>
+  <data name="LocationArgumentDescription" xml:space="preserve">
+    <value>Mesto za namestitev na (če je podprto)</value>
+  </data>
+  <data name="LogArgumentDesciption" xml:space="preserve">
+    <value>Mesto dnevnika (če je podprto)</value>
+  </data>
+  <data name="ManifestArgumentDescription" xml:space="preserve">
+    <value>Pot do manifesta aplikacije</value>
+  </data>
+  <data name="MonikerArgumentDescription" xml:space="preserve">
+    <value>Ukaz »Filtriraj rezultate po vzdevku aplikacije«</value>
+  </data>
+  <data name="MsixArgumentDescription" xml:space="preserve">
+    <value>Vhodna datoteka bo obravnavana kot mSix; Razpršilo za podpis bo na voljo, če je podpisan</value>
+  </data>
+  <data name="NameArgumentDescription" xml:space="preserve">
+    <value>Ukaz »Filtriraj rezultate po imenu«</value>
+  </data>
+  <data name="NoVTArguementDescription" xml:space="preserve">
+    <value>Onemogoči prikaz VirtualTerminal</value>
+    <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="OverrideArgumentDescription" xml:space="preserve">
+    <value>Preglasitev argumentov, ki jih je treba prenesti v namestitveni program</value>
+  </data>
+  <data name="PlainArgumentDescription" xml:space="preserve">
+    <value>Prikaz napredka kot privzeta barva</value>
+  </data>
+  <data name="PreviewVersion" xml:space="preserve">
+    <value>Predogled</value>
+  </data>
+  <data name="QueryArgumentDescription" xml:space="preserve">
+    <value>Poizvedba, ki se uporablja za iskanje programa</value>
+  </data>
+  <data name="RainbowArgumentDescription" xml:space="preserve">
+    <value>Napredek prikaz mavrice barv</value>
+  </data>
+  <data name="SearchCommandDescription" xml:space="preserve">
+    <value>Poiščete in prikažete osnovne informacije o aplikacijah</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Prikaže informacije o določeni aplikaciji.</value>
+  </data>
+  <data name="ShowCommandShortDescription" xml:space="preserve">
+    <value>Prikaz informacij o programu</value>
+  </data>
+  <data name="SilentArgumentDescription" xml:space="preserve">
+    <value>Zahtevanje tihe namestitve</value>
+  </data>
+  <data name="SourceAddCommandLongDescription" xml:space="preserve">
+    <value>Dodajte nov vir. Vir ponuja podatke, s katerimi lahko odkrijete in nameščate aplikacije. Dodajte le nov vir, če mu zaupate kot varno mesto.</value>
+  </data>
+  <data name="SourceAddCommandShortDescription" xml:space="preserve">
+    <value>Dodaj nov vir</value>
+  </data>
+  <data name="SourceArgArgumentDescription" xml:space="preserve">
+    <value>Argument dan na vir</value>
+  </data>
+  <data name="SourceArgumentDescription" xml:space="preserve">
+    <value>Iskanje programa z uporabo določenega vira</value>
+  </data>
+  <data name="SourceCommandLongDescription" xml:space="preserve">
+    <value>Upravljanje virov s podukazi. Vir ponuja podatke, s katerimi lahko odkrijete in nameščate aplikacije. Dodajte le nov vir, če mu zaupate kot varno mesto.</value>
+  </data>
+  <data name="SourceCommandShortDescription" xml:space="preserve">
+    <value>Upravljanje virov programov</value>
+  </data>
+  <data name="SourceListCommandLongDescription" xml:space="preserve">
+    <value>Seznam vseh trenutnih virov ali vse podrobnosti določenega vira.</value>
+  </data>
+  <data name="SourceListCommandShortDescription" xml:space="preserve">
+    <value>Prikaži trenutne vire</value>
+  </data>
+  <data name="SourceNameArgumentDescription" xml:space="preserve">
+    <value>Ime vira</value>
+  </data>
+  <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
+    <value>Odstranitev določenega vira.</value>
+  </data>
+  <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
+    <value>Odstranite trenutne vire</value>
+  </data>
+  <data name="SourceResetCommandLongDescription" xml:space="preserve">
+    <value>S tem ukazom izpustite obstoječe vire, ki lahko ostanejo v ozadju. Brez argumenta bo spustil vse vire in dodal privzete nastavitve. Če je na voljo poimenovani vir, bo opuščen le ta vir.</value>
+  </data>
+  <data name="SourceResetCommandShortDescription" xml:space="preserve">
+    <value>Ponastavi vire</value>
+  </data>
+  <data name="SourceTypeArgumentDescription" xml:space="preserve">
+    <value>Vrsta vira</value>
+  </data>
+  <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
+    <value>Posodobite vse vire ali le določen vir.</value>
+  </data>
+  <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
+    <value>Posodabljanje trenutnih virov</value>
+  </data>
+  <data name="TagArgumentDescription" xml:space="preserve">
+    <value>Ukaz »Filtriraj rezultate po oznaki«</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Pripomoček ukazne vrstice WinGet omogoči nameščanje aplikacij iz ukazne vrstice.</value>
+  </data>
+  <data name="ToolInfoArgumentDescription" xml:space="preserve">
+    <value>Prikaži splošne informacije v orodju</value>
+  </data>
+  <data name="ToolVersionArgumentDescription" xml:space="preserve">
+    <value>Prikaz različice orodja</value>
+  </data>
+  <data name="ValidateCommandLongDescription" xml:space="preserve">
+    <value>Preveri pristnost manifesta s strogim naborom navodil. To je namenjeno za preverjanje manifesta, preden pošljete v repo.</value>
+  </data>
+  <data name="ValidateCommandShortDescription" xml:space="preserve">
+    <value>Preveri veljavnost datoteke manifesta</value>
+  </data>
+  <data name="ValidateManifestArgumentDescription" xml:space="preserve">
+    <value>Pot do manifesta za preverjanje veljavnosti</value>
+  </data>
+  <data name="VersionArgumentDescription" xml:space="preserve">
+    <value>Uporabite navedeno različico. Privzeta vrednost je najnovejša različica</value>
+  </data>
+  <data name="VersionsArgumentDescription" xml:space="preserve">
+    <value>Prikaz razpoložljivih različic aplikacije</value>
+  </data>
+</root>

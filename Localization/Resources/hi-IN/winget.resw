@@ -1,0 +1,283 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ChannelArgumentDescription" xml:space="preserve">
+    <value>निर्दिष्ट चैनल का उपयोग करें; डिफ़ॉल्ट सामान्य ऑडियंस है</value>
+  </data>
+  <data name="CommandArgumentDescription" xml:space="preserve">
+    <value>आदेश के अनुसार परिणामों को फ़िल्टर करें</value>
+  </data>
+  <data name="CountArgumentDescription" xml:space="preserve">
+    <value>परिणाम की निर्दिष्ट संख्या से अधिक न दिखाएँ</value>
+  </data>
+  <data name="ExactArgumentDescription" xml:space="preserve">
+    <value>सटीक मिलान का उपयोग कर ऐप ढूँढें</value>
+  </data>
+  <data name="FileArgumentDescription" xml:space="preserve">
+    <value>फ़ाइल जिसे हैश करना है</value>
+  </data>
+  <data name="ForceArgumentDescription" xml:space="preserve">
+    <value>बिना संकेतों के आदेश निष्पादित करें</value>
+  </data>
+  <data name="HashHelperDescription" xml:space="preserve">
+    <value>इंस्टालर फ़ाइलों को हैश करने में सहायक</value>
+  </data>
+  <data name="HelpArgumentDescription" xml:space="preserve">
+    <value>चयनित आदेश के बारे में मदद दिखाता है</value>
+  </data>
+  <data name="IdArgumentDescription" xml:space="preserve">
+    <value>ID के अनुसार परिणामों को फ़िल्टर करें</value>
+  </data>
+  <data name="InstallCommandDescription" xml:space="preserve">
+    <value>दिए गए अनुप्रयोग को स्थापित करता है</value>
+  </data>
+  <data name="InteractiveArgumentDescription" xml:space="preserve">
+    <value>सहभागी स्थापना का अनुरोध करें; उपयोगकर्ता के इनपुट की आवश्यकता हो सकती है</value>
+  </data>
+  <data name="InvalidAliasError" xml:space="preserve">
+    <value>वर्तमान आदेश के लिए तर्क उपनाम पहचाना नहीं गया</value>
+  </data>
+  <data name="InvalidNameError" xml:space="preserve">
+    <value>वर्तमान आदेश के लिए तर्क नाम पहचाना नहीं गया</value>
+  </data>
+  <data name="LanguageArgumentDescription" xml:space="preserve">
+    <value>स्थापित करने के लिए भाषा (यदि समर्थित हो)</value>
+  </data>
+  <data name="LocationArgumentDescription" xml:space="preserve">
+    <value>स्थापित करने के लिए स्थान (यदि समर्थित हो) </value>
+  </data>
+  <data name="LogArgumentDesciption" xml:space="preserve">
+    <value>लॉग स्थान (यदि समर्थित हो)</value>
+  </data>
+  <data name="ManifestArgumentDescription" xml:space="preserve">
+    <value>अनुप्रयोग के मैनिफ़ेस्ट का पथ</value>
+  </data>
+  <data name="MonikerArgumentDescription" xml:space="preserve">
+    <value>अनुप्रयोग मॉनीकेर के अनुसार परिणामों को फ़िल्टर करें</value>
+  </data>
+  <data name="MsixArgumentDescription" xml:space="preserve">
+    <value>इनपुट फ़ाइल को msix माना जाएगा; हस्ताक्षर हैश प्रदान किया जाएगा यदि हस्ताक्षरित किया जाए</value>
+  </data>
+  <data name="NameArgumentDescription" xml:space="preserve">
+    <value>नाम के अनुसार परिणामों को फ़िल्टर करें</value>
+  </data>
+  <data name="NoVTArguementDescription" xml:space="preserve">
+    <value>VirtualTerminal प्रदर्शन को अक्षम करता है</value>
+    <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="OverrideArgumentDescription" xml:space="preserve">
+    <value>इंस्टॉलर पर भेजे जाने वाले तर्कों को ओवरराइड करें</value>
+  </data>
+  <data name="PlainArgumentDescription" xml:space="preserve">
+    <value>प्रगति प्रदर्शन डिफ़ॉल्ट रंग के रूप में</value>
+  </data>
+  <data name="QueryArgumentDescription" xml:space="preserve">
+    <value>किसी ऐप की खोज करने के लिए प्रयुक्त की गई क्वेरी</value>
+  </data>
+  <data name="RainbowArgumentDescription" xml:space="preserve">
+    <value>प्रगति प्रदर्शन रंगों के इंद्रधनुष के रूप में</value>
+  </data>
+  <data name="SearchCommandDescription" xml:space="preserve">
+    <value>ऐप्स की मूलभूत जानकारी ढूँढें और दिखाएँ</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>किसी विशिष्ट अनुप्रयोग के बारे में जानकारी दिखाता है.</value>
+  </data>
+  <data name="ShowCommandShortDescription" xml:space="preserve">
+    <value>किसी अनुप्रयोग के बारे में जानकारी दिखाता है</value>
+  </data>
+  <data name="SilentArgumentDescription" xml:space="preserve">
+    <value>मौन स्थापना का अनुरोध करें</value>
+  </data>
+  <data name="SourceAddCommandLongDescription" xml:space="preserve">
+    <value>कोई नया स्रोत जोड़ें. अनुप्रयोगों को खोजने और स्थापित करने के लिए एक स्रोत आपको डेटा प्रदान करता है. केवल तभी एक नया स्रोत जोड़ें जब आपको इस पर एक सुरक्षित स्थान के रूप में विश्वास हो.</value>
+  </data>
+  <data name="SourceAddCommandShortDescription" xml:space="preserve">
+    <value>कोई नया स्रोत जोड़ें.</value>
+  </data>
+  <data name="SourceArgArgumentDescription" xml:space="preserve">
+    <value>स्रोत पर दिया गया तर्क</value>
+  </data>
+  <data name="SourceArgumentDescription" xml:space="preserve">
+    <value>निर्दिष्ट स्रोत का उपयोग करके ऐप ढूँढें</value>
+  </data>
+  <data name="SourceCommandLongDescription" xml:space="preserve">
+    <value>स्रोतों को उप-आदेशों से प्रबंधित करें. एक स्रोत अनुप्रयोगों को खोजने और स्थापित करने के लिए आपको डेटा प्रदान करता है. केवल तभी एक नया स्रोत जोड़ें जब आपको इस पर एक सुरक्षित स्थान के रूप में विश्वास हो.</value>
+  </data>
+  <data name="SourceCommandShortDescription" xml:space="preserve">
+    <value>अनुप्रयोगों के स्रोतों को प्रबंधित करें</value>
+  </data>
+  <data name="SourceListCommandLongDescription" xml:space="preserve">
+    <value>सभी वर्तमान स्रोतों की सूची, या किसी विशिष्ट स्रोत का पूर्ण विवरण.</value>
+  </data>
+  <data name="SourceListCommandShortDescription" xml:space="preserve">
+    <value>वर्तमान स्त्रोतों को सूचीबद्ध करें</value>
+  </data>
+  <data name="SourceNameArgumentDescription" xml:space="preserve">
+    <value>स्रोत का नाम</value>
+  </data>
+  <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
+    <value>एक विशिष्ट स्रोत निकालें.</value>
+  </data>
+  <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
+    <value>वर्तमान स्त्रोतों को निकालें</value>
+  </data>
+  <data name="SourceResetCommandLongDescription" xml:space="preserve">
+    <value>यह आदेश मौजूदा स्रोतों को ड्रॉप कर देता है, और संभव है कि कोई स्थानीय डेटा पीछे रह जाए. बिना किसी तर्क के, यह सभी स्रोतों को ड्रॉप कर देगा और डिफ़ॉल्ट्स को जोड़ देगा. यदि कोई नामित स्रोत दिया जाता है, तो केवल वही स्रोत ड्रॉप किया जाएगा.</value>
+  </data>
+  <data name="SourceResetCommandShortDescription" xml:space="preserve">
+    <value>स्त्रोतों को रीसेट करें</value>
+  </data>
+  <data name="SourceTypeArgumentDescription" xml:space="preserve">
+    <value>स्रोत का प्रकार</value>
+  </data>
+  <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
+    <value>सभी स्रोतों, या केवल एक विशिष्ट स्रोत, का अद्यतन करें.</value>
+  </data>
+  <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
+    <value>वर्तमान स्त्रोतों को अद्यतित करें</value>
+  </data>
+  <data name="TagArgumentDescription" xml:space="preserve">
+    <value>टैग के अनुसार परिणामों को फ़िल्टर करें</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>WinGet आदेश पंक्ति सुविधा अनुप्रयोगों को आदेश पंक्ति से स्थापित करना सक्षम करती है.</value>
+  </data>
+  <data name="ToolInfoArgumentDescription" xml:space="preserve">
+    <value>उपकरण की सामान्य जानकारी प्रदर्शित करें</value>
+  </data>
+  <data name="ToolVersionArgumentDescription" xml:space="preserve">
+    <value>उपकरण का संस्करण प्रदर्शित करें</value>
+  </data>
+  <data name="ValidateCommandLongDescription" xml:space="preserve">
+    <value>(यह) कड़े दिशानिर्देशों के सेट का उपयोग करके मैनिफ़ेस्ट की पुष्टि करता है. इससे यह अपेक्षित है कि किसी रेपो पर सबमिट करने से पहले आपके मैनिफ़ेस्ट की जाँच करने के लिए यह आपको सक्षम करे.</value>
+  </data>
+  <data name="ValidateCommandShortDescription" xml:space="preserve">
+    <value>मैनिफ़ेस्ट फ़ाइल को सत्यापित करता/करती है</value>
+  </data>
+  <data name="ValidateManifestArgumentDescription" xml:space="preserve">
+    <value>मैनिफ़ेस्ट का पथ जिसे सत्यापित करना है</value>
+  </data>
+  <data name="VersionArgumentDescription" xml:space="preserve">
+    <value>निर्दिष्ट संस्करण का उपयोग करें; डिफ़ॉल्ट नवीनतम संस्करण है</value>
+  </data>
+  <data name="VersionsArgumentDescription" xml:space="preserve">
+    <value>ऐप के उपलब्ध संस्करण दिखाएँ</value>
+  </data>
+</root>

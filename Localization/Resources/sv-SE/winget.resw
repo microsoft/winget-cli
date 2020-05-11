@@ -1,0 +1,339 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AdjoinedNotFlagError" xml:space="preserve">
+    <value>Angränsande alias är inte en flagga</value>
+  </data>
+  <data name="AdjoinedNotFoundError" xml:space="preserve">
+    <value>Angränsande flaggalias hittades inte</value>
+  </data>
+  <data name="AvailableArguements" xml:space="preserve">
+    <value>Följande argument är tillgängliga:</value>
+  </data>
+  <data name="AvailableCommands" xml:space="preserve">
+    <value>Följande kommandon är tillgängliga:</value>
+    <comment>Commands the tool supports</comment>
+  </data>
+  <data name="AvailableOptions" xml:space="preserve">
+    <value>Följande alternativ är tillgängliga:</value>
+  </data>
+  <data name="AvailableSubcommands" xml:space="preserve">
+    <value>Följande underkommandon är tillgängliga:</value>
+    <comment>Nested commands that can be run in context of the selected command</comment>
+  </data>
+  <data name="ChannelArgumentDescription" xml:space="preserve">
+    <value>Använd den angivna kanalen. standard är allmän målgrupp</value>
+  </data>
+  <data name="CommandArgumentDescription" xml:space="preserve">
+    <value>Filtrera resultat efter kommando</value>
+  </data>
+  <data name="CountArgumentDescription" xml:space="preserve">
+    <value>Visa högst angivet antal resultat</value>
+  </data>
+  <data name="ExactArgumentDescription" xml:space="preserve">
+    <value>Hitta appen med exakt matchning</value>
+  </data>
+  <data name="ExtraPositionalError" xml:space="preserve">
+    <value>Hittade ett positionsargument när inget förväntades</value>
+  </data>
+  <data name="FileArgumentDescription" xml:space="preserve">
+    <value>Fil som ska hashas</value>
+  </data>
+  <data name="FlagContainAdjoinedError" xml:space="preserve">
+    <value>Flaggargumentet kan inte innehålla ett angränsande värde</value>
+  </data>
+  <data name="ForceArgumentDescription" xml:space="preserve">
+    <value>Kör kommandot utan uppmaningar</value>
+  </data>
+  <data name="HashHelperDescription" xml:space="preserve">
+    <value>Stöd för hash-installationsfiler</value>
+  </data>
+  <data name="HelpArgumentDescription" xml:space="preserve">
+    <value>Visar hjälp om det markerade kommandot</value>
+  </data>
+  <data name="HelpForDetails" xml:space="preserve">
+    <value>Om du vill ha mer information om ett speciellt kommando kan du skicka den till hjälpargumentet.</value>
+  </data>
+  <data name="IdArgumentDescription" xml:space="preserve">
+    <value>Filtrera resultat efter id</value>
+  </data>
+  <data name="InstallCommandDescription" xml:space="preserve">
+    <value>Installerar det program som anges</value>
+  </data>
+  <data name="InteractiveArgumentDescription" xml:space="preserve">
+    <value>Begära interaktiv installation. användarindata kan behövas</value>
+  </data>
+  <data name="InvalidAliasError" xml:space="preserve">
+    <value>Argumentalias kändes inte igen för det aktuella kommandot</value>
+  </data>
+  <data name="InvalidArgumentSpecifierError" xml:space="preserve">
+    <value>Ogiltig argumentspecifierare</value>
+  </data>
+  <data name="InvalidNameError" xml:space="preserve">
+    <value>Argumentnamnet kändes inte igen för det aktuella kommandot</value>
+  </data>
+  <data name="LanguageArgumentDescription" xml:space="preserve">
+    <value>Språk att installera (om det stöds)</value>
+  </data>
+  <data name="LocationArgumentDescription" xml:space="preserve">
+    <value>Plats att installera på (om det stöds)</value>
+  </data>
+  <data name="LogArgumentDesciption" xml:space="preserve">
+    <value>Loggplats (om det stöds)</value>
+  </data>
+  <data name="ManifestArgumentDescription" xml:space="preserve">
+    <value>Sökvägen till programmets manifest</value>
+  </data>
+  <data name="MissingArgumentError" xml:space="preserve">
+    <value>Argumentvärdet måste anges men inget har hittats</value>
+  </data>
+  <data name="MonikerArgumentDescription" xml:space="preserve">
+    <value>Filtrera resultat efter länksökväg till program</value>
+  </data>
+  <data name="MsixArgumentDescription" xml:space="preserve">
+    <value>Indatafilen behandlas som msix; hash med signatur kommer att anges om den är signerad</value>
+  </data>
+  <data name="NameArgumentDescription" xml:space="preserve">
+    <value>Filtrera resultat efter namn</value>
+  </data>
+  <data name="NoVTArguementDescription" xml:space="preserve">
+    <value>Inaktiverar VirtualTerminal visning</value>
+    <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="OverrideArgumentDescription" xml:space="preserve">
+    <value>Åsidosätt argument som ska skickas till installationsprogrammet</value>
+  </data>
+  <data name="PendingWorkError" xml:space="preserve">
+    <value>Hoppsan! vi glömde att göra detta...</value>
+  </data>
+  <data name="PlainArgumentDescription" xml:space="preserve">
+    <value>Förlopp visas som standardfärg</value>
+  </data>
+  <data name="PreviewVersion" xml:space="preserve">
+    <value>Förhandsversion</value>
+  </data>
+  <data name="QueryArgumentDescription" xml:space="preserve">
+    <value>Frågan som används för att söka efter en app</value>
+  </data>
+  <data name="RainbowArgumentDescription" xml:space="preserve">
+    <value>Förlopp visa en regnbåge av färger</value>
+  </data>
+  <data name="RequiredArgError" xml:space="preserve">
+    <value>Obligatoriska argument saknas</value>
+  </data>
+  <data name="SearchCommandDescription" xml:space="preserve">
+    <value>Hitta och visa grundläggande information om appar</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Visar information om ett enskilt program.</value>
+  </data>
+  <data name="ShowCommandShortDescription" xml:space="preserve">
+    <value>Visar information om ett program</value>
+  </data>
+  <data name="SilentArgumentDescription" xml:space="preserve">
+    <value>Begär tyst installation</value>
+  </data>
+  <data name="SingleCharAfterDashError" xml:space="preserve">
+    <value>Bara alias med ett enstaka tecken kan finnas efter en –</value>
+  </data>
+  <data name="SourceAddCommandLongDescription" xml:space="preserve">
+    <value>Lägg till en ny källa. En källa tillhandahåller de data som används för att identifiera och installera program. Lägg bara till en ny källa om du litar på den som en säker plats.</value>
+  </data>
+  <data name="SourceAddCommandShortDescription" xml:space="preserve">
+    <value>Lägg till en ny källa</value>
+  </data>
+  <data name="SourceArgArgumentDescription" xml:space="preserve">
+    <value>Argument som tilldelats källan</value>
+  </data>
+  <data name="SourceArgumentDescription" xml:space="preserve">
+    <value>Hitta appen med angiven källa</value>
+  </data>
+  <data name="SourceCommandLongDescription" xml:space="preserve">
+    <value>Hantera källor med under kommandon. En källa tillhandahåller de data som används för att identifiera och installera-program. Lägg bara till en ny källa om du litar på den som en säker plats.</value>
+  </data>
+  <data name="SourceCommandShortDescription" xml:space="preserve">
+    <value>Hantera källor med program</value>
+  </data>
+  <data name="SourceListCommandLongDescription" xml:space="preserve">
+    <value>Lista alla aktuella källor eller all information om en särskild källa.</value>
+  </data>
+  <data name="SourceListCommandShortDescription" xml:space="preserve">
+    <value>Visa aktuella källor</value>
+  </data>
+  <data name="SourceNameArgumentDescription" xml:space="preserve">
+    <value>Källnamn</value>
+  </data>
+  <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
+    <value>Ta bort en särskild källa.</value>
+  </data>
+  <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
+    <value>Ta bort aktuella källor</value>
+  </data>
+  <data name="SourceResetCommandLongDescription" xml:space="preserve">
+    <value>Detta kommando bryter befintliga källor och eventuellt lämnar lokala data bakom. Utan argument tas alla källor bort och standardinställningar läggs till. Om en namngiven källa anges kommer bara den källan att tas bort.</value>
+  </data>
+  <data name="SourceResetCommandShortDescription" xml:space="preserve">
+    <value>Återställa källor</value>
+  </data>
+  <data name="SourceTypeArgumentDescription" xml:space="preserve">
+    <value>Typ av källa</value>
+  </data>
+  <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
+    <value>Uppdatera alla källor eller bara en särskild källa.</value>
+  </data>
+  <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
+    <value>Uppdatera aktuella källor</value>
+  </data>
+  <data name="TagArgumentDescription" xml:space="preserve">
+    <value>Filtrera resultat efter tagg</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Med kommandoradsverktyget WinGet kan du installera program från kommandoraden.</value>
+  </data>
+  <data name="ToolInfoArgumentDescription" xml:space="preserve">
+    <value>Visa allmän information för verktyget</value>
+  </data>
+  <data name="ToolVersionArgumentDescription" xml:space="preserve">
+    <value>Visa verktygets version</value>
+  </data>
+  <data name="TooManyArgError" xml:space="preserve">
+    <value>Argumentet tillhandahölls fler gånger än tillåtet</value>
+  </data>
+  <data name="TooManyBehaviorsError" xml:space="preserve">
+    <value>Fler än en installations beteendeargument tillhandahålls</value>
+  </data>
+  <data name="UnrecognizedCommand" xml:space="preserve">
+    <value>Okänt kommando</value>
+  </data>
+  <data name="ValidateCommandLongDescription" xml:space="preserve">
+    <value>Verifierar ett manifest med hjälp av en strikt uppsättning riktlinjer. Det gör att du kan kontrollera manifestet innan du skickar det till en repo.</value>
+  </data>
+  <data name="ValidateCommandShortDescription" xml:space="preserve">
+    <value>Verifierar en manifest fil</value>
+  </data>
+  <data name="ValidateManifestArgumentDescription" xml:space="preserve">
+    <value>Sökvägen till manifestet som ska verifieras</value>
+  </data>
+  <data name="VersionArgumentDescription" xml:space="preserve">
+    <value>Använd den angivna versionen. standard är den senaste versionen</value>
+  </data>
+  <data name="VersionsArgumentDescription" xml:space="preserve">
+    <value>Visa tillgängliga versioner av appen</value>
+  </data>
+</root>

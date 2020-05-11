@@ -1,0 +1,339 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AdjoinedNotFlagError" xml:space="preserve">
+    <value>O alias adjacente não é um sinalizador</value>
+  </data>
+  <data name="AdjoinedNotFoundError" xml:space="preserve">
+    <value>Alias de sinalizador adjacente não encontrado</value>
+  </data>
+  <data name="AvailableArguements" xml:space="preserve">
+    <value>Estão disponíveis os seguintes argumentos:</value>
+  </data>
+  <data name="AvailableCommands" xml:space="preserve">
+    <value>Estão disponíveis os seguintes comandos:</value>
+    <comment>Commands the tool supports</comment>
+  </data>
+  <data name="AvailableOptions" xml:space="preserve">
+    <value>Estão disponíveis as seguintes opções:</value>
+  </data>
+  <data name="AvailableSubcommands" xml:space="preserve">
+    <value>Estão disponíveis os seguintes subcomandos:</value>
+    <comment>Nested commands that can be run in context of the selected command</comment>
+  </data>
+  <data name="ChannelArgumentDescription" xml:space="preserve">
+    <value>Utilizar o canal especificado; a predefinição é a audiência geral</value>
+  </data>
+  <data name="CommandArgumentDescription" xml:space="preserve">
+    <value>Filtrar os resultados por comando</value>
+  </data>
+  <data name="CountArgumentDescription" xml:space="preserve">
+    <value>Mostrar, no máximo, o número de resultados especificado</value>
+  </data>
+  <data name="ExactArgumentDescription" xml:space="preserve">
+    <value>Localizar aplicação com correspondência exata</value>
+  </data>
+  <data name="ExtraPositionalError" xml:space="preserve">
+    <value>Foi encontrado um argumento posicional, mas não era esperado nenhum</value>
+  </data>
+  <data name="FileArgumentDescription" xml:space="preserve">
+    <value>Ficheiro para efetuar o hash</value>
+  </data>
+  <data name="FlagContainAdjoinedError" xml:space="preserve">
+    <value>O argumento de sinalizador não pode conter um valor adjacente</value>
+  </data>
+  <data name="ForceArgumentDescription" xml:space="preserve">
+    <value>Executar o comando sem pedidos</value>
+  </data>
+  <data name="HashHelperDescription" xml:space="preserve">
+    <value>Assistente para efetuar o hash de ficheiros de instalação</value>
+  </data>
+  <data name="HelpArgumentDescription" xml:space="preserve">
+    <value>Mostra ajuda sobre o comando selecionado</value>
+  </data>
+  <data name="HelpForDetails" xml:space="preserve">
+    <value>Para obter mais detalhes sobre um comando específico, transmita o argumento de ajuda para o mesmo.</value>
+  </data>
+  <data name="IdArgumentDescription" xml:space="preserve">
+    <value>Filtrar os resultados por ID</value>
+  </data>
+  <data name="InstallCommandDescription" xml:space="preserve">
+    <value>Instala a aplicação fornecida</value>
+  </data>
+  <data name="InteractiveArgumentDescription" xml:space="preserve">
+    <value>Pedir instalação interativa; poderá ser necessária intervenção do utilizador</value>
+  </data>
+  <data name="InvalidAliasError" xml:space="preserve">
+    <value>O alias de argumento não foi reconhecido para o comando atual</value>
+  </data>
+  <data name="InvalidArgumentSpecifierError" xml:space="preserve">
+    <value>Especificador de argumento inválido</value>
+  </data>
+  <data name="InvalidNameError" xml:space="preserve">
+    <value>O nome do argumento não foi reconhecido para o comando atual</value>
+  </data>
+  <data name="LanguageArgumentDescription" xml:space="preserve">
+    <value>Idioma de instalação (se for suportado)</value>
+  </data>
+  <data name="LocationArgumentDescription" xml:space="preserve">
+    <value>Localização para instalar (se for suportado)</value>
+  </data>
+  <data name="LogArgumentDesciption" xml:space="preserve">
+    <value>Registar localização (se for suportado)</value>
+  </data>
+  <data name="ManifestArgumentDescription" xml:space="preserve">
+    <value>O caminho do manifesto da aplicação</value>
+  </data>
+  <data name="MissingArgumentError" xml:space="preserve">
+    <value>É necessário um valor de argumento, mas não foi encontrado nenhum</value>
+  </data>
+  <data name="MonikerArgumentDescription" xml:space="preserve">
+    <value>Filtrar os resultados pelo caminho da ligação da aplicação</value>
+  </data>
+  <data name="MsixArgumentDescription" xml:space="preserve">
+    <value>O ficheiro de entrada será tratado como msix; será fornecido o hash de assinatura, caso assinado</value>
+  </data>
+  <data name="NameArgumentDescription" xml:space="preserve">
+    <value>Filtrar os resultados por nome</value>
+  </data>
+  <data name="NoVTArguementDescription" xml:space="preserve">
+    <value>Desativa a apresentação do VirtualTerminal</value>
+    <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="OverrideArgumentDescription" xml:space="preserve">
+    <value>Ignorar os argumentos a ser transmitidos ao instalador</value>
+  </data>
+  <data name="PendingWorkError" xml:space="preserve">
+    <value>Ups, esquecemo-nos de fazer isto...</value>
+  </data>
+  <data name="PlainArgumentDescription" xml:space="preserve">
+    <value>Apresentar o progresso com a cor predefinida</value>
+  </data>
+  <data name="PreviewVersion" xml:space="preserve">
+    <value>Pré-visualização</value>
+  </data>
+  <data name="QueryArgumentDescription" xml:space="preserve">
+    <value>A consulta utilizada para procurar uma aplicação</value>
+  </data>
+  <data name="RainbowArgumentDescription" xml:space="preserve">
+    <value>Apresentar o progresso com um arco-íris de cores</value>
+  </data>
+  <data name="RequiredArgError" xml:space="preserve">
+    <value>Um argumento necessário não foi fornecido</value>
+  </data>
+  <data name="SearchCommandDescription" xml:space="preserve">
+    <value>Procurar e apresentar informações básicas sobre aplicações</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Apresenta informações sobre uma aplicação específica.</value>
+  </data>
+  <data name="ShowCommandShortDescription" xml:space="preserve">
+    <value>Mostra informações acerca de uma aplicação</value>
+  </data>
+  <data name="SilentArgumentDescription" xml:space="preserve">
+    <value>Pedir instalação automática</value>
+  </data>
+  <data name="SingleCharAfterDashError" xml:space="preserve">
+    <value>Apenas o alias de caráter único pode seguir-se a um único -</value>
+  </data>
+  <data name="SourceAddCommandLongDescription" xml:space="preserve">
+    <value>Adicionar uma nova origem. Uma origem fornece os dados para descobrir e instalar aplicações. Adicione uma nova origem apenas se confiar que a mesma é uma localização segura.</value>
+  </data>
+  <data name="SourceAddCommandShortDescription" xml:space="preserve">
+    <value>Adicionar uma nova origem</value>
+  </data>
+  <data name="SourceArgArgumentDescription" xml:space="preserve">
+    <value>Argumento fornecido à origem</value>
+  </data>
+  <data name="SourceArgumentDescription" xml:space="preserve">
+    <value>Procurar aplicação através da origem especificada</value>
+  </data>
+  <data name="SourceCommandLongDescription" xml:space="preserve">
+    <value>Gerir as origens com os subcomandos. Uma origem fornece os dados para descobrir e instalar aplicações. Adicione uma nova origem apenas se confiar que a mesma é uma localização segura.</value>
+  </data>
+  <data name="SourceCommandShortDescription" xml:space="preserve">
+    <value>Gerir as origens de aplicações</value>
+  </data>
+  <data name="SourceListCommandLongDescription" xml:space="preserve">
+    <value>Listar todas as origens atuais ou os detalhes completos de uma origem específica.</value>
+  </data>
+  <data name="SourceListCommandShortDescription" xml:space="preserve">
+    <value>Listar as origens atuais</value>
+  </data>
+  <data name="SourceNameArgumentDescription" xml:space="preserve">
+    <value>Nome da origem</value>
+  </data>
+  <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
+    <value>Remover uma origem específica.</value>
+  </data>
+  <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
+    <value>Remover as origens atuais</value>
+  </data>
+  <data name="SourceResetCommandLongDescription" xml:space="preserve">
+    <value>Este comando remove as origens existentes, removendo possivelmente também os dados locais. Sem um argumento, irá remover todas as origens e adicionar as predefinidas. Se for fornecida uma origem com nome, apenas essa origem será removida.</value>
+  </data>
+  <data name="SourceResetCommandShortDescription" xml:space="preserve">
+    <value>Repor origens</value>
+  </data>
+  <data name="SourceTypeArgumentDescription" xml:space="preserve">
+    <value>Tipo de origem</value>
+  </data>
+  <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
+    <value>Atualizar todas as origens ou apenas uma origem específica.</value>
+  </data>
+  <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
+    <value>Atualizar as origens atuais</value>
+  </data>
+  <data name="TagArgumentDescription" xml:space="preserve">
+    <value>Filtrar os resultados por etiqueta</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>O utilitário de linha de comandos WinGet permite instalar aplicações a partir da linha de comandos.</value>
+  </data>
+  <data name="ToolInfoArgumentDescription" xml:space="preserve">
+    <value>Mostrar informações gerais da ferramenta</value>
+  </data>
+  <data name="ToolVersionArgumentDescription" xml:space="preserve">
+    <value>Apresentar a versão da ferramenta</value>
+  </data>
+  <data name="TooManyArgError" xml:space="preserve">
+    <value>O argumento foi fornecido mais vezes do que o permitido</value>
+  </data>
+  <data name="TooManyBehaviorsError" xml:space="preserve">
+    <value>Foi fornecido mais do que um argumento de comportamento de instalação</value>
+  </data>
+  <data name="UnrecognizedCommand" xml:space="preserve">
+    <value>Comando não reconhecido</value>
+  </data>
+  <data name="ValidateCommandLongDescription" xml:space="preserve">
+    <value>Valida um manifesto através de um conjunto rigoroso de diretrizes. Tal serve para lhe permitir verificar o seu manifesto antes de submeter num repositório.</value>
+  </data>
+  <data name="ValidateCommandShortDescription" xml:space="preserve">
+    <value>Valida um ficheiro de manifesto</value>
+  </data>
+  <data name="ValidateManifestArgumentDescription" xml:space="preserve">
+    <value>O caminho do manifesto a ser validado</value>
+  </data>
+  <data name="VersionArgumentDescription" xml:space="preserve">
+    <value>Utilizar a versão especificada; a predefinição é a versão mais recente</value>
+  </data>
+  <data name="VersionsArgumentDescription" xml:space="preserve">
+    <value>Mostrar as versões disponíveis da aplicação</value>
+  </data>
+</root>

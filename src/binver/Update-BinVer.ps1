@@ -28,24 +28,22 @@ Write-Host "Git describe: $Local:GitDescribeText"
 
 $Local:Major = 0;
 $Local:Minor = 0;
-$Local:Revision = 0;
 
-if ($Local:GitDescribeText -match "v([0-9]+)\.([0-9]+)\.([0-9]+)")
+if ($Local:GitDescribeText -match "v([0-9]+)\.([0-9]+)")
 {
     $Local:Major = $Matches[1]
     $Local:Minor = $Matches[2]
-    $Local:Revision = $Matches[3]
 }
 else
 {
     Write-Host "Describe did not match regex; using zeros"
 }
 
-Write-Host "Using version: $Local:Major.$Local:Minor.$Local:Revision.$BuildVersion"
+Write-Host "Using version: $Local:Major.$Local:Minor.$BuildVersion"
 
 if ($OutVar)
 {
-    Write-Host "##vso[task.setvariable variable=tag;isOutput=true]$Local:Major.$Local:Minor.$Local:Revision"
+    Write-Host "##vso[task.setvariable variable=tag;isOutput=true]$Local:Major.$Local:Minor"
 }
 
 if (![String]::IsNullOrEmpty($TargetFile))
@@ -64,10 +62,6 @@ if (![String]::IsNullOrEmpty($TargetFile))
             elseif ($Local:line.StartsWith("#define VERSION_MINOR"))
             {
                 $Local:ResultContent += "#define VERSION_MINOR $Local:Minor";
-            }
-            elseif ($Local:line.StartsWith("#define VERSION_REVISION"))
-            {
-                $Local:ResultContent += "#define VERSION_REVISION $Local:Revision";
             }
             elseif ($Local:line.StartsWith("#define VERSION_BUILD"))
             {
