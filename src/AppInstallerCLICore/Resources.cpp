@@ -7,7 +7,7 @@
 
 namespace AppInstaller::CLI::Resource
 {
-    LocString::LocString(Id id)
+    LocString::LocString(StringId id)
     {
         m_value = Loader::Instance().ResolveString(id);
     }

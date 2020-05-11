@@ -29,8 +29,8 @@ namespace AppInstaller::CLI
     {
         return
         {
-            Argument{ "version", 'v', Execution::Args::Type::ListVersions, Resources::GetInstance().ResolveWingetString(L"ToolVersionArgumentDescription").c_str(), ArgumentType::Flag, Visibility::Help },
-            Argument{ "info", APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER, Execution::Args::Type::Info, Resources::GetInstance().ResolveWingetString(L"ToolInfoArgumentDescription").c_str(), ArgumentType::Flag, Visibility::Help },
+            Argument{ "version", 'v', Execution::Args::Type::ListVersions, Resource::String::ToolVersionArgumentDescription, ArgumentType::Flag, Visibility::Help },
+            Argument{ "info", APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER, Execution::Args::Type::Info, Resource::String::ToolInfoArgumentDescription, ArgumentType::Flag, Visibility::Help },
         };
     }
 
@@ -59,7 +59,7 @@ namespace AppInstaller::CLI
         }
         else if (context.Args.Contains(Execution::Args::Type::ListVersions))
         {
-            context.Reporter.Info() << 'v' << Runtime::GetClientVersion() << ' ' << Resources::GetInstance().ResolveWingetString(L"PreviewVersion").c_str() << std::endl;
+            context.Reporter.Info() << 'v' << Runtime::GetClientVersion() << ' ' << Resource::String::PreviewVersion << std::endl;
         }
         else
         {

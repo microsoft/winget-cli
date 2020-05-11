@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionProgress.h"
+#include "Resources.h"
 #include "VTSupport.h"
 #include <AppInstallerProgress.h>
 

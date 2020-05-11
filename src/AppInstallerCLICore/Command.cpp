@@ -27,7 +27,7 @@ namespace AppInstaller::CLI
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
         reporter.Info() <<
-            "Windows Package Manager v" << Runtime::GetClientVersion() << " " << Resources::GetInstance().ResolveWingetString(L"PreviewVersion") << std::endl <<
+            "Windows Package Manager v" << Runtime::GetClientVersion() << " " << Resource::String::PreviewVersion << std::endl <<
             "Copyright (c) Microsoft Corporation. All rights reserved." << std::endl;
     }
 
@@ -48,7 +48,7 @@ namespace AppInstaller::CLI
         // Description
         auto infoOut = reporter.Info();
         infoOut <<
-            GetLongDescription() << std::endl <<
+            LongDescription() << std::endl <<
             std::endl;
 
         // Example usage for this command
@@ -145,11 +145,11 @@ namespace AppInstaller::CLI
         {
             if (Name() == FullName())
             {
-                infoOut << Resources::GetInstance().ResolveWingetString(L"AvailableCommands") << std::endl;
+                infoOut << Resource::String::AvailableCommands << std::endl;
             }
             else
             {
-                infoOut << Resources::GetInstance().ResolveWingetString(L"AvailableSubcommands") << std::endl;
+                infoOut << Resource::String::AvailableSubcommands << std::endl;
             }
 
             size_t maxCommandNameLength = 0;
@@ -166,7 +166,7 @@ namespace AppInstaller::CLI
 
             infoOut <<
                 std::endl <<
-                Resources::GetInstance().ResolveWingetString(L"HelpForDetails")
+                Resource::String::HelpForDetails
                 << " [" << APPINSTALLER_CLI_HELP_ARGUMENT << ']' << std::endl;
         }
 
@@ -197,7 +197,7 @@ namespace AppInstaller::CLI
 
             if (hasArguments)
             {
-                infoOut << Resources::GetInstance().ResolveWingetString(L"AvailableArguements") << std::endl;
+                infoOut << Resource::String::AvailableArguements << std::endl;
 
                 size_t i = 0;
                 for (const auto& arg : GetArguments())
@@ -221,7 +221,7 @@ namespace AppInstaller::CLI
                     infoOut << std::endl;
                 }
 
-                infoOut << Resources::GetInstance().ResolveWingetString(L"AvailableOptions") << std::endl;
+                infoOut << Resource::String::AvailableOptions << std::endl;
 
                 size_t i = 0;
                 for (const auto& arg : GetArguments())
@@ -243,7 +243,7 @@ namespace AppInstaller::CLI
         std::string helpLink = HelpLink();
         if (!helpLink.empty())
         {
-            infoOut << std::endl << Resources::GetInstance().ResolveWingetString(L"HelpLinkPreamble") << ' ' << helpLink << std::endl;
+            infoOut << std::endl << Resource::String::HelpLinkPreamble << ' ' << helpLink << std::endl;
         }
     }
 
@@ -347,11 +347,11 @@ namespace AppInstaller::CLI
                         auto itr2 = std::find_if(definedArgs.begin(), definedArgs.end(), [&](const Argument& arg) { return (currChar == arg.Alias()); });
                         if (itr2 == definedArgs.end())
                         {
-                            throw CommandException(Resources::GetInstance().ResolveWingetString(L"AdjoinedNotFoundError"), currArg);
+                            throw CommandException(Resource::String::AdjoinedNotFoundError, currArg);
                         }
                         else if (itr2->Type() != ArgumentType::Flag)
                         {
-                            throw CommandException(Resources::GetInstance().ResolveWingetString(L"AdjoinedNotFlagError"), currArg);
+                            throw CommandException(Resource::String::AdjoinedNotFlagError, currArg);
                         }
                         else
                         {
@@ -367,7 +367,7 @@ namespace AppInstaller::CLI
                     }
                     else
                     {
-                        throw CommandException(Resources::GetInstance().ResolveWingetString(L"SingleCharAfterDashError"), currArg);
+                        throw CommandException(Resource::String::SingleCharAfterDashError, currArg);
                     }
                 }
                 else
@@ -375,7 +375,7 @@ namespace AppInstaller::CLI
                     ++incomingArgsItr;
                     if (incomingArgsItr == inv.end())
                     {
-                        throw CommandException(Resources::GetInstance().ResolveWingetString(L"MissingArgumentError"), currArg);
+                        throw CommandException(Resource::String::MissingArgumentError, currArg);
                     }
                     execArgs.AddArg(itr->ExecArgType(), *incomingArgsItr);
                 }
@@ -411,7 +411,7 @@ namespace AppInstaller::CLI
                         {
                             if (hasValue)
                             {
-                                throw CommandException(Resources::GetInstance().ResolveWingetString(L"FlagContainAdjoinedError"), currArg);
+                                throw CommandException(Resource::String::FlagContainAdjoinedError, currArg);
                             }
 
                             execArgs.AddArg(arg.ExecArgType());
@@ -425,7 +425,7 @@ namespace AppInstaller::CLI
                             ++incomingArgsItr;
                             if (incomingArgsItr == inv.end())
                             {
-                                throw CommandException(Resources::GetInstance().ResolveWingetString(L"MissingArgumentError"), currArg);
+                                throw CommandException(Resource::String::MissingArgumentError, currArg);
                             }
                             execArgs.AddArg(arg.ExecArgType(), *incomingArgsItr);
                         }
@@ -436,7 +436,7 @@ namespace AppInstaller::CLI
 
                 if (!argFound)
                 {
-                    throw CommandException(Resources::GetInstance().ResolveWingetString(L"InvalidNameError"), *incomingArgsItr);
+                    throw CommandException(Resource::String::InvalidNameError, *incomingArgsItr);
                 }
             }
         }
@@ -472,19 +472,19 @@ namespace AppInstaller::CLI
         {
             if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
             {
-                throw CommandException(Resources::GetInstance().ResolveWingetString(L"RequiredArgError"), arg.Name());
+                throw CommandException(Resource::String::RequiredArgError, arg.Name());
             }
 
             if (arg.Limit() < execArgs.GetCount(arg.ExecArgType()))
             {
-                throw CommandException(Resources::GetInstance().ResolveWingetString(L"TooManyArgError"), arg.Name());
+                throw CommandException(Resource::String::TooManyArgError, arg.Name());
             }
         }
     }
 
     void Command::ExecuteInternal(Execution::Context& context) const
     {
-        context.Reporter.Error() << Resources::GetInstance().ResolveWingetString(L"PendingWorkError") << std::endl;
+        context.Reporter.Error() << Resource::String::PendingWorkError << std::endl;
         THROW_HR(E_NOTIMPL);
     }
 }

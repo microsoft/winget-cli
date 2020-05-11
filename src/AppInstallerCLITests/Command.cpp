@@ -7,6 +7,7 @@
 #include <Commands/RootCommand.h>
 
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 using namespace TestCommon;
 using namespace AppInstaller;
 using namespace AppInstaller::CLI;
@@ -162,13 +163,16 @@ void RequireValueParsedToArg(const std::string& value, const Argument& arg, cons
     REQUIRE(value == args.GetArg(arg.ExecArgType()));
 }
 
+// Description used for tests; doesn't need to be anything in particular.
+static constexpr Resource::StringId DefaultDesc = L""sv;
+
 TEST_CASE("ParseArguments_MultiplePositional", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "std1", 's', Args::Type::Command, "", ArgumentType::Standard },
-            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
         });
 
     std::vector<std::string> values{ "val1", "val2" };
@@ -184,9 +188,9 @@ TEST_CASE("ParseArguments_ForcePositional", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "std1", 's', Args::Type::Command, "", ArgumentType::Standard },
-            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
         });
 
     std::vector<std::string> values{ "val1", "--", "-std1" };
@@ -202,8 +206,8 @@ TEST_CASE("ParseArguments_TooManyPositional", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "std1", 's', Args::Type::Command, "", ArgumentType::Standard },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
         });
 
     std::vector<std::string> values{ "val1", "--", "-std1" };
@@ -216,9 +220,9 @@ TEST_CASE("ParseArguments_InvalidChar", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "std1", 's', Args::Type::Command, "", ArgumentType::Standard },
-            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
         });
 
     std::vector<std::string> values{ "val1", "-", "-std1" };
@@ -231,9 +235,9 @@ TEST_CASE("ParseArguments_InvalidAlias", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "std1", 's', Args::Type::Command, "", ArgumentType::Standard },
-            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
         });
 
     std::vector<std::string> values{ "val1", "-b", "-std1" };
@@ -246,10 +250,10 @@ TEST_CASE("ParseArguments_MultiFlag", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "flag1", 's', Args::Type::Command, "", ArgumentType::Flag },
-            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
-            Argument{ "flag2", 't', Args::Type::Exact, "", ArgumentType::Flag },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "flag1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Flag },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
+            Argument{ "flag2", 't', Args::Type::Exact, DefaultDesc, ArgumentType::Flag },
         });
 
     std::vector<std::string> values{ "val1", "-st", "val2" };
@@ -265,10 +269,10 @@ TEST_CASE("ParseArguments_FlagThenUnknown", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "flag1", 's', Args::Type::Command, "", ArgumentType::Flag },
-            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
-            Argument{ "flag2", 't', Args::Type::Exact, "", ArgumentType::Flag },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "flag1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Flag },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
+            Argument{ "flag2", 't', Args::Type::Exact, DefaultDesc, ArgumentType::Flag },
         });
 
     std::vector<std::string> values{ "val1", "-sr", "val2" };
@@ -281,10 +285,10 @@ TEST_CASE("ParseArguments_FlagThenNonFlag", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "flag1", 's', Args::Type::Command, "", ArgumentType::Flag },
-            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
-            Argument{ "flag2", 't', Args::Type::Exact, "", ArgumentType::Flag },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "flag1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Flag },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
+            Argument{ "flag2", 't', Args::Type::Exact, DefaultDesc, ArgumentType::Flag },
         });
 
     std::vector<std::string> values{ "val1", "-sp", "val2" };
@@ -297,10 +301,10 @@ TEST_CASE("ParseArguments_NameUsingAliasSpecifier", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "std1", 's', Args::Type::Command, "", ArgumentType::Standard },
-            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
-            Argument{ "flag1", 'f', Args::Type::Exact, "", ArgumentType::Flag },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
+            Argument{ "flag1", 'f', Args::Type::Exact, DefaultDesc, ArgumentType::Flag },
         });
 
     std::vector<std::string> values{ "another", "-flag1" };
@@ -313,9 +317,9 @@ TEST_CASE("ParseArguments_AliasWithAdjoinedValue", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "std1", 's', Args::Type::Command, "", ArgumentType::Standard },
-            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
         });
 
     std::vector<std::string> values{ "-s=Val1" };
@@ -330,9 +334,9 @@ TEST_CASE("ParseArguments_AliasWithSeparatedValue", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "std1", 's', Args::Type::Command, "", ArgumentType::Standard },
-            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
         });
 
     std::vector<std::string> values{ "-s", "Val1" };
@@ -347,9 +351,9 @@ TEST_CASE("ParseArguments_AliasWithSeparatedValueMissing", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "std1", 's', Args::Type::Command, "", ArgumentType::Standard },
-            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
         });
 
     std::vector<std::string> values{ "-s" };
@@ -362,9 +366,9 @@ TEST_CASE("ParseArguments_NameWithAdjoinedValue", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "std1", 's', Args::Type::Command, "", ArgumentType::Standard },
-            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
         });
 
     std::vector<std::string> values{ "--pos1=Val1" };
@@ -379,10 +383,10 @@ TEST_CASE("ParseArguments_NameFlag", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "std1", 's', Args::Type::Command, "", ArgumentType::Standard },
-            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
-            Argument{ "flag1", 'f', Args::Type::Exact, "", ArgumentType::Flag },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
+            Argument{ "flag1", 'f', Args::Type::Exact, DefaultDesc, ArgumentType::Flag },
         });
 
     std::vector<std::string> values{ "--flag1", "arbitrary" };
@@ -398,10 +402,10 @@ TEST_CASE("ParseArguments_NameFlagWithAdjoinedValue", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "std1", 's', Args::Type::Command, "", ArgumentType::Standard },
-            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
-            Argument{ "flag1", 'f', Args::Type::Exact, "", ArgumentType::Flag },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
+            Argument{ "flag1", 'f', Args::Type::Exact, DefaultDesc, ArgumentType::Flag },
         });
 
     std::vector<std::string> values{ "another", "--flag1=arbitrary" };
@@ -414,10 +418,10 @@ TEST_CASE("ParseArguments_NameWithSeparatedValue", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "std1", 's', Args::Type::Command, "", ArgumentType::Standard },
-            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
-            Argument{ "flag1", 'f', Args::Type::Exact, "", ArgumentType::Flag },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
+            Argument{ "flag1", 'f', Args::Type::Exact, DefaultDesc, ArgumentType::Flag },
         });
 
     std::vector<std::string> values{ "--pos2", "arbitrary" };
@@ -432,10 +436,10 @@ TEST_CASE("ParseArguments_UnknownName", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "pos1", 'p', Args::Type::Channel, "", ArgumentType::Positional },
-            Argument{ "std1", 's', Args::Type::Command, "", ArgumentType::Standard },
-            Argument{ "pos2", 'q', Args::Type::Count, "", ArgumentType::Positional },
-            Argument{ "flag1", 'f', Args::Type::Exact, "", ArgumentType::Flag },
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
+            Argument{ "flag1", 'f', Args::Type::Exact, DefaultDesc, ArgumentType::Flag },
         });
 
     std::vector<std::string> values{ "another", "--nope" };
