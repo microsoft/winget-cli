@@ -122,29 +122,29 @@ namespace AppInstaller::Repository::SQLite
         return sqlite3_changes(m_dbconn.get());
     }
 
-    Statement::Statement(Connection& connection, std::string_view sql, bool persistent)
+    Statement::Statement(Connection& connection, std::string_view sql)
     {
         m_id = GetNextStatementId();
         AICLI_LOG(SQL, Verbose, << "Preparing statement #" << m_id << ": " << sql);
         // SQL string size should include the null terminator (https://www.sqlite.org/c3ref/prepare.html)
         assert(sql.data()[sql.size()] == '\0');
-        THROW_IF_SQLITE_FAILED(sqlite3_prepare_v3(connection, sql.data(), static_cast<int>(sql.size() + 1), (persistent ? SQLITE_PREPARE_PERSISTENT : 0), &m_stmt, nullptr));
+        THROW_IF_SQLITE_FAILED(sqlite3_prepare_v2(connection, sql.data(), static_cast<int>(sql.size() + 1), &m_stmt, nullptr));
     }
 
-    Statement Statement::Create(Connection& connection, const std::string& sql, bool persistent)
+    Statement Statement::Create(Connection& connection, const std::string& sql)
     {
-        return { connection, { sql.c_str(), sql.size() }, persistent };
+        return { connection, { sql.c_str(), sql.size() } };
     }
 
-    Statement Statement::Create(Connection& connection, std::string_view sql, bool persistent)
+    Statement Statement::Create(Connection& connection, std::string_view sql)
     {
         // We need the statement to be null terminated, and the only way to guarantee that with a string_view is to construct a string copy.
-        return Create(connection, std::string(sql), persistent);
+        return Create(connection, std::string(sql));
     }
 
-    Statement Statement::Create(Connection& connection, char const* const sql, bool persistent)
+    Statement Statement::Create(Connection& connection, char const* const sql)
     {
-        return { connection, sql, persistent };
+        return { connection, sql };
     }
 
     bool Statement::Step(bool failFastOnError)
@@ -203,8 +203,8 @@ namespace AppInstaller::Repository::SQLite
         using namespace std::string_literals;
 
         Statement begin = Statement::Create(connection, "SAVEPOINT ["s + m_name + "]");
-        m_rollbackTo = Statement::Create(connection, "ROLLBACK TO ["s + m_name + "]", true);
-        m_release = Statement::Create(connection, "RELEASE ["s + m_name + "]", true);
+        m_rollbackTo = Statement::Create(connection, "ROLLBACK TO ["s + m_name + "]");
+        m_release = Statement::Create(connection, "RELEASE ["s + m_name + "]");
 
         AICLI_LOG(SQL, Info, << "Begin savepoint: " << m_name);
         begin.Step();

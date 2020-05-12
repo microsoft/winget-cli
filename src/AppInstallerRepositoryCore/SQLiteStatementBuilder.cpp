@@ -689,9 +689,9 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
-    Statement StatementBuilder::Prepare(Connection& connection, bool persistent)
+    Statement StatementBuilder::Prepare(Connection& connection)
     {
-        Statement result = Statement::Create(connection, m_stream.str(), persistent);
+        Statement result = Statement::Create(connection, m_stream.str());
         for (const auto& f : m_binders)
         {
             f(result);
