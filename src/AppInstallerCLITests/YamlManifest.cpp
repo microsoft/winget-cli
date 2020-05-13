@@ -212,6 +212,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-InstallerUniqueness-DefaultScope.yaml", "Duplicate installer entry found." },
         { "Manifest-Bad-InstallerUniqueness-DefaultValues.yaml", "Duplicate installer entry found." },
         { "Manifest-Bad-InstallerUniqueness-SameLang.yaml", "Duplicate installer entry found." },
+        { "Manifest-Bad-LicenseMissing.yaml", "License info missing." },
         { "Manifest-Bad-NameMissing.yaml", "Required field missing. Field: Name" },
         { "Manifest-Bad-PublisherMissing.yaml", "Required field missing. Field: Publisher" },
         { "Manifest-Bad-Sha256Invalid.yaml", "Invalid field value. Field: Sha256" },

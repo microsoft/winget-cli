@@ -44,6 +44,7 @@ namespace AppInstaller::Manifest
         const char* const ExeInstallerMissingSilentSwitches = "Silent and SilentWithProgress switches are not specified for InstallerType exe. Please make sure the installer can run unattended.";
         const char* const FieldNotSupported = "Field is not supported.";
         const char* const DuplicateInstallerEntry = "Duplicate installer entry found.";
+        const char* const MissingLicenseInfo = "License info missing. Use either License or LicenseUrl field to specify the app's license.";
     }
 
     struct ValidationError

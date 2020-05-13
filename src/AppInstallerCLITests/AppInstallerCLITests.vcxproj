@@ -313,6 +313,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-InvalidManifestVersionValue.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-LicenseMissing.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-NameMissing.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

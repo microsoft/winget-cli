@@ -4,6 +4,7 @@ Name: MSIX SDK
 Version: 1.7.32
 Publisher: Microsoft
 InstallerType: Zip
+License: Test
 Switches:
   NotASwitch: /fakeswitch
 Installers:

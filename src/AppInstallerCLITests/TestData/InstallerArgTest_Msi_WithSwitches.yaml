@@ -3,6 +3,7 @@ Version: 1.0.0.0
 Name: AppInstaller Test Installer
 Publisher: Microsoft Corporation
 AppMoniker: AICLITest
+License: Test
 Installers: 
     - Arch: x64
       Url: https://ThisIsNotUsed

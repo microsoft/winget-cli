@@ -2,6 +2,7 @@ Id: AppInstallerTest.TestMsixInstaller
 Name: TestMsixInstaller
 Version: 1.0.0.0
 Publisher: AppInstallerTest
+License: Test
 Installers:
   - Arch: x86
     Url: https://github.com/microsoft/appinstaller-cli/raw/master/src/AppInstallerCLIE2ETests/TestData/AppInstallerTestMsixInstaller.msix
