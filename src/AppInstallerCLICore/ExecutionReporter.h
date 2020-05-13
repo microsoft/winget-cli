@@ -5,6 +5,7 @@
 #include "Resources.h"
 #include "VTSupport.h"
 #include <AppInstallerProgress.h>
+#include <winget/LocIndependent.h>
 
 #include <wil/resource.h>
 
@@ -35,9 +36,12 @@ namespace AppInstaller::CLI::Execution
         // It is assumed that single char values need not be localized, as they are matched
         // ordinally or they are punctuation / other.
         WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(char);
+        // Localized strings (and from an Id for one for convenience).
         WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Resource::StringId);
         WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Resource::LocString);
-        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Resource::LocIndView);
+        // Strings explicitly declared as localization independent.
+        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(LocIndView);
+        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(LocIndString);
         // Normalized strings come from user data and should therefore already by localized
         // by how they are chosen (or there is no localized version).
         WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Utility::NormalizedString);

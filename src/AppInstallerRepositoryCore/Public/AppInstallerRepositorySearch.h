@@ -4,6 +4,7 @@
 #include <Manifest/Manifest.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
+#include <winget/LocIndependent.h>
 
 #include <memory>
 #include <optional>
@@ -75,10 +76,10 @@ namespace AppInstaller::Repository
         virtual ~IApplication() = default;
 
         // Gets the id of the application.
-        virtual std::string GetId() = 0;
+        virtual LocIndString GetId() = 0;
 
         // Gets the name of the application (the latest name).
-        virtual std::string GetName() = 0;
+        virtual LocIndString GetName() = 0;
 
         // Gets a manifest for this application.
         // An empty version implies 'latest'.

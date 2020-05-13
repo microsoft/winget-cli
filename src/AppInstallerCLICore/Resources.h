@@ -125,13 +125,6 @@ namespace AppInstaller::CLI::Resource
         std::string m_value;
     };
 
-    // A localization independent string view.
-    // Used as a wrapper around strings that do not need localization.
-    struct LocIndView : public std::string_view
-    {
-        explicit constexpr LocIndView(std::string_view sv) : std::string_view(sv) {}
-    };
-
     // Utility class to load resources
     class Loader
     {

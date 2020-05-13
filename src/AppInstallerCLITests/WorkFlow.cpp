@@ -14,10 +14,12 @@
 #include <Public/AppInstallerRepositorySearch.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/ShowCommand.h>
+#include <winget/LocIndependent.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
 using namespace TestCommon;
+using namespace AppInstaller;
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::CLI::Workflow;
@@ -41,12 +43,12 @@ struct TestSource : public ISource
             return m_manifest;
         }
 
-        std::string GetId() override
+        LocIndString GetId() override
         {
             return m_manifest.Id;
         }
 
-        std::string GetName() override
+        LocIndString GetName() override
         {
             return m_manifest.Name;
         }

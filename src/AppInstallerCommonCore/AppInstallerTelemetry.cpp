@@ -94,8 +94,8 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::LogStartup() noexcept
     {
-        std::string version = Runtime::GetClientVersion();
-        std::string packageVersion;
+        LocIndString version = Runtime::GetClientVersion();
+        LocIndString packageVersion;
         if (Runtime::IsRunningInPackagedContext())
         {
             packageVersion = Runtime::GetPackageVersion();
@@ -107,8 +107,8 @@ namespace AppInstaller::Logging
                 "ClientStartup",
                 GetActivityId(),
                 nullptr,
-                TraceLoggingCountedString(version.c_str(), static_cast<ULONG>(version.size()), "Version"),
-                TraceLoggingCountedString(packageVersion.c_str(), static_cast<ULONG>(packageVersion.size()), "PackageVersion"),
+                TraceLoggingCountedString(version->c_str(), static_cast<ULONG>(version->size()), "Version"),
+                TraceLoggingCountedString(packageVersion->c_str(), static_cast<ULONG>(packageVersion->size()), "PackageVersion"),
                 TraceLoggingWideString(GetCommandLineW(), "CommandlineArgs"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance|PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));

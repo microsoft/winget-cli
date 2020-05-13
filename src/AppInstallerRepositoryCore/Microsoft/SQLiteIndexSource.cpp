@@ -16,14 +16,16 @@ namespace AppInstaller::Repository::Microsoft
                 m_id(id), m_source(source) {}
 
             // Inherited via IApplication
-            std::string GetId() override
+            LocIndString GetId() override
             {
-                return GetSource()->GetIndex().GetIdStringById(m_id).value();
+                // Values coming from the index will always be localized/independent.
+                return LocIndString{ GetSource()->GetIndex().GetIdStringById(m_id).value() };
             }
 
-            std::string GetName() override
+            LocIndString GetName() override
             {
-                return GetSource()->GetIndex().GetNameStringById(m_id).value();
+                // Values coming from the index will always be localized/independent.
+                return LocIndString{ GetSource()->GetIndex().GetNameStringById(m_id).value() };
             }
 
             std::optional<Manifest::Manifest> GetManifest(const Utility::NormalizedString& version, const Utility::NormalizedString& channel) override
