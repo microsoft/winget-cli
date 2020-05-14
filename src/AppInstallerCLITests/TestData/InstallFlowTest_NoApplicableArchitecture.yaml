@@ -3,6 +3,7 @@ Version: 1.0.0.0
 Name: AppInstaller Test Installer
 Publisher: Microsoft Corporation
 AppMoniker: AICLITestExe
+License: Test
 Switches:
   Custom: /custom
   SilentWithProgress: /silentwithprogress

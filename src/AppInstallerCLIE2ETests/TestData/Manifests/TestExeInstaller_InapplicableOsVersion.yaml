@@ -3,6 +3,7 @@ Name: InapplicableOsVersion
 Version: 1.0.0.0
 Publisher: AppInstallerTest
 MinOSVersion: 11.0.0.0
+License: Test
 Installers:
   - Arch: x86
     Url: https://github.com/microsoft/appinstaller-cli/raw/master/src/AppInstallerCLIE2ETests/TestData/AppInstallerTestExeInstaller.exe
