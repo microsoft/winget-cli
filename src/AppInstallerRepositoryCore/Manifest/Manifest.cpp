@@ -162,9 +162,9 @@ namespace AppInstaller::Manifest
             }
 
             // License field is required
-            if (License.empty() && LicenseUrl.empty())
+            if (License.empty())
             {
-                resultErrors.emplace_back(ManifestError::MissingLicenseInfo);
+                resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "License");
             }
 
             // Check duplicate installer entry. {installerType, arch, language and scope} combination is the key.
