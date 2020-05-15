@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>특정 명령에 대한 자세한 내용을 보려면 도움말 인수에 해당 명령을 전달합니다.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>자세한 도움말은 다음의 위치에서 찾아볼 수 있습니다.</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ID를 기준으로 결과 필터링</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>유효성을 검사할 매니페스트로의 경로</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>WinGet에 대해 자세한 로깅을 설정합니다.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>지정된 버전을 사용합니다. 기본값은 최신 버전입니다.</value>

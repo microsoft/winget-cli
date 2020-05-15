@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>Aby poznać szczegóły danego polecenia, podaj argument pomocy.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Dodatkową pomoc można znaleźć tutaj:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtruj wyniki według identyfikatora</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Ścieżka manifestu do weryfikacji</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Włącza pełne rejestrowanie dla aplikacji WinGet</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Używaj określonej wersji; domyślną jest najnowsza wersja.</value>

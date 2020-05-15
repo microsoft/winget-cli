@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>За повеќе детали за одредена наредба, предајте го аргументот за помош.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Повеќе помош може да се најде на:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Филтрирајте ги резултатите по ИД</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Патеката до манифестот што треба да се провери</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Овозможува опширно евидентирање за WinGet</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Користете ја наведената верзија. Стандардна вредност е најновата верзија</value>

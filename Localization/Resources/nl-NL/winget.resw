@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>Geef het Help-argument door voor meer informatie over een bepaalde opdracht.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Meer hulp vindt u op:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Resultaten filteren op ID</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Het pad naar het manifest dat moet worden gevalideerd</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Maakt uitgebreide logboekregistratie mogelijk voor WinGet</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Gebruik de opgegeven versie, standaard is dit de nieuwste versie</value>

@@ -117,6 +117,26 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AdjoinedNotFlagError" xml:space="preserve">
+    <value>साथ का उपनाम ध्वज नहीं है</value>
+  </data>
+  <data name="AdjoinedNotFoundError" xml:space="preserve">
+    <value>साथ का ध्वज उपनाम नहीं मिला</value>
+  </data>
+  <data name="AvailableArguements" xml:space="preserve">
+    <value>निम्न तर्क उपलब्ध हैं:</value>
+  </data>
+  <data name="AvailableCommands" xml:space="preserve">
+    <value>निम्न आदेश उपलब्ध हैं:</value>
+    <comment>Commands the tool supports</comment>
+  </data>
+  <data name="AvailableOptions" xml:space="preserve">
+    <value>निम्न विकल्प उपलब्ध हैं:</value>
+  </data>
+  <data name="AvailableSubcommands" xml:space="preserve">
+    <value>निम्न उप-आदेश उपलब्ध हैं:</value>
+    <comment>Nested commands that can be run in context of the selected command</comment>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>निर्दिष्ट चैनल का उपयोग करें; डिफ़ॉल्ट सामान्य ऑडियंस है</value>
   </data>
@@ -129,8 +149,14 @@
   <data name="ExactArgumentDescription" xml:space="preserve">
     <value>सटीक मिलान का उपयोग कर ऐप ढूँढें</value>
   </data>
+  <data name="ExtraPositionalError" xml:space="preserve">
+    <value>अपेक्षित न होने पर भी स्थितिपूर्ण तर्क मिला</value>
+  </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>फ़ाइल जिसे हैश करना है</value>
+  </data>
+  <data name="FlagContainAdjoinedError" xml:space="preserve">
+    <value>ध्वज तर्क में सम्‍मिलित मान नहीं हो सकता</value>
   </data>
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>बिना संकेतों के आदेश निष्पादित करें</value>
@@ -140,6 +166,12 @@
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
     <value>चयनित आदेश के बारे में मदद दिखाता है</value>
+  </data>
+  <data name="HelpForDetails" xml:space="preserve">
+    <value>किसी विशिष्ट आदेश के बारे में अधिक विवरण के लिए, इसे मदद तर्क से गुजारें.</value>
+  </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>अधिक मदद यहाँ पाई जा सकती है:</value>
   </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ID के अनुसार परिणामों को फ़िल्टर करें</value>
@@ -152,6 +184,9 @@
   </data>
   <data name="InvalidAliasError" xml:space="preserve">
     <value>वर्तमान आदेश के लिए तर्क उपनाम पहचाना नहीं गया</value>
+  </data>
+  <data name="InvalidArgumentSpecifierError" xml:space="preserve">
+    <value>अमांय तर्क विनिर्देशक</value>
   </data>
   <data name="InvalidNameError" xml:space="preserve">
     <value>वर्तमान आदेश के लिए तर्क नाम पहचाना नहीं गया</value>
@@ -167,6 +202,9 @@
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>अनुप्रयोग के मैनिफ़ेस्ट का पथ</value>
+  </data>
+  <data name="MissingArgumentError" xml:space="preserve">
+    <value>तर्क मान आवश्यक है, लेकिन कोई नहीं मिला</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
     <value>अनुप्रयोग मॉनीकेर के अनुसार परिणामों को फ़िल्टर करें</value>
@@ -184,14 +222,23 @@
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>इंस्टॉलर पर भेजे जाने वाले तर्कों को ओवरराइड करें</value>
   </data>
+  <data name="PendingWorkError" xml:space="preserve">
+    <value>ओह, हम यह करना भूल गए थे...</value>
+  </data>
   <data name="PlainArgumentDescription" xml:space="preserve">
     <value>प्रगति प्रदर्शन डिफ़ॉल्ट रंग के रूप में</value>
+  </data>
+  <data name="PreviewVersion" xml:space="preserve">
+    <value>पूर्वावलोकन</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>किसी ऐप की खोज करने के लिए प्रयुक्त की गई क्वेरी</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>प्रगति प्रदर्शन रंगों के इंद्रधनुष के रूप में</value>
+  </data>
+  <data name="RequiredArgError" xml:space="preserve">
+    <value>आवश्यक तर्क उपलब्ध नहीं कराया गया</value>
   </data>
   <data name="SearchCommandDescription" xml:space="preserve">
     <value>ऐप्स की मूलभूत जानकारी ढूँढें और दिखाएँ</value>
@@ -204,6 +251,9 @@
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>मौन स्थापना का अनुरोध करें</value>
+  </data>
+  <data name="SingleCharAfterDashError" xml:space="preserve">
+    <value>केवल एकल वर्ण एलियास के बाद हो सकता है एक-</value>
   </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
     <value>कोई नया स्रोत जोड़ें. अनुप्रयोगों को खोजने और स्थापित करने के लिए एक स्रोत आपको डेटा प्रदान करता है. केवल तभी एक नया स्रोत जोड़ें जब आपको इस पर एक सुरक्षित स्थान के रूप में विश्वास हो.</value>
@@ -265,6 +315,15 @@
   <data name="ToolVersionArgumentDescription" xml:space="preserve">
     <value>उपकरण का संस्करण प्रदर्शित करें</value>
   </data>
+  <data name="TooManyArgError" xml:space="preserve">
+    <value>तर्क अनुमत से अधिक समय प्रदान किया गया</value>
+  </data>
+  <data name="TooManyBehaviorsError" xml:space="preserve">
+    <value>एक से अधिक स्थापना व्यवहार तर्क प्रदान किया गया</value>
+  </data>
+  <data name="UnrecognizedCommand" xml:space="preserve">
+    <value>अपरिचित आदेश</value>
+  </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>(यह) कड़े दिशानिर्देशों के सेट का उपयोग करके मैनिफ़ेस्ट की पुष्टि करता है. इससे यह अपेक्षित है कि किसी रेपो पर सबमिट करने से पहले आपके मैनिफ़ेस्ट की जाँच करने के लिए यह आपको सक्षम करे.</value>
   </data>
@@ -273,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>मैनिफ़ेस्ट का पथ जिसे सत्यापित करना है</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>WinGet के लिए वर्बोज़ लॉगिंग सक्षम करता है</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>निर्दिष्ट संस्करण का उपयोग करें; डिफ़ॉल्ट नवीनतम संस्करण है</value>

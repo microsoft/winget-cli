@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>ஒரு குறிப்பிட்ட கட்டளை பற்றிய கூடுதல் விவரங்களுக்கு, உதவி மதிப்புருவில் அதைக் கடத்தவும்.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>மேலும் உதவியை இங்கே காணலாம்:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ஐடியின்படி முடிவுகளை வடிகட்டவும்</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>சான்றுக்கான பாதை சரிபார்க்கப்பட வேண்டும்</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Wingetடிற்கான சொற்களஞ்சிய பதிவை இயக்குகிறது</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>குறிப்பிட்ட பதிப்பைப் பயன்படுத்தவும்: இயல்புநிலையில் உள்ளது சமீபத்திய பதிப்பு</value>

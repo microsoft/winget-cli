@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>Norėdami gauti daugiau informacijos apie konkrečią komandą, jį rasite žinyno argumente.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Daugiau pagalbos rasite:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtruoti rezultatus pagal ID</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Dokumento, kurį reikia patvirtinti, kelias</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Įgalina „WinGet“ daugiažodį registravimą</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Naudoti nurodytą versiją; Numatytoji reikšmė yra naujausia versija</value>

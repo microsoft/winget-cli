@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>Per obtenir més informació sobre una ordre específica, passa l'argument d'ajuda.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Es pot trobar més ajuda a:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtra els resultats per ID</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>El camí cap al manifest que s'ha de validar</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Permet el registre detallat per a WinGet</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Utilitza la versió especificada; el valor per defecte és la darrera versió</value>

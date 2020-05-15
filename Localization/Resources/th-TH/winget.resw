@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>สำหรับรายละเอียดเพิ่มเติมเกี่ยวกับคำสั่งที่ระบุให้ส่งผ่านอาร์กิวเมนต์วิธีใช้</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>ดูความช่วยเหลือเพิ่มเติมได้ที่:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ผลลัพธ์การกรองตาม ID</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>เส้นทางไปยังไฟล์กำกับที่จะตรวจสอบความถูกต้อง</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>เปิดใช้งานการบันทึกโหมดรายละเอียดสำหรับ WinGet</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>ใช้เวอร์ชันที่ระบุ ค่าเริ่มต้นเป็นเวอร์ชันล่าสุด</value>

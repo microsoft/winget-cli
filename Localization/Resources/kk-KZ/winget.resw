@@ -117,11 +117,116 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AdjoinedNotFlagError" xml:space="preserve">
+    <value>Қосылған бүркеншік ат жалауша емес</value>
+  </data>
+  <data name="AdjoinedNotFoundError" xml:space="preserve">
+    <value>Қосылған жалаушаның бүркеншік аты табылмады</value>
+  </data>
+  <data name="AvailableArguements" xml:space="preserve">
+    <value>Келесі аргументтер қолжетімді:</value>
+  </data>
+  <data name="AvailableCommands" xml:space="preserve">
+    <value>Келесі пәрмендер қолжетімді:</value>
+    <comment>Commands the tool supports</comment>
+  </data>
+  <data name="AvailableOptions" xml:space="preserve">
+    <value>Келесі параметрлер қолжетімді:</value>
+  </data>
+  <data name="AvailableSubcommands" xml:space="preserve">
+    <value>Келесі қосымша пәрмендер қолжетімді:</value>
+    <comment>Nested commands that can be run in context of the selected command</comment>
+  </data>
+  <data name="ChannelArgumentDescription" xml:space="preserve">
+    <value>Көрсетілген арнаны пайдаланыңыз; әдепкі бойынша жалпы аудитория орнатылған</value>
+  </data>
+  <data name="CommandArgumentDescription" xml:space="preserve">
+    <value>Нәтижелерді пәрмен бойынша сүзгілеу</value>
+  </data>
+  <data name="CountArgumentDescription" xml:space="preserve">
+    <value>Нәтижелердің көрсетілген санынан көп көрсетпеу</value>
+  </data>
+  <data name="ExactArgumentDescription" xml:space="preserve">
+    <value>Дәл сәйкестік арқылы бағдарламаны табу</value>
+  </data>
+  <data name="ExtraPositionalError" xml:space="preserve">
+    <value>Ешқандай аргумент күтілмеген кезде, бір позициялық аргумент табылды</value>
+  </data>
+  <data name="FileArgumentDescription" xml:space="preserve">
+    <value>Хэштелетін файл</value>
+  </data>
+  <data name="FlagContainAdjoinedError" xml:space="preserve">
+    <value>Жалауша аргументінде қосылған мән болмауы тиіс</value>
+  </data>
+  <data name="ForceArgumentDescription" xml:space="preserve">
+    <value>Пәрменді нұсқауларсыз орындау</value>
+  </data>
+  <data name="HashHelperDescription" xml:space="preserve">
+    <value>Орнатқыш файлдарды хэштеуге көмектесетін құрал</value>
+  </data>
+  <data name="HelpArgumentDescription" xml:space="preserve">
+    <value>Таңдалған пәрмен туралы анықтаманы көрсетеді</value>
+  </data>
+  <data name="HelpForDetails" xml:space="preserve">
+    <value>Арнайы пәрмен туралы қосымша мәліметтер алу үшін, анықтама аргументін енгізіңіз</value>
+  </data>
   <data name="HelpLinkPreamble" xml:space="preserve">
     <value>Қосымша анықтама алу үшін келесіге өтіңіз:</value>
   </data>
+  <data name="IdArgumentDescription" xml:space="preserve">
+    <value>Нәтижелерді идентификатор бойынша сүзгілеу</value>
+  </data>
   <data name="InstallCommandDescription" xml:space="preserve">
     <value>Берілген бағдарламаны орнатады</value>
+  </data>
+  <data name="InteractiveArgumentDescription" xml:space="preserve">
+    <value>Интерактивті орнатуды сұрау; пайдаланушының енгізуі қажет болуы мүмкін</value>
+  </data>
+  <data name="InvalidAliasError" xml:space="preserve">
+    <value>Ағымдағы пәрмен үшін аргументтің бүркеншік аты анықталмады</value>
+  </data>
+  <data name="InvalidArgumentSpecifierError" xml:space="preserve">
+    <value>Аргумент спецификаторы жарамсыз</value>
+  </data>
+  <data name="InvalidNameError" xml:space="preserve">
+    <value>Ағымдағы пәрмен үшін аргумент аты анықталмады</value>
+  </data>
+  <data name="LanguageArgumentDescription" xml:space="preserve">
+    <value>Орнатылатын тіл (егер қолдау көрсетілетін болса)</value>
+  </data>
+  <data name="LocationArgumentDescription" xml:space="preserve">
+    <value>Орнатылатын орын (қолдау көрсетілетін болса)</value>
+  </data>
+  <data name="LogArgumentDesciption" xml:space="preserve">
+    <value>Журнал орны (қолдау көрсетілетін болса)</value>
+  </data>
+  <data name="ManifestArgumentDescription" xml:space="preserve">
+    <value>Бағдарлама манифестіне апаратын жол</value>
+  </data>
+  <data name="MissingArgumentError" xml:space="preserve">
+    <value>Аргумент мәнін енгізу қажет, бірақ бірде-біреуі табылмады</value>
+  </data>
+  <data name="MonikerArgumentDescription" xml:space="preserve">
+    <value>Нәтижелерді бағдарлама моникері бойынша сүзгілеу</value>
+  </data>
+  <data name="MsixArgumentDescription" xml:space="preserve">
+    <value>Кіріс файл msix ретінде өңделеді; қол қойылған болса, қолтаңба хэші көрсетіледі</value>
+  </data>
+  <data name="NameArgumentDescription" xml:space="preserve">
+    <value>Нәтижелерді аты бойынша сүзгілеу</value>
+  </data>
+  <data name="NoVTArguementDescription" xml:space="preserve">
+    <value>VirtualTerminal көрсетілімін өшіреді</value>
+    <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="OverrideArgumentDescription" xml:space="preserve">
+    <value>Орнату құралы бойынша өткізілетін аргументтерді қайта анықтау</value>
+  </data>
+  <data name="PendingWorkError" xml:space="preserve">
+    <value>Ой! Біз бұны орындауды ұмытып кетіппіз...</value>
+  </data>
+  <data name="PlainArgumentDescription" xml:space="preserve">
+    <value>Әдепкі түспен орындалу барысын көрсету</value>
   </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Алдын ала қарау</value>
@@ -129,10 +234,112 @@
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>Бағдарламаны іздеу үшін пайдаланылатын сұрау</value>
   </data>
+  <data name="RainbowArgumentDescription" xml:space="preserve">
+    <value>Түстер кемпірқосағымен орындалу барысын көрсету</value>
+  </data>
+  <data name="RequiredArgError" xml:space="preserve">
+    <value>Қажетті аргумент көрсетілмеді</value>
+  </data>
+  <data name="SearchCommandDescription" xml:space="preserve">
+    <value>Бағдарламалар туралы негізгі ақпаратты табу және көрсету</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Арнайы бағдарлама туралы ақпаратты көрсетеді.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Бағдарлама туралы ақпаратты көрсетеді</value>
   </data>
+  <data name="SilentArgumentDescription" xml:space="preserve">
+    <value>Автоматты орнатуды сұрау</value>
+  </data>
+  <data name="SingleCharAfterDashError" xml:space="preserve">
+    <value>Бір - белгісінен кейін тек бір таңбаның бүркеншік аты қойылады</value>
+  </data>
+  <data name="SourceAddCommandLongDescription" xml:space="preserve">
+    <value>Жаңа дерек көзін қосыңыз. Дерек көзі сізге бағдарламаларды анықтау және орнату үшін деректерді қамтамасыз етеді. Жаңа дерек көзі сенімді орын болған жағдайда ғана оны қосыңыз.</value>
+  </data>
+  <data name="SourceAddCommandShortDescription" xml:space="preserve">
+    <value>Жаңа деректер көзін қосыңыз</value>
+  </data>
+  <data name="SourceArgArgumentDescription" xml:space="preserve">
+    <value>Дерек көзі үшін берілген аргумент</value>
+  </data>
+  <data name="SourceArgumentDescription" xml:space="preserve">
+    <value>Бағдарламаны көрсетілген дерек көзі арқылы табу</value>
+  </data>
+  <data name="SourceCommandLongDescription" xml:space="preserve">
+    <value>Дерек көздерін қосымша пәрмендермен басқарыңыз. Дерек көзі сізге бағдарламаларды анықтау және орнату үшін деректерді қамтамасыз етеді. Жаңа дерек көзі сенімді орын болған жағдайда ғана оны қосыңыз.</value>
+  </data>
+  <data name="SourceCommandShortDescription" xml:space="preserve">
+    <value>Бағдарламалардың дерек көздерін басқару</value>
+  </data>
+  <data name="SourceListCommandLongDescription" xml:space="preserve">
+    <value>Барлық ағымдағы дерек көздерінің тізімін немесе арнайы дерек көзінің толық мәліметтерін енгізіңіз.</value>
+  </data>
+  <data name="SourceListCommandShortDescription" xml:space="preserve">
+    <value>Ағымдағы дерек көздерін тізімдеу</value>
+  </data>
+  <data name="SourceNameArgumentDescription" xml:space="preserve">
+    <value>Дерек көзінің аты</value>
+  </data>
+  <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
+    <value>Арнайы дерек көзін жойыңыз.</value>
+  </data>
+  <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
+    <value>Ағымдағы дерек көздерін жою</value>
+  </data>
+  <data name="SourceResetCommandLongDescription" xml:space="preserve">
+    <value>Бұл пәрмен кез келген жергілікті деректерді қалдыра отырып, бұрыннан бар дерек көздерін жояды. Ешқандай аргументсіз ол барлық дерек көздерін жойып, әдепкі мәндерді қосады. Егер атау тағайындалған дерек көзі көрсетілген болса, тек сол дерек көзі жойылады.</value>
+  </data>
+  <data name="SourceResetCommandShortDescription" xml:space="preserve">
+    <value>Дерек көздерін қалпына келтіру</value>
+  </data>
+  <data name="SourceTypeArgumentDescription" xml:space="preserve">
+    <value>Дерек көзінің түрі</value>
+  </data>
+  <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
+    <value>Барлық дерек көздерін немесе тек арнайы дерек көзін жаңарту.</value>
+  </data>
+  <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
+    <value>Ағымдағы дерек көздерін жаңарту</value>
+  </data>
+  <data name="TagArgumentDescription" xml:space="preserve">
+    <value>Нәтижелерді тег бойынша сүзгілеу</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>WinGet пәрмендер жолының утилитасы бағдарламаларды пәрмендер жолынан орнатуды іске қосады.</value>
+  </data>
+  <data name="ToolInfoArgumentDescription" xml:space="preserve">
+    <value>Құрал туралы жалпы ақпаратты көрсету</value>
+  </data>
+  <data name="ToolVersionArgumentDescription" xml:space="preserve">
+    <value>Құрал нұсқасын көрсету</value>
+  </data>
+  <data name="TooManyArgError" xml:space="preserve">
+    <value>Аргумент рұқсат етілген шамадан көп рет енгізілді</value>
+  </data>
+  <data name="TooManyBehaviorsError" xml:space="preserve">
+    <value>Орнату кезінде бірнеше аргумент көрсетілді</value>
+  </data>
+  <data name="UnrecognizedCommand" xml:space="preserve">
+    <value>Пәрмен анықталмады</value>
+  </data>
+  <data name="ValidateCommandLongDescription" xml:space="preserve">
+    <value>Қатаң нұсқаулар жинағын қолдану арқылы манифесттің жарамдылығын тексереді. Бұл манифестті репозиторийге жібермес бұрын тексере алуыңыз үшін жасалады.</value>
+  </data>
+  <data name="ValidateCommandShortDescription" xml:space="preserve">
+    <value>Манифест файлының жарамдылығын тексереді</value>
+  </data>
+  <data name="ValidateManifestArgumentDescription" xml:space="preserve">
+    <value>Жарамдылығы тексерілетін манифестке апаратын жол</value>
+  </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>WinGet үшін журналды егжей-тегжейлі жүргізуге мүмкіндік береді</value>
+  </data>
+  <data name="VersionArgumentDescription" xml:space="preserve">
+    <value>Көрсетілген нұсқаны пайдаланыңыз; әдепкі бойынша соңғы нұсқа қолданылады</value>
+  </data>
+  <data name="VersionsArgumentDescription" xml:space="preserve">
+    <value>Бағдарламаның қолжетімді нұсқаларын көрсету</value>
   </data>
 </root>
