@@ -26,21 +26,21 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Gets an existing manifest by its rowid., if it exists.
         std::optional<SQLite::rowid_t> GetExistingManifestId(SQLite::Connection& connection, const Manifest::Manifest& manifest)
         {
-            std::optional<SQLite::rowid_t> idId = IdTable::SelectIdByValue(connection, manifest.Id);
+            std::optional<SQLite::rowid_t> idId = IdTable::SelectIdByValue(connection, manifest.Id, true);
             if (!idId)
             {
                 AICLI_LOG(Repo, Info, << "Did not find an Id { " << manifest.Id << " }");
                 return {};
             }
 
-            std::optional<SQLite::rowid_t> versionId = VersionTable::SelectIdByValue(connection, manifest.Version);
+            std::optional<SQLite::rowid_t> versionId = VersionTable::SelectIdByValue(connection, manifest.Version, true);
             if (!versionId)
             {
                 AICLI_LOG(Repo, Info, << "Did not find a Version { " << manifest.Version << " }");
                 return {};
             }
 
-            std::optional<SQLite::rowid_t> channelId = ChannelTable::SelectIdByValue(connection, manifest.Channel);
+            std::optional<SQLite::rowid_t> channelId = ChannelTable::SelectIdByValue(connection, manifest.Channel, true);
             if (!channelId)
             {
                 AICLI_LOG(Repo, Info, << "Did not find a Channel { " << manifest.Channel << " }");
@@ -239,16 +239,28 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         auto [idInIndex, nameInIndex, monikerInIndex, versionInIndex, channelInIndex] =
             ManifestTable::GetValuesById<IdTable, NameTable, MonikerTable, VersionTable, ChannelTable>(connection, manifestId);
 
-        // We know that the Id, Version, and Channel did not change based on GetExistingManifestId,
-        // but we still verify that here in the event that the code there changed.
-        THROW_HR_IF(E_UNEXPECTED, idInIndex != manifest.Id);
-        THROW_HR_IF(E_UNEXPECTED, versionInIndex != manifest.Version);
-        THROW_HR_IF(E_UNEXPECTED, channelInIndex != manifest.Channel);
-
-        bool indexModified = false;
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "updatemanifest_v1_0");
+        bool indexModified = false;
 
-        // If these values changed, we need to update them.
+        // Id, Version, and Channel may have changed casing. If so, they too need to be updated.
+        if (idInIndex != manifest.Id)
+        {
+            UpdateManifestValueById<IdTable>(connection, manifest.Id, manifestId);
+            indexModified = true;
+        }
+
+        if (versionInIndex != manifest.Version)
+        {
+            UpdateManifestValueById<VersionTable>(connection, manifest.Version, manifestId);
+            indexModified = true;
+        }
+
+        if (channelInIndex != manifest.Channel)
+        {
+            UpdateManifestValueById<ChannelTable>(connection, manifest.Channel, manifestId);
+            indexModified = true;
+        }
+
         if (nameInIndex != manifest.Name)
         {
             UpdateManifestValueById<NameTable>(connection, manifest.Name, manifestId);

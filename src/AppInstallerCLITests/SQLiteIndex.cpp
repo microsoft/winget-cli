@@ -29,7 +29,7 @@ SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std
 {
     SQLiteIndex index = SQLiteIndex::CreateNew(filePath, Schema::Version::Latest());
 
-    manifest.Id = "test.id";
+    manifest.Id = "Test.Id";
     manifest.Name = "Test Name";
     manifest.AppMoniker = "testmoniker";
     manifest.Version = "1.0.0";
@@ -155,6 +155,10 @@ TEST_CASE("SQLiteIndexCreateAndAddManifestDuplicate", "[sqliteindex]")
     SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
 
     // Attempting to add the same manifest at a different path should fail.
+    REQUIRE_THROWS_HR(index.AddManifest(manifest, "differentpath.yaml"), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
+
+    // Attempting to add the same manifest with a differently cased Id at a different path should fail.
+    manifest.Id = ToLower(manifest.Id);
     REQUIRE_THROWS_HR(index.AddManifest(manifest, "differentpath.yaml"), HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
 
     // Attempting to add a different manifest at the same path should fail.
@@ -426,6 +430,84 @@ TEST_CASE("SQLiteIndex_UpdateManifestChangePath", "[sqliteindex][V1_0]")
         REQUIRE(!Schema::V1_0::PathPartTable::IsEmpty(connection));
         REQUIRE(!Schema::V1_0::TagsTable::IsEmpty(connection));
         REQUIRE(!Schema::V1_0::CommandsTable::IsEmpty(connection));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        // Now remove manifest, with unknown path
+        index.RemoveManifest(manifest, "");
+    }
+
+    // Open it directly to directly test table state
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+    REQUIRE(Schema::V1_0::ManifestTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::IdTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::NameTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::MonikerTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::VersionTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ChannelTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::PathPartTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::TagsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
+}
+
+TEST_CASE("SQLiteIndex_UpdateManifestChangeCase", "[sqliteindex][V1_0]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string manifestPath = "test/id/test.id-1.0.0.yaml";
+    Manifest manifest;
+    manifest.Id = "test.id";
+    manifest.Name = "Test Name";
+    manifest.AppMoniker = "testmoniker";
+    manifest.Version = "1.0.0-test";
+    manifest.Channel = "test";
+    manifest.Tags = { "t1", "t2" };
+    manifest.Commands = { "test1", "test2" };
+
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
+
+        index.AddManifest(manifest, manifestPath);
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        manifest.Id = "Test.Id";
+
+        // Update with path update should indicate change
+        REQUIRE(index.UpdateManifest(manifest, manifestPath));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        manifest.Version = "1.0.0-Test";
+
+        // Update with path update should indicate change
+        REQUIRE(index.UpdateManifest(manifest, manifestPath));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        manifest.Channel = "Test";
+
+        // Update with path update should indicate change
+        REQUIRE(index.UpdateManifest(manifest, manifestPath));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        manifest.Name = "test name";
+
+        // Update with path update should indicate change
+        REQUIRE(index.UpdateManifest(manifest, manifestPath));
     }
 
     {

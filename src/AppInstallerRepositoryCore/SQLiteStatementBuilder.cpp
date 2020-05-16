@@ -297,6 +297,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::LikeWithEscape(std::string_view value)
+    {
+        AddBindFunctor(AppendOpAndBinder(Op::Like), EscapeStringForLike(value));
+        return Escape(EscapeCharForLike);
+    }
+
     StatementBuilder& StatementBuilder::Like(details::unbound_t)
     {
         AppendOpAndBinder(Op::Like);
