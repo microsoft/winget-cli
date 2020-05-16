@@ -202,7 +202,9 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& Equals(details::unbound_t);
         StatementBuilder& Equals(std::nullptr_t);
 
+        StatementBuilder& LikeWithEscape(std::string_view value);
         StatementBuilder& Like(details::unbound_t);
+
         StatementBuilder& Escape(std::string_view escapeChar);
 
         StatementBuilder& Not();

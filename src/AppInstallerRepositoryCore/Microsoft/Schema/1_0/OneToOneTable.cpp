@@ -22,10 +22,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             createTableBuilder.Execute(connection);
         }
 
-        std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value)
+        std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool useLike)
         {
             SQLite::Builder::StatementBuilder selectBuilder;
-            selectBuilder.Select(SQLite::RowIDName).From(tableName).Where(valueName).Equals(value);
+            selectBuilder.Select(SQLite::RowIDName).From(tableName).Where(valueName);
+
+            if (useLike)
+            {
+                selectBuilder.LikeWithEscape(value);
+            }
+            else
+            {
+                selectBuilder.Equals(value);
+            }
 
             SQLite::Statement select = selectBuilder.Prepare(connection);
 
