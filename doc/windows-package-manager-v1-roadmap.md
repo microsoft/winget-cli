@@ -22,7 +22,7 @@ Ultimately, we're aiming for Windows Package Manager v1.0 to be feature-complete
 
 | Release or Milestone end date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Milestone Name | Key Deliverables |
 | --- | --- | --- |
-| 2020-05-19 | [v0.1](https://devblogs.microsoft.com/commandline/windows-package-manager-preview/) | Windows Package Manager announced & open-sourced ([Build 2020 Windows Package Manager session]) |
+| 2020-05-19 | [v0.1](https://github.com/microsoft/winget-cli/releases/tag/v0.1.4331-preview) | Windows Package Manager [announced](https://devblogs.microsoft.com/commandline/windows-package-manager-preview/) & open-sourced ([Build 2020 Windows Package Manager session]) |
 | 2020-06-23 | [v0.2](https://github.com/microsoft/winget-cli/milestone/4) | |
 | 2020-07-28 | [v0.3](https://github.com/microsoft/winget-cli/milestone/5) | |
 | 2020-08-25 | [v0.4](https://github.com/microsoft/winget-cli/milestone/6) | |
