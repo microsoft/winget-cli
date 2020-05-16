@@ -12,9 +12,9 @@ The packages available to the client are in the [Community repo](https://github.
 
 ### Microsoft Store [Recommended]
 
-The client is distributed within the App Installer package. While this package is pre-installed on Windows, the client will not be made generally available during the Preview period. In order to get automatic updates from the Microsoft Store that contain the client, one must do one of the following:
+The client is distributed within the [App Installer](ms-windows-store://pdp/?productid=9nblggh4nns1) package. While this package is pre-installed on Windows, the client will not be made generally available during the Preview period. In order to get automatic updates from the Microsoft Store that contain the client, one must do one of the following:
 
-* Install a Windows 10 Insider build
+* Install a [Windows 10 Insider](https://insider.windows.com/) build
 * Join the Preview flight ring by sending a request to winget-feedback@microsoft.com
 
 ### Manually Update
@@ -32,17 +32,13 @@ You can also [build the client yourself](#building-the-client). While the client
 
 [![Build Status](https://dev.azure.com/ms/winget-cli/_apis/build/status/microsoft.winget-cli?branchName=master)](https://dev.azure.com/ms/winget-cli/_build/latest?definitionId=344&branchName=master)
 
-## Roadmap
-
-TBD: Something something link to Projects?
-
 ## Overview
 
-TBD: Describe the client???
+TBD
 
 ## Resources
 
-TBD: Links to things unknown
+TBD
 
 ## Building the client
 
