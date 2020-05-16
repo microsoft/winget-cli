@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>Za više pojedinosti o određenoj naredbi, proslijedite joj argument pomoći.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Dodatnu pomoć možete pronaći na:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtriraj rezultate po ID-u</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Put do manifesta koji treba provjeriti</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Omogućuje opširnu evidenciju za WinGet</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Upotrijebite specificiranu verziju; zadano je najnovija verzija</value>

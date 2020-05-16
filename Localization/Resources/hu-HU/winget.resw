@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>Ha további információra van szüksége egy adott parancsról, adja meg hozzá a súgó argumentumát.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>További segítség a következő helyen található:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Találatok szűrése azonosító alapján</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Az érvényesíteni kívánt jegyzékfájl elérési útja</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>A WinGet részletes naplózásának engedélyezése</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>A megadott verzió használata; az alapértelmezett beállítás a legújabb verzió.</value>

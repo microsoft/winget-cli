@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>Để biết thêm chi tiết về một lệnh cụ thể, hãy truyền qua đối số trợ giúp.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Bạn có thể xem thêm trợ giúp tại:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Lọc kết quả theo ID</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Đường dẫn đến tệp kê khai cần xác thực</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Bật tính năng ghi nhật ký chi tiết cho WinGet</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Sử dụng phiên bản đã xác định; mặc định là phiên bản mới nhất</value>

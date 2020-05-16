@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>Pour en savoir plus sur une commande spécifique, passez-la à l’argument aide.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Vous trouverez de l’aide supplémentaire sur :</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtrer les résultats par identifiant</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Chemin d’accès au manifeste à valider</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Active la journalisation détaillée pour WinGet</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Utiliser la version indiquée; la version par défaut est la dernière version</value>

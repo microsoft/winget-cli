@@ -144,7 +144,7 @@
     <value>Ergebnisse nach Befehl filtern</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
-    <value>Nicht mehr als die angegebene Anzahl von Ergebnissen anzeigen</value>
+    <value>Nicht mehr als festgelegte Anzahl von Ergebnissen anzeigen</value>
   </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
     <value>App mit exakter Übereinstimmung suchen</value>
@@ -169,6 +169,9 @@
   </data>
   <data name="HelpForDetails" xml:space="preserve">
     <value>Wenn Sie weitere Details zu einem bestimmten Befehl erfahren möchten, übergeben Sie ihm das Hilfe-Argument.</value>
+  </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Weitere Hilfe finden Sie unter:</value>
   </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Ergebnisse nach ID filtern</value>
@@ -198,7 +201,7 @@
     <value>Log-Speicherort (sofern unterstützt)</value>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Der Pfad zum Manifest der Anwendung.</value>
+    <value>Der Pfad des Manifests der Anwendung</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Wert des Arguments erforderlich, aber nicht gefunden</value>
@@ -229,7 +232,7 @@
     <value>Vorschau</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Die Abfrage, die für die Suche nach einer App verwendet wird.</value>
+    <value>Die Abfrage, mit der nach einer App gesucht wird</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Statusanzeige in Regenbogenfarben</value>
@@ -253,7 +256,7 @@
     <value>Nur der Einzelzeichen-Alias kann nach einem einzelnen - auftreten.</value>
   </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Fügen Sie eine neue Quelle hinzu. Eine Quelle stellt die Daten für Sie bereit, um Anwendungen zu ermitteln und zu installieren. Fügen Sie nur eine neue Quelle hinzu, wenn Sie als sicherer Speicherort vertrauen.</value>
+    <value>Fügen Sie eine neue Quelle hinzu. Eine Quelle stellt die Daten bereit, mit denen Sie Anwendungen ermitteln und installieren können. Fügen Sie eine neue Quelle nur hinzu, wenn Sie sie für einen sicheren Ort halten.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Eine neue Quelle hinzufügen</value>
@@ -265,7 +268,7 @@
     <value>App mithilfe der angegebenen Quelle suchen</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Verwalten von Quellen mit den unter Befehlen. Eine Quelle stellt die Daten für Sie bereit, um Anwendungen zu ermitteln und zu installieren. Fügen Sie nur eine neue Quelle hinzu, wenn Sie als sicherer Speicherort vertrauen.</value>
+    <value>Verwalten Sie Quellen mit den Unterbefehlen. Eine Quelle stellt die Daten bereit, mit denen Sie Anwendungen ermitteln und installieren können. Fügen Sie eine neue Quelle nur hinzu, wenn Sie sie für einen sicheren Ort halten.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
     <value>Verwalten von Anwendungsquellen</value>
@@ -285,6 +288,9 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Aktuelle Quellen entfernen</value>
   </data>
+  <data name="SourceResetCommandLongDescription" xml:space="preserve">
+    <value>Mit diesem Befehl werden vorhandene Quellen verworfen, wodurch potenziell lokale Daten zurückgelassen werden. Ohne Argument werden alle Quellen verworfen und die Standardwerte hinzugefügt. Wenn eine benannte Quelle bereitgestellt wird, wird nur diese Quelle verworfen.</value>
+  </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Quellen zurücksetzen</value>
   </data>
@@ -299,6 +305,9 @@
   </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Ergebnisse nach Bezeichnung filtern</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Das WinGet-Befehlszeilendienstprogramm ermöglicht das Installieren von Anwendungen über die Befehlszeile.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Allgemeine Informationen zum Tool anzeigen</value>
@@ -323,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Der Pfad des zu überprüfenden Manifests</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Aktiviert die ausführliche Protokollierung für WinGet</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Die angegebene Version verwenden, Standard ist die neueste Version</value>

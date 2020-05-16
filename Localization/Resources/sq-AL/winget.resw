@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>Për më shumë detaje lidhur me një komandë specifike, kaloje te argumenti i ndihmës.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Më shumë ndihmë mund të gjendet në:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtro rezultatet sipas identifikimit</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Shtegu drejt manifestit duhet të verifikohet</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Mundëson evidentimin e detajuar për WinGet</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Përdor versionin e specifikuar; parazgjedhja është versioni më i fundit</value>

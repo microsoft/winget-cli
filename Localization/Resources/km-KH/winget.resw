@@ -215,6 +215,10 @@
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>លទ្ធផល​តម្រង​តាម​ឈ្មោះ</value>
   </data>
+  <data name="NoVTArguementDescription" xml:space="preserve">
+    <value>បិទ​ការ​បង្ហាញ VirtualTerminal</value>
+    <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>បដិសេធ​អាគុយម៉ង់​ត្រូវ​ចម្លង​នៅ​លើ​កម្មវិធី​ដំឡើង</value>
   </data>

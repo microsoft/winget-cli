@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>ສຳລັບລາຍລະອຽດຄຳສັ່ງສະເພາະໃດໜຶ່ງ, ໃຫ້ສົ່ງມັນໄປໃຫ້ອາກິວເມັນຊ່ວຍ.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>ເບິ່ງຄວາມຊ່ວຍເຫຼືອເພີ່ມເຕີມໄດ້ທີ່:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ກັ່ນຕອງຜົນການຊອກຫາຕາມໄອດີ</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>ເສັ້ນທາງໄປຫາ manifest ເພື່ອກວດສອບ</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>ເປີດນຳໃຊ້ການບັນທຶກໂໝດລາຍລະອຽດສຳລັບ WinGet</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>ໃຊ້ເວີຊັນທີ່ລະບຸ; ຄ່າເລີ່ມຕົ້ນແມ່ນເວີຊັນຫຼ້າສຸດ</value>

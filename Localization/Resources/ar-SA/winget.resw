@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>لمزيد من التفاصيل حول أمر محدد، مرره إلى وسيطة التعليمات.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>يمكن العثور على مزيد من التعليمات في:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>تصفية النتائج حسب المعرف</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>يجب أن يتم التحقق من صحة المسار لبيان التطبيق</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>تمكين التسجيل المطوّل لـ WinGet</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>استخدام إصدار محدد؛ يتم استخدام الإصدار الأخير تلقائياً</value>

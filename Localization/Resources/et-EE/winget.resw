@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>Konkreetse käsu kohta täpsema teabe saamiseks edastage sellele spikriargument.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Lisateavet leiate siit:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Saate tulemeid ID järgi filtreerida</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Valideeritava manifesti tee</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Lubab WinGeti jaoks paljusõnalise logimise</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Saate kasutada määratud versiooni; vaikeväärtus on uusim versioon</value>

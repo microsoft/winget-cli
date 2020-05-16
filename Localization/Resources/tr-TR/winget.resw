@@ -117,6 +117,26 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AdjoinedNotFlagError" xml:space="preserve">
+    <value>Ekli diğer ad bir bayrak değil</value>
+  </data>
+  <data name="AdjoinedNotFoundError" xml:space="preserve">
+    <value>Ekli bayrak diğer adı bulunamadı</value>
+  </data>
+  <data name="AvailableArguements" xml:space="preserve">
+    <value>Şu bağımsız değişkenler kullanılabilir:</value>
+  </data>
+  <data name="AvailableCommands" xml:space="preserve">
+    <value>Şu komutlar kullanılabilir:</value>
+    <comment>Commands the tool supports</comment>
+  </data>
+  <data name="AvailableOptions" xml:space="preserve">
+    <value>Şu seçenekler kullanılabilir:</value>
+  </data>
+  <data name="AvailableSubcommands" xml:space="preserve">
+    <value>Şu alt komutlar kullanılabilir:</value>
+    <comment>Nested commands that can be run in context of the selected command</comment>
+  </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Belirtilen kanalı kullanın; varsayılan, genel hedef kitledir</value>
   </data>
@@ -129,8 +149,14 @@
   <data name="ExactArgumentDescription" xml:space="preserve">
     <value>Uygulamayı tam eşleşme kullanarak bulma</value>
   </data>
+  <data name="ExtraPositionalError" xml:space="preserve">
+    <value>Beklenmediği halde bir konumsal bağımsız değişken bulundu</value>
+  </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Karma oluşturulacak dosya</value>
+  </data>
+  <data name="FlagContainAdjoinedError" xml:space="preserve">
+    <value>Bayrak bağımsız değişkeni ekli değeri içeremez</value>
   </data>
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>Komutu istemsiz çalıştırma</value>
@@ -140,6 +166,12 @@
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
     <value>Seçili komut hakkında yardım görüntüler</value>
+  </data>
+  <data name="HelpForDetails" xml:space="preserve">
+    <value>Belirli bir komut hakkında daha fazla ayrıntı için, ilgili komutu yardım bağımsız değişkenine geçirin.</value>
+  </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Şurada daha fazla yardım bulunabilir:</value>
   </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Sonuçları kimliğe göre filtreleme ölçütü:</value>
@@ -152,6 +184,9 @@
   </data>
   <data name="InvalidAliasError" xml:space="preserve">
     <value>Geçerli komut için bağımsız değişken diğer adı tanınmadı</value>
+  </data>
+  <data name="InvalidArgumentSpecifierError" xml:space="preserve">
+    <value>Geçersiz bağımsız değişken belirticisi</value>
   </data>
   <data name="InvalidNameError" xml:space="preserve">
     <value>Geçerli komut için bağımsız değişken adı tanınmadı</value>
@@ -167,6 +202,9 @@
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>Uygulama bildiriminin yolu</value>
+  </data>
+  <data name="MissingArgumentError" xml:space="preserve">
+    <value>Bağımsız değişken değeri gerekli, ancak değer bulunamadı</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
     <value>Sonuçları uygulama bağlantı yoluna göre filtreleme ölçütü:</value>
@@ -184,14 +222,23 @@
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Yükleyiciye geçirilecek bağımsız değişkenleri geçersiz kılma</value>
   </data>
+  <data name="PendingWorkError" xml:space="preserve">
+    <value>Hay aksi, bunu yapmayı unuttuk...</value>
+  </data>
   <data name="PlainArgumentDescription" xml:space="preserve">
     <value>Varsayılan renk olarak ilerleme ekranı</value>
+  </data>
+  <data name="PreviewVersion" xml:space="preserve">
+    <value>Önizleme</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>Uygulamayı aramak için kullanılan sorgu</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Gökkuşağı şeklinde ilerleme görüntüleme</value>
+  </data>
+  <data name="RequiredArgError" xml:space="preserve">
+    <value>Gerekli bağımsız değişken sağlanmadı</value>
   </data>
   <data name="SearchCommandDescription" xml:space="preserve">
     <value>Uygulamaların temel bilgilerini bulma ve görüntüleme</value>
@@ -268,6 +315,15 @@
   <data name="ToolVersionArgumentDescription" xml:space="preserve">
     <value>Aracın sürümünü görüntüleme</value>
   </data>
+  <data name="TooManyArgError" xml:space="preserve">
+    <value>İzin verilenden daha fazla sayıda bağımsız değişken sağlandı</value>
+  </data>
+  <data name="TooManyBehaviorsError" xml:space="preserve">
+    <value>Birden fazla yükleme davranışı bağımsız değişkeni sağlandı</value>
+  </data>
+  <data name="UnrecognizedCommand" xml:space="preserve">
+    <value>Tanınmayan komut</value>
+  </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Kesin bir talimatlar kümesi kullanarak bir bildirimi onaylar. Bu, depoya göndermeden önce bildiriminizi gözden geçirmek için düşünülmüştür.</value>
   </data>
@@ -276,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Doğrulanacak bildirimin yolu</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>WinGet için ayrıntılı günlüğü etkinleştirir</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Belirtilen sürümü kullanın; varsayılan en son sürümdür</value>

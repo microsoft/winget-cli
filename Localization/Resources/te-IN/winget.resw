@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>నిర్దిష్ట ఆదేశంపై మరిన్ని వివరాల కోసం, సహాయ వాదనను పంపండి.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>మరింత సహాయం ఇక్కడ చూడవచ్చు:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ఐడి ద్వారా ఫలితాలను ఫిల్టర్ చేయండి</value>
   </data>
@@ -211,6 +214,10 @@
   </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>ఫలితాలను పేరు ద్వారా ఫిల్టర్ చేయండి</value>
+  </data>
+  <data name="NoVTArguementDescription" xml:space="preserve">
+    <value>VirtualTerminal ప్రదర్శనను నిలిపివేస్తుంది</value>
+    <comment>{Locked="VirtualTerminal"}</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>వ్యవస్థాపించవలసిన దానికి పంపాల్సిన వాదనలను భర్తీ చేయండి</value>
@@ -325,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>మానిఫెస్ట్‌కు మార్గాన్ని ధృవీకరించాలి</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>WinGet కోసం వెర్బోస్ లాగింగ్‌ను ప్రారంభిస్తుంది</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>పేర్కొన్న సంస్కరణను ఉపయోగించండి; తాజా వెర్షన్ డిఫాల్ట్ అవుతుంది</value>

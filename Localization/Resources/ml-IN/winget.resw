@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>ഒരു നിർദ്ദിഷ്ട കമാൻഡിനെക്കുറിച്ചുള്ള കൂടുതൽ വിശദാംശങ്ങൾക്കായി, സഹായ വാദം നൽകുക.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>കൂടുതൽ സഹായം ഇവിടെ ലഭിക്കും:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ID ഉപയോഗിച്ച് ഫലങ്ങൾ ഫിൽട്ടർ ചെയ്യുക</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>മാനിഫെസ്റ്റിലേക്കുള്ള പാത സാധൂകരിക്കപ്പെടണം</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>WinGet -നുവേണ്ടി വാചാലത ലോഗിംഗ് പ്രാപ്‌തമാക്കുന്നു</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>നിർദ്ദിഷ്ട പതിപ്പ് ഉപയോഗിക്കുക; സ്ഥിരസ്ഥിതി ഏറ്റവും പുതിയ പതിപ്പാണ്</value>

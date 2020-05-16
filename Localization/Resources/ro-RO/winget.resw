@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>Pentru mai multe detalii despre o anumită comandă, treceți-i argument de ajutor.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Mai mult ajutor poate fi găsit la:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtrare rezultate după ID</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Calea către manifest care va fi validată</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Activează înregistrarea vocală în jurnal pentru WinGet</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Utilizarea versiunii specificate; valoarea implicită este cea mai recentă versiune</value>

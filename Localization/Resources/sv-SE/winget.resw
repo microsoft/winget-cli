@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>Om du vill ha mer information om ett speciellt kommando kan du skicka den till hjälpargumentet.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Mer hjälp finns på:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtrera resultat efter id</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Sökvägen till manifestet som ska verifieras</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Aktiverar utförlig loggning för WinGet</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Använd den angivna versionen. standard är den senaste versionen</value>

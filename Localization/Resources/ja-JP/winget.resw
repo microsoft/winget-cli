@@ -138,7 +138,7 @@
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
-    <value>指定されたチャネルを使用します。既定値は一般向けです</value>
+    <value>指定されたチャンネルを使用します。既定値は一般向けです</value>
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>コマンドによる結果のフィルター処理</value>
@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>特定のコマンドの詳細については、それにヘルプ引数を渡します。</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>詳細については、次を参照してください。</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ID で結果をフィルター処理</value>
   </data>
@@ -177,7 +180,7 @@
     <value>指定されたアプリケーションをインストール</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
-    <value>対話式インストールを要求する;ユーザー入力が必要である可能性があります</value>
+    <value>対話式のインストールが要求されます。ユーザーの入力が必要になる場合があります</value>
   </data>
   <data name="InvalidAliasError" xml:space="preserve">
     <value>引数の別名が現在のコマンドに対して認識されませんでした</value>
@@ -198,7 +201,7 @@
     <value>ログの場所 (サポートされている場合)</value>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>アプリケーションのマニフェストへのパス</value>
+    <value>アプリケーションのマニフェストのパス</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>引数値が必要ですが、見つかりません</value>
@@ -322,16 +325,19 @@
     <value>認識されないコマンド</value>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
-    <value>厳密な一連のガイドラインを使用してマニフェストを検証します。これは、リポジトリに送信する前にマニフェストを確認できるようにするためのものです。</value>
+    <value>厳密なガイドラインのセットを使用してマニフェストを検証します。これは、リポジトリに送信する前にマニフェストを確認できるようにすることを目的としています。</value>
   </data>
   <data name="ValidateCommandShortDescription" xml:space="preserve">
     <value>マニフェスト ファイルを検証</value>
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
-    <value>検証するマニフェストへのパス</value>
+    <value>検証対象のマニフェストのパス</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>WinGet の詳細ログを有効にする</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
-    <value>指定されたバージョンを使用します。既定値は最新のバージョンです</value>
+    <value>指定されたバージョンを使用します。既定値は最新バージョンです</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>アプリの利用可能なバージョンを表示</value>

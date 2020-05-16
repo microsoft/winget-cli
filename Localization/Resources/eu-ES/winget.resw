@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>Komando jakin bati buruzko xehetasun gehiagorako, pasatu laguntza argumentua.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Laguntza gehiego aurki dezakezu hemen:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Iragazi emaitzak IDaren arabera</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Baliozkotu beharreko manifestuaren bide-izena</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>WinGet-entzat erregistro xehatua gaitzen du</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Erabili zehaztutako bertsioa; azken bertsioa da lehenetsia</value>
