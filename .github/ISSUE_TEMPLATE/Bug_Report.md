@@ -32,17 +32,10 @@ Please use this form and describe your issue, concisely but precisely, with as m
 
 -->
 
-# Environment
-
-```none
-[winget --info]
-Windows Package Manager version
-Windows: Windows.Desktop version
-Package: Microsoft.DesktopAppInstaller version
-
-Any other software?
-```
-
+# Brief description of your issue
+<!--
+Please use this section to describe your issue.   This could be a repeat of the title, or maybe you have more to say.
+-->
 # Steps to reproduce
 
 <!-- A description of how to trigger this bug. -->
@@ -54,3 +47,15 @@ Any other software?
 # Actual behavior
 
 <!-- What's actually happening? -->
+
+
+# Environment
+
+```none
+[winget --info]
+Windows Package Manager version
+Windows: Windows.Desktop version
+Package: Microsoft.DesktopAppInstaller version
+
+Any other software?
+```
