@@ -12,7 +12,7 @@ The Windows Package Manager project is engineered and delivered as a set of 4-we
 | --- | --- | --- |
 | 2 weeks | Dev Work<br/> <ul><li>Fixes / Features for future Windows Releases</li><li>Fixes / Features for Windows Terminal</li></ul> |  Release to Internal Selfhosters at end of week 2 |
 | 1 week | Quality & Stability<br/> <ul><li>Bug Fixes</li><li>Perf & Stability</li><li>UI Polish</li><li>Tests</li><li>etc.</li></ul>| Push to Microsoft Store at end of week 3 |
-| 1 week | Release <br/> <ul><li>Available from [Microsoft Store](https://www.microsoft.com/en-us/p/windows-terminal-preview/9n0dx20hk701) & [GitHub Releases](https://github.com/microsoft/terminal/releases) (Tues of 4th week)</li><li>Release Notes & Announcement Blog published</li><li>Engineering System Maintenance</li><li>Community Engagement</li><li>Docs</li><li>Future Milestone Planning</li></ul> | Release available from Microsoft Store & GitHub Releases |
+| 1 week | Release <br/> <ul><li>Available from [Microsoft Store](ms-windows-store://pdp/?productid=9nblggh4nns1) & [GitHub Releases](https://github.com/microsoft/winget-cli/releases) (Tues of 4th week)</li><li>Release Notes & Announcement Blog published</li><li>Engineering System Maintenance</li><li>Community Engagement</li><li>Docs</li><li>Future Milestone Planning</li></ul> | Release available from Microsoft Store & GitHub Releases |
 
 ## Windows Package Manager Roadmap / Timeline
 
