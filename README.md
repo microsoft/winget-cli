@@ -1,6 +1,6 @@
-# Welcome to the Windows Package Manager Client (aka WinGet) repository
+# Welcome to the Windows Package Manager Client (aka winget) repository
 
-This repository contains the source code for the Window Package Manager Client (aka WinGet).
+This repository contains the source code for the Window Package Manager Client (aka winget).
 
 The packages available to the client are in the [Community repo](https://github.com/microsoft/winget-pkgs).
 
