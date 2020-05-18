@@ -8,11 +8,11 @@ This document outlines our aspirational roadmap to delivering Windows Package Ma
 
 The Windows Package Manager project is engineered and delivered as a set of 4-week milestones. An example of how this might be executed is listed below:
 
-| Duration | Activity | Releases |
-| --- | --- | --- |
-| 2 weeks | Dev Work<br/> <ul><li>Fixes / Features for future Windows Releases</li><li>Fixes / Features for Windows Package Manager</li></ul> |  Release to Internal Selfhosters at end of week 2 |
-| 1 week | Quality & Stability<br/> <ul><li>Bug Fixes</li><li>Perf & Stability</li><li>UI Polish</li><li>Tests</li><li>etc.</li></ul>| Push to Windows Insiders Microsoft Store at end of week 3 |
-| 1 week | Release <br/> <ul><li>Available from to Windows Insiders through the [Microsoft Store](https://www.microsoft.com/p/app-installer/9nblggh4nns1) & [GitHub Releases](https://github.com/microsoft/winget-cli/releases) (Tues of 4th week)</li><li>Release Notes & Announcement Blog published</li><li>Engineering System Maintenance</li><li>Community Engagement</li><li>Docs</li><li>Future Milestone Planning</li></ul> | Release available from Microsoft Store & GitHub Releases |
+| Activities | Releases |
+| --- | --- |
+| Dev Work<br/> <ul><li>Fixes / Features for future Windows Releases</li><li>Fixes / Features for Windows Package Manager</li></ul> 
+| Quality & Stability<br/> <ul><li>Bug Fixes</li><li>Perf & Stability</li><li>UI Polish</li><li>Tests</li><li>etc.</li></ul>
+| Release <br/> <ul><li>Available from to Windows Insiders through the [Microsoft Store](https://www.microsoft.com/p/app-installer/9nblggh4nns1) & [GitHub Releases](https://github.com/microsoft/winget-cli/releases) (Tues of 4th week)</li><li>Release Notes & Announcement Blog published</li><li>Engineering System Maintenance</li><li>Community Engagement</li><li>Docs</li><li>Future Milestone Planning</li></ul> | Releases will be availabe here on GitHub first<br/> We will release to the App Installer for Insiders as frequenly as the releases have met our quality bars. Our goal is to have updates at least monthly. |
 
 ## Windows Package Manager Roadmap / Timeline
 
