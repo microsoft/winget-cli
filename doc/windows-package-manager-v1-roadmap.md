@@ -59,7 +59,7 @@ Ultimately, we're aiming for Windows Package Manager v1.0 to be released in Spri
 
 ## GitHub Milestones
 
-Each Release above is/will be reflected in our [GitHub milestones](https://github.com/microsoft/terminal/milestones):
+Each Release above is/will be reflected in our [GitHub milestones](https://github.com/microsoft/winget-cli/milestones):
 
 | Milestone | Description |
 | --- | --- |
