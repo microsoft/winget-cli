@@ -71,14 +71,14 @@ Each Release above is/will be reflected in our [GitHub milestones](https://githu
 Incoming issues/asks/etc. are triaged several times a week, labelled appropriately, and assigned to a milestone in priority order:
 
 * P0 (serious crashes, data loss, etc.) issues are scheduled to be dealt with ASAP
-* P1/2 issues/features/asks  assigned to the current or future milestone, or to the [Package Manager v1.0 milestone](https://github.com/microsoft/winget-cli/milestone/1) for future assignment, if required to deliver a v1.0 feature
+* P1/2 issues/features/asks  assigned to the current or future milestone, or to the [Windows Package Manager v1.0 milestone](https://github.com/microsoft/winget-cli/milestone/1) for future assignment, if required to deliver a v1.0 feature
 * Issues/features/asks not on our list of v1.0 features is assigned to the [Windows Package Manager Backlog](https://github.com/microsoft/winget-cli/milestone/2) for subsequent triage, prioritization & scheduling.
 
 ## v1.0 Scenarios
 
 The following are a list of the key scenarios we're aiming to deliver for Windows Package Manager v1.0.
 
-> 👉 Note: There are many other features that don't fit within v1.0, but will be re-assessed and prioritized for v2.0, the plan for which will be published in early in 2021.
+> 👉 Note: There may be features that don't fit within v1.0, but will be re-assessed and prioritized for a future release, the plan for which will be published in early in 2021.
 
 | Release | Priority\* | Feature | Description/Notes |
 | --- | --- | --- | --- |
