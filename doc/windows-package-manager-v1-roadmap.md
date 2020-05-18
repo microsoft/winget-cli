@@ -6,7 +6,7 @@ This document outlines our aspirational roadmap to delivering Windows Package Ma
 
 ## Milestones
 
-The Windows Package Manager project is engineered and delivered as a set of 4-week milestones:
+The Windows Package Manager project is engineered and delivered as a set of 4-week milestones. An example of how this might be executed is listed below:
 
 | Duration | Activity | Releases |
 | --- | --- | --- |
