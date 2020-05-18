@@ -39,25 +39,23 @@ Releases will be availabe here on GitHub first<br/> We will release to the App I
 
 ## Windows Package Manager Roadmap / Timeline
 
-Ultimately, we're aiming for Windows Package Manager v1.0 to be feature-complete by Dec 2020, and to declare v1.0 by April 2021:
+Ultimately, we're aiming for Windows Package Manager v1.0 to be released in Spring 2021:
 
-> ⚠ Note: Windows Package Manager v1.0 will be a quality-oriented release driven in large part by the community. So, ___if you see bugs, find/file them___!
-
-| Release or Milestone end date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Milestone Name | Key Deliverables |
+| Release or Milestone end date | Milestone Name | Key Deliverables |
 | --- | --- | --- |
 | 2020-05-19 | [v0.1](https://github.com/microsoft/winget-cli/releases/tag/v0.1.4331-preview) | Windows Package Manager [announced](https://devblogs.microsoft.com/commandline/windows-package-manager-preview/) & open-sourced ([Build 2020 Windows Package Manager session]) |
-| 2020-06-23 | [v0.2](https://github.com/microsoft/winget-cli/milestone/4) | |
-| 2020-07-28 | [v0.3](https://github.com/microsoft/winget-cli/milestone/5) | |
-| 2020-08-25 | [v0.4](https://github.com/microsoft/winget-cli/milestone/6) | |
-| 2020-09-22 | [v0.5](https://github.com/microsoft/winget-cli/milestone/7) | |
-| 2020-10-27 | [v0.6](https://github.com/microsoft/winget-cli/milestone/8) | |
-| 2020-11-24 | [v0.7](https://github.com/microsoft/winget-cli/milestone/9) | |
-| 2020-12-22 | [v0.8](https://github.com/microsoft/winget-cli/milestone/10) | |
-| 2021-01-26 | [v0.9](https://github.com/microsoft/winget-cli/milestone/11) | |
-| 2021-02-23 | [v0.10](https://github.com/microsoft/winget-cli/milestone/12) | |
-| 2021-03-23 | [v0.11](https://github.com/microsoft/winget-cli/milestone/13) | |
-| 2021-04-27 | [v0.12](https://github.com/microsoft/winget-cli/milestone/14) | |
-| 2021-05    | [v1.0](https://github.com/microsoft/winget-cli/milestone/1) | Windows Package Manager v1.0 Release |
+| June 2020 | [v0.2](https://github.com/microsoft/winget-cli/milestone/4) | |
+| July 2020 | [v0.3](https://github.com/microsoft/winget-cli/milestone/5) | |
+| August 2020 | [v0.4](https://github.com/microsoft/winget-cli/milestone/6) | |
+| September 2020 | [v0.5](https://github.com/microsoft/winget-cli/milestone/7) | |
+| October 2020 | [v0.6](https://github.com/microsoft/winget-cli/milestone/8) | |
+| November 2020 | [v0.7](https://github.com/microsoft/winget-cli/milestone/9) | |
+| December 2020 | [v0.8](https://github.com/microsoft/winget-cli/milestone/10) | |
+| January 2021 | [v0.9](https://github.com/microsoft/winget-cli/milestone/11) | |
+| February 2021 | [v0.10](https://github.com/microsoft/winget-cli/milestone/12) | |
+| March 2021 | [v0.11](https://github.com/microsoft/winget-cli/milestone/13) | |
+| April 2021 | [v0.12](https://github.com/microsoft/winget-cli/milestone/14) | |
+| May 2021 | [v1.0](https://github.com/microsoft/winget-cli/milestone/1) | Windows Package Manager v1.0 Release |
 
 ## GitHub Milestones
 
