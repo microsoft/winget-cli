@@ -7,6 +7,10 @@ pr:
   branches:
     include:
     - master
+  paths:
+    include:
+    - azure-pipelines.yml
+    - src/*
 
 pool:
   vmImage: 'windows-latest'
