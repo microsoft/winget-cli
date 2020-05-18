@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>Щоб отримати докладні відомості про певну команду, передайте їй аргумент довідки.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Додаткову довідку можна отримати на сайті</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Фільтрувати результати за ідентифікаторами</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Шлях до маніфесту, який слід перевірити</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Увімкнення детального журналювання для WinGet</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Використати вказану версією; найновіша версія використовується за замовчуванням</value>

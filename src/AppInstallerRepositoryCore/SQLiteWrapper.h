@@ -155,9 +155,9 @@ namespace AppInstaller::Repository::SQLite
     // A SQL statement.
     struct Statement
     {
-        static Statement Create(Connection& connection, const std::string& sql, bool persistent = false);
-        static Statement Create(Connection& connection, std::string_view sql, bool persistent = false);
-        static Statement Create(Connection& connection, char const* const sql, bool persistent = false);
+        static Statement Create(Connection& connection, const std::string& sql);
+        static Statement Create(Connection& connection, std::string_view sql);
+        static Statement Create(Connection& connection, char const* const sql);
 
         Statement() = default;
 
@@ -231,7 +231,7 @@ namespace AppInstaller::Repository::SQLite
         operator bool() const { return static_cast<bool>(m_stmt); }
 
     private:
-        Statement(Connection& connection, std::string_view sql, bool persistent);
+        Statement(Connection& connection, std::string_view sql);
 
         // Helper to receive the integer sequence from the public function.
         // This is equivalent to calling:

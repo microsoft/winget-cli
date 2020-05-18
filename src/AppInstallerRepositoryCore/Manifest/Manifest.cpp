@@ -161,6 +161,12 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Version", Version);
             }
 
+            // License field is required
+            if (License.empty())
+            {
+                resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "License");
+            }
+
             // Check duplicate installer entry. {installerType, arch, language and scope} combination is the key.
             // Todo: use the comparator from ManifestComparator when that one is fully implemented.
             auto installerCmp = [](const ManifestInstaller& in1, const ManifestInstaller& in2)

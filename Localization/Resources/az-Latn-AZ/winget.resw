@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>Xüsusi əmr barədə daha çox təfərrüat əldə etmək üçün onu kömək arqumentinə ötürün.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Daha çox kömək əldə etmək üçün buraya keçin:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Nəticələri id-ə görə süzgəcdən keçirin</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Təsdiqlənməsi tələb edilən manifestə aparan yol</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>WinGet üçün jurnalda ətraflı qeyd aparılmasını aktiv edir</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Qeyd edilmiş versiyadan istifadə edin; standart kimi ən son versiya nəzərdə tutulur</value>

@@ -333,6 +333,9 @@
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Die pad na die manifes wat gevalideer moet word</value>
   </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Aktiveer woordryke loghouding vir WinGet</value>
+  </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Gebruik die gespesifiseerde weergawe; verstek is die jongste weergawe</value>
   </data>

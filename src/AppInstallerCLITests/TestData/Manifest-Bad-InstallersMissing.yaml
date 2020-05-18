@@ -4,4 +4,5 @@ Name: MSIX SDK
 Version: 1.7.32
 InstallerType: Zip
 Publisher: Microsoft
+License: Test
 ManifestVersion: 0.1.0

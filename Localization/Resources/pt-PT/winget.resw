@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>Para obter mais detalhes sobre um comando específico, transmita o argumento de ajuda para o mesmo.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Pode encontrar mais ajuda em:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtrar os resultados por ID</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>O caminho do manifesto a ser validado</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Ativa o registo verboso para WinGet</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Utilizar a versão especificada; a predefinição é a versão mais recente</value>

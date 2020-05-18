@@ -117,4 +117,229 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AdjoinedNotFlagError" xml:space="preserve">
+    <value>Samliggjandi samnefni er ekki flagg</value>
+  </data>
+  <data name="AdjoinedNotFoundError" xml:space="preserve">
+    <value>Samliggjandi flaggsamnefni fannst ekki</value>
+  </data>
+  <data name="AvailableArguements" xml:space="preserve">
+    <value>Eftirfarandi frumbreytur eru tiltækar:</value>
+  </data>
+  <data name="AvailableCommands" xml:space="preserve">
+    <value>Eftirfarandi skipanir eru tiltækar:</value>
+    <comment>Commands the tool supports</comment>
+  </data>
+  <data name="AvailableOptions" xml:space="preserve">
+    <value>Eftirfarandi valkostir eru tiltækir:</value>
+  </data>
+  <data name="AvailableSubcommands" xml:space="preserve">
+    <value>Eftirfarandi undirskipanir eru tiltækar:</value>
+    <comment>Nested commands that can be run in context of the selected command</comment>
+  </data>
+  <data name="ChannelArgumentDescription" xml:space="preserve">
+    <value>Nota tilgreinda rás; sjálfgefið er almennur notendahópur</value>
+  </data>
+  <data name="CommandArgumentDescription" xml:space="preserve">
+    <value>Sía niðurstöður eftir skipun</value>
+  </data>
+  <data name="CountArgumentDescription" xml:space="preserve">
+    <value>Sýna ekki fleiri en tiltekinn fjölda niðurstaðna</value>
+  </data>
+  <data name="ExactArgumentDescription" xml:space="preserve">
+    <value>Finna forrit með því að nota nákvæma samsvörun</value>
+  </data>
+  <data name="ExtraPositionalError" xml:space="preserve">
+    <value>Fann stöðufrumbreytu þegar engin var væntanleg</value>
+  </data>
+  <data name="FileArgumentDescription" xml:space="preserve">
+    <value>Skrá sem tætt verður</value>
+  </data>
+  <data name="FlagContainAdjoinedError" xml:space="preserve">
+    <value>Flagg frumbreytu getur ekki innihaldið samliggjandi gildi</value>
+  </data>
+  <data name="ForceArgumentDescription" xml:space="preserve">
+    <value>Framkvæma skipunina án kvaðninga</value>
+  </data>
+  <data name="HashHelperDescription" xml:space="preserve">
+    <value>Aðstoð til að tæta uppsetningaskrár</value>
+  </data>
+  <data name="HelpArgumentDescription" xml:space="preserve">
+    <value>Sýnir aðstoð vegna valinnar skipunar</value>
+  </data>
+  <data name="HelpForDetails" xml:space="preserve">
+    <value>Til að fá frekari upplýsingar um sérstaka skipun skal senda henni aðstoðarfrumbreytu.</value>
+  </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>Frekari aðstoð er að finna á:</value>
+  </data>
+  <data name="IdArgumentDescription" xml:space="preserve">
+    <value>Sía niðurstöður kenni</value>
+  </data>
+  <data name="InstallCommandDescription" xml:space="preserve">
+    <value>Uppsetur forritið</value>
+  </data>
+  <data name="InteractiveArgumentDescription" xml:space="preserve">
+    <value>Biðja um gagnvirka uppsetningu; ílag notanda kann að vera nauðsynlegt</value>
+  </data>
+  <data name="InvalidAliasError" xml:space="preserve">
+    <value>Samnefni frumbreytu þekktist ekki fyrir núverandi skipun</value>
+  </data>
+  <data name="InvalidArgumentSpecifierError" xml:space="preserve">
+    <value>Ógild tilgreining frumbreytu</value>
+  </data>
+  <data name="InvalidNameError" xml:space="preserve">
+    <value>Heiti frumbreytu þekktist ekki fyrir núverandi skipun</value>
+  </data>
+  <data name="LanguageArgumentDescription" xml:space="preserve">
+    <value>Tungumál sem á að setja upp (ef stutt)</value>
+  </data>
+  <data name="LocationArgumentDescription" xml:space="preserve">
+    <value>Staðsetning sett upp á (ef stutt)</value>
+  </data>
+  <data name="LogArgumentDesciption" xml:space="preserve">
+    <value>Staðsetning skráar (ef stutt)</value>
+  </data>
+  <data name="ManifestArgumentDescription" xml:space="preserve">
+    <value>Slóðin á farmskrá forritsins</value>
+  </data>
+  <data name="MissingArgumentError" xml:space="preserve">
+    <value>Þörf er á frumbreytugildi en engin fannst</value>
+  </data>
+  <data name="MonikerArgumentDescription" xml:space="preserve">
+    <value>Sía niðurstöður eftir viðurnefni forrits</value>
+  </data>
+  <data name="MsixArgumentDescription" xml:space="preserve">
+    <value>Ílagsskrá verður meðhöndluð sem msix; tæting undirskriftar verður notuð ef undirrituð</value>
+  </data>
+  <data name="NameArgumentDescription" xml:space="preserve">
+    <value>Sía niðurstöður eftir heiti</value>
+  </data>
+  <data name="NoVTArguementDescription" xml:space="preserve">
+    <value>Slekkur á VirtualTerminal-skjá</value>
+    <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="OverrideArgumentDescription" xml:space="preserve">
+    <value>Hnekkja frumbreytum sem á að senda í uppsetningarforritið</value>
+  </data>
+  <data name="PendingWorkError" xml:space="preserve">
+    <value>Úps, við gleymdum að gera þetta...</value>
+  </data>
+  <data name="PlainArgumentDescription" xml:space="preserve">
+    <value>Framvinduskjár sem sjálfgefinn litur</value>
+  </data>
+  <data name="PreviewVersion" xml:space="preserve">
+    <value>Forskoðun</value>
+  </data>
+  <data name="QueryArgumentDescription" xml:space="preserve">
+    <value>Fyrirspurnin sem notuð er til að leita að forriti</value>
+  </data>
+  <data name="RainbowArgumentDescription" xml:space="preserve">
+    <value>Framvinduskjár í fjölda lita</value>
+  </data>
+  <data name="RequiredArgError" xml:space="preserve">
+    <value>Áskilin frumbreyta ekki tilgreind</value>
+  </data>
+  <data name="SearchCommandDescription" xml:space="preserve">
+    <value>Finna og sýna grunnupplýsingar forrita</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Sýnir upplýsingar um tiltekið forrit.</value>
+  </data>
+  <data name="ShowCommandShortDescription" xml:space="preserve">
+    <value>Sýnir upplýsingar um forrit</value>
+  </data>
+  <data name="SilentArgumentDescription" xml:space="preserve">
+    <value>Biðja um þögla uppsetningu</value>
+  </data>
+  <data name="SingleCharAfterDashError" xml:space="preserve">
+    <value>Aðeins getur samnefni fyrir einn staf komið á eftir eitt -</value>
+  </data>
+  <data name="SourceAddCommandLongDescription" xml:space="preserve">
+    <value>Bæta við nýjum uppruna. Uppruni veitir þér gögn svo þú getir uppgötvað og sett upp forrit. Bættu aðeins við nýjum uppruna ef þú treystir því að hann sé örugg staðsetning.</value>
+  </data>
+  <data name="SourceAddCommandShortDescription" xml:space="preserve">
+    <value>Bæta við nýjum uppruna</value>
+  </data>
+  <data name="SourceArgArgumentDescription" xml:space="preserve">
+    <value>Frumbreyta sem upprunanum er gefin</value>
+  </data>
+  <data name="SourceArgumentDescription" xml:space="preserve">
+    <value>Finna forrit með því að nota tilgreindan uppruna</value>
+  </data>
+  <data name="SourceCommandLongDescription" xml:space="preserve">
+    <value>Stjórna uppruna með undirskipunum. Uppruni veitir þér gögn svo þú getir uppgötvað og sett upp forrit. Bættu aðeins við nýjum uppruna ef þú treystir því að hann sé örugg staðsetning.</value>
+  </data>
+  <data name="SourceCommandShortDescription" xml:space="preserve">
+    <value>Stjórna uppruna forrita</value>
+  </data>
+  <data name="SourceListCommandLongDescription" xml:space="preserve">
+    <value>Listi yfir alla gildandi uppruna, eða allar upplýsingar um tiltekinn uppruna.</value>
+  </data>
+  <data name="SourceListCommandShortDescription" xml:space="preserve">
+    <value>Skrá núverandi uppruna</value>
+  </data>
+  <data name="SourceNameArgumentDescription" xml:space="preserve">
+    <value>Heiti upprunans</value>
+  </data>
+  <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
+    <value>Fjarlægja tiltekinn uppruna.</value>
+  </data>
+  <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
+    <value>Fjarlægja núverandi uppruna</value>
+  </data>
+  <data name="SourceResetCommandLongDescription" xml:space="preserve">
+    <value>Þessi skipun lækkar núgildandi uppruna, sem gæti skilið staðbundin gögn eftir. Án frumbreyta mun það lækka alla uppruna og bæta sjálfgildunum við. Ef nefndur uppruni er gefinn upp mun aðeins sá uppruni verða lækkaður.</value>
+  </data>
+  <data name="SourceResetCommandShortDescription" xml:space="preserve">
+    <value>Endurstilla heimildir</value>
+  </data>
+  <data name="SourceTypeArgumentDescription" xml:space="preserve">
+    <value>Gerð upprunans</value>
+  </data>
+  <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
+    <value>Uppfæra alla uppruna, eða aðeins tiltekinn uppruna.</value>
+  </data>
+  <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
+    <value>Uppfæra núverandi uppruna</value>
+  </data>
+  <data name="TagArgumentDescription" xml:space="preserve">
+    <value>Sía niðurstöður eftir merki</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>WinGet-skipanalínubúnaðurinn gerir það kleift að setja upp forrit úr skipanalínunni.</value>
+  </data>
+  <data name="ToolInfoArgumentDescription" xml:space="preserve">
+    <value>Sýna almennar upplýsingar um verkfærið</value>
+  </data>
+  <data name="ToolVersionArgumentDescription" xml:space="preserve">
+    <value>Sýna útgáfu verkfærisins</value>
+  </data>
+  <data name="TooManyArgError" xml:space="preserve">
+    <value>Frumbreyta gefin upp oftar en heimilt er</value>
+  </data>
+  <data name="TooManyBehaviorsError" xml:space="preserve">
+    <value>Fleiri en ein frumbreyta fyrir uppsetningarhegðun gefin upp</value>
+  </data>
+  <data name="UnrecognizedCommand" xml:space="preserve">
+    <value>Óþekkt skipun</value>
+  </data>
+  <data name="ValidateCommandLongDescription" xml:space="preserve">
+    <value>Staðfestir farmskrá með því að nota afmarkaðan hóp af viðmiðunarreglum. Þetta er ætlað að gera þér kleift að athuga farmskrána þína áður en þú leggur inn skýrslu.</value>
+  </data>
+  <data name="ValidateCommandShortDescription" xml:space="preserve">
+    <value>Staðfestir upplýsingaskrá</value>
+  </data>
+  <data name="ValidateManifestArgumentDescription" xml:space="preserve">
+    <value>Staðfesta þarf slóðina að farmskránni</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>Virkjar oflengdarskráningu fyrir WinGet</value>
+  </data>
+  <data name="VersionArgumentDescription" xml:space="preserve">
+    <value>Nota tilgreinda útgáfu; sjálfgefið er nýjasta útgáfan</value>
+  </data>
+  <data name="VersionsArgumentDescription" xml:space="preserve">
+    <value>Sýna tiltækar útgáfur af forritinu</value>
+  </data>
 </root>

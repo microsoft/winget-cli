@@ -4,6 +4,7 @@ Name: MSIX SDK
 Version: 1.7.32
 Publisher: Microsoft
 InstallerType: Zip
+License: Test
 Installers:
   - Arch: NotAnArch
     Url: https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdk-x86.zip

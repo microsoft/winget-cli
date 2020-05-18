@@ -4,6 +4,7 @@ Name: MSIX SDK
 Version: 1.7.32
 Publisher: Microsoft
 InstallerType: Exe
+License: Test
 Switches:
   Silent: /s
   SilentWithProgress: /s

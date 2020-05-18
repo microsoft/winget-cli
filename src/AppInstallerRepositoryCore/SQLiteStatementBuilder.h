@@ -202,7 +202,9 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& Equals(details::unbound_t);
         StatementBuilder& Equals(std::nullptr_t);
 
+        StatementBuilder& LikeWithEscape(std::string_view value);
         StatementBuilder& Like(details::unbound_t);
+
         StatementBuilder& Escape(std::string_view escapeChar);
 
         StatementBuilder& Not();
@@ -334,7 +336,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         int GetLastBindIndex() const { return m_bindIndex - 1; }
 
         // Prepares and returns the statement, applying any bindings that were requested.
-        Statement Prepare(Connection& connection, bool persistent = false);
+        Statement Prepare(Connection& connection);
 
         // A convenience function that prepares, binds, and then executes a statement that does not return rows.
         void Execute(Connection& connection);

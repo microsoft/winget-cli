@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>ನಿರ್ದಿಷ್ಟ ಕಮಾಂಡ್‌ನ ಕುರಿತಾದ ಹೆಚ್ಚಿನ ವಿವರಗಳಿಗೆ, ಸಹಾಯ ವಾದದಲ್ಲಿ ಇದನ್ನು ಅಂಗೀಕರಿಸಬೇಕು.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>ಹೆಚ್ಚಿನ ನೆರವನ್ನು ಇಲ್ಲಿ ಕಾಣಬಹುದಾಗಿದೆ:.</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ID ಪ್ರಕಾರವಾಗಿ ಫಲಿತಾಂಶಗಳನ್ನು ಫಿಲ್ಟರ್ ಮಾಡಿ</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>ಮ್ಯಾನಿಫೆಸ್ಟ್ ಮಾರ್ಗವನ್ನು ಮೌಲ್ಯೀಕರಿಸಬೇಕಿದೆ</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>WinGet ಗಾಗಿ ವೆಬೋಸ್ ಲಾಗ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸುತ್ತದೆ</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>ನಿಗದಿತ ಆವೃತ್ತಿಯನ್ನು ಬಳಸಿ; ಇತ್ತೀಚಿನ ಆವೃತ್ತಿಯು ಅದರಲ್ಲಿ ಡೀಫಾಲ್ಟ್ ಆಗಿರುತ್ತದೆ</value>

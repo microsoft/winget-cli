@@ -170,6 +170,9 @@
   <data name="HelpForDetails" xml:space="preserve">
     <value>برای اطلاع از جزئیات بیشتر در مورد یک فرمان خاص، آن را به آرگومان راهنما منتقل کنید.</value>
   </data>
+  <data name="HelpLinkPreamble" xml:space="preserve">
+    <value>راهنمای بیشتر را می‌توان یافت در:</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>نتایج را بر اساس شناسه فیلتر می‌کند</value>
   </data>
@@ -329,6 +332,9 @@
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>مسیر مربوط به مانیفستی است که باید تأیید اعتبار شود</value>
+  </data>
+  <data name="VerboseLogsArgumentDescription" xml:space="preserve">
+    <value>ورود به سیستم شفاهی را برای WinGet فعال می‌کند</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>از نسخه مشخص‌شده استفاده می‌کند؛ نسخه پیش‌فرض همان آخرین نسخه است</value>
