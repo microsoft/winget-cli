@@ -34,11 +34,18 @@ You can also [build the client yourself](#building-the-client). While the client
 
 ## Overview
 
-TBD
+Our goal with the Windows Package Manager is to make your development process on Windows easier, faster, and more efficient. The goal isn't to be *the* package manager you use, but we do want to have all of the functionality to be a choice. And if you want to use a different package manager, we at least want to be able to provide you with a simple, quick command to bootstrap you into your preferred experience.
 
-## Resources
+Although we are calling it a package manager because the term fits semantically, we don't actually manage what one would traditionally call a 'package'. Windows aleady has such a package manager; the MSIX deployment architecture is built around declarative, bundled packages that can cleanly be added and removed. However, there are many programs that have been written for Windows that are not in an MSIX package. We want to be able to manage these for you as well (as best we can).
 
-TBD
+For Preview, the goal is to get something usable in your hands as soon as possible. That means that right now we have the infrastructure to support install. From here, we have plenty of backlog features in our [Issues](https://github.com/microsoft/winget-cli/issues). You can upvote the ones you want, add more, or even [get started on one](https://github.com/microsoft/winget-cli/projects/1).
+
+### Sources
+The client is built around the concept of sources; a set of packages effectively. Sources provide the ability to discover and retreive the metadata about the packages, so that the client can act on it.
+
+The default source reflects that data available from the [Community repo](https://github.com/microsoft/winget-pkgs).
+
+We plan to better support additional sources, and additional types of sources, in the future. For now, additional sources can be configured, but only one used at a time.
 
 ## Building the client
 
