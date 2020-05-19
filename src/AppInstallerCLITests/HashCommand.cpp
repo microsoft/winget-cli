@@ -18,6 +18,6 @@ TEST_CASE("HashCommandWithTestMsix", "[Sha256Hash]")
 
     hashCommand.Execute(context);
 
-    REQUIRE(hashOutput.str().find("File Hash: 6a2d3683fa19bf00e58e07d1313d20a5f5735ebbd6a999d33381d28740ee07ea") != std::string::npos);
-    REQUIRE(hashOutput.str().find("Signature Hash: 138781c3e6f635240353f3d14d1d57bdcb89413e49be63b375e6a5d7b93b0d07") != std::string::npos);
+    REQUIRE(hashOutput.str().find("Sha256: 6a2d3683fa19bf00e58e07d1313d20a5f5735ebbd6a999d33381d28740ee07ea") != std::string::npos);
+    REQUIRE(hashOutput.str().find("SignatureSha256: 138781c3e6f635240353f3d14d1d57bdcb89413e49be63b375e6a5d7b93b0d07") != std::string::npos);
 }
