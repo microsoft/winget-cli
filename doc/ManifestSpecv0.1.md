@@ -110,7 +110,7 @@ Commands: "code"
 
 # InstallerType is a required field.  Supported types are inno, wix, msi, nullsoft, zip, appx, msix and exe.
 # The winget command tool uses this value to assist in installing this application.
-# If the value is an exe, you will need to provide the the quiet switches.
+# If the value is an exe, you will need to provide the quiet switches.
 # zip is not supported in this preview (5/24/2020)  
 # Restrictions: [min: 1, max:40] 
 InstallerType: msix
