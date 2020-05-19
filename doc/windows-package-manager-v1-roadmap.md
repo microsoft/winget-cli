@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines our aspirational roadmap to delivering Windows Package Manager v1.0 by Spring 2021. We anticpate substantial feedback from the community, and as such, this plan is subject to change.
+This document outlines our aspirational roadmap to delivering Windows Package Manager v1.0 by Spring 2021. We anticipate substantial feedback from the community, and as such, this plan is subject to change.
 
 ## Milestones
 
