@@ -54,7 +54,7 @@ The default source reflects that data available from the [Community repo](https:
 We plan to better support additional sources, and additional types of sources, in the future. For now, additional sources can be configured, but only one used at a time.
 
 ### Package Manager Service 
-The **Package Manager Service** is responsible for approving Pull Requests.  It validates the YAML and [manifest spec](https://github.com/microsoft/winget-cli/docs/spec/YamlSpec.md) for spec compliance.
+The **Package Manager Service** is responsible for approving Pull Requests.  It validates the YAML and [manifest spec](https://github.com/microsoft/winget-cli/doc/YamlSpec.md) for spec compliance.
 
 
 ## Building the client
