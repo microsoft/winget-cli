@@ -78,43 +78,39 @@ Incoming issues/asks/etc. are triaged several times a week, labelled appropriate
 
 The following are a list of the key scenarios we're aiming to deliver for Windows Package Manager v1.0.
 
-> 👉 Note: There may be features that don't fit within v1.0, but will be re-assessed and prioritized for a future release, the plan for which will be published in early in 2021.
+> 👉 Note: There may be features that don't fit within v1.0, but will be re-assessed and prioritized for a future release, the plan for which will be published in early in 2021. As features become more defined, links to the associated issues will be added.
 
-| Release | Priority\* | Feature | Description/Notes |
-| --- | --- | --- | --- |
-| V1 | 0 | Microsoft Store | Support for installing Apps from the Microsoft Store |
-| V1 | 0 | REST Repository | Support for a REST based repository |
-| V1 | 0 | --list | The client should be able to tell you what Apps are installed |
-| V1 | 0 | --update | The client should be able to update one or "all" installed Apps |
-| V1 | 0 | --uninstall | The client should be able to uninstall Apps |
-| V1 | 0 | Multiple Installers | The client should be able to choose between multiple different installers from the same manifest |
-| V1 | 0 | Multiple Languages | The client will support installation for almost every language for which there is a fixed-width font including East Asian languages. Bonus points for RTL languages/scripts. |
-| V1 | 0 | Multiple Architectures | The client should support multiple architectures in the same manifest |
-| V1 | 0 | Non-Zero Exit Codes | The client should support applicatinons with non-zero exit codes as success |
-| V1 | 0 | Install .zip | The client should be able to install programs in a .zip file |
-| V1 | 0 | Configurability & Customization | The client will have a modern, flexible settings mechanism that persists settings to/from a JSON file stored in the user's app data folders, and/or in files synchronized between machines via OneDrive, etc. |
-| V1 | 0 | Accessibility (A11y) | The client will be highly accessible and inclusive. It will expose its contents via [UIA](https://docs.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview) to support tools such as [Windows Narrator](https://support.microsoft.com/en-us/help/22798/windows-10-complete-guide-to-narrator), and UI automation tools including [WinAppDriver](https://github.com/Microsoft/WinAppDriver) |
-| V1 | 0 | Color Theming & Styling | The client will honor the user's Windows dark/light theme settings, and/or color accent settings. |
-| V1 | 0 | Autocomplete | The client will support autocomplete for all commands and packages in the local cache |
-| V1 | 0 | Release Channels | Some applications have different release channels and we should support them |
-| V1 | 0 | User vs. System | Applications may be installed for the local user or for the system |
-| V1 | 0 | Metered Networks | The client should download responsibly when on metered networks |
-| V1 | 0 | Delivery Optimization | Delivery Optimization should be leveraged for large Apps |
-| V1 | 0 | Elevated Priveleges | The client should support installing Apps that require elevated priveleges |
-| V1 | 0 | Control Panel | Support for Apps installed in the Control Panel |
-| V1 | 0 | Group Policy | Support for Group Policy control |
-| V1 | 0 | Package Snapshot | Support for exporting all installed packages as a package set |
-| V1 | 0 | Package Set | Support for installing a set of packages |
-| V1 | 0 | Manifest Wizard | --create helps a user generate a manifest |
-| V1 | 0 | App Config Files | Support for silent installers that require a configuration file |
-| V1 | 0 | UX Enhancements | Client Verbosity Settings |
-| V1 | 0 | Dependency Support | Some Apps depend on other Apps to be present like IDEs and Programming Languages |
-| V1 | 0 | Install PWA | Support installing Progressive Web Applications |
+| Release | Feature | Description/Notes |
+| --- | --- | --- |
+| V1 | Microsoft Store | Support for installing Apps from the Microsoft Store |
+| V1 | REST Repository | Support for a REST based repository |
+| V1 | --list | The client should be able to tell you what Apps are installed |
+| V1 | --update | The client should be able to update one or "all" installed Apps |
+| V1 | --uninstall | The client should be able to uninstall Apps |
+| V1 | Multiple Installers | The client should be able to choose between multiple different installers from the same manifest |
+| V1 | Multiple Languages | The client will support installation for almost every language for which there is a fixed-width font including East Asian languages. Bonus points for RTL languages/scripts. |
+| V1 | Multiple Architectures | The client should support multiple architectures in the same manifest |
+| V1 | Non-Zero Exit Codes | The client should support applicatinons with non-zero exit codes as success |
+| V1 | Install .zip | The client should be able to install programs in a .zip file |
+| V1 | Configurability & Customization | The client will have a modern, flexible settings mechanism that persists settings to/from a JSON file stored in the user's app data folders, and/or in files synchronized between machines via OneDrive, etc. |
+| V1 | Accessibility (A11y) | The client will be highly accessible and inclusive. It will expose its contents via [UIA](https://docs.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview) to support tools such as [Windows Narrator](https://support.microsoft.com/en-us/help/22798/windows-10-complete-guide-to-narrator), and UI automation tools including [WinAppDriver](https://github.com/Microsoft/WinAppDriver) |
+| V1 | Color Theming & Styling | The client will honor the user's Windows dark/light theme settings, and/or color accent settings. |
+| V1 | Autocomplete | The client will support autocomplete for all commands and packages in the local cache |
+| V1 | Release Channels | Some applications have different release channels and we should support them |
+| V1 | User vs. System | Applications may be installed for the local user or for the system |
+| V1 | Metered Networks | The client should download responsibly when on metered networks |
+| V1 | Delivery Optimization | Delivery Optimization should be leveraged for large Apps |
+| V1 | Elevated Priveleges | The client should support installing Apps that require elevated priveleges |
+| V1 | Control Panel | Support for Apps installed in the Control Panel |
+| V1 | Group Policy | Support for Group Policy control |
+| V1 | Package Snapshot | Support for exporting all installed packages as a package set |
+| V1 | Package Set | Support for installing a set of packages |
+| V1 | Manifest Wizard | --create helps a user generate a manifest |
+| V1 | App Config Files | Support for silent installers that require a configuration file |
+| V1 | UX Enhancements | Client Verbosity Settings |
+| V1 | Dependency Support | Some Apps depend on other Apps to be present like IDEs and Programming Languages |
+| V1 | Install PWA | Support installing Progressive Web Applications |
 
 Feature Notes:
 
-\* Feature Priorities:
-
-0. Mandatory <br/>
-1. Optimal <br/>
-2. Optional / Stretch-goal <br/>
+\* Feature Priorities will be influenced by community feedback on issues.
