@@ -10,6 +10,8 @@
 
 namespace AppInstaller::Runtime
 {
+    using namespace Utility;
+
     namespace
     {
         using namespace std::string_view_literals;

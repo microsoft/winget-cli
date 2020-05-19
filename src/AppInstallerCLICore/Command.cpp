@@ -7,6 +7,7 @@
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
+    using namespace Utility::literals;
 
     Command::Command(std::string_view name, std::string_view parent) :
         m_name(name)
@@ -27,8 +28,8 @@ namespace AppInstaller::CLI
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
         reporter.Info() <<
-            "Windows Package Manager v" << Runtime::GetClientVersion() << ' ' << Resource::String::PreviewVersion << std::endl <<
-            "Copyright (c) Microsoft Corporation. All rights reserved." << std::endl;
+            "Windows Package Manager v"_liv << Runtime::GetClientVersion() << ' ' << Resource::String::PreviewVersion << std::endl <<
+            Resource::String::MainCopyrightNotice << std::endl;
     }
 
     void Command::OutputHelp(Execution::Reporter& reporter, const CommandException* exception) const
@@ -41,7 +42,7 @@ namespace AppInstaller::CLI
         if (exception)
         {
             reporter.Error() <<
-                exception->Message() << " : '" << exception->Param() << '\'' << std::endl <<
+                exception->Message() << " : '"_liv << exception->Param() << '\'' << std::endl <<
                 std::endl;
         }
 
@@ -52,6 +53,7 @@ namespace AppInstaller::CLI
             std::endl;
 
         // Example usage for this command
+        // First create the command chain for output
         std::string commandChain = FullName();
         size_t firstSplit = commandChain.find_first_of(ParentSplitChar);
         if (firstSplit == std::string::npos)
@@ -71,7 +73,7 @@ namespace AppInstaller::CLI
         }
 
         // Output the command preamble and command chain
-        infoOut << "usage: winget" << commandChain;
+        infoOut << Resource::String::Usage << ": winget"_liv << Utility::LocIndView{ commandChain };
 
         auto commands = GetCommands();
         auto arguments = GetArguments();
@@ -89,7 +91,7 @@ namespace AppInstaller::CLI
                 infoOut << '[';
             }
 
-            infoOut << "<command>";
+            infoOut << '<' << Resource::String::Command << '>';
 
             if (!arguments.empty())
             {
@@ -122,7 +124,7 @@ namespace AppInstaller::CLI
                     infoOut << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias();
                 }
 
-                infoOut << "] <" << arg.Name() << '>';
+                infoOut << "] <"_liv << arg.Name() << '>';
 
                 if (!arg.Required())
                 {
@@ -132,7 +134,7 @@ namespace AppInstaller::CLI
             else
             {
                 hasOptions = true;
-                infoOut << " [<options>]";
+                infoOut << " [<"_liv << Resource::String::Options << ">]"_liv;
                 break;
             }
         }
@@ -161,13 +163,13 @@ namespace AppInstaller::CLI
             for (const auto& command : commands)
             {
                 size_t fillChars = (maxCommandNameLength - command->Name().length()) + 2;
-                infoOut << "  " << Execution::HelpCommandEmphasis << command->Name() << std::string(fillChars, ' ') << command->ShortDescription() << std::endl;
+                infoOut << "  "_liv << Execution::HelpCommandEmphasis << command->Name() << Utility::LocIndString{ std::string(fillChars, ' ') } << command->ShortDescription() << std::endl;
             }
 
             infoOut <<
                 std::endl <<
                 Resource::String::HelpForDetails
-                << " [" << APPINSTALLER_CLI_HELP_ARGUMENT << ']' << std::endl;
+                << " ["_liv << APPINSTALLER_CLI_HELP_ARGUMENT << ']' << std::endl;
         }
 
         if (!arguments.empty())
@@ -208,7 +210,7 @@ namespace AppInstaller::CLI
                         if (arg.Type() == ArgumentType::Positional)
                         {
                             size_t fillChars = (maxArgNameLength - argName.length()) + 2;
-                            infoOut << "  " << Execution::HelpArgumentEmphasis << argName << std::string(fillChars, ' ') << arg.Description() << std::endl;
+                            infoOut << "  "_liv << Execution::HelpArgumentEmphasis << argName << Utility::LocIndString{ std::string(fillChars, ' ') } << arg.Description() << std::endl;
                         }
                     }
                 }
@@ -232,7 +234,7 @@ namespace AppInstaller::CLI
                         if (arg.Type() != ArgumentType::Positional)
                         {
                             size_t fillChars = (maxArgNameLength - argName.length()) + 2;
-                            infoOut << "  " << Execution::HelpArgumentEmphasis << argName << std::string(fillChars, ' ') << arg.Description() << std::endl;
+                            infoOut << "  "_liv << Execution::HelpArgumentEmphasis << argName << Utility::LocIndString{ std::string(fillChars, ' ') } << arg.Description() << std::endl;
                         }
                     }
                 }

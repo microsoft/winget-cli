@@ -40,8 +40,8 @@ namespace AppInstaller::CLI::Execution
         WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Resource::StringId);
         WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Resource::LocString);
         // Strings explicitly declared as localization independent.
-        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(LocIndView);
-        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(LocIndString);
+        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Utility::LocIndView);
+        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Utility::LocIndString);
         // Normalized strings come from user data and should therefore already by localized
         // by how they are chosen (or there is no localized version).
         WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Utility::NormalizedString);
@@ -74,12 +74,20 @@ namespace AppInstaller::CLI::Execution
             template <typename T>
             OutputStream& operator<<(const T& t)
             {
-                // TODO: Comment explaining the build error.
+                // You've found your way here because you tried to output a type that may not localized.
+                // In order to ensure that all output is localized, only the types with specializations of
+                // details::IsApprovedForOutput above can be output.
+                // * If your string is a simple message, it should be put in
+                //      /src/AppInstallerCLIPackage/Shared/Strings/en-us/winget.resw
+                //      and referenced in /src/AppInstallerCLICore/Resources.h. Then either output the
+                //      Resource::StringId, or load it manually and output the Resource::LocString.
+                // * If your string is *definitely* localization independent, you can tag it as such with
+                //      the Utility::LocInd(View/String) types.
+                // * If your string came from outside of the source code, it is best to store it in a
+                //      Utility::NormalizedString so that it has a normalized representation. This also
+                //      informs the output that there is no localized version to use.
+                // TODO: Convert the rest of the code base and uncomment to enforce localization.
                 //static_assert(details::IsApprovedForOutput<std::decay_t<T>>::value, "This type may not be localized, see comment for more information");
-                if constexpr (!details::IsApprovedForOutput<std::decay_t<T>>::value)
-                {
-                    AICLI_LOG(CLI, Verbose, << "Needs localization: [" << typeid(T).name() << "] '" << t << '\'');
-                }
                 ApplyFormat();
                 m_out << t;
                 return *this;

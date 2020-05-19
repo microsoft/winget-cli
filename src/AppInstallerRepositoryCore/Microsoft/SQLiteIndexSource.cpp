@@ -7,6 +7,8 @@
 
 namespace AppInstaller::Repository::Microsoft
 {
+    using namespace Utility;
+
     namespace
     {
         // The IApplication impl for SQLiteIndexSource.

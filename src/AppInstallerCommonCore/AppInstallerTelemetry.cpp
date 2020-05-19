@@ -28,6 +28,8 @@ std::ostream& operator<<(std::ostream& out, const GUID& guid)
 
 namespace AppInstaller::Logging
 {
+    using namespace Utility;
+
     namespace
     {
         void __stdcall wilResultLoggingCallback(const wil::FailureInfo& info) noexcept

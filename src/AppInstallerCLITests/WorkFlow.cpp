@@ -19,7 +19,6 @@
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
 using namespace TestCommon;
-using namespace AppInstaller;
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::CLI::Workflow;
@@ -45,12 +44,12 @@ struct TestSource : public ISource
 
         LocIndString GetId() override
         {
-            return m_manifest.Id;
+            return LocIndString{ m_manifest.Id };
         }
 
         LocIndString GetName() override
         {
-            return m_manifest.Name;
+            return LocIndString{ m_manifest.Name };
         }
 
         std::vector<VersionAndChannel> GetVersions() override

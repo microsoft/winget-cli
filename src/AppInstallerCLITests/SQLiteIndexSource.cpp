@@ -87,7 +87,7 @@ TEST_CASE("SQLiteIndexSource_Id", "[sqliteindexsource]")
     REQUIRE(results.Matches[0].Application);
     IApplication* app = results.Matches[0].Application.get();
 
-    REQUIRE(app->GetId() == manifest.Id);
+    REQUIRE(app->GetId().get() == manifest.Id);
 }
 
 TEST_CASE("SQLiteIndexSource_Name", "[sqliteindexsource]")
@@ -108,7 +108,7 @@ TEST_CASE("SQLiteIndexSource_Name", "[sqliteindexsource]")
     REQUIRE(results.Matches[0].Application);
     IApplication* app = results.Matches[0].Application.get();
 
-    REQUIRE(app->GetName() == manifest.Name);
+    REQUIRE(app->GetName().get() == manifest.Name);
 }
 
 TEST_CASE("SQLiteIndexSource_Versions", "[sqliteindexsource]")

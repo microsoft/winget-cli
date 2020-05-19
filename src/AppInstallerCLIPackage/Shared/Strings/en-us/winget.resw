@@ -140,6 +140,10 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Use the specified channel; default is general audience</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>command</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filter results by command</value>
   </data>
@@ -179,6 +183,15 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filter results by id</value>
   </data>
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>This application is licensed to you by its owner.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>Cannot install application, as it requires a higher version of Windows:</value>
+  </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
     <value>Installs the selected application, either found by searching a configured source or directly from a manifest.</value>
   </data>
@@ -200,14 +213,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>Language to install (if supported)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>License Agreement</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>Links</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Location to install to (if supported)</value>
   </data>
   <data name="LogArgumentDesciption" xml:space="preserve">
     <value>Log location (if supported)</value>
   </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Copyright (c) Microsoft Corporation. All rights reserved.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>Homepage</value>
+    <comment>The primary webpage for the software</comment>
+  </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>The path to the manifest of the application</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>Manifest validation failed.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>Manifest validation succeeded.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>Manifest validation succeeded with warnings.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Argument value required, but none found</value>
@@ -218,15 +254,29 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Input file will be treated as msix; signature hash will be provided if signed</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>Failed to calculate MSIX signature hash.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filter results by name</value>
+  </data>
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>No installers are applicable to the current system.</value>
   </data>
   <data name="NoVTArguementDescription" xml:space="preserve">
     <value>Disables VirtualTerminal display</value>
     <comment>{Locked="VirtualTerminal"}</comment>
   </data>
+  <data name="Options" xml:space="preserve">
+    <value>options</value>
+    <comment>Options to change how a command works</comment>
+  </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Override arguments to be passed on to the installer</value>
+  </data>
+  <data name="Package" xml:space="preserve">
+    <value>Package</value>
+    <comment>A software package</comment>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Oops, we forgot to do this...</value>
@@ -236,6 +286,9 @@
   </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Preview</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>Privacy Statement</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>The query used to search for an app</value>
@@ -315,6 +368,9 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filter results by tag</value>
   </data>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>Third Party Notices</value>
+  </data>
   <data name="ToolDescription" xml:space="preserve">
     <value>WinGet command line utility enables installing applications from the command line.</value>
   </data>
@@ -330,8 +386,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>More than one install behavior argument provided</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>An unexpected error occurred while executing the command:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Unrecognized command</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>usage</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Validates a manifest using a strict set of guidelines. This is intended to enable you to check your manifest before submitting to a repo.</value>
@@ -344,6 +407,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>Enables verbose logging for WinGet</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>Please verify that the input file is a valid, signed MSIX.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Use the specified version; default is the latest version</value>

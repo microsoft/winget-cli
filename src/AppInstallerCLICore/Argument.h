@@ -76,7 +76,8 @@ namespace AppInstaller::CLI
         // Gets the common arguments for all commands.
         static void GetCommon(std::vector<Argument>& args);
 
-        std::string_view Name() const { return m_name; }
+        // Arguments are not localized at this time.
+        Utility::LocIndView Name() const { return Utility::LocIndView{ m_name }; }
         char Alias() const { return m_alias; }
         Execution::Args::Type ExecArgType() const { return m_execArgType; }
         const Resource::StringId& Description() const { return m_desc; }

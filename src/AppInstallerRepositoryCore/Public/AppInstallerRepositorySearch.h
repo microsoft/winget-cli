@@ -76,10 +76,10 @@ namespace AppInstaller::Repository
         virtual ~IApplication() = default;
 
         // Gets the id of the application.
-        virtual LocIndString GetId() = 0;
+        virtual Utility::LocIndString GetId() = 0;
 
         // Gets the name of the application (the latest name).
-        virtual LocIndString GetName() = 0;
+        virtual Utility::LocIndString GetName() = 0;
 
         // Gets a manifest for this application.
         // An empty version implies 'latest'.

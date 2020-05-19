@@ -19,14 +19,16 @@ namespace AppInstaller::CLI
 {
     struct CommandException
     {
+        // The message should be a localized string, but the parameters are currently not localized.
+        // We 'convert' the param to a localization independent view here.
         CommandException(Resource::LocString message, std::string_view param) : m_message(std::move(message)), m_param(param) {}
 
         const Resource::LocString& Message() const { return m_message; }
-        const std::string_view Param() const { return m_param; }
+        const Utility::LocIndView Param() const { return m_param; }
 
     private:
         Resource::LocString m_message;
-        std::string_view m_param;
+        Utility::LocIndView m_param;
     };
 
     struct Command

@@ -9,10 +9,14 @@
 #include "SearchCommand.h"
 #include "HashCommand.h"
 #include "ValidateCommand.h"
+
 #include "Resources.h"
+#include "TableOutput.h"
 
 namespace AppInstaller::CLI
 {
+    using namespace Utility::literals;
+
     std::vector<std::unique_ptr<Command>> RootCommand::GetCommands() const
     {
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
@@ -53,19 +57,23 @@ namespace AppInstaller::CLI
             auto info = context.Reporter.Info();
 
             info << std::endl <<
-                "Windows: " << Runtime::GetOSVersion() << std::endl;
+                "Windows: "_liv << Runtime::GetOSVersion() << std::endl;
 
             if (Runtime::IsRunningInPackagedContext())
             {
-                info << "Package: " << Runtime::GetPackageVersion() << std::endl;
+                info << Resource::String::Package << ": "_liv << Runtime::GetPackageVersion() << std::endl;
             };
 
-            info << std::endl <<
-                "Links:" << std::endl <<
-                "  Privacy Statement: https://aka.ms/winget-privacy" << std::endl <<
-                "  License agreement: https://aka.ms/winget-license" << std::endl <<
-                "  3rd Party Notices: https://aka.ms/winget-3rdPartyNotice" << std::endl <<
-                "  Homepage:          https://aka.ms/winget" << std::endl;
+            info << std::endl;
+
+            Execution::TableOutput<2> links{ context.Reporter, { Resource::LocString(Resource::String::Links).get(), "" } };
+
+            links.OutputLine({ Resource::LocString(Resource::String::PrivacyStatement).get(), "https://aka.ms/winget-privacy" });
+            links.OutputLine({ Resource::LocString(Resource::String::LicenseAgreement).get(), "https://aka.ms/winget-license" });
+            links.OutputLine({ Resource::LocString(Resource::String::ThirdPartSoftwareNotices).get(), "https://aka.ms/winget-3rdPartyNotice" });
+            links.OutputLine({ Resource::LocString(Resource::String::MainHomepage).get(), "https://aka.ms/winget" });
+
+            links.Complete();
         }
         else if (context.Args.Contains(Execution::Args::Type::ListVersions))
         {

@@ -15,13 +15,13 @@ namespace AppInstaller::Runtime
     bool IsRunningInPackagedContext();
 
     // Determines the current version of the client and returns it.
-    LocIndString GetClientVersion();
+    Utility::LocIndString GetClientVersion();
 
     // Determines the current version of the package if running in a packaged context.
-    LocIndString GetPackageVersion();
+    Utility::LocIndString GetPackageVersion();
 
     // Gets a string representation of the OS version for debugging purposes.
-    LocIndString GetOSVersion();
+    Utility::LocIndString GetOSVersion();
 
     // Gets the path to the temp location.
     std::filesystem::path GetPathToTemp();

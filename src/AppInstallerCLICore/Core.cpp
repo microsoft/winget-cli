@@ -8,6 +8,7 @@
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
 using namespace AppInstaller::CLI;
+using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI
 {
@@ -117,7 +118,7 @@ namespace AppInstaller::CLI
             // Even though they are logged at their source, log again here for completeness.
             Logging::Telemetry().LogException(command->FullName(), "wil::ResultException", re.what());
             context.Reporter.Error() <<
-                "An unexpected error occurred while executing the command: " << std::endl <<
+                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
                 GetUserPresentableMessage(re) << std::endl;
             return re.GetErrorCode();
         }
@@ -126,7 +127,7 @@ namespace AppInstaller::CLI
             std::string message = GetUserPresentableMessage(hre);
             Logging::Telemetry().LogException(command->FullName(), "winrt::hresult_error", message);
             context.Reporter.Error() <<
-                "An unexpected error occurred while executing the command: " << std::endl <<
+                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
                 message << std::endl;
             return hre.code();
         }
@@ -134,7 +135,7 @@ namespace AppInstaller::CLI
         {
             Logging::Telemetry().LogException(command->FullName(), "std::exception", e.what());
             context.Reporter.Error() <<
-                "An unexpected error occurred while executing the command: " << std::endl <<
+                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
                 GetUserPresentableMessage(e) << std::endl;
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
@@ -143,7 +144,7 @@ namespace AppInstaller::CLI
             LOG_CAUGHT_EXCEPTION();
             Logging::Telemetry().LogException(command->FullName(), "unknown", {});
             context.Reporter.Error() <<
-                "An unexpected error occurred while executing the command" << std::endl;
+                Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
             return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
         }
 
