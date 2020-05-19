@@ -15,7 +15,7 @@ The packages available to the client are in the [Community repo](https://github.
 The client is distributed within the [App Installer](ms-windows-store://pdp/?productid=9nblggh4nns1) package. While this package is pre-installed on Windows, the client will not be made generally available during the Preview period. In order to get automatic updates from the Microsoft Store that contain the client, one must do one of the following:
 
 * Install a [Windows 10 Insider](https://insider.windows.com/) build
-* Join the Preview flight ring by sending a request to winget-feedback@microsoft.com
+* Join the Preview flight ring by [signing up](http://aka.ms/winget-InsiderProgram)
 
 ### Manually Update
 
@@ -54,7 +54,7 @@ The default source reflects that data available from the [Community repo](https:
 We plan to better support additional sources, and additional types of sources, in the future. For now, additional sources can be configured, but only one used at a time.
 
 ### Package Manager Service 
-The **Package Manager Service** is responsible for approving Pull Requests.  It validates the YAML and [manifest spec](https://github.com/microsoft/winget-cli/doc/YamlSpec.md) for spec compliance.
+The **Package Manager Service** is responsible for approving Pull Requests.  It validates the YAML and [manifest spec](/doc/ManifestSpecv0.1.md) for spec compliance.
 
 
 ## Building the client
