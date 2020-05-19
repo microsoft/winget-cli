@@ -42,10 +42,6 @@ The **Windows Package Manager** is a tool designed to help you quickly and easil
 For Preview, the goal is to get something usable in your hands as soon as possible. At preview you can **search**, **show**, and **install** packages.  Soon we will have **uninstall**, **list** and **update**.  These items are available on our [backlog](https://github.com/microsoft/winget-cli/issues), so feel free to upvote the features you want.
 
 ## Overview  
-The Windows Package Manager consists of 3 pieces:
-1) the Windows Package Manager client (winget.exe)
-2) the repository of manifest files, sources
-3) the Package Manager Service that processes the manifest files
 
 ### Client Repository
 This winget-cli repository includes the source code designed to build the client.  You are encouraged to participate in the development of this client. We have plenty of backlog features in our [Issues](https://github.com/microsoft/winget-cli/issues). You can upvote the ones you want, add more, or even [get started on one.](https://github.com/microsoft/winget-cli/projects/1)
