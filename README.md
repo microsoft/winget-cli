@@ -92,4 +92,5 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Data/Telemetry
 
-This project collects usage data and sends it to Microsoft to help improve our products and services. See the [privacy statement](privacy.md) for more details.
+This project collects usage data and sends it to Microsoft to help improve our products and services. Note however that no data collection is performed when using your private builds.
+See the [privacy statement](privacy.md) for more details.
