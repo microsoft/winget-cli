@@ -223,7 +223,7 @@
     <value>Argumenten die worden doorgegeven aan het installatieprogramma overschrijven</value>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
-    <value>Opes, dit zijn we vergeten...</value>
+    <value>Oeps, dit zijn we vergeten...</value>
   </data>
   <data name="PlainArgumentDescription" xml:space="preserve">
     <value>Weergave van de voortgang in de standaardkleur</value>
