@@ -35,7 +35,7 @@ Release <br/>
 
 ### Releases
 
-Releases will be availabe here on GitHub first<br/> We will release to the App Installer for Insiders as frequenly as the releases have met our quality bars.
+Releases will be availabe here on GitHub first<br/> We will release to the App Installer for Insiders as frequently as the releases have met our quality bars.
 
 ## Windows Package Manager Roadmap / Timeline
 
@@ -90,7 +90,7 @@ The following are a list of the key scenarios we're aiming to deliver for Window
 | V1 | Multiple Installers | The client should be able to choose between multiple different installers from the same manifest |
 | V1 | Multiple Languages | The client will support installation for almost every language for which there is a fixed-width font including East Asian languages. Bonus points for RTL languages/scripts. |
 | V1 | Multiple Architectures | The client should support multiple architectures in the same manifest |
-| V1 | Non-Zero Exit Codes | The client should support applicatinons with non-zero exit codes as success |
+| V1 | Non-Zero Exit Codes | The client should support applications with non-zero exit codes as success |
 | V1 | Install .zip | The client should be able to install programs in a .zip file |
 | V1 | Configurability & Customization | The client will have a modern, flexible settings mechanism that persists settings to/from a JSON file stored in the user's app data folders, and/or in files synchronized between machines via OneDrive, etc. |
 | V1 | Accessibility (A11y) | The client will be highly accessible and inclusive. It will expose its contents via [UIA](https://docs.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview) to support tools such as [Windows Narrator](https://support.microsoft.com/en-us/help/22798/windows-10-complete-guide-to-narrator), and UI automation tools including [WinAppDriver](https://github.com/Microsoft/WinAppDriver) |
@@ -100,7 +100,7 @@ The following are a list of the key scenarios we're aiming to deliver for Window
 | V1 | User vs. System | Applications may be installed for the local user or for the system |
 | V1 | Metered Networks | The client should download responsibly when on metered networks |
 | V1 | Delivery Optimization | Delivery Optimization should be leveraged for large Apps |
-| V1 | Elevated Priveleges | The client should support installing Apps that require elevated priveleges |
+| V1 | Elevated Privileges | The client should support installing Apps that require elevated privileges |
 | V1 | Control Panel | Support for Apps installed in the Control Panel |
 | V1 | Group Policy | Support for Group Policy control |
 | V1 | Package Snapshot | Support for exporting all installed packages as a package set |
