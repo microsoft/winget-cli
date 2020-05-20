@@ -17,7 +17,7 @@ The client is distributed within the [App Installer](ms-windows-store://pdp/?pro
 * Install a [Windows 10 Insider](https://insider.windows.com/) build
 * Join the Preview flight ring by [signing up](http://aka.ms/winget-InsiderProgram)
 
-Once you have received the updated App Installer client you should be able to execute `winget`. Some users have reported [issues](https://github.com/microsoft/winget-cli/issues/210) with the client not being on their PATH.
+Once you have received the updated App Installer you should be able to execute `winget`. Some users have reported [issues](https://github.com/microsoft/winget-cli/issues/210) with the client not being on their PATH.
 
 ### Manually Update
 
