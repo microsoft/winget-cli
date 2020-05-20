@@ -47,7 +47,7 @@ For Preview, the goal is to get something usable in your hands as soon as possib
 This winget-cli repository includes the source code designed to build the client.  You are encouraged to participate in the development of this client. We have plenty of backlog features in our [Issues](https://github.com/microsoft/winget-cli/issues). You can upvote the ones you want, add more, or even [get started on one.](https://github.com/microsoft/winget-cli/projects/1)
 
 ### Sources
-The client is built around the concept of sources; a set of packages effectively. Sources provide the ability to discover and retreive the metadata about the packages, so that the client can act on it.
+The client is built around the concept of sources; a set of packages effectively. Sources provide the ability to discover and retrieve the metadata about the packages, so that the client can act on it.
 
 The default source reflects that data available from the [Community repo](https://github.com/microsoft/winget-pkgs).
 
