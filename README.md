@@ -12,7 +12,7 @@ The packages available to the client are in the [Community repo](https://github.
 
 ### Microsoft Store [Recommended]
 
-The client is distributed within the [App Installer](ms-windows-store://pdp/?productid=9nblggh4nns1) package. While this package is pre-installed on Windows, the client will not be made generally available during the Preview period. In order to get automatic updates from the Microsoft Store that contain the client, one must do one of the following:
+The client is distributed within the [App Installer](https://www.microsoft.com/en-us/p/app-installer/9nblggh4nns1) package. While this package is pre-installed on Windows, the client will not be made generally available during the Preview period. In order to get automatic updates from the Microsoft Store that contain the client, one must do one of the following:
 
 * Install a [Windows 10 Insider](https://insider.windows.com/) build
 * Join the Preview flight ring by [signing up](http://aka.ms/winget-InsiderProgram)
