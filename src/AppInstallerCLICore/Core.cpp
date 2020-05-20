@@ -14,24 +14,24 @@ namespace AppInstaller::CLI
     namespace
     {
         // RAII class to restore the console output codepage.
-        struct ConsoleOuputCPRestore
+        struct ConsoleOutputCPRestore
         {
-            ConsoleOuputCPRestore(UINT cpToChangeTo)
+            ConsoleOutputCPRestore(UINT cpToChangeTo)
             {
                 m_previousCP = GetConsoleOutputCP();
                 LOG_LAST_ERROR_IF(!SetConsoleOutputCP(cpToChangeTo));
             }
 
-            ~ConsoleOuputCPRestore()
+            ~ConsoleOutputCPRestore()
             {
                 SetConsoleOutputCP(m_previousCP);
             }
 
-            ConsoleOuputCPRestore(const ConsoleOuputCPRestore&) = delete;
-            ConsoleOuputCPRestore& operator=(const ConsoleOuputCPRestore&) = delete;
+            ConsoleOutputCPRestore(const ConsoleOutputCPRestore&) = delete;
+            ConsoleOutputCPRestore& operator=(const ConsoleOutputCPRestore&) = delete;
 
-            ConsoleOuputCPRestore(ConsoleOuputCPRestore&&) = delete;
-            ConsoleOuputCPRestore& operator=(ConsoleOuputCPRestore&&) = delete;
+            ConsoleOutputCPRestore(ConsoleOutputCPRestore&&) = delete;
+            ConsoleOutputCPRestore& operator=(ConsoleOutputCPRestore&&) = delete;
 
         private:
             UINT m_previousCP = 0;
@@ -43,7 +43,7 @@ namespace AppInstaller::CLI
         init_apartment();
 
         // Set output to UTF8
-        ConsoleOuputCPRestore utf8CP(CP_UTF8);
+        ConsoleOutputCPRestore utf8CP(CP_UTF8);
 
         // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
