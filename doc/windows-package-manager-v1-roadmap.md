@@ -28,7 +28,7 @@ The Windows Package Manager project is engineered and delivered as described bel
 * Release Notes & Announcement Blog published
 * Engineering System Maintenance
 * Community Engagement
-  [Docs](https://docs.microsoft.com/windows/package-manager/)
+* [Docs](https://docs.microsoft.com/windows/package-manager/)
 * Future Milestone Planning
 
 ### Releases
