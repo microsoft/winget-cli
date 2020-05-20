@@ -6,36 +6,34 @@ This document outlines our aspirational roadmap to delivering Windows Package Ma
 
 ## Milestones
 
-The Windows Package Manager project is engineered and delivered as described below. 
+The Windows Package Manager project is engineered and delivered as described below.
 
-### Activities 
-Dev Work<br/> 
-<ul>
- <li>Fixes / Features for Windows Package Manager</li>
- <li>Fixes / Features for future Windows Releases</li>
-</ul> 
+### Activities
 
-Quality & Stability<br/> 
- <ul>
-  <li>Bug Fixes</li>
-  <li>Performance & Stability</li>
-  <li>Globalization, Localization, Internationalization, Accessibility</li>
-  <li>Tests</li>
-</ul>
+#### Dev Work
 
-Release <br/> 
-<ul>
-  <li>Available from to Windows Insiders through the [Microsoft Store](https://www.microsoft.com/p/app-installer/9nblggh4nns1) & [GitHub Releases](https://github.com/microsoft/winget-cli/releases)</li>
-  <li>Release Notes & Announcement Blog published</li>
-  <li>Engineering System Maintenance</li>
-  <li>Community Engagement</li>
-  <li>[Docs](https://docs.microsoft.com/windows/package-manager/)</li>
-  <li>Future Milestone Planning</li>
-</ul> 
+* Fixes / Features for Windows Package Manager
+* Fixes / Features for future Windows Releases
+
+#### Quality & Stability
+
+* Bug Fixes
+* Performance & Stability
+* Globalization, Localization, Internationalization, Accessibility
+* Tests
+
+#### Release
+
+* Available from to Windows Insiders through the [Microsoft Store](https://www.microsoft.com/p/app-installer/9nblggh4nns1) & [GitHub Releases](https://github.com/microsoft/winget-cli/releases)
+* Release Notes & Announcement Blog published
+* Engineering System Maintenance
+* Community Engagement
+* [Docs](https://docs.microsoft.com/windows/package-manager/)
+* Future Milestone Planning
 
 ### Releases
 
-Releases will be availabe here on GitHub first<br/> We will release to the App Installer for Insiders as frequently as the releases have met our quality bars.
+Releases will be available here on GitHub first We will release to the App Installer for Insiders as frequently as the releases have met our quality bars.
 
 ## Windows Package Manager Roadmap / Timeline
 
