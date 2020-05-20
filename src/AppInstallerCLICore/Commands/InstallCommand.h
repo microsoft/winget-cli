@@ -11,8 +11,8 @@ namespace AppInstaller::CLI
 
         std::vector<Argument> GetArguments() const override;
 
-        std::string ShortDescription() const override;
-        std::string GetLongDescription() const override;
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
 
         std::string HelpLink() const override;
 

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <AppInstallerVersions.h>
+#include <winget/LocIndependent.h>
 
 #include <filesystem>
 #include <memory>
@@ -14,13 +15,13 @@ namespace AppInstaller::Runtime
     bool IsRunningInPackagedContext();
 
     // Determines the current version of the client and returns it.
-    std::string GetClientVersion();
+    Utility::LocIndString GetClientVersion();
 
     // Determines the current version of the package if running in a packaged context.
-    std::string GetPackageVersion();
+    Utility::LocIndString GetPackageVersion();
 
     // Gets a string representation of the OS version for debugging purposes.
-    std::string GetOSVersion();
+    Utility::LocIndString GetOSVersion();
 
     // Gets the path to the temp location.
     std::filesystem::path GetPathToTemp();

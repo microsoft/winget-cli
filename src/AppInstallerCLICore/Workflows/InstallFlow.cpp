@@ -20,7 +20,7 @@ namespace AppInstaller::CLI::Workflow
         if (!manifest.MinOSVersion.empty() &&
             !Runtime::IsCurrentOSVersionGreaterThanOrEqual(Version(manifest.MinOSVersion)))
         {
-            context.Reporter.Error() << "Cannot install application, as it requires a higher OS version: " << manifest.MinOSVersion << std::endl;
+            context.Reporter.Error() << Resource::String::InstallationRequiresHigherWindows << ' ' << manifest.MinOSVersion << std::endl;
             AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_OLD_WIN_VERSION));
         }
     }
@@ -31,7 +31,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!installer.has_value())
         {
-            context.Reporter.Error() << "No installers are applicable to the current system" << std::endl;
+            context.Reporter.Error() << Resource::String::NoApplicableInstallers << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
     }
@@ -39,8 +39,8 @@ namespace AppInstaller::CLI::Workflow
     void ShowInstallationDisclaimer(Execution::Context& context)
     {
         context.Reporter.Info() << 
-            "This application is licensed to you by its owner." << std::endl <<
-            "Microsoft is not responsible for, nor does it grant any licenses to, third-party packages." << std::endl;
+            Resource::String::InstallationDisclaimer1 << std::endl <<
+            Resource::String::InstallationDisclaimer2 << std::endl;
     }
 
     void DownloadInstaller(Execution::Context& context)

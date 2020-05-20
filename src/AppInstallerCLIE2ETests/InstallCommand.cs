@@ -54,7 +54,7 @@ namespace AppInstallerCLIE2ETests
             installDir = TestCommon.GetRandomTestDir();
             result = TestCommon.RunAICLICommand("install", $"InapplicableOsVersion --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_OLD_WIN_VERSION, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Cannot install application, as it requires a higher OS version"));
+            Assert.True(result.StdOut.Contains("Cannot install application, as it requires a higher version of Windows"));
             Assert.False(VerifyTestExeInstalled(installDir));
 
             // Install test exe but hash mismatch, passing N should cause the installation to fail

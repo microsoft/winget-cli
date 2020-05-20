@@ -36,7 +36,7 @@ namespace AppInstaller::CLI::VirtualTerminal
     struct Sequence
     {
         Sequence() = default;
-        Sequence(const char* c) : m_chars(c) {}
+        explicit Sequence(const char* c) : m_chars(c) {}
 
         const char* Get() const { return m_chars; }
 
@@ -50,7 +50,7 @@ namespace AppInstaller::CLI::VirtualTerminal
     // A VT sequence that is constructed at runtime.
     struct ConstructedSequence : public Sequence
     {
-        ConstructedSequence(std::string s) : m_str(std::move(s)) { Set(m_str); }
+        explicit ConstructedSequence(std::string s) : m_str(std::move(s)) { Set(m_str); }
 
     private:
         std::string m_str;

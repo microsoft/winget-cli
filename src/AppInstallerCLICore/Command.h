@@ -4,6 +4,7 @@
 #include "Argument.h"
 #include "ExecutionContext.h"
 #include "Invocation.h"
+#include "Resources.h"
 
 #include <initializer_list>
 #include <memory>
@@ -18,14 +19,16 @@ namespace AppInstaller::CLI
 {
     struct CommandException
     {
-        CommandException(std::string message, std::string_view param) : m_message(message), m_param(param) {}
+        // The message should be a localized string, but the parameters are currently not localized.
+        // We 'convert' the param to a localization independent view here.
+        CommandException(Resource::LocString message, std::string_view param) : m_message(std::move(message)), m_param(param) {}
 
-        const std::string& Message() const { return m_message; }
-        const std::string_view Param() const { return m_param; }
+        const Resource::LocString& Message() const { return m_message; }
+        const Utility::LocIndView Param() const { return m_param; }
 
     private:
-        std::string m_message;
-        std::string_view m_param;
+        Resource::LocString m_message;
+        Utility::LocIndView m_param;
     };
 
     struct Command
@@ -48,8 +51,8 @@ namespace AppInstaller::CLI
         virtual std::vector<std::unique_ptr<Command>> GetCommands() const { return {}; }
         virtual std::vector<Argument> GetArguments() const { return {}; }
 
-        virtual std::string ShortDescription() const { return {}; }
-        virtual std::string GetLongDescription() const { return {}; }
+        virtual Resource::LocString ShortDescription() const { return {}; }
+        virtual Resource::LocString LongDescription() const { return {}; }
 
         virtual void OutputIntroHeader(Execution::Reporter& reporter) const;
         virtual void OutputHelp(Execution::Reporter& reporter, const CommandException* exception = nullptr) const;

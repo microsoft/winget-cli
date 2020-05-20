@@ -4,29 +4,28 @@
 #include "pch.h"
 #include "Resources.h"
 
-namespace AppInstaller::CLI
+
+namespace AppInstaller::CLI::Resource
 {
-    const Resources& Resources::GetInstance()
+    LocString::LocString(StringId id)
     {
-        static Resources instance;
+        m_value = Loader::Instance().ResolveString(id);
+    }
+
+    const Loader& Loader::Instance()
+    {
+        static Loader instance;
         return instance;
     }
 
-    Resources::Resources()
+    Loader::Loader()
     {
         m_wingetLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader::GetForViewIndependentUse(L"winget");
     }
 
-    std::string Resources::ResolveWingetString(
+    std::string Loader::ResolveString(
         std::wstring_view resKey) const
     {
-        return Utility::ConvertToUTF8(ResolveWingetWString(resKey));
-    }
-
-    std::wstring Resources::ResolveWingetWString(
-        std::wstring_view resKey) const
-    {
-        std::wstring localized(m_wingetLoader.GetString(resKey));
-        return localized;
+        return Utility::ConvertToUTF8(m_wingetLoader.GetString(resKey));
     }
 }

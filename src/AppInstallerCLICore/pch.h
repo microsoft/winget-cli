@@ -46,3 +46,4 @@
 #include <AppInstallerTelemetry.h>
 #include <Manifest/ManifestInstaller.h>
 #include <Manifest/Manifest.h>
+#include <winget/LocIndependent.h>

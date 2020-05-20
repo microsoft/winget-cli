@@ -16,14 +16,14 @@ namespace AppInstaller::CLI
         };
     }
 
-    std::string ValidateCommand::ShortDescription() const
+    Resource::LocString ValidateCommand::ShortDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"ValidateCommandShortDescription");
+        return Resource::LocString{ Resource::String::ValidateCommandShortDescription };
     }
 
-    std::string ValidateCommand::GetLongDescription() const
+    Resource::LocString ValidateCommand::LongDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"ValidateCommandLongDescription");
+        return Resource::LocString{ Resource::String::ValidateCommandLongDescription };
     }
 
     std::string ValidateCommand::HelpLink() const
@@ -42,17 +42,17 @@ namespace AppInstaller::CLI
             try
             {
                 (void)Manifest::Manifest::CreateFromPath(inputFile, true, true);
-                context.Reporter.Info() << "Manifest validation succeeded." << std::endl;
+                context.Reporter.Info() << Resource::String::ManifestValidationSuccess << std::endl;
             }
             catch (const Manifest::ManifestException& e)
             {
                 if (e.IsWarningOnly())
                 {
-                    context.Reporter.Warn() << "Manifest validation succeeded with warnings." << std::endl;
+                    context.Reporter.Warn() << Resource::String::ManifestValidationWarning << std::endl;
                 }
                 else
                 {
-                    context.Reporter.Error() << "Manifest validation failed." << std::endl;
+                    context.Reporter.Error() << Resource::String::ManifestValidationFail << std::endl;
                 }
 
                 context.Reporter.Info() << e.GetManifestErrorMessage() << std::endl;

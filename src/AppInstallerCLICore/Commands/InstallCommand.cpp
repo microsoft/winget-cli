@@ -36,14 +36,14 @@ namespace AppInstaller::CLI
         };
     }
 
-    std::string InstallCommand::ShortDescription() const
+    Resource::LocString InstallCommand::ShortDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"InstallCommandDescription");
+        return { Resource::String::InstallCommandShortDescription };
     }
 
-    std::string InstallCommand::GetLongDescription() const
+    Resource::LocString InstallCommand::LongDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"InstallCommandDescription");
+        return { Resource::String::InstallCommandLongDescription };
     }
 
     std::string InstallCommand::HelpLink() const
@@ -69,7 +69,7 @@ namespace AppInstaller::CLI
     {
         if (execArgs.Contains(Execution::Args::Type::Silent) && execArgs.Contains(Execution::Args::Type::Interactive))
         {
-            throw CommandException(Resources::GetInstance().ResolveWingetString(L"TooManyBehaviorsError"), s_InstallCommand_ArgName_SilentAndInteractive);
+            throw CommandException(Resource::String::TooManyBehaviorsError, s_InstallCommand_ArgName_SilentAndInteractive);
         }
     }
 }

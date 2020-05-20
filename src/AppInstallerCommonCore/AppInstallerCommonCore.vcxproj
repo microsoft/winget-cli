@@ -193,6 +193,7 @@
     <ClInclude Include="Public\AppInstallerArchitecture.h" />
     <ClInclude Include="Public\AppInstallerVersions.h" />
     <ClInclude Include="Public\winget\ExtensionCatalog.h" />
+    <ClInclude Include="Public\winget\LocIndependent.h" />
     <ClInclude Include="Telemetry\MicrosoftTelemetry.h" />
     <ClInclude Include="Telemetry\TraceLogging.h" />
     <ClInclude Include="Telemetry\WinEventLogLevels.h" />

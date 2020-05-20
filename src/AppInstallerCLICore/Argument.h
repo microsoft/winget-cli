@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionContext.h"
+#include "Resources.h"
 
 #include <string>
 #include <string_view>
@@ -43,22 +44,22 @@ namespace AppInstaller::CLI
     // An argument to a command.
     struct Argument
     {
-        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, std::string desc) :
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc) :
             m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)) {}
 
-        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, std::string desc, bool required) :
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, bool required) :
             m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_required(required) {}
 
-        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, std::string desc, ArgumentType type) :
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type) :
             m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type) {}
 
-        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, std::string desc, ArgumentType type, Visibility visibility) :
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Visibility visibility) :
             m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility) {}
 
-        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, std::string desc, ArgumentType type, bool required) :
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, bool required) :
             m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_required(required) {}
 
-        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, std::string desc, ArgumentType type, Visibility visibility, bool required) :
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Visibility visibility, bool required) :
             m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_required(required) {}
 
         ~Argument() = default;
@@ -75,10 +76,11 @@ namespace AppInstaller::CLI
         // Gets the common arguments for all commands.
         static void GetCommon(std::vector<Argument>& args);
 
-        std::string_view Name() const { return m_name; }
+        // Arguments are not localized at this time.
+        Utility::LocIndView Name() const { return Utility::LocIndView{ m_name }; }
         char Alias() const { return m_alias; }
         Execution::Args::Type ExecArgType() const { return m_execArgType; }
-        const std::string& Description() const { return m_desc; }
+        const Resource::StringId& Description() const { return m_desc; }
         bool Required() const { return m_required; }
         ArgumentType Type() const { return m_type; }
         size_t Limit() const { return m_countLimit; }
@@ -90,7 +92,7 @@ namespace AppInstaller::CLI
         std::string_view m_name;
         char m_alias;
         Execution::Args::Type m_execArgType;
-        std::string m_desc;
+        Resource::StringId m_desc;
         bool m_required = false;
         ArgumentType m_type = ArgumentType::Standard;
         ::AppInstaller::CLI::Visibility m_visibility = Visibility::Example;

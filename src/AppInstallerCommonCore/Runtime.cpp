@@ -10,6 +10,8 @@
 
 namespace AppInstaller::Runtime
 {
+    using namespace Utility;
+
     namespace
     {
         using namespace std::string_view_literals;
@@ -181,34 +183,38 @@ namespace AppInstaller::Runtime
         return result;
     }
 
-    std::string GetClientVersion()
+    LocIndString GetClientVersion()
     {
         using namespace std::string_literals;
 
+        // Major and minor come directly from version.h
+        std::ostringstream strstr;
+        strstr << VERSION_MAJOR << '.' << VERSION_MINOR << '.';
+
+        // Build comes from the package for now, if packaged.
         if (IsRunningInPackagedContext())
         {
             auto version = GetPACKAGE_VERSION();
 
             if (!version)
             {
-                return "error"s;
+                // In the extremely unlikely event of a failure, this is merely a senitinel value
+                // to indicated such.  The only other option is to completely prevent execution,
+                // which seems unnecessary.
+                return LocIndString{ "error" };
             }
 
-            std::ostringstream strstr;
-            strstr << VERSION_MAJOR << '.' << VERSION_MINOR << '.' << version->Build;
-
-            return strstr.str();
+            strstr << version->Build;
         }
         else
         {
-            std::ostringstream strstr;
-            strstr << VERSION_MAJOR << '.' << VERSION_MINOR << '.' << VERSION_BUILD;
-
-            return strstr.str();
+            strstr << VERSION_BUILD;
         }
+
+        return LocIndString{ strstr.str() };
     }
 
-    std::string GetPackageVersion()
+    LocIndString GetPackageVersion()
     {
         using namespace std::string_literals;
 
@@ -218,21 +224,25 @@ namespace AppInstaller::Runtime
 
             if (!version)
             {
-                return "error"s;
+                // In the extremely unlikely event of a failure, this is merely a senitinel value
+                // to indicated such.  The only other option is to completely prevent execution,
+                // which seems unnecessary.
+                return LocIndString{ "error" };
             }
 
             std::ostringstream strstr;
             strstr << GetPackageName() << " v" << version->Major << '.' << version->Minor << '.' << version->Build << '.' << version->Revision;
 
-            return strstr.str();
+            return LocIndString{ strstr.str() };
         }
         else
         {
-            return "none";
+            // Calling code should avoid calling in when this is the case.
+            return LocIndString{ "none" };
         }
     }
 
-    std::string GetOSVersion()
+    LocIndString GetOSVersion()
     {
         winrt::Windows::System::Profile::AnalyticsInfo analyticsInfo{};
         auto versionInfo = analyticsInfo.VersionInfo();
@@ -249,7 +259,7 @@ namespace AppInstaller::Runtime
         std::ostringstream strstr;
         strstr << Utility::ConvertToUTF8(versionInfo.DeviceFamily()) << " v" << parts[3] << '.' << parts[2] << '.' << parts[1] << '.' << parts[0];
 
-        return strstr.str();
+        return LocIndString{ strstr.str() };
     }
 
     std::filesystem::path GetPathToTemp()

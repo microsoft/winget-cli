@@ -24,14 +24,14 @@ namespace AppInstaller::CLI
             });
     }
 
-    std::string SourceCommand::ShortDescription() const
+    Resource::LocString SourceCommand::ShortDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"SourceCommandShortDescription");
+        return { Resource::String::SourceCommandShortDescription };
     }
 
-    std::string SourceCommand::GetLongDescription() const
+    Resource::LocString SourceCommand::LongDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"SourceCommandLongDescription");
+        return { Resource::String::SourceCommandLongDescription };
     }
 
     std::string SourceCommand::HelpLink() const
@@ -53,14 +53,14 @@ namespace AppInstaller::CLI
         };
     }
 
-    std::string SourceAddCommand::ShortDescription() const
+    Resource::LocString SourceAddCommand::ShortDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"SourceAddCommandShortDescription");
+        return { Resource::String::SourceAddCommandShortDescription };
     }
 
-    std::string SourceAddCommand::GetLongDescription() const
+    Resource::LocString SourceAddCommand::LongDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"SourceAddCommandLongDescription");
+        return { Resource::String::SourceAddCommandLongDescription };
     }
 
     std::string SourceAddCommand::HelpLink() const
@@ -83,14 +83,14 @@ namespace AppInstaller::CLI
         };
     }
 
-    std::string SourceListCommand::ShortDescription() const
+    Resource::LocString SourceListCommand::ShortDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"SourceListCommandShortDescription");
+        return { Resource::String::SourceListCommandShortDescription };
     }
 
-    std::string SourceListCommand::GetLongDescription() const
+    Resource::LocString SourceListCommand::LongDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"SourceListCommandLongDescription");
+        return { Resource::String::SourceListCommandLongDescription };
     }
 
     std::string SourceListCommand::HelpLink() const
@@ -112,14 +112,14 @@ namespace AppInstaller::CLI
         };
     }
 
-    std::string SourceUpdateCommand::ShortDescription() const
+    Resource::LocString SourceUpdateCommand::ShortDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"SourceUpdateCommandShortDescription");
+        return { Resource::String::SourceUpdateCommandShortDescription };
     }
 
-    std::string SourceUpdateCommand::GetLongDescription() const
+    Resource::LocString SourceUpdateCommand::LongDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"SourceUpdateCommandLongDescription");
+        return { Resource::String::SourceUpdateCommandLongDescription };
     }
 
     std::string SourceUpdateCommand::HelpLink() const
@@ -141,14 +141,14 @@ namespace AppInstaller::CLI
         };
     }
 
-    std::string SourceRemoveCommand::ShortDescription() const
+    Resource::LocString SourceRemoveCommand::ShortDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"SourceRemoveCommandShortDescription");
+        return { Resource::String::SourceRemoveCommandShortDescription };
     }
 
-    std::string SourceRemoveCommand::GetLongDescription() const
+    Resource::LocString SourceRemoveCommand::LongDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"SourceRemoveCommandLongDescription");
+        return { Resource::String::SourceRemoveCommandLongDescription };
     }
 
     std::string SourceRemoveCommand::HelpLink() const
@@ -171,14 +171,14 @@ namespace AppInstaller::CLI
         };
     }
 
-    std::string SourceResetCommand::ShortDescription() const
+    Resource::LocString SourceResetCommand::ShortDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"SourceResetCommandShortDescription");
+        return { Resource::String::SourceResetCommandShortDescription };
     }
 
-    std::string SourceResetCommand::GetLongDescription() const
+    Resource::LocString SourceResetCommand::LongDescription() const
     {
-        return Resources::GetInstance().ResolveWingetString(L"SourceResetCommandLongDescription");
+        return { Resource::String::SourceResetCommandLongDescription };
     }
 
     std::string SourceResetCommand::HelpLink() const

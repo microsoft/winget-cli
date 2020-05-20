@@ -14,6 +14,7 @@
 #include <Public/AppInstallerRepositorySearch.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/ShowCommand.h>
+#include <winget/LocIndependent.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
@@ -41,14 +42,14 @@ struct TestSource : public ISource
             return m_manifest;
         }
 
-        std::string GetId() override
+        LocIndString GetId() override
         {
-            return m_manifest.Id;
+            return LocIndString{ m_manifest.Id };
         }
 
-        std::string GetName() override
+        LocIndString GetName() override
         {
-            return m_manifest.Name;
+            return LocIndString{ m_manifest.Name };
         }
 
         std::vector<VersionAndChannel> GetVersions() override
