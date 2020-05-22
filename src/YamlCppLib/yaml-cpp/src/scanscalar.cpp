@@ -73,7 +73,7 @@ std::string ScanScalar(Stream& INPUT, ScanScalarParams& params) {
         continue;
       }
 
-      // otherwise, just add the damn character
+      // otherwise, just add the character
       char ch = INPUT.get();
       scalar += ch;
       if (ch != ' ' && ch != '\t') {
