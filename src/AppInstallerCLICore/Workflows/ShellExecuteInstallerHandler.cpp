@@ -138,6 +138,7 @@ namespace AppInstaller::CLI::Workflow
     {
         context.Reporter.Info() << "Installing ..." << std::endl;
 
+        const auto& installer = context.Get<Execution::Data::Installer>();
         const std::string& installerArgs = context.Get<Execution::Data::InstallerArgs>();
 
         auto installResult = context.Reporter.ExecuteWithProgress(
@@ -151,7 +152,7 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Warn() << "Installation abandoned" << std::endl;
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
-        else if (installResult.value() != 0)
+        else if (installResult.value() != installer->SuccessExitCode)
         {
             const auto& manifest = context.Get<Execution::Data::Manifest>();
             Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, "ShellExecute", installResult.value());

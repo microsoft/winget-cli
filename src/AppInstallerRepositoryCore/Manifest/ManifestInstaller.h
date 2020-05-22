@@ -71,6 +71,9 @@ namespace AppInstaller::Manifest
         // If present, has more precedence than root
         std::map<InstallerSwitchType, string_t> Switches;
 
+        // Optional. Default is zero.
+        DWORD SuccessExitCode;
+
         static InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
 
         static std::map<InstallerSwitchType, string_t> GetDefaultKnownSwitches(InstallerTypeEnum installerType);

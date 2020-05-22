@@ -15,6 +15,7 @@ namespace AppInstaller::Manifest
         YAML::Node switchesNode;
         this->InstallerType = defaultInstaller.InstallerType;
         this->Scope = "user";
+        this->SuccessExitCode = 0;
 
         std::vector<ManifestFieldInfo> fieldInfos;
 
@@ -30,6 +31,7 @@ namespace AppInstaller::Manifest
                 { "Scope", [this](const YAML::Node& value) { Scope = value.as<std::string>(); } },
                 { "InstallerType", [this](const YAML::Node& value) { InstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); } },
                 { "Switches", [&](const YAML::Node& value) { switchesNode = value; } },
+                { "SuccessExitCode", [&](const YAML::Node& value) { SuccessExitCode = value.as<DWORD>(); } },
             };
 
             std::move(previewFieldInfos.begin(), previewFieldInfos.end(), std::inserter(fieldInfos, fieldInfos.end()));
