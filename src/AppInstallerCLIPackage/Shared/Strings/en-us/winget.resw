@@ -151,7 +151,7 @@
     <value>Show no more than specified number of results</value>
   </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Find app using exact match</value>
+    <value>Find application using exact match</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Found a positional argument when none was expected</value>
@@ -249,7 +249,7 @@
     <value>Argument value required, but none found</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Filter results by app moniker</value>
+    <value>Filter results by application moniker</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Input file will be treated as msix; signature hash will be provided if signed</value>
@@ -303,7 +303,7 @@
     <value>Searches for applications from configured sources.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Find and show basic info of apps</value>
+    <value>Find and show basic info of applications</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Shows information on a specific application.</value>
@@ -327,7 +327,7 @@
     <value>Argument given to the source</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Find app using the specified source</value>
+    <value>Find application using the specified source</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
     <value>Manage sources with the sub-commands. A source provides the data for you to discover and install applications. Only add a new source if you trust it as a secure location.</value>
@@ -415,6 +415,6 @@
     <value>Use the specified version; default is the latest version</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Show available versions of the app</value>
+    <value>Show available versions of the application</value>
   </data>
 </root>
