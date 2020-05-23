@@ -40,7 +40,7 @@ namespace AppInstaller::CLI::Execution
             for (size_t i = 0; i < FieldCount; ++i)
             {
                 m_columns[i].Name = std::move(header[i]);
-                m_columns[i].MinLength = m_columns[i].Name.length();
+                m_columns[i].MinLength = Utility::UTF8Length(m_columns[i].Name);
                 m_columns[i].MaxLength = 0;
             }
         }
@@ -91,7 +91,7 @@ namespace AppInstaller::CLI::Execution
             {
                 for (size_t i = 0; i < FieldCount; ++i)
                 {
-                    m_columns[i].MaxLength = std::max(m_columns[i].MaxLength, line[i].length());
+                    m_columns[i].MaxLength = std::max(m_columns[i].MaxLength, Utility::UTF8Length(line[i]));
                 }
             }
 
@@ -187,7 +187,9 @@ namespace AppInstaller::CLI::Execution
 
                 if (col.MaxLength)
                 {
-                    if (line[i].length() > col.MaxLength)
+                    size_t valueLength = Utility::UTF8Length(line[i]);
+
+                    if (valueLength > col.MaxLength)
                     {
                         size_t replaceChars = std::min(col.MaxLength, static_cast<size_t>(3));
                         std::string replacement = line[i].substr(0, col.MaxLength - replaceChars);
@@ -205,7 +207,7 @@ namespace AppInstaller::CLI::Execution
 
                         if (col.SpaceAfter)
                         {
-                            out << std::string(col.MaxLength - line[i].length() + 1, ' ');
+                            out << std::string(col.MaxLength - valueLength + 1, ' ');
                         }
                     }
                 }

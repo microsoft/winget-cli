@@ -17,6 +17,9 @@ namespace AppInstaller::Utility
     // Converts the given UTF8 string to UTF16
     std::wstring ConvertToUTF16(std::string_view input);
 
+    // Returns the number of characters (not bytes) in an UTF8-encoded string.
+    size_t UTF8Length(std::string_view input);
+
     // Normalizes a UTF8 string to the given form.
     std::string Normalize(std::string_view input, NORM_FORM form = NORM_FORM::NormalizationKC);
 

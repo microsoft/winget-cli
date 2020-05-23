@@ -58,6 +58,19 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    size_t UTF8Length(std::string_view input)
+    {
+        if (input.empty())
+        {
+            return 0;
+        }
+
+        int utf16CharCount = MultiByteToWideChar(CP_UTF8, 0, input.data(), wil::safe_cast<int>(input.length()), nullptr, 0);
+        THROW_LAST_ERROR_IF(utf16CharCount == 0);
+
+        return wil::safe_cast<size_t>(utf16CharCount);
+    }
+
     std::string Normalize(std::string_view input, NORM_FORM form)
     {
         if (input.empty())
