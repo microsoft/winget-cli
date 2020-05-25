@@ -199,7 +199,7 @@ namespace AppInstaller::CLI
 
             if (hasArguments)
             {
-                infoOut << Resource::String::AvailableArguements << std::endl;
+                infoOut << Resource::String::AvailableArguments << std::endl;
 
                 size_t i = 0;
                 for (const auto& arg : GetArguments())

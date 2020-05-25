@@ -69,7 +69,7 @@ namespace AppInstaller::CLI
         case Args::Type::ValidateManifest:
             return Argument{ "manifest", None, Args::Type::ValidateManifest, Resource::String::ValidateManifestArgumentDescription, ArgumentType::Positional, true };
         case Args::Type::NoVT:
-            return Argument{ "no-vt", None, Args::Type::NoVT, Resource::String::NoVTArguementDescription, ArgumentType::Flag, Visibility::Hidden };
+            return Argument{ "no-vt", None, Args::Type::NoVT, Resource::String::NoVTArgumentDescription, ArgumentType::Flag, Visibility::Hidden };
         case Args::Type::RainbowStyle:
             return Argument{ "rainbow", None, Args::Type::RainbowStyle, Resource::String::RainbowArgumentDescription, ArgumentType::Flag, Visibility::Hidden };
         case Args::Type::PlainStyle:
