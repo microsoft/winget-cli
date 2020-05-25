@@ -216,7 +216,7 @@ namespace AppInstaller::Repository::SQLite
         }
 
         // Gets the entire row of values from the current row.
-        // The values requested *must* be those available starting from the first column, but trailing columns can be ommitted.
+        // The values requested *must* be those available starting from the first column, but trailing columns can be omitted.
         template <typename... Values>
         std::tuple<Values...> GetRow()
         {
