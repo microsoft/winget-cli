@@ -159,7 +159,7 @@ namespace AppInstaller::CLI::Execution
         void Terminate(HRESULT hr);
 
         // Adds a value to the context data, or overwrites an existing entry.
-        // This must be used to create the intial data entry, but Get can be used to modify.
+        // This must be used to create the initial data entry, but Get can be used to modify.
         template <Data D>
         void Add(typename details::DataMapping<D>::value_t&& v)
         {
