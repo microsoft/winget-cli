@@ -258,7 +258,7 @@ Installers:
 ## Best Practices
 The Id must be unique.  You cannot have multiple submissions with the same Id.
 
-Avoid creating multiple publisher folders.  For example, do not create "Contoso Ltd." if there is already a "Contonso" folder.
+Avoid creating multiple publisher folders.  For example, do not create "Contoso Ltd." if there is already a "Contoso" folder.
 
 All tools must support a silent install.  If you have an executable that does not support a silent install, then we cannot provide that tool at this time.  Provide feedback to the repo.  If this is a restriction that you would like to see removed add an issue or up vote it.
 My installer supports a silent install, but is not one of the supported InstallerTypes.  How can I get it added to your repo.  Ping us on the repo.
