@@ -181,7 +181,7 @@ namespace AppInstaller::Utility
             return true;
         }
 
-        // else m_verson >= other.m_version
+        // else m_version >= other.m_version
         return false;
     }
 }
