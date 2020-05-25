@@ -198,7 +198,7 @@ namespace AppInstaller::Runtime
 
             if (!version)
             {
-                // In the extremely unlikely event of a failure, this is merely a senitinel value
+                // In the extremely unlikely event of a failure, this is merely a sentinel value
                 // to indicated such.  The only other option is to completely prevent execution,
                 // which seems unnecessary.
                 return LocIndString{ "error" };
@@ -224,7 +224,7 @@ namespace AppInstaller::Runtime
 
             if (!version)
             {
-                // In the extremely unlikely event of a failure, this is merely a senitinel value
+                // In the extremely unlikely event of a failure, this is merely a sentinel value
                 // to indicated such.  The only other option is to completely prevent execution,
                 // which seems unnecessary.
                 return LocIndString{ "error" };
