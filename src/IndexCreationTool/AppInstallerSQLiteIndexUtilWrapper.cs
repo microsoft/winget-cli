@@ -106,7 +106,7 @@ namespace IndexCreationTool
 
                 // For now, modifying a manifest implies that the file didn't got moved in the repository. So only
                 // contents of the file are modified. However, in the future we might support moving which requires
-                // oldManifestPath, oldRelativePath, newManigestPath and oldManifestPath.
+                // oldManifestPath, oldRelativePath, newManifestPath and oldManifestPath.
                 AppInstallerSQLiteIndexUpdateManifest(
                     this.indexHandle,
                     manifestPath,
