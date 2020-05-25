@@ -138,7 +138,7 @@ namespace AppInstaller::Repository::SQLite
         // Enables the ICU integrations on this connection.
         void EnableICU();
 
-        // Gets the last inerted rowid to the database.
+        // Gets the last inserted rowid to the database.
         rowid_t GetLastInsertRowID();
 
         // Gets the count of changed rows for the last executed statement.
