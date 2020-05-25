@@ -61,7 +61,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreement);
         WINGET_DEFINE_RESOURCE_STRINGID(Links);
         WINGET_DEFINE_RESOURCE_STRINGID(LocationArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(LogArgumentDesciption);
+        WINGET_DEFINE_RESOURCE_STRINGID(LogArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(MainCopyrightNotice);
         WINGET_DEFINE_RESOURCE_STRINGID(MainHomepage);
         WINGET_DEFINE_RESOURCE_STRINGID(ManifestArgumentDescription);

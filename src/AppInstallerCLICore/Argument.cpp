@@ -47,7 +47,7 @@ namespace AppInstaller::CLI
         case Args::Type::Language:
             return Argument{ "lang", 'a', Args::Type::Language, Resource::String::LanguageArgumentDescription, ArgumentType::Standard, Visibility::Hidden };
         case Args::Type::Log:
-            return Argument{ "log", 'o', Args::Type::Log, Resource::String::LogArgumentDesciption, ArgumentType::Standard };
+            return Argument{ "log", 'o', Args::Type::Log, Resource::String::LogArgumentDescription, ArgumentType::Standard };
         case Args::Type::Override:
             return Argument{ "override", None, Args::Type::Override, Resource::String::OverrideArgumentDescription, ArgumentType::Standard, Visibility::Help };
         case Args::Type::InstallLocation:

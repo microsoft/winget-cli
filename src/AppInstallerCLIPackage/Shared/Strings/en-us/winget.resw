@@ -223,7 +223,7 @@
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Location to install to (if supported)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>Log location (if supported)</value>
   </data>
   <data name="MainCopyrightNotice" xml:space="preserve">
