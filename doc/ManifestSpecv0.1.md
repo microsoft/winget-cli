@@ -42,7 +42,7 @@ Name: MSIX SDK
 AppMoniker: msixsdk
 
 # Version is a required field.  It is the specific version of this copy of the application.
-# Versions should be separated by a period, but we will support other deliminators.
+# Versions should be separated by a period, but we will support other delimiters.
 # Versions should be limited to four fields: Major.Minor.Build.Update.
 # Versions will be sorted as integers following the following pattern: Major.Minor.Build.Patch.
 # Restrictions: 4 sections with max value of 65535.  For example:65535.65535.65535.65535
