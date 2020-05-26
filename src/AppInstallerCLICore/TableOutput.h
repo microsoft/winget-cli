@@ -191,10 +191,8 @@ namespace AppInstaller::CLI::Execution
 
                     if (valueLength > col.MaxLength)
                     {
-                        size_t replaceChars = std::min(col.MaxLength, static_cast<size_t>(3));
-                        std::string replacement = Utility::UTF8Substring(0, col.MaxLength - replaceChars);
-                        replacement.append(replaceChars, '.');
-                        out << replacement;
+                        out << Utility::UTF8Substring(line[i], 0, col.MaxLength - 1);
+                        out << "\xE2\x80\xA6"; // UTF8 encoding of ellipsis (…) character
 
                         if (col.SpaceAfter)
                         {
