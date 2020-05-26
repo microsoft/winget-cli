@@ -192,7 +192,7 @@ namespace AppInstaller::CLI::Execution
                     if (valueLength > col.MaxLength)
                     {
                         size_t replaceChars = std::min(col.MaxLength, static_cast<size_t>(3));
-                        std::string replacement = line[i].substr(0, col.MaxLength - replaceChars);
+                        std::string replacement = Utility::UTF8Substring(0, col.MaxLength - replaceChars);
                         replacement.append(replaceChars, '.');
                         out << replacement;
 

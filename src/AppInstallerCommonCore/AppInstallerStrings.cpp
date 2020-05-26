@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerStrings.h"
+#include "icu.h"
 
 namespace AppInstaller::Utility
 {
@@ -60,16 +61,93 @@ namespace AppInstaller::Utility
 
     size_t UTF8Length(std::string_view input)
     {
-        if (input.empty())
+        UErrorCode err = U_ZERO_ERROR;
+
+        UText* text = utext_openUTF8(nullptr, input.data(), wil::safe_cast<int64_t>(input.length()), &err);
+        if (U_FAILURE(err))
         {
-            return 0;
+            THROW_HR(E_UNEXPECTED);
+        }
+        auto closeText = wil::scope_exit([text]() { utext_close(text); });
+
+        UBreakIterator* it = ubrk_open(UBRK_CHARACTER, nullptr, nullptr, 0, &err);
+        if (U_FAILURE(err))
+        {
+            THROW_HR(E_UNEXPECTED);
+        }        
+        auto closeBreakIterator = wil::scope_exit([it]() { ubrk_close(it); });
+
+        ubrk_setUText(it, text, &err);
+        if (U_FAILURE(err))
+        {
+            THROW_HR(E_UNEXPECTED);
         }
 
-        int utf16CharCount = MultiByteToWideChar(CP_UTF8, 0, input.data(), wil::safe_cast<int>(input.length()), nullptr, 0);
-        THROW_LAST_ERROR_IF(utf16CharCount == 0);
+        size_t numGraphemeClusters = 0;
+        int32_t i = ubrk_first(it);
 
-        return wil::safe_cast<size_t>(utf16CharCount);
+        while (i != UBRK_DONE)
+        {            
+            i = ubrk_next(it);
+            numGraphemeClusters++;
+        }
+
+        // don't count break before first character
+        if (numGraphemeClusters > 0)
+        {
+            numGraphemeClusters--;
+        }
+
+        return numGraphemeClusters;
     }
+
+    std::string_view UTF8Substring(std::string_view input, size_t offset, size_t count)
+    {
+        UErrorCode err = U_ZERO_ERROR;
+
+        UText* text = utext_openUTF8(nullptr, input.data(), wil::safe_cast<int64_t>(input.length()), &err);
+        if (U_FAILURE(err))
+        {
+            THROW_HR(E_UNEXPECTED);
+        }
+        auto closeText = wil::scope_exit([text]() { utext_close(text); });
+
+        UBreakIterator* it = ubrk_open(UBRK_CHARACTER, nullptr, nullptr, 0, &err);
+        if (U_FAILURE(err))
+        {
+            THROW_HR(E_UNEXPECTED);
+        }
+        auto closeBreakIterator = wil::scope_exit([it]() { ubrk_close(it); });
+
+        ubrk_setUText(it, text, &err);
+        if (U_FAILURE(err))
+        {
+            THROW_HR(E_UNEXPECTED);
+        }
+
+        size_t utf8Offset = 0;
+        size_t utf8Count = 0;
+        size_t graphemeClusterOffset = 0;
+        int32_t i = ubrk_first(it);
+
+        while (i != UBRK_DONE)
+        {
+            if (graphemeClusterOffset == offset)
+            {
+                utf8Offset = i;
+            }
+            if (graphemeClusterOffset == offset + count)
+            {
+                utf8Count = i - utf8Offset;
+                break;
+            }
+
+            i = ubrk_next(it);
+            graphemeClusterOffset++;
+        }
+
+        return input.substr(utf8Offset, utf8Count);
+    }    
 
     std::string Normalize(std::string_view input, NORM_FORM form)
     {
