@@ -47,7 +47,7 @@ namespace AppInstaller::Utility
                 int32_t i = ubrk_first(m_brk.get());
                 if (i != 0)
                 {
-                    AICLI_LOG(Core, Error, << "ubrk_first returned 0");
+                    AICLI_LOG(Core, Error, << "ubrk_first returned " << i);
                     THROW_HR(E_UNEXPECTED);
                 }
             }
