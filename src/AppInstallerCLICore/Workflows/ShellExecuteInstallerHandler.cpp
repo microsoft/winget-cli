@@ -65,7 +65,20 @@ namespace AppInstaller::CLI::Workflow
             const std::map<ManifestInstaller::InstallerSwitchType, Utility::NormalizedString>& installerSwitches = context.Get<Execution::Data::Installer>()->Switches;
 
             // Construct install experience arg.
-            if (context.Args.Contains(Execution::Args::Type::Silent) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Silent) != installerSwitches.end())
+            auto installerType = context.Get<Execution::Data::Installer>()->InstallerType;
+            if (context.Args.Contains(Execution::Args::Type::Silent) && installerType == ManifestInstaller::InstallerTypeEnum::Nullsoft)
+            {
+                installerArgs += "/S";
+            }
+            else if (context.Args.Contains(Execution::Args::Type::Silent) && installerType == ManifestInstaller::InstallerTypeEnum::Inno)
+            {
+                installerArgs += "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-";
+            }
+            else if (context.Args.Contains(Execution::Args::Type::Silent) && installerType == ManifestInstaller::InstallerTypeEnum::Burn)
+            {
+                installerArgs += "/install /quiet";
+            }
+            else if (context.Args.Contains(Execution::Args::Type::Silent) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Silent) != installerSwitches.end())
             {
                 installerArgs += installerSwitches.at(ManifestInstaller::InstallerSwitchType::Silent);
             }
