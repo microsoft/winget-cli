@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
+#include "icu.h"
 
 namespace AppInstaller::Utility
 {
@@ -11,6 +13,55 @@ namespace AppInstaller::Utility
     using namespace std::string_view_literals;
     constexpr std::string_view s_SpaceChars = AICLI_SPACE_CHARS;
     constexpr std::wstring_view s_WideSpaceChars = L"" AICLI_SPACE_CHARS;
+
+    namespace
+    {
+        // Contains the ICU objects necessary to do break iteration.
+        struct ICUBreakIterator
+        {
+            ICUBreakIterator(std::string_view input, UBreakIteratorType type)
+            {
+                UErrorCode err = U_ZERO_ERROR;
+
+                m_text.reset(utext_openUTF8(nullptr, input.data(), wil::safe_cast<int64_t>(input.length()), &err));
+                if (U_FAILURE(err))
+                {
+                    AICLI_LOG(Core, Error, << "utext_openUTF8 returned " << err);
+                    THROW_HR(E_UNEXPECTED);
+                }
+
+                m_brk.reset(ubrk_open(type, nullptr, nullptr, 0, &err));
+                if (U_FAILURE(err))
+                {
+                    AICLI_LOG(Core, Error, << "ubrk_open returned " << err);
+                    THROW_HR(E_UNEXPECTED);
+                }
+
+                ubrk_setUText(m_brk.get(), m_text.get(), &err);
+                if (U_FAILURE(err))
+                {
+                    AICLI_LOG(Core, Error, << "ubrk_setUText returned " << err);
+                    THROW_HR(E_UNEXPECTED);
+                }
+
+                int32_t i = ubrk_first(m_brk.get());
+                if (i != 0)
+                {
+                    AICLI_LOG(Core, Error, << "ubrk_first returned " << i);
+                    THROW_HR(E_UNEXPECTED);
+                }
+            }
+
+            int32_t Next()
+            {
+                return ubrk_next(m_brk.get());
+            }
+
+        private:
+            wil::unique_any<UText*, decltype(utext_close), &utext_close> m_text;
+            wil::unique_any<UBreakIterator*, decltype(ubrk_close), &ubrk_close> m_brk;
+        };
+    }
 
     bool CaseInsensitiveEquals(std::string_view a, std::string_view b)
     {
@@ -57,6 +108,48 @@ namespace AppInstaller::Utility
 
         return result;
     }
+
+    size_t UTF8Length(std::string_view input)
+    {
+        ICUBreakIterator itr{ input, UBRK_CHARACTER };
+
+        size_t numGraphemeClusters = 0;
+
+        while (itr.Next() != UBRK_DONE)
+        {
+            numGraphemeClusters++;
+        }
+
+        return numGraphemeClusters;
+    }
+
+    std::string_view UTF8Substring(std::string_view input, size_t offset, size_t count)
+    {
+        ICUBreakIterator itr{ input, UBRK_CHARACTER };
+
+        size_t utf8Offset = 0;
+        size_t utf8Count = 0;
+        size_t graphemeClusterOffset = 0;
+        int32_t i = 0;
+
+        while (i != UBRK_DONE)
+        {
+            if (graphemeClusterOffset == offset)
+            {
+                utf8Offset = i;
+            }
+            else if (graphemeClusterOffset == offset + count)
+            {
+                utf8Count = i - utf8Offset;
+                break;
+            }
+
+            i = itr.Next();
+            graphemeClusterOffset++;
+        }
+
+        return input.substr(utf8Offset, utf8Count);
+    }    
 
     std::string Normalize(std::string_view input, NORM_FORM form)
     {

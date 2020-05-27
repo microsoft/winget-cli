@@ -17,6 +17,12 @@ namespace AppInstaller::Utility
     // Converts the given UTF8 string to UTF16
     std::wstring ConvertToUTF16(std::string_view input);
 
+    // Returns the number of grapheme clusters (characters) in an UTF8-encoded string.
+    size_t UTF8Length(std::string_view input);
+
+    // Returns a substring view in an UTF8-encoded string. Offset and count are measured in grapheme clusters (characters).
+    std::string_view UTF8Substring(std::string_view input, size_t offset, size_t count);
+
     // Normalizes a UTF8 string to the given form.
     std::string Normalize(std::string_view input, NORM_FORM form = NORM_FORM::NormalizationKC);
 
