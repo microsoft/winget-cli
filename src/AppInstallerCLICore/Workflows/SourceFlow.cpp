@@ -199,7 +199,7 @@ namespace AppInstaller::CLI::Workflow
 
         for (const auto& source : sources)
         {
-            context.Reporter.Info() << "Reseting source: " << source.Name << " ...";
+            context.Reporter.Info() << "Resetting source: " << source.Name << " ...";
             Repository::DropSource(source.Name);
             context.Reporter.Info() << " Done." << std::endl;
         }
@@ -207,7 +207,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ResetAllSources(Execution::Context& context)
     {
-        context.Reporter.Info() << "Reseting all sources ...";
+        context.Reporter.Info() << "Resetting all sources ...";
         Repository::DropSource({});
         context.Reporter.Info() << " Done." << std::endl;
     }

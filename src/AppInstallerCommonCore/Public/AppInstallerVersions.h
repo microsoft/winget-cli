@@ -65,7 +65,7 @@ namespace AppInstaller::Utility
 
     // A channel string; existing solely to give a type.
     //
-    // Compared lexographically.
+    // Compared lexicographically.
     struct Channel
     {
         Channel(const std::string& channel) : m_channel(channel) {}

@@ -195,7 +195,7 @@ namespace AppInstaller::Utility
             }
         }
 
-        // Zone Indentifier stream name
+        // Zone Identifier stream name
         // https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/6e3f7352-d11c-4d76-8c39-2516a9df36e8
         std::filesystem::path motwPath(filePath);
         motwPath += L":Zone.Identifier:$DATA";

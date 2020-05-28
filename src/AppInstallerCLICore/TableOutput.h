@@ -53,14 +53,14 @@ namespace AppInstaller::CLI::Execution
             }
             else
             {
-                EvaulateAndFlushBuffer();
+                EvaluateAndFlushBuffer();
                 OutputLineToStream(line);
             }
         }
 
         void Complete()
         {
-            EvaulateAndFlushBuffer();
+            EvaluateAndFlushBuffer();
         }
 
     private:
@@ -79,7 +79,7 @@ namespace AppInstaller::CLI::Execution
         std::vector<line_t> m_buffer;
         bool m_bufferEvaluated = false;
 
-        void EvaulateAndFlushBuffer()
+        void EvaluateAndFlushBuffer()
         {
             if (m_bufferEvaluated)
             {

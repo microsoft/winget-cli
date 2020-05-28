@@ -23,7 +23,7 @@ namespace AppInstaller::CLI::Execution
             Tag,
             Command,
             Source, // Index source to be queried against
-            Count, // Maximun query results
+            Count, // Maximum query results
             Exact, // Exact match required
 
             // Manifest selection behavior after an app is found

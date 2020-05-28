@@ -29,7 +29,7 @@ namespace AppInstaller::CLI::Resource
     {
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFlagError);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFoundError);
-        WINGET_DEFINE_RESOURCE_STRINGID(AvailableArguements);
+        WINGET_DEFINE_RESOURCE_STRINGID(AvailableArguments);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableCommands);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableOptions);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableSubcommands);
@@ -61,7 +61,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreement);
         WINGET_DEFINE_RESOURCE_STRINGID(Links);
         WINGET_DEFINE_RESOURCE_STRINGID(LocationArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(LogArgumentDesciption);
+        WINGET_DEFINE_RESOURCE_STRINGID(LogArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(MainCopyrightNotice);
         WINGET_DEFINE_RESOURCE_STRINGID(MainHomepage);
         WINGET_DEFINE_RESOURCE_STRINGID(ManifestArgumentDescription);
@@ -74,7 +74,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MsixSignatureHashFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(NameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(NoApplicableInstallers);
-        WINGET_DEFINE_RESOURCE_STRINGID(NoVTArguementDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(NoVTArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Options);
         WINGET_DEFINE_RESOURCE_STRINGID(OverrideArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Package);

@@ -395,7 +395,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
     {
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
-        // Override switch specified. The whole arg passed to installer is overrided.
+        // Override switch specified. The whole arg passed to installer is overridden.
         auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log");
