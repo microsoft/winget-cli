@@ -2,7 +2,7 @@
 author: <first-name> <last-name> <github-id>/<email>
 created on: <yyyy-mm-dd>
 last updated: <yyyy-mm-dd>
-issue id: <github issue id>
+issue id: <github issue id link>
 ---
 
 # Spec Title
