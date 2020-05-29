@@ -2,10 +2,12 @@
 author: <first-name> <last-name> <github-id>/<email>
 created on: <yyyy-mm-dd>
 last updated: <yyyy-mm-dd>
-issue id: <github issue id link>
+issue id: <github issue id>
 ---
 
 # Spec Title
+
+[comment]: # Link to issue: "For #1"
 
 ## Abstract
 
