@@ -7,7 +7,7 @@ issue id: 292
 
 # Package matching bug fix
 
-For #292
+For [#292](https://github.com/microsoft/winget-cli/issues/292)
 
 ## Abstract
 
