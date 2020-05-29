@@ -10,8 +10,15 @@ issue id: 292
 ## Abstract
 
 The winget.exe client attempts to be generous with the `search` command, but is a bit too generous with `install`. The *id*
-should be the unique key to identifying a package. It should also be case insensitve from the perspective of command execution,
-but it should be case sensitive in terms of the displayed value.
+should be the unique key to identifying a package (other than the package version). It should also be case insensitve from the perspective of command execution, but it should be case sensitive in terms of the displayed value. 
+
+If a manifest was created with the *id* "Git.Git" then that is what would be displayed in the client output.
+Any combination of case in the `install` command should match.
+
+If multiple versions of the package have been created, and they differ in the casing for the *id* then the most recent version
+of the manifest should be used for displaying the characters in the search output.
+
+The latest version of a package is also the version that should be displayed during `search`, and subsequently installed.
 
 ## Inspiration
 
@@ -66,9 +73,10 @@ be installed rather than what they intended.
 
 ## Future considerations
 
-There are changes to how results should displayed to reduce the liklihood of a user mistakenly assuming the "Name" is a key value
+There are changes to how results should displayed to reduce the likelihood of a user mistakenly assuming the "Name" is a key value
 for a package. The client commands should be case insensitive, but the display should still be case sensitive to support ease of
-reading. Long names can be easier to understand when presnted in camel case, pascal case, or with a branded letter casing.
+reading. Long names can be easier to understand when presented in camel case, pascal case, or with a branded letter casing.
+The client also needs a mechanism to display all of the available versions of a package.
 
 ## Resources
 
