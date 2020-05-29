@@ -2,10 +2,12 @@
 author: Demitrius Nelon @denelon
 created on: <2020-05-28>
 last updated: <2020-05-28>
-issue id: #292
+issue id: 292
 ---
 
 # Package matching bug fix
+
+For #292
 
 ## Abstract
 
