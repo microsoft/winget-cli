@@ -7,6 +7,8 @@ issue id: 292
 
 # Package matching bug fix
 
+For [#292](https://github.com/microsoft/winget-cli/issues/292)
+
 ## Abstract
 
 The winget.exe client attempts to be generous with the `search` command, but is a bit too generous with `install`. The *id*

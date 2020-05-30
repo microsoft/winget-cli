@@ -7,6 +7,8 @@ issue id: <github issue id>
 
 # Spec Title
 
+[comment]: # Link to issue: "For [#1](https://github.com/microsoft/winget-cli/issues/1)"
+
 ## Abstract
 
 [comment]: # Outline what this spec describes
