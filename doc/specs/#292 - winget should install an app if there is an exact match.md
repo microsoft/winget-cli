@@ -39,7 +39,7 @@ If the value passed as a package *Id* is a substring, or there is still ambiguit
 ## UI/UX Design
 
 Executing `winget install git.git` will install the Git package.
-Executing `winget install git.g` will provode additional guidance:
+Executing `winget install git.g` will provide additional guidance:
 Multiple apps found matching input criteria. Please refine the input.
 Try providing the Id: winget install git.git
 
