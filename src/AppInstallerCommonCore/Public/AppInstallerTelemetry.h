@@ -86,7 +86,7 @@ namespace AppInstaller::Logging
             const std::vector<uint8_t>& actual,
             bool overrideHashMismatch);
 
-        // Logs a faild installation attempt.
+        // Logs a failed installation attempt.
         void LogInstallerFailure(std::string_view id, std::string_view version, std::string_view channel, std::string_view type, uint32_t errorCode);
 
         // Logs a failure to insert a value into the in-memory cache of installed system packages.
