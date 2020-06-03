@@ -26,7 +26,7 @@
         return; \
     } while(0,0)
 
-// Terminates the Context namd 'context' with some logging to indicate the location.
+// Terminates the Context named 'context' with some logging to indicate the location.
 // Also returns from the current function.
 #define AICLI_TERMINATE_CONTEXT(_hr_)   AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_)
 
