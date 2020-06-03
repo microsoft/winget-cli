@@ -53,7 +53,7 @@ namespace AppInstallerCLIE2ETests
             public const int OPC_E_ZIP_MISSING_END_OF_CENTRAL_DIRECTORY = unchecked((int)0x8051100f);
             public const int ERROR_OLD_WIN_VERSION = unchecked((int)0x8007047e);
 
-            // AICLI custom HResults
+            // AICLI custom HRESULTs
             public const int ERROR_INTERNAL_ERROR = unchecked((int)0x8A150001);
             public const int ERROR_INVALID_CL_ARGUMENTS = unchecked((int)0x8A150002);
             public const int ERROR_COMMAND_FAILED = unchecked((int)0x8A150003);
