@@ -89,7 +89,7 @@ With the addition of the store, we will have an increase in duplicate entries.  
 Because we have manifests that are based on publisher and appname, there should not be a case where we have multiple manifests with different installers.  If we do, there is something wrong with the metadata.  
  
 #### Duplicate entries, one manifest
-If a manifest file has multiple formats, MSI, EXE, MSIX.  Unless specified by the user, default will be to display and install will be the  MSIX format.
+If a manifest file has multiple formats, MSI, EXE, MSIX.  Unless specified by the user, default will be to display and install the MSIX format.
 
 
 <b>  Example: <appname>  </b>  
