@@ -142,5 +142,5 @@ namespace AppInstaller::Logging
     std::ostream& SetHRFormat(std::ostream& out);
 }
 
-// Enable output of system_clock timepoints.
+// Enable output of system_clock time_points.
 std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time);

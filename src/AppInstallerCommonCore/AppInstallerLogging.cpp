@@ -147,6 +147,6 @@ namespace AppInstaller::Logging
 
 std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time)
 {
-    AppInstaller::Utility::OutputTimepoint(out, time);
+    AppInstaller::Utility::OutputTimePoint(out, time);
     return out;
 }
