@@ -143,8 +143,8 @@
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
   <PropertyGroup Label="Configuration">
     <PostBuildEvent>
-      copy $(TargetDir)\resources.pri $(ProjectDir)\..\$(Platform)\$(Configuration)\AppInstallerCLI\resources.pri
-      copy $(TargetDir)\resources.pri $(TargetDir)\AppInstallerCLI\resources.pri
+      copy "$(TargetDir)\resources.pri" "$(ProjectDir)\..\$(Platform)\$(Configuration)\AppInstallerCLI\resources.pri"
+      copy "$(TargetDir)\resources.pri" "$(TargetDir)\AppInstallerCLI\resources.pri"
     </PostBuildEvent>
   </PropertyGroup>
 </Project>
