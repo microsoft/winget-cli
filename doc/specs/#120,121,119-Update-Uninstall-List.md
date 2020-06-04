@@ -142,7 +142,7 @@ If the user attempts to update an app that there is no known update for, the pac
 
 
 
-*Depnedencies*
+*Dependencies*
 Handling dependencies will be a challenge once Windows Package Manager supports dependencies.  Dependencies are not covered as part of this spec.
 
 
