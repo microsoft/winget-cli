@@ -1,7 +1,7 @@
 ---
 author: <kevin> <larkin> <kevinlams/<kevinla@microsoft.com>
 created on: <2020-05-28>
-last updated: <2020-05-28>
+last updated: <2020-06-04>
 issue id: <github issue id>
 ---
 # ===== DRAFT ======
@@ -40,17 +40,17 @@ Apps that require in app purchase, can be allowed, as long as the app can correc
 To support store apps, the manifest file will need to be updated to support the new format.  Most fields remain the same, but additional changes are required to support the store.
 
 ### YAML Spec updates
-<b>URL</b> the URL used for the store is not the same as the URL users and the developers expect.  Therefore this field is unnecessary.  
-<b>REQUIRED: NEW: StoreID</b> the Store ID will be used to identify the app. example: 9nblggh4nns1   
-<b>InstallerType</b> A new format, the WindowsStore type will be provided
-<b> InstallerType - Default </b> this needs to be defined, but essentially the author can specify if the user does not select anything... which URL to default to.
-<b>Homepage</b> The Homepage will be the URL with the bigid https://www.microsoft.com/en-us/p/app-installer/9nblggh4nns1  
-<B>NEW: TransactionType</b> TransactionType will be used to indicate what type of 
-<b>NEW: Privacy Policy</b>  
-<b>NEW: Terms of transaction</b>  
-<b>License terms</b>  
-<b>Architecture</b> The architecture will support the architectures supported by the store.  neutral will most likely be the default.
-<b>-prelease</b> In order to support flighting, the client will need to support only showing apps without the prerelease flag AND enabling the user to override on the command line.
+**URL** the URL used for the store is not the same as the URL users and the developers expect.  Therefore this field is unnecessary.  
+**REQUIRED: NEW: StoreID** the Store ID will be used to identify the app. example: 9nblggh4nns1   
+**InstallerType** A new format, the WindowsStore type will be provided
+** InstallerType - Default ** this needs to be defined, but essentially the author can specify if the user does not select anything... which URL to default to.
+**Homepage** The Homepage will be the URL with the bigid https://www.microsoft.com/en-us/p/app-installer/9nblggh4nns1  
+**NEW: TransactionType** TransactionType will be used to indicate what type of 
+**NEW: Privacy Policy**  
+**NEW: Terms of transaction**  
+**License terms**  
+**Architecture** The architecture will support the architectures supported by the store.  neutral will most likely be the default.
+**-prelease** In order to support flighting, the client will need to support only showing apps without the prerelease flag AND enabling the user to override on the command line.
 
 ### Flighting
 The store provides the ability to flight apps to partners.  But you must be logged in with your MSA to get the update.  By default the Store App support will be for providing the user with the GA version.  
@@ -92,7 +92,7 @@ Because we have manifests that are based on publisher and appname, there should 
 If a manifest file has multiple formats, MSI, EXE, MSIX.  Unless specified by the user, default will be to display and install the MSIX format.
 
 
-<b>  Example: <appname>  </b>  
+**Example: <appname>**  
 ```
 ...  
 InstallerType: MSI  
@@ -140,4 +140,7 @@ The wizard to ease metadata transfer.
 [comment]: # Be sure to add links to references, resources, footnotes, etc.
 
 ## History
-.001     Draft    5/28/2020
+| Version  | Details  |  Date  |
+|--------------|-------------|---------|
+.001  |   Draft  | 5/28/2020  
+.002  |   Cleaned up some HTML.  Thanks Megamorf. | 6/4/2020
