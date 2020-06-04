@@ -9,7 +9,7 @@ issue id: <github issue id>
 
 ## Abstract
 
-For our preview of the Windows Package Manager, the goal was to enable install of apps.  In order to be a package manager, the Windows Package Manager must be able to list all installed packages, communicate if there is an update ane uninstall apps.  
+For our preview of the Windows Package Manager, the goal was to enable install of apps.  In order to be a package manager, the Windows Package Manager must be able to list all installed packages, communicate if there is an update and uninstall apps.  
 
 This spec will cover the following commands: list, update, and uninstall.
 ## Inspiration
