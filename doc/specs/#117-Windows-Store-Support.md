@@ -50,7 +50,7 @@ To support store apps, the manifest file will need to be updated to support the 
 <b>NEW: Terms of transaction</b>  
 <b>License terms</b>  
 <b>Architecture</b> The architecture will support the architectures supported by the store.  neutral will most likely be the default.
-<b>-prelease</b> In order to support flighing, the client will need to support only showing apps with out the prerelease flag AND enabling the user override on the command line.
+<b>-prelease</b> In order to support flighting, the client will need to support only showing apps without the prerelease flag AND enabling the user to override on the command line.
 
 ### Flighting
 The store provides the ability to flight apps to partners.  But you must be logged in with your MSA to get the update.  By default the Store App support will be for providing the user with the GA version.  
@@ -141,4 +141,3 @@ The wizard to ease metadata transfer.
 
 ## History
 .001     Draft    5/28/2020
-
