@@ -28,7 +28,14 @@ A new settings block will be added to the settings file for experimental feature
 
 A hidden command will be added to the root:
 ```
-winget features
+>winget features
+The following experimental features are in progress.
+They can be configured through the settings file (winget settings).
+
+Feature  Status   Link
+--------------------------------------------------------------------
+Example1 Enabled  https://github.com/microsoft/winget-cli/issues/364
+Example2 Disabled https://github.com/microsoft/winget-cli/issues/396
 ```
 When run, this command will give the status of each feature (enabled/disabled), as well as a link to the Issue or Spec.
 
