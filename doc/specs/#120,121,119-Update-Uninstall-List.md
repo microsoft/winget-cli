@@ -74,7 +74,7 @@ To obtain this data, the Windows Package Manager will query the
 ### Installed with Windows Package Manager
 If the app is installed with the Windows Package Manager, we have the ID to map the installed version to the repository version.  If the version installed on the PC is lower than the the version in the repository, the list command will show the available version in the "available update."
 
-### Installed out of band from the Windows Package Manaager but in repo
+### Installed out of band from the Windows Package Manager but in repo
 If the app is installed out of band from the Package Manager, the app will be discovered if it registers correctly with the **Apps and Features**.  The Windows Package Manager will map the installed app back to the repo.  If the version installed is less than the version available in the repo, the **list** command will show the available version in the "available update."
 
 If the installed version is greater than or equal to the version of the app available in the repo, then the "available update" will be left blank.
