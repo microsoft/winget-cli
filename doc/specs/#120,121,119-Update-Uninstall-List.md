@@ -79,7 +79,7 @@ If the app is installed out of band from the Package Manager, the app will be di
 
 If the installed version is greater than or equal to the version of the app available in the repo, then the "available update" will be left blank.
 
-### Installed out of band from the Windows Package Manaager but not in repo
+### Installed out of band from the Windows Package Manager but not in repo
 If the app is installed out of band from the Package Manager, and is not available in the repo, then the Windows Package Manager will treat it as if there are no updates available.
 
 
