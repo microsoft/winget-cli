@@ -80,7 +80,7 @@ We currently only build using the solution; command line methods of building a V
 
 ## Credit
 
-We would like to thank Keivan Beigi @kayone for his work on Appget which helped us on the initial project direction for Windows Package Manager.
+We would like to thank Keivan Beigi @kayone for his work on AppGet which helped us on the initial project direction for Windows Package Manager.
 
 
 ## Contributing
