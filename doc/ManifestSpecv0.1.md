@@ -42,7 +42,7 @@ Name: MSIX SDK
 AppMoniker: msixsdk
 
 # Version is a required field.  It is the specific version of this copy of the application.
-# Versions should be separated by a period, but we will support other deliminators.
+# Versions should be separated by a period, but we will support other delimiters.
 # Versions should be limited to four fields: Major.Minor.Build.Update.
 # Versions will be sorted as integers following the following pattern: Major.Minor.Build.Patch.
 # Restrictions: 4 sections with max value of 65535.  For example:65535.65535.65535.65535
@@ -258,7 +258,7 @@ Installers:
 ## Best Practices
 The Id must be unique.  You cannot have multiple submissions with the same Id.
 
-Avoid creating multiple publisher folders.  For example, do not create "Contoso Ltd." if there is already a "Contonso" folder.
+Avoid creating multiple publisher folders.  For example, do not create "Contoso Ltd." if there is already a "Contoso" folder.
 
 All tools must support a silent install.  If you have an executable that does not support a silent install, then we cannot provide that tool at this time.  Provide feedback to the repo.  If this is a restriction that you would like to see removed add an issue or up vote it.
 My installer supports a silent install, but is not one of the supported InstallerTypes.  How can I get it added to your repo.  Ping us on the repo.

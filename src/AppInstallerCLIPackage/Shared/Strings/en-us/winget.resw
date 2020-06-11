@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>Adjoined flag alias not found</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>The following arguments are available:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -223,7 +223,7 @@
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Location to install to (if supported)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>Log location (if supported)</value>
   </data>
   <data name="MainCopyrightNotice" xml:space="preserve">
@@ -263,7 +263,7 @@
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>No installers are applicable to the current system.</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Disables VirtualTerminal display</value>
     <comment>{Locked="VirtualTerminal"}</comment>
   </data>

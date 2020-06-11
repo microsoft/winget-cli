@@ -138,7 +138,7 @@ namespace AppInstaller::Repository::SQLite
         // Enables the ICU integrations on this connection.
         void EnableICU();
 
-        // Gets the last inerted rowid to the database.
+        // Gets the last inserted rowid to the database.
         rowid_t GetLastInsertRowID();
 
         // Gets the count of changed rows for the last executed statement.
@@ -216,7 +216,7 @@ namespace AppInstaller::Repository::SQLite
         }
 
         // Gets the entire row of values from the current row.
-        // The values requested *must* be those available starting from the first column, but trailing columns can be ommitted.
+        // The values requested *must* be those available starting from the first column, but trailing columns can be omitted.
         template <typename... Values>
         std::tuple<Values...> GetRow()
         {

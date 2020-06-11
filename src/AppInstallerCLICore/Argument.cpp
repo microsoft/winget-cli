@@ -47,7 +47,7 @@ namespace AppInstaller::CLI
         case Args::Type::Language:
             return Argument{ "lang", 'a', Args::Type::Language, Resource::String::LanguageArgumentDescription, ArgumentType::Standard, Visibility::Hidden };
         case Args::Type::Log:
-            return Argument{ "log", 'o', Args::Type::Log, Resource::String::LogArgumentDesciption, ArgumentType::Standard };
+            return Argument{ "log", 'o', Args::Type::Log, Resource::String::LogArgumentDescription, ArgumentType::Standard };
         case Args::Type::Override:
             return Argument{ "override", None, Args::Type::Override, Resource::String::OverrideArgumentDescription, ArgumentType::Standard, Visibility::Help };
         case Args::Type::InstallLocation:
@@ -69,7 +69,7 @@ namespace AppInstaller::CLI
         case Args::Type::ValidateManifest:
             return Argument{ "manifest", None, Args::Type::ValidateManifest, Resource::String::ValidateManifestArgumentDescription, ArgumentType::Positional, true };
         case Args::Type::NoVT:
-            return Argument{ "no-vt", None, Args::Type::NoVT, Resource::String::NoVTArguementDescription, ArgumentType::Flag, Visibility::Hidden };
+            return Argument{ "no-vt", None, Args::Type::NoVT, Resource::String::NoVTArgumentDescription, ArgumentType::Flag, Visibility::Hidden };
         case Args::Type::RainbowStyle:
             return Argument{ "rainbow", None, Args::Type::RainbowStyle, Resource::String::RainbowArgumentDescription, ArgumentType::Flag, Visibility::Hidden };
         case Args::Type::PlainStyle:

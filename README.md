@@ -78,6 +78,11 @@ The **Package Manager Service** is responsible for approving Pull Requests.  It 
 
 We currently only build using the solution; command line methods of building a VS solution should work as well.
 
+## Credit
+
+We would like to thank Keivan Beigi @kayone for his work on AppGet which helped us on the initial project direction for Windows Package Manager.
+
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
