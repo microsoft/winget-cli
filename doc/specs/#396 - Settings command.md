@@ -151,7 +151,7 @@ This should not introduce any _new_ security concerns.
 
 This is not expected to impact reliability.
 
-Settings will not be transfer if the user changes the context in which WinGet runs. That is, if the user has the Microsoft provided WinGet package and uninstall it and runs a non-packaged WinGet, the settings are gone. This is by design.
+Settings will not be transferred if the user changes the context in which WinGet runs. That is, if the user has the Microsoft provided WinGet package and uninstalls it and runs a non-packaged WinGet, the settings are gone. This is by design.
 
 ### Compatibility
 
