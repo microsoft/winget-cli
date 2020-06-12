@@ -41,9 +41,13 @@ When run, this command will give the status of each feature (enabled/disabled), 
 
 Internally, a single flag enum will be used to reference experimental features. All command line parsing objects will have a field added for the feature(s) to which they belong. Any internal behavioral changes will be made based on a check using this enum. In this way, transitioning a feature either to release or remove can be done by finding by a single identifier.
 
+A feature is released by removing the feature enum value in code, and all related references. The value in settings will become ignored, and we can keep a list in a comment to prevent future reuse of settings names.
+
 ## UI/UX Design
 
 Experimental features can impact the winget user interface in 2 ways; new commands and options. Both will be added to the parse tree, but hidden from help view if disabled. When enabled, they will be labeled as experimental to reiterate this to the user. If a user attempts to use an experimental command or option that is not enabled, a special error will be presented to indicate that this feature is experimental and must be enabled via settings.
+
+If the feature needs settings after release, they should be added as part of the feature work, and can be tagged with the enum value as well.
 
 ## Capabilities
 
@@ -55,7 +59,7 @@ This should have no direct impact on accessibility.
 
 ### Security
 
-There should be no security impact directly, although we must remember that any medium IL process will be able to enable any feature my writing to the settings file. But any experimental feature should be created with the intention of becoming released, and so should have it's own security consideration.
+There should be no security impact directly, although we must remember that any medium IL process will be able to enable any feature by writing to the settings file. But any experimental feature should be created with the intention of becoming released, and so should have it's own security consideration.
 
 ### Reliability
 
