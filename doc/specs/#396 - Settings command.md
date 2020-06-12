@@ -21,7 +21,7 @@ Add ability for user to set their own preferences.
 
 ### Format
 
-The WinGet settings file needs to be in a readable format for users.
+The WinGet settings file needs to be in a readable format for users. We consider using other options, like the registry, but having a fil makes it more accessible to users.
 
 #### Option 1: YAML 
 
@@ -29,30 +29,37 @@ WinGet already knows how to handle YAML files via yaml-cpp. To follow the manife
 
 #### Option 2: JSON
 
-JSON is the popular formats that most applications tend to use. It is also possible to parse JSON with yaml-cpp as YAML is a superset of JSON, but a proper JSON parser might be needed depending on how well yaml-cpp handles it. Options are third party json parsers or Microsoft cpp winrt implementation `winrt::Windows::Data::Json::JsonObject`. Properties will be camelCased. An schema will need to be created as well.
+JSON is the popular formats that most applications tend to use. It is also possible to parse JSON with yaml-cpp as YAML is a superset of JSON, but a proper JSON parser might be needed depending on how well yaml-cpp handles it. Options are third party json parsers or Microsoft cpp winrt implementation `winrt::Windows::Data::Json::JsonObject`. Properties will be camelCased.
+
+There is also the concern about comments because JSON doesn't support them. There are different approaches we could take.
+- Go with JSON standard and support properties named `__comments` which will be ignored parsing the file.
+- Use jsoncpp and allow C type comments.
+- Use yaml-cpp and allow YAML comments.
+
+Based on this information we are going to use JSON. For the comments issue, we are having a discussion here [#416](https://github.com/microsoft/winget-cli/issues/416)
 
 ### Location
 
-WinGet can either run in package context or not. That means the location of the settings file will be determine depending on the context. 
+WinGet can either run in package context or not. That means the location of the settings file will be determine depending on the context.
 
-Package Context: %LOCALAPPDATA%\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.yaml
+Package Context: %LOCALAPPDATA%\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.yaml. For more about UWP file system see [this](https://docs.microsoft.com/en-us/windows/uwp/get-started/fileio-learning-track#access-the-file-system) 
 
 Non-package context: %LOCALAPPDATA%\Microsoft\Winget\settings.yaml
 
 ### Command
 
-A WinGet command will be added to support settings. Expectation is that when the user enters the command the settings file will be opened in the user's default text editor.
+A WinGet command will be added to support settings.
 
 Options:
-- winget settings
-- winget config
-- winget configure
+- settings (preferred)
+- config
+- configure
 
 A command is a better option than having an argument, for example `winget --settings`, because it let us add more commands into it in the future such as set and unset.
 
-### Documentation
+Expectation is that when the user enters `winget settings` the settings file will be opened in the user's default text editor via ShellExecute. If the user doesn't have any file type association with `.json`, the default will be is opening with notepad.exe 
 
-All setting must be documented in the winget-cli repository in doc\Settings.md. The settings file will need to have a link to this file or some other Microsoft documentation site for reference. However, having a comment on JSON wouldn't be ideal.
+There will also be a telemetry point added into the command as the other commands have.
 
 ### Backup Settings File
 
@@ -66,9 +73,54 @@ A user might make a mistake could make the settings file unparsable. To protect 
 
 This mechanism allows to be resilient for mistakes done the settings file.
 
-### First time use
+### Creating file
 
-Since the settings file doesn't exist at this time, we can't force the creation of it at WinGet install time. This means that WinGet must still work without the existence of the file. The file will be created when the user runs the settings command it it doesn't exists. The new file will reference the settings documentation. 
+A setting file will only be created if the user does `winget settings` and one of the following occurs:
+
+1. First time use: Files settings.json or settings.json.backup don't exist. Winget will create both settings.json and settings.json.backup files using the default settings text. Winget will open settings.json in an editor.
+
+2. Settings.json deleted: If settings file doesn't exist but settings.json.backup exists. Settings file will be created after settings.json.backup. Winget starts settings.json in an editor. If the user intended to remove its settings the recommendation should be an empty json file, not deleting the file.
+
+3. Settings.json and settings.json.backup deleted: Scenario is identical to 1.
+
+### Loading settings
+
+Since the settings file doesn't exist at this time, we can't force the creation of it at WinGet install time. Moreover, the file will only be created at `winget settings` time, so any other command executed before it must work as it does right now. This means that winget must work without the existence of the file, which are the default settings.
+
+These leave us with three different sources of settings in order of importance:
+1. settings.json
+2. settings.json.backup
+3. Default settings 
+
+Setting will be loaded as following: 
+
+```
+if settings exists and valid
+    load settings
+else if backup exists and valid
+    load settings backup
+else
+    use default settings
+```
+
+Where valid means that syntax and semantic checks pass. For now, semantics checks will be part of the validation. If one settings is semantically incorrect and we fallback to backup proves to be annoying to users, checks can be relaxed into only syntax failures are fatal and semantic warnings. We could also in the future add a `winget settings validate` to improve the experience. 
+
+We cannot force the user to upgrade, so it is possible for someone to add a setting for a future version that is not supported. There is not an easy way to detect it which mean loading the settings will warn of an unknow property. The user will need to verify the documentation and the version of winget that is running via `winget --info`. 
+
+#### Errors and Warnings
+
+Loading settings will never fail, but warnings might happen. In addition about warning regarding syntax and semantic validation, a warning will be printed if backup is being used. If both settings and backup files failed to load and they exists another warning will be printed. There is no warning if the files don't exist. All these warnings must be localized as other text used in the project.
+
+- Settings Warning: Settings file failed loading. Using backup file.
+- Settings Warning: Settings backup failed loading. Using default settings.
+
+### Documentation
+
+All setting must be documented in the winget-cli repository in doc\Settings.md. The settings file will need to have a link to this file or some other Microsoft documentation site for reference.
+
+### Version property
+
+A version property can be added to the settings, such as the manifest has, to have a more structured validation. I am currently opposed at the idea because for future settings, we will need to always bump up the version and force the users to modify two pieces: the settings they want to use and the version property. I can also see settings growth more dynamic and bumpting the version per addition/removal seems like an overkill.
 
 ### Settings
 
@@ -83,13 +135,6 @@ Possible values:
 1. rainbow
 1. plain
 
-YAML
-```
-Visual:
-  - ProgressBar: accent
-```
-
-JSON
 ```
   "Visual": [
     {
@@ -112,13 +157,6 @@ Currently, WinGet updates the source after 5 minutes. This setting will will ena
 
 Value must be integers with a minimum of 0. An arbitrary limit limit can be set but is not strictly necessary. A value of 0 indicates no update.
 
-YAML
-```
-Source:
-  - AutoUpdateIntervalInMinutes: 5
-```
-
-JSON
 ```
   "Source": [
     {
