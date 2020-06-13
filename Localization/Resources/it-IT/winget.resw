@@ -124,21 +124,21 @@
     <value>Alias del contrassegno adiacente non trovato</value>
   </data>
   <data name="AvailableArguements" xml:space="preserve">
-    <value>Sono disponibili gli argomenti seguenti:</value>
+    <value>Sono disponibili i seguenti argomenti::</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
-    <value>Sono disponibili i comandi seguenti:</value>
+    <value>Sono disponibili i seguenti comandi:</value>
     <comment>Commands the tool supports</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
-    <value>Sono disponibili le opzioni seguenti:</value>
+    <value>Sono disponibili le seguenti opzioni:</value>
   </data>
   <data name="AvailableSubcommands" xml:space="preserve">
-    <value>Sono disponibili i comandi secondari seguenti:</value>
+    <value>Sono disponibili i seguenti comandi secondari:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
-    <value>Usa il canale specificato; l'impostazione predefinita è General Audience (adatto a tutto le età)</value>
+    <value>Usa il canale specificato; l'impostazione predefinita è General Audience (adatto a tutte le età)</value>
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtra i risultati per comando</value>
@@ -201,7 +201,7 @@
     <value>Percorso log (se supportato)</value>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Il percorso del manifesto dell'applicazione</value>
+    <value>Il percorso del manifest dell'applicazione</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Il valore dell'argomento risulta mancante</value>
