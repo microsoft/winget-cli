@@ -190,7 +190,7 @@ namespace AppInstaller::Repository::Microsoft
 
                 if (download)
                 {
-                    tempFile = Runtime::GetPathToTemp();
+                    tempFile = Runtime::GetPathTo(Runtime::PathName::Temp);
                     tempFile /= GetPackageFullNameFromDetails(details) + ".msix";
 
                     Utility::Download(packageLocation, tempFile, progress);
@@ -227,7 +227,7 @@ namespace AppInstaller::Repository::Microsoft
             // Constructs the location that we will write files to.
             std::filesystem::path GetStatePathFromDetails(const SourceDetails& details)
             {
-                std::filesystem::path result = Runtime::GetPathToLocalState();
+                std::filesystem::path result = Runtime::GetPathTo(Runtime::PathName::LocalState);
                 result /= PreIndexedPackageSourceFactory::Type();
                 result /= GetPackageFamilyNameFromDetails(details);
                 return result;

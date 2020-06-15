@@ -17,7 +17,7 @@ namespace AppInstaller::Logging
         if (filePath.empty())
         {
             m_name = "file";
-            m_filePath = Runtime::GetPathToDefaultLogLocation();
+            m_filePath = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
             m_filePath /= AICLI_FILELOGGER_DEFAULT_FILE_PREFIX + Utility::GetCurrentTimeForFilename() + AICLI_FILELOGGER_DEFAULT_FILE_EXT;
         }
         else
