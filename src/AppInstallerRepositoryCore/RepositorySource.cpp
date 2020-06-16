@@ -122,7 +122,7 @@ namespace AppInstaller::Repository
         // Gets the source details from a particular setting, or an empty optional if no setting exists.
         std::optional<std::vector<SourceDetails>> TryGetSourcesFromSetting(std::string_view settingName)
         {
-            auto sourcesStream = Runtime::GetSettingStream(settingName);
+            auto sourcesStream = Settings::GetSettingStream(Settings::Type::Standard, settingName);
             if (!sourcesStream)
             {
                 // Handle first run scenario and configure default source(s).
@@ -172,7 +172,7 @@ namespace AppInstaller::Repository
             out << YAML::EndSeq;
             out << YAML::EndMap;
 
-            Runtime::SetSetting(settingName, out.c_str());
+            Settings::SetSetting(Settings::Type::Standard, settingName, out.c_str());
         }
 
         // Finds a source from the given vector by its name.
@@ -323,7 +323,7 @@ namespace AppInstaller::Repository
         // If there is no setting value at all, adds the default sources.
         void AddDefaultSourcesIfNeeded()
         {
-            auto sourcesStream = Runtime::GetSettingStream(s_RepositorySettings_UserSources);
+            auto sourcesStream = Settings::GetSettingStream(Settings::Type::Standard, s_RepositorySettings_UserSources);
             if (!sourcesStream)
             {
                 // We have to set an initial, empty list of sources or the add will create an infinite loop.
@@ -457,7 +457,7 @@ namespace AppInstaller::Repository
     {
         if (name.empty())
         {
-            Runtime::RemoveSetting(s_RepositorySettings_UserSources);
+            Settings::RemoveSetting(Settings::Type::Standard, s_RepositorySettings_UserSources);
             return true;
         }
         else
