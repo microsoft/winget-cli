@@ -8,10 +8,12 @@
 #include <AppInstallerDateTime.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
+#include <winget/Settings.h>
 
 using namespace AppInstaller;
 using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Repository;
+using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
 
 // Duplicating here because a change to these values in the product *REALLY* needs to be thought through.
@@ -142,7 +144,7 @@ struct TestSourceFactory : public ISourceFactory
 
 TEST_CASE("RepoSources_UserSettingDoesNotExist", "[sources]")
 {
-    RemoveSetting(s_RepositorySettings_UserSources);
+    RemoveSetting(Type::Standard, s_RepositorySettings_UserSources);
 
     std::vector<SourceDetails> sources = GetSources();
     // The default source is added when no source exists
@@ -152,7 +154,7 @@ TEST_CASE("RepoSources_UserSettingDoesNotExist", "[sources]")
 
 TEST_CASE("RepoSources_EmptySourcesList", "[sources]")
 {
-    SetSetting(s_RepositorySettings_UserSources, s_EmptySources);
+    SetSetting(Type::Standard, s_RepositorySettings_UserSources, s_EmptySources);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.empty());
@@ -160,7 +162,7 @@ TEST_CASE("RepoSources_EmptySourcesList", "[sources]")
 
 TEST_CASE("RepoSources_SingleSource", "[sources]")
 {
-    SetSetting(s_RepositorySettings_UserSources, s_SingleSource);
+    SetSetting(Type::Standard, s_RepositorySettings_UserSources, s_SingleSource);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 1);
@@ -174,7 +176,7 @@ TEST_CASE("RepoSources_SingleSource", "[sources]")
 
 TEST_CASE("RepoSources_ThreeSources", "[sources]")
 {
-    SetSetting(s_RepositorySettings_UserSources, s_ThreeSources);
+    SetSetting(Type::Standard, s_RepositorySettings_UserSources, s_ThreeSources);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 3);
@@ -195,21 +197,21 @@ TEST_CASE("RepoSources_ThreeSources", "[sources]")
 
 TEST_CASE("RepoSources_InvalidYAML", "[sources]")
 {
-    SetSetting(s_RepositorySettings_UserSources, "Name: Value : BAD");
+    SetSetting(Type::Standard, s_RepositorySettings_UserSources, "Name: Value : BAD");
 
     REQUIRE_THROWS_HR(GetSources(), APPINSTALLER_CLI_ERROR_SOURCES_INVALID);
 }
 
 TEST_CASE("RepoSources_MissingField", "[sources]")
 {
-    SetSetting(s_RepositorySettings_UserSources, s_SingleSource_MissingArg);
+    SetSetting(Type::Standard, s_RepositorySettings_UserSources, s_SingleSource_MissingArg);
 
     REQUIRE_THROWS_HR(GetSources(), APPINSTALLER_CLI_ERROR_SOURCES_INVALID);
 }
 
 TEST_CASE("RepoSources_AddSource", "[sources]")
 {
-    SetSetting(s_RepositorySettings_UserSources, s_EmptySources);
+    SetSetting(Type::Standard, s_RepositorySettings_UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     std::string name = "thisIsTheName";
@@ -239,7 +241,7 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
 
 TEST_CASE("RepoSources_AddMultipleSources", "[sources]")
 {
-    SetSetting(s_RepositorySettings_UserSources, s_EmptySources);
+    SetSetting(Type::Standard, s_RepositorySettings_UserSources, s_EmptySources);
 
     std::string name = "thisIsTheName";
     std::string type = "thisIsTheType";
@@ -288,7 +290,7 @@ TEST_CASE("RepoSources_UpdateSource", "[sources]")
 {
     using namespace std::chrono_literals;
 
-    SetSetting(s_RepositorySettings_UserSources, s_EmptySources);
+    SetSetting(Type::Standard, s_RepositorySettings_UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     std::string name = "thisIsTheName";
@@ -338,7 +340,7 @@ TEST_CASE("RepoSources_UpdateSourceRetries", "[sources]")
 {
     using namespace std::chrono_literals;
 
-    SetSetting(s_RepositorySettings_UserSources, s_EmptySources);
+    SetSetting(Type::Standard, s_RepositorySettings_UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     std::string name = "thisIsTheName";
@@ -373,7 +375,7 @@ TEST_CASE("RepoSources_UpdateSourceRetries", "[sources]")
 
 TEST_CASE("RepoSources_RemoveSource", "[sources]")
 {
-    SetSetting(s_RepositorySettings_UserSources, s_EmptySources);
+    SetSetting(Type::Standard, s_RepositorySettings_UserSources, s_EmptySources);
     TestHook_ClearSourceFactoryOverrides();
 
     std::string name = "thisIsTheName";
@@ -417,7 +419,7 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
     factory.m_Update = [&](SourceDetails& sd) { updateCalledOnFactory = true; sd.Data = data; };
     TestHook_SetSourceFactoryOverride(type, factory);
 
-    SetSetting(s_RepositorySettings_UserSources, s_SingleSource);
+    SetSetting(Type::Standard, s_RepositorySettings_UserSources, s_SingleSource);
 
     ProgressCallback progress;
     auto source = OpenSource(name, progress);
@@ -436,7 +438,7 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
 
 TEST_CASE("RepoSources_DropSourceByName", "[sources]")
 {
-    SetSetting(s_RepositorySettings_UserSources, s_ThreeSources);
+    SetSetting(Type::Standard, s_RepositorySettings_UserSources, s_ThreeSources);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 3);
@@ -462,7 +464,7 @@ TEST_CASE("RepoSources_DropSourceByName", "[sources]")
 
 TEST_CASE("RepoSources_DropAllSources", "[sources]")
 {
-    SetSetting(s_RepositorySettings_UserSources, s_ThreeSources);
+    SetSetting(Type::Standard, s_RepositorySettings_UserSources, s_ThreeSources);
 
     std::vector<SourceDetails> sources = GetSources();
     REQUIRE(sources.size() == 3);

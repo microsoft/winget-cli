@@ -120,7 +120,7 @@
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy $(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri $(TargetDir)\resources.pri</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy "$(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri" "$(TargetDir)\resources.pri"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
@@ -136,7 +136,7 @@
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy $(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri $(TargetDir)\resources.pri</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy "$(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri" "$(TargetDir)\resources.pri"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
@@ -165,10 +165,10 @@
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy $(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri $(TargetDir)\resources.pri</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy "$(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri" "$(TargetDir)\resources.pri"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy $(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri $(TargetDir)\resources.pri</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy "$(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri" "$(TargetDir)\resources.pri"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

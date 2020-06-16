@@ -117,14 +117,14 @@
     <ClInclude Include="Public\winget\settings\Visual.h">
       <Filter>Public\winget\settings</Filter>
     </ClInclude>
-    <ClInclude Include="winget\settings\Setting.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\JsonUtil.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="UserSettings\SettingValidation.h">
       <Filter>UserSettings</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Settings.h">
+      <Filter>Public\winget</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -202,6 +202,9 @@
     </ClCompile>
     <ClCompile Include="UserSettings\SettingsValidation.cpp">
       <Filter>UserSettings</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
