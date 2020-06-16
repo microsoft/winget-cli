@@ -36,7 +36,7 @@ There is also the concern about comments because JSON doesn't support them. Ther
 - Use jsoncpp and allow C type comments.
 - Use yaml-cpp and allow YAML comments.
 
-Based on this information we are going to use JSON. For the comments issue, we are having a discussion here [#416](https://github.com/microsoft/winget-cli/issues/416)
+Based on this information we are going to use JSON and jsoncpp as a parser. For the comments issue, we are having a discussion here [#416](https://github.com/microsoft/winget-cli/issues/416)
 
 ### Location
 
@@ -136,11 +136,9 @@ Possible values:
 1. plain
 
 ```
-  "Visual": [
-    {
+  "Visual": {
       "ProgressBar": "accent"
     }
-  ]
 ```
 
 #### Override
@@ -158,11 +156,9 @@ Currently, WinGet updates the source after 5 minutes. This setting will will ena
 Value must be integers with a minimum of 0. An arbitrary limit limit can be set but is not strictly necessary. A value of 0 indicates no update.
 
 ```
-  "Source": [
-    {
+  "Source": {
       "AutoUpdateIntervalInMinutes": 5
     }
-  ]
 ```
 
 Having the unit defined in the property makes it self documented and avoids the pain of opening the settings file to see the unit.
