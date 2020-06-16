@@ -3,6 +3,7 @@
 #pragma once
 #include "VTSupport.h"
 #include <AppInstallerProgress.h>
+#include <winget/settings/Visual.h>
 
 #include <wil/resource.h>
 
@@ -13,17 +14,9 @@
 #include <string>
 #include <vector>
 
-
 namespace AppInstaller::CLI::Execution
 {
-    // The visual style of the progress bar.
-    enum class VisualStyle
-    {
-        NoVT,
-        Plain,
-        Accent,
-        Rainbow,
-    };
+    using namespace Settings;
 
     namespace details
     {

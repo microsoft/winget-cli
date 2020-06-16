@@ -138,7 +138,7 @@ namespace AppInstaller::CLI::Execution
             case AppInstaller::CLI::Execution::VisualStyle::NoVT:
                 // No VT means no style set
                 break;
-            case AppInstaller::CLI::Execution::VisualStyle::Plain:
+            case AppInstaller::CLI::Execution::VisualStyle::Retro:
                 if (enabled)
                 {
                     m_out << TextFormat::Default;

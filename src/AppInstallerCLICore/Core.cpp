@@ -4,6 +4,7 @@
 #include "Public/AppInstallerCLICore.h"
 #include "Commands/RootCommand.h"
 #include "ExecutionContext.h"
+#include <AppInstallerUserSettings.h>
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -77,6 +78,13 @@ namespace AppInstaller::CLI
 
         // The root command is our fallback in the event of very bad or very little input
         std::unique_ptr<Command> command = std::make_unique<RootCommand>();
+
+        // Load the settings file and warn if necessary.
+        auto warnings = Settings::UserSettings::Instance().GetWarnings();
+        for (const auto& warning : warnings)
+        {
+            context.Reporter.Warn() << warning << std::endl;
+        }
 
         try
         {

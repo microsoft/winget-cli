@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerRepositorySource.h"
+#include <AppInstallerUserSettings.h>
 
 #include "SourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
@@ -258,16 +259,20 @@ namespace AppInstaller::Repository
                 return true;
             }
 
-            // TODO: Enable some amount of user control over this.
-            constexpr static auto s_DefaultAutoUpdateTime = 5min;
+            auto autoUpdateTime = Settings::UserSettings::Instance().GetSource().GetAutoUpdateTimeInMinutes();
 
-            auto timeSinceLastUpdate = std::chrono::system_clock::now() - details.LastUpdateTime;
-            if (timeSinceLastUpdate > s_DefaultAutoUpdateTime)
+            // A value of zero means no auto update, to get update the source run `winget update` 
+            if (autoUpdateTime != 0)
             {
-                AICLI_LOG(Repo, Info, << "Source past auto update time [" << 
-                    std::chrono::duration_cast<std::chrono::minutes>(s_DefaultAutoUpdateTime).count() << " mins]; it has been at least " << 
-                    std::chrono::duration_cast<std::chrono::minutes>(timeSinceLastUpdate).count() << " mins");
-                return true;
+                auto autoUpdateTimeMins = std::chrono::minutes(autoUpdateTime);
+                auto timeSinceLastUpdate = std::chrono::system_clock::now() - details.LastUpdateTime;
+                if (timeSinceLastUpdate > autoUpdateTimeMins)
+                {
+                    AICLI_LOG(Repo, Info, << "Source past auto update time [" <<
+                        std::chrono::duration_cast<std::chrono::minutes>(autoUpdateTimeMins).count() << " mins]; it has been at least " <<
+                        std::chrono::duration_cast<std::chrono::minutes>(timeSinceLastUpdate).count() << " mins");
+                    return true;
+                }
             }
 
             return false;

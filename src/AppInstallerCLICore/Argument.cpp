@@ -72,8 +72,8 @@ namespace AppInstaller::CLI
             return Argument{ "no-vt", None, Args::Type::NoVT, Resource::String::NoVTArgumentDescription, ArgumentType::Flag, Visibility::Hidden };
         case Args::Type::RainbowStyle:
             return Argument{ "rainbow", None, Args::Type::RainbowStyle, Resource::String::RainbowArgumentDescription, ArgumentType::Flag, Visibility::Hidden };
-        case Args::Type::PlainStyle:
-            return Argument{ "plain", None, Args::Type::PlainStyle, Resource::String::PlainArgumentDescription, ArgumentType::Flag, Visibility::Hidden };
+        case Args::Type::RetroStyle:
+            return Argument{ "retro", None, Args::Type::RetroStyle, Resource::String::PlainArgumentDescription, ArgumentType::Flag, Visibility::Hidden };
         case Args::Type::Force:
             return Argument{ "force", None, Args::Type::Force, Resource::String::ForceArgumentDescription, ArgumentType::Flag };
         case Args::Type::VerboseLogs:
@@ -88,7 +88,7 @@ namespace AppInstaller::CLI
         args.push_back(ForType(Args::Type::Help));
         args.push_back(ForType(Args::Type::NoVT));
         args.push_back(ForType(Args::Type::RainbowStyle));
-        args.push_back(ForType(Args::Type::PlainStyle));
+        args.push_back(ForType(Args::Type::RetroStyle));
         args.push_back(ForType(Args::Type::VerboseLogs));
     }
 }

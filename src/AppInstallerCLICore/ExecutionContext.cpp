@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ExecutionContext.h"
-
+#include "AppInstallerUserSettings.h"
 
 namespace AppInstaller::CLI::Execution
 {
@@ -80,13 +80,17 @@ namespace AppInstaller::CLI::Execution
         {
             Reporter.SetStyle(VisualStyle::NoVT);
         }
-        else if (Args.Contains(Args::Type::PlainStyle))
+        else if (Args.Contains(Args::Type::RetroStyle))
         {
-            Reporter.SetStyle(VisualStyle::Plain);
+            Reporter.SetStyle(VisualStyle::Retro);
         }
         else if (Args.Contains(Args::Type::RainbowStyle))
         {
             Reporter.SetStyle(VisualStyle::Rainbow);
+        }
+        else
+        {
+            Reporter.SetStyle(UserSettings::Instance().GetVisual().GetProgressBarVisualStyle());
         }
     }
 

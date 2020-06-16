@@ -17,6 +17,15 @@
         "commitHash": "9a3624205e8774953ef18f57067b3426c1c5ada6"
       }
     }
+  },
+  {
+    "component": {
+      "type": "git",
+      "git": {
+        "repositoryUrl": "https://github.com/open-source-parsers/jsoncpp.git",
+        "commitHash": "9be589598595963f94ba264d7b416d0533421106"
+      }
+    }
   }
  ],
  "Version": 1

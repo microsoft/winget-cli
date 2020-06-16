@@ -97,4 +97,7 @@ namespace AppInstaller::Utility
 
     // Reads the entire stream into a string.
     std::string ReadEntireStream(std::istream& stream);
+
+    // Converts string view to string
+    std::string ToString(const std::string_view key);
 }
