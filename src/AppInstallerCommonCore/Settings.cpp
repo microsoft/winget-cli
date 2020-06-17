@@ -2,11 +2,14 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/winget/Settings.h"
+#include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
+#include "Public/AppInstallerSHA256.h"
 
 namespace AppInstaller::Settings
 {
+    using namespace std::string_view_literals;
     using namespace Runtime;
     using namespace Utility;
 
@@ -17,6 +20,11 @@ namespace AppInstaller::Settings
             THROW_HR_IF(E_INVALIDARG, !name.has_relative_path());
             THROW_HR_IF(E_INVALIDARG, name.has_root_path());
             THROW_HR_IF(E_INVALIDARG, !name.has_filename());
+        }
+
+        void LogSettingAction(std::string_view action, const StreamDefinition& def)
+        {
+            AICLI_LOG(Core, Info, << "Setting action: " << action << ", Type: " << AsString(def.Type) << ", Name: " << def.Path);
         }
 
         // A settings container.
@@ -91,8 +99,6 @@ namespace AppInstaller::Settings
         // A settings container backed by the filesystem.
         struct FileSettingsContainer : public ISettingsContainer
         {
-            using Container = winrt::Windows::Storage::ApplicationDataContainer;
-
             FileSettingsContainer(std::filesystem::path root) : m_root(std::move(root)) {}
 
             std::filesystem::path GetRelativePath(const std::filesystem::path& name)
@@ -101,7 +107,6 @@ namespace AppInstaller::Settings
                 if (name.has_parent_path())
                 {
                     result /= name.parent_path();
-                    std::filesystem::create_directories(result);
                 }
                 return result;
             }
@@ -113,7 +118,9 @@ namespace AppInstaller::Settings
 
                 if (std::filesystem::exists(settingFileName))
                 {
-                    return std::make_unique<std::ifstream>(settingFileName);
+                    auto result = std::make_unique<std::ifstream>(settingFileName);
+                    THROW_LAST_ERROR_IF(result->fail());
+                    return result;
                 }
                 else
                 {
@@ -124,10 +131,13 @@ namespace AppInstaller::Settings
             void Set(const std::filesystem::path& name, std::string_view value) override
             {
                 std::filesystem::path settingFileName = GetRelativePath(name);
+                std::filesystem::create_directories(settingFileName);
                 settingFileName /= name.filename();
 
                 std::ofstream stream(settingFileName, std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
+                THROW_LAST_ERROR_IF(stream.fail());
                 stream << value << std::flush;
+                THROW_LAST_ERROR_IF(stream.fail());
             }
 
             void Remove(const std::filesystem::path& name) override
@@ -142,17 +152,136 @@ namespace AppInstaller::Settings
             std::filesystem::path m_root;
         };
 
+        // A settings container wrapper that enforces security.
+        struct SecureSettingsContainer : public ISettingsContainer
+        {
+            constexpr static std::string_view NodeName_Sha256 = "SHA256"sv;
+
+            SecureSettingsContainer(std::unique_ptr<ISettingsContainer>&& container) : m_container(std::move(container)), m_secure(GetPathTo(PathName::SecureSettings)) {}
+
+            struct VerificationData
+            {
+                bool Found = false;
+                SHA256::HashBuffer Hash;
+            };
+
+            VerificationData GetVerificationData(const std::filesystem::path& name)
+            {
+                std::unique_ptr<std::istream> stream = m_secure.Get(name);
+
+                if (!stream)
+                {
+                    return {};
+                }
+
+                std::string streamContents = Utility::ReadEntireStream(*stream);
+
+                YAML::Node document;
+                try
+                {
+                    document = YAML::Load(streamContents);
+                }
+                catch (const std::runtime_error& e)
+                {
+                    AICLI_LOG(YAML, Error, << "Secure setting metadata for '" << name << "' contained invalid YAML (" << e.what() << "):\n" << streamContents);
+                    return {};
+                }
+
+                std::string hashString;
+
+                try
+                {
+                    hashString = document[std::string{ NodeName_Sha256 }].as<std::string>();
+                }
+                catch (const std::runtime_error& e)
+                {
+                    AICLI_LOG(YAML, Error, << "Secure setting metadata for '" << name << "' contained invalid YAML (" << e.what() << "):\n" << streamContents);
+                    return {};
+                }
+
+                VerificationData result;
+                result.Found = true;
+                result.Hash = SHA256::ConvertToBytes(hashString);
+
+                return result;
+            }
+
+            void SetVerificationData(const std::filesystem::path& name, VerificationData data)
+            {
+                YAML::Emitter out;
+                out << YAML::BeginMap;
+                out << YAML::Key << std::string{ NodeName_Sha256 } << YAML::Value << SHA256::ConvertToString(data.Hash);
+                out << YAML::EndMap;
+
+                m_secure.Set(name, out.c_str());
+            }
+
+            std::unique_ptr<std::istream> Get(const std::filesystem::path& name) override
+            {
+                std::unique_ptr<std::istream> stream = m_container->Get(name);
+
+                if (!stream)
+                {
+                    // If no stream exists, then no verification needs to be done.
+                    return stream;
+                }
+
+                VerificationData verData = GetVerificationData(name);
+
+                // This case should be very rare, so a very identifiable error is helpful.
+                // Plus the text for this one is fairly on point for what has happened.
+                THROW_HR_IF(SPAPI_E_FILE_HASH_NOT_IN_CATALOG, !verData.Found);
+
+                std::string streamContents = Utility::ReadEntireStream(*stream);
+                THROW_HR_IF(E_UNEXPECTED, streamContents.size() > std::numeric_limits<uint32_t>::max());
+
+                auto streamHash = SHA256::ComputeHash(reinterpret_cast<const uint8_t*>(streamContents.c_str()), static_cast<uint32_t>(streamContents.size()));
+
+                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_DATA_CHECKSUM_ERROR), !std::equal(streamHash.begin(), streamHash.end(), verData.Hash.begin()));
+
+                // Return a stream over the contents that we read in and verified, to prevent a race attack.
+                return std::make_unique<std::istringstream>(streamContents);
+            }
+
+            void Set(const std::filesystem::path& name, std::string_view value) override
+            {
+                THROW_HR_IF(E_UNEXPECTED, value.size() > std::numeric_limits<uint32_t>::max());
+
+                VerificationData verData;
+                verData.Hash = SHA256::ComputeHash(reinterpret_cast<const uint8_t*>(value.data()), static_cast<uint32_t>(value.size()));
+
+                SetVerificationData(name, verData);
+
+                m_container->Set(name, value);
+            }
+
+            void Remove(const std::filesystem::path& name) override
+            {
+                m_secure.Remove(name);
+                m_container->Remove(name);
+            }
+
+        private:
+            std::unique_ptr<ISettingsContainer> m_container;
+            FileSettingsContainer m_secure;
+        };
+
         std::unique_ptr<ISettingsContainer> GetSettingsContainer(Type type)
         {
+            if (type == Type::Secure)
+            {
+                return std::make_unique<SecureSettingsContainer>(GetSettingsContainer(Type::Standard));
+            }
+
             if (IsRunningInPackagedContext())
             {
                 switch (type)
                 {
-                case AppInstaller::Settings::Type::Standard:
+                case Type::Standard:
                     return std::make_unique<ApplicationDataSettingsContainer>(
                         ApplicationDataSettingsContainer::GetRelativeContainer(
                             winrt::Windows::Storage::ApplicationData::Current().LocalSettings(), GetPathTo(PathName::StandardSettings)));
-                case AppInstaller::Settings::Type::UserFile:
+                case Type::UserFile:
                     return std::make_unique<FileSettingsContainer>(GetPathTo(PathName::UserFileSettings));
                 default:
                     THROW_HR(E_UNEXPECTED);
@@ -162,9 +291,9 @@ namespace AppInstaller::Settings
             {
                 switch (type)
                 {
-                case AppInstaller::Settings::Type::Standard:
+                case Type::Standard:
                     return std::make_unique<FileSettingsContainer>(GetPathTo(PathName::StandardSettings));
-                case AppInstaller::Settings::Type::UserFile:
+                case Type::UserFile:
                     return std::make_unique<FileSettingsContainer>(GetPathTo(PathName::UserFileSettings));
                 default:
                     THROW_HR(E_UNEXPECTED);
@@ -173,21 +302,39 @@ namespace AppInstaller::Settings
         }
     }
 
-    std::unique_ptr<std::istream> GetSettingStream(Type type, const std::filesystem::path& name)
+    std::string_view AsString(Type type)
     {
-        ValidateSettingNamePath(name);
-        return GetSettingsContainer(type)->Get(name);
+        switch (type)
+        {
+        case Type::Standard:
+            return "Standard"sv;
+        case Type::UserFile:
+            return "UserFile"sv;
+        case Type::Secure:
+            return "Secure"sv;
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
     }
 
-    void SetSetting(Type type, const std::filesystem::path& name, std::string_view value)
+    std::unique_ptr<std::istream> GetSettingStream(const StreamDefinition& def)
     {
-        ValidateSettingNamePath(name);
-        GetSettingsContainer(type)->Set(name, value);
+        LogSettingAction("Get", def);
+        ValidateSettingNamePath(def.Path);
+        return GetSettingsContainer(def.Type)->Get(def.Path);
     }
 
-    void RemoveSetting(Type type, const std::filesystem::path& name)
+    void SetSetting(const StreamDefinition& def, std::string_view value)
     {
-        ValidateSettingNamePath(name);
-        GetSettingsContainer(type)->Remove(name);
+        LogSettingAction("Set", def);
+        ValidateSettingNamePath(def.Path);
+        GetSettingsContainer(def.Type)->Set(def.Path, value);
+    }
+
+    void RemoveSetting(const StreamDefinition& def)
+    {
+        LogSettingAction("Remove", def);
+        ValidateSettingNamePath(def.Path);
+        GetSettingsContainer(def.Type)->Remove(def.Path);
     }
 }

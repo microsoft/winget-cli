@@ -6,9 +6,12 @@
 #include <Windows.h>
 #include <appmodel.h>
 #include <WinInet.h>
+#include <Shlobj.h>
 #include <Shlwapi.h>
 
 #include "TraceLogging.h"
+
+#include <yaml-cpp/yaml.h>
 
 // wil/cppwinrt.h should always be included before any C++/WinRT or WIL header file when both are in use
 #include <wil/cppwinrt.h>

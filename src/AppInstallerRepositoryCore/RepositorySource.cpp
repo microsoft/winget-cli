@@ -10,7 +10,6 @@ namespace AppInstaller::Repository
 {
     using namespace std::chrono_literals;
     using namespace std::string_view_literals;
-    constexpr std::string_view s_RepositorySettings_UserSources = "usersources"sv;
 
     constexpr std::string_view s_SourcesYaml_Sources = "Sources"sv;
     constexpr std::string_view s_SourcesYaml_Source_Name = "Name"sv;
@@ -120,9 +119,9 @@ namespace AppInstaller::Repository
         }
 
         // Gets the source details from a particular setting, or an empty optional if no setting exists.
-        std::optional<std::vector<SourceDetails>> TryGetSourcesFromSetting(std::string_view settingName)
+        std::optional<std::vector<SourceDetails>> TryGetSourcesFromSetting(const Settings::StreamDefinition& setting)
         {
-            auto sourcesStream = Settings::GetSettingStream(Settings::Type::Standard, settingName);
+            auto sourcesStream = Settings::GetSettingStream(setting);
             if (!sourcesStream)
             {
                 // Handle first run scenario and configure default source(s).
@@ -132,15 +131,15 @@ namespace AppInstaller::Repository
             else
             {
                 std::vector<SourceDetails> result;
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCES_INVALID, !TryReadSourceDetails(settingName, *sourcesStream, result));
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCES_INVALID, !TryReadSourceDetails(setting.Path, *sourcesStream, result));
                 return result;
             }
         }
 
         // Gets the source details from a particular setting.
-        std::vector<SourceDetails> GetSourcesFromSetting(std::string_view settingName)
+        std::vector<SourceDetails> GetSourcesFromSetting(const Settings::StreamDefinition& setting)
         {
-            return TryGetSourcesFromSetting(settingName).value_or(std::vector<SourceDetails>{});
+            return TryGetSourcesFromSetting(setting).value_or(std::vector<SourceDetails>{});
         }
 
         // Make up for the lack of string_view support in YAML CPP.
@@ -150,7 +149,7 @@ namespace AppInstaller::Repository
         }
 
         // Sets the sources for a particular setting.
-        void SetSourcesToSetting(std::string_view settingName, const std::vector<SourceDetails>& sources)
+        void SetSourcesToSetting(const Settings::StreamDefinition& setting, const std::vector<SourceDetails>& sources)
         {
             YAML::Emitter out;
             out << YAML::BeginMap;
@@ -172,7 +171,7 @@ namespace AppInstaller::Repository
             out << YAML::EndSeq;
             out << YAML::EndMap;
 
-            Settings::SetSetting(Settings::Type::Standard, settingName, out.c_str());
+            Settings::SetSetting(setting, out.c_str());
         }
 
         // Finds a source from the given vector by its name.
@@ -295,7 +294,7 @@ namespace AppInstaller::Repository
             return details;
         }
 
-        void AddDetailsToSetting(const SourceDetails& details, std::string_view setting)
+        void AddDetailsToSetting(const SourceDetails& details, const Settings::StreamDefinition& setting)
         {
             AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
 
@@ -311,23 +310,23 @@ namespace AppInstaller::Repository
 
             UpdateSourceFromDetails(details, progress);
 
-            AddDetailsToSetting(details, s_RepositorySettings_UserSources);
+            AddDetailsToSetting(details, Settings::Streams::UserSources);
         }
 
         void AddUninitializedSourceInternal(std::string name, std::string type, std::string arg, bool isDefault)
         {
             SourceDetails details = PrepareSourceDetailsForAdd(name, type, arg, isDefault);
-            AddDetailsToSetting(details, s_RepositorySettings_UserSources);
+            AddDetailsToSetting(details, Settings::Streams::UserSources);
         }
 
         // If there is no setting value at all, adds the default sources.
         void AddDefaultSourcesIfNeeded()
         {
-            auto sourcesStream = Settings::GetSettingStream(Settings::Type::Standard, s_RepositorySettings_UserSources);
+            auto sourcesStream = Settings::GetSettingStream(Settings::Streams::UserSources);
             if (!sourcesStream)
             {
                 // We have to set an initial, empty list of sources or the add will create an infinite loop.
-                SetSourcesToSetting(s_RepositorySettings_UserSources, std::vector<SourceDetails>{});
+                SetSourcesToSetting(Settings::Streams::UserSources, std::vector<SourceDetails>{});
 
                 AddUninitializedSourceInternal(
                     std::string(s_Source_WingetCommunityDefault_Name),
@@ -343,7 +342,7 @@ namespace AppInstaller::Repository
     std::vector<SourceDetails> GetSources()
     {
         AddDefaultSourcesIfNeeded();
-        return GetSourcesFromSetting(s_RepositorySettings_UserSources);
+        return GetSourcesFromSetting(Settings::Streams::UserSources);
     }
 
     std::optional<SourceDetails> GetSource(std::string_view name)
@@ -400,7 +399,7 @@ namespace AppInstaller::Repository
                 if (ShouldUpdateBeforeOpen(*itr))
                 {
                     UpdateSourceFromDetails(*itr, progress);
-                    SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
+                    SetSourcesToSetting(Settings::Streams::UserSources, currentSources);
                 }
                 return CreateSourceFromDetails(*itr);
             }
@@ -424,7 +423,7 @@ namespace AppInstaller::Repository
             AICLI_LOG(Repo, Info, << "Named source to be updated, found: " << itr->Name);
             UpdateSourceFromDetails(*itr, progress);
 
-            SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
+            SetSourcesToSetting(Settings::Streams::UserSources, currentSources);
             return true;
         }
     }
@@ -447,7 +446,7 @@ namespace AppInstaller::Repository
             RemoveSourceFromDetails(*itr, progress);
 
             currentSources.erase(itr);
-            SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
+            SetSourcesToSetting(Settings::Streams::UserSources, currentSources);
 
             return true;
         }
@@ -457,7 +456,7 @@ namespace AppInstaller::Repository
     {
         if (name.empty())
         {
-            Settings::RemoveSetting(Settings::Type::Standard, s_RepositorySettings_UserSources);
+            Settings::RemoveSetting(Settings::Streams::UserSources);
             return true;
         }
         else
@@ -475,7 +474,7 @@ namespace AppInstaller::Repository
                 AICLI_LOG(Repo, Info, << "Named source to be dropped, found: " << itr->Name);
 
                 currentSources.erase(itr);
-                SetSourcesToSetting(s_RepositorySettings_UserSources, currentSources);
+                SetSourcesToSetting(Settings::Streams::UserSources, currentSources);
 
                 return true;
             }

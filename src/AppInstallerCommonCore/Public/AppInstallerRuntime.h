@@ -37,6 +37,8 @@ namespace AppInstaller::Runtime
         StandardSettings,
         // The location that user file type settings are stored.
         UserFileSettings,
+        // The location where secure settings data is stored.
+        SecureSettings,
     };
 
     // Gets the path to the requested location.
