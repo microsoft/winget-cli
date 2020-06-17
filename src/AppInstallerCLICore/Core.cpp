@@ -4,7 +4,7 @@
 #include "Public/AppInstallerCLICore.h"
 #include "Commands/RootCommand.h"
 #include "ExecutionContext.h"
-#include <AppInstallerUserSettings.h>
+#include <winget/UserSettings.h>
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;

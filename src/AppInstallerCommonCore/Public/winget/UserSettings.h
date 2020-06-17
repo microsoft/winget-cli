@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-
 #include "AppInstallerStrings.h"
 #include "winget/settings/Source.h"
 #include "winget/settings/Visual.h"

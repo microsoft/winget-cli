@@ -15,7 +15,7 @@ namespace AppInstaller::Settings
     // Visual root
     static constexpr std::string_view s_VisualKey = "visual"sv;
 
-    // progressBar property
+    // progressBar property possible values
     static constexpr std::string_view s_progressBar_Accent = "accent";
     static constexpr std::string_view s_progressBar_Rainbow = "rainbow";
     static constexpr std::string_view s_progressBar_Retro = "retro";

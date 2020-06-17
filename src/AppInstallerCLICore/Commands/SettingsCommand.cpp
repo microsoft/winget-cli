@@ -4,8 +4,7 @@
 #include "SettingsCommand.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
-#include <AppInstallerUserSettings.h>
-
+#include <winget/UserSettings.h>
 
 namespace AppInstaller::CLI
 {

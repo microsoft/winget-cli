@@ -108,9 +108,6 @@
     <ClInclude Include="Public\winget\LocIndependent.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\AppInstallerUserSettings.h">
-      <Filter>Public</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\settings\Source.h">
       <Filter>Public\winget\settings</Filter>
     </ClInclude>
@@ -124,6 +121,9 @@
       <Filter>UserSettings</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\Settings.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\UserSettings.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
   </ItemGroup>

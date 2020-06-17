@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerRepositorySource.h"
-#include <AppInstallerUserSettings.h>
+#include <winget/UserSettings.h>
 
 #include "SourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"

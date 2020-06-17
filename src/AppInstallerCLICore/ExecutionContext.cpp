@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ExecutionContext.h"
-#include "AppInstallerUserSettings.h"
+#include "winget/UserSettings.h"
 
 namespace AppInstaller::CLI::Execution
 {

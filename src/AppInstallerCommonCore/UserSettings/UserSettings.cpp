@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/Settings.h"
-#include "AppInstallerUserSettings.h"
+#include "winget/UserSettings.h"
 #include <AppInstallerRuntime.h>
 
 #include "winget/settings/Source.h"
