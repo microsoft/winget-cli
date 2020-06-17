@@ -23,7 +23,7 @@ namespace AppInstaller::Settings
     };
 
     // Converts the Type enum to a string.
-    std::string_view AsString(Type type);
+    std::string_view ToString(Type type);
 
     // A stream definition, combining both type and path.
     // The well known values in Streams should be used by product code, while tests may directly create them.

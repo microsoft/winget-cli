@@ -191,7 +191,7 @@ namespace AppInstaller::Repository::Microsoft
                 if (download)
                 {
                     tempFile = Runtime::GetPathTo(Runtime::PathName::Temp);
-                    tempFile /= GetPackageFullNameFromDetails(details) + ".msix";
+                    tempFile /= GetPackageFamilyNameFromDetails(details) + ".msix";
 
                     Utility::Download(packageLocation, tempFile, progress);
 

@@ -148,7 +148,7 @@ TEST_CASE("RepoSources_UserSettingDoesNotExist", "[sources]")
     std::vector<SourceDetails> sources = GetSources();
     // The default source is added when no source exists
     REQUIRE(sources.size() == 1);
-    REQUIRE(sources[0].IsDefault);
+    REQUIRE(sources[0].Origin == SourceOrigin::Default);
 }
 
 TEST_CASE("RepoSources_EmptySourcesList", "[sources]")
@@ -190,7 +190,7 @@ TEST_CASE("RepoSources_ThreeSources", "[sources]")
         REQUIRE(sources[i].Arg == "testArg"s + suffix[i]);
         REQUIRE(sources[i].Data == "testData"s + suffix[i]);
         REQUIRE(sources[i].LastUpdateTime == ConvertUnixEpochToSystemClock(i));
-        REQUIRE(sources[i].IsDefault == (i == 0));
+        REQUIRE((sources[i].Origin == SourceOrigin::Default) == (i == 0));
     }
 }
 
@@ -457,7 +457,7 @@ TEST_CASE("RepoSources_DropSourceByName", "[sources]")
         REQUIRE(sources[i].Arg == "testArg"s + suffix[i]);
         REQUIRE(sources[i].Data == "testData"s + suffix[i]);
         REQUIRE(sources[i].LastUpdateTime == ConvertUnixEpochToSystemClock(i + 1));
-        REQUIRE(!sources[i].IsDefault);
+        REQUIRE(sources[i].Origin != SourceOrigin::Default);
     }
 }
 
@@ -472,5 +472,5 @@ TEST_CASE("RepoSources_DropAllSources", "[sources]")
 
     sources = GetSources();
     REQUIRE(sources.size() == 1);
-    REQUIRE(sources[0].IsDefault);
+    REQUIRE(sources[0].Origin == SourceOrigin::Default);
 }
