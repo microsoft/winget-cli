@@ -40,10 +40,9 @@ namespace AppInstaller::Settings
         UserSettingsType GetType() const { return m_type; }
         std::vector<std::string> GetWarnings() const { return m_warnings; }
 
+        void CreateFileIfNeeded();
+        void CreateBackup();
         std::filesystem::path SettingsFilePath();
-        std::filesystem::path SettingsBackupPath();
-        void CreateSettingsFile();
-        void CreateBackupFile();
 
         // Settings
         inline const Source& GetSource() const { return *m_source; }
@@ -53,7 +52,7 @@ namespace AppInstaller::Settings
         UserSettings();
         ~UserSettings() {};
 
-        std::optional<Json::Value> ParseFile(const std::filesystem::path& path);
+        std::optional<Json::Value> ParseFile(const std::string_view& fileName);
 
         UserSettingsType m_type = UserSettingsType::Default;
         std::vector<std::string> m_warnings;

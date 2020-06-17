@@ -44,12 +44,12 @@ namespace AppInstaller::CLI
         if (userSettingType == UserSettingsType::Default)
         {
             // Create settings file if it doesn't exist.
-            UserSettings::Instance().CreateSettingsFile();
+            UserSettings::Instance().CreateFileIfNeeded();
         }
         else if (userSettingType == UserSettingsType::Standard)
         {
             // Settings file was loaded correctly, create backup.
-            UserSettings::Instance().CreateBackupFile();
+            UserSettings::Instance().CreateBackup();
         }
 
         std::string filePathUTF8Str = UserSettings::Instance().SettingsFilePath().u8string();

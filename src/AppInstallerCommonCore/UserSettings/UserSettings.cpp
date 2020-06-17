@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "winget/Settings.h"
 #include "AppInstallerUserSettings.h"
 #include <AppInstallerRuntime.h>
 
@@ -12,19 +13,18 @@
 namespace AppInstaller::Settings
 {
     using namespace std::string_view_literals;
+    using namespace Runtime;
     using namespace Utility;
 
     static constexpr std::string_view s_SettingFileName = "settings.json"sv;
     static constexpr std::string_view s_SettingBackupFileName = "settings.json.backup"sv;
 
+    // TODO: add message and link to aka.ms. The message will need to be localized?
     static constexpr std::string_view s_SettingEmpty =
         R"""({
-    "source": {
-        "autoUpdateIntervalInMinutes": 15
-    },
-    "visual": {
-        "progressBar": "rainbow"
-    }
+    // "source": {
+    //    "autoUpdateIntervalInMinutes": 5
+    // }
 })"""sv;
 
     UserSettings::UserSettings() : m_type(UserSettingsType::Default)
@@ -35,33 +35,24 @@ namespace AppInstaller::Settings
         // 1 - Use settings.json if exists and passes parsing.
         // 2 - Use settings.backup.json if settings.json fails to parse.
         // 3 - Use default (empty) if both settings files fail to load.
-        auto settingsPath = SettingsFilePath();
-        if (std::filesystem::exists(settingsPath))
+
+        auto settingsJson = ParseFile(s_SettingFileName);
+        if (settingsJson.has_value())
         {
-            auto settingsJson = ParseFile(settingsPath);
-            if (settingsJson.has_value())
-            {
-                m_type = UserSettingsType::Standard;
-                settingsRoot = settingsJson.value();
-            }
+            m_type = UserSettingsType::Standard;
+            settingsRoot = settingsJson.value();
         }
 
         // Settings didn't parse or doesn't exist, try with backup.
         if (settingsRoot.isNull())
         {
-            auto settingsBackup = SettingsBackupPath();
-            if (std::filesystem::exists(settingsBackup))
+            auto settingsBackupJson = ParseFile(s_SettingBackupFileName);
+            if (settingsBackupJson.has_value())
             {
-                auto settingsBackupJson = ParseFile(settingsBackup);
-
-                // We don't expect users to modify manually this file so don't warn.
-                if (settingsBackupJson.has_value())
-                {
-                    // TODO: Localize
-                    m_warnings.emplace_back("Loaded settings from backup file.");
-                    m_type = UserSettingsType::Backup;
-                    settingsRoot = settingsBackupJson.value();
-                }
+                // TODO: Localize
+                m_warnings.emplace_back("Loaded settings from backup file.");
+                m_type = UserSettingsType::Backup;
+                settingsRoot = settingsBackupJson.value();
             }
         }
 
@@ -77,57 +68,56 @@ namespace AppInstaller::Settings
         std::move(visualWarnings.begin(), visualWarnings.end(), std::inserter(m_warnings, m_warnings.end()));
     }
 
-    std::optional<Json::Value> UserSettings::ParseFile(const std::filesystem::path& path)
+    std::optional<Json::Value> UserSettings::ParseFile(const std::string_view& fileName)
     {
-        Json::Value root;
-        Json::CharReaderBuilder builder;
-        const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
-
-        auto settingsStream = std::make_unique<std::ifstream>(path);
-        std::stringstream settingsContent;
-        settingsContent << settingsStream->rdbuf();
-        std::string settingsContentStr = settingsContent.str();
-        std::string error;
-
-        if (reader->parse(settingsContentStr.c_str(), settingsContentStr.c_str() + settingsContentStr.size(), &root, &error))
+        auto stream = GetSettingStream(Type::UserFile, fileName);
+        if (stream)
         {
-            return root;
-        }
+            Json::Value root;
+            Json::CharReaderBuilder builder;
+            const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
 
-        std::string warning = path.filename().u8string() + " : " + error;
-        m_warnings.push_back(warning);
+            std::stringstream settingsContent;
+            settingsContent << stream->rdbuf();
+            std::string settingsContentStr = settingsContent.str();
+            std::string error;
+
+            if (reader->parse(settingsContentStr.c_str(), settingsContentStr.c_str() + settingsContentStr.size(), &root, &error))
+            {
+                return root;
+            }
+
+            m_warnings.emplace_back(fileName);
+            m_warnings.emplace_back(error);
+        }
 
         return {};
     }
 
     std::filesystem::path UserSettings::SettingsFilePath()
     {
-        return Runtime::GetPathToLocalState() / s_SettingFileName;
+        return GetPathTo(PathName::UserFileSettings) / s_SettingFileName;
     }
 
-    std::filesystem::path UserSettings::SettingsBackupPath()
+    void UserSettings::CreateFileIfNeeded()
     {
-        return Runtime::GetPathToLocalState() / s_SettingBackupFileName;
-    }
-
-    void UserSettings::CreateSettingsFile()
-    {
-        std::filesystem::path path = SettingsFilePath();
-
-        // Create settings file if it doesn't exist.
-        if (!std::filesystem::exists(path))
+        if (!std::filesystem::exists(SettingsFilePath()))
         {
-            std::ofstream stream(path);
-            stream << s_SettingEmpty << std::endl;
-            stream.flush();
+            SetSetting(Type::UserFile, s_SettingFileName, s_SettingEmpty);
         }
     }
 
-    void UserSettings::CreateBackupFile()
+    void UserSettings::CreateBackup()
     {
-        std::filesystem::path from = SettingsFilePath();
-        std::filesystem::path to = SettingsBackupPath();
-
-        std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
+        if (std::filesystem::exists(SettingsFilePath()))
+        {
+            auto from = SettingsFilePath();
+            auto to = GetPathTo(PathName::UserFileSettings) / s_SettingBackupFileName;
+            std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
+        }
+        else
+        {
+            THROW_HR(ERROR_FILE_NOT_FOUND);
+        }
     }
 }
