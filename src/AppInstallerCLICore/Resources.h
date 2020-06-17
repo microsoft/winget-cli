@@ -87,6 +87,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(RequiredArgError);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SettingsCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SettingsCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SilentArgumentDescription);

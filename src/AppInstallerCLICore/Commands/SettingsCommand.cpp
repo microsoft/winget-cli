@@ -20,19 +20,16 @@ namespace AppInstaller::CLI
 
     Resource::LocString SettingsCommand::ShortDescription() const
     {
-        // TODO: Create a string and localize.
-        return { Resource::String::HashCommandShortDescription };
+        return { Resource::String::SettingsCommandShortDescription };
     }
 
     Resource::LocString SettingsCommand::LongDescription() const
     {
-        // TODO: Create a string and localize.
-        return { Resource::String::HashCommandLongDescription };
+        return { Resource::String::SettingsCommandLongDescription };
     }
 
     std::string SettingsCommand::HelpLink() const
     {
-        // TODO: Create and point to readme
         return "https://aka.ms/winget-settings";
     }
 

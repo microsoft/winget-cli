@@ -47,16 +47,12 @@ namespace AppInstaller::Settings
                             }
                             else
                             {
-                                // TODO: Localize
-                                std::string warning = "Invalid value for " + key + ": " + value.value();
-                                m_warnings.emplace_back(warning);
+                                m_warnings.push_back(GetSettingsMessage(SettingsWarnings::InvalidFieldValue, key, value.value()));
                             }
                         }
                         else
                         {
-                            // TODO: Localize.
-                            std::string warning = "Invalid format for " + key;
-                            m_warnings.emplace_back(warning);
+                            m_warnings.emplace_back(GetSettingsMessage(SettingsWarnings::InvalidFieldFormat, key));
                         }
                     }
                 }

@@ -23,12 +23,6 @@ namespace AppInstaller::Settings
             {
                 fieldIter->ProcessFunc(key, root);
             }
-            else
-            {
-                // TODO: Localize
-                std::string warning = "Unrecognized field " + key;
-                warnings.emplace_back(warning);
-            }
         }
 
         return warnings;

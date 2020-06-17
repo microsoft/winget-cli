@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include <AppInstallerRuntime.h>
+#include "SettingValidation.h"
 #include "winget/Settings.h"
 #include "winget/UserSettings.h"
-#include <AppInstallerRuntime.h>
 
 #include "winget/settings/Source.h"
 #include "winget/settings/Visual.h"
@@ -19,9 +20,9 @@ namespace AppInstaller::Settings
     static constexpr std::string_view s_SettingFileName = "settings.json"sv;
     static constexpr std::string_view s_SettingBackupFileName = "settings.json.backup"sv;
 
-    // TODO: add message and link to aka.ms. The message will need to be localized?
     static constexpr std::string_view s_SettingEmpty =
         R"""({
+    // For documentation on these settings, see: https://aka.ms/winget-settings
     // "source": {
     //    "autoUpdateIntervalInMinutes": 5
     // }
@@ -49,8 +50,7 @@ namespace AppInstaller::Settings
             auto settingsBackupJson = ParseFile(s_SettingBackupFileName);
             if (settingsBackupJson.has_value())
             {
-                // TODO: Localize
-                m_warnings.emplace_back("Loaded settings from backup file.");
+                m_warnings.emplace_back(SettingsWarnings::LoadedBackupSettings);
                 m_type = UserSettingsType::Backup;
                 settingsRoot = settingsBackupJson.value();
             }
