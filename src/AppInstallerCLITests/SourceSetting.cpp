@@ -16,7 +16,7 @@ using namespace AppInstaller::Settings;
 namespace
 {
     template<class T>
-    void TestAutoUpdateIntervalInMinutes(T value, uint32_t expected, int warnings)
+    void TestAutoUpdateIntervalInMinutes(T value, uint32_t expected, size_t warnings)
     {
         Json::Value property;
         property["autoUpdateIntervalInMinutes"] = value;

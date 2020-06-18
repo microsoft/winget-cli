@@ -16,7 +16,7 @@ using namespace AppInstaller::Settings;
 namespace
 {
     template<class T>
-    void TestProgressBar(T value, VisualStyle expected, int warnings)
+    void TestProgressBar(T value, VisualStyle expected, size_t warnings)
     {
         Json::Value property;
         property["progressBar"] = value;
