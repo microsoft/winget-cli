@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "TestCommon.h"
 #include <json.h>
 #include <winget/settings/Visual.h>
 
@@ -16,7 +15,7 @@ using namespace AppInstaller::Settings;
 namespace
 {
     template<class T>
-    void TestProgressBar(T value, VisualStyle expected, size_t warnings)
+    void TestProgressBar(const T& value, VisualStyle expected, size_t warnings)
     {
         Json::Value property;
         property["progressBar"] = value;

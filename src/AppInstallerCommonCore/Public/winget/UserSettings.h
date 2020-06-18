@@ -39,9 +39,12 @@ namespace AppInstaller::Settings
         UserSettingsType GetType() const { return m_type; }
         std::vector<std::string> GetWarnings() const { return m_warnings; }
 
+        void Reload();
         void CreateFileIfNeeded();
         void CreateBackup();
+
         std::filesystem::path SettingsFilePath();
+        std::filesystem::path SettingsBackupFilePath();
 
         // Settings
         inline const Source& GetSource() const { return *m_source; }

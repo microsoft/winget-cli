@@ -30,7 +30,13 @@ namespace AppInstaller::Settings
 
     UserSettings::UserSettings() : m_type(UserSettingsType::Default)
     {
+        Reload();
+    }
+
+    void UserSettings::Reload()
+    {
         Json::Value settingsRoot = Json::Value::nullSingleton();
+        m_type = UserSettingsType::Default;
 
         // Settings can be loaded from settings.json or settings.json.backup files.
         // 1 - Use settings.json if exists and passes parsing.
@@ -58,14 +64,17 @@ namespace AppInstaller::Settings
 
         // Populate the settings.
         auto sourceStr = Utility::ToString(Source::GetPropertyName());
-        m_source = std::make_unique<Source>(settingsRoot[sourceStr]);
-        auto sourceWarnings = m_source->Warnings();
+        auto source = std::make_unique<Source>(settingsRoot[sourceStr]);
+        auto sourceWarnings = source->Warnings();
         std::move(sourceWarnings.begin(), sourceWarnings.end(), std::inserter(m_warnings, m_warnings.end()));
 
         auto visualStr = Utility::ToString(Visual::GetPropertyName());
-        m_visual = std::make_unique<Visual>(settingsRoot[visualStr]);
-        auto visualWarnings = m_visual->Warnings();
+        auto visual = std::make_unique<Visual>(settingsRoot[visualStr]);
+        auto visualWarnings = visual->Warnings();
         std::move(visualWarnings.begin(), visualWarnings.end(), std::inserter(m_warnings, m_warnings.end()));
+
+        m_source = std::move(source);
+        m_visual = std::move(visual);
     }
 
     std::optional<Json::Value> UserSettings::ParseFile(const std::string_view& fileName)
@@ -99,6 +108,11 @@ namespace AppInstaller::Settings
         return GetPathTo(PathName::UserFileSettings) / s_SettingFileName;
     }
 
+    std::filesystem::path UserSettings::SettingsBackupFilePath()
+    {
+        return GetPathTo(PathName::UserFileSettings) / s_SettingBackupFileName;
+    }
+
     void UserSettings::CreateFileIfNeeded()
     {
         if (!std::filesystem::exists(SettingsFilePath()))
@@ -109,15 +123,10 @@ namespace AppInstaller::Settings
 
     void UserSettings::CreateBackup()
     {
-        if (std::filesystem::exists(SettingsFilePath()))
-        {
-            auto from = SettingsFilePath();
-            auto to = GetPathTo(PathName::UserFileSettings) / s_SettingBackupFileName;
-            std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
-        }
-        else
-        {
-            THROW_HR(ERROR_FILE_NOT_FOUND);
-        }
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND), !std::filesystem::exists(SettingsFilePath()));
+
+        auto from = SettingsFilePath();
+        auto to = GetPathTo(PathName::UserFileSettings) / s_SettingBackupFileName;
+        std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
     }
 }
