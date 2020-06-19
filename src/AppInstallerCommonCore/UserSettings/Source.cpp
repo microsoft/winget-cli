@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "AppInstallerStrings.h"
+#include "JsonUtil.h"
 #include "SettingValidation.h"
-#include "winget\JsonUtil.h"
 #include "winget\settings\Source.h"
 
 #include <string>

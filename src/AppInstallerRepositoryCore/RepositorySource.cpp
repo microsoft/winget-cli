@@ -259,7 +259,7 @@ namespace AppInstaller::Repository
                 return true;
             }
 
-            auto autoUpdateTime = Settings::UserSettings::Instance().GetSource().GetAutoUpdateTimeInMinutes();
+            auto autoUpdateTime = Settings::User().GetSource().GetAutoUpdateTimeInMinutes();
 
             // A value of zero means no auto update, to get update the source run `winget update` 
             if (autoUpdateTime != 0)

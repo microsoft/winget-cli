@@ -54,7 +54,7 @@ namespace AppInstaller::CLI::Execution
             Force,      // Generic flag to enable a command to skip some check
             ListVersions, // Used in Show command to list all available versions of an app
             NoVT, // Disable VirtualTerminal outputs
-            RetroStyle, // Makes progress display as plain
+            RetroStyle, // Makes progress display as retro
             RainbowStyle, // Makes progress display as a rainbow
             Help, // Show command usage
             Info, // Show general info about WinGet

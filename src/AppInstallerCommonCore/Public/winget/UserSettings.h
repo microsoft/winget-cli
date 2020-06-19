@@ -4,7 +4,6 @@
 #include "AppInstallerStrings.h"
 #include "winget/settings/Source.h"
 #include "winget/settings/Visual.h"
-#include <json.h>
 
 #include <filesystem>
 #include <vector>
@@ -26,41 +25,45 @@ namespace AppInstaller::Settings
     // Representation of the parsed settings file.
     struct UserSettings
     {
-        static UserSettings& Instance()
+        static UserSettings const& Instance()
         {
-            // If we go multi-threaded secure this.
             static UserSettings userSettings;
             return userSettings;
         }
 
+        static std::filesystem::path SettingsFilePath();
+
         UserSettings(const UserSettings&) = delete;
         UserSettings& operator=(const UserSettings&) = delete;
 
+        UserSettings(UserSettings&&) = delete;
+        UserSettings& operator=(UserSettings&&) = delete;
+
         UserSettingsType GetType() const { return m_type; }
-        std::vector<std::string> GetWarnings() const { return m_warnings; }
+        std::vector<std::string> const& GetWarnings() const { return m_warnings; }
 
         void Reload();
-        void CreateFileIfNeeded();
-        void CreateBackup();
-
-        std::filesystem::path SettingsFilePath();
-        std::filesystem::path SettingsBackupFilePath();
+        void PrepareToShellExecuteFile() const;
 
         // Settings
         inline const Source& GetSource() const { return *m_source; }
         inline const Visual& GetVisual() const { return *m_visual; }
 
     private:
-        UserSettings();
-        ~UserSettings() {};
-
-        std::optional<Json::Value> ParseFile(const std::string_view& fileName);
-
         UserSettingsType m_type = UserSettingsType::Default;
         std::vector<std::string> m_warnings;
 
         std::unique_ptr<Source> m_source;
         std::unique_ptr<Visual> m_visual;
 
+    protected:
+        UserSettings();
+        ~UserSettings() = default;
+
     };
+
+    inline UserSettings const& User()
+    {
+        return UserSettings::Instance();
+    }
 }

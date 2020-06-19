@@ -73,7 +73,7 @@ namespace AppInstaller::CLI
         case Args::Type::RainbowStyle:
             return Argument{ "rainbow", None, Args::Type::RainbowStyle, Resource::String::RainbowArgumentDescription, ArgumentType::Flag, Visibility::Hidden };
         case Args::Type::RetroStyle:
-            return Argument{ "retro", None, Args::Type::RetroStyle, Resource::String::PlainArgumentDescription, ArgumentType::Flag, Visibility::Hidden };
+            return Argument{ "retro", None, Args::Type::RetroStyle, Resource::String::RetroArgumentDescription, ArgumentType::Flag, Visibility::Hidden };
         case Args::Type::Force:
             return Argument{ "force", None, Args::Type::Force, Resource::String::ForceArgumentDescription, ArgumentType::Flag };
         case Args::Type::VerboseLogs:

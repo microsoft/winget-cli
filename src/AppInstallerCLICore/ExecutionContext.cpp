@@ -6,6 +6,8 @@
 
 namespace AppInstaller::CLI::Execution
 {
+    using namespace Settings;
+
     namespace
     {
         // The context that will receive CTRL signals
@@ -90,7 +92,7 @@ namespace AppInstaller::CLI::Execution
         }
         else
         {
-            Reporter.SetStyle(UserSettings::Instance().GetVisual().GetProgressBarVisualStyle());
+            Reporter.SetStyle(User().GetVisual().GetProgressBarVisualStyle());
         }
     }
 

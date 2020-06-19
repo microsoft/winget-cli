@@ -268,9 +268,4 @@ namespace AppInstaller::Utility
 
         return result;
     }
-
-    std::string ToString(const std::string_view key)
-    {
-        return static_cast<std::string>(key);
-    }
 }

@@ -9,8 +9,6 @@
 #include "winget/settings/Source.h"
 #include "winget/settings/Visual.h"
 
-#include <iostream>
-
 namespace AppInstaller::Settings
 {
     using namespace std::string_view_literals;
@@ -21,19 +19,46 @@ namespace AppInstaller::Settings
     static constexpr std::string_view s_SettingBackupFileName = "settings.json.backup"sv;
 
     static constexpr std::string_view s_SettingEmpty =
-        R"""({
+        R"("{
     // For documentation on these settings, see: https://aka.ms/winget-settings
     // "source": {
     //    "autoUpdateIntervalInMinutes": 5
     // }
-})"""sv;
+}")"sv;
 
-    UserSettings::UserSettings() : m_type(UserSettingsType::Default)
+    namespace
     {
-        Reload();
+        std::filesystem::path SettingsBackupFilePath()
+        {
+            return GetPathTo(PathName::UserFileSettings) / s_SettingBackupFileName;
+        }
+
+        std::optional<Json::Value> ParseFile(const std::filesystem::path& fileName, std::vector<std::string>& warnings)
+        {
+            auto stream = GetSettingStream(Type::UserFile, fileName);
+            if (stream)
+            {
+                Json::Value root;
+                Json::CharReaderBuilder builder;
+                const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+
+                std::string settingsContentStr = Utility::ReadEntireStream(*stream);
+                std::string error;
+
+                if (reader->parse(settingsContentStr.c_str(), settingsContentStr.c_str() + settingsContentStr.size(), &root, &error))
+                {
+                    return root;
+                }
+
+                warnings.emplace_back(fileName.u8string());
+                warnings.emplace_back(error);
+            }
+
+            return {};
+        }
     }
 
-    void UserSettings::Reload()
+    UserSettings::UserSettings() : m_type(UserSettingsType::Default)
     {
         Json::Value settingsRoot = Json::Value::nullSingleton();
         m_type = UserSettingsType::Default;
@@ -43,7 +68,7 @@ namespace AppInstaller::Settings
         // 2 - Use settings.backup.json if settings.json fails to parse.
         // 3 - Use default (empty) if both settings files fail to load.
 
-        auto settingsJson = ParseFile(s_SettingFileName);
+        auto settingsJson = ParseFile(s_SettingFileName, m_warnings);
         if (settingsJson.has_value())
         {
             m_type = UserSettingsType::Standard;
@@ -53,7 +78,7 @@ namespace AppInstaller::Settings
         // Settings didn't parse or doesn't exist, try with backup.
         if (settingsRoot.isNull())
         {
-            auto settingsBackupJson = ParseFile(s_SettingBackupFileName);
+            auto settingsBackupJson = ParseFile(s_SettingBackupFileName, m_warnings);
             if (settingsBackupJson.has_value())
             {
                 m_warnings.emplace_back(SettingsWarnings::LoadedBackupSettings);
@@ -63,12 +88,12 @@ namespace AppInstaller::Settings
         }
 
         // Populate the settings.
-        auto sourceStr = Utility::ToString(Source::GetPropertyName());
+        auto sourceStr = std::string(Source::GetPropertyName());
         auto source = std::make_unique<Source>(settingsRoot[sourceStr]);
         auto sourceWarnings = source->Warnings();
         std::move(sourceWarnings.begin(), sourceWarnings.end(), std::inserter(m_warnings, m_warnings.end()));
 
-        auto visualStr = Utility::ToString(Visual::GetPropertyName());
+        auto visualStr = std::string(Visual::GetPropertyName());
         auto visual = std::make_unique<Visual>(settingsRoot[visualStr]);
         auto visualWarnings = visual->Warnings();
         std::move(visualWarnings.begin(), visualWarnings.end(), std::inserter(m_warnings, m_warnings.end()));
@@ -77,56 +102,29 @@ namespace AppInstaller::Settings
         m_visual = std::move(visual);
     }
 
-    std::optional<Json::Value> UserSettings::ParseFile(const std::string_view& fileName)
+    void UserSettings::PrepareToShellExecuteFile() const
     {
-        auto stream = GetSettingStream(Type::UserFile, fileName);
-        if (stream)
+        UserSettingsType userSettingType = GetType();
+
+        if (userSettingType == UserSettingsType::Default)
         {
-            Json::Value root;
-            Json::CharReaderBuilder builder;
-            const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
-
-            std::stringstream settingsContent;
-            settingsContent << stream->rdbuf();
-            std::string settingsContentStr = settingsContent.str();
-            std::string error;
-
-            if (reader->parse(settingsContentStr.c_str(), settingsContentStr.c_str() + settingsContentStr.size(), &root, &error))
+            // Create settings file if it doesn't exist.
+            if (!std::filesystem::exists(UserSettings::SettingsFilePath()))
             {
-                return root;
+                SetSetting(Type::UserFile, s_SettingFileName, s_SettingEmpty);
             }
-
-            m_warnings.emplace_back(fileName);
-            m_warnings.emplace_back(error);
         }
-
-        return {};
+        else if (userSettingType == UserSettingsType::Standard)
+        {
+            // Settings file was loaded correctly, create backup.
+            auto from = SettingsFilePath();
+            auto to = SettingsBackupFilePath();
+            std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
+        }
     }
 
     std::filesystem::path UserSettings::SettingsFilePath()
     {
         return GetPathTo(PathName::UserFileSettings) / s_SettingFileName;
-    }
-
-    std::filesystem::path UserSettings::SettingsBackupFilePath()
-    {
-        return GetPathTo(PathName::UserFileSettings) / s_SettingBackupFileName;
-    }
-
-    void UserSettings::CreateFileIfNeeded()
-    {
-        if (!std::filesystem::exists(SettingsFilePath()))
-        {
-            SetSetting(Type::UserFile, s_SettingFileName, s_SettingEmpty);
-        }
-    }
-
-    void UserSettings::CreateBackup()
-    {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND), !std::filesystem::exists(SettingsFilePath()));
-
-        auto from = SettingsFilePath();
-        auto to = GetPathTo(PathName::UserFileSettings) / s_SettingBackupFileName;
-        std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
     }
 }

@@ -17,40 +17,45 @@ using namespace std::string_view_literals;
 
 namespace
 {
-    void DeleteUserSettingsFiles()
-    {
-        auto settingsPath = UserSettings::Instance().SettingsFilePath();
-        if (std::filesystem::exists(settingsPath))
-        {
-            std::filesystem::remove(settingsPath);
-        }
-
-        auto settingsBackupPath = UserSettings::Instance().SettingsBackupFilePath();
-        if (std::filesystem::exists(settingsBackupPath))
-        {
-            std::filesystem::remove(settingsBackupPath);
-        }
-    }
-}
-
-TEST_CASE("UserSettingsFilePaths", "[settings]")
-{
-    auto settingsPath = UserSettings::Instance().SettingsFilePath();
-    auto expectedPath = GetPathTo(PathName::UserFileSettings) / "settings.json" ;
-    REQUIRE(settingsPath == expectedPath);
-
-    auto settingsBackupPath = UserSettings::Instance().SettingsBackupFilePath();
-    auto expectedBackupPath = GetPathTo(PathName::UserFileSettings) / "settings.json.backup";
-    REQUIRE(expectedBackupPath == expectedBackupPath);
-}
-
-TEST_CASE("UserSettingsType", "[settings]")
-{
     static constexpr std::string_view goodJson = "{}";
     static constexpr std::string_view badJson = "{";
     static constexpr std::string_view settings = "settings.json"sv;
     static constexpr std::string_view settingsBackup = "settings.json.backup"sv;
 
+    std::filesystem::path GetBackupPath()
+    {
+        return GetPathTo(PathName::UserFileSettings) / settingsBackup;
+    }
+
+    void DeleteUserSettingsFiles()
+    {
+        auto settingsPath = UserSettings::SettingsFilePath();
+        if (std::filesystem::exists(settingsPath))
+        {
+            std::filesystem::remove(settingsPath);
+        }
+
+        auto settingsBackupPath = GetBackupPath();
+        if (std::filesystem::exists(settingsBackupPath))
+        {
+            std::filesystem::remove(settingsBackupPath);
+        }
+    }
+
+    struct UserSettingsTest : UserSettings
+    {
+    };
+}
+
+TEST_CASE("UserSettingsFilePaths", "[settings]")
+{
+    auto settingsPath = UserSettings::SettingsFilePath();
+    auto expectedPath = GetPathTo(PathName::UserFileSettings) / "settings.json";
+    REQUIRE(settingsPath == expectedPath);
+}
+
+TEST_CASE("UserSettingsType", "[settings]")
+{
     // These are all the possible combinations between (7 of them are impossible):
     // 1 - No settings.json file exists
     // 2 - Bad settings.json file
@@ -60,68 +65,68 @@ TEST_CASE("UserSettingsType", "[settings]")
 
     SECTION("No setting.json No setting.json.backup")
     {
-        UserSettings::Instance().Reload();
-        REQUIRE(UserSettings::Instance().GetType() == UserSettingsType::Default);
+        UserSettingsTest userSettingTest;
+        REQUIRE(userSettingTest.GetType() == UserSettingsType::Default);
     }
     SECTION("No setting.json Bad setting.json.backup")
     {
         SetSetting(Type::UserFile, settingsBackup, badJson);
 
-        UserSettings::Instance().Reload();
-        REQUIRE(UserSettings::Instance().GetType() == UserSettingsType::Default);
+        UserSettingsTest userSettingTest;
+        REQUIRE(userSettingTest.GetType() == UserSettingsType::Default);
     }
     SECTION("No setting.json Good setting.json.backup")
     {
         SetSetting(Type::UserFile, settingsBackup, goodJson);
 
-        UserSettings::Instance().Reload();
-        REQUIRE(UserSettings::Instance().GetType() == UserSettingsType::Backup);
+        UserSettingsTest userSettingTest;
+        REQUIRE(userSettingTest.GetType() == UserSettingsType::Backup);
     }
     SECTION("Bad setting.json No setting.json.backup")
     {
         SetSetting(Type::UserFile, settings, badJson);
 
-        UserSettings::Instance().Reload();
-        REQUIRE(UserSettings::Instance().GetType() == UserSettingsType::Default);
+        UserSettingsTest userSettingTest;
+        REQUIRE(userSettingTest.GetType() == UserSettingsType::Default);
     }
     SECTION("Bad setting.json Bad setting.json.backup")
     {
         SetSetting(Type::UserFile, settings, badJson);
         SetSetting(Type::UserFile, settingsBackup, badJson);
 
-        UserSettings::Instance().Reload();
-        REQUIRE(UserSettings::Instance().GetType() == UserSettingsType::Default);
+        UserSettingsTest userSettingTest;
+        REQUIRE(userSettingTest.GetType() == UserSettingsType::Default);
     }
     SECTION("Bad setting.json Good setting.json.backup")
     {
         SetSetting(Type::UserFile, settings, badJson);
         SetSetting(Type::UserFile, settingsBackup, goodJson);
-        UserSettings::Instance().Reload();
 
-        REQUIRE(UserSettings::Instance().GetType() == UserSettingsType::Backup);
+        UserSettingsTest userSettingTest;
+        REQUIRE(userSettingTest.GetType() == UserSettingsType::Backup);
     }
     SECTION("Good setting.json No setting.json.backup")
     {
         SetSetting(Type::UserFile, settings, goodJson);
-        UserSettings::Instance().Reload();
 
-        REQUIRE(UserSettings::Instance().GetType() == UserSettingsType::Standard);
+        UserSettingsTest userSettingTest;
+        REQUIRE(userSettingTest.GetType() == UserSettingsType::Standard);
     }
     SECTION("Good setting.json Bad setting.json.backup")
     {
         SetSetting(Type::UserFile, settings, goodJson);
         SetSetting(Type::UserFile, settingsBackup, badJson);
-        UserSettings::Instance().Reload();
 
-        REQUIRE(UserSettings::Instance().GetType() == UserSettingsType::Standard);
+        UserSettingsTest userSettingTest;
+        REQUIRE(userSettingTest.GetType() == UserSettingsType::Standard);
     }
     SECTION("Good setting.json Good setting.json.backup")
     {
         SetSetting(Type::UserFile, settings, goodJson);
         SetSetting(Type::UserFile, settingsBackup, goodJson);
-        UserSettings::Instance().Reload();
 
-        REQUIRE(UserSettings::Instance().GetType() == UserSettingsType::Standard);
+        UserSettingsTest userSettingTest;
+        REQUIRE(userSettingTest.GetType() == UserSettingsType::Standard);
     }
 }
 
@@ -129,18 +134,32 @@ TEST_CASE("UserSettingsCreateFiles", "[settings]")
 {
     DeleteUserSettingsFiles();
 
-    auto settingsPath = UserSettings::Instance().SettingsFilePath();
-    auto settingsBackupPath = UserSettings::Instance().SettingsBackupFilePath();
+    auto settingsPath = UserSettings::SettingsFilePath();
+    auto settingsBackupPath = GetBackupPath();
 
-    REQUIRE(!std::filesystem::exists(settingsPath));
-    REQUIRE(!std::filesystem::exists(settingsBackupPath));
+    SECTION("No settings.json create new")
+    {
+        REQUIRE(!std::filesystem::exists(settingsPath));
+        REQUIRE(!std::filesystem::exists(settingsBackupPath));
 
-    REQUIRE_THROWS_HR(UserSettings::Instance().CreateBackup(), HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND));
-    REQUIRE(!std::filesystem::exists(settingsBackupPath));
+        UserSettingsTest userSettingTest;
+        REQUIRE(userSettingTest.GetType() == UserSettingsType::Default);
+        userSettingTest.PrepareToShellExecuteFile();
 
-    UserSettings::Instance().CreateFileIfNeeded();
-    REQUIRE(std::filesystem::exists(settingsPath));
+        REQUIRE(std::filesystem::exists(settingsPath));
+        REQUIRE(!std::filesystem::exists(settingsBackupPath));
+    }
+    SECTION("Good settings.json create new backup")
+    {
+        SetSetting(Type::UserFile, settings, goodJson);
+        REQUIRE(std::filesystem::exists(settingsPath));
+        REQUIRE(!std::filesystem::exists(settingsBackupPath));
 
-    UserSettings::Instance().CreateBackup();
-    REQUIRE(std::filesystem::exists(settingsBackupPath));
+        UserSettingsTest userSettingTest;
+        REQUIRE(userSettingTest.GetType() == UserSettingsType::Standard);
+        userSettingTest.PrepareToShellExecuteFile();
+
+        REQUIRE(std::filesystem::exists(settingsPath));
+        REQUIRE(std::filesystem::exists(settingsBackupPath));
+    }
 }

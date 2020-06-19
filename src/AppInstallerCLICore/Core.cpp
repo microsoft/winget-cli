@@ -80,8 +80,7 @@ namespace AppInstaller::CLI
         std::unique_ptr<Command> command = std::make_unique<RootCommand>();
 
         // Load the settings file and warn if necessary.
-        auto warnings = Settings::UserSettings::Instance().GetWarnings();
-        for (const auto& warning : warnings)
+        for (const auto& warning : Settings::User().GetWarnings())
         {
             context.Reporter.Warn() << warning << std::endl;
         }

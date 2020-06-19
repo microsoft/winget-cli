@@ -20,7 +20,7 @@ These settings involve configuration to the WinGet source.
 
 ### autoUpdateIntervalInMinutes
 
-Positive integer that represents the interval in minutes on how often to update the WinGet source automatically. For no updates use 0.
+Positive integer that represents the interval in minutes of how often to automatically check for updates to a WinGet source. The check for updates only happens when a source is used, and if no update is available the interval will be reset.
 
 - Minimum: 0
 - Default: 5

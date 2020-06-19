@@ -281,9 +281,6 @@
   <data name="PendingWorkError" xml:space="preserve">
     <value>Oops, we forgot to do this...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>Progress display as the default color</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Preview</value>
   </data>
@@ -298,6 +295,9 @@
   </data>
   <data name="RequiredArgError" xml:space="preserve">
     <value>Required argument not provided</value>
+  </data>
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>Progress display as the default color</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
     <value>Searches for applications from configured sources.</value>

@@ -35,21 +35,12 @@ namespace AppInstaller::CLI
 
     void SettingsCommand::ExecuteInternal(Execution::Context& ) const
     {
-        UserSettingsType userSettingType = UserSettings::Instance().GetType();
+        User().PrepareToShellExecuteFile();
 
-        if (userSettingType == UserSettingsType::Default)
-        {
-            // Create settings file if it doesn't exist.
-            UserSettings::Instance().CreateFileIfNeeded();
-        }
-        else if (userSettingType == UserSettingsType::Standard)
-        {
-            // Settings file was loaded correctly, create backup.
-            UserSettings::Instance().CreateBackup();
-        }
+        std::string filePathUTF8Str = UserSettings::SettingsFilePath().u8string();
 
-        std::string filePathUTF8Str = UserSettings::Instance().SettingsFilePath().u8string();
-
+        // Some versions of windows will fail if no file extension association exists, other will pop up the dialog
+        // to make the user pick their default.
         // Kudos to the terminal team for this work around.
         HINSTANCE res = ShellExecuteA(nullptr, nullptr, filePathUTF8Str.c_str(), nullptr, nullptr, SW_SHOW);
         if (static_cast<int>(reinterpret_cast<uintptr_t>(res)) <= 32)

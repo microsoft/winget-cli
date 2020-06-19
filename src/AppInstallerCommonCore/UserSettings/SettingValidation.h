@@ -13,7 +13,7 @@ namespace AppInstaller::Settings
         const char* const Value = " Value: ";
         const char* const InvalidFieldValue = "Invalid field value.";
         const char* const InvalidFieldFormat = "Invalid field format.";
-        const char* const LoadedBackupSettings = "Loaded settings from backup file.";
+        constexpr std::string_view LoadedBackupSettings = "Loaded settings from backup file.";
     }
 
     // Jsoncpp doesn't provide line number and column for an individual Json::Value node.

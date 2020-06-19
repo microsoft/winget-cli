@@ -1,7 +1,7 @@
 // Copyright(c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Public/winget/JsonUtil.h"
+#include "JsonUtil.h"
 #include "AppInstallerStrings.h"
 
 namespace AppInstaller::Utility
@@ -11,7 +11,7 @@ namespace AppInstaller::Utility
         std::optional<std::string> value = std::nullopt;
 
         // jsoncpp doesn't support std::string_view yet.
-        auto keyStr = Utility::ToString(key);
+        auto keyStr = std::string(key);
 
         if (node.isMember(keyStr))
         {
@@ -31,7 +31,7 @@ namespace AppInstaller::Utility
         std::optional<uint32_t> value = std::nullopt;
 
         // jsoncpp doesn't support std::string_view yet.
-        auto keyStr = Utility::ToString(key);
+        auto keyStr = std::string(key);
 
         if (node.isMember(keyStr))
         {
