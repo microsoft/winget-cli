@@ -372,7 +372,7 @@
     <value>Third Party Notices</value>
   </data>
   <data name="ToolDescription" xml:space="preserve">
-    <value>WinGet command line utility enables installing applications from the command line.</value>
+    <value>The winget command line utility enables installing applications from the command line.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Display general info of the tool</value>
