@@ -106,18 +106,18 @@ namespace AppInstaller::Logging
         if (g_IsTelemetryProviderEnabled)
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
-                "ClientStartup",
+                "ClientVersion",
                 GetActivityId(),
                 nullptr,
                 TraceLoggingCountedString(version->c_str(), static_cast<ULONG>(version->size()), "Version"),
                 TraceLoggingCountedString(packageVersion->c_str(), static_cast<ULONG>(packageVersion->size()), "PackageVersion"),
-                TraceLoggingWideString(GetCommandLineW(), "CommandlineArgs"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance|PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
         AICLI_LOG(Core, Info, << "WinGet, version [" << version << "], activity [" << *GetActivityId() << ']');
         AICLI_LOG(Core, Info, << "OS: " << Runtime::GetOSVersion());
+        AICLI_LOG(Core, Info, << "Command line Args: " << GetCommandLineA());
         if (Runtime::IsRunningInPackagedContext())
         {
             AICLI_LOG(Core, Info, << "Package: " << packageVersion);
