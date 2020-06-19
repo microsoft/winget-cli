@@ -311,6 +311,9 @@
   <data name="SettingsCommandShortDescription" xml:space="preserve">
     <value>Open settings</value>
   </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>Unexpected error while loading settings. Please verify your settings by running settings command </value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Shows information on a specific application.</value>
   </data>

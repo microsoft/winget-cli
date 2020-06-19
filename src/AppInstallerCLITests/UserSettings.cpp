@@ -17,14 +17,14 @@ using namespace std::string_view_literals;
 
 namespace
 {
-    static constexpr std::string_view goodJson = "{}";
-    static constexpr std::string_view badJson = "{";
-    static constexpr std::string_view settings = "settings.json"sv;
-    static constexpr std::string_view settingsBackup = "settings.json.backup"sv;
+    static constexpr std::string_view s_goodJson = "{}";
+    static constexpr std::string_view s_badJson = "{";
+    static constexpr std::string_view s_settings = "settings.json"sv;
+    static constexpr std::string_view s_settingsBackup = "settings.json.backup"sv;
 
     std::filesystem::path GetBackupPath()
     {
-        return GetPathTo(PathName::UserFileSettings) / settingsBackup;
+        return GetPathTo(PathName::UserFileSettings) / s_settingsBackup;
     }
 
     void DeleteUserSettingsFiles()
@@ -70,60 +70,60 @@ TEST_CASE("UserSettingsType", "[settings]")
     }
     SECTION("No setting.json Bad setting.json.backup")
     {
-        SetSetting(Type::UserFile, settingsBackup, badJson);
+        SetSetting(Type::UserFile, s_settingsBackup, s_badJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Default);
     }
     SECTION("No setting.json Good setting.json.backup")
     {
-        SetSetting(Type::UserFile, settingsBackup, goodJson);
+        SetSetting(Type::UserFile, s_settingsBackup, s_goodJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Backup);
     }
     SECTION("Bad setting.json No setting.json.backup")
     {
-        SetSetting(Type::UserFile, settings, badJson);
+        SetSetting(Type::UserFile, s_settings, s_badJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Default);
     }
     SECTION("Bad setting.json Bad setting.json.backup")
     {
-        SetSetting(Type::UserFile, settings, badJson);
-        SetSetting(Type::UserFile, settingsBackup, badJson);
+        SetSetting(Type::UserFile, s_settings, s_badJson);
+        SetSetting(Type::UserFile, s_settingsBackup, s_badJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Default);
     }
     SECTION("Bad setting.json Good setting.json.backup")
     {
-        SetSetting(Type::UserFile, settings, badJson);
-        SetSetting(Type::UserFile, settingsBackup, goodJson);
+        SetSetting(Type::UserFile, s_settings, s_badJson);
+        SetSetting(Type::UserFile, s_settingsBackup, s_goodJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Backup);
     }
     SECTION("Good setting.json No setting.json.backup")
     {
-        SetSetting(Type::UserFile, settings, goodJson);
+        SetSetting(Type::UserFile, s_settings, s_goodJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Standard);
     }
     SECTION("Good setting.json Bad setting.json.backup")
     {
-        SetSetting(Type::UserFile, settings, goodJson);
-        SetSetting(Type::UserFile, settingsBackup, badJson);
+        SetSetting(Type::UserFile, s_settings, s_goodJson);
+        SetSetting(Type::UserFile, s_settingsBackup, s_badJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Standard);
     }
     SECTION("Good setting.json Good setting.json.backup")
     {
-        SetSetting(Type::UserFile, settings, goodJson);
-        SetSetting(Type::UserFile, settingsBackup, goodJson);
+        SetSetting(Type::UserFile, s_settings, s_goodJson);
+        SetSetting(Type::UserFile, s_settingsBackup, s_goodJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Standard);
@@ -151,7 +151,7 @@ TEST_CASE("UserSettingsCreateFiles", "[settings]")
     }
     SECTION("Good settings.json create new backup")
     {
-        SetSetting(Type::UserFile, settings, goodJson);
+        SetSetting(Type::UserFile, s_settings, s_goodJson);
         REQUIRE(std::filesystem::exists(settingsPath));
         REQUIRE(!std::filesystem::exists(settingsBackupPath));
 
@@ -161,5 +161,103 @@ TEST_CASE("UserSettingsCreateFiles", "[settings]")
 
         REQUIRE(std::filesystem::exists(settingsPath));
         REQUIRE(std::filesystem::exists(settingsBackupPath));
+    }
+}
+
+TEST_CASE("SettingProgressBar", "[settings]")
+{
+    DeleteUserSettingsFiles();
+
+    SECTION("Default value")
+    {
+        UserSettingsTest userSettingTest;
+        
+        REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Accent")
+    {
+        std::string_view json = R"({ "visual": { "progressBar": "accent" } })";
+        SetSetting(Type::UserFile, s_settings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Rainbow")
+    {
+        std::string_view json = R"({ "visual": { "progressBar": "rainbow" } })";
+        SetSetting(Type::UserFile, s_settings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Rainbow);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("retro")
+    {
+        std::string_view json = R"({ "visual": { "progressBar": "retro" } })";
+        SetSetting(Type::UserFile, s_settings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Retro);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Bad value")
+    {
+        std::string_view json = R"({ "visual": { "progressBar": "fake" } })";
+        SetSetting(Type::UserFile, s_settings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+    SECTION("Bad value type")
+    {
+        std::string_view json = R"({ "visual": { "progressBar": 5 } })";
+        SetSetting(Type::UserFile, s_settings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+}
+
+TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
+{
+    DeleteUserSettingsFiles();
+
+    SECTION("Default value")
+    {
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == 5);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Valid value")
+    {
+        std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": 300 } })";
+        SetSetting(Type::UserFile, s_settings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == 300);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Invalid type negative integer")
+    {
+        std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": -20 } })";
+        SetSetting(Type::UserFile, s_settings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == 5);
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+    SECTION("Invalid type string")
+    {
+        std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": "not a number" } })";
+        SetSetting(Type::UserFile, s_settings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == 5);
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
 }

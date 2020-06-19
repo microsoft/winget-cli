@@ -9,8 +9,13 @@
 
 namespace AppInstaller::Utility
 {
-    std::optional<std::string> GetValueString(const std::string_view& key, const Json::Value& node);
+    template<class T>
+    std::optional<T> GetValue(const Json::Value& node);
 
-    std::optional<uint32_t> GetValueUInt(const std::string_view& key, const Json::Value& node);
+    template<>
+    std::optional<std::string> GetValue<std::string>(const Json::Value& node);
+
+    template<>
+    std::optional<uint32_t> GetValue<uint32_t>(const Json::Value& node);
 
 }

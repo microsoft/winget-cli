@@ -92,7 +92,7 @@ namespace AppInstaller::CLI::Execution
         }
         else
         {
-            Reporter.SetStyle(User().GetVisual().GetProgressBarVisualStyle());
+            Reporter.SetStyle(User().Get<Setting::ProgressBarVisualStyle>());
         }
     }
 

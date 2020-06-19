@@ -195,14 +195,11 @@
     <ClInclude Include="Public\AppInstallerVersions.h" />
     <ClInclude Include="Public\winget\ExtensionCatalog.h" />
     <ClInclude Include="Public\winget\LocIndependent.h" />
-    <ClInclude Include="Public\winget\settings\Source.h" />
-    <ClInclude Include="Public\winget\settings\Visual.h" />
     <ClInclude Include="Public\winget\Settings.h" />
     <ClInclude Include="Public\winget\UserSettings.h" />
     <ClInclude Include="Telemetry\MicrosoftTelemetry.h" />
     <ClInclude Include="Telemetry\TraceLogging.h" />
     <ClInclude Include="Telemetry\WinEventLogLevels.h" />
-    <ClInclude Include="UserSettings\SettingValidation.h" />
     <ClInclude Include="winget\settings\Setting.h" />
   </ItemGroup>
   <ItemGroup>
@@ -229,10 +226,7 @@
     <ClCompile Include="Synchronization.cpp" />
     <ClCompile Include="Telemetry\TraceLogging.cpp" />
     <ClCompile Include="Architecture.cpp" />
-    <ClCompile Include="UserSettings\SettingsValidation.cpp" />
-    <ClCompile Include="UserSettings\Source.cpp" />
-    <ClCompile Include="UserSettings\UserSettings.cpp" />
-    <ClCompile Include="UserSettings\Visual.cpp" />
+    <ClCompile Include="UserSettings.cpp" />
     <ClCompile Include="Versions.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -25,12 +25,6 @@
     <Filter Include="Public\winget">
       <UniqueIdentifier>{41035fd6-dc74-4464-b9b1-4ffe95d6789c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="UserSettings">
-      <UniqueIdentifier>{dd43556d-10de-433a-99f4-1282590e68a0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Public\winget\settings">
-      <UniqueIdentifier>{95046c4f-633b-4cf0-995a-430c41d1ab62}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -108,20 +102,14 @@
     <ClInclude Include="Public\winget\LocIndependent.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\settings\Source.h">
-      <Filter>Public\winget\settings</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\winget\settings\Visual.h">
-      <Filter>Public\winget\settings</Filter>
-    </ClInclude>
-    <ClInclude Include="UserSettings\SettingValidation.h">
-      <Filter>UserSettings</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\Settings.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\UserSettings.h">
       <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="winget\settings\Setting.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="JsonUtil.h">
       <Filter>Header Files</Filter>
@@ -188,22 +176,13 @@
     <ClCompile Include="ExtensionCatalog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UserSettings\UserSettings.cpp">
-      <Filter>UserSettings</Filter>
-    </ClCompile>
-    <ClCompile Include="UserSettings\Visual.cpp">
-      <Filter>UserSettings</Filter>
-    </ClCompile>
-    <ClCompile Include="UserSettings\Source.cpp">
-      <Filter>UserSettings</Filter>
-    </ClCompile>
     <ClCompile Include="JsonUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UserSettings\SettingsValidation.cpp">
-      <Filter>UserSettings</Filter>
-    </ClCompile>
     <ClCompile Include="Settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UserSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

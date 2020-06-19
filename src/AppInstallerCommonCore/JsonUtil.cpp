@@ -6,41 +6,27 @@
 
 namespace AppInstaller::Utility
 {
-    std::optional<std::string> GetValueString(const std::string_view& key, const Json::Value& node)
+    template<>
+    std::optional<std::string> GetValue(const Json::Value& node)
     {
         std::optional<std::string> value = std::nullopt;
 
-        // jsoncpp doesn't support std::string_view yet.
-        auto keyStr = std::string(key);
-
-        if (node.isMember(keyStr))
+        if (node.isString())
         {
-            auto keyValue = node[keyStr];
-
-            if (keyValue.isString())
-            {
-                value = keyValue.asString();
-            }
+            value = node.asString();
         }
 
         return value;
     }
 
-    std::optional<uint32_t> GetValueUInt(const std::string_view& key, const Json::Value& node)
+    template<>
+    std::optional<uint32_t> GetValue(const Json::Value& node)
     {
         std::optional<uint32_t> value = std::nullopt;
 
-        // jsoncpp doesn't support std::string_view yet.
-        auto keyStr = std::string(key);
-
-        if (node.isMember(keyStr))
+        if (node.isUInt())
         {
-            auto keyValue = node[keyStr];
-
-            if (keyValue.isUInt())
-            {
-                value = keyValue.asUInt();
-            }
+            value = node.asUInt();
         }
 
         return value;

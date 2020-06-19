@@ -33,8 +33,14 @@ namespace AppInstaller::CLI
         return "https://aka.ms/winget-settings";
     }
 
-    void SettingsCommand::ExecuteInternal(Execution::Context& ) const
+    void SettingsCommand::ExecuteInternal(Execution::Context& context) const
     {
+        // Show warnings only when the setting command is executed.
+        for (const auto& warning : Settings::User().GetWarnings())
+        {
+            context.Reporter.Warn() << warning << std::endl;
+        }
+
         User().PrepareToShellExecuteFile();
 
         std::string filePathUTF8Str = UserSettings::SettingsFilePath().u8string();

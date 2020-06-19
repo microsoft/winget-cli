@@ -79,12 +79,6 @@ namespace AppInstaller::CLI
         // The root command is our fallback in the event of very bad or very little input
         std::unique_ptr<Command> command = std::make_unique<RootCommand>();
 
-        // Load the settings file and warn if necessary.
-        for (const auto& warning : Settings::User().GetWarnings())
-        {
-            context.Reporter.Warn() << warning << std::endl;
-        }
-
         try
         {
             std::unique_ptr<Command> subCommand = command->FindSubCommand(invocation);
@@ -117,6 +111,11 @@ namespace AppInstaller::CLI
 
         try
         {
+            if (!Settings::User().GetWarnings().empty())
+            {
+                context.Reporter.Warn() << Resource::String::SettingsWarnings << std::endl;
+            }
+
             command->Execute(context);
         }
         // Exceptions that may occur in the process of executing an arbitrary command

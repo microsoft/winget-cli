@@ -3,7 +3,7 @@
 #pragma once
 #include "VTSupport.h"
 #include <AppInstallerProgress.h>
-#include <winget/settings/Visual.h>
+#include <winget/UserSettings.h>
 
 #include <wil/resource.h>
 

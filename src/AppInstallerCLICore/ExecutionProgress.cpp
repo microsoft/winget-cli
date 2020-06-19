@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ExecutionProgress.h"
-#include <winget/settings/Visual.h>
 
 namespace AppInstaller::CLI::Execution
 {

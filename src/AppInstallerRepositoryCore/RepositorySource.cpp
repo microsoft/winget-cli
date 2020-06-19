@@ -9,6 +9,8 @@
 
 namespace AppInstaller::Repository
 {
+    using namespace Settings;
+
     using namespace std::chrono_literals;
     using namespace std::string_view_literals;
     constexpr std::string_view s_RepositorySettings_UserSources = "usersources"sv;
@@ -259,7 +261,7 @@ namespace AppInstaller::Repository
                 return true;
             }
 
-            auto autoUpdateTime = Settings::User().GetSource().GetAutoUpdateTimeInMinutes();
+            auto autoUpdateTime = User().Get<Setting::AutoUpdateTimeInMinutes>();
 
             // A value of zero means no auto update, to get update the source run `winget update` 
             if (autoUpdateTime != 0)
