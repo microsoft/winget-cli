@@ -261,10 +261,11 @@ namespace AppInstaller::Repository
                 return true;
             }
 
+            constexpr static auto s_ZeroMins = 0min;
             auto autoUpdateTime = User().Get<Setting::AutoUpdateTimeInMinutes>();
 
             // A value of zero means no auto update, to get update the source run `winget update` 
-            if (autoUpdateTime != 0)
+            if (autoUpdateTime != s_ZeroMins)
             {
                 auto autoUpdateTimeMins = std::chrono::minutes(autoUpdateTime);
                 auto timeSinceLastUpdate = std::chrono::system_clock::now() - details.LastUpdateTime;

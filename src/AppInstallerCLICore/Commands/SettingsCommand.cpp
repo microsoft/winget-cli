@@ -10,6 +10,7 @@ namespace AppInstaller::CLI
 {
     using namespace Utility::literals;
     using namespace AppInstaller::Settings;
+    using namespace AppInstaller::Utility;
 
     using namespace std::string_view_literals;
 
@@ -36,23 +37,28 @@ namespace AppInstaller::CLI
     void SettingsCommand::ExecuteInternal(Execution::Context& context) const
     {
         // Show warnings only when the setting command is executed.
-        for (const auto& warning : Settings::User().GetWarnings())
+        if (!User().GetWarnings().empty())
         {
-            context.Reporter.Warn() << warning << std::endl;
+            context.Reporter.Warn() << Resource::String::SettingLoadFailure << std::endl;
+            for (const auto& warning : User().GetWarnings())
+            {
+                context.Reporter.Warn() << warning << std::endl;
+            }
         }
 
         User().PrepareToShellExecuteFile();
 
-        std::string filePathUTF8Str = UserSettings::SettingsFilePath().u8string();
+        
+        auto filePathUTF16 = ConvertToUTF16(UserSettings::SettingsFilePath().u8string());
 
         // Some versions of windows will fail if no file extension association exists, other will pop up the dialog
         // to make the user pick their default.
         // Kudos to the terminal team for this work around.
-        HINSTANCE res = ShellExecuteA(nullptr, nullptr, filePathUTF8Str.c_str(), nullptr, nullptr, SW_SHOW);
+        HINSTANCE res = ShellExecuteW(nullptr, nullptr, filePathUTF16.c_str(), nullptr, nullptr, SW_SHOW);
         if (static_cast<int>(reinterpret_cast<uintptr_t>(res)) <= 32)
         {
             // User doesn't have file type association. Default to notepad
-            ShellExecuteA(nullptr, nullptr, "notepad", filePathUTF8Str.c_str(), nullptr, SW_SHOW);
+            ShellExecuteW(nullptr, nullptr, L"notepad", filePathUTF16.c_str(), nullptr, SW_SHOW);
         }
     }
 }

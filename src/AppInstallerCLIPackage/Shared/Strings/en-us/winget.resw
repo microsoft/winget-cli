@@ -305,6 +305,9 @@
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Find and show basic info of apps</value>
   </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>The following failures were found validating the settings:</value>
+  </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
     <value>Open settings in the default json text editor. If no editor is configured, opens settings in notepad. For available settings see https://aka.ms/winget-settings</value>
   </data>
@@ -312,7 +315,7 @@
     <value>Open settings</value>
   </data>
   <data name="SettingsWarnings" xml:space="preserve">
-    <value>Unexpected error while loading settings. Please verify your settings by running settings command </value>
+    <value>Unexpected error while loading settings. Please verify your settings by running the settings command.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Shows information on a specific application.</value>

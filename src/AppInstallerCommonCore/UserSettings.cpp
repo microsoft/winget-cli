@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include <AppInstallerRuntime.h>
+#include "AppInstallerLanguageUtilities.h"
 #include "JsonUtil.h"
 #include "winget/Settings.h"
 #include "winget/UserSettings.h"
@@ -29,7 +30,7 @@ namespace AppInstaller::Settings
         const char* const Value = " Value: ";
         const char* const InvalidFieldValue = "Invalid field value.";
         const char* const InvalidFieldFormat = "Invalid field format.";
-        constexpr std::string_view LoadedBackupSettings = "Loaded settings from backup file.";
+        constexpr std::string_view LoadedBackupSettings = "Loaded settings from backup file."sv;
     }
 
     namespace
@@ -88,30 +89,30 @@ namespace AppInstaller::Settings
             return {};
         }
 
-        template <Setting S0, Setting ...S>
+        template <Setting S>
         void Validate(
             Json::Value& root,
             std::map<Setting, details::SettingVariant>& settings,
             std::vector<std::string>& warnings)
         {
             // jsoncpp doesn't support std::string_view yet.
-            auto path = std::string(details::SettingMapping<S0>::Path);
+            auto path = std::string(details::SettingMapping<S>::Path);
 
             const Json::Path jsonPath(path);
             Json::Value result = jsonPath.resolve(root);
             if (!result.isNull())
             {
-                auto jsonValue = GetValue<details::SettingMapping<S0>::json_t>(result);
+                auto jsonValue = GetValue<details::SettingMapping<S>::json_t>(result);
 
                 if (jsonValue.has_value())
                 {
-                    auto validatedValue = details::SettingMapping<S0>::Validate(jsonValue.value());
+                    auto validatedValue = details::SettingMapping<S>::Validate(jsonValue.value());
 
                     if (validatedValue.has_value())
                     {
                         // Finally add it to the map
-                        settings[S0].emplace<details::SettingIndex(S0)>(
-                            std::forward<typename details::SettingMapping<S0>::value_t>(validatedValue.value()));
+                        settings[S].emplace<details::SettingIndex(S)>(
+                            std::forward<typename details::SettingMapping<S>::value_t>(validatedValue.value()));
                     }
                     else
                     {
@@ -123,24 +124,32 @@ namespace AppInstaller::Settings
                     warnings.emplace_back(GetSettingsMessage(SettingsWarnings::InvalidFieldFormat, path));
                 }
             }
+        }
 
-            if constexpr (sizeof...(S) != 0)
-            {
-                Validate<S...>(root, settings, warnings);
-            }
+        template <size_t... S>
+        void ValidateAll(
+            Json::Value& root,
+            std::map<Setting, details::SettingVariant>& settings,
+            std::vector<std::string>& warnings,
+            std::index_sequence<S...>)
+        {
+            // Use folding to call each setting validate function.
+            // Do not change this expression without understanding the implications to the bind order.
+            // See: https://en.cppreference.com/w/cpp/language/fold for more details.
+            (FoldHelper{}, ..., Validate<static_cast<Setting>(S)>(root, settings, warnings));
         }
     }
 
     namespace details
     {
         std::optional<SettingMapping<Setting::AutoUpdateTimeInMinutes>::value_t>
-        SettingMapping<Setting::AutoUpdateTimeInMinutes>::Validate(SettingMapping<Setting::AutoUpdateTimeInMinutes>::json_t value)
+        SettingMapping<Setting::AutoUpdateTimeInMinutes>::Validate(const SettingMapping<Setting::AutoUpdateTimeInMinutes>::json_t& value)
         {
-            return value;
+            return std::chrono::minutes(value);
         }
 
         std::optional<SettingMapping<Setting::ProgressBarVisualStyle>::value_t>
-        SettingMapping<Setting::ProgressBarVisualStyle>::Validate(SettingMapping<Setting::ProgressBarVisualStyle>::json_t value)
+        SettingMapping<Setting::ProgressBarVisualStyle>::Validate(const SettingMapping<Setting::ProgressBarVisualStyle>::json_t& value)
         {
             // progressBar property possible values
             static constexpr std::string_view s_progressBar_Accent = "accent";
@@ -194,10 +203,7 @@ namespace AppInstaller::Settings
 
         if (!settingsRoot.isNull())
         {
-            Validate<
-                Setting::AutoUpdateTimeInMinutes,
-                Setting::ProgressBarVisualStyle
-                >(settingsRoot, m_settings, m_warnings);
+            ValidateAll(settingsRoot, m_settings, m_warnings, std::make_index_sequence<static_cast<size_t>(Setting::Max)>());
         }
     }
 

@@ -10,10 +10,12 @@
 
 #include <filesystem>
 #include <string>
+#include <chrono>
 
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Runtime;
 using namespace std::string_view_literals;
+using namespace std::chrono_literals;
 
 namespace
 {
@@ -226,20 +228,33 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
 {
     DeleteUserSettingsFiles();
 
+    constexpr static auto cinq = 5min;
+    constexpr static auto cero = 0min;
+    constexpr static auto threehundred = 300min;
+
     SECTION("Default value")
     {
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == 5);
+        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cinq);
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
     SECTION("Valid value")
+    {
+        std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": 0 } })";
+        SetSetting(Type::UserFile, s_settings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cero);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Valid value 0")
     {
         std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": 300 } })";
         SetSetting(Type::UserFile, s_settings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == 300);
+        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == threehundred);
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
     SECTION("Invalid type negative integer")
@@ -248,7 +263,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
         SetSetting(Type::UserFile, s_settings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == 5);
+        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cinq);
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
     SECTION("Invalid type string")
@@ -257,7 +272,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
         SetSetting(Type::UserFile, s_settings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == 5);
+        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cinq);
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
 }

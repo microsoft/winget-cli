@@ -10,6 +10,9 @@
 
 namespace AppInstaller::Settings
 {
+    using namespace std::chrono_literals;
+    using namespace std::string_view_literals;
+
     // The type of argument.
     enum class UserSettingsType
     {
@@ -33,6 +36,10 @@ namespace AppInstaller::Settings
     // Enum of settings.
     // Must start at 0 to enable direct access to variant in UserSettings.
     // Max must be last and unused.
+    // How to add a setting
+    // 1 - Add to enum.
+    // 2 - Implement SettingMap specialization
+    // Validate will be called by ValidateAll without any more changes.
     enum class Setting : size_t
     {
         ProgressBarVisualStyle,
@@ -60,21 +67,21 @@ namespace AppInstaller::Settings
             using value_t = VisualStyle;
 
             static constexpr value_t DefaultValue = VisualStyle::Accent;
-            static constexpr std::string_view Path = ".visual.progressBar";
+            static constexpr std::string_view Path = ".visual.progressBar"sv;
 
-            static std::optional<value_t> Validate(json_t value);
+            static std::optional<value_t> Validate(const json_t& value);
         };
 
         template <>
         struct SettingMapping<Setting::AutoUpdateTimeInMinutes>
         {
             using json_t = uint32_t;
-            using value_t = uint32_t;
+            using value_t = std::chrono::minutes;
 
-            static constexpr value_t DefaultValue = 5;
-            static constexpr std::string_view Path = ".source.autoUpdateIntervalInMinutes";
+            static constexpr std::chrono::minutes DefaultValue = 5min;
+            static constexpr std::string_view Path = ".source.autoUpdateIntervalInMinutes"sv;
 
-            static std::optional<value_t> Validate(json_t value);
+            static std::optional<value_t> Validate(const json_t& value);
         };
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
