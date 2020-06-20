@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+ï»¿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
@@ -12,8 +12,8 @@ TEST_CASE("UTF8Length", "[strings]")
     REQUIRE(UTF8Length("") == 0);
     REQUIRE(UTF8Length("a") == 1);
     REQUIRE(UTF8Length(" a b c ") == 7);
-    REQUIRE(UTF8Length("K\xC3\xA4se") == 4); // "Käse"
-    REQUIRE(UTF8Length("bye\xE2\x80\xA6") == 4); // "bye…"
+    REQUIRE(UTF8Length("K\xC3\xA4se") == 4); // "KÃ¤se"
+    REQUIRE(UTF8Length("bye\xE2\x80\xA6") == 4); // "byeâ€¦"
     REQUIRE(UTF8Length("\xf0\x9f\xa6\x86") == 1); // [duck emoji]
     REQUIRE(UTF8Length("\xf0\x9d\x85\xa0\xf0\x9d\x85\xa0") == 2); // [8th note][8th note]
 }
