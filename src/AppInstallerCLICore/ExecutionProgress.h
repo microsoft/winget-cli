@@ -3,6 +3,7 @@
 #pragma once
 #include "VTSupport.h"
 #include <AppInstallerProgress.h>
+#include <winget/UserSettings.h>
 
 #include <wil/resource.h>
 
@@ -13,18 +14,8 @@
 #include <string>
 #include <vector>
 
-
 namespace AppInstaller::CLI::Execution
 {
-    // The visual style of the progress bar.
-    enum class VisualStyle
-    {
-        NoVT,
-        Plain,
-        Accent,
-        Rainbow,
-    };
-
     namespace details
     {
         // Shared functionality for progress visualizers.
@@ -33,13 +24,13 @@ namespace AppInstaller::CLI::Execution
             ProgressVisualizerBase(std::ostream& stream, bool enableVT) :
                 m_out(stream), m_enableVT(enableVT) {}
 
-            void SetStyle(VisualStyle style) { m_style = style; }
+            void SetStyle(AppInstaller::Settings::VisualStyle style) { m_style = style; }
 
         protected:
             std::ostream& m_out;
-            VisualStyle m_style = VisualStyle::Accent;
+            Settings::VisualStyle m_style = AppInstaller::Settings::VisualStyle::Accent;
 
-            bool UseVT() const { return m_enableVT && m_style != VisualStyle::NoVT; }
+            bool UseVT() const { return m_enableVT && m_style != AppInstaller::Settings::VisualStyle::NoVT; }
 
             // Applies the selected visual style.
             void ApplyStyle(size_t i, size_t max, bool enabled);
@@ -80,7 +71,7 @@ namespace AppInstaller::CLI::Execution
 
         void EndProgress(bool hideProgressWhenDone);
 
-        void SetStyle(VisualStyle style) { m_style = style; }
+        void SetStyle(AppInstaller::Settings::VisualStyle style) { m_style = style; }
 
     private:
         std::atomic<bool> m_isVisible = false;

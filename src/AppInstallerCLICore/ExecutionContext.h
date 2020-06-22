@@ -37,7 +37,7 @@ namespace AppInstaller::CLI::Workflow
 
 namespace AppInstaller::CLI::Execution
 {
-    // Names a peice of data stored in the context by a workflow step.
+    // Names a piece of data stored in the context by a workflow step.
     // Must start at 0 to enable direct access to variant in Context.
     // Max must be last and unused.
     enum class Data : size_t

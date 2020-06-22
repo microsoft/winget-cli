@@ -2,12 +2,15 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerRepositorySource.h"
+#include <winget/UserSettings.h>
 
 #include "SourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 
 namespace AppInstaller::Repository
 {
+    using namespace Settings;
+
     using namespace std::chrono_literals;
     using namespace std::string_view_literals;
 
@@ -410,16 +413,21 @@ namespace AppInstaller::Repository
         // Determines whether (and logs why) a source should be updated before it is opened.
         bool ShouldUpdateBeforeOpen(const SourceDetails& details)
         {
-            // TODO: Enable some amount of user control over this.
-            constexpr static auto s_DefaultAutoUpdateTime = 5min;
+            constexpr static auto s_ZeroMins = 0min;
+            auto autoUpdateTime = User().Get<Setting::AutoUpdateTimeInMinutes>();
 
-            auto timeSinceLastUpdate = std::chrono::system_clock::now() - details.LastUpdateTime;
-            if (timeSinceLastUpdate > s_DefaultAutoUpdateTime)
+            // A value of zero means no auto update, to get update the source run `winget update` 
+            if (autoUpdateTime != s_ZeroMins)
             {
-                AICLI_LOG(Repo, Info, << "Source past auto update time [" << 
-                    std::chrono::duration_cast<std::chrono::minutes>(s_DefaultAutoUpdateTime).count() << " mins]; it has been at least " << 
-                    std::chrono::duration_cast<std::chrono::minutes>(timeSinceLastUpdate).count() << " mins");
-                return true;
+                auto autoUpdateTimeMins = std::chrono::minutes(autoUpdateTime);
+                auto timeSinceLastUpdate = std::chrono::system_clock::now() - details.LastUpdateTime;
+                if (timeSinceLastUpdate > autoUpdateTimeMins)
+                {
+                    AICLI_LOG(Repo, Info, << "Source past auto update time [" <<
+                        std::chrono::duration_cast<std::chrono::minutes>(autoUpdateTimeMins).count() << " mins]; it has been at least " <<
+                        std::chrono::duration_cast<std::chrono::minutes>(timeSinceLastUpdate).count() << " mins");
+                    return true;
+                }
             }
 
             return false;

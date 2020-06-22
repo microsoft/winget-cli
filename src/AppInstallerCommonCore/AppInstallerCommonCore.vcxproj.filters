@@ -105,6 +105,15 @@
     <ClInclude Include="Public\winget\Settings.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\UserSettings.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="winget\settings\Setting.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -167,7 +176,13 @@
     <ClCompile Include="ExtensionCatalog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="JsonUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UserSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
