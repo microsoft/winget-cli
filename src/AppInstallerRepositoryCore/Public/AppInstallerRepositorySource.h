@@ -39,7 +39,7 @@ namespace AppInstaller::Repository
         std::string Data;
 
         // The last time that this source was updated.
-        std::chrono::system_clock::time_point LastUpdateTime;
+        std::chrono::system_clock::time_point LastUpdateTime = {};
 
         // The origin of the source.
         SourceOrigin Origin = SourceOrigin::Default;
