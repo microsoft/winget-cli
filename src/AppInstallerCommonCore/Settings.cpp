@@ -41,6 +41,9 @@ namespace AppInstaller::Settings
 
             // Deletes the given setting.
             virtual void Remove(const std::filesystem::path& name) = 0;
+
+            // Gets the path to the named setting, if reasonable.
+            virtual std::filesystem::path PathTo(const std::filesystem::path& name) = 0;
         };
 
         // A settings container backed by the ApplicationDataContainer functionality.
@@ -92,6 +95,11 @@ namespace AppInstaller::Settings
                 parent.Values().Remove(winrt::to_hstring(name.filename().c_str()));
             }
 
+            std::filesystem::path PathTo(const std::filesystem::path&) override
+            {
+                THROW_HR(E_UNEXPECTED);
+            }
+
         private:
             Container m_root;
         };
@@ -101,20 +109,9 @@ namespace AppInstaller::Settings
         {
             FileSettingsContainer(std::filesystem::path root) : m_root(std::move(root)) {}
 
-            std::filesystem::path GetRelativePath(const std::filesystem::path& name)
-            {
-                std::filesystem::path result = m_root;
-                if (name.has_parent_path())
-                {
-                    result /= name.parent_path();
-                }
-                return result;
-            }
-
             std::unique_ptr<std::istream> Get(const std::filesystem::path& name) override
             {
-                std::filesystem::path settingFileName = GetRelativePath(name);
-                settingFileName /= name.filename();
+                std::filesystem::path settingFileName = GetPath(name);
 
                 if (std::filesystem::exists(settingFileName))
                 {
@@ -130,9 +127,7 @@ namespace AppInstaller::Settings
 
             void Set(const std::filesystem::path& name, std::string_view value) override
             {
-                std::filesystem::path settingFileName = GetRelativePath(name);
-                std::filesystem::create_directories(settingFileName);
-                settingFileName /= name.filename();
+                std::filesystem::path settingFileName = GetPath(name, true);
 
                 std::ofstream stream(settingFileName, std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
                 THROW_LAST_ERROR_IF(stream.fail());
@@ -142,13 +137,32 @@ namespace AppInstaller::Settings
 
             void Remove(const std::filesystem::path& name) override
             {
-                std::filesystem::path settingFileName = GetRelativePath(name);
-                settingFileName /= name.filename();
+                std::filesystem::path settingFileName = GetPath(name);
 
                 std::filesystem::remove(settingFileName);
             }
 
+            std::filesystem::path PathTo(const std::filesystem::path& name) override
+            {
+                return GetPath(name);
+            }
+
         private:
+            std::filesystem::path GetPath(const std::filesystem::path& name, bool createParent = false)
+            {
+                std::filesystem::path result = m_root;
+                if (name.has_parent_path())
+                {
+                    result /= name.parent_path();
+                    if (createParent)
+                    {
+                        std::filesystem::create_directories(result);
+                    }
+                }
+                result /= name.filename();
+                return result;
+            }
+
             std::filesystem::path m_root;
         };
 
@@ -261,6 +275,11 @@ namespace AppInstaller::Settings
                 m_container->Remove(name);
             }
 
+            std::filesystem::path PathTo(const std::filesystem::path&) override
+            {
+                THROW_HR(E_UNEXPECTED);
+            }
+
         private:
             std::unique_ptr<ISettingsContainer> m_container;
             FileSettingsContainer m_secure;
@@ -336,5 +355,10 @@ namespace AppInstaller::Settings
         LogSettingAction("Remove", def);
         ValidateSettingNamePath(def.Path);
         GetSettingsContainer(def.Type)->Remove(def.Path);
+    }
+
+    std::filesystem::path GetPathTo(const StreamDefinition& def)
+    {
+        return GetSettingsContainer(def.Type)->PathTo(def.Path);
     }
 }

@@ -43,6 +43,10 @@ namespace AppInstaller::Settings
         constexpr static StreamDefinition UserSources{ Type::Secure, "user_sources"sv };
         // The metadata about all sources.
         constexpr static StreamDefinition SourcesMetadata{ Type::Standard, "sources_metadata"sv };
+        // The primary user settings file.
+        constexpr static StreamDefinition PrimaryUserSettings{ Type::UserFile, "settings.json"sv };
+        // The backup user settings file.
+        constexpr static StreamDefinition BackupUserSettings{ Type::UserFile, "settings.json.backup"sv };
     };
 
     // Gets a stream containing the named setting's value, if present.
@@ -54,4 +58,7 @@ namespace AppInstaller::Settings
 
     // Deletes the given setting.
     void RemoveSetting(const StreamDefinition& def);
+
+    // Gets the path to the given stream definition.
+    std::filesystem::path GetPathTo(const StreamDefinition& def);
 }
