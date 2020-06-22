@@ -134,8 +134,6 @@ namespace AppInstaller::Settings
             std::index_sequence<S...>)
         {
             // Use folding to call each setting validate function.
-            // Do not change this expression without understanding the implications to the bind order.
-            // See: https://en.cppreference.com/w/cpp/language/fold for more details.
             (FoldHelper{}, ..., Validate<static_cast<Setting>(S)>(root, settings, warnings));
         }
     }

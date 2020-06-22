@@ -10,7 +10,6 @@ namespace AppInstaller::CLI
 {
     using namespace Utility::literals;
     using namespace AppInstaller::Settings;
-    using namespace AppInstaller::Utility;
 
     using namespace std::string_view_literals;
 
@@ -48,8 +47,7 @@ namespace AppInstaller::CLI
 
         User().PrepareToShellExecuteFile();
 
-        
-        auto filePathUTF16 = ConvertToUTF16(UserSettings::SettingsFilePath().u8string());
+        auto filePathUTF16 = UserSettings::SettingsFilePath().wstring();
 
         // Some versions of windows will fail if no file extension association exists, other will pop up the dialog
         // to make the user pick their default.
