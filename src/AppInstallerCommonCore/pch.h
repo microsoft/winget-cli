@@ -18,6 +18,7 @@
 #include <wil/result_macros.h>
 #include <wil/safecast.h>
 #include <wil/resource.h>
+#include <wil/token_helpers.h>
 
 #include <winrt/Windows.ApplicationModel.h>
 #include <winrt/Windows.ApplicationModel.AppExtensions.h>

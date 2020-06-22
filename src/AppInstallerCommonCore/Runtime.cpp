@@ -327,6 +327,11 @@ namespace AppInstaller::Runtime
         return !!result;
     }
 
+    bool IsRunningAsAdmin()
+    {
+        return wil::test_token_membership(nullptr, SECURITY_NT_AUTHORITY, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
+    }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
     void TestHook_SetPathOverride(PathName target, const std::filesystem::path& path)
     {
