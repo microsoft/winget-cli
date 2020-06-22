@@ -219,7 +219,7 @@ namespace AppInstaller::Settings
         }
         else
         {
-            AICLI_LOG(Core, Info, << "Setting file not found. Using default values.");
+            AICLI_LOG(Core, Info, << "Valid settings file not found. Using default values.");
         }
     }
 
