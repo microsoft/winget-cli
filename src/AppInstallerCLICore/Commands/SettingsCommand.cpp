@@ -56,6 +56,7 @@ namespace AppInstaller::CLI
         if (static_cast<int>(reinterpret_cast<uintptr_t>(res)) <= 32)
         {
             // User doesn't have file type association. Default to notepad
+            AICLI_LOG(CLI, Info, << "Json file type association not found, using notepad.exe");
             ShellExecuteW(nullptr, nullptr, L"notepad", filePathUTF16.c_str(), nullptr, SW_SHOW);
         }
     }
