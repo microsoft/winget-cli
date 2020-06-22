@@ -43,6 +43,18 @@ Internally, a single flag enum will be used to reference experimental features. 
 
 A feature is released by removing the feature enum value in code, and all related references. The value in settings will become ignored, and we can keep a list in a comment to prevent future reuse of settings names.
 
+## Settings File
+
+To enable experimental features a user will need to modify the settings file. The settings file can be opened via the settings command.
+
+```
+  "experimentalFeatures": {
+      "example1": true,
+      "example2": false,
+      "example3": true
+  }
+```
+
 ## UI/UX Design
 
 Experimental features can impact the winget user interface in 2 ways; new commands and options. Both will be added to the parse tree, but hidden from help view if disabled. When enabled, they will be labeled as experimental to reiterate this to the user. If a user attempts to use an experimental command or option that is not enabled, a special error will be presented to indicate that this feature is experimental and must be enabled via settings.
