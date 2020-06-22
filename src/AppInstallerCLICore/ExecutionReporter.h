@@ -124,7 +124,7 @@ namespace AppInstaller::CLI::Execution
         void EmptyLine() { m_out << std::endl; }
 
         // Sets the visual style (mostly for progress currently)
-        void SetStyle(VisualStyle style);
+        void SetStyle(AppInstaller::Settings::VisualStyle style);
 
         // Prompts the user, return true if they consented.
         bool PromptForBoolResponse(const std::string& msg, Level level = Level::Info);

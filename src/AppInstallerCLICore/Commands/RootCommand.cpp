@@ -9,6 +9,7 @@
 #include "SearchCommand.h"
 #include "HashCommand.h"
 #include "ValidateCommand.h"
+#include "SettingsCommand.h"
 
 #include "Resources.h"
 #include "TableOutput.h"
@@ -26,6 +27,7 @@ namespace AppInstaller::CLI
             std::make_unique<SearchCommand>(FullName()),
             std::make_unique<HashCommand>(FullName()),
             std::make_unique<ValidateCommand>(FullName()),
+            std::make_unique<SettingsCommand>(FullName()),
         });
     }
 

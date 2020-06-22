@@ -4,6 +4,7 @@
 #include "Public/AppInstallerCLICore.h"
 #include "Commands/RootCommand.h"
 #include "ExecutionContext.h"
+#include <winget/UserSettings.h>
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -110,6 +111,11 @@ namespace AppInstaller::CLI
 
         try
         {
+            if (!Settings::User().GetWarnings().empty())
+            {
+                context.Reporter.Warn() << Resource::String::SettingsWarnings << std::endl;
+            }
+
             command->Execute(context);
         }
         // Exceptions that may occur in the process of executing an arbitrary command
