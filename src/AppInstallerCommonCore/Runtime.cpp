@@ -18,6 +18,8 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_AppDataDir_Settings = "Settings"sv;
         constexpr std::string_view s_AppDataDir_State = "State"sv;
         constexpr std::string_view s_SecureSettings_Relative = "Microsoft/WinGet/settings"sv;
+        constexpr std::string_view s_SecureSettings_Relative_Packaged = "pkg"sv;
+        constexpr std::string_view s_SecureSettings_Relative_Unpackaged = "win"sv;
 
         // Gets a boolean indicating whether the current process has identity.
         bool DoesCurrentProcessHaveIdentity()
@@ -223,6 +225,8 @@ namespace AppInstaller::Runtime
             case PathName::SecureSettings:
                 result = GetKnownFolderPath(FOLDERID_ProgramData);
                 result /= s_SecureSettings_Relative;
+                result /= s_SecureSettings_Relative_Packaged;
+                result /= GetPackageName();
                 create = false;
                 break;
             default:
@@ -253,6 +257,7 @@ namespace AppInstaller::Runtime
             case PathName::SecureSettings:
                 result = GetKnownFolderPath(FOLDERID_ProgramData);
                 result /= s_SecureSettings_Relative;
+                result /= s_SecureSettings_Relative_Unpackaged;
                 create = false;
                 break;
             default:
