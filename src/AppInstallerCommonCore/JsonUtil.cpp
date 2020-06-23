@@ -32,5 +32,18 @@ namespace AppInstaller::Utility
         return value;
     }
 
+    template<>
+    std::optional<bool> GetValue(const Json::Value& node)
+    {
+        std::optional<bool> value = std::nullopt;
+
+        if (node.isBool())
+        {
+            value = node.asBool();
+        }
+
+        return value;
+    }
+
 }
 
