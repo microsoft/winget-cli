@@ -3,6 +3,7 @@
 #include "pch.h"
 #include <AppInstallerRuntime.h>
 #include "AppInstallerLanguageUtilities.h"
+#include "AppInstallerLogging.h"
 #include "JsonUtil.h"
 #include "winget/Settings.h"
 #include "winget/UserSettings.h"
@@ -21,10 +22,11 @@ namespace AppInstaller::Settings
     // }
 })"sv;
 
-    namespace SettingsWarnings
+    namespace SettingsMessage
     {
         const char* const Field = " Field: ";
         const char* const Value = " Value: ";
+        const char* const ValidMessage = "Valid setting";
         const char* const InvalidFieldValue = "Invalid field value.";
         const char* const InvalidFieldFormat = "Invalid field format.";
         constexpr std::string_view LoadedBackupSettings = "Loaded settings from backup file."sv;
@@ -35,7 +37,7 @@ namespace AppInstaller::Settings
         // Jsoncpp doesn't provide line number and column for an individual Json::Value node.
         inline std::string GetSettingsMessage(const std::string& message, const std::string& path)
         {
-            return message + SettingsWarnings::Field + path;
+            return message + SettingsMessage::Field + path;
         }
 
         template<class T>
@@ -53,7 +55,7 @@ namespace AppInstaller::Settings
                 convertedValue = value;
             }
 
-            return GetSettingsMessage(message, path) + SettingsWarnings::Value + convertedValue;
+            return GetSettingsMessage(message, path) + SettingsMessage::Value + convertedValue;
         }
 
         std::optional<Json::Value> ParseFile(const StreamDefinition& setting, std::vector<std::string>& warnings)
@@ -73,6 +75,7 @@ namespace AppInstaller::Settings
                     return root;
                 }
 
+                AICLI_LOG(Core, Error, << "Error parsing " << setting.Path << ": " << error);
                 warnings.emplace_back(setting.Path);
                 warnings.emplace_back(error);
             }
@@ -104,16 +107,25 @@ namespace AppInstaller::Settings
                         // Finally add it to the map
                         settings[S].emplace<details::SettingIndex(S)>(
                             std::forward<typename details::SettingMapping<S>::value_t>(validatedValue.value()));
+                        AICLI_LOG(Core, Info, << GetSettingsMessage(SettingsMessage::ValidMessage, path, jsonValue.value()));
                     }
                     else
                     {
-                        warnings.push_back(GetSettingsMessage(SettingsWarnings::InvalidFieldValue, path, jsonValue.value()));
+                        auto invalidFieldMsg = GetSettingsMessage(SettingsMessage::InvalidFieldValue, path, jsonValue.value());
+                        AICLI_LOG(Core, Error, << invalidFieldMsg << " Using default");
+                        warnings.emplace_back(invalidFieldMsg);
                     }
                 }
                 else
                 {
-                    warnings.emplace_back(GetSettingsMessage(SettingsWarnings::InvalidFieldFormat, path));
+                    auto invalidFormatMsg = GetSettingsMessage(SettingsMessage::InvalidFieldFormat, path);
+                    AICLI_LOG(Core, Error, << invalidFormatMsg << " Using default");
+                    warnings.emplace_back(invalidFormatMsg);
                 }
+            }
+            else
+            {
+                AICLI_LOG(Core, Info, << "Setting " << path <<" not found. Using default");
             }
         }
 
@@ -174,6 +186,7 @@ namespace AppInstaller::Settings
         auto settingsJson = ParseFile(Streams::PrimaryUserSettings, m_warnings);
         if (settingsJson.has_value())
         {
+            AICLI_LOG(Core, Info, << "Settings loaded from " << Streams::PrimaryUserSettings.Path);
             m_type = UserSettingsType::Standard;
             settingsRoot = settingsJson.value();
         }
@@ -184,7 +197,8 @@ namespace AppInstaller::Settings
             auto settingsBackupJson = ParseFile(Streams::BackupUserSettings, m_warnings);
             if (settingsBackupJson.has_value())
             {
-                m_warnings.emplace_back(SettingsWarnings::LoadedBackupSettings);
+                AICLI_LOG(Core, Info, << "Settings loaded from " << Streams::BackupUserSettings.Path);
+                m_warnings.emplace_back(SettingsMessage::LoadedBackupSettings);
                 m_type = UserSettingsType::Backup;
                 settingsRoot = settingsBackupJson.value();
             }
@@ -193,6 +207,10 @@ namespace AppInstaller::Settings
         if (!settingsRoot.isNull())
         {
             ValidateAll(settingsRoot, m_settings, m_warnings, std::make_index_sequence<static_cast<size_t>(Setting::Max)>());
+        }
+        else
+        {
+            AICLI_LOG(Core, Info, << "Valid settings file not found. Using default values.");
         }
     }
 
@@ -206,6 +224,7 @@ namespace AppInstaller::Settings
             if (!std::filesystem::exists(UserSettings::SettingsFilePath()))
             {
                 SetSetting(Streams::PrimaryUserSettings, s_SettingEmpty);
+                AICLI_LOG(Core, Info, << "Created new settings file");
             }
         }
         else if (userSettingType == UserSettingsType::Standard)
@@ -214,6 +233,7 @@ namespace AppInstaller::Settings
             auto from = SettingsFilePath();
             auto to = GetPathTo(Streams::BackupUserSettings);
             std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
+            AICLI_LOG(Core, Info, << "Copied settings to backup file");
         }
     }
 
