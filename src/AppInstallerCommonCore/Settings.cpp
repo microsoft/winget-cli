@@ -151,14 +151,17 @@ namespace AppInstaller::Settings
             std::filesystem::path GetPath(const std::filesystem::path& name, bool createParent = false)
             {
                 std::filesystem::path result = m_root;
+
                 if (name.has_parent_path())
                 {
                     result /= name.parent_path();
-                    if (createParent)
-                    {
-                        std::filesystem::create_directories(result);
-                    }
                 }
+
+                if (createParent)
+                {
+                    std::filesystem::create_directories(result);
+                }
+
                 result /= name.filename();
                 return result;
             }

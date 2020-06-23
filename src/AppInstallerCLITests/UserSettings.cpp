@@ -24,11 +24,6 @@ namespace
     static constexpr std::string_view s_settings = "settings.json"sv;
     static constexpr std::string_view s_settingsBackup = "settings.json.backup"sv;
 
-    std::filesystem::path GetBackupPath()
-    {
-        return GetPathTo(PathName::UserFileSettings) / s_settingsBackup;
-    }
-
     void DeleteUserSettingsFiles()
     {
         auto settingsPath = UserSettings::SettingsFilePath();
@@ -37,7 +32,7 @@ namespace
             std::filesystem::remove(settingsPath);
         }
 
-        auto settingsBackupPath = GetBackupPath();
+        auto settingsBackupPath = GetPathTo(Streams::BackupUserSettings);
         if (std::filesystem::exists(settingsBackupPath))
         {
             std::filesystem::remove(settingsBackupPath);
@@ -137,7 +132,7 @@ TEST_CASE("UserSettingsCreateFiles", "[settings]")
     DeleteUserSettingsFiles();
 
     auto settingsPath = UserSettings::SettingsFilePath();
-    auto settingsBackupPath = GetBackupPath();
+    auto settingsBackupPath = GetPathTo(Streams::BackupUserSettings);
 
     SECTION("No settings.json create new")
     {
