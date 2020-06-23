@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionReporter.h"
@@ -192,7 +192,7 @@ namespace AppInstaller::CLI::Execution
                     if (valueLength > col.MaxLength)
                     {
                         out << Utility::UTF8Substring(line[i], 0, col.MaxLength - 1);
-                        out << "\xE2\x80\xA6"; // UTF8 encoding of ellipsis (�) character
+                        out << "\xE2\x80\xA6"; // UTF8 encoding of ellipsis (…) character
 
                         if (col.SpaceAfter)
                         {
