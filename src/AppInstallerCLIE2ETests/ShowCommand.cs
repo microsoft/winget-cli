@@ -30,32 +30,32 @@ namespace AppInstallerCLIE2ETests
         public void ShowCommands()
         {
             // Show with no arg lists every app and a warning message
-            var result = TestCommon.RunAICLICommand("show", "");
+            var result = TestCommon.RunAICLICommand("show", $"-s {ShowTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("Multiple apps found matching input criteria. Please refine the input."));
             Assert.True(result.StdOut.Contains("Microsoft.PowerToys"));
             Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
 
             // Show with multiple search matches shows a "please refine input"
-            result = TestCommon.RunAICLICommand("show", "Microsoft");
+            result = TestCommon.RunAICLICommand("show", $"Microsoft -s {ShowTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("Multiple apps found matching input criteria. Please refine the input."));
             Assert.True(result.StdOut.Contains("Microsoft.PowerToys"));
             Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
 
             // Show with 0 search match shows a "please refine input"
-            result = TestCommon.RunAICLICommand("show", "DoesNotExist");
+            result = TestCommon.RunAICLICommand("show", $"DoesNotExist -s {ShowTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("No app found matching input criteria."));
 
             // Show with 1 search match shows detailed manifest info
-            result = TestCommon.RunAICLICommand("show", "VisualStudioCode");
+            result = TestCommon.RunAICLICommand("show", $"VisualStudioCode -s {ShowTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
             Assert.True(result.StdOut.Contains("Visual Studio Code"));
 
             // Show with --versions list the versions
-            result = TestCommon.RunAICLICommand("show", "VisualStudioCode --versions");
+            result = TestCommon.RunAICLICommand("show", $"VisualStudioCode --versions -s {ShowTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
             Assert.True(result.StdOut.Contains("1.41.1"));
