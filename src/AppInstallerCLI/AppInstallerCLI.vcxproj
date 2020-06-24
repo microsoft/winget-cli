@@ -66,8 +66,7 @@
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
+  <ImportGroup Label="ExtensionSettings"></ImportGroup>
   <ImportGroup Label="Shared">
     <Import Project="..\binver\binver.vcxitems" Label="Shared" />
   </ImportGroup>
@@ -226,4 +225,26 @@
     <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.191111.2\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.191111.2\build\native\Microsoft.Windows.CppWinRT.props'))" />
     <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.191111.2\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.191111.2\build\native\Microsoft.Windows.CppWinRT.targets'))" />
   </Target>
+
+  <!-- **BEGIN VC LIBS HACK** -->
+  <!-- Override GetPackagingOutputs to roll up all our dependencies.  -->
+  <Target Name="GetPackagingOutputs" Returns="@(PackagingOutputs)">
+
+    <PropertyGroup>
+      <ReasonablePlatform Condition="'$(Platform)'=='Win32'">x86</ReasonablePlatform>
+      <ReasonablePlatform Condition="'$(ReasonablePlatform)'==''">$(Platform)</ReasonablePlatform>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <!-- Add all the CRT libs as content; these must be inside a Target as they are wildcards. -->
+      <_OpenConsoleVCLibToCopy Include="$(VCToolsRedistInstallDir)\$(ReasonablePlatform)\Microsoft.VC142.CRT\*.dll" />
+
+      <PackagingOutputs Include="@(_OpenConsoleVCLibToCopy)">
+        <ProjectName>$(ProjectName)</ProjectName>
+        <OutputGroup>BuiltProjectOutputGroup</OutputGroup>
+        <TargetPath>%(Filename)%(Extension)</TargetPath>
+      </PackagingOutputs>
+    </ItemGroup>
+  </Target>
+  <!-- **END VC LIBS HACK** -->
 </Project>

@@ -147,4 +147,26 @@
       copy "$(TargetDir)\resources.pri" "$(TargetDir)\AppInstallerCLI\resources.pri"
     </PostBuildEvent>
   </PropertyGroup>
+  <!-- **BEGIN VC LIBS HACK** -->
+  <!--
+    For our release builds, we're just going to integrate the UWPDesktop CRT into our package and delete the package dependencies.
+    It's very difficult for users who do not have access to the store to get our dependency packages, and we want to be robust
+    and deployable everywhere. Since these libraries can be redistributed, it's easiest if we simply redistribute them.
+    See also the "VC LIBS HACK" section in AppInstallerCLI.vcxproj.
+  -->
+  <!-- This target removes the FrameworkSdkReferences from before the AppX package targets manifest generation happens.
+       This is part of the generic machinery that applies to every AppX. -->
+  <Target Name="_OpenConsoleStripAllDependenciesFromPackageFirstManifest" BeforeTargets="_GenerateCurrentProjectAppxManifest">
+    <ItemGroup>
+      <FrameworkSdkReference Remove="@(FrameworkSdkReference)" />
+    </ItemGroup>
+  </Target>
+
+  <!-- This target removes the FrameworkSdkPackages from before the *desktop bridge* manifest generation happens. -->
+  <Target Name="_OpenConsoleStripAllDependenciesFromPackageSecondManifest" BeforeTargets="_GenerateDesktopBridgeAppxManifest" DependsOnTargets="_ResolveVCLibDependencies">
+    <ItemGroup>
+      <FrameworkSdkPackage Remove="@(FrameworkSdkPackage)" />
+    </ItemGroup>
+  </Target>
+  <!-- **END VC LIBS HACK** -->
 </Project>
