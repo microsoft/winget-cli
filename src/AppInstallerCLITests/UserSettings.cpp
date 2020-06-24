@@ -24,11 +24,6 @@ namespace
     static constexpr std::string_view s_settings = "settings.json"sv;
     static constexpr std::string_view s_settingsBackup = "settings.json.backup"sv;
 
-    std::filesystem::path GetBackupPath()
-    {
-        return GetPathTo(PathName::UserFileSettings) / s_settingsBackup;
-    }
-
     void DeleteUserSettingsFiles()
     {
         auto settingsPath = UserSettings::SettingsFilePath();
@@ -37,7 +32,7 @@ namespace
             std::filesystem::remove(settingsPath);
         }
 
-        auto settingsBackupPath = GetBackupPath();
+        auto settingsBackupPath = GetPathTo(Streams::BackupUserSettings);
         if (std::filesystem::exists(settingsBackupPath))
         {
             std::filesystem::remove(settingsBackupPath);
@@ -72,60 +67,60 @@ TEST_CASE("UserSettingsType", "[settings]")
     }
     SECTION("No setting.json Bad setting.json.backup")
     {
-        SetSetting(Type::UserFile, s_settingsBackup, s_badJson);
+        SetSetting(Streams::BackupUserSettings, s_badJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Default);
     }
     SECTION("No setting.json Good setting.json.backup")
     {
-        SetSetting(Type::UserFile, s_settingsBackup, s_goodJson);
+        SetSetting(Streams::BackupUserSettings, s_goodJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Backup);
     }
     SECTION("Bad setting.json No setting.json.backup")
     {
-        SetSetting(Type::UserFile, s_settings, s_badJson);
+        SetSetting(Streams::PrimaryUserSettings, s_badJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Default);
     }
     SECTION("Bad setting.json Bad setting.json.backup")
     {
-        SetSetting(Type::UserFile, s_settings, s_badJson);
-        SetSetting(Type::UserFile, s_settingsBackup, s_badJson);
+        SetSetting(Streams::PrimaryUserSettings, s_badJson);
+        SetSetting(Streams::BackupUserSettings, s_badJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Default);
     }
     SECTION("Bad setting.json Good setting.json.backup")
     {
-        SetSetting(Type::UserFile, s_settings, s_badJson);
-        SetSetting(Type::UserFile, s_settingsBackup, s_goodJson);
+        SetSetting(Streams::PrimaryUserSettings, s_badJson);
+        SetSetting(Streams::BackupUserSettings, s_goodJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Backup);
     }
     SECTION("Good setting.json No setting.json.backup")
     {
-        SetSetting(Type::UserFile, s_settings, s_goodJson);
+        SetSetting(Streams::PrimaryUserSettings, s_goodJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Standard);
     }
     SECTION("Good setting.json Bad setting.json.backup")
     {
-        SetSetting(Type::UserFile, s_settings, s_goodJson);
-        SetSetting(Type::UserFile, s_settingsBackup, s_badJson);
+        SetSetting(Streams::PrimaryUserSettings, s_goodJson);
+        SetSetting(Streams::BackupUserSettings, s_badJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Standard);
     }
     SECTION("Good setting.json Good setting.json.backup")
     {
-        SetSetting(Type::UserFile, s_settings, s_goodJson);
-        SetSetting(Type::UserFile, s_settingsBackup, s_goodJson);
+        SetSetting(Streams::PrimaryUserSettings, s_goodJson);
+        SetSetting(Streams::BackupUserSettings, s_goodJson);
 
         UserSettingsTest userSettingTest;
         REQUIRE(userSettingTest.GetType() == UserSettingsType::Standard);
@@ -137,7 +132,7 @@ TEST_CASE("UserSettingsCreateFiles", "[settings]")
     DeleteUserSettingsFiles();
 
     auto settingsPath = UserSettings::SettingsFilePath();
-    auto settingsBackupPath = GetBackupPath();
+    auto settingsBackupPath = GetPathTo(Streams::BackupUserSettings);
 
     SECTION("No settings.json create new")
     {
@@ -153,7 +148,7 @@ TEST_CASE("UserSettingsCreateFiles", "[settings]")
     }
     SECTION("Good settings.json create new backup")
     {
-        SetSetting(Type::UserFile, s_settings, s_goodJson);
+        SetSetting(Streams::PrimaryUserSettings, s_goodJson);
         REQUIRE(std::filesystem::exists(settingsPath));
         REQUIRE(!std::filesystem::exists(settingsBackupPath));
 
@@ -180,7 +175,7 @@ TEST_CASE("SettingProgressBar", "[settings]")
     SECTION("Accent")
     {
         std::string_view json = R"({ "visual": { "progressBar": "accent" } })";
-        SetSetting(Type::UserFile, s_settings, json);
+        SetSetting(Streams::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
@@ -189,7 +184,7 @@ TEST_CASE("SettingProgressBar", "[settings]")
     SECTION("Rainbow")
     {
         std::string_view json = R"({ "visual": { "progressBar": "rainbow" } })";
-        SetSetting(Type::UserFile, s_settings, json);
+        SetSetting(Streams::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Rainbow);
@@ -198,7 +193,7 @@ TEST_CASE("SettingProgressBar", "[settings]")
     SECTION("retro")
     {
         std::string_view json = R"({ "visual": { "progressBar": "retro" } })";
-        SetSetting(Type::UserFile, s_settings, json);
+        SetSetting(Streams::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Retro);
@@ -207,7 +202,7 @@ TEST_CASE("SettingProgressBar", "[settings]")
     SECTION("Bad value")
     {
         std::string_view json = R"({ "visual": { "progressBar": "fake" } })";
-        SetSetting(Type::UserFile, s_settings, json);
+        SetSetting(Streams::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
@@ -216,7 +211,7 @@ TEST_CASE("SettingProgressBar", "[settings]")
     SECTION("Bad value type")
     {
         std::string_view json = R"({ "visual": { "progressBar": 5 } })";
-        SetSetting(Type::UserFile, s_settings, json);
+        SetSetting(Streams::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
@@ -242,7 +237,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
     SECTION("Valid value")
     {
         std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": 0 } })";
-        SetSetting(Type::UserFile, s_settings, json);
+        SetSetting(Streams::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cero);
@@ -251,7 +246,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
     SECTION("Valid value 0")
     {
         std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": 300 } })";
-        SetSetting(Type::UserFile, s_settings, json);
+        SetSetting(Streams::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == threehundred);
@@ -260,7 +255,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
     SECTION("Invalid type negative integer")
     {
         std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": -20 } })";
-        SetSetting(Type::UserFile, s_settings, json);
+        SetSetting(Streams::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cinq);
@@ -269,7 +264,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
     SECTION("Invalid type string")
     {
         std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": "not a number" } })";
-        SetSetting(Type::UserFile, s_settings, json);
+        SetSetting(Streams::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cinq);

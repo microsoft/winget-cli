@@ -128,7 +128,7 @@ namespace AppInstaller::Utility {
         return resultBuffer;
     }
 
-    std::vector<uint8_t> SHA256::ComputeHash(std::uint8_t* buffer, std::uint32_t cbBuffer)
+    std::vector<uint8_t> SHA256::ComputeHash(const std::uint8_t* buffer, std::uint32_t cbBuffer)
     {
         SHA256 hasher;
         hasher.Add(buffer, cbBuffer);

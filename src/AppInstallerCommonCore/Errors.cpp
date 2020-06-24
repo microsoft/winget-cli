@@ -58,6 +58,8 @@ namespace AppInstaller
                 return "Multiple applications found matching the criteria";
             case APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND:
                 return "No manifest found matching the criteria";
+            case APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN:
+                return "Command requires administrator privileges to run";
             default:
                 return "Uknown Error Code";
             }

@@ -16,6 +16,7 @@
 using namespace winrt;
 using namespace Windows::Foundation;
 using namespace std::string_literals;
+using namespace AppInstaller;
 
 
 // Logs the the AppInstaller log target to break up individual tests
@@ -65,12 +66,12 @@ int main(int argc, char** argv)
         }
         else if ("-log"s == argv[i])
         {
-            AppInstaller::Logging::AddFileLogger();
+            Logging::AddFileLogger();
         }
         else if ("-logto"s == argv[i])
         {
             ++i;
-            AppInstaller::Logging::AddFileLogger(argv[i]);
+            Logging::AddFileLogger(argv[i]);
         }
         else if ("-tdd"s == argv[i])
         {
@@ -106,13 +107,16 @@ int main(int argc, char** argv)
 
     // Enable all logging, to force log string building to run.
     // By not creating a log target, it will all be thrown away.
-    AppInstaller::Logging::Log().EnableChannel(AppInstaller::Logging::Channel::All);
-    AppInstaller::Logging::Log().SetLevel(AppInstaller::Logging::Level::Verbose);
-    AppInstaller::Logging::EnableWilFailureTelemetry();
+    Logging::Log().EnableChannel(Logging::Channel::All);
+    Logging::Log().SetLevel(Logging::Level::Verbose);
+    Logging::EnableWilFailureTelemetry();
 
     // Force all tests to run against settings inside this container.
     // This prevents test runs from trashing the users actual settings.
-    AppInstaller::Runtime::TestHook_ForceContainerPrepend("AutoTestContainer");
+    Runtime::TestHook_SetPathOverride(Runtime::PathName::LocalState, Runtime::GetPathTo(Runtime::PathName::LocalState) / "Tests");
+    Runtime::TestHook_SetPathOverride(Runtime::PathName::UserFileSettings, Runtime::GetPathTo(Runtime::PathName::UserFileSettings) / "Tests");
+    Runtime::TestHook_SetPathOverride(Runtime::PathName::StandardSettings, Runtime::GetPathTo(Runtime::PathName::StandardSettings) / "Tests");
+    Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettings, Runtime::GetPathTo(Runtime::PathName::Temp) / "WinGet_SecureSettings_Tests");
 
     int result = Catch::Session().run(static_cast<int>(args.size()), args.data());
 

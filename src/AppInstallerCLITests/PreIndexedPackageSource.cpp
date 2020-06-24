@@ -56,7 +56,7 @@ std::string GetContents(const fs::path& file)
 
 TEST_CASE("PIPS_Add", "[pips]")
 {
-    RemoveSetting(Type::Standard, s_RepositorySettings_UserSources);
+    RemoveSetting(Streams::UserSources);
 
     TempDirectory dir("pipssource");
     TestDataFile index(s_MsixFile_1);
@@ -85,7 +85,7 @@ TEST_CASE("PIPS_Add", "[pips]")
 
 TEST_CASE("PIPS_UpdateSameVersion", "[pips]")
 {
-    RemoveSetting(Type::Standard, s_RepositorySettings_UserSources);
+    RemoveSetting(Streams::UserSources);
 
     TempDirectory dir("pipssource");
     TestDataFile index(s_MsixFile_1);
@@ -110,7 +110,7 @@ TEST_CASE("PIPS_UpdateSameVersion", "[pips]")
 
 TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
 {
-    RemoveSetting(Type::Standard, s_RepositorySettings_UserSources);
+    RemoveSetting(Streams::UserSources);
 
     TempDirectory dir("pipssource");
     TestDataFile indexMsix1(s_MsixFile_1);
@@ -152,7 +152,7 @@ TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
 
 TEST_CASE("PIPS_Remove", "[pips]")
 {
-    RemoveSetting(Type::Standard, s_RepositorySettings_UserSources);
+    RemoveSetting(Streams::UserSources);
 
     TempDirectory dir("pipssource");
     TestDataFile index(s_MsixFile_1);

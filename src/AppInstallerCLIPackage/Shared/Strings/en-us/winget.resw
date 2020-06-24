@@ -147,6 +147,9 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filter results by command</value>
   </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>This command requires administrator privileges to execute.</value>
+  </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Show no more than specified number of results</value>
   </data>

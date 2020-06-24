@@ -32,6 +32,10 @@ namespace AppInstaller::Msix
         IStream* inputStream,
         IAppxManifestReader** reader);
 
+    // Gets the package full name from the family name.
+    // This will be the one registered for the current user, if any.
+    std::optional<std::string> GetPackageFullNameFromFamilyName(std::string_view familyName);
+
     // Gets the package family name from the given full name.
     std::string GetPackageFamilyNameFromFullName(std::string_view fullName);
 

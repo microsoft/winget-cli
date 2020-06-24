@@ -14,9 +14,6 @@ namespace AppInstaller::Settings
     using namespace Runtime;
     using namespace Utility;
 
-    static constexpr std::string_view s_SettingFileName = "settings.json"sv;
-    static constexpr std::string_view s_SettingBackupFileName = "settings.json.backup"sv;
-
     static constexpr std::string_view s_SettingEmpty =
         R"({
     // For documentation on these settings, see: https://aka.ms/winget-settings
@@ -61,15 +58,9 @@ namespace AppInstaller::Settings
             return GetSettingsMessage(message, path) + SettingsMessage::Value + convertedValue;
         }
 
-
-        std::filesystem::path SettingsBackupFilePath()
+        std::optional<Json::Value> ParseFile(const StreamDefinition& setting, std::vector<std::string>& warnings)
         {
-            return GetPathTo(PathName::UserFileSettings) / s_SettingBackupFileName;
-        }
-
-        std::optional<Json::Value> ParseFile(const std::filesystem::path& fileName, std::vector<std::string>& warnings)
-        {
-            auto stream = GetSettingStream(Type::UserFile, fileName);
+            auto stream = GetSettingStream(setting);
             if (stream)
             {
                 Json::Value root;
@@ -84,8 +75,8 @@ namespace AppInstaller::Settings
                     return root;
                 }
 
-                AICLI_LOG(Core, Error, << "Error parsing " << fileName.u8string() << ": " << error);
-                warnings.emplace_back(fileName.u8string());
+                AICLI_LOG(Core, Error, << "Error parsing " << setting.Path << ": " << error);
+                warnings.emplace_back(setting.Path);
                 warnings.emplace_back(error);
             }
 
@@ -192,10 +183,10 @@ namespace AppInstaller::Settings
         // 2 - Use settings.backup.json if settings.json fails to parse.
         // 3 - Use default (empty) if both settings files fail to load.
 
-        auto settingsJson = ParseFile(s_SettingFileName, m_warnings);
+        auto settingsJson = ParseFile(Streams::PrimaryUserSettings, m_warnings);
         if (settingsJson.has_value())
         {
-            AICLI_LOG(Core, Info, << "Settings loaded from " << s_SettingFileName);
+            AICLI_LOG(Core, Info, << "Settings loaded from " << Streams::PrimaryUserSettings.Path);
             m_type = UserSettingsType::Standard;
             settingsRoot = settingsJson.value();
         }
@@ -203,10 +194,10 @@ namespace AppInstaller::Settings
         // Settings didn't parse or doesn't exist, try with backup.
         if (settingsRoot.isNull())
         {
-            auto settingsBackupJson = ParseFile(s_SettingBackupFileName, m_warnings);
+            auto settingsBackupJson = ParseFile(Streams::BackupUserSettings, m_warnings);
             if (settingsBackupJson.has_value())
             {
-                AICLI_LOG(Core, Info, << "Settings loaded from " << s_SettingFileName);
+                AICLI_LOG(Core, Info, << "Settings loaded from " << Streams::BackupUserSettings.Path);
                 m_warnings.emplace_back(SettingsMessage::LoadedBackupSettings);
                 m_type = UserSettingsType::Backup;
                 settingsRoot = settingsBackupJson.value();
@@ -232,7 +223,7 @@ namespace AppInstaller::Settings
             // Create settings file if it doesn't exist.
             if (!std::filesystem::exists(UserSettings::SettingsFilePath()))
             {
-                SetSetting(Type::UserFile, s_SettingFileName, s_SettingEmpty);
+                SetSetting(Streams::PrimaryUserSettings, s_SettingEmpty);
                 AICLI_LOG(Core, Info, << "Created new settings file");
             }
         }
@@ -240,7 +231,7 @@ namespace AppInstaller::Settings
         {
             // Settings file was loaded correctly, create backup.
             auto from = SettingsFilePath();
-            auto to = SettingsBackupFilePath();
+            auto to = GetPathTo(Streams::BackupUserSettings);
             std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
             AICLI_LOG(Core, Info, << "Copied settings to backup file");
         }
@@ -248,6 +239,6 @@ namespace AppInstaller::Settings
 
     std::filesystem::path UserSettings::SettingsFilePath()
     {
-        return GetPathTo(PathName::UserFileSettings) / s_SettingFileName;
+        return GetPathTo(Streams::PrimaryUserSettings);
     }
 }
