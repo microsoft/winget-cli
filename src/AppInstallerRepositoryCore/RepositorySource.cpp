@@ -202,9 +202,7 @@ namespace AppInstaller::Repository
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Type, details.Type)) { return false; }
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Arg, details.Arg)) { return false; }
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Data, details.Data)) { return false; }
-                        int32_t isTombstoneNumber{};
-                        if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, isTombstoneNumber, false)) { return false; }
-                        details.IsTombstone = (isTombstoneNumber != 0);
+                        if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, details.IsTombstone)) { return false; }
                         return true;
                     });
                 break;
@@ -293,7 +291,7 @@ namespace AppInstaller::Repository
                     out << YAML::Key << s_SourcesYaml_Source_Type << YAML::Value << details.Type;
                     out << YAML::Key << s_SourcesYaml_Source_Arg << YAML::Value << details.Arg;
                     out << YAML::Key << s_SourcesYaml_Source_Data << YAML::Value << details.Data;
-                    out << YAML::Key << s_SourcesYaml_Source_IsTombstone << YAML::Value << (details.IsTombstone ? 1 : 0);
+                    out << YAML::Key << s_SourcesYaml_Source_IsTombstone << YAML::Value << details.IsTombstone;
                     out << YAML::EndMap;
                 }
             }

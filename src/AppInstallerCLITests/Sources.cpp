@@ -37,7 +37,7 @@ Sources:
     Type: ""
     Arg: ""
     Data: ""
-    IsTombstone: 1
+    IsTombstone: true
 )"sv;
 
 constexpr std::string_view s_SingleSource = R"(
@@ -46,7 +46,7 @@ Sources:
     Type: testType
     Arg: testArg
     Data: testData
-    IsTombstone: 0
+    IsTombstone: false
 )"sv;
 
 constexpr std::string_view s_ThreeSources = R"(
@@ -55,22 +55,22 @@ Sources:
     Type: testType
     Arg: testArg
     Data: testData
-    IsTombstone: 0
+    IsTombstone: false
   - Name: testName2
     Type: testType2
     Arg: testArg2
     Data: testData2
-    IsTombstone: 0
+    IsTombstone: false
   - Name: testName3
     Type: testType3
     Arg: testArg3
     Data: testData3
-    IsTombstone: 0
+    IsTombstone: false
   - Name: winget
     Type: ""
     Arg: ""
     Data: ""
-    IsTombstone: 1
+    IsTombstone: true
 )"sv;
 
 constexpr std::string_view s_ThreeSourcesMetadata = R"(
@@ -88,7 +88,7 @@ Sources:
   - Name: testName
     Type: testType
     Data: testData
-    IsTombstone: 0
+    IsTombstone: false
 )"sv;
 
 // Helper to create a simple source.

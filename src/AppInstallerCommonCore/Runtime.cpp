@@ -5,7 +5,6 @@
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
 
-#define AICLI_DEFAULT_TEMP_DIRECTORY "WinGet"
 #define WINGET_DEFAULT_LOG_DIRECTORY "DiagOutputDir"
 
 namespace AppInstaller::Runtime
@@ -15,6 +14,7 @@ namespace AppInstaller::Runtime
     namespace
     {
         using namespace std::string_view_literals;
+        constexpr std::string_view s_DefaultTempDirectory = "WinGet"sv;
         constexpr std::string_view s_AppDataDir_Settings = "Settings"sv;
         constexpr std::string_view s_AppDataDir_State = "State"sv;
         constexpr std::string_view s_SecureSettings_Relative = "Microsoft/WinGet/settings"sv;
@@ -208,7 +208,7 @@ namespace AppInstaller::Runtime
             {
             case PathName::Temp:
                 result.assign(appStorage.TemporaryFolder().Path().c_str());
-                result /= AICLI_DEFAULT_TEMP_DIRECTORY;
+                result /= s_DefaultTempDirectory;
                 break;
             case PathName::LocalState:
             case PathName::UserFileSettings:
@@ -244,7 +244,7 @@ namespace AppInstaller::Runtime
                 DWORD tempChars = GetTempPathW(ARRAYSIZE(tempPath), tempPath);
                 result.assign(std::wstring_view{ tempPath, static_cast<size_t>(tempChars) });
 
-                result /= "WinGet";
+                result /= s_DefaultTempDirectory;
             }
             break;
             case PathName::LocalState:
