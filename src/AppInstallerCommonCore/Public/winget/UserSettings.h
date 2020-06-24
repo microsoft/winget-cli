@@ -33,6 +33,48 @@ namespace AppInstaller::Settings
         Rainbow,
     };
 
+    // Experimental features
+    enum class ExperimentalFeature : unsigned
+    {
+        None = 0x0,
+        ExperimentalTestA = 0x1,
+        ExperimentalTestB = 0x2,
+    };
+
+    template <ExperimentalFeature E>
+    struct ExperimentalFeatureInfo
+    {
+    };
+
+    inline ExperimentalFeature operator|(ExperimentalFeature lhs, ExperimentalFeature rhs)
+    {
+        return static_cast<ExperimentalFeature> (
+            static_cast<std::underlying_type<ExperimentalFeature>::type>(lhs) |
+            static_cast<std::underlying_type<ExperimentalFeature>::type>(rhs));
+    }
+
+    inline ExperimentalFeature& operator|=(ExperimentalFeature& lhs, ExperimentalFeature rhs)
+    {
+        lhs = lhs | rhs;
+        return lhs;
+    }
+
+    inline ExperimentalFeature operator&(ExperimentalFeature lhs, ExperimentalFeature rhs)
+    {
+        return static_cast<ExperimentalFeature>(
+            static_cast<std::underlying_type<ExperimentalFeature>::type>(lhs) &
+            static_cast<std::underlying_type<ExperimentalFeature>::type>(rhs));
+    }
+
+    inline ExperimentalFeature& operator&=(ExperimentalFeature& lhs, ExperimentalFeature rhs)
+    {
+        lhs = lhs & rhs;
+        return lhs;
+    }
+
+    // Converts the Type enum to a string.
+    std::string_view ToString(ExperimentalFeature feature);
+
     // Enum of settings.
     // Must start at 0 to enable direct access to variant in UserSettings.
     // Max must be last and unused.
@@ -44,6 +86,7 @@ namespace AppInstaller::Settings
     {
         ProgressBarVisualStyle,
         AutoUpdateTimeInMinutes,
+        ExperimentalFeatures,
         Max
     };
 
@@ -78,10 +121,23 @@ namespace AppInstaller::Settings
             using json_t = uint32_t;
             using value_t = std::chrono::minutes;
 
-            static constexpr std::chrono::minutes DefaultValue = 5min;
+            static constexpr value_t DefaultValue = 5min;
             static constexpr std::string_view Path = ".source.autoUpdateIntervalInMinutes"sv;
 
             static std::optional<value_t> Validate(const json_t& value);
+        };
+
+        template <>
+        struct SettingMapping<Setting::ExperimentalFeatures>
+        {
+            using json_t = ExperimentalFeature;
+            using value_t = ExperimentalFeature;
+
+            static constexpr value_t DefaultValue = ExperimentalFeature::None;
+            static constexpr std::string_view Path = ".experimentalFeatures.%"sv;
+
+            // Not needed
+            // static std::optional<value_t> Validate(const json_t& value);
         };
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
@@ -130,6 +186,8 @@ namespace AppInstaller::Settings
 
             return std::get<details::SettingIndex(S)>(itr->second);
         }
+
+        bool isEnabled(ExperimentalFeature feature) const;
 
     private:
         UserSettingsType m_type = UserSettingsType::Default;

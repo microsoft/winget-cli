@@ -48,7 +48,6 @@ namespace AppInstaller::Settings
         {
             std::string convertedValue;
 
-            // This won't work when there's a json_t with bool. Change when this happens.
             if constexpr (std::is_arithmetic_v<T>)
             {
                 convertedValue = std::to_string(value);
@@ -90,6 +89,14 @@ namespace AppInstaller::Settings
             }
 
             return {};
+        }
+
+        template<typename... Args>
+        ExperimentalFeature ParseAllExperimentalFeatures(
+            std::function<ExperimentalFeature(ExperimentalFeature feature)> parse,
+            Args... args)
+        {
+            return (parse(args) | ... | details::SettingMapping<Setting::ExperimentalFeatures>::DefaultValue);
         }
 
         template <Setting S>
@@ -136,6 +143,49 @@ namespace AppInstaller::Settings
             {
                 AICLI_LOG(Core, Info, << "Setting " << path <<" not found. Using default");
             }
+        }
+
+        template <>
+        void Validate<Setting::ExperimentalFeatures>(
+            Json::Value& root,
+            std::map<Setting, details::SettingVariant>& settings,
+            std::vector<std::string>& warnings)
+        {
+            auto parse = [&root, &warnings](ExperimentalFeature feature) -> ExperimentalFeature
+            {
+                auto path = std::string{ details::SettingMapping<Setting::ExperimentalFeatures>::Path };
+                auto name = std::string{ ToString(feature) };
+                const Json::Path jsonPath(path, name);
+                Json::Value result = jsonPath.resolve(root);
+                if (!result.isNull())
+                {
+                    auto jsonValue = GetValue<bool>(result);
+                    if (jsonValue.has_value())
+                    {
+                        if (jsonValue.value())
+                        {
+                            AICLI_LOG(Core, Info, << GetSettingsMessage(SettingsMessage::ValidMessage, name, jsonValue.value()));
+                            return feature;
+                        }
+                    }
+                    else
+                    {
+                        auto invalidFormatMsg = GetSettingsMessage(SettingsMessage::InvalidFieldFormat, name);
+                        AICLI_LOG(Core, Error, << invalidFormatMsg);
+                        warnings.emplace_back(invalidFormatMsg);
+                    }
+                }
+
+                return ExperimentalFeature::None;
+            };
+
+            auto result = ParseAllExperimentalFeatures(
+                parse,
+                ExperimentalFeature::ExperimentalTestA,
+                ExperimentalFeature::ExperimentalTestB);
+
+            settings[Setting::ExperimentalFeatures].emplace<details::SettingIndex(Setting::ExperimentalFeatures)>(
+                std::forward<typename details::SettingMapping<Setting::ExperimentalFeatures>::value_t>(result));
         }
 
         template <size_t... S>
@@ -249,5 +299,30 @@ namespace AppInstaller::Settings
     std::filesystem::path UserSettings::SettingsFilePath()
     {
         return GetPathTo(PathName::UserFileSettings) / s_SettingFileName;
+    }
+
+    bool UserSettings::isEnabled(ExperimentalFeature feature) const
+    {
+        switch (feature)
+        {
+        case ExperimentalFeature::ExperimentalTestA:
+            return (Get<Setting::ExperimentalFeatures>() & feature) == feature ||
+                    isEnabled(ExperimentalFeature::ExperimentalTestB);
+        default:
+            return (Get<Setting::ExperimentalFeatures>() & feature) == feature;
+        }
+    }
+
+    std::string_view ToString(ExperimentalFeature feature)
+    {
+        switch (feature)
+        {
+        case ExperimentalFeature::ExperimentalTestA:
+            return "experimentalTestA"sv;
+        case ExperimentalFeature::ExperimentalTestB:
+            return "experimentalTestB"sv;
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
     }
 }

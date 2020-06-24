@@ -250,6 +250,7 @@ namespace AppInstaller::Runtime
                 wchar_t tempPath[MAX_PATH + 1];
                 DWORD tempChars = GetTempPathW(ARRAYSIZE(tempPath), tempPath);
                 result.assign(std::wstring_view{ tempPath, static_cast<size_t>(tempChars) });
+                result /= AICLI_DEFAULT_TEMP_DIRECTORY;
             }
                 break;
             case PathName::LocalState:
