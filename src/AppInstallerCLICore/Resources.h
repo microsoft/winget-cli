@@ -29,6 +29,7 @@ namespace AppInstaller::CLI::Resource
     {
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFlagError);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFoundError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ArgumentDiabled);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableArguments);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableCommands);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableOptions);
@@ -36,9 +37,18 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ChannelArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Command);
         WINGET_DEFINE_RESOURCE_STRINGID(CommandArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(CommandDisabled);
         WINGET_DEFINE_RESOURCE_STRINGID(CountArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExactArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalFeatureName);
         WINGET_DEFINE_RESOURCE_STRINGID(ExtraPositionalError);
+        WINGET_DEFINE_RESOURCE_STRINGID(FeaturesCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(FeaturesCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(FeaturesMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(FileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FlagContainAdjoinedError);
         WINGET_DEFINE_RESOURCE_STRINGID(ForceArgumentDescription);
@@ -74,6 +84,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MsixSignatureHashFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(NameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(NoApplicableInstallers);
+        WINGET_DEFINE_RESOURCE_STRINGID(NoExperimentalFeaturesMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(NoVTArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Options);
         WINGET_DEFINE_RESOURCE_STRINGID(OverrideArgumentDescription);
@@ -112,6 +123,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(TagArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ThankYou);
         WINGET_DEFINE_RESOURCE_STRINGID(ThirdPartSoftwareNotices);
         WINGET_DEFINE_RESOURCE_STRINGID(ToolDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ToolInfoArgumentDescription);

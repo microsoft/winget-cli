@@ -3,14 +3,16 @@
 #include "pch.h"
 #include "Command.h"
 #include "Resources.h"
+#include <winget/UserSettings.h>
 
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
     using namespace Utility::literals;
+    using namespace Settings;
 
-    Command::Command(std::string_view name, std::string_view parent) :
-        m_name(name)
+    Command::Command(std::string_view name, std::string_view parent, VisibilityCmd visibility, ExperimentalFeature feature) :
+        m_name(name), m_visibility(visibility), m_feature(feature)
     {
         if (!parent.empty())
         {
@@ -162,8 +164,11 @@ namespace AppInstaller::CLI
 
             for (const auto& command : commands)
             {
-                size_t fillChars = (maxCommandNameLength - command->Name().length()) + 2;
-                infoOut << "  "_liv << Execution::HelpCommandEmphasis << command->Name() << Utility::LocIndString{ std::string(fillChars, ' ') } << command->ShortDescription() << std::endl;
+                if ((command->Visibility() == VisibilityCmd::Show) && User().isEnabled(command->Feature()))
+                {
+                    size_t fillChars = (maxCommandNameLength - command->Name().length()) + 2;
+                    infoOut << "  "_liv << Execution::HelpCommandEmphasis << command->Name() << Utility::LocIndString{ std::string(fillChars, ' ') } << command->ShortDescription() << std::endl;
+                }
             }
 
             infoOut <<
@@ -183,7 +188,7 @@ namespace AppInstaller::CLI
             size_t maxArgNameLength = 0;
             for (const auto& arg : GetArguments())
             {
-                if (arg.Visibility() != Visibility::Hidden)
+                if ((arg.Visibility() != VisibilityArg::Hidden) && User().isEnabled(arg.Feature()))
                 {
                     std::ostringstream strstr;
                     if (arg.Alias() != APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER)
@@ -199,16 +204,21 @@ namespace AppInstaller::CLI
 
             if (hasArguments)
             {
-                infoOut << Resource::String::AvailableArguments << std::endl;
-
+                bool atLeastOne = false;
                 size_t i = 0;
                 for (const auto& arg : GetArguments())
                 {
-                    if (arg.Visibility() != Visibility::Hidden)
+                    if ((arg.Visibility() != VisibilityArg::Hidden) && User().isEnabled(arg.Feature()))
                     {
                         const std::string& argName = argNames[i++];
                         if (arg.Type() == ArgumentType::Positional)
                         {
+                            if (!atLeastOne)
+                            {
+                                atLeastOne = true;
+                                infoOut << Resource::String::AvailableArguments << std::endl;
+                            }
+
                             size_t fillChars = (maxArgNameLength - argName.length()) + 2;
                             infoOut << "  "_liv << Execution::HelpArgumentEmphasis << argName << Utility::LocIndString{ std::string(fillChars, ' ') } << arg.Description() << std::endl;
                         }
@@ -218,21 +228,27 @@ namespace AppInstaller::CLI
 
             if (hasOptions)
             {
-                if (hasArguments)
-                {
-                    infoOut << std::endl;
-                }
-
-                infoOut << Resource::String::AvailableOptions << std::endl;
-
+                bool atLeastOne = false;
                 size_t i = 0;
                 for (const auto& arg : GetArguments())
                 {
-                    if (arg.Visibility() != Visibility::Hidden)
+                    if ((arg.Visibility() != VisibilityArg::Hidden) && User().isEnabled(arg.Feature()))
                     {
                         const std::string& argName = argNames[i++];
                         if (arg.Type() != ArgumentType::Positional)
                         {
+                            if (!atLeastOne)
+                            {
+                                atLeastOne = true;
+
+                                if (hasArguments)
+                                {
+                                    infoOut << std::endl;
+                                }
+
+                                infoOut << Resource::String::AvailableOptions << std::endl;
+                            }
+
                             size_t fillChars = (maxArgNameLength - argName.length()) + 2;
                             infoOut << "  "_liv << Execution::HelpArgumentEmphasis << argName << Utility::LocIndString{ std::string(fillChars, ' ') } << arg.Description() << std::endl;
                         }
@@ -458,13 +474,20 @@ namespace AppInstaller::CLI
     void Command::Execute(Execution::Context& context) const
     {
         AICLI_LOG(CLI, Info, << "Executing command: " << Name());
-        if (context.Args.Contains(Execution::Args::Type::Help))
+        if (User().isEnabled(m_feature))
         {
-            OutputHelp(context.Reporter);
+            if (context.Args.Contains(Execution::Args::Type::Help))
+            {
+                OutputHelp(context.Reporter);
+            }
+            else
+            {
+                ExecuteInternal(context);
+            }
         }
         else
         {
-            ExecuteInternal(context);
+            OutputEnableMessage(context);
         }
     }
 
@@ -488,5 +511,15 @@ namespace AppInstaller::CLI
     {
         context.Reporter.Error() << Resource::String::PendingWorkError << std::endl;
         THROW_HR(E_NOTIMPL);
+    }
+
+    void Command::OutputEnableMessage(Execution::Context& context) const
+    {
+        THROW_HR_IF(E_UNEXPECTED, m_feature == ExperimentalFeature::None);
+
+        auto featureInfo = UserSettings::GetFeatureInfo(m_feature);
+        context.Reporter.Warn() << Resource::String::CommandDisabled << " " << m_name << std::endl;
+        context.Reporter.Warn() << Resource::String::ExperimentalFeatureName << " " << std::get<0>(featureInfo) << std::endl;
+        context.Reporter.Warn() << Resource::String::FeatureDisabledMessage << " " << std::get<2>(featureInfo) << std::endl;
     }
 }

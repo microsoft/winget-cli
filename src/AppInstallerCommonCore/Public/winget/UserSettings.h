@@ -37,13 +37,8 @@ namespace AppInstaller::Settings
     enum class ExperimentalFeature : unsigned
     {
         None = 0x0,
-        ExperimentalTestA = 0x1,
-        ExperimentalTestB = 0x2,
-    };
-
-    template <ExperimentalFeature E>
-    struct ExperimentalFeatureInfo
-    {
+        ExperimentalCmd = 0x1,
+        ExperimentalArg = 0x2,
     };
 
     inline ExperimentalFeature operator|(ExperimentalFeature lhs, ExperimentalFeature rhs)
@@ -73,7 +68,7 @@ namespace AppInstaller::Settings
     }
 
     // Converts the Type enum to a string.
-    std::string_view ToString(ExperimentalFeature feature);
+    // std::string_view ToString(ExperimentalFeature feature);
 
     // Enum of settings.
     // Must start at 0 to enable direct access to variant in UserSettings.
@@ -162,6 +157,8 @@ namespace AppInstaller::Settings
         }
 
         static std::filesystem::path SettingsFilePath();
+        static std::tuple<std::string, std::string, std::string> GetFeatureInfo(ExperimentalFeature feature);
+        static std::vector<std::tuple<std::string, std::string, std::string>> GetFeaturesInfo();
 
         UserSettings(const UserSettings&) = delete;
         UserSettings& operator=(const UserSettings&) = delete;

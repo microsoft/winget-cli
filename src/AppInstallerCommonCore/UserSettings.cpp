@@ -22,7 +22,7 @@ namespace AppInstaller::Settings
     // For documentation on these settings, see: https://aka.ms/winget-settings
     // "source": {
     //    "autoUpdateIntervalInMinutes": 5
-    // }
+    // },
 })"sv;
 
     namespace SettingsMessage
@@ -35,8 +35,29 @@ namespace AppInstaller::Settings
         constexpr std::string_view LoadedBackupSettings = "Loaded settings from backup file."sv;
     }
 
+    namespace ExperimentalFeatureInfo
+    {
+        constexpr std::string_view ExperimentalCmd = "experimentalCmd"sv;
+        constexpr std::string_view ExperimentalCmdLink = "https://aka.ms/winget-settings"sv;
+        constexpr std::string_view ExperimentalArg = "experimentalArg"sv;
+        constexpr std::string_view ExperimentalArgLink = "https://aka.ms/winget-settings"sv;
+    }
+
     namespace
     {
+        std::string ToString(ExperimentalFeature feature)
+        {
+            switch (feature)
+            {
+            case ExperimentalFeature::ExperimentalCmd:
+                return std::string{ ExperimentalFeatureInfo::ExperimentalCmd };
+            case ExperimentalFeature::ExperimentalArg:
+                return std::string{ ExperimentalFeatureInfo::ExperimentalArg };
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
+
         // Jsoncpp doesn't provide line number and column for an individual Json::Value node.
         inline std::string GetSettingsMessage(const std::string& message, const std::string& path)
         {
@@ -154,7 +175,7 @@ namespace AppInstaller::Settings
             auto parse = [&root, &warnings](ExperimentalFeature feature) -> ExperimentalFeature
             {
                 auto path = std::string{ details::SettingMapping<Setting::ExperimentalFeatures>::Path };
-                auto name = std::string{ ToString(feature) };
+                auto name = ToString(feature);
                 const Json::Path jsonPath(path, name);
                 Json::Value result = jsonPath.resolve(root);
                 if (!result.isNull())
@@ -181,8 +202,8 @@ namespace AppInstaller::Settings
 
             auto result = ParseAllExperimentalFeatures(
                 parse,
-                ExperimentalFeature::ExperimentalTestA,
-                ExperimentalFeature::ExperimentalTestB);
+                ExperimentalFeature::ExperimentalCmd,
+                ExperimentalFeature::ExperimentalArg);
 
             settings[Setting::ExperimentalFeatures].emplace<details::SettingIndex(Setting::ExperimentalFeatures)>(
                 std::forward<typename details::SettingMapping<Setting::ExperimentalFeatures>::value_t>(result));
@@ -303,26 +324,45 @@ namespace AppInstaller::Settings
 
     bool UserSettings::isEnabled(ExperimentalFeature feature) const
     {
-        switch (feature)
+        auto enabled = (Get<Setting::ExperimentalFeatures>() & feature) == feature;
+
+        // Special cases
+        if (feature == ExperimentalFeature::ExperimentalCmd)
         {
-        case ExperimentalFeature::ExperimentalTestA:
-            return (Get<Setting::ExperimentalFeatures>() & feature) == feature ||
-                    isEnabled(ExperimentalFeature::ExperimentalTestB);
-        default:
-            return (Get<Setting::ExperimentalFeatures>() & feature) == feature;
+            // ExperimentalArg depends on ExperimentalCmd, so instead of failing we could
+            // assume that if ExperimentalArg is enabled then ExperimentalCmd is as well.
+            enabled = enabled || isEnabled(ExperimentalFeature::ExperimentalArg);
         }
+
+        return enabled;
     }
 
-    std::string_view ToString(ExperimentalFeature feature)
+    std::tuple<std::string, std::string, std::string> UserSettings::GetFeatureInfo(ExperimentalFeature feature)
     {
+        std::string_view link;
+
         switch (feature)
         {
-        case ExperimentalFeature::ExperimentalTestA:
-            return "experimentalTestA"sv;
-        case ExperimentalFeature::ExperimentalTestB:
-            return "experimentalTestB"sv;
+        case ExperimentalFeature::ExperimentalCmd:
+            link = ExperimentalFeatureInfo::ExperimentalCmdLink;
+            break;
+        case ExperimentalFeature::ExperimentalArg:
+            link = ExperimentalFeatureInfo::ExperimentalArgLink;
+            break;
         default:
             THROW_HR(E_UNEXPECTED);
         }
+
+        return { ToString(feature), User().isEnabled(feature) ? "Enabled" : "Disabled", std::string{ link } };
+    }
+
+    std::vector<std::tuple<std::string, std::string, std::string>> UserSettings::GetFeaturesInfo()
+    {
+        return
+        {
+            // Commented out on purpose these are just to provide example on how experimental features work.
+            // GetFeatureInfo(ExperimentalFeature::ExperimentalCmd),
+            // GetFeatureInfo(ExperimentalFeature::ExperimentalArg),
+        };
     }
 }

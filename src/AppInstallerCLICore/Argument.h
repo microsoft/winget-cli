@@ -3,6 +3,7 @@
 #pragma once
 #include "ExecutionContext.h"
 #include "Resources.h"
+#include <winget/UserSettings.h>
 
 #include <string>
 #include <string_view>
@@ -31,7 +32,7 @@ namespace AppInstaller::CLI
     };
 
     // Controls the visibility of the field.
-    enum class Visibility
+    enum class VisibilityArg
     {
         // Shown in the example.
         Example,
@@ -53,14 +54,32 @@ namespace AppInstaller::CLI
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type) :
             m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type) {}
 
-        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Visibility visibility) :
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, VisibilityArg visibility) :
             m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility) {}
 
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, bool required) :
             m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_required(required) {}
 
-        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Visibility visibility, bool required) :
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, VisibilityArg visibility, bool required) :
             m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_required(required) {}
+
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, Settings::ExperimentalFeature feature) :
+            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_feature(feature) {}
+
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, bool required, Settings::ExperimentalFeature feature) :
+            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_required(required), m_feature(feature) {}
+
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Settings::ExperimentalFeature feature) :
+            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_feature(feature) {}
+
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, VisibilityArg visibility, Settings::ExperimentalFeature feature) :
+            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_feature(feature) {}
+
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, bool required, Settings::ExperimentalFeature feature) :
+            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_required(required), m_feature(feature) {}
+
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, VisibilityArg visibility, bool required, Settings::ExperimentalFeature feature) :
+            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_required(required), m_feature(feature) {}
 
         ~Argument() = default;
 
@@ -84,7 +103,9 @@ namespace AppInstaller::CLI
         bool Required() const { return m_required; }
         ArgumentType Type() const { return m_type; }
         size_t Limit() const { return m_countLimit; }
-        Visibility Visibility() const { return m_visibility; }
+        VisibilityArg Visibility() const { return m_visibility; }
+        Settings::ExperimentalFeature Feature() const { return m_feature; }
+        void OutputEnableMessage(Execution::Context& context) const;
 
         Argument& SetRequired(bool required) { m_required = required; return *this; }
 
@@ -95,7 +116,8 @@ namespace AppInstaller::CLI
         Resource::StringId m_desc;
         bool m_required = false;
         ArgumentType m_type = ArgumentType::Standard;
-        ::AppInstaller::CLI::Visibility m_visibility = Visibility::Example;
+        ::AppInstaller::CLI::VisibilityArg m_visibility = VisibilityArg::Example;
         size_t m_countLimit = 1;
+        Settings::ExperimentalFeature m_feature = Settings::ExperimentalFeature::None;
     };
 }

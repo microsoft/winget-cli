@@ -2,12 +2,15 @@
 // Licensed under the MIT License.
 #pragma once
 #include "Command.h"
+#include <winget/UserSettings.h>
 
 namespace AppInstaller::CLI
 {
-    struct SettingsCommand final : public Command
+    struct FeaturesCommand final : public Command
     {
-        SettingsCommand(std::string_view parent) : Command("settings", parent) {}
+        // This command is used as an example on how experimental features can be used.
+        // To enable this command set ExperimentalCmd = true in the settings file.
+        FeaturesCommand(std::string_view parent) : Command("features", parent, VisibilityCmd::Hidden) {}
 
         virtual Resource::LocString ShortDescription() const override;
         virtual Resource::LocString LongDescription() const override;
@@ -18,3 +21,4 @@ namespace AppInstaller::CLI
         void ExecuteInternal(Execution::Context& context) const override;
     };
 }
+#pragma once

@@ -13,11 +13,6 @@ namespace AppInstaller::CLI
 
     using namespace std::string_view_literals;
 
-    std::vector<Argument> SettingsCommand::GetArguments() const
-    {
-        return {};
-    }
-
     Resource::LocString SettingsCommand::ShortDescription() const
     {
         return { Resource::String::SettingsCommandShortDescription };
