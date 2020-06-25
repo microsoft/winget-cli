@@ -312,6 +312,15 @@ namespace AppInstaller::CLI::Workflow
         ManifestComparator manifestComparator(context.Args);
         context.Add<Execution::Data::Installer>(manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>()));
     }
+
+    void EnsureRunningAsAdmin(Execution::Context& context)
+    {
+        if (!Runtime::IsRunningAsAdmin())
+        {
+            context.Reporter.Error() << Resource::String::CommandRequiresAdmin;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN);
+        }
+    }
 }
 
 AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, AppInstaller::CLI::Workflow::WorkflowTask::Func f)

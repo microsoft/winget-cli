@@ -121,6 +121,12 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Manifest
     // Outputs: Installer
     void SelectInstaller(Execution::Context& context);
+
+    // Ensures that the process is running as admin.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void EnsureRunningAsAdmin(Execution::Context& context);
 }
 
 // Passes the context to the function if it has not been terminated; returns the context.

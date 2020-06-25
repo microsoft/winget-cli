@@ -42,7 +42,7 @@ namespace AppInstaller::Utility {
         }
 
         // Computes the hash of the given buffer immediately.
-        static std::vector<uint8_t> ComputeHash(uint8_t* buffer, std::uint32_t cbBuffer);
+        static std::vector<uint8_t> ComputeHash(const uint8_t* buffer, std::uint32_t cbBuffer);
 
         // Computes the hash from a given stream.
         static std::vector<uint8_t> ComputeHash(std::istream& in);

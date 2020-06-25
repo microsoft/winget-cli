@@ -14,6 +14,15 @@
 
 namespace AppInstaller::Repository
 {
+    // Defines the origin of the source details.
+    enum class SourceOrigin
+    {
+        Default,
+        User,
+    };
+
+    std::string_view ToString(SourceOrigin origin);
+
     // Interface for retrieving information about a source without acting on it.
     struct SourceDetails
     {
@@ -30,10 +39,10 @@ namespace AppInstaller::Repository
         std::string Data;
 
         // The last time that this source was updated.
-        std::chrono::system_clock::time_point LastUpdateTime;
+        std::chrono::system_clock::time_point LastUpdateTime = {};
 
-        // This source is a default source; added for the user by the tool.
-        bool IsDefault = false;
+        // The origin of the source.
+        SourceOrigin Origin = SourceOrigin::Default;
     };
 
     // Interface for interacting with a source from outside of the repository lib.
@@ -55,7 +64,7 @@ namespace AppInstaller::Repository
     std::optional<SourceDetails> GetSource(std::string_view name);
 
     // Adds a new source for the user.
-    void AddSource(std::string name, std::string type, std::string arg, IProgressCallback& progress);
+    void AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress);
 
     // Opens an existing source.
     // Passing an empty string as the name of the source will return a source that aggregates all others.

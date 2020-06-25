@@ -37,13 +37,6 @@ namespace AppInstaller::Repository::Microsoft
         std::string GetPackageFamilyNameFromDetails(const SourceDetails& details)
         {
             THROW_HR_IF(E_UNEXPECTED, details.Data.empty());
-            return Msix::GetPackageFamilyNameFromFullName(details.Data);
-        }
-
-        // Gets the package full name from the details.
-        std::string GetPackageFullNameFromDetails(const SourceDetails& details)
-        {
-            THROW_HR_IF(E_UNEXPECTED, details.Data.empty());
             return details.Data;
         }
 
@@ -57,15 +50,9 @@ namespace AppInstaller::Repository::Microsoft
         // The base class for a package that comes from a preindexed packaged source.
         struct PreIndexedFactoryBase : public ISourceFactory
         {
-            bool IsInitialized(const SourceDetails& details) override final
-            {
-                return !details.Data.empty();
-            }
-
             std::shared_ptr<ISource> Create(const SourceDetails& details) override final
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
-                THROW_HR_IF(E_UNEXPECTED, !IsInitialized(details));
 
                 auto lock = Synchronization::CrossProcessReaderWriteLock::LockForRead(CreateNameForCPRWL(details));
                 return CreateInternal(details, std::move(lock));
@@ -73,7 +60,7 @@ namespace AppInstaller::Repository::Microsoft
 
             virtual std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) = 0;
 
-            void Update(SourceDetails& details, IProgressCallback& progress) override final
+            void Add(SourceDetails& details, IProgressCallback& progress) override final
             {
                 if (details.Type.empty())
                 {
@@ -88,26 +75,33 @@ namespace AppInstaller::Repository::Microsoft
 
                 std::string packageLocation = GetPackageLocation(details);
 
-                if (!IsInitialized(details))
-                {
-                    AICLI_LOG(Repo, Info, << "Initializing source from: " << details.Name << " => " << packageLocation);
+                AICLI_LOG(Repo, Info, << "Initializing source from: " << details.Name << " => " << packageLocation);
 
-                    // If not initialized, we need to open the package and get the full name.
-                    Msix::MsixInfo packageInfo(packageLocation);
-                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.GetIsBundle());
-                    details.Data = packageInfo.GetPackageFullName();
+                Msix::MsixInfo packageInfo(packageLocation);
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.GetIsBundle());
 
-                    AICLI_LOG(Repo, Info, << "Found package full name: " << details.Name << " => " << details.Data);
-                }
+                auto fullName = packageInfo.GetPackageFullName();
+                AICLI_LOG(Repo, Info, << "Found package full name: " << details.Name << " => " << fullName);
+
+                details.Data = Msix::GetPackageFamilyNameFromFullName(fullName);
 
                 auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
 
                 UpdateInternal(packageLocation, details, progress);
-
-                details.LastUpdateTime = std::chrono::system_clock::now();
             }
 
-            virtual void UpdateInternal(std::string packageLocation, SourceDetails& details, IProgressCallback& progress) = 0;
+            void Update(const SourceDetails& details, IProgressCallback& progress) override final
+            {
+                THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
+
+                std::string packageLocation = GetPackageLocation(details);
+
+                auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
+
+                UpdateInternal(packageLocation, details, progress);
+            }
+
+            virtual void UpdateInternal(std::string packageLocation, const SourceDetails& details, IProgressCallback& progress) = 0;
 
             void Remove(const SourceDetails& details, IProgressCallback& progress) override final
             {
@@ -151,7 +145,7 @@ namespace AppInstaller::Repository::Microsoft
                 return std::make_shared<SQLiteIndexSource>(details, std::move(index), std::move(lock));
             }
 
-            void UpdateInternal(std::string packageLocation, SourceDetails& details, IProgressCallback& progress) override
+            void UpdateInternal(std::string packageLocation, const SourceDetails& details, IProgressCallback& progress) override
             {
                 // Check if the package is newer before calling into deployment.
                 // This can save us a lot of time over letting deployment detect same version.
@@ -172,8 +166,6 @@ namespace AppInstaller::Repository::Microsoft
                         AICLI_LOG(Repo, Info, << "Remote source data was not newer than existing, no update needed");
                         return;
                     }
-
-                    details.Data = packageInfo.GetPackageFullName();
                 }
 
                 if (progress.IsCancelled())
@@ -191,7 +183,7 @@ namespace AppInstaller::Repository::Microsoft
                 if (download)
                 {
                     tempFile = Runtime::GetPathTo(Runtime::PathName::Temp);
-                    tempFile /= GetPackageFullNameFromDetails(details) + ".msix";
+                    tempFile /= GetPackageFamilyNameFromDetails(details) + ".msix";
 
                     Utility::Download(packageLocation, tempFile, progress);
 
@@ -216,8 +208,17 @@ namespace AppInstaller::Repository::Microsoft
 
             void RemoveInternal(const SourceDetails& details, IProgressCallback& callback) override
             {
-                AICLI_LOG(Repo, Info, << "Removing package: " << GetPackageFullNameFromDetails(details));
-                Deployment::RemovePackage(GetPackageFullNameFromDetails(details), callback);
+                auto fullName = Msix::GetPackageFullNameFromFamilyName(GetPackageFamilyNameFromDetails(details));
+
+                if (!fullName)
+                {
+                    AICLI_LOG(Repo, Info, << "No full name found for family name: " << GetPackageFamilyNameFromDetails(details));
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Info, << "Removing package: " << *fullName);
+                    Deployment::RemovePackage(*fullName, callback);
+                }
             }
         };
 
@@ -249,7 +250,7 @@ namespace AppInstaller::Repository::Microsoft
                 return std::make_shared<SQLiteIndexSource>(details, std::move(index), std::move(lock));
             }
 
-            void UpdateInternal(std::string packageLocation, SourceDetails& details, IProgressCallback& progress) override
+            void UpdateInternal(std::string packageLocation, const SourceDetails& details, IProgressCallback& progress) override
             {
                 // We will extract the manifest and index files directly to this location
                 std::filesystem::path packageState = GetStatePathFromDetails(details);
