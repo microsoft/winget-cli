@@ -152,6 +152,7 @@
   </data>
   <data name="CommandDisabled" xml:space="preserve">
     <value>Command disabled:</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>This command requires administrator privileges to execute.</value>
   </data>
