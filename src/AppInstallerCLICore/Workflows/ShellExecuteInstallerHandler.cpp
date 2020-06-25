@@ -65,17 +65,30 @@ namespace AppInstaller::CLI::Workflow
             const std::map<ManifestInstaller::InstallerSwitchType, Utility::NormalizedString>& installerSwitches = context.Get<Execution::Data::Installer>()->Switches;
 
             // Construct install experience arg.
-            if (context.Args.Contains(Execution::Args::Type::Silent) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Silent) != installerSwitches.end())
+            // SilentWithProgress is default, so look for it first.
+            auto argsItr = installerSwitches.find(ManifestInstaller::InstallerSwitchType::SilentWithProgress);
+
+            if (context.Args.Contains(Execution::Args::Type::Interactive))
             {
-                installerArgs += installerSwitches.at(ManifestInstaller::InstallerSwitchType::Silent);
+                // If interacive requested, always use Interactive (or nothing). If the installer supports
+                // interactive it is usually the default, and thus it is cumbersome to put a blank entry in
+                // the manifest.
+                argsItr = installerSwitches.find(ManifestInstaller::InstallerSwitchType::Interactive);
             }
-            else if (context.Args.Contains(Execution::Args::Type::Interactive) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Interactive) != installerSwitches.end())
+            // If no SilentWithProgress exists, or Silent requested, try to find Silent.
+            else if (argsItr == installerSwitches.end() || context.Args.Contains(Execution::Args::Type::Silent))
             {
-                installerArgs += installerSwitches.at(ManifestInstaller::InstallerSwitchType::Interactive);
+                auto silentItr = installerSwitches.find(ManifestInstaller::InstallerSwitchType::Silent);
+                // If Silent requested, but doesn't exist, then continue using SilentWithProgress.
+                if (silentItr != installerSwitches.end())
+                {
+                    argsItr = silentItr;
+                }
             }
-            else if (installerSwitches.find(ManifestInstaller::InstallerSwitchType::SilentWithProgress) != installerSwitches.end())
+
+            if (argsItr != installerSwitches.end())
             {
-                installerArgs += installerSwitches.at(ManifestInstaller::InstallerSwitchType::SilentWithProgress);
+                installerArgs += argsItr->second;
             }
 
             // Construct language arg if necessary.
