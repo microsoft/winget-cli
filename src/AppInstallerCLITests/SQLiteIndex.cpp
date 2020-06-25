@@ -531,6 +531,90 @@ TEST_CASE("SQLiteIndex_UpdateManifestChangeCase", "[sqliteindex][V1_0]")
     REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
 }
 
+TEST_CASE("SQLiteIndex_IdCaseInsensitivity", "[sqliteindex][V1_0]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string manifest1Path = "test/id/test.id-1.0.0.yaml";
+    Manifest manifest1;
+    manifest1.Id = "test.id";
+    manifest1.Name = "Test Name";
+    manifest1.AppMoniker = "testmoniker";
+    manifest1.Version = "1.0.0";
+    manifest1.Tags = { "t1", "t2" };
+    manifest1.Commands = { "test1", "test2" };
+
+    std::string manifest2Path = "test/id/test.id-2.0.0.yaml";
+    Manifest manifest2 = manifest1;
+    manifest2.Id = "Test.Id";
+    manifest1.Version = "2.0.0";
+
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
+
+        index.AddManifest(manifest1, manifest1Path);
+
+        auto results = index.Search({});
+        REQUIRE(results.Matches.size() == 1);
+        REQUIRE(manifest1.Id == index.GetIdStringById(results.Matches[0].first));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        index.AddManifest(manifest2, manifest2Path);
+
+        auto results = index.Search({});
+        REQUIRE(results.Matches.size() == 1);
+        REQUIRE(manifest2.Id == index.GetIdStringById(results.Matches[0].first));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        manifest1.Id = "TEST.ID";
+
+        REQUIRE(index.UpdateManifest(manifest1, manifest1Path));
+
+        auto results = index.Search({});
+        REQUIRE(results.Matches.size() == 1);
+        REQUIRE(manifest1.Id == index.GetIdStringById(results.Matches[0].first));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        index.RemoveManifest(manifest1, manifest1Path);
+
+        auto results = index.Search({});
+        REQUIRE(results.Matches.size() == 1);
+        REQUIRE(manifest1.Id == index.GetIdStringById(results.Matches[0].first));
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        index.RemoveManifest(manifest2, manifest2Path);
+
+        auto results = index.Search({});
+        REQUIRE(results.Matches.empty());
+    }
+
+    // Open it directly to directly test table state
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+    REQUIRE(Schema::V1_0::ManifestTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::IdTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::NameTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::MonikerTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::VersionTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::ChannelTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::PathPartTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::TagsTable::IsEmpty(connection));
+    REQUIRE(Schema::V1_0::CommandsTable::IsEmpty(connection));
+}
+
 TEST_CASE("PathPartTable_EnsurePathExists_Negative_Paths", "[sqliteindex][V1_0]")
 {
     // Open it directly to directly test pathpart table
@@ -850,6 +934,38 @@ TEST_CASE("SQLiteIndex_PathString_VersionSorting", "[sqliteindex]")
     REQUIRE(result.value() == "Path5");
 
     result = index.GetPathStringByKey(results.Matches[0].first, "", "gamma");
+    REQUIRE(!result.has_value());
+}
+
+TEST_CASE("SQLiteIndex_PathString_CaseInsensitive", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id", "Name", "Moniker", "14.0.0", "", { "foot" }, { "com34" }, "Path1" },
+        { "Id", "Name", "Moniker", "16.0.0", "alpha", { "floor" }, { "com3" }, "Path2" },
+        { "Id", "Name", "Moniker", "15.0.0", "", {}, { "Command" }, "Path3" },
+        { "Id", "Name", "Moniker", "13.2.0-BUGFIX", "", {}, { "Command" }, "Path4" },
+        { "Id", "Name", "Moniker", "15.1.0", "beta", { "foo" }, { "com3" }, "Path5" },
+        { "Id", "Name", "Moniker", "15.8.0", "alpha", { "foo" }, { "com3" }, "Path6" },
+        { "Id", "Name", "Moniker", "13.2.0-bugfix", "beta", { "foo" }, { "com3" }, "Path7" },
+        { "Id", "Name", "Moniker", "13.0.0", "", { "foo" }, { "com3" }, "Path8" },
+        });
+
+    SearchRequest request;
+    request.Filters.emplace_back(ApplicationMatchField::Id, MatchType::Exact, "Id");
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 1);
+
+    auto result = index.GetPathStringByKey(results.Matches[0].first, "", "Alpha");
+    REQUIRE(result.has_value());
+
+    result = index.GetPathStringByKey(results.Matches[0].first, "13.2.0-BugFix", "");
+    REQUIRE(result.has_value());
+
+    result = index.GetPathStringByKey(results.Matches[0].first, "13.2.0-BugFix", "BETA");
     REQUIRE(!result.has_value());
 }
 
