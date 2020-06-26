@@ -40,7 +40,7 @@ namespace AppInstaller::CLI
             [](Execution::Context& context)
         {
             auto inputFile = context.Args.GetArg(Execution::Args::Type::HashFile);
-            std::ifstream inStream{ inputFile, std::ifstream::binary };
+            std::ifstream inStream{ Utility::ConvertToUTF16(inputFile), std::ifstream::binary };
 
             context.Reporter.Info() << "Sha256: "_liv << Utility::LocIndString{ Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHash(inStream)) } << std::endl;
 

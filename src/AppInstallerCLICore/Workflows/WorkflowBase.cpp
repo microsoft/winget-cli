@@ -249,7 +249,7 @@ namespace AppInstaller::CLI::Workflow
 
     void VerifyFile::operator()(Execution::Context& context) const
     {
-        std::filesystem::path path = context.Args.GetArg(m_arg);
+        std::filesystem::path path = Utility::ConvertToUTF16(context.Args.GetArg(m_arg));
 
         if (!std::filesystem::exists(path))
         {
@@ -270,7 +270,7 @@ namespace AppInstaller::CLI::Workflow
             VerifyFile(Execution::Args::Type::Manifest) <<
             [](Execution::Context& context)
         {
-            Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(context.Args.GetArg(Execution::Args::Type::Manifest));
+            Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::Manifest)));
             Logging::Telemetry().LogManifestFields(manifest.Id, manifest.Name, manifest.Version, true);
             context.Add<Execution::Data::Manifest>(std::move(manifest));
         };

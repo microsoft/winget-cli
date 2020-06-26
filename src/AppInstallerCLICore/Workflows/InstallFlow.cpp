@@ -79,7 +79,7 @@ namespace AppInstaller::CLI::Workflow
         const auto& installer = context.Get<Execution::Data::Installer>().value();
 
         std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
-        tempInstallerPath /= manifest.Id + '.' + manifest.Version;
+        tempInstallerPath /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
 
         AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
 

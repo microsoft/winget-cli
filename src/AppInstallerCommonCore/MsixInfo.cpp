@@ -293,7 +293,7 @@ namespace AppInstaller::Msix
         }
         else
         {
-            std::filesystem::path path(uriStr);
+            std::filesystem::path path(Utility::ConvertToUTF16(uriStr));
             THROW_IF_FAILED(SHCreateStreamOnFileEx(path.c_str(),
                 STGM_READ | STGM_SHARE_DENY_WRITE | STGM_FAILIFTHERE, 0, FALSE, nullptr, &m_stream));
         }
