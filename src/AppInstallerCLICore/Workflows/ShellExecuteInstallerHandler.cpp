@@ -133,7 +133,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_LOGPATH), logPath))
             {
-                context.Add<Execution::Data::LogPath>(logPath);
+                context.Add<Execution::Data::LogPath>(Utility::ConvertToUTF16(logPath));
             }
 
             // Populate <InstallPath> with value from command line.
