@@ -17,7 +17,8 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_DefaultTempDirectory = "WinGet"sv;
         constexpr std::string_view s_AppDataDir_Settings = "Settings"sv;
         constexpr std::string_view s_AppDataDir_State = "State"sv;
-        constexpr std::string_view s_SecureSettings_Relative = "Microsoft/WinGet/settings"sv;
+        constexpr std::string_view s_SecureSettings_Base = "Microsoft/WinGet"sv;
+        constexpr std::string_view s_SecureSettings_UserRelative = "settings"sv;
         constexpr std::string_view s_SecureSettings_Relative_Packaged = "pkg"sv;
         constexpr std::string_view s_SecureSettings_Relative_Unpackaged = "win"sv;
 
@@ -107,6 +108,16 @@ namespace AppInstaller::Runtime
             result /= relative;
 
             return result;
+        }
+
+        // Gets the current user's SID for use in paths.
+        std::filesystem::path GetUserSID()
+        {
+            auto userToken = wil::get_token_information<TOKEN_USER>();
+
+            wil::unique_hlocal_string sidString;
+            THROW_IF_WIN32_BOOL_FALSE(ConvertSidToStringSidW(userToken->User.Sid, &sidString));
+            return { sidString.get() };
         }
     }
 
@@ -224,7 +235,9 @@ namespace AppInstaller::Runtime
                 break;
             case PathName::SecureSettings:
                 result = GetKnownFolderPath(FOLDERID_ProgramData);
-                result /= s_SecureSettings_Relative;
+                result /= s_SecureSettings_Base;
+                result /= GetUserSID();
+                result /= s_SecureSettings_UserRelative;
                 result /= s_SecureSettings_Relative_Packaged;
                 result /= GetPackageName();
                 create = false;
@@ -256,7 +269,9 @@ namespace AppInstaller::Runtime
                 break;
             case PathName::SecureSettings:
                 result = GetKnownFolderPath(FOLDERID_ProgramData);
-                result /= s_SecureSettings_Relative;
+                result /= s_SecureSettings_Base;
+                result /= GetUserSID();
+                result /= s_SecureSettings_UserRelative;
                 result /= s_SecureSettings_Relative_Unpackaged;
                 create = false;
                 break;
