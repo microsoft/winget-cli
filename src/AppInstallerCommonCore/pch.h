@@ -6,6 +6,7 @@
 #include <Windows.h>
 #include <appmodel.h>
 #include <WinInet.h>
+#include <sddl.h>
 #include <Shlobj.h>
 #include <Shlwapi.h>
 

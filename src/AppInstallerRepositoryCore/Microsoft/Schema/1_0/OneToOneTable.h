@@ -25,7 +25,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         std::vector<SQLite::rowid_t> OneToOneTableGetAllRowIds(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, size_t limit);
 
         // Ensures that the values exists in the table.
-        SQLite::rowid_t OneToOneTableEnsureExists(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value);
+        SQLite::rowid_t OneToOneTableEnsureExists(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool overwriteLikeMatch = false);
 
         // Removes the given row by its rowid if it is no longer referenced.
         void OneToOneTableDeleteIfNotNeededById(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id);
@@ -90,9 +90,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Ensures that the given value exists in the table, returning the rowid.
-        static SQLite::rowid_t EnsureExists(SQLite::Connection& connection, std::string_view value)
+        static SQLite::rowid_t EnsureExists(SQLite::Connection& connection, std::string_view value, bool overwriteLikeMatch = false)
         {
-            return details::OneToOneTableEnsureExists(connection, TableInfo::TableName(), TableInfo::ValueName(), value);
+            return details::OneToOneTableEnsureExists(connection, TableInfo::TableName(), TableInfo::ValueName(), value, overwriteLikeMatch);
         }
 
         // Removes the given row by its rowid if it is no longer referenced.

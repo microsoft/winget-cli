@@ -60,7 +60,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Gets a manifest id by the given key values.
         std::optional<SQLite::rowid_t> GetManifestIdByKey(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version = "", std::string_view channel = "")
         {
-            std::optional<SQLite::rowid_t> channelIdOpt = ChannelTable::SelectIdByValue(connection, channel);
+            std::optional<SQLite::rowid_t> channelIdOpt = ChannelTable::SelectIdByValue(connection, channel, true);
             if (!channelIdOpt && !channel.empty())
             {
                 // If an empty channel was given but none was found, we will just not filter on channel.
@@ -104,7 +104,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
             else
             {
-                versionIdOpt = VersionTable::SelectIdByValue(connection, version);
+                versionIdOpt = VersionTable::SelectIdByValue(connection, version, true);
             }
 
             if (!versionIdOpt)
@@ -125,11 +125,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Updates the manifest column and related table based on the given value.
         template <typename Table>
-        void UpdateManifestValueById(SQLite::Connection& connection, const typename Table::value_t& value, SQLite::rowid_t manifestId)
+        void UpdateManifestValueById(SQLite::Connection& connection, const typename Table::value_t& value, SQLite::rowid_t manifestId, bool overwriteLikeMatch = false)
         {
             auto [oldValueId] = ManifestTable::GetIdsById<Table>(connection, manifestId);
 
-            SQLite::rowid_t newValueId = Table::EnsureExists(connection, value);
+            SQLite::rowid_t newValueId = Table::EnsureExists(connection, value, overwriteLikeMatch);
 
             ManifestTable::UpdateValueIdById<Table>(connection, manifestId, newValueId);
 
@@ -204,7 +204,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), !pathAdded);
 
         // Ensure that all of the 1:1 data exists.
-        SQLite::rowid_t idId = IdTable::EnsureExists(connection, manifest.Id);
+        SQLite::rowid_t idId = IdTable::EnsureExists(connection, manifest.Id, true);
         SQLite::rowid_t nameId = NameTable::EnsureExists(connection, manifest.Name);
         SQLite::rowid_t monikerId = MonikerTable::EnsureExists(connection, manifest.AppMoniker);
         SQLite::rowid_t versionId = VersionTable::EnsureExists(connection, manifest.Version);
@@ -245,7 +245,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Id, Version, and Channel may have changed casing. If so, they too need to be updated.
         if (idInIndex != manifest.Id)
         {
-            UpdateManifestValueById<IdTable>(connection, manifest.Id, manifestId);
+            UpdateManifestValueById<IdTable>(connection, manifest.Id, manifestId, true);
             indexModified = true;
         }
 
