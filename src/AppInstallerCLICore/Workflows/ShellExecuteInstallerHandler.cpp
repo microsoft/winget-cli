@@ -17,10 +17,11 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info, << "Starting installer. Path: " << filePath);
 
             SHELLEXECUTEINFOW execInfo = { 0 };
-            execInfo.cbSize = sizeof(SHELLEXECUTEINFOW);
+            execInfo.cbSize = sizeof(execInfo);
             execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
             execInfo.lpFile = filePath.c_str();
-            execInfo.lpParameters = Utility::ConvertToUTF16(args).c_str();
+            std::wstring argsUtf16 = Utility::ConvertToUTF16(args);
+            execInfo.lpParameters = argsUtf16.c_str();
             // Some installers force UI. Setting to SW_HIDE will hide installer UI and installation will hang forever.
             // Verified setting to SW_SHOW does not hurt silent mode since no UI will be shown.
             execInfo.nShow = SW_SHOW;
