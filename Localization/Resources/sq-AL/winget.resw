@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>Pseudonimi i ngjitur i flamurit nuk u gjet</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>Argumentet në vijim janë në dispozicion:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Përdor kanalin e specifikuar; parazgjedhja është publiku i përgjithshëm</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>komanda</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtro rezultate sipas komandës</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>Kjo komandë kërkon privilegjet e administratorit për t’u ekzekutuar.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Mos shfaq më shumë sesa numri i specifikuar i rezultateve</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>Ekzekuto komandën pa kërkesa</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>Llogarit hashtin e një skedari lokal, të përshtatshme për hyrjen në një manifest. Mund të llogarisë gjithashtu hash-un e skedarit të nënshkrimit të një pakete MSIX për të mundësuar instalimet e transmetimit.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>Ndihmës për të lokalizuar skedarët e instalimit</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtro rezultatet sipas identifikimit</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>Kjo kërkesë është e licencuar për ty nga pronari i saj.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft nuk është përgjegjës dhe as nuk jep licencë për paketat e palëve të treta.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>Aplikacioni nuk mund të instalohet, sepse kërkon një version më të ri të Windows:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Instalon aplikacionin e përzgjedhur, ose duke kërkuar një burim të konfiguruar ose direkt nga një manifest.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Instalon aplikacionin e dhënë</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>Gjuha për t’u instaluar (nëse mbështetet)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>Marrëveshja e licencës</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>Lidhjet</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Vendndodhja ku do të instalohet (nëse mbështetet)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>Vendndodhja e evidencës (nëse mbështetet)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>E drejta e autorit (c) Microsoft Corporation. Të gjitha të drejtat të rezervuara.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>Faqja bazë</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>Shtegu te manifesti i aplikacionit</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>Vërtetimi i manifestit dështoi.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>Vërtetimi i manifestit pati sukses.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>Vërtetimi i manifestit pati sukses me paralajmërime.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Kërkohet vlera e argumentit, por nuk u gjet asnjë</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Skedari i hyrjes do të trajtohet si msix; nëse nënshkruhet, do të ofrohet një grup nënshkrimi</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>Llogaritja e hash-it të nënshkrimit MSIX dështoi.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtro rezultate sipas emrit</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>Asnjë instalues nuk është i aplikueshëm për sistemin aktual.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Çaktivizon afishimin e VirtualTerminal</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>opsionet</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Anashkalo argumentet që do t’i kalohen instaluesit</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>Paketa</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Mos, harruam ta bëjmë këtë...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>Afishimi i ecurisë si ngjyra e parazgjedhur</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Paraafishim</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>Deklarata e privatësisë</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>Pyetja që përdoret për të kërkuar një aplikacion</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>Argumenti i kërkuar nuk u dha</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>Afishimi i ecurisë si ngjyra e parazgjedhur</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>Kërkon për aplikacione nga burime të konfiguruara.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Gjej dhe shfaq informacion bazë për aplikacionet</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>Gjatë vërtetimit të parametrave u gjetën dështimet në vijim:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Hapni parametrat në redaktorin e tekstit të paracaktuar json. Nëse nuk është konfiguruar asnjë redaktues, hap parametrat në notepad. Për parametrat në dispozicion, shihni https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Hap parametrat</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>Gabim i papritur gjatë ngarkimit të parametrave. Verifiko parametrat e tu duke ekzekutuar komandën e parametrave.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Shfaq informacionin në një aplikacion specifik.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtro rezultatet sipas etiketës</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>Shërbimi i rreshtit të komandës së WinGet aktivizon instalimin e aplikacioneve nga rreshti i komandës.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>Njoftimet e palëve të treta</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Afisho informacionin e përgjithshëm të veglës</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>U dha më shumë se një argument i sjelljes së instalimit</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>Ndodhi një gabim i papritur gjatë ekzekutimit të komandës:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Komandë e panjohur</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>përdorimi</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Verifikon një manifest duke përdorur një bashkësi të rreptë udhëzuesish. Kjo synohet që të të mundësojë ta kontrollosh manifestin përpara se ta dorëzosh në një depo.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>Mundëson evidentimin e detajuar për WinGet</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>Verifiko që skedari i hyrjes është një MSIX i vlefshëm dhe i nënshkruar.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Përdor versionin e specifikuar; parazgjedhja është versioni më i fundit</value>

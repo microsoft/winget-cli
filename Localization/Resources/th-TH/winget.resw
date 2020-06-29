@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>ไม่พบนามแฝงของค่าสถานะที่ติดกัน</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>อาร์กิวเมนต์ต่อไปนี้พร้อมใช้งาน:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>ใช้แชนเนลที่ระบุ ค่าเริ่มต้นเป็นผู้ชมทั่วไป</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>คำสั่ง</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>ผลลัพธ์การกรองตามคำสั่ง</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>คำสั่งนี้ต้องการสิทธิ์ของผู้ดูแลระบบในการดำเนินการ</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>แสดงผลไม่เกินจำนวนผลลัพธ์ที่ระบุ</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>ดำเนินการคำสั่งโดยไม่มีพร้อมท์</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>คำนวณแฮชของไฟล์ในเครื่อง ซึ่งเหมาะสำหรับรายการในไฟล์กำกับ นอกจากนี้ยังสามารถคำนวณแฮชของไฟล์ลายเซ็นของแพคเกจ MSIX เพื่อเปิดใช้งานการติดตั้งการสตรีมได้อีกด้วย</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>ตัวช่วยในการแฮชไฟล์ตัวติดตั้ง</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ผลลัพธ์การกรองตาม ID</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>เจ้าของแอปพลิเคชันนี้ให้สิทธิการใช้งานแก่คุณ</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft จะไม่รับผิดชอบ หรือมอบสิทธิการใช้งานต่อแพคเกจของบริษัทภายนอก</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>ไม่สามารถติดตั้งแอปพลิเคชันได้เนื่องจากต้องการ Windows รุ่นที่สูงกว่า:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>ติดตั้งแอปพลิเคชันที่เลือก ไม่ว่าจะพบด้วยการค้นหาแหล่งที่กำหนดค่าหรือจากไฟล์กำกับโดยตรง</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>ติดตั้งแอปพลิเคชันที่มอบให้</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>ภาษาที่จะติดตั้ง (หากสนับสนุน)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>ข้อตกลงสิทธิการใช้งาน</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>ลิงก์</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>ตำแหน่งที่ตั้งที่จะติดตั้ง (หากสนับสนุน)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>ตำแหน่งที่ตั้งบันทึก (หากสนับสนุน)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Copyright (c) Microsoft Corporation. All rights reserved.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>โฮมเพจ</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>เส้นทางไปยังไฟล์กำกับของแอปพลิเคชัน</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>การตรวจสอบความถูกต้องของไฟล์กำกับล้มเหลว</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>การตรวจสอบความถูกต้องของไฟล์กำกับสำเร็จ</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>การตรวจสอบความถูกต้องของไฟล์กำกับสำเร็จโดยมีคำเตือน</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>จำเป็นต้องมีค่าอาร์กิวเมนต์ แต่ไม่พบค่าใดๆ</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>ไฟล์อินพุทจะมีการจัดการเป็น msix จะมีการระบุแฮชลายเซ็นหากเซ็นชื่อ</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>การคำนวณแฮชลายเซ็น MSIX ล้มเหลว</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>ผลลัพธ์การกรองตามชื่อ</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>ไม่มีของที่สามารถใช้ได้กับระบบปัจจุบัน</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>ปิดใช้งานการแสดงผล VirtualTerminal</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>ตัวเลือก</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>แทนที่อาร์กิวเมนต์ที่จะส่งต่อไปยังตัวติดตั้ง</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>แพคเกจ</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>ขออภัย เราลืมทำสิ่งนี้...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>ความคืบหน้าแสดงเป็นสีเริ่มต้น</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>แสดงตัวอย่าง</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>นโยบายความเป็นส่วนตัว</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>คิวรีที่ใช้ค้นหาแอป</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>ไม่มีอาร์กิวเมนต์ที่จำเป็น</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>ความคืบหน้าแสดงเป็นสีเริ่มต้น</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>ค้นหาแอปพลิเคชันจากแหล่งที่กำหนดค่าไว้</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>ค้นหาและแสดงข้อมูลพื้นฐานของแอป</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>พบความล้มเหลวต่อไปนี้ขณะตรวจสอบความถูกต้องของการตั้งค่า:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>เปิดการตั้งค่าในตัวแก้ไขข้อความ json เริ่มต้น ถ้าไม่ได้กำหนดค่าตัวแก้ไข ให้เปิดการตั้งค่าในแผ่นจดบันทึก ดูการตั้งค่าที่พร้อมใช้งานที่ https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>เปิดการตั้งค่า</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>เกิดข้อผิดพลาดที่ไม่คาดคิดขณะโหลดการตั้งค่า โปรดตรวจสอบการตั้งค่าของคุณโดยเรียกใช้คำสั่งการตั้งค่า</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>แสดงข้อมูลในแอปพลิเคชันที่ระบุ</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>ผลลัพธ์การกรองตามแท็ก</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>โปรแกรมอรรถประโยชน์บรรทัดคำสั่ง WinGet ช่วยให้สามารถติดตั้งแอปพลิเคชันจากบรรทัดคำสั่งได้</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>ประกาศของบริษัทภายนอก</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>แสดงข้อมูลทั่วไปของเครื่องมือ</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>มีอาร์กิวเมนต์พฤติกรรมการติดตั้งมากกว่าหนึ่งอาร์กิวเมนต์ที่มีให้</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>มีข้อผิดพลาดที่ไม่คาดคิดเกิดขึ้นขณะดำเนินการคำสั่ง:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>คำสั่งที่ไม่รู้จัก</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>การใช้งาน</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>ตรวจสอบความถูกต้องของไฟล์กำกับโดยใช้ชุดคำแนะนำที่รัดกุม เพื่อให้คุณตรวจสอบไฟล์กำกับก่อนส่งไปยัง Repo</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>เปิดใช้งานการบันทึกโหมดรายละเอียดสำหรับ WinGet</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>โปรดตรวจสอบว่าไฟล์ที่นำเข้าเป็นแฟ้มที่ถูกต้อง MSIX ที่เซ็นชื่อ</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>ใช้เวอร์ชันที่ระบุ ค่าเริ่มต้นเป็นเวอร์ชันล่าสุด</value>

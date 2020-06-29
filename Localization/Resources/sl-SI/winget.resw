@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>Sosednje zastavice vzdevka ni bilo mogoče najti</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>Na voljo so ti argumenti:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Uporabite navedeni kanal; privzeto je splošno občinstvo.</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>ukaz</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtriraj rezultate po ukazu</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>Če želite izvesti ta ukaz, potrebujete skrbniške pravice.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Prikaz več kot določenega števila rezultatov</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>Izvršitev ukaza brez poziva</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>Izračuna zgoščeno vrednost lokalne datoteke, primerno za vnos v manifest. Prav tako lahko izračuna zgoščeno vrednost datoteke podpisa v paketu MSIX in tako omogoči pretočne namestitve.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>Pomočnik za razpršilne datoteke namestitve</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Ukaz »Filtriraj rezultate po identifikaciji«</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>Licenco za to aplikacijo ste dobili od lastnika aplikacije.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft ni odgovoren za pakete tretjih oseb niti ne zagotavlja licenc zanje.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>Aplikacije ni mogoče namestiti, saj zahteva novejšo različico sistema Windows:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Namesti izbrano aplikacijo, ki jo je sistem našel s funkcijo iskanja konfigurirana vira ali neposredno iz manifesta.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Namestitve danega programa</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>Jezik, ki ga želite namestiti (če je podprt)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>Licenčna pogodba</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>Povezave</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Mesto za namestitev na (če je podprto)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>Mesto dnevnika (če je podprto)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Copyright (c) Microsoft Corporation. Vse pravice pridržane.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>Domača stran</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>Pot do manifesta aplikacije</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>Preverjanje veljavnosti manifesta ni bilo uspešno.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>Preverjanje veljavnosti manifesta je bilo uspešno.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>Preverjanje veljavnosti manifesta je bilo uspešno z opozorili.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Obvezna je vrednost argumenta, vendar je ni bilo mogoče najti</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Vhodna datoteka bo obravnavana kot mSix; Razpršilo za podpis bo na voljo, če je podpisan</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>Zgoščene vrednosti podpisa MSIX ni bilo mogoče izračunati.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Ukaz »Filtriraj rezultate po imenu«</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>V trenutnem sistemu ni nobenega programi.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Onemogoči prikaz VirtualTerminal</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>možnosti</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Preglasitev argumentov, ki jih je treba prenesti v namestitveni program</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>Paket</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Ojoj, pozabili smo narediti to...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>Prikaz napredka kot privzeta barva</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Predogled</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>Izjava o zasebnosti</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>Poizvedba, ki se uporablja za iskanje programa</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>Zahtevan argument ni na voljo</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>Prikaz napredka kot privzeta barva</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>Poišče aplikacije iz konfiguriranih virov.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Poiščete in prikažete osnovne informacije o aplikacijah</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>Pri preverjanju nastavitev smo zaznali naslednje napake:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Nastavitve odprite v privzetem urejevalniku besedila za datoteke json. Če ni nastavljen noben urejevalnik, odpre nastavitve v beležnici. Če želite izvedeti več o nastavitvah, ki so na voljo, obiščite https://aka.ms/winget-settings.</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Odpri nastavitve</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>Med nalaganjem nastavitev je prišlo do nepričakovane napake. Preverite nastavitve tako, da zaženete ukaz z nastavitvami.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Prikaže informacije o določeni aplikaciji.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Ukaz »Filtriraj rezultate po oznaki«</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>Pripomoček ukazne vrstice WinGet omogoči nameščanje aplikacij iz ukazne vrstice.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>Obvestila neodvisnih izdelovalcev</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Prikaži splošne informacije v orodju</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>Na voljo je več kot en argument vedenja za namestitev</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>Med izvajanjem ukaza je prišlo do nepričakovane napake:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Ukaza ni mogoče prepoznati</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>uporaba</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Preveri pristnost manifesta s strogim naborom navodil. To je namenjeno za preverjanje manifesta, preden pošljete v repo.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>Omogoči podrobno zapisovanje dogodkov v dnevnik s pripomočkom WinGet</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>Preverite, ali je vhodna datoteka veljavna in ima podpis MSIX.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Uporabite navedeno različico. Privzeta vrednost je najnovejša različica</value>

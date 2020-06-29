@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>ಪಕ್ಕದಲ್ಲಿ ಫ್ಲ್ಯಾಗ್ ಅಲಿಯಾಸ್ ಕಂಡುಬಂದಿಲ್ಲ</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>ಈ ಕೆಳಗಿನ ವಾದಗಳು ಲಭ್ಯವಿದೆ:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>ನಿರ್ದಿಷ್ಟ ಚಾನಲ್ ಬಳಸಿ; ಸಾಮಾನ್ಯ ಪ್ರೇಕ್ಷಕವು ಡೀಫಾಲ್ಟ್ ಆಗಿರುತ್ತದೆ</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>ಆದೇಶ</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>ಕಮಾಂಡ್ ಫಲಿತಾಂಶಗಳನ್ನು ಫಿಲ್ಟರ್ ಮಾಡಿ</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>ಈ ಆದೇಶ ಕಾರ್ಯಗತಗೊಳಿಸಲು ನಿರ್ವಾಹಕರ ಹಕ್ಕುಗಳ ಅಗತ್ಯವಿದೆ.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>ನಿಗದಿತ ಸಂಖ್ಯೆಯ ಫಲಿತಾಂಶಗಳಿಗೆ ಮೀರದಂತೆ ತೋರಿಸಿ</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>ಪ್ರಾಂಪ್ಟ್‌ಗಳು ಇಲ್ಲದೆಯೇ ಕಮಾಂಡ್ ಅನ್ನು ಜಾರಿಗೊಳಿಸಿ</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>ಸ್ಥಳೀಯ ಫೈಲ್‍ನ ಹ್ಯಾಶ್ ಅನ್ನು ಲೆಕ್ಕಮಾಡುತ್ತದೆ, ಮ್ಯಾನಿಫೆಸ್ಟ್‌ನಲ್ಲಿ ನಮೂದಿಗೆ ಸೂಕ್ತವಾಗಿದೆ. ಸ್ಟ್ರೀಮಿಂಗ್ ಸ್ಥಾಪನೆಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲು MSIX ಪ್ಯಾಕೇಜ್‍ನ ಸಹಿ ಫೈಲ್‍ನ ಹ್ಯಾಶ್ ಅನ್ನು ಕ್ೂಡ ಅದು ಲೆಕ್ಕ ಮಾಡಬಹುದು.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>ಹ್ಯಾಶ್ ಇನ್‌ಸ್ಟಾಲರ್ ಫೈಲ್‌ಗಳಿಗೆ ಸಹಾಯಕ</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ID ಪ್ರಕಾರವಾಗಿ ಫಲಿತಾಂಶಗಳನ್ನು ಫಿಲ್ಟರ್ ಮಾಡಿ</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>ಈ ಅಪ್ಲಿಕೇಶನ್‍ನ ಮಾಲೀಕರಿಂದ ನಿಮಗೆ ಪರವಾನಗಿ ನೀಡಲಾಗಿದೆ.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>ಮೂರನೆಯ ಪಕ್ಷದ ಪ್ಯಾಕೇಜ್‍ಗಳಿಗೆ Microsoft ಜವಾಬ್ದಾರನಲ್ಲ ಅಥವಾ ಅದು ಮೂರನೆಯ ಪಕ್ಷದ ಪ್ಯಾಕೇಜ್‍ಗಳಿಗೆ ಪರವಾನಗಿ ನೀಡುವುದಿಲ್ಲ.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>ಅಪ್ಲಿಕೇಶನ್ ಸ್ಥಾಪಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ, ಏಕೆಂದರೆ ಇದಕ್ಕೆ Windows ನ ಉನ್ನತ ಆವೃತ್ತಿಯ ಅಗತ್ಯವಿದೆ:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>ಕಾನ್ಫಿಗರ್ ಮಾಡಿದ ಮೂಲವನ್ನು ಶೋಧಿಸುವ ಮೂಲಕ ಅಥವಾ ನೇರವಾಗಿ ಮ್ಯಾನಿಫೆಸ್ಟ್‍ನಿಂದ ಪತ್ತೆ ಮಾಡಿದ ಆಯ್ದ ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು ಸ್ಥಾಪಿಸುತ್ತದೆ.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>ನೀಡಲಾದ ಅಪ್ಲಿ ಅನ್ನು ಸ್ಥಾಪಿಸಿ</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>ಸ್ಥಾಪಿಸಲು ಭಾಷೆ (ಒಂದು ವೇಳೆ ಬೆಂಬಲಿಸಿದರೆ)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>ಪರವಾನಗಿ ಒಪ್ಪಂದ</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>ಲಿಂಕ್‍ಗಳು</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>ಸ್ಥಾಪಿಸಲು ಸ್ಥಳ (ಒಂದು ವೇಳೆ ಬೆಂಬಲಿಸಿದರೆ)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>ಲಾಗ್ ಲೊಕೇಶನ್ (ಒಂದು ವೇಳೆ ಬೆಂಬಲಿಸಿದರೆ)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>ಕೃತಿಸ್ವಾಮ್ಯ © Microsoft Corporation. ಎಲ್ಲ ಹಕ್ಕುಗಳನ್ನು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>ಮುಖಪುಟ</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>ಅಪ್ಲಿಕೇಶನ್‌ನ ಮ್ಯಾನಿಫೆಸ್ಟ್ ಮಾರ್ಗ</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>ಮ್ಯಾನಿಫೆಸ್ಟ್ ಮೌಲ್ಯೀಕರಣ ವಿಫಲವಾಗಿದೆ.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>ಮ್ಯಾನಿಫೆಸ್ಟ್ ಮೌಲ್ಯೀಕರಣ ಯಶಸ್ವಿಯಾಗಿದೆ.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>ಎಚ್ಚರಿಕೆಗಳೊಂದಿಗೆ ಮ್ಯಾನಿಫೆಸ್ಟ್ ಮೌಲ್ಯೀಕರಣ ಯಶಸ್ವಿಯಾಗಿದೆ.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>ವಾದ ಮೌಲ್ಯ ಅಗತ್ಯವಿದೆ, ಆದರೆ ಯಾವುದೂ ಕಂಡುಬಂದಿಲ್ಲ</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>ಇನ್ಪುಟ್ ಫೈಲ್ ಅನ್ನು msix ಎಂದು ಪರಿಗಣಿಸಲಾಗುವುದು; ಸಹಿ ಮಾಡಿದ್ದರೆ ಸಿಗ್ನೇಚರ್ ಹ್ಯಾಶ್ ಅನ್ನು ಒದಗಿಸಲಾಗುತ್ತದೆ</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>MSIX ಸಹಿ ಹ್ಯಾಶ್ ಲೆಕ್ಕ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>ಹೆಸರಿನ ಪ್ರಕಾರವಾಗಿ ಫಲಿತಾಂಶಗಳನ್ನು ಫಿಲ್ಟರ್ ಮಾಡಿ</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>ಪ್ರಸ್ತುತ ವ್ಯವಸ್ಥೆಗೆ ಯಾವುದೇ ಸ್ಥಾಪಕಗಳು ಅನ್ವಯಿಸುವುದಿಲ್ಲ.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>VirtualTerminal ಪ್ರದರ್ಶನವನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸುತ್ತದೆ</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>ಆಯ್ಕೆಗಳು</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>ಸ್ಥಾಪಕಕ್ಕೆ ಅಂಗೀಕರಿಸಬೇಕಾಗಿರುವ ವಾದಗಳನ್ನು ಅತಿಕ್ರಮಿಸಿ</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>ಪ್ಯಾಕೇಜ್</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>ಓಹ್, ಈ ರೀತಿ ಮಾಡಲು ನಮಗೆ ನೆನಪಿರಲಿಲ್ಲ...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>ಡೀಫಾಲ್ಟ್ ಬಣ್ಣವಾಗಿ ಪ್ರಗತಿಯನ್ನು ಪ್ರದರ್ಶಿಸಿ</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>ಮುನ್ನೋಟ</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>ಗೌಪ್ಯತೆ ಹೇಳಿಕೆ</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>ಒಂದು ಅಪ್ಲಿಗಾಗಿ ಹುಡುಕಲು ಬಳಸಲಾದ ವಿಚಾರಣೆ</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>ಅಗತ್ಯವಿರುವ ವಾದವನ್ನು ಒದಗಿಸಿಲ್ಲ</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>ಡೀಫಾಲ್ಟ್ ಬಣ್ಣವಾಗಿ ಪ್ರಗತಿಯನ್ನು ಪ್ರದರ್ಶಿಸಿ</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>ಕಾನ್ಫಿಗರ್ ಮಾಡಿದ ಮೂಲಗಳಿಂದ ಅಪ್ಲಿಕೇಶನ್‍ಗಳಿಗಾಗಿ ಶೋಧಿಸುತ್ತದೆ.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>ಅಪ್ಲಿಗಳ ಮೂಲ ಮಾಹಿತಿಯನ್ನು ಹುಡುಕಿ ಮತ್ತು ತೋರಿಸಿ</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ಮೌಲ್ಯೀಕರಿಸುವಾಗ ಈ ಕೆಳಗಿನ ವೈಫಲ್ಯಗಳು ಕಂಡುಬಂದಿವೆ:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>ಪೂರ್ವನಿಯೋಜಿತ json ಪಠ್ಯ ಸಂಪಾದಕದಲ್ಲಿ ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ತೆರೆಯಿರಿ. ಯಾವುದೇ ಸಂಪಾದಕವನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡದಿದ್ದರೆ, ನೋಟ್‍ಪ್ಯಾಡ್‍ನಲ್ಲಿ ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ತೆರೆಯುತ್ತದೆ. ಲಭ್ಯವಿರುವ ಸೆಟ್ಟಿಂಗ್‍ಗಳಿಗಾಗಿ https://aka.ms/winget-settings ನೋಡಿ</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ತೆರೆಯಿರಿ</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ಲೋಡ್ ಮಾಡುವಾಗ ಅನಿರೀಕ್ಷಿತ ದೋಷ. ಸೆಟ್ಟಿಂಗ್‍ಗಳ ಆದೇಶವನ್ನು ಚಲಾಯಿಸುವ ಮೂಲಕ ದಯವಿಟ್ಟು ನಿಮ್ಮ ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>ನಿರ್ದಿಷ್ಟ ಅಪ್ಲಿಕೇಶನ್‌ನಲ್ಲಿ ಮಾಹಿತಿಯನ್ನು ತೋರಿಸುತ್ತದೆ.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>ಟ್ಯಾಗ್ ಪ್ರಕಾರವಾಗಿ ಫಲಿತಾಂಶಗಳನ್ನು ಫಿಲ್ಟರ್ ಮಾಡಿ</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>WinGet ಕಮಾಂಡ್ ಸಾಲಿನ ಉಪಯುಕ್ತತೆಯು ಕಮಾಂಡ್ ಸಾಲಿನಿಂದ ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ಸ್ಥಾಪಿಸಲು ಸಾಧ್ಯವಾಗಿಸುತ್ತದೆ.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>ಮೂರನೇ ಪಕ್ಷದ ಸೂಚನೆಗಳು</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>ಪರಿಕರದ ಸಾಮಾನ್ಯ ಮಾಹಿತಿಯನ್ನು ಪ್ರದರ್ಶಿಸಿ</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>ಒಂದಕ್ಕಿಂತ ಹೆಚ್ಚಿನ ಸ್ಥಾಪನೆ ನಡವಳಿಕೆಯ ವಾದವನ್ನು ಒದಗಿಸಲಾಗಿದೆ</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>ಆದೇಶವನ್ನು ಕಾರ್ಯಗತಗೊಳಿಸುತ್ತಿರುವಾಗ ಅನಿರೀಕ್ಷಿತ ದೋಷ ಸಂಭವಿಸಿದೆ:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>ಗುರುತಿಸಲಾಗದ ಕಮಾಂಡ್</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>ಬಳಕೆ</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>ಕಟ್ಟುನಿಟ್ಟಾದ ಮಾರ್ಗಸೂಚಿಗಳನ್ನು ಬಳಸಿಕೊಂಡು ಒಂದು ಮ್ಯಾನಿಫೆಸ್ಟ್ ಅನ್ನು ಮೌಲ್ಯೀಕರಿಸುತ್ತದೆ. ಒಂದು ರೆಪೊಗೆ ಸಲ್ಲಿಸುವ ಮೊದಲು ನಿಮ್ಮ ಮ್ಯಾನಿಫೆಸ್ಟ್ ಅನ್ನು ಪರೀಕ್ಷಿಸಲು ಇದು ನಿಮಗೆ ಅವಕಾಶ ಮಾಡಿಕೊಡುತ್ತದೆ.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>WinGet ಗಾಗಿ ವೆಬೋಸ್ ಲಾಗ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸುತ್ತದೆ</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>ದಯವಿಟ್ಟು ಇನ್‍ಪುಟ್ ಫೈಲ್ ಮಾನ್ಯ, ಸಹಿ ಮಾಡಿದ MSIX ಆಗಿದೆಯೇ ಎಂದು ಪರಿಶೀಲಿಸಿ.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>ನಿಗದಿತ ಆವೃತ್ತಿಯನ್ನು ಬಳಸಿ; ಇತ್ತೀಚಿನ ಆವೃತ್ತಿಯು ಅದರಲ್ಲಿ ಡೀಫಾಲ್ಟ್ ಆಗಿರುತ್ತದೆ</value>

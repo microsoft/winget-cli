@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>الاسم المستعار لعلامة المجاور</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>الوسائط التالية متوفرة:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>استخدام القناة المحددة؛ القناة الافتراضية هي للجمهور العام</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>أمر</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>تصفية النتائج حسب الأمر</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>يتطلب هذا الأمر توفر امتيازات المسؤول للتنفيذ.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>لا تعرض أكثر من العدد المحدد من النتائج</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>استبعاد الأمر بدون مطالبات</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>يقوم بحساب تجزئة الملف المحلي، المناسب للإدخال في بيان التطبيق.  يمكنه أيضاً حساب تجزئة ملف التوقيع لحزمة MSIX لتمكين تثبيتات دفق البيانات.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>مُساعد في تجزئة ملفات التثبيت</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>تصفية النتائج حسب المعرف</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>هذا التطبيق مرخّص لك بواسطة مالكه.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft غير مسؤولة عن حزم الجهات الأخرى، ولا تمنح أي تراخيص لها.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>يتعذر تثبيت التطبيق ، لأنه يتطلب إصدارا أحدث من Windows:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>يقوم بتثبيت التطبيق المحدد، الذي يتم العثور عليه إما من خلال البحث في مصدر مكون أو مباشرة من بيان التطبيق.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>لتثبيت التطبيق المعني</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>اللغة المطلوب تثبيتها (إذا كان مدعماً)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>اتفاقية الترخيص</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>ارتباطات</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>الموقع المطلوب التثبيت فيه (إذا كان مدعماً)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>موقع السجل (إذا كان مدعماً)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>حقوق النشر (c) محفوظة لشركة Microsoft Corporation. كافة الحقوق محفوظة.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>الصفحة الرئيسية</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>المسار إلى بيان التطبيق</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>فشل التحقق من صحة بيان التطبيق.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>تم التحقق من صحة بيان التطبيق بنجاح.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>تم التحقق من صحة بيان التطبيق بنجاح مع ظهور تحذيرات.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>قيمة الوسيطة مطلوبة، ولكن لم يتم العثور على شيء</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>سيتم معاملة ملف الإدخال على أنه msix; وسيتم توفير التوقيع الإحداثي إذا تم التوقيع</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>فشل حساب تجزئة توقيع MSIX.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>تصفية النتائج حسب الاسم</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>لا توجد أي مثبتات قابلة للتطبيق على النظام الحالي.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>لتعطيل عرض VirtualTerminal</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>خيارات</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>تجاوز الوسيطات التي سيتم تمريرها على ملف التثبيت</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>حزمة</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>نأسف، نسينا القيام بذلك...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>تقدم العرض كلون افتراضي</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>معاينة</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>بيان الخصوصية</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>الاستعلام المستخدم للبحث عن أحد التطبيقات</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>لم يتم توفير الوسيطة المطلوبة</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>تقدم العرض كلون افتراضي</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>يبحث عن التطبيقات من المصادر المكونة.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>البحث عن المعلومات الأساسية للتطبيقات وعرضها</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>تم العثور على حالات الفشل التالية أثناء التحقق من صحة الإعدادات:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>يقوم بفتح الإعدادات في محرر النص json الافتراضي. إذا لم يتم تكوين أي محرر، يقوم بفتح الإعدادات في "المفكرة". للحصول على الإعدادات المتوفرة، اطلع على https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>فتح الإعدادات</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>خطأ غير متوقع أثناء تحميل الإعدادات. الرجاء التحقق من الإعدادات من خلال تشغيل أمر الإعدادات.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>لإظهار المعلومات الخاصة بتطبيق محدد.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>تصفية النتائج حسب الترميز</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>تعمل الأداة المساعدة لسطر الأمر WinGet على تمكين تثبيت التطبيقات من سطر الأمر.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>إشعارات الجهات الأخرى</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>عرض المعلومات العامة الخاصة بالأداة</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>تم توفير أكثر من وسيطة لسلوك التثبيت</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>حدث خطا غير متوقع اثناء تنفيذ الأمر:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>الأمر غير معروف</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>الاستخدام</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>للتحقق من صحة بيان التطبيق باستخدام مجموعة صارمة من الإرشادات. يهدف ذلك إلى تمكينك من التحقق من بيان التطبيق قبل الإرسال إلى موقع تخزين رئيسي.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>تمكين التسجيل المطوّل لـ WinGet</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>الرجاء التحقق من أن ملف الإدخال هو ملف MSIX صالح وموقّع.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>استخدام إصدار محدد؛ يتم استخدام الإصدار الأخير تلقائياً</value>

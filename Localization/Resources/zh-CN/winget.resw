@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>未找到邻近标记别名</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>以下参数可用：</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>使用指定的频道；默认为普通受众</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>命令</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>按命令筛选结果</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>需要具有管理员权限才能执行此命令。</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>显示不超过指定数量的结果</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>执行命令而不提示</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>计算本地文件的哈希值，适用于清单中的条目。此外，它还可以计算 MSIX 程序包的签名文件的哈希，以启用流式安装。</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>哈希安装程序的帮助程序</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>按 id 筛选结果</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>此应用程序由其所有者授权给你。</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft 对第三方程序包概不负责，也不向第三方程序包授予任何许可证。</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>无法安装应用程序，因为它需要更高版本的 Windows：</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>安装选定的应用程序，该应用程序可以通过搜索配置的源找到，也可以直接从清单中找到。</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>安装指定的应用程序</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>要安装的语言（如支持）</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>许可协议</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>链接</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>要安装到的位置（如支持）</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>日志位置（如果支持）</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>版权所有 (C) Microsoft Corporation。保留所有权利。</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>主页</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>应用的清单路径</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>清单验证失败。</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>清单验证成功。</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>清单验证成功，但出现警告。</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>所需参数值，但未找到</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>输入文件将被视为 msix；如果签名，将提供签名哈希</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>无法计算 MSIX 签名哈希。</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>按名称筛选结果</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>没有适用于当前系统的安装程序。</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>禁用 VirtualTerminal 显示</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>选项</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>覆盖待传递的参数至安装程序</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>程序包</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>抱歉，我们忘记了...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>默认颜色进度显示</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>预览</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>隐私声明</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>用于搜索应用的查询</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>未提供所需参数</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>默认颜色进度显示</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>从配置的源搜索应用程序。</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>查找并显示应用的基本信息</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>发现以下故障以验证设置：</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>在默认 json 文本编辑器中打开设置。如果未配置任何编辑器，请在记事本中打开设置。有关可用设置，请参阅 https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>打开设置</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>加载设置时出现意外错误。请运行 "设置" 命令以验证您的设置。</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>显示关于指定应用的信息。</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>按标签筛选</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>WinGet 命令行实用工具可从命令行安装应用程序。</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>第三方声明</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>显示工具的常规信息</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>提供多个安装行为参数</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>执行此命令时发生意外错误：</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>无法识别的命令</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>使用情况</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>使用一组严格的指南验证清单。这是为了能够在提交到存储库之前检查清单。</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>启用 WinGet 的详细日志记录</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>请验证输入文件是否为有效的、已签名的 MSIX。</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>使用指定的版本；默认为最新版本</value>
