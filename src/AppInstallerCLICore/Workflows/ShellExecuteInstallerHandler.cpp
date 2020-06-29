@@ -16,16 +16,16 @@ namespace AppInstaller::CLI::Workflow
         {
             AICLI_LOG(CLI, Info, << "Starting installer. Path: " << filePath);
 
-            SHELLEXECUTEINFOA execInfo = { 0 };
-            execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+            SHELLEXECUTEINFOW execInfo = { 0 };
+            execInfo.cbSize = sizeof(execInfo);
             execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-            std::string filePathUTF8Str = filePath.u8string();
-            execInfo.lpFile = filePathUTF8Str.c_str();
-            execInfo.lpParameters = args.c_str();
+            execInfo.lpFile = filePath.c_str();
+            std::wstring argsUtf16 = Utility::ConvertToUTF16(args);
+            execInfo.lpParameters = argsUtf16.c_str();
             // Some installers force UI. Setting to SW_HIDE will hide installer UI and installation will hang forever.
             // Verified setting to SW_SHOW does not hurt silent mode since no UI will be shown.
             execInfo.nShow = SW_SHOW;
-            if (!ShellExecuteExA(&execInfo) || !execInfo.hProcess)
+            if (!ShellExecuteExW(&execInfo) || !execInfo.hProcess)
             {
                 return GetLastError();
             }
@@ -134,7 +134,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_LOGPATH), logPath))
             {
-                context.Add<Execution::Data::LogPath>(logPath);
+                context.Add<Execution::Data::LogPath>(Utility::ConvertToUTF16(logPath));
             }
 
             // Populate <InstallPath> with value from command line.

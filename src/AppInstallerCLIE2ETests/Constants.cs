@@ -24,7 +24,7 @@ namespace AppInstallerCLIE2ETests
         public const string AICLIPackageName = "WinGetDevCLI";
         public const string AICLIAppId = "WinGetDev";
 
-        public const string TestPackage = "TestPackage.msix";
+        public const string TestPackage = "TëstPackage.msix";
 
         public class ErrorCode
         {

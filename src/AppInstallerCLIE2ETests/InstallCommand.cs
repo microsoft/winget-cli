@@ -9,6 +9,7 @@ namespace AppInstallerCLIE2ETests
     public class InstallCommand
     {
         // Todo: this should point to a loopback address. Disabling the install tests until we have loopback support done in our e2e tests.
+        // Todo: add unicode test cases after install tests are enabled.
         private const string InstallTestSourceUrl = @"https://github.com/microsoft/appinstaller-cli/raw/master/src/AppInstallerCLIE2ETests/TestData";
         private const string InstallTestSourceName = @"InstallTestSource";
 
