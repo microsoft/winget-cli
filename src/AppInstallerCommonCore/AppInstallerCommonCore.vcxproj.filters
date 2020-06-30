@@ -114,6 +114,9 @@
     <ClInclude Include="JsonUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\ExperimentalFeature.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -183,6 +186,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UserSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExperimentalFeature.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

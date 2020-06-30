@@ -29,7 +29,6 @@ namespace AppInstaller::CLI::Resource
     {
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFlagError);
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFoundError);
-        WINGET_DEFINE_RESOURCE_STRINGID(ArgumentDiabled);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableArguments);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableCommands);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableOptions);
@@ -37,14 +36,12 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ChannelArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Command);
         WINGET_DEFINE_RESOURCE_STRINGID(CommandArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(CommandDisabled);
         WINGET_DEFINE_RESOURCE_STRINGID(CommandRequiresAdmin);
         WINGET_DEFINE_RESOURCE_STRINGID(CountArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExactArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandShortDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalFeatureName);
         WINGET_DEFINE_RESOURCE_STRINGID(ExtraPositionalError);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesCommandShortDescription);

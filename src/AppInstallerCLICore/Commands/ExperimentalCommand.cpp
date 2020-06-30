@@ -38,9 +38,7 @@ namespace AppInstaller::CLI
     {
         if (context.Args.Contains(Execution::Args::Type::ExperimentalArg))
         {
-            if (User().isEnabled(ExperimentalFeature::ExperimentalArg))
-            {
-                static constexpr std::string_view s_ninjaCat = R"(
+            static constexpr std::string_view s_ninjaCat = R"(
                                     -<vYT`                                           
                                  ')hM3d$$c                                           
                               `~uydNv>>$$$^                                          
@@ -73,13 +71,7 @@ namespace AppInstaller::CLI
                        _Zy ,h03o= `           -!G@BNQ@#85T.                          
                         `      `                :*vxL`)L! '                          
 )"sv;
-                context.Reporter.Info() << s_ninjaCat << std::endl;
-            }
-            else
-            {
-                // Here we warn the user that the argument exists and is not enabled.
-                Argument::ForType(Execution::Args::Type::ExperimentalArg).OutputEnableMessage(context);
-            }
+            context.Reporter.Info() << s_ninjaCat << std::endl;
         }
         context.Reporter.Info() << Resource::String::ThankYou << std::endl;
     }

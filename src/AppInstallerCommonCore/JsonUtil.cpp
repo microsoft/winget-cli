@@ -9,7 +9,7 @@ namespace AppInstaller::Utility
     template<>
     std::optional<std::string> GetValue(const Json::Value& node)
     {
-        std::optional<std::string> value = std::nullopt;
+        std::optional<std::string> value;
 
         if (node.isString())
         {
@@ -22,7 +22,7 @@ namespace AppInstaller::Utility
     template<>
     std::optional<uint32_t> GetValue(const Json::Value& node)
     {
-        std::optional<uint32_t> value = std::nullopt;
+        std::optional<uint32_t> value;
 
         if (node.isUInt())
         {
@@ -35,7 +35,7 @@ namespace AppInstaller::Utility
     template<>
     std::optional<bool> GetValue(const Json::Value& node)
     {
-        std::optional<bool> value = std::nullopt;
+        std::optional<bool> value;
 
         if (node.isBool())
         {

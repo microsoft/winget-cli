@@ -22,22 +22,22 @@ namespace AppInstaller::CLI
 
     std::string FeaturesCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-seattings";
+        return "https://aka.ms/winget-experimentalfeatures";
     }
 
     void FeaturesCommand::ExecuteInternal(Execution::Context& context) const
     {
         context.Reporter.Info() << Resource::String::FeaturesMessage << std::endl << std::endl;
 
-        Execution::TableOutput<3> table(context.Reporter, { "Feature", "Status", "Link"});
-        auto featuresInfo = UserSettings::GetFeaturesInfo();
-        for (const auto& featureInfo : featuresInfo)
+        auto features = ExperimentalFeature::GetAllFeatures();
+        
+        if (!features.empty())
         {
-            table.OutputLine({ std::get<0>(featureInfo), std::get<1>(featureInfo), std::get<2>(featureInfo) });
-        }
-
-        if (!featuresInfo.empty())
-        {
+            Execution::TableOutput<3> table(context.Reporter, { "Feature", "Status", "Link" });
+            for (const auto& feature : features)
+            {
+                table.OutputLine({ std::string{ feature.Name() }, ExperimentalFeature::IsEnabled(feature.GetFeature()) ? "Enabled" : "Disabled", std::string{ feature.Link() } });
+            }
             table.Complete();
         }
         else

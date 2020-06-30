@@ -11,7 +11,7 @@ namespace AppInstaller::CLI
     using namespace Utility::literals;
     using namespace Settings;
 
-    Command::Command(std::string_view name, std::string_view parent, VisibilityCmd visibility, ExperimentalFeature feature) :
+    Command::Command(std::string_view name, std::string_view parent, Command::Visibility visibility, ExperimentalFeature::Feature feature) :
         m_name(name), m_visibility(visibility), m_feature(feature)
     {
         if (!parent.empty())
@@ -77,8 +77,8 @@ namespace AppInstaller::CLI
         // Output the command preamble and command chain
         infoOut << Resource::String::Usage << ": winget"_liv << Utility::LocIndView{ commandChain };
 
-        auto commands = GetCommands();
-        auto arguments = GetArguments();
+        auto commands = GetVisibleCommands();
+        auto arguments = GetVisibleArguments();
 
         bool hasArguments = false;
         bool hasOptions = false;
@@ -164,11 +164,8 @@ namespace AppInstaller::CLI
 
             for (const auto& command : commands)
             {
-                if ((command->Visibility() == VisibilityCmd::Show) && User().isEnabled(command->Feature()))
-                {
-                    size_t fillChars = (maxCommandNameLength - command->Name().length()) + 2;
-                    infoOut << "  "_liv << Execution::HelpCommandEmphasis << command->Name() << Utility::LocIndString{ std::string(fillChars, ' ') } << command->ShortDescription() << std::endl;
-                }
+                size_t fillChars = (maxCommandNameLength - command->Name().length()) + 2;
+                infoOut << "  "_liv << Execution::HelpCommandEmphasis << command->Name() << Utility::LocIndString{ std::string(fillChars, ' ') } << command->ShortDescription() << std::endl;
             }
 
             infoOut <<
@@ -186,72 +183,52 @@ namespace AppInstaller::CLI
 
             std::vector<std::string> argNames;
             size_t maxArgNameLength = 0;
-            for (const auto& arg : GetArguments())
+            for (const auto& arg : arguments)
             {
-                if ((arg.Visibility() != VisibilityArg::Hidden) && User().isEnabled(arg.Feature()))
+                std::ostringstream strstr;
+                if (arg.Alias() != APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER)
                 {
-                    std::ostringstream strstr;
-                    if (arg.Alias() != APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER)
-                    {
-                        strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << ',';
-                    }
-                    strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Name();
-
-                    argNames.emplace_back(strstr.str());
-                    maxArgNameLength = std::max(maxArgNameLength, argNames.back().length());
+                    strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << ',';
                 }
+                strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Name();
+
+                argNames.emplace_back(strstr.str());
+                maxArgNameLength = std::max(maxArgNameLength, argNames.back().length());
             }
 
             if (hasArguments)
             {
-                bool atLeastOne = false;
-                size_t i = 0;
-                for (const auto& arg : GetArguments())
-                {
-                    if ((arg.Visibility() != VisibilityArg::Hidden) && User().isEnabled(arg.Feature()))
-                    {
-                        const std::string& argName = argNames[i++];
-                        if (arg.Type() == ArgumentType::Positional)
-                        {
-                            if (!atLeastOne)
-                            {
-                                atLeastOne = true;
-                                infoOut << Resource::String::AvailableArguments << std::endl;
-                            }
+                infoOut << Resource::String::AvailableArguments << std::endl;
 
-                            size_t fillChars = (maxArgNameLength - argName.length()) + 2;
-                            infoOut << "  "_liv << Execution::HelpArgumentEmphasis << argName << Utility::LocIndString{ std::string(fillChars, ' ') } << arg.Description() << std::endl;
-                        }
+                size_t i = 0;
+                for (const auto& arg : arguments)
+                {
+                    const std::string& argName = argNames[i++];
+                    if (arg.Type() == ArgumentType::Positional)
+                    {
+                        size_t fillChars = (maxArgNameLength - argName.length()) + 2;
+                        infoOut << "  "_liv << Execution::HelpArgumentEmphasis << argName << Utility::LocIndString{ std::string(fillChars, ' ') } << arg.Description() << std::endl;
                     }
                 }
             }
 
             if (hasOptions)
             {
-                bool atLeastOne = false;
-                size_t i = 0;
-                for (const auto& arg : GetArguments())
+                if (hasArguments)
                 {
-                    if ((arg.Visibility() != VisibilityArg::Hidden) && User().isEnabled(arg.Feature()))
+                    infoOut << std::endl;
+                }
+
+                infoOut << Resource::String::AvailableOptions << std::endl;
+
+                size_t i = 0;
+                for (const auto& arg : arguments)
+                {
+                    const std::string& argName = argNames[i++];
+                    if (arg.Type() != ArgumentType::Positional)
                     {
-                        const std::string& argName = argNames[i++];
-                        if (arg.Type() != ArgumentType::Positional)
-                        {
-                            if (!atLeastOne)
-                            {
-                                atLeastOne = true;
-
-                                if (hasArguments)
-                                {
-                                    infoOut << std::endl;
-                                }
-
-                                infoOut << Resource::String::AvailableOptions << std::endl;
-                            }
-
-                            size_t fillChars = (maxArgNameLength - argName.length()) + 2;
-                            infoOut << "  "_liv << Execution::HelpArgumentEmphasis << argName << Utility::LocIndString{ std::string(fillChars, ' ') } << arg.Description() << std::endl;
-                        }
+                        size_t fillChars = (maxArgNameLength - argName.length()) + 2;
+                        infoOut << "  "_liv << Execution::HelpArgumentEmphasis << argName << Utility::LocIndString{ std::string(fillChars, ' ') } << arg.Description() << std::endl;
                     }
                 }
             }
@@ -285,6 +262,13 @@ namespace AppInstaller::CLI
         {
             if (Utility::CaseInsensitiveEquals(*itr, command->Name()))
             {
+                if (!ExperimentalFeature::IsEnabled(command->Feature()))
+                {
+                    auto feature = ExperimentalFeature::GetFeature(command->Feature());
+                    AICLI_LOG(CLI, Error, << "Trying to use command: " << *itr << " without enabling feature " << feature.JsonName());
+                    throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
+                }
+
                 AICLI_LOG(CLI, Info, << "Found subcommand: " << *itr);
                 inv.consume(itr);
                 return std::move(command);
@@ -474,20 +458,13 @@ namespace AppInstaller::CLI
     void Command::Execute(Execution::Context& context) const
     {
         AICLI_LOG(CLI, Info, << "Executing command: " << Name());
-        if (User().isEnabled(m_feature))
+        if (context.Args.Contains(Execution::Args::Type::Help))
         {
-            if (context.Args.Contains(Execution::Args::Type::Help))
-            {
-                OutputHelp(context.Reporter);
-            }
-            else
-            {
-                ExecuteInternal(context);
-            }
+            OutputHelp(context.Reporter);
         }
         else
         {
-            OutputEnableMessage(context);
+            ExecuteInternal(context);
         }
     }
 
@@ -495,6 +472,13 @@ namespace AppInstaller::CLI
     {
         for (const auto& arg : GetArguments())
         {
+            if (!ExperimentalFeature::IsEnabled(arg.Feature()) && execArgs.Contains(arg.ExecArgType()))
+            {
+                auto feature = ExperimentalFeature::GetFeature(arg.Feature());
+                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " without enabling feature " << feature.JsonName());
+                throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
+            }
+
             if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
             {
                 throw CommandException(Resource::String::RequiredArgError, arg.Name());
@@ -513,13 +497,39 @@ namespace AppInstaller::CLI
         THROW_HR(E_NOTIMPL);
     }
 
-    void Command::OutputEnableMessage(Execution::Context& context) const
+    Command::Visibility Command::GetVisibility() const
     {
-        THROW_HR_IF(E_UNEXPECTED, m_feature == ExperimentalFeature::None);
+        if (!ExperimentalFeature::IsEnabled(m_feature))
+        {
+            return Command::Visibility::Hidden;
+        }
 
-        auto featureInfo = UserSettings::GetFeatureInfo(m_feature);
-        context.Reporter.Warn() << Resource::String::CommandDisabled << " " << m_name << std::endl;
-        context.Reporter.Warn() << Resource::String::ExperimentalFeatureName << " " << std::get<0>(featureInfo) << std::endl;
-        context.Reporter.Warn() << Resource::String::FeatureDisabledMessage << " " << std::get<2>(featureInfo) << std::endl;
+        return m_visibility;
+    }
+
+    std::vector<std::unique_ptr<Command>> Command::GetVisibleCommands() const
+    {
+        auto commands = GetCommands();
+
+        commands.erase(
+            std::remove_if(
+                commands.begin(), commands.end(),
+                [](const std::unique_ptr<Command>& command) { return command->GetVisibility() == Command::Visibility::Hidden; }),
+            commands.end());
+
+        return commands;
+    }
+
+    std::vector<Argument> Command::GetVisibleArguments() const
+    {
+        auto arguments = GetArguments();
+
+        arguments.erase(
+            std::remove_if(
+                arguments.begin(), arguments.end(),
+                [](const Argument& arg) { return arg.GetVisibility() == Argument::Visibility::Hidden; }),
+            arguments.end());
+
+        return arguments;
     }
 }

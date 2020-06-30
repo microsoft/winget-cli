@@ -39,8 +39,8 @@ namespace AppInstaller::CLI
     {
         return
         {
-            Argument{ "version", 'v', Execution::Args::Type::ListVersions, Resource::String::ToolVersionArgumentDescription, ArgumentType::Flag, VisibilityArg::Help },
-            Argument{ "info", APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER, Execution::Args::Type::Info, Resource::String::ToolInfoArgumentDescription, ArgumentType::Flag, VisibilityArg::Help },
+            Argument{ "version", 'v', Execution::Args::Type::ListVersions, Resource::String::ToolVersionArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument{ "info", APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER, Execution::Args::Type::Info, Resource::String::ToolInfoArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
         };
     }
 

@@ -123,9 +123,6 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>Adjoined flag alias not found</value>
   </data>
-  <data name="ArgumentDiabled" xml:space="preserve">
-    <value>Argument disabled:</value>
-  </data>
   <data name="AvailableArguments" xml:space="preserve">
     <value>The following arguments are available:</value>
   </data>
@@ -150,9 +147,6 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filter results by command</value>
   </data>
-  <data name="CommandDisabled" xml:space="preserve">
-    <value>Command disabled:</value>
-  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>This command requires administrator privileges to execute.</value>
   </data>
@@ -166,29 +160,30 @@
     <value>Experimental argument for demonstration purposes</value>
   </data>
   <data name="ExperimentalCommandLongDescription" xml:space="preserve">
-    <value>This command is an example on how to implement an experimental feature. To turn on go to winget settings and enable experimentalCmd or experimentalArg features.</value>
+    <value>This command is an example on how to implement an experimental feature. To turn on go to 'winget settings' and enable experimentalCmd or experimentalArg features.</value>
+    <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="ExperimentalCommandShortDescription" xml:space="preserve">
     <value>Experimental feature example</value>
-  </data>
-  <data name="ExperimentalFeatureName" xml:space="preserve">
-    <value>Experimental feature:</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Found a positional argument when none was expected</value>
   </data>
   <data name="FeatureDisabledMessage" xml:space="preserve">
-    <value>If you want to try this feature, please go to winget settings and enable it. See</value>
+    <value>This command is a work in progress, and may be changed dramatically or removed altogether in the future. To enable it, edit your settings ('winget settings') to include the experimental feature</value>
+    <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
-    <value>Shows the status of experimental features. Experimental features can be turn on via winget settings.</value>
+    <value>Shows the status of experimental features. Experimental features can be turn on via 'winget settings'.</value>
+    <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesCommandShortDescription" xml:space="preserve">
     <value>Shows the status of experimental features.</value>
   </data>
   <data name="FeaturesMessage" xml:space="preserve">
     <value>The following experimental features are in progress.
-They can be configured through the settings file (winget settings).</value>
+They can be configured through the settings file 'winget settings'.</value>
+    <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>File to be hashed</value>

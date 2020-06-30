@@ -179,6 +179,7 @@
   <ItemGroup>
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Downloader.cpp" />
+    <ClCompile Include="ExperimentalFeature.cpp" />
     <ClCompile Include="HashCommand.cpp" />
     <ClCompile Include="MsixInfo.cpp" />
     <ClCompile Include="PreIndexedPackageSource.cpp" />

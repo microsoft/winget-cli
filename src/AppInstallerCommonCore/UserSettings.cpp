@@ -32,29 +32,8 @@ namespace AppInstaller::Settings
         constexpr std::string_view LoadedBackupSettings = "Loaded settings from backup file."sv;
     }
 
-    namespace ExperimentalFeatureInfo
-    {
-        constexpr std::string_view ExperimentalCmd = "experimentalCmd"sv;
-        constexpr std::string_view ExperimentalCmdLink = "https://aka.ms/winget-settings"sv;
-        constexpr std::string_view ExperimentalArg = "experimentalArg"sv;
-        constexpr std::string_view ExperimentalArgLink = "https://aka.ms/winget-settings"sv;
-    }
-
     namespace
     {
-        std::string ToString(ExperimentalFeature feature)
-        {
-            switch (feature)
-            {
-            case ExperimentalFeature::ExperimentalCmd:
-                return std::string{ ExperimentalFeatureInfo::ExperimentalCmd };
-            case ExperimentalFeature::ExperimentalArg:
-                return std::string{ ExperimentalFeatureInfo::ExperimentalArg };
-            default:
-                THROW_HR(E_UNEXPECTED);
-            }
-        }
-
         // Jsoncpp doesn't provide line number and column for an individual Json::Value node.
         inline std::string GetSettingsMessage(const std::string& message, const std::string& path)
         {
@@ -103,14 +82,6 @@ namespace AppInstaller::Settings
             return {};
         }
 
-        template<typename... Args>
-        ExperimentalFeature ParseAllExperimentalFeatures(
-            std::function<ExperimentalFeature(ExperimentalFeature feature)> parse,
-            Args... args)
-        {
-            return (parse(args) | ... | details::SettingMapping<Setting::ExperimentalFeatures>::DefaultValue);
-        }
-
         template <Setting S>
         void Validate(
             Json::Value& root,
@@ -157,49 +128,6 @@ namespace AppInstaller::Settings
             }
         }
 
-        template <>
-        void Validate<Setting::ExperimentalFeatures>(
-            Json::Value& root,
-            std::map<Setting, details::SettingVariant>& settings,
-            std::vector<std::string>& warnings)
-        {
-            auto parse = [&root, &warnings](ExperimentalFeature feature) -> ExperimentalFeature
-            {
-                auto path = std::string{ details::SettingMapping<Setting::ExperimentalFeatures>::Path };
-                auto name = ToString(feature);
-                const Json::Path jsonPath(path, name);
-                Json::Value result = jsonPath.resolve(root);
-                if (!result.isNull())
-                {
-                    auto jsonValue = GetValue<bool>(result);
-                    if (jsonValue.has_value())
-                    {
-                        if (jsonValue.value())
-                        {
-                            AICLI_LOG(Core, Info, << GetSettingsMessage(SettingsMessage::ValidMessage, name, jsonValue.value()));
-                            return feature;
-                        }
-                    }
-                    else
-                    {
-                        auto invalidFormatMsg = GetSettingsMessage(SettingsMessage::InvalidFieldFormat, name);
-                        AICLI_LOG(Core, Error, << invalidFormatMsg);
-                        warnings.emplace_back(invalidFormatMsg);
-                    }
-                }
-
-                return ExperimentalFeature::None;
-            };
-
-            auto result = ParseAllExperimentalFeatures(
-                parse,
-                ExperimentalFeature::ExperimentalCmd,
-                ExperimentalFeature::ExperimentalArg);
-
-            settings[Setting::ExperimentalFeatures].emplace<details::SettingIndex(Setting::ExperimentalFeatures)>(
-                std::forward<typename details::SettingMapping<Setting::ExperimentalFeatures>::value_t>(result));
-        }
-
         template <size_t... S>
         void ValidateAll(
             Json::Value& root,
@@ -242,6 +170,18 @@ namespace AppInstaller::Settings
             }
 
             return {};
+        }
+
+        std::optional<SettingMapping<Setting::EFExperimentalCmd>::value_t>
+            SettingMapping<Setting::EFExperimentalCmd>::Validate(const SettingMapping<Setting::EFExperimentalCmd>::json_t& value)
+        {
+            return value;
+        }
+
+        std::optional<SettingMapping<Setting::EFExperimentalArg>::value_t>
+            SettingMapping<Setting::EFExperimentalArg>::Validate(const SettingMapping<Setting::EFExperimentalArg>::json_t& value)
+        {
+            return value;
         }
     }
 
@@ -311,49 +251,5 @@ namespace AppInstaller::Settings
     std::filesystem::path UserSettings::SettingsFilePath()
     {
         return GetPathTo(Streams::PrimaryUserSettings);
-    }
-
-    bool UserSettings::isEnabled(ExperimentalFeature feature) const
-    {
-        auto enabled = (Get<Setting::ExperimentalFeatures>() & feature) == feature;
-
-        // Special cases
-        if (feature == ExperimentalFeature::ExperimentalCmd)
-        {
-            // ExperimentalArg depends on ExperimentalCmd, so instead of failing we could
-            // assume that if ExperimentalArg is enabled then ExperimentalCmd is as well.
-            enabled = enabled || isEnabled(ExperimentalFeature::ExperimentalArg);
-        }
-
-        return enabled;
-    }
-
-    std::tuple<std::string, std::string, std::string> UserSettings::GetFeatureInfo(ExperimentalFeature feature)
-    {
-        std::string_view link;
-
-        switch (feature)
-        {
-        case ExperimentalFeature::ExperimentalCmd:
-            link = ExperimentalFeatureInfo::ExperimentalCmdLink;
-            break;
-        case ExperimentalFeature::ExperimentalArg:
-            link = ExperimentalFeatureInfo::ExperimentalArgLink;
-            break;
-        default:
-            THROW_HR(E_UNEXPECTED);
-        }
-
-        return { ToString(feature), User().isEnabled(feature) ? "Enabled" : "Disabled", std::string{ link } };
-    }
-
-    std::vector<std::tuple<std::string, std::string, std::string>> UserSettings::GetFeaturesInfo()
-    {
-        return
-        {
-            // Commented out on purpose these are just to provide example on how experimental features work.
-            // GetFeatureInfo(ExperimentalFeature::ExperimentalCmd),
-            // GetFeatureInfo(ExperimentalFeature::ExperimentalArg),
-        };
     }
 }

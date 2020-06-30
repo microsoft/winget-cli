@@ -20,17 +20,17 @@ namespace AppInstaller::CLI
         case Args::Type::Query:
             return Argument{ "query", 'q', Args::Type::Query, Resource::String::QueryArgumentDescription, ArgumentType::Positional};
         case Args::Type::Manifest:
-            return Argument{ "manifest", 'm', Args::Type::Manifest, Resource::String::ManifestArgumentDescription, ArgumentType::Standard, VisibilityArg::Help };
+            return Argument{ "manifest", 'm', Args::Type::Manifest, Resource::String::ManifestArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Id:
-            return Argument{ "id", None, Args::Type::Id,Resource::String::IdArgumentDescription, ArgumentType::Standard, VisibilityArg::Help };
+            return Argument{ "id", None, Args::Type::Id,Resource::String::IdArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Name:
-            return Argument{ "name", None, Args::Type::Name, Resource::String::NameArgumentDescription, ArgumentType::Standard, VisibilityArg::Help };
+            return Argument{ "name", None, Args::Type::Name, Resource::String::NameArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Moniker:
-            return Argument{ "moniker", None, Args::Type::Moniker, Resource::String::MonikerArgumentDescription, ArgumentType::Standard, VisibilityArg::Help };
+            return Argument{ "moniker", None, Args::Type::Moniker, Resource::String::MonikerArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Tag:
-            return Argument{ "tag", None, Args::Type::Tag, Resource::String::TagArgumentDescription, ArgumentType::Standard, VisibilityArg::Help };
+            return Argument{ "tag", None, Args::Type::Tag, Resource::String::TagArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Command:
-            return Argument{ "command", None, Args::Type::Command, Resource::String::CommandArgumentDescription, ArgumentType::Standard, VisibilityArg::Help };
+            return Argument{ "command", None, Args::Type::Command, Resource::String::CommandArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Source:
             return Argument{ "source", 's', Args::Type::Source, Resource::String::SourceArgumentDescription, ArgumentType::Standard };
         case Args::Type::Count:
@@ -40,17 +40,17 @@ namespace AppInstaller::CLI
         case Args::Type::Version:
             return Argument{ "version", 'v', Args::Type::Version, Resource::String::VersionArgumentDescription, ArgumentType::Standard };
         case Args::Type::Channel:
-            return Argument{ "channel", 'c', Args::Type::Channel, Resource::String::ChannelArgumentDescription, ArgumentType::Standard, VisibilityArg::Hidden };
+            return Argument{ "channel", 'c', Args::Type::Channel, Resource::String::ChannelArgumentDescription, ArgumentType::Standard, Argument::Visibility::Hidden };
         case Args::Type::Interactive:
             return Argument{ "interactive", 'i', Args::Type::Interactive, Resource::String::InteractiveArgumentDescription, ArgumentType::Flag };
         case Args::Type::Silent:
             return Argument{ "silent", 'h', Args::Type::Silent, Resource::String::SilentArgumentDescription, ArgumentType::Flag };
         case Args::Type::Language:
-            return Argument{ "lang", 'a', Args::Type::Language, Resource::String::LanguageArgumentDescription, ArgumentType::Standard, VisibilityArg::Hidden };
+            return Argument{ "lang", 'a', Args::Type::Language, Resource::String::LanguageArgumentDescription, ArgumentType::Standard, Argument::Visibility::Hidden };
         case Args::Type::Log:
             return Argument{ "log", 'o', Args::Type::Log, Resource::String::LogArgumentDescription, ArgumentType::Standard };
         case Args::Type::Override:
-            return Argument{ "override", None, Args::Type::Override, Resource::String::OverrideArgumentDescription, ArgumentType::Standard, VisibilityArg::Help };
+            return Argument{ "override", None, Args::Type::Override, Resource::String::OverrideArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::InstallLocation:
             return Argument{ "location", 'l', Args::Type::InstallLocation, Resource::String::LocationArgumentDescription, ArgumentType::Standard };
         case Args::Type::HashFile:
@@ -70,17 +70,17 @@ namespace AppInstaller::CLI
         case Args::Type::ValidateManifest:
             return Argument{ "manifest", None, Args::Type::ValidateManifest, Resource::String::ValidateManifestArgumentDescription, ArgumentType::Positional, true };
         case Args::Type::NoVT:
-            return Argument{ "no-vt", None, Args::Type::NoVT, Resource::String::NoVTArgumentDescription, ArgumentType::Flag, VisibilityArg::Hidden };
+            return Argument{ "no-vt", None, Args::Type::NoVT, Resource::String::NoVTArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
         case Args::Type::RainbowStyle:
-            return Argument{ "rainbow", None, Args::Type::RainbowStyle, Resource::String::RainbowArgumentDescription, ArgumentType::Flag, VisibilityArg::Hidden };
+            return Argument{ "rainbow", None, Args::Type::RainbowStyle, Resource::String::RainbowArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
         case Args::Type::RetroStyle:
-            return Argument{ "retro", None, Args::Type::RetroStyle, Resource::String::RetroArgumentDescription, ArgumentType::Flag, VisibilityArg::Hidden };
+            return Argument{ "retro", None, Args::Type::RetroStyle, Resource::String::RetroArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
         case Args::Type::Force:
             return Argument{ "force", None, Args::Type::Force, Resource::String::ForceArgumentDescription, ArgumentType::Flag };
         case Args::Type::VerboseLogs:
             return Argument{ "verbose-logs", None, Args::Type::VerboseLogs, Resource::String::VerboseLogsArgumentDescription, ArgumentType::Flag };
         case Args::Type::ExperimentalArg:
-            return Argument{ "arg", None, Args::Type::ExperimentalArg, Resource::String::ExperimentalArgumentDescription, ArgumentType::Flag, ExperimentalFeature::ExperimentalArg };
+            return Argument{ "arg", None, Args::Type::ExperimentalArg, Resource::String::ExperimentalArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::ExperimentalArg };
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -95,13 +95,13 @@ namespace AppInstaller::CLI
         args.push_back(ForType(Args::Type::VerboseLogs));
     }
 
-    void Argument::OutputEnableMessage(Execution::Context& context) const
+    Argument::Visibility Argument::GetVisibility() const
     {
-        THROW_HR_IF(E_UNEXPECTED, m_feature == ExperimentalFeature::None);
+        if (!ExperimentalFeature::IsEnabled(m_feature))
+        {
+            return Argument::Visibility::Hidden;
+        }
 
-        auto featureInfo = UserSettings::GetFeatureInfo(m_feature);
-        context.Reporter.Warn() << Resource::String::ArgumentDiabled << " " << m_name << std::endl;
-        context.Reporter.Warn() << Resource::String::ExperimentalFeatureName << " " << std::get<0>(featureInfo) << std::endl;
-        context.Reporter.Warn() << Resource::String::FeatureDisabledMessage << " " << std::get<2>(featureInfo) << std::endl;
+        return m_visibility;
     }
 }
