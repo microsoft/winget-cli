@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>Không tìm thấy biệt danh gắn cờ liên kết</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>Các đối số sau đang sẵn dùng:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Sử dụng kênh cụ thể; mặc định là người xem chung</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>lệnh</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Lọc kết quả theo lệnh</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>Lệnh này yêu cầu đặc quyền của người quản trị để thực thi.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Hiển thị không vượt quá số kết quả đã xác định</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>Thực thi lệnh mà không cần lời nhắc</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>Tính toán hàm băm của một tệp cục bộ, thích hợp để nhập vào một tệp kê khai. Ứng dụng này cũng có thể tính toán hàm băm từ tệp chữ ký của gói MSIX để cho phép cài đặt phát trực tuyến.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>Trình trợ giúp băm tệp của trình cài đặt</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Lọc kết quả theo ID</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>Ứng dụng này được chủ sở hữu cấp phép cho bạn.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft không chịu trách nhiệm về việc này, cũng như không cấp bất kỳ giấy phép nào cho các gói của bên thứ ba.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>Bạn không thể cài đặt ứng dụng, vì ứng dụng yêu cầu phiên bản Windows cao hơn:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Cài đặt ứng dụng đã chọn, bạn có thể tìm thấy bằng cách tìm kiếm nguồn được đặt cấu hình hoặc trực tiếp từ tệp kê khai.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Cài đặt ứng dụng được cung cấp</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>Ngôn ngữ cài đặt (nếu có hỗ trợ)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>Thỏa thuận cấp phép</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>Liên kết</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Vị trí cần cài đặt (nếu có hỗ trợ)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>Ghi nhật ký vị trí (nếu có hỗ trợ)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Bản quyền (c) Microsoft Corporation. Bảo lưu mọi quyền.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>Trang chủ</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>Đường dẫn đến tệp kê khai của ứng dụng</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>Không thể xác thực tệp kê khai.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>Đã xác thực thành công tệp kê khai.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>Xác nhận tệp kê khai thành công với các cảnh báo.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Giá trị đối số là bắt buộc, nhưng không tìm thấy</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Tệp nhập sẽ được xử lý dưới dạng msix; hàm băm chữ ký sẽ được cung cấp nếu đã ký</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>Không thể tính toán hàm băm chữ ký MSIX.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Lọc kết quả theo tên</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>Không có trình cài đặt nào được áp dụng cho hệ thống hiện tại.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Tắt hiển thị VirtualTerminal</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>tùy chọn</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Ghi đè đối số cần chuyển qua trình cài đặt</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>Gói</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Rất tiếc, chúng tôi đã quên thực hiện điều này...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>Tiến độ hiển thị theo màu sắc mặc định</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Bản xem trước</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>Điều khoản về Quyền riêng tư</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>Truy vấn dùng để tìm kiếm ứng dụng</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>Đối số bắt buộc không được cung cấp</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>Tiến độ hiển thị theo màu sắc mặc định</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>Tìm kiếm các ứng dụng từ các nguồn được cấu hình.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Tìm và hiển thị thông tin cơ bản của ứng dụng</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>Các lỗi sau đây đã được tìm thấy xác thực thiết đặt:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Mở thiết đặt trong trình soạn thảo văn bản json mặc định. Nếu không có trình soạn thảo nào được đặt cấu hình, hãy mở cài đặt trong Notepad. Đối với các cài đặt sẵn dùng, hãy xem https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Mở cài đặt</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>Lỗi bất ngờ trong khi tải cài đặt. Vui lòng xác minh cài đặt của bạn bằng cách chạy lệnh cài đặt.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Hiển thị thông tin về ứng dụng cụ thể.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Lọc kết quả theo thẻ</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>Tiện ích dòng lệnh WinGet cho phép cài đặt ứng dụng từ dòng lệnh.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>Thông báo của bên thứ ba</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Hiển thị thông tin chung của công cụ</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>Nhiều hơn một đối số hành vi cài đặt được cung cấp</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>Đã xảy ra lỗi ngoài dự kiến khi đang thực hiện lệnh:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Lệnh không nhận dạng được:</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>mức sử dụng</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Xác thực tệp kê khai bằng bộ hướng dẫn nghiêm ngặt. Mục đích của việc này là cho phép bạn kiểm tra tệp kê khai trước khi gửi đến kho lưu trữ.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>Bật tính năng ghi nhật ký chi tiết cho WinGet</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>Vui lòng xác minh rằng tệp đầu vào là một MSIX đã ký hợp lệ.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Sử dụng phiên bản đã xác định; mặc định là phiên bản mới nhất</value>

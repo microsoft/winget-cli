@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>Samliggjandi flaggsamnefni fannst ekki</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>Eftirfarandi frumbreytur eru tiltækar:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Nota tilgreinda rás; sjálfgefið er almennur notendahópur</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>skipun</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Sía niðurstöður eftir skipun</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>Það þarf stjórnandaréttindi til að framkvæma þessa skipun.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Sýna ekki fleiri en tiltekinn fjölda niðurstaðna</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>Framkvæma skipunina án kvaðninga</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>Reiknar tætigildi staðbundinnar skrár, sem er viðeigandi til að færa í skrá.  Það getur einnig reiknað út tætigildi undirritunarskráar með MSIX-pakka til að virkja uppsetningar straumspilunar.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>Aðstoð til að tæta uppsetningaskrár</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Sía niðurstöður kenni</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>Þú ert með leyfi fyrir þessu forriti frá eiganda þess.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft er ekki ábyrgt fyrir, né veitir það nein leyfi til, pakka þriðja aðila.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>Ekki er hægt að setja upp forrit, þar sem það krefst nýrri útgáfu af Windows:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Setur upp valið forrit, annaðhvort með því að leita í skilgreindum uppruna eða beint úr skrá.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Uppsetur forritið</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>Tungumál sem á að setja upp (ef stutt)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>Leyfissamningur</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>Tenglar</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Staðsetning sett upp á (ef stutt)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>Staðsetning skráar (ef stutt)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Höfundarréttur (c) Microsoft Corporation. Allur réttur áskilinn.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>Upphafssíða</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>Slóðin á farmskrá forritsins</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>Staðfesting skráar mistókst.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>Staðfesting skráar tókst.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>Staðfesting á skrá tókst með viðvörunum.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Þörf er á frumbreytugildi en engin fannst</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Ílagsskrá verður meðhöndluð sem msix; tæting undirskriftar verður notuð ef undirrituð</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>Ekki tókst að reikna út tætigildi MSIX-undirritunar.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Sía niðurstöður eftir heiti</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>Engin uppsetningarforrit eru nothæf fyrir núverandi kerfi.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Slekkur á VirtualTerminal-skjá</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>valkostir</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Hnekkja frumbreytum sem á að senda í uppsetningarforritið</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>Pakki</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Úps, við gleymdum að gera þetta...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>Framvinduskjár sem sjálfgefinn litur</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Forskoðun</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>Yfirlýsing um persónuvernd</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>Fyrirspurnin sem notuð er til að leita að forriti</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>Áskilin frumbreyta ekki tilgreind</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>Framvinduskjár sem sjálfgefinn litur</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>Leitar eftir forritum í skilgreindum uppruna.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Finna og sýna grunnupplýsingar forrita</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>Eftirfarandi villur fundust við að villuleita stillingarnar:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Opnaðu stillingar í sjálfgefnum JSON-textaritli. Ef enginn ritill er skilgreindur opnast stillingar í Notepad. Fyrir tiltækar stillingar sjá https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Opna stillingar</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>Óvænt villa við hleðslu stillinga. Staðfestu stillingarnar með því að keyra stillingaskipunina.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Sýnir upplýsingar um tiltekið forrit.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Sía niðurstöður eftir merki</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>WinGet-skipanalínubúnaðurinn gerir það kleift að setja upp forrit úr skipanalínunni.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>Tilkynningar þriðju aðila</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Sýna almennar upplýsingar um verkfærið</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>Fleiri en ein frumbreyta fyrir uppsetningarhegðun gefin upp</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>Óvænt villa kom upp þegar verið var að framkvæma skipunina:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Óþekkt skipun</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>notkun</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Staðfestir farmskrá með því að nota afmarkaðan hóp af viðmiðunarreglum. Þetta er ætlað að gera þér kleift að athuga farmskrána þína áður en þú leggur inn skýrslu.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>Virkjar oflengdarskráningu fyrir WinGet</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>Staðfestið að inntaksskráin sé gild, undirrituð MSIX.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Nota tilgreinda útgáfu; sjálfgefið er nýjasta útgáfan</value>

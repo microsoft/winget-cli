@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>Pievienotā karodziņa aizstājvārds nav atrasts</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>Ir pieejami šādi argumenti:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Izmantot norādīto kanālu; noklusējums ir vispārēja auditorija</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>komanda</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtrēt rezultātus pēc komandas</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>Šai komandai ir nepieciešamas administratora privilēģijas, lai izpildītu.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Rādīt ne vairāk par norādīto rezultātu skaitu</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>Izpildīt komandu bez uzvednēm</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>Aprēķina lokālā faila jaucējkodu, kas piemērots ievadei manifestā. Var arī aprēķināt MSIX pakotnes paraksta faila jaucējkodu, lai iespējotu straumēšanas instalēšanu.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>Palīgs Instalētāja failu jaukšanai</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtrēt rezultātus pēc ID</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>Šo lietojumprogrammu licencēja tās īpašnieks.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft neuzņemas atbildību par trešo pušu pakotnēm, kā arī nepiešķir tām licences.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>Nevar instalēt lietojumprogrammu, jo tai ir nepieciešama jaunāka Windows versija:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Instalē atlasīto lietojumprogrammu, kas atrasta, meklējot konfigurēto avotu vai tieši no manifesta.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Instalē norādīto programmu</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>Instalējamā valoda (ja tiek atbalstīta)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>Licences līgums</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>Saites</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Atrašanās vieta, kurā instalēt (ja tiek atbalstīta)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>Žurnāla atrašanās vieta (ja tiek atbalstīta)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Autortiesības (c) Microsoft Corporation. Visas tiesības paturētas.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>Sākumlapa</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>Ceļš uz programmas manifestu</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>Neizdevās validēt manifestu.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>Manifesta validācija izdevās.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>Manifesta validācija izdevās ar brīdinājumiem.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Argumenta vērtība ir obligāta, bet netika atrasta</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Ievades fails tiks uzskatīts par msix; paraksta jaukšana tiks nodrošināta, ja ir parakstīts</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>Neizdevās aprēķināt MSIX paraksta jaucējkodu.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtrēt rezultātus pēc nosaukuma</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>Pašreizējai sistēmai nav lietojama neviena instalēšanas programma.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Atspējo VirtualTerminal displeju</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>opcijas</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Pārlabot instalētājam nododamos argumentus</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>Paciņa</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Šo mēs aizmirsām izdarīt...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>Norises attēlojums kā noklusējuma krāsa</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Priekšskatījums</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>Paziņojums par konfidencialitāti</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>Vaicājums, kas izmantots programmas meklēšanai</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>Nav norādīts obligāts arguments</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>Norises attēlojums kā noklusējuma krāsa</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>Meklē lietojumprogrammas no konfigurētajiem avotiem.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Atrast un parādīt pamatinformāciju par programmām</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>Iestatījumu validēšanai tika konstatētas šādas kļūmes:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Atver iestatījumus noklusējuma JSON teksta redaktorā. Ja nav konfigurēts neviens redaktors, iestatījumi tiek atvērti programmā Piezīmjbloks. Pieejamos iestatījumus skatiet https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Atver iestatījumus</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>Ielādējot iestatījumus, radās neparedzēta kļūda. Lūdzu, pārbaudiet savus iestatījumus, izpildot komandu iestatījumi.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Rāda informāciju par konkrētu programmu.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtrēt rezultātus pēc atzīmes</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>Komandrindas utilīta WinGet ļauj instalēt programmas no komandrindas.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>Trešo pušu paziņojumi</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Rādīt vispārīgu informāciju par rīku</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>Norādīti vairāki instalēšanas darbības argumenti</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>Izpildot komandu, radās neparedzēta kļūda:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Neatpazīta komanda</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>lietojums</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Validē manifestu, izmantojot stingru vadlīniju kopu. Tas ir paredzēts, lai jūs varētu pārbaudīt savu manifestu, pirms to iesniedzat.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>Iespējo WinGet izvērsto reģistrēšanu</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>Lūdzu, pārbaudiet, vai ievades fails ir derīgs, parakstīts MSIX.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Izmantot norādīto versiju; noklusējums ir jaunākā versija</value>

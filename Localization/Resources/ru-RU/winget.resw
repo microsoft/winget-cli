@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>Псевдоним присоединенного флага не найден</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>Доступны следующие аргументы:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Использовать указанный канал; по умолчанию предназначено для широкой аудитории</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>команда</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Фильтровать результаты по команде</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>Для выполнения этой команды требуются права администратора.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Отображать не более указанного количества результатов</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>Выполнить команду без запросов</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>Вычисляет хэш локального файла, подходящий для записи в манифест. Он также может вычислить хэш файла подписи для MSIX-пакета, чтобы разрешить потоковые установки.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>Вспомогательное приложение для хэширования файлов установщика</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Фильтровать результаты по идентификатору</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>Лицензия на это приложение предоставлена вам владельцем.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Корпорация Майкрософт не несет ответственность за сторонние пакеты и не предоставляет для них никакие лицензии.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>Не удается установить приложение, так как для него требуется более поздняя версия Windows:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Устанавливает выбранное приложение, найденное путем поиска в настроенном источнике или непосредственно из манифеста.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Устанавливает указанное приложение</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>Язык для установки (если поддерживается)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>Лицензионное соглашение</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>Ссылки</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Место для установки (если поддерживается)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>Расположение журнала (если поддерживается)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>(с) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>Домашняя страница</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>Путь к манифесту приложения</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>Ошибка проверки манифеста.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>Проверка манифеста выполнена успешно.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>Проверка манифеста выполнена с предупреждениями.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Требуется значение аргумента, но ничего не найдено</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Входной файл будет обрабатываться как формат MSIX; при наличии подписи будет предоставлен хэш подписи</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>Не удалось вычислить хэш подписи MSIX.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Фильтровать результаты по имени</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>Отсутствуют установщики, применимые к текущей системе.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Отключает дисплей VirtualTerminal</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>параметры</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Переопределить аргументы, передаваемые установщику</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>Пакет</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>К сожалению, мы забыли сделать это...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>Отображение хода выполнения в виде стандартного цвета</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Ознакомительная версия</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>Заявление о конфиденциальности</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>Запрос, использованный для поиска приложения</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>Обязательный аргумент не указан</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>Отображение хода выполнения в виде стандартного цвета</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>Поиск приложений из настроенных источников.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Поиск и отображение основных сведений о приложениях</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>Обнаружены следующие ошибки при проверке параметров:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Откройте параметры в стандартном текстовом редакторе JSON. Если редактор не настроен, параметры откроются в Блокноте. Доступные параметры см. на странице https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Открыть параметры</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>Непредвиденная ошибка при загрузке параметров. Проверьте параметры, выполнив команду "Параметры".</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Отображает информацию о конкретном приложении.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Фильтровать результаты по тегу</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>Служебная программа командной строки WinGet позволяет устанавливать приложения из командной строки.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>Уведомления третьих сторон</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Отображать общие сведения об инструменте</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>Предоставлено более одного аргумента поведения при установке</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>При выполнении команды произошла непредвиденная ошибка:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Нераспознанная команда</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>использование</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Проверяет манифест с помощью строгого набора правил. Это позволяет вам проверить манифест перед отправкой в репозиторий.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>Включает ведение подробного журнала для WinGet</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>Убедитесь, что входной файл является допустимым подписанным MSIX-файлом.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Использовать указанную версию; по умолчанию используется последняя версия</value>

@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>Bendera adjoined alias tidak dijumpai</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>argumen berikut tersedia:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Gunakan saluran yang ditentukan; lalai adalah khalayak umum</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>perintah</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Tapis hasil mengikut perintah</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>Perintah ini memerlukan keistimewaan pentadbir untuk melaksanakan.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Tunjukkan tidak lebih daripada bilangan hasil yang ditentukan</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>Melaksanakan perintah tanpa prom</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>Mengira cincangan fail tempatan, sesuai untuk dimasukkan ke dalam manifes.  Ia juga boleh mengira cincangan fail tandatangan bagi pakej MSIX untuk mendayakan pemasangan penstriman.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>Pembantu untuk fail pemasang cincangan</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Tapis Hasil mengikut id</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>Aplikasi ini dilesenkan kepada anda oleh pemiliknya.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft tidak bertanggungjawab terhadap, dan tidak memberi sebarang lesen kepada, pakej pihak ketiga.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>Tidak boleh memasang aplikasi, kerana ia memerlukan versi Windows yang lebih tinggi:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Pasang aplikasi yang dipilih, sama ada ditemui dengan mencari sumber yang dikonfigurasikan atau secara langsung daripada manifes.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Memasang aplikasi yang diberikan</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>Bahasa untuk dipasang (jika disokong)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>Perjanjian Lesen</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>Pautan</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Lokasi untuk dipasang (jika disokong)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>Merekodkan lokasi (jika disokong)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Copyright (c) Microsoft Corporation. Hak cipta terpelihara.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>Halaman utama</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>Laluan kepada manifes aplikasi</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>Pensahihan manifes telah gagal.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>Pensahihan manifes telah berjaya.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>Pensahihan manifes telah berjaya dengan amaran.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Argumen nilai yang diperlukan tetapi tiada yang dijumpai</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Fail input akan dikira sebagai msix; cincangan tandatangan akan disediakan jika mendaftar</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>Gagal mengira cincangan tandatangan MSIX.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Tapis hasil mengikut nama</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>Tiada pemasang yang berkenaan untuk sistem semasa.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Menyahdayakan paparan VirtualTerminal</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>opsyen</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Menggantikan argumen yang akan dihantar ke pemasang</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>Pakej</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Oops, kami terlupa untuk berbuat demikian...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>Paparan kemajuan sebagai warna lalai</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Pratonton</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>Pernyataan Privasi</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>Pertanyaan yang digunakan untuk mencari aplikasi</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>argumen yang diperlukan tidak disediakan</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>Paparan kemajuan sebagai warna lalai</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>Mencari aplikasi daripada sumber yang dikonfigurasikan.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Mencari dan menunjukkan maklumat asas aplikasi</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>Kegagalan berikut ditemui mengesahkan seting:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Membuka seting dalam editor teks json lalai. Jika tiada editor dikonfigurasikan, membuka seting dalam notepad. Untuk seting yang tersedia lihat https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Buka tetapan</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>Ralat tidak dijangka semasa memuatkan seting. Sila tentu sahkan seting anda dengan menjalankan perintah seting.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Menunjukkan maklumat pada aplikasi tertentu.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Tapis hasil mengikut tag</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>Utiliti baris perintah WinGet mendayakan pemasangan aplikasi daripada baris perintah.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>Notis Pihak Ketiga</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Paparkan maklumat am alat ini</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>lebih daripada satu argumen kelakuan yang disediakan</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>Ralat tidak dijangka telah berlaku semasa melaksanakan perintah:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Perintah tidak dikenali</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>penggunaan</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Mengesahkan manifes menggunakan set garis panduan yang ketat. Ini bertujuan untuk mendayakan anda untuk menyemak nyata manifes anda sebelum diserahkan kepada repo.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>Mendayakan log masuk verbose untuk WinGet</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>Sila tentu sahkan bahawa fail input adalah sah, bertandatangan MSIX.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Gunakan versi yang ditentukan; lalai adalah versi terkini</value>

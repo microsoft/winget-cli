@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>அருகில் உள்ள குறியின் மாற்றுப்பெயர் காணப்படவில்லை</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>பின்வரும் மதிப்புருக்கள் உள்ளன:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>குறிப்பிடப்பட்ட சேனலைப் பயன்படுத்தவும்; இயல்புநிலையில் பொதுவான பார்வையாளர்கள்</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>கட்டளை</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>கட்டளையின் படி முடிவுகளை வடிகட்டவும்</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>இந்த கட்டளையை இயக்க நிர்வாகி சிறப்புரிமைகள் தேவைப்படுகிறது.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>குறிப்பிடப்பட்ட முடிவுகளின் எண்ணிக்கைக்கையை விட அதிகமாக எதையும் காட்ட வேண்டாம்</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>அறிவுறுத்தல்கள் இல்லாமல் கட்டளையைச் செயல்படுத்தவும்</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>ஒரு காட்சி விளக்கவுரையில் நுழைவதற்கு ஏற்ற உள்ளூர் கோப்பின் ஹாஷைக் கணக்கிடுகிறது. ஸ்ட்ரீமிங் நிறுவல்களை இயக்க MSIX தொகுப்பின் கையொப்பக் கோப்பின் ஹாஷையும் இது கணக்கிடலாம்.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>ஹாஷ் நிறுவி கோப்புகளுக்கான உதவி</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ஐடியின்படி முடிவுகளை வடிகட்டவும்</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>இந்த பயன்பாட்டின் உரிமையாளரால் உங்களுக்கு உரிமம் வழங்கப்பட்டுள்ளது.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>மூன்றாம் தரப்பு தொகுப்புகளுக்கு Microsoft பொறுப்பல்ல, எந்தவொரு உரிமத்தையும் வழங்காது.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>Windows-இன் உயர் பதிப்பு தேவைப்படுவதால், பயன்பாட்டை நிறுவ முடியாது:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>தேர்ந்தெடுக்கப்பட்ட பயன்பாட்டை நிறுவுகிறது, இது கட்டமைக்கப்பட்ட மூலத்தைத் தேடுவதன் மூலம் அல்லது நேரடியாக ஒரு மேனிஃபெஸ்டிலிருந்து கண்டறியப்படுகிறது.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>வழங்கப்பட்ட பயன்பாட்டை நிறுவவும்</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>(ஆதரிக்கப்பட்டால்) நிறுவுவதற்கான மொழி</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>உரிம ஒப்பந்தம்</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>இணைப்புகள்</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>(ஆதரிக்கப்பட்டால்) நிறுவ வேண்டிய இடம்</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>(ஆதரிக்கப்பட்டால்) பதிவு இடம்</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>பதிப்புரிமை (c) Microsoft Corporation. அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>முகப்புப்பக்கம்</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>பயன்பாட்டின் சான்றிற்கான பாதை</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>மேனிஃபெஸ்ட் சரிபார்ப்பு தோல்வியுற்றது.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>மேனிஃபெஸ்ட் சரிபார்ப்பு வெற்றியடைந்தது.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>எச்சரிக்கைகளுடன் மேனிஃபெஸ்ட் சரிபார்ப்பு வெற்றியடைந்தது.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>மதிப்புரு மதிப்பு தேவை, ஆனால் எதுவும் காணப்படவில்லை</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>உள்ளீட்டு கோப்பு msix ஆக நடத்தப்படும்; கையொப்பமிடும் பட்சத்தில் கையொப்ப ஹாஷ் அளிக்கப்படும்</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>MSIX கையொப்ப ஹாஷை கணக்கிடுவதில் தோல்வி.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>பெயரினபடி முடிவுகளை வடிகட்டு</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>தற்போதைய சிஸ்டத்திற்கு எந்த நிறுவிகளும் பொருந்தாது.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>VirtualTerminal காட்சியை முடக்குகிறது</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>விருப்பத்தேர்வுகள்</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>நிறுவிக்குக் கடத்த்தப்பட வேண்டியை மதிப்புருக்களை மேலெழுதவும்</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>பேக்கேஜ்</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>அடடா, இதை நாங்கள் மறந்துவிட்டோம்...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>இயல்புநிலை வண்ணமாக முன்னேற்றக் காட்சியை மாற்றவும்</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>முன்னோட்டம்</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>தனியுரிமை அறிக்கை</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>ஒரு பயன்பாட்டைத் தேட வினவல் பயன்படுத்தப்படுகிறது</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>தேவையான மதிப்புரு வழங்கப்படவில்லை</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>இயல்புநிலை வண்ணமாக முன்னேற்றக் காட்சியை மாற்றவும்</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>உள்ளமைக்கப்பட்ட மூலங்களிலிருந்து பயன்பாடுகளுக்கான தேடல்கள்.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>பயன்பாடுகளின் அடிப்படைத் தகவலைக் கண்டுபிடித்துக் காட்டவும்</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>அமைப்புகளை சரிபார்க்க பின்வரும் தோல்விகள் கண்டறியப்பட்டன:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>இயல்புநிலை json உரை திருத்தியில் அமைப்புகளைத் திறக்கவும். எந்த எடிட்டரும் உள்ளமைக்கப்படவில்லை என்றால், நோட்பேடில் அமைப்புகளைத் திறக்கும். கிடைக்கக்கூடிய அமைப்புகளுக்கு https://aka.ms/winget-settings ஐப் பார்க்கவும்</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>அமைப்புகளைத் திற</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>அமைப்புகளை ஏற்றும்போது எதிர்பாராத பிழை ஏற்பட்டது. அமைப்புகள் கட்டளையை இயக்குவதன் மூலம் உங்கள் அமைப்புகளை சரிபார்க்கவும்.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>ஒரு குறிப்பிட்ட பயன்பாட்டின் தகவலைக் காட்டவும்.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>குறியின்படி முடிவுகளை வடிகட்டவும்</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>WinGet கட்டளை வரி வசதியானது கட்டளை வரியில் இருந்து பயன்பாடுகளை நிறுவ உதவுவதற்கு அனுமதிக்கவும்.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>மூன்றாம் தரப்பு அறிக்கைகள்</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>கருவியின் பொதுவான தகவலைக் காட்டவும்</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>ஒன்றுக்கும் மேற்பட்ட நிறுவல் நடத்தைகளை மதிப்புரு வழங்கியது</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>கட்டளையை செயல்படுத்தும்போது எதிர்பாராத பிழை ஏற்பட்டது:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>அறியப்படாத கட்டளை</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>பயன்படுத்துதல்</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>கடுமையான வழிகாட்டிகளின் தொகுப்பைப் பயன்படுத்தி சான்றைச் சரிபார்க்கிறது. ஒரு ரெப்போவைச் சமர்ப்பிப்பதற்கு முன்பு உங்கள் சான்றைச் சரிபார்க்க அனுமதிக்கும் நோக்கத்தில் அனுமதிக்கப்பட்டது.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>Wingetடிற்கான சொற்களஞ்சிய பதிவை இயக்குகிறது</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>உள்ளீட்டு கோப்பு செல்லுபடியாகக்கூடிய, கையொப்பமிடப்பட்ட MSIX என்பதை சரிபார்க்கவும்.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>குறிப்பிட்ட பதிப்பைப் பயன்படுத்தவும்: இயல்புநிலையில் உள்ளது சமீபத்திய பதிப்பு</value>
