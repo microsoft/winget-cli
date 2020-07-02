@@ -29,9 +29,9 @@ namespace AppInstaller::Settings
         switch (feature)
         {
         case Feature::ExperimentalCmd:
-            return ExperimentalFeature{ "Experimental Command", "experimentalCmd", "https://aka.ms/winget-settings", Feature::ExperimentalCmd };
+            return ExperimentalFeature{ "Command Sample", "experimentalCmd", "https://aka.ms/winget-settings", Feature::ExperimentalCmd };
         case Feature::ExperimentalArg:
-            return ExperimentalFeature{ "Experimental Argument", "experimentalArg", "https://aka.ms/winget-settings", Feature::ExperimentalArg };
+            return ExperimentalFeature{ "Argument Sample", "experimentalArg", "https://aka.ms/winget-settings", Feature::ExperimentalArg };
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -39,12 +39,13 @@ namespace AppInstaller::Settings
 
     std::vector<ExperimentalFeature> ExperimentalFeature::GetAllFeatures()
     {
-        return
-        {
-            // Commented out on purpose these are just to provide example on how experimental features work.
-            // GetFeature(Feature::ExperimentalCmd),
-            // GetFeature(Feature::ExperimentalArg)
-        };
+        std::vector<ExperimentalFeature> result;
 
+        for (Feature_t i = 0x1; i < static_cast<Feature_t>(Feature::Max); i = i << 1)
+        {
+            result.emplace_back(GetFeature(static_cast<Feature>(i)));
+        }
+
+        return result;
     }
 }

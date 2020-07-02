@@ -12,7 +12,7 @@ namespace AppInstaller::Settings
     struct ExperimentalFeature
     {
         // To add an experimental feature
-        // 1 - add a flag in this enum
+        // 1 - add a flag in this enum, before Max
         // 2 - add a setting in Setting enum in UserSettings.h
         // 3 - follow how to add setting instructions
         // 4 - provide implementation in ExperimentalFeature.cpp
@@ -21,7 +21,10 @@ namespace AppInstaller::Settings
             None = 0x0,
             ExperimentalCmd = 0x1,
             ExperimentalArg = 0x2,
+            Max = 0x4, // This MUST always be last
         };
+
+        using Feature_t = std::underlying_type_t<ExperimentalFeature::Feature>;
 
         ExperimentalFeature(std::string_view name, std::string_view jsonName, std::string_view link, Feature feature) :
             m_name(name), m_jsonName(jsonName), m_link(link), m_feature(feature) {}
@@ -53,8 +56,8 @@ namespace AppInstaller::Settings
     inline ExperimentalFeature::Feature operator|(ExperimentalFeature::Feature lhs, ExperimentalFeature::Feature rhs)
     {
         return static_cast<ExperimentalFeature::Feature> (
-            static_cast<std::underlying_type<ExperimentalFeature::Feature>::type>(lhs) |
-            static_cast<std::underlying_type<ExperimentalFeature::Feature>::type>(rhs));
+            static_cast<ExperimentalFeature::Feature_t>(lhs) |
+            static_cast<ExperimentalFeature::Feature_t>(rhs));
     }
 
     inline ExperimentalFeature::Feature& operator|=(ExperimentalFeature::Feature& lhs, ExperimentalFeature::Feature rhs)
@@ -66,8 +69,8 @@ namespace AppInstaller::Settings
     inline ExperimentalFeature::Feature operator&(ExperimentalFeature::Feature lhs, ExperimentalFeature::Feature rhs)
     {
         return static_cast<ExperimentalFeature::Feature>(
-            static_cast<std::underlying_type<ExperimentalFeature::Feature>::type>(lhs) &
-            static_cast<std::underlying_type<ExperimentalFeature::Feature>::type>(rhs));
+            static_cast<ExperimentalFeature::Feature_t>(lhs) &
+            static_cast<ExperimentalFeature::Feature_t>(rhs));
     }
 
     inline ExperimentalFeature::Feature& operator&=(ExperimentalFeature::Feature& lhs, ExperimentalFeature::Feature rhs)

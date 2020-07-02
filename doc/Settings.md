@@ -49,11 +49,11 @@ Color of the progress bar that WinGet displays when not specified by arguments.
 
 In order to allow work to be done in master, and distributed to early adopters for their feedback, settings have the ability to control "experimental" features.
 
-Currently there are no experimental features. Once they get implemented this file will be updated.
+Currently there are no experimental features, just sample ones. Once they get implemented this file will be updated.
 
 ```
    "experimentalFeatures": {
-       "example1": true,
-       "example2": false,
+       "experimentalCmd": true,
+       "experimentalArg": false,
    }
 ```

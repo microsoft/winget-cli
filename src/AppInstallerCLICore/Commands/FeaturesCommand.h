@@ -10,7 +10,7 @@ namespace AppInstaller::CLI
     {
         // This command outputs all the experimental features that are available, if they are enabled/disabled
         // and a link to the spec.
-        FeaturesCommand(std::string_view parent) : Command("features", parent, Command::Visibility::Hidden) {}
+        FeaturesCommand(std::string_view parent) : Command("features", parent) {}
 
         virtual Resource::LocString ShortDescription() const override;
         virtual Resource::LocString LongDescription() const override;

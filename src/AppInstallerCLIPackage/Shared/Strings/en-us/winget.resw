@@ -178,7 +178,7 @@
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesCommandShortDescription" xml:space="preserve">
-    <value>Shows the status of experimental features.</value>
+    <value>Shows the status of experimental features</value>
   </data>
   <data name="FeaturesMessage" xml:space="preserve">
     <value>The following experimental features are in progress.
