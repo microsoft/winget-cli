@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>כינוי דגל צמוד לא נמצא</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>הארגומנטים הבאים זמינים:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>שימוש בערוץ שצוין; ברירת המחדל היא קהל כללי</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>פקודה</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>הפקודה 'סנן תוצאות לפי'</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>כדי לבצע פקודה זו יש צורך בהרשאות מנהל.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>אל תציג יותר ממספר התוצאות שצוין</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>ביצוע הפקודה ללא הנחיות</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>מחשב את קוד ה- Hash של קובץ מקומי, המתאים להזנה למניפסט. הוא מסוגל גם לחשב את קוד ה- Hash של קובץ החתימה של חבילת MSIX כדי לאפשר התקנות באמצעות זרימה.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>מסייע לביצוע Hash של קבצי ההתקנה</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>סינון תוצאות לפי מזהה</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>יישום זה ניתן לך ברשיון על-ידי הבעלים שלו.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft אינה אחראית לחבילות של ספקים חיצוניים ואף אינה מעניקה רשיונות עבורן.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>אין אפשרות להתקין את היישום, מכיוון שהוא דורש גירסה גבוהה יותר של Windows:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>מתקין את היישום הנבחר, בין אם הוא אותר בחיפוש במקור שהוגדר, או ישירות ממניפסט.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>התקנת היישום הנתון</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>השפה שיש להתקין (אם היא נתמכת)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>הסכם רישיון</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>קישורים</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>המיקום שיש להתקין בו (אם הוא נתמך)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>מיקום יומן רישום (אם הוא נתמך)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Copyright (c) Microsoft Corporation. כל הזכויות שמורות.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>דף הבית</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>הנתיב למניפסט של היישום</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>אימות המניפסט נכשל.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>אימות המניפסט הצליח.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>אימות המניפסט הצליח, עם אזהרות.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>נדרש ערך ארגומנט, אך לא נמצא ערך</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>המערכת תתייחס לקובץ הקלט כאל msix;‏ Hash החתימה יינתן אם הקובץ נחתם</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>חישוב Hash החתימה של MSIX נכשל.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>סינון התוצאות לפי שם</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>אין תוכנות התקנה מתאימות למערכת הנוכחית.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>הפיכת תצוגת VirtualTerminal ללא זמינה</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>אפשרויות</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>עקיפת ארגומנטים שיש להעביר לתוכנית ההתקנה</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>חבילה</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>אופס, שכחנו לעשות את זה...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>הצגת ההתקדמות בצבע המוגדר כברירת מחדל</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>תצוגה מקדימה</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>הצהרת פרטיות</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>השאילתה המשמשת לחיפוש יישום</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>הארגומנט הנדרש לא סופק</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>הצגת ההתקדמות בצבע המוגדר כברירת מחדל</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>מחפש יישומים ממקורות שהוגדרו.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>חיפוש והצגה של מידע בסיסי על יישומים</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>הכשלים הבאים נמצאו בעת אימות ההגדרות:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>פתח את ההגדרות בעורך הטקסט של json המוגדר כברירת מחדל. אם לא מוגדר עורך, ההגדרות ייפתחו בפנקס רשימות. להגדרות זמינות, ראה https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>פתח את ההגדרות</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>שגיאה לא צפויה בעת טעינת הגדרות. אמת את ההגדרות שלך על-ידי הפעלת הפקודה ' הגדרות '.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>הצגת מידע לגבי יישום ספציפי.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>סינון תוצאות לפי תגית</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>תוכנית השירות של שורת הפקודה WinGet מאפשרת להתקין יישומים משורת הפקודה.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>הודעות צד שלישי</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>הצגת מידע כללי על הכלי</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>סופק יותר מארגומנט אחד הקובע את התנהגות ההתקנה</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>אירעה שגיאה לא צפויה בעת ביצוע הפקודה:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>פקודה בלתי מזוהה</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>שימוש</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>אימות מניפסט באמצעות קבוצה קשיחה של קווים מנחים. פעולה זו מיועדת לאפשר לך לבדוק את המניפסט לפני שאתה מגיש אותו ל- repo.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>מאפשר רישום verbose עבור WinGet</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>נא ודא שקובץ הקלט הוא חוקי, MSIX חתום.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>השתמש בגירסה שצוינה; ברירת המחדל היא הגירסה העדכנית ביותר</value>

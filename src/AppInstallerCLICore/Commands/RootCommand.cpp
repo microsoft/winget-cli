@@ -10,6 +10,8 @@
 #include "HashCommand.h"
 #include "ValidateCommand.h"
 #include "SettingsCommand.h"
+#include "FeaturesCommand.h"
+#include "ExperimentalCommand.h"
 
 #include "Resources.h"
 #include "TableOutput.h"
@@ -28,6 +30,8 @@ namespace AppInstaller::CLI
             std::make_unique<HashCommand>(FullName()),
             std::make_unique<ValidateCommand>(FullName()),
             std::make_unique<SettingsCommand>(FullName()),
+            std::make_unique<FeaturesCommand>(FullName()),
+            std::make_unique<ExperimentalCommand>(FullName()),
         });
     }
 
@@ -35,8 +39,8 @@ namespace AppInstaller::CLI
     {
         return
         {
-            Argument{ "version", 'v', Execution::Args::Type::ListVersions, Resource::String::ToolVersionArgumentDescription, ArgumentType::Flag, Visibility::Help },
-            Argument{ "info", APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER, Execution::Args::Type::Info, Resource::String::ToolInfoArgumentDescription, ArgumentType::Flag, Visibility::Help },
+            Argument{ "version", 'v', Execution::Args::Type::ListVersions, Resource::String::ToolVersionArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument{ "info", APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER, Execution::Args::Type::Info, Resource::String::ToolInfoArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
         };
     }
 

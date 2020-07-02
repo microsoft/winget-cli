@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>साथ का ध्वज उपनाम नहीं मिला</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>निम्न तर्क उपलब्ध हैं:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>निर्दिष्ट चैनल का उपयोग करें; डिफ़ॉल्ट सामान्य ऑडियंस है</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>आदेश</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>आदेश के अनुसार परिणामों को फ़िल्टर करें</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>इस आदेश को निष्पादित करने के लिए व्यवस्थापकीय विशेषाधिकार की आवश्यकता होती है.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>परिणाम की निर्दिष्ट संख्या से अधिक न दिखाएँ</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>बिना संकेतों के आदेश निष्पादित करें</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>किसी मैनिफ़ेस्ट में प्रविष्टि के लिए उपयुक्त स्थानीय फ़ाइल के हैश की गणना करता है. यह स्ट्रीमिंग  स्थापनाओं को सक्षम करने के लिए किसी MSIX पैकेज की हस्ताक्षर फ़ाइल के हैश की भी गणना कर सकता है.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>इंस्टालर फ़ाइलों को हैश करने में सहायक</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ID के अनुसार परिणामों को फ़िल्टर करें</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>यह अनुप्रयोग आपको इसके स्वामी के द्वारा लाइसेंसीकृत किया गया है.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft तृतीय-पक्ष पैकेज के लिए न तो ज़िम्मेदार है और न ही इसके लिए कोई लायसेंस प्रदान करता है.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>अनुप्रयोग स्थापित नहीं कर सकता, क्योंकि इसे Windows के उच्च संस्करण की आवश्यकता है:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>किसी कॉन्फ़िगर किए गए स्रोत में खोज कर या सीधे किसी मैनिफ़ेस्ट से, चयनित अनुप्रयोग को स्थापित करता है.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>दिए गए अनुप्रयोग को स्थापित करता है</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>स्थापित करने के लिए भाषा (यदि समर्थित हो)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>लायसेंस अनुबंध</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>लिंक्स</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>स्थापित करने के लिए स्थान (यदि समर्थित हो) </value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>लॉग स्थान (यदि समर्थित हो)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>कॉपीराइट (c) Microsoft Corporation. सर्वाधिकार सुरक्षित.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>मुख पृष्ठ</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>अनुप्रयोग के मैनिफ़ेस्ट का पथ</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>मैनिफ़ेस्ट सत्यापन विफल हुआ.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>मैनिफ़ेस्ट सत्यापन सफल हुआ.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>मैनिफ़ेस्ट सत्यापन चेतावनियों के साथ सफल रहा.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>तर्क मान आवश्यक है, लेकिन कोई नहीं मिला</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>इनपुट फ़ाइल को msix माना जाएगा; हस्ताक्षर हैश प्रदान किया जाएगा यदि हस्ताक्षरित किया जाए</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>MSIX हस्ताक्षर हैश का परिकलन करने में विफल.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>नाम के अनुसार परिणामों को फ़िल्टर करें</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>वर्तमान सिस्टम पर कोई भी installer लागू नहीं है.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>VirtualTerminal प्रदर्शन को अक्षम करता है</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>विकल्प</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>इंस्टॉलर पर भेजे जाने वाले तर्कों को ओवरराइड करें</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>पैकेज</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>ओह, हम यह करना भूल गए थे...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>प्रगति प्रदर्शन डिफ़ॉल्ट रंग के रूप में</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>पूर्वावलोकन</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>गोपनीयता कथन</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>किसी ऐप की खोज करने के लिए प्रयुक्त की गई क्वेरी</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>आवश्यक तर्क उपलब्ध नहीं कराया गया</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>प्रगति प्रदर्शन डिफ़ॉल्ट रंग के रूप में</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>कॉंफ़िगर किए गए स्रोतों में अनुप्रयोगों को खोजता है.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>ऐप्स की मूलभूत जानकारी ढूँढें और दिखाएँ</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>सेटिंग्स को सत्यापित करते समय निम्नलिखित विफलताएँ मिलीं:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>डिफ़ॉल्ट Json पाठ संपादक में सेटिंग्स खोलें. यदि कोई संपादक कॉंफ़िगर किया हुआ नहीं है, तो (यह) नोटपैड में सेटिंग्स खोलता है. उपलब्ध सेटिंग्स के लिए https://aka.ms/winget-settings देखें</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>सेटिंग्स खोलें</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>सेटिंग्स लोड करने के दौरान अनपेक्षित त्रुटि. कृपया सेटिंग्स आदेश चलाकर अपनी सेटिंग्स सत्यापित करें.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>किसी विशिष्ट अनुप्रयोग के बारे में जानकारी दिखाता है.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>टैग के अनुसार परिणामों को फ़िल्टर करें</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>WinGet आदेश पंक्ति सुविधा अनुप्रयोगों को आदेश पंक्ति से स्थापित करना सक्षम करती है.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>तृतीय पक्ष सूचनाएँ</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>उपकरण की सामान्य जानकारी प्रदर्शित करें</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>एक से अधिक स्थापना व्यवहार तर्क प्रदान किया गया</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>आदेश निष्पादित करते समय कोई अनपेक्षित त्रुटि उत्पन्न हुई:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>अपरिचित आदेश</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>उपयोग</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>(यह) कड़े दिशानिर्देशों के सेट का उपयोग करके मैनिफ़ेस्ट की पुष्टि करता है. इससे यह अपेक्षित है कि किसी रेपो पर सबमिट करने से पहले आपके मैनिफ़ेस्ट की जाँच करने के लिए यह आपको सक्षम करे.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>WinGet के लिए वर्बोज़ लॉगिंग सक्षम करता है</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>कृपया सत्यापित करें कि इनपुट फ़ाइल एक मान्य, हस्ताक्षरित MSIX है.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>निर्दिष्ट संस्करण का उपयोग करें; डिफ़ॉल्ट नवीनतम संस्करण है</value>

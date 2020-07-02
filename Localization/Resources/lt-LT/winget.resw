@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>Šalia esančios vėliavėlės pseudonimas nerastas</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>Galimi šie argumentai:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Naudoti nurodytą kanalą; Numatytoji reikšmė yra bendroji auditorija</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>komanda</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtruoti rezultatus pagal komandą</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>Kad būtų galima vykdyti šią programą, reikia administratoriaus teisių.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Rodyti ne daugiau nei nurodytą rezultatų skaičių</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>Vykdyti komandą be įspėjimų</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>Apskaičiuoja vietinio failo, tinkančio deklaracijos įrašui, maišą. Ji taip pat gali apskaičiuoti MSIX paketo parašo failo maišą, kad būtų galima įgalinti srautinio perdavimo diegimus.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>Pagalbininkas „hash“ diegimo failams</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtruoti rezultatus pagal ID</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>Šios taikomosios programos licenciją jums suteikia jos savininkas.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>„Microsoft“ neatsako už trečiųjų šalių paketus ir nesuteikia jiems jokių licencijų.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>Negalima įdiegti programos, nes jai reikia naujesnės „Windows“ versijos:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Įdiegia pasirinktą taikomąją programą, aptiktą ieškant sukonfigūruoto šaltinio arba tiesiai iš deklaracijos.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Įdiegia nurodytą programą</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>Įdiegti kalbą (jei palaikoma)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>Licencinė sutartis</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>Saitai</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Vieta, į kurią reikia diegti (jei palaikoma)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>Žurnalo vieta (jei palaiko)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Autoriaus teisės (c). „Microsoft Corporation“. Visos teisės ginamos.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>Pagrindinis puslapis</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>Kelias į programos manifestą</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>Deklaracijos tikrinimas nepavyko.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>Deklaracijos tikrinimas pavyko.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>Deklaracijos tikrinimas pavyko su įspėjimais.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Reikalinga, bet nerasta argumento reikšmė</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Įvesties failas bus laikomas msix; parašo maiša bus pateikta, jei pasirašyta</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>Apskaičiuoti MSIX parašo maišos nepavyko.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtruoti rezultatus pagal pavadinimą</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>Nėra diegimo programų, kurios taikomos esamai sistemai.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Išjungia „VirtualTerminal“ rodinį</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>parinktys</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Perrašymo argumentai, kurie turi būti perkelti į diegimo programą</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>Paketas</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Oi, užmiršome tai padaryti...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>Eigos rodymas numatytąja spalva</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Peržiūra</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>Privatumo nuostatos</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>Užklausa, naudojama ieškoti programos</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>Būtinas argumentas nepateiktas</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>Eigos rodymas numatytąja spalva</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>Ieško taikomųjų programų konfigūruojamuose šaltiniuose.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Pagrindinės programų informacijos radimas ir peržiūra</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>Patvirtinant parametrus buvo rastos šios triktys:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Atidarykite parametrus numatytoje teksto rengyklė. Jei redaktorius nesukonfigūruotas, parametrai atidaromi užrašinėje. Galimi parametrai pateikti https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Atidaryti parametrus</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>Įkeliant parametrus įvyko netikėta klaida. Patikrinkite parametrus vykdydami komandą Parametrai.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Rodoma informacija apie tam tikrą programą.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtruoti rezultatus pagal žymę</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>„WinGet“ komandinės eilutės įrankis įgalina diegti programas iš komandų eilutės.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>Trečiųjų šalių pranešimai</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Rodoma bendra įrankio informacija</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>Pateiktas daugiau nei vienas įdiegimo būdo argumentas</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>Vykdant komandą įvyko netikėta klaida:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Neatpažinta komanda</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>naudojimas</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Patvirtina manifestą naudodama griežtą gairių rinkinį. Tai skirta tam, kad galėtumėte patikrinti savo manifestą prieš pateikdami į atpirkimą.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>Įgalina „WinGet“ daugiažodį registravimą</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>Patikrinkite, ar įvesties failas yra tinkamas, pasirašytas MŠEŠI.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Naudoti nurodytą versiją; Numatytoji reikšmė yra naujausia versija</value>

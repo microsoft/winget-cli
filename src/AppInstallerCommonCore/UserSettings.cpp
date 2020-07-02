@@ -19,7 +19,7 @@ namespace AppInstaller::Settings
     // For documentation on these settings, see: https://aka.ms/winget-settings
     // "source": {
     //    "autoUpdateIntervalInMinutes": 5
-    // }
+    // },
 })"sv;
 
     namespace SettingsMessage
@@ -45,7 +45,6 @@ namespace AppInstaller::Settings
         {
             std::string convertedValue;
 
-            // This won't work when there's a json_t with bool. Change when this happens.
             if constexpr (std::is_arithmetic_v<T>)
             {
                 convertedValue = std::to_string(value);
@@ -171,6 +170,18 @@ namespace AppInstaller::Settings
             }
 
             return {};
+        }
+
+        std::optional<SettingMapping<Setting::EFExperimentalCmd>::value_t>
+            SettingMapping<Setting::EFExperimentalCmd>::Validate(const SettingMapping<Setting::EFExperimentalCmd>::json_t& value)
+        {
+            return value;
+        }
+
+        std::optional<SettingMapping<Setting::EFExperimentalArg>::value_t>
+            SettingMapping<Setting::EFExperimentalArg>::Validate(const SettingMapping<Setting::EFExperimentalArg>::json_t& value)
+        {
+            return value;
         }
     }
 

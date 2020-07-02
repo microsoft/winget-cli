@@ -193,6 +193,7 @@
     <ClInclude Include="Public\AppInstallerLogging.h" />
     <ClInclude Include="Public\AppInstallerArchitecture.h" />
     <ClInclude Include="Public\AppInstallerVersions.h" />
+    <ClInclude Include="Public\winget\ExperimentalFeature.h" />
     <ClInclude Include="Public\winget\ExtensionCatalog.h" />
     <ClInclude Include="Public\winget\LocIndependent.h" />
     <ClInclude Include="Public\winget\Settings.h" />
@@ -209,6 +210,7 @@
     <ClCompile Include="Deployment.cpp" />
     <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="Errors.cpp" />
+    <ClCompile Include="ExperimentalFeature.cpp" />
     <ClCompile Include="ExtensionCatalog.cpp" />
     <ClCompile Include="FileLogger.cpp" />
     <ClCompile Include="HttpStream\HttpClientWrapper.cpp" />

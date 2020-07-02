@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>No s'ha trobat l'àlies de l'indicador adjunt</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>Estan disponibles els arguments següents:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Utilitza el canal especificat; el valor per defecte és el públic general</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>ordre</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtra els resultats per ordre</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>Per executar aquesta ordre són necessaris privilegis d'administrador.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>No mostres més resultats del nombre de resultats especificat</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>Executa l'ordre sense preguntar</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>Calcula el hash d'un fitxer local, apropiat per a l'entrada a un manifest.  També pot calcular el hash del fitxer de signatura d'un paquet MSIX per habilitar les instal·lacions de reproducció multimèdia.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>Ajudant per aplicar un algoritme hash als fitxers de l'instal·lador</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtra els resultats per ID</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>La llicència d'aquesta aplicació la atorga el seu propietari.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft no es fa responsable dels paquets de tercers ni en concedeix cap llicència.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>No es pot instal·lar l'aplicació perquè necessita una versió superior del Windows:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Instal·la l'aplicació seleccionada, que o bé es troba cercant una font configurada o directament des d'un manifest.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Instal·la l'aplicació especificada</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>Idioma que s'instal·larà (si és compatible)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>Contracte de llicència</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>Enllaços</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Ubicació on s'instal·larà (si és compatible)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>Ubicació del registre (si és compatible)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Copyright (c) Microsoft Corporation. Tots els drets reservats.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>Pàgina inicial</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>El camí cap al manifest de l'aplicació</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>No s'ha pogut validar el manifest.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>El manifest s'ha validat correctament.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>El manifest s'ha validat amb advertiments.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Valor de l'argument requerit, però no s'hi ha trobat cap</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>El fitxer d'entrada es tractarà com a msix; el valor hash de la signatura serà proporcionat si es signa</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>No s'ha pogut calcular el hash de l'MSIX de signatura.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtra els resultats per nom</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>No hi ha instal·ladors aplicables al sistema actual.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Inhabilita la visualització de VirtualTerminal</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>opcions</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Substitueix els arguments que s'hagin de transmetre a l'instal·lador</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>Paquet</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Vaja, ens hem oblidat de fer això...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>Visualització del progrés com a color per defecte</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Visualització prèvia</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>Declaració de privadesa</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>La consulta que s'ha utilitzat per cercar una aplicació</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>No s'ha proporcionat l'argument requerit</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>Visualització del progrés com a color per defecte</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>Cerca aplicacions a partir de fonts configurades.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Cerca i mostra la informació bàsica de les aplicacions</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>S'han trobat els errors següents validant la configuració:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Obre la configuració a l'editor de text JSON per defecte. Si no hi ha cap editor configurat, obre la configuració al Notepad. Per a la configuració disponible, consulta https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Obre la configuració</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>Error inesperat en carregar la configuració. Verifica la configuració executant l'ordre Settings (configuració).</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Mostra informació sobre una aplicació concreta.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtra els resultats per etiqueta</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>La utilitat de línia d'ordres WinGet permet instal·lar aplicacions des de la línia d'ordres.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>Avisos de tercers</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Mostra la informació general de l'eina</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>S'ha proporcionat més d'un argument de comportament de la instal·lació</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>S'ha produït un error inesperat en executar l'ordre:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Ordre no reconeguda</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>ús</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Valida un manifest amb un estricte conjunt de directrius. Està pensat per permetre't comprovar el manifest abans d'enviar-lo a un dipòsit.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>Permet el registre detallat per a WinGet</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>Verifica que el fitxer d'entrada sigui un MSIX vàlid i signat.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Utilitza la versió especificada; el valor per defecte és la darrera versió</value>
