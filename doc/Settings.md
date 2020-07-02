@@ -34,7 +34,7 @@ These settings involve visual elements that are displayed by WinGet
 ```
     "visual": {
         "progressBar": "accent"
-    }
+    },
 ```
 
 ### progressBar
@@ -55,5 +55,5 @@ Currently there are no experimental features, just sample ones. Once they get im
    "experimentalFeatures": {
        "experimentalCmd": true,
        "experimentalArg": false,
-   }
+   },
 ```

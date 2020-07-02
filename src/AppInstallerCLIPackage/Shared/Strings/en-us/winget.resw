@@ -413,7 +413,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Filter results by tag</value>
   </data>
   <data name="ThankYou" xml:space="preserve">
-    <value>Thank you from using winget</value>
+    <value>Thank you for using winget</value>
   </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Third Party Notices</value>
