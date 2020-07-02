@@ -216,7 +216,8 @@ namespace AppInstaller::Manifest
 
         try
         {
-            YAML::Node rootNode = YAML::LoadFile(inputFile.u8string());
+            std::ifstream inputStream(inputFile);
+            YAML::Node rootNode = YAML::Load(inputStream);
             errors = manifest.PopulateManifestFields(rootNode, fullValidation);
         }
         catch (const ManifestException&)

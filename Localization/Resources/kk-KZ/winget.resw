@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>Қосылған жалаушаның бүркеншік аты табылмады</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>Келесі аргументтер қолжетімді:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Көрсетілген арнаны пайдаланыңыз; әдепкі бойынша жалпы аудитория орнатылған</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>пәрмен</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Нәтижелерді пәрмен бойынша сүзгілеу</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>Осы пәрменді орындау үшін әкімші құқықтары талап етіледі.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Нәтижелердің көрсетілген санынан көп көрсетпеу</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>Пәрменді нұсқауларсыз орындау</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>Манифестке жазуға жарамды жергілікті файл хэшін есептейді. Сондай-ақ ағындық орнату жұмыстарына рұқсат ету үшін, MSIX бумасына арналған қолтаңба файлының хэшін есептей алады.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>Орнатқыш файлдарды хэштеуге көмектесетін құрал</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Нәтижелерді идентификатор бойынша сүзгілеу</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>Бұл бағдарлама үшін лицензияны сізге оның иесі берді.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft корпорациясы үшінші тараптық бумалар үшін жауапкершілік алмайды және олар үшін ешқандай лицензия бермейді.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>Бағдарламаны орнату мүмкін емес, себебі ол үшін Windows жүйесінің жаңарақ нұсқасы қажет:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Реттелген дерек көзінен іздеу арқылы немесе манифесттен тікелей табылған таңдалған бағдарламаны орнатады.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Берілген бағдарламаны орнатады</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>Орнатылатын тіл (егер қолдау көрсетілетін болса)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>Лицензиялық келісім</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>Сілтемелер</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Орнатылатын орын (қолдау көрсетілетін болса)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>Журнал орны (қолдау көрсетілетін болса)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>(c) Microsoft корпорациясы. Барлық құқықтары қорғалған.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>Басты бет</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>Бағдарлама манифестіне апаратын жол</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>Манифестті тексеру сәтсіз аяқталды.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>Манифестті тексеру сәтті аяқталды.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>Манифестті тексеру ескертулермен орындалды.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Аргумент мәнін енгізу қажет, бірақ бірде-біреуі табылмады</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Кіріс файл msix ретінде өңделеді; қол қойылған болса, қолтаңба хэші көрсетіледі</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>MSIX қолтаңба хэшін есептеу мүмкін болмады.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Нәтижелерді аты бойынша сүзгілеу</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>Ағымдағы жүйе үшін жарамды орнату құралдары жоқ.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>VirtualTerminal көрсетілімін өшіреді</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>параметрлер</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Орнату құралы бойынша өткізілетін аргументтерді қайта анықтау</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>Бума</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Ой! Біз бұны орындауды ұмытып кетіппіз...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>Әдепкі түспен орындалу барысын көрсету</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Алдын ала қарау</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>Құпиялылық туралы мәлімдеме</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>Бағдарламаны іздеу үшін пайдаланылатын сұрау</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>Қажетті аргумент көрсетілмеді</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>Әдепкі түспен орындалу барысын көрсету</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>Бағдарламаларды реттелген дерек көздерінен іздейді.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Бағдарламалар туралы негізгі ақпаратты табу және көрсету</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>Параметрлерді тексеру кезінде келесі қателер табылды:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Параметрлерді стандартты JSON мәтін өңдегішінде ашыңыз. Егер мәтін өңдегіш реттелмеген болса, параметрлер блокнотта ашылады. Қолжетімді параметрлерді мына жерден қараңыз: https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Параметрлерді ашу</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>Параметрлерді жүктеу кезінде күтпеген қате орын алды. Параметрлер пәрменін орындау арқылы параметрлерді тексеріңіз.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Арнайы бағдарлама туралы ақпаратты көрсетеді.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Нәтижелерді тег бойынша сүзгілеу</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>WinGet пәрмендер жолының утилитасы бағдарламаларды пәрмендер жолынан орнатуды іске қосады.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>Үшінші тарап ескертпелері</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Құрал туралы жалпы ақпаратты көрсету</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>Орнату кезінде бірнеше аргумент көрсетілді</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>Пәрменді орындау кезінде күтпеген қате орын алды:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Пәрмен анықталмады</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>пайдалану</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Қатаң нұсқаулар жинағын қолдану арқылы манифесттің жарамдылығын тексереді. Бұл манифестті репозиторийге жібермес бұрын тексере алуыңыз үшін жасалады.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>WinGet үшін журналды егжей-тегжейлі жүргізуге мүмкіндік береді</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>Кіріс файлының MSIX арқылы қол қойылған жарамды файл екенін тексеріңіз.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Көрсетілген нұсқаны пайдаланыңыз; әдепкі бойынша соңғы нұсқа қолданылады</value>

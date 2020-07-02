@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>Angränsande flaggalias hittades inte</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>Följande argument är tillgängliga:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Använd den angivna kanalen. standard är allmän målgrupp</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>kommando</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtrera resultat efter kommando</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>Det krävs administratörsrättigheter för att köra detta kommando.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Visa högst angivet antal resultat</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>Kör kommandot utan uppmaningar</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>Beräknar hash för en lokal fil som passar för inmatning i ett manifest.  Kan också beräkna hash för signeringsfilen i ett MSIX-paket för att aktivera streaminginstallationer.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>Stöd för hash-installationsfiler</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtrera resultat efter id</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>Detta program är licensierat till dig av ägaren.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft är inte ansvariga för och tillhandahåller inte heller några licenser förnågra paket från tredje part.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>Det går inte att installera programmet eftersom en högre version av Windows krävs:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Installera det valda programmet som kan hittas antingen genom att söka efter en konfigurerad källa eller direkt från ett applikationsmanifest.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Installerar det program som anges</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>Språk att installera (om det stöds)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>Licensavtal</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>Länkar</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Plats att installera på (om det stöds)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>Loggplats (om det stöds)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Copyright (c) Microsoft Corporation. Med ensamrätt.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>Startsida</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>Sökvägen till programmets manifest</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>Manifestvalideringen misslyckades.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>Manifestvalideringen lyckades.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>Manifestvalideringen genomfördes utan varningar.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Argumentvärdet måste anges men inget har hittats</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Indatafilen behandlas som msix; hash med signatur kommer att anges om den är signerad</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>Kunde inte beräkna MSIX-signaturhash.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtrera resultat efter namn</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>Inga installationsprogram finns för det aktuella systemet.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Inaktiverar VirtualTerminal visning</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>alternativ</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Åsidosätt argument som ska skickas till installationsprogrammet</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>Paket</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Hoppsan! vi glömde att göra detta...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>Förlopp visas som standardfärg</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Förhandsversion</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>Sekretesspolicy</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>Frågan som används för att söka efter en app</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>Obligatoriska argument saknas</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>Förlopp visas som standardfärg</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>Söker efter program från konfigurerade källor.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Hitta och visa grundläggande information om appar</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>Följande fel hittades vid validering av inställningarna:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Öppna inställningar i JSON-standardtextredigeraren. Om ingen redigerare har konfigurerats öppnas inställningarna i anteckningar. För tillgängliga inställningar se https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Öppna inställningar</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>Ett oväntat fel uppstod när inställningarna skulle läsas in. Kontrol lera inställningarna genom att köra kommandot inställningar.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Visar information om ett enskilt program.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtrera resultat efter tagg</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>Med kommandoradsverktyget WinGet kan du installera program från kommandoraden.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>Meddelanden gällande tredje part</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Visa allmän information för verktyget</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>Fler än en installations beteendeargument tillhandahålls</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>Ett oväntat fel inträffade när kommandot kördes:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Okänt kommando</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>användning</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Verifierar ett manifest med hjälp av en strikt uppsättning riktlinjer. Det gör att du kan kontrollera manifestet innan du skickar det till en repo.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>Aktiverar utförlig loggning för WinGet</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>Kontrol lera att indatafilen är en giltig, signerad MSIX.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Använd den angivna versionen. standard är den senaste versionen</value>

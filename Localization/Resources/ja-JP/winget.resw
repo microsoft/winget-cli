@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>隣接するフラグのエイリアスが見つかりません</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>次の引数を使用できます。</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>指定されたチャンネルを使用します。既定値は一般向けです</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>コマンド</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>コマンドによる結果のフィルター処理</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>このコマンドを実行するには、管理者権限が必要です。</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>指定した数以下の結果を表示</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>ダイアログを表示せずコマンドを実行</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>マニフェストへのエントリに適したローカル ファイルのハッシュを計算します。また、MSIX パッケージの署名ファイルのハッシュを計算して、ストリーミング インストールを有効にすることもできます。</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>インストーラー ファイルをハッシュするヘルパー</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ID で結果をフィルター処理</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>このアプリケーションは所有者からライセンス供与されます。</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft はサードパーティのパッケージに対して責任を負わず、ライセンスも付与しません。</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>アプリケーションをインストールできません。新しいバージョンの Windows が必要です。</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>選択されたアプリケーションをインストールします。構成されたソースを検索することにより、またはマニフェストから直接検索されます。</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>指定されたアプリケーションをインストール</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>インストールする言語 (サポートされている場合)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>使用許諾契約</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>リンク</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>インストール先 (サポートされている場合)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>ログの場所 (サポートされている場合)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Copyright (c) Microsoft Corporation. All rights reserved.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>ホーム ページ</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>アプリケーションのマニフェストのパス</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>マニフェストの検証に失敗しました。</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>マニフェストの検証は成功しました。</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>マニフェストの検証は成功しましたが、警告があります。</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>引数値が必要ですが、見つかりません</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>入力ファイルは msix として扱われます。署名された場合、署名ハッシュが提供されます</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>MSIX 署名ハッシュを計算できませんでした。</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>名前で結果をフィルター処理</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>現在のシステムに適用できるインストーラーはありません。</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>VirtualTerminal 表示を無効にする</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>オプション</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>インストーラーに渡される引数を上書き</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>パッケージ</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>申し訳ございません。これを行うことを忘れました…</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>既定の色としての進行状況の表示</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>プレビュー</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>プライバシーに関する声明</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>アプリの検索に使用されるクエリ</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>必要な引数が指定されていません</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>既定の色としての進行状況の表示</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>構成されたソースからアプリケーションを検索します。</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>アプリの基本情報を見つけて表示</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>次のエラーが検出されたため、設定を検証しています:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>既定の json テキスト エディターで設定を開きます。エディターが構成されていない場合は、メモ帳で設定を開きます。利用可能な設定については、https://aka.ms/winget-settings を参照してください</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>設定を開く</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>設定の読み込み中に予期しないエラーが発生しました。Settings コマンドを実行して、設定を確認してください。</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>特定のアプリケーションに関する情報を表示します。</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>タグ で結果をフィルター処理</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>WinGet コマンド ライン ユーティリティを使用すると、コマンド ラインからアプリケーションをインストールできます。</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>サード パーティに関する通知</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>ツールの一般情報を表示</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>複数のインストール動作引数が提供されています</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>コマンドの実行中に予期しないエラーが発生しました:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>認識されないコマンド</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>使用状況</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>厳密なガイドラインのセットを使用してマニフェストを検証します。これは、リポジトリに送信する前にマニフェストを確認できるようにすることを目的としています。</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>WinGet の詳細ログを有効にする</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>入力ファイルが有効な署名された MSIX であることを確認してください。</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>指定されたバージョンを使用します。既定値は最新バージョンです</value>

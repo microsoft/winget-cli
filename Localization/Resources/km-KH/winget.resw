@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>រកមិនឃើញឈ្មោះក្លែងក្លាយដែលនៅជាប់នឹងទង់</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>អាគុយម៉ង់ខាងក្រោមអាចប្រើបាន៖</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>ប្រើ​ប៉ុស្តិ៍​ដែល​បាន​​បញ្ជាក់ លំនាំដើម​គឺ​ទស្សនិកជន​ទូទៅ</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>ពាក្យបញ្ជា</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>លទ្ធផល​តម្រង​តាម​ពាក្យ​បញ្ជា</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>ពាក្យ​បញ្ជា​នេះ​ទាមទារ​​សិទ្ធិ​ជា​អ្នកគ្រប់គ្រង​ដើម្បី​ប្រតិបត្តិ។</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>មិន​បង្ហាញ​ច្រើន​ជាងចំនួនលទ្ធផល​ដែល​បាន​បញ្ជាក់</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>ប្រតិបត្តិ​ពាក្យ​បញ្ជា​ដោយ​មិន​សួរ</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>កុំព្យូទ័រ​មាន​ឯកសារ​ក្នុង​មូលដ្ឋាន​ហាស ប្រហែល​សម្រាប់​ធាតុ​ចូល​ក្នុង​ឯកសារ​មួយ។ វា​ក៏​អាច​គណនី​ហាស​របស់​ឯកសារ​ហត្ថលេខា​​នៃ​កញ្ចប់ MSIX ដើម្បី​បើកការ​ដំឡើង​​ស្ទ្រីម។</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>កម្មវិធី​ជំនួយ​ដល់​ឯកសារ​ដំឡើង​ហាស</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>លទ្ធផល​តម្រង​តាម​លេខ​សម្គាល់</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>កម្មវិធី​នេះ​ត្រូវ​បាន​ផ្ដល់​អាជ្ញាប័ណ្ណ​ដោយ​ម្ចាស់​របស់​វា​ផ្ទាល់។</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft មិន​ទទួល​ខុសត្រូវ​​ដែល​វា​ផ្ដល់​អាជ្ញាប័ណ្ណ​ណា​មួយ​ទៅ​កញ្ចប់​ភាគីទីបី។</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>មិន​អាច​ដំឡើង​កម្មវិធី​បាន​ទេ ព្រោះ វា​ទាមទារ​កំណែ Windows ខ្ពស់​ជាង​នេះ៖</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>ដំឡើង​កម្មវិធី​ដែល​បាន​ជ្រើសរើសដែល​បាន​រកឃើញ​ដោយ​ការ​ស្វែងរក​ប្រភព​ដែល​បានកំណត់​រចនាសម្ព័ន្ធ ឬ​ប្រភព​ដោយ​ផ្ទាល់​ពី​ឯកសារ​មួយ។</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>ដំឡើង​កម្មវិធី​ដែល​បាន​ផ្ដល់​ឲ្យ</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>ភាសា​ត្រូវ​ដំឡើង (ប្រសិន​បើ​បានគាំទ្រ)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>កិច្ចព្រមព្រៀង​អាជ្ញាប័ណ្ណ</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>តំណភ្ជាប់</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>ទីតាំង​ត្រូវ​ដំឡើង​ (ប្រសិនបើ​បាន​គាំទ្រ)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>ទីតាំង​កំណត់​ហេតុ (បើ​បានគាំទ្រ)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Copyright (c) Microsoft Corporation។ រក្សាសិទ្ធិ​គ្រប់យ៉ាង។</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>ទំព័រដើម</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>ផ្លូវ​ទៅ​មេនីហ្វេសថ៍​របស់​កម្មវិធី</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>ការ​ផ្ទៀងផ្ទាត់ស៊ុមនៃ​ការ​បង្ហាញ​មិនបានជោគជ័យ</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>ការ​ផ្ទៀងផ្ទាត់ស៊ុមនៃ​ការ​បង្ហាញ​បានជោគជ័យ</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>ការ​ផ្ទៀងផ្ទាត់​ស៊ុមនៃ​ការ​បង្ហាញ​បាន​ជោគជ័យ​ជា​មួយ​នឹង​ការ​ព្រមាន។</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>ទាមទារតម្លៃអាគុយម៉ង់ ប៉ុន្តែរកមិនឃើញ</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>បញ្ចូល​ឯកសារ​នឹង​ត្រូវ​បាន​ចាត់​ទុក​ជា​ msix​ ហាស​ហត្ថលេខា​ត្រូវ​បាន​តែ​បាន​​ផ្ដល់​ប្រសិនបើ​បាន​ចុះហត្ថលេខា</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>មិន​អាចគណនា​ហាស​ហត្ថលេខា MSIX បាន​ទេ។</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>លទ្ធផល​តម្រង​តាម​ឈ្មោះ</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>គ្មាន​កម្មវិធី​ដំឡើង​ដែល​អាច​អនុវត្ត​បាន​ចំពោះ​ប្រព័ន្ធ​បច្ចុប្បន្ន​ទេ។</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>បិទ​ការ​បង្ហាញ VirtualTerminal</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>ជម្រើស</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>បដិសេធ​អាគុយម៉ង់​ត្រូវ​ចម្លង​នៅ​លើ​កម្មវិធី​ដំឡើង</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>កញ្ចប់</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>អូ យើងភ្លេចធ្វើ...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>វឌ្ឍនភាព​បង្ហាញ​ជា​ពណ៌​លំនាំដើម</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>មើលជាមុន</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>ព័សេចក្ដី​ថ្លែងការណ៍​ឯកជនភាព</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>សំណើ​បានប្រើ ដើម្បី​ស្វែងរក​កម្មវិធី</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>អាគុយម៉ង់ដែលត្រូវការមិនត្រូវបានផ្តល់ឱ្យទេ</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>វឌ្ឍនភាព​បង្ហាញ​ជា​ពណ៌​លំនាំដើម</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>ស្វែងរក​កម្មវិធី​ពី​ប្រភព​ដែល​បាន​កំណត់​រចនាសម្ព័ន្ធ។</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>រកមើល និង​បង្ហាញ​ព័ត៌មាន​មូលដ្ឋាន​របស់​កម្មវិធី</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>ភាព​មិន​ជោគជ័យ​ដូច​ខាងក្រោម​បានរកឃើញ​ក្នុង​កា​រផ្ទៀងផ្ទាត់​ការ​កំណត់៖</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>បើក​ការ​កំណត់​នៅ​ក្នុង​កម្មវិធី​កែ​សម្រួល​អត្ថបទ json លំនាំដើម។ ប្រសិនបើ​គ្មាន​កម្មវិធី​កែសម្រួល​ត្រូវ​បានកំណត់​រចនាសម្ព័ន្ធ​ទេ សូម​បើក​ការកំណត់​នៅ​ក្នុង notepad។ សម្រាប់​ការ​កំណត់​ដែល​អាច​ប្រើ​បាន សូម​មើល https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>បើកការកំណត់</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>មាន​កំហុស​ដែល​មិន​រំពឹង​ទុក​​​ខណៈពេល​ផ្ទុក​ការកំណត់។ សូម​ផ្ទៀងផ្ទាត់​ការ​កំណត់​របស់​អ្នក​ដោយ​ដំណើរការ​ពាក្យ​បញ្ជា​ការ​កំណត់។</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>បង្ហាញ​ព័ត៌មាន​អំពី​កម្មវិធី​ជាក់លាក់។</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>លទ្ធផល​តម្រងតាម​ស្លាក</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>ការ​ប្រើប្រាស់​បន្ទាប់​ពាក្យ​បញ្ជា WinGet បើក​ឲ្យ​ដំឡើង​កម្មវិធី​ពី​បន្ទាត់​ពាក្យ​បញ្ជា។</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>សេចក្ដីជូនដំណឹងរបស់ភាគីទីបី</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>បង្ហាញ​ព័ត៌មាន​ទូទៅ​របស់​ឧបករណ៍</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>បានផ្តល់អាគុយម៉ង់ឥរិយាបទដំឡើងច្រើនជាងមួយ</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>កំហុស​ដែល​មិន​រំពឹង​ទុកមួយ​បានកើត​ឡើង​នៅ​ពេល​ប្រតិបត្តិពាក្យ​បញ្ជា៖</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>ពាក្យបញ្ជាដែលមិនស្គាល់</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>ការប្រើ</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>ផ្ទៀងផ្ទាត់មេនីហ្វេសថ៍​ដោយ​ប្រើ​សំណុំ​គោលការន៍​តឹងរឹង។ នេះ​មានបំណង​តម្រូវ​ឲ្យ​អ្នក​ពិនិត្យ​មើល​មេនីហ្វេសថ៍​របស់​អ្នក​មុន​ពេល​​បញ្ជូន​​របាយការណ៍។</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>បើក​កា​រចុះកំណត់​ហេតុសម្រាប់ WinGet</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>សូម​ផ្ទៀងផ្ទាត់​ថា​ឯកសារ​ចូល​គឺ​ត្រឹមត្រូវ ជា MSIX ដែល​បាន​ចុះហត្ថលេខា។</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>ប្រើ​កំណែ​ដែល​បាន​បញ្ជាក់ លំនាំដើម​គឺ​កំនែ​ថ្មី​បំផុត</value>

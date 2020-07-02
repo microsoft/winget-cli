@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>找不到鄰近旗標別名</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>以下是可用的引數:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>使用指定的頻道; 預設為一般觀眾</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>命令</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>依命令篩選結果</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>此命令需要系統管理員許可權才能執行。</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>顯示不超過指定數量的結果</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>未使用提示執行該命令</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>計算適合在資訊清單輸入的本機檔案雜湊。它也可以計算 MSIX 封裝的簽章檔案雜湊，以啟用串流安裝。</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>雜湊安裝程式檔案的協助程式</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>依識別碼篩選結果</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>此應用程式已由其擁有者授權給您。</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft 不負任何責任，也不會授與協力廠商封裝的任何授權。</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>無法安裝應用程式，因為它需要較高版本的 Windows：</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>安裝選取的應用程式，可以搜尋已設定的來源或直接從資訊清單找到。</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>安裝指定的應用程式</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>要安裝的語言 (如果有支援的話)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>授權合約</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>連結</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>要安裝的位置 (如果有支援的話)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>記錄位置 (如果有支援的話)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Copyright (c) Microsoft Corporation. 著作權所有，並保留一切權利。</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>首頁</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>該應用程式資訊清單的路徑</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>資訊清單驗證失敗。</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>資訊清單驗證成功。</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>資訊清單驗證成功，但出現警告。</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>需要引數值，但找不到</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>系統會將輸入檔案視為 msix; 如果簽署的話，將會提供簽章雜湊</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>無法計算 MSIX 簽章訊息摘要。</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>依名稱篩選結果</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>沒有適用于目前系統的安裝程式。</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>停用 VirtualTerminal 顯示</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>選項</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>覆寫要傳送到安裝程式的引數</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>套件</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>糟糕，我們忘了執行這項工作...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>顯示為預設色彩的進度</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>預覽</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>隱私權聲明</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>用來搜尋應用程式的查詢</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>未提供必要的引數</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>顯示為預設色彩的進度</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>從設定的來源搜尋應用程式。</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>尋找並顯示應用程式的基本資訊</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>驗證設定時發現下列失誤：</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>在預設 json 文字編輯器中開啟設定。如果未設定任何編輯器，則會在記事本中開啟設定。如需可用的設定，請參閱 https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>開啟設定</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>載入設定時發生意外的錯誤。請執行 [設定] 命令以驗證您的設定。</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>顯示特定應用程式的資訊。</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>依標籤篩選結果</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>WinGet 命令行公用程式可以從命令行安裝應用程式。</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>第三方聲明</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>顯示該工具的一般資訊</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>提供多個安裝行為引數</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>執行命令時，發生意外的錯誤：</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>無法辨識的命令</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>使用</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>使用一套嚴格的指導方針驗證資訊清單。這是為了讓您能夠在提交報告之前檢查您的資訊清單。</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>啟用 WinGet 詳細資訊記錄</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>請確認輸入檔是有效且已簽署的 MSIX。</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>使用指定的版本; 預設為最新版本</value>

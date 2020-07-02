@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>Alias de drapeau contigu introuvable</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>Les arguments suivants sont disponibles :</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Utiliser le canal spécifié; par défaut, il s’agit du grand public</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>commande</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtrer les résultats par commande</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>Cette commande nécessite des privilèges d'administrateur pour être exécutée.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Ne pas afficher plus de résultats que le nombre spécifié</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>Exécuter la commande sans invite</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>Calcule le hachage d’un fichier local, approprié pour l’entrée dans un manifeste.  Il peut également calculer le hachage du fichier de signature d’un paquet MSIX afin d’activer les installations en continu.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>Assistant pour le hachage des fichiers d’installation</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtrer les résultats par identifiant</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>La licence d’utilisation de cette application vous est octroyée pas son propriétaire.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft n’est pas responsable des paquets tiers et n’accorde pas de licences à ceux-ci.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>Impossible d’installer l’application, car elle nécessite une version plus récente de Windows :</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Installe l’application sélectionnée, trouvée en effectuant une recherche sur une source configurée ou directement à partir d’un manifeste.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Installe l’application donnée</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>Langue à installer (si prise en charge)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>Contrat de licence</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>Liens</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Emplacement d’installation (si pris en charge)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>Emplacement du journal (si pris en charge)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Copyright (c) Microsoft Corporation. Tous droits réservés.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>Page d’accueil</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>Chemin d’accès au manifeste de l’application</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>La validation du manifeste a échoué.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>La validation du manifeste a réussi.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>La validation des manifestes a réussi avec des avertissements.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Valeur d’argument requise, mais aucune trouvé</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Le fichier d’entrée sera traité en tant que MSIX; le hachage de la signature sera fourni s’il est signé</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>Impossible de calculer le hachage de la signature MSIX.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtrer les résultats par nom</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>Aucun installateur n'est applicable au système actuel.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Désactive l’affichage VirtualTerminal</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>options</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Remplacer les arguments à transmettre au programme d’installation</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>Package</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Désolé... nous avons oublié de le faire...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>Affichage de l’avancement comme couleur par défaut</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Aperçu</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>Déclaration de confidentialité</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>Requête utilisée pour rechercher une application</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>Argument obligatoire non fourni</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>Affichage de l’avancement comme couleur par défaut</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>Recherches d’applications à partir de sources configurées.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Rechercher et afficher des informations de base sur les applications</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>Les erreurs suivantes ont été détectées lors de la validation des paramètres :</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Ouvrir les paramètres dans l’éditeur de texte par défaut. Si aucun éditeur n’est configuré, ouvrir les paramètre dans le bloc-notes. Pour les paramètres disponibles, consultez https://aka.ms/winget-settings.</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Ouvrir les paramètres</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>Erreur inattendue lors du chargement des paramètres. Veuillez vérifier vos paramètres en exécutant la commande paramètres.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Affiche des informations sur une application précise.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtrer les résultats par mot-clé</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>L’utilitaire de ligne de commande WinGet permet d’installer des applications à partir de la ligne de commande.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>Avis de tiers</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Afficher les informations générales de l’outil</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>Plusieurs arguments de comportement d’installation fournis</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>Une erreur inattendue s'est produite lors de l'exécution de la commande :</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Commande non reconnue</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>consommation</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Valide un manifeste à l’aide d’un ensemble de directives strict. Ceci est destiné à vous permettre de vérifier le manifeste avant de l’envoyer à un référentiel.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>Active la journalisation détaillée pour WinGet</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>Veuillez vérifier que le fichier d’entrée est un MSIX signé valide.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Utiliser la version indiquée; la version par défaut est la dernière version</value>

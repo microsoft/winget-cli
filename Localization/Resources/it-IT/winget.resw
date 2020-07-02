@@ -123,25 +123,32 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>Alias del contrassegno adiacente non trovato</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
-    <value>Sono disponibili gli argomenti seguenti:</value>
+  <data name="AvailableArguments" xml:space="preserve">
+    <value>Sono disponibili i seguenti argomenti:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
-    <value>Sono disponibili i comandi seguenti:</value>
+    <value>Sono disponibili i seguenti comandi:</value>
     <comment>Commands the tool supports</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
-    <value>Sono disponibili le opzioni seguenti:</value>
+    <value>Sono disponibili le seguenti opzioni:</value>
   </data>
   <data name="AvailableSubcommands" xml:space="preserve">
-    <value>Sono disponibili i comandi secondari seguenti:</value>
+    <value>Sono disponibili i seguenti comandi secondari:</value>
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
-    <value>Usa il canale specificato; l'impostazione predefinita è General Audience (adatto a tutto le età)</value>
+    <value>Usa il canale specificato; l'impostazione predefinita è General Audience (adatto a tutte le età)</value>
+  </data>
+  <data name="Command" xml:space="preserve">
+    <value>comando</value>
+    <comment>A command to give the software</comment>
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtra i risultati per comando</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>Questo comando richiede i privilegi di amministratore per l'esecuzione.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Non mostrare più del numero specificato di risultati</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>Esegui il comando senza prompt</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>Calcola l'hash di un file locale, appropriato per l'ingresso in un manifesto. Può anche calcolare l'hash del file della firma di un pacchetto MSIX per abilitare le installazioni di streaming multimediale.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>Helper per eseguire l'hashing dei file di installazione</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtra i risultati per ID</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>Questa applicazione viene concessa in licenza dal proprietario.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft non è responsabile né concede alcuna licenza a pacchetti di terze parti.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>Non è possibile installare l'applicazione perché richiede una versione più alta di Windows:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Installa l'applicazione selezionata, trovata cercando un'origine configurata o direttamente da un manifesto.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Installa l'applicazione specificata</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>Lingua da installare (se supportata)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>Contratto di licenza</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>Collegamenti</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Percorso di installazione (se supportato)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>Percorso log (se supportato)</value>
   </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Copyright (c) Microsoft Corporation. Tutti i diritti sono riservati.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>Home page</value>
+    <comment>The primary webpage for the software</comment>
+  </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Il percorso del manifesto dell'applicazione</value>
+    <value>Il percorso del manifest dell'applicazione</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>Convalida del manifesto non riuscita.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>Convalida del manifesto riuscita.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>La convalida del manifesto è stata effettuata con avvisi.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Il valore dell'argomento risulta mancante</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Il file di input verrà considerato come MSIX; l'hash della firma verrà fornito se firmato</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>Non è possibile calcolare l'hash della firma MSIX.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtra i risultati per nome</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>Nessun programmi di installazione è applicabile al sistema corrente.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Disabilita la visualizzazione di VirtualTerminal</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>opzioni</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Sostituisci gli argomenti da trasmettere al programma di installazione</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>Pacchetto</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Ci siamo dimenticati di farlo...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>Lo stato di avanzamento viene mostrato come il colore predefinito</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Anteprima</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>Informativa sulla privacy</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>La query usata per cercare un'app</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>L'argomento obbligatorio non è stato fornito</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>Lo stato di avanzamento viene mostrato come il colore predefinito</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>Cerca le applicazioni da origini configurate.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Trova e mostra le informazioni di base delle app</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>Sono stati trovati i seguenti errori durante la convalida delle impostazioni:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Apri le impostazioni nell'editor di testo json predefinito. Se nessun editor è configurato, apre le impostazioni nel blocco note. Per le impostazioni disponibili, vedi https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Apri impostazioni</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>Errore imprevisto durante il caricamento delle impostazioni. Verificare le impostazioni eseguendo il comando impostazioni.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Mostra le informazioni su un'applicazione specifica.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtra i risultati per tag</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>L'utilità della riga di comando di WinGet consente di installare le applicazioni dalla riga di comando.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>Comunicazioni di terze parti</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Visualizza le informazioni generali dello strumento</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>È stato fornito più di un argomento sul comportamento di installazione</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>Si è verificato un errore imprevisto durante l'esecuzione del comando:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Comando non riconosciuto</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>uso</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Convalida un manifesto con un insieme di linee guida rigorose. Queste hanno lo scopo di consentirti di controllare il tuo manifesto prima di inviarlo a un repository.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>Abilita la registrazione dettagliata per WinGet</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>Verifica che il file di input sia un MSIX valido e firmato.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Usa la versione specificata; la versione predefinita è quella più recente</value>

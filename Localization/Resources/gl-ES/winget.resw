@@ -123,7 +123,7 @@
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>Non se atopou o alias marcado anexo</value>
   </data>
-  <data name="AvailableArguements" xml:space="preserve">
+  <data name="AvailableArguments" xml:space="preserve">
     <value>Están dispoñibles os argumentos seguintes:</value>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -140,8 +140,15 @@
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Usa a canle especificada. A canle predefinida é o público xeral</value>
   </data>
+  <data name="Command" xml:space="preserve">
+    <value>comando</value>
+    <comment>A command to give the software</comment>
+  </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtrar resultados segundo o comando</value>
+  </data>
+  <data name="CommandRequiresAdmin" xml:space="preserve">
+    <value>Para executar este comando, hai que contar con privilexios de administrador.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Non mostrar máis resultados cós que se especifican</value>
@@ -161,7 +168,10 @@
   <data name="ForceArgumentDescription" xml:space="preserve">
     <value>Executar o comando sen avisos</value>
   </data>
-  <data name="HashHelperDescription" xml:space="preserve">
+  <data name="HashCommandLongDescription" xml:space="preserve">
+    <value>Calcula o hash dun ficheiro local, adecuado para a entrada nun manifesto. Tamén se pode calcular o hash do ficheiro de sinatura dun paquete MSIX para activar as instalacións de transmisión en secuencia.</value>
+  </data>
+  <data name="HashCommandShortDescription" xml:space="preserve">
     <value>Asistente para obter o hash do instalador de ficheiros</value>
   </data>
   <data name="HelpArgumentDescription" xml:space="preserve">
@@ -176,7 +186,19 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtrar resultados segundo o ID</value>
   </data>
-  <data name="InstallCommandDescription" xml:space="preserve">
+  <data name="InstallationDisclaimer1" xml:space="preserve">
+    <value>O propietario desta aplicación concedeuche a licenza dela.</value>
+  </data>
+  <data name="InstallationDisclaimer2" xml:space="preserve">
+    <value>Microsoft non se fai responsable dos paquetes de terceiros nin concede ningunha licenza dos mesmos.</value>
+  </data>
+  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
+    <value>Non é posible instalar a aplicación porque require unha versión posterior de Windows:</value>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Instala a aplicación seleccionada, que pode que se atopase buscando nunha orixe configurada ou directamente a partir dun manifesto.</value>
+  </data>
+  <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Instala a aplicación fornecida</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
@@ -194,14 +216,37 @@
   <data name="LanguageArgumentDescription" xml:space="preserve">
     <value>Idioma para instalar (se se permite)</value>
   </data>
+  <data name="LicenseAgreement" xml:space="preserve">
+    <value>Contrato de licenza</value>
+  </data>
+  <data name="Links" xml:space="preserve">
+    <value>Ligazóns</value>
+    <comment>Links to different webpages</comment>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Localización na que realizar a instalación (se se permite)</value>
   </data>
-  <data name="LogArgumentDesciption" xml:space="preserve">
+  <data name="LogArgumentDescription" xml:space="preserve">
     <value>Rexistrar localización (se se permite)</value>
+  </data>
+  <data name="MainCopyrightNotice" xml:space="preserve">
+    <value>Copyright (c) Microsoft Corporation. Todos os dereitos reservados.</value>
+  </data>
+  <data name="MainHomepage" xml:space="preserve">
+    <value>Páxina de inicio</value>
+    <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
     <value>Camiño ao manifesto da aplicación</value>
+  </data>
+  <data name="ManifestValidationFail" xml:space="preserve">
+    <value>Erro na validación do manifesto.</value>
+  </data>
+  <data name="ManifestValidationSuccess" xml:space="preserve">
+    <value>O manifesto validouse correctamente.</value>
+  </data>
+  <data name="ManifestValidationWarning" xml:space="preserve">
+    <value>O manifesto de validación completouse con avisos.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Requírese o valor do argumento, pero non se atopou</value>
@@ -212,24 +257,38 @@
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>O ficheiro de entrada tratarase como msix. Se se asina, fornecerase o hash de firma</value>
   </data>
+  <data name="MsixSignatureHashFailed" xml:space="preserve">
+    <value>Erro ao calcular o hash da sinatura MSIX.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtrar resultados segundo o nome</value>
   </data>
-  <data name="NoVTArguementDescription" xml:space="preserve">
+  <data name="NoApplicableInstallers" xml:space="preserve">
+    <value>Non hai instaladores aplicables ao sistema actual.</value>
+  </data>
+  <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Desactiva a mostra VirtualTerminal</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>opcións</value>
+    <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
     <value>Anular os argumentos que se pasarían ao instalador</value>
   </data>
+  <data name="Package" xml:space="preserve">
+    <value>Paquete</value>
+    <comment>A software package</comment>
+  </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Vaia, esquecemos facer isto...</value>
   </data>
-  <data name="PlainArgumentDescription" xml:space="preserve">
-    <value>O progreso móstrase na cor predefinida</value>
-  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Previsualización</value>
+  </data>
+  <data name="PrivacyStatement" xml:space="preserve">
+    <value>Declaración de privacidade</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
     <value>Consulta que se empregaba para buscar unha aplicación</value>
@@ -240,8 +299,26 @@
   <data name="RequiredArgError" xml:space="preserve">
     <value>O argumento requirido non se forneceu</value>
   </data>
-  <data name="SearchCommandDescription" xml:space="preserve">
+  <data name="RetroArgumentDescription" xml:space="preserve">
+    <value>O progreso móstrase na cor predefinida</value>
+  </data>
+  <data name="SearchCommandLongDescription" xml:space="preserve">
+    <value>Buscas de aplicacións a partir de orixes configuradas.</value>
+  </data>
+  <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Atopa e mostra información básica das aplicacións</value>
+  </data>
+  <data name="SettingLoadFailure" xml:space="preserve">
+    <value>Atopáronse os seguintes erros na validación da configuración:</value>
+  </data>
+  <data name="SettingsCommandLongDescription" xml:space="preserve">
+    <value>Abre a configuración do editor de texto json predefinido. Se non hai ningún editor configurado, a configuración abrirase no caderno de notas. Para consultar a configuración dispoñible, visita https://aka.ms/winget-settings</value>
+  </data>
+  <data name="SettingsCommandShortDescription" xml:space="preserve">
+    <value>Abrir configuración</value>
+  </data>
+  <data name="SettingsWarnings" xml:space="preserve">
+    <value>Erro inesperado mentres se carga a configuración. Executa o comando de configuración para verificar a configuración.</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
     <value>Mostra información dunha aplicación específica.</value>
@@ -306,8 +383,8 @@
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtrar resultados segundo a etiqueta</value>
   </data>
-  <data name="ToolDescription" xml:space="preserve">
-    <value>O servizo da liña de comando de WinGet posibilita a instalación de aplicacións desde a liña de comando.</value>
+  <data name="ThirdPartSoftwareNotices" xml:space="preserve">
+    <value>Avisos de terceiros</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Mostra información xeral da ferramenta</value>
@@ -321,8 +398,15 @@
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>Fornécese máis dun argumento de instalación de comportamento</value>
   </data>
+  <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
+    <value>Ocorreu un erro inesperado mentres se executaba o comando:</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Comando non recoñecido</value>
+  </data>
+  <data name="Usage" xml:space="preserve">
+    <value>uso</value>
+    <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Valida o manifesto usando un conxunto estrito de instrucións. O obxectivo disto é que revises o manifesto antes de envialo a un repositorio.</value>
@@ -335,6 +419,9 @@
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
     <value>Habilita o rexistro detallado para WinGet</value>
+  </data>
+  <data name="VerifyFileSignedMsix" xml:space="preserve">
+    <value>Verifica que o ficheiro de entrada sexa un MSIX válido e asinado.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
     <value>Emprega a versión especificada, a última versión é a predefinida</value>
