@@ -38,12 +38,14 @@ namespace AppInstaller::Settings
     // Max must be last and unused.
     // How to add a setting
     // 1 - Add to enum.
-    // 2 - Implement SettingMap specialization
+    // 2 - Implement SettingMap specialization via SETTINGMAPPING_SPECIALIZATION
     // Validate will be called by ValidateAll without any more changes.
     enum class Setting : size_t
     {
         ProgressBarVisualStyle,
         AutoUpdateTimeInMinutes,
+        EFExperimentalCmd,
+        EFExperimentalArg,
         Max
     };
 
@@ -60,29 +62,22 @@ namespace AppInstaller::Settings
             // Validate - Function that does semantic validation.
         };
 
-        template <>
-        struct SettingMapping<Setting::ProgressBarVisualStyle>
-        {
-            using json_t = std::string;
-            using value_t = VisualStyle;
+#define SETTINGMAPPING_SPECIALIZATION(_setting_, _json_, _value_, _default_, _path_) \
+        template <> \
+        struct SettingMapping<_setting_> \
+        { \
+            using json_t = _json_; \
+            using value_t = _value_; \
+            static constexpr value_t DefaultValue = _default_; \
+            static constexpr std::string_view Path = _path_; \
+            static std::optional<value_t> Validate(const json_t& value); \
+        }
 
-            static constexpr value_t DefaultValue = VisualStyle::Accent;
-            static constexpr std::string_view Path = ".visual.progressBar"sv;
+        SETTINGMAPPING_SPECIALIZATION(Setting::ProgressBarVisualStyle, std::string, VisualStyle, VisualStyle::Accent, ".visual.progressBar"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::AutoUpdateTimeInMinutes, uint32_t, std::chrono::minutes, 5min, ".source.autoUpdateIntervalInMinutes"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalCmd, bool, bool, false, ".experimentalFeatures.experimentalCmd"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalArg, bool, bool, false, ".experimentalFeatures.experimentalArg"sv);
 
-            static std::optional<value_t> Validate(const json_t& value);
-        };
-
-        template <>
-        struct SettingMapping<Setting::AutoUpdateTimeInMinutes>
-        {
-            using json_t = uint32_t;
-            using value_t = std::chrono::minutes;
-
-            static constexpr std::chrono::minutes DefaultValue = 5min;
-            static constexpr std::string_view Path = ".source.autoUpdateIntervalInMinutes"sv;
-
-            static std::optional<value_t> Validate(const json_t& value);
-        };
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>
@@ -134,7 +129,6 @@ namespace AppInstaller::Settings
     private:
         UserSettingsType m_type = UserSettingsType::Default;
         std::vector<std::string> m_warnings;
-
         std::map<Setting, details::SettingVariant> m_settings;
 
     protected:

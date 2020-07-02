@@ -105,6 +105,12 @@
     <ClInclude Include="Commands\SettingsCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\ExperimentalCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\FeaturesCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -174,6 +180,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Commands\SettingsCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ExperimentalCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\FeaturesCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>

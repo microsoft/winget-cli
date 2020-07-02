@@ -6,7 +6,7 @@ You can configure WinGet by editing the `settings.json` file. The file can be op
 
 Settings file is located in %LOCALAPPDATA%\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json
 
-If you are using the non-packaged winget version by building it from source code the file will %LOCALAPPDATA%\Microsoft\WinGet\Settings\settings.json
+If you are using the non-packaged winget version by building it from source code the file will be located under %LOCALAPPDATA%\Microsoft\WinGet\Settings\settings.json
 
 ## Source
 
@@ -34,7 +34,7 @@ These settings involve visual elements that are displayed by WinGet
 ```
     "visual": {
         "progressBar": "accent"
-    }
+    },
 ```
 
 ### progressBar
@@ -44,3 +44,16 @@ Color of the progress bar that WinGet displays when not specified by arguments.
 - accent (default)
 - retro
 - rainbow
+
+### experimentalFeatures
+
+In order to allow work to be done in master, and distributed to early adopters for their feedback, settings have the ability to control "experimental" features.
+
+Currently there are no experimental features, just sample ones. Once they get implemented this file will be updated.
+
+```
+   "experimentalFeatures": {
+       "experimentalCmd": true,
+       "experimentalArg": false,
+   },
+```

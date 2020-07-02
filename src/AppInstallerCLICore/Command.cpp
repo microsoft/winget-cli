@@ -3,14 +3,16 @@
 #include "pch.h"
 #include "Command.h"
 #include "Resources.h"
+#include <winget/UserSettings.h>
 
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
     using namespace Utility::literals;
+    using namespace Settings;
 
-    Command::Command(std::string_view name, std::string_view parent) :
-        m_name(name)
+    Command::Command(std::string_view name, std::string_view parent, Command::Visibility visibility, ExperimentalFeature::Feature feature) :
+        m_name(name), m_visibility(visibility), m_feature(feature)
     {
         if (!parent.empty())
         {
@@ -75,8 +77,8 @@ namespace AppInstaller::CLI
         // Output the command preamble and command chain
         infoOut << Resource::String::Usage << ": winget"_liv << Utility::LocIndView{ commandChain };
 
-        auto commands = GetCommands();
-        auto arguments = GetArguments();
+        auto commands = GetVisibleCommands();
+        auto arguments = GetVisibleArguments();
 
         bool hasArguments = false;
         bool hasOptions = false;
@@ -181,20 +183,17 @@ namespace AppInstaller::CLI
 
             std::vector<std::string> argNames;
             size_t maxArgNameLength = 0;
-            for (const auto& arg : GetArguments())
+            for (const auto& arg : arguments)
             {
-                if (arg.Visibility() != Visibility::Hidden)
+                std::ostringstream strstr;
+                if (arg.Alias() != APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER)
                 {
-                    std::ostringstream strstr;
-                    if (arg.Alias() != APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER)
-                    {
-                        strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << ',';
-                    }
-                    strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Name();
-
-                    argNames.emplace_back(strstr.str());
-                    maxArgNameLength = std::max(maxArgNameLength, argNames.back().length());
+                    strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << ',';
                 }
+                strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Name();
+
+                argNames.emplace_back(strstr.str());
+                maxArgNameLength = std::max(maxArgNameLength, argNames.back().length());
             }
 
             if (hasArguments)
@@ -202,16 +201,13 @@ namespace AppInstaller::CLI
                 infoOut << Resource::String::AvailableArguments << std::endl;
 
                 size_t i = 0;
-                for (const auto& arg : GetArguments())
+                for (const auto& arg : arguments)
                 {
-                    if (arg.Visibility() != Visibility::Hidden)
+                    const std::string& argName = argNames[i++];
+                    if (arg.Type() == ArgumentType::Positional)
                     {
-                        const std::string& argName = argNames[i++];
-                        if (arg.Type() == ArgumentType::Positional)
-                        {
-                            size_t fillChars = (maxArgNameLength - argName.length()) + 2;
-                            infoOut << "  "_liv << Execution::HelpArgumentEmphasis << argName << Utility::LocIndString{ std::string(fillChars, ' ') } << arg.Description() << std::endl;
-                        }
+                        size_t fillChars = (maxArgNameLength - argName.length()) + 2;
+                        infoOut << "  "_liv << Execution::HelpArgumentEmphasis << argName << Utility::LocIndString{ std::string(fillChars, ' ') } << arg.Description() << std::endl;
                     }
                 }
             }
@@ -226,16 +222,13 @@ namespace AppInstaller::CLI
                 infoOut << Resource::String::AvailableOptions << std::endl;
 
                 size_t i = 0;
-                for (const auto& arg : GetArguments())
+                for (const auto& arg : arguments)
                 {
-                    if (arg.Visibility() != Visibility::Hidden)
+                    const std::string& argName = argNames[i++];
+                    if (arg.Type() != ArgumentType::Positional)
                     {
-                        const std::string& argName = argNames[i++];
-                        if (arg.Type() != ArgumentType::Positional)
-                        {
-                            size_t fillChars = (maxArgNameLength - argName.length()) + 2;
-                            infoOut << "  "_liv << Execution::HelpArgumentEmphasis << argName << Utility::LocIndString{ std::string(fillChars, ' ') } << arg.Description() << std::endl;
-                        }
+                        size_t fillChars = (maxArgNameLength - argName.length()) + 2;
+                        infoOut << "  "_liv << Execution::HelpArgumentEmphasis << argName << Utility::LocIndString{ std::string(fillChars, ' ') } << arg.Description() << std::endl;
                     }
                 }
             }
@@ -269,6 +262,13 @@ namespace AppInstaller::CLI
         {
             if (Utility::CaseInsensitiveEquals(*itr, command->Name()))
             {
+                if (!ExperimentalFeature::IsEnabled(command->Feature()))
+                {
+                    auto feature = ExperimentalFeature::GetFeature(command->Feature());
+                    AICLI_LOG(CLI, Error, << "Trying to use command: " << *itr << " without enabling feature " << feature.JsonName());
+                    throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
+                }
+
                 AICLI_LOG(CLI, Info, << "Found subcommand: " << *itr);
                 inv.consume(itr);
                 return std::move(command);
@@ -472,6 +472,13 @@ namespace AppInstaller::CLI
     {
         for (const auto& arg : GetArguments())
         {
+            if (!ExperimentalFeature::IsEnabled(arg.Feature()) && execArgs.Contains(arg.ExecArgType()))
+            {
+                auto feature = ExperimentalFeature::GetFeature(arg.Feature());
+                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " without enabling feature " << feature.JsonName());
+                throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
+            }
+
             if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
             {
                 throw CommandException(Resource::String::RequiredArgError, arg.Name());
@@ -488,5 +495,41 @@ namespace AppInstaller::CLI
     {
         context.Reporter.Error() << Resource::String::PendingWorkError << std::endl;
         THROW_HR(E_NOTIMPL);
+    }
+
+    Command::Visibility Command::GetVisibility() const
+    {
+        if (!ExperimentalFeature::IsEnabled(m_feature))
+        {
+            return Command::Visibility::Hidden;
+        }
+
+        return m_visibility;
+    }
+
+    std::vector<std::unique_ptr<Command>> Command::GetVisibleCommands() const
+    {
+        auto commands = GetCommands();
+
+        commands.erase(
+            std::remove_if(
+                commands.begin(), commands.end(),
+                [](const std::unique_ptr<Command>& command) { return command->GetVisibility() == Command::Visibility::Hidden; }),
+            commands.end());
+
+        return commands;
+    }
+
+    std::vector<Argument> Command::GetVisibleArguments() const
+    {
+        auto arguments = GetArguments();
+
+        arguments.erase(
+            std::remove_if(
+                arguments.begin(), arguments.end(),
+                [](const Argument& arg) { return arg.GetVisibility() == Argument::Visibility::Hidden; }),
+            arguments.end());
+
+        return arguments;
     }
 }

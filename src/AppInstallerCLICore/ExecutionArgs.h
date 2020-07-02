@@ -59,6 +59,9 @@ namespace AppInstaller::CLI::Execution
             Help, // Show command usage
             Info, // Show general info about WinGet
             VerboseLogs, // Increases winget logging level to verbose
+
+            // Used for demonstration purposes
+            ExperimentalArg,
         };
 
         bool Contains(Type arg) const { return (m_parsedArgs.count(arg) != 0); }

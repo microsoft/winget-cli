@@ -156,8 +156,34 @@
   <data name="ExactArgumentDescription" xml:space="preserve">
     <value>Find app using exact match</value>
   </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Experimental argument for demonstration purposes</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>This command is an example on how to implement an experimental feature. To turn on go to 'winget settings' and enable experimentalCmd or experimentalArg features.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Experimental feature example</value>
+  </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Found a positional argument when none was expected</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>This command is a work in progress, and may be changed dramatically or removed altogether in the future. To enable it, edit your settings ('winget settings') to include the experimental feature</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Shows the status of experimental features. Experimental features can be turn on via 'winget settings'.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Shows the status of experimental features</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>The following experimental features are in progress.
+They can be configured through the settings file 'winget settings'.</value>
+    <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>File to be hashed</value>
@@ -265,6 +291,9 @@
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>No installers are applicable to the current system.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>There are currently no exprimental features available. </value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Disables VirtualTerminal display</value>
@@ -382,6 +411,9 @@
   </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filter results by tag</value>
+  </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Thank you for using winget</value>
   </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Third Party Notices</value>
