@@ -38,6 +38,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(CommandArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CommandRequiresAdmin);
         WINGET_DEFINE_RESOURCE_STRINGID(CountArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(Done);
         WINGET_DEFINE_RESOURCE_STRINGID(ExactArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandLongDescription);
@@ -49,7 +50,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(FileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FlagContainAdjoinedError);
-        WINGET_DEFINE_RESOURCE_STRINGID(ForceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(HashCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(HashCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(HelpArgumentDescription);
@@ -61,6 +61,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationRequiresHigherWindows);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashMismatchAdminBlock);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashMismatchOverridden);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashMismatchOverrideRequired);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashVerified);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallForceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InteractiveArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidAliasError);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidArgumentSpecifierError);
@@ -104,6 +109,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SilentArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SingleCharAfterDashError);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceAddAlreadyExistsDifferentArg);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceAddAlreadyExistsDifferentName);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceAddAlreadyExistsMatch);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceAddBegin);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceArgArgumentDescription);
@@ -112,11 +121,26 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListNoneFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListName);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListType);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListArg);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListData);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListUpdated);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListUpdatedNever);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListField);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListValue);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListNoSources);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateAll);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateOne);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveAll);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveOne);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceNameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceResetForceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceTypeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateCommandShortDescription);
@@ -138,6 +162,23 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(VerifyFileSignedMsix);
         WINGET_DEFINE_RESOURCE_STRINGID(VersionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(VersionsArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceResetListAndOverridePreamble);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceResetAll);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceResetOne);
+        WINGET_DEFINE_RESOURCE_STRINGID(FeaturesFeature);
+        WINGET_DEFINE_RESOURCE_STRINGID(FeaturesStatus);
+        WINGET_DEFINE_RESOURCE_STRINGID(FeaturesProperty);
+        WINGET_DEFINE_RESOURCE_STRINGID(FeaturesLink);
+        WINGET_DEFINE_RESOURCE_STRINGID(FeaturesEnabled);
+        WINGET_DEFINE_RESOURCE_STRINGID(FeaturesDisabled);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowChannel);
+        WINGET_DEFINE_RESOURCE_STRINGID(SearchName);
+        WINGET_DEFINE_RESOURCE_STRINGID(SearchId);
+        WINGET_DEFINE_RESOURCE_STRINGID(SearchVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(SearchMatch);
+        WINGET_DEFINE_RESOURCE_STRINGID(SearchTruncated);
+        
     };
 
     // A localized string

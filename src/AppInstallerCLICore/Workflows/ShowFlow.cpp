@@ -67,7 +67,7 @@ namespace AppInstaller::CLI::Workflow
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
 
-        Execution::TableOutput<2> table(context.Reporter, { "Version", "Channel" });
+        Execution::TableOutput<2> table(context.Reporter, { Resource::String::ShowVersion, Resource::String::ShowChannel });
         table.OutputLine({ manifest.Version, manifest.Channel });
         table.Complete();
     }
@@ -76,7 +76,7 @@ namespace AppInstaller::CLI::Workflow
     {
         auto app = context.Get<Execution::Data::SearchResult>().Matches.at(0).Application.get();
 
-        Execution::TableOutput<2> table(context.Reporter, { "Version", "Channel" });
+        Execution::TableOutput<2> table(context.Reporter, { Resource::String::ShowVersion, Resource::String::ShowChannel });
         for (auto& version : app->GetVersions())
         {
             table.OutputLine({ version.GetVersion().ToString(), version.GetChannel().ToString() });

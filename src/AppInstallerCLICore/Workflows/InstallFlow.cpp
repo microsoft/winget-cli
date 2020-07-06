@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "InstallFlow.h"
+#include "Resources.h"
 #include "ShellExecuteInstallerHandler.h"
 #include "WorkflowBase.h"
 
@@ -145,19 +146,32 @@ namespace AppInstaller::CLI::Workflow
             hashPair.first.end(),
             hashPair.second.begin()))
         {
-            const auto& manifest = context.Get<Execution::Data::Manifest>();
-            Logging::Telemetry().LogInstallerHashMismatch(manifest.Id, manifest.Version, manifest.Channel, hashPair.first, hashPair.second);
+            bool overrideHashMismatch = context.Args.Contains(Execution::Args::Type::Force);
 
-            if (!context.Reporter.PromptForBoolResponse("Installer hash verification failed. Continue?", Execution::Reporter::Level::Warning))
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            Logging::Telemetry().LogInstallerHashMismatch(manifest.Id, manifest.Version, manifest.Channel, hashPair.first, hashPair.second, overrideHashMismatch);
+
+            // If running as admin, do not allow the user to override the hash failure.
+            if (Runtime::IsRunningAsAdmin())
             {
-                context.Reporter.Error() << "Canceled; Installer hash mismatch" << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
+                context.Reporter.Error() << Resource::String::InstallerHashMismatchAdminBlock << std::endl;
             }
+            else if (overrideHashMismatch)
+            {
+                context.Reporter.Warn() << Resource::String::InstallerHashMismatchOverridden << std::endl;
+                return;
+            }
+            else
+            {
+                context.Reporter.Error() << Resource::String::InstallerHashMismatchOverrideRequired << std::endl;
+            }
+
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
         }
         else
         {
             AICLI_LOG(CLI, Info, << "Installer hash verified");
-            context.Reporter.Info() << "Successfully verified installer hash" << std::endl;
+            context.Reporter.Info() << Resource::String::InstallerHashVerified << std::endl;
         }
     }
 
