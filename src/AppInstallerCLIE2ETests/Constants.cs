@@ -58,6 +58,9 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_NO_SOURCES_DEFINED = unchecked((int)0x8A150015);
             public const int ERROR_MULTIPLE_APPLICATIONS_FOUND = unchecked((int)0x8A150016);
             public const int ERROR_NO_MANIFEST_FOUND = unchecked((int)0x8A150017);
+            public const int ERROR_EXTENSION_PUBLIC_FAILED = unchecked((int)0x8A150018);
+            public const int ERROR_COMMAND_REQUIRES_ADMIN = unchecked((int)0x8A150019);
+            public const int ERROR_SOURCE_NOT_SECURE = unchecked((int)0x8A15001A);
         }
     }
 }
