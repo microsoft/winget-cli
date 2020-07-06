@@ -75,6 +75,8 @@ namespace AppInstaller::Repository::Microsoft
 
                 std::string packageLocation = GetPackageLocation(details);
 
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, Utility::IsUrlRemote(packageLocation) && !Utility::IsUrlSecure(packageLocation));
+
                 AICLI_LOG(Repo, Info, << "Initializing source from: " << details.Name << " => " << packageLocation);
 
                 Msix::MsixInfo packageInfo(packageLocation);
