@@ -180,6 +180,10 @@ namespace AppInstaller::Manifest
         {
             result = InstallerTypeEnum::Burn;
         }
+        else if (inStrLower == "pwa")
+        {
+            result = InstallerTypeEnum::PWA;
+        }
 
         return result;
     }

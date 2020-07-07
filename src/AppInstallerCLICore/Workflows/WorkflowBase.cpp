@@ -290,6 +290,7 @@ namespace AppInstaller::CLI::Workflow
 
     void GetManifest(Execution::Context& context)
     {
+        context.Args.AddArg(Execution::Args::Type::Manifest, "PWATest_resources\\PWAtest.yaml");
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
             context <<

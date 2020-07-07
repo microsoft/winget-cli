@@ -21,5 +21,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
+    <None Include="pwa_builder.exe" />
+    <None Include="PWATest_resources\app.ft.com-BC923C9_1.0.0.0.msix" />
+    <None Include="PWATest_resources\app.ft.com-BC923C9_1.0.0.0.pwa.json" />
+    <None Include="PWATest_resources\PWAtest.yaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="PWATest_resources\app.ft.com-BC923C9_1.0.0.0.msix.xml" />
   </ItemGroup>
 </Project>

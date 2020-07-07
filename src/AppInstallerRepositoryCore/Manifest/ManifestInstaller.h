@@ -32,7 +32,8 @@ namespace AppInstaller::Manifest
             Msix,
             Exe,
             Burn,
-            Unknown
+            Unknown,
+            PWA
         };
 
         enum class InstallerSwitchType

@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3" xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10" xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities" xmlns:rescap3="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities/3" IgnorableNamespaces="uap uap3 rescap">
+ <Identity Name="app.ft.com-BC923C9" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US, OID.2.25.311729368913984317654407730594956997722=1" Version="1.0.0.0"/>
+ <Properties>
+  <DisplayName>Financial Times</DisplayName>
+  <PublisherDisplayName>Microsoft Corporation</PublisherDisplayName>
+  <Logo>Images\Logo.png</Logo>
+ </Properties>
+ <Dependencies>
+  <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.19003.0" MaxVersionTested="12.0.0.0"/>
+  <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19003.0" MaxVersionTested="12.0.0.0"/>
+  <uap10:HostRuntimeDependency Name="Microsoft.MicrosoftEdge.stable" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" MinVersion="1.0.0.0"/>
+ </Dependencies>
+ <Resources>
+  <Resource Language="EN-US"/>
+ </Resources>
+ <Applications>
+  <Application Id="App" uap10:HostId="PWA" uap10:Parameters="--app-id=kpbjklljccgimegbnmbkbeiihgheebng --profile-directory=Default --ip-edge-aumid=Microsoft.MicrosoftEdge.stable_8wekyb3d8bbwe!MSEDGE --app-fallback-url=https://app.ft.com/">
+   <uap:VisualElements DisplayName="Financial Times" Description="Financial Times" BackgroundColor="transparent" Square150x150Logo="Images\Logo.png" Square44x44Logo="Images\Logo.png">
+    <uap:DefaultTile Wide310x150Logo="Images\Logo.png"/>
+   </uap:VisualElements>
+   <Extensions/>
+  </Application>
+ </Applications>
+ <Capabilities>
+  <rescap:Capability Name="runFullTrust"/>
+ </Capabilities>
+</Package>

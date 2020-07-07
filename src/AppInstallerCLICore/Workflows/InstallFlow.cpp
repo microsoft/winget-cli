@@ -4,13 +4,21 @@
 #include "InstallFlow.h"
 #include "ShellExecuteInstallerHandler.h"
 #include "WorkflowBase.h"
+#include <windows.management.deployment.h>
 
 
-using namespace winrt::Windows::Foundation;
+
+
+
+
+//using namespace winrt::Windows::Foundation;
+
 using namespace winrt::Windows::Management::Deployment;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 
+using IDeploymentOperation =
+ABI::Windows::Foundation::__FIAsyncOperationWithProgress_2_Windows__CManagement__CDeployment__CDeploymentResult_Windows__CManagement__CDeployment__CDeploymentProgress_t;
 namespace AppInstaller::CLI::Workflow
 {
     void EnsureMinOSVersion(Execution::Context& context)
@@ -49,6 +57,9 @@ namespace AppInstaller::CLI::Workflow
 
         switch (installer.InstallerType)
         {
+        case ManifestInstaller::InstallerTypeEnum::PWA:
+            InstallPWA();
+            break;
         case ManifestInstaller::InstallerTypeEnum::Exe:
         case ManifestInstaller::InstallerTypeEnum::Burn:
         case ManifestInstaller::InstallerTypeEnum::Inno:
@@ -71,6 +82,65 @@ namespace AppInstaller::CLI::Workflow
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
+    }
+
+    void InstallPWA() 
+    {
+        winrt::Windows::Foundation::Uri uri = nullptr;
+        //std::string command = "pwa_builder.exe --url=https://app.ft.com --target=C:\\Users\\Downloads";
+        //const char* command_cast = const_cast<char*>(command.c_str());
+        std::string path = "PWATest_resources\\app.ft.com-BC923C9_1.0.0.0.msix";
+        const WCHAR path_convert[57] = L"file:\\\\PWATest_resources\\app.ft.com-BC923C9_1.0.0.0.msix";
+        //system(command_cast);
+        IDeploymentOperation* deploymentOperation;
+        //Initialize a URI factory
+        ABI::Windows::Foundation::IUriRuntimeClassFactory* uriFactory;
+        
+
+        //Initialize a package manager instance
+        winrt::com_ptr<ABI::Windows::Management::Deployment::IPackageManager9> package_manager9;
+
+        IInspectable* package_options_raw;
+        HSTRING add_package_options_str;
+        HSTRING package_manager_str;
+        HSTRING runtime_class;
+        HSTRING path_string;
+       
+        //Create HSTRINGs
+        WindowsCreateString(RuntimeClass_Windows_Management_Deployment_AddPackageOptions, 47, &add_package_options_str);
+        WindowsCreateString(RuntimeClass_Windows_Management_Deployment_PackageManager, 44, &package_manager_str);
+        WindowsCreateString(RuntimeClass_Windows_Foundation_Uri, 22, &runtime_class);
+        WindowsCreateString(path_convert, 56, &path_string);
+       
+        //Configure the package options
+        auto packageOptionsResult = RoActivateInstance(add_package_options_str, &package_options_raw);
+        winrt::com_ptr<IInspectable> package_options;
+        package_options.attach(package_options_raw);
+        auto add_package_options = package_options.as<ABI::Windows::Management::Deployment::IAddPackageOptions>();
+   
+        //Add package options
+        auto hr = add_package_options->put_AllowUnsigned(true);
+        auto hr1 = add_package_options->put_DeferRegistrationWhenPackagesAreInUse(true);
+        auto newResult = RoActivateInstance(package_manager_str, reinterpret_cast<IInspectable**> (&package_manager9));
+        
+        //Create the file URI
+        ABI::Windows::Foundation::IUriRuntimeClass* appx_package_uri;
+        auto res = ABI::Windows::Foundation::GetActivationFactory(runtime_class, &uriFactory);
+        auto uriRes = uriFactory->CreateUri(path_string, &appx_package_uri);
+
+        //Call to Add package
+        auto result = package_manager9->AddPackageByUriAsync(appx_package_uri,
+            add_package_options.get(),
+            &deploymentOperation);
+
+        newResult = 0;
+        packageOptionsResult = 0;
+        res = 0;
+        result = 0;
+        uriRes = 0;
+        hr = 0;
+        hr1 = 0;
+
     }
 
     void DownloadInstallerFile(Execution::Context& context)
@@ -193,14 +263,14 @@ namespace AppInstaller::CLI::Workflow
 
     void MsixInstall(Execution::Context& context)
     {
-        Uri uri = nullptr;
+        winrt::Windows::Foundation::Uri uri = nullptr;
         if (context.Contains(Execution::Data::InstallerPath))
         {
-            uri = Uri(context.Get<Execution::Data::InstallerPath>().c_str());
+            uri = winrt::Windows::Foundation::Uri(context.Get<Execution::Data::InstallerPath>().c_str());
         }
         else
         {
-            uri = Uri(Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->Url));
+            uri = winrt::Windows::Foundation::Uri(Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->Url));
         }
 
         context.Reporter.Info() << "Starting package install..." << std::endl;
