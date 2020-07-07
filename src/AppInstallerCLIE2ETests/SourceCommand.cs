@@ -37,6 +37,11 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_RANGES_PROCESSED, result.ExitCode);
             Assert.True(result.StdOut.Contains("error occurred while executing the command"));
 
+            // Add source with an HTTP url should fail
+            result = TestCommon.RunAICLICommand("source add", "Insecure http://microsoft.com");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NOT_SECURE, result.ExitCode);
+            Assert.True(result.StdOut.Contains("error occurred while executing the command"));
+
             // List with no args should list all available sources
             result = TestCommon.RunAICLICommand("source list", "");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);

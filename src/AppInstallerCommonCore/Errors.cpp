@@ -60,6 +60,8 @@ namespace AppInstaller
                 return "No manifest found matching the criteria";
             case APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN:
                 return "Command requires administrator privileges to run";
+            case APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE:
+                return "The source location is not secure";
             default:
                 return "Uknown Error Code";
             }

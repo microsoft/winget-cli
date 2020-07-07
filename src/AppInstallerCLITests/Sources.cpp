@@ -130,7 +130,7 @@ struct TestSourceFactory : public ISourceFactory
         m_Create(TestSource::Create), m_Add([](SourceDetails&) {}), m_Update([](const SourceDetails&) {}), m_Remove([](const SourceDetails&) {}) {}
 
     // ISourceFactory
-    std::shared_ptr<ISource> Create(const SourceDetails& details) override
+    std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback&) override
     {
         return m_Create(details);
     }
