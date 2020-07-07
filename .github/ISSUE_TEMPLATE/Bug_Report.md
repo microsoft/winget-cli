@@ -1,6 +1,6 @@
 ---
 name: "Bug report 🐛"
-about: Report errors or unexpected behavior
+about: Report errors or unexpected behavior not [duplicates](https://github.com/microsoft/winget-cli/issues?q=is%3Aissue+is%3Aopen+label%3AIssue-Bug+sort%3Areactions-%2B1-desc)
 title: ''
 labels: ''
 assignees: ''
