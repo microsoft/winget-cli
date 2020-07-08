@@ -98,6 +98,7 @@ namespace AppInstaller::CLI::Workflow
         
 
         //Initialize a package manager instance
+        winrt::com_ptr<ABI::Windows::Management::Deployment::IPackageManager> package_manager;
         winrt::com_ptr<ABI::Windows::Management::Deployment::IPackageManager9> package_manager9;
 
         IInspectable* package_options_raw;
@@ -121,7 +122,8 @@ namespace AppInstaller::CLI::Workflow
         //Add package options
         auto hr = add_package_options->put_AllowUnsigned(true);
         auto hr1 = add_package_options->put_DeferRegistrationWhenPackagesAreInUse(true);
-        auto newResult = RoActivateInstance(package_manager_str, reinterpret_cast<IInspectable**> (&package_manager9));
+        auto newResult = RoActivateInstance(package_manager_str, reinterpret_cast<IInspectable**> (&package_manager));
+        package_manager.as(package_manager9);
         
         //Create the file URI
         ABI::Windows::Foundation::IUriRuntimeClass* appx_package_uri;
