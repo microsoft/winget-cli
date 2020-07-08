@@ -169,7 +169,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Args::Type::SourceName),
-            Argument::ForType(Args::Type::Force),
+            Argument{ "force", Argument::NoAlias, Args::Type::Force, Resource::String::SourceResetForceArgumentDescription, ArgumentType::Flag },
         };
     }
 

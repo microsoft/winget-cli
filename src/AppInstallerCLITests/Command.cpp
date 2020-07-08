@@ -25,7 +25,7 @@ std::string GetArgumentName(const Argument& arg)
 
 std::string GetArgumentAlias(const Argument& arg)
 {
-    if (arg.Alias() == APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER)
+    if (arg.Alias() == Argument::NoAlias)
     {
         return {};
     }

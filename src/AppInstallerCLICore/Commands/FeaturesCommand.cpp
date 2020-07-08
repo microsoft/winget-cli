@@ -33,10 +33,18 @@ namespace AppInstaller::CLI
         
         if (!features.empty())
         {
-            Execution::TableOutput<4> table(context.Reporter, { "Feature", "Status", "Property", "Link" });
+            Execution::TableOutput<4> table(context.Reporter, {
+                Resource::String::FeaturesFeature,
+                Resource::String::FeaturesStatus,
+                Resource::String::FeaturesProperty,
+                Resource::String::FeaturesLink });
             for (const auto& feature : features)
             {
-                table.OutputLine({ std::string{ feature.Name() }, ExperimentalFeature::IsEnabled(feature.GetFeature()) ? "Enabled" : "Disabled", std::string { feature.JsonName() }, std::string{ feature.Link() } });
+                table.OutputLine({
+                    std::string{ feature.Name() },
+                    Resource::Loader::Instance().ResolveString(ExperimentalFeature::IsEnabled(feature.GetFeature()) ? Resource::String::FeaturesEnabled : Resource::String::FeaturesDisabled),
+                    std::string { feature.JsonName() },
+                    std::string{ feature.Link() } });
             }
             table.Complete();
         }

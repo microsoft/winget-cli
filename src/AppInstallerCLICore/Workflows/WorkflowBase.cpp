@@ -167,7 +167,7 @@ namespace AppInstaller::CLI::Workflow
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
         Logging::Telemetry().LogSearchResultCount(searchResult.Matches.size());
 
-        Execution::TableOutput<4> table(context.Reporter, { "Name", "Id", "Version", "Matched" });
+        Execution::TableOutput<4> table(context.Reporter, { Resource::String::SearchName, Resource::String::SearchId, Resource::String::SearchVersion, Resource::String::SearchMatch });
 
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
@@ -181,7 +181,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (searchResult.Truncated)
         {
-            context.Reporter.Info() << "<additional entries truncated due to result limit>" << std::endl;
+            context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
         }
     }
 

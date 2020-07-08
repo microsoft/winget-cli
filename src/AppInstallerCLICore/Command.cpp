@@ -117,7 +117,7 @@ namespace AppInstaller::CLI
 
                 infoOut << '[';
 
-                if (arg.Alias() == APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER)
+                if (arg.Alias() == Argument::NoAlias)
                 {
                     infoOut << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Name();
                 }
@@ -186,7 +186,7 @@ namespace AppInstaller::CLI
             for (const auto& arg : arguments)
             {
                 std::ostringstream strstr;
-                if (arg.Alias() != APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER)
+                if (arg.Alias() != Argument::NoAlias)
                 {
                     strstr << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << ',';
                 }

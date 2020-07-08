@@ -40,7 +40,7 @@ namespace AppInstaller::CLI
         return
         {
             Argument{ "version", 'v', Execution::Args::Type::ListVersions, Resource::String::ToolVersionArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
-            Argument{ "info", APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER, Execution::Args::Type::Info, Resource::String::ToolInfoArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument{ "info", Argument::NoAlias, Execution::Args::Type::Info, Resource::String::ToolInfoArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
         };
     }
 
@@ -72,7 +72,7 @@ namespace AppInstaller::CLI
 
             info << std::endl;
 
-            Execution::TableOutput<2> links{ context.Reporter, { Resource::LocString(Resource::String::Links).get(), "" } };
+            Execution::TableOutput<2> links{ context.Reporter, { Resource::String::Links, {} } };
 
             links.OutputLine({ Resource::LocString(Resource::String::PrivacyStatement).get(), "https://aka.ms/winget-privacy" });
             links.OutputLine({ Resource::LocString(Resource::String::LicenseAgreement).get(), "https://aka.ms/winget-license" });

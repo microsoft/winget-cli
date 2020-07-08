@@ -73,7 +73,13 @@ namespace AppInstaller::Logging
         void LogSearchResultCount(uint64_t resultCount) noexcept;
 
         // Logs a mismatch between the expected and actual hash values.
-        void LogInstallerHashMismatch(std::string_view id, std::string_view version, std::string_view channel, const std::vector<uint8_t>& expected, const std::vector<uint8_t>& actual);
+        void LogInstallerHashMismatch(
+            std::string_view id,
+            std::string_view version,
+            std::string_view channel,
+            const std::vector<uint8_t>& expected,
+            const std::vector<uint8_t>& actual,
+            bool overrideHashMismatch);
 
         // Logs a faild installation attempt.
         void LogInstallerFailure(std::string_view id, std::string_view version, std::string_view channel, std::string_view type, uint32_t errorCode);

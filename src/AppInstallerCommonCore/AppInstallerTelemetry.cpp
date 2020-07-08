@@ -326,7 +326,13 @@ namespace AppInstaller::Logging
         }
     }
 
-    void TelemetryTraceLogger::LogInstallerHashMismatch(std::string_view id, std::string_view version, std::string_view channel, const std::vector<uint8_t>& expected, const std::vector<uint8_t>& actual)
+    void TelemetryTraceLogger::LogInstallerHashMismatch(
+        std::string_view id,
+        std::string_view version,
+        std::string_view channel,
+        const std::vector<uint8_t>& expected,
+        const std::vector<uint8_t>& actual,
+        bool overrideHashMismatch)
     {
         if (g_IsTelemetryProviderEnabled)
         {
@@ -339,6 +345,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(channel, "Channel"),
                 TraceLoggingBinary(expected.data(), static_cast<ULONG>(expected.size()), "Expected"),
                 TraceLoggingBinary(actual.data(), static_cast<ULONG>(actual.size()), "Actual"),
+                TraceLoggingValue(overrideHashMismatch, "Override"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }

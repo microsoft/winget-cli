@@ -6,6 +6,7 @@
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
+using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::CLI::Workflow;
 
@@ -18,21 +19,22 @@ namespace AppInstaller::CLI
     std::vector<Argument> InstallCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Execution::Args::Type::Query),
-            Argument::ForType(Execution::Args::Type::Manifest),
-            Argument::ForType(Execution::Args::Type::Id),
-            Argument::ForType(Execution::Args::Type::Name),
-            Argument::ForType(Execution::Args::Type::Moniker),
-            Argument::ForType(Execution::Args::Type::Version),
-            Argument::ForType(Execution::Args::Type::Channel),
-            Argument::ForType(Execution::Args::Type::Source),
-            Argument::ForType(Execution::Args::Type::Exact),
-            Argument::ForType(Execution::Args::Type::Interactive),
-            Argument::ForType(Execution::Args::Type::Silent),
-            Argument::ForType(Execution::Args::Type::Language),
-            Argument::ForType(Execution::Args::Type::Log),
-            Argument::ForType(Execution::Args::Type::Override),
-            Argument::ForType(Execution::Args::Type::InstallLocation),
+            Argument::ForType(Args::Type::Query),
+            Argument::ForType(Args::Type::Manifest),
+            Argument::ForType(Args::Type::Id),
+            Argument::ForType(Args::Type::Name),
+            Argument::ForType(Args::Type::Moniker),
+            Argument::ForType(Args::Type::Version),
+            Argument::ForType(Args::Type::Channel),
+            Argument::ForType(Args::Type::Source),
+            Argument::ForType(Args::Type::Exact),
+            Argument::ForType(Args::Type::Interactive),
+            Argument::ForType(Args::Type::Silent),
+            Argument::ForType(Args::Type::Language),
+            Argument::ForType(Args::Type::Log),
+            Argument::ForType(Args::Type::Override),
+            Argument::ForType(Args::Type::InstallLocation),
+            Argument{ "force", Argument::NoAlias, Args::Type::Force, Resource::String::InstallForceArgumentDescription, ArgumentType::Flag },
         };
     }
 
