@@ -22,7 +22,7 @@ namespace AppInstaller::CLI::Workflow
             execInfo.lpFile = filePath.c_str();
             std::wstring argsUtf16 = Utility::ConvertToUTF16(args);
             execInfo.lpParameters = argsUtf16.c_str();
-            // Some installers force UI. Setting to SW_HIDE will hide installer UI and installation will hang forever.
+            // Some installers force UI. Setting to SW_HIDE will hide installer UI and installation will never complete.
             // Verified setting to SW_SHOW does not hurt silent mode since no UI will be shown.
             execInfo.nShow = SW_SHOW;
             if (!ShellExecuteExW(&execInfo) || !execInfo.hProcess)
