@@ -8,6 +8,7 @@
 #include <AppInstallerDateTime.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
+#include <AppInstallerErrors.h>
 #include <winget/Settings.h>
 
 using namespace AppInstaller;

@@ -44,6 +44,5 @@
 #include <AppInstallerSHA256.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerTelemetry.h>
-#include <Manifest/ManifestInstaller.h>
-#include <Manifest/Manifest.h>
+#include <Manifest/YamlManifestParser.h>
 #include <winget/LocIndependent.h>

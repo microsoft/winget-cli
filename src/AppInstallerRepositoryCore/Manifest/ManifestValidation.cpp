@@ -6,126 +6,95 @@
 
 namespace AppInstaller::Manifest
 {
-    std::vector<ValidationError> ValidateAndProcessFields(
-        const YAML::Node& rootNode,
-        const std::vector<ManifestFieldInfo> fieldInfos,
-        bool fullValidation)
+    std::vector<ValidationError> ValidateManifest(const Manifest& manifest)
     {
-        std::vector<ValidationError> errors;
+        std::vector<ValidationError> resultErrors;
 
-        if (rootNode.size() == 0)
+        // Channel is not supported currently
+        if (!manifest.Channel.empty())
         {
-            errors.emplace_back(ManifestError::InvalidRootNode, "", "", rootNode.Mark().line, rootNode.Mark().column);
-            return errors;
+            resultErrors.emplace_back(ManifestError::FieldNotSupported, "Channel", manifest.Channel);
         }
 
-        // Keeps track of already processed fields. Used to check duplicate fields or missing required fields.
-        std::set<std::string> processedFields;
-
-        for (auto const& keyValuePair : rootNode)
+        try
         {
-            std::string key = keyValuePair.first.as<std::string>();
-            YAML::Node valueNode = keyValuePair.second;
+            // Version value should be successfully parsed
+            Utility::Version test{ manifest.Version };
+        }
+        catch (const std::exception&)
+        {
+            resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Version", manifest.Version);
+        }
 
-            // We'll do case insensitive search first and validate correct case later.
-            auto fieldIter = std::find_if(fieldInfos.begin(), fieldInfos.end(),
-                [&](auto const& s)
-                {
-                    return Utility::CaseInsensitiveEquals(s.Name, key);
-                });
+        // License field is required
+        if (manifest.License.empty())
+        {
+            resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "License");
+        }
 
-            if (fieldIter != fieldInfos.end())
+        // Comparation function to check duplicate installer entry. {installerType, arch, language and scope} combination is the key.
+        // Todo: use the comparator from ManifestComparator when that one is fully implemented.
+        auto installerCmp = [](const ManifestInstaller& in1, const ManifestInstaller& in2)
+        {
+            if (in1.InstallerType != in2.InstallerType)
             {
-                ManifestFieldInfo fieldInfo = *fieldIter;
-
-                // Make sure the found key is in Pascal Case
-                if (key != fieldInfo.Name)
-                {
-                    errors.emplace_back(ManifestError::FieldIsNotPascalCase, key, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column);
-                }
-
-                // Make sure it's not a duplicate key
-                if (!processedFields.insert(fieldInfo.Name).second)
-                {
-                    errors.emplace_back(ManifestError::FieldDuplicate, fieldInfo.Name, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column);
-                }
-
-                // Validate non empty value is provided for required fields
-                if (fieldInfo.Required)
-                {
-                    if (!valueNode.IsDefined() || valueNode.IsNull() ||  // Should be defined and not null
-                        (valueNode.IsScalar() && valueNode.as<std::string>().empty()) ||  // Scalar type should have content
-                        ((valueNode.IsMap() || valueNode.IsSequence()) && valueNode.size() == 0))  // Map or sequence type should have size greater than 0
-                    {
-                        errors.emplace_back(ManifestError::RequiredFieldEmpty, fieldInfo.Name, "", valueNode.Mark().line, valueNode.Mark().column);
-                    }
-                }
-
-                // Validate value against regex if applicable
-                if (fullValidation && !fieldInfo.RegEx.empty())
-                {
-                    std::string value = valueNode.as<std::string>();
-                    std::regex pattern{ fieldInfo.RegEx };
-                    if (!std::regex_match(value, pattern))
-                    {
-                        errors.emplace_back(ManifestError::InvalidFieldValue, fieldInfo.Name, value, valueNode.Mark().line, valueNode.Mark().column);
-                        continue;
-                    }
-                }
-
-                if (!valueNode.IsNull())
-                {
-                    fieldInfo.ProcessFunc(valueNode);
-                }
+                return in1.InstallerType < in2.InstallerType;
             }
-            else
+
+            if (in1.Arch != in2.Arch)
             {
-                // For full validation, also reports unrecognized fields as warning
-                if (fullValidation)
-                {
-                    errors.emplace_back(ManifestError::FieldUnknown, key, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column, ValidationError::Level::Warning);
-                }
+                return in1.Arch < in2.Arch;
             }
-        }
 
-        // Make sure required fields are provided
-        for (auto const& fieldInfo : fieldInfos)
-        {
-            if (fieldInfo.Required && processedFields.find(fieldInfo.Name) == processedFields.end())
+            if (in1.Language != in2.Language)
             {
-                errors.emplace_back(ManifestError::RequiredFieldMissing, fieldInfo.Name);
+                return in1.Language < in2.Language;
             }
-        }
 
-        return errors;
-    }
-
-    ManifestVer::ManifestVer(std::string version, bool fullValidation) : Version(std::move(version), ".")
-    {
-        bool validationSuccess = true;
-
-        if (m_parts.size() > 3)
-        {
-            validationSuccess = false;
-        }
-        else
-        {
-            for (size_t i = 0; i < m_parts.size(); i++)
+            if (in1.Scope != in2.Scope)
             {
-                if (!m_parts[i].Other.empty() &&
-                    (i < 2 || fullValidation))
-                {
-                    validationSuccess = false;
-                    break;
-                }
+                return in1.Scope < in2.Scope;
+            }
+
+            return false;
+        };
+
+        std::set<ManifestInstaller, decltype(installerCmp)> installerSet(installerCmp);
+        bool duplicateInstallerFound = false;
+
+        // Validate installers
+        for (auto const& installer : manifest.Installers)
+        {
+            if (!duplicateInstallerFound && !installerSet.insert(installer).second)
+            {
+                resultErrors.emplace_back(ManifestError::DuplicateInstallerEntry);
+                duplicateInstallerFound = true;
+            }
+
+            if (installer.Arch == Utility::Architecture::Unknown)
+            {
+                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Arch");
+            }
+
+            if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::Unknown)
+            {
+                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "InstallerType");
+            }
+
+            if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::Exe &&
+                (installer.Switches.find(ManifestInstaller::InstallerSwitchType::SilentWithProgress) == installer.Switches.end() ||
+                 installer.Switches.find(ManifestInstaller::InstallerSwitchType::Silent) == installer.Switches.end()))
+            {
+                resultErrors.emplace_back(ManifestError::ExeInstallerMissingSilentSwitches, ValidationError::Level::Warning);
+            }
+
+            // Check empty string before calling IsValidUrl to avoid duplicate error reporting.
+            if (!installer.Url.empty() && IsValidURL(NULL, Utility::ConvertToUTF16(installer.Url).c_str(), 0) == S_FALSE)
+            {
+                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Url", installer.Url);
             }
         }
 
-        if (!validationSuccess)
-        {
-            std::vector<ValidationError> errors;
-            errors.emplace_back(ManifestError::InvalidFieldValue, "ManifestVersion", m_version);
-            THROW_EXCEPTION(ManifestException(std::move(errors)));
-        }
+        return resultErrors;
     }
 }

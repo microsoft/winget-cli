@@ -5,6 +5,7 @@
 #include "ExecutionContext.h"
 #include "ManifestComparator.h"
 #include "TableOutput.h"
+#include "Manifest/YamlManifestParser.h"
 
 
 namespace AppInstaller::CLI::Workflow
@@ -270,7 +271,7 @@ namespace AppInstaller::CLI::Workflow
             VerifyFile(Execution::Args::Type::Manifest) <<
             [](Execution::Context& context)
         {
-            Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::Manifest)));
+            Manifest::Manifest manifest = Manifest::YamlManifestParser::CreateManifestFromPath(Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::Manifest)));
             Logging::Telemetry().LogManifestFields(manifest.Id, manifest.Name, manifest.Version, true);
             context.Add<Execution::Data::Manifest>(std::move(manifest));
         };

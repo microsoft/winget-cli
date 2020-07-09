@@ -41,7 +41,7 @@ namespace AppInstaller::CLI
 
             try
             {
-                (void)Manifest::Manifest::CreateFromPath(inputFile, true, true);
+                (void)Manifest::YamlManifestParser::CreateManifestFromPath(inputFile, true, true);
                 context.Reporter.Info() << Resource::String::ManifestValidationSuccess << std::endl;
             }
             catch (const Manifest::ManifestException& e)
