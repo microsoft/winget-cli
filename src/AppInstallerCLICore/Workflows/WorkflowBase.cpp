@@ -102,11 +102,10 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::Source>(std::move(source));
     }
 
-    void SearchSource(Execution::Context& context)
+    void SearchSourceForMany(Execution::Context& context)
     {
-        auto& args = context.Args;
+        const auto& args = context.Args;
 
-        // Construct query
         MatchType matchType = MatchType::Substring;
         if (args.Contains(Execution::Args::Type::Exact))
         {
@@ -162,6 +161,63 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>()->Search(searchRequest));
     }
 
+    void SearchSourceForSingle(Execution::Context& context)
+    {
+        const auto& args = context.Args;
+
+        MatchType matchType = MatchType::CaseInsensitive;
+        if (args.Contains(Execution::Args::Type::Exact))
+        {
+            matchType = MatchType::Exact;
+        }
+
+        SearchRequest searchRequest;
+        if (args.Contains(Execution::Args::Type::Query))
+        {
+            std::string_view query = args.GetArg(Execution::Args::Type::Query);
+            searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, query));
+            searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, query));
+            searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, query));
+        }
+
+        if (args.Contains(Execution::Args::Type::Id))
+        {
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, args.GetArg(Execution::Args::Type::Id)));
+        }
+
+        if (args.Contains(Execution::Args::Type::Name))
+        {
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, args.GetArg(Execution::Args::Type::Name)));
+        }
+
+        if (args.Contains(Execution::Args::Type::Moniker))
+        {
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, args.GetArg(Execution::Args::Type::Moniker)));
+        }
+
+        if (args.Contains(Execution::Args::Type::Tag))
+        {
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Tag, matchType, args.GetArg(Execution::Args::Type::Tag)));
+        }
+
+        if (args.Contains(Execution::Args::Type::Command))
+        {
+            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Command, matchType, args.GetArg(Execution::Args::Type::Command)));
+        }
+
+        Logging::Telemetry().LogSearchRequest(
+            args.GetArg(Execution::Args::Type::Query),
+            args.GetArg(Execution::Args::Type::Id),
+            args.GetArg(Execution::Args::Type::Name),
+            args.GetArg(Execution::Args::Type::Moniker),
+            args.GetArg(Execution::Args::Type::Tag),
+            args.GetArg(Execution::Args::Type::Command),
+            searchRequest.MaximumResults,
+            searchRequest.ToString());
+
+        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>()->Search(searchRequest));
+    }
+
     void ReportSearchResult(Execution::Context& context)
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
@@ -192,7 +248,7 @@ namespace AppInstaller::CLI::Workflow
         if (searchResult.Matches.size() == 0)
         {
             Logging::Telemetry().LogNoAppMatch();
-            context.Reporter.Info() << "No app found matching input criteria." << std::endl;
+            context.Reporter.Info() << Resource::String::NoPackageFound << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
         }
     }
@@ -208,7 +264,7 @@ namespace AppInstaller::CLI::Workflow
             if (searchResult.Matches.size() > 1)
             {
                 Logging::Telemetry().LogMultiAppMatch();
-                context.Reporter.Warn() << "Multiple apps found matching input criteria. Please refine the input." << std::endl;
+                context.Reporter.Warn() << Resource::String::MultiplePackagesFound << std::endl;
                 context << ReportSearchResult;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
             }
@@ -300,7 +356,7 @@ namespace AppInstaller::CLI::Workflow
         {
             context <<
                 OpenSource <<
-                SearchSource <<
+                SearchSourceForSingle <<
                 EnsureOneMatchFromSearchResult <<
                 ReportSearchResultIdentity <<
                 GetManifestFromSearchResult;
