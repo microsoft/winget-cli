@@ -1302,7 +1302,7 @@ TEST_CASE("SQLiteIndex_Search_InclusionAndFilter", "[sqliteindex]")
 
     auto result = index.GetIdStringById(results.Matches[0].first);
     REQUIRE(result.has_value());
-    REQUIRE(result.value() == "Id2");
+    REQUIRE(result.value() == "Nope");
 }
 
 TEST_CASE("SQLiteIndex_Search_QueryInclusionAndFilter", "[sqliteindex]")
@@ -1312,14 +1312,14 @@ TEST_CASE("SQLiteIndex_Search_QueryInclusionAndFilter", "[sqliteindex]")
 
     SQLiteIndex index = SearchTestSetup(tempFile, {
         { "Nope", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1" },
-        { "Id2", "Na", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
-        { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
+        { "Id2", "Na", "monicka", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
+        { "Id3", "No", "moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
         });
 
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Substring, "id3");
     request.Inclusions.emplace_back(ApplicationMatchField::Name, MatchType::Substring, "na");
-    request.Filters.emplace_back(ApplicationMatchField::Name, MatchType::CaseInsensitive, "name");
+    request.Filters.emplace_back(ApplicationMatchField::Moniker, MatchType::CaseInsensitive, "MONIKER");
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 2);

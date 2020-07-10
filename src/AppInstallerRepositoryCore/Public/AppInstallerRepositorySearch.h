@@ -54,7 +54,10 @@ namespace AppInstaller::Repository
     };
 
     // Container for data used to filter the available manifests in a source.
+    // It can be thought of as:
+    //  (Query || Inclusions...) && Filters...
     // If Query and Inclusions are both empty, the starting data set will be the entire database.
+    //  Everything && Filters...
     struct SearchRequest
     {
         // The generic query matches against a source defined set of fields.
