@@ -1244,3 +1244,101 @@ TEST_CASE("SQLiteIndex_Search_MaximumResults_Greater", "[sqliteindex]")
     REQUIRE(results.Matches.size() == 3);
     REQUIRE(!results.Truncated);
 }
+
+TEST_CASE("SQLiteIndex_Search_QueryAndInclusion", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Nope", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1" },
+        { "Id2", "Na", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
+        { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
+        });
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::CaseInsensitive, "id3");
+    request.Inclusions.emplace_back(ApplicationMatchField::Name, MatchType::Substring, "Na");
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 3);
+}
+
+TEST_CASE("SQLiteIndex_Search_InclusionOnly", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Nope", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1" },
+        { "Id2", "Na", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
+        { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
+        });
+
+    SearchRequest request;
+    request.Inclusions.emplace_back(ApplicationMatchField::Name, MatchType::Substring, "Na");
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 2);
+}
+
+TEST_CASE("SQLiteIndex_Search_InclusionAndFilter", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Nope", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1" },
+        { "Id2", "Na", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
+        { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
+        });
+
+    SearchRequest request;
+    request.Inclusions.emplace_back(ApplicationMatchField::Name, MatchType::Substring, "Na");
+    request.Filters.emplace_back(ApplicationMatchField::Name, MatchType::CaseInsensitive, "name");
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 1);
+
+    auto result = index.GetIdStringById(results.Matches[0].first);
+    REQUIRE(result.has_value());
+    REQUIRE(result.value() == "Id2");
+}
+
+TEST_CASE("SQLiteIndex_Search_QueryInclusionAndFilter", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Nope", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1" },
+        { "Id2", "Na", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
+        { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
+        });
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Substring, "id3");
+    request.Inclusions.emplace_back(ApplicationMatchField::Name, MatchType::Substring, "na");
+    request.Filters.emplace_back(ApplicationMatchField::Name, MatchType::CaseInsensitive, "name");
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 2);
+}
+
+TEST_CASE("SQLiteIndex_Search_CaseInsensitive", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Nope", "id3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1" },
+        { "Id2", "Na", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2" },
+        { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
+        });
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::CaseInsensitive, "id3");
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 3);
+}
