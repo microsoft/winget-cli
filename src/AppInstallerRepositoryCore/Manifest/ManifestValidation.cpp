@@ -81,6 +81,36 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "InstallerType");
             }
 
+            if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::MSStore)
+            {
+                // MSStore type is not supported in community repo
+                resultErrors.emplace_back(
+                    ManifestError::FieldNotSupported, "InstallerType",
+                    ManifestInstaller::InstallerTypeToString(installer.InstallerType));
+
+                if (installer.ProductId.empty())
+                {
+                    resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "ProductId");
+                }
+            }
+            else
+            {
+                // For other types, Url and Sha256 are required
+                if (installer.Url.empty())
+                {
+                    resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "Url");
+                }
+                if (installer.Sha256.empty())
+                {
+                    resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "Sha256");
+                }
+                // ProductId should be used
+                if (!installer.ProductId.empty())
+                {
+                    resultErrors.emplace_back(ManifestError::FieldNotSupported, "ProductId");
+                }
+            }
+
             if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::Exe &&
                 (installer.Switches.find(ManifestInstaller::InstallerSwitchType::SilentWithProgress) == installer.Switches.end() ||
                  installer.Switches.find(ManifestInstaller::InstallerSwitchType::Silent) == installer.Switches.end()))

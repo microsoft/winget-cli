@@ -71,12 +71,13 @@ namespace AppInstaller::Manifest
         InstallerFieldInfos =
         {
             { "Arch", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->Arch = Utility::ConvertToArchitectureEnum(value.as<std::string>()); }, true },
-            { "Url", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->Url = value.as<std::string>(); }, true },
-            { "Sha256", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); }, true, "^[A-Fa-f0-9]{64}$" },
-            { "SignatureSha256", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->SignatureSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); } },
+            { "Url", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->Url = value.as<std::string>(); } },
+            { "Sha256", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); }, false, "^[A-Fa-f0-9]{64}$" },
+            { "SignatureSha256", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->SignatureSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); }, false, "^[A-Fa-f0-9]{64}$" },
             { "Language", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->Language = value.as<std::string>(); } },
             { "Scope", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->Scope = value.as<std::string>(); } },
             { "InstallerType", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->InstallerType = ManifestInstaller::ConvertToInstallerTypeEnum(value.as<std::string>()); } },
+            { "ProductId", PreviewManifestVersionV2, [this](const YAML::Node& value) { m_p_installer->ProductId = value.as<std::string>(); } },
             { "Switches", PreviewManifestVersion, [this](const YAML::Node& value) { *m_p_switchesNode = value; } },
         };
 

@@ -8,6 +8,7 @@ namespace AppInstaller::Manifest
 {
     static const uint64_t MaxSupportedMajorVersion = 1;
     static const ManifestVer PreviewManifestVersion = ManifestVer("0.1.0", false);
+    static const ManifestVer PreviewManifestVersionV2 = ManifestVer("0.2.0", false);
 
     struct YamlManifestParser
     {

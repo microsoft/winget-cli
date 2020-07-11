@@ -29,6 +29,7 @@ namespace AppInstaller::Manifest
             Msix,
             Exe,
             Burn,
+            MSStore,
             Unknown
         };
 
@@ -61,6 +62,9 @@ namespace AppInstaller::Manifest
 
         // Name TBD
         string_t Scope;
+
+        // Store Product Id
+        string_t ProductId;
 
         // If present, has more precedence than root
         InstallerTypeEnum InstallerType;

@@ -19,6 +19,8 @@ namespace AppInstaller::Settings
             return User().Get<Setting::EFExperimentalCmd>() || User().Get<Setting::EFExperimentalArg>();
         case Feature::ExperimentalArg:
             return User().Get<Setting::EFExperimentalArg>();
+        case Feature::ExperimentalMSStore:
+            return User().Get<Setting::EFExperimentalMSStore>();
         default:
             THROW_HR(E_UNEXPECTED);
         }

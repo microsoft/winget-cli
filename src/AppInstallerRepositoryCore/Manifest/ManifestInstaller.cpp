@@ -43,6 +43,10 @@ namespace AppInstaller::Manifest
         {
             result = InstallerTypeEnum::Burn;
         }
+        else if (inStrLower == "msstore")
+        {
+            result = InstallerTypeEnum::MSStore;
+        }
 
         return result;
     }
@@ -76,6 +80,9 @@ namespace AppInstaller::Manifest
             break;
         case ManifestInstaller::InstallerTypeEnum::Burn:
             result = "Burn";
+            break;
+        case ManifestInstaller::InstallerTypeEnum::MSStore:
+            result = "MSStore";
             break;
         }
 

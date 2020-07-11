@@ -6,14 +6,15 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "WorkflowBase.h"
 
-
-using namespace winrt::Windows::Foundation;
-using namespace winrt::Windows::Management::Deployment;
-using namespace AppInstaller::Utility;
-using namespace AppInstaller::Manifest;
-
 namespace AppInstaller::CLI::Workflow
 {
+    using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
+    using namespace winrt::Windows::Foundation;
+    using namespace winrt::Windows::Foundation::Collections;
+    using namespace winrt::Windows::Management::Deployment;
+    using namespace AppInstaller::Utility;
+    using namespace AppInstaller::Manifest;
+
     void EnsureMinOSVersion(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
@@ -68,6 +69,9 @@ namespace AppInstaller::CLI::Workflow
                 // Signature hash provided. No download needed. Just verify signature hash.
                 context << GetMsixSignatureHash;
             }
+            break;
+        case ManifestInstaller::InstallerTypeEnum::MSStore:
+            // Nothing to do here
             break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
@@ -139,6 +143,12 @@ namespace AppInstaller::CLI::Workflow
 
     void VerifyInstallerHash(Execution::Context& context)
     {
+        const auto& installer = context.Get<Execution::Data::Installer>().value();
+        if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::MSStore)
+        {
+            return;
+        }
+
         const auto& hashPair = context.Get<Execution::Data::HashPair>();
 
         if (!std::equal(
@@ -191,6 +201,9 @@ namespace AppInstaller::CLI::Workflow
             break;
         case ManifestInstaller::InstallerTypeEnum::Msix:
             context << MsixInstall;
+            break;
+        case ManifestInstaller::InstallerTypeEnum::MSStore:
+            context << MSStoreInstall;
             break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
@@ -247,5 +260,108 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info, << "Removing installer: " << path);
             std::filesystem::remove(path);
         }
+    }
+
+    void MSStoreInstall(Execution::Context& context)
+    {
+        // Feature toggle check
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore))
+        {
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
+        }
+
+        auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);
+
+        constexpr std::wstring_view s_StoreClientName = L"Microsoft.WindowsStore"sv;
+        constexpr std::wstring_view s_StoreClientPublisher = L"CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"sv;
+
+        // Policy check
+        AppInstallManager installManager;
+        if (!installManager.IsStoreBlockedByPolicyAsync(s_StoreClientName, s_StoreClientPublisher).get())
+        {
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_BLOCKED_BY_POLICY);
+        }
+
+        if (!installManager.GetIsAppAllowedToInstallAsync(productId).get())
+        {
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_APP_BLOCKED_BY_POLICY);
+        }
+
+        // Verifying/Acquiring product ownership
+        context.Reporter.Info() << "Verifying/Requesting product acqusition..." <<std::endl;
+        GetEntitlementResult enr = installManager.GetFreeUserEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+
+        if (enr.Status() == GetEntitlementStatus::Succeeded)
+        {
+            context.Reporter.Info() << "Verifying/Requesting product acqusition...";
+        }
+        else if (enr.Status() == GetEntitlementStatus::NoStoreAccount)
+        {
+
+        }
+        else if (enr.Status() == GetEntitlementStatus::NetworkError)
+        {
+        }
+        else if (enr.Status() == GetEntitlementStatus::ServerError)
+        {
+
+        }
+
+        context.Reporter.Info() << "Starting product install..." << std::endl;
+
+        IVectorView<AppInstallItem> installItems = installManager.StartProductInstallAsync(
+            productId,              // ProductId
+            winrt::hstring(),       // CatalogId
+            winrt::hstring(),       // FlightId
+            L"WinGetCli",           // ClientId
+            false,                  // repair
+            false,
+            winrt::hstring(),
+            nullptr).get();
+
+        auto installItem = installItems.GetAt(0);
+
+        auto CheckInstallStatus = [&]()
+        {
+            HRESULT errorCode = installItem.GetCurrentStatus().ErrorCode();
+            if (!SUCCEEDED(errorCode))
+            {
+                installItem.Cancel();
+                AICLI_TERMINATE_CONTEXT(errorCode);
+            }
+        };
+
+        // It may take a while for Store client to pick up the install request.
+        std::cout << "Waiting for Store client..." << std::endl;
+        while (installItem.GetCurrentStatus().PercentComplete() == 0)
+        {
+            context.Reporter.ShowIndefiniteProgress(true);
+            CheckInstallStatus();
+            Sleep(500);
+        }
+
+        context.Reporter.ShowIndefiniteProgress(false);
+
+        context.Reporter.ExecuteWithProgress(std::bind(
+            [&](IProgressCallback& progress){
+                while (installItem.GetCurrentStatus().PercentComplete() < 100)
+                {
+                    progress.OnProgress((uint64_t)installItem.GetCurrentStatus().PercentComplete(), 100, ProgressType::Percent);
+                    CheckInstallStatus();
+
+                    if (progress.IsCancelled())
+                    {
+                        installItem.Cancel();
+                    }
+
+                    Sleep(500);
+                }
+
+                // Final install status check
+                CheckInstallStatus();
+            },
+            std::placeholders::_1));
+
+        std::cout << "Done" << std::endl;
     }
 }
