@@ -209,6 +209,18 @@ void OverrideForMSIX(TestContext& context)
     } });
 }
 
+void OverrideForMSStore(TestContext& context)
+{
+    context.Override({ MSStoreInstall, [](TestContext& context)
+    {
+        std::filesystem::path temp = std::filesystem::temp_directory_path();
+        temp /= "TestMSStoreInstalled.txt";
+        std::ofstream file(temp, std::ofstream::out);
+        file << context.Get<Execution::Data::Installer>()->ProductId;
+        file.close();
+    } });
+}
+
 TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
@@ -248,6 +260,28 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow]")
 
     // Verify Installer was not called
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+}
+
+TEST_CASE("MSStoreInstallFlowWithTestManifest", "[InstallFlow]")
+{
+    TestCommon::TempFile installResultPath("TestMSStoreInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForMSStore(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_MSStore.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("9WZDNCRFJ364") != std::string::npos);
 }
 
 TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow]")

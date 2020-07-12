@@ -54,7 +54,7 @@ namespace AppInstaller::Manifest
         // pair ourselves. This also helps with generating aggregated error rather than throwing on first failure.
         static std::vector<ValidationError> ValidateAndProcessFields(
             const YAML::Node& rootNode,
-            const std::vector<ManifestFieldInfo> fieldInfos,
+            const std::vector<ManifestFieldInfo>& fieldInfos,
             bool fullValidation);
 
         void PrepareManifestFieldInfos(const ManifestVer& manifestVer);

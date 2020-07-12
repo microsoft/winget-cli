@@ -113,7 +113,7 @@ namespace AppInstaller::Manifest
         auto it = std::remove_if(source.begin(), source.end(),
             [&](ManifestFieldInfo field)
             {
-                return field.VerIntroduced <= manifestVer;
+                return manifestVer < field.VerIntroduced;
             });
         source.erase(it, source.end());
     }
@@ -206,8 +206,10 @@ namespace AppInstaller::Manifest
         // Check manifest version is supported
         if (manifest.ManifestVersion.Major() > MaxSupportedMajorVersion)
         {
-            THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION), "Unsupported ManifestVersion: %S", m_p_manifest->ManifestVersion.ToString().c_str());
+            THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION), "Unsupported ManifestVersion: %S", manifest.ManifestVersion.ToString().c_str());
         }
+
+        PrepareManifestFieldInfos(manifest.ManifestVersion);
 
         // Populate root fields
         YAML::Node switchesNode;
@@ -252,10 +254,10 @@ namespace AppInstaller::Manifest
                 installer.Switches[keyValuePair.first] = keyValuePair.second;
             }
 
-            // Override with switches from installer if applicable
+            // Override with switches from installer declaration if applicable
             if (!installerSwitchesNode.IsNull())
             {
-                m_p_switches = &m_p_installer->Switches;
+                m_p_switches = &installer.Switches;
                 auto switchesErrors = ValidateAndProcessFields(installerSwitchesNode, SwitchesFieldInfos, fullValidation);
                 std::move(switchesErrors.begin(), switchesErrors.end(), std::inserter(resultErrors, resultErrors.end()));
             }
@@ -295,7 +297,7 @@ namespace AppInstaller::Manifest
 
     std::vector<ValidationError> YamlManifestParser::ValidateAndProcessFields(
         const YAML::Node& rootNode,
-        const std::vector<ManifestFieldInfo> fieldInfos,
+        const std::vector<ManifestFieldInfo>& fieldInfos,
         bool fullValidation)
     {
         std::vector<ValidationError> errors;

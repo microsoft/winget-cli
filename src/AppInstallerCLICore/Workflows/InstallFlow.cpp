@@ -277,7 +277,7 @@ namespace AppInstaller::CLI::Workflow
 
         // Policy check
         AppInstallManager installManager;
-        if (!installManager.IsStoreBlockedByPolicyAsync(s_StoreClientName, s_StoreClientPublisher).get())
+        if (installManager.IsStoreBlockedByPolicyAsync(s_StoreClientName, s_StoreClientPublisher).get())
         {
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_BLOCKED_BY_POLICY);
         }
@@ -332,6 +332,7 @@ namespace AppInstaller::CLI::Workflow
         };
 
         // It may take a while for Store client to pick up the install request.
+        // So we show indefinite progress here to avoid a progress bar stuck at 0.
         std::cout << "Waiting for Store client..." << std::endl;
         while (installItem.GetCurrentStatus().PercentComplete() == 0)
         {
@@ -357,6 +358,7 @@ namespace AppInstaller::CLI::Workflow
                     Sleep(500);
                 }
 
+                progress.OnProgress(100, 100, ProgressType::Percent);
                 // Final install status check
                 CheckInstallStatus();
             },

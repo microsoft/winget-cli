@@ -225,6 +225,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-VersionInvalid.yaml", "Invalid field value. Field: Version" },
         { "Manifest-Bad-VersionMissing.yaml", "Required field missing. Field: Version" },
         { "Manifest-Bad-InvalidManifestVersionValue.yaml", "Invalid field value. Field: ManifestVersion" },
+        { "InstallFlowTest_MSStore.yaml", "Field is not supported. Field: InstallerType Value: MSStore" },
     };
 
     for (auto const& testCase : TestCases)

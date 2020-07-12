@@ -192,7 +192,6 @@ namespace AppInstaller::CLI::Execution
         for (size_t i = 0; !m_canceled; ++i)
         {
             constexpr size_t repetitionCount = 20;
-            ApplyStyle(i % repetitionCount, repetitionCount, true);
             m_out << '\b' << spinnerChars[i % ARRAYSIZE(spinnerChars)] << std::flush;
             Sleep(250);
         }
