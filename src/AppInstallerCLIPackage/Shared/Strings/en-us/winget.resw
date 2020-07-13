@@ -173,7 +173,7 @@
     <value>Found a positional argument when none was expected</value>
   </data>
   <data name="FeatureDisabledMessage" xml:space="preserve">
-    <value>This command is a work in progress, and may be changed dramatically or removed altogether in the future. To enable it, edit your settings ('winget settings') to include the experimental feature</value>
+    <value>This feature is a work in progress, and may be changed dramatically or removed altogether in the future. To enable it, edit your settings ('winget settings') to include the experimental feature</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
@@ -259,6 +259,12 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="InstallerHashVerified" xml:space="preserve">
     <value>Successfully verified installer hash</value>
   </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Successfully installed</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Starting package install...</value>
+  </data>
   <data name="InstallForceArgumentDescription" xml:space="preserve">
     <value>Override the installer hash check</value>
   </data>
@@ -320,6 +326,30 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Failed to calculate MSIX signature hash.</value>
+  </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Failed to install Microsoft Store package because the specific app is blocked by policy</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Failed to install Microsoft Store package. Error code:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Verifying/Requesting package acquisition failed: network error</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Verifying/Requesting package acquisition failed: no store account found</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Verifying/Requesting package acquisition failed: server error</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Verifying/Requesting package acquisition success</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Failed to install Microsoft Store package because Microsoft Store client is blocked by policy</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Verifying/Requesting package acquisition...</value>
   </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filter results by name</value>

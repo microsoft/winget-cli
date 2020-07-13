@@ -20,6 +20,7 @@ namespace AppInstaller::Manifest
         static Manifest CreateManifest(const std::string& input, bool fullValidation = false, bool throwOnWarning = false);
 
     private:
+        // These pointers are referenced in the processing functions in manifest field info table.
         YAML::Node* m_p_installersNode;
         YAML::Node* m_p_switchesNode;
         YAML::Node* m_p_localizationsNode;

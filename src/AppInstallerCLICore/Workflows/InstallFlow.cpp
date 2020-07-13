@@ -230,7 +230,7 @@ namespace AppInstaller::CLI::Workflow
             uri = Uri(Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->Url));
         }
 
-        context.Reporter.Info() << "Starting package install..." << std::endl;
+        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
         try
         {
@@ -248,7 +248,7 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
         }
 
-        context.Reporter.Info() << "Successfully installed." << std::endl;
+        context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
     }
 
     void RemoveInstaller(Execution::Context& context)
@@ -267,6 +267,8 @@ namespace AppInstaller::CLI::Workflow
         // Feature toggle check
         if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore))
         {
+            context.Reporter.Error() << Resource::String::FeatureDisabledMessage << std::endl;
+            AICLI_LOG(CLI, Error, << "MSStore support feature is disabled. MSStore install cancelled.");
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
         }
 
@@ -279,35 +281,49 @@ namespace AppInstaller::CLI::Workflow
         AppInstallManager installManager;
         if (installManager.IsStoreBlockedByPolicyAsync(s_StoreClientName, s_StoreClientPublisher).get())
         {
+            context.Reporter.Error() << Resource::String::MSStoreInstallStoreClientBlocked << std::endl;
+            AICLI_LOG(CLI, Error, << "Store client is blocked by policy. MSStore install failed.");
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_BLOCKED_BY_POLICY);
         }
 
         if (!installManager.GetIsAppAllowedToInstallAsync(productId).get())
         {
+            context.Reporter.Error() << Resource::String::MSStoreInstallAppBlocked << std::endl;
+            AICLI_LOG(CLI, Error, << "App is blocked by policy. MSStore install failed. ProductId: " << Utility::ConvertToUTF8(productId));
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_APP_BLOCKED_BY_POLICY);
         }
 
         // Verifying/Acquiring product ownership
-        context.Reporter.Info() << "Verifying/Requesting product acqusition..." <<std::endl;
+        context.Reporter.Info() << Resource::String::MSStoreInstallTryGetEntitlement << std::endl;
         GetEntitlementResult enr = installManager.GetFreeUserEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
 
         if (enr.Status() == GetEntitlementStatus::Succeeded)
         {
-            context.Reporter.Info() << "Verifying/Requesting product acqusition...";
+            context.Reporter.Info() << Resource::String::MSStoreInstallGetEntitlementSuccess << std::endl;
+            AICLI_LOG(CLI, Error, << "Get entitlement succeeded.");
         }
-        else if (enr.Status() == GetEntitlementStatus::NoStoreAccount)
+        else
         {
+            if (enr.Status() == GetEntitlementStatus::NoStoreAccount)
+            {
+                context.Reporter.Info() << Resource::String::MSStoreInstallGetEntitlementNoStoreAccount << std::endl;
+                AICLI_LOG(CLI, Error, << "Get entitlement failed. No Store account.");
+            }
+            else if (enr.Status() == GetEntitlementStatus::NetworkError)
+            {
+                context.Reporter.Info() << Resource::String::MSStoreInstallGetEntitlementNetworkError << std::endl;
+                AICLI_LOG(CLI, Error, << "Get entitlement failed. Network error.");
+            }
+            else if (enr.Status() == GetEntitlementStatus::ServerError)
+            {
+                context.Reporter.Info() << Resource::String::MSStoreInstallGetEntitlementServerError << std::endl;
+                AICLI_LOG(CLI, Error, << "Get entitlement succeeded. Server error. ProductId: " << Utility::ConvertToUTF8(productId));
+            }
 
-        }
-        else if (enr.Status() == GetEntitlementStatus::NetworkError)
-        {
-        }
-        else if (enr.Status() == GetEntitlementStatus::ServerError)
-        {
-
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED);
         }
 
-        context.Reporter.Info() << "Starting product install..." << std::endl;
+        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
         IVectorView<AppInstallItem> installItems = installManager.StartProductInstallAsync(
             productId,              // ProductId
@@ -326,14 +342,18 @@ namespace AppInstaller::CLI::Workflow
             HRESULT errorCode = installItem.GetCurrentStatus().ErrorCode();
             if (!SUCCEEDED(errorCode))
             {
+                // Cancel the installation request on failure. Otherwise it'll leave an error
+                // request in Store client installation queue.
                 installItem.Cancel();
+
+                context.Reporter.Info() << Resource::String::MSStoreInstallFailed << ' ' << errorCode << std::endl;
+                AICLI_LOG(CLI, Error, << "MSStore install failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << errorCode);
                 AICLI_TERMINATE_CONTEXT(errorCode);
             }
         };
 
         // It may take a while for Store client to pick up the install request.
         // So we show indefinite progress here to avoid a progress bar stuck at 0.
-        std::cout << "Waiting for Store client..." << std::endl;
         while (installItem.GetCurrentStatus().PercentComplete() == 0)
         {
             context.Reporter.ShowIndefiniteProgress(true);
@@ -354,7 +374,6 @@ namespace AppInstaller::CLI::Workflow
                     {
                         installItem.Cancel();
                     }
-
                     Sleep(500);
                 }
 
@@ -364,6 +383,6 @@ namespace AppInstaller::CLI::Workflow
             },
             std::placeholders::_1));
 
-        std::cout << "Done" << std::endl;
+        context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
     }
 }
