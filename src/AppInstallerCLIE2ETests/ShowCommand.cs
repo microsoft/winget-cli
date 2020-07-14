@@ -41,14 +41,19 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
 
+            // Show with a substring match still returns 0 results
+            result = TestCommon.RunAICLICommand("show", $"Microsoft -s {ShowTestSourceName}");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
+            Assert.True(result.StdOut.Contains("No package found matching input criteria."));
+
             // Show with 1 search match shows detailed manifest info
-            result = TestCommon.RunAICLICommand("show", $"VisualStudioCode -s {ShowTestSourceName}");
+            result = TestCommon.RunAICLICommand("show", $"Microsoft.VisualStudioCode -s {ShowTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
             Assert.True(result.StdOut.Contains("Visual Studio Code"));
 
             // Show with --versions list the versions
-            result = TestCommon.RunAICLICommand("show", $"VisualStudioCode --versions -s {ShowTestSourceName}");
+            result = TestCommon.RunAICLICommand("show", $"Microsoft.VisualStudioCode --versions -s {ShowTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
             Assert.True(result.StdOut.Contains("1.41.1"));

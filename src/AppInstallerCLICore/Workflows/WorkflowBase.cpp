@@ -32,6 +32,41 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Reporter.Info() << "Found " << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << ']' << std::endl;
         }
+
+        void SearchSourceApplyFilters(Execution::Context& context, SearchRequest searchRequest, MatchType matchType)
+        {
+            const auto& args = context.Args;
+
+            if (args.Contains(Execution::Args::Type::Id))
+            {
+                searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, args.GetArg(Execution::Args::Type::Id)));
+            }
+
+            if (args.Contains(Execution::Args::Type::Name))
+            {
+                searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, args.GetArg(Execution::Args::Type::Name)));
+            }
+
+            if (args.Contains(Execution::Args::Type::Moniker))
+            {
+                searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, args.GetArg(Execution::Args::Type::Moniker)));
+            }
+
+            if (args.Contains(Execution::Args::Type::Tag))
+            {
+                searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Tag, matchType, args.GetArg(Execution::Args::Type::Tag)));
+            }
+
+            if (args.Contains(Execution::Args::Type::Command))
+            {
+                searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Command, matchType, args.GetArg(Execution::Args::Type::Command)));
+            }
+
+            if (args.Contains(Execution::Args::Type::Count))
+            {
+                searchRequest.MaximumResults = std::stoi(std::string(args.GetArg(Execution::Args::Type::Count)));
+            }
+        }
     }
 
     bool WorkflowTask::operator==(const WorkflowTask& other) const
@@ -118,37 +153,10 @@ namespace AppInstaller::CLI::Workflow
             searchRequest.Query.emplace(RequestMatch(matchType, args.GetArg(Execution::Args::Type::Query)));
         }
 
-        if (args.Contains(Execution::Args::Type::Id))
-        {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, args.GetArg(Execution::Args::Type::Id)));
-        }
-
-        if (args.Contains(Execution::Args::Type::Name))
-        {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, args.GetArg(Execution::Args::Type::Name)));
-        }
-
-        if (args.Contains(Execution::Args::Type::Moniker))
-        {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, args.GetArg(Execution::Args::Type::Moniker)));
-        }
-
-        if (args.Contains(Execution::Args::Type::Tag))
-        {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Tag, matchType, args.GetArg(Execution::Args::Type::Tag)));
-        }
-
-        if (args.Contains(Execution::Args::Type::Command))
-        {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Command, matchType, args.GetArg(Execution::Args::Type::Command)));
-        }
-
-        if (args.Contains(Execution::Args::Type::Count))
-        {
-            searchRequest.MaximumResults = std::stoi(std::string(args.GetArg(Execution::Args::Type::Count)));
-        }
+        SearchSourceApplyFilters(context, searchRequest, matchType);
 
         Logging::Telemetry().LogSearchRequest(
+            "many",
             args.GetArg(Execution::Args::Type::Query),
             args.GetArg(Execution::Args::Type::Id),
             args.GetArg(Execution::Args::Type::Name),
@@ -180,32 +188,10 @@ namespace AppInstaller::CLI::Workflow
             searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, query));
         }
 
-        if (args.Contains(Execution::Args::Type::Id))
-        {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, args.GetArg(Execution::Args::Type::Id)));
-        }
-
-        if (args.Contains(Execution::Args::Type::Name))
-        {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, args.GetArg(Execution::Args::Type::Name)));
-        }
-
-        if (args.Contains(Execution::Args::Type::Moniker))
-        {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, args.GetArg(Execution::Args::Type::Moniker)));
-        }
-
-        if (args.Contains(Execution::Args::Type::Tag))
-        {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Tag, matchType, args.GetArg(Execution::Args::Type::Tag)));
-        }
-
-        if (args.Contains(Execution::Args::Type::Command))
-        {
-            searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Command, matchType, args.GetArg(Execution::Args::Type::Command)));
-        }
+        SearchSourceApplyFilters(context, searchRequest, matchType);
 
         Logging::Telemetry().LogSearchRequest(
+            "single",
             args.GetArg(Execution::Args::Type::Query),
             args.GetArg(Execution::Args::Type::Id),
             args.GetArg(Execution::Args::Type::Name),
