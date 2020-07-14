@@ -48,7 +48,7 @@ namespace AppInstallerCLIE2ETests
             // Search through name. No app found because name is "Visual Studio Code"
             result = TestCommon.RunAICLICommand("search", "--name VisualStudioCode");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("No app found matching input criteria."));
+            Assert.True(result.StdOut.Contains("No package found matching input criteria."));
 
             // Search Microsoft should return multiple
             result = TestCommon.RunAICLICommand("search", "Microsoft");
@@ -59,7 +59,7 @@ namespace AppInstallerCLIE2ETests
             // Search Microsoft with exact arg should return none
             result = TestCommon.RunAICLICommand("search", "Microsoft -e");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("No app found matching input criteria."));
+            Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }
     }
 }

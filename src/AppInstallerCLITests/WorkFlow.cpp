@@ -15,6 +15,7 @@
 #include <Commands/InstallCommand.h>
 #include <Commands/ShowCommand.h>
 #include <winget/LocIndependent.h>
+#include <Resources.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
@@ -65,31 +66,41 @@ struct TestSource : public ISource
     SearchResult Search(const SearchRequest& request) override
     {
         SearchResult result;
-        if (request.Query.has_value())
-        {
-            if (request.Query.value().Value == "TestQueryReturnOne")
-            {
-                auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
-                result.Matches.emplace_back(
-                    ResultMatch(
-                        std::make_unique<TestApplication>(manifest),
-                        ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, "TestQueryReturnOne")));
-            }
-            else if (request.Query.value().Value == "TestQueryReturnTwo")
-            {
-                auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
-                result.Matches.emplace_back(
-                    ResultMatch(
-                        std::make_unique<TestApplication>(manifest),
-                        ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
 
-                auto manifest2 = Manifest::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
-                result.Matches.emplace_back(
-                    ResultMatch(
-                        std::make_unique<TestApplication>(manifest2),
-                        ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
-            }
+        std::string input;
+
+        if (request.Query)
+        {
+            input = request.Query->Value;
         }
+        else if (!request.Inclusions.empty())
+        {
+            input = request.Inclusions[0].Value;
+        }
+
+        if (input == "TestQueryReturnOne")
+        {
+            auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+            result.Matches.emplace_back(
+                ResultMatch(
+                    std::make_unique<TestApplication>(manifest),
+                    ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, "TestQueryReturnOne")));
+        }
+        else if (input == "TestQueryReturnTwo")
+        {
+            auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+            result.Matches.emplace_back(
+                ResultMatch(
+                    std::make_unique<TestApplication>(manifest),
+                    ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
+
+            auto manifest2 = Manifest::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
+            result.Matches.emplace_back(
+                ResultMatch(
+                    std::make_unique<TestApplication>(manifest2),
+                    ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
+        }
+
         return result;
     }
 
@@ -444,7 +455,7 @@ TEST_CASE("InstallFlow_SearchFoundNoApp", "[InstallFlow]")
     INFO(installOutput.str());
 
     // Verify proper message is printed
-    REQUIRE(installOutput.str().find("No app found matching input criteria.") != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::NoPackageFound).get()) != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_SearchFoundMultipleApp", "[InstallFlow]")
@@ -459,7 +470,7 @@ TEST_CASE("InstallFlow_SearchFoundMultipleApp", "[InstallFlow]")
     INFO(installOutput.str());
 
     // Verify proper message is printed
-    REQUIRE(installOutput.str().find("Multiple apps found matching input criteria. Please refine the input.") != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::MultiplePackagesFound).get()) != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_SearchAndShowAppInfo", "[ShowFlow]")

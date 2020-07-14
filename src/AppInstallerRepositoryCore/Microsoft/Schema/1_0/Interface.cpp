@@ -143,14 +143,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             {
             case MatchType::Exact:
                 return { MatchType::Exact };
+            case MatchType::CaseInsensitive:
+                return { MatchType::Exact, MatchType::CaseInsensitive };
             case MatchType::Substring:
-                return { MatchType::Exact, MatchType::Substring };
+                return { MatchType::Exact, MatchType::CaseInsensitive, MatchType::Substring };
             case MatchType::Wildcard:
                 return { MatchType::Wildcard };
             case MatchType::Fuzzy:
-                return { MatchType::Exact, MatchType::Fuzzy };
+                return { MatchType::Exact, MatchType::CaseInsensitive, MatchType::Fuzzy };
             case MatchType::FuzzySubstring:
-                return { MatchType::Exact, MatchType::Fuzzy, MatchType::Substring, MatchType::FuzzySubstring };
+                return { MatchType::Exact, MatchType::CaseInsensitive, MatchType::Fuzzy, MatchType::Substring, MatchType::FuzzySubstring };
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -366,8 +368,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     ISQLiteIndex::SearchResult Interface::Search(SQLite::Connection& connection, const SearchRequest& request)
     {
-        // If no query or filters, get everything
-        if (!request.Query && request.Filters.empty())
+        // If an empty request, get everything
+        if (!request.Query && request.Inclusions.empty() && request.Filters.empty())
         {
             std::vector<SQLite::rowid_t> ids = IdTable::GetAllRowIds(connection, request.MaximumResults);
 
@@ -384,9 +386,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // First phase, create the search results table and populate it with the initial results.
         // If the Query is provided, we search across many fields and put results in together.
-        // If not, we take the first filter and use it as the initial results search.
+        // If Inclusions has fields, we add these to the data.
+        // If neither is defined, we take the first filter and use it as the initial results search.
         SearchResultsTable resultsTable(connection);
-        size_t filterIndex = 0;
+        bool inclusionsAttempted = false;
 
         if (request.Query)
         {
@@ -401,8 +404,25 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 resultsTable.SearchOnField(ApplicationMatchField::Command, match, query.Value);
                 resultsTable.SearchOnField(ApplicationMatchField::Tag, match, query.Value);
             }
+
+            inclusionsAttempted = true;
         }
-        else
+
+        if (!request.Inclusions.empty())
+        {
+            for (const auto& include : request.Inclusions)
+            {
+                for (MatchType match : GetMatchTypeOrder(include.Type))
+                {
+                    resultsTable.SearchOnField(include.Field, match, include.Value);
+                }
+            }
+
+            inclusionsAttempted = true;
+        }
+
+        size_t filterIndex = 0;
+        if (!inclusionsAttempted)
         {
             THROW_HR_IF(E_UNEXPECTED, request.Filters.empty());
 

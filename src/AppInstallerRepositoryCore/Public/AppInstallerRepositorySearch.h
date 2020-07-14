@@ -19,6 +19,7 @@ namespace AppInstaller::Repository
     enum class MatchType
     {
         Exact,
+        CaseInsensitive,
         Substring,
         Wildcard,
         Fuzzy,
@@ -53,11 +54,19 @@ namespace AppInstaller::Repository
     };
 
     // Container for data used to filter the available manifests in a source.
+    // It can be thought of as:
+    //  (Query || Inclusions...) && Filters...
+    // If Query and Inclusions are both empty, the starting data set will be the entire database.
+    //  Everything && Filters...
     struct SearchRequest
     {
         // The generic query matches against a source defined set of fields.
-        // If not provided, the filters should be used against the entire dataset.
         std::optional<RequestMatch> Query;
+
+        // Specific fields used to include more data.
+        // If Query is defined, this can add more rows afterward.
+        // If Query is not defined, this is the only set of data included.
+        std::vector<ApplicationMatchFilter> Inclusions;
 
         // Specific fields used to filter the data further.
         std::vector<ApplicationMatchFilter> Filters;
@@ -122,6 +131,8 @@ namespace AppInstaller::Repository
         {
         case MatchType::Exact:
             return "Exact"sv;
+        case MatchType::CaseInsensitive:
+            return "CaseInsensitive"sv;
         case MatchType::Substring:
             return "Substring"sv;
         case MatchType::Wildcard:

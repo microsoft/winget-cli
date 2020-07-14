@@ -157,7 +157,7 @@
     <value>Done</value>
   </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Find app using exact match</value>
+    <value>Find package using exact match</value>
   </data>
   <data name="ExperimentalArgumentDescription" xml:space="preserve">
     <value>Experimental argument for demonstration purposes</value>
@@ -237,13 +237,14 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.</value>
   </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Cannot install application, as it requires a higher version of Windows:</value>
+    <value>Cannot install package, as it requires a higher version of Windows:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Installs the selected application, either found by searching a configured source or directly from a manifest.</value>
+    <value>Installs the selected package, either found by searching a configured source or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Installs the given application</value>
+    <value>Installs the given package</value>
   </data>
   <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
     <value>Installer hash does not match; this cannot be overridden when running as admin</value>
@@ -298,7 +299,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>The path to the manifest of the application</value>
+    <value>The path to the manifest of the package</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Manifest validation failed.</value>
@@ -313,13 +314,16 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Argument value required, but none found</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Filter results by app moniker</value>
+    <value>Filter results by moniker</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Input file will be treated as msix; signature hash will be provided if signed</value>
   </data>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Failed to calculate MSIX signature hash.</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Multiple packages found matching input criteria. Please refine the input.</value>
   </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filter results by name</value>
@@ -329,6 +333,9 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>There are currently no exprimental features available. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>No package found matching input criteria.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Disables VirtualTerminal display</value>
@@ -355,7 +362,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Privacy Statement</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>The query used to search for an app</value>
+    <value>The query used to search for a package</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Progress display a rainbow of colors</value>
@@ -367,10 +374,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Progress display as the default color</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Searches for applications from configured sources.</value>
+    <value>Searches for pacakges from configured sources.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Find and show basic info of apps</value>
+    <value>Find and show basic info of packages</value>
   </data>
   <data name="SearchId" xml:space="preserve">
     <value>Id</value>
@@ -404,10 +411,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Channel</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Shows information on a specific application.</value>
+    <value>Shows information on a specific pacakge. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Shows info about an application</value>
+    <value>Shows info about an package</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Version</value>
@@ -431,7 +438,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Adding source:</value>
   </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Add a new source. A source provides the data for you to discover and install applications. Only add a new source if you trust it as a secure location.</value>
+    <value>Add a new source. A source provides the data for you to discover and install packages. Only add a new source if you trust it as a secure location.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Add a new source</value>
@@ -440,13 +447,13 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Argument given to the source</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Find app using the specified source</value>
+    <value>Find package using the specified source</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Manage sources with the sub-commands. A source provides the data for you to discover and install applications. Only add a new source if you trust it as a secure location.</value>
+    <value>Manage sources with the sub-commands. A source provides the data for you to discover and install packages. Only add a new source if you trust it as a secure location.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Manage sources of applications</value>
+    <value>Manage sources of packages</value>
   </data>
   <data name="SourceListArg" xml:space="preserve">
     <value>Argument</value>
@@ -551,7 +558,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Third Party Notices</value>
   </data>
   <data name="ToolDescription" xml:space="preserve">
-    <value>The winget command line utility enables installing applications from the command line.</value>
+    <value>The winget command line utility enables installing applications and other packages from the command line.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Display general info of the tool</value>
@@ -594,6 +601,6 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Use the specified version; default is the latest version</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Show available versions of the app</value>
+    <value>Show available versions of the package</value>
   </data>
 </root>
