@@ -33,7 +33,7 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << "Found " << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << ']' << std::endl;
         }
 
-        void SearchSourceApplyFilters(Execution::Context& context, SearchRequest searchRequest, MatchType matchType)
+        void SearchSourceApplyFilters(Execution::Context& context, SearchRequest& searchRequest, MatchType matchType)
         {
             const auto& args = context.Args;
 
