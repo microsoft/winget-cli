@@ -206,8 +206,9 @@ namespace AppInstaller::CLI::Workflow
             context << MsixInstall;
             break;
         case ManifestInstaller::InstallerTypeEnum::MSStore:
-            context.Add<Execution::Data::Feature>(Settings::ExperimentalFeature::Feature::ExperimentalMSStore);
-            context << EnsureFeatureEnabled << MSStoreInstall;
+            context <<
+                EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore) <<
+                MSStoreInstall;
             break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
@@ -331,48 +332,56 @@ namespace AppInstaller::CLI::Workflow
             winrt::hstring(),
             nullptr).get();
 
-        // We install one package at a time so the AppInstallItem list returned should contain only one entry.
-        auto installItem = installItems.GetAt(0);
-
-        auto CheckInstallStatus = [&]()
+        for (auto const& installItem : installItems)
         {
-            HRESULT errorCode = installItem.GetCurrentStatus().ErrorCode();
-            if (!SUCCEEDED(errorCode))
-            {
-                // Cancel the installation request on failure. Otherwise it'll leave an error
-                // request in Store client installation queue.
-                installItem.Cancel();
-
-                context.Reporter.Info() << Resource::String::MSStoreInstallFailed << ' ' << errorCode << std::endl;
-                AICLI_LOG(CLI, Error, << "MSStore install failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << errorCode);
-                AICLI_TERMINATE_CONTEXT(errorCode);
-            }
-        };
+            AICLI_LOG(CLI, Info, <<
+                "Started MSStore package installation. ProductId: " << Utility::ConvertToUTF8(installItem.ProductId()) <<
+                " PackageFamilyName: " << Utility::ConvertToUTF8(installItem.PackageFamilyName()));
+        }
 
         context.Reporter.ExecuteWithProgress(
             [&](IProgressCallback& progress)
             {
-                while (installItem.GetCurrentStatus().PercentComplete() < 100)
+                // We are aggregating all AppInstallItem progresses into one.
+                // Averaging every progress for now until we have a better way to find overall progress.
+                uint64_t overallProgressMax = 100 * installItems.Size();
+                uint64_t currentProgress = 0;
+
+                while (currentProgress < overallProgressMax)
                 {
-                    // It may take a while for Store client to pick up the install request.
-                    // So we show indefinite progress here to avoid a progress bar stuck at 0.
-                    if (installItem.GetCurrentStatus().PercentComplete() > 0)
+                    currentProgress = 0;
+
+                    for (auto const& installItem : installItems)
                     {
-                        progress.OnProgress((uint64_t)installItem.GetCurrentStatus().PercentComplete(), 100, ProgressType::Percent);
+                        const auto& status = installItem.GetCurrentStatus();
+                        currentProgress += (uint64_t)(status.PercentComplete());
+
+                        HRESULT errorCode = status.ErrorCode();
+                        if (!SUCCEEDED(errorCode))
+                        {
+                            context.Reporter.Info() << Resource::String::MSStoreInstallFailed << ' ' << WINGET_OSTREAM_FORMAT_HRESULT(errorCode) << std::endl;
+                            AICLI_LOG(CLI, Error, << "MSStore install failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << errorCode);
+                            AICLI_TERMINATE_CONTEXT(errorCode);
+                        }
                     }
 
-                    CheckInstallStatus();
+                    // It may take a while for Store client to pick up the install request.
+                    // So we show indefinite progress here to avoid a progress bar stuck at 0.
+                    if (currentProgress > 0)
+                    {
+                        progress.OnProgress(currentProgress, overallProgressMax, ProgressType::Percent);
+                    }
 
                     if (progress.IsCancelled())
                     {
-                        installItem.Cancel();
+                        for (auto const& installItem : installItems)
+                        {
+                            installItem.Cancel();
+                        }
                     }
+
                     Sleep(100);
                 }
-
-                progress.OnProgress(100, 100, ProgressType::Percent);
-                // Final install status check
-                CheckInstallStatus();
             });
 
         context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;

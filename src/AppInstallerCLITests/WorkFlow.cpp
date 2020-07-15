@@ -220,7 +220,7 @@ void OverrideForMSStore(TestContext& context)
         file.close();
     } });
 
-    context.Override({ EnsureFeatureEnabled, [](TestContext&)
+    context.Override({ "EnsureFeatureEnabled", [](TestContext&)
     {
     } });
 }

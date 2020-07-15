@@ -323,15 +323,14 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void EnsureFeatureEnabled(Execution::Context& context)
+    void EnsureFeatureEnabled::operator()(Execution::Context& context) const
     {
-        auto feature = context.Get<Execution::Data::Feature>();
-
-        if (!Settings::ExperimentalFeature::IsEnabled(feature))
+        if (!Settings::ExperimentalFeature::IsEnabled(m_feature))
         {
-            context.Reporter.Error() << Resource::String::FeatureDisabledMessageWithFeatureName << ' ' <<
-                Settings::ExperimentalFeature::GetFeature(feature).Name() << std::endl;
-            AICLI_LOG(CLI, Error, << Settings::ExperimentalFeature::GetFeature(feature).Name() << "feature is disabled. Execution cancelled.");
+            context.Reporter.Error() << Resource::String::FeatureDisabledMessage << ' ' <<
+                Resource::String::FeatureDisabledFeatureName << ' ' <<
+                Settings::ExperimentalFeature::GetFeature(m_feature).Name() << std::endl;
+            AICLI_LOG(CLI, Error, << Settings::ExperimentalFeature::GetFeature(m_feature).Name() << " feature is disabled. Execution cancelled.");
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
         }
     }

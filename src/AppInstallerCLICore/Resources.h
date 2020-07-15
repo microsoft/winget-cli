@@ -44,8 +44,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExtraPositionalError);
+        WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledFeatureName);
         WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledMessage);
-        WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledMessageWithFeatureName);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesDisabled);

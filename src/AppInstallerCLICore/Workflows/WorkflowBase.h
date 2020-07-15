@@ -3,6 +3,7 @@
 #pragma once
 #include "ExecutionArgs.h"
 
+#include <winget/ExperimentalFeature.h>
 #include <string>
 #include <string_view>
 
@@ -129,10 +130,18 @@ namespace AppInstaller::CLI::Workflow
     void EnsureRunningAsAdmin(Execution::Context& context);
 
     // Ensures that the feature is enabled.
-    // Required Args: None
-    // Inputs: Feature
+    // Required Args: the desired feature
+    // Inputs: None
     // Outputs: None
-    void EnsureFeatureEnabled(Execution::Context& context);
+    struct EnsureFeatureEnabled : public WorkflowTask
+    {
+        EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature feature) : WorkflowTask("EnsureFeatureEnabled"), m_feature(feature) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Settings::ExperimentalFeature::Feature m_feature;
+    };
 }
 
 // Passes the context to the function if it has not been terminated; returns the context.

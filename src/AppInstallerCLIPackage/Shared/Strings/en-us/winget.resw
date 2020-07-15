@@ -172,12 +172,11 @@
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Found a positional argument when none was expected</value>
   </data>
+  <data name="FeatureDisabledFeatureName" xml:space="preserve">
+    <value>Feature name:</value>
+  </data>
   <data name="FeatureDisabledMessage" xml:space="preserve">
     <value>This feature is a work in progress, and may be changed dramatically or removed altogether in the future. To enable it, edit your settings ('winget settings') to include the experimental feature</value>
-    <comment>{Locked="winget settings"}</comment>
-  </data>
-  <data name="FeatureDisabledMessageWithFeatureName" xml:space="preserve">
-    <value>This feature is a work in progress, and may be changed dramatically or removed altogether in the future. To enable it, edit your settings ('winget settings') to include the experimental feature. Feature name:</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
@@ -241,8 +240,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.</value>
   </data>
   <data name="InstallationDisclaimerMSStore" xml:space="preserve">
-    <value>This package is provided through Microsoft Store. Winget may need to acquire the package from Microsoft Store on behalf of the current user.</value>
-    <comment>{Locked="Winget"}</comment>
+    <value>This package is provided through Microsoft Store. winget may need to acquire the package from Microsoft Store on behalf of the current user.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
     <value>Cannot install application, as it requires a higher version of Windows:</value>
