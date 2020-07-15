@@ -5,6 +5,7 @@
 #include <AppInstallerRepositorySearch.h>
 #include <AppInstallerRepositorySource.h>
 #include <Manifest/Manifest.h>
+#include <winget/ExperimentalFeature.h>
 #include "ExecutionReporter.h"
 #include "ExecutionArgs.h"
 
@@ -51,6 +52,7 @@ namespace AppInstaller::CLI::Execution
         InstallerPath,
         LogPath,
         InstallerArgs,
+        Feature,
         Max
     };
 
@@ -114,6 +116,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::InstallerArgs>
         {
             using value_t = std::string;
+        };
+
+        template <>
+        struct DataMapping<Data::Feature>
+        {
+            using value_t = AppInstaller::Settings::ExperimentalFeature::Feature;
         };
 
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.

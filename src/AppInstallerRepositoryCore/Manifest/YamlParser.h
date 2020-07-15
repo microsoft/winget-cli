@@ -4,30 +4,32 @@
 #include "ManifestValidation.h"
 #include "Manifest.h"
 
+#include <filesystem>
+
 namespace AppInstaller::Manifest
 {
     static const uint64_t MaxSupportedMajorVersion = 1;
     static const ManifestVer PreviewManifestVersion = ManifestVer("0.1.0", false);
-    static const ManifestVer PreviewManifestVersionV2 = ManifestVer("0.2.0", false);
+    static const ManifestVer PreviewManifestVersionMSStore = ManifestVer("0.2.0-msstore", false);
 
-    struct YamlManifestParser
+    struct YamlParser
     {
         // fullValidation: Bool to set if manifest creation should perform extra validation that client does not need.
         //                 e.g. Channel should be null. Client code does not need this check to work properly.
         // throwOnWarning: Bool to indicate if an exception should be thrown with only warnings detected in the manifest.
-        static Manifest CreateManifestFromPath(const std::filesystem::path& inputFile, bool fullValidation = false, bool throwOnWarning = false);
+        static Manifest CreateFromPath(const std::filesystem::path& inputFile, bool fullValidation = false, bool throwOnWarning = false);
 
-        static Manifest CreateManifest(const std::string& input, bool fullValidation = false, bool throwOnWarning = false);
+        static Manifest Create(const std::string& input, bool fullValidation = false, bool throwOnWarning = false);
 
     private:
         // These pointers are referenced in the processing functions in manifest field info table.
-        YAML::Node* m_p_installersNode;
-        YAML::Node* m_p_switchesNode;
-        YAML::Node* m_p_localizationsNode;
-        AppInstaller::Manifest::Manifest* m_p_manifest;
-        AppInstaller::Manifest::ManifestInstaller* m_p_installer;
-        std::map<ManifestInstaller::InstallerSwitchType, Utility::NormalizedString>* m_p_switches;
-        AppInstaller::Manifest::ManifestLocalization* m_p_localization;
+        YAML::Node* m_p_installersNode = nullptr;
+        YAML::Node* m_p_switchesNode = nullptr;
+        YAML::Node* m_p_localizationsNode = nullptr;
+        AppInstaller::Manifest::Manifest* m_p_manifest = nullptr;
+        AppInstaller::Manifest::ManifestInstaller* m_p_installer = nullptr;
+        std::map<ManifestInstaller::InstallerSwitchType, Utility::NormalizedString>* m_p_switches = nullptr;
+        AppInstaller::Manifest::ManifestLocalization* m_p_localization = nullptr;
 
         // This struct contains individual app manifest field info
         struct ManifestFieldInfo

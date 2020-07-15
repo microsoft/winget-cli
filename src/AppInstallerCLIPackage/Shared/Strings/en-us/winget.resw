@@ -176,6 +176,10 @@
     <value>This feature is a work in progress, and may be changed dramatically or removed altogether in the future. To enable it, edit your settings ('winget settings') to include the experimental feature</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
+  <data name="FeatureDisabledMessageWithFeatureName" xml:space="preserve">
+    <value>This feature is a work in progress, and may be changed dramatically or removed altogether in the future. To enable it, edit your settings ('winget settings') to include the experimental feature. Feature name:</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
     <value>Shows the status of experimental features. Experimental features can be turn on via 'winget settings'.</value>
     <comment>{Locked="winget settings"}</comment>
@@ -235,6 +239,10 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.</value>
+  </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>This package is provided through Microsoft Store. Winget may need to acquire the package from Microsoft Store on behalf of the current user.</value>
+    <comment>{Locked="Winget"}</comment>
   </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
     <value>Cannot install application, as it requires a higher version of Windows:</value>

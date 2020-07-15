@@ -8,7 +8,7 @@
 #include <AppInstallerLogging.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerTelemetry.h>
-#include <Manifest/YamlManifestParser.h>
+#include <Manifest/YamlParser.h>
 #include <Microsoft/SQLiteIndex.h>
 
 using namespace AppInstaller::Utility;
@@ -167,7 +167,7 @@ extern "C"
 
         try
         {
-            (void)YamlManifestParser::CreateManifestFromPath(manifestPath, true, true);
+            (void)YamlParser::CreateFromPath(manifestPath, true, true);
             *succeeded = TRUE;
         }
         catch (const ManifestException& e)

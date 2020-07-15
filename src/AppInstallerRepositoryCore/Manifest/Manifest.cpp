@@ -34,4 +34,9 @@ namespace AppInstaller::Manifest
             THROW_EXCEPTION(ManifestException(std::move(errors)));
         }
     }
+
+    bool ManifestVer::HasTag() const
+    {
+        return m_parts.size() == 3 && !m_parts[2].Other.empty();
+    }
 }

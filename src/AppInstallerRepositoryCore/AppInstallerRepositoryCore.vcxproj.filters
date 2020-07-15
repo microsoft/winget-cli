@@ -126,8 +126,8 @@
     <ClInclude Include="Manifest\ManifestValidation.h">
       <Filter>Manifest</Filter>
     </ClInclude>
-    <ClInclude Include="Manifest\YamlManifestParser.h">
-      <Filter>Manifest</Filter>
+    <ClInclude Include="Manifest\YamlParser.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -191,8 +191,8 @@
     <ClCompile Include="Manifest\ManifestValidation.cpp">
       <Filter>Manifest</Filter>
     </ClCompile>
-    <ClCompile Include="Manifest\YamlManifestParser.cpp">
-      <Filter>Manifest</Filter>
+    <ClCompile Include="Manifest\YamlParser.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

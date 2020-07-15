@@ -85,7 +85,7 @@ namespace AppInstaller::Manifest
             {
                 // MSStore type is not supported in community repo
                 resultErrors.emplace_back(
-                    ManifestError::FieldNotSupported, "InstallerType",
+                    ManifestError::FieldValueNotSupported, "InstallerType",
                     ManifestInstaller::InstallerTypeToString(installer.InstallerType));
 
                 if (installer.ProductId.empty())
@@ -104,7 +104,7 @@ namespace AppInstaller::Manifest
                 {
                     resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "Sha256");
                 }
-                // ProductId should be used
+                // ProductId should not be used
                 if (!installer.ProductId.empty())
                 {
                     resultErrors.emplace_back(ManifestError::FieldNotSupported, "ProductId");

@@ -9,4 +9,4 @@ Installers:
       Url: https://ThisIsNotUsed
       InstallerType: MSStore
       ProductId: 9WZDNCRFJ364
-ManifestVersion: 0.2.0
+ManifestVersion: 0.2.0-msstore

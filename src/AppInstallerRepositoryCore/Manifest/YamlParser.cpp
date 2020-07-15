@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "YamlManifestParser.h"
+#include "YamlParser.h"
 
 namespace AppInstaller::Manifest
 {
@@ -37,7 +37,7 @@ namespace AppInstaller::Manifest
         }
     }
 
-    void YamlManifestParser::PrepareManifestFieldInfos(const ManifestVer& manifestVer)
+    void YamlParser::PrepareManifestFieldInfos(const ManifestVer& manifestVer)
     {
         RootFieldInfos =
         {
@@ -77,7 +77,7 @@ namespace AppInstaller::Manifest
             { "Language", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->Language = value.as<std::string>(); } },
             { "Scope", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->Scope = value.as<std::string>(); } },
             { "InstallerType", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->InstallerType = ManifestInstaller::ConvertToInstallerTypeEnum(value.as<std::string>()); } },
-            { "ProductId", PreviewManifestVersionV2, [this](const YAML::Node& value) { m_p_installer->ProductId = value.as<std::string>(); } },
+            { "ProductId", PreviewManifestVersionMSStore, [this](const YAML::Node& value) { m_p_installer->ProductId = value.as<std::string>(); } },
             { "Switches", PreviewManifestVersion, [this](const YAML::Node& value) { *m_p_switchesNode = value; } },
         };
 
@@ -106,19 +106,27 @@ namespace AppInstaller::Manifest
         FilterManifestFieldInfos(LocalizationFieldInfos, manifestVer);
     }
 
-    void YamlManifestParser::FilterManifestFieldInfos(
+    void YamlParser::FilterManifestFieldInfos(
         std::vector<ManifestFieldInfo>& source,
         const ManifestVer& manifestVer)
     {
         auto it = std::remove_if(source.begin(), source.end(),
             [&](ManifestFieldInfo field)
             {
-                return manifestVer < field.VerIntroduced;
+                if (field.VerIntroduced.HasTag())
+                {
+                    // Tagged version should have exact match
+                    return field.VerIntroduced != manifestVer;
+                }
+                else
+                {
+                    return manifestVer < field.VerIntroduced;
+                }
             });
         source.erase(it, source.end());
     }
 
-    Manifest YamlManifestParser::CreateManifestFromPath(const std::filesystem::path& inputFile, bool fullValidation, bool throwOnWarning)
+    Manifest YamlParser::CreateFromPath(const std::filesystem::path& inputFile, bool fullValidation, bool throwOnWarning)
     {
         Manifest manifest;
         std::vector<ValidationError> errors;
@@ -127,7 +135,7 @@ namespace AppInstaller::Manifest
         {
             std::ifstream inputStream(inputFile);
             YAML::Node rootNode = YAML::Load(inputStream);
-            YamlManifestParser parser;
+            YamlParser parser;
             errors = parser.ParseManifest(rootNode, manifest, fullValidation);
         }
         catch (const ManifestException&)
@@ -153,7 +161,7 @@ namespace AppInstaller::Manifest
         return manifest;
     }
 
-    Manifest YamlManifestParser::CreateManifest(const std::string& input, bool fullValidation, bool throwOnWarning)
+    Manifest YamlParser::Create(const std::string& input, bool fullValidation, bool throwOnWarning)
     {
         Manifest manifest;
         std::vector<ValidationError> errors;
@@ -161,7 +169,7 @@ namespace AppInstaller::Manifest
         try
         {
             YAML::Node rootNode = YAML::Load(input);
-            YamlManifestParser parser;
+            YamlParser parser;
             errors = parser.ParseManifest(rootNode, manifest, fullValidation);
         }
         catch (const ManifestException&)
@@ -187,7 +195,7 @@ namespace AppInstaller::Manifest
         return manifest;
     }
 
-    std::vector<ValidationError> YamlManifestParser::ParseManifest(const YAML::Node& rootNode, Manifest& manifest, bool fullValidation)
+    std::vector<ValidationError> YamlParser::ParseManifest(const YAML::Node& rootNode, Manifest& manifest, bool fullValidation)
     {
         // Detect manifest version first to determine expected fields
         // Use index to access ManifestVersion directly. If there're duplicates or other general errors, it'll be detected in later
@@ -196,7 +204,7 @@ namespace AppInstaller::Manifest
         if (rootNode["ManifestVersion"])
         {
             auto manifestVersionValue = rootNode["ManifestVersion"].as<std::string>();
-            manifest.ManifestVersion = ManifestVer(manifestVersionValue, fullValidation);
+            manifest.ManifestVersion = ManifestVer(manifestVersionValue, false);
         }
         else
         {
@@ -295,7 +303,7 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
-    std::vector<ValidationError> YamlManifestParser::ValidateAndProcessFields(
+    std::vector<ValidationError> YamlParser::ValidateAndProcessFields(
         const YAML::Node& rootNode,
         const std::vector<ManifestFieldInfo>& fieldInfos,
         bool fullValidation)
@@ -389,7 +397,7 @@ namespace AppInstaller::Manifest
         return errors;
     }
 
-    std::map<ManifestInstaller::InstallerSwitchType, ManifestInstaller::string_t> YamlManifestParser::GetDefaultKnownSwitches(
+    std::map<ManifestInstaller::InstallerSwitchType, ManifestInstaller::string_t> YamlParser::GetDefaultKnownSwitches(
         ManifestInstaller::InstallerTypeEnum installerType)
     {
         switch (installerType)

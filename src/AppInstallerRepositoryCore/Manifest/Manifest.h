@@ -11,16 +11,19 @@ namespace AppInstaller::Manifest
 {
     // ManifestVer is inherited from Utility::Version and is a more restricted version.
     // ManifestVer is used to specify the version of app manifest itself.
-    // Currently ManifestVer is a 3 part version in the format of [0-65535].[0-65535].[0-65535]
+    // ManifestVer is a 3 part version in the format of [0-65535].[0-65535].[0-65535]
+    // and optionally a following tag in the format of -[SomeString] for experimental purpose.
     struct ManifestVer : public Utility::Version
     {
         ManifestVer() = default;
 
         ManifestVer(std::string version, bool fullValidation);
 
-        uint64_t Major() { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }
-        uint64_t Minor() { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }
-        uint64_t Patch() { return m_parts.size() > 2 ? m_parts[2].Integer : 0; }
+        uint64_t Major() const { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }
+        uint64_t Minor() const { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }
+        uint64_t Patch() const { return m_parts.size() > 2 ? m_parts[2].Integer : 0; }
+
+        bool HasTag() const;
     };
 
     // Representation of the parsed manifest file.

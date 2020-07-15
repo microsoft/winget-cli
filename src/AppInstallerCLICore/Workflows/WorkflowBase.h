@@ -127,6 +127,12 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: None
     // Outputs: None
     void EnsureRunningAsAdmin(Execution::Context& context);
+
+    // Ensures that the feature is enabled.
+    // Required Args: None
+    // Inputs: Feature
+    // Outputs: None
+    void EnsureFeatureEnabled(Execution::Context& context);
 }
 
 // Passes the context to the function if it has not been terminated; returns the context.

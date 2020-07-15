@@ -45,6 +45,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExtraPositionalError);
         WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledMessageWithFeatureName);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesDisabled);
@@ -64,6 +65,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(IdArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer1);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer2);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimerMSStore);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationRequiresHigherWindows);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallCommandShortDescription);

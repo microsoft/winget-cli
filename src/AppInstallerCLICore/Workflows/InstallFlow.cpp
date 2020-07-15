@@ -40,9 +40,18 @@ namespace AppInstaller::CLI::Workflow
 
     void ShowInstallationDisclaimer(Execution::Context& context)
     {
-        context.Reporter.Info() << 
-            Resource::String::InstallationDisclaimer1 << std::endl <<
-            Resource::String::InstallationDisclaimer2 << std::endl;
+        auto installerType = context.Get<Execution::Data::Installer>().value().InstallerType;
+
+        if (installerType == ManifestInstaller::InstallerTypeEnum::MSStore)
+        {
+            context.Reporter.Info() << Resource::String::InstallationDisclaimerMSStore << std::endl;
+        }
+        else
+        {
+            context.Reporter.Info() <<
+                Resource::String::InstallationDisclaimer1 << std::endl <<
+                Resource::String::InstallationDisclaimer2 << std::endl;
+        }
     }
 
     void DownloadInstaller(Execution::Context& context)
@@ -57,17 +66,17 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::Msi:
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
         case ManifestInstaller::InstallerTypeEnum::Wix:
-            context << DownloadInstallerFile;
+            context << DownloadInstallerFile << VerifyInstallerHash;
             break;
         case ManifestInstaller::InstallerTypeEnum::Msix:
             if (installer.SignatureSha256.empty())
             {
-                context << DownloadInstallerFile;
+                context << DownloadInstallerFile << VerifyInstallerHash;
             }
             else
             {
                 // Signature hash provided. No download needed. Just verify signature hash.
-                context << GetMsixSignatureHash;
+                context << GetMsixSignatureHash << VerifyInstallerHash;
             }
             break;
         case ManifestInstaller::InstallerTypeEnum::MSStore:
@@ -143,12 +152,6 @@ namespace AppInstaller::CLI::Workflow
 
     void VerifyInstallerHash(Execution::Context& context)
     {
-        const auto& installer = context.Get<Execution::Data::Installer>().value();
-        if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::MSStore)
-        {
-            return;
-        }
-
         const auto& hashPair = context.Get<Execution::Data::HashPair>();
 
         if (!std::equal(
@@ -203,7 +206,8 @@ namespace AppInstaller::CLI::Workflow
             context << MsixInstall;
             break;
         case ManifestInstaller::InstallerTypeEnum::MSStore:
-            context << MSStoreInstall;
+            context.Add<Execution::Data::Feature>(Settings::ExperimentalFeature::Feature::ExperimentalMSStore);
+            context << EnsureFeatureEnabled << MSStoreInstall;
             break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
@@ -264,14 +268,6 @@ namespace AppInstaller::CLI::Workflow
 
     void MSStoreInstall(Execution::Context& context)
     {
-        // Feature toggle check
-        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore))
-        {
-            context.Reporter.Error() << Resource::String::FeatureDisabledMessage << std::endl;
-            AICLI_LOG(CLI, Error, << "MSStore support feature is disabled. MSStore install cancelled.");
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
-        }
-
         auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);
 
         constexpr std::wstring_view s_StoreClientName = L"Microsoft.WindowsStore"sv;
@@ -335,6 +331,7 @@ namespace AppInstaller::CLI::Workflow
             winrt::hstring(),
             nullptr).get();
 
+        // We install one package at a time so the AppInstallItem list returned should contain only one entry.
         auto installItem = installItems.GetAt(0);
 
         auto CheckInstallStatus = [&]()
@@ -352,36 +349,31 @@ namespace AppInstaller::CLI::Workflow
             }
         };
 
-        // It may take a while for Store client to pick up the install request.
-        // So we show indefinite progress here to avoid a progress bar stuck at 0.
-        while (installItem.GetCurrentStatus().PercentComplete() == 0)
-        {
-            context.Reporter.ShowIndefiniteProgress(true);
-            CheckInstallStatus();
-            Sleep(500);
-        }
-
-        context.Reporter.ShowIndefiniteProgress(false);
-
-        context.Reporter.ExecuteWithProgress(std::bind(
-            [&](IProgressCallback& progress){
+        context.Reporter.ExecuteWithProgress(
+            [&](IProgressCallback& progress)
+            {
                 while (installItem.GetCurrentStatus().PercentComplete() < 100)
                 {
-                    progress.OnProgress((uint64_t)installItem.GetCurrentStatus().PercentComplete(), 100, ProgressType::Percent);
+                    // It may take a while for Store client to pick up the install request.
+                    // So we show indefinite progress here to avoid a progress bar stuck at 0.
+                    if (installItem.GetCurrentStatus().PercentComplete() > 0)
+                    {
+                        progress.OnProgress((uint64_t)installItem.GetCurrentStatus().PercentComplete(), 100, ProgressType::Percent);
+                    }
+
                     CheckInstallStatus();
 
                     if (progress.IsCancelled())
                     {
                         installItem.Cancel();
                     }
-                    Sleep(500);
+                    Sleep(100);
                 }
 
                 progress.OnProgress(100, 100, ProgressType::Percent);
                 // Final install status check
                 CheckInstallStatus();
-            },
-            std::placeholders::_1));
+            });
 
         context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
     }
