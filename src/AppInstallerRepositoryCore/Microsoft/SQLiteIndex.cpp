@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SQLiteIndex.h"
-
 #include "Schema/MetadataTable.h"
+#include "Manifest/YamlParser.h"
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -128,7 +128,7 @@ namespace AppInstaller::Repository::Microsoft
     {
         AICLI_LOG(Repo, Info, << "Adding manifest from file [" << manifestPath << "]");
 
-        Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(manifestPath);
+        Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(manifestPath);
         AddManifest(manifest, relativePath);
     }
 
@@ -149,7 +149,7 @@ namespace AppInstaller::Repository::Microsoft
     {
         AICLI_LOG(Repo, Info, << "Updating manifest from file [" << manifestPath << "]");
 
-        Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(manifestPath);
+        Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(manifestPath);
         return UpdateManifest(manifest, relativePath);
     }
 
@@ -175,7 +175,7 @@ namespace AppInstaller::Repository::Microsoft
     {
         AICLI_LOG(Repo, Info, << "Removing manifest from file [" << manifestPath << "]");
 
-        Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(manifestPath);
+        Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(manifestPath);
         RemoveManifest(manifest, relativePath);
     }
 

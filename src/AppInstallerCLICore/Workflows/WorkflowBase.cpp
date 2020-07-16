@@ -5,6 +5,7 @@
 #include "ExecutionContext.h"
 #include "ManifestComparator.h"
 #include "TableOutput.h"
+#include "Manifest/YamlParser.h"
 
 
 namespace AppInstaller::CLI::Workflow
@@ -312,7 +313,7 @@ namespace AppInstaller::CLI::Workflow
             VerifyFile(Execution::Args::Type::Manifest) <<
             [](Execution::Context& context)
         {
-            Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::Manifest)));
+            Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::Manifest)));
             Logging::Telemetry().LogManifestFields(manifest.Id, manifest.Name, manifest.Version, true);
             context.Add<Execution::Data::Manifest>(std::move(manifest));
         };
@@ -361,6 +362,17 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Reporter.Error() << Resource::String::CommandRequiresAdmin;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN);
+        }
+    }
+
+    void EnsureFeatureEnabled::operator()(Execution::Context& context) const
+    {
+        if (!Settings::ExperimentalFeature::IsEnabled(m_feature))
+        {
+            context.Reporter.Error() << Resource::String::FeatureDisabledMessage << " : '" <<
+                Settings::ExperimentalFeature::GetFeature(m_feature).JsonName() << '\'' << std::endl;
+            AICLI_LOG(CLI, Error, << Settings::ExperimentalFeature::GetFeature(m_feature).Name() << " feature is disabled. Execution cancelled.");
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
         }
     }
 }

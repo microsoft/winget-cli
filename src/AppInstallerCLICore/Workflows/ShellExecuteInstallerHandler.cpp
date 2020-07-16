@@ -149,7 +149,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ShellExecuteInstallImpl(Execution::Context& context)
     {
-        context.Reporter.Info() << "Installing ..." << std::endl;
+        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
         const std::string& installerArgs = context.Get<Execution::Data::InstallerArgs>();
 
@@ -180,7 +180,7 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            context.Reporter.Info() << "Successfully installed!" << std::endl;
+            context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
         }
     }
 

@@ -12,6 +12,7 @@
 #include <winrt/Windows.UI.ViewManagement.h>
 #include <winrt/Windows.ApplicationModel.Resources.h>
 #include <winrt/Windows.ApplicationModel.Resources.Core.h>
+#include <winrt/Windows.ApplicationModel.Store.Preview.InstallControl.h>
 
 #include <wil/result_macros.h>
 
@@ -44,6 +45,6 @@
 #include <AppInstallerSHA256.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerTelemetry.h>
-#include <Manifest/ManifestInstaller.h>
-#include <Manifest/Manifest.h>
+#include <Manifest/YamlParser.h>
 #include <winget/LocIndependent.h>
+#include <winget/ExperimentalFeature.h>

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
-#include <Manifest/Manifest.h>
+#include <Manifest/YamlParser.h>
 #include <Microsoft/SQLiteIndexSource.h>
 
 using namespace std::string_literals;
@@ -17,7 +17,7 @@ std::shared_ptr<SQLiteIndexSource> SimpleTestSetup(const std::string& filePath, 
     SQLiteIndex index = SQLiteIndex::CreateNew(filePath, Schema::Version::Latest());
 
     TestDataFile testManifest("Manifest-Good.yaml");
-    manifest = Manifest::CreateFromPath(testManifest);
+    manifest = YamlParser::CreateFromPath(testManifest);
 
     relativePath = testManifest.GetPath().filename().u8string();
 

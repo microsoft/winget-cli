@@ -3,15 +3,29 @@
 #pragma once
 #include "ManifestInstaller.h"
 #include "ManifestLocalization.h"
-#include "ManifestValidation.h"
 #include <AppInstallerStrings.h>
-
-#include <filesystem>
-#include <string>
+#include <AppInstallerVersions.h>
 #include <vector>
 
 namespace AppInstaller::Manifest
 {
+    // ManifestVer is inherited from Utility::Version and is a more restricted version.
+    // ManifestVer is used to specify the version of app manifest itself.
+    // ManifestVer is a 3 part version in the format of [0-65535].[0-65535].[0-65535]
+    // and optionally a following tag in the format of -[SomeString] for experimental purpose.
+    struct ManifestVer : public Utility::Version
+    {
+        ManifestVer() = default;
+
+        ManifestVer(std::string version, bool fullValidation);
+
+        uint64_t Major() const { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }
+        uint64_t Minor() const { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }
+        uint64_t Patch() const { return m_parts.size() > 2 ? m_parts[2].Integer : 0; }
+
+        bool HasTag() const;
+    };
+
     // Representation of the parsed manifest file.
     struct Manifest
     {
@@ -66,14 +80,5 @@ namespace AppInstaller::Manifest
         std::vector<ManifestInstaller> Installers;
 
         std::vector<ManifestLocalization> Localization;
-
-        std::vector<ValidationError> PopulateManifestFields(const YAML::Node& rootNode, bool fullValidation);
-
-        // fullValidation: Bool to set if manifest creation should perform extra validation that client does not need.
-        //                 e.g. Channel should be null. Client code does not need this check to work properly.
-        // throwOnWarning: Bool to indicate if an exception should be thrown with only warnings detected in the manifest.
-        static Manifest CreateFromPath(const std::filesystem::path& inputFile, bool fullValidation = false, bool throwOnWarning = false);
-
-        static Manifest Create(const std::string& input, bool fullValidation = false, bool throwOnWarning = false);
     };
 }

@@ -10,6 +10,7 @@
 #include <wil/resource.h>
 
 #include <atomic>
+#include <iomanip>
 #include <istream>
 #include <ostream>
 #include <string>
@@ -17,6 +18,8 @@
 
 namespace AppInstaller::CLI::Execution
 {
+#define WINGET_OSTREAM_FORMAT_HRESULT(hr) "0x" << std::hex << std::setw(8) << std::setfill('0') << hr
+
     namespace details
     {
         // List of approved types for output, others are potentially not localized.

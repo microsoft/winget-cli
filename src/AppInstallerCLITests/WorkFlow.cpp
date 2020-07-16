@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <AppInstallerLogging.h>
-#include <Manifest/Manifest.h>
+#include <Manifest/YamlParser.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerStrings.h>
 #include <Workflows/InstallFlow.h>
@@ -80,7 +80,7 @@ struct TestSource : public ISource
 
         if (input == "TestQueryReturnOne")
         {
-            auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
             result.Matches.emplace_back(
                 ResultMatch(
                     std::make_unique<TestApplication>(manifest),
@@ -88,13 +88,13 @@ struct TestSource : public ISource
         }
         else if (input == "TestQueryReturnTwo")
         {
-            auto manifest = Manifest::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
             result.Matches.emplace_back(
                 ResultMatch(
                     std::make_unique<TestApplication>(manifest),
                     ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
 
-            auto manifest2 = Manifest::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
+            auto manifest2 = YamlParser::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
             result.Matches.emplace_back(
                 ResultMatch(
                     std::make_unique<TestApplication>(manifest2),
@@ -220,6 +220,22 @@ void OverrideForMSIX(TestContext& context)
     } });
 }
 
+void OverrideForMSStore(TestContext& context)
+{
+    context.Override({ MSStoreInstall, [](TestContext& context)
+    {
+        std::filesystem::path temp = std::filesystem::temp_directory_path();
+        temp /= "TestMSStoreInstalled.txt";
+        std::ofstream file(temp, std::ofstream::out);
+        file << context.Get<Execution::Data::Installer>()->ProductId;
+        file.close();
+    } });
+
+    context.Override({ "EnsureFeatureEnabled", [](TestContext&)
+    {
+    } });
+}
+
 TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
@@ -259,6 +275,28 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow]")
 
     // Verify Installer was not called
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+}
+
+TEST_CASE("MSStoreInstallFlowWithTestManifest", "[InstallFlow]")
+{
+    TestCommon::TempFile installResultPath("TestMSStoreInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForMSStore(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_MSStore.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("9WZDNCRFJ364") != std::string::npos);
 }
 
 TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow]")
@@ -315,7 +353,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
         // Default Msi type with no args passed in, no switches specified in manifest
-        auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Msi_NoSwitches.yaml"));
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Msi_NoSwitches.yaml"));
         context.Add<Data::Installer>(manifest.Installers.at(0));
         context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
         context << GetInstallerArgs;
@@ -328,7 +366,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
         // Msi type with /silent and /log and /custom and /installlocation, no switches specified in manifest
-        auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Msi_NoSwitches.yaml"));
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Msi_NoSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log");
         context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir");
@@ -344,7 +382,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
         // Msi type with /silent and /log and /custom and /installlocation, switches specified in manifest
-        auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Msi_WithSwitches.yaml"));
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Msi_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log");
         context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir");
@@ -361,7 +399,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
         // Default Inno type with no args passed in, no switches specified in manifest
-        auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Inno_NoSwitches.yaml"));
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_NoSwitches.yaml"));
         context.Add<Data::Installer>(manifest.Installers.at(0));
         context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
         context << GetInstallerArgs;
@@ -374,7 +412,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
         // Inno type with /silent and /log and /custom and /installlocation, no switches specified in manifest
-        auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Inno_NoSwitches.yaml"));
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_NoSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log");
         context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir");
@@ -390,7 +428,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
         // Inno type with /silent and /log and /custom and /installlocation, switches specified in manifest
-        auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log");
         context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir");
@@ -407,7 +445,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
         // Override switch specified. The whole arg passed to installer is overridden.
-        auto manifest = Manifest::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log");
         context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir");

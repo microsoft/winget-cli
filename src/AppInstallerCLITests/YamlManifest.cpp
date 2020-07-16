@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
-#include "Manifest/Manifest.h"
+#include "Manifest/YamlParser.h"
 #include "AppInstallerSHA256.h"
 
 using namespace TestCommon;
@@ -30,7 +30,7 @@ bool operator==(const MultiValue& a, const MultiValue& b)
 
 TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
 {
-    Manifest manifest = Manifest::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
 
     REQUIRE(manifest.Id == "microsoft.msixsdk");
     REQUIRE(manifest.Name == "MSIX SDK");
@@ -108,7 +108,7 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
 
 TEST_CASE("ReadGoodManifestWithSpaces", "[ManifestValidation]")
 {
-    Manifest manifest = Manifest::CreateFromPath(TestDataFile("Manifest-Good-Spaces.yaml"));
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-Spaces.yaml"));
 
     REQUIRE(manifest.Id == "microsoft.msixsdk");
     REQUIRE(manifest.Name == "MSIX SDK");
@@ -149,11 +149,11 @@ void TestManifest(const std::filesystem::path& manifestPath, const std::string& 
 {
     if (expectedMessage.empty())
     {
-        CHECK_NOTHROW(Manifest::CreateFromPath(TestDataFile(manifestPath), true, true));
+        CHECK_NOTHROW(YamlParser::CreateFromPath(TestDataFile(manifestPath), true, true));
     }
     else
     {
-        CHECK_THROWS_MATCHES(Manifest::CreateFromPath(TestDataFile(manifestPath), true, true), ManifestException, ManifestExceptionMatcher(expectedMessage, expectedWarningOnly));
+        CHECK_THROWS_MATCHES(YamlParser::CreateFromPath(TestDataFile(manifestPath), true, true), ManifestException, ManifestExceptionMatcher(expectedMessage, expectedWarningOnly));
     }
 }
 
@@ -225,6 +225,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-VersionInvalid.yaml", "Invalid field value. Field: Version" },
         { "Manifest-Bad-VersionMissing.yaml", "Required field missing. Field: Version" },
         { "Manifest-Bad-InvalidManifestVersionValue.yaml", "Invalid field value. Field: ManifestVersion" },
+        { "InstallFlowTest_MSStore.yaml", "Field value is not supported. Field: InstallerType Value: MSStore" },
     };
 
     for (auto const& testCase : TestCases)
