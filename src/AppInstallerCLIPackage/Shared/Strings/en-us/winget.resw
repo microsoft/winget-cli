@@ -172,9 +172,6 @@
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Found a positional argument when none was expected</value>
   </data>
-  <data name="FeatureDisabledFeatureName" xml:space="preserve">
-    <value>Feature name:</value>
-  </data>
   <data name="FeatureDisabledMessage" xml:space="preserve">
     <value>This feature is a work in progress, and may be changed dramatically or removed altogether in the future. To enable it, edit your settings ('winget settings') to include the experimental feature</value>
     <comment>{Locked="winget settings"}</comment>

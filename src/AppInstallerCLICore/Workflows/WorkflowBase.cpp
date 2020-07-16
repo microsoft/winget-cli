@@ -327,9 +327,8 @@ namespace AppInstaller::CLI::Workflow
     {
         if (!Settings::ExperimentalFeature::IsEnabled(m_feature))
         {
-            context.Reporter.Error() << Resource::String::FeatureDisabledMessage << ' ' <<
-                Resource::String::FeatureDisabledFeatureName << ' ' <<
-                Settings::ExperimentalFeature::GetFeature(m_feature).Name() << std::endl;
+            context.Reporter.Error() << Resource::String::FeatureDisabledMessage << " : '" <<
+                Settings::ExperimentalFeature::GetFeature(m_feature).JsonName() << '\'' << std::endl;
             AICLI_LOG(CLI, Error, << Settings::ExperimentalFeature::GetFeature(m_feature).Name() << " feature is disabled. Execution cancelled.");
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
         }

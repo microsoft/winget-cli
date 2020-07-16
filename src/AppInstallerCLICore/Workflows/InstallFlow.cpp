@@ -354,13 +354,13 @@ namespace AppInstaller::CLI::Workflow
                     for (auto const& installItem : installItems)
                     {
                         const auto& status = installItem.GetCurrentStatus();
-                        currentProgress += (uint64_t)(status.PercentComplete());
+                        currentProgress += static_cast<uint64_t>(status.PercentComplete());
 
                         HRESULT errorCode = status.ErrorCode();
                         if (!SUCCEEDED(errorCode))
                         {
                             context.Reporter.Info() << Resource::String::MSStoreInstallFailed << ' ' << WINGET_OSTREAM_FORMAT_HRESULT(errorCode) << std::endl;
-                            AICLI_LOG(CLI, Error, << "MSStore install failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << errorCode);
+                            AICLI_LOG(CLI, Error, << "MSStore install failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << WINGET_OSTREAM_FORMAT_HRESULT(errorCode));
                             AICLI_TERMINATE_CONTEXT(errorCode);
                         }
                     }
