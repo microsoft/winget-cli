@@ -284,6 +284,7 @@ namespace AppInstaller::Logging
     }
 
     void TelemetryTraceLogger::LogSearchRequest(
+        std::string_view type,
         std::string_view query,
         std::string_view id,
         std::string_view name,
@@ -299,6 +300,7 @@ namespace AppInstaller::Logging
                 "SearchRequest",
                 GetActivityId(),
                 nullptr,
+                AICLI_TraceLoggingStringView(type, "Type"),
                 AICLI_TraceLoggingStringView(query, "Query"),
                 AICLI_TraceLoggingStringView(id, "Id"),
                 AICLI_TraceLoggingStringView(name, "Name"),

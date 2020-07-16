@@ -53,7 +53,13 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: Source
     // Outputs: SearchResult
-    void SearchSource(Execution::Context& context);
+    void SearchSourceForMany(Execution::Context& context);
+
+    // Performs a search on the source with the semantics of targeting a single application.
+    // Required Args: None
+    // Inputs: Source
+    // Outputs: SearchResult
+    void SearchSourceForSingle(Execution::Context& context);
 
     // Outputs the search results.
     // Required Args: None
