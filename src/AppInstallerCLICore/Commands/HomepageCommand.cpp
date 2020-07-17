@@ -39,15 +39,15 @@ namespace AppInstaller::CLI
 		context <<
 			Workflow::OpenSource <<
 			Workflow::SearchSourceForSingleWithHomepage <<
-			Workflow::GetManifestFromSearchResult <<
 			Workflow::EnsureOneMatchFromSearchResult <<
+			Workflow::GetManifestFromSearchResult <<
 			Workflow::ReportSearchResult;
 
 		if (context.Contains(Execution::Data::SearchResult)) {
 			const auto& searchResult = context.Get<Execution::Data::SearchResult>();
 			if (searchResult.Matches.size() > 1)
 			{
-				context.Reporter.Warn() << "More than one result was found please refine your query." << std::endl;
+				context.Reporter.Warn() << "More than one result was found please refine your query. Use --Id, --Name --Tag" << std::endl;
 			}
 			else 
 			{

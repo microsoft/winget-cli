@@ -218,52 +218,33 @@ namespace AppInstaller::CLI::Workflow
 		const auto& args = context.Args;
 
 		MatchType matchType = MatchType::CaseInsensitive;
-		if (args.Contains(Execution::Args::Type::Exact))
-		{
-			matchType = MatchType::Exact;
-		}
-
-		////SearchRequest searchRequest;
-		////if (args.Contains(Execution::Args::Type::Query))
-		////{
-		////	std::string_view query = args.GetArg(Execution::Args::Type::Query);
-		////	searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, query));
-		////	searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, query));
-		////	searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, query));
-		////}
-
-		//SearchRequest searchRequest;
-		//if (args.Contains(Execution::Args::Type::Query))
-		//{
-		//	//searchRequest.Query.emplace(RequestMatch(matchType, args.GetArg(Execution::Args::Type::Query)));
-		//	std::string_view query = args.GetArg(Execution::Args::Type::Query);
-		//	searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, query));
-		//	searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, query));
-		//	searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, query));
-		//}
-
-		//SearchSourceApplyFilters(context, searchRequest, matchType);
-
+		
 		SearchRequest searchRequest;
 		if (args.Contains(Execution::Args::Type::Query))
 		{
-			searchRequest.Query.emplace(RequestMatch(matchType, args.GetArg(Execution::Args::Type::Query)));
+			searchRequest.Query.emplace(RequestMatch(MatchType::FuzzySubstring, args.GetArg(Execution::Args::Type::Query)));
+			std::string_view query = searchRequest.Query->Value;
+			matchType = MatchType::FuzzySubstring;
+			searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, query));
+			searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, query));
+			searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, query));
+			searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Tag, matchType, query));
 		}
 
 		SearchSourceApplyFilters(context, searchRequest, matchType);
 
-
-		Logging::Telemetry().LogSearchRequest(
+		Logging::Telemetry().LogSearchHomepageRequest(
 			"single",
 			args.GetArg(Execution::Args::Type::Query),
-			args.GetArg(Execution::Args::Type::Id),
+			args.GetArg(Execution::Args::Type::Id),			
 			args.GetArg(Execution::Args::Type::Name),
+			"",
 			args.GetArg(Execution::Args::Type::Moniker),
 			args.GetArg(Execution::Args::Type::Tag),
 			args.GetArg(Execution::Args::Type::Command),
 			searchRequest.MaximumResults,
 			searchRequest.ToString());
-		
+
 		context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>()->Search(searchRequest));
 	}
 
@@ -325,31 +306,40 @@ namespace AppInstaller::CLI::Workflow
 
 	void GetManifestFromSearchResult(Execution::Context& context)
 	{
-		auto app = context.Get<Execution::Data::SearchResult>().Matches.at(0).Application.get();
-
-		std::string_view version = context.Args.GetArg(Execution::Args::Type::Version);
-		std::string_view channel = context.Args.GetArg(Execution::Args::Type::Channel);
-
-		std::optional<Manifest::Manifest> manifest = app->GetManifest(version, channel);
-
-		if (!manifest)
+		if (context.Contains(Execution::Data::SearchResult))
 		{
-			context.Reporter.Error() << "No version found matching: ";
-			if (!version.empty())
-			{
-				context.Reporter.Error() << version;
-			}
-			if (!channel.empty())
-			{
-				context.Reporter.Error() << '[' << channel << ']';
-			}
+			auto& searchResult = context.Get<Execution::Data::SearchResult>();
+			if (!searchResult.Matches.empty()) {
+				auto& resultMatches = searchResult.Matches.at(0);
+				if (resultMatches.Application) {
+					auto app = resultMatches.Application.get();
 
-			context.Reporter.Error() << std::endl;
-			AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
+					std::string_view version = context.Args.GetArg(Execution::Args::Type::Version);
+					std::string_view channel = context.Args.GetArg(Execution::Args::Type::Channel);
+
+					std::optional<Manifest::Manifest> manifest = app->GetManifest(version, channel);
+
+					if (!manifest)
+					{
+						context.Reporter.Error() << "No version found matching: ";
+						if (!version.empty())
+						{
+							context.Reporter.Error() << version;
+						}
+						if (!channel.empty())
+						{
+							context.Reporter.Error() << '[' << channel << ']';
+						}
+
+						context.Reporter.Error() << std::endl;
+						AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
+					}
+
+					Logging::Telemetry().LogManifestFields(manifest->Id, manifest->Name, manifest->Version, false);
+					context.Add<Execution::Data::Manifest>(std::move(manifest.value()));
+				}
+			}
 		}
-
-		Logging::Telemetry().LogManifestFields(manifest->Id, manifest->Name, manifest->Version, false);
-		context.Add<Execution::Data::Manifest>(std::move(manifest.value()));
 	}
 
 	void VerifyFile::operator()(Execution::Context& context) const
