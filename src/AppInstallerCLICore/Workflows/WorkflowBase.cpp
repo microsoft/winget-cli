@@ -223,16 +223,35 @@ namespace AppInstaller::CLI::Workflow
 			matchType = MatchType::Exact;
 		}
 
+		////SearchRequest searchRequest;
+		////if (args.Contains(Execution::Args::Type::Query))
+		////{
+		////	std::string_view query = args.GetArg(Execution::Args::Type::Query);
+		////	searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, query));
+		////	searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, query));
+		////	searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, query));
+		////}
+
+		//SearchRequest searchRequest;
+		//if (args.Contains(Execution::Args::Type::Query))
+		//{
+		//	//searchRequest.Query.emplace(RequestMatch(matchType, args.GetArg(Execution::Args::Type::Query)));
+		//	std::string_view query = args.GetArg(Execution::Args::Type::Query);
+		//	searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, query));
+		//	searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, query));
+		//	searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, query));
+		//}
+
+		//SearchSourceApplyFilters(context, searchRequest, matchType);
+
 		SearchRequest searchRequest;
 		if (args.Contains(Execution::Args::Type::Query))
 		{
-			std::string_view query = args.GetArg(Execution::Args::Type::Query);
-			searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, query));
-			searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, query));
-			searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, query));
+			searchRequest.Query.emplace(RequestMatch(matchType, args.GetArg(Execution::Args::Type::Query)));
 		}
 
 		SearchSourceApplyFilters(context, searchRequest, matchType);
+
 
 		Logging::Telemetry().LogSearchRequest(
 			"single",
@@ -244,10 +263,10 @@ namespace AppInstaller::CLI::Workflow
 			args.GetArg(Execution::Args::Type::Command),
 			searchRequest.MaximumResults,
 			searchRequest.ToString());
-
+		
 		context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>()->Search(searchRequest));
 	}
-	
+
 	void ReportSearchResult(Execution::Context& context)
 	{
 		auto& searchResult = context.Get<Execution::Data::SearchResult>();

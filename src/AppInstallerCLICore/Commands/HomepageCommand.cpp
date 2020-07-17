@@ -39,21 +39,36 @@ namespace AppInstaller::CLI
 		context <<
 			Workflow::OpenSource <<
 			Workflow::SearchSourceForSingleWithHomepage <<
-			Workflow::GetManifest <<
+			Workflow::GetManifestFromSearchResult <<
 			Workflow::EnsureOneMatchFromSearchResult <<
 			Workflow::ReportSearchResult;
-		if (context.Contains(Execution::Data::Manifest)) {
-			const auto& manifest = context.Get<Execution::Data::Manifest>();
-			Workflow::ManifestComparator manifestComparator(context.Args);
 
-			const auto selectedLocalization = manifestComparator.GetPreferredLocalization(manifest);
-
-			context.Reporter.Info() << "Homepage: " << selectedLocalization.Homepage << std::endl;
-			context << Workflow::OpenHomepage;
-		}
-		else
-		{
-			context.Reporter.Info() << "No Homepage found within manifest" << std::endl;
+		if (context.Contains(Execution::Data::SearchResult)) {
+			const auto& searchResult = context.Get<Execution::Data::SearchResult>();
+			if (searchResult.Matches.size() > 1)
+			{
+				context.Reporter.Warn() << "More than one result was found please refine your query." << std::endl;
+			}
+			else 
+			{
+				if (context.Contains(Execution::Data::Manifest)) {
+					const auto& manifest = context.Get<Execution::Data::Manifest>();
+					Workflow::ManifestComparator manifestComparator(context.Args);
+					const auto selectedLocalization = manifestComparator.GetPreferredLocalization(manifest);
+					if (selectedLocalization.Homepage.empty())
+					{
+						context.Reporter.Info() << "No Homepage found within manifest" << std::endl;
+					}
+					else {
+						context.Reporter.Info() << "Homepage: " << selectedLocalization.Homepage << std::endl;
+						context << Workflow::OpenHomepage;
+					}
+				}
+				else
+				{
+					context.Reporter.Info() << "No Homepage found within manifest" << std::endl;
+				}
+			}
 		}
 	}
 }
