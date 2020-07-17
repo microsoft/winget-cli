@@ -227,6 +227,12 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="HelpLinkPreamble" xml:space="preserve">
     <value>More help can be found at:</value>
   </data>
+  <data name="HomepageCommandLongDescription" xml:space="preserve">
+    <value>Opens the manifest's Homepage in default browser if the value exists in the manifest</value>
+  </data>
+  <data name="HomepageCommandShortDescription" xml:space="preserve">
+    <value>Opens the Home page in the default browser</value>
+  </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filter results by id</value>
   </data>

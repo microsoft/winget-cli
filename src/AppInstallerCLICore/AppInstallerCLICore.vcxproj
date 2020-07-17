@@ -177,6 +177,7 @@
     <ClInclude Include="Commands\ExperimentalCommand.h" />
     <ClInclude Include="Commands\FeaturesCommand.h" />
     <ClInclude Include="Commands\HashCommand.h" />
+    <ClInclude Include="Commands\HomepageCommand.h" />
     <ClInclude Include="Commands\SearchCommand.h" />
     <ClInclude Include="Commands\ShowCommand.h" />
     <ClInclude Include="Commands\InstallCommand.h" />
@@ -208,6 +209,7 @@
     <ClCompile Include="Commands\ExperimentalCommand.cpp" />
     <ClCompile Include="Commands\FeaturesCommand.cpp" />
     <ClCompile Include="Commands\HashCommand.cpp" />
+    <ClCompile Include="Commands\HomepageCommand.cpp" />
     <ClCompile Include="Commands\SearchCommand.cpp" />
     <ClCompile Include="Commands\ShowCommand.cpp" />
     <ClCompile Include="Commands\InstallCommand.cpp" />

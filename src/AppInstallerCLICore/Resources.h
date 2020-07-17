@@ -120,6 +120,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(RetroArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(HomepageCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(HomepageCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchId);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchMatch);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchName);

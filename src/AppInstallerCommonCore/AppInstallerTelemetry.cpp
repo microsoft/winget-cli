@@ -314,6 +314,38 @@ namespace AppInstaller::Logging
         }
     }
 
+    void TelemetryTraceLogger::LogSearchHomepageRequest(
+        std::string_view type,
+        std::string_view query,
+        std::string_view id,
+        std::string_view name,
+        std::string_view homepage,
+        std::string_view moniker,
+        std::string_view tag,
+        std::string_view command,
+        size_t maximum,
+        std::string_view request)
+    {
+        if (g_IsTelemetryProviderEnabled)
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "SearchRequest",
+                GetActivityId(),
+                nullptr,
+                AICLI_TraceLoggingStringView(type, "Type"),
+                AICLI_TraceLoggingStringView(query, "Query"),
+                AICLI_TraceLoggingStringView(id, "Id"),
+                AICLI_TraceLoggingStringView(name, "Name"),
+                AICLI_TraceLoggingStringView(homepage, "Homepage"),
+                AICLI_TraceLoggingStringView(moniker, "Moniker"),
+                AICLI_TraceLoggingStringView(tag, "Tag"),
+                AICLI_TraceLoggingStringView(command, "Command"),
+                TraceLoggingUInt64(static_cast<UINT64>(maximum), "Maximum"),
+                AICLI_TraceLoggingStringView(request, "Request"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+    }
     void TelemetryTraceLogger::LogSearchResultCount(uint64_t resultCount) noexcept
     {
         if (g_IsTelemetryProviderEnabled)

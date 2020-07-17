@@ -70,6 +70,18 @@ namespace AppInstaller::Logging
             size_t maximum,
             std::string_view request);
 
+        void LogSearchHomepageRequest(
+            std::string_view type,
+            std::string_view query,
+            std::string_view id,
+            std::string_view name,
+            std::string_view homepage,
+            std::string_view moniker,
+            std::string_view tag,
+            std::string_view command,
+            size_t maximum,
+            std::string_view request);
+    	
         // Logs the Search Result
         void LogSearchResultCount(uint64_t resultCount) noexcept;
 
