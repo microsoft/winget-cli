@@ -154,7 +154,7 @@ Switches:
 # if the installer supports log redirection, then the Log switch should be the flag that the installer expects to provide the path to the log 
 # file.  For example:  /LOG=<LOGPATH>.
 # Log must include the <LOGPATH> token.
-Log: /LOG=<LOGPATH> 
+  Log: /LOG=<LOGPATH> 
 
 # Some installers allow for installing to an alternate location.   A user may want to redirect the default install to a different location.  
 # In order to redirect the install location, the user will pass in a installation path to the installer.  For example: --installlocation "c:\mytool". 
@@ -162,7 +162,7 @@ Log: /LOG=<LOGPATH>
 # then the InstallLocation switch must be the flag that the installer expects to redirect the installation path.  
 # For example:  /InstallLocation=<INSTALLPATH>.
 # InstallLocation must include the <INSTALLPATH> token.
-InstallLocation: /DIR=<INSTALLPATH>
+  InstallLocation: /DIR=<INSTALLPATH>
 
 # ======================= Installers  ==================
 
