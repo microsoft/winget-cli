@@ -111,6 +111,12 @@
     <ClInclude Include="Commands\FeaturesCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="Workflows\OpenUrlWorkflow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\GetRequestedUrlFromManifest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -187,6 +193,12 @@
     </ClCompile>
     <ClCompile Include="Commands\FeaturesCommand.cpp">
       <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\OpenUrlWorkflow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\GetRequestedUrlFromManifest.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

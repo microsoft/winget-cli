@@ -3,8 +3,10 @@
 #include "pch.h"
 #include "ShowCommand.h"
 #include "Workflows/ShowFlow.h"
+#include "Workflows/OpenUrlWorkflow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
+#include "Workflows/GetRequestedUrlFromManifest.h"
 
 namespace AppInstaller::CLI
 {
@@ -21,6 +23,8 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Source),
             Argument::ForType(Execution::Args::Type::Exact),
             Argument::ForType(Execution::Args::Type::ListVersions),
+            Argument::ForType(Execution::Args::Type::Homepage),
+            Argument::ForType(Execution::Args::Type::License),
         };
     }
 
@@ -62,10 +66,20 @@ namespace AppInstaller::CLI
         }
         else
         {
-            context <<
-                Workflow::GetManifest <<
-                Workflow::SelectInstaller <<
-                Workflow::ShowManifestInfo;
+        	if (context.Args.Contains(Execution::Args::Type::Homepage) || 
+                context.Args.Contains(Execution::Args::Type::License))
+        	{
+                context <<
+                    Workflow::GetManifest <<
+                    Workflow::GetRequestedUrlFromManifest <<
+                    Workflow::OpenUrlInDefaultBrowser;
+            }
+            else {
+                context <<
+                    Workflow::GetManifest <<
+                    Workflow::SelectInstaller <<
+                    Workflow::ShowManifestInfo;
+            }
         }
     }
 }

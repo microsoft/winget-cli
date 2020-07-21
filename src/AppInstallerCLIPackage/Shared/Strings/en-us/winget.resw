@@ -317,6 +317,15 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="ManifestValidationSuccess" xml:space="preserve">
     <value>Manifest validation succeeded.</value>
   </data>
+  <data name="ManifestHomepage" xml:space="preserve">
+    <value>Manifest's Homepage URL Value</value>
+  </data>
+  <data name="ManifestLicense" xml:space="preserve">
+    <value>Manifest's License URL Value</value>
+  </data>
+  <data name="ManifestPrivacy" xml:space="preserve">
+    <value>Manifest's Privacy URL Value</value>
+  </data>
   <data name="ManifestValidationWarning" xml:space="preserve">
     <value>Manifest validation succeeded with warnings.</value>
   </data>
