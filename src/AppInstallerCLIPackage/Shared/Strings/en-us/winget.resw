@@ -318,10 +318,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Manifest validation succeeded.</value>
   </data>
   <data name="ManifestHomepage" xml:space="preserve">
-    <value>Manifest's Homepage URL Value</value>
+    <value>If the Homepage Url exists it will be opened in your default browser</value>
   </data>
   <data name="ManifestLicense" xml:space="preserve">
-    <value>Manifest's License URL Value</value>
+    <value>If the License Url exists it will be opened in your default browser</value>
   </data>
   <data name="ManifestPrivacy" xml:space="preserve">
     <value>Manifest's Privacy URL Value</value>
