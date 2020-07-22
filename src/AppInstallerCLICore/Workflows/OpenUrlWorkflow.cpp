@@ -24,13 +24,21 @@ namespace AppInstaller::CLI::Workflow
     {
 		if (context.Args.Contains(Execution::Args::Type::Homepage))
 		{
-			const std::string homepageUrl = context.Get<Execution::Data::HomepageUrl>();
-            InvokeShellExecute(homepageUrl);
+            if (context.Contains(Execution::Data::HomepageUrl)) {
+                const std::string homepageUrl = context.Get<Execution::Data::HomepageUrl>();
+                if (!homepageUrl.empty()) {
+                    InvokeShellExecute(homepageUrl);
+                }
+            }
 		}
         if (context.Args.Contains(Execution::Args::Type::License))
         {
-	        const std::string licenseUrl = context.Get<Execution::Data::LicenseUrl>();
-            InvokeShellExecute(licenseUrl);
+            if (context.Contains(Execution::Data::LicenseUrl)) {
+                const std::string licenseUrl = context.Get<Execution::Data::LicenseUrl>();
+                if (!licenseUrl.empty()) {
+                    InvokeShellExecute(licenseUrl);
+                }
+            }
         }
 
     }

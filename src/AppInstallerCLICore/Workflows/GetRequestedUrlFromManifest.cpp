@@ -31,7 +31,9 @@ namespace AppInstaller::CLI::Workflow
 						}
 						else {
 							context.Reporter.Info() << "Homepage: " << selectedLocalization.Homepage << std::endl;
-							context.Add<Execution::Data::HomepageUrl>(selectedLocalization.Homepage.c_str());
+							if (!selectedLocalization.Homepage.empty()) {
+								context.Add<Execution::Data::HomepageUrl>(selectedLocalization.Homepage.c_str());
+							}
 						}
 					}
 					if (context.Args.Contains(Execution::Args::Type::License)) {
@@ -41,7 +43,9 @@ namespace AppInstaller::CLI::Workflow
 						}
 						else {
 							context.Reporter.Info() << "License: " << selectedLocalization.LicenseUrl << std::endl;
-							context.Add<Execution::Data::LicenseUrl>(selectedLocalization.LicenseUrl.c_str());
+							if (!selectedLocalization.LicenseUrl.empty()) {
+								context.Add<Execution::Data::LicenseUrl>(selectedLocalization.LicenseUrl.c_str());
+							}
 						}
 					}
 				}
