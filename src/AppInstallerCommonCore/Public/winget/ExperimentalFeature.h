@@ -21,7 +21,8 @@ namespace AppInstaller::Settings
             None = 0x0,
             ExperimentalCmd = 0x1,
             ExperimentalArg = 0x2,
-            Max = 0x4, // This MUST always be last
+            ExperimentalMSStore = 0x4,
+            Max = 0x8, // This MUST always be last
         };
 
         using Feature_t = std::underlying_type_t<ExperimentalFeature::Feature>;

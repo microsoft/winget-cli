@@ -17,8 +17,6 @@
 #define APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING      "?"
 #define APPINSTALLER_CLI_HELP_ARGUMENT                  APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_STRING APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_STRING
 
-#define APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER          '\0'
-
 namespace AppInstaller::CLI
 {
     // The type of argument.
@@ -45,6 +43,9 @@ namespace AppInstaller::CLI
             // Not shown in help.
             Hidden,
         };
+
+        // Defines an argument with no alias.
+        constexpr static char NoAlias = '\0';
 
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc) :
             m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)) {}

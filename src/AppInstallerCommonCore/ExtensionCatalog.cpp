@@ -30,6 +30,13 @@ namespace AppInstaller::Deployment
         return m_extension.Package().Id().Version();
     }
 
+    bool Extension::VerifyContentIntegrity(IProgressCallback& progress)
+    {
+        auto operation = m_extension.Package().VerifyContentIntegrityAsync();
+        auto removeCancel = progress.SetCancellationFunction([&]() { operation.Cancel(); });
+        return operation.get();
+    }
+
     ExtensionCatalog::ExtensionCatalog(std::wstring_view extensionName)
     {
         m_catalog = AppExt::AppExtensionCatalog::Open(winrt::hstring(extensionName));

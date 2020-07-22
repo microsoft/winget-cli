@@ -46,6 +46,7 @@ namespace AppInstaller::Settings
         AutoUpdateTimeInMinutes,
         EFExperimentalCmd,
         EFExperimentalArg,
+        EFExperimentalMSStore,
         Max
     };
 
@@ -77,6 +78,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::AutoUpdateTimeInMinutes, uint32_t, std::chrono::minutes, 5min, ".source.autoUpdateIntervalInMinutes"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalCmd, bool, bool, false, ".experimentalFeatures.experimentalCmd"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalArg, bool, bool, false, ".experimentalFeatures.experimentalArg"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalMSStore, bool, bool, false, ".experimentalFeatures.experimentalMSStore"sv);
 
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.

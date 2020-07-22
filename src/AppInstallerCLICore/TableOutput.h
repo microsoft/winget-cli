@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionReporter.h"
+#include "Resources.h"
 
 #include <array>
 #include <ostream>
@@ -32,15 +33,16 @@ namespace AppInstaller::CLI::Execution
     template <size_t FieldCount>
     struct TableOutput
     {
+        using header_t = std::array<Resource::LocString, FieldCount>;
         using line_t = std::array<std::string, FieldCount>;
 
-        TableOutput(Reporter& reporter, line_t&& header, size_t sizingBuffer = 50) :
+        TableOutput(Reporter& reporter, header_t&& header, size_t sizingBuffer = 50) :
             m_reporter(reporter), m_sizingBuffer(sizingBuffer)
         {
             for (size_t i = 0; i < FieldCount; ++i)
             {
                 m_columns[i].Name = std::move(header[i]);
-                m_columns[i].MinLength = Utility::UTF8Length(m_columns[i].Name);
+                m_columns[i].MinLength = Utility::UTF8Length(m_columns[i].Name.get());
                 m_columns[i].MaxLength = 0;
             }
         }
@@ -67,7 +69,7 @@ namespace AppInstaller::CLI::Execution
         // A column in the table.
         struct Column
         {
-            std::string Name;
+            Resource::LocString Name;
             size_t MinLength = 0;
             size_t MaxLength = 0;
             bool SpaceAfter = true;
@@ -162,7 +164,7 @@ namespace AppInstaller::CLI::Execution
 
             for (size_t i = 0; i < FieldCount; ++i)
             {
-                headerLine[i] = m_columns[i].Name;
+                headerLine[i] = m_columns[i].Name.get();
             }
 
             OutputLineToStream(headerLine);

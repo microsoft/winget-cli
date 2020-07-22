@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Microsoft/SQLiteIndexSource.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
+#include "Manifest/YamlParser.h"
 
 
 namespace AppInstaller::Repository::Microsoft
@@ -58,12 +59,12 @@ namespace AppInstaller::Repository::Microsoft
                     std::string manifestContents = manifestStream.str();
                     AICLI_LOG(Repo, Verbose, << "Manifest contents: " << manifestContents);
 
-                    return Manifest::Manifest::Create(manifestContents);
+                    return Manifest::YamlParser::Create(manifestContents);
                 }
                 else
                 {
                     AICLI_LOG(Repo, Info, << "Opening manifest from local file: " << fullPath);
-                    return Manifest::Manifest::CreateFromPath(fullPath);
+                    return Manifest::YamlParser::CreateFromPath(fullPath);
                 }
             }
 

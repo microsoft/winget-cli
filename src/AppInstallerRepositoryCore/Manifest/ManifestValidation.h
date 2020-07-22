@@ -6,29 +6,12 @@
 #include <functional>
 #include <wil/result.h>
 #include <AppInstallerErrors.h>
-#include <AppInstallerVersions.h>
+#include "Manifest.h"
 
 namespace YAML { class Node; }
 
 namespace AppInstaller::Manifest
 {
-    // ManifestVer is inherited from Utility::Version and is a more restricted version.
-    // ManifestVer is used to specify the version of app manifest itself.
-    // Currently ManifestVer is a 3 part version in the format of [0-65535].[0-65535].[0-65535]
-    struct ManifestVer : public Utility::Version
-    {
-        ManifestVer() = default;
-
-        ManifestVer(std::string version, bool fullValidation);
-
-        uint64_t Major() { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }
-        uint64_t Minor() { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }
-        uint64_t Patch() { return m_parts.size() > 2 ? m_parts[2].Integer : 0; }
-    };
-
-    static const uint64_t MaxSupportedMajorVersion = 1;
-    static const ManifestVer PreviewManifestVersion = ManifestVer("0.1.0", false);
-
     namespace ManifestError
     {
         const char* const ErrorMessagePrefix = "Manifest Error: ";
@@ -43,6 +26,7 @@ namespace AppInstaller::Manifest
         const char* const InvalidFieldValue = "Invalid field value.";
         const char* const ExeInstallerMissingSilentSwitches = "Silent and SilentWithProgress switches are not specified for InstallerType exe. Please make sure the installer can run unattended.";
         const char* const FieldNotSupported = "Field is not supported.";
+        const char* const FieldValueNotSupported = "Field value is not supported.";
         const char* const DuplicateInstallerEntry = "Duplicate installer entry found.";
     }
 
@@ -80,24 +64,6 @@ namespace AppInstaller::Manifest
         ValidationError(std::string message, std::string field, std::string value, int line, int column, Level level) :
             Message(std::move(message)), Field(std::move(field)), Value(std::move(value)), Line(line), Column(column), ErrorLevel(level) {}
     };
-
-    // This struct contains individual app manifest field info
-    struct ManifestFieldInfo
-    {
-        std::string Name;
-        std::function<void(const YAML::Node&)> ProcessFunc;
-        bool Required = false;
-        std::string RegEx = {};
-    };
-
-    // This method takes YAML root node and list of manifest field info.
-    // Yaml-cpp does not support case insensitive search and it allows duplicate keys. If duplicate keys exist,
-    // the value is undefined. So in this method, we will iterate through the node map and process each individual
-    // pair ourselves. This also helps with generating aggregated error rather than throwing on first failure.
-    std::vector<ValidationError> ValidateAndProcessFields(
-        const YAML::Node& rootNode,
-        const std::vector<ManifestFieldInfo> fieldInfos,
-        bool fullValidation);
 
     struct ManifestException : public wil::ResultException
     {
@@ -181,4 +147,6 @@ namespace AppInstaller::Manifest
         mutable std::string m_manifestErrorMessage;
         bool m_warningOnly;
     };
+
+    std::vector<ValidationError> ValidateManifest(const Manifest& manifest);
 }

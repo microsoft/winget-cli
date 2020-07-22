@@ -144,15 +144,26 @@ namespace AppInstaller::Utility
         return DownloadToStream(url, outfile, progress, computeHash);
     }
 
+    using namespace std::string_view_literals;
+    constexpr std::string_view s_http_start = "http://"sv;
+    constexpr std::string_view s_https_start = "https://"sv;
+
     bool IsUrlRemote(std::string_view url)
     {
-        using namespace std::string_view_literals;
-        constexpr std::string_view s_http_start = "http://"sv;
-        constexpr std::string_view s_https_start = "https://"sv;
-
         // Very simple choice right now: "does it start with http:// or https://"?
         if (CaseInsensitiveEquals(url.substr(0, s_http_start.length()), s_http_start) ||
             CaseInsensitiveEquals(url.substr(0, s_https_start.length()), s_https_start))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    bool IsUrlSecure(std::string_view url)
+    {
+        // Very simple choice right now: "does it start with https://"?
+        if (CaseInsensitiveEquals(url.substr(0, s_https_start.length()), s_https_start))
         {
             return true;
         }

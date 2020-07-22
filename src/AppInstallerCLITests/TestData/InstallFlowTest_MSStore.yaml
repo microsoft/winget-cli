@@ -1,0 +1,12 @@
+Id: AppInstallerCliTest.TestMSStoreInstaller
+Version: 1.0.0.0
+Name: AppInstaller Test Installer
+Publisher: Microsoft Corporation
+AppMoniker: AICLITestMSStore
+License: Test
+Installers: 
+    - Arch: neutral
+      Url: https://ThisIsNotUsed
+      InstallerType: MSStore
+      ProductId: 9WZDNCRFJ364
+ManifestVersion: 0.2.0-msstore

@@ -51,15 +51,17 @@ namespace AppInstaller
             case APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS:
                 return "The source location is already configured under another name";
             case APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND:
-                return "No applications found";
+                return "No packages found";
             case APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED:
                 return "No sources are configured";
             case APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND:
-                return "Multiple applications found matching the criteria";
+                return "Multiple packages found matching the criteria";
             case APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND:
                 return "No manifest found matching the criteria";
             case APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN:
                 return "Command requires administrator privileges to run";
+            case APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE:
+                return "The source location is not secure";
             default:
                 return "Uknown Error Code";
             }

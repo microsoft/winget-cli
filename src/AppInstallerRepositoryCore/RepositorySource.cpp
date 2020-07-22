@@ -364,9 +364,9 @@ namespace AppInstaller::Repository
             THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
         }
 
-        std::shared_ptr<ISource> CreateSourceFromDetails(const SourceDetails& details)
+        std::shared_ptr<ISource> CreateSourceFromDetails(const SourceDetails& details, IProgressCallback& progress)
         {
-            return GetFactoryForType(details.Type)->Create(details);
+            return GetFactoryForType(details.Type)->Create(details, progress);
         }
 
         template <typename MemberFunc>
@@ -536,7 +536,7 @@ namespace AppInstaller::Repository
                     UpdateSourceFromDetails(*itr, progress);
                     SetMetadata(currentSources);
                 }
-                return CreateSourceFromDetails(*itr);
+                return CreateSourceFromDetails(*itr, progress);
             }
         }
     }
@@ -650,6 +650,11 @@ namespace AppInstaller::Repository
         else
         {
             result << "[none]";
+        }
+
+        for (const auto& include : Inclusions)
+        {
+            result << " Inclusions:" << ApplicationMatchFieldToString(include.Field) << "='" << include.Value << "'[" << MatchTypeToString(include.Type) << "]";
         }
 
         for (const auto& filter : Filters)
