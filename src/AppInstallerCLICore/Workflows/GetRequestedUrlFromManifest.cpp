@@ -27,31 +27,43 @@ namespace AppInstaller::CLI::Workflow
 					if (context.Args.Contains(Execution::Args::Type::Homepage)) {
 						if (selectedLocalization.Homepage.empty())
 						{
-							context.Reporter.Info() << "No Homepage found within manifest" << std::endl;
+							context.Reporter.Info() << "No Homepage url found within manifest" << std::endl;
 						}
 						else {
-							context.Reporter.Info() << "Homepage: " << selectedLocalization.Homepage << std::endl;
 							if (!selectedLocalization.Homepage.empty()) {
-								context.Add<Execution::Data::HomepageUrl>(selectedLocalization.Homepage.c_str());
+								if (selectedLocalization.Homepage._Starts_with("http")) {
+									context.Reporter.Info() << "Opening Homepage Url: " << selectedLocalization.Homepage << std::endl;
+									context.Add<Execution::Data::HomepageUrl>(selectedLocalization.Homepage.c_str());
+								}
+								else
+								{
+									context.Reporter.Info() << "Homepage is: " << selectedLocalization.Homepage << std::endl;
+								}
 							}
 						}
 					}
 					if (context.Args.Contains(Execution::Args::Type::License)) {
 						if (selectedLocalization.LicenseUrl.empty())
 						{
-							context.Reporter.Info() << "No License found within manifest" << std::endl;
+							context.Reporter.Info() << "No License url found within manifest" << std::endl;
 						}
 						else {
-							context.Reporter.Info() << "License: " << selectedLocalization.LicenseUrl << std::endl;
 							if (!selectedLocalization.LicenseUrl.empty()) {
-								context.Add<Execution::Data::LicenseUrl>(selectedLocalization.LicenseUrl.c_str());
+								if (selectedLocalization.LicenseUrl._Starts_with("http")) {
+									context.Reporter.Info() << "Opening License Url: " << selectedLocalization.LicenseUrl << std::endl;
+									context.Add<Execution::Data::LicenseUrl>(selectedLocalization.LicenseUrl.c_str());
+								}
+								else
+								{
+									context.Reporter.Info() << "License is: " << selectedLocalization.LicenseUrl << std::endl;
+								}
 							}
 						}
 					}
 				}
 				else
 				{
-					context.Reporter.Info() << "No Homepage found within manifest" << std::endl;
+					context.Reporter.Info() << "No single manifest selected" << std::endl;
 				}
 			}
 		}

@@ -45,37 +45,31 @@ namespace AppInstaller::CLI::Workflow
 			context.Reporter.Info() << "License Url: " << selectedLocalization.LicenseUrl << std::endl;
 		}
 
-		if (context.Contains(Execution::Data::Installer)) {
-			const auto& installer = context.Get<Execution::Data::Installer>();
-			context.Reporter.Info() << "Installer:" << std::endl;
-			if (installer)
+		const auto& installer = context.Get<Execution::Data::Installer>();
+		context.Reporter.Info() << "Installer:" << std::endl;
+		if (installer)
+		{
+			context.Reporter.Info() << "  Type: " << Manifest::ManifestInstaller::InstallerTypeToString(installer->InstallerType) << std::endl;
+			if (!installer->Language.empty())
 			{
-				context.Reporter.Info() << "  Type: " << Manifest::ManifestInstaller::InstallerTypeToString(installer->InstallerType) << std::endl;
-				if (!installer->Language.empty())
-				{
-					context.Reporter.Info() << "  Language: " << installer->Language << std::endl;
-				}
-				if (!installer->Url.empty())
-				{
-					context.Reporter.Info() << "  Download Url: " << installer->Url << std::endl;
-				}
-				if (!installer->Sha256.empty())
-				{
-					context.Reporter.Info() << "  SHA256: " << Utility::SHA256::ConvertToString(installer->Sha256) << std::endl;
-				}
-				if (!installer->ProductId.empty())
-				{
-					context.Reporter.Info() << "  Store Product Id: " << installer->ProductId << std::endl;
-				}
+				context.Reporter.Info() << "  Language: " << installer->Language << std::endl;
 			}
-			else
+			if (!installer->Url.empty())
 			{
-				context.Reporter.Warn() << "  No installers are applicable to the current system" << std::endl;
+				context.Reporter.Info() << "  Download Url: " << installer->Url << std::endl;
+			}
+			if (!installer->Sha256.empty())
+			{
+				context.Reporter.Info() << "  SHA256: " << Utility::SHA256::ConvertToString(installer->Sha256) << std::endl;
+			}
+			if (!installer->ProductId.empty())
+			{
+				context.Reporter.Info() << "  Store Product Id: " << installer->ProductId << std::endl;
 			}
 		}
 		else
 		{
-			context.Reporter.Verbose() << "  No installers are applicable to the current system" << std::endl;
+			context.Reporter.Warn() << "  No installers are applicable to the current system" << std::endl;
 		}
 	}
 
