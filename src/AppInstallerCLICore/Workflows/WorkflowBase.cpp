@@ -290,7 +290,19 @@ namespace AppInstaller::CLI::Workflow
 
     void GetManifest(Execution::Context& context)
     {
-        context.Args.AddArg(Execution::Args::Type::Manifest, "PWATest_resources\\PWAtest.yaml");
+        auto arg = context.Args.GetArg(Execution::Args::Type::Query);
+        if (arg == "fintimes")
+        {
+            context.Args.AddArg(Execution::Args::Type::Manifest, "C:\\Users\\amsrin\\Documents\\WinGetForPWA\\src\\AppInstallerCLI\\PWAtest.json");
+        }
+        else if (arg == "mradio")
+        {
+            context.Args.AddArg(Execution::Args::Type::Manifest, "C:\\Users\\amsrin\\Documents\\WinGetForPWA\\src\\AppInstallerCLI\\PWAtest2.json");
+        }
+        else
+        {
+            context.Args.AddArg(Execution::Args::Type::Manifest, "C:\\Users\\amsrin\\Documents\\WinGetForPWA\\src\\AppInstallerCLI\\PWAtest3.json");
+        }
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
             context <<

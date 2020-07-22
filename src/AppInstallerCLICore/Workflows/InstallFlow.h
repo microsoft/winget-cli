@@ -77,5 +77,6 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void RemoveInstaller(Execution::Context& context);
 
-    void InstallPWA();
+    void InstallPWA(Execution::Context& context);
+    void GeneratePwaMsix(Execution::Context& context);
 }

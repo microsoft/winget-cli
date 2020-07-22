@@ -13,6 +13,7 @@
 #include <winrt/Windows.ApplicationModel.Resources.h>
 #include <winrt/Windows.ApplicationModel.Resources.Core.h>
 
+
 #include <wil/result_macros.h>
 
 #include <array>

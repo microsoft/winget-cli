@@ -21,12 +21,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
-    <None Include="pwa_builder.exe" />
-    <None Include="PWATest_resources\app.ft.com-BC923C9_1.0.0.0.msix" />
-    <None Include="PWATest_resources\app.ft.com-BC923C9_1.0.0.0.pwa.json" />
-    <None Include="PWATest_resources\PWAtest.yaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Xml Include="PWATest_resources\app.ft.com-BC923C9_1.0.0.0.msix.xml" />
+    <None Include="packages.config" />
+    <None Include="..\packages\pwa_builder.86.571.0-CI-20200708-094419\identity_proxy\resources.pri" />
+    <None Include="..\packages\pwa_builder.86.571.0-CI-20200708-094419\x64\pwahelper.exe" />
+    <None Include="..\packages\pwa_builder.86.571.0-CI-20200708-094419\x86\pwahelper.exe" />
+    <None Include="$(SolutionDir)\packages\pwa_builder.86.571.0-CI-20200708-094419\pwa_builder.exe" />
+    <None Include="PWAtest.yaml" />
+    <None Include="PWAtest.json" />
+    <None Include="PWAtest2.json" />
+    <None Include="PWAtest3.json" />
   </ItemGroup>
 </Project>

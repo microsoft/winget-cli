@@ -30,4 +30,6 @@ namespace AppInstaller::CLI::Workflow
     // Modifies: InstallerPath
     // Outputs: None
     void RenameDownloadedInstaller(Execution::Context& context);
+  
+    void ShellExecuteGenerateMsix(Execution::Context & context);
 }

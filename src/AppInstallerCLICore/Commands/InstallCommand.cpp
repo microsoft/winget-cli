@@ -59,9 +59,9 @@ namespace AppInstaller::CLI
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
             Workflow::ShowInstallationDisclaimer <<
-            Workflow::DownloadInstaller <<
-            Workflow::VerifyInstallerHash <<
-            Workflow::ExecuteInstaller <<
+            Workflow::DownloadInstaller<<
+           /*Workflow::VerifyInstallerHash <<
+            Workflow::ExecuteInstaller << */
             Workflow::RemoveInstaller;
     }
 
