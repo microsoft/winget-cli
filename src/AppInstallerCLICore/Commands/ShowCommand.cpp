@@ -71,6 +71,7 @@ namespace AppInstaller::CLI
         	{
                 context <<
                     Workflow::GetManifest <<
+                    Workflow::ShowManifestInfo <<
                     Workflow::GetRequestedUrlFromManifest <<
                     Workflow::OpenUrlInDefaultBrowser;
             }
