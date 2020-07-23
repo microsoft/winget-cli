@@ -48,7 +48,7 @@ namespace IndexCreationTool
                     File.Delete(IndexName);
                 }
 
-                using (var indexHelper = AppInstallerSQLiteIndexUtilWrapper.Create(IndexName))
+                using (var indexHelper = WinGetUtilWrapper.Create(IndexName))
                 {
                     foreach (string file in Directory.EnumerateFiles(rootDir, "*.yaml", SearchOption.AllDirectories))
                     {
