@@ -50,6 +50,11 @@ namespace AppInstaller::CLI::Execution
             //Validate Command
             ValidateManifest,
 
+            // Complete Command
+            Word,
+            CommandLine,
+            Position,
+
             // Other
             Force,      // Generic flag to enable a command to skip some check
             ListVersions, // Used in Show command to list all available versions of an app

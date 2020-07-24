@@ -111,6 +111,9 @@
     <ClInclude Include="Commands\FeaturesCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\CompleteCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -186,6 +189,9 @@
       <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="Commands\FeaturesCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\CompleteCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>

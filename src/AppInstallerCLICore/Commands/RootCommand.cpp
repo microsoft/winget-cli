@@ -12,6 +12,7 @@
 #include "SettingsCommand.h"
 #include "FeaturesCommand.h"
 #include "ExperimentalCommand.h"
+#include "CompleteCommand.h"
 
 #include "Resources.h"
 #include "TableOutput.h"
@@ -32,6 +33,7 @@ namespace AppInstaller::CLI
             std::make_unique<SettingsCommand>(FullName()),
             std::make_unique<FeaturesCommand>(FullName()),
             std::make_unique<ExperimentalCommand>(FullName()),
+            std::make_unique<CompleteCommand>(FullName()),
         });
     }
 

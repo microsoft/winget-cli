@@ -4,6 +4,7 @@
 
 #define NOMINMAX
 #include <windows.h>
+#include <shellapi.h>
 #include <WinInet.h>
 
 #include <winrt/Windows.Foundation.h>
