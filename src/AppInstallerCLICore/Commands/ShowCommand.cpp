@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ShowCommand.h"
 #include "Workflows/ShowFlow.h"
+#include "Workflows/CompletionFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
@@ -32,6 +33,32 @@ namespace AppInstaller::CLI
     Resource::LocString ShowCommand::LongDescription() const
     {
         return { Resource::String::ShowCommandLongDescription };
+    }
+
+    void ShowCommand::Complete(Execution::Context& context, Execution::Args::Type valueType) const
+    {
+        switch (valueType)
+        {
+        case Execution::Args::Type::Query:
+            break;
+        case Execution::Args::Type::Manifest:
+            // Intentionally output none to enable pass through to filesystem.
+            break;
+        case Execution::Args::Type::Id:
+            break;
+        case Execution::Args::Type::Name:
+            break;
+        case Execution::Args::Type::Moniker:
+            break;
+        case Execution::Args::Type::Version:
+            break;
+        case Execution::Args::Type::Channel:
+            break;
+        case Execution::Args::Type::Source:
+            context <<
+                Workflow::CompleteSourceName;
+            break;
+        }
     }
 
     std::string ShowCommand::HelpLink() const

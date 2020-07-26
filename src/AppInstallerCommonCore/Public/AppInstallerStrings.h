@@ -11,6 +11,9 @@ namespace AppInstaller::Utility
     // Compares the two UTF8 strings in a case insensitive manner.
     bool CaseInsensitiveEquals(std::string_view a, std::string_view b);
 
+    // Determins if string a starts with string b.
+    bool CaseInsensitiveStartsWith(std::string_view a, std::string_view b);
+
     // Converts the given UTF16 string to UTF8
     std::string ConvertToUTF8(std::wstring_view input);
 

@@ -279,6 +279,125 @@ namespace AppInstaller::CLI
         throw CommandException(Resource::String::UnrecognizedCommand, *itr);
     }
 
+    // The argument parsing state machine.
+    // It is broken out to enable completion to process arguments, ignore errors,
+    // and determine the likely state of the word to be completed.
+    struct ParseArgumentsStateMachine
+    {
+        ParseArgumentsStateMachine(Invocation& inv, Execution::Args& execArgs, std::vector<CLI::Argument> arguments);
+
+        ParseArgumentsStateMachine(const ParseArgumentsStateMachine&) = delete;
+        ParseArgumentsStateMachine& operator=(const ParseArgumentsStateMachine&) = delete;
+
+        ParseArgumentsStateMachine(ParseArgumentsStateMachine&&) = default;
+        ParseArgumentsStateMachine& operator=(ParseArgumentsStateMachine&&) = default;
+
+        // Processes the next argument from the invocation.
+        // Returns true if there was an argument to process;
+        // returns false if there were none.
+        bool Step();
+
+        // Throws if there was an error during the prior step.
+        void ThrowIfError() const;
+
+        // The current state of the state machine.
+        // An empty state indicates that the next argument can be anything.
+        struct State
+        {
+            State() = default;
+            State(Execution::Args::Type type, std::string_view arg) : m_type(type), m_arg(arg) {}
+            State(CommandException ce) : m_exception(std::move(ce)) {}
+
+            // If set, indicates that the next argument is a value for this type.
+            const std::optional<Execution::Args::Type>& Type() const { return m_type; }
+
+            // The actual argument string associated with Type.
+            const std::string& Arg() const { return m_arg; }
+
+            // If set, indicates that the last argument produced an error.
+            const std::optional<CommandException>& Exception() const { return m_exception; }
+
+        private:
+            std::optional<Execution::Args::Type> m_type;
+            std::string m_arg;
+            std::optional<CommandException> m_exception;
+        };
+
+        const State& GetState() const { return m_state; }
+
+        bool OnlyPositionalRemain() const { return m_onlyPositionalArgumentsRemain; }
+
+        // Gets the next positional argument, or nullptr if there is not one.
+        const CLI::Argument* NextPositional();
+
+        const std::vector<CLI::Argument>& Arguments() const { return m_arguments; }
+
+    private:
+        State StepInternal();
+
+        void ProcessAdjoinedValue(Execution::Args::Type type, std::string_view value);
+
+        Invocation& m_invocation;
+        Execution::Args& m_executionArgs;
+        std::vector<CLI::Argument> m_arguments;
+
+        Invocation::iterator m_invocationItr;
+        std::vector<CLI::Argument>::iterator m_positionalSearchItr;
+        bool m_onlyPositionalArgumentsRemain = false;
+
+        State m_state;
+    };
+
+    ParseArgumentsStateMachine::ParseArgumentsStateMachine(Invocation& inv, Execution::Args& execArgs, std::vector<CLI::Argument> arguments) :
+        m_invocation(inv),
+        m_executionArgs(execArgs),
+        m_arguments(std::move(arguments)),
+        m_invocationItr(m_invocation.begin()),
+        m_positionalSearchItr(m_arguments.begin())
+    {
+    }
+
+    bool ParseArgumentsStateMachine::Step()
+    {
+        if (m_invocationItr == m_invocation.end())
+        {
+            return false;
+        }
+
+        m_state = StepInternal();
+        return true;
+    }
+
+    void ParseArgumentsStateMachine::ThrowIfError() const
+    {
+        if (m_state.Exception())
+        {
+            throw m_state.Exception().value();
+        }
+        // If the next argument was to be a value, but none was provided, convert it to an exception.
+        else if (m_state.Type() && m_invocationItr == m_invocation.end())
+        {
+            throw CommandException(Resource::String::MissingArgumentError, m_state.Arg());
+        }
+    }
+
+    const CLI::Argument* ParseArgumentsStateMachine::NextPositional()
+    {
+        // Find the next appropriate positional arg if the current itr isn't one or has hit its limit.
+        if (m_positionalSearchItr != m_arguments.end() &&
+            (m_positionalSearchItr->Type() != ArgumentType::Positional || m_executionArgs.GetCount(m_positionalSearchItr->ExecArgType()) == m_positionalSearchItr->Limit()))
+        {
+            for (++m_positionalSearchItr; m_positionalSearchItr != m_arguments.end() && m_positionalSearchItr->Type() != ArgumentType::Positional; ++m_positionalSearchItr);
+        }
+
+        if (m_positionalSearchItr == m_arguments.end())
+        {
+            return nullptr;
+        }
+
+        return &*m_positionalSearchItr;
+    }
+
     // Parse arguments as such:
     //  1. If argument starts with a single -, only the single character alias is considered.
     //      a. If the named argument alias (a) needs a VALUE, it can be provided in these ways:
@@ -292,155 +411,165 @@ namespace AppInstaller::CLI
     //          --arg VALUE
     //  3. If the argument does not start with any -, it is considered the next positional argument.
     //  4. If the argument is only a double --, all further arguments are only considered as positional.
+    ParseArgumentsStateMachine::State ParseArgumentsStateMachine::StepInternal()
+    {
+        std::string_view currArg = *m_invocationItr;
+        ++m_invocationItr;
+
+        // If the previous step indicated a value was needed, set it and forget it.
+        if (m_state.Type())
+        {
+            m_executionArgs.AddArg(m_state.Type().value(), currArg);
+            return {};
+        }
+
+        // This is a positional argument
+        if (m_onlyPositionalArgumentsRemain || currArg.empty() || currArg[0] != APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
+        {
+            const CLI::Argument* nextPositional = NextPositional();
+            if (!nextPositional)
+            {
+                return CommandException(Resource::String::ExtraPositionalError, currArg);
+            }
+
+            m_executionArgs.AddArg(nextPositional->ExecArgType(), currArg);
+        }
+        // The currentArg must not be empty, and starts with a -
+        else if (currArg.length() == 1)
+        {
+            return CommandException(Resource::String::InvalidArgumentSpecifierError, currArg);
+        }
+        // Now it must be at least 2 chars
+        else if (currArg[1] != APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
+        {
+            // Parse the single character alias argument
+            char currChar = currArg[1];
+
+            auto itr = std::find_if(m_arguments.begin(), m_arguments.end(), [&](const Argument& arg) { return (currChar == arg.Alias()); });
+            if (itr == m_arguments.end())
+            {
+                return CommandException(Resource::String::InvalidAliasError, currArg);
+            }
+
+            if (itr->Type() == ArgumentType::Flag)
+            {
+                m_executionArgs.AddArg(itr->ExecArgType());
+
+                for (size_t i = 2; i < currArg.length(); ++i)
+                {
+                    currChar = currArg[i];
+
+                    auto itr2 = std::find_if(m_arguments.begin(), m_arguments.end(), [&](const Argument& arg) { return (currChar == arg.Alias()); });
+                    if (itr2 == m_arguments.end())
+                    {
+                        return CommandException(Resource::String::AdjoinedNotFoundError, currArg);
+                    }
+                    else if (itr2->Type() != ArgumentType::Flag)
+                    {
+                        return CommandException(Resource::String::AdjoinedNotFlagError, currArg);
+                    }
+                    else
+                    {
+                        m_executionArgs.AddArg(itr2->ExecArgType());
+                    }
+                }
+            }
+            else if (currArg.length() > 2)
+            {
+                if (currArg[2] == APPINSTALLER_CLI_ARGUMENT_SPLIT_CHAR)
+                {
+                    ProcessAdjoinedValue(itr->ExecArgType(), currArg.substr(3));
+                }
+                else
+                {
+                    return CommandException(Resource::String::SingleCharAfterDashError, currArg);
+                }
+            }
+            else
+            {
+                return { itr->ExecArgType(), currArg };
+            }
+        }
+        // The currentArg is at least 2 chars, both of which are --
+        else if (currArg.length() == 2)
+        {
+            m_onlyPositionalArgumentsRemain = true;
+        }
+        // The currentArg is more than 2 chars, both of which are --
+        else
+        {
+            // This is an arg name, find it and process its value if needed.
+            // Skip the double arg identifier chars.
+            std::string_view argName = currArg.substr(2);
+            bool argFound = false;
+
+            bool hasValue = false;
+            std::string_view argValue;
+            size_t splitChar = argName.find_first_of(APPINSTALLER_CLI_ARGUMENT_SPLIT_CHAR);
+            if (splitChar != std::string::npos)
+            {
+                hasValue = true;
+                argValue = argName.substr(splitChar + 1);
+                argName = argName.substr(0, splitChar);
+            }
+
+            for (const auto& arg : m_arguments)
+            {
+                if (Utility::CaseInsensitiveEquals(argName, arg.Name()))
+                {
+                    if (arg.Type() == ArgumentType::Flag)
+                    {
+                        if (hasValue)
+                        {
+                            return CommandException(Resource::String::FlagContainAdjoinedError, currArg);
+                        }
+
+                        m_executionArgs.AddArg(arg.ExecArgType());
+                    }
+                    else if (hasValue)
+                    {
+                        ProcessAdjoinedValue(arg.ExecArgType(), argValue);
+                    }
+                    else
+                    {
+                        return { arg.ExecArgType(), currArg };
+                    }
+                    argFound = true;
+                    break;
+                }
+            }
+
+            if (!argFound)
+            {
+                return CommandException(Resource::String::InvalidNameError, currArg);
+            }
+        }
+
+        // If we get here, the next argument can be anything again.
+        return {};
+    }
+
+    void ParseArgumentsStateMachine::ProcessAdjoinedValue(Execution::Args::Type type, std::string_view value)
+    {
+        // If the adjoined value is wrapped in quotes, strip them off.
+        if (value.length() >= 2 && value[0] == '"' && value[value.length() - 1] == '"')
+        {
+            value = value.substr(1, value.length() - 2);
+        }
+
+        m_executionArgs.AddArg(type, std::string{ value });
+    }
+
     void Command::ParseArguments(Invocation& inv, Execution::Args& execArgs) const
     {
         auto definedArgs = GetArguments();
         Argument::GetCommon(definedArgs);
-        auto positionalSearchItr = definedArgs.begin();
 
-        // The user can override processing '-blah' as an argument name by passing '--'.
-        bool onlyPositionalArgsRemain = false;
+        ParseArgumentsStateMachine stateMachine{ inv, execArgs, std::move(definedArgs) };
 
-        for (auto incomingArgsItr = inv.begin(); incomingArgsItr != inv.end(); ++incomingArgsItr)
+        while (stateMachine.Step())
         {
-            const std::string& currArg = *incomingArgsItr;
-
-            if (onlyPositionalArgsRemain || currArg.empty() || currArg[0] != APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
-            {
-                // Positional argument, find the next appropriate one if the current itr isn't one or has hit its limit.
-                if (positionalSearchItr != definedArgs.end() &&
-                    (positionalSearchItr->Type() != ArgumentType::Positional || execArgs.GetCount(positionalSearchItr->ExecArgType()) == positionalSearchItr->Limit()))
-                {
-                    for (++positionalSearchItr; positionalSearchItr != definedArgs.end() && positionalSearchItr->Type() != ArgumentType::Positional; ++positionalSearchItr);
-                }
-
-                if (positionalSearchItr == definedArgs.end())
-                {
-                    throw CommandException(Resource::String::ExtraPositionalError, currArg);
-                }
-
-                execArgs.AddArg(positionalSearchItr->ExecArgType(), currArg);
-            }
-            // The currentArg must not be empty, and starts with a -
-            else if (currArg.length() == 1)
-            {
-                throw CommandException(Resource::String::InvalidArgumentSpecifierError, currArg);
-            }
-            // Now it must be at least 2 chars
-            else if (currArg[1] != APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
-            {
-                // Parse the single character alias argument
-                char currChar = currArg[1];
-
-                auto itr = std::find_if(definedArgs.begin(), definedArgs.end(), [&](const Argument& arg) { return (currChar == arg.Alias()); });
-                if (itr == definedArgs.end())
-                {
-                    throw CommandException(Resource::String::InvalidAliasError, currArg);
-                }
-
-                if (itr->Type() == ArgumentType::Flag)
-                {
-                    execArgs.AddArg(itr->ExecArgType());
-
-                    for (size_t i = 2; i < currArg.length(); ++i)
-                    {
-                        currChar = currArg[i];
-
-                        auto itr2 = std::find_if(definedArgs.begin(), definedArgs.end(), [&](const Argument& arg) { return (currChar == arg.Alias()); });
-                        if (itr2 == definedArgs.end())
-                        {
-                            throw CommandException(Resource::String::AdjoinedNotFoundError, currArg);
-                        }
-                        else if (itr2->Type() != ArgumentType::Flag)
-                        {
-                            throw CommandException(Resource::String::AdjoinedNotFlagError, currArg);
-                        }
-                        else
-                        {
-                            execArgs.AddArg(itr2->ExecArgType());
-                        }
-                    }
-                }
-                else if (currArg.length() > 2)
-                {
-                    if (currArg[2] == APPINSTALLER_CLI_ARGUMENT_SPLIT_CHAR)
-                    {
-                        execArgs.AddArg(itr->ExecArgType(), currArg.substr(3));
-                    }
-                    else
-                    {
-                        throw CommandException(Resource::String::SingleCharAfterDashError, currArg);
-                    }
-                }
-                else
-                {
-                    ++incomingArgsItr;
-                    if (incomingArgsItr == inv.end())
-                    {
-                        throw CommandException(Resource::String::MissingArgumentError, currArg);
-                    }
-                    execArgs.AddArg(itr->ExecArgType(), *incomingArgsItr);
-                }
-            }
-            // The currentArg is at least 2 chars, both of which are --
-            else if (currArg.length() == 2)
-            {
-                onlyPositionalArgsRemain = true;
-            }
-            // The currentArg is more than 2 chars, both of which are --
-            else
-            {
-                // This is an arg name, find it and process its value if needed.
-                // Skip the double arg identifier chars.
-                std::string argName = currArg.substr(2);
-                bool argFound = false;
-
-                bool hasValue = false;
-                std::string argValue;
-                size_t splitChar = argName.find_first_of(APPINSTALLER_CLI_ARGUMENT_SPLIT_CHAR);
-                if (splitChar != std::string::npos)
-                {
-                    hasValue = true;
-                    argValue = argName.substr(splitChar + 1);
-                    argName.resize(splitChar);
-                }
-
-                for (const auto& arg : definedArgs)
-                {
-                    if (Utility::CaseInsensitiveEquals(argName, arg.Name()))
-                    {
-                        if (arg.Type() == ArgumentType::Flag)
-                        {
-                            if (hasValue)
-                            {
-                                throw CommandException(Resource::String::FlagContainAdjoinedError, currArg);
-                            }
-
-                            execArgs.AddArg(arg.ExecArgType());
-                        }
-                        else if (hasValue)
-                        {
-                            execArgs.AddArg(arg.ExecArgType(), std::move(argValue));
-                        }
-                        else
-                        {
-                            ++incomingArgsItr;
-                            if (incomingArgsItr == inv.end())
-                            {
-                                throw CommandException(Resource::String::MissingArgumentError, currArg);
-                            }
-                            execArgs.AddArg(arg.ExecArgType(), *incomingArgsItr);
-                        }
-                        argFound = true;
-                        break;
-                    }
-                }
-
-                if (!argFound)
-                {
-                    throw CommandException(Resource::String::InvalidNameError, *incomingArgsItr);
-                }
-            }
+            stateMachine.ThrowIfError();
         }
     }
 
@@ -455,17 +584,94 @@ namespace AppInstaller::CLI
         ValidateArgumentsInternal(execArgs);
     }
 
-    void Command::Complete(Execution::Context& context, CompletionData& data) const
+    // Completion can produce one of several things if the completion context is appropriate:
+    //  1. Sub commands, if the context is immediately after this command.
+    //  2. Argument names, if a value is not expected.
+    //  3. Argument values, if one is expected.
+    void Command::Complete(Execution::Context& context) const
     {
-        // The word we are to complete is directly after the command.
+        CompletionData& data = context.Get<Execution::Data::CompletionData>();
+        const std::string& word = data.Word();
+
+        // The word we are to complete is directly after the command, thus it's sub-commands are potentials.
         if (data.BeforeWord().begin() == data.BeforeWord().end())
         {
-            // TODO: MORE STUFF / filtering
             for (const auto& command : GetCommands())
             {
-                context.Reporter.Info() << command->Name() << std::endl;
+                if (word.empty() || Utility::CaseInsensitiveStartsWith(command->Name(), word))
+                {
+                    context.Reporter.Info() << command->Name() << std::endl;
+                }
             }
         }
+
+        // Consume what remains, if any, of the preceding values to determine what type the word is.
+        auto definedArgs = GetArguments();
+        Argument::GetCommon(definedArgs);
+
+        Execution::Args dummyArgs;
+
+        ParseArgumentsStateMachine stateMachine{ data.BeforeWord(), dummyArgs, std::move(definedArgs) };
+
+        // We don't care if there are errors along the way, just do the best that can be done and try to
+        // complete whatever would be next if the bad strings were simply ignored. To do that we just spin
+        // through the state until we reach our word.
+        while (stateMachine.Step());
+
+        const auto& state = stateMachine.GetState();
+
+        // This means that anything is possible, so argument names are on the table.
+        if (!state.Type() && !stateMachine.OnlyPositionalRemain())
+        {
+            // Use argument names if:
+            //  1. word is empty
+            //  2. word is just "-"
+            //  3. word starts with "--"
+            if (word.empty() ||
+                word == APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_STRING ||
+                Utility::CaseInsensitiveStartsWith(word, APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_STRING APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_STRING))
+            {
+                for (const auto& arg : stateMachine.Arguments())
+                {
+                    if (word.length() <= 2 || Utility::CaseInsensitiveStartsWith(arg.Name(), word.substr(2)))
+                    {
+                        context.Reporter.Info() << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Name() << std::endl;
+                    }
+                }
+            }
+            // Use argument aliases if the word is already one; allow cycling through them.
+            else if (Utility::CaseInsensitiveStartsWith(word, APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_STRING) && word.length() == 2)
+            {
+                for (const auto& arg : stateMachine.Arguments())
+                {
+                    context.Reporter.Info() << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << std::endl;
+                }
+            }
+        }
+
+        std::optional<Execution::Args::Type> typeToComplete = state.Type();
+
+        // We are not waiting on an argument value, so the next could be a positional.
+        // If there is one, offer to complete it.
+        if (!typeToComplete)
+        {
+            const auto* nextPositional = stateMachine.NextPositional();
+            if (nextPositional)
+            {
+                typeToComplete = nextPositional->ExecArgType();
+            }
+        }
+
+        // Let the derived command take over supplying context sensitive argument value.
+        if (typeToComplete)
+        {
+            Complete(context, typeToComplete.value());
+        }
+    }
+
+    void Command::Complete(Execution::Context&, Execution::Args::Type) const
+    {
+        // Derived commands must suppy context sensitive argument values.
     }
 
     void Command::Execute(Execution::Context& context) const
@@ -544,220 +750,5 @@ namespace AppInstaller::CLI
             arguments.end());
 
         return arguments;
-    }
-
-    // Completion takes in the following values:
-    //  Word :: The token from the command line that is being targeted for completion.
-    //          This value may have quotes surrounding it, and will need to be removed in such a case.
-    //  CommandLine :: The full command line that contains the word to be completed.
-    //                 This value has the fully quoted strings, as well as escaped quotations if needed.
-    //  Position :: The position of the cursor within the command line.
-    //
-    // Completions here will not attempt to take exact cursor position into account; meaning if the cursor
-    // is in the middle of the word, it is not different than at the beginning or end. This functionality
-    // could be added later.
-    CompletionData::CompletionData(std::string_view word, std::string_view commandLine, std::string_view position)
-    {
-        // Prepare the word to complete. It may come with quotes around it; if so, remove them.
-        if (word.length() >= 2 && word[0] == '"' && word[word.length() - 1] == '"')
-        {
-            m_word = word.substr(1, word.length() - 2);
-        }
-        else
-        {
-            m_word = word;
-        }
-
-        AICLI_LOG(CLI, Info, << "Completing word '" << m_word << '\'');
-
-        // Determine position as an integer
-        m_position = std::stoull(std::string{ position });
-
-        AICLI_LOG(CLI, Info, << "Cursor position starts at '" << m_position << '\'');
-
-        std::vector<std::string> argsBeforeWord;
-        std::vector<std::string> argsAfterWord;
-
-        // If the word is empty, we must determine where the split is. We operate as PowerShell does; the cursor
-        // being at the front of a token results in an empty word and an insertion rather than a replacement.
-        // If the user put spaces at the front of the statement, this can lead to the position being out of sorts;
-        // PowerShell sends the cursor position, but does not include leading spaces in the AST output. If the
-        // user puts too many spaces at the front we will be unable to determine the true location.
-        if (m_word.empty())
-        {
-            // The cursor is past the end, so everything is before the word.
-            if (m_position > commandLine.length())
-            {
-                ParseInto(commandLine, argsBeforeWord, true);
-            }
-            // The cursor is not past the end; ensure that the preceding character is whitespace or move the
-            // position back until it is. This is far from foolproof, but until we have evidence otherwise,
-            // very few users are likely to put any spaces at the front of their statements, let alone many.
-            else
-            {
-                for (; m_position > 0 && !std::isspace(commandLine[m_position - 1]); --m_position);
-
-                AICLI_LOG(CLI, Info, << "Cursor position moved to '" << m_position << '\'');
-
-                // If we actually hit the front of the string, something bad probably happened.
-                THROW_HR_IF(E_UNEXPECTED, m_position == 0);
-
-                ParseInto(commandLine.substr(0, m_position), argsBeforeWord, true);
-                ParseInto(commandLine.substr(m_position), argsAfterWord, false);
-            }
-        }
-        // If the word is not empty, the cursor is either in the middle of a token, or at the end of one.
-        // The value will be replaced, and we will remove it from the args here.
-        else
-        {
-            std::vector<std::string> allArgs;
-            ParseInto(commandLine, allArgs, true);
-
-            // Find the word amongst the arguments
-            std::vector<size_t> wordIndeces;
-            for (size_t i = 0; i < allArgs.size(); ++i)
-            {
-                if (word == allArgs[i])
-                {
-                    wordIndeces.push_back(i);
-                }
-            }
-
-            // If we didn't find a matching string, we probably made some bad assumptions.
-            THROW_HR_IF(E_UNEXPECTED, wordIndeces.empty());
-
-            // If we find an exact match only once, we can just split on that.
-            size_t wordIndexForSplit = wordIndeces[0];
-
-            // If we found more than one match, we have to rely on the position to
-            // determine which argument is the word in question.
-            if (wordIndeces.size() > 1)
-            {
-                // Escape the word and search for it in the command line.
-                std::string escapedWord = m_word;
-                Utility::FindAndReplace(escapedWord, "\"", "\"\"");
-
-                std::vector<size_t> escapedIndeces;
-                for (size_t offset = 0; offset < commandLine.length();)
-                {
-                    size_t pos = commandLine.find(escapedWord, offset);
-
-                    if (pos == std::string::npos)
-                    {
-                        break;
-                    }
-
-                    escapedIndeces.push_back(pos);
-                    offset = pos + escapedWord.length();
-                }
-
-                // If these are out of sync we don't have much hope.
-                THROW_HR_IF(E_UNEXPECTED, wordIndeces.size() != escapedIndeces.size());
-
-                // Find the closest one to the position. This can be fooled as above if there is
-                // leading whitespace in the statement. But it is the best we can do.
-                size_t indexToUse = std::numeric_limits<size_t>::max();
-                size_t distanceToCursor = std::numeric_limits<size_t>::max();
-
-                for (size_t i = 0; i < escapedIndeces.size(); ++i)
-                {
-                    size_t lowerBound = escapedIndeces[i];
-                    size_t upperBound = lowerBound + escapedWord.length();
-                    size_t distance = 0;
-
-                    // The cursor is square in the middle of this location, this is the one.
-                    if (m_position > lowerBound && m_position <= upperBound)
-                    {
-                        indexToUse = i;
-                        break;
-                    }
-                    else if (m_position <= lowerBound)
-                    {
-                        distance = lowerBound - m_position;
-                    }
-                    else // m_position > upperBound
-                    {
-                        distance = m_position - upperBound;
-                    }
-
-                    if (distance < distanceToCursor)
-                    {
-                        indexToUse = i;
-                        distanceToCursor = distance;
-                    }
-                }
-
-                // It really would be unexpected to not find a closest one.
-                THROW_HR_IF(E_UNEXPECTED, indexToUse == std::numeric_limits<size_t>::max());
-
-                wordIndexForSplit = wordIndeces[indexToUse];
-            }
-
-            std::vector<std::string>* moveTarget = &argsBeforeWord;
-            for (size_t i = 0; i < allArgs.size(); ++i)
-            {
-                if (i == wordIndexForSplit)
-                {
-                    // Intentionally leave the matched arg behind.
-                    moveTarget = &argsAfterWord;
-                }
-                else
-                {
-                    moveTarget->emplace_back(std::move(allArgs[i]));
-                }
-            }
-        }
-
-        // Move the arguments into an Invocation for future use.
-        m_argsBeforeWord = std::make_unique<CLI::Invocation>(std::move(argsBeforeWord));
-        m_argsAfterWord = std::make_unique<CLI::Invocation>(std::move(argsAfterWord));
-
-        AICLI_LOG(CLI, Info, << "Completion invoked for arguments:" << [&]() {
-            std::stringstream strstr;
-            for (const auto& arg : *m_argsBeforeWord)
-            {
-                strstr << " '" << arg << '\'';
-            }
-            if (m_word.empty())
-            {
-                strstr << " << [insert] >> ";
-            }
-            else
-            {
-                strstr << " << [replace] '" << m_word << "' >> ";
-            }
-            for (const auto& arg : *m_argsAfterWord)
-            {
-                strstr << " '" << arg << '\'';
-            }
-            return strstr.str();
-            }());
-    }
-
-    std::unique_ptr<Command> CompletionData::FindCommand(std::unique_ptr<Command>&& root)
-    {
-        std::unique_ptr<Command> result = std::move(root);
-
-        std::unique_ptr<Command> subCommand = result->FindSubCommand(BeforeWord());
-        while (subCommand)
-        {
-            result = std::move(subCommand);
-            subCommand = result->FindSubCommand(BeforeWord());
-        }
-
-        return result;
-    }
-
-    void CompletionData::ParseInto(std::string_view line, std::vector<std::string>& args, bool skipFirst)
-    {
-        std::wstring commandLineW = Utility::ConvertToUTF16(line);
-        int argc = 0;
-        wil::unique_hlocal_ptr<LPWSTR> argv{ CommandLineToArgvW(commandLineW.c_str(), &argc) };
-        THROW_LAST_ERROR_IF_NULL(argv);
-
-        for (int i = (skipFirst ? 1 : 0); i < argc; ++i)
-        {
-            args.emplace_back(Utility::ConvertToUTF8(argv.get()[i]));
-        }
     }
 }

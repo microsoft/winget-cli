@@ -14,6 +14,8 @@ namespace AppInstaller::CLI
         virtual Resource::LocString ShortDescription() const override;
         virtual Resource::LocString LongDescription() const override;
 
+        void Complete(Execution::Context& context, Execution::Args::Type valueType) const override;
+
         std::string HelpLink() const override;
 
     protected:

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SourceCommand.h"
+#include "Workflows/CompletionFlow.h"
 #include "Workflows/SourceFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
@@ -94,6 +95,15 @@ namespace AppInstaller::CLI
         return { Resource::String::SourceListCommandLongDescription };
     }
 
+    void SourceListCommand::Complete(Context& context, Args::Type valueType) const
+    {
+        if (valueType == Args::Type::SourceName)
+        {
+            context <<
+                Workflow::CompleteSourceName;
+        }
+    }
+
     std::string SourceListCommand::HelpLink() const
     {
         return std::string{ s_SourceCommand_HelpLink };
@@ -121,6 +131,15 @@ namespace AppInstaller::CLI
     Resource::LocString SourceUpdateCommand::LongDescription() const
     {
         return { Resource::String::SourceUpdateCommandLongDescription };
+    }
+
+    void SourceUpdateCommand::Complete(Context& context, Args::Type valueType) const
+    {
+        if (valueType == Args::Type::SourceName)
+        {
+            context <<
+                Workflow::CompleteSourceName;
+        }
     }
 
     std::string SourceUpdateCommand::HelpLink() const
@@ -152,6 +171,15 @@ namespace AppInstaller::CLI
         return { Resource::String::SourceRemoveCommandLongDescription };
     }
 
+    void SourceRemoveCommand::Complete(Context& context, Args::Type valueType) const
+    {
+        if (valueType == Args::Type::SourceName)
+        {
+            context <<
+                Workflow::CompleteSourceName;
+        }
+    }
+
     std::string SourceRemoveCommand::HelpLink() const
     {
         return std::string{ s_SourceCommand_HelpLink };
@@ -181,6 +209,15 @@ namespace AppInstaller::CLI
     Resource::LocString SourceResetCommand::LongDescription() const
     {
         return { Resource::String::SourceResetCommandLongDescription };
+    }
+
+    void SourceResetCommand::Complete(Context& context, Args::Type valueType) const
+    {
+        if (valueType == Args::Type::SourceName)
+        {
+            context <<
+                Workflow::CompleteSourceName;
+        }
     }
 
     std::string SourceResetCommand::HelpLink() const

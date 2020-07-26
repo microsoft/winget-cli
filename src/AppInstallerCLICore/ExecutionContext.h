@@ -7,6 +7,7 @@
 #include <Manifest/Manifest.h>
 #include "ExecutionReporter.h"
 #include "ExecutionArgs.h"
+#include "CompletionData.h"
 
 #include <filesystem>
 #include <map>
@@ -51,6 +52,7 @@ namespace AppInstaller::CLI::Execution
         InstallerPath,
         LogPath,
         InstallerArgs,
+        CompletionData,
         Max
     };
 
@@ -114,6 +116,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::InstallerArgs>
         {
             using value_t = std::string;
+        };
+
+        template <>
+        struct DataMapping<Data::CompletionData>
+        {
+            using value_t = CLI::CompletionData;
         };
 
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.

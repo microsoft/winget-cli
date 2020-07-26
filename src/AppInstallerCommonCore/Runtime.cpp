@@ -145,7 +145,7 @@ namespace AppInstaller::Runtime
                 // In the extremely unlikely event of a failure, this is merely a sentinel value
                 // to indicated such.  The only other option is to completely prevent execution,
                 // which seems unnecessary.
-                return LocIndString{ "error" };
+                return LocIndString{ "error"sv };
             }
 
             strstr << version->Build;
@@ -171,7 +171,7 @@ namespace AppInstaller::Runtime
                 // In the extremely unlikely event of a failure, this is merely a sentinel value
                 // to indicated such.  The only other option is to completely prevent execution,
                 // which seems unnecessary.
-                return LocIndString{ "error" };
+                return LocIndString{ "error"sv };
             }
 
             std::ostringstream strstr;
@@ -182,7 +182,7 @@ namespace AppInstaller::Runtime
         else
         {
             // Calling code should avoid calling in when this is the case.
-            return LocIndString{ "none" };
+            return LocIndString{ "none"sv };
         }
     }
 

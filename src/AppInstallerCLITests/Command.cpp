@@ -141,7 +141,7 @@ struct CommandExceptionMatcher : public Catch::MatcherBase<CommandException>
 
     bool match(const CommandException& ce) const override
     {
-        return ce.Param() == m_expectedArg;
+        return ce.Param().get() == m_expectedArg;
     }
 
     std::string describe() const override
@@ -154,6 +154,15 @@ struct CommandExceptionMatcher : public Catch::MatcherBase<CommandException>
 private:
     std::string m_expectedArg;
 };
+
+namespace Catch {
+    template<>
+    struct StringMaker<CommandException> {
+        static std::string convert(CommandException const& ce) {
+            return std::string{ "CommandException{ '" } + ce.Message().get() + "', '" + ce.Param().get() + "'}";
+        }
+    };
+}
 
 #define REQUIRE_COMMAND_EXCEPTION(_expr_, _arg_)     REQUIRE_THROWS_MATCHES(_expr_, CommandException, CommandExceptionMatcher(_arg_))
 
@@ -430,6 +439,22 @@ TEST_CASE("ParseArguments_NameWithSeparatedValue", "[command]")
     command.ParseArguments(inv, args);
 
     RequireValueParsedToArg(values[1], command.m_args[2], args);
+}
+
+TEST_CASE("ParseArguments_NameWithSeparatedValueMissing", "[command]")
+{
+    Args args;
+    TestCommand command({
+            Argument{ "pos1", 'p', Args::Type::Channel, DefaultDesc, ArgumentType::Positional },
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
+            Argument{ "flag1", 'f', Args::Type::Exact, DefaultDesc, ArgumentType::Flag },
+        });
+
+    std::vector<std::string> values{ "--pos2" };
+    Invocation inv{ std::vector<std::string>(values) };
+
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[0]);
 }
 
 TEST_CASE("ParseArguments_UnknownName", "[command]")

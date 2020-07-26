@@ -23,8 +23,8 @@ namespace AppInstaller::CLI
             iterator operator--() { return { --m_arg, m_args }; }
             iterator operator--(int) { return { m_arg--, m_args }; }
 
-            bool operator==(const iterator& other) { return m_arg == other.m_arg; }
-            bool operator!=(const iterator& other) { return m_arg != other.m_arg; }
+            bool operator==(const iterator& other) const { return m_arg == other.m_arg; }
+            bool operator!=(const iterator& other) const { return m_arg != other.m_arg; }
 
             const std::string& operator*() const { return m_args[m_arg]; }
             const std::string* operator->() const { return &(m_args[m_arg]); }

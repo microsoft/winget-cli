@@ -69,6 +69,11 @@ namespace AppInstaller::Utility
         return ToLower(a) == ToLower(b);
     }
 
+    bool CaseInsensitiveStartsWith(std::string_view a, std::string_view b)
+    {
+        return a.length() >= b.length() && CaseInsensitiveEquals(a.substr(0, b.length()), b);
+    }
+
     std::string ConvertToUTF8(std::wstring_view input)
     {
         if (input.empty())

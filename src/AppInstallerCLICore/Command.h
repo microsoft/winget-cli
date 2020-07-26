@@ -26,14 +26,12 @@ namespace AppInstaller::CLI
         CommandException(Resource::LocString message, std::string_view param) : m_message(std::move(message)), m_param(param) {}
 
         const Resource::LocString& Message() const { return m_message; }
-        const Utility::LocIndView Param() const { return m_param; }
+        const Utility::LocIndString Param() const { return m_param; }
 
     private:
         Resource::LocString m_message;
-        Utility::LocIndView m_param;
+        Utility::LocIndString m_param;
     };
-
-    struct CompletionData;
 
     struct Command
     {
@@ -85,7 +83,8 @@ namespace AppInstaller::CLI
         virtual void ParseArguments(Invocation& inv, Execution::Args& execArgs) const;
         virtual void ValidateArguments(Execution::Args& execArgs) const;
 
-        virtual void Complete(Execution::Context& context, CompletionData& data) const;
+        virtual void Complete(Execution::Context& context) const;
+        virtual void Complete(Execution::Context& context, Execution::Args::Type valueType) const;
 
         virtual void Execute(Execution::Context& context) const;
 
@@ -113,26 +112,4 @@ namespace AppInstaller::CLI
 
         return result;
     }
-
-    // Data created by CompleteCommand to be consumed by other commands in order
-    // to provide context sensitive results.
-    struct CompletionData
-    {
-        CompletionData(std::string_view word, std::string_view commandLine, std::string_view position);
-
-        std::unique_ptr<Command> FindCommand(std::unique_ptr<Command>&& root);
-
-        const std::string& Word() const { return m_word; }
-        Invocation& BeforeWord() const { return *m_argsBeforeWord; }
-        Invocation& AfterWord() const { return *m_argsAfterWord; }
-        size_t Position() const { return m_position; }
-
-    private:
-        static void ParseInto(std::string_view line, std::vector<std::string>& args, bool skipFirst);
-
-        std::string m_word;
-        std::unique_ptr<CLI::Invocation> m_argsBeforeWord;
-        std::unique_ptr<CLI::Invocation> m_argsAfterWord;
-        size_t m_position = 0;
-    };
 }

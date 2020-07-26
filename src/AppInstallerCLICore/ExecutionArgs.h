@@ -105,6 +105,11 @@ namespace AppInstaller::CLI::Execution
             m_parsedArgs[arg].emplace_back(std::move(value));
         }
 
+        void AddArg(Type arg, std::string_view value)
+        {
+            m_parsedArgs[arg].emplace_back(value);
+        }
+
     private:
         std::map<Type, std::vector<std::string>> m_parsedArgs;
     };

@@ -368,8 +368,8 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         // Msi type with /silent and /log and /custom and /installlocation, no switches specified in manifest
         auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Msi_NoSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
-        context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log");
-        context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir");
+        context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
+        context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
         context.Add<Data::Installer>(manifest.Installers.at(0));
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
@@ -384,8 +384,8 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         // Msi type with /silent and /log and /custom and /installlocation, switches specified in manifest
         auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Msi_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
-        context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log");
-        context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir");
+        context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
+        context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
         context.Add<Data::Installer>(manifest.Installers.at(0));
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
@@ -414,8 +414,8 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         // Inno type with /silent and /log and /custom and /installlocation, no switches specified in manifest
         auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_NoSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
-        context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log");
-        context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir");
+        context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
+        context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
         context.Add<Data::Installer>(manifest.Installers.at(0));
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
@@ -430,8 +430,8 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         // Inno type with /silent and /log and /custom and /installlocation, switches specified in manifest
         auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
-        context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log");
-        context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir");
+        context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
+        context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
         context.Add<Data::Installer>(manifest.Installers.at(0));
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
@@ -447,9 +447,9 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
         // Override switch specified. The whole arg passed to installer is overridden.
         auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
-        context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log");
-        context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir");
-        context.Args.AddArg(Execution::Args::Type::Override, "/OverrideEverything");
+        context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
+        context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
+        context.Args.AddArg(Execution::Args::Type::Override, "/OverrideEverything"sv);
         context.Add<Data::Installer>(manifest.Installers.at(0));
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
@@ -465,7 +465,7 @@ TEST_CASE("InstallFlow_SearchAndInstall", "[InstallFlow]")
     TestContext context{ installOutput, std::cin };
     OverrideForOpenSource(context);
     OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne");
+    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne"sv);
 
     InstallCommand install({});
     install.Execute(context);
@@ -486,7 +486,7 @@ TEST_CASE("InstallFlow_SearchFoundNoApp", "[InstallFlow]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     OverrideForOpenSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnZero");
+    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnZero"sv);
 
     InstallCommand install({});
     install.Execute(context);
@@ -501,7 +501,7 @@ TEST_CASE("InstallFlow_SearchFoundMultipleApp", "[InstallFlow]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     OverrideForOpenSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnTwo");
+    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnTwo"sv);
 
     InstallCommand install({});
     install.Execute(context);
@@ -516,7 +516,7 @@ TEST_CASE("InstallFlow_SearchAndShowAppInfo", "[ShowFlow]")
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };
     OverrideForOpenSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne");
+    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne"sv);
 
     ShowCommand show({});
     show.Execute(context);
@@ -534,7 +534,7 @@ TEST_CASE("InstallFlow_SearchAndShowAppVersion", "[ShowFlow]")
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };
     OverrideForOpenSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne");
+    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne"sv);
     context.Args.AddArg(Execution::Args::Type::ListVersions);
 
     ShowCommand show({});

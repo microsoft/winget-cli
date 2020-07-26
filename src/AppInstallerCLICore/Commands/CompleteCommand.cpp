@@ -38,14 +38,39 @@ namespace AppInstaller::CLI
 
     void CompleteCommand::ExecuteInternal(Execution::Context& context) const
     {
-        CompletionData data{
-            context.Args.GetArg(Args::Type::Word),
-            context.Args.GetArg(Args::Type::CommandLine),
-            context.Args.GetArg(Args::Type::Position) };
+        try
+        {
+            // Override style to not use VT sequences for completion.
+            context.Reporter.SetStyle(Settings::VisualStyle::NoVT);
 
-        std::unique_ptr<Command> command = data.FindCommand(std::make_unique<RootCommand>());
-        AICLI_LOG(CLI, Info, << "Complete handing off to command " << command->FullName());
+            CompletionData data{
+                context.Args.GetArg(Args::Type::Word),
+                context.Args.GetArg(Args::Type::CommandLine),
+                context.Args.GetArg(Args::Type::Position) };
 
-        command->Complete(context, data);
+            std::unique_ptr<Command> command = std::make_unique<RootCommand>();
+
+            std::unique_ptr<Command> subCommand = command->FindSubCommand(data.BeforeWord());
+            while (subCommand)
+            {
+                command = std::move(subCommand);
+                subCommand = command->FindSubCommand(data.BeforeWord());
+            }
+
+            AICLI_LOG(CLI, Info, << "Complete handing off to command " << command->FullName());
+
+            context.Add<Data::CompletionData>(std::move(data));
+
+            command->Complete(context);
+        }
+        catch (const CommandException& ce)
+        {
+            AICLI_LOG(CLI, Info, << "Error encountered during completion, ignoring: " << ce.Message());
+        }
+        catch (...)
+        {
+            AICLI_LOG(CLI, Info, << "Error encountered during completion, ignoring...");
+            LOG_CAUGHT_EXCEPTION();
+        }
     }
 }
