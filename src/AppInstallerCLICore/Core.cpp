@@ -66,12 +66,12 @@ namespace AppInstaller::CLI
         }
 
         AICLI_LOG(CLI, Info, << "WinGet invoked with arguments:" << [&]() {
-                std::stringstream strstr;
-                for (const auto& arg : utf8Args)
-                {
-                    strstr << " '" << arg << '\'';
-                }
-                return strstr.str();
+            std::stringstream strstr;
+            for (const auto& arg : utf8Args)
+            {
+                strstr << " '" << arg << '\'';
+            }
+            return strstr.str();
             }());
 
         Invocation invocation{ std::move(utf8Args) };

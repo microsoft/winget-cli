@@ -29,8 +29,8 @@ namespace AppInstaller::CLI::Execution
             // Manifest selection behavior after an app is found
             Version,
             Channel,
-        	Homepage,
-        	License,
+            Homepage,
+            License,
 
             // Install behavior
             Interactive,

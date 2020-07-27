@@ -319,9 +319,17 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="ManifestHomepage" xml:space="preserve">
     <value>If the Homepage Url exists it will be opened in your default browser</value>
+    <comment>command description</comment>
   </data>
   <data name="ManifestLicense" xml:space="preserve">
     <value>If the License Url exists it will be opened in your default browser</value>
+    <comment>command description</comment>
+  </data>
+  <data name="ManifestHomepageOpening" xml:space="preserve">
+    <value>Opening Homepage Url</value>
+  </data>
+  <data name="ManifestLicenseOpening" xml:space="preserve">
+    <value>Opening License Url</value>
   </data>
   <data name="ManifestValidationWarning" xml:space="preserve">
     <value>Manifest validation succeeded with warnings.</value>
@@ -642,5 +650,16 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>Show available versions of the package</value>
+  </data>
+  <data name="UrlNotFound" xml:space="preserve">
+    <value>The requested Url was not found in the manifest</value>
+  </data>
+  <data name="ManifestHomepageDisplay" xml:space="preserve">
+    <value>Homepage Url is</value>
+    <comment>used to describe the url found as display only</comment>
+  </data>
+  <data name="ManifestLicenseDisplay" xml:space="preserve">
+    <value>License Url is</value>
+    <comment>used to describe the url found as display only</comment>
   </data>
 </root>

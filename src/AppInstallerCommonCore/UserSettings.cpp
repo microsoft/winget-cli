@@ -189,6 +189,12 @@ namespace AppInstaller::Settings
         {
             return value;
         }
+
+        std::optional<SettingMapping<Setting::BrowseOrOpenRemoteUrl>::value_t>
+            SettingMapping<Setting::BrowseOrOpenRemoteUrl>::Validate(const SettingMapping<Setting::BrowseOrOpenRemoteUrl>::json_t& value)
+        {
+            return value;
+        }
     }
 
     UserSettings::UserSettings() : m_type(UserSettingsType::Default)

@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "ShowCommand.h"
 #include "Workflows/ShowFlow.h"
-#include "Workflows/OpenUrlWorkflow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 #include "Workflows/GetRequestedUrlFromManifest.h"
@@ -66,21 +65,18 @@ namespace AppInstaller::CLI
         }
         else
         {
-        	if (context.Args.Contains(Execution::Args::Type::Homepage) || 
+            context <<
+                Workflow::GetManifest <<
+                Workflow::SelectInstaller <<
+                Workflow::ShowManifestInfo;
+
+            if (context.Args.Contains(Execution::Args::Type::Homepage) ||
                 context.Args.Contains(Execution::Args::Type::License))
-        	{
+            {
                 context <<
-                    Workflow::GetManifest <<
-                    Workflow::SelectInstaller <<
-                    Workflow::ShowManifestInfo <<
+                    Workflow::EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::BrowseOrOpenRemoteUrl) <<
                     Workflow::GetRequestedUrlFromManifest <<
                     Workflow::OpenUrlInDefaultBrowser;
-            }
-            else {
-                context <<
-                    Workflow::GetManifest <<
-                    Workflow::SelectInstaller <<
-                    Workflow::ShowManifestInfo;
             }
         }
     }

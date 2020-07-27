@@ -196,7 +196,6 @@
     <ClInclude Include="TableOutput.h" />
     <ClInclude Include="VTSupport.h" />
     <ClInclude Include="Workflows\GetRequestedUrlFromManifest.h" />
-    <ClInclude Include="Workflows\OpenUrlWorkflow.h" />
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
     <ClInclude Include="Workflows\InstallFlow.h" />
     <ClInclude Include="Workflows\ManifestComparator.h" />
@@ -227,7 +226,6 @@
     <ClCompile Include="Resources.cpp" />
     <ClCompile Include="VTSupport.cpp" />
     <ClCompile Include="Workflows\GetRequestedUrlFromManifest.cpp" />
-    <ClCompile Include="Workflows\OpenUrlWorkflow.cpp" />
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
     <ClCompile Include="Workflows\InstallFlow.cpp" />
     <ClCompile Include="Workflows\ManifestComparator.cpp" />
