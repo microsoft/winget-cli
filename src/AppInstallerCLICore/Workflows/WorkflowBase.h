@@ -2,8 +2,9 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionArgs.h"
-
 #include <winget/ExperimentalFeature.h>
+#include <AppInstallerRepositorySearch.h>
+
 #include <string>
 #include <string_view>
 
@@ -55,11 +56,39 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: SearchResult
     void SearchSourceForMany(Execution::Context& context);
 
-    // Performs a search on the source with the semantics of targeting a single application.
+    // Performs a search on the source with the semantics of targeting a single package.
     // Required Args: None
     // Inputs: Source
     // Outputs: SearchResult
     void SearchSourceForSingle(Execution::Context& context);
+
+    // Performs a search on the source with the semantics of targeting many packages,
+    // but for completion purposes.
+    // Required Args: None
+    // Inputs: Source, CompletionData
+    // Outputs: SearchResult
+    void SearchSourceForManyCompletion(Execution::Context& context);
+
+    // Performs a search on the source with the semantics of targeting a single package,
+    // but for completion purposes.
+    // Required Args: None
+    // Inputs: Source, CompletionData
+    // Outputs: SearchResult
+    void SearchSourceForSingleCompletion(Execution::Context& context);
+
+    // Searches the source for the specific field as a completion.
+    // Required Args: None
+    // Inputs: CompletionData, Source
+    // Outputs: None
+    struct SearchSourceForCompletionField : public WorkflowTask
+    {
+        SearchSourceForCompletionField(Repository::ApplicationMatchField field) : WorkflowTask("SearchSourceForCompletionField"), m_field(field) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Repository::ApplicationMatchField m_field;
+    };
 
     // Outputs the search results.
     // Required Args: None

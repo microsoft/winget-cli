@@ -145,6 +145,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 return { MatchType::Exact };
             case MatchType::CaseInsensitive:
                 return { MatchType::Exact, MatchType::CaseInsensitive };
+            case MatchType::StartsWith:
+                return { MatchType::CaseInsensitive, MatchType::StartsWith };
             case MatchType::Substring:
                 return { MatchType::Exact, MatchType::CaseInsensitive, MatchType::Substring };
             case MatchType::Wildcard:

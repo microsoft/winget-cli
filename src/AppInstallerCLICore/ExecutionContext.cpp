@@ -118,7 +118,7 @@ namespace AppInstaller::CLI::Execution
             }
         }
 
-        if (m_sendTelemetryOnTermination && !file.empty() && line)
+        if (!file.empty() && line)
         {
             Logging::Telemetry().LogCommandTermination(hr, file, line);
         }

@@ -19,17 +19,42 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void RequireCompletionWordNonEmpty(Execution::Context& context);
 
-    // Ensures the the file exists and is not a directory.
-    // Required Args: the one given
-    // Inputs: None
+    // Outputs the matched field for the results.
+    // Required Args: None
+    // Inputs: SearchResult
     // Outputs: None
-    struct CompleteWithSearchResultField : public WorkflowTask
+    void CompleteWithMatchedField(Execution::Context& context);
+
+    // Outputs the versions available for the single search result.
+    // Required Args: None
+    // Inputs: CompletionData, SearchResult
+    // Outputs: None
+    void CompleteWithSearchResultVersions(Execution::Context& context);
+
+    // Outputs the channels available for the single search result.
+    // Required Args: None
+    // Inputs: CompletionData, SearchResult
+    // Outputs: None
+    void CompleteWithSearchResultChannels(Execution::Context& context);
+
+    // Executes the appropriate completion flow for the given argument in the context of a command
+    // that targets a single manifest (ex. show or install).
+    // Required Args: None
+    // Inputs: CompletionData
+    // Outputs: None
+    struct CompleteWithSingleSemanticsForValue : public WorkflowTask
     {
-        CompleteWithSearchResultField(Repository::ApplicationMatchField field) : WorkflowTask("CompleteWithSearchResultField"), m_field(field) {}
+        CompleteWithSingleSemanticsForValue(Execution::Args::Type type) : WorkflowTask("CompleteWithSingleSemanticsForValue"), m_type(type) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        Repository::ApplicationMatchField m_field;
+        Execution::Args::Type m_type;
     };
+
+    // Outputs an empty line to indicate that there are no completions.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void CompleteWithEmptySet(Execution::Context& context);
 }

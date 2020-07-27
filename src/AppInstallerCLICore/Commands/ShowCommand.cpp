@@ -37,34 +37,8 @@ namespace AppInstaller::CLI
 
     void ShowCommand::Complete(Execution::Context& context, Execution::Args::Type valueType) const
     {
-        switch (valueType)
-        {
-        case Execution::Args::Type::Query:
-            break;
-        case Execution::Args::Type::Manifest:
-            // Intentionally output none to enable pass through to filesystem.
-            break;
-        case Execution::Args::Type::Id:
-            // TODO: replace search with a "starts with" on appropriate field(s)
-            // TODO: make CompleteWithSearchResultField work for more fields
-            context <<
-                Workflow::OpenSource <<
-                Workflow::SearchSourceForMany <<
-                Workflow::CompleteWithSearchResultField(Repository::ApplicationMatchField::Id);
-            break;
-        case Execution::Args::Type::Name:
-            break;
-        case Execution::Args::Type::Moniker:
-            break;
-        case Execution::Args::Type::Version:
-            break;
-        case Execution::Args::Type::Channel:
-            break;
-        case Execution::Args::Type::Source:
-            context <<
-                Workflow::CompleteSourceName;
-            break;
-        }
+        context <<
+            Workflow::CompleteWithSingleSemanticsForValue(valueType);
     }
 
     std::string ShowCommand::HelpLink() const

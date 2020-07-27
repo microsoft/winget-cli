@@ -188,9 +188,6 @@ namespace AppInstaller::CLI::Execution
             return std::get<details::DataIndex(D)>(itr->second);
         }
 
-        // Sets whether telemetry is sent on a termination coming in.
-        void SendTelemetryOnTermination(bool send) { m_sendTelemetryOnTermination = send; }
-
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
         virtual bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask&) { return true; }
@@ -200,7 +197,6 @@ namespace AppInstaller::CLI::Execution
         // Clone the reporter for this constructor.
         Context(Execution::Reporter& reporter) : Reporter(reporter, Execution::Reporter::clone_t{}) {}
 
-        bool m_sendTelemetryOnTermination = true;
         DestructionToken m_disableCtrlHandlerOnExit = false;
         bool m_isTerminated = false;
         HRESULT m_terminationHR = S_OK;

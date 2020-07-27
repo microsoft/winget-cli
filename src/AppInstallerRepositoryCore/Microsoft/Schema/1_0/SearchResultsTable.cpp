@@ -68,18 +68,28 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 return;
             }
 
-            std::string_view valueToUse = value;
-            std::string escapedValue;
+            std::string valueToUse;
+
             if (escapeValueForLike)
             {
-                escapedValue = SQLite::EscapeStringForLike(value);
-                valueToUse = escapedValue;
+                valueToUse = SQLite::EscapeStringForLike(value);
+            }
+            else
+            {
+                valueToUse = value;
             }
 
-            if (match == MatchType::Substring)
+            switch (match)
             {
-                escapedValue = "%"s + std::string(valueToUse) + '%';
-                valueToUse = escapedValue;
+            case AppInstaller::Repository::MatchType::StartsWith:
+                valueToUse += '%';
+                break;
+            case AppInstaller::Repository::MatchType::Substring:
+                valueToUse = "%"s + valueToUse + '%';
+                break;
+            default:
+                // No changes required for others.
+                break;
             }
 
             statement.Bind(bindIndex, valueToUse);

@@ -9,10 +9,10 @@ namespace AppInstaller::CLI
     {
         ShowCommand(std::string_view parent) : Command("show", parent) {}
 
-        virtual std::vector<Argument> GetArguments() const override;
+        std::vector<Argument> GetArguments() const override;
 
-        virtual Resource::LocString ShortDescription() const override;
-        virtual Resource::LocString LongDescription() const override;
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
 
         void Complete(Execution::Context& context, Execution::Args::Type valueType) const override;
 

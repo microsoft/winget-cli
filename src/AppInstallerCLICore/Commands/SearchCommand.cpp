@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SearchCommand.h"
+#include "Workflows/CompletionFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
@@ -33,6 +34,29 @@ namespace AppInstaller::CLI
     Resource::LocString SearchCommand::LongDescription() const
     {
         return { Resource::String::SearchCommandLongDescription };
+    }
+
+    void SearchCommand::Complete(Execution::Context& context, Execution::Args::Type valueType) const
+    {
+        switch (valueType)
+        {
+        case Execution::Args::Type::Query:
+            context <<
+                Workflow::OpenSource <<
+                Workflow::RequireCompletionWordNonEmpty <<
+                Workflow::SearchSourceForManyCompletion <<
+                Workflow::CompleteWithMatchedField;
+            break;
+        case Execution::Args::Type::Id:
+        case Execution::Args::Type::Name:
+        case Execution::Args::Type::Moniker:
+        case Execution::Args::Type::Tag:
+        case Execution::Args::Type::Command:
+        case Execution::Args::Type::Source:
+            context <<
+                Workflow::CompleteWithSingleSemanticsForValue(valueType);
+            break;
+        }
     }
 
     std::string SearchCommand::HelpLink() const

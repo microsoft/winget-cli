@@ -20,6 +20,7 @@ namespace AppInstaller::Repository
     {
         Exact,
         CaseInsensitive,
+        StartsWith,
         Substring,
         Wildcard,
         Fuzzy,
