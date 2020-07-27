@@ -1,6 +1,8 @@
-# Welcome to the Windows Package Manager Client (aka winget) repository
+# Welcome to the Windows Package Manager Client (aka winget.exe) repository
 
-This repository contains the source code for the Windows Package Manager Client (aka winget).
+This repository contains the source code for the Windows Package Manager Client (aka winget.exe).
+
+![winget install powertoys](https://github.com/.github/images/WIPowerToys.gif)
 
 The packages available to the client are in the [Community repo](https://github.com/microsoft/winget-pkgs).
 
