@@ -85,6 +85,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Manifest
     void GetManifestFromSearchResult(Execution::Context& context);
 
+    // Opens Homepage or LicenseURL in systems default browser
+    // Required Args: --homepage or --license
+    // Inputs: Manifest?,
+    // Outputs: string: Homepage Url or License Url if exist and not open in default browser
+    void OpenUrlInDefaultBrowser(Execution::Context& context);
+
     // Ensures the the file exists and is not a directory.
     // Required Args: the one given
     // Inputs: None

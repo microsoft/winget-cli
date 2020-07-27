@@ -68,6 +68,14 @@ namespace AppInstaller::CLI::Workflow
                 searchRequest.MaximumResults = std::stoi(std::string(args.GetArg(Execution::Args::Type::Count)));
             }
         }
+
+        // ShellExecutes the given Url.
+        void InvokeShellExecute(const std::string& uri)
+        {
+            AICLI_LOG(CLI, Info, << "Opening url. URI: " << uri);
+
+            ShellExecuteA(nullptr, nullptr, static_cast<LPCSTR>(uri.c_str()), nullptr, nullptr, SW_NORMAL);
+        }
     }
 
     bool WorkflowTask::operator==(const WorkflowTask& other) const
@@ -350,6 +358,27 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void OpenUrlInDefaultBrowser(Execution::Context& context)
+    {
+        if (context.Args.Contains(Execution::Args::Type::Homepage))
+        {
+            if (context.Contains(Execution::Data::HomepageUrl)) {
+                const std::string homepageUrl = context.Get<Execution::Data::HomepageUrl>();
+                if (!homepageUrl.empty()) {
+                    InvokeShellExecute(homepageUrl);
+                }
+            }
+        }
+        if (context.Args.Contains(Execution::Args::Type::License))
+        {
+            if (context.Contains(Execution::Data::LicenseUrl)) {
+                const std::string licenseUrl = context.Get<Execution::Data::LicenseUrl>();
+                if (!licenseUrl.empty()) {
+                    InvokeShellExecute(licenseUrl);
+                }
+            }
+        }
+    }
     void SelectInstaller(Execution::Context& context)
     {
         ManifestComparator manifestComparator(context.Args);
