@@ -24,12 +24,12 @@ namespace AppInstaller::CLI::Workflow
             else {
                 if (!selectedLocalization.Homepage.empty()) {
                     if (Utility::IsUrlRemote(selectedLocalization.Homepage)) {
-                        context.Reporter.Info() << Resource::String::ManifestHomepageOpening << ": " << selectedLocalization.Homepage << std::endl;
-                        context.Add<Execution::Data::HomepageUrl>(selectedLocalization.Homepage.c_str());
+                        context.Reporter.Info() << Resource::String::ShowHomepageOpeningUrl << ": " << selectedLocalization.Homepage << std::endl;
+                        context.Add<Execution::Data::ShowUrls>({ selectedLocalization.Homepage.c_str() });
                     }
                     else
                     {
-                        context.Reporter.Info() << Resource::String::ManifestHomepageDisplay << ": " << selectedLocalization.Homepage << std::endl;
+                        context.Reporter.Info() << Resource::String::ShowHomepageDisplayUrl << ": " << selectedLocalization.Homepage << std::endl;
                     }
                 }
             }
@@ -42,12 +42,12 @@ namespace AppInstaller::CLI::Workflow
             else {
                 if (!selectedLocalization.LicenseUrl.empty()) {
                     if (Utility::IsUrlRemote(selectedLocalization.LicenseUrl)) {
-                        context.Reporter.Info() << Resource::String::ManifestLicenseOpening << ": " << selectedLocalization.LicenseUrl << std::endl;
-                        context.Add<Execution::Data::LicenseUrl>(selectedLocalization.LicenseUrl.c_str());
+                        context.Reporter.Info() << Resource::String::ShowLicenseOpeningUrl << ": " << selectedLocalization.LicenseUrl << std::endl;
+                        context.Add<Execution::Data::ShowUrls>({ selectedLocalization.LicenseUrl.c_str() });
                     }
                     else
                     {
-                        context.Reporter.Info() << Resource::String::ManifestLicenseDisplay << ": " << selectedLocalization.LicenseUrl << std::endl;
+                        context.Reporter.Info() << Resource::String::ShowLicenseDisplayUrl << ": " << selectedLocalization.LicenseUrl << std::endl;
                     }
                 }
             }

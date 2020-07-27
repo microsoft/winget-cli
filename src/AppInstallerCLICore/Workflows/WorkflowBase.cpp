@@ -360,22 +360,11 @@ namespace AppInstaller::CLI::Workflow
 
     void OpenUrlInDefaultBrowser(Execution::Context& context)
     {
-        if (context.Args.Contains(Execution::Args::Type::Homepage))
-        {
-            if (context.Contains(Execution::Data::HomepageUrl)) {
-                const std::string homepageUrl = context.Get<Execution::Data::HomepageUrl>();
-                if (!homepageUrl.empty()) {
-                    InvokeShellExecute(homepageUrl);
-                }
-            }
-        }
-        if (context.Args.Contains(Execution::Args::Type::License))
-        {
-            if (context.Contains(Execution::Data::LicenseUrl)) {
-                const std::string licenseUrl = context.Get<Execution::Data::LicenseUrl>();
-                if (!licenseUrl.empty()) {
-                    InvokeShellExecute(licenseUrl);
-                }
+        if (context.Contains(Execution::Data::ShowUrls)) {
+            std::vector<std::string>& vectorOfUrls = context.Get<Execution::Data::ShowUrls>();
+            for (auto url : vectorOfUrls)
+            {
+                InvokeShellExecute(url);
             }
         }
     }

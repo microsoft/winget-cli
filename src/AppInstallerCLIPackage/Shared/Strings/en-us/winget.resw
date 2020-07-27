@@ -325,10 +325,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>If the License Url exists it will be opened in your default browser</value>
     <comment>command description</comment>
   </data>
-  <data name="ManifestHomepageOpening" xml:space="preserve">
+  <data name="ShowHomepageOpeningUrl" xml:space="preserve">
     <value>Opening Homepage Url</value>
   </data>
-  <data name="ManifestLicenseOpening" xml:space="preserve">
+  <data name="ShowLicenseOpeningUrl" xml:space="preserve">
     <value>Opening License Url</value>
   </data>
   <data name="ManifestValidationWarning" xml:space="preserve">
@@ -654,11 +654,11 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="UrlNotFound" xml:space="preserve">
     <value>The requested Url was not found in the manifest</value>
   </data>
-  <data name="ManifestHomepageDisplay" xml:space="preserve">
+  <data name="ShowHomepageDisplayUrl" xml:space="preserve">
     <value>Homepage Url is</value>
     <comment>used to describe the url found as display only</comment>
   </data>
-  <data name="ManifestLicenseDisplay" xml:space="preserve">
+  <data name="ShowLicenseDisplayUrl" xml:space="preserve">
     <value>License Url is</value>
     <comment>used to describe the url found as display only</comment>
   </data>

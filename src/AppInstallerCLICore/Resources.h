@@ -91,11 +91,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ManifestValidationSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(ManifestValidationWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(ManifestHomepage);
-        WINGET_DEFINE_RESOURCE_STRINGID(ManifestHomepageOpening);
-        WINGET_DEFINE_RESOURCE_STRINGID(ManifestHomepageDisplay);
         WINGET_DEFINE_RESOURCE_STRINGID(ManifestLicense);
-        WINGET_DEFINE_RESOURCE_STRINGID(ManifestLicenseDisplay);
-        WINGET_DEFINE_RESOURCE_STRINGID(ManifestLicenseOpening);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLicenseDisplayUrl);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLicenseOpeningUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(MissingArgumentError);
         WINGET_DEFINE_RESOURCE_STRINGID(MonikerArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(MsixArgumentDescription);
@@ -139,6 +137,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowHomepageOpeningUrl);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowHomepageDisplayUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(SilentArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SingleCharAfterDashError);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddAlreadyExistsDifferentArg);

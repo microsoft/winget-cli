@@ -48,8 +48,7 @@ namespace AppInstaller::CLI::Execution
         Manifest,
         Installer,
         HashPair,
-        HomepageUrl,
-        LicenseUrl,
+        ShowUrls,
         InstallerPath,
         LogPath,
         InstallerArgs,
@@ -101,15 +100,9 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::HomepageUrl>
+        struct DataMapping<Data::ShowUrls>
         {
-            using value_t = std::string;
-        };
-
-        template <>
-        struct DataMapping<Data::LicenseUrl>
-        {
-            using value_t = std::string;
+            using value_t = std::vector<std::string>;
         };
 
         template <>
