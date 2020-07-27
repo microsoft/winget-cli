@@ -120,6 +120,9 @@
     <ClInclude Include="Workflows\CompletionFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
+    <ClInclude Include="ChannelStreams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -205,6 +208,9 @@
     </ClCompile>
     <ClCompile Include="Workflows\CompletionFlow.cpp">
       <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="ChannelStreams.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

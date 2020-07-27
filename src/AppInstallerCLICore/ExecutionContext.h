@@ -22,8 +22,7 @@
 #define AICLI_TERMINATE_CONTEXT_ARGS(_context_,_hr_) \
     do { \
         HRESULT AICLI_TERMINATE_CONTEXT_ARGS_hr = _hr_; \
-        ::AppInstaller::Logging::Telemetry().LogCommandTermination(AICLI_TERMINATE_CONTEXT_ARGS_hr, __FILE__, __LINE__); \
-        _context_.Terminate(AICLI_TERMINATE_CONTEXT_ARGS_hr); \
+        _context_.Terminate(AICLI_TERMINATE_CONTEXT_ARGS_hr, __FILE__, __LINE__); \
         return; \
     } while(0,0)
 
@@ -150,6 +149,9 @@ namespace AppInstaller::CLI::Execution
         // The arguments given to execute with.
         Args Args;
 
+        // Creates a copy of this context as it was at construction.
+        Context Clone();
+
         // Enables reception of CTRL signals.
         // Only one context can be enabled to handle CTRL signals at a time.
         void EnableCtrlHandler(bool enabled = true);
@@ -164,7 +166,7 @@ namespace AppInstaller::CLI::Execution
         HRESULT GetTerminationHR() const { return m_terminationHR; }
 
         // Set the context to the terminated state.
-        void Terminate(HRESULT hr);
+        void Terminate(HRESULT hr, std::string_view file = {}, size_t line = {});
 
         // Adds a value to the context data, or overwrites an existing entry.
         // This must be used to create the initial data entry, but Get can be used to modify.
@@ -186,12 +188,19 @@ namespace AppInstaller::CLI::Execution
             return std::get<details::DataIndex(D)>(itr->second);
         }
 
+        // Sets whether telemetry is sent on a termination coming in.
+        void SendTelemetryOnTermination(bool send) { m_sendTelemetryOnTermination = send; }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
         virtual bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask&) { return true; }
 #endif
 
     private:
+        // Clone the reporter for this constructor.
+        Context(Execution::Reporter& reporter) : Reporter(reporter, Execution::Reporter::clone_t{}) {}
+
+        bool m_sendTelemetryOnTermination = true;
         DestructionToken m_disableCtrlHandlerOnExit = false;
         bool m_isTerminated = false;
         HRESULT m_terminationHR = S_OK;

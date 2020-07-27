@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionProgress.h"
+#include "ChannelStreams.h"
 #include "Resources.h"
 #include "VTSupport.h"
 #include <AppInstallerProgress.h>
@@ -12,6 +13,7 @@
 #include <atomic>
 #include <iomanip>
 #include <istream>
+#include <optional>
 #include <ostream>
 #include <string>
 
@@ -20,40 +22,19 @@ namespace AppInstaller::CLI::Execution
 {
 #define WINGET_OSTREAM_FORMAT_HRESULT(hr) "0x" << std::hex << std::setw(8) << std::setfill('0') << hr
 
-    namespace details
-    {
-        // List of approved types for output, others are potentially not localized.
-        template <typename T>
-        struct IsApprovedForOutput
-        {
-            static constexpr bool value = false;
-        };
-
-#define WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(_t_) \
-        template <> \
-        struct IsApprovedForOutput<_t_> \
-        { \
-            static constexpr bool value = true; \
-        }
-
-        // It is assumed that single char values need not be localized, as they are matched
-        // ordinally or they are punctuation / other.
-        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(char);
-        // Localized strings (and from an Id for one for convenience).
-        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Resource::StringId);
-        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Resource::LocString);
-        // Strings explicitly declared as localization independent.
-        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Utility::LocIndView);
-        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Utility::LocIndString);
-        // Normalized strings come from user data and should therefore already by localized
-        // by how they are chosen (or there is no localized version).
-        WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(Utility::NormalizedString);
-    }
-
     // Reporter should be the central place to show workflow status to user.
     // Todo: need to implement actual console output to show progress bar, etc
     struct Reporter : public IProgressSink
     {
+        // The channel that the reporter is targeting.
+        // Based on commands/arguments, only one of these channels can be chosen.
+        enum class Channel
+        {
+            Output,
+            Completion,
+        };
+
+        // The level for the Output channel.
         enum class Level
         {
             Verbose,
@@ -63,51 +44,17 @@ namespace AppInstaller::CLI::Execution
         };
 
         Reporter(std::ostream& outStream, std::istream& inStream);
+        Reporter(const Reporter&) = delete;
+        Reporter& operator=(const Reporter&) = delete;
+
+        Reporter(Reporter&&) = default;
+        Reporter& operator=(Reporter&&) = default;
+
+        // Request that a clone be constructed from the given reporter.
+        struct clone_t {};
+        Reporter(const Reporter& other, clone_t);
 
         ~Reporter();
-
-        // Holds output formatting information.
-        struct OutputStream
-        {
-            OutputStream(std::ostream& out, bool enableVT);
-
-            // Adds a format to the current value.
-            void AddFormat(const VirtualTerminal::Sequence& sequence);
-
-            template <typename T>
-            OutputStream& operator<<(const T& t)
-            {
-                // You've found your way here because you tried to output a type that may not localized.
-                // In order to ensure that all output is localized, only the types with specializations of
-                // details::IsApprovedForOutput above can be output.
-                // * If your string is a simple message, it should be put in
-                //      /src/AppInstallerCLIPackage/Shared/Strings/en-us/winget.resw
-                //      and referenced in /src/AppInstallerCLICore/Resources.h. Then either output the
-                //      Resource::StringId, or load it manually and output the Resource::LocString.
-                // * If your string is *definitely* localization independent, you can tag it as such with
-                //      the Utility::LocInd(View/String) types.
-                // * If your string came from outside of the source code, it is best to store it in a
-                //      Utility::NormalizedString so that it has a normalized representation. This also
-                //      informs the output that there is no localized version to use.
-                // TODO: Convert the rest of the code base and uncomment to enforce localization.
-                //static_assert(details::IsApprovedForOutput<std::decay_t<T>>::value, "This type may not be localized, see comment for more information");
-                ApplyFormat();
-                m_out << t;
-                return *this;
-            }
-
-            OutputStream& operator<<(std::ostream& (__cdecl* f)(std::ostream&));
-            OutputStream& operator<<(const VirtualTerminal::Sequence& sequence);
-
-        private:
-            // Applies the format for the stream.
-            void ApplyFormat();
-
-            std::ostream& m_out;
-            bool m_isVTEnabled;
-            size_t m_applyFormatAtOne = 1;
-            std::string m_format;
-        };
 
         // Get a stream for verbose output.
         OutputStream Verbose() { return GetOutputStream(Level::Verbose); }
@@ -121,10 +68,17 @@ namespace AppInstaller::CLI::Execution
         // Get a stream for error output.
         OutputStream Error() { return GetOutputStream(Level::Error); }
 
+        // Get a stream for outputting completion words.
+        NoVTStream Completion() { return NoVTStream(m_out, m_channel == Channel::Completion); }
+
         // Gets a stream for output of the given level.
         OutputStream GetOutputStream(Level level);
 
-        void EmptyLine() { m_out << std::endl; }
+        void EmptyLine() { GetBasicOutputStream() << std::endl; }
+
+        // Sets the channel that will be reported to.
+        // Only do this once and as soon as the channel is determined.
+        void SetChannel(Channel channel);
 
         // Sets the visual style (mostly for progress currently)
         void SetStyle(AppInstaller::Settings::VisualStyle style);
@@ -141,10 +95,7 @@ namespace AppInstaller::CLI::Execution
         template <typename F>
         auto ExecuteWithProgress(F&& f, bool hideProgressWhenDone = false)
         {
-            if (m_consoleMode.IsVTEnabled())
-            {
-                m_out << VirtualTerminal::Cursor::Visibility::DisableShow;
-            }
+            GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::DisableShow;
 
             ProgressCallback callback(this);
             SetProgressCallback(&callback);
@@ -154,12 +105,12 @@ namespace AppInstaller::CLI::Execution
                 {
                     SetProgressCallback(nullptr);
                     ShowIndefiniteProgress(false);
-                    m_progressBar.EndProgress(hideProgressWhenDone);
-
-                    if (m_consoleMode.IsVTEnabled())
+                    if (m_progressBar)
                     {
-                        m_out << VirtualTerminal::Cursor::Visibility::EnableShow;
+                        m_progressBar->EndProgress(hideProgressWhenDone);
                     }
+
+                    GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::EnableShow;
                 });
             return f(callback);
         }
@@ -171,11 +122,18 @@ namespace AppInstaller::CLI::Execution
         void CancelInProgressTask(bool force);
 
     private:
+        // Gets whether VT is enabled for this reporter.
+        bool IsVTEnabled() const;
+
+        // Gets a stream for output for internal use.
+        OutputStream GetBasicOutputStream();
+
+        Channel m_channel = Channel::Output;
         std::ostream& m_out;
         std::istream& m_in;
-        VirtualTerminal::ConsoleModeRestore m_consoleMode;
-        IndefiniteSpinner m_spinner;
-        ProgressBar m_progressBar;
+        bool m_isVTEnabled = true;
+        std::optional<IndefiniteSpinner> m_spinner;
+        std::optional<ProgressBar> m_progressBar;
         wil::srwlock m_progressCallbackLock;
         std::atomic<ProgressCallback*> m_progressCallback;
     };

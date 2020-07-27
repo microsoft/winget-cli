@@ -15,9 +15,9 @@ namespace AppInstaller
     template <typename T>
     struct ResetWhenMovedFrom
     {
-        ResetWhenMovedFrom() = default;
+        ResetWhenMovedFrom() : m_var{} {}
 
-        ResetWhenMovedFrom(T t) : m_var(t) {}
+        ResetWhenMovedFrom(T t) : m_var{ t } {}
 
         // Not copyable
         ResetWhenMovedFrom(const ResetWhenMovedFrom&) = delete;

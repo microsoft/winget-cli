@@ -173,6 +173,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Argument.h" />
+    <ClInclude Include="ChannelStreams.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="Commands\CompleteCommand.h" />
     <ClInclude Include="Commands\ExperimentalCommand.h" />
@@ -207,6 +208,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Argument.cpp" />
+    <ClCompile Include="ChannelStreams.cpp" />
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Commands\CompleteCommand.cpp" />
     <ClCompile Include="Commands\ExperimentalCommand.cpp" />

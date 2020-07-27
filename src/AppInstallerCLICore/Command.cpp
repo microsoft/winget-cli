@@ -600,7 +600,7 @@ namespace AppInstaller::CLI
             {
                 if (word.empty() || Utility::CaseInsensitiveStartsWith(command->Name(), word))
                 {
-                    context.Reporter.Info() << command->Name() << std::endl;
+                    context.Reporter.Completion() << command->Name() << std::endl;
                 }
             }
         }
@@ -609,9 +609,7 @@ namespace AppInstaller::CLI
         auto definedArgs = GetArguments();
         Argument::GetCommon(definedArgs);
 
-        Execution::Args dummyArgs;
-
-        ParseArgumentsStateMachine stateMachine{ data.BeforeWord(), dummyArgs, std::move(definedArgs) };
+        ParseArgumentsStateMachine stateMachine{ data.BeforeWord(), context.Args, std::move(definedArgs) };
 
         // We don't care if there are errors along the way, just do the best that can be done and try to
         // complete whatever would be next if the bad strings were simply ignored. To do that we just spin
@@ -635,7 +633,7 @@ namespace AppInstaller::CLI
                 {
                     if (word.length() <= 2 || Utility::CaseInsensitiveStartsWith(arg.Name(), word.substr(2)))
                     {
-                        context.Reporter.Info() << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Name() << std::endl;
+                        context.Reporter.Completion() << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Name() << std::endl;
                     }
                 }
             }
@@ -644,7 +642,7 @@ namespace AppInstaller::CLI
             {
                 for (const auto& arg : stateMachine.Arguments())
                 {
-                    context.Reporter.Info() << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << std::endl;
+                    context.Reporter.Completion() << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << std::endl;
                 }
             }
         }
@@ -660,6 +658,13 @@ namespace AppInstaller::CLI
             {
                 typeToComplete = nextPositional->ExecArgType();
             }
+        }
+
+        // To enable more complete scenarios, also attempt to parse any arguments after the word to complete.
+        // This will allow these later values to affect the result of the completion (for instance, if a specific source is listed).
+        {
+            ParseArgumentsStateMachine afterWordStateMachine{ data.AfterWord(), context.Args, stateMachine.Arguments() };
+            while (afterWordStateMachine.Step());
         }
 
         // Let the derived command take over supplying context sensitive argument value.

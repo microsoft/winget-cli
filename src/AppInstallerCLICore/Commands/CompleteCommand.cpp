@@ -40,9 +40,6 @@ namespace AppInstaller::CLI
     {
         try
         {
-            // Override style to not use VT sequences for completion.
-            context.Reporter.SetStyle(Settings::VisualStyle::NoVT);
-
             CompletionData data{
                 context.Args.GetArg(Args::Type::Word),
                 context.Args.GetArg(Args::Type::CommandLine),
@@ -57,11 +54,18 @@ namespace AppInstaller::CLI
                 subCommand = command->FindSubCommand(data.BeforeWord());
             }
 
+            // Create a new Context to execute the Complete from
+            Context subContext = context.Clone();
+
+            // Disable telemetry for this context; if we fail to complete due to strange inputs,
+            // we don't need to know that.
+            subContext.SendTelemetryOnTermination(false);
+
+            subContext.Reporter.SetChannel(Execution::Reporter::Channel::Completion);
+            subContext.Add<Data::CompletionData>(std::move(data));
+
             AICLI_LOG(CLI, Info, << "Complete handing off to command " << command->FullName());
-
-            context.Add<Data::CompletionData>(std::move(data));
-
-            command->Complete(context);
+            command->Complete(subContext);
         }
         catch (const CommandException& ce)
         {

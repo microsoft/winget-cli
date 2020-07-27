@@ -45,6 +45,12 @@ namespace AppInstaller::CLI
             // Intentionally output none to enable pass through to filesystem.
             break;
         case Execution::Args::Type::Id:
+            // TODO: replace search with a "starts with" on appropriate field(s)
+            // TODO: make CompleteWithSearchResultField work for more fields
+            context <<
+                Workflow::OpenSource <<
+                Workflow::SearchSourceForMany <<
+                Workflow::CompleteWithSearchResultField(Repository::ApplicationMatchField::Id);
             break;
         case Execution::Args::Type::Name:
             break;
