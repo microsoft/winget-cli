@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>لا تعرض أكثر من العدد المحدد من النتائج</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>تم</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>العثور على التطبيق باستخدام التطابق التام</value>
+    <value>البحث عن الحزمة باستخدام التطابق التام</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>الوسيطة التجريبية لأغراض العرض التوضيحي</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>هذا الأمر هو مثال على كيفية تنفيذ ميزة تجريبية. للتشغيل، انتقل إلى "winget settings" وقم بتمكين ميزات experimentalCmd أو experimentalArg.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>مثال لميزة تجريبية</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>تم العثور على وسيطة موضعية عند عدم توقع أي منها</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>هذه الميزة قيد التقدم، وقد يتم تغييرها بشكل كبير أو ازالتها جميعا في المستقبل. لتمكينه، قم بتحرير إعداداتك ('winget settings') لتضمين الميزة التجريبية</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>عرض حالة الميزات التجريبية. يمكن تشغيل الميزات التجريبية عبر "winget settings".</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>عرض حالة الميزات التجريبية</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>معطّلة</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>ممكّنة</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>الميزة</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>الارتباط</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>الميزات التجريبية التالية هي قيد التقدم.
+يمكن تكوينها من خلال ملف الإعدادات 'winget settings'.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>الخاصية</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>الحالة</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>الملف المطلوب تجزئته</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>لا يمكن أن تحتوي وسيطة العلامة على قيمة مجاورة</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>استبعاد الأمر بدون مطالبات</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>يقوم بحساب تجزئة الملف المحلي، المناسب للإدخال في بيان التطبيق.  يمكنه أيضاً حساب تجزئة ملف التوقيع لحزمة MSIX لتمكين تثبيتات دفق البيانات.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft غير مسؤولة عن حزم الجهات الأخرى، ولا تمنح أي تراخيص لها.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>يتم توفير هذه الحزمة من خلال Microsoft Store. قد تحتاج winget إلى الحصول على الحزمة من Microsoft Store بالنيابة عن المستخدم الحالي.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>يتعذر تثبيت التطبيق ، لأنه يتطلب إصدارا أحدث من Windows:</value>
+    <value>يتعذر تثبيت الحزمة ، لأنها تتطلب إصدارا أحدث من Windows:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>يقوم بتثبيت التطبيق المحدد، الذي يتم العثور عليه إما من خلال البحث في مصدر مكون أو مباشرة من بيان التطبيق.</value>
+    <value>تثبيت الحزمة المحددة، إما عن طريق البحث في مصدر تم تكوينه أو من بيان بشكل مباشر. افتراضيًا، يجب أن يتطابق الاستعلام دون حساسية لحالة الأحرف مع معرّف الحزمة أو اسمها أو مسار ارتباطها. يمكن استخدام الحقول الأخرى من خلال تمرير خيارها المناسب.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>لتثبيت التطبيق المعني</value>
+    <value>تثبيت الحزمة المعنية</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>تجزئة المثبّت غير متطابقة. لا يمكن تجاوز ذلك عند التشغيل كمسؤول</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>تجزئة المثبّت غير متطابقة، تتم الآن المتابعة نظراً لوجود --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>تجزئه المثبت غير متطابقة. لتجاوز هذا التحقق استخدم --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>تم التحقق من تجزئة المثبّت بنجاح</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>تم التثبيت بنجاح</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>يتم الآن البدء في تثبيت حزمة...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>تجاوز التحقق من تجزئة المثبت</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>طلب التثبيت التفاعلي؛ قد يكون إدخال المستخدم مطلوباً</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>المسار إلى بيان التطبيق</value>
+    <value>المسار إلى بيان الحزمة</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>فشل التحقق من صحة بيان التطبيق.</value>
@@ -252,7 +324,7 @@
     <value>قيمة الوسيطة مطلوبة، ولكن لم يتم العثور على شيء</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>تصفية النتائج حسب مسار الارتباط الخاص بالتطبيق</value>
+    <value>تصفية النتائج حسب مسار الارتباط</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>سيتم معاملة ملف الإدخال على أنه msix; وسيتم توفير التوقيع الإحداثي إذا تم التوقيع</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>فشل حساب تجزئة توقيع MSIX.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>فشل تثبيت حزمة Microsoft Store لأن التطبيق المحدد تم حظره بواسطة النهج</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>فشل تثبيت حزمة Microsoft Store. رمز الخطأ:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>فشل التحقق من/طلب الحصول على الحزمة: خطأ في الشبكة</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>فشل التحقق من/طلب الحصول على الحزمة: لم يتم العثور على حساب store</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>فشل التحقق من/طلب الحصول على الحزمة: خطأ في الخادم</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>التحقق من/طلب نجاح الحصول على الحزمة</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>فشل تثبيت حزمة Microsoft Store لأن عميل Microsoft Store تم حظره بواسطة النهج</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>التحقق من/طلب الحصول على الحزمة...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>تم العثور على حزم متعددة متطابقة مع معايير الإدخال. الرجاء تحسين الإدخال.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>تصفية النتائج حسب الاسم</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>لا توجد أي مثبتات قابلة للتطبيق على النظام الحالي.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>لا تتوفر حالياً أي ميزات تجريبية. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>لم يتم العثور على حزمة متطابقة مع معايير الإدخال.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>لتعطيل عرض VirtualTerminal</value>
@@ -291,7 +396,7 @@
     <value>بيان الخصوصية</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>الاستعلام المستخدم للبحث عن أحد التطبيقات</value>
+    <value>الاستعلام المستخدم للبحث عن إحدى الحزم</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>تقدم عرض ألوان قوس قزح</value>
@@ -303,10 +408,26 @@
     <value>تقدم العرض كلون افتراضي</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>يبحث عن التطبيقات من المصادر المكونة.</value>
+    <value>البحث عن الحزم من المصادر المكونة.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>البحث عن المعلومات الأساسية للتطبيقات وعرضها</value>
+    <value>البحث عن المعلومات الأساسية للحزم وعرضها</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>المعرّف</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>التطابق</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>الاسم</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>تم اقتطاع إدخالات إضافية بسبب حد النتائج</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>الإصدار</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>تم العثور على حالات الفشل التالية أثناء التحقق من صحة الإعدادات:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>خطأ غير متوقع أثناء تحميل الإعدادات. الرجاء التحقق من الإعدادات من خلال تشغيل أمر الإعدادات.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>القناة</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>لإظهار المعلومات الخاصة بتطبيق محدد.</value>
+    <value>عرض معلومات حول حزمة معينة. افتراضيًا، يجب أن يتطابق الاستعلام دون حساسية لحالة الأحرف مع معرّف الحزمة أو اسمها أو مسار ارتباطها. يمكن استخدام الحقول الأخرى من خلال تمرير خيارها المناسب.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>عرض معلومات حول أحد التطبيقات</value>
+    <value>عرض معلومات حول إحدى الحزم</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>الإصدار</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>طلب التثبيت غير المراقب</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>يحدث الاسم المستعار فقط لحرف واحد بعد واحد -</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>يوجد بالفعل مصدر بالاسم المحدد ويشير إلى موقع مختلف:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>يوجد بالفعل مصدر باسم مختلف لهذا الموقع:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>يوجد بالفعل مصدر يحمل الاسم المحدد وهو يشير إلى الموقع نفسه:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>تتم الآن إضافة مصدر:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>إضافة مصدر جديد؛ يوفر المصدر البيانات لك حتى تتمكن من اكتشاف التطبيقات وتثبيتها. لا تضيف مصدر جديد إلا إذا كنت تثق فيه كموقع آمن.</value>
+    <value>إضافة مصدر جديد. يوفر المصدر البيانات لك حتى تتمكن من اكتشاف الحزم وتثبيتها. لا تقم بإضافة مصدر جديد إلا إذا كنت تثق فيه كموقع آمن.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>إضافة مصدر جديد</value>
@@ -342,13 +481,17 @@
     <value>الوسيطة المعطاة للمصدر</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>العثور على التطبيق باستخدام مصدر معين</value>
+    <value>العثور على حزمة باستخدام مصدر معين</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>إدارة المصادر باستخدام الأوامر الفرعية.  يوفر المصدر البيانات حتى تتمكن من اكتشاف التطبيقات وتثبيتها. لا تضيف مصدر جديد إلا إذا كنت تثق فيه كموقع آمن.</value>
+    <value>إدارة المصادر باستخدام الأوامر الفرعية. مصدر يوفر لك البيانات لاكتشاف الحزم وتثبيتها. لا تقم بإضافة مصدر جديد إلا إذا كنت تثق فيه كموقع آمن.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>إدارة مصادر التطبيقات</value>
+    <value>إدارة مصادر الحزم</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>وسيطة</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>سرد لجميع المصادر الحالية أو التفاصيل الكامل لمصدر معين.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>سرد المصادر الحالية</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>البيانات</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>الحقل</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>الاسم</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>لم يتم العثور على مصدر مسمى:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>لم يتم تكوين أي مصادر.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>النوع</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>تاريخ التحديث</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>أبداً</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>القيمة</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>اسم المصدر</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>تتم الآن إزالة كل المصادر...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>إزالة مصدر معين.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>إزالة المصادر الحالية</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>تتم الآن إزالة مصدر:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>تتم الآن إعادة ضبط كل المصادر...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>يؤدي هذا الأمر إلى إسقاط المصادر القائمة، ومن المحتمل أن يخلف بيانات محلية. بدون وجود أي وسيطة، سيتم إسقاط جميع المصادر وستتم إضافة قيم افتراضية. في حال توفير مصدر مسمى، فلن يتم إسقاط إلا هذا المصدر فقط.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>إعادة تعيين المصادر</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>فرض إعادة تعيين المصادر</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>ستتم إعادة ضبط المصادر التالية إذا تم منح خيار--force:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>تتم الآن إعادة ضبط مصدر:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>نوع المصدر</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>يتم الآن تحديث كل المصادر...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>تحديث جميع المصادر أو مصدر محدد فقط.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>تحديث المصادر الحالية</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>يتم الآن تحديث المصدر:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>تصفية النتائج حسب الترميز</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>شكراً لك على استخدام winget</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>إشعارات الجهات الأخرى</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>تعمل الأداة المساعدة لسطر الأوامر winget على تمكين تثبيت التطبيقات والحزم الأخرى من سطر الأوامر.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>عرض المعلومات العامة الخاصة بالأداة</value>
@@ -427,6 +635,6 @@
     <value>استخدام إصدار محدد؛ يتم استخدام الإصدار الأخير تلقائياً</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>عرض الإصدارات المتوفرة من التطبيق</value>
+    <value>عرض الإصدارات المتوفرة من الحزمة</value>
   </data>
 </root>

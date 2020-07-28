@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Rādīt ne vairāk par norādīto rezultātu skaitu</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Gatavs</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Atrast programmu, izmantojot precīzu atbilstību</value>
+    <value>Atrast pakotni, izmantojot precīzu atbilstību</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Eksperimentālais arguments demonstrāciju nolūkiem</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Šī komanda ir piemērs tam, kā pareizi ieviest eksperimentālu līdzekli. Lai iespējotu, dodieties uz “winget settings” un iespējojiet līdzekļus experimentalCmd un experimentalArg.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Eksperimentālā līdzekļa piemērs</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Atrasts pozicionāls arguments, bet tāds nebija paredzēts</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Šis līdzeklis šobrīd tiek izstrādāts, un, iespējams, vēlāk to var dramatiski mainīt vai pavisam noņemt. Lai to iespējotu, rediģējiet iestatījumus (“winget settings”), lai iekļautu izmēģinājuma līdzekli</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Parāda eksperimentālo līdzekļu statusu. Eksperimentālos līdzekļus var ieslēgt, izmantojot “winget settings”.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Rāda eksperimentālo līdzekļu statusu</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Atspējots</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Iespējots</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Līdzeklis</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Saite</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Notiek tālāk norādītie eksperimentālos līdzekļi.
+Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Rekvizīts</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Statuss</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Jaucamais fails</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Karodziņa argumentam nevar pievienotas vērtības</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Izpildīt komandu bez uzvednēm</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Aprēķina lokālā faila jaucējkodu, kas piemērots ievadei manifestā. Var arī aprēķināt MSIX pakotnes paraksta faila jaucējkodu, lai iespējotu straumēšanas instalēšanu.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft neuzņemas atbildību par trešo pušu pakotnēm, kā arī nepiešķir tām licences.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Šī pakotne ir pieejama pakalpojumā Microsoft Store. Iespējams, winget pašreizējā lietotāja vārdā būs nepieciešams iegūt pakotni no Microsoft Store.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Nevar instalēt lietojumprogrammu, jo tai ir nepieciešama jaunāka Windows versija:</value>
+    <value>Nevar instalēt pakotni, jo tam ir nepieciešama jaunāka Windows versija:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Instalē atlasīto lietojumprogrammu, kas atrasta, meklējot konfigurēto avotu vai tieši no manifesta.</value>
+    <value>Instalē atlasīto pakotni, kas atrasta, vai nu meklējot konfigurētu avotu, vai tieši no manifesta. Pēc noklusējuma vaicājumam ir jābūt reģistrnejutīgai atbilstībai ar pakotnes ID, nosaukumu vai pavārdu. Citi lauki var tikt izmantoti, nododot tiem atbilstošo opciju.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Instalē norādīto programmu</value>
+    <value>Instalē norādīto pakotni</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Instalētāja jaukšana neatbilst; to nevar ignorēta, ja darbojas kā administrators</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Instalētāja jaukšana neatbilst; notiek argumenta --force dēļ</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Instalētāja jaukšana neatbilst; lai ignorētu šo pārbaudi izmantojiet argumentu --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Veiksmīgi pārbaudīta instalētāja jaukšana</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Sekmīgi instalēts</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Instalē pakotni...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Ignorēt instalētāja jaucējkoda pārbaudi</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Pieprasīt interaktīvu instalēšanu; var būt nepieciešama lietotāja ievade</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Ceļš uz programmas manifestu</value>
+    <value>Ceļš uz pakotnes manifestu</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Neizdevās validēt manifestu.</value>
@@ -252,7 +324,7 @@
     <value>Argumenta vērtība ir obligāta, bet netika atrasta</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Filtrēt rezultātus pēc programmas pavārda</value>
+    <value>Filtrēt rezultātus pēc pavārda</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Ievades fails tiks uzskatīts par msix; paraksta jaukšana tiks nodrošināta, ja ir parakstīts</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Neizdevās aprēķināt MSIX paraksta jaucējkodu.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Neizdevās instalēt Microsoft Store pakotni, jo konkrēto programmu bloķē politika</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Neizdevās instalēt Microsoft Store pakotni. Kļūdas kods:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Pakotnes iegūšanas pārbaude/pieprasīšana neizdevās: tīkla kļūda</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Pakotnes iegūšanas pārbaude/pieprasīšana neizdevās: nav atrasts neviens krātuves konts</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Pakotnes iegūšanas pārbaude/pieprasīšana neizdevās: servera kļūda</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Pakotnes iegādes pārbaude/pieprasīšana sekmīga</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Neizdevās instalēt Microsoft Store pakotni, jo Microsoft Store klientu bloķē politika</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Tiek veikta pakotnes iegādes pārbaude/pieprasīšana...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Atrastas vairākas pakotnes, kas atbilstu ievades kritērijiem. Lūdzu, precizējiet ievadi.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtrēt rezultātus pēc nosaukuma</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Pašreizējai sistēmai nav lietojama neviena instalēšanas programma.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Pašlaik nav pieejami izmēģinājuma līdzekļi. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Nav atrasta pakotne, kas atbilstu ievades kritērijiem.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Atspējo VirtualTerminal displeju</value>
@@ -291,7 +396,7 @@
     <value>Paziņojums par konfidencialitāti</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Vaicājums, kas izmantots programmas meklēšanai</value>
+    <value>Vaicājums, kas izmantots pakotnes meklēšanai</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Norise rāda varavīksnes krāsas</value>
@@ -303,10 +408,26 @@
     <value>Norises attēlojums kā noklusējuma krāsa</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Meklē lietojumprogrammas no konfigurētajiem avotiem.</value>
+    <value>Meklē pakotnes no konfigurētajiem avotiem.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Atrast un parādīt pamatinformāciju par programmām</value>
+    <value>Atrast un parādīt pamatinformāciju par pakotnēm</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>ID</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Atbilstība</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Nosaukums</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>papildu ievadnes aprautas rezultātu ierobežojuma dēļ</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Versija</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Iestatījumu validēšanai tika konstatētas šādas kļūmes:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Ielādējot iestatījumus, radās neparedzēta kļūda. Lūdzu, pārbaudiet savus iestatījumus, izpildot komandu iestatījumi.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Kanāls</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Rāda informāciju par konkrētu programmu.</value>
+    <value>Rāda informāciju par noteiktu pakotni. Pēc noklusējuma vaicājumam ir jābūt reģistrnejutīgai atbilstībai ar pakotnes ID, nosaukumu vai pavārdu. Citi lauki var tikt izmantoti, nododot tiem atbilstošo opciju.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Rāda informāciju par programmu</value>
+    <value>Rāda informāciju par pakotni</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Versija</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Pieprasīt kluso instalēšanu</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Tikai vienas rakstzīmes aizstājvārds var būt pēc viena</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Avots ar norādīto nosaukumu jau pastāv un norāda uz citu atrašanās vietu:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Avots ar citu nosaukumu jau attiecas uz šo atrašanās vietu:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Avots ar norādīto nosaukumu jau pastāv un attiecas uz to pašu atrašanās vietu:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Avota pievienošana:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Pievienot jaunu avotu. Avots nodrošina jums datus, kas ļauj atklāt un instalēt programmas. Pievienojiet jaunu avotu tikai tad, ja uzticaties tam, ka tā ir droša atrašanās vieta.</value>
+    <value>Pievienot jaunu avotu. Avots nodrošina jums datus, kas ļauj atklāt un instalēt pakotnes. Pievienojiet jaunu avotu tikai tad, ja uzticaties tam, ka tā ir droša atrašanās vieta.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Pievienot jaunu avotu</value>
@@ -342,13 +481,17 @@
     <value>Avotam piešķirtais arguments</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Atrast programmu, izmantojot norādīto avotu</value>
+    <value>Atrast pakotni, izmantojot norādīto avotu</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Pārvaldīt avotus, izmantojot apakškomandas. Avots nodrošina jums datus, kas ļauj atklāt un instalēt programmas. Pievienojiet jaunu avotu tikai tad, ja uzticaties tam, ka tā ir droša atrašanās vieta.</value>
+    <value>Pārvaldīt avotus, izmantojot apakškomandas. Avots nodrošina jums datus, kas ļauj atklāt un instalēt pakotnes. Pievienojiet jaunu avotu tikai tad, ja uzticaties, ka tā ir droša atrašanās vieta.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Pārvaldīt programmu avotus</value>
+    <value>Pārvaldīt avotu pakotnes</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Arguments</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Uzskaitīt visus pašreizējos avotus vai pilnu detalizēto informāciju par konkrētu avotu.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Uzskaitīt pašreizējos avotus</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Dati</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Lauks</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Nosaukums</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Neatradām avotu ar nosaukumu:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Avoti nav konfigurēti.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Tips</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Atjaunināts</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>nekad</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Vērtība</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Avota nosaukums</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Noņem visus avotus...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Noņem konkrētu avotu.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Noņemt pašreizējos avotus</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Avota noņemšana:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Atiestata visus avotus...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Šī komanda atmet esošos avotus, iespējams, zaudējot visus lokālos datus. Bez argumentiem tā atmet visus avotus un pievieno noklusējumus. Ja tiek nodrošināts nosaukts avots, tiek atmests tikai šis avots.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Atiestatīt avotus</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Veic piespiedu avotu atiestatīšanu</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Tālāk norādītie avoti tiks atiestatīti, ja ir norādīta argumenta --force opcija:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Avota atiestatīšana:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Avota tips</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Atjauno visus avotus...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Atjaunināt visus avotus vai tikai konkrētu avotu.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Atjaunināt pašreizējos avotus</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Avota atjaunošana:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtrēt rezultātus pēc atzīmes</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Paldies, ka izmantojat winget</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Trešo pušu paziņojumi</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Komandrindas utilīta winget ļauj instalēt programmas un citas pakotnes no komandrindas.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Rādīt vispārīgu informāciju par rīku</value>
@@ -427,6 +635,6 @@
     <value>Izmantot norādīto versiju; noklusējums ir jaunākā versija</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Rādīt programmas pieejamās versijas</value>
+    <value>Rādīt pakotnes pieejamās versijas</value>
   </data>
 </root>

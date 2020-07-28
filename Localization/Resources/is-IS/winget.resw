@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Sýna ekki fleiri en tiltekinn fjölda niðurstaðna</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Lokið</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Finna forrit með því að nota nákvæma samsvörun</value>
+    <value>Finna pakka með því að nota nákvæma samsvörun</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Tilraunafrumbreyta í kynningarskyni</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Þessi skipun er dæmi um hvernig eigi að innleiða eiginleika á tilraunastigi. Til að kveikja á honum skal fara í „winget settings“ og virkja eiginleikana experimentalCmd eða experimentalArg.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Dæmi um eiginleika á tilraunastigi</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Fann stöðufrumbreytu þegar engin var væntanleg</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Þessi eiginleiki er verk í vinnslu og gæti breyst mikið eða verið fjarlægður í framtíðinni. Til að virkja hann þarftu að breyta stillingunum þínum („winget settings“) til að bæta þessum eiginleika á tilraunastigi</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Sýnir stöðuna á eiginleikum á tilraunastigi. Hægt er að kveikja á eiginleikum á tilraunastigi í gegnum „winget settings“.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Sýnir stöðu á eiginleika á tilraunastigi</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Óvirkt</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Virkt</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Eiginleiki</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Tengill</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Eftirfarandi eiginleikar á tilraunastigi eru í vinnslu.
+Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Eiginleiki</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Staða</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Skrá sem tætt verður</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Flagg frumbreytu getur ekki innihaldið samliggjandi gildi</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Framkvæma skipunina án kvaðninga</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Reiknar tætigildi staðbundinnar skrár, sem er viðeigandi til að færa í skrá.  Það getur einnig reiknað út tætigildi undirritunarskráar með MSIX-pakka til að virkja uppsetningar straumspilunar.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft er ekki ábyrgt fyrir, né veitir það nein leyfi til, pakka þriðja aðila.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Þessi pakki er úr Microsoft Store. winget gæti þurft að nálgast pakkann frá Microsoft Store fyrir hönd núverandi notanda.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Ekki er hægt að setja upp forrit, þar sem það krefst nýrri útgáfu af Windows:</value>
+    <value>Ekki er hægt að setja upp pakkann, þar sem það krefst nýrri útgáfu af Windows:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Setur upp valið forrit, annaðhvort með því að leita í skilgreindum uppruna eða beint úr skrá.</value>
+    <value>Setur upp valinn pakka, sem annað hvort fannst með því að leita að skilgreindum uppruna eða beint úr farmskrá. Fyrirspurnin verður sjálfgefið að samsvara auðkenni, heiti eða viðurnefni pakkans án þess að greina á milli há- og lágstafa. Hægt er að nota aðra reiti með því að senda viðeigandi valkosti þeirra.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Uppsetur forritið</value>
+    <value>Uppsetur pakkann</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Uppsetningartæting passar ekki; þessu er ekki hægt að hnekkja þegar keyrt er sem stjórnandi</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Uppsetningartæting passar ekki; haldið áfram vegna --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Uppsetningartæting passar ekki; til að hnekkja þessari athugun skal nota --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Uppsetningartæting staðfest</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Uppsetningunni er lokið</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Byrjar uppsetningu á pakka...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Hnekkja athugun á uppsetningartætingu</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Biðja um gagnvirka uppsetningu; ílag notanda kann að vera nauðsynlegt</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Slóðin á farmskrá forritsins</value>
+    <value>Slóðin á farmskrá pakkans</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Staðfesting skráar mistókst.</value>
@@ -252,7 +324,7 @@
     <value>Þörf er á frumbreytugildi en engin fannst</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Sía niðurstöður eftir viðurnefni forrits</value>
+    <value>Sía niðurstöður eftir viðurnefni</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Ílagsskrá verður meðhöndluð sem msix; tæting undirskriftar verður notuð ef undirrituð</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Ekki tókst að reikna út tætigildi MSIX-undirritunar.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Ekki tókst að setja upp Microsoft Store-pakka þar sem tiltekið forrit er útilokað af reglu</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Ekki tókst að setja upp Microsoft Store-pakka. Villukóði:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Ekki tókst að sannprófa/biðja um kaup á pakka: netvilla</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Ekki tókst að sannprófa/biðja um kaup á pakka: enginn reikningur í Store fannst</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Ekki tókst að sannprófa/biðja um kaup á pakka: netþjónsvilla</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Sannprófun/beiðni um kaup á pakka tókst</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Ekki tókst að setja upp Microsoft Store-pakka vegna þess að Microsoft Store-biðlarinn er útilokaður af reglu</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Sannprófar/biður um kaup á pakka...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Margir pakkar pössuðu við innslegin skilyrði. Þrengdu skilyrðin.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Sía niðurstöður eftir heiti</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Engin uppsetningarforrit eru nothæf fyrir núverandi kerfi.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Engir eiginleikar á tilraunastigi eru tiltækir eins og er. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Enginn pakki samsvaraði innslegnum skilyrðum.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Slekkur á VirtualTerminal-skjá</value>
@@ -291,7 +396,7 @@
     <value>Yfirlýsing um persónuvernd</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Fyrirspurnin sem notuð er til að leita að forriti</value>
+    <value>Fyrirspurnin sem notuð er til að leita að pakka</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Framvinduskjár í fjölda lita</value>
@@ -303,10 +408,26 @@
     <value>Framvinduskjár sem sjálfgefinn litur</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Leitar eftir forritum í skilgreindum uppruna.</value>
+    <value>Leitar eftir pökkum í skilgreindum uppruna.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Finna og sýna grunnupplýsingar forrita</value>
+    <value>Finna og sýna grunnupplýsingar pakka</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>Auðkenni</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Samsvörun</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Heiti</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>fleiri færslur stýfðar vegna takmarkana á niðurstöðum</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Útgáfa</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Eftirfarandi villur fundust við að villuleita stillingarnar:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Óvænt villa við hleðslu stillinga. Staðfestu stillingarnar með því að keyra stillingaskipunina.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Rás</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Sýnir upplýsingar um tiltekið forrit.</value>
+    <value>Sýnir upplýsingar um tiltekinn pakka. Fyrirspurnin verður sjálfgefið að samsvara auðkenni, heiti eða viðurnefni pakkans án þess að greina á milli há- og lágstafa. Hægt er að nota aðra reiti með því að senda viðeigandi valkosti þeirra.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Sýnir upplýsingar um forrit</value>
+    <value>Sýnir upplýsingar um pakka</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Útgáfa</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Biðja um þögla uppsetningu</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Aðeins getur samnefni fyrir einn staf komið á eftir eitt -</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Uppruni með uppgefið heiti er þegar til og vísar á aðra staðsetningu:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Uppruni með öðru heitinu vísar nú þegar í þennan stað:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Uppruni með uppgefið heiti er þegar til og vísar á sömu staðsetningu:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Bætir við uppruna:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Bæta við nýjum uppruna. Uppruni veitir þér gögn svo þú getir uppgötvað og sett upp forrit. Bættu aðeins við nýjum uppruna ef þú treystir því að hann sé örugg staðsetning.</value>
+    <value>Bæta við nýjum uppruna. Uppruni veitir þér gögn svo þú getir uppgötvað og sett upp pakka. Bættu aðeins við nýjum uppruna ef þú treystir því að hann sé örugg staðsetning.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Bæta við nýjum uppruna</value>
@@ -342,13 +481,17 @@
     <value>Frumbreyta sem upprunanum er gefin</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Finna forrit með því að nota tilgreindan uppruna</value>
+    <value>Finna pakka með því að nota tilgreindan uppruna</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Stjórna uppruna með undirskipunum. Uppruni veitir þér gögn svo þú getir uppgötvað og sett upp forrit. Bættu aðeins við nýjum uppruna ef þú treystir því að hann sé örugg staðsetning.</value>
+    <value>Stjórna uppruna með undirskipunum. Uppruni veitir þér gögn svo þú getir uppgötvað og sett upp pakka. Bættu aðeins við nýjum uppruna ef þú treystir því að hann sé örugg staðsetning.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Stjórna uppruna forrita</value>
+    <value>Stjórna uppruna pakka</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Frumbreyta</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Listi yfir alla gildandi uppruna, eða allar upplýsingar um tiltekinn uppruna.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Skrá núverandi uppruna</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Gögn</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Svæði</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Heiti</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Uppruni finnst ekki með heitinu:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Engir upprunar eru grunnstilltir.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Gerð</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Uppfært</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>aldrei</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Gildi</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Heiti upprunans</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Fjarlægir alla uppruna...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Fjarlægja tiltekinn uppruna.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Fjarlægja núverandi uppruna</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Fjarlægir uppruna:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Endurstillir alla uppruna...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Þessi skipun lækkar núgildandi uppruna, sem gæti skilið staðbundin gögn eftir. Án frumbreyta mun það lækka alla uppruna og bæta sjálfgildunum við. Ef nefndur uppruni er gefinn upp mun aðeins sá uppruni verða lækkaður.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Endurstilla heimildir</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Þvingar endurstillingu uppruna</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Eftirfarandi upprunar verða endurstilltir ef valkosturinn --force er gefinn upp:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Endurstillir uppruna:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Gerð upprunans</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Uppfærir alla uppruna...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Uppfæra alla uppruna, eða aðeins tiltekinn uppruna.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Uppfæra núverandi uppruna</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Uppfærir uppruna:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Sía niðurstöður eftir merki</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Takk fyrir að nota WinGet</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Tilkynningar þriðju aðila</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Winget-skipanalínubúnaðurinn gerir það kleift að setja upp forrit of aðra pakka úr skipanalínunni.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Sýna almennar upplýsingar um verkfærið</value>
@@ -427,6 +635,6 @@
     <value>Nota tilgreinda útgáfu; sjálfgefið er nýjasta útgáfan</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Sýna tiltækar útgáfur af forritinu</value>
+    <value>Sýna tiltækar útgáfur af pakkanum</value>
   </data>
 </root>

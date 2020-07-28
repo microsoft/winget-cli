@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>ನಿಗದಿತ ಸಂಖ್ಯೆಯ ಫಲಿತಾಂಶಗಳಿಗೆ ಮೀರದಂತೆ ತೋರಿಸಿ</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>ಮುಗಿದಿದೆ</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>ನಿಖರ ಮ್ಯಾಚ್ ಬಳಸಿ ಆಪ್ ಹುಡುಕಿ</value>
+    <value>ನಿಖರ ಹೋಲಿಕೆಯನ್ನು ಬಳಸಿಕೊಂಡು ಪ್ಯಾಕೇಜ್ ಹುಡುಕಿ</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>ಪ್ರಾತ್ಯಕ್ಷಿಕೆ ಉದ್ದೇಶಗಳಿಗಾಗಿ ಪ್ರಾಯೋಗಿಕ ವಾದ</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>ಈ ಆದೇಶವು ಪ್ರಾಯೋಗಿಕ ಲಕ್ಷಣವನ್ನು ಹೇಗೆ ಅನುಷ್ಠಾನಗೊಳಿಸುವುದು ಎಂಬುದಕ್ಕೆ ಒಂದು ಉದಾಹರಣೆಯಾಗಿದೆ. ಆನ್ ಮಾಡಲು 'winget settings' ಗೆ ಹೋಗಿ ಮತ್ತು ಪ್ರಾಯೋಗಿಕCmd ಅಥವಾ ಪ್ರಾಯೋಗಿಕArg ವೈಶಿಷ್ಟ್ಯಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>ಪ್ರಾಯೋಗಿಕ ವೈಶಿಷ್ಟ್ಯದ ಉದಾಹರಣೆ</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>ಯಾವುದನ್ನೂ ನಿರೀಕ್ಷಿಸದ ಸಂದರ್ಭದಲ್ಲಿ ಒಂದು ಸ್ಥಾನಿಕ ವಾದ ಕಂಡುಬಂದಿದೆ</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>ಈ ವೈಶಿಷ್ಟ್ಯವು ಪ್ರಗತಿಯಲ್ಲಿರುವ ಒಂದು ಕೆಲಸವಾಗಿದೆ, ಮತ್ತು ಭವಿಷ್ಯದಲ್ಲಿ ನಾಟಕೀಯವಾಗಿ ಬದಲಾಯಿಸಬಹುದು ಅಥವಾ ಸಂಪೂರ್ಣವಾಗಿ ತೆಗೆದುಹಾಕಬಹುದು. ಇದನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲು, ಪ್ರಾಯೋಗಿಕ ವೈಶಿಷ್ಟ್ಯಗಳನ್ನು ಸೇರಿಸಲು ನಿಮ್ಮ ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ('winget settings') ಸಂಕಲನ ಮಾಡಿ</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>ಪ್ರಾಯೋಗಿಕ ವೈಶಿಷ್ಟ್ಯಗಳನ್ನು ನ ಸ್ಥಿತಿಯನ್ನು ತೋರಿಸುತ್ತದೆ. ಪ್ರಾಯೋಗಿಕ ವೈಶಿಷ್ಟ್ಯಗಳನ್ನು ್ಲಿ 'winget settings' ಮೂಲಕ ಆನ್ ಮಾಡಬಹುದು.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>ಪ್ರಾಯೋಗಿಕ ವೈಶಿಷ್ಟ್ಯಗಳ ಸ್ಥಿತಿಯನ್ನು ತೋರಿಸುತ್ತದೆ</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>ವೈಶಿಷ್ಟ್ಯ</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>ಲಿಂಕ್</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>ಮುಂದಿನ ಪ್ರಾಯೋಗಿಕ ವೈಶಿಷ್ಟ್ಯಗಳು ಪ್ರಗತಿಯಲ್ಲಿವೆ.
+ಅವುಗಳನ್ನು 'winget settings' ಫೈಲ್ ಮೂಲಕ ಕಾನ್ಫಿಗರ್ ಮಾಡಬಹುದು.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>ಗುಣಲಕ್ಷಣ</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>ಸ್ಥಿತಿ</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>ಫೈಲ್ ಅನ್ನು ಹ್ಯಾಶ್ ಮಾಡಬೇಕು</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>ಫ್ಲ್ಯಾಗ್ ವಾದವು ಒಂದು ಪಕ್ಕದ ಮೌಲ್ಯವನ್ನು ಒಳಗೊಂಡಿರುವಂತಿಲ್ಲ</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>ಪ್ರಾಂಪ್ಟ್‌ಗಳು ಇಲ್ಲದೆಯೇ ಕಮಾಂಡ್ ಅನ್ನು ಜಾರಿಗೊಳಿಸಿ</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>ಸ್ಥಳೀಯ ಫೈಲ್‍ನ ಹ್ಯಾಶ್ ಅನ್ನು ಲೆಕ್ಕಮಾಡುತ್ತದೆ, ಮ್ಯಾನಿಫೆಸ್ಟ್‌ನಲ್ಲಿ ನಮೂದಿಗೆ ಸೂಕ್ತವಾಗಿದೆ. ಸ್ಟ್ರೀಮಿಂಗ್ ಸ್ಥಾಪನೆಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲು MSIX ಪ್ಯಾಕೇಜ್‍ನ ಸಹಿ ಫೈಲ್‍ನ ಹ್ಯಾಶ್ ಅನ್ನು ಕ್ೂಡ ಅದು ಲೆಕ್ಕ ಮಾಡಬಹುದು.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>ಮೂರನೆಯ ಪಕ್ಷದ ಪ್ಯಾಕೇಜ್‍ಗಳಿಗೆ Microsoft ಜವಾಬ್ದಾರನಲ್ಲ ಅಥವಾ ಅದು ಮೂರನೆಯ ಪಕ್ಷದ ಪ್ಯಾಕೇಜ್‍ಗಳಿಗೆ ಪರವಾನಗಿ ನೀಡುವುದಿಲ್ಲ.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>ಈ ಪ್ಯಾಕೇಜ್ ಅನ್ನು Microsoft Store ಮೂಲಕ ಒದಗಿಸಲಾಗುತ್ತದೆ. winget ಪ್ರಸ್ತುತ ಬಳಕೆದಾರರ ಪರವಾಗಿ Microsoft Store ನಿಂದ ಪ್ಯಾಕೇಜ್ ಅನ್ನು ಸ್ವಾಧೀನಪಡಿಸಿಕೊಳ್ಳುವ ಅಗತ್ಯವಿರಬಹುದು.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>ಅಪ್ಲಿಕೇಶನ್ ಸ್ಥಾಪಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ, ಏಕೆಂದರೆ ಇದಕ್ಕೆ Windows ನ ಉನ್ನತ ಆವೃತ್ತಿಯ ಅಗತ್ಯವಿದೆ:</value>
+    <value>ಪ್ಯಾಕೇಜ್ ಸ್ಥಾಪಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ, ಏಕೆಂದರೆ ಇದಕ್ಕೆ Windows ನ ಉನ್ನತ ಆವೃತ್ತಿಯ ಅಗತ್ಯವಿದೆ:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>ಕಾನ್ಫಿಗರ್ ಮಾಡಿದ ಮೂಲವನ್ನು ಶೋಧಿಸುವ ಮೂಲಕ ಅಥವಾ ನೇರವಾಗಿ ಮ್ಯಾನಿಫೆಸ್ಟ್‍ನಿಂದ ಪತ್ತೆ ಮಾಡಿದ ಆಯ್ದ ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು ಸ್ಥಾಪಿಸುತ್ತದೆ.</value>
+    <value>ಕಾನ್ಫಿಗರ್ ಮಾಡಿದ ಮೂಲವನ್ನು ಶೋಧಿಸುವ ಮೂಲಕ ಅಥವಾ ನೇರವಾಗಿ ಮ್ಯಾನಿಫೆಸ್ಟ್‌ನಿಂದ ಹುಡುಕಿದ ಪ್ಯಾಕೇಜ್ ಅನ್ನು ಸ್ಥಾಪಿಸುತ್ತದೆ. ಡೀಫಾಲ್ಟ್ ಆಗಿ, ಪ್ರಶ್ನಾವಳಿಯು ಪ್ಯಾಕೇಜ್‍ನ ಐಡಿ, ಹೆಸರು ಅಥವಾ ಮೋನಿಕರ್ ಗೆ ಹೋಲಿಕೆಯಾಗಬೇಕು. ಇತರ ಕ್ಷೇತ್ರಗಳನ್ನ ಅವುಗಳ ಸೂಕ್ತ ಆಯ್ಕೆಯನ್ನು ಪಾಸ್ ಮಾಡುವ ಮೂಲಕ ಬಳಸಬಹುದು.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>ನೀಡಲಾದ ಅಪ್ಲಿ ಅನ್ನು ಸ್ಥಾಪಿಸಿ</value>
+    <value>ನೀಡಲಾದ ಪ್ಯಾಕೇಜ್ ಅನ್ನು ಸ್ಥಾಪಿಸಿ</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>ಸ್ಥಾಪಕ ಹ್ಯಾಶ್ ಹೋಲಿಕೆಯಾಗುವುದಿಲ್ಲ; ನಿರ್ವಾಹಕರಾಗಿ ಚಲಾಯಿಸುವಾಗ ಇದನ್ನು ಓವರ್ರೈಡ್ ಮಾಡಲು ಆಗುವುದಿಲ್ಲ</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>ಸ್ಥಾಪಕ ಹ್ಯಾಶ್ ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ; --force ಕಾರಣದಿಂದ ಮುಂದುವರೆಯುತ್ತಿದೆ</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>ಸ್ಥಾಪಕ ಹ್ಯಾಶ್ ಹೋಲಿಕೆಯಾಗುವುದಿಲ್ಲ; ಈ ಗುರುತನ್ನು ಓವರ್ರೈಡ್ ಮಾಡಲು --force ಬಳಸಿ</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>ಸ್ಥಾಪಕ ಹ್ಯಾಶ್ ಅನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಪರಿಶೀಲಿಸಲಾಗಿದೆ</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>ಯಶಸ್ವಿಯಾಗಿ ಸ್ಥಾಪನೆಗೊಳಿಸಲಾಗಿದೆ!</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>ಪ್ಯಾಕೇಜ್ ಸ್ಥಾಪನೆಯನ್ನು ಪ್ರಾರಂಭಿಸುತ್ತಿದೆ...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>ಸ್ಥಾಪಕ ಹ್ಯಾಶ್ ಗುರುತನ್ನು ಓವರ್ರೈಡ್ ಮಾಡಿ</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>ಪಾರಸ್ಪರಿಕ ಸ್ಥಾಪನೆಗೆ ವಿನಂತಿಸಿ; ಬಳಕೆದಾರ ಇನ್ಪುಟ್ ಬೇಕಾಗಬಹುದು</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>ಅಪ್ಲಿಕೇಶನ್‌ನ ಮ್ಯಾನಿಫೆಸ್ಟ್ ಮಾರ್ಗ</value>
+    <value>ಪ್ಯಾಕೇಜ್‍ನ ಪ್ರಕಟಗೊಳ್ಳುವಿಕೆಗೆ ಹಾದಿ</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>ಮ್ಯಾನಿಫೆಸ್ಟ್ ಮೌಲ್ಯೀಕರಣ ವಿಫಲವಾಗಿದೆ.</value>
@@ -252,7 +324,7 @@
     <value>ವಾದ ಮೌಲ್ಯ ಅಗತ್ಯವಿದೆ, ಆದರೆ ಯಾವುದೂ ಕಂಡುಬಂದಿಲ್ಲ</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>ಮಾನಿಕೇರ್ ಪ್ರಕಾರವಾಗಿ ಫಲಿತಾಂಶಗಳನ್ನು ಫಿಲ್ಟರ್ ಮಾಡಿ</value>
+    <value>ಮೊನಿಕರ್ ಪ್ರಕಾರವಾಗಿ ಫಲಿತಾಂಶಗಳನ್ನು ಫಿಲ್ಟರ್ ಮಾಡಿ</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>ಇನ್ಪುಟ್ ಫೈಲ್ ಅನ್ನು msix ಎಂದು ಪರಿಗಣಿಸಲಾಗುವುದು; ಸಹಿ ಮಾಡಿದ್ದರೆ ಸಿಗ್ನೇಚರ್ ಹ್ಯಾಶ್ ಅನ್ನು ಒದಗಿಸಲಾಗುತ್ತದೆ</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX ಸಹಿ ಹ್ಯಾಶ್ ಲೆಕ್ಕ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>ನಿರ್ದಿಷ್ಟ ಅಪ್ಲಿಯನ್ನು ನೀತಿಯಿಂದ ನಿರ್ಬಂಧಿಸಲಾಗಿರುವ ಕಾರಣ Microsoft Store ಪ್ಯಾಕೇಜ್ ಅನ್ನು ಸ್ಥಾಪಿಸಲು ವಿಫಲವಾಗಿದೆ</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Microsoft Store ಪ್ಯಾಕೇಜ್ ಸ್ಥಾಪಿಸಲು ವಿಫಲವಾಗಿದೆ. ದೋಷ ಕೋಡ್:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>ಪ್ಯಾಕೇಜ್ ಸ್ವಾಧೀನವನ್ನು ಪರಿಶೀಲಿಸುವುದು/ವಿನಂತಿಸುವುದು ವಿಫಲವಾಗಿದೆ: ನೆಟ್‌ವರ್ಕ್ ದೋಷ</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>ಪ್ಯಾಕೇಜ್ ಸ್ವಾಧೀನವನ್ನು ಪರಿಶೀಲಿಸುವುದು/ವಿನಂತಿಸುವುದು ವಿಫಲವಾಗಿದೆ: ಯಾವುದೇ ಸಂಗ್ರಹ ಖಾತೆ ಕಂಡುಬಂದಿಲ್ಲ</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>ಪ್ಯಾಕೇಜ್ ಸ್ವಾಧೀನವನ್ನು ಪರಿಶೀಲಿಸುವುದು/ವಿನಂತಿಸುವುದು ವಿಫಲವಾಗಿದೆ: ಸರ್ವರ್ ದೋಷ</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>ಪ್ಯಾಕೇಜ್ ಸ್ವಾಧೀನ ಯಶಸ್ಸನ್ನು ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ/ವಿನಂತಿಸುತ್ತಿದೆ</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Store ಕ್ಲೈಂಟ್ ಅನ್ನು ನೀತಿಯಿಂದ ನಿರ್ಬಂಧಿಸಲಾಗಿರುವ ಕಾರಣ Microsoft Store ಪ್ಯಾಕೇಜ್ ಅನ್ನು ಸ್ಥಾಪಿಸಲು ವಿಫಲವಾಗಿದೆ</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>ಪ್ಯಾಕೇಜ್ ಸ್ವಾಧೀನವನ್ನು ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ/ವಿನಂತಿಸುತ್ತಿದೆ</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>ಇನ್‍ಪುಟ್ ಮಾನದಂಡಗಳಿಗೆ ಬಹು ಪ್ಯಾಕೇಜ್‍ಗಳು ಕಂಡುಬಂದಿವೆ. ಇನ್‍ಪುಟ್ ಅನ್ನು ದಯವಿಟ್ಟು ಸಂಸ್ಕರಿಸಿ.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>ಹೆಸರಿನ ಪ್ರಕಾರವಾಗಿ ಫಲಿತಾಂಶಗಳನ್ನು ಫಿಲ್ಟರ್ ಮಾಡಿ</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>ಪ್ರಸ್ತುತ ವ್ಯವಸ್ಥೆಗೆ ಯಾವುದೇ ಸ್ಥಾಪಕಗಳು ಅನ್ವಯಿಸುವುದಿಲ್ಲ.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>ಯಾವುದೇ ಪ್ರಾಯೋಗಿಕ ವೈಶಿಷ್ಟ್ಯಗಳು ಪ್ರಸ್ತುತ ಲಭ್ಯವಿಲ್ಲ.</value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>ಇನ್‍ಪುಟ್ ಮಾನದಂಡಗಳಿಗೆ ಯಾವುದೇ ಪ್ಯಾಕೇಜ್ ಕಂಡುಬಂದಿಲ್ಲ.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>VirtualTerminal ಪ್ರದರ್ಶನವನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸುತ್ತದೆ</value>
@@ -291,7 +396,7 @@
     <value>ಗೌಪ್ಯತೆ ಹೇಳಿಕೆ</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>ಒಂದು ಅಪ್ಲಿಗಾಗಿ ಹುಡುಕಲು ಬಳಸಲಾದ ವಿಚಾರಣೆ</value>
+    <value>ಒಂದು ಪ್ಯಾಕೇಜ್‍ಗಾಗಿ ಹುಡುಕಲು ಬಳಸಲಾದ ವಿಚಾರಣೆ</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>ಪ್ರಗತಿಯು ಬಣ್ಣಗಳ ಕಾಮನಬಿಲ್ಲನ್ನು ಪ್ರದರ್ಶಿಸುತ್ತದೆ</value>
@@ -303,10 +408,26 @@
     <value>ಡೀಫಾಲ್ಟ್ ಬಣ್ಣವಾಗಿ ಪ್ರಗತಿಯನ್ನು ಪ್ರದರ್ಶಿಸಿ</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>ಕಾನ್ಫಿಗರ್ ಮಾಡಿದ ಮೂಲಗಳಿಂದ ಅಪ್ಲಿಕೇಶನ್‍ಗಳಿಗಾಗಿ ಶೋಧಿಸುತ್ತದೆ.</value>
+    <value>ಕಾನ್ಫಿಗರ್ ಮಾಡಿದ ಮೂಲಗಳಿಂದ ಪ್ಯಾಕೇಜ್‌ಗಳಿಗಾಗಿ ಶೋಧಿಸುತ್ತದೆ.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>ಅಪ್ಲಿಗಳ ಮೂಲ ಮಾಹಿತಿಯನ್ನು ಹುಡುಕಿ ಮತ್ತು ತೋರಿಸಿ</value>
+    <value>ಪ್ಯಾಕೇಜ್‍ಗಳ ಮೂಲ ಮಾಹಿತಿಯನ್ನು ಹುಡುಕಿ ಮತ್ತು ತೋರಿಸಿ</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>Id</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>ಹೊಂದಾಣಿಕೆ</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>ಹೆಸರು</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>ಫಲಿತಾಂಶ ಮಿತಿಯ ಕಾರಣ ಹೆಚ್ಚುವರಿ ನಮೂದುಗಳನ್ನು ಮೊಟಕುಗೊಳಿಸಲಾಗಿದೆ</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>ಆವೃತ್ತಿ</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ಮೌಲ್ಯೀಕರಿಸುವಾಗ ಈ ಕೆಳಗಿನ ವೈಫಲ್ಯಗಳು ಕಂಡುಬಂದಿವೆ:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ಲೋಡ್ ಮಾಡುವಾಗ ಅನಿರೀಕ್ಷಿತ ದೋಷ. ಸೆಟ್ಟಿಂಗ್‍ಗಳ ಆದೇಶವನ್ನು ಚಲಾಯಿಸುವ ಮೂಲಕ ದಯವಿಟ್ಟು ನಿಮ್ಮ ಸೆಟ್ಟಿಂಗ್‍ಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>ಚಾನಲ್</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>ನಿರ್ದಿಷ್ಟ ಅಪ್ಲಿಕೇಶನ್‌ನಲ್ಲಿ ಮಾಹಿತಿಯನ್ನು ತೋರಿಸುತ್ತದೆ.</value>
+    <value>ನಿರ್ದಿಷ್ಟ ಪ್ಯಾಕೇಜ್‍ನಲ್ಲಿ ಮಾಹಿತಿಯನ್ನು ತೋರಿಸುತ್ತದೆ. ಡೀಫಾಲ್ಟ್ ಆಗಿ, ಪ್ರಶ್ನಾವಳಿಯು ಪ್ಯಾಕೇಜ್‍ನ ಐಡಿ, ಹೆಸರು ಅಥವಾ ಮೋನಿಕರ್ ಗೆ ಹೋಲಿಕೆಯಾಗಬೇಕು. ಇತರ ಕ್ಷೇತ್ರಗಳನ್ನ ಅವುಗಳ ಸೂಕ್ತ ಆಯ್ಕೆಯನ್ನು ಪಾಸ್ ಮಾಡುವ ಮೂಲಕ ಬಳಸಬಹುದು.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>ಒಂದು ಅಪ್ಲಿಕೇಶನ್ ಬಗ್ಗೆ ಮಾಹಿತಿಯನ್ನು ತೋರಿಸುತ್ತದೆ</value>
+    <value>ಒಂದು ಪ್ಯಾಕೇಜ್ ಬಗ್ಗೆ ಮಾಹಿತಿಯನ್ನು ತೋರಿಸುತ್ತದೆ</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>ಆವೃತ್ತಿ</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>ಶಾಂತ ಸ್ಥಾಪನೆಗೊಳಿಸಲು ಕೋರಿಕೆ</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>ಇದರ ನಂತರ ಒಂದು ಅಕ್ಷರದ ಆಲಿಯಾಸ್ ಮಾತ್ರ ಕಾಣಿಸಬಹುದು - ಸಿಂಗಲ್</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>ಕೊಟ್ಟಿರುವ ಹೆಸರಿನ ಒಂದು ಮೂಲವು ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ ಮತ್ತು ಬೇರೆ ಸ್ಥಾನವನ್ನು ಉಲ್ಲೇಖಿಸುತ್ತದೆ:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>ಬೇರೆ ಹೆಸರಿನ ಒಂದು ಮೂಲವು ಈಗಾಗಲೇ ಈ ಸ್ಥಾನವನ್ನು ಉಲ್ಲೇಖಿಸುತ್ತದೆ:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>ಕೊಟ್ಟಿರುವ ಹೆಸರಿನ ಒಂದು ಮೂಲವು ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ ಮತ್ತು ಅದೇ ಸ್ಥಾನವನ್ನು ಉಲ್ಲೇಖಿಸುತ್ತದೆ:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>ಮೂಲವನ್ನು ಸೇರಿಸುತ್ತಿದೆ:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>ಒಂದು ಹೊಸ ಮೂಲವನ್ನು ಸೇರಿಸಿ. ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ಕಂಡುಹಿಡಿಯಲು ಮತ್ತು ಅವುಗಳನ್ನು ಸ್ಥಾಪಿಸಲು ಒಂದು ಮೂಲವು ನಿಮಗೆ ಡೇಟಾವನ್ನು ಒದಗಿಸುತ್ತದೆ. ಸುರಕ್ಷಿತ ಸ್ಥಳವೆಂದು ನಿಮಗೆ ನಂಬಿಕೆಯಿದ್ದರೆ ಮಾತ್ರ ಹೊಸ ಮೂಲವನ್ನು ಸೇರಿಸಿ.</value>
+    <value>ಒಂದು ಹೊಸ ಮೂಲವನ್ನು ಸೇರಿಸಿ. ಪ್ಯಾಕೇಜ್‍ಗಳನ್ನು ಕಂಡುಹಿಡಿಯಲು ಮತ್ತು ಅವುಗಳನ್ನು ಸ್ಥಾಪಿಸಲು ಒಂದು ಮೂಲವು ನಿಮಗೆ ಡೇಟಾವನ್ನು ಒದಗಿಸುತ್ತದೆ. ಸುರಕ್ಷಿತ ಸ್ಥಳವೆಂದು ನಿಮಗೆ ನಂಬಿಕೆಯಿದ್ದರೆ ಮಾತ್ರ ಹೊಸ ಮೂಲವನ್ನು ಸೇರಿಸಿ.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>ಒಂದು ಹೊಸ ಮೂಲವನ್ನು ಸೇರಿಸಿ</value>
@@ -342,13 +481,17 @@
     <value>ಮೂಲಕ್ಕೆ ವಾದವನ್ನು ನೀಡಲಾಗಿದೆ</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>ನಿಗದಿತ ಮೂಲವನ್ನು ಬಳಸಿಕೊಂಡು ಅಪ್ಲಿಯನ್ನು ಹುಡುಕಿ</value>
+    <value>ನಿಗದಿತ ಮೂಲವನ್ನು ಬಳಸಿಕೊಂಡು ಪ್ಯಾಕೇಜ್ ಹುಡುಕಿ</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>ಹೊಸ-ಕಮಾಂಡ್‌ಗಳೊಂದಿಗೆ ಮೂಲಗಳನ್ನು ನಿರ್ವಹಿಸಿ. ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ಕಂಡುಹಿಡಿಯಲು ಮತ್ತು ಅವುಗಳನ್ನು ಸ್ಥಾಪಿಸಲು ಒಂದು ಮೂಲವು ನಿಮಗೆ ಡೇಟಾವನ್ನು ಒದಗಿಸುತ್ತದೆ. ಸುರಕ್ಷಿತ ಸ್ಥಳವೆಂದು ನಿಮಗೆ ನಂಬಿಕೆಯಿದ್ದರೆ ಮಾತ್ರ ಹೊಸ ಮೂಲವನ್ನು ಸೇರಿಸಿ.</value>
+    <value>ಉಪ-ಆದೇಶಗಳೊಂದಿಗೆ ಮೂಲಗಳನ್ನು ನಿರ್ವಹಿಸಿ. ಪ್ಯಾಕೇಜ್‍ಗಳನ್ನು ಕಂಡುಹಿಡಿಯಲು ಮತ್ತು ಅವುಗಳನ್ನು ಸ್ಥಾಪಿಸಲು ಒಂದು ಮೂಲವು ನಿಮಗೆ ಡೇಟಾವನ್ನು ಒದಗಿಸುತ್ತದೆ. ಸುರಕ್ಷಿತ ಸ್ಥಳವೆಂದು ನಿಮಗೆ ನಂಬಿಕೆಯಿದ್ದರೆ ಮಾತ್ರ ಹೊಸ ಮೂಲವನ್ನು ಸೇರಿಸಿ.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>ಅಪ್ಲಿಕೇಶನ್‌ಗಳ ಮೂಲಗಳನ್ನು ನಿರ್ವಹಿಸಿ</value>
+    <value>ಪ್ಯಾಕೇಜ್‍ಗಳ ಮೂಲಗಳನ್ನು ನಿರ್ವಹಿಸಿ</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>ವಾದ</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>ಎಲ್ಲಾ ಪ್ರಸಕ್ತ ಮೂಲಗಳು, ಅಥವಾ ನಿರ್ದಿಷ್ಟ ಮೂಲದ ಸಂಪೂರ್ಣ ವಿವರಗಳನ್ನು ಪಟ್ಟಿ ಮಾಡಿ.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>ಪ್ರಸ್ತುತ ಮೂಲಗಳನ್ನು ಪಟ್ಟಿಮಾಡಿ</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>ಡೇಟಾ</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>ಕ್ಷೇತ್ರ</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>ಹೆಸರು</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>ಹೆಸರಿಸಲಾದ ಮೂಲವನ್ನು ಹುಡುಕಲಾಗಿಲ್ಲ:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>ಕಾನ್ಫಿಗರ್ ಮಾಡಿದ ಯಾವುದೇ ಮೂಲಗಳು ಇಲ್ಲ.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>ವಿಧ</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>ಪರಿಷ್ಕರಿಸಲಾಗಿದೆ</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>ಎಂದಿಗೂ ಇಲ್ಲ</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>ಮೌಲ್ಯ</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>ಮೂಲದ ಹೆಸರು</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>ಎಲ್ಲಾ ಮೂಲಗಳನ್ನು ತೆಗೆದುಹಾಕಲಾಗುತ್ತಿದೆ...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>ಒಂದು ನಿರ್ದಿಷ್ಟ ಮೂಲವನ್ನು ತೆಗೆದುಹಾಕಿ.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>ಪ್ರಸ್ತುತ ಮೂಲಗಳನ್ನು ತೆಗೆದುಹಾಕಿ</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>ಮೂಲವನ್ನು ತೆಗೆದುಹಾಕಲಾಗುತ್ತಿದೆ:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>ಎಲ್ಲಾ ಮೂಲಗಳನ್ನು ಮರುಹೊಂದಿಸಲಾಗುತ್ತಿದೆ</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>ಅಸ್ತಿತ್ವದಲ್ಲಿರುವ ಮೂಲಗಳನ್ನು ಈ ಕಮಾಂಡ್ ಕೈಬಿಡುತ್ತದೆ, ಯಾವುದೇ ಸ್ಥಳೀಯ ಡೇಟಾವನ್ನು ಬಿಟ್ಟುಬಿಡುವ ಸಾಧ್ಯತೆಯಿದೆ. ಯಾವುದೇ ವಾದವಿಲ್ಲದೇ, ಇದು ಎಲ್ಲಾ ಮೂಲಗಳನ್ನು ಕೈಬಿಡುತ್ತದೆ ಮತ್ತು ಡೀಫಾಲ್ಟ್‌ಗಳನ್ನು ಸೇರಿಸುತ್ತದೆ. ಒಂದು ವೇಳೆ ಹೆಸರಿಸಲಾದ ಮೂಲವನ್ನು ಒದಗಿಸಿದರೆ, ಆ ಮೂಲವನ್ನು ಮಾತ್ರ ಕೈಬಿಡಲಾಗುತ್ತದೆ.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>ಮೂಲಗಳನ್ನು ಮರುಹೊಂದಿಸಿ</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>ಮೂಲಗಳ ಮರುಹೊಂದಿಸುವಿಕೆಗೆ ಒತ್ತಾಯಿಸುತ್ತದೆ</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>--force ಆಯ್ಕೆಯನ್ನು ನೀಡಿದರೆ ಈ ಕೆಳಗಿನ ಮೂಲಗಳನ್ನು ಮರುಹೊಂದಿಸಲಾಗುವುದು:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>ಮೂಲವನ್ನು ಮರುಹೊಂದಿಸುತ್ತಿದೆ:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>ಮೂಲದ ಪ್ರಾಕಾರ</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>ಎಲ್ಲಾ ಮೂಲಗಳನ್ನು ನವೀಕರಿಸಲಾಗುತ್ತಿದೆ...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>ಎಲ್ಲಾ ಮೂಲಗಳನ್ನು, ಅಥವಾ ನಿರ್ದಿಷ್ಟ ಮೂಲವನ್ನು ಮಾತ್ರ ನವೀಕರಣ ಮಾಡಿ.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>ಪ್ರಸ್ತುತ ಮೂಲಗಳನ್ನು ನವೀಕರಿಸಿ</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>ಮೂಲವನ್ನು ನವೀಕರಿಸಲಾಗುತ್ತಿದೆ:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>ಟ್ಯಾಗ್ ಪ್ರಕಾರವಾಗಿ ಫಲಿತಾಂಶಗಳನ್ನು ಫಿಲ್ಟರ್ ಮಾಡಿ</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Winget ಬಳಸಿದ್ದಕ್ಕೆ ಧನ್ಯವಾದಗಳು</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>ಮೂರನೇ ಪಕ್ಷದ ಸೂಚನೆಗಳು</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Winget ಆದೇಶ ಸಾಲಿನ ಉಪಯುಕ್ತತೆಯು ಆದೇಶ ಸಾಲಿನಿಂದ ಪ್ಯಾಕೇಜ್‍ಗಳನ್ನು ಸ್ಥಾಪಿಸಲು ಸಾಧ್ಯವಾಗಿಸುತ್ತದೆ.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>ಪರಿಕರದ ಸಾಮಾನ್ಯ ಮಾಹಿತಿಯನ್ನು ಪ್ರದರ್ಶಿಸಿ</value>
@@ -427,6 +635,6 @@
     <value>ನಿಗದಿತ ಆವೃತ್ತಿಯನ್ನು ಬಳಸಿ; ಇತ್ತೀಚಿನ ಆವೃತ್ತಿಯು ಅದರಲ್ಲಿ ಡೀಫಾಲ್ಟ್ ಆಗಿರುತ್ತದೆ</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>ಅಪ್ಲಿಯ ಲಭ್ಯವಿರುವ ಆವೃತ್ತಿಗಳನ್ನು ತೋರಿಸಿ</value>
+    <value>ಪ್ಯಾಕೇಜ್‍ನ ಲಭ್ಯವಿರುವ ಆವೃತ್ತಿಗಳನ್ನು ತೋರಿಸಿ</value>
   </data>
 </root>

@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Rodyti ne daugiau nei nurodytą rezultatų skaičių</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Atlikta</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Rasti programą naudojant tikslų atitikmenį</value>
+    <value>Rasti paketą naudojant tikslų atitikmenį</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Eksperimentinis argumentas, skirtas demonstraciniams tikslams</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Ši komanda yra pavyzdys, kaip įdiegti eksperimentinę funkciją. Norėdami įjungti, eikite į „winget settings“ ir įgalinkite funkciją experimentalCmd arba experimentalArg.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Eksperimentinės funkcijos pavyzdys</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Rastas pozicinis argumentas, kai nesitikėta</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Ši funkcija šiuo metu kuriama ir ji ateityje gali būti gerokai pakeista arba apskritai pašalinta. Norėdami ją įgalinti, redaguokite parametrus („winget settings“), kad įtrauktumėte eksperimentinę funkciją</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Rodo eksperimentinių funkcijų būseną. Eksperimentines funkcijas galima įjungti naudojant „winget settings“.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Rodo eksperimentinių funkcijų būseną</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Išjungta</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Įjungta</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Funkcija</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Susieti</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Kuriamos šios eksperimentinės funkcijos.
+Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Ypatybė</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Būsena</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Failas, kuriam reikia maišos</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Argumento žymė negali turėti prijungtos reikšmės</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Vykdyti komandą be įspėjimų</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Apskaičiuoja vietinio failo, tinkančio deklaracijos įrašui, maišą. Ji taip pat gali apskaičiuoti MSIX paketo parašo failo maišą, kad būtų galima įgalinti srautinio perdavimo diegimus.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>„Microsoft“ neatsako už trečiųjų šalių paketus ir nesuteikia jiems jokių licencijų.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Šis paketas teikiamas iš „Microsoft Store“. „winget“ gali reikėti gauti paketą iš „Microsoft Store“ dabartinio vartotojo vardu.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Negalima įdiegti programos, nes jai reikia naujesnės „Windows“ versijos:</value>
+    <value>Negalima įdiegti paketo, nes jam reikia naujesnės „Windows“ versijos:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Įdiegia pasirinktą taikomąją programą, aptiktą ieškant sukonfigūruoto šaltinio arba tiesiai iš deklaracijos.</value>
+    <value>Įdiegia pasirinktą paketą, kuris randamas ieškant sukonfigūruotame šaltinyje arba tiesiogiai iš manifesto. Pagal numatytuosius nustatymus užklausa turi atitikti (įskaitant didžiųjų ir mažųjų raidžių naudojimą) paketo ID, pavadinimą arba iškvietimo komponentą. Kitus laukus galima naudoti perduodant atitinkamą jų parinktį.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Įdiegia nurodytą programą</value>
+    <value>Įdiegia nurodytą paketą</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Diegimo programos maiša neatitinka; to negalima nepaisyti, kai vykdoma administratoriaus teisėmis</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Diegimo programos maiša nesutampa; tęsiama dėl --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Diegimo programos maiša neatitinka; norėdami to nepaisyti, naudokite --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Sėkmingai patikrinta diegimo programos maiša</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Sėkmingai įdiegta</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Pradedamas paketo diegimas...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Nepaisyti diegimo programos maišos patikros</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Prašyti interaktyvaus diegimo; gali reikėti vartotojo įvesties</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Kelias į programos manifestą</value>
+    <value>Kelias į paketo manifestą</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Deklaracijos tikrinimas nepavyko.</value>
@@ -252,7 +324,7 @@
     <value>Reikalinga, bet nerasta argumento reikšmė</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Filtruoti rezultatus pagal programos iškvietimo komponentą</value>
+    <value>Filtruoti rezultatus pagal iškvietimo komponentą</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Įvesties failas bus laikomas msix; parašo maiša bus pateikta, jei pasirašyta</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Apskaičiuoti MSIX parašo maišos nepavyko.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Nepavyko įdiegti „Microsoft Store“ paketo, nes konkrečią programą blokuoja strategija</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Nepavyko įdiegti „Microsoft Store“ paketo. Klaidos kodas:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Paketo įsigijimo tikrinimas / užklausa nepavyko: tinklo klaida</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Paketo įsigijimo tikrinimas / užklausa nepavyko: parduotuvės paskyra nerasta</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Paketo įsigijimo tikrinimas / užklausa nepavyko: serverio klaida</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Paketo įsigijimo tikrinimas / užklausa pavyko</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Nepavyko įdiegti „Microsoft Store“ paketo, nes „Microsoft Store“ klientą blokuoja strategija</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Tikrinamas / užklausiamas paketo įsigijimas...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Aptikti keli paketai, atitinkantys įvesties kriterijus. Patikslinkite įvestį.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtruoti rezultatus pagal pavadinimą</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Nėra diegimo programų, kurios taikomos esamai sistemai.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Šiuo metu pasiekiamų eksperimentinių funkcijų nėra.</value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Įvesties kriterijus atitinkančių paketų nerasta.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Išjungia „VirtualTerminal“ rodinį</value>
@@ -291,7 +396,7 @@
     <value>Privatumo nuostatos</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Užklausa, naudojama ieškoti programos</value>
+    <value>Užklausa, naudojama ieškoti paketo</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Eigos rodymas vaivorykštės spalvomis</value>
@@ -303,10 +408,26 @@
     <value>Eigos rodymas numatytąja spalva</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Ieško taikomųjų programų konfigūruojamuose šaltiniuose.</value>
+    <value>Ieško paketų iš sukonfigūruotų šaltinių.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Pagrindinės programų informacijos radimas ir peržiūra</value>
+    <value>Pagrindinės paketų informacijos radimas ir rodymas</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>ID</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Atitiktis</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Pavadinimas</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>papildomi įrašai sutrumpinti dėl rezultatų limito</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Versija</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Patvirtinant parametrus buvo rastos šios triktys:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Įkeliant parametrus įvyko netikėta klaida. Patikrinkite parametrus vykdydami komandą Parametrai.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Kanalas</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Rodoma informacija apie tam tikrą programą.</value>
+    <value>Rodoma informacija apie konkretų paketą. Pagal numatytuosius nustatymus užklausa turi atitikti (įskaitant didžiųjų ir mažųjų raidžių naudojimą) paketo ID, pavadinimą arba iškvietimo komponentą. Perduodant atitinkamą parinktį, gali būti naudojami kiti laukai.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Rodoma informacija apie programą</value>
+    <value>Rodoma informacija apie paketą</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Versija</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Prašyti tylaus diegimo</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Tik vienas simbolio pseudonimas gali būti po vieną</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Šaltinis su nurodytu pavadinimu jau yra ir nurodo kitą vietą:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Šaltinis su kitu pavadinimu jau susijęs su šia vieta:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Šaltinis su nurodytu pavadinimu jau yra ir nurodo tą pačią vietą:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Įtraukiamas šaltinis:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Įtraukite naują šaltinį. Šaltinis pateikia duomenis, kad galėtumėte rasti ir diegti programas. Įtraukite naują šaltinį tik jei pasitikite kaip saugia vieta.</value>
+    <value>Įtraukite naują šaltinį. Šaltinis pateikia duomenis, kad galėtumėte rasti ir diegti paketus. Įtraukite naują šaltinį tik jei pasitikite kaip saugia vieta.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Įtraukti naują šaltinį</value>
@@ -342,13 +481,17 @@
     <value>Šaltinyje pateikiamas argumentas</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Rasti programą naudojant nurodytą šaltinį</value>
+    <value>Paketo radimas naudojant nurodytą šaltinį</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Valdykite šaltinius naudodami papildomas komandas. Šaltinis pateikia duomenis, kad galėtumėte rasti ir diegti programas. Įtraukite naują šaltinį tik jei pasitikite kaip saugia vieta.</value>
+    <value>Valdykite šaltinius naudodami antrines komandas. Šaltinis pateikia duomenis, kad galėtumėte rasti ir diegti paketus. Įtraukite naują šaltinį tik jei pasitikite kaip saugia vieta.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Programų šaltinių valdymas</value>
+    <value>Paketų šaltinių valdymas</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Argumentas</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Išvardinti visus esamus šaltinius arba išsamią konkretaus šaltinio informaciją.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Dabartinių šaltinių sąrašas</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Duomenys</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Laukas</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Pavadinimas</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Nepavyko rasti šaltinio, kurio pavadinimas:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Nėra sukonfigūruotų šaltinių.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Tipas</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Atnaujinta</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>niekada</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Reikšmė</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Šaltinio pavadinimas</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Šalinami visi šaltiniai...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Pašalinkite konkretų šaltinį.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Pašalinti dabartinius šaltinius</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Šalinamas šaltinis:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Iš naujo nustatomi visi šaltiniai...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Ši komanda perkelia esamus šaltinius, palikdama vietinius duomenis. Be jokio argumento, ji perkels visus šaltinius ir įtrauks numatytąsias reikšmes. Jei pateikiamas įvardytas šaltinis, bus perkeltas tik tas šaltinis.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Iš naujo nustatyti šaltinius</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Verčia iš naujo nustatyti šaltinius</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Šie šaltiniai bus nustatyti iš naujo, jei pateikta parinktis --force:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Iš naujo nustatomas šaltinis:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Šaltinio tipas</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Naujinami visi šaltiniai...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Atnaujinti visus šaltinius arba tik konkretų šaltinį.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Dabartinių šaltinių naujinimas</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Naujinamas šaltinis:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtruoti rezultatus pagal žymę</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Dėkojame, kad naudojate „WinGet“</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Trečiųjų šalių pranešimai</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>„WinGet“ komandų eilutės įrankis suteikia galimybę diegti programas ir kitus paketus iš komandų eilutės.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Rodoma bendra įrankio informacija</value>
@@ -427,6 +635,6 @@
     <value>Naudoti nurodytą versiją; Numatytoji reikšmė yra naujausia versija</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Rodyti galimas programos versijas</value>
+    <value>Rodyti galimas paketo versijas</value>
   </data>
 </root>
