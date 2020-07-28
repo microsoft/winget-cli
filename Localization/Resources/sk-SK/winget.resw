@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Nezobrazovať viac ako zadaný počet výsledkov</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Hotovo</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Nájsť aplikáciu pomocou presnej zhody</value>
+    <value>Vyhľadať balík s použitím presnej zhody</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Experimentálny argument na predvádzacie účely</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Tento príkaz je príklad toho, ako implementovať experimentálne funkcie. Ak ho chcete zapnúť, prejdite do časti „winget settings“ a povoľte funkcie experimentalCmd alebo experimentalArg.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Príklad experimentálnej funkcie</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Našiel sa pozičný argument, keď sa neočakával žiaden</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Na tejto funkcii sa práve pracuje a v budúcnosti sa môže výrazne zmeniť výrazne alebo úplne odstrániť. Ak ju chcete povoliť, upravte nastavenia („winget settings“) tak, aby obsahovala experimentálnu funkciu</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Zobrazuje stav experimentálnych funkcií. Experimentálne funkcie je možné zapnúť prostredníctvom nastavení „winget settings“.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Zobrazuje stav experimentálnych funkcií</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Zakázané</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Povolené</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Funkcia</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Prepojenie</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Práve sa pracuje na experimentálnych funkciách.
+Môžu byť nakonfigurované prostredníctvom súboru „winget settings“.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Vlastnosť</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Stav</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Súbor na určenie hodnoty hash</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Argument príznaku nesmie obsahovať vedľajšiu hodnotu</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Spustiť príkaz bez výziev</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Vypočíta hodnotu hash lokálneho súboru, ktorá je vhodná pre zapísanie do manifestu. Môže tiež vypočítať hodnotu hash súboru s podpisom balíka MSIX na umožnenie inštalácií so streamovaním.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Spoločnosť Microsoft nezodpovedá za žiadne balíky tretích strán, ani na ne neudeľuje licencie.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Tento balík je poskytnutý cez Microsoft Store. winget pravdepodobne bude musieť získať balík z obchodu Microsoft Store v mene aktuálneho používateľa.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Aplikácia sa nedá nainštalovať, pretože vyžaduje novšiu verziu systému Windows:</value>
+    <value>Balík sa nedá nainštalovať, pretože vyžaduje novšiu verziu systému Windows:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Nainštaluje vybratú aplikáciu, ktorá sa buď našla vyhľadávaním v nakonfigurovanom zdroji, alebo priamo z manifestu.</value>
+    <value>Nainštaluje vybratý balík, a to buď pomocou vyhľadávania nakonfigurovaného zdroja alebo priamo z manifestu. Dotaz musí predvolene rozlišovať malé a veľké písmená a ID, meno alebo moniker balíka. Iné polia je možné použiť zadaním vhodnej možnosti.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Nainštaluje danú aplikáciu</value>
+    <value>Nainštaluje daný balík</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Hodnota hash inštalátora sa nezhoduje. Toto nie je možné prepísané pri spustení ako správcu</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Hodnota hash inštalátora sa nezhoduje; postupuje sa kvôli --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Hodnota hash inštalátora sa nezhoduje. na prepísanie tohto použitia kontroly --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Hodnota hash inštalátora sa úspešne overila</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Inštalácia prebehla úspešne</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Spúšťa sa inštalácia balíka...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Prepísať kontrolu hodnoty hash inštalátora</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Požadovať interaktívnu inštaláciu; môže sa vyžadovať vstup používateľa</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Cesta k manifestu aplikácie</value>
+    <value>Cesta k manifestu balíka</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Overenie manifestu zlyhalo.</value>
@@ -252,7 +324,7 @@
     <value>Vyžaduje sa hodnota argumentu, ale žiadna sa nenašla</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Filtrovať výsledky podľa monikera aplikácie</value>
+    <value>Filtrovať výsledky podľa monikera</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Vstupný súbor sa spracuje ako msix; hodnota hash podpisu sa poskytne, ak je podpísaný</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Nepodarilo sa vypočítať hodnota hash podpisu súboru MSIX.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Nepodarilo sa nainštalovať balík obchodu Microsoft Store, pretože konkrétnu aplikáciu blokuje politika</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Nepodarilo sa nainštalovať balík Microsoft Store. Kód chyby:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Overovanie alebo žiadosť o získanie balíka zlyhalo: chyba siete</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Overovanie alebo žiadosť o získanie balíka zlyhalo: nenašlo sa žiadne konto v obchode</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Overovanie alebo žiadosť o získanie balíka zlyhalo: chyba servera</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Overenie alebo žiadosť o získanie balíka bolo úspešné</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Nepodarilo sa nainštalovať balík obchodu Microsoft Store, pretože klienta Microsoft Store blokuje politika</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Overenie alebo žiadosť o získanie balíka...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Našlo sa viacero balíkov, ktoré zodpovedajú zadaným kritériám. Spresnite zadanie.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtrovať výsledky podľa názvu</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Na aktuálny systém nie sú použiteľné žiadne inštalačné súbory.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Momentálne nie sú k dispozícii žiadne exprimentálne funkcie. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Nenašiel sa žiadny balík zodpovedajúci zadaným kritériám.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Zakáže obrazovku VirtualTerminal</value>
@@ -291,7 +396,7 @@
     <value>Vyhlásenie o ochrane osobných údajov</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Dotaz použitý na vyhľadanie aplikácie</value>
+    <value>Dotaz použitý na vyhľadanie balíka</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Zobrazenie priebehu rôznymi farbami</value>
@@ -303,10 +408,26 @@
     <value>Zobrazenie priebehu predvolenou farbou</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Vyhľadáva aplikácie v nakonfigurovaných zdrojoch</value>
+    <value>Vyhľadáva balíky v nakonfigurovaných zdrojoch.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Vyhľadanie a zobrazenie základných informácií o aplikáciách</value>
+    <value>Vyhľadanie a zobrazenie základných informácií o balíkoch</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>ID</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Zhoda</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Názov</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>ďalšie položky sú skrátené kvôli limitu výsledku</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Verzia</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Pri overovaní nastavení sa zistili nasledujúce zlyhania:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Pri načítavaní nastavení sa vyskytla neočakávaná chyba. Skontrolujte nastavenia spustením príkazu nastavení.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Kanál</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Zobrazuje informácie o konkrétnej aplikácii.</value>
+    <value>Zobrazuje informácie o konkrétnych balíkoch. V predvolenom nastavení sa dotaz musí zhodovať (bez ohľadu na veľké a malé písmená) s ID, menom alebo monikerom balíka. Iné polia je možné použiť zadaním vhodnej možnosti.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Zobrazuje informácie o aplikácii</value>
+    <value>Zobrazuje informácie o balíku</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Verzia</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Požadovať tichú inštaláciu</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Po jednom znaku - môže nasledovať len jednoznakový alias</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Zdroj so zadaným názvom už existuje a odkazuje na iné umiestnenie:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Zdroj s iným názvom už odkazuje na toto umiestnenie:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Zdroj so zadaným názvom už existuje a odkazuje na rovnaké umiestnenie:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Pridávanie zdroja:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Pridajte nový zdroj. Zdroj poskytuje údaje, ktoré vám umožňujú objavovať a inštalovať aplikácie. Nový zdroj pridajte len v prípade, že mu dôverujete ako zabezpečenému umiestneniu.</value>
+    <value>Pridajte nový zdroj. Zdroj poskytuje údaje, ktoré vám umožňujú objavovať a inštalovať balíčky. Nový zdroj pridajte len v prípade, že mu dôverujete ako zabezpečenému umiestneniu.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Pridať nový zdroj</value>
@@ -345,10 +484,14 @@
     <value>Nájsť aplikáciu pomocou zadaného zdroja</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Spravovať zdroje s čiastkovými príkazmi. Zdroj poskytuje údaje, ktoré vám umožňujú objavovať a inštalovať aplikácie. Nový zdroj pridajte len v prípade, že mu dôverujete ako zabezpečenému umiestneniu.</value>
+    <value>Spravovať zdroje s čiastkovými príkazmi. Zdroj poskytuje údaje, ktoré vám umožňujú objavovať a inštalovať balíky. Nový zdroj pridajte len v prípade, že mu dôverujete ako zabezpečenému umiestneniu.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Spravovať zdroje aplikácií</value>
+    <value>Spravovať zdroje balíkov</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Argument</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Zobrazenie zoznamu všetkých zdrojov alebo úplných podrobností o konkrétnom zdroji.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Zobraziť zoznam aktuálnych zdrojov</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Údaje</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Pole</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Názov</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Nenašiel sa zdroj s názvom:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Nie sú nakonfigurované žiadne zdroje.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Typ</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Aktualizované</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>nikdy</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Hodnota</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Názov zdroja</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Odstraňujú sa všetky zdroje...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Odstránenie konkrétneho zdroja.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Odstrániť aktuálne zdroje</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Odstraňuje sa zdroj:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Resetujú sa všetky zdroje...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Tento príkaz zruší existujúce zdroje a prípadné lokálne údaje zostanú bezo zmeny. Bez akéhokoľvek argumentu zruší všetky zdroje a pridá predvolené. Ak sa poskytne pomenovaný zdroj, zruší sa len daný zdroj.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Resetovať zdroje</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Vynúti resetovanie zdrojov</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Nasledujúce zdroje sa obnovia, ak je zadaná možnosť --force:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Resetovanie zdroja:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Typ zdroja</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Aktualizujú sa všetky zdroje...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Aktualizácia všetkých zdrojov alebo len konkrétneho zdroja.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Aktualizovať aktuálne zdroje</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Aktualizuje sa zdroj:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtrovať výsledky podľa značky</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Ďakujeme, že používate túto miniaplikáciu</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Upozornenia tretích strán</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Pomôcka príkazového riadka winget umožňuje inštaláciu aplikácií a iných balíkov z príkazového riadka.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Zobrazenie všeobecných informácií o nástroji</value>
@@ -427,6 +635,6 @@
     <value>Použiť zadanú verziu; predvolená možnosť je najnovšia verzia</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Zobraziť dostupné verzie aplikácie</value>
+    <value>Zobraziť dostupné verzie balíka</value>
   </data>
 </root>

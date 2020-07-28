@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>顯示不超過指定數量的結果</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>完成</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>使用完全相符來尋找應用程式</value>
+    <value>以完全相符，來尋找套件</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>示範用的實驗引數</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>此命令是如何執行實驗功能的範例。若要開啟，請移至 ‘winget settings’ 並啟用 experimentalCmd 或 experimentalArg 功能。</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>實驗功能範例</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>在未預期的情況下找到位置引數</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>此功能是進行中的工作，可能會大幅變更或在未來完全移除。若要啟用它，請編輯您的設定 ([winget settings]) 以包含實驗性功能</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>顯示實驗功能的狀態。實驗功能可以透過 ‘winget settings’ 開啟。</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>顯示實驗功能的狀態</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>已停用</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>已啟用</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>功能</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>連結</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>下列實驗性功能正在運行中。
+它們可以透過設定檔案的 [ winget settings] 來設定。</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>屬性</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>狀態</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>雜湊的檔案</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>旗標引數不能包含鄰近值</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>未使用提示執行該命令</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>計算適合在資訊清單輸入的本機檔案雜湊。它也可以計算 MSIX 封裝的簽章檔案雜湊，以啟用串流安裝。</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft 不負任何責任，也不會授與協力廠商封裝的任何授權。</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>此套件是透過 Microsoft Store 所提供。winget 可能需要代表目前的使用者從 Microsoft Store 取得套件。</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>無法安裝應用程式，因為它需要較高版本的 Windows：</value>
+    <value>無法安裝套件，因為它要求較新版本的 Windows：</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>安裝選取的應用程式，可以搜尋已設定的來源或直接從資訊清單找到。</value>
+    <value>可透過搜尋設定的來源或直接從資訊清單來安裝選取的套件。根據預設，查詢必須布區分大小寫地符合該套件的識別碼、名稱或連結路徑。您可以透過傳遞適當的選像，來使用其他欄位。</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>安裝指定的應用程式</value>
+    <value>安裝指定的套件</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>安裝程式雜湊不相符;以系統管理員執行時，無法覆寫此情況</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>安裝程式雜湊不相符;正在繼續，因為--force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>安裝程式雜湊不相符;若要覆寫此檢查，請使用 --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>已成功驗證安裝程式雜湊</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>已成功安裝</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>正在啟動套件安裝...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>覆寫安裝程式雜湊檢查</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>要求互動式安裝; 可能需要使用者輸入</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>該應用程式資訊清單的路徑</value>
+    <value>套件資訊清單的路徑</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>資訊清單驗證失敗。</value>
@@ -252,7 +324,7 @@
     <value>需要引數值，但找不到</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>依應用程式 Moniker 篩選結果</value>
+    <value>依套件連結路徑來篩選結果</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>系統會將輸入檔案視為 msix; 如果簽署的話，將會提供簽章雜湊</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>無法計算 MSIX 簽章訊息摘要。</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>安裝 Microsoft Store 套件失敗，因為特定的應用程式受原則所封鎖</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>安裝 Microsoft Store 套件失敗。錯誤碼：</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>正在驗證/正在要求套件取得失敗：網路錯誤</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>正在驗證/正在要求套件取得失敗：找不到任何 store 帳戶</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>正在驗證/正在要求套件取得失敗：伺服器錯誤</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>正在驗證/正在要求套件取得成功</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>安裝 Microsoft Store 套件失敗，因為 Microsoft Store 用戶端受原則所封鎖</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>正在驗證/正在要求套件取得...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>找到多個符合輸入條件的套件。請精煉輸入。</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>依名稱篩選結果</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>沒有適用于目前系統的安裝程式。</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>目前沒有可用的實驗功能。</value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>未找到符合輸入條件的套件。</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>停用 VirtualTerminal 顯示</value>
@@ -291,7 +396,7 @@
     <value>隱私權聲明</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>用來搜尋應用程式的查詢</value>
+    <value>用來搜尋套件的查詢</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>顯示各種色彩的進度</value>
@@ -303,10 +408,26 @@
     <value>顯示為預設色彩的進度</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>從設定的來源搜尋應用程式。</value>
+    <value>從設定的來源中搜尋套件。</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>尋找並顯示應用程式的基本資訊</value>
+    <value>尋找並顯示套件的基本資訊</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>識別碼</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>相符</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>由於結果限制，已截斷其他項目</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>版本</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>驗證設定時發現下列失誤：</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>載入設定時發生意外的錯誤。請執行 [設定] 命令以驗證您的設定。</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>頻道</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>顯示特定應用程式的資訊。</value>
+    <value>顯示特定套件的資訊。根據預設，查詢必須不區分大小寫地符合套件的識別碼、名稱或連結路徑。您可以透過傳遞適當的選項來使用其他欄位。</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>顯示應用程式相關資訊</value>
+    <value>顯示與套件的相關資訊</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>版本</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>要求無訊息安裝</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>單一 - 後只能出現單一字元別名</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>具有給定名稱的來源已存在，且參照到不同的位置：</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>具有不同名稱的來源已參照到此位置：</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>具有給定名稱的來源已存在，且參照到同樣的位置：</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>新增的來源：</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>新增來源。來源會為您提供資料，以便您探索和安裝應用程式。只有在您信任其為安全位置時，才會新增來源。</value>
+    <value>新增來源。來源會為您提供資料，以便您探索和安裝套件。只有在您信任其為安全位置時，才會新增來源。</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>新增來源</value>
@@ -342,13 +481,17 @@
     <value>指派給來源的引數</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>使用指定的來源尋找應用程式</value>
+    <value>使用指定的來源尋找套件</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>使用子命令管理來源。來源會為您提供資料，以便您探索和安裝應用程式。只有在您信任其為安全位置時，才會新增來源。</value>
+    <value>使用子命令管理來源。來源會為您提供資料，以便您探索和安裝套件。只有在您信任其為安全位置時，才會新增來源。</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>管理應用程式的來源</value>
+    <value>管理套件來源</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>引數</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>列出所有目前的來源，或特定來源的完整詳細資料。</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>列出目前的來源</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>資料</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>欄位</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>名稱</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>找不到具有此名稱的來源：</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>沒有未設定來源。</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>類型</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>已更新</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>永不</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>值</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>來源的名稱</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>正在移除所有來源...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>移除特定來源。</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>移除目前的來源</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>正在移除來源：</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>正在重設所有來源...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>此命令會刪除現有的來源，可能會留下任何本地資料。在沒有任何引數的情況下，系統會刪除所有的來源，並新增預設值。如果提供指定的命名來源，則只會刪除該來源。</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>重設來源</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>強制重設來源</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>若已給定 --force 選項，將重設下列來源：</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>重設的來源：</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>來源的類型</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>正在更新所有來源...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>更新所有來源，或只更新特定來源。</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>更新目前的來源</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>更新的來源：</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>依標籤篩選結果</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>感謝您使用 Winget</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>第三方聲明</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Winget 命令列實用程式可讓您從命令列安裝應用程式和其他套件。</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>顯示該工具的一般資訊</value>
@@ -427,6 +635,6 @@
     <value>使用指定的版本; 預設為最新版本</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>顯示該應用程式的可用版本</value>
+    <value>顯示該套件的可用版本</value>
   </data>
 </root>

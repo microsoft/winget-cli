@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Ne prikazuj više od navedenog broja rezultata</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Gotovo</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Pronalaženje aplikacije pomoću potpunog podudaranja</value>
+    <value>Pronalaženje paketa pomoću tačnog podudaranja</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Eksperimentalni argument za potrebe demonstracije</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Ova komanda predstavlja primer kako da primenite eksperimentalne funkciju. Da biste je uključili idite na "winget settings" i omogućite experimental/Cmd ili experimental/Arg funkcije.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Primer eksperimentalne funkcije</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Pronađen je pozicioni argument kada nije bio očekivan nijedan</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Radovi na ovoj funkciji su u toku i u budućnosti može biti drastično promenjena ili potpuno uklonjena. Da biste je omogućili, uredite postavke ("winget settings") da biste uključili eksperimentalnu funkciju</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Prikazuje status eksperimentalnih funkcija. Eksperimentalne funkcije mogu da se uključe putem "winget settings".</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Prikazuje status eksperimentalnih funkcija</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Onemogućeno</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Omogućeno</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Funkcija</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Veza</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Sledeće eksperimentalne funkcije su u toku.
+One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Svojstvo</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Status</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Datoteka koju treba heširati</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Argument zastavice ne može da sadrži povezanu vrednost</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Izvršavanje komande bez odziva</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Izračunava heš lokalne datoteke koji je prikladan za unos u manifest.  Takođe može da računa i heš datoteke potpisa MSIX paketa da bi se omogućile instalacije protoka.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft nije odgovoran za, niti odobrava licence za pakete nezavisnih proizvođača.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Ovaj paket je obezbeđen u Microsoft Store prodavnici. winget će možda trebati da preuzme paket iz Microsoft prodavnice u ime trenutnog korisnika.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Nije moguće instalirati aplikaciju jer ona zahteva noviju verziju operativnog sistema Windows:</value>
+    <value>Nije moguće instalirati paket, jer on zahteva noviju verziju operativnog sistema Windows:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Instalira izabranu aplikaciju, bilo pronađenu pretraživanjem konfigurisanig izvora ili direktno iz manifesta.</value>
+    <value>Instalira izabrani paket, koji se nalazi pretraživanjem konfigurisanog izvora ili direktno sa manifesta. Veličina slova upita podrazumevano mora da se poklopi sa ID-om, imenom ili monikerom paketa. Druga polja mogu da se koriste izborom odgovarajuće opcije.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Instalira datu aplikaciju</value>
+    <value>Instalira dati paket</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Heš instalacionog programa se ne podudara; ovo ne može biti izmenjeno kada se pokreće kao administrator</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Heš instalacionog programa se ne podudara; nastavljanje zbog parametra --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Heš instalacionog programa se ne podudara; da izmenite ovu proveru koristite parametar --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Heš instalacionog programa je uspešno verifikovan</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Uspešno instalirano</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Pokretanje instalacije paketa...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Izmeni proveru heša instalacionog programa</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Zahtevanje interaktivne instalacije; možda će biti potreban korisnički unos</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Putanja do manifesta aplikacije</value>
+    <value>Putanja do manifesta paketa</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Provera valjanosti manifesta nije uspela.</value>
@@ -252,7 +324,7 @@
     <value>Vrednost argumenta je obavezna, ali nijedna nije pronađena</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Filtriranje rezultata po monikeru aplikacije</value>
+    <value>Filtriranje rezultata po monikeru</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Ulazna datoteka će se tretirati kao msix; biće obezbeđen heš potpisa ako se potpiše</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Izračunavanje heša MSIX potpisa nije uspelo.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Nije uspelo instaliranje paketa Microsoft prodavnice zbog toga što je smernica blokirala određenu aplikaciju</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Nije uspelo instaliranje paketa Microsoft prodavnice. Kôd greške:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Provera/zahtevanje preuzimanja paketa nije uspelo: greška na mreži</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Verifikovanje/zahtevane preuzimanja paketa nije uspelo: nije pronađen nalog prodavnice</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Provera/zahtevanje preuzimanja paketa nije uspelo: greška servera</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Verifikovanje/zahtevanje uspešnog preuzimanja paketa</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Nije uspelo instaliranje paketa Microsoft prodavnice zato što su smernice blokirale klijenta Microsoft prodavnice</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Verifikovanje/zahtevanje preuzimanja paketa...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Pronađeno je više paketa koji se podudaraju sa ulaznim kriterijumima. Suzite obim unosa.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtriranje rezultata po imenu</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Nijedan instalator nije važeći za aktuelni sistem.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Trenutno nema dostupnih eksperimentalnih funkcija. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Nije pronađen nijedan paket koji se podudara sa ulaznim kriterijumima.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Onemogućava VirtualTerminal prikaz</value>
@@ -291,7 +396,7 @@
     <value>Izjava o privatnosti</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Upit koji se koristi za pretraživanje aplikacije</value>
+    <value>Upit koji se koristi za pretraživanje paketa</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Prikaz toka u vidu duginih boja</value>
@@ -303,10 +408,26 @@
     <value>Prikaz toka u vidu podrazumevane boje</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Pretražuje aplikacije iz konfigurisanih izvora.</value>
+    <value>Pretražuje pakete iz konfigurisanih izvora.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Pronalaženje i prikaz osnovnih informacija o aplikacijama</value>
+    <value>Pronalaženje i prikaz osnovnih informacija o paketima</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>ID</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Podudaranje</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Ime</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>dodatne stavke su skraćene zbog ograničenja rezultata</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Verzija</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Pronađeni su sledeći neuspesi prilikom provere valjanosti postavki:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Neočekivana greška pri učitavanju postavki. Verifikujte postavke pokretanjem komande Postavke.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Kanal</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Prikazuje informacije o određenoj aplikaciji.</value>
+    <value>Prikazuje informacije o određenom paketu. Veličina slova upita podrazumevano mora da se podudara sa ID-om, imenom ili monikerom paketa. Druga polja mogu da se koriste izborom odgovarajuće opcije.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Prikazuje informacije o aplikaciji</value>
+    <value>Prikazuje informacije o paketu</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Verzija</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Zahtevanje tihe instalacije</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Samo pseudonim sa jednim znakom može da stoji iza jedne –</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Izvor sa datim imenom već postoji i upućuje na drugu lokaciju:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Izvor sa drugim imenom već upućuje na ovu lokaciju:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Izvor sa datim imenom već postoji i upućuje na istu lokaciju:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Dodavanje izvora:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Dodajte novi izvor. Izvor obezbeđuje podatke za otkrivanje i instaliranje aplikacija. Dodajte novi izvor samo ako imate poverenja da on predstavlja bezbednu lokaciju.</value>
+    <value>Dodajte novi izvor. Izvor obezbeđuje podatke za otkrivanje i instaliranje paketa. Dodajte novi izvor samo ako imate poverenja da on predstavlja bezbednu lokaciju.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Dodaj novi izvor</value>
@@ -342,13 +481,17 @@
     <value>Argument koji se daje izvoru</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Pronalaženje aplikacije pomoću navedenog izvora</value>
+    <value>Pronalaženje paketa pomoću navedenog izvora</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Upravljajte izvorima pomoću potkomandi. Izvor obezbeđuje podatke za otkrivanje i instaliranje aplikacija. Dodajte novi izvor samo ako imate poverenja da on predstavlja bezbednu lokaciju.</value>
+    <value>Upravljajte izvorima pomoću potkomandi. Izvor obezbeđuje podatke za otkrivanje i instaliranje paketa. Dodajte novi izvor samo ako imate poverenja da on predstavlja bezbednu lokaciju.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Upravljanje izvorima aplikacija</value>
+    <value>Upravljanje izvorima paketa</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Argumenti</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Navedite sve trenutne izvore ili kompletne detalje o određenom izvoru.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Navođenje trenutnih izvora</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Podaci</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Polje</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Ime</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Niste pronašli izvor pod imenom:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Nema konfigurisanih izvora.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Tip</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Ažurirano</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>nikad</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Vrednost</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Ime izvora</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Uklanjanje svih izvora...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Uklonite određeni izvor.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Uklanjanje trenutnih izvora</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Uklanjanje izvora:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Uspostavljanje početnih vrednosti svih izvora:</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Ova komanda otpušta postojeće izvore, što potencijalno za njom ostavlja sve lokalne podatke. Ako ne postoji nijedan argument, ona će otpustiti sve izvore i dodati podrazumevane vrednosti. Ako se obezbedi imenovani izvor, samo on će biti otpušten.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Uspostavljanje početnih vrednosti izvora</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Nameće ponovno postavljanje izvora</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Sledeći izvori će biti poništeni ako je data opcija parametra --force:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Uspostavljanje početnih vrednosti izvora:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Tip izvora</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Ažuriranje svih izvora...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Ažurirajte sve izvore ili samo određeni izvor.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Ažuriranje trenutnih izvora</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Ažuriranje izvora:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtriranje rezultata po oznaci</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Hvala vam što koristite winget</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Obaveštenja nezavisnih proizvođača</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Winget uslužni program komandne linije omogućava instaliranje aplikacija i drugih paketa sa komandne linije.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Prikaz opštih informacija o alatki</value>
@@ -427,6 +635,6 @@
     <value>Korišćenje navedene verzije; podrazumevana je najnovija verzija</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Prikaz dostupnih verzija aplikacije</value>
+    <value>Prikaz dostupnih verzija paketa</value>
   </data>
 </root>

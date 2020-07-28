@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Отображать не более указанного количества результатов</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Готово</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Поиск приложения с использованием точного соответствия</value>
+    <value>Поиск пакета по точному совпадению</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Экспериментальный аргумент для демонстрации</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Эта команда является примером реализации экспериментального компонента. Чтобы включить его, перейдите к файлу "winget settings" и включите компоненты experimentalCmd или experimentalArg.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Пример экспериментального компонента</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Нашел позиционный аргумент, когда никто не ожидал</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Этот компонент находится в процессе разработки. В будущем он может быть существенно изменен или полностью удален. чтобы включить его, измените параметры (файл "winget settings"), чтобы включить этот экспериментальный компонент.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Показывает состояние экспериментальных компонентов. Экспериментальные компонентов можно включить с помощью файла "winget settings".</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Показывает состояние экспериментальных компонентов</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Отключено</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Включено</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Компонент</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Ссылка</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Следующие экспериментальные компоненты находятся в процессе разработки.
+Их можно настроить с помощью файла параметров "winget settings".</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Свойство</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Состояние</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Файл для хэширования</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Аргумент флага не может содержать присоединенное значение</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Выполнить команду без запросов</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Вычисляет хэш локального файла, подходящий для записи в манифест. Он также может вычислить хэш файла подписи для MSIX-пакета, чтобы разрешить потоковые установки.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Корпорация Майкрософт не несет ответственность за сторонние пакеты и не предоставляет для них никакие лицензии.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Этот пакет предоставляется через Microsoft Store. Программе winget может потребоваться получить пакет в Microsoft Store от имени текущего пользователя.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Не удается установить приложение, так как для него требуется более поздняя версия Windows:</value>
+    <value>Не удается установить пакет, так как для него требуется более поздняя версия Windows:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Устанавливает выбранное приложение, найденное путем поиска в настроенном источнике или непосредственно из манифеста.</value>
+    <value>Устанавливает выбранный пакет, обнаруженный либо путем поиска в настроенном источнике, либо непосредственно из манифеста. По умолчанию запрос должен сравнить идентификатор, имя или моникер пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Устанавливает указанное приложение</value>
+    <value>Установка указанного пакета</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Хэш установщика не совпадает. Невозможно переопределить этот параметр при запуске от имени администратора.</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Хеш установщика не совпадает. Продолжение работы, поскольку указан параметр --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Хэш установщика не совпадает. Чтобы переопределить это ограничение, используйте параметр --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Хэш установщика успешно проверен</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Успешно установлено</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Запуск установки пакета...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Переопределить проверку хэша установщика</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Запросить интерактивную установку; может потребоваться ввод данных пользователем</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Путь к манифесту приложения</value>
+    <value>Путь к манифесту пакета</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Ошибка проверки манифеста.</value>
@@ -252,7 +324,7 @@
     <value>Требуется значение аргумента, но ничего не найдено</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Фильтровать результаты по моникеру приложения</value>
+    <value>Фильтровать результаты по моникеру</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Входной файл будет обрабатываться как формат MSIX; при наличии подписи будет предоставлен хэш подписи</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Не удалось вычислить хэш подписи MSIX.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Не удалось установить пакет Microsoft Store, поскольку конкретное приложение заблокировано политикой</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Не удалось установить пакет Microsoft Store. Код ошибки:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Проверка/запрос ошибки при получении пакета: ошибка сети</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Проверка/запрос ошибки при получении пакета: не найдена учетная запись магазина</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Проверка/запрос ошибки при получении пакета: ошибка сервера</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Проверка/запрос успешного состояния получения пакета</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Не удалось установить пакет Microsoft Store, поскольку клиент Microsoft Store заблокирован политикой</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Проверка/запрос сведений о получении пакета...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Обнаружено несколько пакетов, совпадающих с введенными условиями. Уточните условия.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Фильтровать результаты по имени</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Отсутствуют установщики, применимые к текущей системе.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>В настоящее время нет доступных экспериментальных компонентов. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Не найдены пакеты, совпадающие с введенными условиями.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Отключает дисплей VirtualTerminal</value>
@@ -291,7 +396,7 @@
     <value>Заявление о конфиденциальности</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Запрос, использованный для поиска приложения</value>
+    <value>Запрос, используемый для поиска пакета</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Отображение хода выполнения в виде радуги цветов</value>
@@ -303,10 +408,26 @@
     <value>Отображение хода выполнения в виде стандартного цвета</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Поиск приложений из настроенных источников.</value>
+    <value>Поиск пакетов в настроенных источниках.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Поиск и отображение основных сведений о приложениях</value>
+    <value>Поиск и отображение базовых сведений о пакетах</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>ИД</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Совпадение</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Имя</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>дополнительные записи усечены из-за ограничения количества результатов</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Версия</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Обнаружены следующие ошибки при проверке параметров:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Непредвиденная ошибка при загрузке параметров. Проверьте параметры, выполнив команду "Параметры".</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Канал</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Отображает информацию о конкретном приложении.</value>
+    <value>Отображает сведения о конкретном пакете. По умолчанию запрос должен сравнить идентификатор, имя или моникер пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Отображает сведения о приложении</value>
+    <value>Отображение сведений о пакете</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Версия</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Запросить автоматическую установку</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Только один псевдоним символа может появляться после одного -</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Источник с указанным именем уже существует и ссылается на другое расположение:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>На это расположение уже ссылается источник с другим именем:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Источник с указанным именем уже существует и ссылается на это же расположение:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Добавление источника:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Добавление нового источника. Источник предоставляет данные для обнаружения и установки приложений. Добавляйте новый источник только в том случае, если вы доверяете ему как надежному расположению.</value>
+    <value>Добавление нового источника. Источник предоставляет данные для обнаружения и установки пакетов. Добавляйте новый источник только в том случае, если вы доверяете ему как надежному расположению.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Добавление нового источника</value>
@@ -342,13 +481,17 @@
     <value>Аргумент, предоставленный источнику</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Поиск приложения, использующего указанный источник</value>
+    <value>Поиск пакета с помощью указанного источника</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Управление источниками с помощью подкоманд. Источник предоставляет данные для обнаружения и установки приложений. Добавляйте новый источник только в том случае, если вы доверяете ему как надежному расположению.</value>
+    <value>Управление источниками с помощью подкоманд. Источник предоставляет данные для обнаружения и установки пакетов. Добавляйте новый источник только в том случае, если вы доверяете ему как надежному расположению.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Управление источниками приложений</value>
+    <value>Управление источниками пакетов</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Аргумент</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Перечисление всех текущих источников или полных сведений об определенном источнике.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Перечисление текущих источников</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Данные</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Поле</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Имя</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Не найден источник с именем:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Нет настроенных источников.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Тип</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Обновлено</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>никогда</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Значение</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Имя источника</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Удаление всех источников...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Удаление определенного источника.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Удаление текущих источников</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Удаление источника:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Сброс всех источников...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Эта команда удаляет существующие источники, в результате чего могут остаться локальные данные. При отсутствии аргументов она удаляет все источники и добавляет значения по умолчанию. Если указан именованный источник, удаляется только он.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Сброс источников</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Принудительный сброс источников</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Если задан параметр --force, будут сброшены следующие источники:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Сброс источника:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Тип источника</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Обновление всех источников...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Обновление всех источников или только определенного источника.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Обновление текущих источников</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Обновление источника:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Фильтровать результаты по тегу</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Благодарим за использование виджета</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Уведомления третьих сторон</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Программа командной строки winget дает возможность устанавливать приложения и другие пакеты из командной строки.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Отображать общие сведения об инструменте</value>
@@ -427,6 +635,6 @@
     <value>Использовать указанную версию; по умолчанию используется последняя версия</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Показать доступные версии приложения</value>
+    <value>Показать доступные версии пакета</value>
   </data>
 </root>

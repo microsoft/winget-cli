@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Show no more than specified number of results</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Done</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Find app using exact match</value>
+    <value>Find package using exact match</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Experimental argument for demonstration purposes</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>This command is an example on how to implement an experimental feature. To turn on go to 'winget settings' and enable experimentalCmd or experimentalArg features.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Experimental feature example</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Found a positional argument when none was expected</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>This feature is a work in progress, and may be changed dramatically or removed altogether in the future. To enable it, edit your settings ('winget settings') to include the experimental feature</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Shows the status of experimental features. Experimental features can be turn on via 'winget settings'.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Shows the status of experimental features</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Feature</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Link</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>The following experimental features are in progress.
+They can be configured through the settings file 'winget settings'.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Property</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Status</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>File to be hashed</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Flag argument cannot contain adjoined value</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Execute the command without prompts</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Computes the hash of a local file, appropriate for entry into a manifest.  It can also compute the hash of the signature file of an MSIX package to enable streaming installations.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft is not responsible for, nor does it grant any licences to, third-party packages.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>This package is provided through Microsoft Store. winget may need to acquire the package from Microsoft Store on behalf of the current user.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Cannot install application, as it requires a higher version of Windows:</value>
+    <value>Cannot install package, as it requires a higher version of Windows:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Installs the selected application, either found by searching a configured source or directly from a manifest.</value>
+    <value>Installs the selected package, either found by searching a configured source or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Installs the given application</value>
+    <value>Installs the given package</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Installer hash does not match; this cannot be overridden when running as admin</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Installer hash does not match; proceeding due to --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Installer hash does not match; to override this check use --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Successfully verified installer hash</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Successfully installed</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Starting package install...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Override the installer hash check</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Request interactive installation; user input may be needed</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>The path to the manifest of the application</value>
+    <value>The path to the manifest of the package</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Manifest validation failed.</value>
@@ -252,7 +324,7 @@
     <value>Argument value required, but none found</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Filter results by app moniker</value>
+    <value>Filter results by moniker</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Input file will be treated as msix; signature hash will be provided if signed</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Failed to calculate MSIX signature hash.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Failed to install Microsoft Store package because the specific app is blocked by policy</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Failed to install Microsoft Store package. Error code:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Verifying/Requesting package acquisition failed: network error</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Verifying/Requesting package acquisition failed: no store account found</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Verifying/Requesting package acquisition failed: server error</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Verifying/Requesting package acquisition success</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Failed to install Microsoft Store package because Microsoft Store client is blocked by policy</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Verifying/Requesting package acquisition...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Multiple packages found matching input criteria. Please refine the input.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filter results by name</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>No installers are applicable to the current system.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>There are currently no exprimental features available. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>No package found matching input criteria.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Disables VirtualTerminal display</value>
@@ -291,7 +396,7 @@
     <value>Privacy Statement</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>The query used to search for an app</value>
+    <value>The query used to search for a package</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Progress display a rainbow of colours</value>
@@ -303,10 +408,26 @@
     <value>Progress display as the default colour</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Searches for applications from configured sources.</value>
+    <value>Searches for pacakges from configured sources.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Find and show basic info of apps</value>
+    <value>Find and show basic info of packages</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>Id</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Match</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>additional entries truncated due to result limit</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Version</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>The following failures were found validating the settings:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Unexpected error while loading settings. Please verify your settings by running the settings command.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Channel</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Shows information on a specific application.</value>
+    <value>Shows information on a specific pacakge. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Shows info about an application</value>
+    <value>Shows info about an package</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Version</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Request silent installation</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Only the single character alias can occur after a single -</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>A source with the given name already exists and refers to a different location:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>A source with a different name already refers to this location:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>A source with the given name already exists and refers to the same location:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Adding source:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Add a new source. A source provides the data for you to discover and install applications. Only add a new source if you trust it as a secure location.</value>
+    <value>Add a new source. A source provides the data for you to discover and install packages. Only add a new source if you trust it as a secure location.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Add a new source</value>
@@ -342,13 +481,17 @@
     <value>Argument given to the source</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Find app using the specified source</value>
+    <value>Find package using the specified source</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Manage sources with the sub-commands. A source provides the data for you to discover and install applications. Only add a new source if you trust it as a secure location.</value>
+    <value>Manage sources with the sub-commands. A source provides the data for you to discover and install packages. Only add a new source if you trust it as a secure location.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Manage sources of applications</value>
+    <value>Manage sources of packages</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Argument</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>List all current sources, or full details of a specific source.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>List current sources</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Data</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Field</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Name</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Did not find a source named:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>There are no sources configured.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Type</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Updated</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>never</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Value</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Name of the source</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Removing all sources...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Remove a specific source.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Remove current sources</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Removing source:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Resetting all sources...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>This command drops existing sources, potentially leaving any local data behind. Without any argument, it will drop all sources and add the defaults. If a named source is provided, only that source will be dropped.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Reset sources</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Forces the reset of the sources</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>The following sources will be reset if the --force option is given:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Resetting source:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Type of the source</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Updating all sources...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Update all sources, or only a specific source.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Update current sources</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Updating source:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filter results by tag</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Thank you for using winget</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Third Party Notices</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>The winget command line utility enables installing applications and other packages from the command line.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Display general info of the tool</value>
@@ -427,6 +635,6 @@
     <value>Use the specified version; default is the latest version</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Show available versions of the app</value>
+    <value>Show available versions of the package</value>
   </data>
 </root>
