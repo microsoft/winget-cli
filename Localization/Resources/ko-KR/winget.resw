@@ -187,7 +187,7 @@
     <value>ID를 기준으로 결과 필터링</value>
   </data>
   <data name="InstallationDisclaimer1" xml:space="preserve">
-    <value>이 응용 프로그램의 라이선스는 그 소유자가 사용자에게 허여했습니다.</value>
+    <value>이 응용 프로그램의 라이선스는 그 소유자가 사용자에게 부여했습니다.</value>
   </data>
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft는 타사 패키지에 대한 책임을 지지 않고 라이선스를 부여하지도 않습니다.</value>
