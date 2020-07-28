@@ -55,6 +55,9 @@ namespace AppInstaller::CLI
 
         Logging::Telemetry().LogStartup();
 
+        // Initiate the background cleanup of the log file location.
+        Logging::BeginLogFileCleanup();
+
         Execution::Context context{ std::cout, std::cin };
         context.EnableCtrlHandler();
 
