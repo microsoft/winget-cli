@@ -79,3 +79,16 @@ TEST_CASE("Trim", "[strings]")
     REQUIRE(Trim(str.assign("         Multiple words")) == "Multiple words");
     REQUIRE(Trim(str.assign("Much after is taken \f\n\r\t\v\v\t\r\n\f ")) == "Much after is taken");
 }
+
+TEST_CASE("CaseInsensitiveStartsWith", "[strings]")
+{
+    REQUIRE(CaseInsensitiveStartsWith("startswith", "starts"));
+    REQUIRE(CaseInsensitiveStartsWith("startswith", "STAR"));
+    REQUIRE(CaseInsensitiveStartsWith("startswith", "startSWITH"));
+    REQUIRE(CaseInsensitiveStartsWith("startswith", ""));
+
+    REQUIRE(!CaseInsensitiveStartsWith("starts", "startswith"));
+    REQUIRE(!CaseInsensitiveStartsWith("", "nuffing"));
+    REQUIRE(!CaseInsensitiveStartsWith("withstarts", "starts"));
+    REQUIRE(!CaseInsensitiveStartsWith(" starts", "starts"));
+}
