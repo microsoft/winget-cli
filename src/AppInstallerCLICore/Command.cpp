@@ -642,7 +642,10 @@ namespace AppInstaller::CLI
             {
                 for (const auto& arg : stateMachine.Arguments())
                 {
-                    context.Reporter.Completion() << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << std::endl;
+                    if (arg.Alias() != Argument::NoAlias)
+                    {
+                        context.Reporter.Completion() << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << std::endl;
+                    }
                 }
             }
         }

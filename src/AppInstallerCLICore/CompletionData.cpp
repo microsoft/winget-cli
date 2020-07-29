@@ -42,8 +42,10 @@ namespace AppInstaller::CLI
         if (m_word.empty())
         {
             // The cursor is past the end, so everything is before the word.
-            if (m_position > commandLine.length())
+            if (m_position >= commandLine.length())
             {
+                // Move the position to the end in case it was extended past it.
+                m_position = commandLine.length();
                 ParseInto(commandLine, argsBeforeWord, true);
             }
             // The cursor is not past the end; ensure that the preceding character is whitespace or move the
@@ -56,7 +58,7 @@ namespace AppInstaller::CLI
                 AICLI_LOG(CLI, Info, << "Cursor position moved to '" << m_position << '\'');
 
                 // If we actually hit the front of the string, something bad probably happened.
-                THROW_HR_IF(E_UNEXPECTED, m_position == 0);
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMPLETE_INPUT_BAD, m_position == 0);
 
                 ParseInto(commandLine.substr(0, m_position), argsBeforeWord, true);
                 ParseInto(commandLine.substr(m_position), argsAfterWord, false);
@@ -80,7 +82,7 @@ namespace AppInstaller::CLI
             }
 
             // If we didn't find a matching string, we probably made some bad assumptions.
-            THROW_HR_IF(E_UNEXPECTED, wordIndeces.empty());
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMPLETE_INPUT_BAD, wordIndeces.empty());
 
             // If we find an exact match only once, we can just split on that.
             size_t wordIndexForSplit = wordIndeces[0];
@@ -108,7 +110,7 @@ namespace AppInstaller::CLI
                 }
 
                 // If these are out of sync we don't have much hope.
-                THROW_HR_IF(E_UNEXPECTED, wordIndeces.size() != escapedIndeces.size());
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMPLETE_INPUT_BAD, wordIndeces.size() != escapedIndeces.size());
 
                 // Find the closest one to the position. This can be fooled as above if there is
                 // leading whitespace in the statement. But it is the best we can do.
@@ -144,7 +146,7 @@ namespace AppInstaller::CLI
                 }
 
                 // It really would be unexpected to not find a closest one.
-                THROW_HR_IF(E_UNEXPECTED, indexToUse == std::numeric_limits<size_t>::max());
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMPLETE_INPUT_BAD, indexToUse == std::numeric_limits<size_t>::max());
 
                 wordIndexForSplit = wordIndeces[indexToUse];
             }

@@ -36,6 +36,7 @@ namespace AppInstaller::CLI
             std::vector<std::string>& m_args;
         };
 
+        size_t size() const { return m_args.size(); }
         iterator begin() { return { m_currentFirstArg, m_args }; }
         iterator end() { return { m_args.size(), m_args }; }
         void consume(const iterator& i) { m_currentFirstArg = i.index() + 1; }

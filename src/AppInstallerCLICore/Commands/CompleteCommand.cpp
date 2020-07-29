@@ -72,7 +72,6 @@ namespace AppInstaller::CLI
         catch (...)
         {
             AICLI_LOG(CLI, Info, << "Error encountered during completion, ignoring...");
-            LOG_CAUGHT_EXCEPTION();
         }
     }
 }

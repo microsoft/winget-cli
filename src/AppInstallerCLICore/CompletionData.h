@@ -21,7 +21,6 @@ namespace AppInstaller::CLI
         const std::string& Word() const { return m_word; }
         Invocation& BeforeWord() const { return *m_argsBeforeWord; }
         Invocation& AfterWord() const { return *m_argsAfterWord; }
-        Execution::Args& Args() { return m_parsedArgs; }
         size_t Position() const { return m_position; }
 
     private:
@@ -30,7 +29,6 @@ namespace AppInstaller::CLI
         std::string m_word;
         std::unique_ptr<CLI::Invocation> m_argsBeforeWord;
         std::unique_ptr<CLI::Invocation> m_argsAfterWord;
-        Execution::Args m_parsedArgs;
         size_t m_position = 0;
     };
 }

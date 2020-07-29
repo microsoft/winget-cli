@@ -11,10 +11,10 @@ namespace AppInstaller::CLI
     {
         CompleteCommand(std::string_view parent) : Command("complete", parent, Visibility::Hidden) {}
 
-        virtual std::vector<Argument> GetArguments() const override;
+        std::vector<Argument> GetArguments() const override;
 
-        virtual Resource::LocString ShortDescription() const override;
-        virtual Resource::LocString LongDescription() const override;
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
 
         std::string HelpLink() const override;
 
