@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Mostrar não mais do que o número especificado de resultados</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Concluído</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Localizar o aplicativo usando uma correspondência exata</value>
+    <value>Localizar pacote usando uma correspondência exata</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Argumento experimental para fins de demonstração</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Este comando é um exemplo de como implementar um recurso experimental. Para ativar, vá para 'winget settings' e habilite os recursos experimentalCmd ou experimentalArg.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Exemplo de recurso experimental</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Localizado um argumento posicional quando nenhum era esperado</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Este recurso é um trabalho em andamento e pode ser alterado drasticamente ou removido no futuro. Para habilitá-lo, edite as suas configurações (' winget settings ') para incluir o recurso experimental</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Mostra o status dos recursos experimentais. Os recursos experimentais podem ser ativados por meio de 'winget settings'.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Mostra o status dos recursos experimentais</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Desabilitado</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Habilitado</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Recurso</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Link</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Os seguintes recursos experimentais estão em andamento.
+Eles podem ser configurados por meio do arquivo de configurações ' winget settings '.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Propriedade</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Status</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Arquivo em que será gerado o hash</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Argumento sinalizado não pode conter valores adjacentes</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Executar o comando sem avisos</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Calcula o hash de um arquivo local, apropriado para entrada em um manifesto. Ele também pode calcular o hash do arquivo de assinatura de um pacote MSIX para habilitar instalações de streaming.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>A Microsoft não é responsável por, nem concede licenças a pacotes de terceiros.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Este pacote é fornecido por meio da Microsoft Store. O winget talvez precise adquirir o pacote da Microsoft Store em nome do usuário atual.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Não é possível instalar o aplicativo, pois ele requer uma versão superior do Windows:</value>
+    <value>Não é possível instalar o pacote, pois ele requer uma versão superior do Windows:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Instala o aplicativo selecionado, encontrado ao pesquisar uma fonte configurada ou diretamente de um manifesto.</value>
+    <value>Instala o pacote selecionado, localizado ao pesquisar uma fonte configurada ou diretamente de um manifesto. Por padrão, a consulta deve diferenciar maiúsculas e minúsculas na identificação, no nome ou no moniker do pacote. Outros campos podem ser usados ​​passando a opção apropriada.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Instala um determinado aplicativo</value>
+    <value>Instalar um determinado pacote</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>O hash do instalador não corresponde; Isto não pode ser substituído durante a execução como administrador</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>O hash do instalador não corresponde; prosseguir devido à --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>O hash do instalador não corresponde; para substituir este uso de verificação --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Hash do instalador verificado com êxito</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Instalado com êxito</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Iniciando a instalação do pacote...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Substituir verificação de hash do instalador</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Solicitar instalação interativa; a entrada do usuário pode ser necessária</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>O caminho para o manifesto do aplicativo</value>
+    <value>O caminho para o manifesto do pacote</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Falha na validação do manifesto.</value>
@@ -252,7 +324,7 @@
     <value>Valor de argumento obrigatório, mas nenhum encontrado</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Filtrar resultados por moniker do aplicativo</value>
+    <value>Filtrar resultados por moniker</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>O arquivo de entrada será tratado como msix; hash de assinatura será fornecido se assinado</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Falha ao calcular o hash de assinatura MSIX.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Falha ao instalar o pacote da Microsoft Store porque o aplicativo específico está bloqueado pela política</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Falha ao instalar o pacote da Microsoft Store. Código de erro:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Falha ao verificar/solicitar aquisição de pacote: erro de rede</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Falha ao verificar/solicitar aquisição de pacote: nenhuma conta do repositório encontrada</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Falha ao verificar/solicitar aquisição de pacote: erro do servidor</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Exito ao verificar/solicitar aquisição de pacote</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Falha ao instalar o pacote da Microsoft Store porque o cliente da Microsoft Store está bloqueado pela política</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Verificando/solicitando aquisição de pacote...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Vários pacotes encontraram critérios de entrada correspondentes. Refine a entrada.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtrar resultados por nome</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Nenhum instalador se aplica ao sistema atual.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>No momento, não há recursos experimentais disponíveis.</value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Nenhum pacote encontrou os critérios de entrada correspondentes.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Desabilita a exibição VirtualTerminal</value>
@@ -291,7 +396,7 @@
     <value>Política de Privacidade</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>A consulta usada para pesquisar um aplicativo</value>
+    <value>A consulta usada para pesquisar um pacote</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Exibição de progresso arco-íris de cores</value>
@@ -303,10 +408,26 @@
     <value>Exibição de andamento como a cor padrão</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Pesquisa aplicativos de fontes configuradas.</value>
+    <value>Pesquisa pacotes de fontes configuradas.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Localizar e mostrar informações básicas de aplicativos</value>
+    <value>Localizar e mostrar informações básicas de pacotes</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>ID</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Correspondência</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>entradas adicionais truncadas devido ao limite de resultado</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Versão</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>As seguintes falhas foram encontradas ao validar as configurações:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Erro inesperado ao carregar as configurações. Verifique suas configurações executando o comando configurações.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Canal</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Mostra informações de um aplicativo específico.</value>
+    <value>Mostra informações sobre um pacote específico. Por padrão, a consulta deve diferenciar maiúsculas e minúsculas na identificação, no nome ou no moniker do pacote. Outros campos podem ser usados ​​passando a opção apropriada.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Mostra informações sobre um aplicativo</value>
+    <value>Mostra informações sobre um pacote</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Versão</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Solicitar uma instalação silenciosa</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Somente o alias de um único caractere pode ocorrer depois de um único</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Uma origem com o nome fornecido já existe e se refere a um local diferente:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Uma origem com um nome diferente já se refere a este local:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Uma origem com o nome fornecido já existe e se refere ao mesmo local:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Adicionando fonte:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Adicionar uma nova fonte. Uma fonte fornece os dados para você descobrir e instalar aplicativos. Adicione uma nova fonte apenas se você confiar nela como um local seguro.</value>
+    <value>Adicione uma nova fonte. Uma fonte fornece dados para você descobrir e instalar pacotes. Adicione uma nova fonte apenas se você confiar nela como um local seguro.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Adicionar uma nova origem</value>
@@ -342,13 +481,17 @@
     <value>Argumento fornecido à fonte</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Localizar o aplicativo usando a origem especificada</value>
+    <value>Encontrar pacote usando a fonte especificada</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Gerencie fontes usando os subcomandos. Uma fonte fornece os dados para você descobrir e instalar aplicativos. Adicione uma nova fonte apenas se você confiar nela como um local seguro.</value>
+    <value>Gerencie fontes usando os subcomandos. Uma fonte fornece dados para você descobrir e instalar pacotes. Adicione uma nova fonte apenas se você confiar nela como um local seguro.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Gerenciar fontes de aplicativos</value>
+    <value>Gerenciar fontes de pacotes</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Argumento</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Liste todas as fontes atuais ou todos os detalhes de uma fonte específica.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Listar fontes atuais</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Dados</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Campo</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Nome</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Não foi encontrada uma fonte chamada:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Não há fontes configuradas.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Digitar</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Atualizada</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>nunca</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Valor</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Nome da fonte</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Removendo todas as fontes...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Remover uma fonte específica.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Remover fontes atuais</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Removendo fonte:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Redefinindo todas as fontes...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Esse comando descarta fontes existentes, deixando potencialmente todos os dados locais para trás. Sem nenhum argumento, ele removerá todas as fontes e adicionará os padrões. Se uma fonte nomeada for fornecida, só essa fonte será descartada.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Redefinir fontes</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Força a redefinição das fontes</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>As seguintes fontes serão redefinidas se a opção--force for fornecida:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Redefinindo fonte:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Tipo da fonte</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Atualizando todas as fontes...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Atualizar todas as fontes ou apenas uma fonte específica.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Atualizar fontes atuais</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Atualizando fonte:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtrar resultados por rótulo</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Obrigado por usar o winget</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Avisos de Terceiros</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>O programa utilitário de linha de comando winget permite instalar aplicativos e outros pacotes a partir da linha de comando.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Exibir informações gerais da ferramenta</value>
@@ -427,6 +635,6 @@
     <value>Usar a versão especificada. O padrão é a versão mais recente</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Mostrar versões disponíveis do aplicativo</value>
+    <value>Mostrar versões disponíveis do pacote</value>
   </data>
 </root>

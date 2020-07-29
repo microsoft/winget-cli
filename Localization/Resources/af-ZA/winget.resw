@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Wys niks meer as die gespesifiseerde aantal resultate nie</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Gedoen</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Vind toepassing deur presiese pasmaat te gebruik</value>
+    <value>Vind pakket deur presiese passing te gebruik</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Eksperimentele argument vir demonstrasiedoeleindes</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Hierdie opdrag is ’n voorbeeld van hoe om ’n eksperimentele kenmerk te implementeer. Om dit aan te skakel, gaan na ‘winget settings’ en aktiveer experimentalCmd- of experimentalArg-kenmerke.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Eksperimentele kenmerkvoorbeeld</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>’n Posisionele argument is gevind terwyl niks verwag is nie</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Hierdie kenmerk is nog in wording en kan in die toekoms dramaties verander of heeltemal verwyder word. Om dit te aktiveer, wysig jou instellings (‘winget settings’) om die eksperimentele kenmerk in te sluit</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Wys die status van eksperimentele kenmerke. Eksperimentele kenmerke kan via ‘winget settings’ aangeskakel word.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Wys die status van eksperimentele kenmerke</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Gedeaktiveer</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Geaktiveer</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Kenmerk</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Skakel</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Die volgende eksperimentele kenmerke is tans aan die gang.
+Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Eienskap</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Status</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Lêer wat gemerk moet word</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Vlagargument kan nie aangrensende waarde bevat nie</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Voer die bevel sonder porre uit</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Bepaal die huts van ’n lokale lêer, geskik vir invoer in ’n manifes in. Dit bepaal ook die huts van die handtekeninglêer van ’n MSIX-pakket om strominginstallasies te aktiveer.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft is nie verantwoordelik vir derdeparty-pakkette nie en hulle staan ook geen lisensies aan hulle toe nie.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Hierdie pakket word deur Microsoft Store verskaf. winget sal moontlik die pakket namens die huidige gebruiker van Microsoft Store moet verkry.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Kan nie toepassing installeer nie omdat dit ’n hoër weergawe van Windows vereis:</value>
+    <value>Kan nie pakket installeer nie omdat dit ’n hoër weergawe van Windows vereis:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Installeer die geselekteerde toepassing, gevind deur óf ’n geselekteerde bron te soek óf direk van ’n manifes af.</value>
+    <value>Installeer die geselekteerde pakket; hetsy gevind deur vir ’n gekonfigureerde bron te soek of direk vanaf ’n manifes. By verstek moet die navraag nie-kassensitief by die ID, naam of bynaam van die pakket pas. Ander velde kan gebruik word deur hulle toepaslike opsie te slaag.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Installeer die gegewe toepassing</value>
+    <value>Installeer die gegewe pakket</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Installeerderhuts pas nie; dit kan nie oorheers word wanneer dit as admin laat loop word nie</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Installeerderhuts pas nie; gaan voort weens --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Installeerderhuts pas nie; om hierdie kontrole te oorheers, gebruik --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Installeerderhuts is suksesvol geverifieer</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Suksesvol geïnstalleer</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Begin tans pakketinstallering ...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Oorheers die installeerderhuts-kontrole</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Versoek interaktiewe installering; gebruikerinsette word dalk benodig</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Die pad na die manifes van die toepassing</value>
+    <value>Die pad na die manifes van die pakket</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Manifesvalidering het misluk.</value>
@@ -252,7 +324,7 @@
     <value>Argumentwaarde word vereis, maar niks is gevind nie</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Filtreer resultate volgens toepassingbynaam</value>
+    <value>Filter resultate volgens bynaam</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Toevoerlêer sal as msix hanteer word; handtekeninghuts sal verskaf word as dit onderteken word</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Berekening van MSIX-handtekeninghuts het misluk.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Kon nie Microsoft Store-pakket installeer nie omdat die spesifieke toepassing deur beleid geblokkeer is</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Kon nie Microsoft Store-pakket installeer nie. Foutkode:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Verifikasie van/Versoek vir pakketverkryging het misluk: netwerkfout</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Verifikasie van/Versoek vir pakketverkryging het misluk: geen Store-rekening gevind nie</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Verifikasie van/Versoek vir pakketverkryging het misluk: bedienerfout</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Verifikasie van/Versoek vir pakketverkryging was suksesvol</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Kon nie Microsoft Store-pakket installeer nie omdat Microsoft Store-kliënt deur beleid geblokkeer is</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Verifikasie van/Versoek vir pakketverkryging...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Veelvuldige pakkette gevind wat by toevoerkriteria pas. Verfyn asseblief die toevoer.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtreer resultate volgens naam</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Geen installeerders is van toepassing op die huidige stelsel nie.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Daar is tans geen eksperimentele kenmerke beskikbaar nie. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Geen pakket gevind wat by toevoerkriteria pas nie.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Deaktiveer VirtualTerminal-skerm</value>
@@ -291,7 +396,7 @@
     <value>Privaatheidstelling</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Die navraag wat gebruik is om vir ’n toepassing te soek</value>
+    <value>Die navraag wat gebruik is om vir ’n pakket te soek</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Vordering wys ’n reënboog vol kleure</value>
@@ -303,10 +408,26 @@
     <value>Vordering wys as die verstekkleur</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Soektogte vir toepassings van gekonfigureerde bronne af.</value>
+    <value>Soek na pakkette vanaf gekonfigureerde bronne.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Vind en wys basiese inligting oor toepassings</value>
+    <value>Vind en wys basiese inligting van pakkette</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>ID</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Pas</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Naam</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>addisionele inskrywings is afgekap vanweë resultaatbeperking</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Weergawe</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Die volgende falings is gevind met die validering van die instellings:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Onverwagse fout tydens laai van instellings. Verifieer asseblief jou instellings deur die instellingsbevel te laat loop.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Kanaal</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Wys inligting oor ’n spesifieke toepassing.</value>
+    <value>Wys inligting oor ’n spesifieke pakket. By verstek moet die navraag nie-kassensitief by die ID, naam of bynaam van die pakket pas. Ander velde kan gebruik word deur hulle geskikte opsie te slaag.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Wys inligting oor ’n toepassing</value>
+    <value>Wys inligting oor ’n pakket</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Weergawe</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Versoek stil-installering</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Slegs die enkele karakter-alias kan voorkom ná ’n enkele -</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>’n Bron met die gegewe naam bestaan reeds en verwys na ’n ander ligging:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>’n Bron met ’n ander naam verwys reeds na hierdie ligging:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>’n Bron met die gegewe naam bestaan reeds en verwys na dieselfde ligging:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Voeg tans bron by:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Voeg ’n nuwe bron by. ’n Bron verskaf aan jou die data om toepassings te ontdek en te installeer. Voeg slegs ’n nuwe bron by as jy dit as ’n veilige ligging vertrou.</value>
+    <value>Voeg ’n nuwe bron by. ’n Bron verskaf die data vir jou om pakkette te ontdek en te installeer. Voeg slegs ’n nuwe bron by as jy dit as ’n veilige ligging vertrou.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Voeg ’n nuwe bron by</value>
@@ -342,13 +481,17 @@
     <value>Argument aan die bron gegee</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Vind toepassing deur die gespesifiseerde bron te gebruik</value>
+    <value>Vind pakket deur gespesifiseerde bron te gebruik</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Bestuur bronne met die subbevele. ’n Bron verskaf aan jou die data om toepassings te ontdek en te installeer. Voeg slegs ’n nuwe bron by as jy dit as ’n veilige ligging vertrou.</value>
+    <value>Bestuur bronne met die subopdragte. ’n Bron verskaf die data vir jou om pakkette te ontdek en te installeer. Voeg slegs ’n nuwe bron by as jy dit as ’n veilige ligging vertrou.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Bestuur bronne van toepassings</value>
+    <value>Bestuur bronne van pakkette</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Argument</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Lys alle huidige bronne, of volledige besonderhede van ’n spesifieke bron.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Lys huidige bronne</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Data</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Veld</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Naam</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Het nie ’n bron met hierdie naam gevind nie:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Daar is geen bronne gekonfigureer nie.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Tipe</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Bygewerk</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>nooit</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Waarde</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Naam van die bron</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Verwyder tans alle bronne ...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Verwyder ’n spesifieke bron.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Verwyder huidige bronne</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Verwyder tans bron:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Stel tans alle bronne terug ...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Hierdie bevel laat bestaande bronne val en sodoende moontlik enige lokale data agterlaat. Sonder enige argument sal dit alle bronne laat val en die verstekke byvoeg. As ’n genoemde bron verskaf word, sal slegs daardie bron laat val word.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Stel bronne terug</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Dwing die terugstel van die bronne af</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Die volgende bronne sal teruggestel word as die --force-opsie gegee word:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Stel tans bron terug:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Tipe bron</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Werk tans alle bronne by ...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Werk alle bronne by, of slegs ’n spesifieke bron.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Werk huidige bronne by</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Werk tans bron by:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtreer resultate volgens merker</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Dankie dat jy WinGet gebruik</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Derdepartykennisgewings</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Die WinGet-bevelreëlgebruiksitem maak dit moontlik om toepassings en ander pakkette vanaf die bevelreël te installeer.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Wys algemene inligting oor die nutsmiddel</value>
@@ -427,6 +635,6 @@
     <value>Gebruik die gespesifiseerde weergawe; verstek is die jongste weergawe</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Wys beskikbare weergawes van die toepassing</value>
+    <value>Wys beskikbare weergawes van die pakket</value>
   </data>
 </root>

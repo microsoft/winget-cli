@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Ikke vis mer enn angitt antall resultater</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Ferdig</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Finn app med nøyaktig samsvar</value>
+    <value>Finn pakker med nøyaktig samsvar</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Eksperimentelt argument for demonstrasjonsformål</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Denne kommandoen er et eksempel på hvordan du kan implementere en eksperimentell funksjon. Slå på innstillinger for “winget settings” og aktiver experimentalCmd-eller experimentalArg-funksjoner.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Eksempel på eksperimentell funksjon</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Fant et plasseringsargument når det ikke var forventet</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Denne funksjonen er arbeid som pågår, og kan endres dramatisk eller fjernet i fremtiden. Hvis du vil aktivere den, redigerer du innstillingene (winget settings) for å inkludere eksperimentell-funksjonen</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Viser statusen for eksperimentelle funksjoner. Eksperimentelle funksjoner kan aktiveres via “winget settings”.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Viser statusen for eksperimentelle funksjoner</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Deaktivert</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Aktivert</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Funksjon</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Kobling</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Følgende eksperimentelle funksjoner pågår.
+De kan konfigureres via innstillings filen 'winget settings'.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Egenskap</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Status</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Fil som skal hash-kodes</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Flaggargumentet kan ikke inneholde tilstøtende verdi</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Utfør kommandoen uten spørsmål</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Beregner hash-koden for en lokal fil, som passer for oppføring i et manifest. Den kan også beregne hash-koden til signaturfilen til en MSIX-pakke for å aktivere strømmeinstallasjoner.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft er ikke ansvarlig for, og gir heller ingen lisenser til, tredjepartspakker.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Denne pakken leveres via Microsoft store. winget må kanskje skaffe pakken fra Microsoft Store på vegne av den gjeldende brukeren.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Kan ikke installere programmet fordi den krever en høyere versjon av Windows:</value>
+    <value>Kan ikke installere pakken fordi den krever en høyere versjon av Windows:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Installerer det valgte programmet, som finnes ved søk i en konfigurert kilde eller direkte fra et manifest.</value>
+    <value>Installerer den valgte pakken, enten funnet ved å søke i en konfigurert kilde eller direkte fra et manifest. Som standard må spørringen skille mellom store og små bokstaver, slik at det samsvarer med ID, navn eller kallenavn for pakken. Du kan bruke andre felt ved å sende riktig alternativ.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Installerer angitt program</value>
+    <value>Installerer angitt pakke</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Installasjons-hash-koden samsvarer ikke. Dette kan ikke overstyres ved kjøring som administrator</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Installasjons-hash samsvarer ikke; fortsetter på grunn av --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Installasjons-hash samsvarer ikke. Slik overstyrer du denne bruken av sjekking --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Bekreftet installasjons-hash</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Installert</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Starter installasjon av pakke...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Overstyr hash-kontrollen for installasjonsprogrammet</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Be om interaktiv installasjon; inndata fra bruker kan være nødvendig</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Banen til programmets manifest</value>
+    <value>Banen til pakkens manifest</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Manifestvalidering mislyktes.</value>
@@ -252,7 +324,7 @@
     <value>Argumentverdi obligatorisk, men ingen funnet</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Filtrer resultater etter appens kallenavn</value>
+    <value>Filtrer resultater etter kallenavn</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Inn data fil blir behandlet som msix. signatur-hash blir gitt hvis det er signert</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Kan ikke beregne hash for MSIX-signatur.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Kan ikke installere Microsoft Store-pakken fordi den bestemte appen er blokkert av policy</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Kunne ikke installere Microsoft Store-pakke. Feilkode:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Verifisering/forespørsel om pakkehenting mislyktes: nettverks feil</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Verifisering/forespørsel av pakkehenting mislyktes: fant ingen lagringskonto</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Verifisering/forespørsel av pakke henting mislyktes: serverfeil</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Verifiserering/spørring om pakkehenting er fullført</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Kunne ikke installere Microsoft Store-pakken fordi Microsoft Store-klienten er blokkert av policy</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Kontrollerer/ber om pakkeinnhenting...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Fant flere pakker som samsvarer med inndata-kriteriene. Begrens inndataene.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtrer resultater etter navn</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Ingen installasjonsprogrammer gjelder for det gjeldende systemet.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Det er for øyeblikket ingen tilgjengelige eksperimentelle funksjoner. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Finner ingen pakke som samsvarer med inndata-kriteriene.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Deaktiverer VirtualTerminal-visning</value>
@@ -291,7 +396,7 @@
     <value>Personvernerklæring</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Spørringen som brukes til å søke etter en app</value>
+    <value>Spørringen som brukes til å søke etter en pakke</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Fremdrift viser en regnbue med farger</value>
@@ -303,10 +408,26 @@
     <value>Fremdrift vises som standardfargen</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Søker etter programmer fra konfigurerte kilder.</value>
+    <value>Søker etter pakker fra konfigurerte kilder.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Finn og vis grunnleggende informasjon om apper</value>
+    <value>Finn og vis grunnleggende informasjon om pakker</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>ID</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Samsvar</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Navn</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>flere oppføringer avkortes på grunn av resultatgrensen</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Versjon</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Følgende feil ble funnet under validering av innstillingene:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Uventet feil under innlasting av innstillinger. Kontroller innstillingene ved å kjøre kommandoen innstillinger.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Kanal</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Viser informasjon om et bestemt program.</value>
+    <value>Viser informasjon om en bestemt pakke. Spørringen må som standard skille mellom små og store bokstaver, og matche ID, navn eller kallenavn for pakken. Andre felt kan brukes ved å sende riktig alternativ.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Viser informasjon om et program</value>
+    <value>Viser informasjon om en pakke</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Versjon</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Be om stille installasjon</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Bare enkelttegnaliaset kan oppstå etter en enkelt -</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>En kilde med det angitte navnet finnes allerede og refererer til en annen plassering:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>En kilde med et annet navn refererer allerede til denne plasseringen:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>En kilde med det angitte navnet finnes allerede, og refererer til samme plassering:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Legger til kilde:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Legg til en ny kilde. En kilde gir deg data du kan oppdage og installere programmer fra. Bare Legg til en ny kilde hvis du stoler på den som et sikkert sted.</value>
+    <value>Legg til en ny kilde. En kilde gir deg data du kan oppdage og installere pakker fra. Bare Legg til en ny kilde hvis du stoler på den som et sikkert sted.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Legg til en ny kilde</value>
@@ -342,13 +481,17 @@
     <value>Argument gitt til kilde</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Finn app med den angitte kilden</value>
+    <value>Finn pakke med den angitte kilden</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Administrer kilder med underkommandoer. En kilde gir deg data du kan oppdage og installere programmer fra. Bare Legg til en ny kilde hvis du stoler på den som et sikkert sted.</value>
+    <value>Administrer kilder med underkommandoer. En kilde gir deg data du kan oppdage og installere pakker fra. Bare Legg til en ny kilde hvis du stoler på den som et sikkert sted.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Administrer kilder for programmer</value>
+    <value>Administrere kilder til pakker</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Argument</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Vis alle gjeldende kilder, eller alle detaljer om en bestemt kilde.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Vis gjeldende kilder</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Data</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Felt</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Navn</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Fant ingen kilde med navnet:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Ingen kilder er konfigurert.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Type</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Oppdatert</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>aldri</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Verdi</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Navn på kilden</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Fjerner alle kilder...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Fjern en bestemt kilde.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Fjern gjeldende kilder</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Fjerner kilde:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Tilbakestiller alle kilder...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Denne kommandoen avslutter eksisterende kilder, noe som kan etterlate lokale data. Uten et argument, vil det fjerne alle kilder og legge til standardinnstillingene. Hvis en navngitt kilde er angitt, vil bare den kilden bli fjernet.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Tilbakestill kilder</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Tvinger tilbakestilling av kildene</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Følgende kilder blir tilbakestilt hvis --force-alternativet er gitt:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Tilbakestiller kilde:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Type kilde</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Oppdaterer alle kilder...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Oppdater alle kilder eller bare en bestemt kilde.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Oppdater gjeldende kilder</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Oppdaterer kilde:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtrer resultater etter notatmerke</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Takk for at du bruker winget</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Merknader fra tredjeparter</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Kommandolinjeverktøyet WinGet gjør det mulig å installere programmer og andre pakker fra kommandolinjen.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Vis generell informasjon om verktøyet</value>
@@ -427,6 +635,6 @@
     <value>Bruk den angitte versjonen; standard er den nyeste versjonen</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Vis tilgjengelige versjoner av appen</value>
+    <value>Vis tilgjengelige versjoner av pakken</value>
   </data>
 </root>

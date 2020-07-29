@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>குறிப்பிடப்பட்ட முடிவுகளின் எண்ணிக்கைக்கையை விட அதிகமாக எதையும் காட்ட வேண்டாம்</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>முடிந்தது</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>சரியான பொருத்தத்தைப் பயன்படுத்திப் பயன்பாட்டைக் கண்டறியலாம்</value>
+    <value>சரியான பொருத்தத்தை பயன்படுத்தி தொகுப்பைக் கண்டறியவும்</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>செயல்விளக்க நோக்கங்களுக்காக பரிசோதனை மதிப்புரு</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>இந்த கட்டளை ஒரு சோதனை அம்சத்தை எவ்வாறு செயல்படுத்துவது என்பதற்கு ஒரு உதாரணம் ஆகும். இயக்க 'winget settings' சென்று experimentalCmd அல்லது experimentalArg அம்சங்களைச் செயல்படுத்தவும்.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>பரிசோதனை அம்ச எடுத்துக்காட்டு</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>யாரும் எதிர்பார்க்காத போது ஒரு பதவி மதிப்புரு கண்டுபிடிக்கப்பட்டது</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>இந்த அம்சம் செயல்பாட்டில் உள்ளது, எதிர்காலத்தில் இது திடீரென மாற்றப்படலாம் அல்லது மொத்தமாக அகற்றப்படலாம், இதை இயக்க, உங்கள் அமைப்புகளைத் ('winget settings') திருத்த பரிசோதனை அம்சத்தைச் சேர்க்கவும்</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>பரிசோதனை அம்சங்களின் நிலையை காட்டுகிறது. சோதனை அம்சங்கள் 'winget settings' மூலம் இயக்கப்படலாம்.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>பரிசோதனை அம்சங்களின் நிலையைக் காட்டுகிறது</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>முடக்கப்பட்டது</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>இயக்கப்பட்டது</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>அம்சம்</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>இணைப்பு</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>பின்வரும் பரிசோதனை அம்சங்கள் செயல்பாட்டில் உள்ளன.
+அவை அமைப்புகள் கோப்பு 'winget settings' மூலம் உள்ளமைக்கப்படலாம்.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>குணம்</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>நிலை</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>கோப்பு ஹாஷ் செய்யப்படவுள்ளது</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>குறி மதிப்புருவில் அருகிலுள்ள மதிப்பைக் கொண்டிருக்கவில்லை</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>அறிவுறுத்தல்கள் இல்லாமல் கட்டளையைச் செயல்படுத்தவும்</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>ஒரு காட்சி விளக்கவுரையில் நுழைவதற்கு ஏற்ற உள்ளூர் கோப்பின் ஹாஷைக் கணக்கிடுகிறது. ஸ்ட்ரீமிங் நிறுவல்களை இயக்க MSIX தொகுப்பின் கையொப்பக் கோப்பின் ஹாஷையும் இது கணக்கிடலாம்.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>மூன்றாம் தரப்பு தொகுப்புகளுக்கு Microsoft பொறுப்பல்ல, எந்தவொரு உரிமத்தையும் வழங்காது.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>இந்த தொகுப்பு Microsoft Store மூலம் வழங்கப்படுகிறது. தற்போதைய பயனர் சார்பாக Microsoft Store-இலிருந்து தொகுப்பை winget பெற வேண்டும்.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Windows-இன் உயர் பதிப்பு தேவைப்படுவதால், பயன்பாட்டை நிறுவ முடியாது:</value>
+    <value>Windows-இன் உயர் பதிப்பு தேவைப்படுவதால், தொகுப்பைை நிறுவ முடியாது:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>தேர்ந்தெடுக்கப்பட்ட பயன்பாட்டை நிறுவுகிறது, இது கட்டமைக்கப்பட்ட மூலத்தைத் தேடுவதன் மூலம் அல்லது நேரடியாக ஒரு மேனிஃபெஸ்டிலிருந்து கண்டறியப்படுகிறது.</value>
+    <value>உள்ளமைக்கப்பட்ட மூலம் அல்லது வெளியிலிருந்து நேரடியாக தேடுவதன் மூலம் கண்டுபிடிக்கப்பட்ட, தேர்ந்தெடுத்த தொகுப்பை நிறுவுகிறது. இயல்புநிலையில், ID, பெயர் அல்லது தொகுப்பின் மோனிக்கர் ஆகியவற்றுடன் வினவலின் எழுத்துமாறுபாடு உணர்திறன் அற்றது பொருந்த வேண்டும். மற்ற புலங்களை அவற்றின் பொருத்தமான விருப்பத்தைக் கடப்பதன் மூலம் பயன்படுத்தலாம்.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>வழங்கப்பட்ட பயன்பாட்டை நிறுவவும்</value>
+    <value>வழங்கப்பட்ட தொகுப்பை நிறுவவும்</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>நிறுவி ஹாஷ் பொருந்தவில்லை; நிர்வாகியாக இயங்கும்போது இதை மேலெழுத முடியாது</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>நிறுவி ஹாஷ் பொருந்தவில்லை; இதன் மூலம் தொடர்கிறது --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>நிறுவி ஹாஷ் பொருந்தவில்லை; இந்தச் சரிபார்ப்புப் பயன்பாட்டை மேலெழுதவும் --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>நிறுவி ஹாஷ் வெற்றிகரமாகச் சரிபார்க்கப்பட்டது</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>வெற்றிகரமாக நிறுவப்பட்டது!</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>தொகுப்பை நிறுவத் தொடங்குகிறது...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>நிறுவி ஹாஷ் சரிபார்ப்பின் மேலெழுதவும்</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>ஊடாடும் நிறுவல் கோரிக்கை; பயனர் உள்ளீடு தேவைப்படலாம்</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>பயன்பாட்டின் சான்றிற்கான பாதை</value>
+    <value>தொகுப்பின் சான்றிற்கான பாதை</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>மேனிஃபெஸ்ட் சரிபார்ப்பு தோல்வியுற்றது.</value>
@@ -252,7 +324,7 @@
     <value>மதிப்புரு மதிப்பு தேவை, ஆனால் எதுவும் காணப்படவில்லை</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>பயன்பாடு மோனிக்கரின்படி முடிவுகளை வடிகட்டவும்</value>
+    <value>மோனிக்கரின்படி முடிவுகளை வடிகட்டவும்</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>உள்ளீட்டு கோப்பு msix ஆக நடத்தப்படும்; கையொப்பமிடும் பட்சத்தில் கையொப்ப ஹாஷ் அளிக்கப்படும்</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX கையொப்ப ஹாஷை கணக்கிடுவதில் தோல்வி.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>கொள்கையின் காரணமாக குறிப்பிட்ட பயன்பாடு தடுக்கப்படுவதால் Microsoft Store தொகுப்பை நிறுவுவதில் தோல்வி ஏற்பட்டது.</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Microsoft Store தொகுப்பை நிறுவுவதில் தோல்வியுற்றது. பிழைக் குறியீடு:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>தொகுப்புக் கையகப்படுத்தலைச் சரிபார்த்தல்/கோருதல் தோல்வியடைந்தது. நெட்வொர்க் பிழை</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>தொகுப்புக் கையகப்படுத்தலைச் சரிபார்த்தல்/கோருதல் தோல்வியடைந்தது. ஸ்டோர் கணக்கு எதுவுமில்லை</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>தொகுப்புக் கையகப்படுத்தலைச் சரிபார்த்தல்/கோருதல் தோல்வியடைந்தது. சேவையகப் பிழை</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>தொகுப்புக் கையகப்படுத்தல் வெற்றியைச் சரிபார்த்தல்/கோருதல்</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>கொள்கையின் காரணமாக Microsoft Store பயனகம் தடுக்கப்படுவதால் Microsoft Store தொகுப்பை நிறுவுவதில் தோல்வி ஏற்பட்டது.</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>தொகுப்பு கையகப்படுத்தலைச் சரிபார்த்தல்/கோருதல்</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>உள்ளீட்டு நிபந்தனையுடன் பல்வேறு தொகுப்புகள் பொருந்துகின்றன. உள்ளீட்டை மீண்டும் நிர்ணயிக்கவும்.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>பெயரினபடி முடிவுகளை வடிகட்டு</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>தற்போதைய சிஸ்டத்திற்கு எந்த நிறுவிகளும் பொருந்தாது.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>தற்போது எந்தவிதப் பரிசோதனை அம்சங்களும் கிடைக்கவில்லை. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>உள்ளீட்டு நிபந்தனைக்குப் பொருந்தும் தொகுப்பு எதுவும் காணப்படவில்லை.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>VirtualTerminal காட்சியை முடக்குகிறது</value>
@@ -291,7 +396,7 @@
     <value>தனியுரிமை அறிக்கை</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>ஒரு பயன்பாட்டைத் தேட வினவல் பயன்படுத்தப்படுகிறது</value>
+    <value>ஒரு தொகுப்பைத் தேட வினவல் பயன்படுத்தப்படுகிறது</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>வானவில் வண்ணங்களின் ஒரு முன்னேற்றக் காட்சி</value>
@@ -303,10 +408,26 @@
     <value>இயல்புநிலை வண்ணமாக முன்னேற்றக் காட்சியை மாற்றவும்</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>உள்ளமைக்கப்பட்ட மூலங்களிலிருந்து பயன்பாடுகளுக்கான தேடல்கள்.</value>
+    <value>உள்ளமைக்கப்பட்ட மூலங்களிலிருந்து தொகுப்புகளுக்கான தேடல்கள்.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>பயன்பாடுகளின் அடிப்படைத் தகவலைக் கண்டுபிடித்துக் காட்டவும்</value>
+    <value>தொகுப்புகளின் அடிப்படைத் தகவலைக் கண்டுபிடித்துக் காட்டவும்</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>ID</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>பொருத்து</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>பெயர்</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>முடிவு வரம்பு காரணமாக கூடுதல் உள்ளீடுகள் அகற்றப்படுகின்றன</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>பதிப்பு</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>அமைப்புகளை சரிபார்க்க பின்வரும் தோல்விகள் கண்டறியப்பட்டன:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>அமைப்புகளை ஏற்றும்போது எதிர்பாராத பிழை ஏற்பட்டது. அமைப்புகள் கட்டளையை இயக்குவதன் மூலம் உங்கள் அமைப்புகளை சரிபார்க்கவும்.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>சேனல்</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>ஒரு குறிப்பிட்ட பயன்பாட்டின் தகவலைக் காட்டவும்.</value>
+    <value>ஒரு குறிப்பிட்ட தொகுப்பைப் பற்றிய தகவலை காண்பிக்கும். இயல்புநிலையில், ID, பெயர் அல்லது தொகுப்பின் மோனிக்கர் ஆகியவற்றுடன் வினவலின் எழுத்துமாறுபாடு உணர்திறன் அற்றது பொருந்த வேண்டும். மற்ற புலங்களை அவற்றின் பொருத்தமான விருப்பத்தைக் கடப்பதன் மூலம் பயன்படுத்தலாம்.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>பயன்பாட்டைப் பற்றிய தகவலைக் காட்டுகிறது</value>
+    <value>தொகுப்பைப் பற்றிய தகவலைக் காட்டுகிறது</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>பதிப்பு</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>அமைதியாக நிறுவலுக்குக் கேட்கவும்</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>ஒரு ஒற்றைக்குப் பிறகு ஒற்றை எழுத்துக்குறி மாற்றுப்பெயர் நிகழலாம் -</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>கொடுக்கப்பட்ட பெயர் கொண்ட ஒரு மூலம் முன்பே உள்ளது, வேறொரு இருப்பிடத்தைக் குறிக்கிறது:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>வேறொரு பெயரை கொண்ட ஒரு மூலம் ஏற்கனவே இந்த இடத்தைக் குறிக்கிறது:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>கொடுக்கப்பட்ட பெயர் கொண்ட ஒரு மூலம் முன்பே உள்ளது, அதே இருப்பிடத்தைக் குறிக்கிறது:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>மூலத்தைச் சேர்க்கிறது:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>புதிய மூலத்தைச் சேர்க்கவும். பயன்பாடுகளைக் கண்டறிவதற்கும் நிறுவுவதற்கும் மூலம் உங்களுக்காகத் தரவை வழங்குகிறது. பாதுகாப்பான இடமாக மூலத்தை நீங்கள் நம்பினால் அந்தப் புதிய மூலத்தை மட்டும் சேர்க்கவும்.</value>
+    <value>புதிய மூலத்தைச் சேர்க்கவும். தொகுப்புகளைக் கண்டறிவதற்கும் நிறுவுவதற்கும் மூலம் உங்களுக்காகத் தரவை வழங்குகிறது. பாதுகாப்பான இடமாக மூலத்தை நீங்கள் நம்பினால் அந்தப் புதிய மூலத்தை மட்டும் சேர்க்கவும்.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>புதிய மூலத்தைச் சேர்க்கவும்</value>
@@ -342,13 +481,17 @@
     <value>மூலத்திற்கு வழங்கப்பட்ட மதிப்புரு</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>குறிப்பிடப்பட்ட மூலத்தைப் பயன்படுத்திப் பயன்பாட்டைக் கண்டுபிடிக்கவும்</value>
+    <value>குறிப்பிடப்பட்ட மூலத்தைப் பயன்படுத்திபதொகுப்பைக் கண்டுபிடிக்கவும்</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>துணைக் கட்டளைகள் மூலம் மூலங்களை நிர்வகிக்கவும். பயன்பாடுகளைக் கண்டறிவதற்கும் நிறுவுவதற்கும் மூலம் உங்களுக்காகத் தரவை வழங்குகிறது. பாதுகாப்பான இடமாக மூலத்தை நீங்கள் நம்பினால் அந்தப் புதிய மூலத்தை மட்டும் சேர்க்கவும்.</value>
+    <value>துணைக் கட்டளைகள் மூலம் மூலங்களை நிர்வகிக்கவும். தொகுப்புகளைக் கண்டறிவதற்கும் நிறுவுவதற்கும் மூலம் உங்களுக்காகத் தரவை வழங்குகிறது. பாதுகாப்பான இடமாக மூலத்தை நீங்கள் நம்பினால் அந்தப் புதிய மூலத்தை மட்டும் சேர்க்கவும்.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>பயன்பாடுகளின் மூலங்களை நிர்வகிக்கவும்</value>
+    <value>தொகுப்புகளின் மூலங்களை நிர்வகி</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>மதிப்புரு</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>தற்போதைய அனைத்து மூலங்களையும் அல்லது குறிப்பிட்ட மூலத்தின் முழு விவரங்களையும் பட்டியலிடவும்.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>தற்போதைய பட்டியல் மூலங்கள்</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>தரவு</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>புலம்</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>பெயர்</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>இந்தப் பெயரிடப்பட்ட மூலத்தைக் கண்டறியவில்லை:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>எந்த மூலங்களும் உள்ளமைக்கப்படவில்லை.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>வகை</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>புதுப்பிக்கப்பட்டது</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>ஒருபோதும் இல்லை</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>மதிப்பு</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>மூலத்தின் பெயர்</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>எல்லா மூலங்களையும் அகற்றுகிறது...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>குறிப்பிட்ட மூலத்தை அகற்றவும்.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>தற்போதைய மூலங்களை அகற்று</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>மூலத்தை அகற்றுகிறது:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>எல்லா மூலங்களையும் மீட்டமைக்கிறது...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>இந்தக் கட்டளை ஏற்கனவேயுள்ள மூலங்களை டிராப் செய்யும், ஏதேனும் தனித் தரவை பின்னே விட்டுச் செல்லக் கூடும். அனைத்து மூலங்களையும் இது டிராப் செய்து, இயல்புநிலைகளைச் சேர்க்கவும். பெயரிடப்பட்ட மூலம் வழங்கினால் அந்த மூலம் மட்டும் டிராப் செய்யப்படும்.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>மூலங்களை மீட்டமை</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>மூலங்களை மீட்டமைக்கும்படி கட்டாயப்படுத்துகிறது</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>--force விருப்பத்தேர்வு வழங்கப்பட்டால் இந்த மூலங்கள் மீட்டமைக்கப்படும்:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>மூலத்தை மீட்டமைக்கிறது:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>மூலத்தின் வகை</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>எல்லா மூலங்களையும் புதுப்பிக்கிறது...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>எல்லா மூலங்களையும் அல்லது ஒரு குறிப்பிட்ட மூலத்தை மட்டும் புதுப்பிக்கவும்.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>தற்போதைய மூலங்களைப் புதுப்பிப்பு</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>மூலத்தைப் புதுப்பிக்கிறது:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>குறியின்படி முடிவுகளை வடிகட்டவும்</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Winget-ஐப் பயன்படுத்துவதற்கு நன்றி</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>மூன்றாம் தரப்பு அறிக்கைகள்</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Winget கட்டளை வரி வசதியானது கட்டளை வரியில் இருந்து பயன்பாடுகளையும் பிற தொகுப்புகளையும் நிறுவ உதவுவதற்கு அனுமதிக்கும்.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>கருவியின் பொதுவான தகவலைக் காட்டவும்</value>
@@ -427,6 +635,6 @@
     <value>குறிப்பிட்ட பதிப்பைப் பயன்படுத்தவும்: இயல்புநிலையில் உள்ளது சமீபத்திய பதிப்பு</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>பயன்பாட்டின் கிடைக்கக்கூடிய பதிப்புகளைக் காட்டவும்</value>
+    <value>தொகுப்பின் கிடைக்கக்கூடிய பதிப்புகளைக் காட்டவும்</value>
   </data>
 </root>

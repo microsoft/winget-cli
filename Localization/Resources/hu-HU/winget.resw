@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Csak a megadott számú vagy kevesebb eredmény megjelenítése</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Kész</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Alkalmazás keresése pontos egyezés használatával</value>
+    <value>Csomag keresése pontos egyezés szerint</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Bemutató célra szolgáló kísérleti argumentum</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Ez a parancs példa arra, hogy egy kísérleti funkció hogyan implementálható. A bekapcsolásához a „winget settings“ beállításai között engedélyezze az experimentalCmd vagy az experimentalArg funkciókat.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Minta kísérleti funkció</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Pozícióhoz kötött argumentum található, pedig a parancs nem várt ilyet</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Ennek a funkciónak a fejlesztése folyamatban van, és a funkciót a későbbiekben jelentősen megváltoztathatjuk, vagy teljesen el is távolíthatjuk. A funkció engedélyezéséhez módosítsa a beállításokat („winget settings”), hogy a kísérleti fázisú funkció is elérhető legyen.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>A kísérleti funkciók állapotát jeleníti meg. A kísérleti funkciók a „winget settings“ beállításai segítségével kapcsolható be.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>A kísérleti funkciók állapotát jeleníti meg</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Letiltva</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Engedélyezve</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Funkció</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Hivatkozás</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>A következő kísérleti fázisú funkciók fejlesztése folyamatban van.
+A „winget settings” nevű beállításfájl használatával konfigurálhatók.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Tulajdonság</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Állapot</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>A kivonatolandó fájl</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>A jelölő argumentum nem tartalmazhat szomszédos értéket</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>A parancs végrehajtása felszólítások nélkül</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Kiszámítja egy helyi fájl kivonatát, amely utána felvehető egy jegyzékfájlba. Egy MSIX-csomag aláírásfájljának kivonatát is ki tudja számítani adatfolyamos telepítések lehetővé tételéhez.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>A Microsoft nem vállal felelősséget külső féltől származó csomagokért, és nem biztosít licenceket azokhoz.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Ez a csomag a Microsoft áruházban érhető el. Előfordulhat, hogy az aktuális felhasználó nevében a csomag Microsoft áruházból való beszerzéséhez winget szükséges.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Az alkalmazás nem telepíthető, mert a Windows újabb verzióját igényli:</value>
+    <value>A csomag nem telepíthető, mert a Windows újabb verzióját igényli:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Telepítheti a kijelölt alkalmazást vagy egy konfigurált forrásban végzett keresés találatai közül vagy közvetlenül egy jegyzékfájlból.</value>
+    <value>A kijelölt csomagot telepíti, amelyet vagy a konfigurált forráson való kereséssel, vagy közvetlenül egy jegyzékfájlból talált. Alapértelmezés szerint a lekérdezésnek kis- és nagybetűk megkülönböztetése nélkül kell egyezést keresnie a csomag azonosítójával, nevével vagy monikerével. Más mezők is használhatók a megfelelő opciók átadásával.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Az adott alkalmazás telepítése</value>
+    <value>Az adott csomag telepítése</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>A telepítő kivonata nem megfelelő. Ez nem bírálható felül rendszergazdaként való futtatáskor.</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>A telepítő kivonata nem megfelelő. Folytatás a --force kapcsoló miatt</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>A telepítő kivonata nem megfelelő. Az ellenőrzés felülbírálásához használja a --force kapcsolót.</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>A telepítő kivonata sikeresen ellenőrizve</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Sikeres telepítés</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>A csomag telepítésének indítása...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>A telepítő kivonatoló vizsgálatának felülbírálása</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Interaktív telepítés kérése; felhasználói beavatkozásra lehet szükség.</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Az alkalmazásjegyzék elérési útja</value>
+    <value>A csomagjegyzék elérési útja</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>A jegyzékfájl ellenőrzése sikertelen volt.</value>
@@ -252,7 +324,7 @@
     <value>Az argumentumérték megadása kötelező, de nem található érték</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Találatok szűrése az alkalmazás hivatkozásútvonala alapján</value>
+    <value>Találatok szűrése moniker alapján</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>A rendszer MSIX-fájlként kezeli a bemeneti fájlt; ha alá van írva, biztosítja az aláíráskivonatot.</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Nem sikerült kiszámítani az MSIX-aláírás kivonatát.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Nem sikerült a csomagot a Microsoft áruházból telepíteni, mert az adott alkalmazást a házirend letiltotta</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Nem sikerült a csomagot a Microsoft áruházból telepíteni. Hibakód:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>A csomagszerzés ellenőrzése/kérése nem sikerült: hálózati hiba</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>A csomagszerzés ellenőrzése/kérése nem sikerült: az áruházhoz nem található felhasználói fiók</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>A csomagszerzés ellenőrzése/kérése nem sikerült: kiszolgálóhiba</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>A csomagszerzés ellenőrzése/kérése sikeres</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Nem sikerült a csomagot a Microsoft áruházból telepíteni, mert a Microsoft áruház ügyfélprogramot a házirend letiltotta</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>A csomagszerzés ellenőrzése/kérése folyamatban...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Több olyan csomag található, amely megfelel a bemeneti feltételeknek. Pontosítsa a bemenetet.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Találatok szűrése név alapján</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Egyetlen telepítő sem alkalmazható a jelenlegi rendszerben.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Jelenleg nincsenek elérhető kísérleti fázisú funkciók. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Nem található a bemeneti feltételeknek megfelelő csomag.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>A VirtualTerminal megjelenítésének letiltása</value>
@@ -291,7 +396,7 @@
     <value>Adatvédelmi nyilatkozat</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Alkalmazás kereséséhez használt lekérdezés</value>
+    <value>Csomag kereséséhez használt lekérdezés</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Előrehaladás jelzése színes szivárványszerű kijelzővel</value>
@@ -303,10 +408,26 @@
     <value>Előrehaladás jelzése az alapértelmezett színnel</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Alkalmazásokat kereshet konfigurált forrásokban.</value>
+    <value>Csomagokat keres konfigurált forrásokban.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Alkalmazások alapvető adatainak megkeresése és megjelenítése</value>
+    <value>Csomagok alapvető adatainak megkeresése és megjelenítése</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>Azonosító</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Egyezés</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Név</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>az eredmények számának korlátja miatt a további bejegyzések nem láthatók</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Verzió</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>A Beállítások ellenőrzése során a következő hibák merültek fel:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Váratlan hiba történt a beállítások betöltése közben. Kérjük, ellenőrizze a beállításokat a beállítások parancs futtatásával.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Csatorna</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Megjelenítheti egy adott alkalmazás adatait.</value>
+    <value>Egy adott csomagra vonatkozó információt jelenít meg. Alapértelmezés szerint a lekérdezésnek kis- és nagybetűk megkülönböztetése nélkül kell egyezést keresnie a csomag azonosítójával, nevével vagy monikerével. Más mezők is használhatók a megfelelő opciók átadásával.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Egy alkalmazásra vonatkozó információ megjelenítése</value>
+    <value>Csomagra vonatkozó adatok megjelenítése</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Verzió</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Beavatkozás nélküli telepítés kérése</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Egyetlen - karakter után csak az egykarakteres alias állhat</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Már létezik ilyen nevű forrás, és másik helyre hivatkozik:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Egy másik nevű forrás már hivatkozik erre a helyre:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Már létezik ilyen nevű forrás, és a következő helyre hivatkozik:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Forrás hozzáadása:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Új forrást vehet fel. A források az alkalmazások felfedezéséhez és telepítéséhez biztosítanak adatokat. Csak akkor vegyen fel új forrást, ha megbízhatónak tartja azt biztonságos helyként.</value>
+    <value>Új forrás felvétele. A források a csomagok felfedezéséhez és telepítéséhez biztosítanak adatokat. Csak akkor vegyen fel új forrást, ha megbízik a hely biztonságosságában.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Új forrás felvétele</value>
@@ -342,13 +481,17 @@
     <value>A forrásnak átadott argumentum</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Alkalmazás keresése a megadott forrás használatával</value>
+    <value>Csomag keresése a megadott forrás használatával</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Az alparancsokkal kezelheti a forrásokat. A források az alkalmazások felfedezéséhez és telepítéséhez biztosítanak adatokat. Csak akkor vegyen fel új forrást, ha megbízhatónak tartja azt biztonságos helyként.</value>
+    <value>Az alparancsokkal kezelheti a forrásokat. A források a csomagok felfedezéséhez és telepítéséhez biztosítanak adatokat. Csak akkor vegyen fel új forrást, ha megbízik a hely biztonságosságában.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Alkalmazásforrások kezelése</value>
+    <value>Csomagforrások kezelése</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Argumentum</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Felsorolja az összes jelenlegi forrást, vagy megjeleníti egy adott forrás részletes adatait.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>A jelenlegi források felsorolása</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Adat</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Mező</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Név</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Nem található ilyen nevű forrás:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Nincs konfigurálva forrás.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Típus</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Frissítve</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>soha</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Érték</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>A forrás neve</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Az összes forrás eltávolítása...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Eltávolíthat egy megadott forrást.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>A jelenlegi források eltávolítása</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Forrás eltávolítása:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Az összes forrás alaphelyzetbe állítása...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Ez a parancs eldobja a meglévő forrásokat, és hátrahagyja az esetleg megadott helyi adatokat. Argumentum megadása nélkül az összes forrást eldobja, és felveszi az alapértelmezetteket. Ha megad egy megnevezett forrást, a parancs csak azt a forrást dobja el.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Források alaphelyzetbe állítása</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Kikényszeríti a források alaphelyzetbe állítását</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>A --force kapcsoló használata esetén a következő források alaphelyzetbe lesznek állítva:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Forrás alaphelyzetbe állítása:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>A forrás típusa</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Az összes forrás frissítése...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Frissítheti az összes forrást vagy csak egy adott forrást.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>A jelenlegi források frissítése</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Forrás frissítése:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Találatok szűrése címke alapján</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Köszönjük, hogy a winget eszközt használja!</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Harmadik felekkel kapcsolatos közlemények</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>A WinGet parancssori segédprogram lehetővé teszi alkalmazások és egyéb csomagok telepítését a parancssorból.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Az eszköz általános adatainak megjelenítése</value>
@@ -427,6 +635,6 @@
     <value>A megadott verzió használata; az alapértelmezett beállítás a legújabb verzió.</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Az alkalmazás elérhető verzióinak megjelenítése</value>
+    <value>A csomag elérhető verzióinak megjelenítése</value>
   </data>
 </root>
