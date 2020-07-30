@@ -1,4 +1,4 @@
-$scriptblock = {
+Register-ArgumentCompleter -Native -CommandName wingetdev -ScriptBlock {
     param($wordToComplete, $commandAst, $cursorPosition)
         $Local:word = $wordToComplete.Replace('"', '""')
         $Local:ast = $commandAst.ToString().Replace('"', '""')
@@ -6,4 +6,3 @@ $scriptblock = {
             [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
         }
 }
-Register-ArgumentCompleter -Native -CommandName wingetdev -ScriptBlock $scriptblock
