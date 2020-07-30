@@ -27,7 +27,7 @@ namespace AppInstaller::CLI
         AICLI_LOG(CLI, Info, << "Completing word '" << m_word << '\'');
 
         // Determine position as an integer
-        size_t cursor = std::stoull(std::string{ position });
+        size_t cursor = wil::safe_cast<size_t>(std::stoull(std::string{ position }));
 
         AICLI_LOG(CLI, Info, << "Cursor position starts at '" << cursor << '\'');
 
