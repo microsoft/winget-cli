@@ -27,9 +27,15 @@ namespace AppInstaller::CLI
         AICLI_LOG(CLI, Info, << "Completing word '" << m_word << '\'');
 
         // Determine position as an integer
-        m_position = std::stoull(std::string{ position });
+        size_t cursor = std::stoull(std::string{ position });
 
-        AICLI_LOG(CLI, Info, << "Cursor position starts at '" << m_position << '\'');
+        AICLI_LOG(CLI, Info, << "Cursor position starts at '" << cursor << '\'');
+
+        // First, move the cursor from the UTF-8 grapheme position to the UTF-8 byte position.
+        // This simplifies the rest of the code.
+        cursor = Utility::UTF8Substring(commandLine, 0, cursor).length();
+
+        AICLI_LOG(CLI, Info, << "Cursor position moved to '" << cursor << '\'');
 
         std::vector<std::string> argsBeforeWord;
         std::vector<std::string> argsAfterWord;
@@ -42,10 +48,9 @@ namespace AppInstaller::CLI
         if (m_word.empty())
         {
             // The cursor is past the end, so everything is before the word.
-            if (m_position >= commandLine.length())
+            if (cursor >= commandLine.length())
             {
                 // Move the position to the end in case it was extended past it.
-                m_position = commandLine.length();
                 ParseInto(commandLine, argsBeforeWord, true);
             }
             // The cursor is not past the end; ensure that the preceding character is whitespace or move the
@@ -53,15 +58,15 @@ namespace AppInstaller::CLI
             // very few users are likely to put any spaces at the front of their statements, let alone many.
             else
             {
-                for (; m_position > 0 && !std::isspace(commandLine[m_position - 1]); --m_position);
+                for (; cursor > 0 && !std::isspace(commandLine[cursor - 1]); --cursor);
 
-                AICLI_LOG(CLI, Info, << "Cursor position moved to '" << m_position << '\'');
+                AICLI_LOG(CLI, Info, << "Cursor position moved to '" << cursor << '\'');
 
                 // If we actually hit the front of the string, something bad probably happened.
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMPLETE_INPUT_BAD, m_position == 0);
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMPLETE_INPUT_BAD, cursor == 0);
 
-                ParseInto(commandLine.substr(0, m_position), argsBeforeWord, true);
-                ParseInto(commandLine.substr(m_position), argsAfterWord, false);
+                ParseInto(commandLine.substr(0, cursor), argsBeforeWord, true);
+                ParseInto(commandLine.substr(cursor), argsAfterWord, false);
             }
         }
         // If the word is not empty, the cursor is either in the middle of a token, or at the end of one.
@@ -124,18 +129,18 @@ namespace AppInstaller::CLI
                     size_t distance = 0;
 
                     // The cursor is square in the middle of this location, this is the one.
-                    if (m_position > lowerBound && m_position <= upperBound)
+                    if (cursor > lowerBound && cursor <= upperBound)
                     {
                         indexToUse = i;
                         break;
                     }
-                    else if (m_position <= lowerBound)
+                    else if (cursor <= lowerBound)
                     {
-                        distance = lowerBound - m_position;
+                        distance = lowerBound - cursor;
                     }
-                    else // m_position > upperBound
+                    else // cursor > upperBound
                     {
-                        distance = m_position - upperBound;
+                        distance = cursor - upperBound;
                     }
 
                     if (distance < distanceToCursor)

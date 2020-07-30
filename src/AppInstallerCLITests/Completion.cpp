@@ -21,7 +21,6 @@ TEST_CASE("CompletionData_EmptyWord_PositionAtEnd", "[complete]")
 {
     CompletionData cd{ "", "winget ", "7" };
     REQUIRE(cd.Word() == "");
-    REQUIRE(cd.Position() == 7);
     REQUIRE(cd.BeforeWord().size() == 0);
     REQUIRE(cd.AfterWord().size() == 0);
 }
@@ -30,7 +29,6 @@ TEST_CASE("CompletionData_EmptyWord_PositionPastEnd", "[complete]")
 {
     CompletionData cd{ "", "winget ", "8" };
     REQUIRE(cd.Word() == "");
-    REQUIRE(cd.Position() == 7);
     REQUIRE(cd.BeforeWord().size() == 0);
     REQUIRE(cd.AfterWord().size() == 0);
 }
@@ -39,7 +37,6 @@ TEST_CASE("CompletionData_EmptyWord_PositionCorrect", "[complete]")
 {
     CompletionData cd{ "", "winget install", "7" };
     REQUIRE(cd.Word() == "");
-    REQUIRE(cd.Position() == 7);
     REQUIRE(cd.BeforeWord().size() == 0);
     REQUIRE(cd.AfterWord().size() == 1);
 }
@@ -49,7 +46,6 @@ TEST_CASE("CompletionData_EmptyWord_PositionOffset", "[complete]")
 {
     CompletionData cd{ "", "winget install PowerToys --version", "17" };
     REQUIRE(cd.Word() == "");
-    REQUIRE(cd.Position() == 15);
     REQUIRE(cd.BeforeWord().size() == 1);
     REQUIRE(cd.AfterWord().size() == 2);
 }
@@ -64,7 +60,6 @@ TEST_CASE("CompletionData_Word_SingleMatch", "[complete]")
 {
     CompletionData cd{ "power", "winget install power --version", "17" };
     REQUIRE(cd.Word() == "power");
-    REQUIRE(cd.Position() == 17);
     REQUIRE(cd.BeforeWord().size() == 1);
     REQUIRE(cd.AfterWord().size() == 1);
 }
@@ -73,7 +68,6 @@ TEST_CASE("CompletionData_Word_MultiMatch_PositionCorrect", "[complete]")
 {
     CompletionData cd{ "power", "winget install power --id power", "27" };
     REQUIRE(cd.Word() == "power");
-    REQUIRE(cd.Position() == 27);
     REQUIRE(cd.BeforeWord().size() == 3);
     REQUIRE(cd.AfterWord().size() == 0);
 }
@@ -82,9 +76,32 @@ TEST_CASE("CompletionData_Word_MultiMatch_PositionOffset", "[complete]")
 {
     CompletionData cd{ "power", "winget install power --id power", "21" };
     REQUIRE(cd.Word() == "power");
-    REQUIRE(cd.Position() == 21);
     REQUIRE(cd.BeforeWord().size() == 1);
     REQUIRE(cd.AfterWord().size() == 2);
+}
+
+TEST_CASE("CompletionData_UTF8_EmptyWord_End", "[complete]")
+{
+    CompletionData cd{ "", u8"winget install \x175\x12b\x14b\x1e5\x229\x288 --version ", "32" };
+    REQUIRE(cd.Word() == "");
+    REQUIRE(cd.BeforeWord().size() == 3);
+    REQUIRE(cd.AfterWord().size() == 0);
+}
+
+TEST_CASE("CompletionData_UTF8_EmptyWord_Middle", "[complete]")
+{
+    CompletionData cd{ "", u8"winget install \x175\x12b\x14b\x1e5\x229\x288 --version ", "22" };
+    REQUIRE(cd.Word() == "");
+    REQUIRE(cd.BeforeWord().size() == 2);
+    REQUIRE(cd.AfterWord().size() == 1);
+}
+
+TEST_CASE("CompletionData_UTF8_UTF8Word", "[complete]")
+{
+    CompletionData cd{ u8"\x175\x12b\x14b\x1e5\x229\x288", u8"winget install \x175\x12b\x14b\x1e5\x229\x288 --version ", "18" };
+    REQUIRE(cd.Word() == u8"\x175\x12b\x14b\x1e5\x229\x288");
+    REQUIRE(cd.BeforeWord().size() == 1);
+    REQUIRE(cd.AfterWord().size() == 1);
 }
 
 void OutputAllSubCommands(Command& command, std::ostream& out, std::string_view filter = {})

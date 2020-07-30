@@ -44,14 +44,14 @@ namespace AppInstaller::CLI
     {
         init_apartment();
 
-        // Set output to UTF8
-        ConsoleOutputCPRestore utf8CP(CP_UTF8);
-
         // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
         Logging::AddFileLogger();
         Logging::EnableWilFailureTelemetry();
+
+        // Set output to UTF8
+        ConsoleOutputCPRestore utf8CP(CP_UTF8);
 
         Logging::Telemetry().LogStartup();
 

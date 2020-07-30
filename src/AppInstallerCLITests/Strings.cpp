@@ -22,6 +22,7 @@ TEST_CASE("UTF8Substring", "[strings]")
 {    
     REQUIRE(UTF8Substring("", 0, 0) == "");
     REQUIRE(UTF8Substring("abcd", 0, 4) == "abcd");
+    REQUIRE(UTF8Substring("abcd", 0, 5) == "abcd");
     REQUIRE(UTF8Substring("abcd", 0, 2) == "ab");
     REQUIRE(UTF8Substring("abcd", 1, 0) == "");
     REQUIRE(UTF8Substring("abcd", 1, 1) == "b");

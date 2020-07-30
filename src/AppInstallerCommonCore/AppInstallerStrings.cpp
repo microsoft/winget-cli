@@ -52,14 +52,37 @@ namespace AppInstaller::Utility
                 }
             }
 
+            // Gets the current break value; the byte offset or UBRK_DONE.
+            int32_t CurrentBreak() const { return m_currentBrk; }
+
+            // Gets the current byte offset, throwing if the value is UBRK_DONE or negative.
+            size_t CurrentOffset() const
+            {
+                THROW_HR_IF(E_UNEXPECTED, m_currentBrk < 0);
+                return static_cast<size_t>(m_currentBrk);
+            }
+
+            // Returns the byte offset of the next break in the string
             int32_t Next()
             {
-                return ubrk_next(m_brk.get());
+                m_currentBrk = ubrk_next(m_brk.get());
+                return m_currentBrk;
+            }
+
+            // Returns the byte offset of the next count'th break in the string
+            int32_t Advance(size_t count)
+            {
+                for (size_t i = 0; i < count && m_currentBrk != UBRK_DONE; ++i)
+                {
+                    Next();
+                }
+                return m_currentBrk;
             }
 
         private:
             wil::unique_any<UText*, decltype(utext_close), &utext_close> m_text;
             wil::unique_any<UBreakIterator*, decltype(ubrk_close), &ubrk_close> m_brk;
+            int32_t m_currentBrk = 0;
         };
     }
 
@@ -132,29 +155,27 @@ namespace AppInstaller::Utility
     {
         ICUBreakIterator itr{ input, UBRK_CHARACTER };
 
-        size_t utf8Offset = 0;
-        size_t utf8Count = 0;
-        size_t graphemeClusterOffset = 0;
-        int32_t i = 0;
-
-        while (i != UBRK_DONE)
+        // Offset was past end, throw just like std::string::substr
+        if (itr.Advance(offset) == UBRK_DONE)
         {
-            if (graphemeClusterOffset == offset)
-            {
-                utf8Offset = i;
-            }
-            else if (graphemeClusterOffset == offset + count)
-            {
-                utf8Count = i - utf8Offset;
-                break;
-            }
+            throw std::out_of_range("UTF8Substring: offset past end of input");
+        }
 
-            i = itr.Next();
-            graphemeClusterOffset++;
+        size_t utf8Offset = itr.CurrentOffset();
+        size_t utf8Count = 0;
+
+        // Count past end, convert to npos to get all of string
+        if (itr.Advance(count) == UBRK_DONE)
+        {
+            utf8Count = std::string_view::npos;
+        }
+        else
+        {
+            utf8Count = itr.CurrentOffset() - utf8Offset;
         }
 
         return input.substr(utf8Offset, utf8Count);
-    }    
+    }
 
     std::string Normalize(std::string_view input, NORM_FORM form)
     {
