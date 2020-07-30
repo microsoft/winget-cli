@@ -115,6 +115,23 @@ void OutputAllArgumentNames(Command& command, std::ostream& out, std::string_vie
     }
 }
 
+void OutputAllArgumentAliases(Command& command, std::ostream& out, bool includeCommon = true)
+{
+    auto args = command.GetArguments();
+    if (includeCommon)
+    {
+        Argument::GetCommon(args);
+    }
+
+    for (const auto& a : args)
+    {
+        if (a.Alias() != Argument::NoAlias)
+        {
+            out << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << a.Alias() << std::endl;
+        }
+    }
+}
+
 TEST_CASE("CompleteCommand_FindRoot", "[complete]")
 {
     std::stringstream out, in;
@@ -212,68 +229,304 @@ struct CompletionTestCommand : public Command
     std::function<void(Context&, Execution::Args::Type)> ArgumentValueCallback;
 };
 
+struct CompletionTestContext
+{
+    CompletionTestContext(std::string_view word, std::string_view commandLine, std::string_view position) :
+        context(out, in)
+    {
+        context.Reporter.SetChannel(Execution::Reporter::Channel::Completion);
+        context.Add<Data::CompletionData>(CompletionData{ word, commandLine, position });
+    }
+
+    std::stringstream out;
+    std::stringstream in;
+    Context context;
+};
+
 TEST_CASE("CommandComplete_Simple", "[complete]")
 {
-    std::stringstream out, in;
-    Context context{ out, in };
-    context.Reporter.SetChannel(Execution::Reporter::Channel::Completion);
-
-    // This will treat our test command like the root
-    CompletionData cd{ "", "winget ", "7" };
-    context.Add<Data::CompletionData>(std::move(cd));
+    CompletionTestContext ctc{ "", "winget ", "7" };
 
     CompletionTestCommand command;
     command.SubCommandNames = { "test1", "test2" };
     command.Arguments = { Argument{ "arg1", 'a', Args::Type::Query, Resource::String::Done, ArgumentType::Standard } };
-    command.Complete(context);
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
+    command.Complete(ctc.context);
 
     // Create expected values
     std::stringstream expected;
     OutputAllSubCommands(command, expected);
     OutputAllArgumentNames(command, expected);
 
-    REQUIRE(out.str() == expected.str());
+    REQUIRE(ctc.out.str() == expected.str());
 }
 
 TEST_CASE("CommandComplete_PartialCommandMatch", "[complete]")
 {
-    std::stringstream out, in;
-    Context context{ out, in };
-    context.Reporter.SetChannel(Execution::Reporter::Channel::Completion);
-
-    // This will treat our test command like the root
-    CompletionData cd{ "cart", "winget cart", "11" };
-    context.Add<Data::CompletionData>(std::move(cd));
+    CompletionTestContext ctc{ "cart", "winget cart", "11" };
 
     CompletionTestCommand command;
     command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
-    command.Complete(context);
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
+    command.Complete(ctc.context);
 
     // Create expected values
     std::stringstream expected;
     OutputAllSubCommands(command, expected, "cart");
     OutputAllArgumentNames(command, expected, "cart");
 
-    REQUIRE(out.str() == expected.str());
+    REQUIRE(ctc.out.str() == expected.str());
 }
 
 TEST_CASE("CommandComplete_CommandsNotAllowed", "[complete]")
 {
-    std::stringstream out, in;
-    Context context{ out, in };
-    context.Reporter.SetChannel(Execution::Reporter::Channel::Completion);
-
-    // This will treat our test command like the root
-    CompletionData cd{ "", "winget foobar ", "14" };
-    context.Add<Data::CompletionData>(std::move(cd));
+    CompletionTestContext ctc{ "", "winget foobar ", "14" };
 
     CompletionTestCommand command;
     command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
-    command.Complete(context);
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
+    command.Complete(ctc.context);
 
     // Create expected values
     std::stringstream expected;
     OutputAllArgumentNames(command, expected);
 
-    REQUIRE(out.str() == expected.str());
+    REQUIRE(ctc.out.str() == expected.str());
+}
+
+TEST_CASE("CommandComplete_Routing1", "[complete]")
+{
+    CompletionTestContext ctc{ "", "winget --arg1 ", "14" };
+
+    CompletionTestCommand command;
+    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.Arguments = {
+        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Standard },
+    };
+    Args::Type argType = static_cast<Args::Type>(-1);
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
+    command.Complete(ctc.context);
+
+    // Create expected values
+    std::stringstream expected;
+
+    REQUIRE(ctc.out.str() == expected.str());
+    REQUIRE(argType == command.Arguments[0].ExecArgType());
+}
+
+TEST_CASE("CommandComplete_Routing2", "[complete]")
+{
+    CompletionTestContext ctc{ "", "winget --arg2 ", "14" };
+
+    CompletionTestCommand command;
+    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.Arguments = {
+        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Standard },
+    };
+    Args::Type argType = static_cast<Args::Type>(-1);
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
+    command.Complete(ctc.context);
+
+    // Create expected values
+    std::stringstream expected;
+
+    REQUIRE(ctc.out.str() == expected.str());
+    REQUIRE(argType == command.Arguments[1].ExecArgType());
+}
+
+TEST_CASE("CommandComplete_PositionalRouting", "[complete]")
+{
+    CompletionTestContext ctc{ "", "winget ", "7" };
+
+    CompletionTestCommand command;
+    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.Arguments = {
+        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
+    };
+    Args::Type argType = static_cast<Args::Type>(-1);
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
+    command.Complete(ctc.context);
+
+    // Create expected values
+    std::stringstream expected;
+    OutputAllSubCommands(command, expected);
+    OutputAllArgumentNames(command, expected);
+
+    REQUIRE(ctc.out.str() == expected.str());
+    REQUIRE(argType == command.Arguments[1].ExecArgType());
+}
+
+TEST_CASE("CommandComplete_PositionalRoutingAfterArgs", "[complete]")
+{
+    CompletionTestContext ctc{ "", "winget --arg1 value ", "20" };
+
+    CompletionTestCommand command;
+    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.Arguments = {
+        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
+    };
+    Args::Type argType = static_cast<Args::Type>(-1);
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
+    command.Complete(ctc.context);
+
+    // Create expected values
+    std::stringstream expected;
+    OutputAllArgumentNames(command, expected);
+
+    REQUIRE(ctc.out.str() == expected.str());
+    REQUIRE(argType == command.Arguments[1].ExecArgType());
+}
+
+TEST_CASE("CommandComplete_PositionalRoutingAfterDoubleDash", "[complete]")
+{
+    CompletionTestContext ctc{ "", "winget -- ", "10" };
+
+    CompletionTestCommand command;
+    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.Arguments = {
+        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
+    };
+    Args::Type argType = static_cast<Args::Type>(-1);
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
+    command.Complete(ctc.context);
+
+    // Create expected values
+    std::stringstream expected;
+
+    REQUIRE(ctc.out.str() == expected.str());
+    REQUIRE(argType == command.Arguments[1].ExecArgType());
+}
+
+TEST_CASE("CommandComplete_ArgNamesAfterDash", "[complete]")
+{
+    CompletionTestContext ctc{ "-", "winget -", "8" };
+
+    CompletionTestCommand command;
+    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.Arguments = {
+        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
+    };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
+    command.Complete(ctc.context);
+
+    // Create expected values
+    std::stringstream expected;
+    OutputAllArgumentNames(command, expected);
+
+    REQUIRE(ctc.out.str() == expected.str());
+}
+
+TEST_CASE("CommandComplete_AliasNames", "[complete]")
+{
+    CompletionTestContext ctc{ "-a", "winget -a", "9" };
+
+    CompletionTestCommand command;
+    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.Arguments = {
+        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
+    };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
+    command.Complete(ctc.context);
+
+    // Create expected values
+    std::stringstream expected;
+    OutputAllArgumentAliases(command, expected);
+
+    REQUIRE(ctc.out.str() == expected.str());
+}
+
+TEST_CASE("CommandComplete_ArgNamesFilter", "[complete]")
+{
+    CompletionTestContext ctc{ "--a", "winget --a", "10" };
+
+    CompletionTestCommand command;
+    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.Arguments = {
+        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
+        Argument{ "foo1", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
+    };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
+    command.Complete(ctc.context);
+
+    // Create expected values
+    std::stringstream expected;
+    OutputAllArgumentNames(command, expected, "a");
+
+    REQUIRE(ctc.out.str() == expected.str());
+}
+
+TEST_CASE("CommandComplete_IgnoreBadArgs", "[complete]")
+{
+    CompletionTestContext ctc{ "", "winget foo bar --arg1 ", "22" };
+
+    CompletionTestCommand command;
+    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.Arguments = {
+        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Standard },
+    };
+    Args::Type argType = static_cast<Args::Type>(-1);
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
+    command.Complete(ctc.context);
+
+    // Create expected values
+    std::stringstream expected;
+
+    REQUIRE(ctc.out.str() == expected.str());
+    REQUIRE(argType == command.Arguments[0].ExecArgType());
+}
+
+TEST_CASE("CommandComplete_OtherArgsParsed", "[complete]")
+{
+    CompletionTestContext ctc{ "", "winget --arg1 value1  --arg2 value2", "21" };
+
+    CompletionTestCommand command;
+    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.Arguments = {
+        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Standard },
+    };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
+    command.Complete(ctc.context);
+
+    // Create expected values
+    std::stringstream expected;
+    OutputAllArgumentNames(command, expected);
+
+    REQUIRE(ctc.out.str() == expected.str());
+    REQUIRE(ctc.context.Args.Contains(command.Arguments[0].ExecArgType()));
+    REQUIRE(ctc.context.Args.GetArg(command.Arguments[0].ExecArgType()) == "value1");
+    REQUIRE(ctc.context.Args.Contains(command.Arguments[1].ExecArgType()));
+    REQUIRE(ctc.context.Args.GetArg(command.Arguments[1].ExecArgType()) == "value2");
+}
+
+TEST_CASE("CommandComplete_Complex", "[complete]")
+{
+    CompletionTestContext ctc{ "", "winget foo --arg1 value1 bar junk --arg2 ", "41" };
+
+    CompletionTestCommand command;
+    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.Arguments = {
+        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Standard },
+    };
+    Args::Type argType = static_cast<Args::Type>(-1);
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
+    command.Complete(ctc.context);
+
+    // Create expected values
+    std::stringstream expected;
+
+    REQUIRE(ctc.out.str() == expected.str());
+    REQUIRE(argType == command.Arguments[1].ExecArgType());
+    REQUIRE(ctc.context.Args.Contains(command.Arguments[0].ExecArgType()));
+    REQUIRE(ctc.context.Args.GetArg(command.Arguments[0].ExecArgType()) == "value1");
 }

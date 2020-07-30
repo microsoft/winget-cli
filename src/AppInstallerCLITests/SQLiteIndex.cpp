@@ -1342,3 +1342,21 @@ TEST_CASE("SQLiteIndex_Search_CaseInsensitive", "[sqliteindex]")
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 3);
 }
+
+TEST_CASE("SQLiteIndex_Search_StartsWith", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "NopeId", "id3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1" },
+        { "Id2", "Na", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2" },
+        { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
+        });
+
+    SearchRequest request;
+    request.Inclusions.push_back(ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::StartsWith, "id"));
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 2);
+}

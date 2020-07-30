@@ -652,9 +652,9 @@ namespace AppInstaller::CLI
 
         std::optional<Execution::Args::Type> typeToComplete = state.Type();
 
-        // We are not waiting on an argument value, so the next could be a positional.
+        // We are not waiting on an argument value, so the next could be a positional if the incoming word is not an argument name.
         // If there is one, offer to complete it.
-        if (!typeToComplete)
+        if (!typeToComplete && (word.empty() || word[0] != APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR))
         {
             const auto* nextPositional = stateMachine.NextPositional();
             if (nextPositional)
