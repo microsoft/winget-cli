@@ -387,7 +387,11 @@ namespace AppInstaller::CLI
         if (m_positionalSearchItr != m_arguments.end() &&
             (m_positionalSearchItr->Type() != ArgumentType::Positional || m_executionArgs.GetCount(m_positionalSearchItr->ExecArgType()) == m_positionalSearchItr->Limit()))
         {
-            for (++m_positionalSearchItr; m_positionalSearchItr != m_arguments.end() && m_positionalSearchItr->Type() != ArgumentType::Positional; ++m_positionalSearchItr);
+            do
+            {
+                ++m_positionalSearchItr;
+            }
+            while (m_positionalSearchItr != m_arguments.end() && m_positionalSearchItr->Type() != ArgumentType::Positional);
         }
 
         if (m_positionalSearchItr == m_arguments.end())

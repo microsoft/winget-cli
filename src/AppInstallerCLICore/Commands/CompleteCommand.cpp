@@ -8,7 +8,6 @@
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
-
     using namespace Execution;
 
     std::vector<Argument> CompleteCommand::GetArguments() const
