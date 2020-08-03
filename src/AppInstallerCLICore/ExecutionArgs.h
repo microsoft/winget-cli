@@ -50,6 +50,11 @@ namespace AppInstaller::CLI::Execution
             //Validate Command
             ValidateManifest,
 
+            // Complete Command
+            Word,
+            CommandLine,
+            Position,
+
             // Other
             Force,      // Generic flag to enable a command to skip some check
             ListVersions, // Used in Show command to list all available versions of an app
@@ -98,6 +103,11 @@ namespace AppInstaller::CLI::Execution
         void AddArg(Type arg, std::string value)
         {
             m_parsedArgs[arg].emplace_back(std::move(value));
+        }
+
+        void AddArg(Type arg, std::string_view value)
+        {
+            m_parsedArgs[arg].emplace_back(value);
         }
 
     private:

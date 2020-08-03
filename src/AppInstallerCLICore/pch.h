@@ -4,6 +4,7 @@
 
 #define NOMINMAX
 #include <windows.h>
+#include <shellapi.h>
 #include <WinInet.h>
 
 #include <winrt/Windows.Foundation.h>
@@ -15,6 +16,7 @@
 #include <winrt/Windows.ApplicationModel.Store.Preview.InstallControl.h>
 
 #include <wil/result_macros.h>
+#include <wil/safecast.h>
 
 #include <array>
 #include <iostream>

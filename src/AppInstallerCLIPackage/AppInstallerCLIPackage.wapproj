@@ -70,6 +70,7 @@
     <Content Include="Images\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Images\StoreLogo.png" />
     <Content Include="Images\Wide310x150Logo.scale-200.png" />
+    <None Include="Register-WingetdevAutoComplete.ps1" />
     <PRIResource Include="Shared\Strings\en-us\winget.resw" />
     <PRIResource Include="shared\strings\af-ZA\winget.resw" Condition="Exists('shared\strings\af-ZA\winget.resw')" />
     <PRIResource Include="shared\strings\am-ET\winget.resw" Condition="Exists('shared\strings\am-ET\winget.resw')" />

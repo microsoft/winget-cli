@@ -62,18 +62,18 @@ namespace AppInstallerCLIE2ETests
 
             ShouldDisableDevModeOnExit = EnableDevMode(true);
 
-            Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)));
-            Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"ROOT\" " + TestCommon.GetTestDataFile(Constants.IndexPackageRootCert)));
+            Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)), "Add AppInstallerTestCert");
+            Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"ROOT\" " + TestCommon.GetTestDataFile(Constants.IndexPackageRootCert)), "Add IndexPackageRootCert");
 
             if (TestCommon.PackagedContext)
             {
                 if (TestCommon.LooseFileRegistration)
                 {
-                    Assert.True(TestCommon.InstallMsixRegister(TestCommon.AICLIPackagePath));
+                    Assert.True(TestCommon.InstallMsixRegister(TestCommon.AICLIPackagePath), "InstallMsixRegister");
                 }
                 else
                 {
-                    Assert.True(TestCommon.InstallMsix(TestCommon.AICLIPackagePath));
+                    Assert.True(TestCommon.InstallMsix(TestCommon.AICLIPackagePath), "InstallMsix");
                 }
             }
         }

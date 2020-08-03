@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerLanguageUtilities.h>
 #include <wil/result_macros.h>
 
 #include <string_view>
@@ -97,4 +98,22 @@ namespace AppInstaller::Logging
 
     // Turns on wil failure telemetry and logging.
     void EnableWilFailureTelemetry();
+
+    // An RAII object to disable telemetry during its lifetime.
+    // Primarily used by the complete command to prevent messy input from spamming us.
+    struct DisableTelemetryScope
+    {
+        DisableTelemetryScope();
+
+        DisableTelemetryScope(const DisableTelemetryScope&) = delete;
+        DisableTelemetryScope& operator=(const DisableTelemetryScope&) = delete;
+
+        DisableTelemetryScope(DisableTelemetryScope&&) = default;
+        DisableTelemetryScope& operator=(DisableTelemetryScope&&) = default;
+
+        ~DisableTelemetryScope();
+
+    private:
+        DestructionToken m_token;
+    };
 }

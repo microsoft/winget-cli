@@ -33,6 +33,7 @@ namespace AppInstaller::Utility
     {
         LocIndString() = default;
 
+        explicit LocIndString(std::string_view sv) : m_value(sv) {}
         explicit LocIndString(std::string v) : m_value(std::move(v)) {}
 
         LocIndString(const LocIndString&) = default;

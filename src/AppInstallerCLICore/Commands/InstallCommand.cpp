@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "InstallCommand.h"
+#include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
@@ -46,6 +47,34 @@ namespace AppInstaller::CLI
     Resource::LocString InstallCommand::LongDescription() const
     {
         return { Resource::String::InstallCommandLongDescription };
+    }
+
+    void InstallCommand::Complete(Execution::Context& context, Execution::Args::Type valueType) const
+    {
+        switch (valueType)
+        {
+        case Execution::Args::Type::Query:
+        case Execution::Args::Type::Manifest:
+        case Execution::Args::Type::Id:
+        case Execution::Args::Type::Name:
+        case Execution::Args::Type::Moniker:
+        case Execution::Args::Type::Version:
+        case Execution::Args::Type::Channel:
+        case Execution::Args::Type::Source:
+            context <<
+                Workflow::CompleteWithSingleSemanticsForValue(valueType);
+            break;
+        case Execution::Args::Type::Language:
+            // May well move to CompleteWithSingleSemanticsForValue,
+            // but for now output nothing.
+            context <<
+                Workflow::CompleteWithEmptySet;
+            break;
+        case Execution::Args::Type::Log:
+        case Execution::Args::Type::InstallLocation:
+            // Intentionally output nothing to allow pass through to filesystem.
+            break;
+        }
     }
 
     std::string InstallCommand::HelpLink() const

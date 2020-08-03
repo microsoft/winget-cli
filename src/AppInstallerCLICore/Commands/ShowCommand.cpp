@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ShowCommand.h"
 #include "Workflows/ShowFlow.h"
+#include "Workflows/CompletionFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
@@ -32,6 +33,12 @@ namespace AppInstaller::CLI
     Resource::LocString ShowCommand::LongDescription() const
     {
         return { Resource::String::ShowCommandLongDescription };
+    }
+
+    void ShowCommand::Complete(Execution::Context& context, Execution::Args::Type valueType) const
+    {
+        context <<
+            Workflow::CompleteWithSingleSemanticsForValue(valueType);
     }
 
     std::string ShowCommand::HelpLink() const

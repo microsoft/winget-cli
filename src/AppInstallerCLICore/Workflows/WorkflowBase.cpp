@@ -205,6 +205,47 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>()->Search(searchRequest));
     }
 
+    void SearchSourceForManyCompletion(Execution::Context& context)
+    {
+        MatchType matchType = MatchType::StartsWith;
+
+        SearchRequest searchRequest;
+        std::string_view query = context.Get<Execution::Data::CompletionData>().Word();
+        searchRequest.Query.emplace(RequestMatch(matchType, query));
+
+        SearchSourceApplyFilters(context, searchRequest, matchType);
+
+        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>()->Search(searchRequest));
+    }
+
+    void SearchSourceForSingleCompletion(Execution::Context& context)
+    {
+        MatchType matchType = MatchType::StartsWith;
+
+        SearchRequest searchRequest;
+        std::string_view query = context.Get<Execution::Data::CompletionData>().Word();
+        searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, query));
+        searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, query));
+        searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, query));
+
+        SearchSourceApplyFilters(context, searchRequest, matchType);
+
+        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>()->Search(searchRequest));
+    }
+
+    void SearchSourceForCompletionField::operator()(Execution::Context& context) const
+    {
+        const std::string& word = context.Get<Execution::Data::CompletionData>().Word();
+
+        SearchRequest searchRequest;
+        searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(m_field, MatchType::StartsWith, word));
+
+        // If filters are provided, be generous with the search no matter the intended result.
+        SearchSourceApplyFilters(context, searchRequest, MatchType::Substring);
+
+        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>()->Search(searchRequest));
+    }
+
     void ReportSearchResult(Execution::Context& context)
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();

@@ -147,8 +147,17 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filter results by command</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>The full command line for completion</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>This command requires administrator privileges to execute.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>This command can be used to request context sensitive command line completion. The command line, cursor position, and word to be completed are passed in. The output is a set of potential values based on the inputs, one possible value per line.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>Enables context sensitive command line completion</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Show no more than specified number of results</value>
@@ -388,6 +397,9 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Oops, we forgot to do this...</value>
+  </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>The position of the cursor within the command line</value>
   </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Preview</value>
@@ -636,5 +648,8 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>Show available versions of the package</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>The value provided before completion is requested</value>
   </data>
 </root>

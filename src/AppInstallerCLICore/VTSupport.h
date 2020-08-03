@@ -12,8 +12,6 @@ namespace AppInstaller::CLI::VirtualTerminal
     // RAII class to enable VT support and restore the console mode.
     struct ConsoleModeRestore
     {
-        ConsoleModeRestore(bool enableVTProcessing = true);
-
         ~ConsoleModeRestore();
 
         ConsoleModeRestore(const ConsoleModeRestore&) = delete;
@@ -22,12 +20,15 @@ namespace AppInstaller::CLI::VirtualTerminal
         ConsoleModeRestore(ConsoleModeRestore&&) = default;
         ConsoleModeRestore& operator=(ConsoleModeRestore&&) = default;
 
-        void DisableVT() { m_isVTEnabled = false; }
+        // Gets the singleton.
+        static const ConsoleModeRestore& Instance();
 
-        bool IsVTEnabled() const { return m_isVTEnabled; }
+        // Returns true if VT support has been enabled for the console.
+        bool IsVTEnabled() const { return m_token; }
 
     private:
-        bool m_isVTEnabled = false;
+        ConsoleModeRestore();
+
         DestructionToken m_token = false;
         DWORD m_previousMode = 0;
     };
@@ -50,7 +51,16 @@ namespace AppInstaller::CLI::VirtualTerminal
     // A VT sequence that is constructed at runtime.
     struct ConstructedSequence : public Sequence
     {
+        ConstructedSequence() { Set(m_str); }
         explicit ConstructedSequence(std::string s) : m_str(std::move(s)) { Set(m_str); }
+
+        ConstructedSequence(const ConstructedSequence& other) : m_str(other.m_str) { Set(m_str); }
+        ConstructedSequence& operator=(const ConstructedSequence& other) { m_str = other.m_str; Set(m_str); }
+
+        ConstructedSequence(ConstructedSequence&& other) : m_str(std::move(other.m_str)) { Set(m_str); }
+        ConstructedSequence& operator=(ConstructedSequence&& other) { m_str = std::move(other.m_str); Set(m_str); }
+
+        void Append(const Sequence& sequence);
 
     private:
         std::string m_str;

@@ -32,6 +32,14 @@ namespace AppInstaller::Logging
 
     namespace
     {
+        // Used to disable telemetry on the fly.
+        std::atomic_bool s_isTelemetryEnabled{ true };
+
+        bool IsTelemetryEnabled()
+        {
+            return g_IsTelemetryProviderEnabled && s_isTelemetryEnabled;
+        }
+
         void __stdcall wilResultLoggingCallback(const wil::FailureInfo& info) noexcept
         {
             Telemetry().LogFailure(info);
@@ -69,7 +77,7 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::LogFailure(const wil::FailureInfo& failure) noexcept
     {
-        if (g_IsTelemetryProviderEnabled)
+        if (IsTelemetryEnabled())
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "FailureInfo",
@@ -103,7 +111,7 @@ namespace AppInstaller::Logging
             packageVersion = Runtime::GetPackageVersion();
         }
 
-        if (g_IsTelemetryProviderEnabled)
+        if (IsTelemetryEnabled())
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "ClientVersion",
@@ -117,7 +125,7 @@ namespace AppInstaller::Logging
 
         AICLI_LOG(Core, Info, << "WinGet, version [" << version << "], activity [" << *GetActivityId() << ']');
         AICLI_LOG(Core, Info, << "OS: " << Runtime::GetOSVersion());
-        AICLI_LOG(Core, Info, << "Command line Args: " << GetCommandLineA());
+        AICLI_LOG(Core, Info, << "Command line Args: " << Utility::ConvertToUTF8(GetCommandLineW()));
         if (Runtime::IsRunningInPackagedContext())
         {
             AICLI_LOG(Core, Info, << "Package: " << packageVersion);
@@ -126,7 +134,7 @@ namespace AppInstaller::Logging
  
     void TelemetryTraceLogger::LogCommand(std::string_view commandName) noexcept
     {
-        if (g_IsTelemetryProviderEnabled)
+        if (IsTelemetryEnabled())
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "CommandFound",
@@ -142,7 +150,7 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::LogCommandSuccess(std::string_view commandName) noexcept
     {
-        if (g_IsTelemetryProviderEnabled)
+        if (IsTelemetryEnabled())
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "CommandSuccess",
@@ -158,7 +166,7 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::LogCommandTermination(HRESULT hr, std::string_view file, size_t line) noexcept
     {
-        if (g_IsTelemetryProviderEnabled)
+        if (IsTelemetryEnabled())
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "CommandTermination",
@@ -176,7 +184,7 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::LogException(std::string_view commandName, std::string_view type, std::string_view message) noexcept
     {
-        if (g_IsTelemetryProviderEnabled)
+        if (IsTelemetryEnabled())
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "Exception",
@@ -194,7 +202,7 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::LogManifestFields(std::string_view id, std::string_view name, std::string_view version, bool localManifest) noexcept
     {
-        if (g_IsTelemetryProviderEnabled)
+        if (IsTelemetryEnabled())
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "ManifestFields",
@@ -213,7 +221,7 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::LogNoAppMatch() noexcept
     {
-        if (g_IsTelemetryProviderEnabled)
+        if (IsTelemetryEnabled())
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "NoAppMatch",
@@ -228,7 +236,7 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::LogMultiAppMatch() noexcept
     {
-        if (g_IsTelemetryProviderEnabled)
+        if (IsTelemetryEnabled())
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "MultiAppMatch",
@@ -243,7 +251,7 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::LogAppFound(std::string_view name, std::string_view id) noexcept
     {
-        if (g_IsTelemetryProviderEnabled)
+        if (IsTelemetryEnabled())
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "AppFound",
@@ -260,7 +268,7 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::LogSelectedInstaller(int arch, std::string_view url, std::string_view installerType, std::string_view scope, std::string_view language) noexcept
     {
-        if (g_IsTelemetryProviderEnabled)
+        if (IsTelemetryEnabled())
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "SelectedInstaller",
@@ -294,7 +302,7 @@ namespace AppInstaller::Logging
         size_t maximum,
         std::string_view request)
     {
-        if (g_IsTelemetryProviderEnabled)
+        if (IsTelemetryEnabled())
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "SearchRequest",
@@ -316,7 +324,7 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::LogSearchResultCount(uint64_t resultCount) noexcept
     {
-        if (g_IsTelemetryProviderEnabled)
+        if (IsTelemetryEnabled())
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "SearchResultCount",
@@ -336,7 +344,7 @@ namespace AppInstaller::Logging
         const std::vector<uint8_t>& actual,
         bool overrideHashMismatch)
     {
-        if (g_IsTelemetryProviderEnabled)
+        if (IsTelemetryEnabled())
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "HashMismatch",
@@ -362,7 +370,7 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::LogInstallerFailure(std::string_view id, std::string_view version, std::string_view channel, std::string_view type, uint32_t errorCode)
     {
-        if (g_IsTelemetryProviderEnabled)
+        if (IsTelemetryEnabled())
         {
             TraceLoggingWriteActivity(g_hTelemetryProvider,
                 "InstallerFailure",
@@ -383,5 +391,18 @@ namespace AppInstaller::Logging
     void EnableWilFailureTelemetry()
     {
         wil::SetResultLoggingCallback(wilResultLoggingCallback);
+    }
+
+    DisableTelemetryScope::DisableTelemetryScope()
+    {
+        m_token = s_isTelemetryEnabled.exchange(false);
+    }
+
+    DisableTelemetryScope::~DisableTelemetryScope()
+    {
+        if (m_token)
+        {
+            s_isTelemetryEnabled = true;
+        }
     }
 }
