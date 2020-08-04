@@ -16,9 +16,9 @@
                                       This is used when AppExecutionAlias is not available, or disabled.
   -->
   <TestRunParameters>
-    <Parameter name="PackagedContext" value="true" />
+    <Parameter name="PackagedContext" value="false" />
     <Parameter name="VerboseLogging" value="false" />
-    <Parameter name="AICLIPath" value="AppInst.exe" />
+    <Parameter name="AICLIPath" value="C:\Users\ryfu\Source\Repos\winget-cli\src\x64\Debug\AppInstallerCLI\AppInstallerCLI.exe" />
     <Parameter name="AICLIPackagePath" value="AppInstallerCLIPackage.appxbundle" />
     <Parameter name="LooseFileRegistration" value="false" />
     <Parameter name="InvokeCommandInDesktopPackage" value="false" />
