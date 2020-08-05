@@ -30,8 +30,6 @@
 #include <string_view>
 #include <vector>
 
-#include <yaml-cpp\yaml.h>
-
 #include <wrl/client.h>
 #include <AppxPackaging.h>
 
