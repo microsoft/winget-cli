@@ -55,8 +55,8 @@ namespace AppInstaller::YAML
             return result.first->second;
         }
 
-        bool IsDefined() const { return m_type == Type::Invalid; }
-        bool IsNull() const { return m_type == Type::None; }
+        bool IsDefined() const { return m_type != Type::Invalid; }
+        bool IsNull() const { return m_type == Type::Invalid || m_type == Type::None; }
         bool IsScalar() const { return m_type == Type::Scalar; }
         bool IsSequence() const { return m_type == Type::Sequence; }
         bool IsMap() const { return m_type == Type::Mapping; }

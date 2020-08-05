@@ -95,7 +95,7 @@ namespace AppInstaller::Repository
                     return false;
                 }
 
-                if (sources.IsNull())
+                if (!sources.IsNull())
                 {
                     // An empty sources is an acceptable thing.
                     return true;

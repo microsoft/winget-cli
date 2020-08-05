@@ -138,7 +138,16 @@ namespace AppInstaller::YAML
 
     Node::Node(Type type, std::string tag) :
         m_type(type), m_tag(std::move(tag))
-    {}
+    {
+        if (m_type == Type::Sequence)
+        {
+            m_sequence = decltype(m_sequence)::value_type{};
+        }
+        else if (m_type == Type::Mapping)
+        {
+            m_mapping = decltype(m_mapping)::value_type{};
+        }
+    }
 
     void Node::SetScalar(std::string value)
     {
