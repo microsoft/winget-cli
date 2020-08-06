@@ -111,7 +111,11 @@ namespace AppInstaller::Repository
         // The highest order field on which the application matched the search.
         ApplicationMatchFilter MatchCriteria;
 
-        ResultMatch(std::unique_ptr<IApplication>&& a, ApplicationMatchFilter f) : Application(std::move(a)), MatchCriteria(std::move(f)) {}
+        // The name of the source where the result is from. Used in aggregated source scenario.
+        std::string SourceName;
+
+        ResultMatch(std::unique_ptr<IApplication>&& a, ApplicationMatchFilter f, std::string source = {}) :
+            Application(std::move(a)), MatchCriteria(std::move(f)), SourceName(std::move(source)) {}
     };
 
     // Search result data.

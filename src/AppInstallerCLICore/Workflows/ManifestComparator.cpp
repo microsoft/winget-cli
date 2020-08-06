@@ -11,29 +11,28 @@ namespace AppInstaller::CLI::Workflow
     bool InstallerComparator::operator() (const ManifestInstaller& installer1, const ManifestInstaller& installer2)
     {
         // Todo: Compare only architecture for now. Need more work and spec.
-        if (Utility::IsApplicableArchitecture(installer1.Arch) < Utility::IsApplicableArchitecture(installer2.Arch))
+        if (Utility::IsApplicableArchitecture(installer1.Arch) > Utility::IsApplicableArchitecture(installer2.Arch))
         {
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     bool LocalizationComparator::operator() (const ManifestLocalization& loc1, const ManifestLocalization& loc2)
     {
-        UNREFERENCED_PARAMETER(loc2);
-
         // Todo: Compare simple language for now. Need more work and spec.
         std::string userPreferredLocale = std::locale("").name();
 
-        auto found = userPreferredLocale.find(loc1.Language);
+        auto foundLoc1 = userPreferredLocale.find(loc1.Language);
+        auto foundLoc2 = userPreferredLocale.find(loc2.Language);
 
-        if (found != std::string::npos)
+        if (foundLoc1 != std::string::npos && foundLoc2 == std::string::npos)
         {
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     std::optional<Manifest::ManifestInstaller> ManifestComparator::GetPreferredInstaller(const Manifest::Manifest& manifest)
