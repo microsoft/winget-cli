@@ -105,6 +105,9 @@ namespace AppInstaller::CLI::Workflow
         options.DeferRegistrationWhenPackagesAreInUse(true);
         IPackageManager9 packageManager9 = packageManager.as<IPackageManager9>();
         auto test = packageManager9.AddPackageByUriAsync(uri, options).get();
+
+        context.Reporter.Info() << "Successfully Installed!" << std::endl;
+     
     }
     //Move to Utilities later
     std::wstring GetPathToExecutable()
@@ -143,17 +146,17 @@ namespace AppInstaller::CLI::Workflow
         strTo.erase(strTo.find('\0'));
         const auto& installer = context.Get<Execution::Data::Installer>().value();
         std::string url = installer.Url;
-        std::string target = filePath.string();
+        //std::string target = filePath.string();
         std::string pwabuilderexe = strTo + "\\pwa_builder\\pwa_builder.exe  --channel=stable --win32alacarte";
         //std::string a1 = "\\pwa_builder\\pwa_builder.exe";
       
-        std::string urlArgument = " --url=";
-        std::string targetArgument = " --target=";
-        std::string archArgument = " --arch";
-
+        //std::string urlArgument = " --url=";
+        //std::string targetArgument = " --target=";
+        //std::string archArgument = " --arch";
+            
         AICLI_LOG(CLI, Info, << "Starting installer. Path: " << filePath);
         // Architecture? What does InstallerPath mean?
-        std::string command = pwabuilderexe.append(urlArgument).append(url).append(targetArgument).append(target);
+        std::string command = pwabuilderexe.append(" --url=").append(installer.Url).append(" --target=").append(filePath.string()).append("> NUL");
         const char* command_cast = const_cast<char*>(command.c_str());
         auto res = system(command_cast);
         if (res != 0)
@@ -171,7 +174,7 @@ namespace AppInstaller::CLI::Workflow
             if (extensionString == ".msix")
             {
                 context.Add<Execution::Data::InstallerPath>(std::move(path));
-                context << InstallPWA;
+  
             }
         }
 
@@ -360,6 +363,9 @@ namespace AppInstaller::CLI::Workflow
                 EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore) <<
                 MSStoreInstall;
             break;
+        case ManifestInstaller::InstallerTypeEnum::PWA:
+            context << InstallPWA;
+            break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
@@ -411,9 +417,21 @@ namespace AppInstaller::CLI::Workflow
         // Path may not be present if installed from a URL for MSIX
         if (context.Contains(Execution::Data::InstallerPath))
         {
-            const auto& path = context.Get<Execution::Data::InstallerPath>();
-            AICLI_LOG(CLI, Info, << "Removing installer: " << path);
-            std::filesystem::remove(path);
+           /* auto installerType = context.Get<Execution::Data::Installer>().value().InstallerType;
+            if (installerType == ManifestInstaller::InstallerTypeEnum::PWA)
+            {
+                std::error_code ec;
+                std::wstring path = context.Get<Execution::Data::InstallerPath>();
+                PathCchRemoveFileSpec(&path[0], path.size());
+
+                std::filesystem::remove_all(path, ec);
+            }
+            else*/
+            {
+                const auto& path = context.Get<Execution::Data::InstallerPath>();
+                AICLI_LOG(CLI, Info, << "Removing installer: " << path);
+                std::filesystem::remove(path);
+            }
         }
     }
 

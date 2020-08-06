@@ -227,6 +227,7 @@
     <None Include="PWAtest.yaml" />
     <None Include="PWAtest2.json" />
     <None Include="PWAtest3.json" />
+    <None Include="PWAtest4.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(SolutionDir)\packages\pwa_builder.86.571.0-CI-20200708-094419\pwa_builder.exe">

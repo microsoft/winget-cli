@@ -30,5 +30,6 @@
     <None Include="PWAtest.json" />
     <None Include="PWAtest2.json" />
     <None Include="PWAtest3.json" />
+    <None Include="PWAtest4.json" />
   </ItemGroup>
 </Project>
