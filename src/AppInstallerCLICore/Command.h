@@ -26,11 +26,11 @@ namespace AppInstaller::CLI
         CommandException(Resource::LocString message, std::string_view param) : m_message(std::move(message)), m_param(param) {}
 
         const Resource::LocString& Message() const { return m_message; }
-        const Utility::LocIndView Param() const { return m_param; }
+        const Utility::LocIndString Param() const { return m_param; }
 
     private:
         Resource::LocString m_message;
-        Utility::LocIndView m_param;
+        Utility::LocIndString m_param;
     };
 
     struct Command
@@ -82,6 +82,9 @@ namespace AppInstaller::CLI
         virtual std::unique_ptr<Command> FindSubCommand(Invocation& inv) const;
         virtual void ParseArguments(Invocation& inv, Execution::Args& execArgs) const;
         virtual void ValidateArguments(Execution::Args& execArgs) const;
+
+        virtual void Complete(Execution::Context& context) const;
+        virtual void Complete(Execution::Context& context, Execution::Args::Type valueType) const;
 
         virtual void Execute(Execution::Context& context) const;
 

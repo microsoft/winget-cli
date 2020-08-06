@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Нәтижелердің көрсетілген санынан көп көрсетпеу</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Дайын</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Дәл сәйкестік арқылы бағдарламаны табу</value>
+    <value>Дәл сәйкестік арқылы буманы табу</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Демонстрацияға арналған эксперименттік аргумент</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Бұл пәрмен эксперименттік компонентті іске асыру мысалы болып табылады. Оны іске қосу үшін, "winget settings" файлына өтіп, experimentalCmd немесе experimentalArg компоненттерін іске қосыңыз.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Эксперименттік компонент мысалы</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Ешқандай аргумент күтілмеген кезде, бір позициялық аргумент табылды</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Бұл мүмкіндік орындалу үстінде және болашақта айтарлықтай өзгертілуі немесе жойылуы мүмкін. Оны іске қосу үшін, эксперименттік мүмкіндіктерді қосуға ('winget settings') параметрлерін өзгертіңіз</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Эксперименттік компоненттер күйін көрсетеді. Эксперименттік компоненттерді "winget settings" файлы арқылы іске қосуға болады.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Эксперименттік компоненттер күйін көрсетеді</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Ажыратылған</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Іске қосулы</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Мүмкіндік</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Сілтеме</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Келесі эксперименттік мүмкіндіктер орындалуда. 
+ Олар 'winget settings' файл параметрлері арқылы конфигурацияланады</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Сипат</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Күй</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Хэштелетін файл</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Жалауша аргументінде қосылған мән болмауы тиіс</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Пәрменді нұсқауларсыз орындау</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Манифестке жазуға жарамды жергілікті файл хэшін есептейді. Сондай-ақ ағындық орнату жұмыстарына рұқсат ету үшін, MSIX бумасына арналған қолтаңба файлының хэшін есептей алады.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft корпорациясы үшінші тараптық бумалар үшін жауапкершілік алмайды және олар үшін ешқандай лицензия бермейді.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Бұл бума Microsoft Store арқылы беріледі. winget бағдарламасына ағымдағы пайдаланушы атынан Microsoft Store дүкенінен бума алу қажет болуы мүмкін.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Бағдарламаны орнату мүмкін емес, себебі ол үшін Windows жүйесінің жаңарақ нұсқасы қажет:</value>
+    <value>Буманы орнату мүмкін емес, себебі ол үшін Windows жүйесінің жаңарақ нұсқасы қажет:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Реттелген дерек көзінен іздеу арқылы немесе манифесттен тікелей табылған таңдалған бағдарламаны орнатады.</value>
+    <value>Реттелген дерек көзінен іздеу арқылы немесе манифесттен тікелей табылған, таңдалған буманы орнатады. Әдепкі бойынша сұрау буманың идентификаторын, атын немесе моникерін (регистрді ескермей) салыстыруы қажет. Тиісті параметрді көрсету арқылы басқа өрістерді пайдалануға болады.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Берілген бағдарламаны орнатады</value>
+    <value>Берілген буманы орнатады</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Орнатқыштың хэші сәйкес келмейді; әкімші ретінде іске қосқан кезде оны өзгерту мүмкін болмайды</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Орнатқыштың хэші сәйкес келмейді; негізделген --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Орнату хэші сәйкес келмейді. Тексеруді өзгерту үшін --force пайдаланыңыз</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Сәтті тексерілген орнатқыштың хэші</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Сәтті орнатылды</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Буманы орнату басталды...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Орнату құралының хэшін тексеруді қайта анықтау</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Интерактивті орнатуды сұрау; пайдаланушының енгізуі қажет болуы мүмкін</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Бағдарлама манифестіне апаратын жол</value>
+    <value>Бума манифестіне апаратын жол</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Манифестті тексеру сәтсіз аяқталды.</value>
@@ -252,7 +324,7 @@
     <value>Аргумент мәнін енгізу қажет, бірақ бірде-біреуі табылмады</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Нәтижелерді бағдарлама моникері бойынша сүзгілеу</value>
+    <value>Нәтижелерді бума моникері бойынша сүзгілеу</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Кіріс файл msix ретінде өңделеді; қол қойылған болса, қолтаңба хэші көрсетіледі</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX қолтаңба хэшін есептеу мүмкін болмады.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Microsoft Store бумасын орнату сәтсіз аяқталды, себебі белгілі бір бағдарлама саясат тарапынан блокталған</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Microsoft Store бумасын орнату мүмкін болмады. Қате коды:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Буманы алу кезіндегі қатені тексеру/сұрау: желі қатесі</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Буманы алу кезіндегі қатені тексеру/сұрау: дүкен тіркелгісі табылмады</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Буманы алу кезіндегі қатені тексеру/сұрау: сервер қатесі</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Буманы алудың сәтті күйін тексеру/сұрау</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Store бумасын орнату сәтсіз аяқталды, себебі Microsoft Store клиенті саясат тарапынан блокталған</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Буманы алу туралы мәліметтерді тексеру/сұрау...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Кіріс шарттарына сәйкес келетін бірнеше пакет табылды. Кірісті нақтылаңыз.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Нәтижелерді аты бойынша сүзгілеу</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Ағымдағы жүйе үшін жарамды орнату құралдары жоқ.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Қазіргі уақытта қолжетімді эксперименттік мүмкіндіктер жоқ.</value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Кіріс шарттарына сәйкес келетін ешқандай жиынтық табылмады.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>VirtualTerminal көрсетілімін өшіреді</value>
@@ -291,7 +396,7 @@
     <value>Құпиялылық туралы мәлімдеме</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Бағдарламаны іздеу үшін пайдаланылатын сұрау</value>
+    <value>Буманы іздеу үшін пайдаланылатын сұрау</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Түстер кемпірқосағымен орындалу барысын көрсету</value>
@@ -303,10 +408,26 @@
     <value>Әдепкі түспен орындалу барысын көрсету</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Бағдарламаларды реттелген дерек көздерінен іздейді.</value>
+    <value>Бумаларды реттелген дерек көздерінен іздейді.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Бағдарламалар туралы негізгі ақпаратты табу және көрсету</value>
+    <value>Бумалар туралы негізгі ақпаратты табу және көрсету</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>Ид</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Сәйкестіру</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Аты</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>қосымша жазбалар нәтиже шегіне байланысты ықшамдалды</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Нұсқа</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Параметрлерді тексеру кезінде келесі қателер табылды:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Параметрлерді жүктеу кезінде күтпеген қате орын алды. Параметрлер пәрменін орындау арқылы параметрлерді тексеріңіз.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Арна</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Арнайы бағдарлама туралы ақпаратты көрсетеді.</value>
+    <value>Белгілі бір бума туралы мәліметтерді көрсетеді. Әдепкі бойынша сұрау буманың идентификаторын, атын немесе моникерін (регистрді ескермей) салыстыруы қажет. Тиісті параметрді көрсету арқылы басқа өрістерді пайдалануға болады.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Бағдарлама туралы ақпаратты көрсетеді</value>
+    <value>Бума туралы ақпаратты көрсетеді</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Нұсқа</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Автоматты орнатуды сұрау</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Бір - белгісінен кейін тек бір таңбаның бүркеншік аты қойылады</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Осы атаумен көз бар және басқа орынға сілтеме жасалған:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Басқа атауы бар дерек көзі бұрыннан осы орынға сілтеме жасайды:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Осы атаумен көз бар және бірдей орынға сілтеме жасалған:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Көзін қосу:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Жаңа дерек көзін қосыңыз. Дерек көзі сізге бағдарламаларды анықтау және орнату үшін деректерді қамтамасыз етеді. Жаңа дерек көзі сенімді орын болған жағдайда ғана оны қосыңыз.</value>
+    <value>Жаңа дерек көзін қосыңыз. Дерек көзі сізге бумаларды анықтау және орнату үшін деректермен қамтамасыз етеді. Жаңа дерек көзі сенімді орын болған жағдайда ғана оны қосыңыз.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Жаңа деректер көзін қосыңыз</value>
@@ -342,13 +481,17 @@
     <value>Дерек көзі үшін берілген аргумент</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Бағдарламаны көрсетілген дерек көзі арқылы табу</value>
+    <value>Буманы көрсетілген дерек көзі арқылы табу</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Дерек көздерін қосымша пәрмендермен басқарыңыз. Дерек көзі сізге бағдарламаларды анықтау және орнату үшін деректерді қамтамасыз етеді. Жаңа дерек көзі сенімді орын болған жағдайда ғана оны қосыңыз.</value>
+    <value>Дерек көздерін қосымша пәрмендермен басқарыңыз. Дерек көзі сізге бумаларды анықтау және орнату үшін деректермен қамтамасыз етеді. Жаңа дерек көзі сенімді орын болған жағдайда ғана оны қосыңыз.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Бағдарламалардың дерек көздерін басқару</value>
+    <value>Бумалардың дерек көздерін басқару</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Аргумент</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Барлық ағымдағы дерек көздерінің тізімін немесе арнайы дерек көзінің толық мәліметтерін енгізіңіз.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Ағымдағы дерек көздерін тізімдеу</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Деректер</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Өріс</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Аты</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Деп аталатын көзі табылмады:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Конфигурацияланған көздер жоқ.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Түрі</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Жаңартылды</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>ешқашан</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Мән</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Дерек көзінің аты</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Барлық көздерді жою...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Арнайы дерек көзін жойыңыз.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Ағымдағы дерек көздерін жою</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Көзді жою:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Барлық көздерді қайта реттеу...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Бұл пәрмен кез келген жергілікті деректерді қалдыра отырып, бұрыннан бар дерек көздерін жояды. Ешқандай аргументсіз ол барлық дерек көздерін жойып, әдепкі мәндерді қосады. Егер атау тағайындалған дерек көзі көрсетілген болса, тек сол дерек көзі жойылады.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Дерек көздерін қалпына келтіру</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Дерек көздерін мәжбүрлі түрде қайта орнату</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Егер --force опциясы берілсе келесі көздер қайта орнатылады:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Көзін қайта реттеу:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Дерек көзінің түрі</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Барлық көздерді жаңарту...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Барлық дерек көздерін немесе тек арнайы дерек көзін жаңарту.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Ағымдағы дерек көздерін жаңарту</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Көздерді жаңарту:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Нәтижелерді тег бойынша сүзгілеу</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Winget бағдарламасын пайдаланатыныңыз үшін алғыс білдіреміз</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Үшінші тарап ескертпелері</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>WinGet пәрмендер жолының утилитасы бағдарламаларды және басқа бумаларды пәрмендер жолынан орнатуды іске қосады.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Құрал туралы жалпы ақпаратты көрсету</value>
@@ -427,6 +635,6 @@
     <value>Көрсетілген нұсқаны пайдаланыңыз; әдепкі бойынша соңғы нұсқа қолданылады</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Бағдарламаның қолжетімді нұсқаларын көрсету</value>
+    <value>Буманың қолжетімді нұсқаларын көрсету</value>
   </data>
 </root>

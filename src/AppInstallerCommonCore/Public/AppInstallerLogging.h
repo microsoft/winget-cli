@@ -133,6 +133,9 @@ namespace AppInstaller::Logging
 
     // Adds the default file logger to the DiagnosticLogger.
     void AddFileLogger(const std::filesystem::path& filePath = {});
+
+    // Starts a background task to clean up old log files.
+    void BeginLogFileCleanup();
 }
 
 // Enable output of system_clock timepoints.

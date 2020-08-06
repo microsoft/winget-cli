@@ -151,8 +151,8 @@ namespace AppInstaller::Utility
     bool IsUrlRemote(std::string_view url)
     {
         // Very simple choice right now: "does it start with http:// or https://"?
-        if (CaseInsensitiveEquals(url.substr(0, s_http_start.length()), s_http_start) ||
-            CaseInsensitiveEquals(url.substr(0, s_https_start.length()), s_https_start))
+        if (CaseInsensitiveStartsWith(url, s_http_start) ||
+            CaseInsensitiveStartsWith(url, s_https_start))
         {
             return true;
         }
@@ -163,7 +163,7 @@ namespace AppInstaller::Utility
     bool IsUrlSecure(std::string_view url)
     {
         // Very simple choice right now: "does it start with https://"?
-        if (CaseInsensitiveEquals(url.substr(0, s_https_start.length()), s_https_start))
+        if (CaseInsensitiveStartsWith(url, s_https_start))
         {
             return true;
         }

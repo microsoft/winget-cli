@@ -29,6 +29,9 @@ namespace AppInstaller::Logging
 
         virtual void Write(Channel channel, Level level, std::string_view message) noexcept override;
 
+        // Starts a background task to clean up old log files.
+        static void BeginCleanup(const std::filesystem::path& filePath);
+
     private:
         std::string m_name;
         std::filesystem::path m_filePath;

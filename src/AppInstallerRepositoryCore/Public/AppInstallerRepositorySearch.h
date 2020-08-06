@@ -20,6 +20,7 @@ namespace AppInstaller::Repository
     {
         Exact,
         CaseInsensitive,
+        StartsWith,
         Substring,
         Wildcard,
         Fuzzy,
@@ -133,6 +134,8 @@ namespace AppInstaller::Repository
             return "Exact"sv;
         case MatchType::CaseInsensitive:
             return "CaseInsensitive"sv;
+        case MatchType::StartsWith:
+            return "StartsWith"sv;
         case MatchType::Substring:
             return "Substring"sv;
         case MatchType::Wildcard:

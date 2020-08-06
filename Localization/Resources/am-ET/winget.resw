@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>ከተገለጸው ብዛት በላይ የሆኑ ውጤቶችን አታሳይ</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>ተከናውኗል</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>ቃል በቃል ተዛምዶን በመጠቀም መተግበሪያዎችን ያግኙ</value>
+    <value>እቅጭ ተዛምዶን በመጠቀም ጥቅል ያግኙ</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>ለሙከራ ዓላማዎች የሙከራ ነጋሪ እሴት</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>ይህ ትዕዛዝ የሙከራ ባህሪ እንዴት እንደሚተገበር የሚስረዳ ምሳሌ ነው። ለማብራት ወደ 'winget settings' ይሂዱና experimentalCmd ወይም experimentalArg ባህሪያትን ያንቁ ።</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>የሙከራ ባህሪ ምሳሌ</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>ማንም በማይጠበቅበት ጊዜ የቦታ ክርክር አገኘ</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>ይህ ባህሪ በሂደት ላይ ያለ ስራ ነው፤ እናም ለወደፊቱ በከፍተኛ ሁኔታ ሊቀየር ወይም በአጠቃላይ ሊወገድ ይችላል። እሱን ለማንቃት የሙከራ ባህሪውን ለማካተት ቅንብሮችዎን ('winget settings') ያርትዑ</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>የሙከራ ባህሪያትን ሁኔታ ያሳያል። የሙከራ ባህሪዎች በ 'winget settings' በኩል ማብራት ይችላሉ።</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>የሙከራ ባህሪያትን ሁኔታ ያሳያል</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>ተሰናክሏል</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>ነቅቷል</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>ጠባይ</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>አገናኝ</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>የሚከተሉት የሙከራ ባህሪዎች በሂደት ላይ ናቸው።
+እነሱ በቅንብሮች ፋይል 'winget settings' በኩል መዋቀር ይችላሉ።</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>ባህሪ</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>ሁኔታ</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>ሃሽ የሚደረግ ፋይል</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>ጠቋሚ ነጋሪ እሴት ተጓዳኝ እሴት ሊይዝ አይችልም</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>ትዕዛዙን ያለ መጠይቅ ፈጽም</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>ወደ ማኒፌስቱ ለማስገባት ተገቢ በሆነ መልኩ የሎካል ፋይሉን ሃሽ ያሰላል። ከሌላ ቦታ ሆኖ መጫን እንዲቻል የ MSIX ጥቅል ሲግኔቸር ፋይል ሃሽ ማስላትም ይችላል።</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft ለሦስተኛ ወገን ጥቅሎች ምንም ፍቃዶች አይሰጥም እንዲሁም ኃላፊነት አይወስድም።</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>ይህ ጥቅል የሚቀርበው በ Microsoft Store በኩል ነው። የአሁኑ ተጠቃሚን ወክሎ winget ከ Microsoft Store ማግኘት ሊያስፈፈልግ ይችላል።</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>ከፍ ያለ Windows እትም ስለሚፈልግ፣ የመተግበሪያውን መጫን አልተቻለም፡</value>
+    <value>ከፍ ያለ የ Windows ስሪት ስለሚፈልግ ጥቅል መጫን አልተቻለም:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>የተዋቀሩት ምንጭ በመፈለግ ወይም በቀጥታ ከማኒፌስት የተመረጠ መተግበሪያ ይጭናል።</value>
+    <value>የተዋቀረ ምንጭን በመፈለግ ይሁን በቀጥታ ይገኝ የተመረጠውን ጥቅል ይጭናል። በነባሪነት መጠይቁ case-insensitive በሆነ መልኩ ከጥቅሉ መታወቂያ፣ ስም፣ ወይም ቅጽል ስም ጋር መዛመድ አለበት። ተገቢውን አማራጭ በማለፍ ሌሎች መስኮች ሊያገለግሉ ይችላሉ።</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>የቀረበውን መተግበሪያ ይጭናል</value>
+    <value>የቀረበውን ጥቅል ይጭናል</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>ጫኝ ሃሽ አልተዛመደም፤ ይህ እንደ አስተዳዳሪ በሚሄድበት ጊዜ ሊሻር አይችልም</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>ጫኝ ሃሽ አይዛመድም፤ በምክንያት ቀጥል --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>ጫኝ ሃሽ አይዛመድም፤ ይህን የቼክ አጠቃቀም ለመሻር --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>የተጫነ ሃሽ በተሳካ ሁኔታ ተረጋግጧል</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>በተሳካ ሁኔታ ተጭኗል</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>ጥቅል ጭነት በመጀመር ላይ...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>የጫኝ ሃሽ ቼክን ይሻሩ</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>ተስተጋባሪ ጭነት ጠይቅ፤ የተጠቃሚ ግቤት ሊያስፈልግ ይችላል</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>ወደ የመተግበሪያው የይዘት ዝርዝር የሚወስድ ዱካ</value>
+    <value>ወደ ጥቅሉ አንጸባራቂ የሚወስደው መንገድ</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>የማኒፌስት ማረጋገጥ ሂደት አልተሳካም።</value>
@@ -252,7 +324,7 @@
     <value>ነጋሪ እሴት ዋጋ ያስፈልጋል፣ ግን አንዳቸውም አልተገኙም</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>ውጤቶችን በ app moniker አጣራ</value>
+    <value>ውጤቶችን በቅጽል ስም ያጣሩ</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>የግቤት ፋይል እንደ msix ተደርጎ ይስተናገዳል፤ ከተፈረመ የፊርማ ሃሽ ይሰጣል</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>የ MSIX ሲግኔቸር ሃሽ ማስላት አልተሳካም።</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>የተወሰነ መተግበሪያ በፖሊሲ የታገደ ስለሆነ የ Microsoft Store ጥቅልን መጫን አልተሳካም</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>የ Microsoft Store ጥቅል መጫን አልተሳካም። የስህተት ኮድ:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>የጥቅል ግኝት ማረጋገጥ/መጠየቅ አልተሳካም: የአውታረ መረብ ስህተት</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>የጥቅል ግኝት ማረጋገጥ/መጠየቅ አልተሳካም: ምንም የመደብር መለያ አልተገኘም</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>የጥቅል ግኝት ማረጋገጥ/መጠየቅ አልተሳካም: የአገልጋይ ስህተት</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>የጥቅል ግኝት ስኬት ማረጋገጥ/መጠየቅ</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>የ Microsoft Store ደንበኛው በፖሊሲ የታገደ ስለሆነ የ Microsoft Store ጥቅልን መጫን አልተሳካም</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>የጥቅል ግኝት በማረጋገጥ/በመጠየቅ ላይ...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>በርካታ ጥቅሎች የሚዛመዱ የግቤት መስፈርቶችን አግኝተዋል። እባክዎ ግቤቱን ያጣሩ።</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>ውጤቶችን በስም አጣራ</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>ምንም መጫኛዎች ለአሁኑ ሲስተም አይሰሩም።</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>በአሁኑ ጊዜ ምንም የሙከራ ባህሪዎች የሉም። </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>ምንም ጥቅል የሚዛመድ የግቤት መስፈርት አላገኘም።</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>የ VirtualTerminal ማሳያን ያሰናክላል</value>
@@ -291,7 +396,7 @@
     <value>የግላዊነት መግለጫ</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>መተግበሪያን ለመፈለግ የሚያገለግል መጠይቅ</value>
+    <value>ጥቅል ለመፈለግ ጥቅም ላይ የዋለው መጠይቅ</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>የሂደት ማሳያ እንደ የቀስተ ደመና ቀለሞች</value>
@@ -303,10 +408,26 @@
     <value>የሂደት ማሳያ እንደ ነባሪ ቀለም</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>ከተዋቀሩ ምንጮች መተግበሪያዎችን ይፈልጋል።</value>
+    <value>ከተዋቀሩ ምንጮች ጥቅሎችን ይፈልጋል።</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>የመተግበሪያዎችን መሰረታዊ መረጃ ያገኝና ያሳያል</value>
+    <value>የጥቅሎችን መሰረታዊ መረጃ አግኝና አሳይ</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>መታወቂያ</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>የተዛመደ</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>ስም</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>በውጤት ወሰን ምክንያት ተጨማሪ ግቤቶች ተጥለዋል</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>ስሪት</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>ቅንብሮችን በማረጋገጥ ጊዜ የሚከተሉት ስህተቶች ተከስተዋል:፡</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>ቅንብሮችን በመጫን ላይ ያልተጠበቀ ስህተት ተከስቷል። እባክዎ የቅንብሮች ትዕዛዝ በማስኬድ ቅንብሮችዎን ያረጋግጡ።</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>ጣቢያ</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>ስለ አንድ መተግበሪያ መረጃን ያሳያል።</value>
+    <value>በአንድ የተወሰነ ጥቅል ላይ መረጃን ያሳያል። በነባሪነት መጠይቁ case-insensitive በሆነ መልኩ ከጥቅሉ መታወቂያ፣ ስም፣ ወይም ቅጽል ስም ጋር መዛመድ አለበት። ተገቢውን አማራጭ በማለፍ ሌሎች መስኮች ሊያገለግሉ ይችላሉ።</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>ስለ አንድ መተግበሪያ መረጃን ያሳያል</value>
+    <value>ስለ አንድ ጥቅል መረጃ ያሳያል</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>ስሪት</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>ድምጸ-ከል ጭነት ጠይቅ</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>አንድ ነጠላ ቁምፊ ቅጽል ስም ብቻ ከአንድ ጊዜ በኋላ ሊከሰት ይችላል -</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>የተሰጠው ስም ያለው ምንጭ አስቀድሞ የሚገኝ ሲሆን ሌላ አካባቢን ያመለክታል:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>የተለየ ስም ያለው ምንጭ ቀድሞውኑ ይህንን አካባቢ ያመለከታል:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>የተሰጠው ስም ያለው ምንጭ አስቀድሞ የሚገኝ ሲሆን ተመሳሳይ አካባቢን ያመለክታል:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>ምንጭን ማከል:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>አዲስ ምንጭ ያክሉ። ምንጭ እርስዎ መተግበሪያዎችን እንዲያገኙ እና እንዲጭኑ ውሂቡን ያቀርብልዎታል። ደህንነቱ የተጠበቀ አካባቢ እንደሆነ የሚያምኑት ከሆነ ብቻ አዲስ ምንጭ ያክሉ።</value>
+    <value>አዲስ ምንጭ ያክሉ። ምንጭ እርስዎ ጥቅሎችን ለማግኘት እና ለመትከል ውሂብ ያቀርብልዎታል። ደህንነቱ የተጠበቀ አካባቢ እንደሆነ የሚያምኑ ከሆነ ብቻ አዲስ ምንጭ ያክሉ።</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>አዲስ ምንጭ ያክሉ</value>
@@ -342,13 +481,17 @@
     <value>ለምንጩ የተሰጠው አመክንዮ</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>የተገለጸውን ምንጭ በመጠቀም መተግበሪያን ያገኛል</value>
+    <value>የተጠቀሰውን ምንጭ በመጠቀም ጥቅል ያግኙ</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>ምንጮችን በንዑስ-ትዕዛዞች ያስተዳድሩ። ምንጭ እርስዎ መተግበሪያዎችን እንዲያገኙ እና እንዲጭኑ ውሂቡን ያቀርብልዎታል። ደህንነቱ የተጠበቀ አካባቢ እንደሆነ የሚያምኑት ከሆነ ብቻ አዲስ ምንጭ ያክሉ።</value>
+    <value>ምንጮችን በንዑስ-ትዕዛዞች ያስተዳድሩ። ምንጭ እርስዎ ጥቅሎችን እንዲያገኙ እና እንዲጭኑ ውሂቡን ያቀርብልዎታል። ደህንነቱ የተጠበቀ አካባቢ እንደሆነ የሚያምኑት ከሆነ ብቻ አዲስ ምንጭ ያክሉ።</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>የመተግበሪያዎች ምንጮችን ያስተዳድሩ</value>
+    <value>የጥቅሎችን ምንጮች ያስተዳድሩ</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>ነጋሪ እሴት</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>ሁሉንም የአሁን ምንጮች፣ ወይም የተወሰነ ምንጭን ሙሉ ዝርዝሮች ዘርዝር።</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>የአሁን ምንጮችን ይዘርዝሩ</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>ውሂብ</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>መስክ</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>ስም</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>እንደሚከተለው የተሰየመ ምንጭ አላገኘም:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>ምንም የተዋቀሩ ምንጮች የሉም።</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>ዓይነት</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>ተዘምኗል</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>በፍጹም</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>እሴት</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>የምንጩ ስም</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>ሁሉንም ምንጮች በማስወገድ ላይ...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>የተወሰነ ምንጭን ያስወግዱ።</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>የአሁን ምንጮችን ያስወግዱ</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>ምንጭን በማስወገድ ላይ:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>ሁሉንም ምንጮች ዳግም በማስጀመር ላይ...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>ይህ ትዕዛዝ ነባሪ ምንጮችን ይተዋል፣ በዚህም ሊኖር የሚችል ማንኛውንም ውስጣዊ ውሂብ በዚያው ያስቀራል። ያለምንም አምክንዮ፣ ሁሉንም ምንጮች ይተውና አዲስ ነባሪዎችን ያክላል። ስም የተሰጠው ምንጭ ከቀረበ፣ ያ ምንጭ ብቻ የሚተው ይሆናል።</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>ምንጮችን ዳግም ያዘጋጁ</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>የምንጮቹን ዳግም ለማስጀመር ያስገድዳል</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>--force አማራጭ ከተሰጠ የሚከተሉት ምንጮች ዳግም ይጀመራሉ:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>ምንጭን ዳግም ማስጀመር:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>የምንጩ አይነት</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>ሁሉንም ምንጮች በማዘመን ላይ...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>ሁሉንም ምንጮች አዘምን፣ ወይም የተወሰነ ምንጭን ብቻ።</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>የአሁን ምንጮችን ያዘምኑ</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>ምንጭ ማዘመን:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>ውጤቶችን በመለያ አጣራ</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Winget ስለተጠቀሙ እናመሰግናለን</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>የሦስተኛ ወገን ማስታወቂያዎች</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>የ winget ትዕዛዝ መስመር መተግበሪያዎችን እና ሌሎች ጥቅሎችን ከትዕዛዝ መስመሩ ለመጫን ያስችላል።</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>የመሳሪያውን አጠቃላይ መረጃ ማሳየት</value>
@@ -427,6 +635,6 @@
     <value>የተገለጸውን ስሪት ተጠቀም፤ ነባሪው አዲሱ ስሪት ነው</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>የመተግበሪያውን ተገኝ ስሪቶች አሳይ</value>
+    <value>የሚገኙትን የጥቅል ስሪቶች አሳይ</value>
   </data>
 </root>

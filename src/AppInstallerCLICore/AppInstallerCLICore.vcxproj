@@ -173,7 +173,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Argument.h" />
+    <ClInclude Include="ChannelStreams.h" />
     <ClInclude Include="Command.h" />
+    <ClInclude Include="Commands\CompleteCommand.h" />
     <ClInclude Include="Commands\ExperimentalCommand.h" />
     <ClInclude Include="Commands\FeaturesCommand.h" />
     <ClInclude Include="Commands\HashCommand.h" />
@@ -184,6 +186,7 @@
     <ClInclude Include="Commands\SourceCommand.h" />
     <ClInclude Include="Commands\ValidateCommand.h" />
     <ClInclude Include="Commands\SettingsCommand.h" />
+    <ClInclude Include="CompletionData.h" />
     <ClInclude Include="ExecutionArgs.h" />
     <ClInclude Include="ExecutionContext.h" />
     <ClInclude Include="ExecutionProgress.h" />
@@ -195,6 +198,7 @@
     <ClInclude Include="Search\Search.h" />
     <ClInclude Include="TableOutput.h" />
     <ClInclude Include="VTSupport.h" />
+    <ClInclude Include="Workflows\CompletionFlow.h" />
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
     <ClInclude Include="Workflows\InstallFlow.h" />
     <ClInclude Include="Workflows\ManifestComparator.h" />
@@ -204,7 +208,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Argument.cpp" />
+    <ClCompile Include="ChannelStreams.cpp" />
     <ClCompile Include="Command.cpp" />
+    <ClCompile Include="Commands\CompleteCommand.cpp" />
     <ClCompile Include="Commands\ExperimentalCommand.cpp" />
     <ClCompile Include="Commands\FeaturesCommand.cpp" />
     <ClCompile Include="Commands\HashCommand.cpp" />
@@ -215,6 +221,7 @@
     <ClCompile Include="Commands\SourceCommand.cpp" />
     <ClCompile Include="Commands\ValidateCommand.cpp" />
     <ClCompile Include="Commands\SettingsCommand.cpp" />
+    <ClCompile Include="CompletionData.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="ExecutionContext.cpp" />
     <ClCompile Include="ExecutionProgress.cpp" />
@@ -224,6 +231,7 @@
     </ClCompile>
     <ClCompile Include="Resources.cpp" />
     <ClCompile Include="VTSupport.cpp" />
+    <ClCompile Include="Workflows\CompletionFlow.cpp" />
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
     <ClCompile Include="Workflows\InstallFlow.cpp" />
     <ClCompile Include="Workflows\ManifestComparator.cpp" />

@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Kuvatakse ainult määratud arv tulemeid, mitte rohkem</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Valmis</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Saate rakenduse otsimiseks kasutada täpset vastet</value>
+    <value>Paketi leidmine kasutades täpset vastet</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Katsetatav argument demo eesmärgil</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>See käsk on näide, kuidas katsetatavaid funktsioone juurutada. Sisselülitamiseks avage 'winget settings' ja lubage funktsioon experimentalCmd või experimentalArg.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Katsetatavate funktsioonide näide</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Leiti paigutusega argument, mida ei oodatud</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>See funktsioon on pooleli ja seda võidakse dramatically muuta või kõik koos eemaldada. Selle lubamiseks redigeerige oma sätteid (winget settings) eksperimentaalsed funktsiooni kaasamiseks</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Kuvab katsetatava funktsiooni oleku Katsetatavaid funktsioone saab sisse lülitada suvandis 'winget settings'.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Kuvab katsetatavate funktsioonide oleku</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Keelatud</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Lubatud</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Funktsioon</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Link</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Järgmised eksperimentaalsed funktsioonid on pooleli.
+Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Atribuut</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Olek</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Räsitav fail</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Lipuargument ei tohi sisaldada külgnevat väärtust</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Käsk käivitatakse ilma viipadeta</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Arvutab kohaliku faili räsi, mis sobib manifesti sisestamiseks. Samuti oskab see arvutada MSIX-paketi signatuurifaili räsi vooginstallide lubamiseks.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft ei vastuta kolmandatest osapooltest teenusepakkujate pakettide eest ega anna neile litsentse.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Selle paketi pakkujaks on Microsoft Store. Võib juhtuda, et winget peab praeguse kasutaja nimel hankima paketi Microsoft Store’ist.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Rakendust ei saa installida, kuna see nõuab Windowsi uuemat versiooni:</value>
+    <value>Paketti ei saa installida, kuna see nõuab Windowsi uuemat versiooni:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Installib valitud rakenduse, mille leidmiseks tuleb otsida konfigureeritud allikast või mis leitakse otse manifestist.</value>
+    <value>Installib valitud paketi, mis leitakse kas konfigureeritud allikast või otse manifestist otsides. Vaikimisi peab päring ilma tõstutundlikkuseta ühtima id, nime või paketi hüüdnimega. Teisi välju saab kasutada nende vastava valiku edastamisel.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Rakendus installitakse</value>
+    <value>Pakett installitakse</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Installeri räsiväärtus ei ühti, seda ei saa administraatorina käitades alistada</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Installeri räsikood ei ühti; jätkab --force’i tõttu</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Installeri räsikood ei ühti, selle kontrolli alistamiseks kasutage --force’i</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Installeri räsikood on kinnitatud</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Installimine õnnestus</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Paketi installimise käivitamine …</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Installeri räsikoodi kontrolli alistamine</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Saate taotleda interaktiivset installimist; vaja võib olla kasutaja sisendit</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Rakenduse manifesti tee</value>
+    <value>Paketi manifesti tee</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Manifesti ei saanud valideerida.</value>
@@ -252,7 +324,7 @@
     <value>Argumendi väärtus on nõutav, kuid seda ei leitud</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Saate tulemeid rakenduse nime järgi filtreerida</value>
+    <value>Saate tulemeid paketi nime järgi filtreerida</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Sisendfaili käideldakse msixina; allkirjastamise korral esitatakse allkirjaräsi</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX-allkirja räsi ei saanud arvutada.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Microsoft Store’i paketi installimine ebaõnnestus, kuna konkreetne rakendus on poliitika poolt blokeeritud</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Microsoft Store’i paketi installimine ebaõnnestus. Tõrkekood:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Paketi hankimise kinnitamine/taotlemine ebaõnnestus: võrgu viga</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Paketi hankimise kinnitamine/taotlemine ebaõnnestus: poe kontot ei leitud</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Paketi hankimise kinnitamine/taotlemine ebaõnnestus: serveritõrge</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Paketi hankimise kinnitamise/taotlemise õnnestumine</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Store’i paketi installimine ebaõnnestus, kuna Microsoft Store’i klient on poliitika poolt blokeeritud</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Paketi hankimise kinnitamine/taotlemine …</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Leiti mitu sisestuskriteeriumitele vastavat paketti. Täpsustage sisendit.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Saate tulemeid nime järgi filtreerida</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Praeguse süsteemi jaoks asjakohaseid installereid ei ole.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Hetkel pole saadaval ühtegi katsetatavat funktsiooni. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Ühtegi sisestuskriteeriumitele vastavat paketti ei leitud.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Keelab VirtualTerminali kuva</value>
@@ -291,7 +396,7 @@
     <value>Privaatsusavaldus</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Rakenduse otsimiseks kasutatav päring</value>
+    <value>Paketi otsimiseks kasutatav päring</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Edenemisel kuvatakse värvide vikerkaar</value>
@@ -303,10 +408,26 @@
     <value>Edenemine kuvatakse vaikevärvina</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Rakendusi otsitakse konfigureeritud allikatest.</value>
+    <value>Otsib pakette konfigureeritud allikatest.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Saate rakendusi otsida ja vaadata nende kohta põhiteavet</value>
+    <value>Saate pakette otsida ja vaadata nende kohta põhiteavet</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>ID</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Vaste</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Nimi</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>tulemi piirangu tõttu on täiendavad kanded kärbitud</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Versioon</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Sätete valideerimisel leiti järgmised tõrked:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Sätete laadimisel ilmnes ootamatu tõrge. Palun kinnitage oma sätted sätete käsu käitamine.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Kanal</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Kuvatakse konkreetse rakenduse teave.</value>
+    <value>Kuvab kindlas paketis sisalduva teabe. Vaikimisi peab päring ilma tõstutundlikkuseta ühtima id, nime või paketi hüüdnimega. Teisi välju saab kasutada nende vastava valiku edastamisel.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Kuvab rakenduse kohta teavet</value>
+    <value>Kuvab paketi kohta teavet</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Versioon</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Saate taotleda järelevalveta installi</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Pärast ühte - tohib esineda ainult ühemärgiline pseudonüüm</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Selle nimega allikas on juba olemas ja viitab erinevale asukohale:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Selle asukoha jaoks on juba olemas muu nimega allikas:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Selle nimega allikas on juba olemas ja viitab samale asukohale:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Allika lisamine:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Saate lisada uue allika. Allikas pakub teile rakenduste leidmiseks ja installimiseks vajalikke andmeid. Lisage uus allikas üksnes juhul, kui usaldate seda ja peate seda turvaliseks asukohaks.</value>
+    <value>Saate lisada uue allika. Allikas pakub teile pakettide leidmiseks ja installimiseks vajalikke andmeid. Lisage uus allikas üksnes juhul, kui usaldate seda ja peate seda turvaliseks asukohaks.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Saate lisada uue allika</value>
@@ -342,13 +481,17 @@
     <value>Allikale antud argument</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Saate rakendust määratud allika järgi otsida</value>
+    <value>Saate paketti määratud allika järgi otsida</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Alamkäskude abil saate allikaid hallata. Allikas pakub teile rakenduste leidmiseks ja installimiseks vajalikke andmeid. Lisage uus allikas üksnes juhul, kui usaldate seda ja peate seda turvaliseks asukohaks.</value>
+    <value>Alamkäskude abil saate allikaid hallata. Allikas pakub teile pakettide leidmiseks ja installimiseks vajalikke andmeid. Lisage uus allikas üksnes juhul, kui usaldate seda ja peate seda turvaliseks asukohaks.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Saate hallata rakenduste allikaid</value>
+    <value>Pakettide allikate haldamine</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Argument</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Kuvatakse kõigi praeguste allikate loend või kindla allika täielikud üksikasjad.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Saate kuvada praeguste allikate loendi</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Andmed</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Väli</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Nimi</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Järgmise nimega allikat ei leitud:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Ühtegi allikat pole konfigureeritud.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Tüüp</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Värskendatud</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>mitte kunagi</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Väärtus</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Allika nimi</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Kõigi allikate eemaldamine …</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Saate mõne kindla allika eemaldada.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Saate praegused allikad eemaldada</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Allika eemaldamine:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Kõigi allikate lähtestamine …</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>See käsk eemaldab olemasolevad allikad, jättes kohalikud andmed potentsiaalselt maha. Kui argumenti pole, eemaldatakse kõik allikad ja lisatakse vaikeallikad. Nimega allika sisestamise korral eemaldatakse ainult see allikas.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Saate allikad lähtestada</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Sundlähtestab allikad</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Järgmised allikat lähtestatakse, kui antakse --force’i valik:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Allika lähtestamine:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Allika tüüp</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Kõigi allikate värskendamine …</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Saate valida, kas värskendada kõiki allikaid või üksnes ühte kindlat allikat.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Saate praegused allikad värskendada</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Allika värskendamine:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Saate tulemeid sildi järgi filtreerida</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Täname, et kasutate WinGeti</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Kolmanda osapoole märkused</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>WinGeti käsureautiliit võimaldab pakettide installimist käsurea kaudu.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Kuva üldteavet tööriista kohta</value>
@@ -427,6 +635,6 @@
     <value>Saate kasutada määratud versiooni; vaikeväärtus on uusim versioon</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Saate vaadata rakenduse saadaolevaid versioone</value>
+    <value>Saate vaadata paketi saadaolevaid versioone</value>
   </data>
 </root>

@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Belirtilen sayıdan fazla sonuç gösterme</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Bitti</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Uygulamayı tam eşleşme kullanarak bulma</value>
+    <value>Tam eşleşmeyi kullanarak paketi bulma</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Tanıtım amacıyla deneysel bağımsız değişken</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Bu komut, deneysel bir özelliğin nasıl uygulanacağına ilişkin bir örnektir. Açmak için 'winget settings' bölümüne gidin ve experimentalCmd veya experimentalArg özelliklerini etkinleştirin.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Deneysel özellik örneği</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Beklenmediği halde bir konumsal bağımsız değişken bulundu</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Bu özellik devam eden bir çalışmadır ve gelecekte önemli ölçüde değiştirilebilir veya tamamen kaldırılabilir. Bu özelliği etkinleştirmek için, ayarlarınızı ('winget settings') deneysel özellikleri içerecek şekilde düzenleyin</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Deneysel özelliklerin durumunu gösterir. Deneysel özellikler 'winget settings' ile açılabilir.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Deneysel özelliklerin durumunu gösterir</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Devre dışı</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Etkin</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Özellik</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Bağlantı</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Aşağıdaki deneysel özellikler devam ediyor.
+Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Özellik</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Durum</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Karma oluşturulacak dosya</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Bayrak bağımsız değişkeni ekli değeri içeremez</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Komutu istemsiz çalıştırma</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Bir yerel dosyanın karma değerini, bildirim girişine uygun olarak hesaplar. Akış yüklemelerinin etkinleştirilmesi için bir MSIX paketine ilişkin imza dosyasının karmasını da hesaplar.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft, üçüncü parti paketlerden sorumlu değildir ve bu paketlere yönelik lisans vermez.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Bu paket Microsoft Store aracılığıyla sağlanır. winget'in paketi geçerli kullanıcı adına Microsoft Store'dan alması gerekebilir.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Uygulama, Windows 'un daha yüksek bir sürümünü gerektirdiğinden yüklenemiyor:</value>
+    <value>Daha yüksek bir Windows sürümü gerektirdiğinden paket yüklenemiyor:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Yapılandırılmış bir kaynağın aranmasıyla veya doğrudan bir bildirim ile bulunan seçili uygulamayı yükler.</value>
+    <value>Seçili paketi, yapılandırılmış bir kaynağı arayarak veya doğrudan bir bildirimden kurar. Varsayılan olarak, sorgu, paketin kimliğiyle, adıyla veya takma adıyla büyük/küçük harfe duyarlı olmamalıdır. Diğer alanlar uygun seçeneklerden geçirilerek kullanılabilir.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Verilen uygulamayı yükler</value>
+    <value>Verilen paketi kurar</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Yükleyici karması eşleşmiyor; yönetici olarak çalıştırırken bu geçersiz kılanamaz</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Yükleyici karması eşleşmiyor; --force seçeneği nedeniyle devam ediliyor</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Yükleyici karması eşleşmiyor; bu denetimi geçersiz kılmak için --force seçeneğini kullanın</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Yükleyici karması başarıyla doğrulandı</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Başarıyla yüklendi</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Paket yüklemesi başlatılıyor...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Yükleyici karma denetimini geçersiz kılma</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Etkileşimli yükleme isteyin; kullanıcı girişi gerekebilir</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Uygulama bildiriminin yolu</value>
+    <value>Paket bildiriminin yolu</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Bildirim doğrulaması başarısız oldu.</value>
@@ -252,7 +324,7 @@
     <value>Bağımsız değişken değeri gerekli, ancak değer bulunamadı</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Sonuçları uygulama bağlantı yoluna göre filtreleme ölçütü:</value>
+    <value>Sonuçları bağlantı yoluna göre filtreleme</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Giriş dosyası msix olarak kabul edilir; imzalandıysa imza karması sağlanacaktır</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX imza karması hesaplanamadı.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Belirli bir uygulama ilke tarafından engellendiği için Microsoft Store paketi yüklenemedi</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Microsoft Store paketi yüklenemedi. Hata kodu:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Paket alımı doğrulama/isteme başarısız oldu: ağ hatası</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Paket alımı doğrulama/isteme başarısız oldu: mağaza hesabı bulunamadı</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Paket alımı doğrulama/isteme başarısız oldu: sunucu hatası</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Paket alımı doğrulama/isteme başarılı</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Store istemcisi ilke tarafından engellendiği için Microsoft Store paketi yüklenemedi</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Paket alımı doğrulama/isteme...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Birden çok paket, giriş ölçütleriyle eşleşen bulundu. Lütfen girişi daraltın.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Sonuçları ada göre filtreleme ölçütü:</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Geçerli sisteme uygulanabilen yükleyici yok.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Şu anda kullanılabilir deneysel özellik yok. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Giriş ölçütleriyle eşleşen paket bulunamadı.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>VirtualTerminal görünümünü devre dışı bırakır</value>
@@ -291,7 +396,7 @@
     <value>Gizlilik Bildirimi</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Uygulamayı aramak için kullanılan sorgu</value>
+    <value>Paket aramak için kullanılan sorgu</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Gökkuşağı şeklinde ilerleme görüntüleme</value>
@@ -303,10 +408,26 @@
     <value>Varsayılan renk olarak ilerleme ekranı</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Yapılandırılmış kaynaklardan uygulama arar.</value>
+    <value>Yapılandırılmış kaynaklardan paket arar.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Uygulamaların temel bilgilerini bulma ve görüntüleme</value>
+    <value>Paketlerin temel bilgilerini bulma ve görüntüleme</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>Kimlik</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Eşleşme</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Ad</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>sonuç sınırı nedeniyle ek girişler kesildi</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Sürüm</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Ayarlar doğrulanırken aşağıdaki hatalar bulundu:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Ayarlar yüklenirken beklenmeyen bir hata oluştu. Lütfen ayarlar komutunu çalıştırarak ayarlarınızı doğrulayın.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Kanal</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Belirli bir uygulamayla ilgili bilgileri gösterir.</value>
+    <value>Belirli bir paketteki bilgileri gösterir. Varsayılan olarak, sorgunun büyük/küçük harfe duyarlı olmaması durumunda, paketin kimliği, adı veya adıyla eşleşmesi gerekir. Diğer alanlar uygun seçeneklerden geçirilerek kullanılabilir.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Bir uygulamayla ilgili bilgileri gösterir</value>
+    <value>Bir paketle ilgili bilgileri gösterir</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Sürüm</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Sessiz yükleme isteği</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Yalnızca tek karakterlik diğer ad, tek-</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Verilen ada sahip bir kaynak zaten var ve farklı bir konuma başvuruyor:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Farklı ada sahip bir kaynak zaten bu konuma başvuruyor:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Verilen ada sahip bir kaynak zaten var ve aynı konuma başvuruyor:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Kaynak ekleniyor:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Yeni bir kaynak ekleyin. Kaynak, uygulamaları bulup yükleyebileceğiniz verileri sağlar. Yalnızca güvenli bir konum olduğuna güveniyorsanız yeni bir kaynak ekleyin.</value>
+    <value>Yeni bir kaynak ekleyin. Kaynak, paketlerini bulup yükleyebileceğiniz verileri sağlar. Yalnızca güvenli bir konum olduğuna güveniyorsanız yeni bir kaynak ekleyin.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Yeni bir kaynak ekleme</value>
@@ -342,13 +481,17 @@
     <value>Kaynağa verilen bağımsız değişken</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Belirtilen kaynağı kullanarak uygulama bulma</value>
+    <value>Belirtilen kaynağı kullanarak paket bulma</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Alt komutlarla kaynakları yönetme. Kaynak, uygulamaları bulup yükleyebileceğiniz verileri sağlar. Yalnızca güvenli bir konum olduğuna güveniyorsanız yeni bir kaynak ekleyin.</value>
+    <value>Alt komutlarla kaynakları yönetme. Kaynak, paketlerini bulup yükleyebileceğiniz verileri sağlar. Yalnızca güvenli bir konum olduğuna güveniyorsanız yeni bir kaynak ekleyin.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Uygulama kaynaklarını yönetme</value>
+    <value>Paket kaynaklarını yönetme</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Bağımsız değişken</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Tüm geçerli kaynakları veya belirli bir kaynağın tüm ayrıntılarını listeleme.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Mevcut kaynakları listeleme</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Veri</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Alan</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Ad</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Şu ada sahip bir kaynak bulunamadı:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Yapılandırılmış kaynak yok.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Tür</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Güncelleştirildi</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>hiçbir zaman</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Değer</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Kaynak adı</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Tüm kaynaklar kaldırılıyor...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Belirli bir kaynağı kaldırma.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Mevcut kaynakları kaldır</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Kaynak kaldırılıyor:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Tüm kaynaklar sıfırlanıyor..</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Bu komut var olan kaynakları bırakır ve olasılıkla tüm yerel verileri geride bırakır. Bağımsız değişken olmadan tüm kaynakları bırakır ve varsayılan değerleri ekler. Adlandırılmış kaynak sağlanırsa, yalnızca söz konusu kaynak bırakılır.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Kaynakları sıfırla</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Kaynakların sıfırlanmasını zorlar</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>--force seçeneği verilirse aşağıdaki kaynaklar sıfırlanır:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Kaynak sıfırlanıyor:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Kaynak türü</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Tüm kaynaklar güncelleştiriliyor...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Tüm kaynakları veya yalnızca belirli bir kaynağı güncelleştirme.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Mevcut kaynakları güncelleştirme</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Kaynak güncelleştiriliyor:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Sonuçları etikete göre filtreleme ölçütü:</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Winget kullandığınız için teşekkür ederiz</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Üçüncü Taraf Bildirimleri</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Winget komut satırı yardımcı programı, komut satırından uygulamaların ve diğer paketlerin yüklenmesini sağlar.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Aracın genel bilgilerini görüntüleme</value>
@@ -427,6 +635,6 @@
     <value>Belirtilen sürümü kullanın; varsayılan en son sürümdür</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Uygulamanın uygun sürümlerini göster</value>
+    <value>Paketin uygun sürümlerini göster</value>
   </data>
 </root>

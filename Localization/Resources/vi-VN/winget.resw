@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Hiển thị không vượt quá số kết quả đã xác định</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Hoàn thành</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Tìm ứng dụng theo kết quả khớp hoàn toàn</value>
+    <value>Tìm gói bằng kết quả khớp chính xác</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Đối số thử nghiệm cho mục đích minh họa</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Lệnh này là ví dụ về cách triển khai tính năng thử nghiệm. Để bật, hãy đi đến 'winget settings' và bật các tính năng experimentalCmd hoặc experimentalArg.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Ví dụ về tính năng thử nghiệm</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Đã tìm thấy một đối số vị trí khi không dự kiến</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Tính năng này là một công việc đang diễn ra và bạn có thể thay đổi đáng kể hoặc bị loại bỏ hoàn toàn trong tương lai. Để bật tính năng này, chỉnh sửa thiết đặt của bạn ('winget settings') để bao gồm tính năng thử nghiệm</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Hiển thị trạng thái các tính năng thử nghiệm. Bạn có thể bật các tính năng thử nghiệm thông qua 'winget settings'.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Hiển thị trạng thái các tính năng thử nghiệm</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Đã vô hiệu hóa</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Đã kích hoạt</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Tính năng</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Liên kết</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Các tính năng thử nghiệm sau đây đang được thực hiện.
+Chúng có thể được cấu hình thông qua tệp cài đặt 'winget settings'.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Thuộc tính</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Trạng thái</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Tệp cần băm</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Đối số gắn cờ không thể chứa giá trị liên kết</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Thực thi lệnh mà không cần lời nhắc</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Tính toán hàm băm của một tệp cục bộ, thích hợp để nhập vào một tệp kê khai. Ứng dụng này cũng có thể tính toán hàm băm từ tệp chữ ký của gói MSIX để cho phép cài đặt phát trực tuyến.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft không chịu trách nhiệm về việc này, cũng như không cấp bất kỳ giấy phép nào cho các gói của bên thứ ba.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Gói này được cung cấp qua Microsoft Store. winget có thể cần phải mua gói từ Microsoft Store thay cho người dùng hiện tại.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Bạn không thể cài đặt ứng dụng, vì ứng dụng yêu cầu phiên bản Windows cao hơn:</value>
+    <value>Không thể cài đặt gói vì nó yêu cầu phiên bản Windows cao hơn:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Cài đặt ứng dụng đã chọn, bạn có thể tìm thấy bằng cách tìm kiếm nguồn được đặt cấu hình hoặc trực tiếp từ tệp kê khai.</value>
+    <value>Cài đặt gói đã chọn dù được tìm thấy bằng tìm kiếm nguồn đã đặt cấu hình hoặc trực tiếp từ tệp kê khai. Theo mặc định, truy vấn phải khớp với ID, tên hoặc biệt danh của gói không phân biệt chữ hoa thường. Bạn có thể sử dụng các trường khác bằng cách chuyến đến tùy chọn thích hợp.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Cài đặt ứng dụng được cung cấp</value>
+    <value>Cài đặt gói được cung cấp</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Trình cài đặt Hash không khớp; việc này không thể ghi đè được khi đang chạy như là người quản trị</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Trình cài đặt hash không khớp; tiến hành do --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Trình cài đặt hash không khớp; để ghi đè kiểm tra này sử dụng --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Xác minh thành công trình cài đặt hash</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Đã cài đặt thành công</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Bắt đầu cài đặt gói...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Ghi đè kiểm tra hàm băm của trình cài đặt</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Yêu cầu cài đặt tương tác; hệ thống có thể cần phải nhập người dùng</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Đường dẫn đến tệp kê khai của ứng dụng</value>
+    <value>Đường dẫn đến tệp kê khai của gói</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Không thể xác thực tệp kê khai.</value>
@@ -252,7 +324,7 @@
     <value>Giá trị đối số là bắt buộc, nhưng không tìm thấy</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Lọc kết quả theo biệt danh ứng dụng</value>
+    <value>Lọc kết quả theo biệt danh</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Tệp nhập sẽ được xử lý dưới dạng msix; hàm băm chữ ký sẽ được cung cấp nếu đã ký</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Không thể tính toán hàm băm chữ ký MSIX.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Không thể cài đặt gói Microsoft Store vì ứng dụng cụ thể đã bị chặn bởi chính sách</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Không thể cài đặt gói Microsoft Store. Mã lỗi:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Đang xác minh/yêu cầu mua gói thất bại: lỗi mạng</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Đang xác minh/yêu cầu mua gói thất bại: không tìm thấy tài khoản cửa hàng nào</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Đang xác minh/yêu cầu mua gói thất bại: lỗi máy chủ</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Đang xác minh/yêu cầu mua gói thành công</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Không thể cài đặt gói Microsoft Store vì máy khách Microsoft Store đã bị chặn bởi chính sách</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Đang xác minh/yêu cầu mua gói thành công...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Nhiều gói được tìm thấy phù hợp với tiêu chí đầu vào. Vui lòng tinh chỉnh đầu vào.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Lọc kết quả theo tên</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Không có trình cài đặt nào được áp dụng cho hệ thống hiện tại.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Hiện tại không có các tính năng thử nghiệm có sẵn. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Không tìm thấy gói nào phù hợp với các tiêu chí đầu vào.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Tắt hiển thị VirtualTerminal</value>
@@ -291,7 +396,7 @@
     <value>Điều khoản về Quyền riêng tư</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Truy vấn dùng để tìm kiếm ứng dụng</value>
+    <value>Truy vấn dùng để tìm kiếm gói</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Tiến độ hiển thị theo màu sắc cầu vồng</value>
@@ -303,10 +408,26 @@
     <value>Tiến độ hiển thị theo màu sắc mặc định</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Tìm kiếm các ứng dụng từ các nguồn được cấu hình.</value>
+    <value>Tìm kiếm gói từ các nguồn đã cấu hình.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Tìm và hiển thị thông tin cơ bản của ứng dụng</value>
+    <value>Tìm và hiển thị thông tin cơ bản của gói</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>Id</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Phù hợp</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Tên</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>các mục nhập khác được cắt ngắn do giới hạn kết quả</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Phiên bản</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Các lỗi sau đây đã được tìm thấy xác thực thiết đặt:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Lỗi bất ngờ trong khi tải cài đặt. Vui lòng xác minh cài đặt của bạn bằng cách chạy lệnh cài đặt.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Kênh</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Hiển thị thông tin về ứng dụng cụ thể.</value>
+    <value>Hiển thị thông tin của gói cụ thể. Theo mặc định, truy vấn phải khớp với ID, tên hoặc biệt danh của gói không phân biệt chữ hoa thường. Bạn có thể sử dụng các trường khác bằng cách chuyến đến tùy chọn thích hợp.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Hiển thị thông tin về ứng dụng</value>
+    <value>Hiển thị thông tin về gói</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Phiên bản</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Yêu cầu cài đặt tự hành</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Chỉ biệt danh ký tự đơn có thể xảy ra sau -</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Một nguồn với tên đã cho đã tồn tại và tham chiếu đến một vị trí khác:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Một nguồn với tên khác đã được tham chiếu tới vị trí này:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Một nguồn có tên đã cho đã tồn tại và tham chiếu đến cùng một vị trí:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Thêm nguồn:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Thêm nguồn mới. Nguồn dữ liệu cung cấp dữ liệu cho bạn để tìm hiểu và cài đặt ứng dụng. Chỉ thêm nguồn mới nếu bạn tin rằng đó là vị trí an toàn.</value>
+    <value>Thêm nguồn mới. Nguồn cung cấp dữ liệu cho bạn để tìm hiểu và cài đặt gói. Chỉ thêm nguồn mới nếu bạn cho rằng đó là vị trí an toàn.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Thêm nguồn mới</value>
@@ -342,13 +481,17 @@
     <value>Đối số dành cho nguồn</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Tìm ứng dụng bằng nguồn đã xác định</value>
+    <value>Tìm gói bằng nguồn đã xác định</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Quản lý nguồn bằng các lệnh con. Nguồn dữ liệu cung cấp dữ liệu cho bạn để tìm hiểu và cài đặt ứng dụng. Chỉ thêm nguồn mới nếu bạn tin rằng đó là vị trí an toàn.</value>
+    <value>Quản lý nguồn bằng các lệnh con. Nguồn cung cấp dữ liệu cho bạn để tìm hiểu và cài đặt gói. Chỉ thêm nguồn mới nếu bạn cho rằng đó là vị trí an toàn.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Quản lý nguồn ứng dụng</value>
+    <value>Quản lý nguồn của các gói</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Đối số</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Liệt kê tất cả các nguồn hiện tại hoặc đầy đủ chi tiết của một nguồn cụ thể.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Liệt kê nguồn hiện tại</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Dữ liệu</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Trường</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Tên</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Không tìm thấy nguồn có tên là:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Không có nguồn nào được cấu hình.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Loại</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Đã cập nhật</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>không bao giờ</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Giá trị</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Tên nguồn dữ liệu</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Xóa tất cả các nguồn...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Loại bỏ nguồn cụ thể.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Loại bỏ nguồn hiện tại</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Xoa nguồn:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Đang cài đặt là tất cả các nguồn...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Lệnh này sẽ bỏ qua các nguồn hiện có, có thể để lại mọi dữ liệu cục bộ. Nếu không có đối số nào, lệnh sẽ bỏ qua tất cả các nguồn và thêm thành phần mặc định. Nếu đã có một nguồn có tên, chỉ có nguồn đó sẽ bị bỏ qua.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Đặt lại nguồn</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Bắt buộc đặt lại các nguồn</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Các nguồn sau đây sẽ được thiết lập lại nếu tùy chọn --force được đưa ra:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Cài đặt lại nguồn:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Loại nguồn dữ liệu</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Cập nhật tất cả các nguồn...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Cập nhật tất cả các nguồn hoặc chỉ một nguồn cụ thể.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Cập nhật nguồn hiện tại</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Cập nhật nguồn:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Lọc kết quả theo thẻ</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Cảm ơn bạn đã sử dụng winget</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Thông báo của bên thứ ba</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Tiện ích dòng lệnh winget cho phép cài đặt ứng dụng và các gói khác từ dòng lệnh.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Hiển thị thông tin chung của công cụ</value>
@@ -427,6 +635,6 @@
     <value>Sử dụng phiên bản đã xác định; mặc định là phiên bản mới nhất</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Hiển thị phiên bản khả dụng của ứng dụng</value>
+    <value>Hiển thị phiên bản khả dụng của gói</value>
   </data>
 </root>

@@ -18,45 +18,41 @@ namespace AppInstaller::CLI::VirtualTerminal
         }
     }
 
-    ConsoleModeRestore::ConsoleModeRestore(bool enableVTProcessing)
+    ConsoleModeRestore::ConsoleModeRestore()
     {
-        if (enableVTProcessing)
+        // Set output mode to handle virtual terminal sequences
+        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (hOut == INVALID_HANDLE_VALUE)
         {
-            // Set output mode to handle virtual terminal sequences
-            HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-            if (hOut == INVALID_HANDLE_VALUE)
+            LOG_LAST_ERROR();
+        }
+        else if (hOut == NULL)
+        {
+            AICLI_LOG(CLI, Info, << "VT not enabled due to null output handle");
+        }
+        else
+        {
+            if (!GetConsoleMode(hOut, &m_previousMode))
             {
-                LOG_LAST_ERROR();
-            }
-            else if (hOut == NULL)
-            {
-                AICLI_LOG(CLI, Info, << "VT not enabled due to null output handle");
+                // If the user redirects output, the handle will be invalid for this function.
+                // Don't log it in that case.
+                LOG_LAST_ERROR_IF(GetLastError() != ERROR_INVALID_HANDLE);
             }
             else
             {
-                if (!GetConsoleMode(hOut, &m_previousMode))
+                // Try to degrade in case DISABLE_NEWLINE_AUTO_RETURN isn't supported.
+                for (DWORD mode : { ENABLE_VIRTUAL_TERMINAL_PROCESSING | DISABLE_NEWLINE_AUTO_RETURN, ENABLE_VIRTUAL_TERMINAL_PROCESSING})
                 {
-                    // If the user redirects output, the handle will be invalid for this function.
-                    // Don't log it in that case.
-                    LOG_LAST_ERROR_IF(GetLastError() != ERROR_INVALID_HANDLE);
-                }
-                else
-                {
-                    // Try to degrade in case DISABLE_NEWLINE_AUTO_RETURN isn't supported.
-                    for (DWORD mode : { ENABLE_VIRTUAL_TERMINAL_PROCESSING | DISABLE_NEWLINE_AUTO_RETURN, ENABLE_VIRTUAL_TERMINAL_PROCESSING})
+                    DWORD outMode = m_previousMode | mode;
+                    if (!SetConsoleMode(hOut, outMode))
                     {
-                        DWORD outMode = m_previousMode | mode;
-                        if (!SetConsoleMode(hOut, outMode))
-                        {
-                            // Even if it is a different error, log it and try to carry on.
-                            LOG_LAST_ERROR_IF(GetLastError() != STATUS_INVALID_PARAMETER);
-                        }
-                        else
-                        {
-                            m_token = true;
-                            m_isVTEnabled = true;
-                            break;
-                        }
+                        // Even if it is a different error, log it and try to carry on.
+                        LOG_LAST_ERROR_IF(GetLastError() != STATUS_INVALID_PARAMETER);
+                    }
+                    else
+                    {
+                        m_token = true;
+                        break;
                     }
                 }
             }
@@ -69,6 +65,21 @@ namespace AppInstaller::CLI::VirtualTerminal
         {
             LOG_LAST_ERROR_IF(!SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), m_previousMode));
             m_token = false;
+        }
+    }
+
+    const ConsoleModeRestore& ConsoleModeRestore::Instance()
+    {
+        static ConsoleModeRestore s_instance;
+        return s_instance;
+    }
+
+    void ConstructedSequence::Append(const Sequence& sequence)
+    {
+        if (sequence.Get())
+        {
+            m_str += sequence.Get();
+            Set(m_str);
         }
     }
 

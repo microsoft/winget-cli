@@ -70,6 +70,11 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
+    Context Context::Clone()
+    {
+        return { Reporter };
+    }
+
     void Context::EnableCtrlHandler(bool enabled)
     {
         SetCtrlHandlerContext(enabled ? this : nullptr);
@@ -96,7 +101,7 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    void Context::Terminate(HRESULT hr)
+    void Context::Terminate(HRESULT hr, std::string_view file, size_t line)
     {
         if (hr == APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED)
         {
@@ -111,6 +116,11 @@ namespace AppInstaller::CLI::Execution
             {
                 std::exit(hr);
             }
+        }
+
+        if (!file.empty() && line)
+        {
+            Logging::Telemetry().LogCommandTermination(hr, file, line);
         }
 
         m_isTerminated = true;

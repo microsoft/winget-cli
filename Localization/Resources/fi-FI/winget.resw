@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Näytä vain määritetty määrä tuloksia</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Valmis</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Etsi sovellus käyttämällä tarkkaa vastaavuutta</value>
+    <value>Etsi pakettia käyttämällä tarkkaa vastaavuutta</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Kokeellinen argumentti esittelytarkoituksia varten</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Tämä komento on esimerkki kokeellisen ominaisuuden käyttöönotosta. Avaa winget settings ja ota se käyttöön ottamalla käyttöön experimentalCmd- tai experimentalArg-ominaisuudet.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Kokeellisen ominaisuuden esimerkki</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Löydettiin positioargumentti, kun yhtäkään ei odotettu</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Tämä ominaisuus on työn alla, ja sitä voidaan muuttaa dramaattisesti tai poistaa kokonaan myöhemmin. Jos haluat ottaa sen käyttöön, muokkaa asetuksia (winget settings) ja ota kokeellinen ominaisuus käyttöön</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Näyttää kokeellisten ominaisuuksien tilan. Kokeellisia ominaisuuksia voi ottaa käyttöön winget settings -asetusten kautta.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Näyttää kokeellisten ominaisuuksien tilan</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Poissa käytöstä</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Käytössä</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Ominaisuus</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Linkki</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Seuraavat kokeelliset ominaisuudet ovat käynnissä.
+Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Ominaisuus</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Tila</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Hajautettava tiedosto</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Merkintäargumentti ei voi sisältää liitettyä arvoa</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Suorita komento ilman kehotteita</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Laskee paikallisen tiedoston hajautusarvon, soveltuu luettelotiedoston kohteisiin.  Voi myös laskea MSIX-paketin allekirjoitustiedoston hajautuksen, jotta virtauttamisen asennukset voidaan ottaa käyttöön.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft ei ole vastuussa kolmansien osapuolten paketeista tai myönnä niille käyttöoikeuksia.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Tämä paketti on saatavilla Microsoft Storesta. wingetin saattaa olla tarpeen hankkia paketti Microsoft Storesta nykyisen käyttäjän puolesta.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Sovellusta ei voi asentaa, koska se vaatii suuremman Windows-version:</value>
+    <value>Pakettia ei voi asentaa, koska se vaatii suuremman Windows-version:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Asentaa valitun sovelluksen, joka löydetään joko määritetystä lähteestä etsimällä tai suoraan luettelotiedostosta.</value>
+    <value>Asentaa valitun paketin joko etsimällä määritetystä lähteestä tai suoraan luettelosta. Kyselyn on oletusarvoisesti vastattava paketin tunnusta, nimeä tai monikeria. Muita kenttiä voidaan käyttää ohittamalla sopiva vaihtoehto.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Asentaa määritetyn sovelluksen</value>
+    <value>Asentaa määritetyn paketin</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Asennus ohjelman hajautus arvo ei täsmää; Tätä ei voi ohittaa, kun käytössä on järjestelmänvalvojana</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Asennusohjelman hajautusarvo ei täsmää. Jatketaan komennon --force vuoksi</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Asennusohjelman hajautusarvo ei täsmää. Jos haluat ohittaa tämän tarkistuksen, käytä komentoa --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Asennusohjelman hajautusarvo on vahvistettu</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Asennus onnistui</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Aloitetaan paketin asennus...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Ohita asennusohjelman hajautustarkistus</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Pyydä vuorovaikutteista asennusta. Käyttäjän syötettä saatetaan tarvita.</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Sovelluksen sovellusvaatimustiedoston polku</value>
+    <value>Paketin sovellusvaatimustiedoston polku</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Kokoonpanotietojen tarkistus epäonnistui.</value>
@@ -252,7 +324,7 @@
     <value>Argumentin arvo on pakollinen, mutta yhtäkään ei löytynyt</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Suodata tulokset sovelluksen monikerin mukaan</value>
+    <value>Suodata tulokset monikerin mukaan</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Syöttötiedostoa käsitellään msix-muodossa. Allekirjoituksen hajautus suoritetaan, jos se allekirjoitetaan.</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX-allekirjoituksen hajautusarvon laskeminen epäonnistui.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Microsoft Storen pakettia ei voitu asentaa, koska sovellus on estetty käytännöllä</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Microsoft Storen pakettia ei voitu asentaa. Virhekoodi:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Pakettien hankinnan tarkistaminen tai pyytäminen epäonnistui: verkkovirhe</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Pakettien hankinnan tarkistaminen tai pyytäminen epäonnistui: store-tiliä ei löytynyt</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Pakettien hankinnan tarkistaminen tai pyytäminen epäonnistui: palvelinvirhe</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Pakettien hankinnan onnistumisen tarkistaminen tai pyytäminen</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Storen pakettia ei voitu asentaa, koska Microsoft Storen asiakasohjelma on estetty käytännöllä</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Pakettien hankinnan tarkistaminen tai pyytäminen...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Syötteen ehtoja vastaavia paketteja löytyi useampi. Tarkenna syötettä.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Suodata tulokset nimen mukaan</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Asennus ei sovellu nykyiseen järjestelmään.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Tällä hetkellä ei ole saatavilla kokeellisia ominaisuuksia. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Mikään paketti ei vastannut syötteen ehtoja.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Poistaa VirtualTerminal-näytön käytöstä</value>
@@ -291,7 +396,7 @@
     <value>Tietosuojatiedot</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Sovelluksen hakuun käytetty kysely</value>
+    <value>Paketin hakuun käytetty kysely</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Edistymisen näyttäminen sateenkaaren väreissä</value>
@@ -303,10 +408,26 @@
     <value>Edistyminen näytetään oletusvärissä</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Etsii sovelluksia määritetyistä lähteistä.</value>
+    <value>Etsii paketteja määritetyistä lähteistä.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Sovellusten perustietojen etsiminen ja näyttäminen</value>
+    <value>Pakettien perustietojen etsiminen ja näyttäminen</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>Tunnus</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Vastine</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Nimi</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>lisämerkinnät on lyhennetty tulosrajan vuoksi</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Versio</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Seuraavat virheet löydettiin vahvistettaessa asetuksia:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Odottamaton virhe ladattaessa asetuksia. Tarkista asetukset suorittamalla asetukset-komento.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Kanava</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Näyttää tietyn sovelluksen tiedot.</value>
+    <value>Näyttää tietoja tietystä paketista. Kyselyn on oletusarvoisesti vastattava pakkauksen tunnusta, nimeä tai monikeria. Muita kenttiä voidaan käyttää ohittamalla sopiva vaihtoehto.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Näyttää tietoja sovelluksesta</value>
+    <value>Näyttää tietoja paketista</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Versio</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Pyydä automaattinen asennus</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Vain yksittäinen merkkialias voi seurata yhtä -</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Samanniminen lähde on jo olemassa ja viittaa toiseen sijaintiin:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Lähde, jolla on eri nimi, viittaa jo tähän sijaintiin:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Samanniminen lähde on jo olemassa ja viittaa samaan sijaintiin:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Lisätään lähde:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Lisää uusi lähde. Lähde antaa tiedot, joiden avulla voit etsiä ja asentaa sovelluksia. Lisää uusi lähde vain suojatusta sijainnista.</value>
+    <value>Lisää uusi lähde. Lähde antaa tiedot, joiden avulla voit etsiä ja asentaa paketteja. Lisää uusi lähde vain suojatusta sijainnista.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Lisää uusi lähde</value>
@@ -342,13 +481,17 @@
     <value>Lähteelle annettu argumentti</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Etsi sovellus käyttämällä määritettyä lähdettä</value>
+    <value>Etsi paketti käyttämällä määritettyä lähdettä</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Hallinnoi lähteitä alikomennoilla. Lähde antaa tiedot, joiden avulla voit etsiä ja asentaa sovelluksia. Lisää uusi lähde vain luottamastasi suojatusta sijainnista.</value>
+    <value>Hallinnoi lähteitä alikomennoilla. Lähde antaa tiedot, joiden avulla voit etsiä ja asentaa paketteja. Lisää uusi lähde vain luottamastasi suojatusta sijainnista.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Hallitse sovelluslähteitä</value>
+    <value>Hallitse pakettien lähteitä</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Argumentti</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Näytä kaikki nykyiset lähteet luettelossa tai tietyn lähteen täydelliset tiedot.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Näytä nykyiset lähteet luettelossa</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Data</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Kenttä</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Nimi</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Ei löytynyt lähdettä nimeltä:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Lähteitä ei ole määritetty.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Tyyppi</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Päivitetty</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>ei koskaan</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Arvo</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Lähteen nimi</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Poistetaan kaikki lähteet...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Poista tietty lähde.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Poista nykyiset lähteet</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Poistetaan lähde:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Palautetaan kaikki lähteet...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Tämä komento poistaa olemassa olevat lähteet, mutta paikallisia tietoja voi jäädä jäljelle. Jos argumenttia ei ole, se poistaa kaikki lähteet ja lisää oletusarvot. Jos nimetty lähde on annettu, vain se poistetaan.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Palauta lähteet</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Pakottaa lähteiden palauttamisen</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Seuraavat lähteet palautetaan, jos --force -asetus annetaan:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Palautetaan lähde:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Lähteen tyyppi</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Päivitetään kaikki lähteet...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Päivitä kaikki lähteet tai vain tietty lähde.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Päivitä nykyiset lähteet</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Päivitetään lähde:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Suodata tulokset tunnisteen mukaan</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Kiitos, että käytit winget-ohjelmaa</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Kolmannen osapuolen ilmoitukset</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Winget-komentoriviapuohjelman avulla voit asentaa sovelluksia ja muita paketteja komentoriviltä.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Työkalun yleistietojen näyttäminen</value>
@@ -427,6 +635,6 @@
     <value>Käytä määritettyä versiota. Oletusarvona on uusin versio.</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Näytä sovelluksen saatavilla olevat versiot</value>
+    <value>Näytä paketin saatavilla olevat versiot</value>
   </data>
 </root>

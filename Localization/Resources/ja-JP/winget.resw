@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>指定した数以下の結果を表示</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>完了</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>完全一致を使用してアプリを検索</value>
+    <value>完全一致を使用してパッケージを検索</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>デモを目的とした試験的引数</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>このコマンドは、試験的な機能を実装する方法の例です。有効にするには、"winget settings" へと移動し、experimentalCmd または experimentalArg 機能を有効にします。</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>試験的な機能の例</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>必要なものが見つからないときに位置指定引数が見つかりました</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>この機能は進行中であり、今後劇的に変更されたり、完全に削除される可能性があります。有効にするには、設定('winget settings') を編集して、 試験的な機能を含めます</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>試験的な機能の状態を表示します。試験的な機能は、"winget settings" を使用してオンにすることができます。</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>試験的な機能の状態を表示</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>無効</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>有効</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>機能</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>リンク</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>次の試験的な機能が進行中です。
+これらの設定は、設定ファイル ' winget settings ' を使用して構成できます。</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>プロパティ</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>状態</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>ハッシュするファイル</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>フラグ引数に隣接値を含めることはできません</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>ダイアログを表示せずコマンドを実行</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>マニフェストへのエントリに適したローカル ファイルのハッシュを計算します。また、MSIX パッケージの署名ファイルのハッシュを計算して、ストリーミング インストールを有効にすることもできます。</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft はサードパーティのパッケージに対して責任を負わず、ライセンスも付与しません。</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>このパッケージは Microsoft Store から提供されています。winget は、現在のユーザーに代わって Microsoft Store からパッケージを取得する必要がある場合があります。</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>アプリケーションをインストールできません。新しいバージョンの Windows が必要です。</value>
+    <value>パッケージをインストールできません。新しいバージョンの Windows が必要です：</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>選択されたアプリケーションをインストールします。構成されたソースを検索することにより、またはマニフェストから直接検索されます。</value>
+    <value>構成されたソースを検索するか、マニフェストから直接検索して見つけた選択されたパッケージをインストールします。既定では、クエリはパッケージの ID、名前、モニカーに大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>指定されたアプリケーションをインストール</value>
+    <value>指定されたパッケージをインストール</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>インストーラーのハッシュが一致しません; これは、管理者として実行している場合は上書きできません</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>インストーラーハッシュが一致しません。 --force のため処理しています</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>インストーラーのハッシュが一致しません; このチェックを無効にするには、--force を使用します</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>インストーラーハッシュが正常に検証されました</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>インストールが完了しました</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>パッケージのインストールを開始しています...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>インストーラーのハッシュのチェックを上書きする</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>対話式のインストールが要求されます。ユーザーの入力が必要になる場合があります</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>アプリケーションのマニフェストのパス</value>
+    <value>パッケージのマニフェストのパス</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>マニフェストの検証に失敗しました。</value>
@@ -252,7 +324,7 @@
     <value>引数値が必要ですが、見つかりません</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>アプリ モニカーで結果をフィルター処理</value>
+    <value>モニカーで結果をフィルター処理</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>入力ファイルは msix として扱われます。署名された場合、署名ハッシュが提供されます</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX 署名ハッシュを計算できませんでした。</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>特定のアプリがポリシーによってブロックされているため、Microsoft Store パッケージのインストールに失敗しました</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Microsoft Store パッケージのインストールに失敗しました。エラー コード:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>パッケージ取得の成功の確認/要求に失敗しました: ネットワーク エラー</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>パッケージ取得の成功の確認/要求に失敗しました: ストア アカウントが見つかりませんでした</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>パッケージ取得の成功の確認/要求に失敗しました: サーバー エラー</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>パッケージ取得の成功の確認/要求</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Store クライアントがポリシーによってブロックされているため、Microsoft Store パッケージのインストールに失敗しました</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>パッケージ取得の確認/要求...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>複数のパッケージが入力条件に一致しました。入力内容を修正してください。</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>名前で結果をフィルター処理</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>現在のシステムに適用できるインストーラーはありません。</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>現在、試験的機能はありません。</value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>入力条件に一致するパッケージが見つかりませんでした。</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>VirtualTerminal 表示を無効にする</value>
@@ -291,7 +396,7 @@
     <value>プライバシーに関する声明</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>アプリの検索に使用されるクエリ</value>
+    <value>パッケージの検索に使用されるクエリ</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>進行状況は虹の色を表示します</value>
@@ -303,10 +408,26 @@
     <value>既定の色としての進行状況の表示</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>構成されたソースからアプリケーションを検索します。</value>
+    <value>構成されたソースからパッケージを検索します。</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>アプリの基本情報を見つけて表示</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>ID</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>一致</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>名前</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>結果制限により、エントリがさらに切り捨てられました</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>バージョン</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>次のエラーが検出されたため、設定を検証しています:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>設定の読み込み中に予期しないエラーが発生しました。Settings コマンドを実行して、設定を確認してください。</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>チャネル</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>特定のアプリケーションに関する情報を表示します。</value>
+    <value>特定のパッケージの情報を表示します。既定では、クエリはパッケージの ID、名前、モニカーに大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>アプリケーションに関する情報を表示</value>
+    <value>パッケージに関する情報の表示</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>バージョン</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>サイレント インストールを要求</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>単一文字のエイリアスのみが単一の後に発生することができます-</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>指定された名前のソースは既に存在し、別の場所を参照しています:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>別の名前のソースが、既に次の場所を参照しています:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>指定された名前のソースは既に存在し、同じ場所を参照しています:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>ソースを追加しています:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>新しいソースを追加します。ソースは、アプリケーションを検出してインストールするためのデータを提供します。安全な場所として信頼できる場合にのみ、新しいソースを追加してください。</value>
+    <value>新しいソースを追加します。ソースは、パッケージを検出してインストールするためのデータを提供します。安全な場所として信頼できる場合にのみ、新しいソースを追加してください。</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>新しいソースを追加</value>
@@ -342,13 +481,17 @@
     <value>ソースに与えられた引数</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>指定されたリソースを使用してアプリを検索</value>
+    <value>指定されたリソースを使用してパッケージを検索</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>サブコマンドでソースを管理します。ソースは、アプリケーションを検出してインストールするためのデータを提供します。安全な場所として信頼できる場合にのみ、新しいソースを追加してください。</value>
+    <value>サブコマンドでソースを管理します。ソースは、パッケージを検出してインストールするためのデータを提供します。安全な場所として信頼できる場合にのみ、新しいソースを追加してください。</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>アプリケーションのソースを管理</value>
+    <value>パッケージのソースの管理</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>引数</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>現在のすべてのソース、または特定のソースの完全な詳細を一覧表示します。</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>現在のソースを一覧表示</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>データ</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>フィールド</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>名前</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>次の名前のソースが見つかりませんでした:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>構成されたソースがありません。</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>種類</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>更新されました</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>なし</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>値</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>ソース名</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>すべてのソースを削除しています...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>特定のソースを削除します。</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>現在のソースを削除</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>ソースを削除しています:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>すべてのソースをリセットしています...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>このコマンドは既存のソースを削除し、ローカル データを潜在的に残します。引数がないと、すべてのソースが削除され、既定値が追加されます。名前付きソースが提供されている場合、そのソースのみが削除されます。</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>ソースをリセット</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>ソースのリセットの強制</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>--force オプションを指定すると、次のソースがリセットされます:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>ソースをリセットしています:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>ソースのタイプ</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>すべてのソースを更新しています...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>すべてのソースを更新するか、特定のソースのみを更新します。</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>現在のソースを更新</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>ソースを更新しています:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>タグ で結果をフィルター処理</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Winget をお使いいただきありがとうございます</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>サード パーティに関する通知</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>WinGet コマンド ライン ユーティリティを使用すると、コマンド ラインからアプリケーションやその他のパッケージをインストールできます。</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>ツールの一般情報を表示</value>
@@ -427,6 +635,6 @@
     <value>指定されたバージョンを使用します。既定値は最新バージョンです</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>アプリの利用可能なバージョンを表示</value>
+    <value>パッケージの利用可能なバージョンを表示</value>
   </data>
 </root>

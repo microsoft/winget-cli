@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>تعداد بیشتری از نتایج مشخص‌شده را نمایش نمی‌دهد</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>انجام شده</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>برنامه را با استفاده از مورد منطبق دقیق می‌یابد</value>
+    <value>یافتن بسته با استفاده از مطابقت دقیق</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>آرگومان آزمایشی برای اهداف نمایشی</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>این فرمان یک نمونه در مورد نحوه پیاده‌سازی یک ویژگی آزمایشی است. برای روشن کردن، به 'winget settings' و فعالسازی ویژگی‌های experimentalCmd یا experimentalArg بروید.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>مثال ویژگی آزمایشی</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>آرگومان موضعی یافت شد، وقتی هیچ کدام مورد انتظار نبود</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>این ویژگی یک کار در حال پیشرفت است و ممکن است در آینده به طرز چشمگیری تغییر کند یا در کل حذف شود. برای فعال کردن آن، تنظیمات خود ('winget settings') را ویرایش کنید تا ویژگی آزمایشی را در برگیرد</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>وضعیت ویژگی‌های آزمایشی را نشان می‌دهد. ویژگی‌های آزمایشی را می‌توان از طریق 'winget settings' روشن کرد.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>وضعیت ویژگی‌های آزمایشی را نشان می‌دهد</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>غیرفعال شده</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>فعال شده است</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>ویژگی</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>پیوند</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>ویژگی های آزمایشی زیر در دست اقدام است.
+آنها را می توان از طریق فایل تنظیمات 'winget settings' پیکربندی کرد.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>خاصیت</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>وضعیت</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>فایلی است که باید درهم‌سازی شود</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>آرگومان نشانه‌نما نمی‌تواند حاوی مقدار الحاقی باشد</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>فرمان را بدون درخواست اجرا می‌کند</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>هش یک فایل محلی را که برای ورود به یک مانیفست مناسب است محاسبه می‌کند.  با این کار همچنین می‌توان هش فایل امضای یک بسته MSIX را برای فعالسازی نصب‌های جریان محاسبه کرد.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft هیچ مسئولیتی در قبال بسته‌های شخص ثالث ندارد، و هیچگونه مجوزی اعطا نمی‌کند.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>این بسته از طریق Microsoft Store ارائه می‌شود. winget ممکن است نیازمند کسب بسته از Microsoft Store از طرف کاربر فعلی باشد.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>نصب برنامه امکان‌پذیر نیست، زیرا به نسخه بالاتر Windows نیاز دارد:</value>
+    <value>نصب بسته امکان پذیر نیست، زیرا به نسخه بالاتر Windows نیاز دارد:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>برنامه انتخاب‌شده را که، یا با جستجوی منبع پیکربندی‌شده یا به‌طور مستقیم از مانیفست پیدا شده است نصب می‌کند.</value>
+    <value>بسته انتخاب‌شده را نصب می‌کند، که یا با جستجوی یک منبع پیکربندی‌شده پیدا شده است یا به‌طور مستقیم از یک مانیفست یافت شده است. به‌طور پیش‌فرض، جستار باید از لحاظ بزرگی یا کوچکی حروف با شناسه، نام یا اسم بسته مطابقت داشته باشد. فیلدهای دیگر را می‌توان با گذراندن گزینه مناسب آنها استفاده کرد.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>برنامه مشخص‌شده را نصب می‌کند</value>
+    <value>بسته مشخص‌شده را نصب می‌کند</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>هش نصب کننده مطابقت ندارد؛ این کار را نمی توان هنگام اجرا به عنوان سرپرست رد کرد</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>هش نصب کننده مطابقت ندارد. اقدام به دلیل --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>هش نصب کننده مطابقت ندارد. برای رد کردن این چک از --force استفاده کنید</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>هش نصب کننده با موفقیت تأیید شد</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>با موفقیت نصب شد</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>شروع نصب بسته...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>نادیده گرفتن بررسی هش نصب‌کننده</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>نصب تعاملی را درخواست می‌کند؛ ورودی کاربر ممکن است لازم باشد</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>مسیر مربوط به مانیفست برنامه کاربردی است</value>
+    <value>مسیر مربوط به مانیفست بسته</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>تأیید اعتبار مانیفست ناموفق بود.</value>
@@ -252,7 +324,7 @@
     <value>مقدار آرگومان الزامی است، اما هیچکدام پیدا نشد</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>نتایج را بر اساس نام برنامه فیلتر می‌کند</value>
+    <value>نتایج را بر اساس اسم فیلتر می‌کند</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>فایل ورودی به عنوان msix تلقی خواهد شد؛ هش امضا در صورت امضا شدن ارائه خواهد شد</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>محاسبه هش امضای MSIX انجام نشد.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>نصب بسته Microsoft Store انجام نشد، زیرا برنامه خاص توسط خط مشی مسدود شده است</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>نصب بسته Microsoft Store انجام نشد. کد خطا:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>تأیید/درخواست اکتساب بسته انجام نشد: خطای شبکه</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>تأیید/درخواست اکتساب بسته انجام نشد: هیچ حساب فروشگاهی یافت نشد</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>تأیید/درخواست اکتساب بسته انجام نشد: خطای سرور</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>تأیید/درخواست اکتساب بسته موفقیت‌آمیز بود</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>نصب بسته Microsoft Store انجام نشد، زیرا سرویس‌گیرنده Microsoft Store توسط خط مشی مسدود شده است</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>در حال تأیید/درخواست اکتساب بسته...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>بسته های چندگانه با معیارهای ورودی مطابقت دارند. لطفا ورودی را تصحیح کنید.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>نتایج را بر اساس نام فیلتر می‌کند</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>هیچ نصب‌کننده‌ای برای سیستم فعلی قابل اجرا نیست.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>در حال حاضر هیچ ویژگی تجربی در دسترس نیست. </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>هیچ بسته ای با معیارهای ورودی مطابقت ندارد.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>نمایشگر VirtualTerminal را غیرفعال می‌کند</value>
@@ -291,7 +396,7 @@
     <value>اعلامیه حریم خصوصی</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>جستاری است که برای جستجو برنامه استفاده می‌شود</value>
+    <value>جستاری که برای جستجوی بسته استفاده می‌شود</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>وضعیت پیشرفت رنگین‌کمان رنگ را نمایش می‌دهد</value>
@@ -303,10 +408,26 @@
     <value>وضعیت پیشرفت را به‌صورت رنگ پیش‌فرض نمایش می‌دهد</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>جستجوی برنامه‌ها از منابع پیکربندی‌شده.</value>
+    <value>بسته‌ها از منابع پیکربندی‌شده جستجو می‌کند.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>اطلاعات پایه برنامه‌ها را می‌یابد و نمایش می‌دهد</value>
+    <value>اطلاعات پایه بسته‌ها را می‌یابد و نمایش می‌دهد</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>شناسه</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>مطابقت</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>نام</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>نوشته های اضافی به دلیل محدودیت نتیجه کوتاه شد</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>نسخه</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>عیب‌های زیر هنگام تأیید اعتبار تنظیمات یافت شد:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>هنگام بارگیری تنظیمات، خطای غیرمنتظره‌ای رخ داد. لطفاً تنظیمات خود را با اجرای فرمان تنظیمات تأیید کنید.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>کانال</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>اطلاعات مربوط به یک برنامه خاص را نشان می‌دهد.</value>
+    <value>اطلاعات مربوط به یک بسته خاص را نشان می‌دهد. به‌طور پیش‌فرض، جستار باید از لحاظ بزرگی یا کوچکی حروف با شناسه، نام یا اسم بسته مطابقت داشته باشد. فیلدهای دیگر را می‌توان با گذراندن گزینه مناسب آنها استفاده کرد.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>اطلاعات مربوط به برنامه کاربردی را نشان می‌دهد</value>
+    <value>اطلاعات مربوط به یک بسته را نشان می‌دهد</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>نسخه</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>نصب خاموش را درخواست می‌کند</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>فقط نام مستعار تک نویسه‌ای می‌تواند پس از یک - تنها بیاید</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>منبعی با نام داده شده از قبل وجود دارد و به مکان دیگری اشاره دارد:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>منبعی با نام متفاوت در حال حاضر به این مکان اشاره دارد:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>منبعی با نام داده شده از قبل وجود دارد و به همان مکان اشاره دارد:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>افزودن منبع:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>یک منبع جدید اضافه می‌کند. یک منبع آن داده‌هایی را برای شما ارائه می‌دهد که بتوانید برنامه‌های کاربردی را کشف و نصب کنید. تنها در صورتی یک منبع جدید اضافه کنید که به آن به عنوان مکانی امن اعتماد داشته باشید.</value>
+    <value>یک منبع جدید اضافه می‌کند. منبع آن داده‌هایی را برای شما ارائه می‌دهد که بتوانید بسته‌ها را کشف و نصب کنید. تنها در صورتی یک منبع جدید اضافه کنید که به آن به عنوان مکانی امن اعتماد داشته باشید.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>یک منبع جدید اضافه می‌کند</value>
@@ -342,13 +481,17 @@
     <value>آرگومانی است که به منبع ارائه شده است</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>برنامه را با استفاده از منبع مشخص‌شده می‌یابد</value>
+    <value>بسته را با استفاده از منبع مشخص‌شده پیدا می‌کند</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>منابع دارای فرمان‌های فرعی را مدیریت می‌کند. یک منبع آن داده‌هایی را برای شما ارائه می‌دهد که بتوانید برنامه‌های کاربردی را کشف و نصب کنید. تنها در صورتی یک منبع جدید اضافه کنید که به آن به عنوان مکانی امن اعتماد داشته باشید.</value>
+    <value>منابع دارای فرمان‌های فرعی را مدیریت می‌کند. یک منبع آن داده‌هایی را برای شما ارائه می‌دهد که بتوانید بسته‌ها را کشف و نصب کنید. تنها در صورتی یک منبع جدید اضافه کنید که به آن به عنوان مکانی امن اعتماد داشته باشید.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>منابع برنامه‌های کاربردی را مدیریت می‌کند</value>
+    <value>مدیریت منابع بسته‌ها</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>آوند</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>تمام منابع فعلی، یا جزئیات کامل یک منبع خاص را فهرست‌بندی می‌کند.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>منابع فعلی را فهرست‌بندی می‌کند</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>داده‌ها</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>فیلد</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>نام</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>منبعی به این نام را پیدا نکرد:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>هیچ منبع پیکربندی شده ای وجود ندارد.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>نوع</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>به‌روزرسانی شده</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>هرگز</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>مقدار</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>نام منبع است</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>در حال حذف همه منابع...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>یک منبع خاص را حذف می‌کند.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>منابع فعلی را حذف می‌کند</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>حذف منبع:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>بازنشانی همه منابع...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>این فرمان منابع موجود را حذف می‌کند، و به‌طور بالقوه همه داده‌های محلی را برای همیشه رها می‌کند. بدون هیچ گونه آرگومانی، این کار تمام منابع را حذف و نسخه‌های پیش‌فرض را اضافه می‌کند. اگر منبع دارای نامی ارائه شده باشد، فقط آن منبع حذف خواهد شد.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>منابع را بازنشانی می‌کند</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>بازنشانی منابع را به‌طور اجباری انجام می‌دهد</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>در صورت دادن گزینه --force، منابع زیر بازنشانی می شوند:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>بازنشانی منبع:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>نوع منبع است</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>به روزرسانی همه منابع...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>تمام منابع، یا فقط یک منبع خاص را به‌روزرسانی می‌کند.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>منابع فعلی را به‌روزرسانی می‌کند</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>به روزرسانی منبع:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>نتایج را بر اساس برچسب فیلتر می‌کند</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>با تشکر از شما برای استفاده از winget</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>اعلامیه‌های شخص ثالث</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>ابزار خط فرمان winget، نصب برنامه‌ها و سایر بسته‌ها را از طریق خط فرمان امکان‌پذیر می‌کند.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>اطلاعات عمومی ابزار را نمایش می‌دهد</value>
@@ -427,6 +635,6 @@
     <value>از نسخه مشخص‌شده استفاده می‌کند؛ نسخه پیش‌فرض همان آخرین نسخه است</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>نسخه‌های موجود برنامه را نمایش می‌دهد</value>
+    <value>نسخه‌های موجود بسته را نمایش می‌دهد</value>
   </data>
 </root>

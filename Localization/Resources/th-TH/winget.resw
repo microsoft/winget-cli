@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>แสดงผลไม่เกินจำนวนผลลัพธ์ที่ระบุ</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>เสร็จสิ้น</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>ค้นหาแอปโดยใช้รายการที่ตรงกันทุกประการ</value>
+    <value>ค้นหาแพคเกจโดยใช้การจับคู่ที่ตรงกันทุกประการ</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>อาร์กิวเมนต์การทดลองสำหรับวัตถุประสงค์ในการสาธิต</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>คำสั่งนี้คือตัวอย่างสำหรับวิธีการใช้ฟีเจอร์การทดลอง หากต้องการเปิด 'winget settings' และเปิดใช้งานฟีเจอร์ experimentalCmd หรือ experimentalArg</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>ตัวอย่างฟีเจอร์การทดลอง</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>พบอาร์กิวเมนต์ตามตำแหน่งเมื่อไม่มีอาร์กิวเมนต์ที่คาดการณ์</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>ฟีเจอร์นี้กำลังทำงานอยู่และอาจมีการเปลี่ยนแปลง dramatically หรือเอา altogether ออกในอนาคต เมื่อต้องการเปิดใช้งานให้แก้ไขการตั้งค่าของคุณ ('winget settings') เพื่อรวมฟีเจอร์แบบทดลอง</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>แสดงสถานะของฟีเจอร์การทดลอง ฟีเจอร์การทดลองสามารถเปิดได้ผ่านทาง 'winget settings'</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>แสดงสถานะของฟีเจอร์การทดลอง</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>ปิดใช้งานอยู่</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>เปิดใช้งาน</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>ฟีเจอร์</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>ลิงก์</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>ฟีเจอรการทดลองต่อไปนี้อยู่ระหว่างการดำเนินการ
+โดยสามารถกำหนดค่าให้กับฟีเจอร์ได้ผ่านไฟล์การตั้งค่า 'winget settings'</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>คุณสมบัติ</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>สถานะ</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>ไฟล์ที่จะแฮช</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>อาร์กิวเมนต์ที่ตั้งค่าสถานะไม่สามารถมีค่าที่ติดกันได้</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>ดำเนินการคำสั่งโดยไม่มีพร้อมท์</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>คำนวณแฮชของไฟล์ในเครื่อง ซึ่งเหมาะสำหรับรายการในไฟล์กำกับ นอกจากนี้ยังสามารถคำนวณแฮชของไฟล์ลายเซ็นของแพคเกจ MSIX เพื่อเปิดใช้งานการติดตั้งการสตรีมได้อีกด้วย</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft จะไม่รับผิดชอบ หรือมอบสิทธิการใช้งานต่อแพคเกจของบริษัทภายนอก</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>แพคเกจนี้จะจัดหาให้ผ่าน Microsoft Store winget อาจจำเป็นต้องขอรับแพคเกจจาก Microsoft Store ในนามของผู้ใช้ปัจจุบัน</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>ไม่สามารถติดตั้งแอปพลิเคชันได้เนื่องจากต้องการ Windows รุ่นที่สูงกว่า:</value>
+    <value>ไม่สามารถติดตั้งแพคเกจได้เนื่องจากต้องการ Windows รุ่นที่สูงกว่า:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>ติดตั้งแอปพลิเคชันที่เลือก ไม่ว่าจะพบด้วยการค้นหาแหล่งที่กำหนดค่าหรือจากไฟล์กำกับโดยตรง</value>
+    <value>ติดตั้งแพคเกจที่เลือก ซึ่งจะพบได้ทั้งจากการค้นหาแหล่งข้อมูลที่กำหนดไว้หรือจากรายการโดยตรง โดยคิวรีจะต้องมีตัวอักษรใหญ่เล็กที่ตรงกับ ID ชื่อ หรือเส้นทางการเชื่อมโยงของแพคเกจตามค่าเริ่มต้น สำหรับเขตข้อมูลอื่นสามารถใช้ได้ผ่านตัวเลือกที่เหมาะสม</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>ติดตั้งแอปพลิเคชันที่มอบให้</value>
+    <value>ติดตั้งแพคเกจที่มอบให้</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>แฮชตัวติดตั้งไม่ตรงกัน ไม่สามารถแทนที่สิ่งนี้ได้เมื่อเรียกใช้ในฐานะผู้ดูแลระบบ</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>แฮชตัวติดตั้งไม่ตรงกัน ดำเนินการต่อเนื่องจากการ --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>แฮชตัวติดตั้งไม่ตรงกัน หากต้องการแทนที่การใช้การตรวจสอบนี้--force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>ตรวจสอบแฮชตัวติดตั้งสำเร็จแล้ว</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>ติดตั้งเสร็จเรียบร้อยแล้ว</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>กำลังเริ่มการติดตั้งแพคเกจ...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>แทนที่การตรวจสอบแฮชตัวติดตั้ง</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>ร้องขอการติดตั้งแบบโต้ตอบ อาจต้องมีอินพุทผู้ใช้</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>เส้นทางไปยังไฟล์กำกับของแอปพลิเคชัน</value>
+    <value>เส้นทางไปยังรายการของแพคเกจ</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>การตรวจสอบความถูกต้องของไฟล์กำกับล้มเหลว</value>
@@ -252,7 +324,7 @@
     <value>จำเป็นต้องมีค่าอาร์กิวเมนต์ แต่ไม่พบค่าใดๆ</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>ผลลัพธ์การกรองตาม Moniker ของแอป</value>
+    <value>ผลลัพธ์การกรองตามเส้นทางการเชื่อมโยง</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>ไฟล์อินพุทจะมีการจัดการเป็น msix จะมีการระบุแฮชลายเซ็นหากเซ็นชื่อ</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>การคำนวณแฮชลายเซ็น MSIX ล้มเหลว</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>ล้มเหลวในการติดตั้งแพคเกจ Microsoft Store เนื่องจากแอปที่เฉพาะเจาะจงถูกนโยบายบล็อคไว้</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>ล้มเหลวในการติดตั้งแพคเกจ Microsoft Store รหัสข้อผิดพลาด:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>กำลังตรวจสอบ/ร้องขอความล้มเหลวในการซื้อแพคเกจ: ข้อผิดพลาดเครือข่าย</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>กำลังตรวจสอบ/ร้องขอความล้มเหลวในการซื้อแพคเกจ: ไม่พบบัญชีที่เก็บ</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>กำลังตรวจสอบ/ร้องขอความล้มเหลวในการซื้อแพคเกจ: ข้อผิดพลาดของเซิร์ฟเวอร์</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>กำลังตรวจสอบ/ร้องขอความสำเร็จในการซื้อแพคเกจ</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>ล้มเหลวในการติดตั้งแพคเกจ Microsoft Store เนื่องจากไคลเอ็นต์ของ Microsoft Store ถูกนโยบายบล็อคไว้</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>กำลังตรวจสอบ/ร้องขอการซื้อแพคเกจ...</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>พบหลายแพคเกจที่มีเกณฑ์การป้อนค่าที่ตรงกัน โปรดปรับปรุงการป้อนข้อมูล</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>ผลลัพธ์การกรองตามชื่อ</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>ไม่มีของที่สามารถใช้ได้กับระบบปัจจุบัน</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>ขณะนี้ไม่มีฟีเจอร์การทดลองที่พร้อมใช้งาน </value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>ไม่พบแพคเกจที่ตรงกับเกณฑ์การป้อนค่า</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>ปิดใช้งานการแสดงผล VirtualTerminal</value>
@@ -291,7 +396,7 @@
     <value>นโยบายความเป็นส่วนตัว</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>คิวรีที่ใช้ค้นหาแอป</value>
+    <value>คิวรีที่ใช้ค้นหาแพคเกจ</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>ความคืบหน้าแสดงเป็นสีรุ้ง</value>
@@ -303,10 +408,26 @@
     <value>ความคืบหน้าแสดงเป็นสีเริ่มต้น</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>ค้นหาแอปพลิเคชันจากแหล่งที่กำหนดค่าไว้</value>
+    <value>ค้นหาแพคเกจจากแหล่งข้อมูลที่กำหนดค่าไว้</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>ค้นหาและแสดงข้อมูลพื้นฐานของแอป</value>
+    <value>ค้นหาและแสดงข้อมูลพื้นฐานของแพคเกจ</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>ID</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>ตรงกัน</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>ชื่อ</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>รายการเพิ่มเติมถูกตัดทอนเนื่องจากขีดจำกัดของผลลัพธ์</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>เวอร์ชัน</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>พบความล้มเหลวต่อไปนี้ขณะตรวจสอบความถูกต้องของการตั้งค่า:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>เกิดข้อผิดพลาดที่ไม่คาดคิดขณะโหลดการตั้งค่า โปรดตรวจสอบการตั้งค่าของคุณโดยเรียกใช้คำสั่งการตั้งค่า</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>แชนเนล</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>แสดงข้อมูลในแอปพลิเคชันที่ระบุ</value>
+    <value>แสดงข้อมูลเกี่ยวกับแพคเกจที่ระบุ โดยคิวรีจะต้องมีตัวอักษรใหญ่เล็กที่ตรงกับ ID ชื่อ หรือเส้นทางการเชื่อมโยงของแพคเกจตามค่าเริ่มต้น สำหรับเขตข้อมูลอื่นสามารถใช้ได้ผ่านตัวเลือกที่เหมาะสม</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>แสดงข้อมูลเกี่ยวกับแอปพลิเคชัน</value>
+    <value>แสดงข้อมูลเกี่ยวกับแพคเกจ</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>เวอร์ชัน</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>ร้องขอการติดตั้งแบบผู้ใช้ไม่ต้องใส่ข้อมูล</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>เฉพาะนามแฝงอักขระเดี่ยวเท่านั้นที่สามารถเกิดขึ้นได้หลังจากหนึ่ง -</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>มีแหล่งที่มีชื่อที่ให้มาอยู่แล้วและอ้างถึงตำแหน่งที่ตั้งอื่น:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>แหล่งที่มาที่มีชื่ออื่นอ้างถึงตำแหน่งที่ตั้งนี้แล้ว:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>มีแหล่งที่มีชื่อที่ให้มาอยู่แล้วและอ้างถึงตำแหน่งที่ตั้งเดียวกัน:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>กำลังเพิ่มแหล่งข้อมูล:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>เพิ่มแหล่งที่มาใหม่ แหล่งที่มาจะให้ข้อมูลกับคุณเพื่อค้นหาและติดตั้งแอปพลิเคชัน เพียงเพิ่มแหล่งที่มาใหม่หากคุณเชื่อถือว่าเป็นตำแหน่งที่ตั้งที่ปลอดภัย</value>
+    <value>เพิ่มแหล่งที่มาใหม่ แหล่งที่มาจะให้ข้อมูลกับคุณเพื่อค้นหาและติดตั้งแพคเกจ เพียงเพิ่มแหล่งที่มาใหม่หากคุณเชื่อถือว่าเป็นตำแหน่งที่ตั้งที่ปลอดภัย</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>เพิ่มแหล่งที่มาใหม่</value>
@@ -342,13 +481,17 @@
     <value>อาร์กิวเมนต์ที่ให้กับแหล่งที่มา</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>ค้นหาแอปโดยใช้แหล่งที่มาที่ระบุ</value>
+    <value>ค้นหาแพคเกจโดยใช้แหล่งที่มาที่ระบุ</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>จัดการแหล่งที่มาด้วยคำสั่งย่อย แหล่งที่มาจะให้ข้อมูลกับคุณเพื่อค้นหาและติดตั้งแอปพลิเคชัน เพียงเพิ่มแหล่งที่มาใหม่หากคุณเชื่อถือว่าเป็นตำแหน่งที่ตั้งที่ปลอดภัย</value>
+    <value>จัดการแหล่งที่มาด้วยคำสั่งย่อย แหล่งที่มาจะให้ข้อมูลกับคุณเพื่อค้นหาและติดตั้งแพคเกจ เพียงเพิ่มแหล่งที่มาใหม่หากคุณเชื่อถือว่าเป็นตำแหน่งที่ตั้งที่ปลอดภัย</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>จัดการแหล่งที่มาของแอปพลิเคชัน</value>
+    <value>จัดการแหล่งข้อมูลของแพคเกจ</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>อาร์กิวเมนต์</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>รายการแหล่งที่มาปัจจุบันทั้งหมด หรือรายละเอียดทั้งหมดของแหล่งที่มาที่ระบุ</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>รายการแหล่งที่มาปัจจุบัน</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>ข้อมูล</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>เขตข้อมูล</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>ชื่อ</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>ไม่พบแหล่งข้อมูลที่มีการตั้งชื่อ:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>ไม่มีการกำหนดค่าแหล่งข้อมูล</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>ชนิด</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>อัปเดตแล้ว</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>ไม่เคย</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>ค่า</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>ชื่อของแหล่งที่มา</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>กำลังนำแหล่งข้อมูลทั้งหมดออก...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>นำแหล่งที่มาที่ระบุออก</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>นำแหล่งที่มาปัจจุบันออก</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>กำลังนำแหล่งข้อมูลออก:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>กำลังรีเซ็ตแหล่งข้อมูลทั้งหมด...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>คำสั่งนี้จะทำงานกับแหล่งที่มาที่มีอยู่ โดยอาจทิ้งข้อมูลภายในไว้ เมื่อไม่มีอาร์กิวเมนต์ใดๆ คำสั่งจะทำงานกับแหล่งที่มาทั้งหมดและเพิ่มค่าเริ่มต้น หากระบุแหล่งที่มาที่มีการตั้งชื่อ จะทำงานเฉพาะกับแหล่งที่มาดังกล่าว</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>รีเซ็ตแหล่งที่มา</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>บังคับให้รีเซ็ตแหล่งข้อมูล</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>แหล่งข้อมูลต่อไปนี้จะถูกตั้งค่าใหม่ถ้ามีการระบุตัวเลือกการ --force:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>กำลังรีเซ็ตแหล่งข้อมูล:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>ชนิดของแหล่งที่มา</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>กำลังอัปเดตแหล่งข้อมูลทั้งหมด...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>อัปเดตแหล่งที่มาทั้งหมด หรือเฉพาะแหล่งที่มาที่ระบุ</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>อัปเดตแหล่งที่มาปัจจุบัน</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>กำลังอัปเดตแหล่งข้อมูล:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>ผลลัพธ์การกรองตามแท็ก</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>ขอบคุณที่ใช้ winget</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>ประกาศของบริษัทภายนอก</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>โปรแกรมอรรถประโยชน์บรรทัดคำสั่ง winget ช่วยให้สามารถติดตั้งแอปพลิเคชันและแพคเกจอื่นๆ จากบรรทัดคำสั่งได้</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>แสดงข้อมูลทั่วไปของเครื่องมือ</value>
@@ -427,6 +635,6 @@
     <value>ใช้เวอร์ชันที่ระบุ ค่าเริ่มต้นเป็นเวอร์ชันล่าสุด</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>แสดงเวอร์ชันพร้อมใช้งานของแอป</value>
+    <value>แสดงเวอร์ชันพร้อมใช้งานของแพคเกจ</value>
   </data>
 </root>

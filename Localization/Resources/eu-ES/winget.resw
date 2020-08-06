@@ -153,20 +153,64 @@
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Ez erakutsi zehaztutako emaitzen kopurua baino gehiago</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Eginda</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Bilatu aplikazioa bat-etortze zehatza erabilita</value>
+    <value>Bilatu paketea bat-etortze zehatza erabilita</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Demostrazioa egiteko argumentu esperimentala</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Eginbide esperimental bat instalatzeko moduaren adibide bat da komando hau. Aktibatzeko, joan winget settings eta gaitu experimentalCmd edo experimentalArg eginbideak.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Eginbide esperimentalaren adibidea</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Posizio-argumentu bat aurkitu da eta ez zen bat ere espero</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Eginbide honetan lanean ari gara eta baliteke etorkizunean aldaketa handiak jasatea edo guztiz desagertzea. Eginbide hau gaitzeko, editatu ezarpenak ('winget settings') eginbide esperimentalak erabiltzeko.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Eginbide esperimentalen egoera erakusten du. Eginbide esperimentalak winget settings aktiba daitezke.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Eginbide esperimentalen egoera erakusten du</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Desgaituta</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Gaituta</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Eginbidea</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Esteka</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Eginbide esperimental hauetan lanean ari gara. 
+'winget settings' konfigurazio-fitxategiaren bidez konfigura daitezke.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Propietatea</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Egoera</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Hasheatu beharreko fitxategia</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Marka argumentuak ezin du erantsitako baliorik izan</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Exekutatu komandoa eskaerarik gabe</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Fitxategi lokal baten hash-a kalkulatzen du. MSIX pakete baten sinadura-fitxategiaren hash-a ere kalkula dezake, zuzenean erreproduzitzeko instalazioak gaitzeko.</value>
@@ -192,14 +236,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft ez da hirugarrenen paketeen gaineko erantzule, eta ez die lizentziarik ematen.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Pakete hau Microsoft Store bidez emana da. Baliteke winget-ek paketea Microsoft Store-n eskuratu behar izatea, uneko erabiltzailearen izenean.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Ezin da instalatu aplikazioa, Windows-en bertsio berriago bat behar duelako:</value>
+    <value>Ezin da instalatu paketea, Windows-en bertsio berriago bat behar duelako:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Hautatutako aplikazioa instalatzen du, konfiguratutako iturburu bat bilatuz aurkitu dena, edo zuzenean manifestu batetik.</value>
+    <value>Hautatutako paketea instalatzen du, dela konfiguratutako iturburu bat bilatzen aurkitutakoa, dela zuzenean manifestuan aurkitutakoa. Modu lehenetsian, kontsultako maiuskulak eta minuskulak bat etorri behar dira paketearen ID, izen edo monikerreko maiuskulekin eta minuskulekin. Beste eremuak dagokion aukera pasatuta erabil daitezke.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Emandako aplikazioa instalatzen du</value>
+    <value>Emandako paketea instalatzen du</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Instalatzailearen hash-a ez dator bat; hau ezin da gainidatzi administratzaile gisa exekutatzean</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Instalatzailearen hash-a ez dator bat, --force aukera dela-eta aurrera egin da</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Instalatzailearen hash-a ez dator bat, egiaztapen hau gainidazteko erabili --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Behar bezala egiaztatu da instalatzailearen hash-a</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Behar bezala instalatu da!</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Instalazio paketea abiarazten...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Gainidatzi instalatzailearen hash-egiaztapena</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Eskatu instalazio interaktiboa; baliteke erabiltzailearen sarrera behar izatea</value>
@@ -237,7 +309,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Aplikazioaren manifesturako bide-izena</value>
+    <value>Paketearen manifesturako bide-izena</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Manifestuaren balidazioak huts egin du.</value>
@@ -252,7 +324,7 @@
     <value>Argumentu balioa behar da, baina ez da bat ere aurkitu</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Iragazi emaitzak moniker-aplikazioaren arabera</value>
+    <value>Iragazi emaitzak monikerraren arabera</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Sartzen den fitxategia msix gisa tratatuko da; sinatzen bada, sinadura-hasha emango da</value>
@@ -260,11 +332,44 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Huts egin du MSIX sinaduraren hash-a kalkulatzeak.</value>
   </data>
+  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
+    <value>Ezin izan da instalatu Microsoft Store-ko paketea, aplikazio jakin hori gidalerro bidez baitago blokeatuta</value>
+  </data>
+  <data name="MSStoreInstallFailed" xml:space="preserve">
+    <value>Ezin izan da instalatu Microsoft Store-ko paketea. Errore-kodea:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Ezin izan da egiaztatu/eskatu pakete-eskuratzea: sare-errorea</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Ezin izan da egiaztatu/eskatu pakete-eskuratzea: ez da aurkitu dendako konturik</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Ezin izan da egiaztatu/eskatu pakete-eskuratzea: zerbitzari-errorea</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Egiaztatu/Eskatu da pakete-eskuratzea</value>
+  </data>
+  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+    <value>Ezin izan da instalatu Microsoft Store-ko paketea, Microsoft Store bezeroa gidalerro bidez baitago blokeatuta</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Pakete-eskuratzea egiaztatzen/eskatzen…</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Sartutako irizpideekin bat datozen pakete ugari aurkitu dira. Findu irizpideak.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Iragazi emaitzak izenaren arabera</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Uneko sisteman aplika daitekeen instalatzailerik ez dago.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Une honetan ez dago erabilgarri eginbide esperimentalik.</value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Ez da aurkitu sartutako irizpideekin bat datorren paketerik.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>VirtualTerminal bistaratzea desgaitzen du</value>
@@ -291,7 +396,7 @@
     <value>Pribatutasun-adierazpena</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Aplikazio bat bilatzeko erabiltzen den kontsulta</value>
+    <value>Pakete bat bilatzeko erabiltzen den kontsulta</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Egoerak koloreen ostadarra bistaratzen du</value>
@@ -303,10 +408,26 @@
     <value>Egoera kolore lehenetsian bistaratzen da</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Konfiguratutako iturburuetako aplikazioak bilatzen ditu.</value>
+    <value>Konfiguratutako iturburuetako paketeak bilatzen ditu.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Aurkitu eta erakutsi aplikazioei buruzko oinarrizko informazioa</value>
+    <value>Aurkitu eta erakutsi paketeei buruzko oinarrizko informazioa</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>IDa</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Bat-etortzea</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Izena</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>emaitza-muga dela-eta sarrera batzuk moztu dira</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Bertsioa</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Ezarpenak baliozkotzean akats hauek aurkitu dira:</value>
@@ -320,11 +441,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Ustekabeko errorea gertatu da ezarpenak kargatzean. Egiaztatu zure ezarpenak ezarpen-komandoa exekutatuz.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Kanala</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Aplikazio zehatz bati buruzko informazioa erakusten du.</value>
+    <value>Pakete jakin baten informazioa erakusten du. Modu lehenetsian, kontsultako maiuskulak eta minuskulak bat etorri behar dira paketearen ID, izen edo monikerreko maiuskulekin eta minuskulekin.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Aplikazio bati buruzko informazioa erakusten du</value>
+    <value>Pakete bati buruzko informazioa erakusten du</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Bertsioa</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Eskatu instalazio isila</value>
@@ -332,8 +459,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Karaktere bakarreko aliasa - bakar baten ostean bakarrik ager daiteke</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Izen hori duen iturburu bat badago lehendik ere eta beste kokaleku bati egiten dio erreferentzia:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Badago beste izen batekin leku honi erreferentzia egiten dion iturburu bat:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Izen hori duen iturburu bat badago lehendik ere eta kokaleku berari egiten dio erreferentzia:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Iturburua gehitzen:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Gehitu beste iturburu bat. Iturburuak aplikazioak aurkitzeko eta instalatzeko datuak ematen dizkizu. Bakarrik gehitu beste iturburu bat kokapen seguru bat duelaz fidatzen bazara.</value>
+    <value>Gehitu beste iturburu bat. Iturburuak paketeak aurkitzeko eta instalatzeko datuak ematen dizkizu. Gehitu beste iturburu bat kokapen seguru bat duela badakizu bakarrik.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Gehitu beste iturburu bat</value>
@@ -342,13 +481,17 @@
     <value>Iturburura emandako argumentua</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Aurkitu aplikazioa iturburu zehatza erabilita</value>
+    <value>Aurkitu paketea iturburu zehatza erabilita</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Kudeatu iturburuak azpikomandoekin. Iturburuak aplikazioak aurkitzeko eta instalatzeko datuak ematen dizkizu. Bakarrik gehitu beste iturburu bat kokapen seguru bat duelaz fidatzen bazara.</value>
+    <value>Kudeatu iturburuak azpikomandoekin. Iturburuak paketeak aurkitzeko eta instalatzeko datuak ematen dizkizu. Gehitu beste iturburu bat kokapen seguru bat duela badakizu bakarrik.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Kudeatu aplikazioen iturburuak</value>
+    <value>Kudeatu paketeen iturburuak</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Argumentua</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Zerrendatu uneko iturburu guztiak edo iturburu zehatz baten xehetasun guztiak.</value>
@@ -356,8 +499,45 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Zerrendatu uneko iturburuak</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Datuak</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Eremua</value>
+    <comment>The name of a peice of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Izena</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Ez dugu aurkitu izen hau duen iturbururik:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Ez dago iturbururik konfiguratuta.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Mota</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Eguneratuta</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>inoiz ez</value>
+    <comment>The soure has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Balioa</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Iturburuaren izena</value>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Iturburu guztiak kentzen...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Kendu iturburu zehatz bat.</value>
@@ -365,14 +545,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Kendu uneko iturburuak</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Iturburua kentzen:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Iturburu guztiak berrezartzen...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Komando honek badauden iturburuak jaregiten ditu, tokiko datuak atzean utzita modu potentzialean. Argumenturik gabe, iturburu guztiak jaregingo ditu eta lehenetsiak gehituko ditu. Izendun iturburu bat ematen bada, bakarrik jaregingo da iturburu hori.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Berrezarri iturburuak</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Iturburuak berrezartzera behartzen ditu</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Iturburu hauek berrabiaraziko dira --force aukera hautatzen bada:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Iturburua berrezartzen:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Iturburu mota</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Iturburu guztiak eguneratzen...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Eguneratu iturburu guztiak edo bakarrik iturburu zehatz bat.</value>
@@ -380,11 +579,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Eguneratu uneko iturburuak</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Iturburua eguneratzen:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Iragazi emaitzak etiketaren arabera</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Eskerrik asko winget erabiltzeagatik</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Hirugarrenen oharrak</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>WinGet komando-lerroaren aukerak aplikazioak eta bestelako paketeak komando-lerrotik instalatzeko aukera ematen du.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Bistaratu tresnari buruzko oinarrizko informazioa</value>
@@ -427,6 +635,6 @@
     <value>Erabili zehaztutako bertsioa; azken bertsioa da lehenetsia</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Aplikazioaren bertsio eskuragarriak erakusten ditu</value>
+    <value>Paketearen bertsio eskuragarriak erakusten ditu</value>
   </data>
 </root>
