@@ -57,7 +57,7 @@ namespace AppInstaller::Repository
                 const ResultMatch& match2)
             {
                 if (Utility::CaseInsensitiveEquals(match1.SourceName, s_Source_WingetCommunityDefault_Name) &&
-                    Utility::CaseInsensitiveEquals(match2.SourceName, s_Source_WingetCommunityDefault_Name))
+                    !Utility::CaseInsensitiveEquals(match2.SourceName, s_Source_WingetCommunityDefault_Name))
                 {
                     return true;
                 }

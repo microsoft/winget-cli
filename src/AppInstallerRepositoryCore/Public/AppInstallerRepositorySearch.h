@@ -112,10 +112,9 @@ namespace AppInstaller::Repository
         ApplicationMatchFilter MatchCriteria;
 
         // The name of the source where the result is from. Used in aggregated source scenario.
-        std::string SourceName;
+        std::string SourceName = {};
 
-        ResultMatch(std::unique_ptr<IApplication>&& a, ApplicationMatchFilter f, std::string source = {}) :
-            Application(std::move(a)), MatchCriteria(std::move(f)), SourceName(std::move(source)) {}
+        ResultMatch(std::unique_ptr<IApplication>&& a, ApplicationMatchFilter f) : Application(std::move(a)), MatchCriteria(std::move(f)) {}
     };
 
     // Search result data.

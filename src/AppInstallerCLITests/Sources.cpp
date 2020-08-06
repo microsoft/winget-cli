@@ -92,76 +92,98 @@ Sources:
     IsTombstone: false
 )"sv;
 
-// Helper to create a simple source.
-struct TestSource : public ISource
+constexpr std::string_view s_TwoSource_AggregateSourceTest = R"(
+Sources:
+  - Name: testName
+    Type: testType
+    Arg: testArg
+    Data: testData
+    IsTombstone: false
+  - Name: winget
+    Type: testType
+    Arg: testArg
+    Data: testData
+    IsTombstone: false
+)"sv;
+
+namespace
 {
-    TestSource() = default;
-    TestSource(const SourceDetails& details) : m_details(details) {}
-
-    static std::shared_ptr<ISource> Create(const SourceDetails& details)
+    // Helper to create a simple source.
+    struct TestSource : public ISource
     {
-        // using return std::make_shared<TestSource>(details); will crash the x86 test during destruction.
-        return std::shared_ptr<ISource>(new TestSource(details));
-    }
+        TestSource() = default;
+        TestSource(const SourceDetails& details) : m_details(details) {}
 
-    // ISource
-    const SourceDetails& GetDetails() const override
+        static std::shared_ptr<ISource> Create(const SourceDetails& details)
+        {
+            // using return std::make_shared<TestSource>(details); will crash the x86 test during destruction.
+            return std::shared_ptr<ISource>(new TestSource(details));
+        }
+
+        // ISource
+        const SourceDetails& GetDetails() const override
+        {
+            return m_details;
+        }
+
+        SearchResult Search(const SearchRequest& request) override
+        {
+            UNREFERENCED_PARAMETER(request);
+
+            SearchResult result;
+            ApplicationMatchFilter testMatchFilter{ ApplicationMatchField::Id, MatchType::CaseInsensitive, "test" };
+            result.Matches.emplace_back(std::unique_ptr<IApplication>(), testMatchFilter);
+            result.Matches.emplace_back(std::unique_ptr<IApplication>(), testMatchFilter);
+            return result;
+        }
+
+        SourceDetails m_details;
+    };
+
+    // Helper that allows some lambdas to be wrapped into a source factory.
+    struct TestSourceFactory : public ISourceFactory
     {
-        return m_details;
-    }
+        using CreateFunctor = std::function<std::shared_ptr<ISource>(const SourceDetails&)>;
+        using AddFunctor = std::function<void(SourceDetails&)>;
+        using UpdateFunctor = std::function<void(const SourceDetails&)>;
+        using RemoveFunctor = std::function<void(const SourceDetails&)>;
 
-    SearchResult Search(const SearchRequest& request) override
-    {
-        UNREFERENCED_PARAMETER(request);
-        return {};
-    }
+        TestSourceFactory() :
+            m_Create(TestSource::Create), m_Add([](SourceDetails&) {}), m_Update([](const SourceDetails&) {}), m_Remove([](const SourceDetails&) {}) {}
 
-    SourceDetails m_details;
-};
+        // ISourceFactory
+        std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback&) override
+        {
+            return m_Create(details);
+        }
 
-// Helper that allows some lambdas to be wrapped into a source factory.
-struct TestSourceFactory : public ISourceFactory
-{
-    using CreateFunctor = std::function<std::shared_ptr<ISource>(const SourceDetails&)>;
-    using AddFunctor = std::function<void(SourceDetails&)>;
-    using UpdateFunctor = std::function<void(const SourceDetails&)>;
-    using RemoveFunctor = std::function<void(const SourceDetails&)>;
+        void Add(SourceDetails& details, IProgressCallback&) override
+        {
+            m_Add(details);
+        }
 
-    TestSourceFactory() :
-        m_Create(TestSource::Create), m_Add([](SourceDetails&) {}), m_Update([](const SourceDetails&) {}), m_Remove([](const SourceDetails&) {}) {}
+        void Update(const SourceDetails& details, IProgressCallback&) override
+        {
+            m_Update(details);
+        }
 
-    // ISourceFactory
-    std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback&) override
-    {
-        return m_Create(details);
-    }
+        void Remove(const SourceDetails& details, IProgressCallback&) override
+        {
+            m_Remove(details);
+        }
 
-    void Add(SourceDetails& details, IProgressCallback&) override
-    {
-        m_Add(details);
-    }
+        // Make copies of self when requested.
+        operator std::function<std::unique_ptr<ISourceFactory>()>()
+        {
+            return [this]() { return std::make_unique<TestSourceFactory>(*this); };
+        }
 
-    void Update(const SourceDetails& details, IProgressCallback&) override
-    {
-        m_Update(details);
-    }
-
-    void Remove(const SourceDetails& details, IProgressCallback&) override
-    {
-        m_Remove(details);
-    }
-
-    // Make copies of self when requested.
-    operator std::function<std::unique_ptr<ISourceFactory>()>()
-    {
-        return [this]() { return std::make_unique<TestSourceFactory>(*this); };
-    }
-
-    CreateFunctor m_Create;
-    AddFunctor m_Add;
-    UpdateFunctor m_Update;
-    RemoveFunctor m_Remove;
-};
+        CreateFunctor m_Create;
+        AddFunctor m_Add;
+        UpdateFunctor m_Update;
+        RemoveFunctor m_Remove;
+    };
+}
 
 
 TEST_CASE("RepoSources_UserSettingDoesNotExist", "[sources]")
@@ -546,4 +568,35 @@ TEST_CASE("RepoSources_DropAllSources", "[sources]")
     sources = GetSources();
     REQUIRE(sources.size() == 1);
     REQUIRE(sources[0].Origin == SourceOrigin::Default);
+}
+
+TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
+{
+    TestHook_ClearSourceFactoryOverrides();
+    TestSourceFactory factory;
+    TestHook_SetSourceFactoryOverride("testType", factory);
+
+    SetSetting(Streams::UserSources, s_TwoSource_AggregateSourceTest);
+
+    ProgressCallback progress;
+    auto source = OpenSource("", progress);
+
+    REQUIRE(source->GetDetails().IsAggregated);
+
+    SearchRequest request;
+    auto result = source->Search(request);
+    REQUIRE(result.Matches.size() == 4);
+    REQUIRE_FALSE(result.Truncated);
+    // winget source entries should be in front
+    REQUIRE(result.Matches[0].SourceName == "winget");
+    REQUIRE(result.Matches[1].SourceName == "winget");
+
+    // when truncate required
+    request.MaximumResults = 3;
+    result = source->Search(request);
+    REQUIRE(result.Matches.size() == 3);
+    REQUIRE(result.Truncated);
+    // winget source entries should be in front
+    REQUIRE(result.Matches[0].SourceName == "winget");
+    REQUIRE(result.Matches[1].SourceName == "winget");
 }
