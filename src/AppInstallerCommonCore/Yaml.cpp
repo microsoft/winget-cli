@@ -5,139 +5,130 @@
 #include "winget/Yaml.h"
 #include "YamlWrapper.h"
 #include "AppInstallerErrors.h"
+#include "AppInstallerLogging.h"
 
 
 namespace AppInstaller::YAML
 {
+    using namespace std::string_view_literals;
+
     namespace
     {
         Node s_globalInvalidNode;
 
-        Node::Type ConvertType(yaml_node_type_t type)
+        std::string_view GetExceptionTypeStringView(Exception::Type type)
         {
             switch (type)
             {
-            case YAML_NO_NODE:
-                return Node::Type::None;
-            case YAML_SCALAR_NODE:
-                return Node::Type::Scalar;
-            case YAML_SEQUENCE_NODE:
-                return Node::Type::Sequence;
-            case YAML_MAPPING_NODE:
-                return Node::Type::Mapping;
+            case Exception::Type::None:
+                return "None"sv;
+            case Exception::Type::Memory:
+                return "Memory"sv;
+            case Exception::Type::Reader:
+                return "Reader"sv;
+            case Exception::Type::Scanner:
+                return "Scanner"sv;
+            case Exception::Type::Parser:
+                return "Parser"sv;
+            case Exception::Type::Composer:
+                return "Composer"sv;
+            case Exception::Type::Writer:
+                return "Writer"sv;
+            case Exception::Type::Emitter:
+                return "Emitter"sv;
             }
 
-            THROW_HR(E_UNEXPECTED);
+            return "Unknown"sv;
         }
 
-        std::string ConvertYamlString(yaml_char_t* string, size_t length = std::string::npos)
+        void OutputExceptionHeader(std::ostringstream& out, Exception::Type type)
         {
-            if (length == std::string::npos)
-            {
-                return { reinterpret_cast<char*>(string) };
-            }
-            else
-            {
-                return { reinterpret_cast<char*>(string), length };
-            }
+            out << "[YAML:" << GetExceptionTypeStringView(type) << "] ";
         }
 
-        std::string ConvertScalarToString(yaml_node_t* node)
+        void OutputMark(std::ostringstream& out, const Mark& mark)
         {
-            return ConvertYamlString(node->data.scalar.value, node->data.scalar.length);
-        }
-
-        Node GetDocumentRoot(Document& document)
-        {
-            yaml_node_t* root = yaml_document_get_root_node(&document);
-
-            if (!root)
-            {
-                return {};
-            }
-
-            Node result(ConvertType(root->type), ConvertYamlString(root->tag));
-
-            struct StackItem
-            {
-                StackItem(yaml_node_t* yn, Node* n) :
-                    yamlNode(yn), node(n) {}
-
-                yaml_node_t* yamlNode = nullptr;
-                Node* node = nullptr;
-                size_t childOffset = 0;
-            };
-
-            std::stack<StackItem> resultStack;
-            resultStack.emplace(root, &result);
-
-            while (!resultStack.empty())
-            {
-                StackItem& stackItem = resultStack.top();
-                bool pop = false;
-
-                switch (stackItem.yamlNode->type)
-                {
-                case YAML_NO_NODE:
-                    pop = true;
-                    break;
-                case YAML_SCALAR_NODE:
-                    stackItem.node->SetScalar(ConvertScalarToString(stackItem.yamlNode));
-                    pop = true;
-                    break;
-                case YAML_SEQUENCE_NODE:
-                {
-                    yaml_node_item_t* child = stackItem.yamlNode->data.sequence.items.start + stackItem.childOffset++;
-                    if (child < stackItem.yamlNode->data.sequence.items.top)
-                    {
-                        yaml_node_t* childYamlNode = document.GetNode(*child);
-                        Node& childNode = stackItem.node->AddSequenceNode(ConvertType(childYamlNode->type), ConvertYamlString(childYamlNode->tag));
-                        resultStack.emplace(childYamlNode, &childNode);
-                    }
-                    else
-                    {
-                        // We've reached the end of the sequence
-                        pop = true;
-                    }
-                    break;
-                }
-                case YAML_MAPPING_NODE:
-                {
-                    yaml_node_pair_t* child = stackItem.yamlNode->data.mapping.pairs.start + stackItem.childOffset++;
-                    if (child < stackItem.yamlNode->data.mapping.pairs.top)
-                    {
-                        yaml_node_t* keyYamlNode = document.GetNode(child->key);
-                        THROW_HR_IF(E_UNEXPECTED, keyYamlNode->type != YAML_SCALAR_NODE);
-
-                        Node keyNode(ConvertType(keyYamlNode->type), ConvertYamlString(keyYamlNode->tag));
-                        keyNode.SetScalar(ConvertScalarToString(keyYamlNode));
-
-                        yaml_node_t* valueYamlNode = document.GetNode(child->value);
-
-                        Node& childNode = stackItem.node->AddMappingNode(std::move(keyNode), ConvertType(valueYamlNode->type), ConvertYamlString(valueYamlNode->tag));
-                        resultStack.emplace(valueYamlNode, &childNode);
-                    }
-                    else
-                    {
-                        // We've reached the end of the mapping
-                        pop = true;
-                    }
-                    break;
-                }
-                }
-
-                if (pop)
-                {
-                    resultStack.pop();
-                }
-            }
-
-            return result;
+            out << "[line " << mark.line << "; col " << mark.column << ']';
         }
     }
 
-    Node::Node(Type type, std::string tag) :
-        m_type(type), m_tag(std::move(tag))
+    Exception::Exception(Type type) :
+        wil::ResultException(APPINSTALLER_CLI_ERROR_LIBYAML_ERROR)
+    {
+        std::ostringstream out;
+        OutputExceptionHeader(out, type);
+
+        if (type == Type::Memory)
+        {
+            out << "Unable to (re)allocate memory";
+        }
+        else
+        {
+            out << "An unknown error occurred";
+        }
+
+        m_what = out.str();
+    }
+
+    Exception::Exception(Type type, const char* problem, size_t offset, int value) :
+        wil::ResultException(APPINSTALLER_CLI_ERROR_LIBYAML_ERROR)
+    {
+        std::ostringstream out;
+        OutputExceptionHeader(out, type);
+
+        out << (problem ? problem : "Unexplained error");
+
+        if (value != -1)
+        {
+            out << " [" << value << ']';
+        }
+
+        out << " at " << offset;
+
+        m_what = out.str();
+    }
+
+    Exception::Exception(Type type, const char* problem, Mark problemMark, const char* context, Mark contextMark) :
+        wil::ResultException(APPINSTALLER_CLI_ERROR_LIBYAML_ERROR)
+    {
+        std::ostringstream out;
+        OutputExceptionHeader(out, type);
+
+        if (context)
+        {
+            out << context << ' ';
+            OutputMark(out, contextMark);
+            out << ' ' << (problem ? problem : "unexplained error");
+        }
+        else
+        {
+            out << (problem ? problem : "Unexplained error");
+        }
+
+        out << ' ';
+        OutputMark(out, problemMark);
+
+        m_what = out.str();
+    }
+
+    Exception::Exception(Type type, const char* problem) :
+        wil::ResultException(APPINSTALLER_CLI_ERROR_LIBYAML_ERROR)
+    {
+        std::ostringstream out;
+        OutputExceptionHeader(out, type);
+
+        out << (problem ? problem : "Unexplained error");
+
+        m_what = out.str();
+    }
+
+    const char* Exception::what() const noexcept
+    {
+        return m_what.c_str();
+    }
+
+    Node::Node(Type type, std::string tag, YAML::Mark mark) :
+        m_type(type), m_tag(std::move(tag)), m_mark(mark)
     {
         if (m_type == Type::Sequence)
         {
@@ -165,15 +156,35 @@ namespace AppInstaller::YAML
     Node& Node::operator[](std::string_view key)
     {
         Require(Type::Mapping);
-        auto itr = m_mapping->find(key);
-        return (itr == m_mapping->end() ? s_globalInvalidNode : itr->second);
+        auto itrs = m_mapping->equal_range(key);
+
+        if (itrs.first == itrs.second)
+        {
+            return s_globalInvalidNode;
+        }
+
+        Node& result = itrs.first->second;
+
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_DUPLICATE_MAPPING_KEY, ++itrs.first != itrs.second);
+
+        return result;
     }
 
     const Node& Node::operator[](std::string_view key) const
     {
         Require(Type::Mapping);
-        auto itr = m_mapping->find(key);
-        return (itr == m_mapping->end() ? s_globalInvalidNode : itr->second);
+        auto itrs = m_mapping->equal_range(key);
+
+        if (itrs.first == itrs.second)
+        {
+            return s_globalInvalidNode;
+        }
+
+        const Node& result = itrs.first->second;
+
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_DUPLICATE_MAPPING_KEY, ++itrs.first != itrs.second);
+
+        return result;
     }
 
     Node& Node::operator[](size_t index)
@@ -190,14 +201,15 @@ namespace AppInstaller::YAML
 
     size_t Node::size() const
     {
-        RequireCollection();
-
-        if (m_type == Type::Sequence)
+        switch (m_type)
         {
+        case Type::Invalid:
+        case Type::None:
+        case Type::Scalar:
+            return 0;
+        case Type::Sequence:
             return m_sequence->size();
-        }
-        else if (m_type == Type::Mapping)
-        {
+        case Type::Mapping:
             return m_mapping->size();
         }
 
@@ -210,7 +222,7 @@ namespace AppInstaller::YAML
         return m_sequence.value();
     }
 
-    const std::map<Node, Node>& Node::Mapping() const
+    const std::multimap<Node, Node>& Node::Mapping() const
     {
         Require(Type::Mapping);
         return m_mapping.value();
@@ -218,40 +230,48 @@ namespace AppInstaller::YAML
 
     void Node::Require(Type type) const
     {
-        THROW_HR_IF(E_UNEXPECTED, m_type != type);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INVALID_OPERATION, m_type != type);
     }
 
-    void Node::RequireCollection() const
+    void Node::Require(Type type1, Type type2) const
     {
-        THROW_HR_IF(E_UNEXPECTED, m_type != Type::Sequence && m_type != Type::Mapping);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INVALID_OPERATION, m_type != type1 && m_type != type2);
     }
 
     std::string Node::as_dispatch(std::string*) const
     {
-        Require(Type::Scalar);
         return m_scalar;
     }
 
     int64_t Node::as_dispatch(int64_t*) const
     {
-        Require(Type::Scalar);
         return std::stoll(m_scalar);
     }
 
     bool Node::as_dispatch(bool*) const
     {
-        Require(Type::Scalar);
-        return m_scalar == "true";
+        if (m_scalar == "true")
+        {
+            return true;
+        }
+        else if (m_scalar == "false")
+        {
+            return false;
+        }
+        else
+        {
+            THROW_HR(APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA);
+        }
     }
 
     Node Load(std::string_view input)
     {
-        Parser parser(input);
-        Document document = parser.Load();
+        Wrapper::Parser parser(input);
+        Wrapper::Document document = parser.Load();
 
         if (document.HasRoot())
         {
-            return GetDocumentRoot(document);
+            return document.GetRoot();
         }
         else
         {
@@ -261,12 +281,12 @@ namespace AppInstaller::YAML
 
     Node Load(std::istream& input)
     {
-        Parser parser(input);
-        Document document = parser.Load();
+        Wrapper::Parser parser(input);
+        Wrapper::Document document = parser.Load();
 
         if (document.HasRoot())
         {
-            return GetDocumentRoot(document);
+            return document.GetRoot();
         }
         else
         {
@@ -274,26 +294,173 @@ namespace AppInstaller::YAML
         }
     }
 
+    Emitter::Emitter() :
+        m_document(std::make_unique<Wrapper::Document>(true))
+    {
+        SetAllowedInputs<InputType::BeginMap, InputType::BeginSeq>();
+    }
+
+    Emitter::Emitter(Emitter&&) = default;
+    Emitter& Emitter::operator=(Emitter&&) = default;
+
+    Emitter::~Emitter() = default;
+
     Emitter& Emitter::operator<<(EmitterEvent event)
     {
-        UNREFERENCED_PARAMETER(event);
-        THROW_HR(E_NOTIMPL);
+        switch (event)
+        {
+        case AppInstaller::YAML::BeginSeq:
+        {
+            CheckInput(InputType::BeginSeq);
+            int id = m_document->AddSequence();
+            AppendNode(id);
+            m_containers.emplace(id, false);
+            SetAllowedInputsForContainer();
+            break;
+        }
+        case AppInstaller::YAML::EndSeq:
+            CheckInput(InputType::EndSeq);
+            m_containers.pop();
+            SetAllowedInputsForContainer();
+            break;
+        case AppInstaller::YAML::BeginMap:
+        {
+            CheckInput(InputType::BeginMap);
+            int id = m_document->AddMapping();
+            AppendNode(id);
+            m_containers.emplace(id, true);
+            SetAllowedInputsForContainer();
+            break;
+        }
+        case AppInstaller::YAML::EndMap:
+            CheckInput(InputType::EndMap);
+            m_containers.pop();
+            SetAllowedInputsForContainer();
+            break;
+        case AppInstaller::YAML::Key:
+            CheckInput(InputType::Key);
+            m_scalarInfo = InputType::Key;
+            SetAllowedInputs<InputType::Scalar>();
+            break;
+        case AppInstaller::YAML::Value:
+            CheckInput(InputType::Value);
+            m_scalarInfo = InputType::Value;
+            SetAllowedInputs<InputType::Scalar, InputType::BeginMap, InputType::BeginSeq>();
+            break;
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
+
+        return *this;
     }
 
     Emitter& Emitter::operator<<(std::string_view value)
     {
-        UNREFERENCED_PARAMETER(value);
-        THROW_HR(E_NOTIMPL);
+        CheckInput(InputType::Scalar);
+
+        int id = m_document->AddScalar(value);
+
+        if (!m_scalarInfo)
+        {
+            // Part of a sequence
+            AppendNode(id);
+            // No change to allowed inputs
+        }
+        else if (m_scalarInfo.value() == InputType::Key)
+        {
+            m_keyId = id;
+            m_scalarInfo = std::nullopt;
+            SetAllowedInputs<InputType::Value, InputType::BeginMap, InputType::BeginSeq>();
+        }
+        else if (m_scalarInfo.value() == InputType::Value)
+        {
+            // Mapping pair complete
+            AppendNode(id);
+            m_scalarInfo = std::nullopt;
+            SetAllowedInputsForContainer();
+        }
+        else
+        {
+            THROW_HR(APPINSTALLER_CLI_ERROR_YAML_INVALID_EMITTER_STATE);
+        }
+
+        return *this;
+    }
+
+    Emitter& Emitter::operator<<(int64_t value)
+    {
+        std::ostringstream stream;
+        stream << value;
+        return operator<<(stream.str());
     }
 
     Emitter& Emitter::operator<<(bool value)
     {
-        UNREFERENCED_PARAMETER(value);
-        THROW_HR(E_NOTIMPL);
+        return operator<<(value ? "true"sv : "false"sv);
     }
 
-    std::string Emitter::str() const
+    std::string Emitter::str()
     {
-        THROW_HR(E_NOTIMPL);
+        std::ostringstream stream;
+        Wrapper::Emitter emitter(stream);
+
+        emitter.Dump(*m_document);
+        emitter.Flush();
+
+        return stream.str();
+    }
+
+    void Emitter::AppendNode(int id)
+    {
+        if (!m_containers.empty())
+        {
+            ContainerInfo& ci = m_containers.top();
+
+            if (ci.IsMapping)
+            {
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INVALID_EMITTER_STATE, !m_keyId);
+                m_document->AppendMappingPair(ci.Id, m_keyId.value(), id);
+                m_keyId = std::nullopt;
+            }
+            else
+            {
+                m_document->AppendSequenceItem(ci.Id, id);
+            }
+        }
+    }
+
+    size_t Emitter::GetInputBitmask(InputType type)
+    {
+        return static_cast<size_t>(1) << static_cast<size_t>(type);
+    }
+
+    void Emitter::CheckInput(InputType type)
+    {
+        if ((m_allowedInputs & GetInputBitmask(type)) == 0)
+        {
+            AICLI_LOG(YAML, Error, << "Invalid emitter input [0x" <<
+                std::hex << std::setw(2) << std::setfill('0') << GetInputBitmask(type) << "], expected one of [0x" <<
+                std::hex << std::setw(2) << std::setfill('0') << m_allowedInputs << "]");
+            THROW_HR(APPINSTALLER_CLI_ERROR_YAML_INVALID_EMITTER_STATE);
+        }
+    }
+
+    void Emitter::SetAllowedInputsForContainer()
+    {
+        if (m_containers.empty())
+        {
+            m_allowedInputs = 0;
+        }
+        else
+        {
+            if (m_containers.top().IsMapping)
+            {
+                SetAllowedInputs<InputType::Key, InputType::EndMap>();
+            }
+            else
+            {
+                SetAllowedInputs<InputType::Scalar, InputType::BeginMap, InputType::BeginSeq, InputType::EndSeq>();
+            }
+        }
     }
 }

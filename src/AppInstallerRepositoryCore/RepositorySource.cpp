@@ -80,7 +80,7 @@ namespace AppInstaller::Repository
             {
                 document = YAML::Load(settingValue);
             }
-            catch (const std::runtime_error& e)
+            catch (const std::exception& e)
             {
                 AICLI_LOG(YAML, Error, << "Setting '" << settingName << "' contained invalid YAML (" << e.what() << "):\n" << settingValue);
                 return false;
@@ -95,7 +95,7 @@ namespace AppInstaller::Repository
                     return false;
                 }
 
-                if (!sources.IsNull())
+                if (sources.IsNull() || (sources.IsScalar() && sources.as<std::string>().empty()))
                 {
                     // An empty sources is an acceptable thing.
                     return true;
@@ -118,7 +118,7 @@ namespace AppInstaller::Repository
                     result.emplace_back(std::move(details));
                 }
             }
-            catch (const std::runtime_error& e)
+            catch (const std::exception& e)
             {
                 AICLI_LOG(YAML, Error, << "Setting '" << settingName << "' contained unexpected YAML (" << e.what() << "):\n" << settingValue);
                 return false;

@@ -147,6 +147,7 @@ private:
 
 void TestManifest(const std::filesystem::path& manifestPath, const std::string& expectedMessage = {}, bool expectedWarningOnly = false)
 {
+    INFO(manifestPath.u8string());
     if (expectedMessage.empty())
     {
         CHECK_NOTHROW(YamlParser::CreateFromPath(TestDataFile(manifestPath), true, true));

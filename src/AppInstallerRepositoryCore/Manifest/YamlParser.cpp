@@ -322,7 +322,7 @@ namespace AppInstaller::Manifest
         for (auto const& keyValuePair : rootNode.Mapping())
         {
             std::string key = keyValuePair.first.as<std::string>();
-            YAML::Node valueNode = keyValuePair.second;
+            const YAML::Node& valueNode = keyValuePair.second;
 
             // We'll do case insensitive search first and validate correct case later.
             auto fieldIter = std::find_if(fieldInfos.begin(), fieldInfos.end(),
