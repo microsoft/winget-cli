@@ -52,6 +52,7 @@ namespace IndexCreationTool
                 {
                     foreach (string file in Directory.EnumerateFiles(rootDir, "*.yaml", SearchOption.AllDirectories))
                     {
+                        Console.WriteLine("as;dlfkjasdf");
                         indexHelper.AddManifest(file, Path.GetRelativePath(rootDir, file));
                     }
                     indexHelper.PrepareForPackaging();
@@ -65,9 +66,8 @@ namespace IndexCreationTool
                         outputFile.WriteLine($"\"{IndexName}\" \"{IndexPathInPackage}\"");
                         outputFile.WriteLine($"\"{appxManifestPath}\" \"AppxManifest.xml\"");
                     }
-
                     RunCommand("makeappx.exe", $"pack /f MappingFile.txt /o /nv /p {IndexPackageName}");
-
+                    Console.WriteLine("Phase 3");
                     if (!string.IsNullOrEmpty(certPath))
                     {
                         RunCommand("signtool.exe", $"sign /a /fd sha256 /f {certPath} {IndexPackageName}");
