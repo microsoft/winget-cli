@@ -14,17 +14,6 @@
 
 namespace AppInstaller::Repository
 {
-    using namespace std::string_view_literals;
-
-    constexpr std::string_view s_Source_WingetCommunityDefault_Name = "winget"sv;
-    constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://winget.azureedge.net/cache"sv;
-    constexpr std::string_view s_Source_WingetCommunityDefault_Data = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
-
-    constexpr std::string_view s_Source_WingetMSStoreDefault_Name = "msstore"sv;
-    // TODO: update to use prod endpoint
-    constexpr std::string_view s_Source_WingetMSStoreDefault_Arg = "https://winget-test.azureedge.net/msstore"sv;
-    constexpr std::string_view s_Source_WingetMSStoreDefault_Data = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
-
     // Defines the origin of the source details.
     enum class SourceOrigin
     {

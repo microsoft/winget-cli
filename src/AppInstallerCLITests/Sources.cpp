@@ -94,12 +94,12 @@ Sources:
 
 constexpr std::string_view s_TwoSource_AggregateSourceTest = R"(
 Sources:
-  - Name: testName
+  - Name: winget
     Type: testType
     Arg: testArg
     Data: testData
     IsTombstone: false
-  - Name: winget
+  - Name: msstore
     Type: testType
     Arg: testArg
     Data: testData
@@ -131,9 +131,12 @@ namespace
             UNREFERENCED_PARAMETER(request);
 
             SearchResult result;
-            ApplicationMatchFilter testMatchFilter{ ApplicationMatchField::Id, MatchType::CaseInsensitive, "test" };
-            result.Matches.emplace_back(std::unique_ptr<IApplication>(), testMatchFilter);
-            result.Matches.emplace_back(std::unique_ptr<IApplication>(), testMatchFilter);
+            ApplicationMatchFilter testMatchFilter1{ ApplicationMatchField::Id, MatchType::Exact, "test" };
+            ApplicationMatchFilter testMatchFilter2{ ApplicationMatchField::Name, MatchType::Exact, "test" };
+            ApplicationMatchFilter testMatchFilter3{ ApplicationMatchField::Id, MatchType::CaseInsensitive, "test" };
+            result.Matches.emplace_back(std::unique_ptr<IApplication>(), testMatchFilter1);
+            result.Matches.emplace_back(std::unique_ptr<IApplication>(), testMatchFilter2);
+            result.Matches.emplace_back(std::unique_ptr<IApplication>(), testMatchFilter3);
             return result;
         }
 
@@ -585,18 +588,23 @@ TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
 
     SearchRequest request;
     auto result = source->Search(request);
-    REQUIRE(result.Matches.size() == 4);
+    REQUIRE(result.Matches.size() == 6);
     REQUIRE_FALSE(result.Truncated);
-    // winget source entries should be in front
-    REQUIRE(result.Matches[0].SourceName == "winget");
-    REQUIRE(result.Matches[1].SourceName == "winget");
+    // matches are sorted in expected order
+    REQUIRE((result.Matches[0].MatchCriteria.Type == MatchType::Exact && result.Matches[0].MatchCriteria.Field == ApplicationMatchField::Id));
+    REQUIRE((result.Matches[1].MatchCriteria.Type == MatchType::Exact && result.Matches[1].MatchCriteria.Field == ApplicationMatchField::Id));
+    REQUIRE((result.Matches[2].MatchCriteria.Type == MatchType::Exact && result.Matches[2].MatchCriteria.Field == ApplicationMatchField::Name));
+    REQUIRE((result.Matches[3].MatchCriteria.Type == MatchType::Exact && result.Matches[3].MatchCriteria.Field == ApplicationMatchField::Name));
+    REQUIRE((result.Matches[4].MatchCriteria.Type == MatchType::CaseInsensitive && result.Matches[4].MatchCriteria.Field == ApplicationMatchField::Id));
+    REQUIRE((result.Matches[5].MatchCriteria.Type == MatchType::CaseInsensitive && result.Matches[5].MatchCriteria.Field == ApplicationMatchField::Id));
 
     // when truncate required
     request.MaximumResults = 3;
     result = source->Search(request);
     REQUIRE(result.Matches.size() == 3);
     REQUIRE(result.Truncated);
-    // winget source entries should be in front
-    REQUIRE(result.Matches[0].SourceName == "winget");
-    REQUIRE(result.Matches[1].SourceName == "winget");
+    // matches are sorted in expected order
+    REQUIRE((result.Matches[0].MatchCriteria.Type == MatchType::Exact && result.Matches[0].MatchCriteria.Field == ApplicationMatchField::Id));
+    REQUIRE((result.Matches[1].MatchCriteria.Type == MatchType::Exact && result.Matches[1].MatchCriteria.Field == ApplicationMatchField::Id));
+    REQUIRE((result.Matches[2].MatchCriteria.Type == MatchType::Exact && result.Matches[2].MatchCriteria.Field == ApplicationMatchField::Name));
 }

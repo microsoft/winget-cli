@@ -49,17 +49,37 @@ namespace AppInstaller::Repository
 
     void AggregatedSource::SortResultMatches(std::vector<ResultMatch>& matches)
     {
-        // TODO: for now just simply prefer winget source.
         struct ResultMatchComparator
         {
+            // The comparator compares the ResultMatch by MatchType first, then Field in a predefined order.
             bool operator() (
                 const ResultMatch& match1,
                 const ResultMatch& match2)
             {
-                if (Utility::CaseInsensitiveEquals(match1.SourceName, s_Source_WingetCommunityDefault_Name) &&
-                    !Utility::CaseInsensitiveEquals(match2.SourceName, s_Source_WingetCommunityDefault_Name))
+                std::vector<MatchType> MatchTypeOrder =
+                { MatchType::Exact, MatchType::CaseInsensitive, MatchType::StartsWith, MatchType::Fuzzy,
+                  MatchType::Substring, MatchType::FuzzySubstring, MatchType::Wildcard };
+
+                auto matchTypeOrder1 = std::find(MatchTypeOrder.begin(), MatchTypeOrder.end(), match1.MatchCriteria.Type);
+                auto matchTypeOrder2 = std::find(MatchTypeOrder.begin(), MatchTypeOrder.end(), match2.MatchCriteria.Type);
+                auto matchTypeDistance = std::distance(matchTypeOrder1, matchTypeOrder2);
+
+                if (matchTypeDistance != 0)
                 {
-                    return true;
+                    return matchTypeDistance > 0;
+                }
+
+                std::vector<ApplicationMatchField> MatchFieldOrder =
+                { ApplicationMatchField::Id, ApplicationMatchField::Name, ApplicationMatchField::Moniker,
+                  ApplicationMatchField::Command, ApplicationMatchField::Tag };
+
+                auto matchFieldOrder1 = std::find(MatchFieldOrder.begin(), MatchFieldOrder.end(), match1.MatchCriteria.Field);
+                auto matchFieldOrder2 = std::find(MatchFieldOrder.begin(), MatchFieldOrder.end(), match2.MatchCriteria.Field);
+                auto matchFieldDistance = std::distance(matchFieldOrder1, matchFieldOrder2);
+
+                if (matchFieldDistance != 0)
+                {
+                    return matchFieldDistance > 0;
                 }
 
                 return false;

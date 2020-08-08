@@ -25,6 +25,10 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_MetadataYaml_Source_Name = "Name"sv;
     constexpr std::string_view s_MetadataYaml_Source_LastUpdate = "LastUpdate"sv;
 
+    constexpr std::string_view s_Source_WingetCommunityDefault_Name = "winget"sv;
+    constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://winget.azureedge.net/cache"sv;
+    constexpr std::string_view s_Source_WingetCommunityDefault_Data = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
+
     namespace
     {
         // SourceDetails with additional data used by this file.
@@ -184,16 +188,6 @@ namespace AppInstaller::Repository
                 details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
                 details.Arg = s_Source_WingetCommunityDefault_Arg;
                 details.Data = s_Source_WingetCommunityDefault_Data;
-                result.emplace_back(std::move(details));
-            }
-
-            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore))
-            {
-                SourceDetailsInternal details;
-                details.Name = s_Source_WingetMSStoreDefault_Name;
-                details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-                details.Arg = s_Source_WingetMSStoreDefault_Arg;
-                details.Data = s_Source_WingetMSStoreDefault_Data;
                 result.emplace_back(std::move(details));
             }
                 break;
@@ -535,10 +529,12 @@ namespace AppInstaller::Repository
 
                     if (ShouldUpdateBeforeOpen(source))
                     {
+                        // TODO: Consider adding a context callback to indicate we are doing the same action
+                        // to avoid the progress bar fill up multiple times.
                         UpdateSourceFromDetails(source, progress);
                         sourceUpdated = true;
                     }
-                    aggregatedSource->AddSource(std::move(CreateSourceFromDetails(source, progress)));
+                    aggregatedSource->AddSource(CreateSourceFromDetails(source, progress));
                 }
 
                 if (sourceUpdated)
