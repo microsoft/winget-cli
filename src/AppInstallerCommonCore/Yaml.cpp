@@ -88,7 +88,7 @@ namespace AppInstaller::YAML
         m_what = out.str();
     }
 
-    Exception::Exception(Type type, const char* problem, Mark problemMark, const char* context, Mark contextMark) :
+    Exception::Exception(Type type, const char* problem, const Mark& problemMark, const char* context, const Mark& contextMark) :
         wil::ResultException(APPINSTALLER_CLI_ERROR_LIBYAML_ERROR)
     {
         std::ostringstream out;
@@ -127,7 +127,7 @@ namespace AppInstaller::YAML
         return m_what.c_str();
     }
 
-    Node::Node(Type type, std::string tag, YAML::Mark mark) :
+    Node::Node(Type type, std::string tag, const YAML::Mark& mark) :
         m_type(type), m_tag(std::move(tag)), m_mark(mark)
     {
         if (m_type == Type::Sequence)
@@ -279,6 +279,11 @@ namespace AppInstaller::YAML
         }
     }
 
+    Node Load(const std::string& input)
+    {
+        return Load(static_cast<std::string_view>(input));
+    }
+
     Node Load(std::istream& input)
     {
         Wrapper::Parser parser(input);
@@ -292,6 +297,12 @@ namespace AppInstaller::YAML
         {
             return {};
         }
+    }
+
+    Node Load(const std::filesystem::path& input)
+    {
+        std::ifstream stream(input, std::ios_base::in | std::ios_base::binary);
+        return Load(stream);
     }
 
     Emitter::Emitter() :

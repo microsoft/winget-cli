@@ -95,7 +95,7 @@ namespace AppInstaller::Repository
                     return false;
                 }
 
-                if (sources.IsNull() || (sources.IsScalar() && sources.as<std::string>().empty()))
+                if (sources.IsNull())
                 {
                     // An empty sources is an acceptable thing.
                     return true;

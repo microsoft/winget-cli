@@ -83,16 +83,12 @@ namespace AppInstaller::YAML::Wrapper
         Document Load();
 
     private:
-        static int StreamReadHandler(
-            void* data,
-            unsigned char* buffer,
-            size_t size,
-            size_t* size_read);
+        // Determines the type of encoding in use, transforming the input as necessary.
+        void PrepareInput();
 
         DestructionToken m_token;
         yaml_parser_t m_parser;
-        std::optional<std::vector<unsigned char>> m_inputBytes;
-        std::istream* m_inputStream = nullptr;
+        std::string m_input;
     };
 
     // A libyaml yaml_event_t.

@@ -4,6 +4,8 @@
 #include <pch.h>
 #include "YamlWrapper.h"
 #include "AppInstallerErrors.h"
+#include "AppInstallerLogging.h"
+#include "AppInstallerStrings.h"
 
 
 namespace AppInstaller::YAML::Wrapper
@@ -71,7 +73,7 @@ namespace AppInstaller::YAML::Wrapper
 
         Mark ConvertMark(const yaml_mark_t& mark)
         {
-            return { static_cast<int>(mark.line + 1), static_cast<int>(mark.column + 1) };
+            return { mark.line + 1, mark.column + 1 };
         }
     }
 
@@ -232,22 +234,22 @@ namespace AppInstaller::YAML::Wrapper
         return result;
     }
 
-    Parser::Parser(std::string_view input) : m_token(true)
+    Parser::Parser(std::string_view input) : m_token(true), m_input(input)
     {
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED, !yaml_parser_initialize(&m_parser));
 
-        std::vector<unsigned char> bytes(input.length());
-        std::copy(input.begin(), input.end(), bytes.begin());
-        m_inputBytes = std::move(bytes);
-
-        yaml_parser_set_input_string(&m_parser, m_inputBytes->data(), m_inputBytes->size());
+        PrepareInput();
+        yaml_parser_set_input_string(&m_parser, reinterpret_cast<const unsigned char*>(m_input.c_str()), m_input.size());
     }
 
-    Parser::Parser(std::istream& input) : m_token(true), m_inputStream(&input)
+    Parser::Parser(std::istream& input) : m_token(true)
     {
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED, !yaml_parser_initialize(&m_parser));
 
-        yaml_parser_set_input(&m_parser, StreamReadHandler, this);
+        m_input = Utility::ReadEntireStream(input);
+
+        PrepareInput();
+        yaml_parser_set_input_string(&m_parser, reinterpret_cast<const unsigned char*>(m_input.c_str()), m_input.size());
     }
 
     Parser::~Parser()
@@ -284,39 +286,67 @@ namespace AppInstaller::YAML::Wrapper
         return result;
     }
 
-    // The read handler is called when the parser needs to read more bytes from the
-    // source.The handler should write not more than size bytes to the
-    // buffer.The number of written bytes should be set to the size_read variable.
-    //
-    // @param[in, out]   data        A pointer to an application data specified by
-    // yaml_parser_set_input().
-    // @param[out]      buffer      The buffer to write the data from the source.
-    // @param[in]       size        The size of the buffer.
-    // @param[out]      size_read   The actual number of bytes read from the source.
-    //
-    // @returns On success, the handler should return 1.  If the handler failed,
-    // the returned value should be 0.  On EOF, the handler should set the
-    // size_read to 0 and return 1.
-    int Parser::StreamReadHandler(
-        void* data,
-        unsigned char* buffer,
-        size_t size,
-        size_t* size_read)
+    void Parser::PrepareInput()
     {
-        Parser& parser = *reinterpret_cast<Parser*>(data);
+        constexpr char c_utf16BOM[2] = { static_cast<char>(0xFF), static_cast<char>(0xFE) };
+        constexpr char c_utf8BOM[3] = { static_cast<char>(0xEF), static_cast<char>(0xBB), static_cast<char>(0xBF) };
 
-        try
+        // If input has a BOM, we want to pass it on through.
+        // Check for UTF-16 BOMs
+        if (m_input.size() >= 2 &&
+            ((m_input[0] == c_utf16BOM[0] && m_input[1] == c_utf16BOM[1]) || (m_input[0] == c_utf16BOM[1] && m_input[1] == c_utf16BOM[0])))
         {
-            parser.m_inputStream->read(reinterpret_cast<char*>(buffer), size);
-        }
-        catch (...)
-        {
-            LOG_CAUGHT_EXCEPTION();
-            return 0;
+            AICLI_LOG(YAML, Verbose, << "Found UTF-16 BOM");
+            return;
         }
 
-        *size_read = static_cast<size_t>(parser.m_inputStream->gcount());
-        return 1;
+        // Check for UTF-8 BOM
+        if (m_input.size() >= 3 &&
+            (m_input[0] == c_utf8BOM[0] && m_input[1] == c_utf8BOM[1] && m_input[2] == c_utf8BOM[2]))
+        {
+            AICLI_LOG(YAML, Verbose, << "Found UTF-8 BOM");
+            return;
+        }
+
+        // Check for BOM-less UTF-16 LE
+        INT tests = IS_TEXT_UNICODE_UNICODE_MASK;
+        if (IsTextUnicode(m_input.data(), wil::safe_cast<int>(m_input.size()), &tests))
+        {
+            AICLI_LOG(YAML, Verbose, << "Detected UTF-16 LE");
+            yaml_parser_set_encoding(&m_parser, YAML_UTF16LE_ENCODING);
+            return;
+        }
+
+        // Check for BOM-less UTF-16 BE
+        tests = IS_TEXT_UNICODE_REVERSE_MASK;
+        if (IsTextUnicode(m_input.data(), wil::safe_cast<int>(m_input.size()), &tests))
+        {
+            AICLI_LOG(YAML, Verbose, << "Detected UTF-16 BE");
+            yaml_parser_set_encoding(&m_parser, YAML_UTF16BE_ENCODING);
+            return;
+        }
+
+        // Check for BOM-less UTF-8
+        UINT nChars = MultiByteToWideChar(
+            CP_UTF8,
+            MB_ERR_INVALID_CHARS,
+            m_input.data(),
+            wil::safe_cast<int>(m_input.size()),
+            NULL,
+            0);
+
+        if (nChars > 0 || GetLastError() != ERROR_NO_UNICODE_TRANSLATION)
+        {
+            AICLI_LOG(YAML, Verbose, << "Detected UTF-8");
+            yaml_parser_set_encoding(&m_parser, YAML_UTF8_ENCODING);
+            return;
+        }
+
+        // Must be ANSI (Windows-1252 assumed), convert to UTF-8
+        AICLI_LOG(YAML, Verbose, << "Assuming ANSI Windows-1252");
+        std::wstring utf16 = Utility::ConvertToUTF16(m_input, 1252);
+        m_input = Utility::ConvertToUTF8(utf16);
+        yaml_parser_set_encoding(&m_parser, YAML_UTF8_ENCODING);
     }
 
     Event::~Event()

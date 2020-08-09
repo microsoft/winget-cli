@@ -133,8 +133,7 @@ namespace AppInstaller::Manifest
 
         try
         {
-            std::ifstream inputStream(inputFile);
-            YAML::Node rootNode = YAML::Load(inputStream);
+            YAML::Node rootNode = YAML::Load(inputFile);
             YamlParser parser;
             errors = parser.ParseManifest(rootNode, manifest, fullValidation);
         }

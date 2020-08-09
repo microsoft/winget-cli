@@ -17,10 +17,10 @@ namespace AppInstaller::YAML
     struct Mark
     {
         Mark() = default;
-        Mark(int l, int c) : line(l), column(c) {}
+        Mark(size_t l, size_t c) : line(l), column(c) {}
 
-        int line = -1;
-        int column = -1;
+        size_t line = 0;
+        size_t column = 0;
     };
 
     // An exception from YAML.
@@ -46,7 +46,7 @@ namespace AppInstaller::YAML
         Exception(Type type, const char* problem, size_t offset, int value);
 
         // Used for Scanner, Parser, and Composer.
-        Exception(Type type, const char* problem, Mark problemMark, const char* context = {}, Mark contextMark = {});
+        Exception(Type type, const char* problem, const Mark& problemMark, const char* context = {}, const Mark& contextMark = {});
 
         // Used for Writer and Emitter.
         Exception(Type type, const char* problem);
@@ -71,7 +71,7 @@ namespace AppInstaller::YAML
         };
 
         Node() : m_type(Type::Invalid) {}
-        Node(Type type, std::string tag, Mark mark);
+        Node(Type type, std::string tag, const Mark& mark);
 
         // Sets the scalar value of the node.
         void SetScalar(std::string value);
@@ -93,7 +93,7 @@ namespace AppInstaller::YAML
         }
 
         bool IsDefined() const { return m_type != Type::Invalid; }
-        bool IsNull() const { return m_type == Type::Invalid || m_type == Type::None; }
+        bool IsNull() const { return m_type == Type::Invalid || m_type == Type::None || (m_type == Type::Scalar && m_scalar.empty()); }
         bool IsScalar() const { return m_type == Type::Scalar; }
         bool IsSequence() const { return m_type == Type::Sequence; }
         bool IsMap() const { return m_type == Type::Mapping; }
@@ -122,7 +122,7 @@ namespace AppInstaller::YAML
         size_t size() const;
 
         // Gets the mark for this node.
-        Mark Mark() const { return m_mark; }
+        const Mark& Mark() const { return m_mark; }
 
         // Gets the nodes in the sequence.
         const std::vector<Node>& Sequence() const;
@@ -152,7 +152,8 @@ namespace AppInstaller::YAML
 
     // Loads from the input; returns the root node of the first document.
     Node Load(std::string_view input);
-    Node Load(std::istream& input);
+    Node Load(const std::string& input);
+    Node Load(const std::filesystem::path& input);
 
     // Any emitter event.
     // Not using enum class to enable existing code to function.
