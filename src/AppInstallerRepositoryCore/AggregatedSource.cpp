@@ -56,30 +56,14 @@ namespace AppInstaller::Repository
                 const ResultMatch& match1,
                 const ResultMatch& match2)
             {
-                std::vector<MatchType> MatchTypeOrder =
-                { MatchType::Exact, MatchType::CaseInsensitive, MatchType::StartsWith, MatchType::Fuzzy,
-                  MatchType::Substring, MatchType::FuzzySubstring, MatchType::Wildcard };
-
-                auto matchTypeOrder1 = std::find(MatchTypeOrder.begin(), MatchTypeOrder.end(), match1.MatchCriteria.Type);
-                auto matchTypeOrder2 = std::find(MatchTypeOrder.begin(), MatchTypeOrder.end(), match2.MatchCriteria.Type);
-                auto matchTypeDistance = std::distance(matchTypeOrder1, matchTypeOrder2);
-
-                if (matchTypeDistance != 0)
+                if (match1.MatchCriteria.Type != match2.MatchCriteria.Type)
                 {
-                    return matchTypeDistance > 0;
+                    return (static_cast<int>(match2.MatchCriteria.Type) - static_cast<int>(match1.MatchCriteria.Type)) > 0;
                 }
 
-                std::vector<ApplicationMatchField> MatchFieldOrder =
-                { ApplicationMatchField::Id, ApplicationMatchField::Name, ApplicationMatchField::Moniker,
-                  ApplicationMatchField::Command, ApplicationMatchField::Tag };
-
-                auto matchFieldOrder1 = std::find(MatchFieldOrder.begin(), MatchFieldOrder.end(), match1.MatchCriteria.Field);
-                auto matchFieldOrder2 = std::find(MatchFieldOrder.begin(), MatchFieldOrder.end(), match2.MatchCriteria.Field);
-                auto matchFieldDistance = std::distance(matchFieldOrder1, matchFieldOrder2);
-
-                if (matchFieldDistance != 0)
+                if (match1.MatchCriteria.Field != match2.MatchCriteria.Field)
                 {
-                    return matchFieldDistance > 0;
+                    return (static_cast<int>(match2.MatchCriteria.Field) - static_cast<int>(match1.MatchCriteria.Field)) > 0;
                 }
 
                 return false;

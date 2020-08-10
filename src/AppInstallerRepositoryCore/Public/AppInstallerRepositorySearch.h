@@ -16,25 +16,27 @@
 namespace AppInstaller::Repository
 {
     // The type of matching to perform during a search.
+    // The values must be declared in order of preference in search results.
     enum class MatchType
     {
-        Exact,
+        Exact = 0,
         CaseInsensitive,
         StartsWith,
-        Substring,
-        Wildcard,
         Fuzzy,
+        Substring,
         FuzzySubstring,
+        Wildcard,
     };
 
     // The field to match on.
+    // The values must be declared in order of preference in search results.
     enum class ApplicationMatchField
     {
-        Id,
+        Id = 0,
         Name,
         Moniker,
-        Tag,
         Command,
+        Tag,
     };
 
     // A single match to be performed during a search.
