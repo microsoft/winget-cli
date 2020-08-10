@@ -129,6 +129,9 @@
     <ClInclude Include="Manifest\YamlParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AggregatedSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -192,6 +195,9 @@
       <Filter>Manifest</Filter>
     </ClCompile>
     <ClCompile Include="Manifest\YamlParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AggregatedSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

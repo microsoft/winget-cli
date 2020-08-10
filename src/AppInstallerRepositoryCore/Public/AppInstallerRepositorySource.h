@@ -43,6 +43,9 @@ namespace AppInstaller::Repository
 
         // The origin of the source.
         SourceOrigin Origin = SourceOrigin::Default;
+
+        // If the source is an aggregated source
+        bool IsAggregated = false;
     };
 
     // Interface for interacting with a source from outside of the repository lib.

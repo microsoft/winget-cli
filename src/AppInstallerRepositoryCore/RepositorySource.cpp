@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerRepositorySource.h"
-#include <winget/UserSettings.h>
 
+#include "AggregatedSource.h"
 #include "SourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 
@@ -512,11 +512,37 @@ namespace AppInstaller::Repository
                 AICLI_LOG(Repo, Info, << "Default source requested, but no sources configured");
                 return {};
             }
+            else if(currentSources.size() == 1)
+            {
+                AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].Name);
+                return OpenSource(currentSources[0].Name, progress);
+            }
             else
             {
-                // TODO: Create aggregate source here.  For now, just get the first in the list.
-                AICLI_LOG(Repo, Info, << "Default source requested, using first source: " << currentSources[0].Name);
-                return OpenSource(currentSources[0].Name, progress);
+                AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, creating aggregated source.");
+                auto aggregatedSource = std::make_shared<AggregatedSource>();
+
+                bool sourceUpdated = false;
+                for (auto& source : currentSources)
+                {
+                    AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << source.Name);
+
+                    if (ShouldUpdateBeforeOpen(source))
+                    {
+                        // TODO: Consider adding a context callback to indicate we are doing the same action
+                        // to avoid the progress bar fill up multiple times.
+                        UpdateSourceFromDetails(source, progress);
+                        sourceUpdated = true;
+                    }
+                    aggregatedSource->AddSource(CreateSourceFromDetails(source, progress));
+                }
+
+                if (sourceUpdated)
+                {
+                    SetMetadata(currentSources);
+                }
+
+                return aggregatedSource;
             }
         }
         else
@@ -596,6 +622,20 @@ namespace AppInstaller::Repository
                 break;
             default:
                 THROW_HR(E_UNEXPECTED);
+            }
+
+            // Add back tombstoned default sources, otherwise the info will be lost by SetSourcesByOrigin
+            auto defaultSources = GetSourcesByOrigin(SourceOrigin::Default);
+            for (const auto& defaultSource : defaultSources)
+            {
+                if (FindSourceByName(currentSources, defaultSource.Name) == currentSources.end())
+                {
+                    SourceDetailsInternal tombstone;
+                    tombstone.Name = defaultSource.Name;
+                    tombstone.IsTombstone = true;
+                    tombstone.Origin = SourceOrigin::User;
+                    currentSources.emplace_back(std::move(tombstone));
+                }
             }
 
             SetSourcesByOrigin(SourceOrigin::User, currentSources);
