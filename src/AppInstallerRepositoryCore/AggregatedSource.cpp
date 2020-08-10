@@ -58,12 +58,12 @@ namespace AppInstaller::Repository
             {
                 if (match1.MatchCriteria.Type != match2.MatchCriteria.Type)
                 {
-                    return (static_cast<int>(match2.MatchCriteria.Type) - static_cast<int>(match1.MatchCriteria.Type)) > 0;
+                    return match2.MatchCriteria.Type > match1.MatchCriteria.Type;
                 }
 
                 if (match1.MatchCriteria.Field != match2.MatchCriteria.Field)
                 {
-                    return (static_cast<int>(match2.MatchCriteria.Field) - static_cast<int>(match1.MatchCriteria.Field)) > 0;
+                    return match2.MatchCriteria.Field > match1.MatchCriteria.Field;
                 }
 
                 return false;
