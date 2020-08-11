@@ -196,6 +196,12 @@ namespace AppInstaller::Manifest
 
     std::vector<ValidationError> YamlParser::ParseManifest(const YAML::Node& rootNode, Manifest& manifest, bool fullValidation)
     {
+        // Detects empty files with a better error.
+        if (!rootNode.IsMap())
+        {
+            THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST), "The manifest does not contain a valid root.");
+        }
+
         // Detect manifest version first to determine expected fields
         // Use index to access ManifestVersion directly. If there're duplicates or other general errors, it'll be detected in later
         // processing of iterating the whole manifest.
