@@ -22,8 +22,13 @@ namespace AppInstallerCLIE2ETests
 
             // Validate invalid yaml
             result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestInvalidManifest.yaml"));
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_MANIFEST_VALIDATION_FAILURE, result.ExitCode);
             Assert.True(result.StdOut.Contains("Manifest validation failed."));
+
+            // Validate yaml with warning
+            result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestWarningManifest.yaml"));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_MANIFEST_VALIDATION_WARNING, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Manifest validation succeeded with warnings."));
 
             // Input file not found
             result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\DoesNotExist"));

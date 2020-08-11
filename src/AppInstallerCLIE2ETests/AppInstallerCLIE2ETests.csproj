@@ -15,13 +15,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="TestData\Manifests\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="TestData\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="TestData\Manifests\TestWarningManifest.yaml" />
   </ItemGroup>
 
   <ItemGroup>

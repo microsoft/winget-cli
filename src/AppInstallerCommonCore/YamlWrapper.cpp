@@ -309,8 +309,9 @@ namespace AppInstaller::YAML::Wrapper
         }
 
         // Check for BOM-less UTF-16 LE
-        INT tests = IS_TEXT_UNICODE_UNICODE_MASK;
-        if (IsTextUnicode(m_input.data(), wil::safe_cast<int>(m_input.size()), &tests))
+        INT expectedTests = IS_TEXT_UNICODE_ASCII16 | IS_TEXT_UNICODE_STATISTICS | IS_TEXT_UNICODE_CONTROLS;
+        INT testResults = expectedTests;
+        if (IsTextUnicode(m_input.data(), wil::safe_cast<int>(m_input.size()), &testResults) || testResults == expectedTests)
         {
             AICLI_LOG(YAML, Verbose, << "Detected UTF-16 LE");
             yaml_parser_set_encoding(&m_parser, YAML_UTF16LE_ENCODING);
@@ -318,8 +319,9 @@ namespace AppInstaller::YAML::Wrapper
         }
 
         // Check for BOM-less UTF-16 BE
-        tests = IS_TEXT_UNICODE_REVERSE_MASK;
-        if (IsTextUnicode(m_input.data(), wil::safe_cast<int>(m_input.size()), &tests))
+        expectedTests = IS_TEXT_UNICODE_REVERSE_ASCII16 | IS_TEXT_UNICODE_REVERSE_STATISTICS | IS_TEXT_UNICODE_REVERSE_CONTROLS;
+        testResults = expectedTests;
+        if (IsTextUnicode(m_input.data(), wil::safe_cast<int>(m_input.size()), &testResults) || testResults == expectedTests)
         {
             AICLI_LOG(YAML, Verbose, << "Detected UTF-16 BE");
             yaml_parser_set_encoding(&m_parser, YAML_UTF16BE_ENCODING);

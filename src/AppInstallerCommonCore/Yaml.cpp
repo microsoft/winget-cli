@@ -302,6 +302,7 @@ namespace AppInstaller::YAML
     Node Load(const std::filesystem::path& input)
     {
         std::ifstream stream(input, std::ios_base::in | std::ios_base::binary);
+        THROW_LAST_ERROR_IF(stream.fail());
         return Load(stream);
     }
 
