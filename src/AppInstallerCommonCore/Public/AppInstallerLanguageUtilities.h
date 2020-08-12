@@ -23,13 +23,13 @@ namespace AppInstaller
         ResetWhenMovedFrom(const ResetWhenMovedFrom&) = delete;
         ResetWhenMovedFrom& operator=(const ResetWhenMovedFrom&) = delete;
 
-        ResetWhenMovedFrom(ResetWhenMovedFrom&& other) :
+        ResetWhenMovedFrom(ResetWhenMovedFrom&& other) noexcept :
             m_var(std::move(other.m_var))
         {
             other.m_var = T{};
         }
 
-        ResetWhenMovedFrom& operator=(ResetWhenMovedFrom&& other)
+        ResetWhenMovedFrom& operator=(ResetWhenMovedFrom&& other) noexcept
         {
             m_var = std::move(other.m_var);
             other.m_var = T{};

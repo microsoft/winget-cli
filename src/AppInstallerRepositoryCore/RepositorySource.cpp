@@ -80,7 +80,7 @@ namespace AppInstaller::Repository
             {
                 document = YAML::Load(settingValue);
             }
-            catch (const std::runtime_error& e)
+            catch (const std::exception& e)
             {
                 AICLI_LOG(YAML, Error, << "Setting '" << settingName << "' contained invalid YAML (" << e.what() << "):\n" << settingValue);
                 return false;
@@ -88,7 +88,7 @@ namespace AppInstaller::Repository
 
             try
             {
-                YAML::Node sources = document[std::string{ rootName }];
+                YAML::Node sources = document[rootName];
                 if (!sources)
                 {
                     AICLI_LOG(Repo, Error, << "Setting '" << settingName << "' did not contain the expected format (missing " << rootName << "):\n" << settingValue);
@@ -107,7 +107,7 @@ namespace AppInstaller::Repository
                     return false;
                 }
 
-                for (const auto& source : sources)
+                for (const auto& source : sources.Sequence())
                 {
                     SourceDetailsInternal details;
                     if (!parse(details, settingValue, source))
@@ -118,7 +118,7 @@ namespace AppInstaller::Repository
                     result.emplace_back(std::move(details));
                 }
             }
-            catch (const std::runtime_error& e)
+            catch (const std::exception& e)
             {
                 AICLI_LOG(YAML, Error, << "Setting '" << settingName << "' contained unexpected YAML (" << e.what() << "):\n" << settingValue);
                 return false;
@@ -268,12 +268,6 @@ namespace AppInstaller::Repository
             return result;
         }
 
-        // Make up for the lack of string_view support in YAML CPP.
-        YAML::Emitter& operator<<(YAML::Emitter& out, std::string_view sv)
-        {
-            return (out << std::string(sv));
-        }
-
         // Sets the sources for a particular setting, from a particular origin.
         void SetSourcesToSettingWithFilter(const Settings::StreamDefinition& setting, SourceOrigin origin, const std::vector<SourceDetailsInternal>& sources)
         {
@@ -299,7 +293,7 @@ namespace AppInstaller::Repository
             out << YAML::EndSeq;
             out << YAML::EndMap;
 
-            Settings::SetSetting(setting, out.c_str());
+            Settings::SetSetting(setting, out.str());
         }
 
         // Sets the metadata only (which is not a secure setting and can be set unprivileged)
@@ -321,7 +315,7 @@ namespace AppInstaller::Repository
             out << YAML::EndSeq;
             out << YAML::EndMap;
 
-            Settings::SetSetting(Settings::Streams::SourcesMetadata, out.c_str());
+            Settings::SetSetting(Settings::Streams::SourcesMetadata, out.str());
         }
 
         // Sets the sources for a given origin.

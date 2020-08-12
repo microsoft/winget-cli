@@ -147,6 +147,7 @@ private:
 
 void TestManifest(const std::filesystem::path& manifestPath, const std::string& expectedMessage = {}, bool expectedWarningOnly = false)
 {
+    INFO(manifestPath.u8string());
     if (expectedMessage.empty())
     {
         CHECK_NOTHROW(YamlParser::CreateFromPath(TestDataFile(manifestPath), true, true));
@@ -231,5 +232,26 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
     for (auto const& testCase : TestCases)
     {
         TestManifest(testCase.TestFile, testCase.ExpectedMessage, testCase.IsWarningOnly);
+    }
+}
+
+TEST_CASE("ManifestEncoding", "[ManifestValidation]")
+{
+    ManifestTestCase TestCases[] =
+    {
+        { "Manifest-Encoding-ANSI.yaml" },
+        { "Manifest-Encoding-UTF8.yaml" },
+        { "Manifest-Encoding-UTF8-BOM.yaml" },
+        { "Manifest-Encoding-UTF16BE.yaml" },
+        { "Manifest-Encoding-UTF16BE-BOM.yaml" },
+        { "Manifest-Encoding-UTF16LE.yaml" },
+        { "Manifest-Encoding-UTF16LE-BOM.yaml" },
+    };
+
+    for (auto const& testCase : TestCases)
+    {
+        INFO(testCase.TestFile);
+        Manifest manifest = YamlParser::CreateFromPath(TestDataFile(testCase.TestFile), true, true);
+        REQUIRE(manifest.Name == u8"MSIX SDK\xA9");
     }
 }
