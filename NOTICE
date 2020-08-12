@@ -178,46 +178,6 @@ DEALINGS IN THE SOFTWARE.
 
 ---------------------------------------------------------
 
-jbeder/yaml-cpp 9a3624205e8774953ef18f57067b3426c1c5ada6 - MIT
-
-
-(c) 2008 Google Inc.
-Copyright 2003 Google Inc.
-Copyright 2005 Google Inc.
-Copyright 2007 Google Inc.
-Copyright 2008 Google Inc.
-Copyright 2009 Google Inc.
-Copyright 2010 Google Inc.
-Copyright 2013 Google Inc.
-Copyright 2003, Google Inc.
-Copyright 2005, Google Inc.
-Copyright 2006, Google Inc.
-Copyright 2007 Neal Norwitz
-Copyright 2007, Google Inc.
-Copyright 2008, Google Inc.
-Copyright 2009 Neal Norwitz
-Copyright 2009, Google Inc.
-Copyright 2010, Google Inc.
-Copyright 2013, Google Inc.
-Copyright 2015, Google Inc.
-Portions Copyright 2007 Google Inc.
-Portions Copyright 2009 Google Inc.
-Copyright (c) 2008-2015 Jesse Beder.
-
-MIT License
-
-Copyright (c) <year> <copyright holders>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
----------------------------------------------------------
-
----------------------------------------------------------
-
 Microsoft.NETCore.Platforms 3.1.0 - MIT
 
 
@@ -326,7 +286,7 @@ SOFTWARE.
 
 ---------------------------------------------------------
 
-Microsoft.Windows.CppWinRT 2.0.191202.6 - MIT
+Microsoft.Windows.CppWinRT 2.0.191111.2 - MIT
 
 
 (c) 2008 VeriSign, Inc.
@@ -360,7 +320,7 @@ Copyright (c) Microsoft Corporation.
 
 ---------------------------------------------------------
 
-Microsoft.Windows.CppWinRT 2.0.191111.2 - MIT
+Microsoft.Windows.CppWinRT 2.0.191202.6 - MIT
 
 
 (c) 2008 VeriSign, Inc.
@@ -643,6 +603,38 @@ in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
+yaml/libyaml 2c891fc7a770e8ba2fec34fc6b545c672beb37e6 - MIT
+
+
+Copyright (c) 2006-2016 Kirill Simonov
+Copyright (c) 2006-2016 Kirill Simonov <xi@resolvent.net>
+
+Copyright (c) 2017-2020 Ingy döt Net
+Copyright (c) 2006-2016 Kirill Simonov
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
