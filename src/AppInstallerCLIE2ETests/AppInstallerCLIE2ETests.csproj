@@ -21,10 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="TestData\Manifests\TestWarningManifest.yaml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Test.runsettings">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

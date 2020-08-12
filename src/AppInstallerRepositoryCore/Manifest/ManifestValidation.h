@@ -86,7 +86,7 @@ namespace AppInstaller::Manifest
             {
                 if (m_errors.empty())
                 {
-                    // Syntax error, yaml-cpp error is stored in FailureInfo
+                    // Syntax error, yaml parser error is stored in FailureInfo
                     m_manifestErrorMessage = Utility::ConvertToUTF8(GetFailureInfo().pszMessage);
                 }
                 else

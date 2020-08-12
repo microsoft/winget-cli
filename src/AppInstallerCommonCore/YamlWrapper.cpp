@@ -82,6 +82,7 @@ namespace AppInstaller::YAML::Wrapper
     {
         if (init)
         {
+            // Initialize with no version directive or tags, and implicit start and end.
             if (!yaml_document_initialize(&m_document, NULL, NULL, NULL, 1, 1))
             {
                 THROW_HR(APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED);
@@ -162,7 +163,7 @@ namespace AppInstaller::YAML::Wrapper
                 if (child < stackItem.yamlNode->data.mapping.pairs.top)
                 {
                     yaml_node_t* keyYamlNode = GetNode(child->key);
-                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_MAPPING_KEY, keyYamlNode->type != YAML_SCALAR_NODE);
+                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INVALID_MAPPING_KEY, keyYamlNode->type != YAML_SCALAR_NODE);
 
                     Node keyNode(ConvertNodeType(keyYamlNode->type), ConvertYamlString(keyYamlNode->tag), ConvertMark(keyYamlNode->start_mark));
                     keyNode.SetScalar(ConvertScalarToString(keyYamlNode));

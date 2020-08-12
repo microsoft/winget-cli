@@ -6,6 +6,7 @@
 #include "YamlWrapper.h"
 #include "AppInstallerErrors.h"
 #include "AppInstallerLogging.h"
+#include "AppInstallerStrings.h"
 
 
 namespace AppInstaller::YAML
@@ -165,7 +166,7 @@ namespace AppInstaller::YAML
 
         Node& result = itrs.first->second;
 
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_DUPLICATE_MAPPING_KEY, ++itrs.first != itrs.second);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY, ++itrs.first != itrs.second);
 
         return result;
     }
@@ -182,7 +183,7 @@ namespace AppInstaller::YAML
 
         const Node& result = itrs.first->second;
 
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_DUPLICATE_MAPPING_KEY, ++itrs.first != itrs.second);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY, ++itrs.first != itrs.second);
 
         return result;
     }
@@ -233,11 +234,6 @@ namespace AppInstaller::YAML
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INVALID_OPERATION, m_type != type);
     }
 
-    void Node::Require(Type type1, Type type2) const
-    {
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INVALID_OPERATION, m_type != type1 && m_type != type2);
-    }
-
     std::string Node::as_dispatch(std::string*) const
     {
         return m_scalar;
@@ -250,11 +246,11 @@ namespace AppInstaller::YAML
 
     bool Node::as_dispatch(bool*) const
     {
-        if (m_scalar == "true")
+        if (Utility::CaseInsensitiveEquals(m_scalar, "true"))
         {
             return true;
         }
-        else if (m_scalar == "false")
+        else if (Utility::CaseInsensitiveEquals(m_scalar, "false"))
         {
             return false;
         }

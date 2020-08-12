@@ -135,7 +135,6 @@ namespace AppInstaller::YAML
 
         // Require certain node types to; throwing if the requirement is not met.
         void Require(Type type) const;
-        void Require(Type type1, Type type2) const;
 
         // The workers for the as function.
         std::string as_dispatch(std::string*) const;

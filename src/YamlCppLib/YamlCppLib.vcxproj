@@ -56,6 +56,9 @@
     <ClInclude Include="libyaml\include\yaml.h" />
     <ClInclude Include="libyaml\src\yaml_private.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="readme.md" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
