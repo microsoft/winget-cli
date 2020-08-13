@@ -12,9 +12,6 @@ namespace AppInstallerCLIE2ETests
     public class SetUpFixture
     {
         private static bool ShouldDisableDevModeOnExit = true;
-        //Need to remove 
-        private const string SourceTestSourceUrl = @"https://winget-int.azureedge.net/cache";
-        private const string SourceTestSourceName = @"SourceTestSource";
 
         [OneTimeSetUp]
         public void Setup()

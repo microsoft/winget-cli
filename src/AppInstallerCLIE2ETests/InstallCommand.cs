@@ -4,20 +4,13 @@
 namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
-    using System;
     using System.IO;
 
     public class InstallCommand
     {
-        // Todo: this should point to a loopback address. Disabling the install tests until we have loopback support done in our e2e tests.
         // Todo: add unicode test cases after install tests are enabled.
-        private const string InstallTestSourceUrl = @"https://github.com/microsoft/appinstaller-cli/raw/master/src/AppInstallerCLIE2ETests/TestData";
+        private const string InstallTestSourceUrl = @"https://localhost:5001/TestKit/";
         private const string InstallTestSourceName = @"InstallTestSource";
-
-
-        // Todo: Change to relative path for future testing
-        private const string InstallTestLocalFile = @"C:\Users\ryfu\source\repos\winget-cli\src\AppInstallerCLIE2ETests\TestData";
-        private const string InstallTestLocalSourceName = @"TestLocalSource";
 
         private const string InstallTestExeInstalledFile = @"TestExeInstalled.txt";
         private const string InstallTestMsiInstalledFile = @"AppInstallerTestExeInstaller.exe";
@@ -27,15 +20,13 @@ namespace AppInstallerCLIE2ETests
         [SetUp]
         public void Setup()
         {
-           //Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{InstallTestSourceName} {InstallTestSourceUrl}").ExitCode);
-           Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{InstallTestLocalSourceName} {InstallTestLocalFile}").ExitCode);
+           Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{InstallTestSourceName} {InstallTestSourceUrl}").ExitCode);
         }
 
         [TearDown]
         public void TearDown()
         {
-            //TestCommon.RunAICLICommand("source remove", InstallTestSourceName);
-            TestCommon.RunAICLICommand("source remove", InstallTestLocalSourceName);
+            TestCommon.RunAICLICommand("source remove", InstallTestSourceName);
             TestCommon.WaitForDeploymentFinish();
         }
 
@@ -52,10 +43,10 @@ namespace AppInstallerCLIE2ETests
         public void MultipleAppsMatchQuery()
         {
             // Too many apps match the query
-            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest");
+            var result = TestCommon.RunAICLICommand("install", "TestMultipleAppFoundInstaller");
             Assert.AreEqual(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Multiple apps found matching input criteria. Please refine the input."));
-        }        
+            Assert.True(result.StdOut.Contains("Multiple packages found matching input criteria. Please refine the input."));
+        }
 
         [Test]
         public void InstallTestExe()
@@ -75,7 +66,7 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"InapplicableOsVersion --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_OLD_WIN_VERSION, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Cannot install application, as it requires a higher version of Windows"));
+            Assert.True(result.StdOut.Contains("Cannot install package, as it requires a higher version of Windows"));
             Assert.False(VerifyTestExeInstalled(installDir));
         }
 
@@ -86,7 +77,7 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"TestExeSha256Mismatch --silent -l {installDir}", "N");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALLER_HASH_MISMATCH, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Installer hash mismatch"));
+            Assert.True(result.StdOut.Contains("Installer hash does not match"));
             Assert.False(VerifyTestExeInstalled(installDir));
         }
 

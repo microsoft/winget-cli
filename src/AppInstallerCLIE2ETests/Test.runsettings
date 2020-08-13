@@ -14,13 +14,15 @@
        LooseFileRegistration: Bool to set if loose file registration should be used.
        InvokeCommandInDesktopPackage: Bool to indicate using Invoke-CommandInDesktopPackage for test execution.
                                       This is used when AppExecutionAlias is not available, or disabled.
+       StaticFileRoot: Root to testing directory containing source.msix file and directory of manifests for testing
   -->
   <TestRunParameters>
     <Parameter name="PackagedContext" value="false" />
     <Parameter name="VerboseLogging" value="false" />
-    <Parameter name="AICLIPath" value="C:\Users\ryfu\Source\Repos\winget-cli\src\x64\Debug\AppInstallerCLI\AppInstallerCLI.exe" />
+    <Parameter name="AICLIPath" value="C:\Users\ryfu\Source\Repos\winget-cli\src\x64\Debug\AppInstallerCLI\AppInstallerCLI" />
     <Parameter name="AICLIPackagePath" value="AppInstallerCLIPackage.appxbundle" />
     <Parameter name="LooseFileRegistration" value="false" />
-    <Parameter name="InvokeCommandInDesktopPackage" value="false" />
+    <Parameter name="InvokeCommandInDesktopPackage" value="true" />
+	<Parameter name="StaticFileRoot" value="C:\Users\ryfu\source\repos\winget-cli\src\AppInstallerCLIE2ETests\TestData" />
   </TestRunParameters>
 </RunSettings>
