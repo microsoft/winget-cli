@@ -23,7 +23,7 @@ namespace AppInstallerCLIE2ETests
 
         public static bool InvokeCommandInDesktopPackage { get; set; }
 
-        public static string StaticFileRootParameter { get; set }
+        public static string StaticFileRootParameter { get; set; }
 
         public struct RunCommandResult
         {
