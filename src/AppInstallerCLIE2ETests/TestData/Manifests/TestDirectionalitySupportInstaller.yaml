@@ -1,7 +1,8 @@
-Id: TestInvalidManifest TestInvalidManifest
-Name: TestInvalidManifest
+Id: AppInstallerTest.TestDirectionalitySupportInstaller
+Name: TestDirectionalitySupportInstaller
 Version: 1.0.0.0
-Publisher: AppInstallerTest
+Publisher: أنا اختبار إدخال النص في لغات مختلفة 01 لأحد منتجات Microsoft
+Description: أنا اختبار إدخال النص في لغات مختلفة 01 لأحد منتجات Microsoft
 License: Test
 Installers:
   - Arch: x86

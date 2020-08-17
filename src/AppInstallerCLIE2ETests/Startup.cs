@@ -44,7 +44,7 @@
             //Enable static file serving
             app.UseStaticFiles(new StaticFileOptions
             {
-                FileProvider = new PhysicalFileProvider(TestCommon.StaticFileRootParameter),
+                FileProvider = new PhysicalFileProvider(@"C:\Users\ryfu\Source\Repos\winget-cli\src"),
                 RequestPath = StaticFileRequestPath,
                 ContentTypeProvider = provider,
             });

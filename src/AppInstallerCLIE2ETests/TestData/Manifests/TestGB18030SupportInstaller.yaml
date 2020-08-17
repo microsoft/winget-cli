@@ -1,7 +1,8 @@
-Id: TestInvalidManifest TestInvalidManifest
-Name: TestInvalidManifest
+Id: AppInstallerTest.GB18030TestInstaller
+Name: GB18030TestInstaller
 Version: 1.0.0.0
-Publisher: AppInstallerTest
+Publisher: 丂令龥€￥
+Description: 丂令龥€￥ 㐀㲷䶵 𠀀𠀁𠀂
 License: Test
 Installers:
   - Arch: x86
