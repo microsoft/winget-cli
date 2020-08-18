@@ -23,6 +23,5 @@
     <Parameter name="AICLIPackagePath" value="AppInstallerCLIPackage.appxbundle" />
     <Parameter name="LooseFileRegistration" value="false" />
     <Parameter name="InvokeCommandInDesktopPackage" value="true" />
-	<Parameter name="StaticFileRoot" value="C:\Users\ryfu\Source\Repos\winget-cli\src" />
   </TestRunParameters>
 </RunSettings>

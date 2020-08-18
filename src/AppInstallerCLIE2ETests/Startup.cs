@@ -1,4 +1,8 @@
-﻿namespace AppInstallerCLIE2ETests
+﻿using System;
+using System.IO;
+using System.Text;
+
+namespace AppInstallerCLIE2ETests
 {
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -7,6 +11,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.FileProviders;
     using Microsoft.Extensions.Hosting;
+    using NUnit.Framework;
 
     public class Startup
     {
@@ -26,7 +31,6 @@
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -44,7 +48,7 @@
             //Enable static file serving
             app.UseStaticFiles(new StaticFileOptions
             {
-                FileProvider = new PhysicalFileProvider(@"C:\Users\ryfu\Source\Repos\winget-cli\src"),
+                FileProvider = new PhysicalFileProvider(TestCommon.StaticFileRoot),
                 RequestPath = StaticFileRequestPath,
                 ContentTypeProvider = provider,
             });
