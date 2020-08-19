@@ -83,6 +83,8 @@ namespace AppInstaller::Manifest
         case ManifestInstaller::InstallerTypeEnum::MSStore:
             result = "MSStore";
             break;
+        default:
+            break;
         }
 
         return result;

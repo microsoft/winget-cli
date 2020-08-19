@@ -103,15 +103,19 @@ namespace AppInstaller::Utility
 
     Version::Part::Part(const std::string& part)
     {
-        size_t end = 0;
-        try
+        const char* begin = part.c_str();
+        char* end = nullptr;
+        errno = 0;
+        Integer = strtoull(begin, &end, 10);
+
+        if (errno == ERANGE)
         {
-            Integer = std::stoull(part, &end);
+            Integer = 0;
+            Other = part;
         }
-        CATCH_LOG();
-        if (end != part.length())
+        else if (static_cast<size_t>(end - begin) != part.length())
         {
-            Other = part.substr(end);
+            Other = end;
         }
     }
 

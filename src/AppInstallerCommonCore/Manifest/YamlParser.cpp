@@ -43,7 +43,7 @@ namespace AppInstaller::Manifest
     {
         RootFieldInfos =
         {
-            { "ManifestVersion", PreviewManifestVersion, [this](const YAML::Node&) { /* ManifestVersion already processed */ }, false,
+            { "ManifestVersion", PreviewManifestVersion, [](const YAML::Node&) { /* ManifestVersion already processed */ }, false,
             // Regex here is to prevent leading 0s in the version, this also keeps consistent with other versions in the manifest
             "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){2}$" },
             { "Id", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->Id = value.as<std::string>(); Utility::Trim(m_p_manifest->Id); }, true, "^[\\S]+\\.[\\S]+$" },
@@ -434,7 +434,8 @@ namespace AppInstaller::Manifest
                 {ManifestInstaller::InstallerSwitchType::Log, ManifestInstaller::string_t("/LOG=\"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
                 {ManifestInstaller::InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("/DIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
             };
+        default:
+            return {};
         }
-        return {};
     }
 }

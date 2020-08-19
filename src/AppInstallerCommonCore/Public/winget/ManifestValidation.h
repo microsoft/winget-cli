@@ -68,7 +68,7 @@ namespace AppInstaller::Manifest
     struct ManifestException : public wil::ResultException
     {
         ManifestException(std::vector<ValidationError>&& errors = {}, HRESULT hr = APPINSTALLER_CLI_ERROR_MANIFEST_FAILED) :
-            m_errors(std::move(errors)), wil::ResultException(hr)
+            wil::ResultException(hr), m_errors(std::move(errors))
         {
             auto p = [&](ValidationError const& e) {
                 return e.ErrorLevel == ValidationError::Level::Error;
