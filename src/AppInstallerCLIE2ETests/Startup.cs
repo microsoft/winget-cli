@@ -1,6 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Text;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 namespace AppInstallerCLIE2ETests
 {
@@ -11,7 +10,6 @@ namespace AppInstallerCLIE2ETests
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.FileProviders;
     using Microsoft.Extensions.Hosting;
-    using NUnit.Framework;
 
     public class Startup
     {

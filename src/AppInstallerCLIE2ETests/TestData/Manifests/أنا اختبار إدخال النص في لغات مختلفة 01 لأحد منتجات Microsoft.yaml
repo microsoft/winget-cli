@@ -1,8 +1,8 @@
-Id: AppInstallerTest.GB18030TestInstaller
-Name: 丂令龥€￥ 㐀㲷䶵 𠀀𠀁𠀂
+Id: AppInstallerTest.TestDirectionalitySupportInstaller
+Name:  أنا اختبار إدخال النص في لغات مختلفة 01 لأحد منتجات Microsoft
 Version: 1.0.0.0
-Publisher: 丂令龥€￥ 㐀㲷䶵 𠀀𠀁𠀂
-Description: 丂令龥€￥ 㐀㲷䶵 𠀀𠀁𠀂
+Publisher: أنا اختبار إدخال النص في لغات مختلفة 01 لأحد منتجات Microsoft
+Description: أنا اختبار إدخال النص في لغات مختلفة 01 لأحد منتجات Microsoft
 License: Test
 Installers:
   - Arch: x86
