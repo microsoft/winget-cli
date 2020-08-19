@@ -4,7 +4,7 @@
 #include <AppInstallerLogging.h>
 #include <AppInstallerRepositorySearch.h>
 #include <AppInstallerRepositorySource.h>
-#include <Manifest/Manifest.h>
+#include <winget/Manifest.h>
 #include "ExecutionReporter.h"
 #include "ExecutionArgs.h"
 #include "CompletionData.h"

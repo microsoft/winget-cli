@@ -53,6 +53,8 @@
 #include <limits>
 #include <memory>
 #include <ostream>
+#include <regex>
+#include <set>
 #include <string>
 #include <sstream>
 #include <stack>

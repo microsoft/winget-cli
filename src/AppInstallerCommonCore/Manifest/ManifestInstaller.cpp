@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #include "pch.h"
-#include "ManifestInstaller.h"
+#include "winget/ManifestInstaller.h"
 
 namespace AppInstaller::Manifest
 {

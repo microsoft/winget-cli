@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "YamlParser.h"
+#include "AppInstallerSHA256.h"
+#include "winget/Yaml.h"
+#include "winget/ManifestYamlParser.h"
 
 namespace AppInstaller::Manifest
 {

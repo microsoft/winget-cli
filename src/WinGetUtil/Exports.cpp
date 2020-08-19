@@ -8,8 +8,8 @@
 #include <AppInstallerLogging.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerTelemetry.h>
-#include <Manifest/YamlParser.h>
 #include <Microsoft/SQLiteIndex.h>
+#include <winget/ManifestYamlParser.h>
 
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;

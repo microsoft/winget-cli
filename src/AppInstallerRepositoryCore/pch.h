@@ -40,7 +40,6 @@
 #include <initializer_list>
 #include <iomanip>
 #include <optional>
-#include <regex>
 #include <set>
 #include <string>
 #include <string_view>

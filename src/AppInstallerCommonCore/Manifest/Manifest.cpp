@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Manifest.h"
-#include "ManifestValidation.h"
+#include "winget/Manifest.h"
+#include "winget/ManifestValidation.h"
 
 namespace AppInstaller::Manifest
 {

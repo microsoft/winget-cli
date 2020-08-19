@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
-#include <Manifest/YamlParser.h>
 #include <Microsoft/SQLiteIndexSource.h>
+#include <winget/ManifestYamlParser.h>
 
 using namespace std::string_literals;
 using namespace TestCommon;

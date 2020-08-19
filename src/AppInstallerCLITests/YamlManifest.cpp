@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
-#include "Manifest/YamlParser.h"
-#include "AppInstallerSHA256.h"
+#include <AppInstallerSHA256.h>
+#include <winget/ManifestYamlParser.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::Manifest;

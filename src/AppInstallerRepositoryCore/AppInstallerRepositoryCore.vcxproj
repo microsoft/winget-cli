@@ -174,11 +174,6 @@
   <ItemGroup>
     <ClInclude Include="AggregatedSource.h" />
     <ClInclude Include="ICU\SQLiteICU.h" />
-    <ClInclude Include="Manifest\Manifest.h" />
-    <ClInclude Include="Manifest\ManifestInstaller.h" />
-    <ClInclude Include="Manifest\ManifestLocalization.h" />
-    <ClInclude Include="Manifest\YamlParser.h" />
-    <ClInclude Include="Manifest\ManifestValidation.h" />
     <ClInclude Include="Microsoft\PreIndexedPackageSourceFactory.h" />
     <ClInclude Include="Microsoft\Schema\1_0\ChannelTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\CommandsTable.h" />
@@ -218,10 +213,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Manifest\Manifest.cpp" />
-    <ClCompile Include="Manifest\ManifestInstaller.cpp" />
-    <ClCompile Include="Manifest\YamlParser.cpp" />
-    <ClCompile Include="Manifest\ManifestValidation.cpp" />
     <ClCompile Include="Microsoft\PreIndexedPackageSourceFactory.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\Interface.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\ManifestTable.cpp" />
