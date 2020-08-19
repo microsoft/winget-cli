@@ -6,7 +6,7 @@
 #include <windows.h>
 #include <shellapi.h>
 #include <WinInet.h>
-
+#include <iterator>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Management.Deployment.h>
@@ -29,6 +29,7 @@
 #include <sstream>
 #include <string_view>
 #include <vector>
+
 
 #include <yaml-cpp\yaml.h>
 

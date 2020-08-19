@@ -23,6 +23,8 @@ namespace AppInstallerCLIE2ETests
 
         public static bool InvokeCommandInDesktopPackage { get; set; }
 
+        public static string StaticFileRoot { get; set; }
+
         public struct RunCommandResult
         {
             public int ExitCode;

@@ -12,6 +12,7 @@ namespace AppInstallerCLIE2ETests
         public const string VerboseLoggingParameter = "VerboseLogging";
         public const string LooseFileRegistrationParameter = "LooseFileRegistration";
         public const string InvokeCommandInDesktopPackageParameter = "InvokeCommandInDesktopPackage";
+        public const string StaticFileRootParameter = "StaticFileRoot";
 
         public const string AppInstallerTestCert = "AppInstallerTest.cer";
         public const string AppInstallerTestCertThumbprint = "d03e7a688b388b1edde8476a627531c49db88017";

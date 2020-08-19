@@ -5,8 +5,8 @@ Publisher: AppInstallerTest
 License: Test
 Installers:
   - Arch: x86
-    Url: https://github.com/microsoft/appinstaller-cli/raw/master/src/AppInstallerCLIE2ETests/TestData/AppInstallerTestMsixInstaller.msix
-    Sha256: 714c861a52478bfa44228739c500c9429f4e75c7b78d48cac06bfb8f62bad627
-    SignatureSha256: d8a54b79a9c5956df5b338fdaf37f48e56316465defd182cbe64d8e5d3d53d4e
+    Url: https://localhost:5001/TestKit/x86/Release/AppInstallerCLIE2ETests/TestData/AppInstallerTestMsixInstaller/AppInstallerTestMsixInstaller.msix
+    Sha256: 0e4cbceee6248e150f7d43e30ae7fc9740557b00442b8fe529c4d763ab90ae15
+    SignatureSha256: cc97d9b11bf271013a6c0de93da8983b6aa2505e70401bbe5bb33754b6e5d108
     InstallerType: msix
 ManifestVersion: 0.1.0

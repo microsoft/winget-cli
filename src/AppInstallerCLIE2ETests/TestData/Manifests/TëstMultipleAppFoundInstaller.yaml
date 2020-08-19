@@ -1,12 +1,12 @@
-Id: TestInvalidManifest TestInvalidManifest
-Name: TestInvalidManifest
+Id: AppInstallerTest.TëstMultipleAppFoundInstaller
+Name: TestMultipleAppFoundInstaller
 Version: 1.0.0.0
 Publisher: AppInstallerTest
 License: Test
 Installers:
   - Arch: x86
     Url: https://localhost:5001/TestKit/x86/Release/AppInstallerCLIE2ETests/TestData/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
-    Sha256: 8a68b14a5a3f6721038734f0af9cf372c99365199c5e0b64b000ba751ecd7b6d
+    Sha256: 7c616e2fe3853b555ddea4cb50bd307da1dc47898a5fbc3a8646a470107802ab
     InstallerType: exe
     Switches:
       Custom: /execustom
