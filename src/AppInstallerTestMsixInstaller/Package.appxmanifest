@@ -9,7 +9,7 @@
   <Identity
     Name="6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e"
     Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
-    Version="1.1.1.0" />
+    Version="1.0.0.0" />
 
   <Properties>
     <DisplayName>AppInstallerTestMsixInstaller</DisplayName>

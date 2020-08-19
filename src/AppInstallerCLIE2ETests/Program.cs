@@ -1,12 +1,10 @@
-﻿
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 namespace AppInstallerCLIE2ETests
 {
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.StaticFiles;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.FileProviders;
     using Microsoft.Extensions.Hosting;
 	using System;
 
@@ -22,12 +20,9 @@ namespace AppInstallerCLIE2ETests
 			{
 				Console.WriteLine("Usage: AppInstallerCLIE2ETests <Path to Serve Static Root Directory>");
 				return;
-
 			}
-
 			CreateHostBuilder(args).Build().Run();
 		}
-
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
