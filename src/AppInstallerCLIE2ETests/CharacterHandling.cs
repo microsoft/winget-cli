@@ -4,24 +4,22 @@
 namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
-    using System.IO;
-    using System.Security.Cryptography.X509Certificates;
 
-    public class TextSupport
+    public class CharacterHandling
     {
-        private const string TextSupportTestSourceUrl = @"https://localhost:5001/TestKit/";
-        private const string TextSupportSourceName = @"TextSupportTestSource";
+        private const string CharacterHandlingTestSourceUrl = @"https://localhost:5001/TestKit/";
+        private const string CharacterHandlingSourceName = @"CharacterHandlingTestSource";
 
         [SetUp]
         public void Setup()
         {
-            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{TextSupportSourceName} {TextSupportTestSourceUrl}").ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{CharacterHandlingSourceName} {CharacterHandlingTestSourceUrl}").ExitCode);
         }
 
         [TearDown]
         public void TearDown()
         {
-            TestCommon.RunAICLICommand("source remove", TextSupportSourceName);
+            TestCommon.RunAICLICommand("source remove", CharacterHandlingSourceName);
             TestCommon.WaitForDeploymentFinish();
         }
 
@@ -44,7 +42,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void VerifyUnicodeSupport()
         {
-            var result = TestCommon.RunAICLICommand("show", $"丂令龥€￥ 㐀㲷䶵 𠀀𠀁𠀂 -s {TextSupportSourceName}");
+            var result = TestCommon.RunAICLICommand("show", $"丂令龥€￥ 㐀㲷䶵 𠀀𠀁𠀂 -s {CharacterHandlingSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("İkşzlerAçık芲偁ＡＢＣ巢für नमस्ते กุ้งจิ้яЧчŠš𠀀𠀁𠀂"));
         }
