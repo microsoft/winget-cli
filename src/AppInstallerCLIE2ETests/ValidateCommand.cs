@@ -30,7 +30,7 @@ namespace AppInstallerCLIE2ETests
         {
             // Validate invalid yaml
             var result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestInvalidManifest.yaml"));
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_MANIFEST_FAILED, result.ExitCode);
             Assert.True(result.StdOut.Contains("Manifest validation failed."));
         }
 
