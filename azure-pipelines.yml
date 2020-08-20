@@ -208,22 +208,9 @@ jobs:
 #    condition: succeededOrFailed()
 
   - task: UseDotNet@2
-    inputs:
-    version: '3.0.x'
-    packageType: runtime
-
-  - task: UseDotNet@2
     displayName: Run AppInstallerCLIE2ETests to Launch Kestrel LocalHost 
     inputs:
         arguments: 'src\x64\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll $(system.DefaultWorkingDirectory)' 
-
-  - task: PowerShell@2
-    displayName: Launch Kestrel Server
-    inputs:
-      targetType: 'inline'
-      script: |
-        cd "src/x64/Release/AppInstallerCLIE2ETests/"
-        dotnet .\AppInstallerCLIE2ETests.dll $(System.DefaultWorkingDirectory)
 
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x64
