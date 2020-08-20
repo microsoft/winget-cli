@@ -196,12 +196,12 @@ namespace AppInstaller::Repository
 
                 if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore))
                 {
-                    SourceDetailsInternal details;
-                    details.Name = s_Source_WingetMSStoreDefault_Name;
-                    details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-                    details.Arg = s_Source_WingetMSStoreDefault_Arg;
-                    details.Data = s_Source_WingetMSStoreDefault_Data;
-                    result.emplace_back(std::move(details));
+                    SourceDetailsInternal storeDetails;
+                    storeDetails.Name = s_Source_WingetMSStoreDefault_Name;
+                    storeDetails.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+                    storeDetails.Arg = s_Source_WingetMSStoreDefault_Arg;
+                    storeDetails.Data = s_Source_WingetMSStoreDefault_Data;
+                    result.emplace_back(std::move(storeDetails));
                 }
             }
                 break;
