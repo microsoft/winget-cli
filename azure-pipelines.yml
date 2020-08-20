@@ -210,7 +210,7 @@ jobs:
   - task: UseDotNet@2
     displayName: Run AppInstallerCLIE2ETests to Launch Kestrel LocalHost 
     inputs:
-        arguments: 'src\x64\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll $(system.DefaultWorkingDirectory)' 
+        arguments: 'src\x86\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll $(system.DefaultWorkingDirectory)' 
 
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x64
