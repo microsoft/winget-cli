@@ -18,8 +18,10 @@
 #include <AppInstallerSynchronization.h>
 #include <AppInstallerVersions.h>
 #include <winget/ExtensionCatalog.h>
+#include <winget/ExperimentalFeature.h>
 #include <winget/Settings.h>
-#include <yaml-cpp/yaml.h>
+#include <winget/UserSettings.h>
+#include <winget/Yaml.h>
 
 #include <wil/result_macros.h>
 
@@ -34,9 +36,12 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <initializer_list>
 #include <iomanip>
 #include <optional>
+#include <regex>
+#include <set>
 #include <string>
 #include <string_view>
 #include <sstream>
@@ -45,10 +50,7 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
-#include <functional>
-#include <regex>
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
-#include <functional>
 #include <map>
 #endif

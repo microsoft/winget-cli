@@ -41,9 +41,9 @@ namespace AppInstaller::Manifest
         std::string Message;
         std::string Field = {};
         std::string Value = {};
-        // line and column is 0 based
-        int Line = -1;
-        int Column = -1;
+        // line and column are 1 based
+        size_t Line = 0;
+        size_t Column = 0;
         Level ErrorLevel = Level::Error;
 
         ValidationError(std::string message) :
@@ -58,10 +58,10 @@ namespace AppInstaller::Manifest
         ValidationError(std::string message, std::string field, std::string value) :
             Message(std::move(message)), Field(std::move(field)), Value(std::move(value)) {}
 
-        ValidationError(std::string message, std::string field, std::string value, int line, int column) :
+        ValidationError(std::string message, std::string field, std::string value, size_t line, size_t column) :
             Message(std::move(message)), Field(std::move(field)), Value(std::move(value)), Line(line), Column(column) {}
 
-        ValidationError(std::string message, std::string field, std::string value, int line, int column, Level level) :
+        ValidationError(std::string message, std::string field, std::string value, size_t line, size_t column, Level level) :
             Message(std::move(message)), Field(std::move(field)), Value(std::move(value)), Line(line), Column(column), ErrorLevel(level) {}
     };
 
@@ -86,7 +86,7 @@ namespace AppInstaller::Manifest
             {
                 if (m_errors.empty())
                 {
-                    // Syntax error, yaml-cpp error is stored in FailureInfo
+                    // Syntax error, yaml parser error is stored in FailureInfo
                     m_manifestErrorMessage = Utility::ConvertToUTF8(GetFailureInfo().pszMessage);
                 }
                 else
@@ -111,9 +111,9 @@ namespace AppInstaller::Manifest
                         {
                             m_manifestErrorMessage += " Value: " + error.Value;
                         }
-                        if (error.Line >= 0 && error.Column >= 0)
+                        if (error.Line > 0 && error.Column > 0)
                         {
-                            m_manifestErrorMessage += " Line: " + std::to_string(error.Line + 1) + ", Column: " + std::to_string(error.Column + 1);
+                            m_manifestErrorMessage += " Line: " + std::to_string(error.Line) + ", Column: " + std::to_string(error.Column);
                         }
                         m_manifestErrorMessage += '\n';
                     }

@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerRepositorySource.h"
-#include <winget/UserSettings.h>
 
+#include "AggregatedSource.h"
 #include "SourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 
@@ -80,7 +80,7 @@ namespace AppInstaller::Repository
             {
                 document = YAML::Load(settingValue);
             }
-            catch (const std::runtime_error& e)
+            catch (const std::exception& e)
             {
                 AICLI_LOG(YAML, Error, << "Setting '" << settingName << "' contained invalid YAML (" << e.what() << "):\n" << settingValue);
                 return false;
@@ -88,7 +88,7 @@ namespace AppInstaller::Repository
 
             try
             {
-                YAML::Node sources = document[std::string{ rootName }];
+                YAML::Node sources = document[rootName];
                 if (!sources)
                 {
                     AICLI_LOG(Repo, Error, << "Setting '" << settingName << "' did not contain the expected format (missing " << rootName << "):\n" << settingValue);
@@ -107,7 +107,7 @@ namespace AppInstaller::Repository
                     return false;
                 }
 
-                for (const auto& source : sources)
+                for (const auto& source : sources.Sequence())
                 {
                     SourceDetailsInternal details;
                     if (!parse(details, settingValue, source))
@@ -118,7 +118,7 @@ namespace AppInstaller::Repository
                     result.emplace_back(std::move(details));
                 }
             }
-            catch (const std::runtime_error& e)
+            catch (const std::exception& e)
             {
                 AICLI_LOG(YAML, Error, << "Setting '" << settingName << "' contained unexpected YAML (" << e.what() << "):\n" << settingValue);
                 return false;
@@ -268,12 +268,6 @@ namespace AppInstaller::Repository
             return result;
         }
 
-        // Make up for the lack of string_view support in YAML CPP.
-        YAML::Emitter& operator<<(YAML::Emitter& out, std::string_view sv)
-        {
-            return (out << std::string(sv));
-        }
-
         // Sets the sources for a particular setting, from a particular origin.
         void SetSourcesToSettingWithFilter(const Settings::StreamDefinition& setting, SourceOrigin origin, const std::vector<SourceDetailsInternal>& sources)
         {
@@ -299,7 +293,7 @@ namespace AppInstaller::Repository
             out << YAML::EndSeq;
             out << YAML::EndMap;
 
-            Settings::SetSetting(setting, out.c_str());
+            Settings::SetSetting(setting, out.str());
         }
 
         // Sets the metadata only (which is not a secure setting and can be set unprivileged)
@@ -321,7 +315,7 @@ namespace AppInstaller::Repository
             out << YAML::EndSeq;
             out << YAML::EndMap;
 
-            Settings::SetSetting(Settings::Streams::SourcesMetadata, out.c_str());
+            Settings::SetSetting(Settings::Streams::SourcesMetadata, out.str());
         }
 
         // Sets the sources for a given origin.
@@ -512,11 +506,37 @@ namespace AppInstaller::Repository
                 AICLI_LOG(Repo, Info, << "Default source requested, but no sources configured");
                 return {};
             }
+            else if(currentSources.size() == 1)
+            {
+                AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].Name);
+                return OpenSource(currentSources[0].Name, progress);
+            }
             else
             {
-                // TODO: Create aggregate source here.  For now, just get the first in the list.
-                AICLI_LOG(Repo, Info, << "Default source requested, using first source: " << currentSources[0].Name);
-                return OpenSource(currentSources[0].Name, progress);
+                AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, creating aggregated source.");
+                auto aggregatedSource = std::make_shared<AggregatedSource>();
+
+                bool sourceUpdated = false;
+                for (auto& source : currentSources)
+                {
+                    AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << source.Name);
+
+                    if (ShouldUpdateBeforeOpen(source))
+                    {
+                        // TODO: Consider adding a context callback to indicate we are doing the same action
+                        // to avoid the progress bar fill up multiple times.
+                        UpdateSourceFromDetails(source, progress);
+                        sourceUpdated = true;
+                    }
+                    aggregatedSource->AddSource(CreateSourceFromDetails(source, progress));
+                }
+
+                if (sourceUpdated)
+                {
+                    SetMetadata(currentSources);
+                }
+
+                return aggregatedSource;
             }
         }
         else
@@ -596,6 +616,20 @@ namespace AppInstaller::Repository
                 break;
             default:
                 THROW_HR(E_UNEXPECTED);
+            }
+
+            // Add back tombstoned default sources, otherwise the info will be lost by SetSourcesByOrigin
+            auto defaultSources = GetSourcesByOrigin(SourceOrigin::Default);
+            for (const auto& defaultSource : defaultSources)
+            {
+                if (FindSourceByName(currentSources, defaultSource.Name) == currentSources.end())
+                {
+                    SourceDetailsInternal tombstone;
+                    tombstone.Name = defaultSource.Name;
+                    tombstone.IsTombstone = true;
+                    tombstone.Origin = SourceOrigin::User;
+                    currentSources.emplace_back(std::move(tombstone));
+                }
             }
 
             SetSourcesByOrigin(SourceOrigin::User, currentSources);

@@ -12,7 +12,8 @@
 
 #include "TraceLogging.h"
 
-#include <yaml-cpp/yaml.h>
+#define YAML_DECLARE_STATIC
+#include <yaml.h>
 
 // wil/cppwinrt.h should always be included before any C++/WinRT or WIL header file when both are in use
 #include <wil/cppwinrt.h>
@@ -41,6 +42,7 @@
 
 #include <AppxPackaging.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cwctype>
 #include <filesystem>
@@ -53,6 +55,7 @@
 #include <ostream>
 #include <string>
 #include <sstream>
+#include <stack>
 #include <string_view>
 #include <type_traits>
 #include <vector>

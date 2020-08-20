@@ -5,6 +5,7 @@
 #include <ostream>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace AppInstaller::Utility
 {
@@ -18,7 +19,7 @@ namespace AppInstaller::Utility
     std::string ConvertToUTF8(std::wstring_view input);
 
     // Converts the given UTF8 string to UTF16
-    std::wstring ConvertToUTF16(std::string_view input);
+    std::wstring ConvertToUTF16(std::string_view input, UINT codePage = CP_UTF8);
 
     // Returns the number of grapheme clusters (characters) in an UTF8-encoded string.
     size_t UTF8Length(std::string_view input);
@@ -97,6 +98,9 @@ namespace AppInstaller::Utility
 
     // Removes whitespace from the beginning and end of the string.
     std::string& Trim(std::string& str);
+
+    // Gets the number of bytes remaining in the stream.
+    std::streamsize GetRemainingByteCount(std::istream& stream);
 
     // Reads the entire stream into a string.
     std::string ReadEntireStream(std::istream& stream);

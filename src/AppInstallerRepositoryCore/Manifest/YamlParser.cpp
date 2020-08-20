@@ -133,8 +133,7 @@ namespace AppInstaller::Manifest
 
         try
         {
-            std::ifstream inputStream(inputFile);
-            YAML::Node rootNode = YAML::Load(inputStream);
+            YAML::Node rootNode = YAML::Load(inputFile);
             YamlParser parser;
             errors = parser.ParseManifest(rootNode, manifest, fullValidation);
         }
@@ -197,13 +196,19 @@ namespace AppInstaller::Manifest
 
     std::vector<ValidationError> YamlParser::ParseManifest(const YAML::Node& rootNode, Manifest& manifest, bool fullValidation)
     {
+        // Detects empty files with a better error.
+        if (!rootNode.IsMap())
+        {
+            THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST), "The manifest does not contain a valid root.");
+        }
+
         // Detect manifest version first to determine expected fields
         // Use index to access ManifestVersion directly. If there're duplicates or other general errors, it'll be detected in later
         // processing of iterating the whole manifest.
         // Todo: make ManifestVersion required when all manifests in our repo have been updated to contain a ManifestVersion
-        if (rootNode["ManifestVersion"])
+        if (rootNode["ManifestVersion"sv])
         {
-            auto manifestVersionValue = rootNode["ManifestVersion"].as<std::string>();
+            auto manifestVersionValue = rootNode["ManifestVersion"sv].as<std::string>();
             manifest.ManifestVersion = ManifestVer(manifestVersionValue, false);
         }
         else
@@ -310,7 +315,7 @@ namespace AppInstaller::Manifest
     {
         std::vector<ValidationError> errors;
 
-        if (rootNode.size() == 0)
+        if (rootNode.size() == 0 || !rootNode.IsMap())
         {
             errors.emplace_back(ManifestError::InvalidRootNode, "", "", rootNode.Mark().line, rootNode.Mark().column);
             return errors;
@@ -319,10 +324,10 @@ namespace AppInstaller::Manifest
         // Keeps track of already processed fields. Used to check duplicate fields or missing required fields.
         std::set<std::string> processedFields;
 
-        for (auto const& keyValuePair : rootNode)
+        for (auto const& keyValuePair : rootNode.Mapping())
         {
             std::string key = keyValuePair.first.as<std::string>();
-            YAML::Node valueNode = keyValuePair.second;
+            const YAML::Node& valueNode = keyValuePair.second;
 
             // We'll do case insensitive search first and validate correct case later.
             auto fieldIter = std::find_if(fieldInfos.begin(), fieldInfos.end(),
