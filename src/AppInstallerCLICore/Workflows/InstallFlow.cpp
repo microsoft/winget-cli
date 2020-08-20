@@ -382,8 +382,8 @@ namespace AppInstaller::CLI::Workflow
 
                     Sleep(100);
                 }
-            });
 
-        context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+                context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+            });
     }
 }
