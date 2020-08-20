@@ -339,6 +339,7 @@ namespace AppInstaller::CLI::Workflow
                 " PackageFamilyName: " << Utility::ConvertToUTF8(installItem.PackageFamilyName()));
         }
 
+        HRESULT errorCode = S_OK;
         context.Reporter.ExecuteWithProgress(
             [&](IProgressCallback& progress)
             {
@@ -356,12 +357,11 @@ namespace AppInstaller::CLI::Workflow
                         const auto& status = installItem.GetCurrentStatus();
                         currentProgress += static_cast<uint64_t>(status.PercentComplete());
 
-                        HRESULT errorCode = status.ErrorCode();
+                        errorCode = status.ErrorCode();
+
                         if (!SUCCEEDED(errorCode))
                         {
-                            context.Reporter.Info() << Resource::String::MSStoreInstallFailed << ' ' << WINGET_OSTREAM_FORMAT_HRESULT(errorCode) << std::endl;
-                            AICLI_LOG(CLI, Error, << "MSStore install failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << WINGET_OSTREAM_FORMAT_HRESULT(errorCode));
-                            AICLI_TERMINATE_CONTEXT(errorCode);
+                            return;
                         }
                     }
 
@@ -384,6 +384,15 @@ namespace AppInstaller::CLI::Workflow
                 }
             });
 
-        context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+        if (SUCCEEDED(errorCode))
+        {
+            context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+        }
+        else
+        {
+            context.Reporter.Info() << Resource::String::MSStoreInstallFailed << ' ' << WINGET_OSTREAM_FORMAT_HRESULT(errorCode) << std::endl;
+            AICLI_LOG(CLI, Error, << "MSStore install failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << WINGET_OSTREAM_FORMAT_HRESULT(errorCode));
+            AICLI_TERMINATE_CONTEXT(errorCode);
+        }
     }
 }
