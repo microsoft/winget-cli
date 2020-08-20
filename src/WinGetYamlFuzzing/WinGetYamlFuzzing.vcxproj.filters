@@ -22,4 +22,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="dictionary.txt" />
+  </ItemGroup>
 </Project>

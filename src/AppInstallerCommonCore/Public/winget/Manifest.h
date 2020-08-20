@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "ManifestInstaller.h"
-#include "ManifestLocalization.h"
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
+#include <winget/ManifestInstaller.h>
+#include <winget/ManifestLocalization.h>
+
 #include <vector>
 
 namespace AppInstaller::Manifest

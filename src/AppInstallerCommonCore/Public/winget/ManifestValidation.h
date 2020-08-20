@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-
-#include <string>
-#include <functional>
-#include <wil/result.h>
 #include <AppInstallerErrors.h>
-#include "Manifest.h"
+#include <winget/Manifest.h>
+
+#include <wil/result.h>
+
+#include <functional>
+#include <string>
 
 namespace YAML { class Node; }
 
@@ -140,6 +141,8 @@ namespace AppInstaller::Manifest
             }
             return m_whatMessage.c_str();
         }
+
+        const std::vector<ValidationError>& Errors() const { return m_errors; }
 
     private:
         std::vector<ValidationError> m_errors;

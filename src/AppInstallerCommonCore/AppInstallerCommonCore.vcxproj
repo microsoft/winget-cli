@@ -227,6 +227,8 @@
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM'">stdcpp17</LanguageStandard>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM64'">stdcpp17</LanguageStandard>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">stdcpp17</LanguageStandard>
+      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>%(AdditionalOptions) -fsanitize=fuzzer,address</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

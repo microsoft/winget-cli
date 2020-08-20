@@ -39,17 +39,19 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;WINGET_DISABLE_FOR_FUZZING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)..\AppInstallerCommonCore\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>-fsanitize=fuzzer,address %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(LLVMInstallDir)\x64\lib\clang\10.0.0\lib\windows\clang_rt.asan-preinit-x86_64.lib;$(LLVMInstallDir)\x64\lib\clang\10.0.0\lib\windows\clang_rt.asan-x86_64.lib;$(LLVMInstallDir)\x64\lib\clang\10.0.0\lib\windows\clang_rt.asan_cxx-x86_64.lib;$(LLVMInstallDir)\x64\lib\clang\10.0.0\lib\windows\clang_rt.fuzzer-x86_64.lib;icuuc.lib;icuin.lib;urlmon.lib;Bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(LLVMInstallDir)\lib\clang\10.0.0\lib\windows\clang_rt.asan-preinit-x86_64.lib;$(LLVMInstallDir)\lib\clang\10.0.0\lib\windows\clang_rt.asan-x86_64.lib;$(LLVMInstallDir)\lib\clang\10.0.0\lib\windows\clang_rt.asan_cxx-x86_64.lib;$(LLVMInstallDir)\lib\clang\10.0.0\lib\windows\clang_rt.fuzzer-x86_64.lib;icuuc.lib;icuin.lib;urlmon.lib;Bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -59,9 +61,15 @@
     <ProjectReference Include="..\AppInstallerCommonCore\AppInstallerCommonCore.vcxproj">
       <Project>{5890d6ed-7c3b-40f3-b436-b54f640d9e65}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\YamlCppLib\YamlCppLib.vcxproj">
+      <Project>{8bb94bb8-374f-4294-bca1-c7811514a6b7}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="dictionary.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
