@@ -251,14 +251,14 @@ namespace AppInstaller::CLI::Workflow
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
         Logging::Telemetry().LogSearchResultCount(searchResult.Matches.size());
 
-        Execution::TableOutput<4> table(context.Reporter, { Resource::String::SearchName, Resource::String::SearchId, Resource::String::SearchVersion, Resource::String::SearchMatch });
+        Execution::TableOutput<5> table(context.Reporter, { Resource::String::SearchName, Resource::String::SearchId, Resource::String::SearchVersion, Resource::String::SearchMatch, Resource::String::SearchSource });
 
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
             auto app = searchResult.Matches[i].Application.get();
             auto allVersions = app->GetVersions();
 
-            table.OutputLine({ app->GetName(), app->GetId(), allVersions.at(0).GetVersion().ToString(), GetMatchCriteriaDescriptor(searchResult.Matches[i]) });
+            table.OutputLine({ app->GetName(), app->GetId(), allVersions.at(0).GetVersion().ToString(), GetMatchCriteriaDescriptor(searchResult.Matches[i]), searchResult.Matches[i].SourceName });
         }
 
         table.Complete();

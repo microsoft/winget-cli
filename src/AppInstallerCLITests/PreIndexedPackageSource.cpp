@@ -54,9 +54,16 @@ std::string GetContents(const fs::path& file)
     return ReadEntireStream(stream);
 }
 
-TEST_CASE("PIPS_Add", "[pips]")
+void CleanSources()
 {
     RemoveSetting(Streams::UserSources);
+    RemoveSetting(Streams::SourcesMetadata);
+    fs::remove_all(GetPathToFileDir());
+}
+
+TEST_CASE("PIPS_Add", "[pips]")
+{
+    CleanSources();
 
     TempDirectory dir("pipssource");
     TestDataFile index(s_MsixFile_1);
@@ -85,7 +92,7 @@ TEST_CASE("PIPS_Add", "[pips]")
 
 TEST_CASE("PIPS_UpdateSameVersion", "[pips]")
 {
-    RemoveSetting(Streams::UserSources);
+    CleanSources();
 
     TempDirectory dir("pipssource");
     TestDataFile index(s_MsixFile_1);
@@ -110,7 +117,7 @@ TEST_CASE("PIPS_UpdateSameVersion", "[pips]")
 
 TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
 {
-    RemoveSetting(Streams::UserSources);
+    CleanSources();
 
     TempDirectory dir("pipssource");
     TestDataFile indexMsix1(s_MsixFile_1);
@@ -152,7 +159,7 @@ TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
 
 TEST_CASE("PIPS_Remove", "[pips]")
 {
-    RemoveSetting(Streams::UserSources);
+    CleanSources();
 
     TempDirectory dir("pipssource");
     TestDataFile index(s_MsixFile_1);

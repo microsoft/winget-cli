@@ -108,13 +108,16 @@
     <ClInclude Include="Public\winget\UserSettings.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="winget\settings\Setting.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="JsonUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\ExperimentalFeature.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="YamlWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Yaml.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
   </ItemGroup>
@@ -189,6 +192,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ExperimentalFeature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="YamlWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Yaml.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

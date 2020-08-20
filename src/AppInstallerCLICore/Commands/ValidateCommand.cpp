@@ -46,16 +46,20 @@ namespace AppInstaller::CLI
             }
             catch (const Manifest::ManifestException& e)
             {
+                HRESULT hr = S_OK;
                 if (e.IsWarningOnly())
                 {
                     context.Reporter.Warn() << Resource::String::ManifestValidationWarning << std::endl;
+                    hr = APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_WARNING;
                 }
                 else
                 {
                     context.Reporter.Error() << Resource::String::ManifestValidationFail << std::endl;
+                    hr = APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_FAILURE;
                 }
 
                 context.Reporter.Info() << e.GetManifestErrorMessage() << std::endl;
+                AICLI_TERMINATE_CONTEXT(hr);
             }
         };
     }

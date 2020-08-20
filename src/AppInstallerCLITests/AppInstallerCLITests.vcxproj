@@ -108,13 +108,13 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\YamlCppLib\yaml-cpp\include;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
@@ -126,11 +126,11 @@
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\YamlCppLib\yaml-cpp\include;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</TreatWarningAsError>
     </ClCompile>
     <Link>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
@@ -145,8 +145,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\YamlCppLib\yaml-cpp\include;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\YamlCppLib\yaml-cpp\include;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatWarningAsError>
     </ClCompile>
@@ -155,8 +155,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
@@ -386,6 +386,27 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-Spaces.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Encoding-ANSI.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF16BE-BOM.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF16BE.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF16LE-BOM.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF16LE.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF8-BOM.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF8.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
   </ItemGroup>

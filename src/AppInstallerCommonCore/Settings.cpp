@@ -6,6 +6,7 @@
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerSHA256.h"
+#include "Public/winget/Yaml.h"
 
 namespace AppInstaller::Settings
 {
@@ -208,7 +209,7 @@ namespace AppInstaller::Settings
 
                 try
                 {
-                    hashString = document[std::string{ NodeName_Sha256 }].as<std::string>();
+                    hashString = document[NodeName_Sha256].as<std::string>();
                 }
                 catch (const std::runtime_error& e)
                 {
@@ -227,10 +228,10 @@ namespace AppInstaller::Settings
             {
                 YAML::Emitter out;
                 out << YAML::BeginMap;
-                out << YAML::Key << std::string{ NodeName_Sha256 } << YAML::Value << SHA256::ConvertToString(data.Hash);
+                out << YAML::Key << NodeName_Sha256 << YAML::Value << SHA256::ConvertToString(data.Hash);
                 out << YAML::EndMap;
 
-                m_secure.Set(name, out.c_str());
+                m_secure.Set(name, out.str());
             }
 
             std::unique_ptr<std::istream> Get(const std::filesystem::path& name) override

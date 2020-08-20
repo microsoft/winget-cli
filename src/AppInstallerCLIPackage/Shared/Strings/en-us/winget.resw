@@ -435,6 +435,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="SearchName" xml:space="preserve">
     <value>Name</value>
   </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>Source</value>
+  </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>additional entries truncated due to result limit</value>
   </data>
