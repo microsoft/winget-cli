@@ -15,6 +15,25 @@
 #define YAML_DECLARE_STATIC
 #include <yaml.h>
 
+#include <algorithm>
+#include <chrono>
+#include <cwctype>
+#include <filesystem>
+#include <fstream>
+#include <functional>
+#include <future>
+#include <iomanip>
+#include <iterator>
+#include <limits>
+#include <memory>
+#include <ostream>
+#include <string>
+#include <sstream>
+#include <stack>
+#include <string_view>
+#include <type_traits>
+#include <vector>
+
 // wil/cppwinrt.h should always be included before any C++/WinRT or WIL header file when both are in use
 #include <wil/cppwinrt.h>
 #include <wil/result_macros.h>
@@ -41,21 +60,3 @@
 #include <shcore.h>
 
 #include <AppxPackaging.h>
-
-#include <algorithm>
-#include <chrono>
-#include <cwctype>
-#include <filesystem>
-#include <fstream>
-#include <functional>
-#include <future>
-#include <iomanip>
-#include <limits>
-#include <memory>
-#include <ostream>
-#include <string>
-#include <sstream>
-#include <stack>
-#include <string_view>
-#include <type_traits>
-#include <vector>
