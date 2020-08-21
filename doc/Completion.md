@@ -2,7 +2,7 @@
 
 WinGet offers a `complete` command that can be leveraged by your shell to provide context sensitive tab completion. It allows for completion of command names, argument names, and argument values, dependent on the current command line state.
 
-> Note, this feature has not yet been released. Hold tight, it is coming soon!
+> Note, this feature was released in [v0.1.42241 Preview](https://github.com/microsoft/winget-cli/releases/tag/v0.1.42241-preview). Please update if you are on an older build.
 
 ## Examples
 
