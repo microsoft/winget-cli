@@ -15,6 +15,25 @@
 #define YAML_DECLARE_STATIC
 #include <yaml.h>
 
+#include <algorithm>
+#include <chrono>
+#include <cwctype>
+#include <filesystem>
+#include <fstream>
+#include <functional>
+#include <future>
+#include <iomanip>
+#include <iterator>
+#include <limits>
+#include <memory>
+#include <ostream>
+#include <string>
+#include <sstream>
+#include <stack>
+#include <string_view>
+#include <type_traits>
+#include <vector>
+
 #include <wil/result_macros.h>
 #include <wil/safecast.h>
 #include <wil/resource.h>
@@ -44,26 +63,3 @@
 #include <shcore.h>
 
 #include <AppxPackaging.h>
-
-#include <algorithm>
-#include <chrono>
-#include <cwctype>
-#include <filesystem>
-#include <fstream>
-#include <functional>
-#include <future>
-#include <iomanip>
-#include <limits>
-#include <map>
-#include <memory>
-#include <optional>
-#include <ostream>
-#include <regex>
-#include <set>
-#include <string>
-#include <sstream>
-#include <stack>
-#include <string_view>
-#include <tuple>
-#include <type_traits>
-#include <vector>

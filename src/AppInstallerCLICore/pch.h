@@ -7,6 +7,19 @@
 #include <shellapi.h>
 #include <WinInet.h>
 
+#include <array>
+#include <iostream>
+#include <fstream>
+#include <future>
+#include <functional>
+#include <iterator>
+#include <memory>
+#include <numeric>
+#include <optional>
+#include <sstream>
+#include <string_view>
+#include <vector>
+
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Management.Deployment.h>
@@ -17,18 +30,6 @@
 
 #include <wil/result_macros.h>
 #include <wil/safecast.h>
-
-#include <array>
-#include <iostream>
-#include <fstream>
-#include <future>
-#include <functional>
-#include <memory>
-#include <numeric>
-#include <optional>
-#include <sstream>
-#include <string_view>
-#include <vector>
 
 #include <wrl/client.h>
 #include <AppxPackaging.h>
