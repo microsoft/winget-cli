@@ -6,7 +6,7 @@ License: Test
 Installers:
   - Arch: x86
     Url: https://localhost:5001/TestKit/x86/Release/AppInstallerCLIE2ETests/TestData/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
-    Sha256: 8a68b14a5a3f6721038734f0af9cf372c99365199c5e0b64b000ba751ecd7b6d
+    Sha256: <EXEHASH>
     InstallerType: inno
     Switches:
       InstallLocation: /InstallDir <INSTALLPATH>

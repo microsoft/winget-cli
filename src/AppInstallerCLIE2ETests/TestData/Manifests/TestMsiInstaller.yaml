@@ -6,6 +6,6 @@ License: Test
 Installers:
   - Arch: x86
     Url: https://localhost:5001/TestKit/x86/Release/AppInstallerCLIE2ETests/TestData/AppInstallerTestMsiInstaller/AppInstallerTestMsiInstaller.msi
-    Sha256: 6c139bb01917cf31341e533ca7f0cb8ddb74ba1f66204ffb47195d22661d0a9b
+    Sha256: <MSIHASH>
     InstallerType: msi
 ManifestVersion: 0.1.0
