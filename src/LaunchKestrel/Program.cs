@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace AppInstallerCLIE2ETests
+namespace LaunchKestrel
 {
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -11,23 +11,21 @@ namespace AppInstallerCLIE2ETests
     using System.Security.Cryptography;
 
     public class Program
-	{
-
-		public static void Main(string[] args)
-		{
-            string PathToTestingManifests = @"C:\Users\ryfu\source\repos\winget-cli\src\AppInstallerCLIE2ETests\TestData\Manifests";
-
+    {
+        public static void Main(string[] args)
+        {
+            string ManifestDirectory = string.Empty;
             string ExeInstallerPath = string.Empty;
             string MsiInstallerPath = string.Empty;
             string MsixInstallerPath = string.Empty;
 
-            string ExeInstallerHash = string.Empty;
-            string MsiInstallerHash = string.Empty;
-            string MsixInstallerHash = string.Empty;
-
             for (int i = 0; i < args.Length; i++)
             {
-                if (args[i] == " - e" && ++i < args.Length)
+                if (args[i] == "-d" && ++i < args.Length)
+                {
+                    ManifestDirectory = args[i];
+                }
+                else if (args[i] == " -e" && ++i < args.Length)
                 {
                     ExeInstallerPath = args[i];
                 }
@@ -39,37 +37,38 @@ namespace AppInstallerCLIE2ETests
                 {
                     MsixInstallerPath = args[i];
                 }
+                else if (args[i] == "-s" && ++i < args.Length)
+                {
+                    Startup.StaticFileRoot = args[i];
+                }
             }
 
-            if (args.Length > 0 && !string.IsNullOrEmpty(args[0]))
-			{
-				TestCommon.StaticFileRoot = args[0];
+            if (string.IsNullOrEmpty(ManifestDirectory))
+            {
+                Console.WriteLine("Usage: LaunchKestrel.exe -d <Testing Manifest Directory> -e <EXE Installer Path> " +
+                    "-m <MSI Installer Path> -x <MSIX Installer Path> -s <Static File Root Served Through Kestrel> ");
+                return;
             }
-            else
-			{
-				Console.WriteLine("Usage: AppInstallerCLIE2ETests <Path to Serve Static Root Directory> ");
-				return;
-			}
 
             //Generate Hash values for Installers
-            ExeInstallerHash = HashInstaller(ExeInstallerPath);
-            MsiInstallerHash = HashInstaller(MsiInstallerPath);
-            MsixInstallerHash = HashInstaller(MsixInstallerPath);
+            string ExeInstallerHash = HashInstallerFile(ExeInstallerPath);
+            string MsiInstallerHash = HashInstallerFile(MsiInstallerPath);
+            string MsixInstallerHash = HashInstallerFile(MsixInstallerPath);
 
             //Modify Sha256 Hash Tokens for Manifests
-            ReplaceManifestHashToken(ExeInstallerHash, MsiInstallerHash, MsixInstallerHash, PathToTestingManifests);
+            ReplaceManifestHashToken(ExeInstallerHash, MsiInstallerHash, MsixInstallerHash, ManifestDirectory);
 
             CreateHostBuilder(args).Build().Run();
-		}
+        }
 
-		public static IHostBuilder CreateHostBuilder(string[] args) =>
-			Host.CreateDefaultBuilder(args)
-				.ConfigureWebHostDefaults(webBuilder =>
-				{
-					webBuilder.UseStartup<Startup>();
-				});
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
 
-		public static void ReplaceManifestHashToken(string ExeHashValue, string MsiHashValue, string MsixHashValue, string ManifestDirectory)
+        public static void ReplaceManifestHashToken(string ExeHashValue, string MsiHashValue, string MsixHashValue, string ManifestDirectory)
         {
             var dir = new DirectoryInfo(ManifestDirectory);
             FileInfo[] files = dir.GetFiles();
@@ -77,7 +76,7 @@ namespace AppInstallerCLIE2ETests
             foreach (FileInfo file in files)
             {
                 string text = File.ReadAllText(file.FullName);
-                
+
                 if (text.Contains("<EXEHASH>"))
                 {
                     text = text.Replace("<EXEHASH>", ExeHashValue);
@@ -96,7 +95,7 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
-        public static string HashInstaller(string installerFilePath)
+        public static string HashInstallerFile(string installerFilePath)
         {
             FileInfo installerFile = new FileInfo(installerFilePath);
             string hash = string.Empty;
