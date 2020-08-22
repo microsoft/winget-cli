@@ -30,7 +30,7 @@ namespace LaunchKestrel
                     ExeInstallerPath = args[i];
                 }
                 else if (args[i] == "-m" && ++i < args.Length)
-                {
+                { 
                     MsiInstallerPath = args[i];
                 }
                 else if (args[i] == "-x" && ++i < args.Length)
