@@ -42,7 +42,6 @@
 #include <wil/token_helpers.h>
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
-// wil/cppwinrt.h should always be included before any C++/WinRT or WIL header file when both are in use
 #include <wil/cppwinrt.h>
 
 #include <winrt/Windows.ApplicationModel.h>

@@ -201,8 +201,7 @@ namespace AppInstaller::Manifest
         // Detects empty files with a better error.
         if (!rootNode.IsMap())
         {
-            //THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST), "The manifest does not contain a valid root.");
-            return { { "The manifest does not contain a valid root." } };
+            THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST), "The manifest does not contain a valid root.");
         }
 
         // Detect manifest version first to determine expected fields
