@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "ManifestValidation.h"
-#include "Manifest.h"
+#include <winget/ManifestValidation.h>
+#include <winget/Manifest.h>
 
 #include <filesystem>
 

@@ -19,8 +19,10 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_AppDataDir_State = "State"sv;
         constexpr std::string_view s_SecureSettings_Base = "Microsoft/WinGet"sv;
         constexpr std::string_view s_SecureSettings_UserRelative = "settings"sv;
-        constexpr std::string_view s_SecureSettings_Relative_Packaged = "pkg"sv;
         constexpr std::string_view s_SecureSettings_Relative_Unpackaged = "win"sv;
+#ifndef WINGET_DISABLE_FOR_FUZZING
+        constexpr std::string_view s_SecureSettings_Relative_Packaged = "pkg"sv;
+#endif
 
         // Gets a boolean indicating whether the current process has identity.
         bool DoesCurrentProcessHaveIdentity()
@@ -186,6 +188,7 @@ namespace AppInstaller::Runtime
         }
     }
 
+#ifndef WINGET_DISABLE_FOR_FUZZING
     LocIndString GetOSVersion()
     {
         winrt::Windows::System::Profile::AnalyticsInfo analyticsInfo{};
@@ -205,12 +208,14 @@ namespace AppInstaller::Runtime
 
         return LocIndString{ strstr.str() };
     }
+#endif
 
     std::filesystem::path GetPathTo(PathName path)
     {
         std::filesystem::path result;
         bool create = true;
 
+#ifndef WINGET_DISABLE_FOR_FUZZING
         if (IsRunningInPackagedContext())
         {
             auto appStorage = winrt::Windows::Storage::ApplicationData::Current();
@@ -247,6 +252,7 @@ namespace AppInstaller::Runtime
             }
         }
         else
+#endif
         {
             switch (path)
             {

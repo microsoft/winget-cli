@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionArgs.h"
-#include <Manifest/Manifest.h>
+#include <winget/Manifest.h>
 
 #include <optional>
 

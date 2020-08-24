@@ -12,8 +12,8 @@
 
 #define AICLI_LOG(_channel_,_level_,_outstream_) \
     do { \
-        auto _aicli_log_channel = AppInstaller::Logging::Channel:: ## _channel_; \
-        auto _aicli_log_level = AppInstaller::Logging::Level:: ## _level_; \
+        auto _aicli_log_channel = AppInstaller::Logging::Channel:: _channel_; \
+        auto _aicli_log_level = AppInstaller::Logging::Level:: _level_; \
         auto& _aicli_log_log = AppInstaller::Logging::Log(); \
         if (_aicli_log_log.IsEnabled(_aicli_log_channel, _aicli_log_level)) \
         { \
@@ -40,7 +40,7 @@ namespace AppInstaller::Logging
     };
 
     // Gets the channel's name as a string.
-    char const* const GetChannelName(Channel channel);
+    char const* GetChannelName(Channel channel);
 
     // Gets the maximum channel name length in characters.
     size_t GetMaxChannelNameLength();

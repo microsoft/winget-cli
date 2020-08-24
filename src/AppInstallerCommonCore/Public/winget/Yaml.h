@@ -105,7 +105,8 @@ namespace AppInstaller::YAML
         T as() const
         {
             Require(Type::Scalar);
-            return as_dispatch(reinterpret_cast<T*>(nullptr));
+            T* t = nullptr;
+            return as_dispatch(t);
         }
 
         bool operator<(const Node& other) const;

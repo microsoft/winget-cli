@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "Microsoft/SQLiteIndexSource.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
-#include "Manifest/YamlParser.h"
+#include <winget/ManifestYamlParser.h>
 
 
 namespace AppInstaller::Repository::Microsoft

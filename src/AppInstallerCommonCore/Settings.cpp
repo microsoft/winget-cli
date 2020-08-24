@@ -47,6 +47,7 @@ namespace AppInstaller::Settings
             virtual std::filesystem::path PathTo(const std::filesystem::path& name) = 0;
         };
 
+#ifndef WINGET_DISABLE_FOR_FUZZING
         // A settings container backed by the ApplicationDataContainer functionality.
         struct ApplicationDataSettingsContainer : public ISettingsContainer
         {
@@ -104,6 +105,7 @@ namespace AppInstaller::Settings
         private:
             Container m_root;
         };
+#endif
 
         // A settings container backed by the filesystem.
         struct FileSettingsContainer : public ISettingsContainer
@@ -296,6 +298,7 @@ namespace AppInstaller::Settings
                 return std::make_unique<SecureSettingsContainer>(GetSettingsContainer(Type::Standard));
             }
 
+#ifndef WINGET_DISABLE_FOR_FUZZING
             if (IsRunningInPackagedContext())
             {
                 switch (type)
@@ -311,6 +314,7 @@ namespace AppInstaller::Settings
                 }
             }
             else
+#endif
             {
                 switch (type)
                 {

@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "SQLiteIndex.h"
 #include "Schema/MetadataTable.h"
-#include "Manifest/YamlParser.h"
+#include <winget/ManifestYamlParser.h>
 
 namespace AppInstaller::Repository::Microsoft
 {
