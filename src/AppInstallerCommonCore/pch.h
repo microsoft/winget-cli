@@ -16,6 +16,7 @@
 #include <yaml.h>
 
 // wil/cppwinrt.h should always be included before any C++/WinRT or WIL header file when both are in use
+#include <iterator>
 #include <wil/cppwinrt.h>
 #include <wil/result_macros.h>
 #include <wil/safecast.h>

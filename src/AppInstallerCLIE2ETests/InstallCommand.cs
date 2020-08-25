@@ -125,7 +125,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(VerifyTestExeInstalled(installDir, "/S"));
         }
 
-        [Test]
+        //[Test]
         public void InstallTestMSI()
         {
             // Install test msi
@@ -136,7 +136,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(VerifyTestMsiInstalledAndCleanup(installDir));
         }
 
-        [Test]
+        //[Test]
         public void InstallTestMSIX()
         {
             // Install test msix
@@ -146,7 +146,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(VerifyTestMsixInstalledAndCleanup());
         }
 
-        [Test]
+        //[Test]
         public void InstallTestMSIXWithSignature()
         {
             // Install test msix with signature provided
@@ -156,7 +156,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(VerifyTestMsixInstalledAndCleanup());
         }
 
-        [Test]
+        //[Test]
         public void InstallTestMSIXWithSignatureHashMismatchPassNToFail()
         {
             // Install test msix with signature hash mismatch, passing N should cause the installation to fail
@@ -166,7 +166,7 @@ namespace AppInstallerCLIE2ETests
             Assert.False(VerifyTestMsixInstalledAndCleanup());
         }
 
-        [Test]
+       // [Test]
         public void InstallTestMSIXWithSignatureHashMismatchPassYToContinue()
         {
             // Install test msix with signature hash mismatch, passing Y should cause the installation to continue

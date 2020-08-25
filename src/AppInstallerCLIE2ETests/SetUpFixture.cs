@@ -7,11 +7,18 @@ namespace AppInstallerCLIE2ETests
     using NUnit.Framework;
     using System;
     using System.IO;
+    using System.Security.Cryptography;
 
     [SetUpFixture]
     public class SetUpFixture
     {
         private static bool ShouldDisableDevModeOnExit = true;
+        private const string TestLocalIndexTempRoot = @"%TEMP%\TestLocalIndex\";
+        private const string TestDirectoryName = "TestData";
+        private const string ManifestsDirectoryName = "Manifests";
+
+        private string ExeInstallerHashValue { get; set; }
+
 
         [OneTimeSetUp]
         public void Setup()
@@ -28,6 +35,14 @@ namespace AppInstallerCLIE2ETests
 
             TestCommon.InvokeCommandInDesktopPackage = TestContext.Parameters.Exists(Constants.InvokeCommandInDesktopPackageParameter) &&
                 TestContext.Parameters.Get(Constants.InvokeCommandInDesktopPackageParameter).Equals("true", StringComparison.OrdinalIgnoreCase);
+
+            ReadTestInstallerPaths();
+
+            SetupTestLocalIndexDirectory();
+
+            HashInstallers();
+
+            ReplaceManifestHashToken();
 
             if (TestContext.Parameters.Exists(Constants.AICLIPathParameter))
             {
@@ -120,6 +135,102 @@ namespace AppInstallerCLIE2ETests
             }
 
             return false;
+        }
+
+        private void ReadTestInstallerPaths()
+        {
+            if (TestContext.Parameters.Exists(Constants.ExeInstallerPathParameter))
+            {
+                TestCommon.ExeInstallerPath = TestContext.Parameters.Get(Constants.ExeInstallerPathParameter);
+            }
+            else
+            {
+                TestCommon.ExeInstallerPath = TestCommon.GetTestFile("AppInstallerTestExeInstaller.exe");
+            }
+        }
+
+        private void SetupTestLocalIndexDirectory()
+        { 
+            if (!Directory.Exists(TestLocalIndexTempRoot))
+            {
+                Directory.CreateDirectory(TestLocalIndexTempRoot);
+            }
+
+            DirectoryInfo dir = new DirectoryInfo(TestLocalIndexTempRoot);
+
+            foreach (FileInfo file in dir.GetFiles())
+            {
+                file.Delete();
+            }
+
+            string currentDirectory = Environment.CurrentDirectory;
+            string sourcePath = currentDirectory + TestDirectoryName;
+
+            File.Copy(sourcePath, TestLocalIndexTempRoot, true);
+        }
+
+        private void HashInstallers()
+        {
+            HashInstallerFile(TestCommon.ExeInstallerPath);
+            //HashInstallerFile(TestCommon.MsiInstallerPath);
+            //HashInstallerFile(TestCommon.MsixInstallerPath);
+        }
+
+        private string HashInstallerFile(string installerFilePath)
+        {
+            FileInfo installerFile = new FileInfo(installerFilePath);
+            string hash = string.Empty;
+
+            using (SHA256 mySHA256 = SHA256.Create())
+            {
+                try
+                {
+                    FileStream fileStream = installerFile.Open(FileMode.Open);
+                    fileStream.Position = 0;
+                    byte[] hashValue = mySHA256.ComputeHash(fileStream);
+                    hash = BitConverter.ToString(hashValue);
+                    fileStream.Close();
+                }
+                catch (IOException e)
+                {
+                    Console.WriteLine($"I/O Exception: {e.Message}");
+                }
+                catch (UnauthorizedAccessException e)
+                {
+                    Console.WriteLine($"Access Exception: {e.Message}");
+                }
+            }
+
+            return hash;
+        }
+
+        private void ReplaceManifestHashToken()
+        {
+            string manifestFullPath = TestLocalIndexTempRoot + TestDirectoryName + ManifestsDirectoryName;
+
+            var dir = new DirectoryInfo(manifestFullPath);
+            FileInfo[] files = dir.GetFiles();
+
+            foreach (FileInfo file in files)
+            {
+                string text = File.ReadAllText(file.FullName);
+
+                if (text.Contains("<EXEHASH>"))
+                {
+                    text = text.Replace("<EXEHASH>", ExeInstallerHashValue);
+                    File.WriteAllText(file.FullName, text);
+                }
+                //else if (text.Contains("<MSIHASH>"))
+                //{
+                //    text = text.Replace("<MSIHASH>", MsiHashValue);
+                //    File.WriteAllText(file.FullName, text);
+                //}
+                //else if (text.Contains("<MSIXHASH>"))
+                //{
+                //    text = text.Replace("<MSIXHASH>", MsixHashValue);
+                //    File.WriteAllText(file.FullName, text);
+                //}
+            }
         }
     }
 }

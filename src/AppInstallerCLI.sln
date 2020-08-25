@@ -55,7 +55,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IndexCreationTool", "IndexC
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JsonCppLib", "JsonCppLib\JsonCppLib.vcxproj", "{82B39FDA-E86B-4713-A873-9D56DE00247A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LaunchKestrel", "LaunchKestrel\LaunchKestrel.csproj", "{0B5EA71F-B250-40E0-8B9E-515696BD04F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IndexHostService", "LaunchKestrel\IndexHostService.csproj", "{0B5EA71F-B250-40E0-8B9E-515696BD04F5}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

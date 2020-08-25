@@ -21,6 +21,7 @@
     <Parameter name="AICLIPath" value="AppInst.exe" />
     <Parameter name="AICLIPackagePath" value="AppInstallerCLIPackage.appxbundle" />
     <Parameter name="LooseFileRegistration" value="false" />
-    <Parameter name="InvokeCommandInDesktopPackage" value="false" />
+    <Parameter name="InvokeCommandInDesktopPackage" value="false" /> 
+	<Parameter name="ExeTestInstallerPath" value="ExeInstaller.exe" />
   </TestRunParameters>
 </RunSettings>
