@@ -148,12 +148,17 @@ namespace AppInstaller::Repository::SQLite
 
     void LogExplainQueryPlanResult(std::string_view sql, Statement& plan)
     {
-        AICLI_LOG(SQL, Info, << "Query plan for: " << sql);
-
+        bool outputHeader = true;
         std::stack<int> parents;
 
         while (plan.Step())
         {
+            if (outputHeader)
+            {
+                AICLI_LOG(SQL, Info, << "Query plan for: " << sql);
+                outputHeader = false;
+            }
+
             int id = plan.GetColumn<int>(0);
             int parent = plan.GetColumn<int>(1);
 
