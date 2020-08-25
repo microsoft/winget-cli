@@ -8,7 +8,13 @@
 
 using namespace std::string_view_literals;
 
-// TODO: Invoke the wil error handling callback to log the error
+// Enable this to have all Statement constructions output the associated query plan.
+#define WINGET_SQLITE_EXPLAIN_QUERY_PLAN_ENABLED 1
+
+#if WINGET_SQLITE_EXPLAIN_QUERY_PLAN_ENABLED
+#include <stack>
+#endif
+
 #define THROW_SQLITE(_error_) \
     do { \
         int _ts_sqliteReturnValue = _error_; \
@@ -131,19 +137,56 @@ namespace AppInstaller::Repository::SQLite
         THROW_IF_SQLITE_FAILED(sqlite3_prepare_v2(connection, sql.data(), static_cast<int>(sql.size() + 1), &m_stmt, nullptr));
     }
 
+#if WINGET_SQLITE_EXPLAIN_QUERY_PLAN_ENABLED
+#define WINGET_SQLITE_EXPLAIN_QUERY_PLAN(_connection_,_sql_) \
+    std::string _explainStatementSQL_ = "EXPLAIN QUERY PLAN "; \
+    _explainStatementSQL_.append(_sql_); \
+    try { \
+        Statement _explainStatement_(_connection_,_explainStatementSQL_); \
+        LogExplainQueryPlanResult(_sql_, _explainStatement_); \
+    } catch(...) {}
+
+    void LogExplainQueryPlanResult(std::string_view sql, Statement& plan)
+    {
+        AICLI_LOG(SQL, Info, << "Query plan for: " << sql);
+
+        std::stack<int> parents;
+
+        while (plan.Step())
+        {
+            int id = plan.GetColumn<int>(0);
+            int parent = plan.GetColumn<int>(1);
+
+            while (!parents.empty() && parents.top() != parent)
+            {
+                parents.pop();
+            }
+
+            AICLI_LOG(SQL, Info, << "|-" << std::string(parents.size() * 2, '-') << ' ' << plan.GetColumn<std::string>(3));
+
+            parents.push(id);
+        }
+    }
+#else
+#define WINGET_SQLITE_EXPLAIN_QUERY_PLAN(_connection_,_sql_)
+#endif
+
     Statement Statement::Create(Connection& connection, const std::string& sql)
     {
+        WINGET_SQLITE_EXPLAIN_QUERY_PLAN(connection, sql);
         return { connection, { sql.c_str(), sql.size() } };
     }
 
     Statement Statement::Create(Connection& connection, std::string_view sql)
     {
+        WINGET_SQLITE_EXPLAIN_QUERY_PLAN(connection, sql);
         // We need the statement to be null terminated, and the only way to guarantee that with a string_view is to construct a string copy.
         return Create(connection, std::string(sql));
     }
 
     Statement Statement::Create(Connection& connection, char const* const sql)
     {
+        WINGET_SQLITE_EXPLAIN_QUERY_PLAN(connection, sql);
         return { connection, sql };
     }
 
