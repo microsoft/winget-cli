@@ -15,10 +15,16 @@ namespace AppInstallerCLIE2ETests
     public class SetUpFixture
     {
         private static bool ShouldDisableDevModeOnExit = true;
-        private const string TestDirectoryName = @"\TestData";
-        private const string ManifestsDirectoryName = @"\Manifests";
+        private const string TestDataName = "TestData";
+        private const string ManifestsName = "Manifests";
         private const string TestLocalIndexName = "TestLocalIndex";
-        private const string AppXManifestFileName = @"\AppxManifest.xml";
+        private const string PackageName = "Package";
+        private const string IndexName = @"index.db";
+        private const string PublicName = "Public";
+        private const string IndexCreationToolName = "IndexCreationTool";
+
+        private const string ExeInstallerName = @"AppInstallerTestExeInstaller";
+        private const string IndexPackageName = @"source.msix";
 
         private string ExeInstallerHashValue { get; set; }
 
@@ -46,6 +52,8 @@ namespace AppInstallerCLIE2ETests
             ReadTestInstallerPaths();
 
             SetupTestLocalIndexDirectory();
+
+            CopyInstallerFilesToLocalIndex();
 
             HashInstallers();
 
@@ -158,34 +166,51 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
+        private void CopyInstallerFilesToLocalIndex()
+        {
+            string exeInstallerDestPath = Path.Combine(Path.GetTempPath(), TestLocalIndexName, ExeInstallerName);
+            DirectoryInfo exeInstallerDestDir = Directory.CreateDirectory(exeInstallerDestPath);
+
+            string exeInstallerFullName = Path.Combine(exeInstallerDestDir.FullName, "AppInstallerTestExeInstaller.exe");
+
+            File.Copy(TestCommon.ExeInstallerPath, exeInstallerFullName, true);
+        }
+
         private void SetupSourcePackage()
         {
-            string tempPath = Path.GetTempPath();
-            string rootDir = tempPath + TestLocalIndexName + TestDirectoryName;
-            string appxManifestPath = tempPath + TestLocalIndexName + AppXManifestFileName;
+            string testRootDir = Path.Combine(Path.GetTempPath(), TestLocalIndexName, TestDataName);
+            string testLocalIndexRoot = Path.Combine(Path.GetTempPath(), TestLocalIndexName);
+            string destIndexPath = Path.Combine(testLocalIndexRoot, PackageName, PublicName, IndexName);
             string certPath = TestCommon.PackageCertificatePath;
 
-            //string currDir = Directory.GetCurrentDirectory();
-            //string parentDir = Directory.GetParent(currDir);
-            //string indexCreationToolPath = parentDir + "IndexCreationTool";
+            DirectoryInfo parentDir = Directory.GetParent(Directory.GetCurrentDirectory());
+            string indexCreationToolPath = Path.Combine(parentDir.FullName, IndexCreationToolName);
 
-            //Run IndexCreationTool to create source package
-            string command = @"C:\Users\ryfu\source\repos\winget-cli\src\x64\Debug\IndexCreationTool\IndexCreationTool.exe";
-            string args = $"-d {rootDir} -m {appxManifestPath}";
-            Process p = new Process();
-            p.StartInfo = new ProcessStartInfo(command, args);
-            p.Start();
-            p.WaitForExit();
+            try
+            {
+                RunCommand(indexCreationToolPath + @"\IndexCreationTool.exe", $"-d {testRootDir}");
 
-            // TODO : Run Makeappx and Sign to create package for testing
+                //Move Index.db to Package/Index 
+                File.Move(IndexName, destIndexPath, true);
 
-            File.Move(Environment.CurrentDirectory + @"\source.msix", TestDirectoryName);
+                string packageDir = Path.Combine(Path.GetTempPath(), TestLocalIndexName, PackageName);
+
+                // Create Index Package and Sign With Certificate
+                RunCommand("makeappx.exe", $"pack /l /d {packageDir} /p {IndexPackageName}");
+                RunCommand("signtool.exe", $"sign / a / fd sha256 / f {certPath} {IndexPackageName}");
+
+                // Move Package to TestLocalIndex 
+                File.Move(IndexPackageName, testLocalIndexRoot, true);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed. Reason: " + e.Message);
+            }
         }
 
         private void SetupTestLocalIndexDirectory()
         {
-            string tempPath = Path.GetTempPath();
-            string testLocalIndexTempRoot = tempPath + TestLocalIndexName;
+            string testLocalIndexTempRoot = Path.Combine(Path.GetTempPath(), TestLocalIndexName);
 
             DirectoryInfo tempRootDir = Directory.CreateDirectory(testLocalIndexTempRoot);
 
@@ -200,14 +225,14 @@ namespace AppInstallerCLIE2ETests
             }
 
             string currentDirectory = Environment.CurrentDirectory;
-            string sourcePath = currentDirectory + TestDirectoryName;
+            string sourcePath = Path.Combine(currentDirectory, TestDataName);
 
             DirectoryCopy(sourcePath, testLocalIndexTempRoot);
         }
 
         private void ReplaceManifestHashToken()
         {
-            string manifestFullPath = Path.GetTempPath() + TestLocalIndexName + ManifestsDirectoryName;
+            string manifestFullPath = Path.Combine(Path.GetTempPath(), TestLocalIndexName, ManifestsName);
 
             var dir = new DirectoryInfo(manifestFullPath);
             FileInfo[] files = dir.GetFiles();
@@ -303,6 +328,14 @@ namespace AppInstallerCLIE2ETests
             }
 
             return hashValue;
+        }
+
+        private void RunCommand(string command, string args)
+        {
+            Process p = new Process();
+            p.StartInfo = new ProcessStartInfo(command, args);
+            p.Start();
+            p.WaitForExit();
         }
     }
 }

@@ -6,7 +6,7 @@ Description: İkşzlerAçık芲偁ＡＢＣ巢für नमस्ते กุ้�
 License: Test
 Installers:
   - Arch: x86
-    Url: https://localhost:5001/TestKit/x86/Release/AppInstallerCLIE2ETests/TestData/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    Url: https://localhost:5001/TestKit/TestLocalIndex/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
     Sha256: <EXEHASH>
     InstallerType: exe
     Switches:
