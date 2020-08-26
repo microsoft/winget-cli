@@ -207,13 +207,19 @@ jobs:
 #                                  -AICLIPath $(system.defaultWorkingDirectory)\src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'
 #    condition: succeededOrFailed()
 
-  - task: PowerShell@2
-    displayName: Launch Kestrel Local Server
+  - task: DownloadSecureFile@1
+    name: AppInstallerTest
+    displayName: 'Download Signing Certificate'
     inputs:
-      filePath: 'src\LaunchKestrel\KestrelSetup.ps1'
-      arguments: '-ExeInstallerPath [] -MsiInstallerPath [] -MsixInstallerPath [] -ManifestsDirectory []'
-      workingDirectory: 'src\x86\Release\LaunchKestrel\'
-    condition: succeededOrFailed()
+        secureFile: 'AppInstallerTest.pfx'
+
+  - task: DotNetCoreCLI@2
+    displayName: Launch Test Index Host Service
+    inputs:
+        command: run
+        arguments: '-- %TEMP%'
+        workingDirectory: 'src\LaunchKestrel\bin\Release\netcoreapp3.1'
+    condition: succeededOrFailed();
 
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x64
@@ -225,7 +231,9 @@ jobs:
                                   -AICLIPackagePath $(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x64\Release
                                   -AICLIPath AppInstallerCLI\AppInstallerCLI.exe
                                   -LooseFileRegistration true
-                                  -InvokeCommandInDesktopPackage true'
+                                  -InvokeCommandInDesktopPackage true
+                                  -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
+                                  -PackageCertificationPath $(AppInstallerTest.secureFilePath)'
     condition: succeededOrFailed()
 
 #  - task: VSTest@2
