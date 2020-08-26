@@ -6,8 +6,22 @@
 #include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerLogging.h"
+#include <cpprest/http_client.h>
+#include <cpprest/filestream.h>
+#include <cpprest/uri.h>
+#include <cpprest/json.h>
+
+
 
 using namespace AppInstaller::Runtime;
+using namespace web;
+using namespace web::http;
+using namespace web::http::client;
+using namespace concurrency::streams;
+using namespace winrt;
+using namespace winrt::Windows::Foundation;
+using namespace winrt::Windows::Storage::Streams;
+
 
 namespace AppInstaller::Utility
 {
@@ -119,6 +133,53 @@ namespace AppInstaller::Utility
         AICLI_LOG(Core, Info, << "Download completed.");
 
         return result;
+    }
+
+    
+    void DownloadPWAInstaller(const std::string& url, const std::string& publisher, const std::string& Id, std::filesystem::path& dest)
+    {
+        THROW_HR_IF(E_INVALIDARG, url.empty());
+        THROW_HR_IF(E_INVALIDARG, dest.empty());
+        AICLI_LOG(Core, Info, << "Generating PWA MSIX..." << dest);
+
+        auto fileStream = std::make_shared<ostream>();
+        pplx::task<void> requestTask = fstream::open_ostream(dest).then([=](ostream outFile)
+            {
+                *fileStream = outFile;
+                http_client client(U("http://pwabuilder-win-chromium-platfom.centralus.cloudapp.azure.com"));  //where should I store this?
+                json::value jsonObject;
+                jsonObject[U("url")] = json::value::string(Utility::ConvertToUTF16(url)); 
+                jsonObject[U("edgeChannel")] = json::value::string(U("dev"));
+            
+               jsonObject[U("publisher")] = json::value::string(U("CN=") + Utility::ConvertToUTF16(publisher));
+               jsonObject[U("packageId")] = json::value::string(Utility::ConvertToUTF16(Id));
+                uri_builder builder(U("/msix"));
+                builder.append(U("/generate"));
+                return client.request(methods::POST, builder.to_string(), jsonObject.serialize(), L"application/json");
+            }).then([=](http_response response)
+                {
+                    if (response.status_code() != HTTP_STATUS_OK) {
+                        AICLI_LOG(Core, Error, << "Download request failed. Returned status: " << response.status_code());
+                        THROW_HR_MSG(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, response.status_code()), "Download request status is not success.");
+                    }
+                    auto headers = response.headers();
+                    AICLI_LOG(Core, Verbose, << "Download request status success.");
+                    return response.body().read_to_end(fileStream->streambuf());
+                }).then([=](size_t)
+                    {
+                        return fileStream->close();
+                    });
+
+               try
+                {
+                    requestTask.wait();
+               }
+                catch (const std::exception& e)
+                {
+                    printf(e.what());
+                }
+
+                AICLI_LOG(Core, Info, << "Download completed.");
     }
 
     std::optional<std::vector<BYTE>> Download(

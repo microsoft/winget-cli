@@ -88,6 +88,8 @@ namespace AppInstaller::Manifest
         case ManifestInstaller::InstallerTypeEnum::MSStore:
             result = "MSStore";
             break;
+        case ManifestInstaller::InstallerTypeEnum::PWA:
+            result = "PWA";
         }
 
         return result;

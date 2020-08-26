@@ -81,7 +81,7 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "InstallerType");
             }
 
-            if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::MSStore)
+            if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::MSStore)   
             {
                 // MSStore type is not supported in community repo
                 resultErrors.emplace_back(
@@ -91,6 +91,18 @@ namespace AppInstaller::Manifest
                 if (installer.ProductId.empty())
                 {
                     resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "ProductId");
+                }
+            }            
+            if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::PWA)
+            {
+                // MSStore type is not supported in community repo
+                resultErrors.emplace_back(
+                    ManifestError::FieldValueNotSupported, "InstallerType",
+                    ManifestInstaller::InstallerTypeToString(installer.InstallerType));
+
+                if (installer.Url.empty())
+                {
+                    resultErrors.emplace_back(ManifestError::RequiredFieldEmpty, "Url");
                 }
             }
             else

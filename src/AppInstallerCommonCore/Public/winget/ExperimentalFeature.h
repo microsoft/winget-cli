@@ -22,6 +22,7 @@ namespace AppInstaller::Settings
             ExperimentalCmd = 0x1,
             ExperimentalArg = 0x2,
             ExperimentalMSStore = 0x4,
+            ExperimentalPWA = 0x5,
             Max = 0x8, // This MUST always be last
         };
 

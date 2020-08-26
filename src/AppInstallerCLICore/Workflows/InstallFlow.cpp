@@ -8,6 +8,12 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<PathCch.h>
+
+
+#include <ShObjIdl_core.h>
+
+
+
 //#include <windows.management.deployment.h>
 
 namespace AppInstaller::CLI::Workflow
@@ -16,6 +22,7 @@ namespace AppInstaller::CLI::Workflow
     using namespace winrt::Windows::Foundation;
     using namespace winrt::Windows::Foundation::Collections;
     using namespace winrt::Windows::Management::Deployment;
+    //using namespace winrt::Windows::Web;
     using namespace AppInstaller::Utility;
     using namespace AppInstaller::Manifest;
 
@@ -65,7 +72,7 @@ namespace AppInstaller::CLI::Workflow
         switch (installer.InstallerType)
         {
         case ManifestInstaller::InstallerTypeEnum::PWA:
-            context << GeneratePwaMsix;
+            context << EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ExperimentalPWA) << GeneratePwaMsix;
             break;
         case ManifestInstaller::InstallerTypeEnum::Exe:
         case ManifestInstaller::InstallerTypeEnum::Burn:
@@ -95,8 +102,11 @@ namespace AppInstaller::CLI::Workflow
     }
 
 
-    void InstallPWA(Execution::Context& context)
+    void PWAInstall(Execution::Context& context)
     {
+       
+
+        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
         const auto& path = context.Get<Execution::Data::InstallerPath>();
         Uri uri(path.c_str());
         PackageManager packageManager;
@@ -104,141 +114,91 @@ namespace AppInstaller::CLI::Workflow
         options.AllowUnsigned(true);
         options.DeferRegistrationWhenPackagesAreInUse(true);
         IPackageManager9 packageManager9 = packageManager.as<IPackageManager9>();
-        auto test = packageManager9.AddPackageByUriAsync(uri, options).get();
+        auto result = packageManager9.AddPackageByUriAsync(uri, options).GetResults();
+      
+       if (!result.ErrorText().empty())
+       {
+           //Not sure how to report this error
+           context.Reporter.Error() << to_string(result.ErrorText()) << std::endl;
+           AICLI_TERMINATE_CONTEXT(result.ExtendedErrorCode());
+       }
 
-        context.Reporter.Info() << "Successfully Installed!" << std::endl;
+       
+       
+ 
      
     }
-    //Move to Utilities later
-    std::wstring GetPathToExecutable()
+
+    void LaunchPWA(Execution::Context& context)
     {
-        std::vector<wchar_t> pathBuf;
-        DWORD copied = 0;
-        do {
-            pathBuf.resize(pathBuf.size() + MAX_PATH);
-            copied = GetModuleFileName(0, &pathBuf.at(0), pathBuf.size());
-        } while (copied >= pathBuf.size());
+        if (!context.Args.Contains(Execution::Args::Type::Interactive)) 
+        {
+            context.Reporter.Info() << "Successfully Installed! Please launch the application to complete the installation process." << std::endl;
+        }
+        else
+        {
+            context.Reporter.Info() << "Successfully Installed! Launching application now..." << std::endl;
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            winrt::init_apartment();
 
-        pathBuf.resize(copied);
+            std::wstring publisherName = L"CN=" + Utility::ConvertToUTF16(manifest.Publisher) + L", OID.2.25.311729368913984317654407730594956997722=1";
+            std::wstring aumid = L"";
+            CoInitialize(nullptr);
+            for (auto const& package : PackageManager{}.FindPackagesForUser(L"", winrt::to_hstring(manifest.Id), publisherName))
+            {
+                aumid = package.Id().FamilyName();
+                aumid.append(L"!App");
+            }
 
-  
+            winrt::com_ptr<IApplicationActivationManager> spAppActivationManager;
+            HRESULT hrResult = E_INVALIDARG;
+            if (!aumid.empty())
+            {
+                // Instantiate IApplicationActivationManager
+                hrResult = CoCreateInstance(CLSID_ApplicationActivationManager,
+                    nullptr,
+                    CLSCTX_LOCAL_SERVER, //This has to be LocalServer, Don't know why cannot be InprocServer
+                    IID_IApplicationActivationManager,
+                    (LPVOID*)&spAppActivationManager);
 
-        return std::wstring(pathBuf.begin(), pathBuf.end());
+                if (SUCCEEDED(hrResult))
+                {
+                    // This call ensures that the app is launched as the foreground window
+                    hrResult = CoAllowSetForegroundWindow(spAppActivationManager.get(), nullptr);
+                    // Launch the app
+                    if (SUCCEEDED(hrResult))
+                    {
+                        DWORD dwPID = 0;
+                        ACTIVATEOPTIONS activate_options = AO_NOERRORUI;
+                        hrResult = spAppActivationManager->ActivateApplication(aumid.c_str(),
+                            NULL,
+                            activate_options
+                            ,
+                            &dwPID);
+                    }
+                }
+            }
+        }
     }
+
+ 
     void GeneratePwaMsix(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
-        //const auto& installer = context.Get<Execution::Data::Installer>().value();
+        const auto& installer = context.Get<Execution::Data::Installer>().value();
        
         std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
-        tempInstallerPath /= Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
         AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
         std::filesystem::create_directories(tempInstallerPath);
-        const std::filesystem::path& filePath = tempInstallerPath;
-        //const std::filesystem::path& filePath = context.Get<Execution::Data::InstallerPath>();
-        std::wstring appPath = GetPathToExecutable();
-        PathCchRemoveFileSpec(&appPath[0], appPath.size());
-
-        int size_needed = WideCharToMultiByte(CP_UTF8, 0, &appPath[0], (int)appPath.size(), NULL, 0, NULL, NULL);
-        std::string strTo(size_needed, 0);
-        WideCharToMultiByte(CP_UTF8, 0, &appPath[0], (int)appPath.size(), &strTo[0], size_needed, NULL, NULL);
+        tempInstallerPath /= (Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version + ".msix"));
         
-        strTo.erase(strTo.find('\0'));
-        const auto& installer = context.Get<Execution::Data::Installer>().value();
-        std::string url = installer.Url;
-        //std::string target = filePath.string();
-        std::string pwabuilderexe = strTo + "\\pwa_builder\\pwa_builder.exe  --channel=stable --win32alacarte";
-        //std::string a1 = "\\pwa_builder\\pwa_builder.exe";
-      
-        //std::string urlArgument = " --url=";
-        //std::string targetArgument = " --target=";
-        //std::string archArgument = " --arch";
-            
-        AICLI_LOG(CLI, Info, << "Starting installer. Path: " << filePath);
-        // Architecture? What does InstallerPath mean?
-        std::string command = pwabuilderexe.append(" --url=").append(installer.Url).append(" --target=").append(filePath.string()).append("> NUL");
-        const char* command_cast = const_cast<char*>(command.c_str());
-        auto res = system(command_cast);
-        if (res != 0)
-        {
-            res = 0;
-        }
+        context.Reporter.ExecuteWithProgress(std::bind(Utility::DownloadPWAInstaller,installer.Url,manifest.Publisher,manifest.Id, tempInstallerPath));
 
-        for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(filePath) ){
-            // Is it a file / directory?
-            //bool isNormalFile = is_regular_file(entry);
-            //bool isDirectory = is_directory(entry);
-            auto path = entry.path();
+        context.Add<Execution::Data::InstallerPath>(std::move(tempInstallerPath));
 
-            std::string extensionString = path.extension().string();
-            if (extensionString == ".msix")
-            {
-                context.Add<Execution::Data::InstallerPath>(std::move(path));
-  
-            }
-        }
 
     }
-    //void InstallPWA() 
-    //{
-    //    winrt::Windows::Foundation::Uri uri = nullptr;
-    //    //std::string command = "pwa_builder.exe --url=https://app.ft.com --target=C:\\Users\\Downloads";
-    //    //const char* command_cast = const_cast<char*>(command.c_str());
-    //    std::string path = "PWATest_resources\\app.ft.com-BC923C9_1.0.0.0.msix";
-    //    const WCHAR path_convert[57] = L"file:\\\\PWATest_resources\\app.ft.com-BC923C9_1.0.0.0.msix";
-    //    //system(command_cast);
-    //    IDeploymentOperation* deploymentOperation;
-    //    //Initialize a URI factory
-    //    ABI::Windows::Foundation::IUriRuntimeClassFactory* uriFactory;
-    //    
-
-    //    //Initialize a package manager instance
-    //    winrt::com_ptr<ABI::Windows::Management::Deployment::IPackageManager> package_manager;
-    //    winrt::com_ptr<ABI::Windows::Management::Deployment::IPackageManager9> package_manager9;
-
-    //    IInspectable* package_options_raw;
-    //    HSTRING add_package_options_str;
-    //    HSTRING package_manager_str;
-    //    HSTRING runtime_class;
-    //    HSTRING path_string;
-    //   
-    //    //Create HSTRINGs
-    //    WindowsCreateString(RuntimeClass_Windows_Management_Deployment_AddPackageOptions, 47, &add_package_options_str);
-    //    WindowsCreateString(RuntimeClass_Windows_Management_Deployment_PackageManager, 44, &package_manager_str);
-    //    WindowsCreateString(RuntimeClass_Windows_Foundation_Uri, 22, &runtime_class);
-    //    WindowsCreateString(path_convert, 56, &path_string);
-    //   
-    //    //Configure the package options
-    //    auto packageOptionsResult = RoActivateInstance(add_package_options_str, &package_options_raw);
-    //    winrt::com_ptr<IInspectable> package_options;
-    //    package_options.attach(package_options_raw);
-    //    auto add_package_options = package_options.as<ABI::Windows::Management::Deployment::IAddPackageOptions>();
    
-    //    //Add package options
-    //    auto hr = add_package_options->put_AllowUnsigned(true);
-    //    auto hr1 = add_package_options->put_DeferRegistrationWhenPackagesAreInUse(true);
-    //    auto newResult = RoActivateInstance(package_manager_str, reinterpret_cast<IInspectable**> (&package_manager));
-    //    package_manager.as(package_manager9);
-    //    
-    //    //Create the file URI
-    //    ABI::Windows::Foundation::IUriRuntimeClass* appx_package_uri;
-    //    auto res = ABI::Windows::Foundation::GetActivationFactory(runtime_class, &uriFactory);
-    //    auto uriRes = uriFactory->CreateUri(path_string, &appx_package_uri);
-
-    //    //Call to Add package
-    //    auto result = package_manager9->AddPackageByUriAsync(appx_package_uri,
-    //        add_package_options.get(),
-    //        &deploymentOperation);
-
-    //    newResult = 0;
-    //    packageOptionsResult = 0;
-    //    res = 0;
-    //    result = 0;
-    //    uriRes = 0;
-    //    hr = 0;
-    //    hr1 = 0;
-
-    //}
 
     void DownloadInstallerFile(Execution::Context& context)
     {
@@ -364,7 +324,7 @@ namespace AppInstaller::CLI::Workflow
                 MSStoreInstall;
             break;
         case ManifestInstaller::InstallerTypeEnum::PWA:
-            context << InstallPWA;
+            context << EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ExperimentalPWA) << PWAInstall << LaunchPWA;
             break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
@@ -416,22 +376,10 @@ namespace AppInstaller::CLI::Workflow
     {
         // Path may not be present if installed from a URL for MSIX
         if (context.Contains(Execution::Data::InstallerPath))
-        {
-           /* auto installerType = context.Get<Execution::Data::Installer>().value().InstallerType;
-            if (installerType == ManifestInstaller::InstallerTypeEnum::PWA)
-            {
-                std::error_code ec;
-                std::wstring path = context.Get<Execution::Data::InstallerPath>();
-                PathCchRemoveFileSpec(&path[0], path.size());
-
-                std::filesystem::remove_all(path, ec);
-            }
-            else*/
-            {
+        {           
                 const auto& path = context.Get<Execution::Data::InstallerPath>();
                 AICLI_LOG(CLI, Info, << "Removing installer: " << path);
                 std::filesystem::remove(path);
-            }
         }
     }
 

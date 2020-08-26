@@ -189,6 +189,12 @@ namespace AppInstaller::Settings
         {
             return value;
         }
+
+        std::optional<SettingMapping<Setting::EFExperimentalPWA>::value_t>
+            SettingMapping<Setting::EFExperimentalPWA>::Validate(const SettingMapping<Setting::EFExperimentalPWA>::json_t& value)
+        {
+            return value;
+        }
     }
 
     UserSettings::UserSettings() : m_type(UserSettingsType::Default)

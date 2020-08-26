@@ -62,6 +62,8 @@ namespace AppInstaller
                 return "Command requires administrator privileges to run";
             case APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE:
                 return "The source location is not secure";
+            case APPINSTALLER_CLI_ERROR_PWA_INSTALL_FAILED:
+                return "PWA Install failed. Please check version of Edge browser installed.";
             default:
                 return "Uknown Error Code";
             }
