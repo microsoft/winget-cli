@@ -218,7 +218,7 @@ jobs:
     inputs:
         command: run
         arguments: '-- %TEMP%'
-        workingDirectory: 'src\LaunchKestrel\bin\Release\netcoreapp3.1'
+        workingDirectory: 'src\IndexHostService\bin\Release\netcoreapp3.1'
     condition: succeededOrFailed()
 
   - task: VSTest@2
