@@ -7,17 +7,24 @@ namespace AppInstallerCLIE2ETests
     using NUnit.Framework;
     using System;
     using System.IO;
+    using System.Diagnostics;
     using System.Security.Cryptography;
+    using IndexCreationTool;
 
     [SetUpFixture]
     public class SetUpFixture
     {
         private static bool ShouldDisableDevModeOnExit = true;
-        private const string TestLocalIndexTempRoot = @"%TEMP%\TestLocalIndex\";
-        private const string TestDirectoryName = "TestData";
-        private const string ManifestsDirectoryName = "Manifests";
+        private const string TestDirectoryName = @"\TestData";
+        private const string ManifestsDirectoryName = @"\Manifests";
+        private const string TestLocalIndexName = "TestLocalIndex";
+        private const string AppXManifestFileName = @"\AppxManifest.xml";
 
         private string ExeInstallerHashValue { get; set; }
+
+        private string MsiInstallerHashValue { get; set; }
+
+        private string MsixInstallerHashValue { get; set; }
 
 
         [OneTimeSetUp]
@@ -43,6 +50,8 @@ namespace AppInstallerCLIE2ETests
             HashInstallers();
 
             ReplaceManifestHashToken();
+
+            SetupSourcePackage();
 
             if (TestContext.Parameters.Exists(Constants.AICLIPathParameter))
             {
@@ -149,29 +158,109 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
+        private void SetupSourcePackage()
+        {
+            string tempPath = Path.GetTempPath();
+            string rootDir = tempPath + TestLocalIndexName + TestDirectoryName;
+            string appxManifestPath = tempPath + TestLocalIndexName + AppXManifestFileName;
+            string certPath = TestCommon.PackageCertificatePath;
+
+            //string currDir = Directory.GetCurrentDirectory();
+            //string parentDir = Directory.GetParent(currDir);
+            //string indexCreationToolPath = parentDir + "IndexCreationTool";
+
+            //Run IndexCreationTool to create source package
+            string command = @"C:\Users\ryfu\source\repos\winget-cli\src\x64\Debug\IndexCreationTool\IndexCreationTool.exe";
+            string args = $"-d {rootDir} -m {appxManifestPath}";
+            Process p = new Process();
+            p.StartInfo = new ProcessStartInfo(command, args);
+            p.Start();
+            p.WaitForExit();
+
+            // TODO : Run Makeappx and Sign to create package for testing
+
+            File.Move(Environment.CurrentDirectory + @"\source.msix", TestDirectoryName);
+        }
+
         private void SetupTestLocalIndexDirectory()
-        { 
-            if (!Directory.Exists(TestLocalIndexTempRoot))
-            {
-                Directory.CreateDirectory(TestLocalIndexTempRoot);
-            }
+        {
+            string tempPath = Path.GetTempPath();
+            string testLocalIndexTempRoot = tempPath + TestLocalIndexName;
 
-            DirectoryInfo dir = new DirectoryInfo(TestLocalIndexTempRoot);
+            DirectoryInfo tempRootDir = Directory.CreateDirectory(testLocalIndexTempRoot);
 
-            foreach (FileInfo file in dir.GetFiles())
+            foreach (FileInfo file in tempRootDir.GetFiles())
             {
                 file.Delete();
+            }
+
+            foreach (DirectoryInfo dir in tempRootDir.GetDirectories())
+            {
+                dir.Delete(true);
             }
 
             string currentDirectory = Environment.CurrentDirectory;
             string sourcePath = currentDirectory + TestDirectoryName;
 
-            File.Copy(sourcePath, TestLocalIndexTempRoot, true);
+            DirectoryCopy(sourcePath, testLocalIndexTempRoot);
+        }
+
+        private void ReplaceManifestHashToken()
+        {
+            string manifestFullPath = Path.GetTempPath() + TestLocalIndexName + ManifestsDirectoryName;
+
+            var dir = new DirectoryInfo(manifestFullPath);
+            FileInfo[] files = dir.GetFiles();
+
+            foreach (FileInfo file in files)
+            {
+                string text = File.ReadAllText(file.FullName);
+
+                if (text.Contains("<EXEHASH>"))
+                {
+                    text = text.Replace("<EXEHASH>", ExeInstallerHashValue);
+                    File.WriteAllText(file.FullName, text);
+                }
+                else if (text.Contains("<MSIHASH>"))
+                {
+                    text = text.Replace("<MSIHASH>", MsiInstallerHashValue);
+                    File.WriteAllText(file.FullName, text);
+                }
+                else if (text.Contains("<MSIXHASH>"))
+                {
+                    text = text.Replace("<MSIXHASH>", MsixInstallerHashValue);
+                    File.WriteAllText(file.FullName, text);
+                }
+            }
+        }
+
+        private void DirectoryCopy(string sourceDirName, string destDirName)
+        {
+            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+            DirectoryInfo[] dirs = dir.GetDirectories();
+
+            if (!Directory.Exists(destDirName))
+            {
+                Directory.CreateDirectory(destDirName);
+            }
+
+            FileInfo[] files = dir.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                string temppath = Path.Combine(destDirName, file.Name);
+                file.CopyTo(temppath, false);
+            }
+
+            foreach (DirectoryInfo subdir in dirs)
+            {
+                string temppath = Path.Combine(destDirName, subdir.Name);
+                DirectoryCopy(subdir.FullName, temppath);
+            }
         }
 
         private void HashInstallers()
         {
-            HashInstallerFile(TestCommon.ExeInstallerPath);
+            ExeInstallerHashValue = HashInstallerFile(TestCommon.ExeInstallerPath);
             //HashInstallerFile(TestCommon.MsiInstallerPath);
             //HashInstallerFile(TestCommon.MsixInstallerPath);
         }
@@ -188,7 +277,7 @@ namespace AppInstallerCLIE2ETests
                     FileStream fileStream = installerFile.Open(FileMode.Open);
                     fileStream.Position = 0;
                     byte[] hashValue = mySHA256.ComputeHash(fileStream);
-                    hash = BitConverter.ToString(hashValue);
+                    hash = ConvertHashByteToString(hashValue);
                     fileStream.Close();
                 }
                 catch (IOException e)
@@ -204,33 +293,16 @@ namespace AppInstallerCLIE2ETests
             return hash;
         }
 
-        private void ReplaceManifestHashToken()
+        private string ConvertHashByteToString(byte[] array)
         {
-            string manifestFullPath = TestLocalIndexTempRoot + TestDirectoryName + ManifestsDirectoryName;
+            string hashValue = string.Empty;
 
-            var dir = new DirectoryInfo(manifestFullPath);
-            FileInfo[] files = dir.GetFiles();
-
-            foreach (FileInfo file in files)
+            for (int i = 0; i < array.Length; i++)
             {
-                string text = File.ReadAllText(file.FullName);
-
-                if (text.Contains("<EXEHASH>"))
-                {
-                    text = text.Replace("<EXEHASH>", ExeInstallerHashValue);
-                    File.WriteAllText(file.FullName, text);
-                }
-                //else if (text.Contains("<MSIHASH>"))
-                //{
-                //    text = text.Replace("<MSIHASH>", MsiHashValue);
-                //    File.WriteAllText(file.FullName, text);
-                //}
-                //else if (text.Contains("<MSIXHASH>"))
-                //{
-                //    text = text.Replace("<MSIXHASH>", MsixHashValue);
-                //    File.WriteAllText(file.FullName, text);
-                //}
+                hashValue = hashValue + $"{array[i]:X2}";
             }
+
+            return hashValue;
         }
     }
 }

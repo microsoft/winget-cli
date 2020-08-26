@@ -16,12 +16,13 @@
                                       This is used when AppExecutionAlias is not available, or disabled.
   -->
   <TestRunParameters>
-    <Parameter name="PackagedContext" value="true" />
+    <Parameter name="PackagedContext" value="false" />
     <Parameter name="VerboseLogging" value="false" />
-    <Parameter name="AICLIPath" value="AppInst.exe" />
+    <Parameter name="AICLIPath" value="C:\Users\ryfu\source\repos\winget-cli\src\x86\Debug\AppInstallerCLI\AppInstallerCLI.exe" />
     <Parameter name="AICLIPackagePath" value="AppInstallerCLIPackage.appxbundle" />
     <Parameter name="LooseFileRegistration" value="false" />
     <Parameter name="InvokeCommandInDesktopPackage" value="false" /> 
-	<Parameter name="ExeTestInstallerPath" value="ExeInstaller.exe" />
+	<Parameter name="ExeTestInstallerPath" value="C:\Users\ryfu\source\repos\winget-cli\src\x86\Debug\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe" />
+	<Parameter name="PackageCertificatePath" value="cert.pfx"/>
   </TestRunParameters>
 </RunSettings>

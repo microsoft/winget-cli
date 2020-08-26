@@ -13,9 +13,10 @@ namespace AppInstallerCLIE2ETests
         public const string LooseFileRegistrationParameter = "LooseFileRegistration";
         public const string InvokeCommandInDesktopPackageParameter = "InvokeCommandInDesktopPackage";
         public const string StaticFileRootParameter = "StaticFileRoot";
-        public const string ExeInstallerPathParameter = "ExeInstallerPath";
-        public const string MsiInstallerPathParameter = "MsiInstallerPath";
-        public const string MsixInstallerPathParameter = "MsixInstallerPath";
+        public const string ExeInstallerPathParameter = "ExeTestInstallerPath";
+        public const string MsiInstallerPathParameter = "MsiTestInstallerPath";
+        public const string MsixInstallerPathParameter = "MsixTestInstallerPath";
+        public const string PackageCertificatePathParameter = "PackageCertificatePath";
 
         public const string AppInstallerTestCert = "AppInstallerTest.cer";
         public const string AppInstallerTestCertThumbprint = "d03e7a688b388b1edde8476a627531c49db88017";

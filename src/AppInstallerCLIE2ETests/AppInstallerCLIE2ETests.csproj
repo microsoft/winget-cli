@@ -22,6 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\IndexCreationTool\IndexCreationTool.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Test.runsettings">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
