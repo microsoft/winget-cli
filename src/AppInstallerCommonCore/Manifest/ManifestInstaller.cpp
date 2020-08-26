@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #include "pch.h"
-#include "ManifestInstaller.h"
+#include "winget/ManifestInstaller.h"
 
 namespace AppInstaller::Manifest
 {
@@ -83,6 +82,8 @@ namespace AppInstaller::Manifest
             break;
         case ManifestInstaller::InstallerTypeEnum::MSStore:
             result = "MSStore";
+            break;
+        default:
             break;
         }
 

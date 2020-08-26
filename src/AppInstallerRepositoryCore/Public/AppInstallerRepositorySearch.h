@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <Manifest/Manifest.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
 #include <winget/LocIndependent.h>
+#include <winget/Manifest.h>
 
 #include <memory>
 #include <optional>

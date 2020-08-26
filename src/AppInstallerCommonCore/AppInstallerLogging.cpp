@@ -31,7 +31,7 @@ namespace AppInstaller::Logging
         }
     }
 
-    char const* const GetChannelName(Channel channel)
+    char const* GetChannelName(Channel channel)
     {
         switch(channel)
         {

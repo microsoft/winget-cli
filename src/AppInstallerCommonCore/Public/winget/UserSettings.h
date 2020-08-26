@@ -4,9 +4,11 @@
 #include "AppInstallerStrings.h"
 
 #include <filesystem>
-#include <vector>
+#include <map>
+#include <optional>
 #include <string>
 #include <variant>
+#include <vector>
 
 namespace AppInstaller::Settings
 {
@@ -83,7 +85,7 @@ namespace AppInstaller::Settings
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>
-        inline auto Deduce(std::index_sequence<I...>) { return std::variant<std::monostate, SettingMapping<static_cast<Setting>(I)>::value_t...>{}; }
+        inline auto Deduce(std::index_sequence<I...>) { return std::variant<std::monostate, typename SettingMapping<static_cast<Setting>(I)>::value_t...>{}; }
 
         // Holds data of any type listed in a SettingMapping.
         using SettingVariant = decltype(Deduce(std::make_index_sequence<static_cast<size_t>(Setting::Max)>()));

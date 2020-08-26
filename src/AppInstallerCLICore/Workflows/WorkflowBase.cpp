@@ -5,7 +5,7 @@
 #include "ExecutionContext.h"
 #include "ManifestComparator.h"
 #include "TableOutput.h"
-#include "Manifest/YamlParser.h"
+#include <winget/ManifestYamlParser.h>
 
 
 namespace AppInstaller::CLI::Workflow

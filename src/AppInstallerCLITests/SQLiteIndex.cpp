@@ -3,8 +3,8 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <SQLiteWrapper.h>
-#include <Manifest/Manifest.h>
 #include <Microsoft/SQLiteIndex.h>
+#include <winget/Manifest.h>
 
 #include <Microsoft/Schema/1_0/IdTable.h>
 #include <Microsoft/Schema/1_0/NameTable.h>

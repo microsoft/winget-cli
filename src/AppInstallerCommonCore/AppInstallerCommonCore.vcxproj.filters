@@ -25,6 +25,9 @@
     <Filter Include="Public\winget">
       <UniqueIdentifier>{41035fd6-dc74-4464-b9b1-4ffe95d6789c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Manifest">
+      <UniqueIdentifier>{9b8e2682-3eb7-4530-bc9a-a57fafc44177}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -120,6 +123,21 @@
     <ClInclude Include="Public\winget\Yaml.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\Manifest.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\ManifestInstaller.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\ManifestLocalization.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\ManifestValidation.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\ManifestYamlParser.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -199,6 +217,18 @@
     </ClCompile>
     <ClCompile Include="Yaml.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\Manifest.cpp">
+      <Filter>Manifest</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\ManifestInstaller.cpp">
+      <Filter>Manifest</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\ManifestValidation.cpp">
+      <Filter>Manifest</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\YamlParser.cpp">
+      <Filter>Manifest</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

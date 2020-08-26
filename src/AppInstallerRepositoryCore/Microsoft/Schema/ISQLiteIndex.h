@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 #pragma once
 #include "SQLiteWrapper.h"
-#include "Manifest/Manifest.h"
 #include "Microsoft/Schema/Version.h"
 #include "Public/AppInstallerRepositorySearch.h"
 #include <AppInstallerVersions.h>
+#include <winget/Manifest.h>
 
 #include <filesystem>
 
