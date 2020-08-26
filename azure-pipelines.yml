@@ -219,7 +219,7 @@ jobs:
         command: run
         arguments: '-- %TEMP%'
         workingDirectory: 'src\LaunchKestrel\bin\Release\netcoreapp3.1'
-    condition: succeededOrFailed();
+    condition: succeededOrFailed()
 
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x64
