@@ -29,6 +29,10 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://winget.azureedge.net/cache"sv;
     constexpr std::string_view s_Source_WingetCommunityDefault_Data = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
 
+    constexpr std::string_view s_Source_WingetMSStoreDefault_Name = "msstore"sv;
+    constexpr std::string_view s_Source_WingetMSStoreDefault_Arg = "https://winget.azureedge.net/msstore"sv;
+    constexpr std::string_view s_Source_WingetMSStoreDefault_Data = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
+
     namespace
     {
         // SourceDetails with additional data used by this file.
@@ -189,6 +193,16 @@ namespace AppInstaller::Repository
                 details.Arg = s_Source_WingetCommunityDefault_Arg;
                 details.Data = s_Source_WingetCommunityDefault_Data;
                 result.emplace_back(std::move(details));
+
+                if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore))
+                {
+                    SourceDetailsInternal storeDetails;
+                    storeDetails.Name = s_Source_WingetMSStoreDefault_Name;
+                    storeDetails.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+                    storeDetails.Arg = s_Source_WingetMSStoreDefault_Arg;
+                    storeDetails.Data = s_Source_WingetMSStoreDefault_Data;
+                    result.emplace_back(std::move(storeDetails));
+                }
             }
                 break;
             case SourceOrigin::User:

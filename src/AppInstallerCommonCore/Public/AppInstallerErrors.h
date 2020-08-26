@@ -2,7 +2,10 @@
 // Licensed under the MIT License.
 #pragma once
 #include <wil/result_macros.h>
+
+#ifndef WINGET_DISABLE_FOR_FUZZING
 #include <winrt/base.h>
+#endif
 
 #include <exception>
 #include <string>
@@ -57,6 +60,9 @@ namespace AppInstaller
 {
     // Gets error messages that are presentable to the user.
     std::string GetUserPresentableMessage(const wil::ResultException& re);
-    std::string GetUserPresentableMessage(const winrt::hresult_error& hre);
     std::string GetUserPresentableMessage(const std::exception& e);
+
+#ifndef WINGET_DISABLE_FOR_FUZZING
+    std::string GetUserPresentableMessage(const winrt::hresult_error& hre);
+#endif
 }

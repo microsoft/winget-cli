@@ -22,9 +22,6 @@
     <Filter Include="Microsoft\Schema\1_0">
       <UniqueIdentifier>{cff561cd-211b-4cab-87f5-39359eef1e8d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Manifest">
-      <UniqueIdentifier>{052eaac1-ec6e-4879-8388-aff5a30401f0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Public">
       <UniqueIdentifier>{69ce2e35-fe7f-41af-bd47-91a70131d167}</UniqueIdentifier>
     </Filter>
@@ -53,15 +50,6 @@
     </ClInclude>
     <ClInclude Include="Microsoft\Schema\1_0\Interface.h">
       <Filter>Microsoft\Schema\1_0</Filter>
-    </ClInclude>
-    <ClInclude Include="Manifest\Manifest.h">
-      <Filter>Manifest</Filter>
-    </ClInclude>
-    <ClInclude Include="Manifest\ManifestInstaller.h">
-      <Filter>Manifest</Filter>
-    </ClInclude>
-    <ClInclude Include="Manifest\ManifestLocalization.h">
-      <Filter>Manifest</Filter>
     </ClInclude>
     <ClInclude Include="Microsoft\Schema\1_0\OneToOneTable.h">
       <Filter>Microsoft\Schema\1_0</Filter>
@@ -123,12 +111,6 @@
     <ClInclude Include="ICU\SQLiteICU.h">
       <Filter>ICU</Filter>
     </ClInclude>
-    <ClInclude Include="Manifest\ManifestValidation.h">
-      <Filter>Manifest</Filter>
-    </ClInclude>
-    <ClInclude Include="Manifest\YamlParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AggregatedSource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -151,12 +133,6 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_0\Interface.cpp">
       <Filter>Microsoft\Schema\1_0</Filter>
-    </ClCompile>
-    <ClCompile Include="Manifest\Manifest.cpp">
-      <Filter>Manifest</Filter>
-    </ClCompile>
-    <ClCompile Include="Manifest\ManifestInstaller.cpp">
-      <Filter>Manifest</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_0\OneToOneTable.cpp">
       <Filter>Microsoft\Schema\1_0</Filter>
@@ -190,12 +166,6 @@
     </ClCompile>
     <ClCompile Include="ICU\SQLiteICU.c">
       <Filter>ICU</Filter>
-    </ClCompile>
-    <ClCompile Include="Manifest\ManifestValidation.cpp">
-      <Filter>Manifest</Filter>
-    </ClCompile>
-    <ClCompile Include="Manifest\YamlParser.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AggregatedSource.cpp">
       <Filter>Source Files</Filter>

@@ -4,8 +4,8 @@
 #include <AppInstallerArchitecture.h>
 #include <AppInstallerStrings.h>
 
-#include <string>
 #include <map>
+#include <string>
 
 namespace AppInstaller::Manifest
 {

@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <AppInstallerLogging.h>
-#include <Manifest/YamlParser.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerStrings.h>
 #include <Workflows/InstallFlow.h>
@@ -15,6 +14,7 @@
 #include <Commands/InstallCommand.h>
 #include <Commands/ShowCommand.h>
 #include <winget/LocIndependent.h>
+#include <winget/ManifestYamlParser.h>
 #include <Resources.h>
 
 using namespace winrt::Windows::Foundation;
