@@ -14,7 +14,8 @@
        LooseFileRegistration: Bool to set if loose file registration should be used.
        InvokeCommandInDesktopPackage: Bool to indicate using Invoke-CommandInDesktopPackage for test execution.
                                       This is used when AppExecutionAlias is not available, or disabled.
-       ExeTestInstallerPath: The Exe Installer executable under test.
+       StaticFileRootPath: Path to the set of static test files that will be served as the source for testing purposes.
+	   ExeTestInstallerPath: The Exe Installer executable under test.
 	   MsiTestInstallerPath: The Msi Installer executable under test.
 	   MsixTestInstallerPath: The Msix Inistaller executable under test.
 	   PackageCertificatePath: Signing Certificate Path used to certify Index Source Package
@@ -26,6 +27,7 @@
 	  <Parameter name="AICLIPackagePath" value="AppInstallerCLIPackage.appxbundle" />
 	  <Parameter name="LooseFileRegistration" value="false" />
 	  <Parameter name="InvokeCommandInDesktopPackage" value="false" />
+	  <Parameter name="StaticFileRootPath" value="%TEMP%\TestLocalIndex" />
 	  <Parameter name="ExeTestInstallerPath" value="ExeInstaller.exe" />
 	  <Parameter name="MsiTestInstallerPath" value="MsiInstaller.msi" />
 	  <Parameter name="MsixTestInstallerPath" value="MsiInstaller.msix" />

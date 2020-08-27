@@ -23,6 +23,8 @@ namespace AppInstallerCLIE2ETests
 
         public static bool InvokeCommandInDesktopPackage { get; set; }
 
+        public static string StaticFileRootPath { get; set; }
+
         public static string ExeInstallerPath { get; set; }
 
         public static string MsiInstallerPath { get; set; }

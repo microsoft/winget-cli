@@ -231,6 +231,7 @@ jobs:
                                   -AICLIPath AppInstallerCLI\AppInstallerCLI.exe
                                   -LooseFileRegistration true
                                   -InvokeCommandInDesktopPackage true
+                                  -TestLocalIndexPath $(Agent.TempDirectory)\TestLocalIndex
                                   -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -MsiTestInstallerPath $(system.defaultWorkingDirectory)\src\AppInstallerTestMsiInstaller\Release\AppInstallerTestMsiInstaller.msi
                                   -MsixTestInstallerPath $(system.defaultWorkingDirectory)\src\bin\x86\Release\AppInstallerTestMsixInstaller.msix

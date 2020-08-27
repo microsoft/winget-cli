@@ -98,6 +98,15 @@ namespace AppInstallerCLIE2ETests
                 }
             }
 
+            if (TestContext.Parameters.Exists(Constants.StaticFileRootPathParameter))
+            {
+                TestCommon.StaticFileRootPath = TestContext.Parameters.Get(Constants.StaticFileRootPathParameter);
+            }
+            else
+            {
+                TestCommon.StaticFileRootPath = Path.GetTempPath();
+            }
+
             ReadTestInstallerPaths();
 
             SetupTestLocalIndexDirectory();
@@ -183,26 +192,22 @@ namespace AppInstallerCLIE2ETests
             {
                 TestCommon.MsixInstallerPath = TestCommon.GetTestFile("AppInstallerTestMsixInstaller.msix");
             }
-
-            Console.WriteLine("Installer File Paths Stored");
         }
 
         private void CopyInstallerFilesToLocalIndex()
         {
-            string exeInstallerDestPath = Path.Combine(Path.GetTempPath(), TestLocalIndexName, ExeInstallerName);
+            string exeInstallerDestPath = Path.Combine(TestCommon.StaticFileRootPath, TestLocalIndexName, ExeInstallerName);
             DirectoryInfo exeInstallerDestDir = Directory.CreateDirectory(exeInstallerDestPath);
 
             string exeInstallerFullName = Path.Combine(exeInstallerDestDir.FullName, "AppInstallerTestExeInstaller.exe");
 
             File.Copy(TestCommon.ExeInstallerPath, exeInstallerFullName, true);
-
-            Console.WriteLine("Installer Files Copied to Test Local Index Directory");
         }
 
         private void SetupSourcePackage()
         {
-            string testRootDir = Path.Combine(Path.GetTempPath(), TestLocalIndexName, TestDataName);
-            string testLocalIndexRoot = Path.Combine(Path.GetTempPath(), TestLocalIndexName);
+            string testRootDir = Path.Combine(TestCommon.StaticFileRootPath, TestLocalIndexName, TestDataName);
+            string testLocalIndexRoot = Path.Combine(TestCommon.StaticFileRootPath, TestLocalIndexName);
             string destIndexPath = Path.Combine(testLocalIndexRoot, PackageName, PublicName, IndexName);
             string certPath = TestCommon.PackageCertificatePath;
 
@@ -217,13 +222,11 @@ namespace AppInstallerCLIE2ETests
             {
                 RunCommand(indexCreationToolPath + @"\IndexCreationTool.exe", $"-d {testRootDir}");
                 File.Move(IndexName, destIndexPath, true);
-                Console.WriteLine("Index Package Created");
-
-                string packageDir = Path.Combine(Path.GetTempPath(), TestLocalIndexName, PackageName);
+                
+                string packageDir = Path.Combine(TestCommon.StaticFileRootPath, TestLocalIndexName, PackageName);
 
                 RunCommand("makeappx.exe", $"pack /l /d {packageDir} /p {IndexPackageName}");
                 RunCommand("signtool.exe", $"sign / a / fd sha256 / f {certPath} {IndexPackageName}");
-                Console.WriteLine("Package Created and Signed");
 
                 // Move Package to TestLocalIndex 
                 File.Move(IndexPackageName, testLocalIndexRoot, true);
@@ -236,7 +239,7 @@ namespace AppInstallerCLIE2ETests
 
         private void SetupTestLocalIndexDirectory()
         {
-            string testLocalIndexTempRoot = Path.Combine(Path.GetTempPath(), TestLocalIndexName);
+            string testLocalIndexTempRoot = Path.Combine(TestCommon.StaticFileRootPath, TestLocalIndexName);
 
             DirectoryInfo tempRootDir = Directory.CreateDirectory(testLocalIndexTempRoot);
 
@@ -254,13 +257,11 @@ namespace AppInstallerCLIE2ETests
             string sourcePath = Path.Combine(currentDirectory, TestDataName);
 
             DirectoryCopy(sourcePath, testLocalIndexTempRoot);
-
-            Console.WriteLine("TestLocalIndex Created Succesfully");
         }
 
         private void ReplaceManifestHashToken()
         {
-            string manifestFullPath = Path.Combine(Path.GetTempPath(), TestLocalIndexName, ManifestsName);
+            string manifestFullPath = Path.Combine(TestCommon.StaticFileRootPath, TestLocalIndexName, ManifestsName);
 
             var dir = new DirectoryInfo(manifestFullPath);
             FileInfo[] files = dir.GetFiles();
@@ -285,8 +286,6 @@ namespace AppInstallerCLIE2ETests
                     File.WriteAllText(file.FullName, text);
                 }
             }
-
-            Console.WriteLine("Manifest Hash Tokens Replaced");
         }
 
         private void DirectoryCopy(string sourceDirName, string destDirName)
