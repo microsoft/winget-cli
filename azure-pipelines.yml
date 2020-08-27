@@ -217,7 +217,7 @@ jobs:
     displayName: Launch IndexHostService
     inputs:
       filePath: 'src\IndexHostService\Run-IndexHostService.ps1'
-      arguments: '-BuildRoot $(system.defaultWorkingDirectory)\src\x64\Release\IndexHostService -LocalIndexRoot $(Agent.TempDirectory)\TestLocalIndex'
+      arguments: '-BuildRoot $(system.defaultWorkingDirectory)\src\AnyCPU\Release\IndexHostService -LocalIndexRoot $(Agent.TempDirectory)\TestLocalIndex'
     condition: succeededOrFailed()
 
   - task: VSTest@2

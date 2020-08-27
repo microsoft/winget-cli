@@ -164,6 +164,24 @@ namespace AppInstallerCLIE2ETests
             {
                 TestCommon.ExeInstallerPath = TestCommon.GetTestFile("AppInstallerTestExeInstaller.exe");
             }
+
+            if (TestContext.Parameters.Exists(Constants.MsiInstallerPathParameter))
+            {
+                TestCommon.MsiInstallerPath = TestContext.Parameters.Get(Constants.MsiInstallerPathParameter);
+            }
+            else
+            {
+                TestCommon.MsiInstallerPath = TestCommon.GetTestFile("AppInstallerTestMsiInstaller.msi");
+            }
+
+            if (TestContext.Parameters.Exists(Constants.MsixInstallerPathParameter))
+            {
+                TestCommon.MsixInstallerPath = TestContext.Parameters.Get(Constants.MsixInstallerPathParameter);
+            }
+            else
+            {
+                TestCommon.MsixInstallerPath = TestCommon.GetTestFile("AppInstallerTestMsixInstaller.msix");
+            }
         }
 
         private void CopyInstallerFilesToLocalIndex()
