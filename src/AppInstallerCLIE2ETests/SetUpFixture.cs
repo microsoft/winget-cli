@@ -9,7 +9,6 @@ namespace AppInstallerCLIE2ETests
     using System.IO;
     using System.Diagnostics;
     using System.Security.Cryptography;
-    using IndexCreationTool;
 
     [SetUpFixture]
     public class SetUpFixture
