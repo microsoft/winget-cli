@@ -17,4 +17,4 @@ param(
 
 cd $BuildRoot
 
-dotnet .\IndexHostService.dll $LocalIndexRoot
+StartProcess -FilePath "IndexHostService.exe" -ArgumentList "$LocalIndexRoot"
