@@ -17,4 +17,4 @@ param(
 
 cd $BuildRoot
 
-StartProcess -FilePath "IndexHostService.exe" -ArgumentList "$LocalIndexRoot"
+Start-Process -FilePath "IndexHostService.exe" -ArgumentList "$LocalIndexRoot"
