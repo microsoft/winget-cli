@@ -1,3 +1,3 @@
-cd ($system.defaultWorkingDirectory)\src\x64\Release\IndexHostService
+cd "$(system.defaultWorkingDirectory)\src\x64\Release\IndexHostService"
 
-dotnet IndexHostService.dll %TEMP%\TestLocalIndex
+dotnet .\IndexHostService.dll "$(Agent.TempDirectory)\TestLocalIndex"
