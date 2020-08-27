@@ -213,10 +213,10 @@ jobs:
     inputs:
         secureFile: 'AppInstallerTest.pfx'
 
-  - task: DotNetCoreCLI@2
-    displayName: Launch Test Index Host Service
+  - task: PowerShell@2
+    displayName: Launch IndexHostService
     inputs:
-        arguments: 'src\x86\Release\IndexHostService\IndexHostService.dll %TEMP%'
+      filePath: 'src\IndexHostService\Run-IndexHostService.ps1'
     condition: succeededOrFailed()
 
   - task: VSTest@2
