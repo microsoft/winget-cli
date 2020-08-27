@@ -183,6 +183,8 @@ namespace AppInstallerCLIE2ETests
             {
                 TestCommon.MsixInstallerPath = TestCommon.GetTestFile("AppInstallerTestMsixInstaller.msix");
             }
+
+            Console.WriteLine("Installer File Paths Stored");
         }
 
         private void CopyInstallerFilesToLocalIndex()
@@ -193,6 +195,8 @@ namespace AppInstallerCLIE2ETests
             string exeInstallerFullName = Path.Combine(exeInstallerDestDir.FullName, "AppInstallerTestExeInstaller.exe");
 
             File.Copy(TestCommon.ExeInstallerPath, exeInstallerFullName, true);
+
+            Console.WriteLine("Installer Files Copied to Test Local Index Directory");
         }
 
         private void SetupSourcePackage()
@@ -212,15 +216,14 @@ namespace AppInstallerCLIE2ETests
             try
             {
                 RunCommand(indexCreationToolPath + @"\IndexCreationTool.exe", $"-d {testRootDir}");
-
-                //Move Index.db to Package/Index 
                 File.Move(IndexName, destIndexPath, true);
+                Console.WriteLine("Index Package Created");
 
                 string packageDir = Path.Combine(Path.GetTempPath(), TestLocalIndexName, PackageName);
 
-                // Create Index Package and Sign With Certificate
                 RunCommand("makeappx.exe", $"pack /l /d {packageDir} /p {IndexPackageName}");
                 RunCommand("signtool.exe", $"sign / a / fd sha256 / f {certPath} {IndexPackageName}");
+                Console.WriteLine("Package Created and Signed");
 
                 // Move Package to TestLocalIndex 
                 File.Move(IndexPackageName, testLocalIndexRoot, true);
@@ -251,6 +254,8 @@ namespace AppInstallerCLIE2ETests
             string sourcePath = Path.Combine(currentDirectory, TestDataName);
 
             DirectoryCopy(sourcePath, testLocalIndexTempRoot);
+
+            Console.WriteLine("TestLocalIndex Created Succesfully");
         }
 
         private void ReplaceManifestHashToken()
@@ -280,6 +285,8 @@ namespace AppInstallerCLIE2ETests
                     File.WriteAllText(file.FullName, text);
                 }
             }
+
+            Console.WriteLine("Manifest Hash Tokens Replaced");
         }
 
         private void DirectoryCopy(string sourceDirName, string destDirName)

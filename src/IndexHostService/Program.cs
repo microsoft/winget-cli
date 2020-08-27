@@ -24,6 +24,7 @@ namespace IndexHostService
             }
 
             Directory.CreateDirectory(Startup.StaticFileRoot);
+            Console.WriteLine("Begin Serving:" + Startup.StaticFileRoot + "Through HTTPS");
 
             CreateHostBuilder(args).Build().Run();
         }
