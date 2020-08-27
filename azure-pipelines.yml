@@ -216,9 +216,7 @@ jobs:
   - task: DotNetCoreCLI@2
     displayName: Launch Test Index Host Service
     inputs:
-        command: run
-        arguments: '-- %TEMP%'
-        workingDirectory: 'src\IndexHostService\bin\Release\netcoreapp3.1'
+        arguments: 'src\x86\Release\IndexHostService\IndexHostService.dll %TEMP%'
     condition: succeededOrFailed()
 
   - task: VSTest@2

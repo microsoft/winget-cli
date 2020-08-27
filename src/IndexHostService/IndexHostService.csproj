@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<TargetFramework>netcoreapp3.1</TargetFramework>
-		<OutDir>$(SolutionDir)$(Platform)\$(Configuration)\IndexCreationTool\</OutDir>
+		<OutDir>$(SolutionDir)$(Platform)\$(Configuration)\IndexHostService\</OutDir>
 		<Platforms>x64;x86</Platforms>
 	</PropertyGroup>
 

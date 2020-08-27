@@ -7,6 +7,7 @@ namespace IndexHostService
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
     using System;
+    using System.IO;
 
     public class Program
     {
@@ -21,6 +22,8 @@ namespace IndexHostService
                 Console.WriteLine("Usage: IndexHostService.exe <Path to Serve Static Root Directory>");
                 return;
             }
+
+            Directory.CreateDirectory(Path.Combine(Startup.StaticFileRoot, "TestLocalIndex"));
 
             CreateHostBuilder(args).Build().Run();
         }
