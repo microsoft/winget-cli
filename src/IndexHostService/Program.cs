@@ -23,7 +23,7 @@ namespace IndexHostService
                 return;
             }
 
-            Directory.CreateDirectory(Path.Combine(Startup.StaticFileRoot, "TestLocalIndex"));
+            Directory.CreateDirectory(Startup.StaticFileRoot);
 
             CreateHostBuilder(args).Build().Run();
         }
