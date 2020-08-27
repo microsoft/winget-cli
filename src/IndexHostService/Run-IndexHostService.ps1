@@ -9,7 +9,7 @@
 
 param(
     [Parameter(Mandatory=$true)]
-    [string]$BuildRoot
+    [string]$BuildRoot,
 
     [Parameter(Mandatory=$true)]
     [string]$LocalIndexRoot

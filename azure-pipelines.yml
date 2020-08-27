@@ -232,6 +232,8 @@ jobs:
                                   -LooseFileRegistration true
                                   -InvokeCommandInDesktopPackage true
                                   -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
+                                  -MsiTestInstallerPath $(system.defaultWorkingDirectory)\src\AppInstallerTestMsiInstaller\Release\AppInstallerTestMsiInstaller.msi
+                                  -MsixTestInstallerPath $(system.defaultWorkingDirectory)\src\bin\x86\Release\AppInstallerTestMsixInstaller.msix
                                   -PackageCertificationPath $(AppInstallerTest.secureFilePath)'
     condition: succeededOrFailed()
 
