@@ -22,6 +22,7 @@ namespace AppInstallerCLIE2ETests
         private const string IndexName = @"index.db";
         private const string PublicName = "Public";
         private const string IndexCreationToolName = "IndexCreationTool";
+        private const string WinGetUtilName = "WinGetUtil";
 
         private const string ExeInstallerName = @"AppInstallerTestExeInstaller";
         private const string IndexPackageName = @"source.msix";
@@ -48,18 +49,6 @@ namespace AppInstallerCLIE2ETests
 
             TestCommon.InvokeCommandInDesktopPackage = TestContext.Parameters.Exists(Constants.InvokeCommandInDesktopPackageParameter) &&
                 TestContext.Parameters.Get(Constants.InvokeCommandInDesktopPackageParameter).Equals("true", StringComparison.OrdinalIgnoreCase);
-
-            ReadTestInstallerPaths();
-
-            SetupTestLocalIndexDirectory();
-
-            CopyInstallerFilesToLocalIndex();
-
-            HashInstallers();
-
-            ReplaceManifestHashToken();
-
-            SetupSourcePackage();
 
             if (TestContext.Parameters.Exists(Constants.AICLIPathParameter))
             {
@@ -108,6 +97,18 @@ namespace AppInstallerCLIE2ETests
                     Assert.True(TestCommon.InstallMsix(TestCommon.AICLIPackagePath), "InstallMsix");
                 }
             }
+
+            ReadTestInstallerPaths();
+
+            SetupTestLocalIndexDirectory();
+
+            CopyInstallerFilesToLocalIndex();
+
+            HashInstallers();
+
+            ReplaceManifestHashToken();
+
+            SetupSourcePackage();
         }
 
         [OneTimeTearDown]
@@ -203,6 +204,10 @@ namespace AppInstallerCLIE2ETests
 
             DirectoryInfo parentDir = Directory.GetParent(Directory.GetCurrentDirectory());
             string indexCreationToolPath = Path.Combine(parentDir.FullName, IndexCreationToolName);
+            string winGetUtilPath = Path.Combine(parentDir.FullName, WinGetUtilName);
+
+            // Copy WingetUtil.dll app extension to IndexCreationTool Path
+            File.Copy(Path.Combine(winGetUtilPath, @"WinGetUtil.dll"), Path.Combine(indexCreationToolPath, @"WinGetUtil.dll"), true);
 
             try
             {
