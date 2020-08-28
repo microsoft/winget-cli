@@ -13,7 +13,7 @@ namespace AppInstallerCLIE2ETests
         private const string InstallTestSourceName = @"InstallTestSource";
 
         private const string InstallTestExeInstalledFile = @"TestExeInstalled.txt";
-        private const string InstallTestMsiInstalledFile = @"AppInstallerTestExeInstaller.exe";
+        private const string InstallTestMsiInstalledFile = @"AppInstallerTestMsiInstaller.msi";
         private const string InstallTestMsiProductId = @"{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
         private const string InstallTestMsixName = @"6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
 

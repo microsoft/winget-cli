@@ -106,6 +106,11 @@ namespace AppInstallerCLIE2ETests
                 TestCommon.StaticFileRootPath = Path.GetTempPath();
             }
 
+            if (TestContext.Parameters.Exists(Constants.PackageCertificatePathParameter))
+            {
+                TestCommon.PackageCertificatePath = TestContext.Parameters.Get(Constants.PackageCertificatePathParameter);
+            }
+
             ReadTestInstallerPaths();
 
             SetupTestLocalIndexDirectory();
@@ -195,7 +200,7 @@ namespace AppInstallerCLIE2ETests
 
         private void CopyInstallerFilesToLocalIndex()
         {
-            string exeInstallerDestPath = Path.Combine(TestCommon.StaticFileRootPath, TestLocalIndexName, ExeInstallerName);
+            string exeInstallerDestPath = Path.Combine(TestCommon.StaticFileRootPath, ExeInstallerName);
             DirectoryInfo exeInstallerDestDir = Directory.CreateDirectory(exeInstallerDestPath);
 
             string exeInstallerFullName = Path.Combine(exeInstallerDestDir.FullName, "AppInstallerTestExeInstaller.exe");
@@ -205,8 +210,8 @@ namespace AppInstallerCLIE2ETests
 
         private void SetupSourcePackage()
         {
-            string testRootDir = Path.Combine(TestCommon.StaticFileRootPath, TestLocalIndexName, TestDataName);
-            string testLocalIndexRoot = Path.Combine(TestCommon.StaticFileRootPath, TestLocalIndexName);
+            string testRootDir = Path.Combine(TestCommon.StaticFileRootPath);
+            string testLocalIndexRoot = TestCommon.StaticFileRootPath;
             string destIndexPath = Path.Combine(testLocalIndexRoot, PackageName, PublicName, IndexName);
             string certPath = TestCommon.PackageCertificatePath;
 
@@ -217,18 +222,20 @@ namespace AppInstallerCLIE2ETests
             // Copy WingetUtil.dll app extension to IndexCreationTool Path
             File.Copy(Path.Combine(winGetUtilPath, @"WinGetUtil.dll"), Path.Combine(indexCreationToolPath, @"WinGetUtil.dll"), true);
 
+            string appxManifestPath = TestCommon.StaticFileRootPath + @"\AppxManifest.xml";
+
             try
             {
-                RunCommand(indexCreationToolPath + @"\IndexCreationTool.exe", $"-d {testRootDir}");
+                RunCommand(indexCreationToolPath + @"\IndexCreationTool.exe", $"-d {TestCommon.StaticFileRootPath}");
                 File.Move(IndexName, destIndexPath, true);
                 
-                string packageDir = Path.Combine(TestCommon.StaticFileRootPath, TestLocalIndexName, PackageName);
+                string packageDir = Path.Combine(TestCommon.StaticFileRootPath, PackageName);
 
+                //Directory must not already contain a source.msix package
                 RunCommand("makeappx.exe", $"pack /l /d {packageDir} /p {IndexPackageName}");
-                RunCommand("signtool.exe", $"sign / a / fd sha256 / f {certPath} {IndexPackageName}");
+                RunCommand("signtool.exe", $"sign /a /fd sha256 /f {certPath} {IndexPackageName}");
 
-                // Move Package to TestLocalIndex 
-                File.Move(IndexPackageName, testLocalIndexRoot, true);
+                File.Copy(IndexPackageName, Path.Combine(testLocalIndexRoot, IndexPackageName));
             }
             catch (Exception e)
             {
@@ -238,9 +245,7 @@ namespace AppInstallerCLIE2ETests
 
         private void SetupTestLocalIndexDirectory()
         {
-            string testLocalIndexTempRoot = Path.Combine(TestCommon.StaticFileRootPath, TestLocalIndexName);
-
-            DirectoryInfo tempRootDir = Directory.CreateDirectory(testLocalIndexTempRoot);
+            DirectoryInfo tempRootDir = Directory.CreateDirectory(TestCommon.StaticFileRootPath);
 
             foreach (FileInfo file in tempRootDir.GetFiles())
             {
@@ -255,12 +260,12 @@ namespace AppInstallerCLIE2ETests
             string currentDirectory = Environment.CurrentDirectory;
             string sourcePath = Path.Combine(currentDirectory, TestDataName);
 
-            DirectoryCopy(sourcePath, testLocalIndexTempRoot);
+            DirectoryCopy(sourcePath, TestCommon.StaticFileRootPath);
         }
 
         private void ReplaceManifestHashToken()
         {
-            string manifestFullPath = Path.Combine(TestCommon.StaticFileRootPath, TestLocalIndexName, ManifestsName);
+            string manifestFullPath = Path.Combine(TestCommon.StaticFileRootPath, ManifestsName);
 
             var dir = new DirectoryInfo(manifestFullPath);
             FileInfo[] files = dir.GetFiles();
