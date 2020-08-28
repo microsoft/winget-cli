@@ -17,6 +17,10 @@ param(
 
 cd $BuildRoot
 
-dotnet dev-certs https -ep cert.pfx -p microsoft
+dotnet dev-certs https --clean
 
-Start-Process -FilePath "dotnet" -ArgumentList "IndexHostService.dll $LocalIndexRoot 5001 cert.pfx microsoft"
+dotnet dev-certs https
+
+dotnet dev-certs https --trust
+
+Start-Process -FilePath "IndexHostService.exe" -ArgumentList "$LocalIndexRoot"

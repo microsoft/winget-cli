@@ -233,7 +233,7 @@ namespace AppInstallerCLIE2ETests
 
                 //Directory must not already contain a source.msix package
                 RunCommand("makeappx.exe", $"pack /l /d {packageDir} /p {IndexPackageName}");
-                RunCommand("signtool.exe", $"sign /a /fd sha256 /f {certPath} {IndexPackageName}");
+                //RunCommand("signtool.exe", $"sign /a /fd sha256 /f {certPath} {IndexPackageName}");
 
                 File.Copy(IndexPackageName, Path.Combine(testLocalIndexRoot, IndexPackageName));
             }
