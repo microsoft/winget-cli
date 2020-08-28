@@ -23,15 +23,15 @@ namespace AppInstallerCLIE2ETests
             TestCommon.WaitForDeploymentFinish();
         }
 
-        [Test]
+        //[Test]
         public void VerifyGB18030Support()
         {
             var result = TestCommon.RunAICLICommand("search", $"丂令龥€￥ 㐀㲷䶵 𠀀𠀁𠀂");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("丂令龥€￥ 㐀㲷䶵 𠀀𠀁𠀂"));
         }
-
-        [Test]
+        
+        //[Test]
         public void VerifyDirectionalitySupport()
         {
             var result = TestCommon.RunAICLICommand("search", " أنا اختبار إدخال النص في لغات مختلفة 01 لأحد منتجات Microsoft");
@@ -39,7 +39,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("أنا اختبار إدخال النص في لغات مختلفة 01 لأحد منتجات Microsoft"));
         }
 
-        [Test]
+        //[Test]
         public void VerifyUnicodeSupport()
         {
             var result = TestCommon.RunAICLICommand("show", $"丂令龥€￥ 㐀㲷䶵 𠀀𠀁𠀂 -s {CharacterHandlingSourceName}");

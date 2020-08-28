@@ -17,4 +17,6 @@ param(
 
 cd $BuildRoot
 
-Start-Process -FilePath "IndexHostService.exe" -ArgumentList "$LocalIndexRoot"
+dotnet dev-certs https -ep cert.pfx -p microsoft
+
+Start-Process -FilePath "dotnet" -ArgumentList "IndexHostService.dll $LocalIndexRoot 5001 cert.pfx microsoft"
