@@ -21,6 +21,4 @@ dotnet dev-certs https --clean
 
 dotnet dev-certs https
 
-dotnet dev-certs https --trust
-
 Start-Process -FilePath "IndexHostService.exe" -ArgumentList "$LocalIndexRoot"
