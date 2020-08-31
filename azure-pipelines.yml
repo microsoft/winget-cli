@@ -223,7 +223,7 @@ jobs:
     displayName: Install Root Certificate
     inputs:
       filePath: 'src\IndexHostService\InstallDevCert.ps1'
-      arguments: '-pfxpath $(system.defaultWorkingDirectory)\src\IndexHostService\HTTPSDevCert.pfx -password microsoft'
+      arguments: '-pfxpath $(HTTPSDevCert.secureFilePath) -password microsoft'
     condition: succeededOrFailed()
 
   - task: PowerShell@2
