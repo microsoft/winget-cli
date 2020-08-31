@@ -27,8 +27,4 @@ param(
 
 cd $BuildRoot
 
-dotnet dev-certs https --clean
-
-dotnet dev-certs https
-
 Start-Process -FilePath 'dotnet' -ArgumentList 'run -d $LocalIndexRoot -c $CertPath -p $CertPassword'

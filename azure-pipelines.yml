@@ -220,6 +220,13 @@ jobs:
         secureFile: 'HTTPSDevCert.pfx'
 
   - task: PowerShell@2
+    displayName: Install Root Certificate
+    inputs:
+      filePath: 'src\IndexHostService\InstallDevCert.ps1'
+      arguments: '-pfxpath $(system.defaultWorkingDirectory)\src\IndexHostService\HTTPSDevCert.pfx -password microsoft'
+    condition: succeededOrFailed()
+
+  - task: PowerShell@2
     displayName: Launch IndexHostService
     inputs:
       filePath: 'src\IndexHostService\Run-IndexHostService.ps1'

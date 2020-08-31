@@ -1,5 +1,10 @@
-$pfxpath = 'C:\Users\ryfu\source\repos\winget-cli\src\IndexHostService\HTTPSDevCert.pfx'
-$password = 'microsoft'
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$pfxpath,
+
+    [Parameter(Mandatory=$true)]
+    [string]$password
+)
 
 Add-Type -AssemblyName System.Security
 $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
