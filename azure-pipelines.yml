@@ -223,7 +223,7 @@ jobs:
     displayName: Launch IndexHostService
     inputs:
       filePath: 'src\IndexHostService\Run-IndexHostService.ps1'
-      arguments: '-BuildRoot $(system.defaultWorkingDirectory)\src\AnyCPU\Release\IndexHostService -LocalIndexRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
+      arguments: '-BuildRoot $(system.defaultWorkingDirectory)\src\IndexHostService -LocalIndexRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
     condition: succeededOrFailed()
 
   - task: VSTest@2
