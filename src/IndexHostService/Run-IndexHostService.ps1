@@ -16,10 +16,10 @@ param(
     [string]$BuildRoot,
 
     [Parameter(Mandatory=$true)]
-    [string]$LocalIndexRoot
+    [string]$LocalIndexRoot,
 
     [Parameter(Mandatory=$true)]
-    [string]$CertPath
+    [string]$CertPath,
 
     [Parameter(Mandatory=$true)]
     [string]$CertPassword
