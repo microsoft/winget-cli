@@ -231,7 +231,7 @@ Elles peuvent être configurées par le biais du fichier de paramètres "winget 
     <value>Filtrer les résultats par identifiant</value>
   </data>
   <data name="InstallationDisclaimer1" xml:space="preserve">
-    <value>La licence d’utilisation de cette application vous est octroyée pas son propriétaire.</value>
+    <value>La licence d’utilisation de cette application vous est octroyée par son propriétaire.</value>
   </data>
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft n’est pas responsable des paquets tiers et n’accorde pas de licences à ceux-ci.</value>
