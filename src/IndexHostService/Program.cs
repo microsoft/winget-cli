@@ -10,14 +10,27 @@ namespace IndexHostService
     using System.IO;
 
     public class Program
-    {
+    {    
+
         static void Main(string[] args)
         {
-            if (args.Length > 0 && !string.IsNullOrEmpty(args[0]))
+            for (int i = 0; i < args.Length; i++)
             {
-                Startup.StaticFileRoot = args[0];
+                if (args[i] == "-d" && ++i < args.Length)
+                {
+                    Startup.StaticFileRoot = args[i];
+                }
+                else if (args[i] == "-c" && ++i < args.Length)
+                {
+                    Startup.CertPath = args[i];
+                }
+                else if (args[i] == "-p" && ++i < args.Length)
+                {
+                    Startup.CertPassword = args[i];
+                }
             }
-            else
+
+            if (string.IsNullOrEmpty(Startup.StaticFileRoot))
             {
                 Console.WriteLine("Usage: IndexHostService.exe <Path to Serve Static Root Directory>");
                 return;
@@ -32,6 +45,13 @@ namespace IndexHostService
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UseKestrel(opt =>
+                    {
+                        opt.ListenLocalhost(5001, listOpt =>
+                        {
+                            listOpt.UseHttps(Startup.CertPath, Startup.CertPassword);
+                        });
+                    });
                     webBuilder.UseStartup<Startup>();
                 });
     }

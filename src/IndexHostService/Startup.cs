@@ -17,6 +17,10 @@ namespace IndexHostService
 
         public static string StaticFileRoot { get; set; }
 
+        public static string CertPath { get; set; }
+
+        public static string CertPassword { get; set; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;

@@ -209,15 +209,21 @@ jobs:
 
   - task: DownloadSecureFile@1
     name: AppInstallerTest
-    displayName: 'Download Signing Certificate'
+    displayName: 'Download Source Package Certificate'
     inputs:
         secureFile: 'AppInstallerTest.pfx'
+
+  - task: DownloadSecureFile@1
+    name: HTTPSDevCert
+    displayName: 'Download Kestrel Certificate'
+    inputs:
+        secureFile: 'HTTPSDevCert.pfx'
 
   - task: PowerShell@2
     displayName: Launch IndexHostService
     inputs:
       filePath: 'src\IndexHostService\Run-IndexHostService.ps1'
-      arguments: '-BuildRoot $(system.defaultWorkingDirectory)\src\AnyCPU\Release\IndexHostService -LocalIndexRoot $(Agent.TempDirectory)\TestLocalIndex'
+      arguments: '-BuildRoot $(system.defaultWorkingDirectory)\src\AnyCPU\Release\IndexHostService -LocalIndexRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
     condition: succeededOrFailed()
 
   - task: VSTest@2
