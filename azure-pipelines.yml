@@ -245,10 +245,18 @@ jobs:
                                   -LooseFileRegistration true
                                   -InvokeCommandInDesktopPackage true
                                   -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
-                                  -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
+                                  -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x64\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -MsiTestInstallerPath $(system.defaultWorkingDirectory)\src\AppInstallerTestMsiInstaller\Release\AppInstallerTestMsiInstaller.msi
-                                  -MsixTestInstallerPath $(system.defaultWorkingDirectory)\src\bin\x86\Release\AppInstallerTestMsixInstaller.msix
+                                  -MsixTestInstallerPath $(system.defaultWorkingDirectory)\src\bin\x64\Release\AppInstallerTestMsixInstaller.msix
                                   -PackageCertificationPath $(AppInstallerTest.secureFilePath)'
+    condition: succeededOrFailed()
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish E2E Tests Packaged Log x64
+    inputs:
+      PathtoPublish: '%LOCALAPPDATA%\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir'
+      ArtifactName: 'TestPassPackagedLog'
+      publishLocation: 'Container'
     condition: succeededOrFailed()
 
 #  - task: VSTest@2

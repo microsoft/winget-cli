@@ -9,7 +9,7 @@ namespace AppInstallerCLIE2ETests
     public class InstallCommand
     {
         // Todo: add unicode test cases after install tests are enabled.
-        private const string InstallTestSourceUrl = @"https://localhost:5001/TestKit/";
+        private const string InstallTestSourceUrl = @"https://localhost:5001/TestKit";
         private const string InstallTestSourceName = @"InstallTestSource";
 
         private const string InstallTestExeInstalledFile = @"TestExeInstalled.txt";
@@ -20,7 +20,7 @@ namespace AppInstallerCLIE2ETests
         [SetUp]
         public void Setup()
         {
-           Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{InstallTestSourceName} {InstallTestSourceUrl}").ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{InstallTestSourceName} {InstallTestSourceUrl}").ExitCode);
         }
 
         [TearDown]
