@@ -254,7 +254,7 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: Publish E2E Tests Packaged Log x64
     inputs:
-      PathtoPublish: '$(Agent.TempDirectory)\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir'
+      PathtoPublish: 'D:\a\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir'
       ArtifactName: 'E2ETestPassPackagedLog'
       publishLocation: 'Container'
     condition: succeededOrFailed()

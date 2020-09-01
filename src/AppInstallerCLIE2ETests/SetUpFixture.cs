@@ -206,6 +206,8 @@ namespace AppInstallerCLIE2ETests
             string exeInstallerFullName = Path.Combine(exeInstallerDestDir.FullName, "AppInstallerTestExeInstaller.exe");
 
             File.Copy(TestCommon.ExeInstallerPath, exeInstallerFullName, true);
+
+            Console.WriteLine($"ExeInstaller copied to {exeInstallerFullName}");
         }
 
         private void SetupSourcePackage()
@@ -236,6 +238,9 @@ namespace AppInstallerCLIE2ETests
                 RunCommand("signtool.exe", $"sign /a /fd sha256 /f {certPath} {IndexPackageName}");
 
                 File.Copy(IndexPackageName, Path.Combine(testLocalIndexRoot, IndexPackageName));
+
+                Assert.True(File.Exists(Path.Combine(testLocalIndexRoot, IndexPackageName)));
+                Console.WriteLine($"{IndexPackageName} created successfully");
             }
             catch (Exception e)
             {
@@ -261,6 +266,8 @@ namespace AppInstallerCLIE2ETests
             string sourcePath = Path.Combine(currentDirectory, TestDataName);
 
             DirectoryCopy(sourcePath, TestCommon.StaticFileRootPath);
+
+            Console.WriteLine("TestLocalIndex Static File Root Created");
         }
 
         private void ReplaceManifestHashToken()
