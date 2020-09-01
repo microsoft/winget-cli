@@ -27,5 +27,4 @@ param(
 
 cd $BuildRoot
 
-IndexHostService.exe -d $LocalIndexRoot -c $CertPath -p $CertPassword 
-#Start-Process -FilePath "IndexHostService.exe" -ArgumentList "-d $LocalIndexRoot -c $CertPath -p $CertPassword" 
+Start-Process -FilePath "IndexHostService.exe" -ArgumentList "-d $LocalIndexRoot -c $CertPath -p $CertPassword" 
