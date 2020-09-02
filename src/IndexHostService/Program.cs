@@ -6,6 +6,7 @@ namespace IndexHostService
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
     using System;
     using System.IO;
 
@@ -46,8 +47,8 @@ namespace IndexHostService
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseKestrel(opt =>
-                    {
-                        opt.ListenLocalhost(5001, listOpt =>
+                    {   
+                        opt.ListenAnyIP(5001, listOpt =>
                         {
                             listOpt.UseHttps(Startup.CertPath, Startup.CertPassword);
                         });
