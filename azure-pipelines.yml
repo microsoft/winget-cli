@@ -234,11 +234,12 @@ jobs:
     condition: succeededOrFailed()
 
   - task: PowerShell@2
-    displayName: Test Source ADd
+    displayName: Test Source Add
     inputs:
       targetType: 'inline'
       script: |
-        wingetdev source add test https://localhost:5001/TestKit
+        winget source add test https://localhost:5001/TestKit
+        winget source remove test
 
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x64
