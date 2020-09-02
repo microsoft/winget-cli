@@ -57,6 +57,12 @@ namespace IndexHostService
                 ContentTypeProvider = provider,
             });
 
+            app.UseDirectoryBrowser(new DirectoryBrowserOptions
+            {
+                FileProvider = new PhysicalFileProvider(StaticFileRoot),
+                RequestPath = StaticFileRequestPath
+            });
+
             app.UseRouting();
 
             app.UseAuthorization();
