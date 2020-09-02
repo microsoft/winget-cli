@@ -52,6 +52,7 @@ namespace IndexHostService
                             listOpt.UseHttps(Startup.CertPath, Startup.CertPassword);
                         });
                     });
+                    webBuilder.UseContentRoot(Startup.StaticFileRoot);
                     webBuilder.UseStartup<Startup>();
                 });
     }
