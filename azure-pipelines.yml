@@ -226,12 +226,12 @@ jobs:
       arguments: '-pfxpath $(HTTPSDevCert.secureFilePath) -password microsoft'
     condition: succeededOrFailed()
 
-  - task: PowerShell@2
-    displayName: Launch IndexHostService
-    inputs:
-      filePath: 'src\IndexHostService\Run-IndexHostService.ps1'
-      arguments: '-BuildRoot $(system.defaultWorkingDirectory)\src\AnyCPU\Release\IndexHostService -LocalIndexRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
-    condition: succeededOrFailed()
+#  - task: PowerShell@2
+#    displayName: Launch IndexHostService
+#    inputs:
+#      filePath: 'src\IndexHostService\Run-IndexHostService.ps1'
+#      arguments: '-BuildRoot $(system.defaultWorkingDirectory)\src\AnyCPU\Release\IndexHostService -LocalIndexRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
+#    condition: succeededOrFailed()
 
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x64
