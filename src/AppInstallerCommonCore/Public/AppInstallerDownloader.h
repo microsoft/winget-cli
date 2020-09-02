@@ -41,6 +41,5 @@ namespace AppInstaller::Utility
     // Apply Mark of the web if the target file is on NTFS, otherwise does nothing.
     void ApplyMotwIfApplicable(const std::filesystem::path& filePath);
 
-    void DownloadPWAInstaller(const std::string& url, const std::string& publisher, const std::string& id, std::filesystem::path& dest);
-    std::wstring GetPathToExecutable();
+    void DownloadPWAInstaller(const std::string& url, std::filesystem::path& dest, std::string& publisher, std::string& name, IProgressCallback& progress);
 }

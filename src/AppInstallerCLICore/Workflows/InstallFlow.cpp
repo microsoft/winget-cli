@@ -104,8 +104,6 @@ namespace AppInstaller::CLI::Workflow
 
     void PWAInstall(Execution::Context& context)
     {
-       
-
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
         const auto& path = context.Get<Execution::Data::InstallerPath>();
         Uri uri(path.c_str());
@@ -114,8 +112,9 @@ namespace AppInstaller::CLI::Workflow
         options.AllowUnsigned(true);
         options.DeferRegistrationWhenPackagesAreInUse(true);
         IPackageManager9 packageManager9 = packageManager.as<IPackageManager9>();
-        auto result = packageManager9.AddPackageByUriAsync(uri, options).GetResults();
+        auto result = packageManager9.AddPackageByUriAsync(uri, options).get();
       
+       
        if (!result.ErrorText().empty())
        {
            //Not sure how to report this error
@@ -123,7 +122,24 @@ namespace AppInstaller::CLI::Workflow
            AICLI_TERMINATE_CONTEXT(result.ExtendedErrorCode());
        }
 
-       
+       if (result.IsRegistered())
+       {
+           AICLI_LOG(CLI, Info, << "Registered");
+
+       }
+       else
+       {
+           AICLI_LOG(CLI, Info, << "NOT Registered");
+       }
+       if (!context.Args.Contains(Execution::Args::Type::Interactive))
+       {
+           context.Reporter.Info() << "Successfully Installed! Please launch the application to complete the installation process." << std::endl;
+       }
+       else
+       {
+           context.Reporter.Info() << "Successfully Installed! Launching application now. This is necessary to complete installation" << std::endl;
+       }
+
        
  
      
@@ -131,20 +147,14 @@ namespace AppInstaller::CLI::Workflow
 
     void LaunchPWA(Execution::Context& context)
     {
-        if (!context.Args.Contains(Execution::Args::Type::Interactive)) 
-        {
-            context.Reporter.Info() << "Successfully Installed! Please launch the application to complete the installation process." << std::endl;
-        }
-        else
-        {
-            context.Reporter.Info() << "Successfully Installed! Launching application now..." << std::endl;
+   
             const auto& manifest = context.Get<Execution::Data::Manifest>();
             winrt::init_apartment();
 
-            std::wstring publisherName = L"CN=" + Utility::ConvertToUTF16(manifest.Publisher) + L", OID.2.25.311729368913984317654407730594956997722=1";
+   
             std::wstring aumid = L"";
             CoInitialize(nullptr);
-            for (auto const& package : PackageManager{}.FindPackagesForUser(L"", winrt::to_hstring(manifest.Id), publisherName))
+            for (auto const& package : PackageManager{}.FindPackagesForUser(L"", winrt::to_hstring(manifest.Name), winrt::to_hstring(manifest.Publisher)))
             {
                 aumid = package.Id().FamilyName();
                 aumid.append(L"!App");
@@ -178,24 +188,28 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
             }
-        }
+     
     }
 
  
     void GeneratePwaMsix(Execution::Context& context)
     {
-        const auto& manifest = context.Get<Execution::Data::Manifest>();
         const auto& installer = context.Get<Execution::Data::Installer>().value();
-       
+        auto& manifest = context.Get<Execution::Data::Manifest>();
+        std::string name;
+        std::string publisher;
         std::filesystem::path tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
         AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
         std::filesystem::create_directories(tempInstallerPath);
         tempInstallerPath /= (Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version + ".msix"));
         
-        context.Reporter.ExecuteWithProgress(std::bind(Utility::DownloadPWAInstaller,installer.Url,manifest.Publisher,manifest.Id, tempInstallerPath));
+        context.Reporter.ExecuteWithProgress(std::bind(Utility::DownloadPWAInstaller,installer.Url,tempInstallerPath, std::ref(publisher), std::ref(name), std::placeholders::_1));
+        
+        //Update the name and publisher based on most updated version of PWA
+        manifest.Name = name;
+        manifest.Publisher = publisher;
 
         context.Add<Execution::Data::InstallerPath>(std::move(tempInstallerPath));
-
 
     }
    
@@ -324,7 +338,14 @@ namespace AppInstaller::CLI::Workflow
                 MSStoreInstall;
             break;
         case ManifestInstaller::InstallerTypeEnum::PWA:
-            context << EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ExperimentalPWA) << PWAInstall << LaunchPWA;
+            if (!context.Args.Contains(Execution::Args::Type::Interactive))
+            {
+                context << EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ExperimentalPWA) << PWAInstall;
+            }
+            else
+            {
+                context << EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ExperimentalPWA) << PWAInstall << LaunchPWA;
+            }
             break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));

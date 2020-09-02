@@ -21,6 +21,11 @@ PWA adoption is extremely important in the Windows app ecosystem. It is also cru
 
 The "InstallerType" field in the YAML manifest file specifies the type of the application. A new InstallerType "PWA" will be added to show that a given application is a PWA.
 
+## System requirements
+
+Windows 10 v2004 or newer
+Edge v86 Stable or newer
+
 ## Package generation
 
 A POST call is made to a web service with the following details in the body : Id, Version and URL. The web service packages the PWA and its assets into an MSIX that will be unsigned.
@@ -78,7 +83,7 @@ If the user navigates to the site before launching the installed PWA at least on
 ## Future considerations
 
 1. We are looking into where the catalog of PWAs should exist, and the pros and cons of maintaining a separate catalog vs including PWAs on the existing catalog.
-2. In the future, we can extend this implementation to support browsers other than Edge. However, that depends on when other browsers enable silent installs of PWAs.
+2. We're testing this new integration technology with Edge first in 2020 and hope to have this debugged and contributed to the Chromium project early 2021.
 3. Sometimes there may be multiple versions of a PWA available. In such scenarios, we may allow a "force" option in the case where a user wants all of them to be installed.
 
 ## Resources
