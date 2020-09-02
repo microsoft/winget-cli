@@ -188,6 +188,7 @@
     <ClInclude Include="Microsoft\Schema\1_0\SearchResultsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\TagsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\VersionTable.h" />
+    <ClInclude Include="Microsoft\Schema\1_1\Interface.h" />
     <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h" />
     <ClInclude Include="Microsoft\Schema\MetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\Version.h" />
@@ -214,12 +215,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Microsoft\PreIndexedPackageSourceFactory.cpp" />
-    <ClCompile Include="Microsoft\Schema\1_0\Interface.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_0\Interface_1_0.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\ManifestTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\OneToManyTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\OneToOneTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\PathPartTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\SearchResultsTable.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_1\Interface_1_1.cpp" />
     <ClCompile Include="Microsoft\Schema\MetadataTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />

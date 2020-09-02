@@ -5,6 +5,7 @@
 #include "MetadataTable.h"
 
 #include "1_0/Interface.h"
+#include "1_1/Interface.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema
 {
@@ -27,13 +28,17 @@ namespace AppInstaller::Repository::Microsoft::Schema
     }
 
     // Creates the interface object for this version.
-    std::unique_ptr<ISQLiteIndex> Version::CreateISQLiteIndex()
+    std::unique_ptr<ISQLiteIndex> Version::CreateISQLiteIndex() const
     {
-        if (*this == Version{ 1, 0 } ||
+        if (*this == Version{ 1, 0 })
+        {
+            return std::make_unique<V1_0::Interface>();
+        }
+        else if (*this == Version{ 1, 1 } ||
             this->MajorVersion == 1 ||
             this->IsLatest())
         {
-            return std::make_unique<V1_0::Interface>();
+            return std::make_unique<V1_1::Interface>();
         }
 
         // We do not have the capacity to operate on this schema version

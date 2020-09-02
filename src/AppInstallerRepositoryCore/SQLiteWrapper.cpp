@@ -9,7 +9,7 @@
 using namespace std::string_view_literals;
 
 // Enable this to have all Statement constructions output the associated query plan.
-#define WINGET_SQLITE_EXPLAIN_QUERY_PLAN_ENABLED 1
+#define WINGET_SQLITE_EXPLAIN_QUERY_PLAN_ENABLED 0
 
 #if WINGET_SQLITE_EXPLAIN_QUERY_PLAN_ENABLED
 #include <stack>

@@ -144,17 +144,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             case MatchType::Exact:
                 return { MatchType::Exact };
             case MatchType::CaseInsensitive:
-                return { MatchType::Exact, MatchType::CaseInsensitive };
+                return { MatchType::CaseInsensitive };
             case MatchType::StartsWith:
                 return { MatchType::CaseInsensitive, MatchType::StartsWith };
             case MatchType::Substring:
-                return { MatchType::Exact, MatchType::CaseInsensitive, MatchType::Substring };
+                return { MatchType::CaseInsensitive, MatchType::Substring };
             case MatchType::Wildcard:
                 return { MatchType::Wildcard };
             case MatchType::Fuzzy:
-                return { MatchType::Exact, MatchType::CaseInsensitive, MatchType::Fuzzy };
+                return { MatchType::CaseInsensitive, MatchType::Fuzzy };
             case MatchType::FuzzySubstring:
-                return { MatchType::Exact, MatchType::CaseInsensitive, MatchType::Fuzzy, MatchType::Substring, MatchType::FuzzySubstring };
+                return { MatchType::CaseInsensitive, MatchType::Fuzzy, MatchType::Substring, MatchType::FuzzySubstring };
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -170,15 +170,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createtables_v1_0");
 
-        IdTable::Create(connection);
-        NameTable::Create(connection);
-        MonikerTable::Create(connection);
-        VersionTable::Create(connection);
-        ChannelTable::Create(connection);
+        IdTable::Create_deprecated(connection);
+        NameTable::Create_deprecated(connection);
+        MonikerTable::Create_deprecated(connection);
+        VersionTable::Create_deprecated(connection);
+        ChannelTable::Create_deprecated(connection);
 
-        PathPartTable::Create(connection);
+        PathPartTable::Create_deprecated(connection);
 
-        ManifestTable::Create(connection, {
+        ManifestTable::Create_deprecated(connection, {
             { IdTable::ValueName(), true, false }, 
             { NameTable::ValueName(), false, false },
             { MonikerTable::ValueName(), false, false },
@@ -187,8 +187,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             { PathPartTable::ValueName(), false, true }
             });
 
-        TagsTable::Create(connection);
-        CommandsTable::Create(connection);
+        TagsTable::Create_deprecated(connection);
+        CommandsTable::Create_deprecated(connection);
 
         savepoint.Commit();
     }
@@ -342,22 +342,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_0");
 
-        IdTable::PrepareForPackaging(connection);
-        NameTable::PrepareForPackaging(connection);
-        MonikerTable::PrepareForPackaging(connection);
-        VersionTable::PrepareForPackaging(connection);
-        ChannelTable::PrepareForPackaging(connection);
+        IdTable::PrepareForPackaging_deprecated(connection);
+        NameTable::PrepareForPackaging_deprecated(connection);
+        MonikerTable::PrepareForPackaging_deprecated(connection);
+        VersionTable::PrepareForPackaging_deprecated(connection);
+        ChannelTable::PrepareForPackaging_deprecated(connection);
 
-        PathPartTable::PrepareForPackaging(connection);
+        PathPartTable::PrepareForPackaging_deprecated(connection);
 
-        ManifestTable::PrepareForPackaging(connection, {
+        ManifestTable::PrepareForPackaging_deprecated(connection, {
             VersionTable::ValueName(),
             ChannelTable::ValueName(),
             PathPartTable::ValueName(),
             });
 
-        TagsTable::PrepareForPackaging(connection);
-        CommandsTable::PrepareForPackaging(connection);
+        TagsTable::PrepareForPackaging_deprecated(connection);
+        CommandsTable::PrepareForPackaging_deprecated(connection);
 
         savepoint.Commit();
 

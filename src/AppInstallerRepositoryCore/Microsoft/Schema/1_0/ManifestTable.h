@@ -79,8 +79,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Get the table name.
         static std::string_view TableName();
 
-        // Creates the table.
+        // Creates the table with named indeces.
         static void Create(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values);
+
+        // Creates the table with standard primary keys.
+        static void Create_deprecated(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values);
 
         // Insert the given values into the table.
         static SQLite::rowid_t Insert(SQLite::Connection& connection, std::initializer_list<ManifestOneToOneValue> values);
@@ -146,6 +149,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Removes data that is no longer needed for an index that is to be published.
         static void PrepareForPackaging(SQLite::Connection& connection, std::initializer_list<std::string_view> values);
+
+        // Removes data that is no longer needed for an index that is to be published.
+        static void PrepareForPackaging_deprecated(SQLite::Connection& connection, std::initializer_list<std::string_view> values);
 
         // Determines if the table is empty.
         static bool IsEmpty(SQLite::Connection& connection);

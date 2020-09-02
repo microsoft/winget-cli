@@ -124,6 +124,11 @@ namespace AppInstaller::Repository::Microsoft
         m_version = m_interface->GetVersion();
     }
 
+    void SQLiteIndex::ForceVersion(const Schema::Version& version)
+    {
+        m_interface = version.CreateISQLiteIndex();
+    }
+
     void SQLiteIndex::AddManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
     {
         AICLI_LOG(Repo, Info, << "Adding manifest from file [" << manifestPath << "]");
