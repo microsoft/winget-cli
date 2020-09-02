@@ -238,8 +238,8 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        winget source add test https://localhost:5001/TestKit
-        winget source remove test
+        .\AppInstallerCLI\AppInstallerCLI.exe source add test https://localhost:5001/TestKit
+        .\AppInstallerCLI\AppInstallerCLI.exe source remove test
 
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x64

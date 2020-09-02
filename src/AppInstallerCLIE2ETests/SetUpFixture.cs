@@ -16,7 +16,6 @@ namespace AppInstallerCLIE2ETests
         private static bool ShouldDisableDevModeOnExit = true;
         private const string TestDataName = "TestData";
         private const string ManifestsName = "Manifests";
-        private const string TestLocalIndexName = "TestLocalIndex";
         private const string PackageName = "Package";
         private const string IndexName = @"index.db";
         private const string PublicName = "Public";
@@ -110,8 +109,6 @@ namespace AppInstallerCLIE2ETests
             {
                 TestCommon.PackageCertificatePath = TestContext.Parameters.Get(Constants.PackageCertificatePathParameter);
             }
-
-            Console.WriteLine($"{TestCommon.StaticFileRootPath}");
 
             ReadTestInstallerPaths();
 
