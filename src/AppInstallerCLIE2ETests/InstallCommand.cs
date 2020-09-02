@@ -20,6 +20,7 @@ namespace AppInstallerCLIE2ETests
         [SetUp]
         public void Setup()
         {
+            TestContext.Progress.WriteLine($"Static File Root Path is {TestCommon.StaticFileRootPath}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{InstallTestSourceName} {InstallTestSourceUrl}").ExitCode);
         }
 

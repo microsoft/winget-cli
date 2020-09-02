@@ -111,6 +111,8 @@ namespace AppInstallerCLIE2ETests
                 TestCommon.PackageCertificatePath = TestContext.Parameters.Get(Constants.PackageCertificatePathParameter);
             }
 
+            Console.WriteLine($"{TestCommon.StaticFileRootPath}");
+
             ReadTestInstallerPaths();
 
             SetupTestLocalIndexDirectory();
