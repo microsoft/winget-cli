@@ -243,14 +243,10 @@ namespace AppInstallerCLIE2ETests
                 File.Move(IndexName, destIndexPath, true);
                 
                 string packageDir = Path.Combine(TestCommon.StaticFileRootPath, PackageName);
+                string indexPackageDestPath = Path.Combine(TestCommon.StaticFileRootPath, IndexPackageName);
 
-                //Directory must not already contain a source.msix package
-                RunCommand("makeappx.exe", $"pack /l /d {packageDir} /p {IndexPackageName}");
-                RunCommand("signtool.exe", $"sign /a /fd sha256 /f {certPath} {IndexPackageName}");
-
-                File.Copy(IndexPackageName, Path.Combine(testLocalIndexRoot, IndexPackageName));
-
-                bool packageCreated = File.Exists(Path.Combine(testLocalIndexRoot, IndexPackageName));
+                RunCommand("makeappx.exe", $"pack /l /o /d {packageDir} /p {indexPackageDestPath}");
+                RunCommand("signtool.exe", $"sign /a /fd sha256 /f {certPath} {indexPackageDestPath}");
             }
             catch (Exception e)
             {

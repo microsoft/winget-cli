@@ -254,18 +254,6 @@ jobs:
 
     condition: succeededOrFailed()
 
-  - task: PowerShell@2
-    displayName: Test Source Add
-    inputs:
-      targetType: 'inline'
-      script: |
-        $P = Invoke-WebRequest -Uri https://localhost:5001/TestKit
-        Write-Output $P
-        $F = Invoke-WebRequest -Uri https://localhost:5001/TestKit/AppxManifest.xml
-        Write-Output $F
-        $Q = Invoke-WebRequest -Uri https://localhost:5001/TestKit/source.msix
-        Write-Output $Q
-
 #  - task: VSTest@2
 #    displayName: Run E2E Tests Unpackaged x86
 #    inputs:
