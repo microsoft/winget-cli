@@ -248,7 +248,7 @@ jobs:
                                   -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x64\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -MsiTestInstallerPath $(system.defaultWorkingDirectory)\src\AppInstallerTestMsiInstaller\Release\AppInstallerTestMsiInstaller.msi
                                   -MsixTestInstallerPath $(system.defaultWorkingDirectory)\src\bin\x64\Release\AppInstallerTestMsixInstaller.msix
-                                  -PackageCertificationPath $(AppInstallerTest.secureFilePath)
+                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)
                                   -IndexHostServicePath $(system.defaultWorkingDirectory)\src\AnyCPU\Release\IndexHostService\IndexHostService.exe
                                   -KestrelCertificatePath $(HTTPSDevCert.secureFilePath)'
 
