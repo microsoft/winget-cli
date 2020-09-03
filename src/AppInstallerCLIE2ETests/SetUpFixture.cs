@@ -226,7 +226,6 @@ namespace AppInstallerCLIE2ETests
 
         private void SetupSourcePackage()
         {
-            string testRootDir = Path.Combine(TestCommon.StaticFileRootPath);
             string testLocalIndexRoot = TestCommon.StaticFileRootPath;
             string destIndexPath = Path.Combine(testLocalIndexRoot, PackageName, PublicName, IndexName);
             string certPath = TestCommon.PackageCertificatePath;
@@ -237,8 +236,6 @@ namespace AppInstallerCLIE2ETests
 
             // Copy WingetUtil.dll app extension to IndexCreationTool Path
             File.Copy(Path.Combine(winGetUtilPath, @"WinGetUtil.dll"), Path.Combine(indexCreationToolPath, @"WinGetUtil.dll"), true);
-
-            TestContext.WriteLine($"WingetUtil.dll copied to {winGetUtilPath}");
 
             try
             {
@@ -253,8 +250,7 @@ namespace AppInstallerCLIE2ETests
 
                 File.Copy(IndexPackageName, Path.Combine(testLocalIndexRoot, IndexPackageName));
 
-                Assert.True(File.Exists(Path.Combine(testLocalIndexRoot, IndexPackageName)));
-                Console.WriteLine($"{IndexPackageName} created successfully");
+                bool packageCreated = File.Exists(Path.Combine(testLocalIndexRoot, IndexPackageName));
             }
             catch (Exception e)
             {
