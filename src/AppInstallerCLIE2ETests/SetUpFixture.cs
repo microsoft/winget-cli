@@ -110,6 +110,16 @@ namespace AppInstallerCLIE2ETests
                 TestCommon.PackageCertificatePath = TestContext.Parameters.Get(Constants.PackageCertificatePathParameter);
             }
 
+            if (TestContext.Parameters.Exists(Constants.IndexHostServicePathParameter))
+            {
+                TestCommon.IndexHostServicePath = TestContext.Parameters.Get(Constants.IndexHostServicePathParameter);
+            }
+
+            if (TestContext.Parameters.Exists(Constants.KestrelCertificatePathParameter))
+            {
+                TestCommon.KestrelCertificatePath = TestContext.Parameters.Get(Constants.KestrelCertificatePathParameter);
+            }
+
             ReadTestInstallerPaths();
 
             SetupTestLocalIndexDirectory();
@@ -121,6 +131,11 @@ namespace AppInstallerCLIE2ETests
             ReplaceManifestHashToken();
 
             SetupSourcePackage();
+
+            //Run Kestrel Server
+            Process p = new Process();
+            p.StartInfo = new ProcessStartInfo(TestCommon.IndexHostServicePath, $"-d {TestCommon.StaticFileRootPath} -c {TestCommon.KestrelCertificatePath} -p microsoft");
+            p.Start();
         }
 
         [OneTimeTearDown]
@@ -223,7 +238,7 @@ namespace AppInstallerCLIE2ETests
             // Copy WingetUtil.dll app extension to IndexCreationTool Path
             File.Copy(Path.Combine(winGetUtilPath, @"WinGetUtil.dll"), Path.Combine(indexCreationToolPath, @"WinGetUtil.dll"), true);
 
-            string appxManifestPath = TestCommon.StaticFileRootPath + @"\AppxManifest.xml";
+            TestContext.WriteLine($"WingetUtil.dll copied to {winGetUtilPath}");
 
             try
             {
