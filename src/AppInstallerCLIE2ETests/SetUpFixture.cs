@@ -245,8 +245,10 @@ namespace AppInstallerCLIE2ETests
                 string packageDir = Path.Combine(TestCommon.StaticFileRootPath, PackageName);
                 string indexPackageDestPath = Path.Combine(TestCommon.StaticFileRootPath, IndexPackageName);
 
-                RunCommand("makeappx.exe", $"pack /l /o /d {packageDir} /p {indexPackageDestPath}");
-                RunCommand("signtool.exe", $"sign /a /fd sha256 /f {certPath} {indexPackageDestPath}");
+                string toolPath = @"C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64";
+
+                RunCommand(toolPath + @"\makeappx.exe", $"pack /l /o /d {packageDir} /p {indexPackageDestPath}");
+                RunCommand(toolPath + @"\signtool.exe", $"sign /a /fd sha256 /f {certPath} {indexPackageDestPath}");
             }
             catch (Exception e)
             {
