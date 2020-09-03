@@ -32,7 +32,7 @@
 	  <Parameter name="MsiTestInstallerPath" value="MsiTestInstaller.msi" />
 	  <Parameter name="MsixTestInstallerPath" value="MsiTestInstaller.msix" />
 	  <Parameter name="PackageCertificatePath" value="cert.pfx"/>
-      <Parameter name="IndexHostServicePath" value="C:\Users\ryfu\source\repos\winget-cli\src\AnyCPU\Release\IndexHostService\IndexHostService.exe" />
-	  <Parameter name="KestrelCertificatePath" value="C:\Users\ryfu\Source\Repos\winget-cli\src\IndexHostService\HTTPSDevCert.pfx" />
+	  <Parameter name="IndexHostServicePath" value="IndexHostService.exe" />
+	  <Parameter name="KestrelCertificatePath" value="HTTPSDevCert.pfx" />
   </TestRunParameters>
 </RunSettings>

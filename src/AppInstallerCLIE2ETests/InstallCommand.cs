@@ -21,6 +21,10 @@ namespace AppInstallerCLIE2ETests
         public void Setup()
         {
             TestContext.Progress.WriteLine($"Static File Root Path is {TestCommon.StaticFileRootPath}");
+            bool temp = File.Exists(Path.Combine(TestCommon.StaticFileRootPath, @"source.msix"));
+            bool temp2 = File.Exists(Path.Combine(TestCommon.StaticFileRootPath, @"AppxManifest.xml"));
+            TestContext.Progress.WriteLine($"{temp}");
+            TestContext.Progress.WriteLine($"{temp2}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{InstallTestSourceName} {InstallTestSourceUrl}").ExitCode);
         }
 
