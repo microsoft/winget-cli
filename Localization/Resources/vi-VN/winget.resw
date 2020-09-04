@@ -147,8 +147,17 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Lọc kết quả theo lệnh</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>Dòng lệnh đầy đủ để hoàn thành</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>Lệnh này yêu cầu đặc quyền của người quản trị để thực thi.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>Lệnh này có thể dùng để yêu cầu hoàn tất dòng lệnh nhạy cảm theo ngữ cảnh. Dòng lệnh, vị trí con trỏ và từ cần hoàn tất đã được đưa vào. Đầu ra là tập hợp các giá trị tiềm năng dựa trên đầu vào với một giá trị khả thi cho mỗi dòng.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>Bật hoàn thành dòng lệnh nhạy cảm theo ngữ cảnh</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Hiển thị không vượt quá số kết quả đã xác định</value>
@@ -389,6 +398,9 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   <data name="PendingWorkError" xml:space="preserve">
     <value>Rất tiếc, chúng tôi đã quên thực hiện điều này...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>Vị trí con trỏ trong dòng lệnh</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Bản xem trước</value>
   </data>
@@ -422,6 +434,9 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>Tên</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>Nguồn</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>các mục nhập khác được cắt ngắn do giới hạn kết quả</value>
@@ -636,5 +651,8 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>Hiển thị phiên bản khả dụng của gói</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>Cần có giá trị được cung cấp trước khi hoàn thành</value>
   </data>
 </root>

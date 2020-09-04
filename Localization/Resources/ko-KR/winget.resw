@@ -147,8 +147,17 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>명령을 기준으로 결과 필터링</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>완료에 대한 전체 명령줄</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>이 명령을 실행하려면 관리자 권한이 필요합니다.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>이 명령은 상황에 맞는 명령줄 완료를 요청하는 데 사용할 수 있습니다. 명령줄, 커서 위치 및 완료 할 단어가 전달됩니다. 출력은 입력을 기반으로 한 잠재적 값의 집합으로 한 줄당 하나의 값이 가능합니다.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>컨텍스트에 중요한 명령줄 완료를 사용합니다.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>지정된 개수를 넘지 않는 결과 표시</value>
@@ -231,7 +240,7 @@
     <value>ID를 기준으로 결과 필터링</value>
   </data>
   <data name="InstallationDisclaimer1" xml:space="preserve">
-    <value>이 응용 프로그램의 라이선스는 그 소유자가 사용자에게 허여했습니다.</value>
+    <value>이 응용 프로그램의 라이선스는 그 소유자가 사용자에게 부여했습니다.</value>
   </data>
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft는 타사 패키지에 대한 책임을 지지 않고 라이선스를 부여하지도 않습니다.</value>
@@ -389,6 +398,9 @@
   <data name="PendingWorkError" xml:space="preserve">
     <value>죄송합니다 .작업 수행을 하지 못했습니다.</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>명령줄 내의 커서 위치</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>미리 보기</value>
   </data>
@@ -422,6 +434,9 @@
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>이름</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>원본</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>결과 한도로 잘렸습니다.</value>
@@ -636,5 +651,8 @@
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>패키지의 사용 가능한 버전을 표시합니다.</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>완료되기 전에 제공한 값이 요청되었습니다.</value>
   </data>
 </root>
