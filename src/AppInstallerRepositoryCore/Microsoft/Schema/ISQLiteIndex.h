@@ -37,15 +37,15 @@ namespace AppInstaller::Repository::Microsoft::Schema
         virtual void CreateTables(SQLite::Connection& connection) = 0;
 
         // Adds the manifest at the repository relative path to the index.
-        virtual void AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
+        virtual SQLite::rowid_t AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
 
         // Updates the manifest with matching { Id, Version, Channel } in the index.
         // The return value indicates whether the index was modified by the function.
-        virtual bool UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
+        virtual std::pair<bool, SQLite::rowid_t> UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
 
         // Removes the manifest with matching { Id, Version, Channel } from the index.
         // Path is currently ignored.
-        virtual void RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
+        virtual SQLite::rowid_t RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
 
         // Removes data that is no longer needed for an index that is to be published.
         virtual void PrepareForPackaging(SQLite::Connection& connection) = 0;
@@ -65,11 +65,5 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         // Gets all versions and channels for the given id.
         virtual std::vector<Utility::VersionAndChannel> GetVersionsById(SQLite::Connection& connection, SQLite::rowid_t id) = 0;
-    };
-
-
-    // Common base class used by all schema versions.
-    struct SQLiteIndexBase : public ISQLiteIndex
-    {
     };
 }

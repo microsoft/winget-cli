@@ -120,6 +120,15 @@
     <ClInclude Include="Microsoft\Schema\1_1\Interface.h">
       <Filter>Microsoft\Schema\1_1</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_1\PackageFamilyNameTable.h">
+      <Filter>Microsoft\Schema\1_1</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_1\ProductCodeTable.h">
+      <Filter>Microsoft\Schema\1_1</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_1\SearchResultsTable.h">
+      <Filter>Microsoft\Schema\1_1</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -164,9 +173,6 @@
     <ClCompile Include="SQLiteTempTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Microsoft\Schema\1_0\SearchResultsTable.cpp">
-      <Filter>Microsoft\Schema\1_0</Filter>
-    </ClCompile>
     <ClCompile Include="ICU\SQLiteICU.c">
       <Filter>ICU</Filter>
     </ClCompile>
@@ -177,6 +183,12 @@
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_1\Interface_1_1.cpp">
+      <Filter>Microsoft\Schema\1_1</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_0\SearchResultsTable_1_0.cpp">
+      <Filter>Microsoft\Schema\1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_1\SearchResultsTable_1_1.cpp">
       <Filter>Microsoft\Schema\1_1</Filter>
     </ClCompile>
   </ItemGroup>

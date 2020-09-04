@@ -36,14 +36,13 @@ SQLiteIndex CreateTestIndex(const std::string& filePath, std::optional<Schema::V
     return SQLiteIndex::CreateNew(filePath, version.value());
 }
 
-void TestPrepareForRead(SQLiteIndex& index)
+Schema::Version TestPrepareForRead(SQLiteIndex& index)
 {
     // This will only be called for tests that want to support cross version checks.
     // Based on the version of the incoming, we only want to generate versions less or equal to it.
     if (index.GetVersion() == Schema::Version{ 1, 0 })
     {
         // Nothing to do here
-        return;
     }
     else if (index.GetVersion() == Schema::Version{ 1, 1 })
     {
@@ -52,8 +51,11 @@ void TestPrepareForRead(SQLiteIndex& index)
         if (changeVersion)
         {
             index.ForceVersion(Schema::Version{ 1, 0 });
+            return { 1, 0 };
         }
     }
+
+    return index.GetVersion();
 }
 
 SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std::string& relativePath, std::optional<Schema::Version> version = {})
@@ -77,6 +79,50 @@ SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std
 
 struct IndexFields
 {
+    IndexFields(
+        std::string id,
+        std::string name,
+        std::string moniker,
+        std::string version,
+        std::string channel,
+        std::vector<NormalizedString> tags,
+        std::vector<NormalizedString> commands,
+        std::string path
+    ) :
+        Id(std::move(id)),
+        Name(std::move(name)),
+        Moniker(std::move(moniker)),
+        Version(std::move(version)),
+        Channel(std::move(channel)),
+        Tags(std::move(tags)),
+        Commands(std::move(commands)),
+        Path(std::move(path))
+    {}
+
+    IndexFields(
+        std::string id,
+        std::string name,
+        std::string moniker,
+        std::string version,
+        std::string channel,
+        std::vector<NormalizedString> tags,
+        std::vector<NormalizedString> commands,
+        std::string path,
+        std::vector<NormalizedString> packageFamilyNames,
+        std::vector<NormalizedString> productCodes
+    ) :
+        Id(std::move(id)),
+        Name(std::move(name)),
+        Moniker(std::move(moniker)),
+        Version(std::move(version)),
+        Channel(std::move(channel)),
+        Tags(std::move(tags)),
+        Commands(std::move(commands)),
+        Path(std::move(path)),
+        PackageFamilyNames(std::move(packageFamilyNames)),
+        ProductCodes(std::move(productCodes))
+    {}
+
     std::string Id;
     std::string Name;
     std::string Moniker;
@@ -85,6 +131,8 @@ struct IndexFields
     std::vector<NormalizedString> Tags;
     std::vector<NormalizedString> Commands;
     std::string Path;
+    std::vector<NormalizedString> PackageFamilyNames;
+    std::vector<NormalizedString> ProductCodes;
 };
 
 SQLiteIndex SearchTestSetup(const std::string& filePath, std::initializer_list<IndexFields> data = {}, std::optional<Schema::Version> version = {})

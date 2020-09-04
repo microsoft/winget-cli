@@ -104,7 +104,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } + "_create_v1_0");
 
             // Create the data table as a 1:1
-            CreateOneToOneTable(connection, useNamedIndeces, tableName, valueName);
+            CreateOneToOneTable(connection, tableName, valueName, useNamedIndeces);
 
             if (useNamedIndeces)
             {
@@ -246,14 +246,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             savepoint.Commit();
         }
 
-        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, bool useNamedIndeces, std::string_view tableName)
+        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndeces, bool preserveValuesIndex)
         {
             SQLite::Builder::StatementBuilder dropMapTableIndexBuilder;
             dropMapTableIndexBuilder.DropIndex({ tableName, s_OneToManyTable_MapTable_Suffix, s_OneToManyTable_MapTable_IndexSuffix });
 
             dropMapTableIndexBuilder.Execute(connection);
 
-            OneToOneTablePrepareForPackaging(connection, useNamedIndeces, tableName);
+            OneToOneTablePrepareForPackaging(connection, tableName, useNamedIndeces, preserveValuesIndex);
         }
 
         bool OneToManyTableIsEmpty(SQLite::Connection& connection, std::string_view tableName)

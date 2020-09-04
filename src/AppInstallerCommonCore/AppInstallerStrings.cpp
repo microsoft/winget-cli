@@ -236,6 +236,55 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    std::string FoldCase(std::string_view input)
+    {
+        if (input.empty())
+        {
+            return {};
+        }
+
+        wil::unique_any<UCaseMap*, decltype(ucasemap_close), &ucasemap_close> caseMap;
+        UErrorCode errorCode = UErrorCode::U_ZERO_ERROR;
+        caseMap.reset(ucasemap_open(nullptr, U_FOLD_CASE_DEFAULT, &errorCode));
+
+        if (U_FAILURE(errorCode))
+        {
+            AICLI_LOG(Core, Error, << "ucasemap_open returned " << errorCode);
+            THROW_HR(E_UNEXPECTED);
+        }
+
+        int32_t cch = ucasemap_utf8FoldCase(caseMap.get(), nullptr, 0, input.data(), static_cast<int32_t>(input.size()), &errorCode);
+        if (errorCode != U_BUFFER_OVERFLOW_ERROR)
+        {
+            AICLI_LOG(Core, Error, << "ucasemap_utf8FoldCase returned " << errorCode);
+            THROW_HR(E_UNEXPECTED);
+        }
+
+        errorCode = UErrorCode::U_ZERO_ERROR;
+
+        std::string result(cch, '\0');
+        cch = ucasemap_utf8FoldCase(caseMap.get(), &result[0], cch, input.data(), static_cast<int32_t>(input.size()), &errorCode);
+        if (U_FAILURE(errorCode))
+        {
+            AICLI_LOG(Core, Error, << "ucasemap_utf8FoldCase returned " << errorCode);
+            THROW_HR(E_UNEXPECTED);
+        }
+
+        while (result.back() == '\0')
+        {
+            result.pop_back();
+        }
+
+        return result;
+    }
+
+    NormalizedString FoldCase(const NormalizedString& input)
+    {
+        NormalizedString result;
+        result.assign(FoldCase(static_cast<std::string_view>(input)));
+        return result;
+    }
+
     bool IsEmptyOrWhitespace(std::wstring_view str)
     {
         if (str.empty())

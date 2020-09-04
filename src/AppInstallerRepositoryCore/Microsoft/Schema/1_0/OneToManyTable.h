@@ -34,7 +34,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         void OneToManyTableDeleteIfNotNeededByManifestId(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t manifestId);
 
         // Removes data that is no longer needed for an index that is to be published.
-        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, bool useNamedIndeces, std::string_view tableName);
+        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndeces, bool preserveValuesIndex);
 
         // Determines if the table is empty.
         bool OneToManyTableIsEmpty(SQLite::Connection& connection, std::string_view tableName);
@@ -93,15 +93,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Removes data that is no longer needed for an index that is to be published.
-        static void PrepareForPackaging(SQLite::Connection& connection)
+        static void PrepareForPackaging(SQLite::Connection& connection, bool preserveValuesIndex = false)
         {
-            details::OneToManyTablePrepareForPackaging(connection, true, TableInfo::TableName());
+            details::OneToManyTablePrepareForPackaging(connection, TableInfo::TableName(), true, preserveValuesIndex);
         }
 
         // Removes data that is no longer needed for an index that is to be published.
         static void PrepareForPackaging_deprecated(SQLite::Connection& connection)
         {
-            details::OneToManyTablePrepareForPackaging(connection, false, TableInfo::TableName());
+            details::OneToManyTablePrepareForPackaging(connection, TableInfo::TableName(), false, false);
         }
 
         // Determines if the table is empty.

@@ -13,7 +13,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         using namespace std::string_view_literals;
         static constexpr std::string_view s_OneToOneTable_IndexSuffix = "_pkindex"sv;
 
-        void CreateOneToOneTable(SQLite::Connection& connection, bool useNamedIndeces, std::string_view tableName, std::string_view valueName)
+        void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool useNamedIndeces)
         {
             using namespace SQLite::Builder;
 
@@ -155,9 +155,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             builder.Execute(connection);
         }
 
-        void OneToOneTablePrepareForPackaging(SQLite::Connection& connection, bool useNamedIndeces, std::string_view tableName)
+        void OneToOneTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndeces, bool preserveValuesIndex)
         {
-            if (useNamedIndeces)
+            if (useNamedIndeces && !preserveValuesIndex)
             {
                 SQLite::Builder::StatementBuilder dropIndexBuilder;
                 dropIndexBuilder.DropIndex({ tableName, s_OneToOneTable_IndexSuffix });

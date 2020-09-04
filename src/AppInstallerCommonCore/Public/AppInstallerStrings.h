@@ -89,6 +89,14 @@ namespace AppInstaller::Utility
     // Get the lower case version of the given std::wstring
     std::wstring ToLower(std::wstring_view in);
 
+    // Folds the case of the given std::string
+    // See https://unicode-org.github.io/icu/userguide/transforms/casemappings.html#case-folding
+    std::string FoldCase(std::string_view input);
+
+    // Folds the case of the given NormalizedString, returning it as also Normalized
+    // See https://unicode-org.github.io/icu/userguide/transforms/casemappings.html#case-folding
+    NormalizedString FoldCase(const NormalizedString& input);
+
     // Checks if the input string is empty or whitespace
     bool IsEmptyOrWhitespace(std::wstring_view str);
 
@@ -98,9 +106,6 @@ namespace AppInstaller::Utility
 
     // Removes whitespace from the beginning and end of the string.
     std::string& Trim(std::string& str);
-
-    // Gets the number of bytes remaining in the stream.
-    std::streamsize GetRemainingByteCount(std::istream& stream);
 
     // Reads the entire stream into a string.
     std::string ReadEntireStream(std::istream& stream);

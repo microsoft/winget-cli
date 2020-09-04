@@ -4,6 +4,7 @@
 #include "TestCommon.h"
 #include <AppInstallerStrings.h>
 
+using namespace std::string_view_literals;
 using namespace AppInstaller::Utility;
 
 
@@ -92,4 +93,12 @@ TEST_CASE("CaseInsensitiveStartsWith", "[strings]")
     REQUIRE(!CaseInsensitiveStartsWith("", "nuffing"));
     REQUIRE(!CaseInsensitiveStartsWith("withstarts", "starts"));
     REQUIRE(!CaseInsensitiveStartsWith(" starts", "starts"));
+}
+
+TEST_CASE("FoldCase", "[strings]")
+{
+    REQUIRE(FoldCase(""sv) == FoldCase(""sv));
+    REQUIRE(FoldCase("foldcase"sv) == FoldCase("FOLDCASE"sv));
+    REQUIRE(FoldCase(u8"f\xF6ldcase"sv) == FoldCase(u8"F\xD6LDCASE"sv));
+    REQUIRE(FoldCase(u8"foldc\x430se"sv) == FoldCase(u8"FOLDC\x410SE"sv));
 }

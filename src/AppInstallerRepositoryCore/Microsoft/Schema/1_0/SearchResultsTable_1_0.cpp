@@ -38,27 +38,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return (match != MatchType::Exact);
         }
 
-        int BuildSearchStatement(SQLite::Builder::StatementBuilder& builder, ApplicationMatchField field, MatchType match)
-        {
-            bool useLike = MatchUsesLike(match);
-
-            switch (field)
-            {
-            case ApplicationMatchField::Id:
-                return ManifestTable::BuildSearchStatement<IdTable>(builder, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, useLike);
-            case ApplicationMatchField::Name:
-                return ManifestTable::BuildSearchStatement<NameTable>(builder, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, useLike);
-            case ApplicationMatchField::Moniker:
-                return ManifestTable::BuildSearchStatement<MonikerTable>(builder, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, useLike);
-            case ApplicationMatchField::Tag:
-                return ManifestTable::BuildSearchStatement<TagsTable>(builder, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, useLike);
-            case ApplicationMatchField::Command:
-                return ManifestTable::BuildSearchStatement<CommandsTable>(builder, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, useLike);
-            default:
-                THROW_HR(E_UNEXPECTED);
-            }
-        }
-
         void ExecuteStatementForMatchType(SQLite::Statement& statement, MatchType match, int bindIndex, bool escapeValueForLike, std::string_view value)
         {
             // TODO: Implement these more complex match types
@@ -157,12 +136,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         From().BeginParenthetical();
 
         // Add the field specific portion
-        int bindIndex = BuildSearchStatement(builder, field, match);
+        std::optional<int> bindIndex = BuildSearchStatement(builder, field, match);
+
+        if (!bindIndex)
+        {
+            AICLI_LOG(Repo, Verbose, << "ApplicationMatchField not supported in this version: " << ApplicationMatchFieldToString(field));
+            return;
+        }
 
         builder.EndParenthetical().As(s_SearchResultsTable_SubSelect_TableAlias);
 
         SQLite::Statement statement = builder.Prepare(m_connection);
-        ExecuteStatementForMatchType(statement, match, bindIndex, MatchUsesLike(match), value);
+        ExecuteStatementForMatchType(statement, match, bindIndex.value(), MatchUsesLike(match), value);
         AICLI_LOG(Repo, Verbose, << "Search found " << m_connection.GetChanges() << " rows");
     }
 
@@ -215,12 +200,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             Select(s_SearchResultsTable_SubSelect_ManifestAlias).From().BeginParenthetical();
 
         // Add the field specific portion
-        int bindIndex = BuildSearchStatement(builder, field, match);
+        std::optional<int> bindIndex = BuildSearchStatement(builder, field, match);
+
+        if (!bindIndex)
+        {
+            AICLI_LOG(Repo, Verbose, << "ApplicationMatchField not supported in this version: " << ApplicationMatchFieldToString(field));
+            return;
+        }
 
         builder.EndParenthetical().EndParenthetical();
 
         SQLite::Statement statement = builder.Prepare(m_connection);
-        ExecuteStatementForMatchType(statement, match, bindIndex, MatchUsesLike(match), value);
+        ExecuteStatementForMatchType(statement, match, bindIndex.value(), MatchUsesLike(match), value);
         AICLI_LOG(Repo, Verbose, << "Filter kept " << m_connection.GetChanges() << " rows");
     }
 
@@ -274,5 +265,34 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         result.Truncated = (select.GetState() != SQLite::Statement::State::Completed);
 
         return result;
+    }
+
+    std::optional<int> SearchResultsTable::BuildSearchStatement(SQLite::Builder::StatementBuilder& builder, ApplicationMatchField field, MatchType match) const
+    {
+        return BuildSearchStatement(builder, field, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, MatchUsesLike(match));
+    }
+
+    std::optional<int> SearchResultsTable::BuildSearchStatement(
+        SQLite::Builder::StatementBuilder& builder,
+        ApplicationMatchField field,
+        std::string_view manifestAlias,
+        std::string_view valueAlias,
+        bool useLike) const
+    {
+        switch (field)
+        {
+        case ApplicationMatchField::Id:
+            return ManifestTable::BuildSearchStatement<IdTable>(builder, manifestAlias, valueAlias, useLike);
+        case ApplicationMatchField::Name:
+            return ManifestTable::BuildSearchStatement<NameTable>(builder, manifestAlias, valueAlias, useLike);
+        case ApplicationMatchField::Moniker:
+            return ManifestTable::BuildSearchStatement<MonikerTable>(builder, manifestAlias, valueAlias, useLike);
+        case ApplicationMatchField::Tag:
+            return ManifestTable::BuildSearchStatement<TagsTable>(builder, manifestAlias, valueAlias, useLike);
+        case ApplicationMatchField::Command:
+            return ManifestTable::BuildSearchStatement<CommandsTable>(builder, manifestAlias, valueAlias, useLike);
+        default:
+            return {};
+        }
     }
 }

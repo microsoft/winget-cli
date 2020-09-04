@@ -164,7 +164,7 @@ namespace AppInstaller::Repository::Microsoft
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_updatemanifest");
 
-        bool result = m_interface->UpdateManifest(m_dbconn, manifest, relativePath);
+        bool result = m_interface->UpdateManifest(m_dbconn, manifest, relativePath).first;
 
         if (result)
         {
