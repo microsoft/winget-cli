@@ -53,7 +53,7 @@ namespace AppInstallerCLIE2ETests
         {
             // Install test exe
             var installDir = TestCommon.GetRandomTestDir();
-            var result = TestCommon.RunAICLICommand("install", $"TestExeInstaller --silent -l {installDir}");
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             Assert.True(VerifyTestExeInstalled(installDir, "/execustom"));

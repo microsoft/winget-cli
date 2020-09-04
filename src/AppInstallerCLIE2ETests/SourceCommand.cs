@@ -11,6 +11,12 @@ namespace AppInstallerCLIE2ETests
         private const string SourceTestSourceUrl = @"https://winget-int.azureedge.net/cache";
         private const string SourceTestSourceName = @"SourceTestSource";
 
+        [SetUp]
+        public void Setup()
+        {
+            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{SourceTestSourceName} {SourceTestSourceUrl}").ExitCode);
+        }
+
         [TearDown]
         public void TearDown()
         {
@@ -21,10 +27,10 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void AddSource()
         {
-            // Add test source should succeed
-            var result = TestCommon.RunAICLICommand("source add", $"{SourceTestSourceName} {SourceTestSourceUrl}");
+            var result = TestCommon.RunAICLICommand("source add", $"SourceTest {SourceTestSourceUrl}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
+            TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
         }
 
         [Test]
@@ -42,7 +48,7 @@ namespace AppInstallerCLIE2ETests
             // Add source with invalid url should fail
             var result = TestCommon.RunAICLICommand("source add", "AnotherSource https://microsoft.com");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_RANGES_PROCESSED, result.ExitCode);
-            Assert.True(result.StdOut.Contains("error occurred while executing the command"));
+            Assert.True(result.StdOut.Contains("An unexpected error occurred while executing the command"));
         }
 
 
@@ -67,19 +73,17 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ListWithSourceName()
         {
-            // List when source name matches, it shows detailed info
             var result = TestCommon.RunAICLICommand("source list", $"-n {SourceTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("SourceTestSource"));
             Assert.True(result.StdOut.Contains("https://winget-int.azureedge.net/cache"));
-            Assert.True(result.StdOut.Contains("Microsoft.Winget.Source.int"));
+            Assert.True(result.StdOut.Contains("Microsoft.Winget.Source"));
             Assert.True(result.StdOut.Contains("Updated"));
         }
 
         [Test]
         public void ListSourceNameMismatch()
         {
-            // List when source name does not match
             var result = TestCommon.RunAICLICommand("source list", "-n UnknownName");
             Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
             Assert.True(result.StdOut.Contains("Did not find a source named"));
@@ -88,7 +92,6 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void SourceUpdate()
         {
-            // Update should succeed
             var result = TestCommon.RunAICLICommand("source update", $"-n {SourceTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
@@ -97,7 +100,6 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void SourceUpdateWithInvalidName()
         {
-            // Update with bad name should fail
             var result = TestCommon.RunAICLICommand("source update", "-n UnknownName");
             Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
             Assert.True(result.StdOut.Contains("Did not find a source named: UnknownName"));
@@ -106,7 +108,6 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void SourceRemoveInvalidName()
         {
-            // Remove with a bad name should fail
             var result = TestCommon.RunAICLICommand("source remove", "-n UnknownName");
             Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
             Assert.True(result.StdOut.Contains("Did not find a source named: UnknownName"));
@@ -115,7 +116,6 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void SourceRemoveValidName()
         {
-            // Remove with a good name should succeed
             var result = TestCommon.RunAICLICommand("source remove", $"-n {SourceTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));

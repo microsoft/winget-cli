@@ -132,7 +132,7 @@ namespace AppInstallerCLIE2ETests
 
             SetupSourcePackage();
 
-            ////Run Kestrel Server
+            //Run Kestrel Server
             Process p = new Process();
             p.StartInfo = new ProcessStartInfo(TestCommon.IndexHostServicePath, $"-d {TestCommon.StaticFileRootPath} -c {TestCommon.KestrelCertificatePath} -p microsoft");
             p.Start();

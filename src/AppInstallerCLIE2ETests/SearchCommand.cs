@@ -76,8 +76,8 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void SearchWithExactArg()
         {
-            // Search Microsoft with exact arg should return none
-            var result = TestCommon.RunAICLICommand("search", "Microsoft -e");
+            // Search 'powertoys' with exact arg should return none due to case sensitivity
+            var result = TestCommon.RunAICLICommand("search", "powertoys -e");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }
