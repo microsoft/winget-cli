@@ -132,7 +132,7 @@ namespace AppInstallerCLIE2ETests
 
             SetupSourcePackage();
 
-            //Run Kestrel Server
+            ////Run Kestrel Server
             Process p = new Process();
             p.StartInfo = new ProcessStartInfo(TestCommon.IndexHostServicePath, $"-d {TestCommon.StaticFileRootPath} -c {TestCommon.KestrelCertificatePath} -p microsoft");
             p.Start();
@@ -221,7 +221,9 @@ namespace AppInstallerCLIE2ETests
 
             File.Copy(TestCommon.ExeInstallerPath, exeInstallerFullName, true);
 
-            Console.WriteLine($"ExeInstaller copied to {exeInstallerFullName}");
+            //Sign Package
+            string toolPath = @"C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64";
+            RunCommand(toolPath + @"\signtool.exe", $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {exeInstallerFullName}");
         }
 
         private void SetupSourcePackage()
@@ -356,10 +358,12 @@ namespace AppInstallerCLIE2ETests
                 catch (IOException e)
                 {
                     Console.WriteLine($"I/O Exception: {e.Message}");
+                    throw;
                 }
                 catch (UnauthorizedAccessException e)
                 {
                     Console.WriteLine($"Access Exception: {e.Message}");
+                    throw;
                 }
             }
 
