@@ -133,9 +133,9 @@ namespace AppInstallerCLIE2ETests
             SetupSourcePackage();
 
             //Run Kestrel Server
-            Process p = new Process();
-            p.StartInfo = new ProcessStartInfo(TestCommon.IndexHostServicePath, $"-d {TestCommon.StaticFileRootPath} -c {TestCommon.KestrelCertificatePath} -p microsoft");
-            p.Start();
+            //Process p = new Process();
+            //p.StartInfo = new ProcessStartInfo(TestCommon.IndexHostServicePath, $"-d {TestCommon.StaticFileRootPath} -c {TestCommon.KestrelCertificatePath} -p microsoft");
+            //p.Start();
         }
 
         [OneTimeTearDown]
@@ -220,7 +220,7 @@ namespace AppInstallerCLIE2ETests
             string exeInstallerFullName = Path.Combine(exeInstallerDestDir.FullName, "AppInstallerTestExeInstaller.exe");
 
             File.Copy(TestCommon.ExeInstallerPath, exeInstallerFullName, true);
-
+            TestCommon.ExeInstallerPath = exeInstallerFullName;
             //Sign Package
             string toolPath = @"C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64";
             RunCommand(toolPath + @"\signtool.exe", $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {exeInstallerFullName}");

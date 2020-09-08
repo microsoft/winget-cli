@@ -136,7 +136,7 @@ namespace AppInstaller::Utility
 
         std::ofstream emptyDestFile(dest);
         emptyDestFile.close();
-        ApplyMotwIfApplicable(dest);
+        //ApplyMotwIfApplicable(dest);
 
         // Use std::ofstream::app to append to previous empty file so that it will not
         // create a new file and clear motw.
@@ -171,8 +171,10 @@ namespace AppInstaller::Utility
         return false;
     }
 
+
     void ApplyMotwIfApplicable(const std::filesystem::path& filePath)
     {
+#ifndef WINGET_DISABLE_MOTW
         AICLI_LOG(Core, Info, << "Started applying motw to " << filePath);
 
         {
@@ -217,5 +219,9 @@ namespace AppInstaller::Utility
         motwStream << "ZoneId=3" << std::endl;
 
         AICLI_LOG(Core, Info, << "Finished applying motw");
+#endif
     }
+
+
+
 }
