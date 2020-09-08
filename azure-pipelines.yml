@@ -259,7 +259,7 @@ jobs:
 #      runSettingsFile: 'src\x86\Release\AppInstallerCLIE2ETests\Test.runsettings'
 #      overrideTestrunParameters: '-PackagedContext false
 #                                  -AICLIPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerCLI\AppInstallerCLI.exe'
-#    condition: succeededOrFailed()
+#    condition: succeededOr]d()
 
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x86
