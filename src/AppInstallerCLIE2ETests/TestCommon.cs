@@ -33,11 +33,6 @@ namespace AppInstallerCLIE2ETests
         
         public static string PackageCertificatePath { get; set; }
 
-        public static string IndexHostServicePath { get; set; }
-
-        public static string KestrelCertificatePath { get; set; }
-
-
         public struct RunCommandResult
         {
             public int ExitCode;

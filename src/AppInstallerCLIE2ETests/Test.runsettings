@@ -32,7 +32,5 @@
 	  <Parameter name="MsiTestInstallerPath" value="MsiTestInstaller.msi" />
 	  <Parameter name="MsixTestInstallerPath" value="MsiTestInstaller.msix" />
 	  <Parameter name="PackageCertificatePath" value="cert.pfx"/>
-	  <Parameter name="IndexHostServicePath" value="IndexHostService.exe" />
-	  <Parameter name="KestrelCertificatePath" value ="HTTPSDevCert.pfx" />
   </TestRunParameters>
 </RunSettings>

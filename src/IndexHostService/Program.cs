@@ -1,12 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace IndexHostService
+namespace LocalhostWebServer
 {
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Logging;
     using System;
     using System.IO;
 
@@ -33,7 +32,7 @@ namespace IndexHostService
 
             if (string.IsNullOrEmpty(Startup.StaticFileRoot))
             {
-                Console.WriteLine("Usage: IndexHostService.exe <Path to Serve Static Root Directory>");
+                Console.WriteLine("Usage: LocalhostWebServer.exe -d <Path to Serve Static Root Directory> -c <Path to HTTPS Developer Certificate> -p <Certificate Password>");
                 return;
             }
 
@@ -44,11 +43,6 @@ namespace IndexHostService
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureLogging(logging =>
-                {
-                    logging.ClearProviders();
-                    logging.AddConsole();
-                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseKestrel(opt =>

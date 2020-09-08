@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    Runs the IndexHostService.
+    Runs the LocalhostWebServer.
 .PARAMETER BuildRoot
-    The root of the build output directory for IndexHostService
-.PARAMETER IndexRoot
-    The root of the index root to be served through LocalHost
+    The root of the build output directory for LocalhostWebServer
+.PARAMETER StaticFileRoot
+    The root of the static files to be served through Localhost
 .PARAMETER CertPath
     Path to HTTPS Development Certificate File (pfx)
 .PARAMETER CertPassword
@@ -16,7 +16,7 @@ param(
     [string]$BuildRoot,
 
     [Parameter(Mandatory=$true)]
-    [string]$LocalIndexRoot,
+    [string]$StaticFileRoot,
 
     [Parameter(Mandatory=$true)]
     [string]$CertPath,
@@ -27,5 +27,5 @@ param(
 
 cd $BuildRoot
 
-Start-Process -FilePath "IndexHostService.exe" -ArgumentList "-d $LocalIndexRoot -c $CertPath -p $CertPassword" 
+Start-Process -FilePath "LocalhostWebServer.exe" -ArgumentList "-d $StaticFileRoot -c $CertPath -p $CertPassword" 
 

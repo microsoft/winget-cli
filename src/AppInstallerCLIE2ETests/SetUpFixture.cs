@@ -23,6 +23,9 @@ namespace AppInstallerCLIE2ETests
         private const string WinGetUtilName = "WinGetUtil";
 
         private const string ExeInstallerName = @"AppInstallerTestExeInstaller";
+        private const string MsiInstallerName = @"AppInstallerTestMsiInstaller";
+        private const string MsixInstallerName = @"AppInstallerTestMsixInstaller";
+
         private const string IndexPackageName = @"source.msix";
 
         private string ExeInstallerHashValue { get; set; }
@@ -110,16 +113,6 @@ namespace AppInstallerCLIE2ETests
                 TestCommon.PackageCertificatePath = TestContext.Parameters.Get(Constants.PackageCertificatePathParameter);
             }
 
-            if (TestContext.Parameters.Exists(Constants.IndexHostServicePathParameter))
-            {
-                TestCommon.IndexHostServicePath = TestContext.Parameters.Get(Constants.IndexHostServicePathParameter);
-            }
-
-            if (TestContext.Parameters.Exists(Constants.KestrelCertificatePathParameter))
-            {
-                TestCommon.KestrelCertificatePath = TestContext.Parameters.Get(Constants.KestrelCertificatePathParameter);
-            }
-
             ReadTestInstallerPaths();
 
             SetupTestLocalIndexDirectory();
@@ -131,11 +124,6 @@ namespace AppInstallerCLIE2ETests
             ReplaceManifestHashToken();
 
             SetupSourcePackage();
-
-            //Run Kestrel Server
-            //Process p = new Process();
-            //p.StartInfo = new ProcessStartInfo(TestCommon.IndexHostServicePath, $"-d {TestCommon.StaticFileRootPath} -c {TestCommon.KestrelCertificatePath} -p microsoft");
-            //p.Start();
         }
 
         [OneTimeTearDown]
@@ -224,6 +212,16 @@ namespace AppInstallerCLIE2ETests
             //Sign Package
             string toolPath = @"C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64";
             RunCommand(toolPath + @"\signtool.exe", $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {exeInstallerFullName}");
+
+            ////Msi Installer
+            //string msiInstallerDestPath = Path.Combine(TestCommon.StaticFileRootPath, MsiInstallerName);
+            //DirectoryInfo msiInstallerDestDir = Directory.CreateDirectory(msiInstallerDestPath);
+
+            //string msiInstallerFullName = Path.Combine(msiInstallerDestDir.FullName, "AppInstallerTestMsiInstaller.msi");
+            //File.Copy(TestCommon.MsiInstallerPath, msiInstallerFullName, true);
+            //TestCommon.MsiInstallerPath = msiInstallerFullName;
+            ////Sign Package
+            //RunCommand(toolPath + @"\signtool.exe", $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {msiInstallerFullName}");
         }
 
         private void SetupSourcePackage()
@@ -336,7 +334,7 @@ namespace AppInstallerCLIE2ETests
         private void HashInstallers()
         {
             ExeInstallerHashValue = HashInstallerFile(TestCommon.ExeInstallerPath);
-            //HashInstallerFile(TestCommon.MsiInstallerPath);
+            //MsiInstallerHashValue = HashInstallerFile(TestCommon.MsiInstallerPath);
             //HashInstallerFile(TestCommon.MsixInstallerPath);
         }
 

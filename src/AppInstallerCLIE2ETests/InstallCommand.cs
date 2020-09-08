@@ -33,7 +33,6 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void AppToInstallDoesNotExist()
         {
-            // Cannot find an app to install
             var result = TestCommon.RunAICLICommand("install", "DoesNotExist");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
@@ -42,8 +41,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void MultipleAppsMatchQuery()
         {
-            // Too many apps match the query
-            var result = TestCommon.RunAICLICommand("install", "TestMultipleAppFoundInstaller");
+            var result = TestCommon.RunAICLICommand("install", "TestExeInstaller");
             Assert.AreEqual(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("Multiple packages found matching input criteria. Please refine the input."));
         }
@@ -51,7 +49,6 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallTestExe()
         {
-            // Install test exe
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
@@ -62,7 +59,6 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallTestExeWithInsufficientMinOsVersion()
         {
-            // Install test exe but min os version too high
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"InapplicableOsVersion --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_OLD_WIN_VERSION, result.ExitCode);
@@ -71,22 +67,20 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void ExeInstallWithHashMismatchPassWithNToFail()
+        public void ExeInstallWithHashMismatch()
         {
-            // Install test exe but hash mismatch, passing N should cause the installation to fail
             var installDir = TestCommon.GetRandomTestDir();
-            var result = TestCommon.RunAICLICommand("install", $"TestExeSha256Mismatch --silent -l {installDir}", "N");
+            var result = TestCommon.RunAICLICommand("install", $"TestExeSha256Mismatch --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALLER_HASH_MISMATCH, result.ExitCode);
             Assert.True(result.StdOut.Contains("Installer hash does not match"));
             Assert.False(VerifyTestExeInstalled(installDir));
         }
 
         [Test]
-        public void ExeInstallWithHashMismatchPassWithYToContinue()
+        public void ExeInstallWithHashMismatchForceInstall()
         {
-            // Install test exe but hash mismatch, passing Y should cause the installation to continue
             var installDir = TestCommon.GetRandomTestDir();
-            var result = TestCommon.RunAICLICommand("install", $"TestExeSha256Mismatch --silent -l {installDir}", "Y");
+            var result = TestCommon.RunAICLICommand("install", $"TestExeSha256Mismatch --silent --force -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             Assert.True(VerifyTestExeInstalled(installDir, "/execustom"));
