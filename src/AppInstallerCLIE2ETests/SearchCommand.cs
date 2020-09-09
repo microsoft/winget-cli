@@ -57,7 +57,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
 
             // Search Microsoft with exact arg should return none
-            result = TestCommon.RunAICLICommand("search", "Microsoft -e");
+            result = TestCommon.RunAICLICommand("search", "f00-b@r-NOT+REAL -e");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }
