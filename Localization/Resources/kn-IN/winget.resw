@@ -147,8 +147,17 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>ಕಮಾಂಡ್ ಫಲಿತಾಂಶಗಳನ್ನು ಫಿಲ್ಟರ್ ಮಾಡಿ</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>ಪೂರ್ಣಗೊಳ್ಳಲು ಪೂರ್ಣ ಆದೇಶ ಸಾಲು</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>ಈ ಆದೇಶ ಕಾರ್ಯಗತಗೊಳಿಸಲು ನಿರ್ವಾಹಕರ ಹಕ್ಕುಗಳ ಅಗತ್ಯವಿದೆ.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>ಈ ಆದೇಶವನ್ನು ಪ್ರಸಂಗ ಸೂಕ್ಷ್ಮ ಆದೇಶ ಸಾಲು ಪೂರ್ಣಗೊಳಿಸಲು ವಿನಂತಿಸುವುದಕ್ಕಾಗಿ ಬಳಸಬಹುದು. ಆದೇಶ ಸಾಲು, ಕರ್ಸರ್ ಸ್ಥಾನ, ಮತ್ತು ಪೂರ್ತಿಗೊಳಿಸಬೇಕಾದ ಪದವನ್ನು ಒಳಕ್ಕೆ ಸರಿಸಲಾಗಿದೆ. ಔಟ್‍ಪುಟ್ ಎನ್ನುವುದು ಇನ್‍ಪುಟ್‍ಗಳ ಆಧಾರದ ಮೇಲೆ ಒಂದು ಸಂಭಾವ್ಯ ಮೌಲ್ಯಗಳ ಒಂದು ಸೆಟ್ ಆಗಿದೆ, ಪ್ರತಿ ಸಾಲಿಗೆ ಒಂದು ಸಂಭವನೀಯ ಮೌಲ್ಯ.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>ಪ್ರಸಂಗ ಸೂಕ್ಷ್ಮ ಆದೇಶ ಸಾಲು ಪೂರ್ಣವಾಗುವಿಕೆಯನ್ನು ಸಾಕಾರಗೊಳಿಸುತ್ತದೆ</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>ನಿಗದಿತ ಸಂಖ್ಯೆಯ ಫಲಿತಾಂಶಗಳಿಗೆ ಮೀರದಂತೆ ತೋರಿಸಿ</value>
@@ -389,6 +398,9 @@
   <data name="PendingWorkError" xml:space="preserve">
     <value>ಓಹ್, ಈ ರೀತಿ ಮಾಡಲು ನಮಗೆ ನೆನಪಿರಲಿಲ್ಲ...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>ಆದೇಶ ಸಾಲಿನೊಳಗಿನ ಕರ್ಸರ್ ಸ್ಥಾನ</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>ಮುನ್ನೋಟ</value>
   </data>
@@ -422,6 +434,9 @@
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>ಹೆಸರು</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>ಮೂಲ</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>ಫಲಿತಾಂಶ ಮಿತಿಯ ಕಾರಣ ಹೆಚ್ಚುವರಿ ನಮೂದುಗಳನ್ನು ಮೊಟಕುಗೊಳಿಸಲಾಗಿದೆ</value>
@@ -636,5 +651,8 @@
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>ಪ್ಯಾಕೇಜ್‍ನ ಲಭ್ಯವಿರುವ ಆವೃತ್ತಿಗಳನ್ನು ತೋರಿಸಿ</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>ಪೂರ್ಣಗೊಳ್ಳುವ ಮೊದಲು ಒದಗಿಸಲಾದ ಮೌಲ್ಯವನ್ನು ವಿನಂತಿಸಲಾಗಿದೆ</value>
   </data>
 </root>

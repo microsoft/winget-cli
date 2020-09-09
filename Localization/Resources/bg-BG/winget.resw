@@ -147,8 +147,17 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Филтриране на резултати по команда</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>Пълният команден ред за завършване</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>За изпълнението на тази команда се изискват привилегии на администратор.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>Тази команда може да се използва, за да се поиска завършване на командния ред на контекста. Командният ред, позицията на курсора и Word, които трябва да бъдат завършени, са предадени. Изходът е набор от потенциални стойности, базирани на входовете, една възможна стойност на ред.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>Разрешава завършването на командния ред за контекста</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Показване на не повече от зададения брой резултати</value>
@@ -389,6 +398,9 @@
   <data name="PendingWorkError" xml:space="preserve">
     <value>Опа, забравихме да направим това...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>Позицията на курсора в командния ред</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Визуализация</value>
   </data>
@@ -422,6 +434,9 @@
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>Име</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>Източник</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>допълнителните записи са отрязани поради ограничението за резултат</value>
@@ -636,5 +651,8 @@
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>Показване на наличните версии на пакета</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>Стойността, предоставена преди завършването, е поискана</value>
   </data>
 </root>

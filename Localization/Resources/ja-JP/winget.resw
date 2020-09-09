@@ -147,8 +147,17 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>コマンドによる結果のフィルター処理</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>完了するための完全なコマンド ライン</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>このコマンドを実行するには、管理者権限が必要です。</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>このコマンドは、状況依存のコマンド ラインの完了を要求するために使用できます。コマンド ライン、カーソル位置、および完了する単語が渡されます。出力は、入力に基づいた一連の潜在的な値で、1 行に 1 つの値が入ります。</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>状況依存のコマンド ラインの完了を有効にする</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>指定した数以下の結果を表示</value>
@@ -389,6 +398,9 @@
   <data name="PendingWorkError" xml:space="preserve">
     <value>申し訳ございません。これを行うことを忘れました…</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>コマンド ライン内のカーソルの位置</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>プレビュー</value>
   </data>
@@ -422,6 +434,9 @@
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>名前</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>ソース</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>結果制限により、エントリがさらに切り捨てられました</value>
@@ -636,5 +651,8 @@
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>パッケージの利用可能なバージョンを表示</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>完了する前に提供された値が要求されます</value>
   </data>
 </root>
