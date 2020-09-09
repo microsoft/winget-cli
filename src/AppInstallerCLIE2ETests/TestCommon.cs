@@ -33,6 +33,8 @@ namespace AppInstallerCLIE2ETests
         
         public static string PackageCertificatePath { get; set; }
 
+        public static string WindowsSDKPath { get; set; }
+
         public struct RunCommandResult
         {
             public int ExitCode;

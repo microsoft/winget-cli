@@ -8,7 +8,6 @@ namespace AppInstallerCLIE2ETests
     using System;
     using System.IO;
     using System.Diagnostics;
-    using System.Security.Cryptography;
 
     [SetUpFixture]
     public class SetUpFixture
@@ -27,13 +26,6 @@ namespace AppInstallerCLIE2ETests
         private const string MsixInstallerName = @"AppInstallerTestMsixInstaller";
 
         private const string IndexPackageName = @"source.msix";
-
-        private string ExeInstallerHashValue { get; set; }
-
-        private string MsiInstallerHashValue { get; set; }
-
-        private string MsixInstallerHashValue { get; set; }
-
 
         [OneTimeSetUp]
         public void Setup()
@@ -113,16 +105,30 @@ namespace AppInstallerCLIE2ETests
                 TestCommon.PackageCertificatePath = TestContext.Parameters.Get(Constants.PackageCertificatePathParameter);
             }
 
+            if (TestContext.Parameters.Exists(Constants.WindowsSDKPathParameter))
+            {
+                TestCommon.WindowsSDKPath = TestContext.Parameters.Get(Constants.WindowsSDKPathParameter);
+            }
+
             ReadTestInstallerPaths();
 
+            //Setup
             SetupTestLocalIndexDirectory();
 
+
+            //Setup
             CopyInstallerFilesToLocalIndex();
 
-            HashInstallers();
+            //Hash
+            //HashInstallers();
+            TestHashHelper.HashInstallers();
 
-            ReplaceManifestHashToken();
+            //Hash
+            //ReplaceManifestHashToken();
+            string manifestDirectoryPath = Path.Combine(TestCommon.StaticFileRootPath, ManifestsName);
+            TestHashHelper.ReplaceManifestHashToken(manifestDirectoryPath);
 
+            //Setup
             SetupSourcePackage();
         }
 
@@ -277,36 +283,7 @@ namespace AppInstallerCLIE2ETests
 
             Console.WriteLine("TestLocalIndex Static File Root Created");
         }
-
-        private void ReplaceManifestHashToken()
-        {
-            string manifestFullPath = Path.Combine(TestCommon.StaticFileRootPath, ManifestsName);
-
-            var dir = new DirectoryInfo(manifestFullPath);
-            FileInfo[] files = dir.GetFiles();
-
-            foreach (FileInfo file in files)
-            {
-                string text = File.ReadAllText(file.FullName);
-
-                if (text.Contains("<EXEHASH>"))
-                {
-                    text = text.Replace("<EXEHASH>", ExeInstallerHashValue);
-                    File.WriteAllText(file.FullName, text);
-                }
-                else if (text.Contains("<MSIHASH>"))
-                {
-                    text = text.Replace("<MSIHASH>", MsiInstallerHashValue);
-                    File.WriteAllText(file.FullName, text);
-                }
-                else if (text.Contains("<MSIXHASH>"))
-                {
-                    text = text.Replace("<MSIXHASH>", MsixInstallerHashValue);
-                    File.WriteAllText(file.FullName, text);
-                }
-            }
-        }
-
+        //Setup
         private void DirectoryCopy(string sourceDirName, string destDirName)
         {
             DirectoryInfo dir = new DirectoryInfo(sourceDirName);
@@ -329,55 +306,6 @@ namespace AppInstallerCLIE2ETests
                 string temppath = Path.Combine(destDirName, subdir.Name);
                 DirectoryCopy(subdir.FullName, temppath);
             }
-        }
-
-        private void HashInstallers()
-        {
-            ExeInstallerHashValue = HashInstallerFile(TestCommon.ExeInstallerPath);
-            //MsiInstallerHashValue = HashInstallerFile(TestCommon.MsiInstallerPath);
-            //HashInstallerFile(TestCommon.MsixInstallerPath);
-        }
-
-        private string HashInstallerFile(string installerFilePath)
-        {
-            FileInfo installerFile = new FileInfo(installerFilePath);
-            string hash = string.Empty;
-
-            using (SHA256 mySHA256 = SHA256.Create())
-            {
-                try
-                {
-                    FileStream fileStream = installerFile.Open(FileMode.Open);
-                    fileStream.Position = 0;
-                    byte[] hashValue = mySHA256.ComputeHash(fileStream);
-                    hash = ConvertHashByteToString(hashValue);
-                    fileStream.Close();
-                }
-                catch (IOException e)
-                {
-                    Console.WriteLine($"I/O Exception: {e.Message}");
-                    throw;
-                }
-                catch (UnauthorizedAccessException e)
-                {
-                    Console.WriteLine($"Access Exception: {e.Message}");
-                    throw;
-                }
-            }
-
-            return hash;
-        }
-
-        private string ConvertHashByteToString(byte[] array)
-        {
-            string hashValue = string.Empty;
-
-            for (int i = 0; i < array.Length; i++)
-            {
-                hashValue = hashValue + $"{array[i]:X2}";
-            }
-
-            return hashValue;
         }
 
         private void RunCommand(string command, string args)

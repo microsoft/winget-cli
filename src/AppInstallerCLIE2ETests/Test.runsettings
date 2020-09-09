@@ -21,16 +21,19 @@
 	   PackageCertificatePath: Signing Certificate Path used to certify Index Source Package
   -->
   <TestRunParameters>
-	  <Parameter name="PackagedContext" value="true" />
+	  arameter name="PackagedContext" value="false" />
 	  <Parameter name="VerboseLogging" value="false" />
-	  <Parameter name="AICLIPath" value="AppInst.exe" />
+	  <Parameter name="AICLIPath" value="C:\Users\ryfu\source\repos\winget-cli\src\x64\Debug\AppInstallerCLI\AppInstallerCLI.exe" />
 	  <Parameter name="AICLIPackagePath" value="AppInstallerCLIPackage.appxbundle" />
 	  <Parameter name="LooseFileRegistration" value="false" />
 	  <Parameter name="InvokeCommandInDesktopPackage" value="false" />
-	  <Parameter name="StaticFileRootPath" value="\TestLocalIndex" />
-	  <Parameter name="ExeTestInstallerPath" value="ExeTestInstaller.exe" />
-	  <Parameter name="MsiTestInstallerPath" value="MsiTestInstaller.msi" />
-	  <Parameter name="MsixTestInstallerPath" value="MsiTestInstaller.msix" />
-	  <Parameter name="PackageCertificatePath" value="cert.pfx"/>
+	  <Parameter name="StaticFileRootPath" value="C:\Users\ryfu\AppData\Local\Temp\TestLocalIndex" />
+	  <Parameter name="ExeTestInstallerPath" value="C:\Users\ryfu\source\repos\winget-cli\src\x64\Debug\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe" />
+	  <Parameter name="MsiTestInstallerPath" value="MsiInstaller.msi" />
+	  <Parameter name="MsixTestInstallerPath" value="MsiInstaller.msix" />
+	  <Parameter name="PackageCertificatePath" value="C:\Users\ryfu\source\repos\winget-cli\src\x64\Debug\IndexCreationTool\AppInstallerTest.pfx"/>
+	  <Parameter name="IndexHostServicePath" value="C:\Users\ryfu\source\repos\winget-cli\src\AnyCPU\Release\IndexHostService\IndexHostService.exe" />
+	  <Parameter name="KestrelCertificatePath" value="C:\Users\ryfu\Source\Repos\winget-cli\src\IndexHostService\HTTPSDevCert.pfx" />
+	  <Parameter name="WindowsSDKPath" value="C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64"/>  
   </TestRunParameters>
 </RunSettings>

@@ -77,16 +77,6 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void ExeInstallWithHashMismatchForceInstall()
-        {
-            var installDir = TestCommon.GetRandomTestDir();
-            var result = TestCommon.RunAICLICommand("install", $"TestExeSha256Mismatch --silent --force -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestExeInstalled(installDir, "/execustom"));
-        }
-
-        [Test]
         public void InstallWithInno()
         {
             // Install test inno, manifest does not provide silent switch, we should be populating the default
