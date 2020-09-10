@@ -137,6 +137,12 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    std::u32string ConvertToUTF32(std::string_view input)
+    {
+        std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convU32;
+        return convU32.from_bytes(std::string(input));
+    }
+
     size_t UTF8Length(std::string_view input)
     {
         ICUBreakIterator itr{ input, UBRK_CHARACTER };
@@ -149,6 +155,21 @@ namespace AppInstaller::Utility
         }
 
         return numGraphemeClusters;
+    }
+
+    size_t UTF8TerminalLength(std::string_view input)
+    {
+        std::u32string u32Str = Utility::ConvertToUTF32(input);
+
+        size_t terminalLength = 0;
+
+        for (auto it = u32Str.cbegin(); it != u32Str.cend(); ++it)
+        {
+            int32_t width = u_getIntPropertyValue(*it, UCHAR_EAST_ASIAN_WIDTH);
+            terminalLength += width == U_EA_FULLWIDTH || width == U_EA_WIDE ? 2 : 1;
+        }
+
+        return terminalLength;
     }
 
     std::string_view UTF8Substring(std::string_view input, size_t offset, size_t count)
@@ -175,6 +196,29 @@ namespace AppInstaller::Utility
         }
 
         return input.substr(utf8Offset, utf8Count);
+    }
+
+    std::string_view UTF8TrimRightToTerminalLength(std::string_view input, size_t length)
+    {
+        THROW_HR_IF(E_INVALIDARG, length < 0);
+
+        std::u32string u32Str = Utility::ConvertToUTF32(input);
+
+        size_t terminalLength = 0;
+        std::u32string::const_iterator it;
+        for (it = u32Str.cbegin(); it != u32Str.cend(); ++it)
+        {
+            int32_t width = u_getIntPropertyValue(*it, UCHAR_EAST_ASIAN_WIDTH);
+            int charWidth = width == U_EA_FULLWIDTH || width == U_EA_WIDE ? 2 : 1;
+            terminalLength += charWidth;
+
+            if (terminalLength >= length)
+            {
+                break;
+            }
+        }
+
+        return input.substr(0, it - u32Str.cbegin());
     }
 
     std::string Normalize(std::string_view input, NORM_FORM form)

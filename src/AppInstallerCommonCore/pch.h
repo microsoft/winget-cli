@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <codecvt>
 #include <cwctype>
 #include <filesystem>
 #include <fstream>
