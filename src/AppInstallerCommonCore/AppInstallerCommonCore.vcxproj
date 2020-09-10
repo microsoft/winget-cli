@@ -285,7 +285,10 @@
     <ClCompile Include="Deployment.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Downloader.cpp" />
+    <ClCompile Include="Downloader.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="ExperimentalFeature.cpp" />
     <ClCompile Include="ExtensionCatalog.cpp">
