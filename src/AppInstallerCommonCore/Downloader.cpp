@@ -174,7 +174,6 @@ namespace AppInstaller::Utility
 
     void ApplyMotwIfApplicable(const std::filesystem::path& filePath)
     {
-#ifndef WINGET_DISABLE_MOTW
         AICLI_LOG(Core, Info, << "Started applying motw to " << filePath);
 
         {
@@ -219,7 +218,6 @@ namespace AppInstaller::Utility
         motwStream << "ZoneId=3" << std::endl;
 
         AICLI_LOG(Core, Info, << "Finished applying motw");
-#endif
     }
 
 

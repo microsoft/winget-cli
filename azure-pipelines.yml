@@ -75,8 +75,7 @@ jobs:
       msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" 
                     /p:AppxPackageDir="$(appxPackageDir)" 
                     /p:AppxBundle=Always 
-                    /p:UapAppxPackageBuildMode=StoreUpload
-                    /p:ExternalCompilerOptions="/DWINGET_DISABLE_MOTW"'
+                    /p:UapAppxPackageBuildMode=StoreUpload'
 
 
   

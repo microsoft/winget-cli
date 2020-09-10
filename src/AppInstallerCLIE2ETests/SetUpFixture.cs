@@ -7,11 +7,15 @@ namespace AppInstallerCLIE2ETests
     using NUnit.Framework;
     using System;
     using System.IO;
+    using System.Linq;
 
     [SetUpFixture]
     public class SetUpFixture
     {
         private static bool ShouldDisableDevModeOnExit = true;
+        private static bool ShouldDisableSaveZoneInformationOnExit = true;
+        private static bool ShouldRevertDefaultFileTypeRiskOnExit = true;
+        private static string DefaultFileTypes = string.Empty;
 
         [OneTimeSetUp]
         public void Setup()
@@ -62,6 +66,10 @@ namespace AppInstallerCLIE2ETests
 
             ShouldDisableDevModeOnExit = EnableDevMode(true);
 
+            ShouldDisableSaveZoneInformationOnExit = EnableSaveZoneInformation(true);
+
+            ShouldRevertDefaultFileTypeRiskOnExit = DecreaseFileTypeRisk(false, ".exe");
+
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)), "Add AppInstallerTestCert");
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"ROOT\" " + TestCommon.GetTestDataFile(Constants.IndexPackageRootCert)), "Add IndexPackageRootCert");
 
@@ -109,6 +117,16 @@ namespace AppInstallerCLIE2ETests
                 EnableDevMode(false);
             }
 
+            if (ShouldDisableSaveZoneInformationOnExit)
+            {
+                EnableSaveZoneInformation(false);
+            }
+
+            if (ShouldRevertDefaultFileTypeRiskOnExit)
+            {
+                DecreaseFileTypeRisk(true, DefaultFileTypes);
+            }
+
             TestCommon.RunCommand("certutil.exe", $"-delstore \"TRUSTEDPEOPLE\" {Constants.AppInstallerTestCertThumbprint}");
             TestCommon.RunCommand("certutil.exe", $"-delstore \"ROOT\" {Constants.IndexPackageRootCertThumbprint}");
 
@@ -140,6 +158,57 @@ namespace AppInstallerCLIE2ETests
                     appModelUnlockKey.SetValue("AllowDevelopmentWithoutDevLicense", 0, RegistryValueKind.DWord);
                     return true;
                 }
+            }
+
+            return false;
+        }
+
+        private bool EnableSaveZoneInformation(bool enable)
+        {
+            var saveZoneInfoKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments");
+
+            if (enable)
+            {
+                var value = saveZoneInfoKey.GetValue("SaveZoneInformation");
+                if (value == null || (Int32)value == 0)
+                {
+                    saveZoneInfoKey.SetValue("SaveZoneInformation", 1, RegistryValueKind.DWord);
+                    return true;
+                }
+            }
+            else
+            {
+                var value = saveZoneInfoKey.GetValue("SaveZoneInformation");
+                if (value != null && ((UInt32)value) != 0)
+                {
+                    saveZoneInfoKey.SetValue("SaveZoneInformation", 0, RegistryValueKind.DWord);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool DecreaseFileTypeRisk(bool requiresRevert, string fileTypes)
+        {
+            var defaultFileTypeRiskKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Associations");
+            var value = defaultFileTypeRiskKey.GetValue("DefaultFileTypeRisk");
+            if (requiresRevert)
+            {
+                defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", DefaultFileTypes);
+            }
+            else
+            {   if (value == null)
+                {
+                    defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", fileTypes);
+                    DefaultFileTypes = string.Empty;
+                }
+                else
+                {
+                    defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", string.Concat(value.ToString(), fileTypes));
+                    DefaultFileTypes = defaultFileTypeRiskKey.GetValue("DefaultFileTypeRisk").ToString();
+                }
+                return true;
             }
 
             return false;
