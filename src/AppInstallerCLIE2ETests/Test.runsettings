@@ -29,7 +29,6 @@
 	  <Parameter name="InvokeCommandInDesktopPackage" value="false" />
 	  <Parameter name="StaticFileRootPath" value="C:\Users\ryfu\AppData\Local\Temp\TestLocalIndex" />
 	  <Parameter name="ExeTestInstallerPath" value="C:\Users\ryfu\source\repos\winget-cli\src\x64\Debug\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe" />
-	  <Parameter name="MsiTestInstallerPath" value="MsiInstaller.msi" />
 	  <Parameter name="MsixTestInstallerPath" value="MsiInstaller.msix" />
 	  <Parameter name="PackageCertificatePath" value="C:\Users\ryfu\source\repos\winget-cli\src\x64\Debug\IndexCreationTool\AppInstallerTest.pfx"/>
 	  <Parameter name="IndexHostServicePath" value="C:\Users\ryfu\source\repos\winget-cli\src\AnyCPU\Release\IndexHostService\IndexHostService.exe" />

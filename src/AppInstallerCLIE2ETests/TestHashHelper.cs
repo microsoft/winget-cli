@@ -18,11 +18,11 @@ namespace AppInstallerCLIE2ETests
         {
             ExeInstallerHashValue = HashInstallerFile(TestCommon.ExeInstallerPath);
             //MsiInstallerHashValue = HashInstallerFile(TestCommon.MsiInstallerPath);
-            //HashInstallerFile(TestCommon.MsixInstallerPath);
+            //MsixInstallerHashValue = HashInstallerFile(TestCommon.MsixInstallerPath);
         }
 
         /// <summary>
-        /// Iterates through all manifest files in a directory and replaces the hash token with the
+        /// Iterates through all manifest files in a directory and replaces the hash <token> with the
         /// corresponding installer hash token.
         /// </summary>
         /// <param name="pathToManifestDir"></param>        

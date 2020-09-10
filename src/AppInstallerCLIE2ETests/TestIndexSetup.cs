@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 
 namespace AppInstallerCLIE2ETests
 {
@@ -13,14 +11,30 @@ namespace AppInstallerCLIE2ETests
         private const string PackageName = "Package";
         private const string IndexName = @"index.db";
         private const string PublicName = "Public";
-        private const string IndexCreationToolName = "IndexCreationTool";
-        private const string WinGetUtilName = "WinGetUtil";
 
-        private const string ExeInstallerName = @"AppInstallerTestExeInstaller";
-        private const string MsiInstallerName = @"AppInstallerTestMsiInstaller";
-        private const string MsixInstallerName = @"AppInstallerTestMsixInstaller";
+        /// <summary>
+        /// Generates the Local Test Index to be served by the Localhost Web Server.
+        /// Copies TestData to a StaticFileRootPath set in Test.runsettings
+        /// Copies and signs installer Files 
+        /// Hashes installer Files
+        /// Replaces manifests with corresponding hash values
+        /// Generates a source package for TestData using makeappx/signtool
+        /// </summary>
+        public static void GenerateTestIndex()
+        {
+            SetupTestLocalIndexDirectory(TestCommon.StaticFileRootPath);
 
-        private void SetupSourcePackage()
+            CopyInstallerFilesToLocalIndex();
+
+            TestHashHelper.HashInstallers();
+
+            string manifestDirectoryPath = Path.Combine(TestCommon.StaticFileRootPath, ManifestsName);
+            TestHashHelper.ReplaceManifestHashToken(manifestDirectoryPath);
+
+            SetupSourcePackage();
+        }
+
+        private static void SetupSourcePackage()
         {
             string indexDestPath = Path.Combine(TestCommon.StaticFileRootPath, PackageName, PublicName, IndexName);
 
@@ -40,10 +54,11 @@ namespace AppInstallerCLIE2ETests
                 string packageDir = Path.Combine(TestCommon.StaticFileRootPath, PackageName);
                 string indexPackageDestPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.IndexPackage);
 
-                string toolPath = @"C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64";
+                string makeappxExecutable = Path.Combine(TestCommon.WindowsSDKPath, "makeappx.exe");
+                string signtoolExecutable = Path.Combine(TestCommon.WindowsSDKPath, "signtool.exe");
 
-                RunCommand(toolPath + @"\makeappx.exe", $"pack /l /o /d {packageDir} /p {indexPackageDestPath}");
-                RunCommand(toolPath + @"\signtool.exe", $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {indexPackageDestPath}");
+                RunCommand(makeappxExecutable, $"pack /l /o /d {packageDir} /p {indexPackageDestPath}");
+                RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {indexPackageDestPath}");
             }
             catch (Exception e)
             {
@@ -51,40 +66,31 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
-        public static void CopyInstallerFilesToLocalIndex()
+        private static void CopyInstallerFilesToLocalIndex()
         {
-            string exeInstallerDestPath = Path.Combine(TestCommon.StaticFileRootPath, ExeInstallerName);
+            string exeInstallerDestPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.ExeInstaller);
             DirectoryInfo exeInstallerDestDir = Directory.CreateDirectory(exeInstallerDestPath);
 
             string exeInstallerFullName = Path.Combine(exeInstallerDestDir.FullName, "AppInstallerTestExeInstaller.exe");
 
             File.Copy(TestCommon.ExeInstallerPath, exeInstallerFullName, true);
             TestCommon.ExeInstallerPath = exeInstallerFullName;
-            //Sign Package
-            string toolPath = @"C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64";
-            RunCommand(toolPath + @"\signtool.exe", $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {exeInstallerFullName}");
 
-            ////Msi Installer
-            //string msiInstallerDestPath = Path.Combine(TestCommon.StaticFileRootPath, MsiInstallerName);
-            //DirectoryInfo msiInstallerDestDir = Directory.CreateDirectory(msiInstallerDestPath);
+            string signtoolExecutable = Path.Combine(TestCommon.WindowsSDKPath, "signtool.exe");
 
-            //string msiInstallerFullName = Path.Combine(msiInstallerDestDir.FullName, "AppInstallerTestMsiInstaller.msi");
-            //File.Copy(TestCommon.MsiInstallerPath, msiInstallerFullName, true);
-            //TestCommon.MsiInstallerPath = msiInstallerFullName;
-            ////Sign Package
-            //RunCommand(toolPath + @"\signtool.exe", $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {msiInstallerFullName}");
+            RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {exeInstallerFullName}");
         }
 
-        public static void SetupTestLocalIndexDirectory(string staticFileRootPath)
+        private static void SetupTestLocalIndexDirectory(string staticFileRootPath)
         {
-            DirectoryInfo tempRootDir = Directory.CreateDirectory(staticFileRootPath);
+            DirectoryInfo staticFileRootDir = Directory.CreateDirectory(staticFileRootPath);
 
-            foreach (FileInfo file in tempRootDir.GetFiles())
+            foreach (FileInfo file in staticFileRootDir.GetFiles())
             {
                 file.Delete();
             }
 
-            foreach (DirectoryInfo dir in tempRootDir.GetDirectories())
+            foreach (DirectoryInfo dir in staticFileRootDir.GetDirectories())
             {
                 dir.Delete(true);
             }

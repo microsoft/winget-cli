@@ -136,7 +136,7 @@ namespace AppInstaller::Utility
 
         std::ofstream emptyDestFile(dest);
         emptyDestFile.close();
-        //ApplyMotwIfApplicable(dest);
+        ApplyMotwIfApplicable(dest);
 
         // Use std::ofstream::app to append to previous empty file so that it will not
         // create a new file and clear motw.

@@ -75,7 +75,8 @@ jobs:
       msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" 
                     /p:AppxPackageDir="$(appxPackageDir)" 
                     /p:AppxBundle=Always 
-                    /p:UapAppxPackageBuildMode=StoreUpload'
+                    /p:UapAppxPackageBuildMode=StoreUpload
+                    /p:WINGET_DISABLE_MOTW=true'
   
   - task: PowerShell@2
     displayName: Install Tests Dependencies
@@ -246,9 +247,9 @@ jobs:
                                   -InvokeCommandInDesktopPackage true
                                   -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
                                   -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x64\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
-                                  -MsiTestInstallerPath $(system.defaultWorkingDirectory)\src\AppInstallerTestMsiInstaller\Release\AppInstallerTestMsiInstaller.msi
                                   -MsixTestInstallerPath $(system.defaultWorkingDirectory)\src\bin\x64\Release\AppInstallerTestMsixInstaller.msix
-                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
+                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)
+                                  -WindowsSDKPath C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64'
     condition: succeededOrFailed()
 
 #  - task: VSTest@2
@@ -274,9 +275,9 @@ jobs:
                                   -InvokeCommandInDesktopPackage true
                                   -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
                                   -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
-                                  -MsiTestInstallerPath $(system.defaultWorkingDirectory)\src\AppInstallerTestMsiInstaller\Release\AppInstallerTestMsiInstaller.msi
                                   -MsixTestInstallerPath $(system.defaultWorkingDirectory)\src\bin\x64\Release\AppInstallerTestMsixInstaller.msix
-                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
+                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)
+                                  -WindowsSDKPath C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64'
     condition: succeededOrFailed()
   
   - task: PublishBuildArtifacts@1
