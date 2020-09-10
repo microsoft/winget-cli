@@ -150,6 +150,18 @@ SQLiteIndex SearchTestSetup(const std::string& filePath, std::initializer_list<I
         manifest.Tags = d.Tags;
         manifest.Commands = d.Commands;
 
+        manifest.Installers.resize(std::max(d.PackageFamilyNames.size(), d.ProductCodes.size()));
+
+        for (size_t i = 0; i < d.PackageFamilyNames.size(); ++i)
+        {
+            manifest.Installers[i].PackageFamilyName = d.PackageFamilyNames[i];
+        }
+
+        for (size_t i = 0; i < d.ProductCodes.size(); ++i)
+        {
+            manifest.Installers[i].ProductCode = d.ProductCodes[i];
+        }
+
         index.AddManifest(manifest, d.Path);
     };
 
@@ -159,6 +171,12 @@ SQLiteIndex SearchTestSetup(const std::string& filePath, std::initializer_list<I
     }
 
     return index;
+}
+
+bool ArePackageFamilyNameAndProductCodeSupported(const SQLiteIndex& index, const Schema::Version& testVersion)
+{
+    UNSCOPED_INFO("Index " << index.GetVersion() << " | Test " << testVersion);
+    return (index.GetVersion() >= Schema::Version{ 1, 1 } && testVersion >= Schema::Version{ 1, 1 });
 }
 
 TEST_CASE("SQLiteIndexCreateLatestAndReopen", "[sqliteindex]")
@@ -1494,4 +1512,212 @@ TEST_CASE("SQLiteIndex_Search_StartsWith", "[sqliteindex]")
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 2);
+}
+
+TEST_CASE("SQLiteIndex_Search_Query_PackageFamilyNameSubstring", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { "Id3", "Name3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Substring, "PFN");
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 0);
+}
+
+TEST_CASE("SQLiteIndex_Search_Query_ProductCodeSubstring", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { "Id3", "Name3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Substring, "PC");
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 0);
+}
+
+TEST_CASE("SQLiteIndex_Search_Query_PackageFamilyNameMatch", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { "Id3", "Name3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Substring, "pfn1");
+
+    auto results = index.Search(request);
+
+    if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
+    {
+        REQUIRE(results.Matches.size() == 1);
+    }
+    else
+    {
+        REQUIRE(results.Matches.size() == 0);
+    }
+}
+
+TEST_CASE("SQLiteIndex_Search_Query_ProductCodeMatch", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { "Id3", "Name3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Substring, "pc2");
+
+    auto results = index.Search(request);
+
+    if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
+    {
+        REQUIRE(results.Matches.size() == 1);
+    }
+    else
+    {
+        REQUIRE(results.Matches.size() == 0);
+    }
+}
+
+TEST_CASE("SQLiteIndex_Search_PackageFamilyNameSubstring", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { "Id3", "Name3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Inclusions.emplace_back(ApplicationMatchField::PackageFamilyName, MatchType::Substring, "PFN");
+
+    auto results = index.Search(request);
+
+    if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
+    {
+        REQUIRE(results.Matches.size() == 3);
+    }
+    else
+    {
+        REQUIRE(results.Matches.size() == 0);
+    }
+}
+
+TEST_CASE("SQLiteIndex_Search_ProductCodeSubstring", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { "Id3", "Name3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Inclusions.emplace_back(ApplicationMatchField::ProductCode, MatchType::Substring, "PC");
+
+    auto results = index.Search(request);
+
+    if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
+    {
+        REQUIRE(results.Matches.size() == 3);
+    }
+    else
+    {
+        REQUIRE(results.Matches.size() == 0);
+    }
+}
+
+TEST_CASE("SQLiteIndex_Search_PackageFamilyNameMatch", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { "Id3", "Name3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Inclusions.emplace_back(ApplicationMatchField::PackageFamilyName, MatchType::Exact, "pfn1");
+
+    auto results = index.Search(request);
+
+    if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
+    {
+        REQUIRE(results.Matches.size() == 1);
+    }
+    else
+    {
+        REQUIRE(results.Matches.size() == 0);
+    }
+}
+
+TEST_CASE("SQLiteIndex_Search_ProductCodeMatch", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { "Id3", "Name3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Inclusions.emplace_back(ApplicationMatchField::ProductCode, MatchType::Exact, "pc2");
+
+    auto results = index.Search(request);
+
+    if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
+    {
+        REQUIRE(results.Matches.size() == 1);
+    }
+    else
+    {
+        REQUIRE(results.Matches.size() == 0);
+    }
 }

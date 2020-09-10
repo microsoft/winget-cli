@@ -44,9 +44,9 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // We do not have the capacity to operate on this schema version
         THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
     }
-}
 
-std::ostream& operator<<(std::ostream& out, const AppInstaller::Repository::Microsoft::Schema::Version& version)
-{
-    return (out << version.MajorVersion << '.' << version.MinorVersion);
+    std::ostream& operator<<(std::ostream& out, const Version& version)
+    {
+        return (out << version.MajorVersion << '.' << version.MinorVersion);
+    }
 }
