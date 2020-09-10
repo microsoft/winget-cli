@@ -147,8 +147,17 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtreer resultate volgens bevel</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>Die volledige bevelreël vir voltooiing</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>Hierdie bevel vereis administrateurvoorregte om uit te voer.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>Hierdie bevel kan gebruik word om voltooiing van kontekssensitiewe-bevelreël te versoek. Die bevelreël, wyserposisie, en die woord wat voltooi moet word, word ingevoer. Die afvoer is ’n stel moontlike waardes gebaseer op die toevoere, een moontlike waarde per reël.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>Aktiveer voltooiing van kontekssensitiewe-bevelreël</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Wys niks meer as die gespesifiseerde aantal resultate nie</value>
@@ -389,6 +398,9 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   <data name="PendingWorkError" xml:space="preserve">
     <value>Oeps, ons het vergeet om dit te doen ...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>Die posisie van die wyser binne die bevelreël</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Voorskou</value>
   </data>
@@ -422,6 +434,9 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>Naam</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>Bron</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>addisionele inskrywings is afgekap vanweë resultaatbeperking</value>
@@ -636,5 +651,8 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>Wys beskikbare weergawes van die pakket</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>Die waarde wat verskaf is voordat voltooiing versoek is</value>
   </data>
 </root>

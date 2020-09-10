@@ -147,8 +147,17 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Saate tulemeid käsu järgi filtreerida</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>Lõpetamise täielik käsurida</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>Selle käsu täitmiseks on vaja administraatoriõigusi.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>Seda käsku saab kasutada kontekstitundliku käsurea lõpuleviimise taotlemiseks. Käsuriba, kursori asend ja täidetav sõna sõelutakse sisse. Väljund on sisendil põhinevate võimalike väärtuste komplekt, üks võimalik väärtus rea kohta.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>Lubab konteksti tundliku käsurea lõpetamist</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Kuvatakse ainult määratud arv tulemeid, mitte rohkem</value>
@@ -389,6 +398,9 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Unustasime seda teha...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>Kursori asukoht käsureal</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Eelvaade</value>
   </data>
@@ -422,6 +434,9 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>Nimi</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>Allikas</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>tulemi piirangu tõttu on täiendavad kanded kärbitud</value>
@@ -636,5 +651,8 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>Saate vaadata paketi saadaolevaid versioone</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>Taotletud on enne lõpetamist esitatud väärtus</value>
   </data>
 </root>

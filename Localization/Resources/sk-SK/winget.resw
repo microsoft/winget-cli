@@ -147,8 +147,17 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtrovať výsledky podľa príkazu</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>Úplný príkazový riadok na dokončenie</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>Tento príkaz vyžaduje na spustenie oprávnenia správcu.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>Tento príkaz sa dá použiť na vyžiadanie dokončenia príkazového riadka s rozlišovaním kontextu. Odovzdáva sa príkazový riadok, pozícia kurzora a slovo, ktoré sa má dokončiť. Výstup je množina potenciálnych hodnôt na základe vstupov, jedna možná hodnota na riadok.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>Umožňuje dokončenie príkazového riadka s rozlišovaním kontextu</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Nezobrazovať viac ako zadaný počet výsledkov</value>
@@ -389,6 +398,9 @@ Môžu byť nakonfigurované prostredníctvom súboru „winget settings“.</va
   <data name="PendingWorkError" xml:space="preserve">
     <value>Ľutujeme, zabudli sme na to...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>Pozícia kurzora v rámci príkazového riadka</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Ukážka</value>
   </data>
@@ -422,6 +434,9 @@ Môžu byť nakonfigurované prostredníctvom súboru „winget settings“.</va
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>Názov</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>Zdroj</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>ďalšie položky sú skrátené kvôli limitu výsledku</value>
@@ -636,5 +651,8 @@ Môžu byť nakonfigurované prostredníctvom súboru „winget settings“.</va
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>Zobraziť dostupné verzie balíka</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>Vyžaduje sa hodnota zadaná pred dokončením</value>
   </data>
 </root>
