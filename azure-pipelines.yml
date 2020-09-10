@@ -76,7 +76,7 @@ jobs:
                     /p:AppxPackageDir="$(appxPackageDir)" 
                     /p:AppxBundle=Always 
                     /p:UapAppxPackageBuildMode=StoreUpload
-                    /p:WINGET_DISABLE_MOTW=true'
+                    /p:Winget_Disable_MOTW=true'
   
   - task: PowerShell@2
     displayName: Install Tests Dependencies
