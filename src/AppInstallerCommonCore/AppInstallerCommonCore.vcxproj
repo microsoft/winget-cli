@@ -189,7 +189,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD;WINGET_DISABLE_MOTW</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD;</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
