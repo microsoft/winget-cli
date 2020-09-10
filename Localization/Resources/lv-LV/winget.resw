@@ -147,8 +147,17 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtrēt rezultātus pēc komandas</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>Pilna komandrinda pabeigšanai</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>Šai komandai ir nepieciešamas administratora privilēģijas, lai izpildītu.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>Šo komandu var izmantot, lai pieprasītu kontekstjūtīgo komandrindas pabeigšanu. Tiek nodota komandrinda, kursora pozīcija un vārds, kas jāpabeidz. Izvade ir iespējamo vērtību kopa, kuru pamatā ir ievades, viena iespējamā vērtība katrā rindiņā.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>Iespējo kontekstjūtīgo komandrindas pabeigšanu</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Rādīt ne vairāk par norādīto rezultātu skaitu</value>
@@ -389,6 +398,9 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Šo mēs aizmirsām izdarīt...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>Kursora pozīcija komandrindā</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Priekšskatījums</value>
   </data>
@@ -422,6 +434,9 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>Nosaukums</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>Avots</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>papildu ievadnes aprautas rezultātu ierobežojuma dēļ</value>
@@ -636,5 +651,8 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>Rādīt pakotnes pieejamās versijas</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>Tiek pieprasīta vērtība, kas ievadīta pirms pabeigšanas</value>
   </data>
 </root>

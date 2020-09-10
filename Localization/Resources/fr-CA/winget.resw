@@ -147,8 +147,17 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtrer les résultats par commande</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>La ligne de commande complète pour l’achèvement</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>Cette commande nécessite des privilèges d'administrateur pour être exécutée.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>Cette commande peut être utilisée pour demander l’achèvement de la ligne de commande sensible au contexte. La ligne de commande, la position du curseur et le mot à terminer sont transmis. La sortie est un ensemble de valeurs potentielles basées sur les entrées, une valeur possible par ligne.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>Active l’achèvement de la ligne de commande sensible au contexte</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Ne pas afficher plus de résultats que le nombre spécifié</value>
@@ -389,6 +398,9 @@ Elles peuvent être configurées par le biais du fichier de paramètres "winget 
   <data name="PendingWorkError" xml:space="preserve">
     <value>Désolé... nous avons oublié de le faire...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>Position du curseur dans la ligne de commande</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Aperçu</value>
   </data>
@@ -422,6 +434,9 @@ Elles peuvent être configurées par le biais du fichier de paramètres "winget 
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>Nom</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>Source</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>entrées supplémentaires tronquées en raison de la limite de résultats</value>
@@ -636,5 +651,8 @@ Elles peuvent être configurées par le biais du fichier de paramètres "winget 
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>Afficher les versions disponibles du paquet</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>La valeur fournie avant l’achèvement est demandée</value>
   </data>
 </root>

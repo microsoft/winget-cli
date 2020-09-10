@@ -147,8 +147,17 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>ఫలితాలను ఆదేశం ద్వారా ఫిల్టర్ చేయండి</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>పూర్తి చేయడానికి పూర్తి ఆదేశ పంక్తి</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>ఈ ఆదేశానికి అమలు చేయడానికి నిర్వాహక అధికారాలు అవసరం.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>సందర్భ ముఖ్యమైన ఆదేశ పంక్తి పూర్తి చేయమని అభ్యర్థించడానికి ఈ ఆదేశం ఉపయోగపడుతుంది. ఆదేశ పంక్తి, కర్సర్ స్థానం మరియు పూర్తి చేయవలసిన పదం లోపలికి పంపబడతాయి. అవుట్‌పుట్ అనేది ఇన్‌పుట్‌ల ఆధారంగా సంభావ్య విలువల సమితి, ప్రతి పంక్తికి ఒక విలువ.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>సందర్భ ముఖ్యమైన ఆదేశ పంక్తిని పూర్తి చేయడాన్ని ప్రారంభిస్తుంది</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>పేర్కొన్న ఫలితాల సంఖ్య కంటే ఎక్కువ చూపించవద్దు</value>
@@ -389,6 +398,9 @@
   <data name="PendingWorkError" xml:space="preserve">
     <value>అయ్యో, మేము దీన్ని చేయడం మర్చిపోయాము...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>ఆదేశ పంక్తి పరిమితిలో కర్సర్ యొక్క స్థానం</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>పరిదృశ్యం</value>
   </data>
@@ -422,6 +434,9 @@
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>పేరు</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>మూలం</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>ఫలితం పరిమితి కారణంగా అదనపు నమోదులు కుదించబడ్డాయి</value>
@@ -636,5 +651,8 @@
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>ప్యాకేజీ యొక్క అందుబాటులో ఉన్న సంస్కరణలను చూపించు</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>పూర్తి చేయడానికి ముందు అందించిన విలువ అభ్యర్థించబడింది</value>
   </data>
 </root>
