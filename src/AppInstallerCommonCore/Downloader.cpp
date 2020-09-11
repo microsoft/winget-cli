@@ -171,7 +171,6 @@ namespace AppInstaller::Utility
         return false;
     }
 
-
     void ApplyMotwIfApplicable(const std::filesystem::path& filePath)
     {
         AICLI_LOG(Core, Info, << "Started applying motw to " << filePath);
@@ -219,7 +218,4 @@ namespace AppInstaller::Utility
 
         AICLI_LOG(Core, Info, << "Finished applying motw");
     }
-
-
-
 }

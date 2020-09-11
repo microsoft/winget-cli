@@ -97,7 +97,7 @@ namespace AppInstallerCLIE2ETests
 
             ReadTestInstallerPaths();
 
-            TestIndexSetup.GenerateTestIndex();
+            TestIndexSetup.GenerateTestDirectory();
         }
 
         [OneTimeTearDown]

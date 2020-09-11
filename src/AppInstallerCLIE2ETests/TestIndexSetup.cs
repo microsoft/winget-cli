@@ -23,11 +23,11 @@ namespace AppInstallerCLIE2ETests
         /// 4. Replaces manifests with corresponding hash values
         /// 5. Generates a source package for TestData using makeappx/signtool
         /// </summary>
-        public static void GenerateTestIndex()
+        public static void GenerateTestDirectory()
         {
-            SetupTestLocalIndexDirectory(TestCommon.StaticFileRootPath);
+            SetupLocalTestDirectory(TestCommon.StaticFileRootPath);
 
-            CopyInstallersToLocalTestIndex();
+            CopyInstallersToLocalTestDirectory();
 
             TestHashHelper.HashInstallers();
 
@@ -71,7 +71,7 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
-        private static void CopyInstallersToLocalTestIndex()
+        private static void CopyInstallersToLocalTestDirectory()
         {
             // Set Installer Destination Path
             string exeInstallerDestPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.ExeInstaller);
@@ -88,7 +88,7 @@ namespace AppInstallerCLIE2ETests
             RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {exeInstallerFullName}");
         }
 
-        private static void SetupTestLocalIndexDirectory(string staticFileRootPath)
+        private static void SetupLocalTestDirectory(string staticFileRootPath)
         {
             DirectoryInfo staticFileRootDir = Directory.CreateDirectory(staticFileRootPath);
 
