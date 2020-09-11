@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using Microsoft.Msix.Utils.ProcessRunner;
 
 namespace AppInstallerCLIE2ETests
 {
@@ -16,17 +17,17 @@ namespace AppInstallerCLIE2ETests
 
         /// <summary>
         /// Generates the Local Test Index to be served by the Localhost Web Server.
-        /// Copies TestData to a StaticFileRootPath set in Test.runsettings
-        /// Copies and signs installer Files 
-        /// Hashes installer Files
-        /// Replaces manifests with corresponding hash values
-        /// Generates a source package for TestData using makeappx/signtool
+        /// 1. Copies TestData to a StaticFileRootPath set in Test.runsettings
+        /// 2. Copies and signs installer Files 
+        /// 3. Hashes installer Files
+        /// 4. Replaces manifests with corresponding hash values
+        /// 5. Generates a source package for TestData using makeappx/signtool
         /// </summary>
         public static void GenerateTestIndex()
         {
             SetupTestLocalIndexDirectory(TestCommon.StaticFileRootPath);
 
-            CopyInstallerFilesToLocalIndex();
+            CopyInstallersToLocalTestIndex();
 
             TestHashHelper.HashInstallers();
 
@@ -41,7 +42,6 @@ namespace AppInstallerCLIE2ETests
             string indexDestPath = Path.Combine(TestCommon.StaticFileRootPath, PackageName, PublicName, IndexName);
 
             DirectoryInfo parentDir = Directory.GetParent(Directory.GetCurrentDirectory());
-
             string indexCreationToolPath = Path.Combine(parentDir.FullName, Constants.IndexCreationTool);
             string winGetUtilPath = Path.Combine(parentDir.FullName, Constants.WinGetUtil);
 
@@ -50,14 +50,17 @@ namespace AppInstallerCLIE2ETests
 
             try
             {
+                // Generate Index.db file using IndexCreationTool.exe
                 RunCommand(Path.Combine(indexCreationToolPath, "IndexCreationTool.exe"), $"-d {TestCommon.StaticFileRootPath}");
                 File.Move(IndexName, indexDestPath, true);
 
                 string packageDir = Path.Combine(TestCommon.StaticFileRootPath, PackageName);
                 string indexPackageDestPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.IndexPackage);
+                string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
 
-                string makeappxExecutable = Path.Combine(TestCommon.WindowsSDKPath, "makeappx.exe");
-                string signtoolExecutable = Path.Combine(TestCommon.WindowsSDKPath, "signtool.exe");
+                // Package Test Source and Sign With Package Certificate
+                string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
+                string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
 
                 RunCommand(makeappxExecutable, $"pack /l /o /d {packageDir} /p {indexPackageDestPath}");
                 RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {indexPackageDestPath}");
@@ -68,18 +71,20 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
-        private static void CopyInstallerFilesToLocalIndex()
+        private static void CopyInstallersToLocalTestIndex()
         {
+            // Set Installer Destination Path
             string exeInstallerDestPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.ExeInstaller);
             DirectoryInfo exeInstallerDestDir = Directory.CreateDirectory(exeInstallerDestPath);
-
             string exeInstallerFullName = Path.Combine(exeInstallerDestDir.FullName, "AppInstallerTestExeInstaller.exe");
 
+            // Copy Installer to Destination Path
             File.Copy(TestCommon.ExeInstallerPath, exeInstallerFullName, true);
             TestCommon.ExeInstallerPath = exeInstallerFullName;
 
-            string signtoolExecutable = Path.Combine(TestCommon.WindowsSDKPath, "signtool.exe");
-
+            // Sign Installer File
+            string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
+            string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
             RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {exeInstallerFullName}");
         }
 

@@ -7,7 +7,6 @@ namespace AppInstallerCLIE2ETests
     using NUnit.Framework;
     using System;
     using System.IO;
-    using System.Linq;
 
     [SetUpFixture]
     public class SetUpFixture
@@ -96,11 +95,6 @@ namespace AppInstallerCLIE2ETests
                 TestCommon.PackageCertificatePath = TestContext.Parameters.Get(Constants.PackageCertificatePathParameter);
             }
 
-            if (TestContext.Parameters.Exists(Constants.WindowsSDKPathParameter))
-            {
-                TestCommon.WindowsSDKPath = TestContext.Parameters.Get(Constants.WindowsSDKPathParameter);
-            }
-
             ReadTestInstallerPaths();
 
             TestIndexSetup.GenerateTestIndex();
@@ -151,7 +145,6 @@ namespace AppInstallerCLIE2ETests
                     return true;
                 }
             }
-
             return false;
         }
 
@@ -167,8 +160,6 @@ namespace AppInstallerCLIE2ETests
             }
             else
             {
-                DefaultFileTypes = value;
-
                 if (string.IsNullOrEmpty(value))
                 {
                     DefaultFileTypes = string.Empty;
@@ -203,6 +194,5 @@ namespace AppInstallerCLIE2ETests
                 TestCommon.MsixInstallerPath = TestCommon.GetTestFile("AppInstallerTestMsixInstaller.msix");
             }
         }
-
     }
 }

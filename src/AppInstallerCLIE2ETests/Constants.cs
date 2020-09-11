@@ -14,9 +14,9 @@ namespace AppInstallerCLIE2ETests
         public const string InvokeCommandInDesktopPackageParameter = "InvokeCommandInDesktopPackage";
         public const string StaticFileRootPathParameter = "StaticFileRootPath";
         public const string ExeInstallerPathParameter = "ExeTestInstallerPath";
+        public const string MsiInstallerPathParameter = "MsiTestInstallerPath";
         public const string MsixInstallerPathParameter = "MsixTestInstallerPath";
         public const string PackageCertificatePathParameter = "PackageCertificatePath";
-        public const string WindowsSDKPathParameter = "WindowsSDKPath";
         public const string AppInstallerTestCert = "AppInstallerTest.cer";
         public const string AppInstallerTestCertThumbprint = "d03e7a688b388b1edde8476a627531c49db88017";
 

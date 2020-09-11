@@ -27,11 +27,11 @@ namespace AppInstallerCLIE2ETests
 
         public static string ExeInstallerPath { get; set; }
 
+        public static string MsiInstallerPath { get; set; }
+
         public static string MsixInstallerPath { get; set; }
         
         public static string PackageCertificatePath { get; set; }
-
-        public static string WindowsSDKPath { get; set; }
 
         public struct RunCommandResult
         {
