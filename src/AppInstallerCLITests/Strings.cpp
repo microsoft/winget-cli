@@ -37,6 +37,35 @@ TEST_CASE("UTF8Substring", "[strings]")
     REQUIRE(UTF8Substring(s, 1, 8) == "s like \xf0\x9f\x8c\x8a");
 }
 
+TEST_CASE("UTF8TerminalLength", "[strings]")
+{
+    REQUIRE(UTF8TerminalLength("") == 0);
+    REQUIRE(UTF8TerminalLength("a") == 1);
+    REQUIRE(UTF8TerminalLength(" a b c ") == 7);
+    REQUIRE(UTF8TerminalLength("K\xC3\xA4se") == 4); // "Käse"
+    REQUIRE(UTF8TerminalLength("bye\xE2\x80\xA6") == 4); // "bye…"
+    REQUIRE(UTF8TerminalLength("\xf0\x9f\xa6\x86") == 2); // [duck emoji]
+    REQUIRE(UTF8TerminalLength("\xf0\x9d\x85\xa0\xf0\x9d\x85\xa0") == 2); // [8th note][8th note]
+    REQUIRE(UTF8TerminalLength("\xe6\xb5\x8b\xe8\xaf\x95") == 4); // 测试
+    REQUIRE(UTF8TerminalLength("te\xe6\xb5\x8bs\xe8\xaf\x95t") == 8); // te测s试t
+}
+
+TEST_CASE("UTF8TrimRightToTerminalLength", "[strings]")
+{
+    REQUIRE(UTF8TrimRightToTerminalLength("", 0) == "");
+    REQUIRE(UTF8TrimRightToTerminalLength("abcd", 4) == "abcd");
+    REQUIRE(UTF8TrimRightToTerminalLength("abcd", 5) == "abcd");
+    REQUIRE(UTF8TrimRightToTerminalLength("abcd", 2) == "ab");
+
+    const char* s = "te\xe6\xb5\x8bs\xe8\xaf\x95t"; // // te测s试t
+    REQUIRE(UTF8TrimRightToTerminalLength(s, 0) == "");
+    REQUIRE(UTF8TrimRightToTerminalLength(s, 2) == "te");
+    REQUIRE(UTF8TrimRightToTerminalLength(s, 3) == "te");
+    REQUIRE(UTF8TrimRightToTerminalLength(s, 4) == "te\xe6\xb5\x8b");
+    REQUIRE(UTF8TrimRightToTerminalLength(s, 8) == "te\xe6\xb5\x8bs\xe8\xaf\x95t");
+    REQUIRE(UTF8TrimRightToTerminalLength(s, 10) == "te\xe6\xb5\x8bs\xe8\xaf\x95t");
+}
+
 TEST_CASE("Normalize", "[strings]")
 {
     REQUIRE(Normalize("test") == "test");

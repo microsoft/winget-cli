@@ -212,13 +212,13 @@ namespace AppInstaller::Utility
             int charWidth = width == U_EA_FULLWIDTH || width == U_EA_WIDE ? 2 : 1;
             terminalLength += charWidth;
 
-            if (terminalLength >= length)
+            if (terminalLength > length)
             {
                 break;
             }
         }
 
-        return input.substr(0, it - u32Str.cbegin());
+        return UTF8Substring(input, 0, it - u32Str.cbegin());
     }
 
     std::string Normalize(std::string_view input, NORM_FORM form)
