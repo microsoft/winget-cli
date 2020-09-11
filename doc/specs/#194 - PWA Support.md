@@ -30,11 +30,12 @@ The "InstallerType" field in the YAML manifest file specifies the type of the ap
 
 Each PWA would have its own manifest YAML file. A sample manifest file would look like this:
 
-```Id: PWATest.TestInstaller
+```
+Id: Microsoft.FinTimes
 Version: 1.0.0.0
 Name: AppInstaller FinTimes
 Publisher: Microsoft Corporation
-AppMoniker: ft
+AppMoniker: fintimes
 License: Test
 InstallerType: PWA
 MinOSVersion: 10.0.0.0
@@ -64,7 +65,7 @@ The unsigned MSIX package and any other dependency packages are added for the cu
 ### Flow of the install process
 
 1. User types the install command, eg. `winget install fintimes` (For the experimental version, the manifest will be passed as an argument)
-2. The URL from the manifest YAML file of the Financial Times PWA will be sent as a POST request to an internal web service that will generate an unsigned MSIX package. THis MSIX package is downloaded onto the user's system.
+2. The URL from the manifest YAML file of the Financial Times PWA will be sent as a POST request to an internal web service that will generate an unsigned MSIX package. This MSIX package is downloaded onto the user's system.
 3. The generated package will then be silently installed as a Hosted App (Refer to resources for more on the Hostel App Model).
 4. The MSIX file is removed from the user's system.
 
