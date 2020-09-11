@@ -68,7 +68,7 @@ namespace AppInstallerCLIE2ETests
 
             ShouldDisableSaveZoneInformationOnExit = EnableSaveZoneInformation(true);
 
-            ShouldRevertDefaultFileTypeRiskOnExit = DecreaseFileTypeRisk(false, ".exe");
+            //ShouldRevertDefaultFileTypeRiskOnExit = DecreaseFileTypeRisk(false, ".exe");
 
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)), "Add AppInstallerTestCert");
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"ROOT\" " + TestCommon.GetTestDataFile(Constants.IndexPackageRootCert)), "Add IndexPackageRootCert");
@@ -122,10 +122,10 @@ namespace AppInstallerCLIE2ETests
                 EnableSaveZoneInformation(false);
             }
 
-            if (ShouldRevertDefaultFileTypeRiskOnExit)
-            {
-                DecreaseFileTypeRisk(true, DefaultFileTypes);
-            }
+            //if (ShouldRevertDefaultFileTypeRiskOnExit)
+            //{
+            //    DecreaseFileTypeRisk(true, DefaultFileTypes);
+            //}
 
             TestCommon.RunCommand("certutil.exe", $"-delstore \"TRUSTEDPEOPLE\" {Constants.AppInstallerTestCertThumbprint}");
             TestCommon.RunCommand("certutil.exe", $"-delstore \"ROOT\" {Constants.IndexPackageRootCertThumbprint}");
@@ -163,6 +163,11 @@ namespace AppInstallerCLIE2ETests
             return false;
         }
 
+        /// <summary>
+        /// Enabling the SaveZoneInformation Key causes Windows to not mark file attachments by using their zone information (1 Enable, 2 Disable)
+        /// </summary>
+        /// <param name="enable"></param>
+        /// <returns></returns>
         private bool EnableSaveZoneInformation(bool enable)
         {
             var saveZoneInfoKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments");
@@ -170,7 +175,7 @@ namespace AppInstallerCLIE2ETests
             if (enable)
             {
                 var value = saveZoneInfoKey.GetValue("SaveZoneInformation");
-                if (value == null || (Int32)value == 0)
+                if (value == null || (Int32)value == 2)
                 {
                     saveZoneInfoKey.SetValue("SaveZoneInformation", 1, RegistryValueKind.DWord);
                     return true;
@@ -179,9 +184,9 @@ namespace AppInstallerCLIE2ETests
             else
             {
                 var value = saveZoneInfoKey.GetValue("SaveZoneInformation");
-                if (value != null && ((UInt32)value) != 0)
+                if (value != null && ((UInt32)value) != 2)
                 {
-                    saveZoneInfoKey.SetValue("SaveZoneInformation", 0, RegistryValueKind.DWord);
+                    saveZoneInfoKey.SetValue("SaveZoneInformation", 2, RegistryValueKind.DWord);
                     return true;
                 }
             }
