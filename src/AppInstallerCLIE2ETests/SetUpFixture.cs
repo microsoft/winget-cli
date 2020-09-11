@@ -13,7 +13,6 @@ namespace AppInstallerCLIE2ETests
     public class SetUpFixture
     {
         private static bool ShouldDisableDevModeOnExit = true;
-        private static bool ShouldDisableSaveZoneInformationOnExit = true;
         private static bool ShouldRevertDefaultFileTypeRiskOnExit = true;
         private static string DefaultFileTypes = string.Empty;
 
@@ -66,9 +65,7 @@ namespace AppInstallerCLIE2ETests
 
             ShouldDisableDevModeOnExit = EnableDevMode(true);
 
-            ShouldDisableSaveZoneInformationOnExit = EnableSaveZoneInformation(true);
-
-            //ShouldRevertDefaultFileTypeRiskOnExit = DecreaseFileTypeRisk(false, ".exe");
+            ShouldRevertDefaultFileTypeRiskOnExit = DecreaseFileTypeRisk(".exe", false);
 
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)), "Add AppInstallerTestCert");
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"ROOT\" " + TestCommon.GetTestDataFile(Constants.IndexPackageRootCert)), "Add IndexPackageRootCert");
@@ -117,15 +114,10 @@ namespace AppInstallerCLIE2ETests
                 EnableDevMode(false);
             }
 
-            if (ShouldDisableSaveZoneInformationOnExit)
+            if (ShouldRevertDefaultFileTypeRiskOnExit)
             {
-                EnableSaveZoneInformation(false);
+                DecreaseFileTypeRisk(DefaultFileTypes, true);
             }
-
-            //if (ShouldRevertDefaultFileTypeRiskOnExit)
-            //{
-            //    DecreaseFileTypeRisk(true, DefaultFileTypes);
-            //}
 
             TestCommon.RunCommand("certutil.exe", $"-delstore \"TRUSTEDPEOPLE\" {Constants.AppInstallerTestCertThumbprint}");
             TestCommon.RunCommand("certutil.exe", $"-delstore \"ROOT\" {Constants.IndexPackageRootCertThumbprint}");
@@ -163,60 +155,32 @@ namespace AppInstallerCLIE2ETests
             return false;
         }
 
-        /// <summary>
-        /// Enabling the SaveZoneInformation Key causes Windows to not mark file attachments by using their zone information (1 Enable, 2 Disable)
-        /// </summary>
-        /// <param name="enable"></param>
-        /// <returns></returns>
-        private bool EnableSaveZoneInformation(bool enable)
-        {
-            var saveZoneInfoKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments");
-
-            if (enable)
-            {
-                var value = saveZoneInfoKey.GetValue("SaveZoneInformation");
-                if (value == null || (Int32)value == 2)
-                {
-                    saveZoneInfoKey.SetValue("SaveZoneInformation", 1, RegistryValueKind.DWord);
-                    return true;
-                }
-            }
-            else
-            {
-                var value = saveZoneInfoKey.GetValue("SaveZoneInformation");
-                if (value != null && ((UInt32)value) != 2)
-                {
-                    saveZoneInfoKey.SetValue("SaveZoneInformation", 2, RegistryValueKind.DWord);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private bool DecreaseFileTypeRisk(bool requiresRevert, string fileTypes)
+        private bool DecreaseFileTypeRisk(string fileTypes, bool revert)
         {
             var defaultFileTypeRiskKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Associations");
-            var value = defaultFileTypeRiskKey.GetValue("DefaultFileTypeRisk");
-            if (requiresRevert)
+            string value = (string)defaultFileTypeRiskKey.GetValue("DefaultFileTypeRisk");
+
+            if (revert)
             {
-                defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", DefaultFileTypes);
+                defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", fileTypes);
+                return false;
             }
             else
-            {   if (value == null)
+            {
+                DefaultFileTypes = value;
+
+                if (string.IsNullOrEmpty(value))
                 {
-                    defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", fileTypes);
                     DefaultFileTypes = string.Empty;
+                    defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", fileTypes);
                 }
                 else
                 {
-                    defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", string.Concat(value.ToString(), fileTypes));
-                    DefaultFileTypes = defaultFileTypeRiskKey.GetValue("DefaultFileTypeRisk").ToString();
+                    DefaultFileTypes = value;
+                    defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", string.Concat(value, fileTypes));
                 }
                 return true;
             }
-
-            return false;
         }
 
         private void ReadTestInstallerPaths()
