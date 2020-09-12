@@ -79,6 +79,14 @@ namespace AppInstaller::Utility
                 return m_currentBrk;
             }
 
+            UChar32 CodePointAt(int32_t offset)
+            {
+                THROW_HR_IF(E_UNEXPECTED, offset < 0);
+                auto cp = utext_char32At(m_text.get(), offset);
+                THROW_HR_IF(E_UNEXPECTED, cp == U_SENTINEL);
+                return cp;
+            }
+
         private:
             wil::unique_any<UText*, decltype(utext_close), &utext_close> m_text;
             wil::unique_any<UBreakIterator*, decltype(ubrk_close), &ubrk_close> m_brk;
@@ -137,12 +145,6 @@ namespace AppInstaller::Utility
         return result;
     }
 
-    std::u32string ConvertToUTF32(std::string_view input)
-    {
-        std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convU32;
-        return convU32.from_bytes(std::string(input));
-    }
-
     size_t UTF8Length(std::string_view input)
     {
         ICUBreakIterator itr{ input, UBRK_CHARACTER };
@@ -157,19 +159,26 @@ namespace AppInstaller::Utility
         return numGraphemeClusters;
     }
 
-    size_t UTF8TerminalLength(std::string_view input)
+    size_t UTF8ColumnWidth(std::string_view input)
     {
-        std::u32string u32Str = Utility::ConvertToUTF32(input);
+        NormalizedUTF8<NORM_FORM::NormalizationC> normalizedInput{ input };
+        ICUBreakIterator itr{ normalizedInput, UBRK_CHARACTER };
 
-        size_t terminalLength = 0;
+        size_t columnWidth = 0;
+        int32_t currentBrk = 0;
+        int32_t nextBrk = 0;
 
-        for (auto it = u32Str.cbegin(); it != u32Str.cend(); ++it)
+        nextBrk = itr.Next();
+        while (nextBrk != UBRK_DONE)
         {
-            int32_t width = u_getIntPropertyValue(*it, UCHAR_EAST_ASIAN_WIDTH);
-            terminalLength += width == U_EA_FULLWIDTH || width == U_EA_WIDE ? 2 : 1;
+            int32_t width = u_getIntPropertyValue(itr.CodePointAt(currentBrk), UCHAR_EAST_ASIAN_WIDTH);
+            columnWidth += width == U_EA_FULLWIDTH || width == U_EA_WIDE ? 2 : 1;
+
+            currentBrk = nextBrk;
+            nextBrk = itr.Next();
         }
 
-        return terminalLength;
+        return columnWidth;
     }
 
     std::string_view UTF8Substring(std::string_view input, size_t offset, size_t count)
@@ -198,27 +207,35 @@ namespace AppInstaller::Utility
         return input.substr(utf8Offset, utf8Count);
     }
 
-    std::string_view UTF8TrimRightToTerminalLength(std::string_view input, size_t length)
+    std::string UTF8TrimRightToColumnWidth(std::string_view input, size_t expectedWidth, size_t& actualWidth)
     {
-        THROW_HR_IF(E_INVALIDARG, length < 0);
+        NormalizedUTF8<NORM_FORM::NormalizationC> normalizedInput{ input };
+        ICUBreakIterator itr{ normalizedInput, UBRK_CHARACTER };
 
-        std::u32string u32Str = Utility::ConvertToUTF32(input);
+        size_t columnWidth = 0;
+        int32_t currentBrk = 0;
+        int32_t nextBrk = 0;
 
-        size_t terminalLength = 0;
-        std::u32string::const_iterator it;
-        for (it = u32Str.cbegin(); it != u32Str.cend(); ++it)
+        nextBrk = itr.Next();
+        while (nextBrk != UBRK_DONE)
         {
-            int32_t width = u_getIntPropertyValue(*it, UCHAR_EAST_ASIAN_WIDTH);
+            int32_t width = u_getIntPropertyValue(itr.CodePointAt(currentBrk), UCHAR_EAST_ASIAN_WIDTH);
             int charWidth = width == U_EA_FULLWIDTH || width == U_EA_WIDE ? 2 : 1;
-            terminalLength += charWidth;
+            columnWidth += charWidth;
 
-            if (terminalLength > length)
+            if (columnWidth > expectedWidth)
             {
+                columnWidth -= charWidth;
                 break;
             }
+
+            currentBrk = nextBrk;
+            nextBrk = itr.Next();
         }
 
-        return UTF8Substring(input, 0, it - u32Str.cbegin());
+        actualWidth = columnWidth;
+
+        return normalizedInput.substr(0, currentBrk);
     }
 
     std::string Normalize(std::string_view input, NORM_FORM form)
