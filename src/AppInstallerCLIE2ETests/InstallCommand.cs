@@ -11,6 +11,8 @@ namespace AppInstallerCLIE2ETests
         // Todo: add unicode test cases after install tests are enabled.
         private const string InstallTestSourceUrl = @"https://localhost:5001/TestKit";
         private const string InstallTestSourceName = @"InstallTestSource";
+        private const string DefaultTestSourceUrl = @"https://winget.azureedge.net/cache";
+        private const string DefaultTestSourceName = @"winget";
 
         private const string InstallTestExeInstalledFile = @"TestExeInstalled.txt";
         private const string InstallTestMsiInstalledFile = @"AppInstallerTestMsiInstaller.msi";
@@ -20,13 +22,16 @@ namespace AppInstallerCLIE2ETests
         [SetUp]
         public void Setup()
         {
+            TestCommon.RunAICLICommand("source remove", DefaultTestSourceUrl);
             Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{InstallTestSourceName} {InstallTestSourceUrl}").ExitCode);
+            
         }
 
         [TearDown]
         public void TearDown()
         {
             TestCommon.RunAICLICommand("source remove", InstallTestSourceName);
+            TestCommon.RunAICLICommand("source add", $"{DefaultTestSourceName} {DefaultTestSourceUrl}");
             TestCommon.WaitForDeploymentFinish();
         }
 

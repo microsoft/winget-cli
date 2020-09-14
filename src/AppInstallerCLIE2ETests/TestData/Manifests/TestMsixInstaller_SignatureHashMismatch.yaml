@@ -7,6 +7,6 @@ Installers:
   - Arch: x86
     Url: https://localhost:5001/TestKit/x86/Release/AppInstallerCLIE2ETests/TestData/AppInstallerTestMsixInstaller/AppInstallerTestMsixInstaller.msix
     Sha256: <MSIXHASH>
-    SignatureSha256: d8a54b79a9c5956df5b338fdaf37f48e56316465defd182cbe64d8e5d3d53d4d
+    SignatureSha256: 0000000000000000000000000000000000000000000000000000000000000000
     InstallerType: msix
 ManifestVersion: 0.1.0

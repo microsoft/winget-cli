@@ -180,18 +180,15 @@ namespace AppInstallerCLIE2ETests
             {
                 TestCommon.ExeInstallerPath = TestContext.Parameters.Get(Constants.ExeInstallerPathParameter);
             }
-            else
+
+            if (TestContext.Parameters.Exists(Constants.MsiInstallerPathParameter))
             {
-                TestCommon.ExeInstallerPath = TestCommon.GetTestFile("AppInstallerTestExeInstaller.exe");
+                TestCommon.MsiInstallerPath = TestContext.Parameters.Get(Constants.MsiInstallerPathParameter);
             }
 
             if (TestContext.Parameters.Exists(Constants.MsixInstallerPathParameter))
             {
                 TestCommon.MsixInstallerPath = TestContext.Parameters.Get(Constants.MsixInstallerPathParameter);
-            }
-            else
-            {
-                TestCommon.MsixInstallerPath = TestCommon.GetTestFile("AppInstallerTestMsixInstaller.msix");
             }
         }
     }

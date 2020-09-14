@@ -8,36 +8,31 @@ namespace LocalhostWebServer
     using Microsoft.Extensions.Hosting;
     using System;
     using System.IO;
+    using Microsoft.Extensions.Configuration;
 
     public class Program
     {    
-
         static void Main(string[] args)
         {
-            for (int i = 0; i < args.Length; i++)
-            {
-                if (args[i] == "-d" && ++i < args.Length)
-                {
-                    Startup.StaticFileRoot = args[i];
-                }
-                else if (args[i] == "-c" && ++i < args.Length)
-                {
-                    Startup.CertPath = args[i];
-                }
-                else if (args[i] == "-p" && ++i < args.Length)
-                {
-                    Startup.CertPassword = args[i];
-                }
-            }
+            IConfiguration config = new ConfigurationBuilder()
+                .AddCommandLine(args)
+                .Build();
 
-            if (string.IsNullOrEmpty(Startup.StaticFileRoot))
+            Startup.StaticFileRoot = config.GetValue<string>("StaticFileRoot");
+            Startup.CertPath = config.GetValue<string>("CertPath");
+            Startup.CertPassword = config.GetValue<string>("CertPassword");
+            Startup.Port = config.GetValue<Int32>("Port", 5001);
+            
+            if (string.IsNullOrEmpty(Startup.StaticFileRoot) || 
+                string.IsNullOrEmpty(Startup.CertPath) || 
+                string.IsNullOrEmpty(Startup.CertPassword))
             {
-                Console.WriteLine("Usage: LocalhostWebServer.exe -d <Path to Serve Static Root Directory> -c <Path to HTTPS Developer Certificate> -p <Certificate Password>");
+                Console.WriteLine("Usage: LocalhostWebServer.exe StaticFileRoot=<Path to Serve Static Root Directory> " +
+                    "CertPath=<Path to HTTPS Developer Certificate> CertPassword=<Certificate Password> <Port=Port Number>");
                 return;
             }
 
             Directory.CreateDirectory(Startup.StaticFileRoot);
-
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -45,15 +40,17 @@ namespace LocalhostWebServer
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UseStartup<Startup>();
+
                     webBuilder.UseKestrel(opt =>
                     {   
-                        opt.ListenAnyIP(5001, listOpt =>
+                        opt.ListenAnyIP(Startup.Port, listOpt =>
                         {
                             listOpt.UseHttps(Startup.CertPath, Startup.CertPassword);
                         });
                     });
                     webBuilder.UseContentRoot(Startup.StaticFileRoot);
-                    webBuilder.UseStartup<Startup>();
+
                 });
     }
 }

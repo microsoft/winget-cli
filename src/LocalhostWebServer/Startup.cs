@@ -21,17 +21,19 @@ namespace LocalhostWebServer
 
         public static string CertPassword { get; set; }
 
+        public static int Port { get; set; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
-
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
         }
+
+        public IConfiguration Configuration { get; }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -48,6 +50,7 @@ namespace LocalhostWebServer
             provider.Mappings[".msix"] = "application/msix";
             provider.Mappings[".exe"] = "application/x-msdownload";
             provider.Mappings[".msi"] = "application/msi";
+
 
             //Enable static file serving
             app.UseStaticFiles(new StaticFileOptions

@@ -14,11 +14,24 @@ namespace AppInstallerCLIE2ETests
 
         public static string MsixInstallerHashValue { get; set; }
 
+        public static string SignatureHashValue { get; set; }
+
         public static void HashInstallers()
         {
-            ExeInstallerHashValue = HashInstallerFile(TestCommon.ExeInstallerPath);
-            //MsiInstallerHashValue = HashInstallerFile(TestCommon.MsiInstallerPath);
-            //MsixInstallerHashValue = HashInstallerFile(TestCommon.MsixInstallerPath);
+            if (!string.IsNullOrEmpty(TestCommon.ExeInstallerPath))
+            {
+                ExeInstallerHashValue = HashFile(TestCommon.ExeInstallerPath);
+            }
+
+            if (!string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
+            {
+                MsiInstallerHashValue = HashFile(TestCommon.MsiInstallerPath);
+            }
+
+            if (!string.IsNullOrEmpty(TestCommon.MsixInstallerPath))
+            {
+                MsixInstallerHashValue = HashFile(TestCommon.MsixInstallerPath);
+            }
         }
 
         /// <summary>
@@ -53,16 +66,27 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
-        public static string HashInstallerFile(string installerFilePath)
+        public static string HashFile(string filePath)
         {
-            FileInfo installerFile = new FileInfo(installerFilePath);
+            FileInfo file;
+
+            try
+            {
+                file = new FileInfo(filePath);
+            }
+            catch (FileNotFoundException e)
+            {
+                Console.WriteLine($"File Not Found: {e.Message}");
+                throw;
+            }
+
             string hash = string.Empty;
 
             using (SHA256 mySHA256 = SHA256.Create())
             {
                 try
                 {
-                    FileStream fileStream = installerFile.Open(FileMode.Open);
+                    FileStream fileStream = file.Open(FileMode.Open);
                     fileStream.Position = 0;
                     byte[] hashValue = mySHA256.ComputeHash(fileStream);
                     hash = ConvertHashByteToString(hashValue);

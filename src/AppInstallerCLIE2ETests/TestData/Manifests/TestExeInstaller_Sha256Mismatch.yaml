@@ -6,7 +6,7 @@ License: Test
 Installers:
   - Arch: x86
     Url: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
-    Sha256: 9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa
+    Sha256: 0000000000000000000000000000000000000000000000000000000000000000
     InstallerType: exe
     Switches:
       Custom: /execustom

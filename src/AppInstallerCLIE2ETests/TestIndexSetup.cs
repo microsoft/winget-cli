@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Msix.Utils.ProcessRunner;
+using Microsoft.Msix.Utils.CommandLine;
 
 namespace AppInstallerCLIE2ETests
 {
@@ -57,6 +58,7 @@ namespace AppInstallerCLIE2ETests
                 string packageDir = Path.Combine(TestCommon.StaticFileRootPath, PackageName);
                 string indexPackageDestPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.IndexPackage);
                 string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
+
 
                 // Package Test Source and Sign With Package Certificate
                 string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");

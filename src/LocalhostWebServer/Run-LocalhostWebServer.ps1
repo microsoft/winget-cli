@@ -27,5 +27,5 @@ param(
 
 cd $BuildRoot
 
-Start-Process -FilePath "LocalhostWebServer.exe" -ArgumentList "-d $StaticFileRoot -c $CertPath -p $CertPassword" 
+Start-Process -FilePath "LocalhostWebServer.exe" -ArgumentList "StaticFileRoot=$StaticFileRoot CertPath=$CertPath CertPassword=$CertPassword" 
 
