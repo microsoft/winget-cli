@@ -236,6 +236,18 @@ void OverrideForMSStore(TestContext& context)
     } });
 }
 
+void OverrideForPWA(TestContext& context)
+{
+    context.Override({ PWAInstall,[](TestContext& context)
+        {
+        std::filesystem::path temp = std::filesystem::temp_directory_path();
+        temp /= "TestPWAInstalled.txt";
+        std::ofstream file(temp, std::ofstream::out);
+        file << context.Get<Execution::Data::Installer>()->Url;
+        file.close();
+       } });
+    
+}
 TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
@@ -299,6 +311,27 @@ TEST_CASE("MSStoreInstallFlowWithTestManifest", "[InstallFlow]")
     REQUIRE(installResultStr.find("9WZDNCRFJ364") != std::string::npos);
 }
 
+TEST_CASE("PWAInstallFlowWithTestManifest", "[InstallFlow]")
+{
+    TestCommon::TempFile installResultPath("PWAInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForPWA(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_PWA.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("https://app.ft.com") != std::string::npos);
+}
 TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow]")
 {
     TestCommon::TempFile installResultPath("TestMsixInstalled.txt");

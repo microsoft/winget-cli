@@ -226,6 +226,7 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_NoApplicableArchitecture.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <None Include="InstallFlowTest_PWA.yaml" />
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
     <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_NoSwitches.yaml">

@@ -95,7 +95,7 @@ namespace AppInstaller::Manifest
             }            
             if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::PWA)
             {
-                // MSStore type is not supported in community repo
+                // PWA type is not supported in community repo
                 resultErrors.emplace_back(
                     ManifestError::FieldValueNotSupported, "InstallerType",
                     ManifestInstaller::InstallerTypeToString(installer.InstallerType));

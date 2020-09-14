@@ -122,22 +122,15 @@ namespace AppInstaller::CLI::Workflow
            AICLI_TERMINATE_CONTEXT(result.ExtendedErrorCode());
        }
 
-       if (result.IsRegistered())
-       {
-           AICLI_LOG(CLI, Info, << "Registered");
+       THROW_LAST_ERROR_IF_MSG(!result.IsRegistered(), "Package registration failed.");
 
-       }
-       else
-       {
-           AICLI_LOG(CLI, Info, << "NOT Registered");
-       }
        if (!context.Args.Contains(Execution::Args::Type::Interactive))
        {
            context.Reporter.Info() << "Successfully Installed! Please launch the application to complete the installation process." << std::endl;
        }
        else
        {
-           context.Reporter.Info() << "Successfully Installed! Launching application now. This is necessary to complete installation" << std::endl;
+           context.Reporter.Info() << "Successfully Installed! Launching application now. This is necessary to complete the installation." << std::endl;
        }
 
        

@@ -139,7 +139,7 @@ void DownloadPWAInstaller(const std::string& url, std::filesystem::path& dest, s
 
     Json::Value jsonObject;
     jsonObject["url"] = url;
-    jsonObject["edgeChannel"] = "dev";
+    jsonObject["edgeChannel"] = "canary";
     Json::StreamWriterBuilder builder;
     builder["indentation"] = ""; 
     const std::string body = Json::writeString(builder, jsonObject);
@@ -158,8 +158,6 @@ void DownloadPWAInstaller(const std::string& url, std::filesystem::path& dest, s
         NULL,
         0));
     THROW_LAST_ERROR_IF_NULL_MSG(session, "InternetOpen() failed.");
-
-
     std::string header = "Content-type: application/json";
 
     wil::unique_hinternet hConnect(InternetConnect(session.get(), L"pwabuilder-win-chromium-platform.centralus.cloudapp.azure.com", INTERNET_DEFAULT_HTTPS_PORT, NULL, NULL, INTERNET_SERVICE_HTTP,0,0));
@@ -190,7 +188,8 @@ void DownloadPWAInstaller(const std::string& url, std::filesystem::path& dest, s
     DWORD dwSize = 4096;
 
     char lpOutBuffer[4096 + 1] = { 0 };
-  
+
+    //Get publisher and package names
     StringCchPrintfA((LPSTR)lpOutBuffer, dwSize, "pwabuilder-package-publisher");
     HttpQueryInfoA(hRequest.get(), HTTP_QUERY_CUSTOM,
         lpOutBuffer, &dwSize, NULL);
@@ -246,8 +245,6 @@ void DownloadPWAInstaller(const std::string& url, std::filesystem::path& dest, s
     } while (bytesRead != 0);
 
     outfile.flush();
-
-
     AICLI_LOG(Core, Info, << "Download completed.");
 }
 
