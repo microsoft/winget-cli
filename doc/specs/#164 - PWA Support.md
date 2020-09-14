@@ -98,7 +98,7 @@ No direct impact on security.
 
 ### Reliability
 
-This is not expected to impact reliability. It will be available as an experimental feature so users can disable it any time.
+This is not expected to impact reliability.
 
 ### Compatibility
 
