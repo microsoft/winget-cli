@@ -163,17 +163,14 @@ namespace AppInstaller::Utility
 
         size_t columnWidth = 0;
         UChar32 currentCP = 0;
-        int32_t nextBrk = 0;
 
         currentCP = itr.CurrentCodePoint();
-        nextBrk = itr.Next();
-        while (nextBrk != UBRK_DONE && currentCP != U_SENTINEL)
+        while (itr.Next() != UBRK_DONE && currentCP != U_SENTINEL)
         {
             int32_t width = u_getIntPropertyValue(currentCP, UCHAR_EAST_ASIAN_WIDTH);
             columnWidth += width == U_EA_FULLWIDTH || width == U_EA_WIDE ? 2 : 1;
 
             currentCP = itr.CurrentCodePoint();
-            nextBrk = itr.Next();
         }
 
         return columnWidth;
