@@ -4,7 +4,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Msix.Utils.ProcessRunner;
-using Microsoft.Msix.Utils.CommandLine;
 
 namespace AppInstallerCLIE2ETests
 {

@@ -27,6 +27,6 @@
 	  <Parameter name="InvokeCommandInDesktopPackage" value="false" />
 	  <Parameter name="StaticFileRootPath" value="\TestLocalIndex" />
 	  <Parameter name="ExeTestInstallerPath" value="ExeTestInstaller.exe" />
-	  <Parameter name="PackageCertificatePath" value="PackageCertificate.pfx" />
+	  <Parameter name="PackageCertificatePath" value="certificate.pfx"/>
   </TestRunParameters>
 </RunSettings>

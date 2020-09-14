@@ -22,7 +22,7 @@ namespace AppInstallerCLIE2ETests
         [SetUp]
         public void Setup()
         {
-            TestCommon.RunAICLICommand("source remove", DefaultTestSourceUrl);
+            TestCommon.RunAICLICommand("source remove", DefaultTestSourceName);
             Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{InstallTestSourceName} {InstallTestSourceUrl}").ExitCode);
             
         }
@@ -46,7 +46,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void MultipleAppsMatchQuery()
         {
-            var result = TestCommon.RunAICLICommand("install", "TestExeInstaller");
+            var result = TestCommon.RunAICLICommand("install", "TestMultipleAppsMatch");
             Assert.AreEqual(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("Multiple packages found matching input criteria. Please refine the input."));
         }

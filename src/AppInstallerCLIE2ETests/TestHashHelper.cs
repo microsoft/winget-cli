@@ -3,6 +3,7 @@
 using System;
 using System.IO;
 using System.Security.Cryptography;
+using Microsoft.Msix.Utils.ProcessRunner;
 
 namespace AppInstallerCLIE2ETests
 {
@@ -31,6 +32,7 @@ namespace AppInstallerCLIE2ETests
             if (!string.IsNullOrEmpty(TestCommon.MsixInstallerPath))
             {
                 MsixInstallerHashValue = HashFile(TestCommon.MsixInstallerPath);
+                SignatureHashValue = HashSignatureFromMSIX(TestCommon.MsixInstallerPath);
             }
         }
 
@@ -62,8 +64,29 @@ namespace AppInstallerCLIE2ETests
                 {
                     text = text.Replace("<MSIXHASH>", MsixInstallerHashValue);
                     File.WriteAllText(file.FullName, text);
+
+                    if (text.Contains("<SIGNATUREHASH>"))
+                    {
+                        text = text.Replace("<SIGNATUREHASH>", SignatureHashValue);
+                        File.WriteAllText(file.FullName, text);
+                    }
                 }
             }
+        }
+
+        public static string HashSignatureFromMSIX(string packageFilePath)
+        {
+            string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
+            string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
+
+            FileInfo fileInfo = new FileInfo(packageFilePath);
+            string packageName = Path.GetFileNameWithoutExtension(fileInfo.Name);
+            string extractedPackageDest = Path.Combine(TestCommon.StaticFileRootPath, packageName);
+
+            TestIndexSetup.RunCommand(makeappxExecutable, $"unpack /nv /p {packageFilePath} /d {extractedPackageDest}");
+
+            string packageSignaturePath = Path.Combine(extractedPackageDest, "AppxSignature.p7x");
+            return HashFile(packageSignaturePath);
         }
 
         public static string HashFile(string filePath)
