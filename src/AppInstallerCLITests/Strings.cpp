@@ -44,6 +44,7 @@ TEST_CASE("UTF8ColumnWidth", "[strings]")
     REQUIRE(UTF8ColumnWidth(" a b c ") == 7);
     REQUIRE(UTF8ColumnWidth("K\xC3\xA4se") == 4); // "Käse"
     REQUIRE(UTF8ColumnWidth("bye\xE2\x80\xA6") == 4); // "bye…"
+    REQUIRE(UTF8ColumnWidth("fi\xEF\xAC\x81") == 3); // "fi[fi]" [fi] is not decoupled
     REQUIRE(UTF8ColumnWidth("\xf0\x9f\xa6\x86") == 2); // [duck emoji]
     REQUIRE(UTF8ColumnWidth("\xf0\x9d\x85\xa0\xf0\x9d\x85\xa0") == 2); // [8th note][8th note]
     REQUIRE(UTF8ColumnWidth("\xe6\xb5\x8b\xe8\xaf\x95") == 4); // 测试

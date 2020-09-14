@@ -81,14 +81,14 @@ namespace AppInstaller::Utility
     size_t UTF8Length(std::string_view input);
 
     // Returns the number of units the UTF8-encoded string will take in terminal output. Some characters take 2 units in terminal output.
-    size_t UTF8ColumnWidth(std::string_view input);
+    size_t UTF8ColumnWidth(const NormalizedUTF8<NormalizationC>& input);
 
     // Returns a substring view in an UTF8-encoded string. Offset and count are measured in grapheme clusters (characters).
     std::string_view UTF8Substring(std::string_view input, size_t offset, size_t count);
 
     // Returns a substring view in an UTF8-encoded string trimmed to be at most expected length. Length is measured as units taken in terminal output.
     // Note the returned substring view might be less than specified length as some characters might take 2 units in terminal output.
-    std::string UTF8TrimRightToColumnWidth(std::string_view input, size_t expectedWidth, size_t& actualWidth);
+    std::string UTF8TrimRightToColumnWidth(const NormalizedUTF8<NormalizationC>&, size_t expectedWidth, size_t& actualWidth);
 
     // Get the lower case version of the given std::string
     std::string ToLower(std::string_view in);
