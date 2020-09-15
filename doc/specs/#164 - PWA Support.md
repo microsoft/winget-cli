@@ -43,7 +43,7 @@ Installers:
 - Arch: x64
   Url: https://app.ft.com
   InstallerType: PWA
-  ManifestVersion: 0.1.0
+ManifestVersion: 0.1.0
 ```
 
 ### Package generation
