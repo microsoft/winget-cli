@@ -46,7 +46,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void MultipleAppsMatchQuery()
         {
-            var result = TestCommon.RunAICLICommand("install", "TestMultipleAppsMatch");
+            var result = TestCommon.RunAICLICommand("install", "TestExeInstaller");
             Assert.AreEqual(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("Multiple packages found matching input criteria. Please refine the input."));
         }

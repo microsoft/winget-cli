@@ -40,8 +40,6 @@ namespace LocalhostWebServer
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
-
                     webBuilder.UseKestrel(opt =>
                     {   
                         opt.ListenAnyIP(Startup.Port, listOpt =>
@@ -50,7 +48,7 @@ namespace LocalhostWebServer
                         });
                     });
                     webBuilder.UseContentRoot(Startup.StaticFileRoot);
-
+                    webBuilder.UseStartup<Startup>();
                 });
     }
 }
