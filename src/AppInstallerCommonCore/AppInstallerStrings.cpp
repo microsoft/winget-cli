@@ -79,6 +79,12 @@ namespace AppInstaller::Utility
                 return m_currentBrk;
             }
 
+            // Returns code point of the chracter at m_currentBrk, or U_SENTINEL if m_currentBrk points to the end.
+            UChar32 CurrentCodePoint()
+            {
+                return utext_char32At(m_text.get(), m_currentBrk);
+            }
+
         private:
             wil::unique_any<UText*, decltype(utext_close), &utext_close> m_text;
             wil::unique_any<UBreakIterator*, decltype(ubrk_close), &ubrk_close> m_brk;
@@ -151,6 +157,25 @@ namespace AppInstaller::Utility
         return numGraphemeClusters;
     }
 
+    size_t UTF8ColumnWidth(const NormalizedUTF8<NormalizationC>& input)
+    {
+        ICUBreakIterator itr{ input, UBRK_CHARACTER };
+
+        size_t columnWidth = 0;
+        UChar32 currentCP = 0;
+
+        currentCP = itr.CurrentCodePoint();
+        while (itr.Next() != UBRK_DONE && currentCP != U_SENTINEL)
+        {
+            int32_t width = u_getIntPropertyValue(currentCP, UCHAR_EAST_ASIAN_WIDTH);
+            columnWidth += width == U_EA_FULLWIDTH || width == U_EA_WIDE ? 2 : 1;
+
+            currentCP = itr.CurrentCodePoint();
+        }
+
+        return columnWidth;
+    }
+
     std::string_view UTF8Substring(std::string_view input, size_t offset, size_t count)
     {
         ICUBreakIterator itr{ input, UBRK_CHARACTER };
@@ -175,6 +200,40 @@ namespace AppInstaller::Utility
         }
 
         return input.substr(utf8Offset, utf8Count);
+    }
+
+    std::string UTF8TrimRightToColumnWidth(const NormalizedUTF8<NormalizationC>& input, size_t expectedWidth, size_t& actualWidth)
+    {
+        ICUBreakIterator itr{ input, UBRK_CHARACTER };
+
+        size_t columnWidth = 0;
+        UChar32 currentCP = 0;
+        int32_t currentBrk = 0;
+        int32_t nextBrk = 0;
+
+        currentCP = itr.CurrentCodePoint();
+        currentBrk = itr.CurrentBreak();
+        nextBrk = itr.Next();
+        while (nextBrk != UBRK_DONE && currentCP != U_SENTINEL)
+        {
+            int32_t width = u_getIntPropertyValue(currentCP, UCHAR_EAST_ASIAN_WIDTH);
+            int charWidth = width == U_EA_FULLWIDTH || width == U_EA_WIDE ? 2 : 1;
+            columnWidth += charWidth;
+
+            if (columnWidth > expectedWidth)
+            {
+                columnWidth -= charWidth;
+                break;
+            }
+
+            currentCP = itr.CurrentCodePoint();
+            currentBrk = nextBrk;
+            nextBrk = itr.Next();
+        }
+
+        actualWidth = columnWidth;
+
+        return input.substr(0, currentBrk);
     }
 
     std::string Normalize(std::string_view input, NORM_FORM form)

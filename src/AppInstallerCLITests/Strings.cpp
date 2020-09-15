@@ -37,6 +37,37 @@ TEST_CASE("UTF8Substring", "[strings]")
     REQUIRE(UTF8Substring(s, 1, 8) == "s like \xf0\x9f\x8c\x8a");
 }
 
+TEST_CASE("UTF8ColumnWidth", "[strings]")
+{
+    REQUIRE(UTF8ColumnWidth("") == 0);
+    REQUIRE(UTF8ColumnWidth("a") == 1);
+    REQUIRE(UTF8ColumnWidth(" a b c ") == 7);
+    REQUIRE(UTF8ColumnWidth("K\xC3\xA4se") == 4); // "Käse"
+    REQUIRE(UTF8ColumnWidth("bye\xE2\x80\xA6") == 4); // "bye…"
+    REQUIRE(UTF8ColumnWidth("fi\xEF\xAC\x81") == 3); // "fi[fi]" [fi] is not decoupled
+    REQUIRE(UTF8ColumnWidth("\xf0\x9f\xa6\x86") == 2); // [duck emoji]
+    REQUIRE(UTF8ColumnWidth("\xf0\x9d\x85\xa0\xf0\x9d\x85\xa0") == 2); // [8th note][8th note]
+    REQUIRE(UTF8ColumnWidth("\xe6\xb5\x8b\xe8\xaf\x95") == 4); // 测试
+    REQUIRE(UTF8ColumnWidth("te\xe6\xb5\x8bs\xe8\xaf\x95t") == 8); // te测s试t
+}
+
+TEST_CASE("UTF8TrimRightToColumnWidth", "[strings]")
+{
+    size_t actualWidth;
+    REQUIRE((UTF8TrimRightToColumnWidth("", 0, actualWidth) == "" && actualWidth == 0));
+    REQUIRE((UTF8TrimRightToColumnWidth("abcd", 4, actualWidth) == "abcd" && actualWidth == 4));
+    REQUIRE((UTF8TrimRightToColumnWidth("abcd", 5, actualWidth) == "abcd" && actualWidth == 4));
+    REQUIRE((UTF8TrimRightToColumnWidth("abcd", 2, actualWidth) == "ab" && actualWidth == 2));
+
+    NormalizedString s{ "te\xe6\xb5\x8bs\xe8\xaf\x95t" }; // // te测s试t
+    REQUIRE((UTF8TrimRightToColumnWidth(s, 0, actualWidth) == "" && actualWidth == 0));
+    REQUIRE((UTF8TrimRightToColumnWidth(s, 2, actualWidth) == "te" && actualWidth == 2));
+    REQUIRE((UTF8TrimRightToColumnWidth(s, 3, actualWidth) == "te" && actualWidth == 2));
+    REQUIRE((UTF8TrimRightToColumnWidth(s, 4, actualWidth) == "te\xe6\xb5\x8b" && actualWidth == 4));
+    REQUIRE((UTF8TrimRightToColumnWidth(s, 8, actualWidth) == "te\xe6\xb5\x8bs\xe8\xaf\x95t" && actualWidth == 8));
+    REQUIRE((UTF8TrimRightToColumnWidth(s, 10, actualWidth) == "te\xe6\xb5\x8bs\xe8\xaf\x95t" && actualWidth == 8));
+}
+
 TEST_CASE("Normalize", "[strings]")
 {
     REQUIRE(Normalize("test") == "test");
