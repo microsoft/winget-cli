@@ -58,7 +58,6 @@ namespace AppInstallerCLIE2ETests
                 string indexPackageDestPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.IndexPackage);
                 string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
 
-
                 // Package Test Source and Sign With Package Certificate
                 string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
                 string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
@@ -93,23 +92,37 @@ namespace AppInstallerCLIE2ETests
         {
             DirectoryInfo staticFileRootDir = Directory.CreateDirectory(staticFileRootPath);
 
-            foreach (FileInfo file in staticFileRootDir.GetFiles())
-            {
-                file.Delete();
-            }
-
-            foreach (DirectoryInfo dir in staticFileRootDir.GetDirectories())
-            {
-                dir.Delete(true);
-            }
+            DeleteDirectoryContents(staticFileRootDir);
 
             string currentDirectory = Environment.CurrentDirectory;
             string sourcePath = Path.Combine(currentDirectory, TestDataName);
 
-            DirectoryCopy(sourcePath, TestCommon.StaticFileRootPath);
+            CopyDirectory(sourcePath, TestCommon.StaticFileRootPath);
         }
 
-        public static void DirectoryCopy(string sourceDirName, string destDirName)
+        /// <summary>
+        /// Deletes the contents of a given directory
+        /// </summary>
+        /// <param name="directory"></param>
+        public static void DeleteDirectoryContents(DirectoryInfo directory)
+        {
+            foreach (FileInfo file in directory.GetFiles())
+            {
+                file.Delete();
+            }
+
+            foreach (DirectoryInfo dir in directory.GetDirectories())
+            {
+                dir.Delete(true);
+            }
+        }
+
+        /// <summary>
+        /// Copies the contents of a given directory from a source path to a destination path
+        /// </summary>
+        /// <param name="sourceDirName"></param>
+        /// <param name="destDirName"></param>
+        public static void CopyDirectory(string sourceDirName, string destDirName)
         {
             DirectoryInfo dir = new DirectoryInfo(sourceDirName);
             DirectoryInfo[] dirs = dir.GetDirectories();
@@ -129,7 +142,7 @@ namespace AppInstallerCLIE2ETests
             foreach (DirectoryInfo subdir in dirs)
             {
                 string temppath = Path.Combine(destDirName, subdir.Name);
-                DirectoryCopy(subdir.FullName, temppath);
+                CopyDirectory(subdir.FullName, temppath);
             }
         }
 

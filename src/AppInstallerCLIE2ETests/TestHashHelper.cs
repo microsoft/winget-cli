@@ -76,13 +76,22 @@ namespace AppInstallerCLIE2ETests
 
         public static string HashSignatureFromMSIX(string packageFilePath)
         {
+            // Obtain MakeAppX Executable Path
             string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
             string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
 
+            // Generate temp path to unpack MSIX package
             FileInfo fileInfo = new FileInfo(packageFilePath);
             string packageName = Path.GetFileNameWithoutExtension(fileInfo.Name);
             string tempPath = Path.GetTempPath();
             string extractedPackageDest = Path.Combine(tempPath, packageName);
+
+            // Delete existing extracted package directories to avoid stalling MakeAppX command
+            if (Directory.Exists(extractedPackageDest))
+            {
+                TestIndexSetup.DeleteDirectoryContents(Directory.CreateDirectory(extractedPackageDest));
+                Directory.Delete(extractedPackageDest);
+            }
 
             TestIndexSetup.RunCommand(makeappxExecutable, $"unpack /nv /p {packageFilePath} /d {extractedPackageDest}");
 
