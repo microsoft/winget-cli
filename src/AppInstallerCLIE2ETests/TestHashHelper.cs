@@ -19,23 +19,21 @@ namespace AppInstallerCLIE2ETests
 
         public static void HashInstallers()
         {
-            ExeInstallerHashValue = HashFile(TestCommon.ExeInstallerPath);
+            if (!string.IsNullOrEmpty(TestCommon.ExeInstallerPath))
+            {
+                ExeInstallerHashValue = HashFile(TestCommon.ExeInstallerPath);
+            }
 
-            //if (!string.IsNullOrEmpty(TestCommon.ExeInstallerPath))
-            //{
-            //    ExeInstallerHashValue = HashFile(TestCommon.ExeInstallerPath);
-            //}
+            if (!string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
+            {
+                MsiInstallerHashValue = HashFile(TestCommon.MsiInstallerPath);
+            }
 
-            //if (!string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
-            //{
-            //    MsiInstallerHashValue = HashFile(TestCommon.MsiInstallerPath);
-            //}
-
-            //if (!string.IsNullOrEmpty(TestCommon.MsixInstallerPath))
-            //{
-            //    MsixInstallerHashValue = HashFile(TestCommon.MsixInstallerPath);
-            //    SignatureHashValue = HashSignatureFromMSIX(TestCommon.MsixInstallerPath);
-            //}
+            if (!string.IsNullOrEmpty(TestCommon.MsixInstallerPath))
+            {
+                MsixInstallerHashValue = HashFile(TestCommon.MsixInstallerPath);
+                SignatureHashValue = HashSignatureFromMSIX(TestCommon.MsixInstallerPath);
+            }
         }
 
         /// <summary>
@@ -103,7 +101,17 @@ namespace AppInstallerCLIE2ETests
 
         public static string HashFile(string filePath)
         {
-            FileInfo file = new FileInfo(filePath);
+            FileInfo file;
+
+            try
+            {
+                file = new FileInfo(filePath);
+            }
+            catch (FileNotFoundException e)
+            {
+                Console.WriteLine($"File Not Found: {e.Message}");
+                throw;
+            }
 
             string hash = string.Empty;
 

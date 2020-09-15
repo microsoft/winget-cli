@@ -56,10 +56,11 @@ namespace AppInstallerCLIE2ETests
 
                 string packageDir = Path.Combine(TestCommon.StaticFileRootPath, PackageName);
                 string indexPackageDestPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.IndexPackage);
-                string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
+                //string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
+                string pathToSDK = @"C:\Program Files(x86)\Windows Kits\10\bin\10.0.18362.0\x64";
 
                 // Package Test Source and Sign With Package Certificate
-                string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
+                string makeappxExecutable = Path.Combine(pathToSDK, "MakeAppx.exe");
                 string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
 
                 RunCommand(makeappxExecutable, $"pack /nv /o /d {packageDir} /p {indexPackageDestPath}");
