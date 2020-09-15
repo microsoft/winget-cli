@@ -81,7 +81,8 @@ namespace AppInstallerCLIE2ETests
 
             FileInfo fileInfo = new FileInfo(packageFilePath);
             string packageName = Path.GetFileNameWithoutExtension(fileInfo.Name);
-            string extractedPackageDest = Path.Combine(TestCommon.StaticFileRootPath, packageName);
+            string tempPath = Path.GetTempPath();
+            string extractedPackageDest = Path.Combine(tempPath, packageName);
 
             TestIndexSetup.RunCommand(makeappxExecutable, $"unpack /nv /p {packageFilePath} /d {extractedPackageDest}");
 
