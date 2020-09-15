@@ -10,16 +10,43 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
     namespace details
     {
-        void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName)
+        using namespace std::string_view_literals;
+        static constexpr std::string_view s_OneToOneTable_IndexSuffix = "_pkindex"sv;
+
+        void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool useNamedIndeces)
         {
             using namespace SQLite::Builder;
 
-            StatementBuilder createTableBuilder;
-            createTableBuilder.CreateTable(tableName).Columns({
-                ColumnBuilder(valueName, Type::Text).NotNull().PrimaryKey()
-                });
+            // Starting in V1.1, all code should be going this route of creating named indeces rather than using primary or unique keys on columns.
+            // The resulting database will function the same, but give us control to drop the indeces to reduce space.
+            if (useNamedIndeces)
+            {
+                SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } + "_create_v1_1");
 
-            createTableBuilder.Execute(connection);
+                StatementBuilder createTableBuilder;
+
+                createTableBuilder.CreateTable(tableName).Columns({
+                    ColumnBuilder(valueName, Type::Text).NotNull()
+                    });
+
+                createTableBuilder.Execute(connection);
+
+                StatementBuilder indexBuilder;
+                indexBuilder.CreateUniqueIndex({ tableName, s_OneToOneTable_IndexSuffix }).On(tableName).Columns(valueName);
+                indexBuilder.Execute(connection);
+
+                savepoint.Commit();
+            }
+            else
+            {
+                StatementBuilder createTableBuilder;
+
+                createTableBuilder.CreateTable(tableName).Columns({
+                    ColumnBuilder(valueName, Type::Text).NotNull().PrimaryKey()
+                    });
+
+                createTableBuilder.Execute(connection);
+            }
         }
 
         std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool useLike)
@@ -126,6 +153,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             builder.DeleteFrom(tableName).Where(SQLite::RowIDName).Equals(id);
 
             builder.Execute(connection);
+        }
+
+        void OneToOneTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndeces, bool preserveValuesIndex)
+        {
+            if (useNamedIndeces && !preserveValuesIndex)
+            {
+                SQLite::Builder::StatementBuilder dropIndexBuilder;
+                dropIndexBuilder.DropIndex({ tableName, s_OneToOneTable_IndexSuffix });
+                dropIndexBuilder.Execute(connection);
+            }
         }
 
         uint64_t OneToOneTableGetCount(SQLite::Connection& connection, std::string_view tableName)

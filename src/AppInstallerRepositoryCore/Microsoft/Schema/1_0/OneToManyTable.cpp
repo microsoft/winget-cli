@@ -13,6 +13,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         using namespace std::string_view_literals;
         static constexpr std::string_view s_OneToManyTable_MapTable_ManifestName = "manifest"sv;
         static constexpr std::string_view s_OneToManyTable_MapTable_Suffix = "_map"sv;
+        static constexpr std::string_view s_OneToManyTable_MapTable_PrimaryKeyIndexSuffix = "_pkindex"sv;
         static constexpr std::string_view s_OneToManyTable_MapTable_IndexSuffix = "_index"sv;
 
         namespace
@@ -96,24 +97,43 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return s_OneToManyTable_MapTable_ManifestName;
         }
 
-        void CreateOneToManyTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName)
+        void CreateOneToManyTable(SQLite::Connection& connection, bool useNamedIndeces, std::string_view tableName, std::string_view valueName)
         {
             using namespace SQLite::Builder;
 
             SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } + "_create_v1_0");
 
             // Create the data table as a 1:1
-            CreateOneToOneTable(connection, tableName, valueName);
+            CreateOneToOneTable(connection, tableName, valueName, useNamedIndeces);
 
-            // Create the mapping table
-            StatementBuilder createMapTableBuilder;
-            createMapTableBuilder.CreateTable({ tableName, s_OneToManyTable_MapTable_Suffix }).Columns({
-                ColumnBuilder(s_OneToManyTable_MapTable_ManifestName, Type::Int64).NotNull(),
-                ColumnBuilder(valueName, Type::Int64).NotNull(),
-                PrimaryKeyBuilder({ valueName, s_OneToManyTable_MapTable_ManifestName })
-                });
+            if (useNamedIndeces)
+            {
+                // Create the mapping table
+                StatementBuilder createMapTableBuilder;
+                createMapTableBuilder.CreateTable({ tableName, s_OneToManyTable_MapTable_Suffix }).Columns({
+                    ColumnBuilder(s_OneToManyTable_MapTable_ManifestName, Type::Int64).NotNull(),
+                    ColumnBuilder(valueName, Type::Int64).NotNull()
+                    });
 
-            createMapTableBuilder.Execute(connection);
+                createMapTableBuilder.Execute(connection);
+
+                StatementBuilder pkIndexBuilder;
+                pkIndexBuilder.CreateUniqueIndex({ tableName, s_OneToManyTable_MapTable_Suffix, s_OneToManyTable_MapTable_PrimaryKeyIndexSuffix }).
+                    On({ tableName, s_OneToManyTable_MapTable_Suffix }).Columns({ valueName, s_OneToManyTable_MapTable_ManifestName });
+                pkIndexBuilder.Execute(connection);
+            }
+            else
+            {
+                // Create the mapping table
+                StatementBuilder createMapTableBuilder;
+                createMapTableBuilder.CreateTable({ tableName, s_OneToManyTable_MapTable_Suffix }).Columns({
+                    ColumnBuilder(s_OneToManyTable_MapTable_ManifestName, Type::Int64).NotNull(),
+                    ColumnBuilder(valueName, Type::Int64).NotNull(),
+                    PrimaryKeyBuilder({ valueName, s_OneToManyTable_MapTable_ManifestName })
+                    });
+
+                createMapTableBuilder.Execute(connection);
+            }
 
             StatementBuilder createMapTableIndexBuilder;
             createMapTableIndexBuilder.CreateIndex({ tableName, s_OneToManyTable_MapTable_Suffix, s_OneToManyTable_MapTable_IndexSuffix }).
@@ -226,12 +246,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             savepoint.Commit();
         }
 
-        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName)
+        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndeces, bool preserveValuesIndex)
         {
             SQLite::Builder::StatementBuilder dropMapTableIndexBuilder;
             dropMapTableIndexBuilder.DropIndex({ tableName, s_OneToManyTable_MapTable_Suffix, s_OneToManyTable_MapTable_IndexSuffix });
 
             dropMapTableIndexBuilder.Execute(connection);
+
+            OneToOneTablePrepareForPackaging(connection, tableName, useNamedIndeces, preserveValuesIndex);
         }
 
         bool OneToManyTableIsEmpty(SQLite::Connection& connection, std::string_view tableName)

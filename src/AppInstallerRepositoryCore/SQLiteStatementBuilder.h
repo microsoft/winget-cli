@@ -291,10 +291,16 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& DropTable(std::initializer_list<std::string_view> table);
 
         // Begin an index creation statement.
-        // The initializer_list form enables the table name to be constructed from multiple parts.
+        // The initializer_list form enables the index name to be constructed from multiple parts.
         StatementBuilder& CreateIndex(std::string_view table);
         StatementBuilder& CreateIndex(QualifiedTable table);
         StatementBuilder& CreateIndex(std::initializer_list<std::string_view> table);
+
+        // Begin an unique index creation statement.
+        // The initializer_list form enables the index name to be constructed from multiple parts.
+        StatementBuilder& CreateUniqueIndex(std::string_view table);
+        StatementBuilder& CreateUniqueIndex(QualifiedTable table);
+        StatementBuilder& CreateUniqueIndex(std::initializer_list<std::string_view> table);
 
         // Begin an index deletion statement.
         // The initializer_list form enables the table name to be constructed from multiple parts.

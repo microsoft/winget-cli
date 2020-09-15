@@ -124,6 +124,13 @@ namespace AppInstaller::Repository::Microsoft
         m_version = m_interface->GetVersion();
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    void SQLiteIndex::ForceVersion(const Schema::Version& version)
+    {
+        m_interface = version.CreateISQLiteIndex();
+    }
+#endif
+
     void SQLiteIndex::AddManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
     {
         AICLI_LOG(Repo, Info, << "Adding manifest from file [" << manifestPath << "]");
@@ -159,7 +166,7 @@ namespace AppInstaller::Repository::Microsoft
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_updatemanifest");
 
-        bool result = m_interface->UpdateManifest(m_dbconn, manifest, relativePath);
+        bool result = m_interface->UpdateManifest(m_dbconn, manifest, relativePath).first;
 
         if (result)
         {

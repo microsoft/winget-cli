@@ -17,8 +17,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // The id type
         using id_t = SQLite::rowid_t;
 
-        // Creates the table.
+        // Creates the table with named indeces.
         static void Create(SQLite::Connection& connection);
+
+        // Creates the table with standard primary keys.
+        static void Create_deprecated(SQLite::Connection& connection);
 
         // Gets the value name.
         static std::string_view ValueName();
@@ -42,6 +45,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Removes data that is no longer needed for an index that is to be published.
         static void PrepareForPackaging(SQLite::Connection& connection);
+
+        // Removes data that is no longer needed for an index that is to be published.
+        static void PrepareForPackaging_deprecated(SQLite::Connection& connection);
 
         // Determines if the table is empty.
         static bool IsEmpty(SQLite::Connection& connection);
