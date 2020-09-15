@@ -51,9 +51,11 @@ namespace AppInstaller::Repository::Microsoft
         // Gets the schema version of the index.
         Schema::Version GetVersion() const { return m_version; }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
         // Changes the version of the interface being used to operate on the database.
         // Should only be used for testing.
         void ForceVersion(const Schema::Version& version);
+#endif
 
         // Gets the last write time for the index.
         std::chrono::system_clock::time_point GetLastWriteTime();

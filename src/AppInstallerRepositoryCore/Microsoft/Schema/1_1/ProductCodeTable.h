@@ -17,6 +17,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         };
     }
 
-    // The table for PackageFamilyName.
+    // The table for ProductCode.
     using ProductCodeTable = V1_0::OneToManyTable<details::ProductCodeTableInfo>;
 }

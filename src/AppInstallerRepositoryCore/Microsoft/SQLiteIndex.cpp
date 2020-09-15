@@ -124,10 +124,12 @@ namespace AppInstaller::Repository::Microsoft
         m_version = m_interface->GetVersion();
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
     void SQLiteIndex::ForceVersion(const Schema::Version& version)
     {
         m_interface = version.CreateISQLiteIndex();
     }
+#endif
 
     void SQLiteIndex::AddManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
     {

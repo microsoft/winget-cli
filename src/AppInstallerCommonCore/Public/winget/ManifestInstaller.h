@@ -66,10 +66,10 @@ namespace AppInstaller::Manifest
         // Store Product Id
         string_t ProductId;
 
-        // Package family name for MSIX type only.
+        // Package family name for MSIX packaged installers.
         string_t PackageFamilyName;
 
-        // Product code for non-MSIX only.
+        // Product code for ARP (Add/Remove Programs) installers.
         string_t ProductCode;
 
         // If present, has more precedence than root
