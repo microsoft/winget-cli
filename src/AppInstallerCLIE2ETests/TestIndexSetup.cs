@@ -62,7 +62,9 @@ namespace AppInstallerCLIE2ETests
                 string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
                 string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
 
-                RunCommand(makeappxExecutable, $"pack /l /o /d {packageDir} /p {indexPackageDestPath}");
+                RunCommand(makeappxExecutable, "");
+
+                RunCommand(makeappxExecutable, $"pack /nv /o /d {packageDir} /p {indexPackageDestPath}");
                 RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {indexPackageDestPath}");
             }
             catch (Exception e)
