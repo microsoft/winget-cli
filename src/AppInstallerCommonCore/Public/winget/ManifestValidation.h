@@ -29,6 +29,8 @@ namespace AppInstaller::Manifest
         const char* const FieldNotSupported = "Field is not supported.";
         const char* const FieldValueNotSupported = "Field value is not supported.";
         const char* const DuplicateInstallerEntry = "Duplicate installer entry found.";
+        const char* const InstallerTypeDoesNotSupportPackageFamilyName = "The specified installer type does not support PackageFamilyName.";
+        const char* const InstallerTypeDoesNotSupportProductCode = "The specified installer type does not support ProductCode.";
     }
 
     struct ValidationError

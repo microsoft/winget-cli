@@ -129,6 +129,16 @@ namespace AppInstaller::Utility
         {
             return false;
         }
+        else if (Other.empty())
+        {
+            // If this Other is empty, it is at least >=
+            return false;
+        }
+        else if (!Other.empty() && other.Other.empty())
+        {
+            // If the other Other is empty and this is not, this is less.
+            return true;
+        }
         else if (Other < other.Other)
         {
             return true;

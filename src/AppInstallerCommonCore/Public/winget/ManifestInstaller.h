@@ -81,5 +81,11 @@ namespace AppInstaller::Manifest
         static InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
 
         static std::string InstallerTypeToString(InstallerTypeEnum installerType);
+
+        // Gets a value indicating whether the given installer type uses the PackageFamilyName system reference.
+        static bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType);
+
+        // Gets a value indicating whether the given installer type uses the ProductCode system reference.
+        static bool DoesInstallerTypeUseProductCode(InstallerTypeEnum installerType);
     };
 }

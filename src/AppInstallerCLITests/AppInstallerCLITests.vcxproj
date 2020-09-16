@@ -409,6 +409,7 @@
     <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF8.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <None Include="TestData\Manifest-Good-SystemReferenceComplex.yaml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerCLICore\AppInstallerCLICore.vcxproj">

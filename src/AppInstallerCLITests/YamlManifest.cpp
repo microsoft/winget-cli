@@ -255,3 +255,39 @@ TEST_CASE("ManifestEncoding", "[ManifestValidation]")
         REQUIRE(manifest.Name == u8"MSIX SDK\xA9");
     }
 }
+
+TEST_CASE("ComplexSystemReference", "[ManifestValidation]")
+{
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-SystemReferenceComplex.yaml"));
+
+    REQUIRE(manifest.Installers.size() == 5);
+
+    // Zip installer does not inherit
+    REQUIRE(manifest.Installers[0].InstallerType == ManifestInstaller::InstallerTypeEnum::Zip);
+    REQUIRE(manifest.Installers[0].PackageFamilyName == "");
+    REQUIRE(manifest.Installers[0].ProductCode == "");
+
+    // MSIX installer does inherit
+    REQUIRE(manifest.Installers[1].InstallerType == ManifestInstaller::InstallerTypeEnum::Msix);
+    REQUIRE(manifest.Installers[1].Arch == Architecture::X86);
+    REQUIRE(manifest.Installers[1].PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
+    REQUIRE(manifest.Installers[1].ProductCode == "");
+
+    // MSI installer does inherit
+    REQUIRE(manifest.Installers[2].InstallerType == ManifestInstaller::InstallerTypeEnum::Msi);
+    REQUIRE(manifest.Installers[2].Arch == Architecture::X86);
+    REQUIRE(manifest.Installers[2].PackageFamilyName == "");
+    REQUIRE(manifest.Installers[2].ProductCode == "{Foo}");
+
+    // MSIX installer with override
+    REQUIRE(manifest.Installers[3].InstallerType == ManifestInstaller::InstallerTypeEnum::Msix);
+    REQUIRE(manifest.Installers[3].Arch == Architecture::X64);
+    REQUIRE(manifest.Installers[3].PackageFamilyName == "Override_8wekyb3d8bbwe");
+    REQUIRE(manifest.Installers[3].ProductCode == "");
+
+    // MSI installer with override
+    REQUIRE(manifest.Installers[4].InstallerType == ManifestInstaller::InstallerTypeEnum::Msi);
+    REQUIRE(manifest.Installers[4].Arch == Architecture::X64);
+    REQUIRE(manifest.Installers[4].PackageFamilyName == "");
+    REQUIRE(manifest.Installers[4].ProductCode == "Override");
+}
