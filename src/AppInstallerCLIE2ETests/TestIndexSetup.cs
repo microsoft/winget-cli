@@ -39,7 +39,7 @@ namespace AppInstallerCLIE2ETests
 
         private static void SetupSourcePackage()
         {
-            string indexDestPath = Path.Combine(TestCommon.StaticFileRootPath, PackageName, PublicName, IndexName);
+            string indexDestPath = Path.Combine(TestCommon.StaticFileRootPath, PackageName, PublicName);
 
             DirectoryInfo parentDir = Directory.GetParent(Directory.GetCurrentDirectory());
             string indexCreationToolPath = Path.Combine(parentDir.FullName, Constants.IndexCreationTool);
@@ -50,29 +50,15 @@ namespace AppInstallerCLIE2ETests
 
             try
             {
-                string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
-                string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
-
-                RunCommand(makeappxExecutable, $"pack");
-
                 // Generate Index.db file using IndexCreationTool.exe
-                RunCommand(Path.Combine(indexCreationToolPath, "IndexCreationTool.exe"), $"-d {TestCommon.StaticFileRootPath}");
-                string indexSourcePath = Path.Combine(Directory.GetCurrentDirectory(), IndexName);
-
-                if (!File.Exists(indexSourcePath))
-                {
-                    Console.WriteLine("IndexSourcePath does not exist");
-                    return;
-                }
-
-                File.Move(indexSourcePath, indexDestPath, true);
+                RunCommand(Path.Combine(indexCreationToolPath, "IndexCreationTool.exe"), $"-d {TestCommon.StaticFileRootPath}", indexDestPath);
 
                 string packageDir = Path.Combine(TestCommon.StaticFileRootPath, PackageName);
                 string indexPackageDestPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.IndexPackage);
-                //string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
+                string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
 
                 // Package Test Source and Sign With Package Certificate
-                //string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
+                string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
                 string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
 
                 RunCommand(makeappxExecutable, $"pack /nv /v /o /d {packageDir} /p {indexPackageDestPath}");
@@ -97,10 +83,6 @@ namespace AppInstallerCLIE2ETests
 
             // Sign Installer File
             string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
-
-            // Test makeappx Should show failure
-            //string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
-            //RunCommand(makeappxExecutable, $"pack");
 
             string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
             RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {exeInstallerFullName}");
@@ -168,6 +150,15 @@ namespace AppInstallerCLIE2ETests
         {
             Process p = new Process();
             p.StartInfo = new ProcessStartInfo(command, args);
+            p.Start();
+            p.WaitForExit();
+        }
+
+        public static void RunCommand (string command, string args, string workingDirectory)
+        {
+            Process p = new Process();
+            p.StartInfo = new ProcessStartInfo(command, args);
+            p.StartInfo.WorkingDirectory = workingDirectory;
             p.Start();
             p.WaitForExit();
         }
