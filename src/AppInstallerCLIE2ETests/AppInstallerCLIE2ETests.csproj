@@ -32,8 +32,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="TestData\Package\Public\" />
-  </ItemGroup>
-
 </Project>

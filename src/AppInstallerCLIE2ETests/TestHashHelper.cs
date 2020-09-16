@@ -63,13 +63,13 @@ namespace AppInstallerCLIE2ETests
                 else if (text.Contains("<MSIXHASH>"))
                 {
                     text = text.Replace("<MSIXHASH>", MsixInstallerHashValue);
-                    File.WriteAllText(file.FullName, text);
 
                     if (text.Contains("<SIGNATUREHASH>"))
                     {
                         text = text.Replace("<SIGNATUREHASH>", SignatureHashValue);
-                        File.WriteAllText(file.FullName, text);
                     }
+
+                    File.WriteAllText(file.FullName, text);
                 }
             }
         }
