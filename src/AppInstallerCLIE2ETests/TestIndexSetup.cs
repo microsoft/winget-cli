@@ -50,13 +50,8 @@ namespace AppInstallerCLIE2ETests
 
             try
             {
-                string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
-                string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
-                string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
-
                 if (!Directory.Exists(indexDestPath))
                 {
-                   RunCommand(makeappxExecutable, "pack");
                    Directory.CreateDirectory(indexDestPath);
                 }
 
@@ -65,11 +60,11 @@ namespace AppInstallerCLIE2ETests
 
                 string packageDir = Path.Combine(TestCommon.StaticFileRootPath, PackageName);
                 string indexPackageDestPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.IndexPackage);
-                //string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
+                string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
 
                 // Package Test Source and Sign With Package Certificate
-                //string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
-                //string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
+                string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
+                string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
 
                 RunCommand(makeappxExecutable, $"pack /nv /v /o /d {packageDir} /p {indexPackageDestPath}");
                 RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {indexPackageDestPath}");
