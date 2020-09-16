@@ -79,18 +79,18 @@ Each Release above is/will be reflected in our [GitHub milestones](https://githu
 | [v0.17](https://github.com/microsoft/winget-cli/milestone/19) | .exe  |
 | [v0.18](https://github.com/microsoft/winget-cli/milestone/20) | Portable/Standalone Apps |
 | [v0.19](https://github.com/microsoft/winget-cli/milestone/21) | Specify App Install Directory |
-| [v0.20](https://github.com/microsoft/winget-cli/milestone/23) | Non zero exit codes |
-| [v0.21](https://github.com/microsoft/winget-cli/milestone/24) | Telemetry Opt Out |
-| [v0.22](https://github.com/microsoft/winget-cli/milestone/25) | Client Verbosity Settings |
-| [v0.23](https://github.com/microsoft/winget-cli/milestone/26) | Release Channels |
-| [v0.24](https://github.com/microsoft/winget-cli/milestone/27) | Native Power Shell |
-| [v0.25](https://github.com/microsoft/winget-cli/milestone/28) | PWA |
-| [v0.26](https://github.com/microsoft/winget-cli/milestone/29) | Install Multiple Apps (command) |
-| [v0.27](https://github.com/microsoft/winget-cli/milestone/30) | Suppress reboot on default |
-| [v0.28](https://github.com/microsoft/winget-cli/milestone/31) | Version specification |
-| [v0.29](https://github.com/microsoft/winget-cli/milestone/32) | Parallel download |
-| [v0.30](https://github.com/microsoft/winget-cli/milestone/33) | Fonts |
-| [v0.31](https://github.com/microsoft/winget-cli/milestone/34) | Auto Upgrade Apps |
+| [v0.20](https://github.com/microsoft/winget-cli/milestone/22) | Non zero exit codes |
+| [v0.21](https://github.com/microsoft/winget-cli/milestone/23) | Telemetry Opt Out |
+| [v0.22](https://github.com/microsoft/winget-cli/milestone/24) | Client Verbosity Settings |
+| [v0.23](https://github.com/microsoft/winget-cli/milestone/25) | Release Channels |
+| [v0.24](https://github.com/microsoft/winget-cli/milestone/26) | Native Power Shell |
+| [v0.25](https://github.com/microsoft/winget-cli/milestone/27) | PWA |
+| [v0.26](https://github.com/microsoft/winget-cli/milestone/28) | Install Multiple Apps (command) |
+| [v0.27](https://github.com/microsoft/winget-cli/milestone/29) | Suppress reboot on default |
+| [v0.28](https://github.com/microsoft/winget-cli/milestone/30) | Version specification |
+| [v0.29](https://github.com/microsoft/winget-cli/milestone/31) | Parallel download |
+| [v0.30](https://github.com/microsoft/winget-cli/milestone/32) | Fonts |
+| [v0.31](https://github.com/microsoft/winget-cli/milestone/33) | Auto Upgrade Apps |
 | [Backlog](https://github.com/microsoft/winget-cli/milestone/2) | Work not yet assigned to a milestone or release |
 
 ## Issue Triage & Prioritization
