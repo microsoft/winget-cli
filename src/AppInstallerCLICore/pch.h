@@ -6,7 +6,7 @@
 #include <windows.h>
 #include <shellapi.h>
 #include <WinInet.h>
-#include <iterator>
+#include <iterator> //Adding this here to fix the build error 'back_inserter': is not a member of 'std'" (Also an issue on winget repo : https://github.com/microsoft/winget-cli/issues/207)
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Management.Deployment.h>
