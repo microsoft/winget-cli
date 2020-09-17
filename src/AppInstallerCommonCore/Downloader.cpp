@@ -164,8 +164,11 @@ void DownloadPWAInstaller(const std::string& url, std::filesystem::path& dest, s
     THROW_LAST_ERROR_IF_NULL_MSG(hConnect.get(), "InternetConnect() failed.");
     wil::unique_hinternet hRequest(HttpOpenRequest(hConnect.get(), L"POST", L"msix/generate", L"HTTP/1.1", NULL, acceptTypes, INTERNET_FLAG_RELOAD | INTERNET_FLAG_SECURE, 0));
     THROW_LAST_ERROR_IF_NULL_MSG(hRequest.get(), "HttpOpenRequest() failed.");
-
-    THROW_LAST_ERROR_IF_MSG(!HttpSendRequestA(hRequest.get(), header.c_str(), header.length(), (void*)body.c_str(), body.length()), "HttpSendRequestA() failed");
+    DWORD headerLength;
+    SIZETToDWord(header.length(), &headerLength);
+    DWORD bodyLength;
+    SIZETToDWord(body.length(), &bodyLength);
+    THROW_LAST_ERROR_IF_MSG(!HttpSendRequestA(hRequest.get(), header.c_str(), headerLength, (void*)body.c_str(), bodyLength), "HttpSendRequestA() failed");
     
     // Check http return status
     DWORD requestStatus = 0;

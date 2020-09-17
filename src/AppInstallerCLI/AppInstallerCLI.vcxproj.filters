@@ -23,13 +23,5 @@
     <None Include="PropertySheet.props" />
     <None Include="packages.config" />
     <None Include="..\packages\pwa_builder.86.571.0-CI-20200708-094419\identity_proxy\resources.pri" />
-    <None Include="..\packages\pwa_builder.86.571.0-CI-20200708-094419\x64\pwahelper.exe" />
-    <None Include="..\packages\pwa_builder.86.571.0-CI-20200708-094419\x86\pwahelper.exe" />
-    <None Include="$(SolutionDir)\packages\pwa_builder.86.571.0-CI-20200708-094419\pwa_builder.exe" />
-    <None Include="PWAtest.yaml" />
-    <None Include="PWAtest.json" />
-    <None Include="PWAtest2.json" />
-    <None Include="PWAtest3.json" />
-    <None Include="PWAtest4.json" />
   </ItemGroup>
 </Project>

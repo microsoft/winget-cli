@@ -139,7 +139,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Ole32.lib;Ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -190,7 +190,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies Condition="'$(Configuration)'=='Release'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)'=='Release'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -213,27 +213,8 @@
       <Link>pwa_builder\identity_proxy\%(RecursiveDir)%(FileName)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\packages\pwa_builder.86.571.0-CI-20200708-094419\x64\pwahelper.exe">
-      <Link>pwa_builder\x64\%(RecursiveDir)%(FileName)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\packages\pwa_builder.86.571.0-CI-20200708-094419\x86\pwahelper.exe">
-      <Link>pwa_builder\x86\%(RecursiveDir)%(FileName)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
-    <None Include="PWAtest.json" />
-    <None Include="PWAtest.yaml" />
-    <None Include="PWAtest2.json" />
-    <None Include="PWAtest3.json" />
-    <None Include="PWAtest4.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="$(SolutionDir)\packages\pwa_builder.86.571.0-CI-20200708-094419\pwa_builder.exe">
-      <Link>pwa_builder\%(RecursiveDir)%(FileName)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerCLICore\AppInstallerCLICore.vcxproj">
