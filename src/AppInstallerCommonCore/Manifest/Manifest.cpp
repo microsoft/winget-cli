@@ -49,6 +49,15 @@ namespace AppInstaller::Manifest
                     break;
                 }
             }
+
+            for (const Version& ext : m_extensions)
+            {
+                if (ext.GetParts().empty() || ext.GetParts()[0].Integer != 0)
+                {
+                    validationSuccess = false;
+                    break;
+                }
+            }
         }
 
         if (!validationSuccess)
