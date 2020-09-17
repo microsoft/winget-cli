@@ -409,7 +409,18 @@
     <CopyFileToFolders Include="TestData\Manifest-Encoding-UTF8.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <None Include="TestData\Manifest-Good-SystemReferenceComplex.yaml" />
+    <CopyFileToFolders Include="TestData\Manifest-Bad-PackageFamilyNameOnMSI.yaml">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-ProductCodeOnMSIX.yaml">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-SystemReferenceComplex.yaml">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerCLICore\AppInstallerCLICore.vcxproj">

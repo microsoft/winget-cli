@@ -201,7 +201,6 @@ namespace AppInstaller::Manifest
         // Detect manifest version first to determine expected fields
         // Use index to access ManifestVersion directly. If there're duplicates or other general errors, it'll be detected in later
         // processing of iterating the whole manifest.
-        // Todo: make ManifestVersion required when all manifests in our repo have been updated to contain a ManifestVersion
         if (rootNode["ManifestVersion"sv])
         {
             auto manifestVersionValue = rootNode["ManifestVersion"sv].as<std::string>();

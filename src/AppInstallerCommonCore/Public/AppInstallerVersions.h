@@ -33,6 +33,9 @@ namespace AppInstaller::Utility
             Version(std::string(version), splitChars) {}
         Version(std::string&& version, std::string_view splitChars = DefaultSplitChars);
 
+        // Resets the version's value to the input.
+        void Assign(std::string&& version, std::string_view splitChars = DefaultSplitChars);
+
         // Gets the full version string used to construct the Version.
         const std::string& ToString() const { return m_version; }
 

@@ -226,7 +226,9 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-VersionInvalid.yaml", "Invalid field value. Field: Version" },
         { "Manifest-Bad-VersionMissing.yaml", "Required field missing. Field: Version" },
         { "Manifest-Bad-InvalidManifestVersionValue.yaml", "Invalid field value. Field: ManifestVersion" },
-        { "InstallFlowTest_MSStore.yaml", "Field value is not supported. Field: InstallerType Value: MSStore" },
+        { "InstallFlowTest_MSStore.yaml", "Invalid field value. Field: ManifestVersion" },
+        { "Manifest-Bad-PackageFamilyNameOnMSI.yaml", "The specified installer type does not support PackageFamilyName. Field: InstallerType Value: Msi" },
+        { "Manifest-Bad-ProductCodeOnMSIX.yaml", "The specified installer type does not support ProductCode. Field: InstallerType Value: Msix" },
     };
 
     for (auto const& testCase : TestCases)
@@ -290,4 +292,16 @@ TEST_CASE("ComplexSystemReference", "[ManifestValidation]")
     REQUIRE(manifest.Installers[4].Arch == Architecture::X64);
     REQUIRE(manifest.Installers[4].PackageFamilyName == "");
     REQUIRE(manifest.Installers[4].ProductCode == "Override");
+}
+
+TEST_CASE("ManifestVersionExtensions", "[ManifestValidation]")
+{
+    REQUIRE(!ManifestVer("1.0.0"sv).HasExtension("msstore"));
+    REQUIRE(!ManifestVer("1.0.0-other"sv).HasExtension("msstore"));
+    REQUIRE(!ManifestVer("1.0.0-other-other2"sv).HasExtension("msstore"));
+
+    REQUIRE(ManifestVer("1.0.0-msstore"sv).HasExtension("msstore"));
+    REQUIRE(ManifestVer("1.0.0-msstore.2"sv).HasExtension("msstore"));
+    REQUIRE(ManifestVer("1.0.0-other-msstore.2"sv).HasExtension("msstore"));
+    REQUIRE(ManifestVer("1.0.0-msstore.2-other"sv).HasExtension("msstore"));
 }
