@@ -6,6 +6,7 @@
 #include "Microsoft/Schema/ISQLiteIndex.h"
 #include "AppInstallerRepositorySearch.h"
 
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -40,6 +41,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Gets the results from the table.
         ISQLiteIndex::SearchResult GetSearchResults(size_t limit = 0);
+
+    protected:
+        // Builds the search statement for the specified field and match type.
+        std::optional<int> BuildSearchStatement(SQLite::Builder::StatementBuilder& builder, ApplicationMatchField field, MatchType match) const;
+
+        virtual std::optional<int> BuildSearchStatement(
+            SQLite::Builder::StatementBuilder& builder,
+            ApplicationMatchField field,
+            std::string_view manifestAlias,
+            std::string_view valueAlias,
+            bool useLike) const;
 
     private:
         SQLite::Connection& m_connection;

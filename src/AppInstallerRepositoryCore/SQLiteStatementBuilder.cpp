@@ -598,6 +598,24 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::CreateUniqueIndex(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE UNIQUE INDEX", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::CreateUniqueIndex(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE UNIQUE INDEX", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::CreateUniqueIndex(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE UNIQUE INDEX", table);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::DropIndex(std::string_view table)
     {
         OutputOperationAndTable(m_stream, "DROP INDEX", table);

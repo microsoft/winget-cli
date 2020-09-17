@@ -37,6 +37,8 @@ namespace AppInstaller::Repository
         Moniker,
         Command,
         Tag,
+        PackageFamilyName,
+        ProductCode,
     };
 
     // A single match to be performed during a search.
@@ -203,6 +205,10 @@ namespace AppInstaller::Repository
             return "Name"sv;
         case PackageMatchField::Tag:
             return "Tag"sv;
+        case ApplicationMatchField::PackageFamilyName:
+            return "PackageFamilyName"sv;
+        case ApplicationMatchField::ProductCode:
+            return "ProductCode"sv;
         }
 
         return "UnknownMatchField"sv;

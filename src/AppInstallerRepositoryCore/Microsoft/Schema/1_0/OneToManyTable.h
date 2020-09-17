@@ -18,7 +18,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         std::string_view OneToManyTableGetManifestColumnName();
 
         // Create the tables.
-        void CreateOneToManyTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName);
+        void CreateOneToManyTable(SQLite::Connection& connection, bool useNamedIndeces, std::string_view tableName, std::string_view valueName);
 
         // Ensures that the value exists and inserts mapping entries.
         void OneToManyTableEnsureExistsAndInsert(SQLite::Connection& connection,
@@ -34,7 +34,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         void OneToManyTableDeleteIfNotNeededByManifestId(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t manifestId);
 
         // Removes data that is no longer needed for an index that is to be published.
-        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName);
+        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndeces, bool preserveValuesIndex);
 
         // Determines if the table is empty.
         bool OneToManyTableIsEmpty(SQLite::Connection& connection, std::string_view tableName);
@@ -62,10 +62,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return false;
         }
 
-        // Creates the table.
+        // Creates the table with named indeces.
         static void Create(SQLite::Connection& connection)
         {
-            details::CreateOneToManyTable(connection, TableInfo::TableName(), TableInfo::ValueName());
+            details::CreateOneToManyTable(connection, true, TableInfo::TableName(), TableInfo::ValueName());
+        }
+
+        // Creates the table with standard primary keys.
+        static void Create_deprecated(SQLite::Connection& connection)
+        {
+            details::CreateOneToManyTable(connection, false, TableInfo::TableName(), TableInfo::ValueName());
         }
 
         // Ensures that all values exist in the data table, and inserts into the mapping table for the given manifest id.
@@ -87,9 +93,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Removes data that is no longer needed for an index that is to be published.
-        static void PrepareForPackaging(SQLite::Connection& connection)
+        static void PrepareForPackaging(SQLite::Connection& connection, bool preserveValuesIndex = false)
         {
-            details::OneToManyTablePrepareForPackaging(connection, TableInfo::TableName());
+            details::OneToManyTablePrepareForPackaging(connection, TableInfo::TableName(), true, preserveValuesIndex);
+        }
+
+        // Removes data that is no longer needed for an index that is to be published.
+        static void PrepareForPackaging_deprecated(SQLite::Connection& connection)
+        {
+            details::OneToManyTablePrepareForPackaging(connection, TableInfo::TableName(), false, false);
         }
 
         // Determines if the table is empty.
