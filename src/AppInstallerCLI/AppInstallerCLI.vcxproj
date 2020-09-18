@@ -209,10 +209,6 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\packages\pwa_builder.86.571.0-CI-20200708-094419\identity_proxy\resources.pri">
-      <Link>pwa_builder\identity_proxy\%(RecursiveDir)%(FileName)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
   </ItemGroup>
