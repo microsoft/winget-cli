@@ -6,7 +6,7 @@
 
 namespace AppInstaller::Manifest
 {
-    ManifestVer::ManifestVer(std::string_view version, bool fullValidation)
+    ManifestVer::ManifestVer(std::string_view version)
     {
         bool validationSuccess = true;
 
@@ -34,8 +34,7 @@ namespace AppInstaller::Manifest
             Assign(std::string{ version }, ".");
         }
 
-        if (m_parts.size() > 3 ||
-            (!m_extensions.empty() && fullValidation))
+        if (m_parts.size() > 3)
         {
             validationSuccess = false;
         }

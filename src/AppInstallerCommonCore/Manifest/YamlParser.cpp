@@ -204,7 +204,7 @@ namespace AppInstaller::Manifest
         if (rootNode["ManifestVersion"sv])
         {
             auto manifestVersionValue = rootNode["ManifestVersion"sv].as<std::string>();
-            manifest.ManifestVersion = ManifestVer(manifestVersionValue, fullValidation);
+            manifest.ManifestVersion = ManifestVer(manifestVersionValue);
         }
         else
         {
@@ -253,18 +253,7 @@ namespace AppInstaller::Manifest
             auto errors = ValidateAndProcessFields(installerNode, InstallerFieldInfos, fullValidation);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
 
-            // Validate system reference strings if they are set at the installer level
-            if (fullValidation && !installer.PackageFamilyName.empty() && !ManifestInstaller::DoesInstallerTypeUsePackageFamilyName(installer.InstallerType))
-            {
-                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "InstallerType", ManifestInstaller::InstallerTypeToString(installer.InstallerType));
-            }
-
-            if (fullValidation && !installer.ProductCode.empty() && !ManifestInstaller::DoesInstallerTypeUseProductCode(installer.InstallerType))
-            {
-                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportProductCode, "InstallerType", ManifestInstaller::InstallerTypeToString(installer.InstallerType));
-            }
-
-            // Copy in system reference strings from the root if not set in the installer
+            // Copy in system reference strings from the root if not set in the installer and appropriate
             if (installer.PackageFamilyName.empty() && ManifestInstaller::DoesInstallerTypeUsePackageFamilyName(installer.InstallerType))
             {
                 installer.PackageFamilyName = manifest.PackageFamilyName;

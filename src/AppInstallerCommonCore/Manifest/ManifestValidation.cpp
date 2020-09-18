@@ -80,6 +80,17 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "InstallerType");
             }
 
+            // Validate system reference strings if they are set at the installer level
+            if (!installer.PackageFamilyName.empty() && !ManifestInstaller::DoesInstallerTypeUsePackageFamilyName(installer.InstallerType))
+            {
+                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "InstallerType", ManifestInstaller::InstallerTypeToString(installer.InstallerType));
+            }
+
+            if (!installer.ProductCode.empty() && !ManifestInstaller::DoesInstallerTypeUseProductCode(installer.InstallerType))
+            {
+                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportProductCode, "InstallerType", ManifestInstaller::InstallerTypeToString(installer.InstallerType));
+            }
+
             if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::MSStore)
             {
                 // MSStore type is not supported in community repo

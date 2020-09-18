@@ -18,7 +18,7 @@ namespace AppInstaller::Manifest
     {
         ManifestVer() = default;
 
-        ManifestVer(std::string_view version, bool fullValidation = false);
+        ManifestVer(std::string_view version);
 
         uint64_t Major() const { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }
         uint64_t Minor() const { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }

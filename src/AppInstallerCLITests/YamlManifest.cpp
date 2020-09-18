@@ -49,6 +49,8 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(manifest.Protocols == MultiValue{ "protocol1", "protocol2" });
     REQUIRE(manifest.FileExtensions == MultiValue{ "appx", "appxbundle", "msix", "msixbundle" });
     REQUIRE(manifest.InstallerType == ManifestInstaller::InstallerTypeEnum::Zip);
+    REQUIRE(manifest.PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
+    REQUIRE(manifest.ProductCode == "{Foo}");
 
     // default switches
     auto switches = manifest.Switches;
@@ -69,6 +71,8 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(installer1.Language == "en-US");
     REQUIRE(installer1.InstallerType == ManifestInstaller::InstallerTypeEnum::Zip);
     REQUIRE(installer1.Scope == "user");
+    REQUIRE(installer1.PackageFamilyName == "");
+    REQUIRE(installer1.ProductCode == "");
 
     auto installer1Switches = installer1.Switches;
     REQUIRE(installer1Switches.at(ManifestInstaller::InstallerSwitchType::Custom) == "/c");
@@ -86,6 +90,8 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(installer2.Language == "en-US");
     REQUIRE(installer2.InstallerType == ManifestInstaller::InstallerTypeEnum::Zip);
     REQUIRE(installer2.Scope == "user");
+    REQUIRE(installer2.PackageFamilyName == "");
+    REQUIRE(installer2.ProductCode == "");
 
     // Installer2 does not declare switches, it inherits switches from package default.
     auto installer2Switches = installer2.Switches;
@@ -226,7 +232,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-VersionInvalid.yaml", "Invalid field value. Field: Version" },
         { "Manifest-Bad-VersionMissing.yaml", "Required field missing. Field: Version" },
         { "Manifest-Bad-InvalidManifestVersionValue.yaml", "Invalid field value. Field: ManifestVersion" },
-        { "InstallFlowTest_MSStore.yaml", "Invalid field value. Field: ManifestVersion" },
+        { "InstallFlowTest_MSStore.yaml", "Field value is not supported. Field: InstallerType Value: MSStore" },
         { "Manifest-Bad-PackageFamilyNameOnMSI.yaml", "The specified installer type does not support PackageFamilyName. Field: InstallerType Value: Msi" },
         { "Manifest-Bad-ProductCodeOnMSIX.yaml", "The specified installer type does not support ProductCode. Field: InstallerType Value: Msix" },
     };
