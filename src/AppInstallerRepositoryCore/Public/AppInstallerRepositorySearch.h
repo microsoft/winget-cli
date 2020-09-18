@@ -133,10 +133,10 @@ namespace AppInstaller::Repository
         virtual std::vector<PackageVersionKey> GetAvailableVersionKeys() const = 0;
 
         // Gets a specific version of this package.
-        virtual std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() = 0;
+        virtual std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const = 0;
 
         // Gets a specific version of this package.
-        virtual std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) = 0;
+        virtual std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const = 0;
     };
 
     // A single result from the search.
@@ -205,9 +205,9 @@ namespace AppInstaller::Repository
             return "Name"sv;
         case PackageMatchField::Tag:
             return "Tag"sv;
-        case ApplicationMatchField::PackageFamilyName:
+        case PackageMatchField::PackageFamilyName:
             return "PackageFamilyName"sv;
-        case ApplicationMatchField::ProductCode:
+        case PackageMatchField::ProductCode:
             return "ProductCode"sv;
         }
 

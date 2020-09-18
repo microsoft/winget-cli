@@ -12,36 +12,52 @@ namespace AppInstaller::Repository::Microsoft
 
     namespace
     {
-        // The IApplication impl for SQLiteIndexSource.
-        struct Application : public IApplication
+        // The base for the package objects.
+        struct SourceReference
         {
-            Application(std::shared_ptr<SQLiteIndexSource>& source, SQLiteIndex::IdType id) :
-                m_id(id), m_source(source) {}
+            SourceReference(const std::shared_ptr<const SQLiteIndexSource>& source) :
+                m_source(source) {}
 
-            // Inherited via IApplication
-            LocIndString GetId() override
+        protected:
+            std::shared_ptr<const SQLiteIndexSource> GetSource() const
             {
-                // Values coming from the index will always be localized/independent.
-                return LocIndString{ GetSource()->GetIndex().GetIdStringById(m_id).value() };
+                std::shared_ptr<const SQLiteIndexSource> source = m_source.lock();
+                THROW_HR_IF(E_NOT_VALID_STATE, !source);
+                return source;
             }
 
-            LocIndString GetName() override
+        private:
+            std::weak_ptr<const SQLiteIndexSource> m_source;
+        };
+
+        // The IPackageVersion impl for SQLiteIndexSource.
+        struct PackageVersion : public SourceReference, public IPackageVersion
+        {
+            PackageVersion(const std::shared_ptr<const SQLiteIndexSource>& source, SQLiteIndex::IdType manifestId) :
+                SourceReference(source), m_manifestId(manifestId) {}
+
+            // Inherited via IPackageVersion
+            Utility::LocIndString GetProperty(PackageProperty property) const override
             {
                 // Values coming from the index will always be localized/independent.
-                return LocIndString{ GetSource()->GetIndex().GetNameStringById(m_id).value() };
+                return LocIndString{ GetSource()->GetIndex().GetPropertyByManifestId(m_manifestId, property).value() };
             }
 
-            std::optional<Manifest::Manifest> GetManifest(const Utility::NormalizedString& version, const Utility::NormalizedString& channel) override
+            std::optional<Manifest::Manifest> GetManifest() const override
             {
-                std::shared_ptr<SQLiteIndexSource> source = GetSource();
-                std::optional<std::string> relativePathOpt = source->GetIndex().GetPathStringByKey(m_id, version, channel);
+                std::shared_ptr<const SQLiteIndexSource> source = GetSource();
+                std::optional<std::string> relativePathOpt = source->GetIndex().GetPathStringByManifestId(m_manifestId);
                 if (!relativePathOpt)
                 {
                     return {};
                 }
-                std::string relativePath = relativePathOpt.value();
+                return GetManifestFromArgAndRelativePath(source->GetDetails().Arg, relativePathOpt.value());
+            }
 
-                std::string fullPath = source->GetDetails().Arg;
+        private:
+            static Manifest::Manifest GetManifestFromArgAndRelativePath(const std::string& arg, const std::string& relativePath)
+            {
+                std::string fullPath = arg;
                 if (fullPath.back() != '/')
                 {
                     fullPath += '/';
@@ -68,26 +84,70 @@ namespace AppInstaller::Repository::Microsoft
                 }
             }
 
-            std::vector<Utility::VersionAndChannel> GetVersions() override
+            SQLiteIndex::IdType m_manifestId;
+        };
+
+        // The IPackage impl for SQLiteIndexSource.
+        struct Package : public SourceReference, public IPackage
+        {
+            Package(const std::shared_ptr<const SQLiteIndexSource>& source, SQLiteIndex::IdType idId) :
+                SourceReference(source), m_idId(idId) {}
+
+            // Inherited via IPackage
+            std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
             {
-                return GetSource()->GetIndex().GetVersionsById(m_id);
+                // Although an index might be the backing store for installed packages, the installed package version
+                // will be selected by external business logic.
+                return {};
+            }
+
+            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
+            {
+                std::shared_ptr<const SQLiteIndexSource> source = GetSource();
+                std::vector<Utility::VersionAndChannel> versions = source->GetIndex().GetVersionKeysById(m_idId);
+
+                std::vector<PackageVersionKey> result;
+                for (const auto& vac : versions)
+                {
+                    result.emplace_back(source->GetIdentifier(), vac.GetVersion(), vac.GetChannel());
+                }
+                return result;
+            }
+
+            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
+            {
+                std::shared_ptr<const SQLiteIndexSource> source = GetSource();
+                std::vector<SQLiteIndex::IdType> manifestIds = source->GetIndex().GetVersionIdsById(m_idId);
+
+                if (!manifestIds.empty())
+                {
+                    return std::make_shared<PackageVersion>(source, manifestIds[0]);
+                }
+
+                return {};
+            }
+
+            std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override
+            {
+                std::shared_ptr<const SQLiteIndexSource> source = GetSource();
+                THROW_HR_IF(E_INVALIDARG, !versionKey.SourceId.empty() && versionKey.SourceId != source->GetIdentifier());
+                std::optional<SQLiteIndex::IdType> manifestId = source->GetIndex().GetVersionIdByKey(m_idId, versionKey.Version, versionKey.Channel);
+
+                if (manifestId)
+                {
+                    return std::make_shared<PackageVersion>(source, manifestId.value());
+                }
+
+                return {};
             }
 
         private:
-            std::shared_ptr<SQLiteIndexSource> GetSource()
-            {
-                std::shared_ptr<SQLiteIndexSource> source = m_source.lock();
-                THROW_HR_IF(E_NOT_VALID_STATE, !source);
-                return source;
-            }
-
-            std::weak_ptr<SQLiteIndexSource> m_source;
-            SQLiteIndex::IdType m_id;
+            SQLiteIndex::IdType m_idId;
         };
     }
 
-    SQLiteIndexSource::SQLiteIndexSource(const SourceDetails& details, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock) :
-        m_details(details), m_lock(std::move(lock)), m_index(std::move(index))
+    SQLiteIndexSource::SQLiteIndexSource(const SourceDetails& details, std::string identifier, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock) :
+        m_details(details), m_identifier(std::move(identifier)), m_lock(std::move(lock)), m_index(std::move(index))
     {
     }
 
@@ -96,12 +156,17 @@ namespace AppInstaller::Repository::Microsoft
         return m_details;
     }
 
-    SearchResult SQLiteIndexSource::Search(const SearchRequest& request)
+    const std::string& SQLiteIndexSource::GetIdentifier() const
+    {
+        return m_identifier;
+    }
+
+    SearchResult SQLiteIndexSource::Search(const SearchRequest& request) const
     {
         auto indexResults = m_index.Search(request);
 
         SearchResult result;
-        std::shared_ptr<SQLiteIndexSource> sharedThis = shared_from_this();
+        std::shared_ptr<const SQLiteIndexSource> sharedThis = shared_from_this();
         for (auto& indexResult : indexResults.Matches)
         {
             result.Matches.emplace_back(std::make_unique<Application>(sharedThis, indexResult.first), std::move(indexResult.second));
