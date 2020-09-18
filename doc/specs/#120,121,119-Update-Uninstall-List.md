@@ -7,7 +7,7 @@ issue id: <120, 121, 119>
 ---
 
 
-# Windows Package Manager Upgrade, Uninstall and List Command Spec
+# Windows Package Manager update, Uninstall and List Command Spec
 
 State: `DRAFT`
 
@@ -24,7 +24,7 @@ See abstract. :)
 ## Solution Design
 
 * List
-* Update / Upgrade
+* Update 
 * Uninstall
 
 ### List
@@ -96,9 +96,7 @@ Using the `ProductCode`, the Windows Package Manager will be able to determine i
 
 #### Mapping Ids To YAML files
 
-Once the local files are enumerated, they must be mapped to the supported files in Community repository. To do this will will rely on the `SystemReference.` `SystemReference` is a new YAML entry that will include the `ProductCode` and `PackageFamilyName` as appropriate.
-
-The `SystemReference` will support 4 known types:
+Once the local files are enumerated, they must be mapped to the supported files in Community repository. To do this will will rely on the uninstall string used by the installer formats.For example:  `ProductCode` and `PackageFamilyName` as appropriate.
 
 * [ProductCode](https://docs.microsoft.com/windows/win32/msi/product-codes)
 * [PackageFamilyName](https://docs.microsoft.com/mem/configmgr/protect/deploy-use/find-a-pfn-for-per-app-vpn)
@@ -107,9 +105,9 @@ The `SystemReference` will support 4 known types:
 
 > Open issue: Need a better enum for zip and standalone exes.
 
-For complete details on `SystemReference` please see [YAMLSPEC](..\yamlspec.md). Fake news and path. :)
+For complete details on `ProductCode` and `PackageFamilyName` see [YAMLSPEC](..\ManifestSpecv0.2.md)
 
-#### Determining update availablity
+#### Determining update availability
 
 Once the mapping is complete between the applications installed and the entry in the community repository, the client can determine if an update is available.
 
@@ -128,22 +126,22 @@ For Windows Store, the client will need to query the store to see if an update i
 
 For `list` to display accurate information, the database of content must be up to date. The default experience for a downloaded catalog will be to refresh every 5 minutes. The default experience for RESTFUL apis will be to query the server at `list` execution.
 
-### Upgrade
+### Update
 
-The `upgrade` command is designed to update one or more applications. The `upgrade` command when executed with no parameters will generate a report of the files that would be updated. The upgrade command with `--all` will update all packages that have updates available.
+The `update` command is designed to update one or more applications. The `update` command when executed with no parameters will generate a report of the files that would be updated. The `update` command with `--all` will update all packages that have updates available.
 
-#### Upgrade Usage
+#### Update Usage
 
-`winget upgrade [[-q] <query>] [<options>]`
+`winget update [[-q] <query>] [<options>]`
 
-`Upgrade` when executed with the `--all` option, it will upgrade all applications ready for updates by the Windows Package Manager.
+`Update` when executed with the `--all` option, it will update all applications ready for updates by the Windows Package Manager.
 
 | Argument | Description |
 |---|---|
 | `-q,--query` | The query used to search for an application. |
 | `-?, --help` | Gets additional help on this command. |
 
-#### Upgrade Options
+#### Update Options
 
 The following options are available.
 
@@ -159,44 +157,45 @@ The following options are available.
 | `-s,--source` | Find the application using the specified [source](source.md). |
 | `-e,--exact` | Find the application using exact match. |
 
-#### Upgrade no parameters
+#### Update no parameters
 
-If the user types `winget upgrade` with no parameter, `winget` will detect the changes in applications, and inform the user of the potential updates available.
+If the user types `winget update` with no parameter, `winget` will detect the changes in applications, and inform the user of the potential updates available.
 
-![Upgrade command](images\120-Upgrade.png)
+![update command](images\120-Upgrade.png)
 
-#### Upgrade App Experience
+#### Update App Experience
 
-The Upgrade experience will mimic the install experience.When the user specifies uninstall of an application, that command is their commitment.
-`winget upgrade "appname"'
-No additional prompting will be offered.
+The Update experience will mimic the install experience. When the user specifies `winget update appname` no additional prompting will be offered.
 
-#### Upgrade --all Experience
+If the manifest requires that the previously installed version to be uninstalled, winget will first uninstall the previous version before executing installation of the update.
 
-The Upgrade --all will automatically being updating all available updates. The user will not get additional prompting. This will allow for easy scripting.
+If the manifest specifies certain switches to be used for updates, these will be passed on the command line.  See the [YAMLSPEC](..\ManifestSpecv0.2.md) for more details.
 
-#### Upgrade app when no update is available
+#### Update --all Experience
 
-If the user attempts to update an app that there is no known update for, the package manager will issue an error.
+The Update --all will automatically being updating all available updates. The user will not get additional prompting. This will allow for easy scripting.
+
+#### Update app when no update is available
+
+If the user attempts to update an app that there is no known update for, the package manager will issue an error.  
 *There is no update available from the community repository. If you need to reinstall or repair the app, try `winget repair appname`.*
 
-#### Upgrade No packages found
+#### Update No packages found
 
-Like with the install command, if winget cannot determine a specific package based on the query string, winget will error and ask for more specifics.
-
+Like with the install command, if winget cannot determine a specific package based on the query string, winget will error and ask for more specifics.  
 *No package found matching input criteria. Type winget list to see available applications.*
 
-#### Upgrade -m, --manifest option
+#### Update -m, --manifest option
 
-When the manifest option is passed to the upgrade command, it works just like with installer. If the version is less than the currently installed application, it will launch the upgrade process.
-If the application is not already installed, this will generate an error.
+When the manifest option is passed to the Update command, it works just like with installer. If the version is less than the currently installed application, it will launch the Update process.
+If the application is not already installed, this will generate an error.  
 *The application "appname" is not installed, therefore no updates are available. If you would like to install the app, use the install command.*
 
 #### Dependencies
 
 Handling dependencies will be a challenge once Windows Package Manager supports dependencies. Dependencies are not covered as part of this spec.
 
-> Open issue: If the application is not side by side, it will force an uninstall of the previous version to upgrade. We will need to assume the installer wil handle.
+> Open issue: If the application is not side by side, it will force an uninstall of the previous version to Update. We will need to assume the installer wil handle.
 
 ### Uninstall
 
@@ -319,6 +318,7 @@ If the application does not include an uninstall string then the uninstall will 
 ## History 
 | Version | Details | Date |
 |---|---|---|
-| .001 | Draft | 6/03/2020 
-| .002 | Cleaned up some HTML and MD. Thanks Megamorf. | 6/04/2020
-| .003 | Massive update to cause everyone pain. Sorry about that. | 9/04/2020
+| .001 | Draft | 6/03/2020 |
+| .002 | Cleaned up some HTML and MD. Thanks Megamorf. | 6/04/2020 |
+| .003 | Massive update to cause everyone pain. Sorry about that. | 9/04/2020 |
+| .004 | Renamed upgrade to update.  Updated the list, update and uninstall features.  Most notably ProductCode and PackageFamilyName | 9/17/2020 |
