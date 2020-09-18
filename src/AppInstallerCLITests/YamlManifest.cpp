@@ -49,6 +49,8 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(manifest.Protocols == MultiValue{ "protocol1", "protocol2" });
     REQUIRE(manifest.FileExtensions == MultiValue{ "appx", "appxbundle", "msix", "msixbundle" });
     REQUIRE(manifest.InstallerType == ManifestInstaller::InstallerTypeEnum::Zip);
+    REQUIRE(manifest.PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
+    REQUIRE(manifest.ProductCode == "{Foo}");
 
     // default switches
     auto switches = manifest.Switches;
@@ -69,6 +71,8 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(installer1.Language == "en-US");
     REQUIRE(installer1.InstallerType == ManifestInstaller::InstallerTypeEnum::Zip);
     REQUIRE(installer1.Scope == "user");
+    REQUIRE(installer1.PackageFamilyName == "");
+    REQUIRE(installer1.ProductCode == "");
 
     auto installer1Switches = installer1.Switches;
     REQUIRE(installer1Switches.at(ManifestInstaller::InstallerSwitchType::Custom) == "/c");
@@ -86,6 +90,8 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(installer2.Language == "en-US");
     REQUIRE(installer2.InstallerType == ManifestInstaller::InstallerTypeEnum::Zip);
     REQUIRE(installer2.Scope == "user");
+    REQUIRE(installer2.PackageFamilyName == "");
+    REQUIRE(installer2.ProductCode == "");
 
     // Installer2 does not declare switches, it inherits switches from package default.
     auto installer2Switches = installer2.Switches;
@@ -227,6 +233,8 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-VersionMissing.yaml", "Required field missing. Field: Version" },
         { "Manifest-Bad-InvalidManifestVersionValue.yaml", "Invalid field value. Field: ManifestVersion" },
         { "InstallFlowTest_MSStore.yaml", "Field value is not supported. Field: InstallerType Value: MSStore" },
+        { "Manifest-Bad-PackageFamilyNameOnMSI.yaml", "The specified installer type does not support PackageFamilyName. Field: InstallerType Value: Msi" },
+        { "Manifest-Bad-ProductCodeOnMSIX.yaml", "The specified installer type does not support ProductCode. Field: InstallerType Value: Msix" },
     };
 
     for (auto const& testCase : TestCases)
@@ -254,4 +262,52 @@ TEST_CASE("ManifestEncoding", "[ManifestValidation]")
         Manifest manifest = YamlParser::CreateFromPath(TestDataFile(testCase.TestFile), true, true);
         REQUIRE(manifest.Name == u8"MSIX SDK\xA9");
     }
+}
+
+TEST_CASE("ComplexSystemReference", "[ManifestValidation]")
+{
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-SystemReferenceComplex.yaml"));
+
+    REQUIRE(manifest.Installers.size() == 5);
+
+    // Zip installer does not inherit
+    REQUIRE(manifest.Installers[0].InstallerType == ManifestInstaller::InstallerTypeEnum::Zip);
+    REQUIRE(manifest.Installers[0].PackageFamilyName == "");
+    REQUIRE(manifest.Installers[0].ProductCode == "");
+
+    // MSIX installer does inherit
+    REQUIRE(manifest.Installers[1].InstallerType == ManifestInstaller::InstallerTypeEnum::Msix);
+    REQUIRE(manifest.Installers[1].Arch == Architecture::X86);
+    REQUIRE(manifest.Installers[1].PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
+    REQUIRE(manifest.Installers[1].ProductCode == "");
+
+    // MSI installer does inherit
+    REQUIRE(manifest.Installers[2].InstallerType == ManifestInstaller::InstallerTypeEnum::Msi);
+    REQUIRE(manifest.Installers[2].Arch == Architecture::X86);
+    REQUIRE(manifest.Installers[2].PackageFamilyName == "");
+    REQUIRE(manifest.Installers[2].ProductCode == "{Foo}");
+
+    // MSIX installer with override
+    REQUIRE(manifest.Installers[3].InstallerType == ManifestInstaller::InstallerTypeEnum::Msix);
+    REQUIRE(manifest.Installers[3].Arch == Architecture::X64);
+    REQUIRE(manifest.Installers[3].PackageFamilyName == "Override_8wekyb3d8bbwe");
+    REQUIRE(manifest.Installers[3].ProductCode == "");
+
+    // MSI installer with override
+    REQUIRE(manifest.Installers[4].InstallerType == ManifestInstaller::InstallerTypeEnum::Msi);
+    REQUIRE(manifest.Installers[4].Arch == Architecture::X64);
+    REQUIRE(manifest.Installers[4].PackageFamilyName == "");
+    REQUIRE(manifest.Installers[4].ProductCode == "Override");
+}
+
+TEST_CASE("ManifestVersionExtensions", "[ManifestValidation]")
+{
+    REQUIRE(!ManifestVer("1.0.0"sv).HasExtension("msstore"));
+    REQUIRE(!ManifestVer("1.0.0-other"sv).HasExtension("msstore"));
+    REQUIRE(!ManifestVer("1.0.0-other-other2"sv).HasExtension("msstore"));
+
+    REQUIRE(ManifestVer("1.0.0-msstore"sv).HasExtension("msstore"));
+    REQUIRE(ManifestVer("1.0.0-msstore.2"sv).HasExtension("msstore"));
+    REQUIRE(ManifestVer("1.0.0-other-msstore.2"sv).HasExtension("msstore"));
+    REQUIRE(ManifestVer("1.0.0-msstore.2-other"sv).HasExtension("msstore"));
 }

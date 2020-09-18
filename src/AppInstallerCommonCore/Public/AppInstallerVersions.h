@@ -20,6 +20,7 @@ namespace AppInstaller::Utility
     //      if both sides have no more parts, return equal
     //      else if one side has no more parts, it is less
     //      else if integers not equal, return comparison of integers
+    //      else if only one side has a non-empty string part, it is less
     //      else if string parts not equal, return comparison of strings
     struct Version
     {
@@ -31,6 +32,9 @@ namespace AppInstaller::Utility
         Version(const std::string& version, std::string_view splitChars = DefaultSplitChars) :
             Version(std::string(version), splitChars) {}
         Version(std::string&& version, std::string_view splitChars = DefaultSplitChars);
+
+        // Resets the version's value to the input.
+        void Assign(std::string&& version, std::string_view splitChars = DefaultSplitChars);
 
         // Gets the full version string used to construct the Version.
         const std::string& ToString() const { return m_version; }

@@ -5,9 +5,14 @@
 
 namespace AppInstaller::Utility
 {
-    Version::Version(std::string&& version, std::string_view splitChars) :
-        m_version(std::move(version))
+    Version::Version(std::string&& version, std::string_view splitChars)
     {
+        Assign(std::move(version), splitChars);
+    }
+
+    void Version::Assign(std::string&& version, std::string_view splitChars)
+    {
+        m_version = std::move(version);
         size_t pos = 0;
 
         while (pos < m_version.length())
@@ -128,6 +133,16 @@ namespace AppInstaller::Utility
         else if (Integer > other.Integer)
         {
             return false;
+        }
+        else if (Other.empty())
+        {
+            // If this Other is empty, it is at least >=
+            return false;
+        }
+        else if (!Other.empty() && other.Other.empty())
+        {
+            // If the other Other is empty and this is not, this is less.
+            return true;
         }
         else if (Other < other.Other)
         {

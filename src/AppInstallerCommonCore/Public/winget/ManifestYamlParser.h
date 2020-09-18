@@ -8,10 +8,6 @@
 
 namespace AppInstaller::Manifest
 {
-    static const uint64_t MaxSupportedMajorVersion = 1;
-    static const ManifestVer PreviewManifestVersion = ManifestVer("0.1.0", false);
-    static const ManifestVer PreviewManifestVersionMSStore = ManifestVer("0.2.0-msstore", false);
-
     struct YamlParser
     {
         // fullValidation: Bool to set if manifest creation should perform extra validation that client does not need.
@@ -34,8 +30,10 @@ namespace AppInstaller::Manifest
         // This struct contains individual app manifest field info
         struct ManifestFieldInfo
         {
+            ManifestFieldInfo(std::string name, std::function<void(const YAML::Node&)> func, bool required = false, std::string regex = {}) :
+                Name(std::move(name)), ProcessFunc(func), Required(required), RegEx(std::move(regex)) {}
+
             std::string Name;
-            ManifestVer VerIntroduced;
             std::function<void(const YAML::Node&)> ProcessFunc;
             bool Required = false;
             std::string RegEx = {};
@@ -61,6 +59,5 @@ namespace AppInstaller::Manifest
             bool fullValidation);
 
         void PrepareManifestFieldInfos(const ManifestVer& manifestVer);
-        void FilterManifestFieldInfos(std::vector<ManifestFieldInfo>& source, const ManifestVer& manifestVer);
     };
 }

@@ -89,4 +89,21 @@ namespace AppInstaller::Manifest
 
         return result;
     }
+
+    bool ManifestInstaller::DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType)
+    {
+        return (installerType == InstallerTypeEnum::Msix || installerType == InstallerTypeEnum::MSStore);
+    }
+
+    bool ManifestInstaller::DoesInstallerTypeUseProductCode(InstallerTypeEnum installerType)
+    {
+        return (
+            installerType == InstallerTypeEnum::Exe || 
+            installerType == InstallerTypeEnum::Inno ||
+            installerType == InstallerTypeEnum::Msi ||
+            installerType == InstallerTypeEnum::Nullsoft ||
+            installerType == InstallerTypeEnum::Wix ||
+            installerType == InstallerTypeEnum::Burn
+            );
+    }
 }

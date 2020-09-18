@@ -9,6 +9,15 @@ namespace AppInstaller::Manifest
 {
     namespace
     {
+        // The maximum supported major version known about by this code.
+        constexpr uint64_t s_MaxSupportedMajorVersion = 0;
+
+        // The default manifest version assigned to manifests without a ManifestVersion field.
+        constexpr std::string_view s_DefaultManifestVersion = "0.1.0"sv;
+
+        // The manifest extension for the MS Store
+        constexpr std::string_view s_MSStoreExtension = "msstore"sv;
+
         std::vector<Manifest::string_t> SplitMultiValueField(const std::string& input)
         {
             if (input.empty())
@@ -41,91 +50,76 @@ namespace AppInstaller::Manifest
 
     void YamlParser::PrepareManifestFieldInfos(const ManifestVer& manifestVer)
     {
+        // Initially supported fields
         RootFieldInfos =
         {
-            { "ManifestVersion", PreviewManifestVersion, [](const YAML::Node&) { /* ManifestVersion already processed */ }, false,
+            { "ManifestVersion", [](const YAML::Node&) { /* ManifestVersion already processed */ }, false,
             // Regex here is to prevent leading 0s in the version, this also keeps consistent with other versions in the manifest
             "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){2}$" },
-            { "Id", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->Id = value.as<std::string>(); Utility::Trim(m_p_manifest->Id); }, true, "^[\\S]+\\.[\\S]+$" },
-            { "Name", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->Name = value.as<std::string>(); Utility::Trim(m_p_manifest->Name); }, true },
-            { "Version", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->Version = value.as<std::string>(); Utility::Trim(m_p_manifest->Version); }, true,
+            { "Id", [this](const YAML::Node& value) { m_p_manifest->Id = value.as<std::string>(); Utility::Trim(m_p_manifest->Id); }, true, "^[\\S]+\\.[\\S]+$" },
+            { "Name", [this](const YAML::Node& value) { m_p_manifest->Name = value.as<std::string>(); Utility::Trim(m_p_manifest->Name); }, true },
+            { "Version", [this](const YAML::Node& value) { m_p_manifest->Version = value.as<std::string>(); Utility::Trim(m_p_manifest->Version); }, true,
             /* File name chars not allowed */ "^[^\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]+$" },
-            { "Publisher", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->Publisher = value.as<std::string>(); }, true },
-            { "AppMoniker", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->AppMoniker = value.as<std::string>(); Utility::Trim(m_p_manifest->AppMoniker); } },
-            { "Channel", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->Channel = value.as<std::string>(); Utility::Trim(m_p_manifest->Channel); } },
-            { "Author", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->Author = value.as<std::string>(); } },
-            { "License", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->License = value.as<std::string>(); } },
-            { "MinOSVersion", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->MinOSVersion = value.as<std::string>(); Utility::Trim(m_p_manifest->MinOSVersion); }, false,
+            { "Publisher", [this](const YAML::Node& value) { m_p_manifest->Publisher = value.as<std::string>(); }, true },
+            { "AppMoniker", [this](const YAML::Node& value) { m_p_manifest->AppMoniker = value.as<std::string>(); Utility::Trim(m_p_manifest->AppMoniker); } },
+            { "Channel", [this](const YAML::Node& value) { m_p_manifest->Channel = value.as<std::string>(); Utility::Trim(m_p_manifest->Channel); } },
+            { "Author", [this](const YAML::Node& value) { m_p_manifest->Author = value.as<std::string>(); } },
+            { "License", [this](const YAML::Node& value) { m_p_manifest->License = value.as<std::string>(); } },
+            { "MinOSVersion", [this](const YAML::Node& value) { m_p_manifest->MinOSVersion = value.as<std::string>(); Utility::Trim(m_p_manifest->MinOSVersion); }, false,
               "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){0,3}$" },
-            { "Tags", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->Tags = SplitMultiValueField(value.as<std::string>()); } },
-            { "Commands", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->Commands = SplitMultiValueField(value.as<std::string>()); } },
-            { "Protocols", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->Protocols = SplitMultiValueField(value.as<std::string>()); } },
-            { "FileExtensions", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->FileExtensions = SplitMultiValueField(value.as<std::string>()); } },
-            { "InstallerType", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->InstallerType = ManifestInstaller::ConvertToInstallerTypeEnum(value.as<std::string>()); } },
-            { "Description", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->Description = value.as<std::string>(); } },
-            { "Homepage", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->Homepage = value.as<std::string>(); } },
-            { "LicenseUrl", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_manifest->LicenseUrl = value.as<std::string>(); } },
-            { "Switches", PreviewManifestVersion, [this](const YAML::Node& value) { *m_p_switchesNode = value; } },
-            { "Installers", PreviewManifestVersion, [this](const YAML::Node& value) { *m_p_installersNode = value; }, true },
-            { "Localization", PreviewManifestVersion, [this](const YAML::Node& value) { *m_p_localizationsNode = value; } },
+            { "Tags", [this](const YAML::Node& value) { m_p_manifest->Tags = SplitMultiValueField(value.as<std::string>()); } },
+            { "Commands", [this](const YAML::Node& value) { m_p_manifest->Commands = SplitMultiValueField(value.as<std::string>()); } },
+            { "Protocols", [this](const YAML::Node& value) { m_p_manifest->Protocols = SplitMultiValueField(value.as<std::string>()); } },
+            { "FileExtensions", [this](const YAML::Node& value) { m_p_manifest->FileExtensions = SplitMultiValueField(value.as<std::string>()); } },
+            { "InstallerType", [this](const YAML::Node& value) { m_p_manifest->InstallerType = ManifestInstaller::ConvertToInstallerTypeEnum(value.as<std::string>()); } },
+            { "PackageFamilyName", [this](const YAML::Node& value) { m_p_manifest->PackageFamilyName = value.as<std::string>(); }, false, "[-.A-Za-z0-9]+_[A-Za-z0-9]{13}" },
+            { "ProductCode", [this](const YAML::Node& value) { m_p_manifest->ProductCode = value.as<std::string>(); } },
+            { "Description", [this](const YAML::Node& value) { m_p_manifest->Description = value.as<std::string>(); } },
+            { "Homepage", [this](const YAML::Node& value) { m_p_manifest->Homepage = value.as<std::string>(); } },
+            { "LicenseUrl", [this](const YAML::Node& value) { m_p_manifest->LicenseUrl = value.as<std::string>(); } },
+            { "Switches", [this](const YAML::Node& value) { *m_p_switchesNode = value; } },
+            { "Installers", [this](const YAML::Node& value) { *m_p_installersNode = value; }, true },
+            { "Localization", [this](const YAML::Node& value) { *m_p_localizationsNode = value; } },
         };
 
         InstallerFieldInfos =
         {
-            { "Arch", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->Arch = Utility::ConvertToArchitectureEnum(value.as<std::string>()); }, true },
-            { "Url", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->Url = value.as<std::string>(); } },
-            { "Sha256", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); }, false, "^[A-Fa-f0-9]{64}$" },
-            { "SignatureSha256", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->SignatureSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); }, false, "^[A-Fa-f0-9]{64}$" },
-            { "Language", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->Language = value.as<std::string>(); } },
-            { "Scope", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->Scope = value.as<std::string>(); } },
-            { "InstallerType", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_installer->InstallerType = ManifestInstaller::ConvertToInstallerTypeEnum(value.as<std::string>()); } },
-            { "ProductId", PreviewManifestVersionMSStore, [this](const YAML::Node& value) { m_p_installer->ProductId = value.as<std::string>(); } },
-            { "Switches", PreviewManifestVersion, [this](const YAML::Node& value) { *m_p_switchesNode = value; } },
+            { "Arch", [this](const YAML::Node& value) { m_p_installer->Arch = Utility::ConvertToArchitectureEnum(value.as<std::string>()); }, true },
+            { "Url", [this](const YAML::Node& value) { m_p_installer->Url = value.as<std::string>(); } },
+            { "Sha256", [this](const YAML::Node& value) { m_p_installer->Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); }, false, "^[A-Fa-f0-9]{64}$" },
+            { "SignatureSha256", [this](const YAML::Node& value) { m_p_installer->SignatureSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); }, false, "^[A-Fa-f0-9]{64}$" },
+            { "Language", [this](const YAML::Node& value) { m_p_installer->Language = value.as<std::string>(); } },
+            { "Scope", [this](const YAML::Node& value) { m_p_installer->Scope = value.as<std::string>(); } },
+            { "InstallerType", [this](const YAML::Node& value) { m_p_installer->InstallerType = ManifestInstaller::ConvertToInstallerTypeEnum(value.as<std::string>()); } },
+            { "PackageFamilyName", [this](const YAML::Node& value) { m_p_installer->PackageFamilyName = value.as<std::string>(); }, false, "[-.A-Za-z0-9]+_[A-Za-z0-9]{13}" },
+            { "ProductCode", [this](const YAML::Node& value) { m_p_installer->ProductCode = value.as<std::string>(); } },
+            { "Switches", [this](const YAML::Node& value) { *m_p_switchesNode = value; } },
         };
 
         SwitchesFieldInfos =
         {
-            { "Custom", PreviewManifestVersion, [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::Custom] = value.as<std::string>(); } },
-            { "Silent", PreviewManifestVersion, [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::Silent] = value.as<std::string>(); } },
-            { "SilentWithProgress", PreviewManifestVersion, [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::SilentWithProgress] = value.as<std::string>(); } },
-            { "Interactive", PreviewManifestVersion, [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::Interactive] = value.as<std::string>(); } },
-            { "Language", PreviewManifestVersion, [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::Language] = value.as<std::string>(); } },
-            { "Log", PreviewManifestVersion, [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::Log] = value.as<std::string>(); } },
-            { "InstallLocation", PreviewManifestVersion, [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::InstallLocation] = value.as<std::string>(); } },
+            { "Custom", [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::Custom] = value.as<std::string>(); } },
+            { "Silent", [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::Silent] = value.as<std::string>(); } },
+            { "SilentWithProgress", [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::SilentWithProgress] = value.as<std::string>(); } },
+            { "Interactive", [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::Interactive] = value.as<std::string>(); } },
+            { "Language", [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::Language] = value.as<std::string>(); } },
+            { "Log", [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::Log] = value.as<std::string>(); } },
+            { "InstallLocation", [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::InstallLocation] = value.as<std::string>(); } },
         };
 
         LocalizationFieldInfos =
         {
-            { "Language", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_localization->Language = value.as<std::string>(); }, true },
-            { "Description", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_localization->Description = value.as<std::string>(); } },
-            { "Homepage", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_localization->Homepage = value.as<std::string>(); } },
-            { "LicenseUrl", PreviewManifestVersion, [this](const YAML::Node& value) { m_p_localization->LicenseUrl = value.as<std::string>(); } },
+            { "Language", [this](const YAML::Node& value) { m_p_localization->Language = value.as<std::string>(); }, true },
+            { "Description", [this](const YAML::Node& value) { m_p_localization->Description = value.as<std::string>(); } },
+            { "Homepage", [this](const YAML::Node& value) { m_p_localization->Homepage = value.as<std::string>(); } },
+            { "LicenseUrl", [this](const YAML::Node& value) { m_p_localization->LicenseUrl = value.as<std::string>(); } },
         };
 
-        FilterManifestFieldInfos(RootFieldInfos, manifestVer);
-        FilterManifestFieldInfos(InstallerFieldInfos, manifestVer);
-        FilterManifestFieldInfos(SwitchesFieldInfos, manifestVer);
-        FilterManifestFieldInfos(LocalizationFieldInfos, manifestVer);
-    }
-
-    void YamlParser::FilterManifestFieldInfos(
-        std::vector<ManifestFieldInfo>& source,
-        const ManifestVer& manifestVer)
-    {
-        auto it = std::remove_if(source.begin(), source.end(),
-            [&](ManifestFieldInfo field)
-            {
-                if (field.VerIntroduced.HasTag())
-                {
-                    // Tagged version should have exact match
-                    return field.VerIntroduced != manifestVer;
-                }
-                else
-                {
-                    return manifestVer < field.VerIntroduced;
-                }
-            });
-        source.erase(it, source.end());
+        // Store extension
+        if (manifestVer.HasExtension(s_MSStoreExtension))
+        {
+            InstallerFieldInfos.emplace_back("ProductId", [this](const YAML::Node& value) { m_p_installer->ProductId = value.as<std::string>(); });
+        }
     }
 
     Manifest YamlParser::CreateFromPath(const std::filesystem::path& inputFile, bool fullValidation, bool throwOnWarning)
@@ -207,19 +201,18 @@ namespace AppInstaller::Manifest
         // Detect manifest version first to determine expected fields
         // Use index to access ManifestVersion directly. If there're duplicates or other general errors, it'll be detected in later
         // processing of iterating the whole manifest.
-        // Todo: make ManifestVersion required when all manifests in our repo have been updated to contain a ManifestVersion
         if (rootNode["ManifestVersion"sv])
         {
             auto manifestVersionValue = rootNode["ManifestVersion"sv].as<std::string>();
-            manifest.ManifestVersion = ManifestVer(manifestVersionValue, false);
+            manifest.ManifestVersion = ManifestVer(manifestVersionValue);
         }
         else
         {
-            manifest.ManifestVersion = PreviewManifestVersion;
+            manifest.ManifestVersion = ManifestVer(s_DefaultManifestVersion);
         }
 
         // Check manifest version is supported
-        if (manifest.ManifestVersion.Major() > MaxSupportedMajorVersion)
+        if (manifest.ManifestVersion.Major() > s_MaxSupportedMajorVersion)
         {
             THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION), "Unsupported ManifestVersion: %S", manifest.ManifestVersion.ToString().c_str());
         }
@@ -259,6 +252,17 @@ namespace AppInstaller::Manifest
             m_p_switchesNode = &installerSwitchesNode;
             auto errors = ValidateAndProcessFields(installerNode, InstallerFieldInfos, fullValidation);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+
+            // Copy in system reference strings from the root if not set in the installer and appropriate
+            if (installer.PackageFamilyName.empty() && ManifestInstaller::DoesInstallerTypeUsePackageFamilyName(installer.InstallerType))
+            {
+                installer.PackageFamilyName = manifest.PackageFamilyName;
+            }
+
+            if (installer.ProductCode.empty() && ManifestInstaller::DoesInstallerTypeUseProductCode(installer.InstallerType))
+            {
+                installer.ProductCode = manifest.ProductCode;
+            }
 
             // Populate default known switches
             installer.Switches = GetDefaultKnownSwitches(installer.InstallerType);

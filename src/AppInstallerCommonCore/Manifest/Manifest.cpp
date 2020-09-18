@@ -6,9 +6,33 @@
 
 namespace AppInstaller::Manifest
 {
-    ManifestVer::ManifestVer(std::string version, bool fullValidation) : Version(std::move(version), ".")
+    ManifestVer::ManifestVer(std::string_view version)
     {
         bool validationSuccess = true;
+
+        // Separate the extensions out
+        size_t hyphenPos = version.find_first_of('-');
+        if (hyphenPos != std::string_view::npos)
+        {
+            // The first part is the main version
+            Assign(std::string{ version.substr(0, hyphenPos) }, ".");
+
+            // The second part is the extensions
+            hyphenPos += 1;
+            while (hyphenPos < version.length())
+            {
+                size_t newPos = version.find_first_of('-', hyphenPos);
+
+                size_t length = (newPos == std::string::npos ? version.length() : newPos) - hyphenPos;
+                m_extensions.emplace_back(std::string{ version.substr(hyphenPos, length) }, ".");
+
+                hyphenPos += length + 1;
+            }
+        }
+        else
+        {
+            Assign(std::string{ version }, ".");
+        }
 
         if (m_parts.size() > 3)
         {
@@ -18,8 +42,16 @@ namespace AppInstaller::Manifest
         {
             for (size_t i = 0; i < m_parts.size(); i++)
             {
-                if (!m_parts[i].Other.empty() &&
-                    (i < 2 || fullValidation))
+                if (!m_parts[i].Other.empty())
+                {
+                    validationSuccess = false;
+                    break;
+                }
+            }
+
+            for (const Version& ext : m_extensions)
+            {
+                if (ext.GetParts().empty() || ext.GetParts()[0].Integer != 0)
                 {
                     validationSuccess = false;
                     break;
@@ -30,13 +62,27 @@ namespace AppInstaller::Manifest
         if (!validationSuccess)
         {
             std::vector<ValidationError> errors;
-            errors.emplace_back(ManifestError::InvalidFieldValue, "ManifestVersion", m_version);
+            errors.emplace_back(ManifestError::InvalidFieldValue, "ManifestVersion", std::string{ version });
             THROW_EXCEPTION(ManifestException(std::move(errors)));
         }
     }
 
-    bool ManifestVer::HasTag() const
+    bool ManifestVer::HasExtension() const
     {
-        return m_parts.size() == 3 && !m_parts[2].Other.empty();
+        return !m_extensions.empty();
+    }
+
+    bool ManifestVer::HasExtension(std::string_view extension) const
+    {
+        for (const Version& ext : m_extensions)
+        {
+            const auto& parts = ext.GetParts();
+            if (!parts.empty() && parts[0].Integer == 0 && parts[0].Other == extension)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

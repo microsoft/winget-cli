@@ -18,13 +18,18 @@ namespace AppInstaller::Manifest
     {
         ManifestVer() = default;
 
-        ManifestVer(std::string version, bool fullValidation);
+        ManifestVer(std::string_view version);
 
         uint64_t Major() const { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }
         uint64_t Minor() const { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }
         uint64_t Patch() const { return m_parts.size() > 2 ? m_parts[2].Integer : 0; }
 
-        bool HasTag() const;
+        bool HasExtension() const;
+
+        bool HasExtension(std::string_view extension) const;
+
+    private:
+        std::vector<Version> m_extensions;
     };
 
     // Representation of the parsed manifest file.
@@ -67,6 +72,12 @@ namespace AppInstaller::Manifest
         std::vector<string_t> FileExtensions;
 
         ManifestInstaller::InstallerTypeEnum InstallerType = ManifestInstaller::InstallerTypeEnum::Unknown;
+
+        // Package family name for MSIX packaged installers.
+        string_t PackageFamilyName;
+
+        // Product code for ARP (Add/Remove Programs) installers.
+        string_t ProductCode;
 
         string_t Description;
 
