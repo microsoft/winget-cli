@@ -37,11 +37,11 @@ namespace AppInstaller::Repository::Microsoft
                 SourceReference(source), m_manifestId(manifestId) {}
 
             // Inherited via IPackageVersion
-            Utility::LocIndString GetProperty(PackageProperty property) const override
+            Utility::LocIndString GetProperty(PackageVersionProperty property) const override
             {
                 switch (property)
                 {
-                case PackageProperty::SourceId:
+                case PackageVersionProperty::SourceId:
                     return LocIndString{ GetSource()->GetIdentifier() };
                 default:
                     // Values coming from the index will always be localized/independent.
@@ -52,7 +52,7 @@ namespace AppInstaller::Repository::Microsoft
             std::optional<Manifest::Manifest> GetManifest() const override
             {
                 std::shared_ptr<const SQLiteIndexSource> source = GetSource();
-                std::optional<std::string> relativePathOpt = source->GetIndex().GetPropertyByManifestId(m_manifestId, PackageProperty::RelativePath);
+                std::optional<std::string> relativePathOpt = source->GetIndex().GetPropertyByManifestId(m_manifestId, PackageVersionProperty::RelativePath);
                 if (!relativePathOpt)
                 {
                     return {};

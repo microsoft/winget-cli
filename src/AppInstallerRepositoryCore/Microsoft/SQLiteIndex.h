@@ -91,7 +91,7 @@ namespace AppInstaller::Repository::Microsoft
         Schema::ISQLiteIndex::SearchResult Search(const SearchRequest& request) const;
 
         // Gets the string for the given property and manifest id, if present.
-        std::optional<std::string> GetPropertyByManifestId(IdType manifestId, PackageProperty property) const;
+        std::optional<std::string> GetPropertyByManifestId(IdType manifestId, PackageVersionProperty property) const;
 
         // Gets the manifest id for the given { id, version, channel }, if present.
         // If version is empty, gets the value for the 'latest' version.

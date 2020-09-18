@@ -432,7 +432,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return resultsTable->GetSearchResults(request.MaximumResults);
     }
 
-    std::optional<std::string> Interface::GetPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageProperty property) const
+    std::optional<std::string> Interface::GetPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const
     {
         if (!ManifestTable::ExistsById(connection, manifestId))
         {
@@ -442,15 +442,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         switch (property)
         {
-        case AppInstaller::Repository::PackageProperty::Id:
+        case AppInstaller::Repository::PackageVersionProperty::Id:
             return std::get<0>(ManifestTable::GetValuesById<IdTable>(connection, manifestId));
-        case AppInstaller::Repository::PackageProperty::Name:
+        case AppInstaller::Repository::PackageVersionProperty::Name:
             return std::get<0>(ManifestTable::GetValuesById<NameTable>(connection, manifestId));
-        case AppInstaller::Repository::PackageProperty::Version:
+        case AppInstaller::Repository::PackageVersionProperty::Version:
             return std::get<0>(ManifestTable::GetValuesById<VersionTable>(connection, manifestId));
-        case AppInstaller::Repository::PackageProperty::Channel:
+        case AppInstaller::Repository::PackageVersionProperty::Channel:
             return std::get<0>(ManifestTable::GetValuesById<ChannelTable>(connection, manifestId));
-        case AppInstaller::Repository::PackageProperty::RelativePath:
+        case AppInstaller::Repository::PackageVersionProperty::RelativePath:
             return PathPartTable::GetPathById(connection, std::get<0>(ManifestTable::GetIdsById<PathPartTable>(connection, manifestId)));
         default:
             return {};

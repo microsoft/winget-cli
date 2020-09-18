@@ -85,7 +85,7 @@ namespace AppInstaller::Repository
     };
 
     // A property of a package.
-    enum class PackageProperty
+    enum class PackageVersionProperty
     {
         Id,
         Name,
@@ -101,7 +101,7 @@ namespace AppInstaller::Repository
         virtual ~IPackageVersion() = default;
 
         // Gets a property of this package version.
-        virtual Utility::LocIndString GetProperty(PackageProperty property) const = 0;
+        virtual Utility::LocIndString GetProperty(PackageVersionProperty property) const = 0;
 
         // Gets the manifest of this package version.
         virtual std::optional<Manifest::Manifest> GetManifest() const = 0;

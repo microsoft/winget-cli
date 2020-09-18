@@ -213,7 +213,7 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->Search(m_dbconn, request);
     }
 
-    std::optional<std::string> SQLiteIndex::GetPropertyByManifestId(IdType manifestId, PackageProperty property) const
+    std::optional<std::string> SQLiteIndex::GetPropertyByManifestId(IdType manifestId, PackageVersionProperty property) const
     {
         return m_interface->GetPropertyByManifestId(m_dbconn, manifestId, property);
     }
