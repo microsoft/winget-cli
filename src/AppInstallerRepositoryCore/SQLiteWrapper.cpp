@@ -123,12 +123,12 @@ namespace AppInstaller::Repository::SQLite
         return sqlite3_last_insert_rowid(m_dbconn.get());
     }
 
-    int Connection::GetChanges()
+    int Connection::GetChanges() const
     {
         return sqlite3_changes(m_dbconn.get());
     }
 
-    Statement::Statement(Connection& connection, std::string_view sql)
+    Statement::Statement(const Connection& connection, std::string_view sql)
     {
         m_id = GetNextStatementId();
         AICLI_LOG(SQL, Verbose, << "Preparing statement #" << m_id << ": " << sql);
@@ -176,20 +176,20 @@ namespace AppInstaller::Repository::SQLite
 #define WINGET_SQLITE_EXPLAIN_QUERY_PLAN(_connection_,_sql_)
 #endif
 
-    Statement Statement::Create(Connection& connection, const std::string& sql)
+    Statement Statement::Create(const Connection& connection, const std::string& sql)
     {
         WINGET_SQLITE_EXPLAIN_QUERY_PLAN(connection, sql);
         return { connection, { sql.c_str(), sql.size() } };
     }
 
-    Statement Statement::Create(Connection& connection, std::string_view sql)
+    Statement Statement::Create(const Connection& connection, std::string_view sql)
     {
         WINGET_SQLITE_EXPLAIN_QUERY_PLAN(connection, sql);
         // We need the statement to be null terminated, and the only way to guarantee that with a string_view is to construct a string copy.
         return Create(connection, std::string(sql));
     }
 
-    Statement Statement::Create(Connection& connection, char const* const sql)
+    Statement Statement::Create(const Connection& connection, char const* const sql)
     {
         WINGET_SQLITE_EXPLAIN_QUERY_PLAN(connection, sql);
         return { connection, sql };

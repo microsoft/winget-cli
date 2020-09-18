@@ -22,7 +22,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         std::optional<std::string> OneToOneTableSelectValueById(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id);
 
         // Gets all row ids from the table.
-        std::vector<SQLite::rowid_t> OneToOneTableGetAllRowIds(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, size_t limit);
+        std::vector<SQLite::rowid_t> OneToOneTableGetAllRowIds(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, size_t limit);
 
         // Ensures that the values exists in the table.
         SQLite::rowid_t OneToOneTableEnsureExists(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool overwriteLikeMatch = false);
@@ -34,7 +34,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         void OneToOneTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndeces, bool preserveValuesIndex);
 
         // Gets the total number of rows in the table.
-        uint64_t OneToOneTableGetCount(SQLite::Connection& connection, std::string_view tableName);
+        uint64_t OneToOneTableGetCount(const SQLite::Connection& connection, std::string_view tableName);
 
         // Determines if the table is empty.
         bool OneToOneTableIsEmpty(SQLite::Connection& connection, std::string_view tableName);
@@ -93,7 +93,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Gets all row ids from the table.
-        static std::vector<SQLite::rowid_t> GetAllRowIds(SQLite::Connection& connection, size_t limit = 0)
+        static std::vector<SQLite::rowid_t> GetAllRowIds(const SQLite::Connection& connection, size_t limit = 0)
         {
             return details::OneToOneTableGetAllRowIds(connection, TableInfo::TableName(), TableInfo::ValueName(), limit);
         }
@@ -123,7 +123,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Gets the total number of rows in the table.
-        static uint64_t GetCount(SQLite::Connection& connection)
+        static uint64_t GetCount(const SQLite::Connection& connection)
         {
             return details::OneToOneTableGetCount(connection, TableInfo::TableName());
         }

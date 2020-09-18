@@ -21,19 +21,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Gets the requested ids for the manifest with the given rowid.
         SQLite::Statement ManifestTableGetIdsById_Statement(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             SQLite::rowid_t id,
             std::initializer_list<std::string_view> values);
 
         // Gets the requested values for the manifest with the given rowid.
         SQLite::Statement ManifestTableGetValuesById_Statement(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             SQLite::rowid_t id,
             std::initializer_list<SQLite::Builder::QualifiedColumn> columns);
 
         // Gets all values for rows that match the given ids.
         SQLite::Statement ManifestTableGetAllValuesByIds_Statement(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids);
@@ -88,6 +88,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Insert the given values into the table.
         static SQLite::rowid_t Insert(SQLite::Connection& connection, std::initializer_list<ManifestOneToOneValue> values);
 
+        // Gets a value indicating whether the manifest with rowid id exists.
+        static bool ExistsById(const SQLite::Connection& connection, SQLite::rowid_t id);
+
         // Select the first rowid of the manifest with the given value.
         template <typename... Tables>
         static std::optional<SQLite::rowid_t> SelectByValueIds(SQLite::Connection& connection, std::initializer_list<SQLite::rowid_t> ids)
@@ -98,14 +101,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Gets the ids requested for the manifest with the given rowid.
         template <typename... Tables>
-        static auto GetIdsById(SQLite::Connection& connection, SQLite::rowid_t id)
+        static auto GetIdsById(const SQLite::Connection& connection, SQLite::rowid_t id)
         {
             return details::ManifestTableGetIdsById_Statement(connection, id, { Tables::ValueName()... }).GetRow<Tables::id_t...>();
         }
 
         // Gets the values requested for the manifest with the given rowid.
         template <typename... Tables>
-        static auto GetValuesById(SQLite::Connection& connection, SQLite::rowid_t id)
+        static auto GetValuesById(const SQLite::Connection& connection, SQLite::rowid_t id)
         {
             return details::ManifestTableGetValuesById_Statement(connection, id, { SQLite::Builder::QualifiedColumn{ Tables::TableName(), Tables::ValueName() }... }).GetRow<Tables::value_t...>();
         }
@@ -119,7 +122,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Gets all values for rows that match the given id.
         template <typename IdTable, typename... ValueTables>
-        static std::vector<std::tuple<typename ValueTables::value_t...>> GetAllValuesById(SQLite::Connection& connection, SQLite::rowid_t id)
+        static std::vector<std::tuple<typename ValueTables::value_t...>> GetAllValuesById(const SQLite::Connection& connection, SQLite::rowid_t id)
         {
             auto stmt = details::ManifestTableGetAllValuesByIds_Statement(connection, { SQLite::Builder::QualifiedColumn{ ValueTables::TableName(), ValueTables::ValueName() }... }, { IdTable::ValueName() }, { id });
             std::vector<std::tuple<typename ValueTables::value_t...>> result;

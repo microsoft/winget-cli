@@ -528,7 +528,7 @@ namespace AppInstaller::Repository
             else
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, creating aggregated source.");
-                auto aggregatedSource = std::make_shared<AggregatedSource>();
+                auto aggregatedSource = std::make_shared<AggregatedSource>("*DefaultSource");
 
                 bool sourceUpdated = false;
                 for (auto& source : currentSources)
@@ -702,12 +702,12 @@ namespace AppInstaller::Repository
 
         for (const auto& include : Inclusions)
         {
-            result << " Inclusions:" << ApplicationMatchFieldToString(include.Field) << "='" << include.Value << "'[" << MatchTypeToString(include.Type) << "]";
+            result << " Inclusions:" << PackageMatchFieldToString(include.Field) << "='" << include.Value << "'[" << MatchTypeToString(include.Type) << "]";
         }
 
         for (const auto& filter : Filters)
         {
-            result << " Filter:" << ApplicationMatchFieldToString(filter.Field) << "='" << filter.Value << "'[" << MatchTypeToString(filter.Type) << "]";
+            result << " Filter:" << PackageMatchFieldToString(filter.Field) << "='" << filter.Value << "'[" << MatchTypeToString(filter.Type) << "]";
         }
 
         if (MaximumResults)

@@ -20,15 +20,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         std::pair<bool, SQLite::rowid_t> UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) override;
         SQLite::rowid_t RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) override;
         void PrepareForPackaging(SQLite::Connection& connection) override;
-        SearchResult Search(SQLite::Connection& connection, const SearchRequest& request) override;
-        std::optional<std::string> GetIdStringById(SQLite::Connection& connection, SQLite::rowid_t id) override;
-        std::optional<std::string> GetNameStringById(SQLite::Connection& connection, SQLite::rowid_t id) override;
-        std::optional<std::string> GetPathStringByKey(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel) override;
-        std::vector<Utility::VersionAndChannel> GetVersionsById(SQLite::Connection& connection, SQLite::rowid_t id) override;
+        SearchResult Search(const SQLite::Connection& connection, const SearchRequest& request) const override;
+        std::optional<std::string> GetPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageProperty property) const override;
+        std::optional<SQLite::rowid_t> GetManifestIdByKey(const SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel) const override;
+        std::vector<Utility::VersionAndChannel> GetVersionKeysById(const SQLite::Connection& connection, SQLite::rowid_t id) const override;
 
     protected:
         // Creates the search results table.
-        virtual std::unique_ptr<SearchResultsTable> CreateSearchResultsTable(SQLite::Connection& connection) const;
+        virtual std::unique_ptr<SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const;
 
         // Gets the ordering of matches to execute, with more specific matches coming first.
         virtual std::vector<MatchType> GetMatchTypeOrder(MatchType type) const;

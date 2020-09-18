@@ -9,7 +9,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
     // Table for holding temporary search results.
     struct SearchResultsTable : public V1_0::SearchResultsTable
     {
-        SearchResultsTable(SQLite::Connection& connection) : V1_0::SearchResultsTable(connection) {}
+        SearchResultsTable(const SQLite::Connection& connection) : V1_0::SearchResultsTable(connection) {}
 
         SearchResultsTable(const SearchResultsTable&) = delete;
         SearchResultsTable& operator=(const SearchResultsTable&) = delete;
@@ -20,7 +20,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
     protected:
         std::optional<int> BuildSearchStatement(
             SQLite::Builder::StatementBuilder& builder,
-            ApplicationMatchField field,
+            PackageMatchField field,
             std::string_view manifestAlias,
             std::string_view valueAlias,
             bool useLike) const override;

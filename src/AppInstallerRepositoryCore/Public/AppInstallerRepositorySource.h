@@ -58,7 +58,8 @@ namespace AppInstaller::Repository
 
         // Gets the source's identifier; a unique identifier independent of the name
         // that will not change between a remove/add or between additional adds.
-        // Must be suitable for filesystem names.
+        // Must be suitable for filesystem names unless the source is internal to winget,
+        // in which case the identifier should begin with a '*' character.
         virtual const std::string& GetIdentifier() const = 0;
 
         // Execute a search on the source.

@@ -92,6 +92,7 @@ namespace AppInstaller::Repository
         SourceId,
         Version,
         Channel,
+        RelativePath,
     };
 
     // A single package version.
@@ -109,6 +110,9 @@ namespace AppInstaller::Repository
     // A key to identify a package version within a package.
     struct PackageVersionKey
     {
+        PackageVersionKey(Utility::NormalizedString sourceId, Utility::NormalizedString version, Utility::NormalizedString channel) :
+            SourceId(std::move(sourceId)), Version(std::move(version)), Channel(std::move(channel)) {}
+
         // The source id that this version came from.
         Utility::NormalizedString SourceId;
 

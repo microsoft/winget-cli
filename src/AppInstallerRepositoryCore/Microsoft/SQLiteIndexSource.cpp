@@ -39,14 +39,20 @@ namespace AppInstaller::Repository::Microsoft
             // Inherited via IPackageVersion
             Utility::LocIndString GetProperty(PackageProperty property) const override
             {
-                // Values coming from the index will always be localized/independent.
-                return LocIndString{ GetSource()->GetIndex().GetPropertyByManifestId(m_manifestId, property).value() };
+                switch (property)
+                {
+                case PackageProperty::SourceId:
+                    return LocIndString{ GetSource()->GetIdentifier() };
+                default:
+                    // Values coming from the index will always be localized/independent.
+                    return LocIndString{ GetSource()->GetIndex().GetPropertyByManifestId(m_manifestId, property).value() };
+                }
             }
 
             std::optional<Manifest::Manifest> GetManifest() const override
             {
                 std::shared_ptr<const SQLiteIndexSource> source = GetSource();
-                std::optional<std::string> relativePathOpt = source->GetIndex().GetPathStringByManifestId(m_manifestId);
+                std::optional<std::string> relativePathOpt = source->GetIndex().GetPropertyByManifestId(m_manifestId, PackageProperty::RelativePath);
                 if (!relativePathOpt)
                 {
                     return {};
@@ -109,19 +115,19 @@ namespace AppInstaller::Repository::Microsoft
                 std::vector<PackageVersionKey> result;
                 for (const auto& vac : versions)
                 {
-                    result.emplace_back(source->GetIdentifier(), vac.GetVersion(), vac.GetChannel());
+                    result.emplace_back(source->GetIdentifier(), vac.GetVersion().ToString(), vac.GetChannel().ToString());
                 }
                 return result;
             }
 
             std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
             {
-                std::shared_ptr<const SQLiteIndexSource> source = GetSource();
-                std::vector<SQLiteIndex::IdType> manifestIds = source->GetIndex().GetVersionIdsById(m_idId);
+                // Although we could potentially increase efficiency here, this should be fine.
+                std::vector<PackageVersionKey> versions = GetAvailableVersionKeys();
 
-                if (!manifestIds.empty())
+                if (!versions.empty())
                 {
-                    return std::make_shared<PackageVersion>(source, manifestIds[0]);
+                    return GetAvailableVersion(versions[0]);
                 }
 
                 return {};
@@ -131,7 +137,7 @@ namespace AppInstaller::Repository::Microsoft
             {
                 std::shared_ptr<const SQLiteIndexSource> source = GetSource();
                 THROW_HR_IF(E_INVALIDARG, !versionKey.SourceId.empty() && versionKey.SourceId != source->GetIdentifier());
-                std::optional<SQLiteIndex::IdType> manifestId = source->GetIndex().GetVersionIdByKey(m_idId, versionKey.Version, versionKey.Channel);
+                std::optional<SQLiteIndex::IdType> manifestId = source->GetIndex().GetManifestIdByKey(m_idId, versionKey.Version, versionKey.Channel);
 
                 if (manifestId)
                 {
@@ -169,7 +175,7 @@ namespace AppInstaller::Repository::Microsoft
         std::shared_ptr<const SQLiteIndexSource> sharedThis = shared_from_this();
         for (auto& indexResult : indexResults.Matches)
         {
-            result.Matches.emplace_back(std::make_unique<Application>(sharedThis, indexResult.first), std::move(indexResult.second));
+            result.Matches.emplace_back(std::make_unique<Package>(sharedThis, indexResult.first), std::move(indexResult.second));
         }
         result.Truncated = indexResults.Truncated;
         return result;

@@ -17,10 +17,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         std::pair<bool, SQLite::rowid_t> UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) override;
         SQLite::rowid_t RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) override;
         void PrepareForPackaging(SQLite::Connection& connection) override;
-        SearchResult Search(SQLite::Connection& connection, const SearchRequest& request) override;
+        SearchResult Search(const SQLite::Connection& connection, const SearchRequest& request) const override;
 
     protected:
-        std::unique_ptr<V1_0::SearchResultsTable> CreateSearchResultsTable(SQLite::Connection& connection) const override;
+        std::unique_ptr<V1_0::SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const override;
         void PerformQuerySearch(V1_0::SearchResultsTable& resultsTable, const RequestMatch& query) const override;
     };
 }

@@ -713,7 +713,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
-    Statement StatementBuilder::Prepare(Connection& connection)
+    Statement StatementBuilder::Prepare(const Connection& connection)
     {
         Statement result = Statement::Create(connection, m_stream.str());
         for (const auto& f : m_binders)
@@ -723,7 +723,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         return result;
     }
 
-    void StatementBuilder::Execute(Connection& connection)
+    void StatementBuilder::Execute(const Connection& connection)
     {
         Prepare(connection).Execute();
     }

@@ -13,16 +13,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 {
     std::optional<int> SearchResultsTable::BuildSearchStatement(
         SQLite::Builder::StatementBuilder& builder,
-        ApplicationMatchField field,
+        PackageMatchField field,
         std::string_view manifestAlias,
         std::string_view valueAlias,
         bool useLike) const
     {
         switch (field)
         {
-        case ApplicationMatchField::PackageFamilyName:
+        case PackageMatchField::PackageFamilyName:
             return V1_0::ManifestTable::BuildSearchStatement<PackageFamilyNameTable>(builder, manifestAlias, valueAlias, useLike);
-        case ApplicationMatchField::ProductCode:
+        case PackageMatchField::ProductCode:
             return V1_0::ManifestTable::BuildSearchStatement<ProductCodeTable>(builder, manifestAlias, valueAlias, useLike);
         default:
             return V1_0::SearchResultsTable::BuildSearchStatement(builder, field, manifestAlias, valueAlias, useLike);

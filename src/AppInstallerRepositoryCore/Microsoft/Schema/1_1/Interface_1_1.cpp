@@ -173,14 +173,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         builder.Execute(connection);
     }
 
-    ISQLiteIndex::SearchResult Interface::Search(SQLite::Connection& connection, const SearchRequest& request)
+    ISQLiteIndex::SearchResult Interface::Search(const SQLite::Connection& connection, const SearchRequest& request) const
     {
         // Update any system reference strings to be folded
         SearchRequest foldedRequest = request;
 
-        auto foldIfNeeded = [](ApplicationMatchFilter& filter)
+        auto foldIfNeeded = [](PackageMatchFilter& filter)
         {
-            if ((filter.Field == ApplicationMatchField::PackageFamilyName || filter.Field == ApplicationMatchField::ProductCode) &&
+            if ((filter.Field == PackageMatchField::PackageFamilyName || filter.Field == PackageMatchField::ProductCode) &&
                 filter.Type == MatchType::Exact)
             {
                 filter.Value = Utility::FoldCase(filter.Value);
@@ -200,7 +200,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         return V1_0::Interface::Search(connection, foldedRequest);
     }
 
-    std::unique_ptr<V1_0::SearchResultsTable> Interface::CreateSearchResultsTable(SQLite::Connection& connection) const
+    std::unique_ptr<V1_0::SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
     {
         return std::make_unique<SearchResultsTable>(connection);
     }
@@ -210,8 +210,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         // First, do an exact match search for the folded system reference strings
         // We do this first because it is exact, and likely won't match anything else if it matches this.
         std::string foldedQuery = Utility::FoldCase(query.Value);
-        resultsTable.SearchOnField(ApplicationMatchField::PackageFamilyName, MatchType::Exact, foldedQuery);
-        resultsTable.SearchOnField(ApplicationMatchField::ProductCode, MatchType::Exact, foldedQuery);
+        resultsTable.SearchOnField(PackageMatchField::PackageFamilyName, MatchType::Exact, foldedQuery);
+        resultsTable.SearchOnField(PackageMatchField::ProductCode, MatchType::Exact, foldedQuery);
 
         // Then do the 1.0 search
         V1_0::Interface::PerformQuerySearch(resultsTable, query);
