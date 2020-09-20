@@ -104,7 +104,7 @@ namespace AppInstaller::Repository
         virtual Utility::LocIndString GetProperty(PackageVersionProperty property) const = 0;
 
         // Gets the manifest of this package version.
-        virtual std::optional<Manifest::Manifest> GetManifest() const = 0;
+        virtual Manifest::Manifest GetManifest() const = 0;
     };
 
     // A key to identify a package version within a package.

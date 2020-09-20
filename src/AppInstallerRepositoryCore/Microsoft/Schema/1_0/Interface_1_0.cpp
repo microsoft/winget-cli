@@ -58,7 +58,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Gets a manifest id by the given key values.
-        std::optional<SQLite::rowid_t> GetManifestIdByKey(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version = "", std::string_view channel = "")
+        std::optional<SQLite::rowid_t> StaticGetManifestIdByKey(const SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version = "", std::string_view channel = "")
         {
             std::optional<SQLite::rowid_t> channelIdOpt = ChannelTable::SelectIdByValue(connection, channel, true);
             if (!channelIdOpt && !channel.empty())
@@ -459,7 +459,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     std::optional<SQLite::rowid_t> Interface::GetManifestIdByKey(const SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel) const
     {
-        return GetManifestIdByKey(connection, id, version, channel);
+        return StaticGetManifestIdByKey(connection, id, version, channel);
     }
 
     std::vector<Utility::VersionAndChannel> Interface::GetVersionKeysById(const SQLite::Connection& connection, SQLite::rowid_t id) const

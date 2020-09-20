@@ -126,21 +126,27 @@ namespace
             return m_details;
         }
 
-        SearchResult Search(const SearchRequest& request) override
+        const std::string& GetIdentifier() const override
+        {
+            return m_identifier;
+        }
+
+        SearchResult Search(const SearchRequest& request) const override
         {
             UNREFERENCED_PARAMETER(request);
 
             SearchResult result;
-            ApplicationMatchFilter testMatchFilter1{ ApplicationMatchField::Id, MatchType::Exact, "test" };
-            ApplicationMatchFilter testMatchFilter2{ ApplicationMatchField::Name, MatchType::Exact, "test" };
-            ApplicationMatchFilter testMatchFilter3{ ApplicationMatchField::Id, MatchType::CaseInsensitive, "test" };
-            result.Matches.emplace_back(std::unique_ptr<IApplication>(), testMatchFilter1);
-            result.Matches.emplace_back(std::unique_ptr<IApplication>(), testMatchFilter2);
-            result.Matches.emplace_back(std::unique_ptr<IApplication>(), testMatchFilter3);
+            PackageMatchFilter testMatchFilter1{ PackageMatchField::Id, MatchType::Exact, "test" };
+            PackageMatchFilter testMatchFilter2{ PackageMatchField::Name, MatchType::Exact, "test" };
+            PackageMatchFilter testMatchFilter3{ PackageMatchField::Id, MatchType::CaseInsensitive, "test" };
+            result.Matches.emplace_back(std::unique_ptr<IPackage>(), testMatchFilter1);
+            result.Matches.emplace_back(std::unique_ptr<IPackage>(), testMatchFilter2);
+            result.Matches.emplace_back(std::unique_ptr<IPackage>(), testMatchFilter3);
             return result;
         }
 
         SourceDetails m_details;
+        std::string m_identifier = "*TestSource";
     };
 
     // Helper that allows some lambdas to be wrapped into a source factory.
@@ -591,12 +597,12 @@ TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
     REQUIRE(result.Matches.size() == 6);
     REQUIRE_FALSE(result.Truncated);
     // matches are sorted in expected order
-    REQUIRE((result.Matches[0].MatchCriteria.Type == MatchType::Exact && result.Matches[0].MatchCriteria.Field == ApplicationMatchField::Id));
-    REQUIRE((result.Matches[1].MatchCriteria.Type == MatchType::Exact && result.Matches[1].MatchCriteria.Field == ApplicationMatchField::Id));
-    REQUIRE((result.Matches[2].MatchCriteria.Type == MatchType::Exact && result.Matches[2].MatchCriteria.Field == ApplicationMatchField::Name));
-    REQUIRE((result.Matches[3].MatchCriteria.Type == MatchType::Exact && result.Matches[3].MatchCriteria.Field == ApplicationMatchField::Name));
-    REQUIRE((result.Matches[4].MatchCriteria.Type == MatchType::CaseInsensitive && result.Matches[4].MatchCriteria.Field == ApplicationMatchField::Id));
-    REQUIRE((result.Matches[5].MatchCriteria.Type == MatchType::CaseInsensitive && result.Matches[5].MatchCriteria.Field == ApplicationMatchField::Id));
+    REQUIRE((result.Matches[0].MatchCriteria.Type == MatchType::Exact && result.Matches[0].MatchCriteria.Field == PackageMatchField::Id));
+    REQUIRE((result.Matches[1].MatchCriteria.Type == MatchType::Exact && result.Matches[1].MatchCriteria.Field == PackageMatchField::Id));
+    REQUIRE((result.Matches[2].MatchCriteria.Type == MatchType::Exact && result.Matches[2].MatchCriteria.Field == PackageMatchField::Name));
+    REQUIRE((result.Matches[3].MatchCriteria.Type == MatchType::Exact && result.Matches[3].MatchCriteria.Field == PackageMatchField::Name));
+    REQUIRE((result.Matches[4].MatchCriteria.Type == MatchType::CaseInsensitive && result.Matches[4].MatchCriteria.Field == PackageMatchField::Id));
+    REQUIRE((result.Matches[5].MatchCriteria.Type == MatchType::CaseInsensitive && result.Matches[5].MatchCriteria.Field == PackageMatchField::Id));
 
     // when truncate required
     request.MaximumResults = 3;
@@ -604,7 +610,7 @@ TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
     REQUIRE(result.Matches.size() == 3);
     REQUIRE(result.Truncated);
     // matches are sorted in expected order
-    REQUIRE((result.Matches[0].MatchCriteria.Type == MatchType::Exact && result.Matches[0].MatchCriteria.Field == ApplicationMatchField::Id));
-    REQUIRE((result.Matches[1].MatchCriteria.Type == MatchType::Exact && result.Matches[1].MatchCriteria.Field == ApplicationMatchField::Id));
-    REQUIRE((result.Matches[2].MatchCriteria.Type == MatchType::Exact && result.Matches[2].MatchCriteria.Field == ApplicationMatchField::Name));
+    REQUIRE((result.Matches[0].MatchCriteria.Type == MatchType::Exact && result.Matches[0].MatchCriteria.Field == PackageMatchField::Id));
+    REQUIRE((result.Matches[1].MatchCriteria.Type == MatchType::Exact && result.Matches[1].MatchCriteria.Field == PackageMatchField::Id));
+    REQUIRE((result.Matches[2].MatchCriteria.Type == MatchType::Exact && result.Matches[2].MatchCriteria.Field == PackageMatchField::Name));
 }

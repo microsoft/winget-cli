@@ -16,7 +16,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     namespace details
     {
         std::optional<SQLite::rowid_t> ManifestTableSelectByValueIds(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             std::initializer_list<std::string_view> values,
             std::initializer_list<SQLite::rowid_t> ids)
         {
@@ -150,7 +150,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         std::vector<std::string> ManifestTableGetAllValuesByIds(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids)

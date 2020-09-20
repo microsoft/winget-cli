@@ -15,7 +15,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
         // Selects a manifest by the given value id.
         std::optional<SQLite::rowid_t> ManifestTableSelectByValueIds(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             std::initializer_list<std::string_view> values,
             std::initializer_list<SQLite::rowid_t> ids);
 
@@ -40,7 +40,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Gets all values for rows that match the given ids.
         std::vector<std::string> ManifestTableGetAllValuesByIds(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids);
@@ -93,7 +93,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Select the first rowid of the manifest with the given value.
         template <typename... Tables>
-        static std::optional<SQLite::rowid_t> SelectByValueIds(SQLite::Connection& connection, std::initializer_list<SQLite::rowid_t> ids)
+        static std::optional<SQLite::rowid_t> SelectByValueIds(const SQLite::Connection& connection, std::initializer_list<SQLite::rowid_t> ids)
         {
             static_assert(sizeof...(Tables) >= 1);
             return details::ManifestTableSelectByValueIds(connection, { Tables::ValueName()... }, ids);
@@ -115,7 +115,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Gets the values for rows that match the given ids.
         template <typename ValueTable, typename... IdTables>
-        static std::vector<typename ValueTable::value_t> GetAllValuesByIds(SQLite::Connection& connection, std::initializer_list<SQLite::rowid_t> ids)
+        static std::vector<typename ValueTable::value_t> GetAllValuesByIds(const SQLite::Connection& connection, std::initializer_list<SQLite::rowid_t> ids)
         {
             return details::ManifestTableGetAllValuesByIds(connection, { SQLite::Builder::QualifiedColumn{ ValueTable::TableName(), ValueTable::ValueName() } }, { IdTables::ValueName()... }, ids);
         }

@@ -36,36 +36,71 @@ namespace
 {
     struct TestSource : public ISource
     {
-        struct TestApplication : public IApplication
+        struct TestPackageVersion : public IPackageVersion
         {
-            TestApplication(const Manifest manifest) : m_manifest(manifest) {}
+            TestPackageVersion(const Manifest& manifest) : m_manifest(manifest) {}
 
-            std::optional<Manifest> GetManifest(const NormalizedString&, const NormalizedString&) override
+            LocIndString GetProperty(PackageVersionProperty property) const override
+            {
+                switch (property)
+                {
+                case PackageVersionProperty::Id:
+                    return LocIndString{ m_manifest.Id };
+                case PackageVersionProperty::Name:
+                    return LocIndString{ m_manifest.Name };
+                case PackageVersionProperty::Version:
+                    return LocIndString{ m_manifest.Version };
+                case PackageVersionProperty::Channel:
+                    return LocIndString{ m_manifest.Channel };
+                default:
+                    return {};
+                }
+            }
+
+            Manifest GetManifest() const override
             {
                 return m_manifest;
-            }
-
-            LocIndString GetId() override
-            {
-                return LocIndString{ m_manifest.Id };
-            }
-
-            LocIndString GetName() override
-            {
-                return LocIndString{ m_manifest.Name };
-            }
-
-            std::vector<VersionAndChannel> GetVersions() override
-            {
-                std::vector<VersionAndChannel> result;
-                result.emplace_back(Version(m_manifest.Version), Channel(m_manifest.Channel));
-                return result;
             }
 
             Manifest m_manifest;
         };
 
-        SearchResult Search(const SearchRequest& request) override
+        struct TestPackage : public IPackage
+        {
+            TestPackage(const Manifest& manifest) : m_manifest(manifest) {}
+
+            std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
+            {
+                return {};
+            }
+
+            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
+            {
+                return { { "", m_manifest.Version, m_manifest.Channel } };
+            }
+
+            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
+            {
+                return std::make_shared<TestPackageVersion>(m_manifest);
+            }
+
+            std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override
+            {
+                if ((versionKey.Version.empty() || versionKey.Version == m_manifest.Version) &&
+                    (versionKey.Channel.empty() || versionKey.Channel == m_manifest.Channel))
+                {
+                    return std::make_shared<TestPackageVersion>(m_manifest);
+                }
+                else
+                {
+                    return {};
+                }
+            }
+
+            Manifest m_manifest;
+        };
+
+        SearchResult Search(const SearchRequest& request) const override
         {
             SearchResult result;
 
@@ -85,28 +120,30 @@ namespace
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        std::make_unique<TestApplication>(manifest),
-                        ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, "TestQueryReturnOne")));
+                        std::make_unique<TestPackage>(manifest),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnOne")));
             }
             else if (input == "TestQueryReturnTwo")
             {
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        std::make_unique<TestApplication>(manifest),
-                        ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
+                        std::make_unique<TestPackage>(manifest),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
 
                 auto manifest2 = YamlParser::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        std::make_unique<TestApplication>(manifest2),
-                        ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
+                        std::make_unique<TestPackage>(manifest2),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
             }
 
             return result;
         }
 
         const SourceDetails& GetDetails() const override { THROW_HR(E_NOTIMPL); }
+
+        const std::string& GetIdentifier() const override { THROW_HR(E_NOTIMPL); }
     };
 
     struct TestContext;

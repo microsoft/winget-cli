@@ -49,14 +49,11 @@ namespace AppInstaller::Repository::Microsoft
                 }
             }
 
-            std::optional<Manifest::Manifest> GetManifest() const override
+            Manifest::Manifest GetManifest() const override
             {
                 std::shared_ptr<const SQLiteIndexSource> source = GetSource();
                 std::optional<std::string> relativePathOpt = source->GetIndex().GetPropertyByManifestId(m_manifestId, PackageVersionProperty::RelativePath);
-                if (!relativePathOpt)
-                {
-                    return {};
-                }
+                THROW_HR_IF(E_NOT_SET, !relativePathOpt);
                 return GetManifestFromArgAndRelativePath(source->GetDetails().Arg, relativePathOpt.value());
             }
 

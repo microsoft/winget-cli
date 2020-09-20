@@ -16,7 +16,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool useNamedIndeces);
 
         // Selects the value from the table, returning the rowid if it exists.
-        std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool useLike = false);
+        std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool useLike = false);
 
         // Selects the value from the table, returning the rowid if it exists.
         std::optional<std::string> OneToOneTableSelectValueById(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id);
@@ -81,7 +81,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Selects the value from the table, returning the rowid if it exists.
-        static std::optional<SQLite::rowid_t> SelectIdByValue(SQLite::Connection& connection, std::string_view value, bool useLike = false)
+        static std::optional<SQLite::rowid_t> SelectIdByValue(const SQLite::Connection& connection, std::string_view value, bool useLike = false)
         {
             return details::OneToOneTableSelectIdByValue(connection, TableInfo::TableName(), TableInfo::ValueName(), value, useLike);
         }

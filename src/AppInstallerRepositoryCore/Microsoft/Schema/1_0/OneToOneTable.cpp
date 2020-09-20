@@ -49,7 +49,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
         }
 
-        std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool useLike)
+        std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool useLike)
         {
             SQLite::Builder::StatementBuilder selectBuilder;
             selectBuilder.Select(SQLite::RowIDName).From(tableName).Where(valueName);

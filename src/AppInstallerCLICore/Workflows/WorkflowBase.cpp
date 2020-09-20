@@ -16,9 +16,9 @@ namespace AppInstaller::CLI::Workflow
     {
         std::string GetMatchCriteriaDescriptor(const ResultMatch& match)
         {
-            if (match.MatchCriteria.Field != ApplicationMatchField::Id && match.MatchCriteria.Field != ApplicationMatchField::Name)
+            if (match.MatchCriteria.Field != PackageMatchField::Id && match.MatchCriteria.Field != PackageMatchField::Name)
             {
-                std::string result{ ApplicationMatchFieldToString(match.MatchCriteria.Field) };
+                std::string result{ PackageMatchFieldToString(match.MatchCriteria.Field) };
                 result += ": ";
                 result += match.MatchCriteria.Value;
                 return result;
@@ -40,27 +40,27 @@ namespace AppInstaller::CLI::Workflow
 
             if (args.Contains(Execution::Args::Type::Id))
             {
-                searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, args.GetArg(Execution::Args::Type::Id)));
+                searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, matchType, args.GetArg(Execution::Args::Type::Id)));
             }
 
             if (args.Contains(Execution::Args::Type::Name))
             {
-                searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, args.GetArg(Execution::Args::Type::Name)));
+                searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Name, matchType, args.GetArg(Execution::Args::Type::Name)));
             }
 
             if (args.Contains(Execution::Args::Type::Moniker))
             {
-                searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, args.GetArg(Execution::Args::Type::Moniker)));
+                searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Moniker, matchType, args.GetArg(Execution::Args::Type::Moniker)));
             }
 
             if (args.Contains(Execution::Args::Type::Tag))
             {
-                searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Tag, matchType, args.GetArg(Execution::Args::Type::Tag)));
+                searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Tag, matchType, args.GetArg(Execution::Args::Type::Tag)));
             }
 
             if (args.Contains(Execution::Args::Type::Command))
             {
-                searchRequest.Filters.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Command, matchType, args.GetArg(Execution::Args::Type::Command)));
+                searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Command, matchType, args.GetArg(Execution::Args::Type::Command)));
             }
 
             if (args.Contains(Execution::Args::Type::Count))
@@ -184,9 +184,9 @@ namespace AppInstaller::CLI::Workflow
         if (args.Contains(Execution::Args::Type::Query))
         {
             std::string_view query = args.GetArg(Execution::Args::Type::Query);
-            searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, query));
-            searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, query));
-            searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, query));
+            searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, matchType, query));
+            searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Name, matchType, query));
+            searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Moniker, matchType, query));
         }
 
         SearchSourceApplyFilters(context, searchRequest, matchType);
@@ -224,9 +224,9 @@ namespace AppInstaller::CLI::Workflow
 
         SearchRequest searchRequest;
         std::string_view query = context.Get<Execution::Data::CompletionData>().Word();
-        searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Id, matchType, query));
-        searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Name, matchType, query));
-        searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(ApplicationMatchField::Moniker, matchType, query));
+        searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, matchType, query));
+        searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Name, matchType, query));
+        searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Moniker, matchType, query));
 
         SearchSourceApplyFilters(context, searchRequest, matchType);
 
@@ -238,7 +238,7 @@ namespace AppInstaller::CLI::Workflow
         const std::string& word = context.Get<Execution::Data::CompletionData>().Word();
 
         SearchRequest searchRequest;
-        searchRequest.Inclusions.emplace_back(ApplicationMatchFilter(m_field, MatchType::StartsWith, word));
+        searchRequest.Inclusions.emplace_back(PackageMatchFilter(m_field, MatchType::StartsWith, word));
 
         // If filters are provided, be generous with the search no matter the intended result.
         SearchSourceApplyFilters(context, searchRequest, MatchType::Substring);
@@ -255,10 +255,15 @@ namespace AppInstaller::CLI::Workflow
 
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
-            auto app = searchResult.Matches[i].Application.get();
-            auto allVersions = app->GetVersions();
+            auto latestVersion = searchResult.Matches[i].Package->GetLatestAvailableVersion();
 
-            table.OutputLine({ app->GetName(), app->GetId(), allVersions.at(0).GetVersion().ToString(), GetMatchCriteriaDescriptor(searchResult.Matches[i]), searchResult.Matches[i].SourceName });
+            table.OutputLine({
+                latestVersion->GetProperty(PackageVersionProperty::Name),
+                latestVersion->GetProperty(PackageVersionProperty::Id),
+                latestVersion->GetProperty(PackageVersionProperty::Version),
+                GetMatchCriteriaDescriptor(searchResult.Matches[i]),
+                searchResult.Matches[i].SourceName
+            });
         }
 
         table.Complete();
@@ -297,19 +302,24 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
             }
 
-            auto app = searchResult.Matches.at(0).Application.get();
-            Logging::Telemetry().LogAppFound(app->GetName(), app->GetId());
+            auto latestVersion = searchResult.Matches.at(0).Package->GetLatestAvailableVersion();
+            Logging::Telemetry().LogAppFound(latestVersion->GetProperty(PackageVersionProperty::Name), latestVersion->GetProperty(PackageVersionProperty::Id));
         };
     }
 
     void GetManifestFromSearchResult(Execution::Context& context)
     {
-        auto app = context.Get<Execution::Data::SearchResult>().Matches.at(0).Application.get();
-
         std::string_view version = context.Args.GetArg(Execution::Args::Type::Version);
         std::string_view channel = context.Args.GetArg(Execution::Args::Type::Channel);
 
-        std::optional<Manifest::Manifest> manifest = app->GetManifest(version, channel);
+        PackageVersionKey key("", version, channel);
+        auto requestedVersion = context.Get<Execution::Data::SearchResult>().Matches.at(0).Package->GetAvailableVersion(key);
+
+        std::optional<Manifest::Manifest> manifest;
+        if (requestedVersion)
+        {
+            manifest = requestedVersion->GetManifest();
+        }
 
         if (!manifest)
         {
@@ -362,8 +372,8 @@ namespace AppInstaller::CLI::Workflow
 
     void ReportSearchResultIdentity(Execution::Context& context)
     {
-        auto app = context.Get<Execution::Data::SearchResult>().Matches.at(0).Application.get();
-        ReportIdentity(context, app->GetName(), app->GetId());
+        auto latestVersion = context.Get<Execution::Data::SearchResult>().Matches.at(0).Package->GetLatestAvailableVersion();
+        ReportIdentity(context, latestVersion->GetProperty(PackageVersionProperty::Name), latestVersion->GetProperty(PackageVersionProperty::Id));
     }
 
     void ReportManifestIdentity(Execution::Context& context)
