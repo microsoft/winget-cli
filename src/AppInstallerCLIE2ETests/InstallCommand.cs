@@ -117,7 +117,6 @@ namespace AppInstallerCLIE2ETests
         //[Test]
         public void InstallTestMSI()
         {
-            // Install test msi
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"TestMsiInstaller --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
@@ -125,10 +124,11 @@ namespace AppInstallerCLIE2ETests
             Assert.True(VerifyTestMsiInstalledAndCleanup(installDir));
         }
 
-        //[Test]
+        
+
+        [Test]
         public void InstallTestMSIX()
         {
-            // Install test msix
             var result = TestCommon.RunAICLICommand("install", $"TestMsixInstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
@@ -138,31 +138,20 @@ namespace AppInstallerCLIE2ETests
         //[Test]
         public void InstallTestMSIXWithSignature()
         {
-            // Install test msix with signature provided
-            var result = TestCommon.RunAICLICommand("install", $"TestMsixWithSignatureHash");
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"TestMsixWithSignatureHash --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             Assert.True(VerifyTestMsixInstalledAndCleanup());
         }
 
-        //[Test]
-        public void InstallTestMSIXWithSignatureHashMismatchPassNToFail()
+        [Test]
+        public void InstallTestMSIXWithSignatureHashMismatch()
         {
-            // Install test msix with signature hash mismatch, passing N should cause the installation to fail
-            var result = TestCommon.RunAICLICommand("install", $"TestMsixSignatureHashMismatch", "N");
+            var result = TestCommon.RunAICLICommand("install", $"TestMsixSignatureHashMismatch");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALLER_HASH_MISMATCH, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Installer hash mismatch"));
+            Assert.True(result.StdOut.Contains("Installer hash does not match"));
             Assert.False(VerifyTestMsixInstalledAndCleanup());
-        }
-
-       // [Test]
-        public void InstallTestMSIXWithSignatureHashMismatchPassYToContinue()
-        {
-            // Install test msix with signature hash mismatch, passing Y should cause the installation to continue
-            var result = TestCommon.RunAICLICommand("install", $"TestMsixSignatureHashMismatch", "Y");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestMsixInstalledAndCleanup());
         }
 
         private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)

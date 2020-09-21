@@ -50,6 +50,8 @@ namespace LocalhostWebServer
             provider.Mappings[".msix"] = "application/msix";
             provider.Mappings[".exe"] = "application/x-msdownload";
             provider.Mappings[".msi"] = "application/msi";
+            provider.Mappings[".appx"] = "application/vns.ms-appx";
+            provider.Mappings[".appxbundle"] = "application/vns.ms-appx";
 
 
             //Enable static file serving

@@ -12,13 +12,12 @@ namespace AppInstallerCLIE2ETests
         private const string TestDataName = "TestData";
         private const string ManifestsName = "Manifests";
         private const string PackageName = "Package";
-        private const string IndexName = @"index.db";
         private const string PublicName = "Public";
 
         /// <summary>
         /// Generates the Local Test Index to be served by the Localhost Web Server.
         /// 1. Copies TestData to a StaticFileRootPath set in Test.runsettings
-        /// 2. Copies and signs installer Files 
+        /// 2. Copies and signs installer files (EXE or MSIX)
         /// 3. Hashes installer Files
         /// 4. Replaces manifests with corresponding hash values
         /// 5. Generates a source package for TestData using makeappx/signtool
@@ -27,7 +26,15 @@ namespace AppInstallerCLIE2ETests
         {
             SetupLocalTestDirectory(TestCommon.StaticFileRootPath);
 
-            CopyInstallersToLocalTestDirectory();
+            if (!string.IsNullOrEmpty(TestCommon.ExeInstallerPath))
+            {
+                CopyExeInstallerToTestDirectory();
+            }
+
+            if (!string.IsNullOrEmpty(TestCommon.MsixInstallerPath))
+            {
+                CopyMsixInstallerToTestDirectory();
+            }
 
             TestHashHelper.HashInstallers();
 
@@ -75,22 +82,34 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
-        private static void CopyInstallersToLocalTestDirectory()
+        private static void CopyExeInstallerToTestDirectory()
         {
-            // Set Installer Destination Path
+            // Set Exe Test Installer Path
             string exeInstallerDestPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.ExeInstaller);
             DirectoryInfo exeInstallerDestDir = Directory.CreateDirectory(exeInstallerDestPath);
             string exeInstallerFullName = Path.Combine(exeInstallerDestDir.FullName, "AppInstallerTestExeInstaller.exe");
 
-            // Copy Installer to Destination Path
+            // Copy Exe Test Installer to Destination Path
             File.Copy(TestCommon.ExeInstallerPath, exeInstallerFullName, true);
             TestCommon.ExeInstallerPath = exeInstallerFullName;
 
             // Sign Installer File
             string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
-
             string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
             RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {exeInstallerFullName}");
+        }
+
+        private static void CopyMsixInstallerToTestDirectory()
+        {
+            // Set Msix Test Installer Path
+            string msixInstallerDestPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.MsixInstaller);
+            DirectoryInfo msixInstallerDestDir = Directory.CreateDirectory(msixInstallerDestPath);
+
+            // Copy Msix Test Installer to Destination Path
+            string msixInstallerFullName = Path.Combine(msixInstallerDestDir.FullName, "AppInstallerTestMsixInstaller.msix");
+
+            File.Copy(TestCommon.MsixInstallerPath, msixInstallerFullName, true);
+            TestCommon.MsixInstallerPath = msixInstallerFullName;
         }
 
         private static void SetupLocalTestDirectory(string staticFileRootPath)
