@@ -189,7 +189,7 @@ namespace AppInstallerCLIE2ETests
             }
 
             if (TestContext.Parameters.Exists(Constants.MsixInstallerPathParameter)
-                && File.Exists(TestContext.Parameters.Get(Constants.ExeInstallerPathParameter)))
+                && File.Exists(TestContext.Parameters.Get(Constants.MsixInstallerPathParameter)))
             {
                 TestCommon.MsixInstallerPath = TestContext.Parameters.Get(Constants.MsixInstallerPathParameter);
             }
