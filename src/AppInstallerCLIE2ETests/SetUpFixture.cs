@@ -176,17 +176,20 @@ namespace AppInstallerCLIE2ETests
 
         private void ReadTestInstallerPaths()
         {
-            if (TestContext.Parameters.Exists(Constants.ExeInstallerPathParameter))
+            if (TestContext.Parameters.Exists(Constants.ExeInstallerPathParameter) 
+                && File.Exists(TestContext.Parameters.Get(Constants.ExeInstallerPathParameter)))
             {
                 TestCommon.ExeInstallerPath = TestContext.Parameters.Get(Constants.ExeInstallerPathParameter);
             }
 
-            if (TestContext.Parameters.Exists(Constants.MsiInstallerPathParameter))
+            if (TestContext.Parameters.Exists(Constants.MsiInstallerPathParameter)
+                && File.Exists(TestContext.Parameters.Get(Constants.MsiInstallerPathParameter)))
             {
                 TestCommon.MsiInstallerPath = TestContext.Parameters.Get(Constants.MsiInstallerPathParameter);
             }
 
-            if (TestContext.Parameters.Exists(Constants.MsixInstallerPathParameter))
+            if (TestContext.Parameters.Exists(Constants.MsixInstallerPathParameter)
+                && File.Exists(TestContext.Parameters.Get(Constants.ExeInstallerPathParameter)))
             {
                 TestCommon.MsixInstallerPath = TestContext.Parameters.Get(Constants.MsixInstallerPathParameter);
             }
