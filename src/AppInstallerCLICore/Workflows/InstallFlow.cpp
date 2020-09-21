@@ -113,8 +113,7 @@ namespace AppInstaller::CLI::Workflow
         options.DeferRegistrationWhenPackagesAreInUse(true);
         IPackageManager9 packageManager9 = packageManager.as<IPackageManager9>();
         auto result = packageManager9.AddPackageByUriAsync(uri, options).get();
-      
-       
+            
        if (!result.ErrorText().empty())
        {
            //Not sure how to report this error
@@ -132,56 +131,52 @@ namespace AppInstaller::CLI::Workflow
        {
            context.Reporter.Info() << "Successfully Installed! Launching application now. This is necessary to complete the installation." << std::endl;
        }
-
-       
  
-     
     }
 
     void LaunchPWA(Execution::Context& context)
-    {
-   
-            const auto& manifest = context.Get<Execution::Data::Manifest>();
-            winrt::init_apartment();
+    {  
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
+        winrt::init_apartment();
+  
+        std::wstring aumid = L"";
+        CoInitialize(nullptr);
 
-   
-            std::wstring aumid = L"";
-            CoInitialize(nullptr);
-            for (auto const& package : PackageManager{}.FindPackagesForUser(L"", winrt::to_hstring(manifest.Name), winrt::to_hstring(manifest.Publisher)))
+        for (auto const& package : PackageManager{}.FindPackagesForUser(L"", winrt::to_hstring(manifest.Name), winrt::to_hstring(manifest.Publisher)))
+        {
+            aumid = package.Id().FamilyName();
+            aumid.append(L"!App");
+        }
+
+        winrt::com_ptr<IApplicationActivationManager> spAppActivationManager;
+        HRESULT hrResult = E_INVALIDARG;
+
+        if (!aumid.empty())
+        {
+            // Instantiate IApplicationActivationManager
+            hrResult = CoCreateInstance(CLSID_ApplicationActivationManager,
+                nullptr,
+                CLSCTX_LOCAL_SERVER, //This has to be LocalServer, Don't know why cannot be InprocServer
+                IID_IApplicationActivationManager,
+                (LPVOID*)&spAppActivationManager);
+
+            if (SUCCEEDED(hrResult))
             {
-                aumid = package.Id().FamilyName();
-                aumid.append(L"!App");
-            }
-
-            winrt::com_ptr<IApplicationActivationManager> spAppActivationManager;
-            HRESULT hrResult = E_INVALIDARG;
-            if (!aumid.empty())
-            {
-                // Instantiate IApplicationActivationManager
-                hrResult = CoCreateInstance(CLSID_ApplicationActivationManager,
-                    nullptr,
-                    CLSCTX_LOCAL_SERVER, //This has to be LocalServer, Don't know why cannot be InprocServer
-                    IID_IApplicationActivationManager,
-                    (LPVOID*)&spAppActivationManager);
-
+                // This call ensures that the app is launched as the foreground window
+                hrResult = CoAllowSetForegroundWindow(spAppActivationManager.get(), nullptr);
+                // Launch the app
                 if (SUCCEEDED(hrResult))
                 {
-                    // This call ensures that the app is launched as the foreground window
-                    hrResult = CoAllowSetForegroundWindow(spAppActivationManager.get(), nullptr);
-                    // Launch the app
-                    if (SUCCEEDED(hrResult))
-                    {
-                        DWORD dwPID = 0;
-                        ACTIVATEOPTIONS activate_options = AO_NOERRORUI;
-                        hrResult = spAppActivationManager->ActivateApplication(aumid.c_str(),
-                            NULL,
-                            activate_options
-                            ,
-                            &dwPID);
-                    }
+                    DWORD dwPID = 0;
+                    ACTIVATEOPTIONS activate_options = AO_NOERRORUI;
+                    hrResult = spAppActivationManager->ActivateApplication(aumid.c_str(),
+                        NULL,
+                        activate_options
+                        ,
+                        &dwPID);
                 }
             }
-     
+        }
     }
 
  

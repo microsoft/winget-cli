@@ -131,125 +131,133 @@ namespace AppInstaller::Utility
 
 
 
-void DownloadPWAInstaller(const std::string& url, std::filesystem::path& dest, std::string& publisher, std::string& name, IProgressCallback& progress)
-{
-    THROW_HR_IF(E_INVALIDARG, url.empty());
-    THROW_HR_IF(E_INVALIDARG, dest.empty());
-    AICLI_LOG(Core, Info, << "Downloading to path: " << dest);
+    void DownloadPWAInstaller(
+        const std::string& url, 
+        std::filesystem::path& dest,
+        std::string& publisher, 
+        std::string& name, 
+        IProgressCallback& progress)
+    {
+        THROW_HR_IF(E_INVALIDARG, url.empty());
+        THROW_HR_IF(E_INVALIDARG, dest.empty());
+        AICLI_LOG(Core, Info, << "Downloading to path: " << dest);
 
-    Json::Value jsonObject;
-    jsonObject["url"] = url;
-    jsonObject["edgeChannel"] = "canary";
-    Json::StreamWriterBuilder builder;
-    builder["indentation"] = ""; 
-    const std::string body = Json::writeString(builder, jsonObject);
 
-    std::filesystem::create_directories(dest.parent_path());
-    std::ofstream emptyDestFile(dest);
-    emptyDestFile.close();
-    ApplyMotwIfApplicable(dest);
-    std::ofstream outfile(dest, std::ofstream::binary | std::ofstream::app);
+        //Creating JSON body
+        Json::Value jsonObject;
+        jsonObject["url"] = url;
+        jsonObject["edgeChannel"] = "canary";
+        Json::StreamWriterBuilder builder;
+        builder["indentation"] = ""; 
+        const std::string body = Json::writeString(builder, jsonObject);
 
-    static const wchar_t* acceptTypes[] = { L"*/*", NULL };
-    wil::unique_hinternet session(InternetOpen(
-        L"winget-cli",
-        INTERNET_OPEN_TYPE_PRECONFIG,
-        NULL,
-        NULL,
-        0));
-    THROW_LAST_ERROR_IF_NULL_MSG(session, "InternetOpen() failed.");
-    std::string header = "Content-type: application/json";
+        //Creating destination file
+        std::filesystem::create_directories(dest.parent_path());
+        std::ofstream emptyDestFile(dest);
+        emptyDestFile.close();
+        ApplyMotwIfApplicable(dest);
+        std::ofstream outfile(dest, std::ofstream::binary | std::ofstream::app);
 
-    wil::unique_hinternet hConnect(InternetConnect(session.get(), L"pwabuilder-win-chromium-platform.centralus.cloudapp.azure.com", INTERNET_DEFAULT_HTTPS_PORT, NULL, NULL, INTERNET_SERVICE_HTTP,0,0));
-    THROW_LAST_ERROR_IF_NULL_MSG(hConnect.get(), "InternetConnect() failed.");
-    wil::unique_hinternet hRequest(HttpOpenRequest(hConnect.get(), L"POST", L"msix/generate", L"HTTP/1.1", NULL, acceptTypes, INTERNET_FLAG_RELOAD | INTERNET_FLAG_SECURE, 0));
-    THROW_LAST_ERROR_IF_NULL_MSG(hRequest.get(), "HttpOpenRequest() failed.");
-    DWORD headerLength;
-    SIZETToDWord(header.length(), &headerLength);
-    DWORD bodyLength;
-    SIZETToDWord(body.length(), &bodyLength);
-    THROW_LAST_ERROR_IF_MSG(!HttpSendRequestA(hRequest.get(), header.c_str(), headerLength, (void*)body.c_str(), bodyLength), "HttpSendRequestA() failed");
+        static const wchar_t* acceptTypes[] = { L"*/*", NULL };
+
+        wil::unique_hinternet session(InternetOpen(
+            L"winget-cli",
+            INTERNET_OPEN_TYPE_PRECONFIG,
+            NULL,
+            NULL,
+            0));
+        THROW_LAST_ERROR_IF_NULL_MSG(session, "InternetOpen() failed.");
+        std::string header = "Content-type: application/json";
+
+        wil::unique_hinternet hConnect(InternetConnect(session.get(), L"pwabuilder-win-chromium-platform.centralus.cloudapp.azure.com", INTERNET_DEFAULT_HTTPS_PORT, NULL, NULL, INTERNET_SERVICE_HTTP,0,0));
+        THROW_LAST_ERROR_IF_NULL_MSG(hConnect.get(), "InternetConnect() failed.");
+        wil::unique_hinternet hRequest(HttpOpenRequest(hConnect.get(), L"POST", L"msix/generate", L"HTTP/1.1", NULL, acceptTypes, INTERNET_FLAG_RELOAD | INTERNET_FLAG_SECURE, 0));
+        THROW_LAST_ERROR_IF_NULL_MSG(hRequest.get(), "HttpOpenRequest() failed.");
+        DWORD headerLength;
+        SIZETToDWord(header.length(), &headerLength);
+        DWORD bodyLength;
+        SIZETToDWord(body.length(), &bodyLength);
+        THROW_LAST_ERROR_IF_MSG(!HttpSendRequestA(hRequest.get(), header.c_str(), headerLength, (void*)body.c_str(), bodyLength), "HttpSendRequestA() failed");
     
-    // Check http return status
-    DWORD requestStatus = 0;
-    DWORD cbRequestStatus = sizeof(requestStatus);
+        // Check http return status
+        DWORD requestStatus = 0;
+        DWORD cbRequestStatus = sizeof(requestStatus);  
+        THROW_LAST_ERROR_IF_MSG(!HttpQueryInfoA(hRequest.get(),
+        HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER,
+        &requestStatus,
+        &cbRequestStatus,
+        nullptr), "Query download request status failed.");
 
-    THROW_LAST_ERROR_IF_MSG(!HttpQueryInfoA(hRequest.get(),
-    HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER,
-    &requestStatus,
-    &cbRequestStatus,
-    nullptr), "Query download request status failed.");
+        if (requestStatus != HTTP_STATUS_OK)
+        {
+            AICLI_LOG(Core, Error, << "Download request failed. Returned status: " << requestStatus);
+            THROW_HR_MSG(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, requestStatus), "Download request status is not success.");
+        }
 
-    if (requestStatus != HTTP_STATUS_OK)
-    {
-        AICLI_LOG(Core, Error, << "Download request failed. Returned status: " << requestStatus);
-        THROW_HR_MSG(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, requestStatus), "Download request status is not success.");
-    }
+        AICLI_LOG(Core, Verbose, << "Download request status success.");
 
-    AICLI_LOG(Core, Verbose, << "Download request status success.");
+        DWORD dwSize = 4096;
 
-    DWORD dwSize = 4096;
+        char lpOutBuffer[4096] = { 0 };
 
-    char lpOutBuffer[4096 + 1] = { 0 };
-
-    //Get publisher and package names
-    StringCchPrintfA((LPSTR)lpOutBuffer, dwSize, "pwabuilder-package-publisher");
-    HttpQueryInfoA(hRequest.get(), HTTP_QUERY_CUSTOM,
-        lpOutBuffer, &dwSize, NULL);
+        //Get publisher and package names
+        StringCchPrintfA((LPSTR)lpOutBuffer, dwSize, "pwabuilder-package-publisher");
+        THROW_LAST_ERROR_IF_MSG(!HttpQueryInfoA(hRequest.get(), HTTP_QUERY_CUSTOM,
+            lpOutBuffer, &dwSize, NULL), "Could not get publisher name.");
   
-    publisher.append(lpOutBuffer);
+        publisher.append(lpOutBuffer);
 
 
-    StringCchPrintfA((LPSTR)lpOutBuffer, dwSize, "pwabuilder-package-name");
-    HttpQueryInfoA(hRequest.get(), HTTP_QUERY_CUSTOM,
-        lpOutBuffer, &dwSize, NULL);
+        StringCchPrintfA((LPSTR)lpOutBuffer, dwSize, "pwabuilder-package-name");
+        THROW_LAST_ERROR_IF_MSG(HttpQueryInfoA(hRequest.get(), HTTP_QUERY_CUSTOM,
+            lpOutBuffer, &dwSize, NULL), "Could not get package name.");
 
-    name.append(std::move(lpOutBuffer));
+        name.append(std::move(lpOutBuffer));
 
-    LONGLONG contentLength = 0;
-    DWORD cbContentLength = sizeof(contentLength);
+        LONGLONG contentLength = 0;
+        DWORD cbContentLength = sizeof(contentLength);
 
-    HttpQueryInfoA(
-        hRequest.get(),
-        HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER64,
-        &contentLength,
-        &cbContentLength,
-        nullptr);
-    AICLI_LOG(Core, Verbose, << "Download size: " << contentLength);
+        THROW_LAST_ERROR_IF_MSG(HttpQueryInfoA(
+            hRequest.get(),
+            HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER64,
+            &contentLength,
+            &cbContentLength,
+            nullptr), "Query download request failed.");
+        AICLI_LOG(Core, Verbose, << "Download size: " << contentLength);
 
-    const int bufferSize = 1024 * 1024; // 1MB
-    auto buffer = std::make_unique<BYTE[]>(bufferSize);
+        const int bufferSize = 1024 * 1024; // 1MB
+        auto buffer = std::make_unique<BYTE[]>(bufferSize);
 
-    BOOL readSuccess = true;
-    DWORD bytesRead = 0;
-    LONGLONG bytesDownloaded = 0;
+        BOOL readSuccess = true;
+        DWORD bytesRead = 0;
+        LONGLONG bytesDownloaded = 0;
 
-    do
-    {
-        if (progress.IsCancelled())
+        do
         {
-            AICLI_LOG(Core, Info, << "Download cancelled.");
-            return;
-        }
+            if (progress.IsCancelled())
+            {
+                AICLI_LOG(Core, Info, << "Download cancelled.");
+                return;
+            }
 
-        readSuccess = InternetReadFile(hRequest.get(), buffer.get(), bufferSize, &bytesRead);
+            readSuccess = InternetReadFile(hRequest.get(), buffer.get(), bufferSize, &bytesRead);
 
-        THROW_LAST_ERROR_IF_MSG(!readSuccess, "InternetReadFile() failed.");
+            THROW_LAST_ERROR_IF_MSG(!readSuccess, "InternetReadFile() failed.");
 
-        outfile.write((char*)buffer.get(), bytesRead);
+            outfile.write((char*)buffer.get(), bytesRead);
 
-        bytesDownloaded += bytesRead;
+            bytesDownloaded += bytesRead;
 
-        if (bytesRead != 0)
-        {
-            progress.OnProgress(bytesDownloaded, contentLength, ProgressType::Bytes);
-        }
+            if (bytesRead != 0)
+            {
+                progress.OnProgress(bytesDownloaded, contentLength, ProgressType::Bytes);
+            }
 
-    } while (bytesRead != 0);
+        } while (bytesRead != 0);
 
-    outfile.flush();
-    AICLI_LOG(Core, Info, << "Download completed.");
-}
+        outfile.flush();
+        AICLI_LOG(Core, Info, << "Download completed.");
+    }
 
     std::optional<std::vector<BYTE>> Download(
         const std::string& url,
