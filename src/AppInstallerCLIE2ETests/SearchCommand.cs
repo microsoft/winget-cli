@@ -27,37 +27,57 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void SearchCommands()
+        public void SearchWithoutArgs()
         {
             // Search without args list every app
             var result = TestCommon.RunAICLICommand("search", "");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Microsoft.PowerToys"));
             Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
+        }
 
+        [Test]
+        public void SearchQuery()
+        {
             // Search query
-            result = TestCommon.RunAICLICommand("search", "VisualStudioCode");
+            var result = TestCommon.RunAICLICommand("search", "VisualStudioCode");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
+        }
 
+        [Test]
+        public void SearchWithID()
+        {
             // Search through id found the app
-            result = TestCommon.RunAICLICommand("search", "--id VisualStudioCode");
+            var result = TestCommon.RunAICLICommand("search", "--id VisualStudioCode");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
+        }
 
+        [Test]
+        public void SearchWithInvalidName()
+        {
             // Search through name. No app found because name is "Visual Studio Code"
-            result = TestCommon.RunAICLICommand("search", "--name VisualStudioCode");
+            var result = TestCommon.RunAICLICommand("search", "--name VisualStudioCode");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
+        }
 
+        [Test]
+        public void SearchReturnsMultiple()
+        {
             // Search Microsoft should return multiple
-            result = TestCommon.RunAICLICommand("search", "Microsoft");
+            var result = TestCommon.RunAICLICommand("search", "Microsoft");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Microsoft.PowerToys"));
             Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
+        }
 
-            // Search Microsoft with exact arg should return none
-            result = TestCommon.RunAICLICommand("search", "f00-b@r-NOT+REAL -e");
+        [Test]
+        public void SearchWithExactArg()
+        {
+            // Search 'powertoys' with exact arg should return none due to case sensitivity
+            var result = TestCommon.RunAICLICommand("search", "powertoys -e");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }

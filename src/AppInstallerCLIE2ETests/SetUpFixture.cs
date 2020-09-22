@@ -12,6 +12,8 @@ namespace AppInstallerCLIE2ETests
     public class SetUpFixture
     {
         private static bool ShouldDisableDevModeOnExit = true;
+        private static bool ShouldRevertDefaultFileTypeRiskOnExit = true;
+        private static string DefaultFileTypes = string.Empty;
 
         [OneTimeSetUp]
         public void Setup()
@@ -62,6 +64,8 @@ namespace AppInstallerCLIE2ETests
 
             ShouldDisableDevModeOnExit = EnableDevMode(true);
 
+            ShouldRevertDefaultFileTypeRiskOnExit = DecreaseFileTypeRisk(".exe", false);
+
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)), "Add AppInstallerTestCert");
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"ROOT\" " + TestCommon.GetTestDataFile(Constants.IndexPackageRootCert)), "Add IndexPackageRootCert");
 
@@ -76,6 +80,24 @@ namespace AppInstallerCLIE2ETests
                     Assert.True(TestCommon.InstallMsix(TestCommon.AICLIPackagePath), "InstallMsix");
                 }
             }
+
+            if (TestContext.Parameters.Exists(Constants.StaticFileRootPathParameter))
+            {
+                TestCommon.StaticFileRootPath = TestContext.Parameters.Get(Constants.StaticFileRootPathParameter);
+            }
+            else
+            {
+                TestCommon.StaticFileRootPath = Path.GetTempPath();
+            }
+
+            if (TestContext.Parameters.Exists(Constants.PackageCertificatePathParameter))
+            {
+                TestCommon.PackageCertificatePath = TestContext.Parameters.Get(Constants.PackageCertificatePathParameter);
+            }
+
+            ReadTestInstallerPaths();
+
+            TestIndexSetup.GenerateTestDirectory();
         }
 
         [OneTimeTearDown]
@@ -84,6 +106,11 @@ namespace AppInstallerCLIE2ETests
             if (ShouldDisableDevModeOnExit)
             {
                 EnableDevMode(false);
+            }
+
+            if (ShouldRevertDefaultFileTypeRiskOnExit)
+            {
+                DecreaseFileTypeRisk(DefaultFileTypes, true);
             }
 
             TestCommon.RunCommand("certutil.exe", $"-delstore \"TRUSTEDPEOPLE\" {Constants.AppInstallerTestCertThumbprint}");
@@ -118,8 +145,54 @@ namespace AppInstallerCLIE2ETests
                     return true;
                 }
             }
-
             return false;
+        }
+
+        private bool DecreaseFileTypeRisk(string fileTypes, bool revert)
+        {
+            var defaultFileTypeRiskKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Associations");
+            string value = (string)defaultFileTypeRiskKey.GetValue("DefaultFileTypeRisk");
+
+            if (revert)
+            {
+                defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", fileTypes);
+                return false;
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    DefaultFileTypes = string.Empty;
+                    defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", fileTypes);
+                }
+                else
+                {
+                    DefaultFileTypes = value;
+                    defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", string.Concat(value, fileTypes));
+                }
+                return true;
+            }
+        }
+
+        private void ReadTestInstallerPaths()
+        {
+            if (TestContext.Parameters.Exists(Constants.ExeInstallerPathParameter) 
+                && File.Exists(TestContext.Parameters.Get(Constants.ExeInstallerPathParameter)))
+            {
+                TestCommon.ExeInstallerPath = TestContext.Parameters.Get(Constants.ExeInstallerPathParameter);
+            }
+
+            if (TestContext.Parameters.Exists(Constants.MsiInstallerPathParameter)
+                && File.Exists(TestContext.Parameters.Get(Constants.MsiInstallerPathParameter)))
+            {
+                TestCommon.MsiInstallerPath = TestContext.Parameters.Get(Constants.MsiInstallerPathParameter);
+            }
+
+            if (TestContext.Parameters.Exists(Constants.MsixInstallerPathParameter)
+                && File.Exists(TestContext.Parameters.Get(Constants.MsixInstallerPathParameter)))
+            {
+                TestCommon.MsixInstallerPath = TestContext.Parameters.Get(Constants.MsixInstallerPathParameter);
+            }
         }
     }
 }
