@@ -16,7 +16,7 @@ namespace AppInstallerCLIE2ETests
 
         /// <summary>
         /// Generates the Local Test Index to be served by the Localhost Web Server.
-        /// 1. Copies TestData to a StaticFileRootPath set in Test.runsettings
+        /// 1. Copies TestData to a StaticFileRootPath set in Test.runsettings file
         /// 2. Copies and signs installer files (EXE or MSIX)
         /// 3. Hashes installer Files
         /// 4. Replaces manifests with corresponding hash values
