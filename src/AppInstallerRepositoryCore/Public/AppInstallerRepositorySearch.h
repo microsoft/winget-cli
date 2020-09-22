@@ -6,6 +6,7 @@
 #include <winget/LocIndependent.h>
 #include <winget/Manifest.h>
 
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -105,6 +106,16 @@ namespace AppInstaller::Repository
 
         // Gets the manifest of this package version.
         virtual Manifest::Manifest GetManifest() const = 0;
+
+        // Gets any metadata associated with this version if it is installed.
+        virtual std::map<std::string, std::string> GetInstallationMetadata() const = 0;
+    };
+
+    // An installed package version.
+    struct IInstalledPackageVersion : public IPackageVersion
+    {
+        // Sets metadata on the installed version.
+        virtual void SetInstallationMetadata(std::string_view key, std::string_view value) = 0;
     };
 
     // A key to identify a package version within a package.
