@@ -206,31 +206,26 @@ namespace AppInstaller::Repository::Microsoft
         m_interface->PrepareForPackaging(m_dbconn);
     }
 
-    Schema::ISQLiteIndex::SearchResult SQLiteIndex::Search(const SearchRequest& request)
+    Schema::ISQLiteIndex::SearchResult SQLiteIndex::Search(const SearchRequest& request) const
     {
         AICLI_LOG(Repo, Info, << "Performing search: " << request.ToString());
 
         return m_interface->Search(m_dbconn, request);
     }
 
-    std::optional<std::string> SQLiteIndex::GetIdStringById(IdType id)
+    std::optional<std::string> SQLiteIndex::GetPropertyByManifestId(IdType manifestId, PackageVersionProperty property) const
     {
-        return m_interface->GetIdStringById(m_dbconn, id);
+        return m_interface->GetPropertyByManifestId(m_dbconn, manifestId, property);
     }
 
-    std::optional<std::string> SQLiteIndex::GetNameStringById(IdType id)
+    std::optional<SQLiteIndex::IdType> SQLiteIndex::GetManifestIdByKey(IdType id, std::string_view version, std::string_view channel) const
     {
-        return m_interface->GetNameStringById(m_dbconn, id);
+        return m_interface->GetManifestIdByKey(m_dbconn, id, version, channel);
     }
 
-    std::optional<std::string> SQLiteIndex::GetPathStringByKey(IdType id, std::string_view version, std::string_view channel)
+    std::vector<Utility::VersionAndChannel> SQLiteIndex::GetVersionKeysById(IdType id) const
     {
-        return m_interface->GetPathStringByKey(m_dbconn, id, version, channel);
-    }
-
-    std::vector<Utility::VersionAndChannel> SQLiteIndex::GetVersionsById(IdType id)
-    {
-        return m_interface->GetVersionsById(m_dbconn, id);
+        return m_interface->GetVersionKeysById(m_dbconn, id);
     }
 
     // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus

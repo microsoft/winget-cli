@@ -5,23 +5,24 @@
 
 namespace AppInstaller::Repository
 {
-    AggregatedSource::AggregatedSource()
+    AggregatedSource::AggregatedSource(std::string identifier) :
+        m_identifier(identifier)
     {
         m_details.Name = "AggregatedSource";
         m_details.IsAggregated = true;
     }
 
-    const SourceDetails& AppInstaller::Repository::AggregatedSource::GetDetails() const
+    const SourceDetails& AggregatedSource::GetDetails() const
     {
         return m_details;
     }
 
-    void AggregatedSource::AddSource(std::shared_ptr<ISource> source)
+    const std::string& AggregatedSource::GetIdentifier() const
     {
-        m_sources.emplace_back(std::move(source));
+        return m_identifier;
     }
 
-    SearchResult AggregatedSource::Search(const SearchRequest& request)
+    SearchResult AggregatedSource::Search(const SearchRequest& request) const
     {
         SearchResult result;
 
@@ -45,6 +46,11 @@ namespace AppInstaller::Repository
         }
 
         return result;
+    }
+
+    void AggregatedSource::AddSource(std::shared_ptr<ISource> source)
+    {
+        m_sources.emplace_back(std::move(source));
     }
 
     void AggregatedSource::SortResultMatches(std::vector<ResultMatch>& matches)

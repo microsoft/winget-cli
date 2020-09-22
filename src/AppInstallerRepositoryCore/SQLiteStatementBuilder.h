@@ -342,10 +342,10 @@ namespace AppInstaller::Repository::SQLite::Builder
         int GetLastBindIndex() const { return m_bindIndex - 1; }
 
         // Prepares and returns the statement, applying any bindings that were requested.
-        Statement Prepare(Connection& connection);
+        Statement Prepare(const Connection& connection);
 
         // A convenience function that prepares, binds, and then executes a statement that does not return rows.
-        void Execute(Connection& connection);
+        void Execute(const Connection& connection);
 
     private:
         enum class Op

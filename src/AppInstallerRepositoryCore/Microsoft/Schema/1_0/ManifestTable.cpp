@@ -16,7 +16,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     namespace details
     {
         std::optional<SQLite::rowid_t> ManifestTableSelectByValueIds(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             std::initializer_list<std::string_view> values,
             std::initializer_list<SQLite::rowid_t> ids)
         {
@@ -61,7 +61,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         SQLite::Statement ManifestTableGetIdsById_Statement(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             SQLite::rowid_t id,
             std::initializer_list<std::string_view> values)
         {
@@ -81,7 +81,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // JOIN [ids] ON [manifest].[id] = [ids].[rowid]
         // WHERE [manifest].[rowid] = 1
         SQLite::Statement ManifestTableGetValuesById_Statement(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             SQLite::rowid_t id,
             std::initializer_list<SQLite::Builder::QualifiedColumn> columns)
         {
@@ -106,7 +106,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         SQLite::Statement ManifestTableGetAllValuesByIds_Statement(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids)
@@ -150,7 +150,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         std::vector<std::string> ManifestTableGetAllValuesByIds(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids)
@@ -350,6 +350,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         builder.Execute(connection);
 
         return connection.GetLastInsertRowID();
+    }
+
+    bool ManifestTable::ExistsById(const SQLite::Connection& connection, SQLite::rowid_t id)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.Select(SQLite::Builder::RowCount).From(s_ManifestTable_Table_Name).Where(SQLite::RowIDName).Equals(id);
+
+        SQLite::Statement countStatement = builder.Prepare(connection);
+
+        THROW_HR_IF(E_UNEXPECTED, !countStatement.Step());
+
+        return (countStatement.GetColumn<int>(0) != 0);
     }
 
     void ManifestTable::DeleteById(SQLite::Connection& connection, SQLite::rowid_t id)

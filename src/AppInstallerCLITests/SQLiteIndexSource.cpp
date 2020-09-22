@@ -28,7 +28,7 @@ std::shared_ptr<SQLiteIndexSource> SimpleTestSetup(const std::string& filePath, 
     details.Arg = testManifest.GetPath().parent_path().u8string();
     details.Data = "";
 
-    return std::make_shared<SQLiteIndexSource>(details, std::move(index));
+    return std::make_shared<SQLiteIndexSource>(details, "*SimpleTestSetup", std::move(index));
 }
 
 TEST_CASE("SQLiteIndexSource_Search_IdExactMatch", "[sqliteindexsource]")
@@ -46,8 +46,8 @@ TEST_CASE("SQLiteIndexSource_Search_IdExactMatch", "[sqliteindexsource]")
 
     auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
-    REQUIRE(results.Matches[0].Application);
-    REQUIRE(results.Matches[0].MatchCriteria.Field == ApplicationMatchField::Id);
+    REQUIRE(results.Matches[0].Package);
+    REQUIRE(results.Matches[0].MatchCriteria.Field == PackageMatchField::Id);
     REQUIRE(results.Matches[0].MatchCriteria.Type == MatchType::Exact);
     REQUIRE(results.Matches[0].MatchCriteria.Value == manifest.Id);
 }
@@ -84,10 +84,10 @@ TEST_CASE("SQLiteIndexSource_Id", "[sqliteindexsource]")
 
     auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
-    REQUIRE(results.Matches[0].Application);
-    IApplication* app = results.Matches[0].Application.get();
+    REQUIRE(results.Matches[0].Package);
+    auto latestVersion = results.Matches[0].Package->GetLatestAvailableVersion();
 
-    REQUIRE(app->GetId().get() == manifest.Id);
+    REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Id).get() == manifest.Id);
 }
 
 TEST_CASE("SQLiteIndexSource_Name", "[sqliteindexsource]")
@@ -105,10 +105,10 @@ TEST_CASE("SQLiteIndexSource_Name", "[sqliteindexsource]")
 
     auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
-    REQUIRE(results.Matches[0].Application);
-    IApplication* app = results.Matches[0].Application.get();
+    REQUIRE(results.Matches[0].Package);
+    auto latestVersion = results.Matches[0].Package->GetLatestAvailableVersion();
 
-    REQUIRE(app->GetName().get() == manifest.Name);
+    REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Name).get() == manifest.Name);
 }
 
 TEST_CASE("SQLiteIndexSource_Versions", "[sqliteindexsource]")
@@ -126,13 +126,12 @@ TEST_CASE("SQLiteIndexSource_Versions", "[sqliteindexsource]")
 
     auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
-    REQUIRE(results.Matches[0].Application);
-    IApplication* app = results.Matches[0].Application.get();
+    REQUIRE(results.Matches[0].Package);
 
-    auto result = app->GetVersions();
+    auto result = results.Matches[0].Package->GetAvailableVersionKeys();
     REQUIRE(result.size() == 1);
-    REQUIRE(result[0].GetVersion().ToString() == manifest.Version);
-    REQUIRE(result[0].GetChannel().ToString() == manifest.Channel);
+    REQUIRE(result[0].Version == manifest.Version);
+    REQUIRE(result[0].Channel == manifest.Channel);
 }
 
 TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
@@ -150,23 +149,25 @@ TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
 
     auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
-    REQUIRE(results.Matches[0].Application);
-    IApplication* app = results.Matches[0].Application.get();
+    REQUIRE(results.Matches[0].Package);
+    auto package = results.Matches[0].Package.get();
 
-    auto specificResult = app->GetManifest(manifest.Version, manifest.Channel);
-    REQUIRE(specificResult.has_value());
-    REQUIRE(specificResult->Id == manifest.Id);
-    REQUIRE(specificResult->Name == manifest.Name);
-    REQUIRE(specificResult->Version == manifest.Version);
-    REQUIRE(specificResult->Channel == manifest.Channel);
+    auto specificResultVersion = package->GetAvailableVersion(PackageVersionKey("", manifest.Version, manifest.Channel));
+    REQUIRE(specificResultVersion);
+    auto specificResult = specificResultVersion->GetManifest();
+    REQUIRE(specificResult.Id == manifest.Id);
+    REQUIRE(specificResult.Name == manifest.Name);
+    REQUIRE(specificResult.Version == manifest.Version);
+    REQUIRE(specificResult.Channel == manifest.Channel);
 
-    auto latestResult = app->GetManifest("", manifest.Channel);
-    REQUIRE(latestResult.has_value());
-    REQUIRE(latestResult->Id == manifest.Id);
-    REQUIRE(latestResult->Name == manifest.Name);
-    REQUIRE(latestResult->Version == manifest.Version);
-    REQUIRE(latestResult->Channel == manifest.Channel);
+    auto latestResultVersion = package->GetAvailableVersion(PackageVersionKey("", "", manifest.Channel));
+    REQUIRE(latestResultVersion);
+    auto latestResult = latestResultVersion->GetManifest();
+    REQUIRE(latestResult.Id == manifest.Id);
+    REQUIRE(latestResult.Name == manifest.Name);
+    REQUIRE(latestResult.Version == manifest.Version);
+    REQUIRE(latestResult.Channel == manifest.Channel);
 
-    auto noResult = app->GetManifest("blargle", "flargle");
-    REQUIRE(!noResult.has_value());
+    auto noResultVersion = package->GetAvailableVersion(PackageVersionKey("", "blargle", "flargle"));
+    REQUIRE(!noResultVersion);
 }

@@ -77,7 +77,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
     }
 
-    SearchResultsTable::SearchResultsTable(SQLite::Connection& connection) :
+    SearchResultsTable::SearchResultsTable(const SQLite::Connection& connection) :
         m_connection(connection)
     {
         using namespace SQLite::Builder;
@@ -113,7 +113,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
     }
 
-    void SearchResultsTable::SearchOnField(ApplicationMatchField field, MatchType match, std::string_view value)
+    void SearchResultsTable::SearchOnField(PackageMatchField field, MatchType match, std::string_view value)
     {
         using namespace SQLite::Builder;
 
@@ -140,7 +140,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         if (!bindIndex)
         {
-            AICLI_LOG(Repo, Verbose, << "ApplicationMatchField not supported in this version: " << ApplicationMatchFieldToString(field));
+            AICLI_LOG(Repo, Verbose, << "PackageMatchField not supported in this version: " << PackageMatchFieldToString(field));
             return;
         }
 
@@ -183,7 +183,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         builder.Execute(m_connection);
     }
 
-    void SearchResultsTable::FilterOnField(ApplicationMatchField field, MatchType match, std::string_view value)
+    void SearchResultsTable::FilterOnField(PackageMatchField field, MatchType match, std::string_view value)
     {
         using namespace SQLite::Builder;
 
@@ -204,7 +204,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         if (!bindIndex)
         {
-            AICLI_LOG(Repo, Verbose, << "ApplicationMatchField not supported in this version: " << ApplicationMatchFieldToString(field));
+            AICLI_LOG(Repo, Verbose, << "PackageMatchField not supported in this version: " << PackageMatchFieldToString(field));
             return;
         }
 
@@ -259,7 +259,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
 
             result.Matches.emplace_back(select.GetColumn<SQLite::rowid_t>(0), 
-                ApplicationMatchFilter(select.GetColumn<ApplicationMatchField>(1), select.GetColumn<MatchType>(2), select.GetColumn<std::string>(3)));
+                PackageMatchFilter(select.GetColumn<PackageMatchField>(1), select.GetColumn<MatchType>(2), select.GetColumn<std::string>(3)));
         }
 
         result.Truncated = (select.GetState() != SQLite::Statement::State::Completed);
@@ -267,29 +267,29 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return result;
     }
 
-    std::optional<int> SearchResultsTable::BuildSearchStatement(SQLite::Builder::StatementBuilder& builder, ApplicationMatchField field, MatchType match) const
+    std::optional<int> SearchResultsTable::BuildSearchStatement(SQLite::Builder::StatementBuilder& builder, PackageMatchField field, MatchType match) const
     {
         return BuildSearchStatement(builder, field, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, MatchUsesLike(match));
     }
 
     std::optional<int> SearchResultsTable::BuildSearchStatement(
         SQLite::Builder::StatementBuilder& builder,
-        ApplicationMatchField field,
+        PackageMatchField field,
         std::string_view manifestAlias,
         std::string_view valueAlias,
         bool useLike) const
     {
         switch (field)
         {
-        case ApplicationMatchField::Id:
+        case PackageMatchField::Id:
             return ManifestTable::BuildSearchStatement<IdTable>(builder, manifestAlias, valueAlias, useLike);
-        case ApplicationMatchField::Name:
+        case PackageMatchField::Name:
             return ManifestTable::BuildSearchStatement<NameTable>(builder, manifestAlias, valueAlias, useLike);
-        case ApplicationMatchField::Moniker:
+        case PackageMatchField::Moniker:
             return ManifestTable::BuildSearchStatement<MonikerTable>(builder, manifestAlias, valueAlias, useLike);
-        case ApplicationMatchField::Tag:
+        case PackageMatchField::Tag:
             return ManifestTable::BuildSearchStatement<TagsTable>(builder, manifestAlias, valueAlias, useLike);
-        case ApplicationMatchField::Command:
+        case PackageMatchField::Command:
             return ManifestTable::BuildSearchStatement<CommandsTable>(builder, manifestAlias, valueAlias, useLike);
         default:
             return {};

@@ -58,7 +58,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Gets a manifest id by the given key values.
-        std::optional<SQLite::rowid_t> GetManifestIdByKey(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version = "", std::string_view channel = "")
+        std::optional<SQLite::rowid_t> StaticGetManifestIdByKey(const SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version = "", std::string_view channel = "")
         {
             std::optional<SQLite::rowid_t> channelIdOpt = ChannelTable::SelectIdByValue(connection, channel, true);
             if (!channelIdOpt && !channel.empty())
@@ -348,7 +348,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         builder.Execute(connection);
     }
 
-    ISQLiteIndex::SearchResult Interface::Search(SQLite::Connection& connection, const SearchRequest& request)
+    ISQLiteIndex::SearchResult Interface::Search(const SQLite::Connection& connection, const SearchRequest& request) const
     {
         // If an empty request, get everything
         if (!request.Query && request.Inclusions.empty() && request.Filters.empty())
@@ -358,7 +358,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             SearchResult result;
             for (SQLite::rowid_t id : ids)
             {
-                result.Matches.emplace_back(std::make_pair(id, ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Wildcard, {})));
+                result.Matches.emplace_back(std::make_pair(id, PackageMatchFilter(PackageMatchField::Id, MatchType::Wildcard, {})));
             }
 
             result.Truncated = (request.MaximumResults && IdTable::GetCount(connection) > request.MaximumResults);
@@ -400,7 +400,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             THROW_HR_IF(E_UNEXPECTED, request.Filters.empty());
 
             // Perform search for just the field matching the first filter
-            const ApplicationMatchFilter& filter = request.Filters[0];
+            const PackageMatchFilter& filter = request.Filters[0];
 
             for (MatchType match : GetMatchTypeOrder(filter.Type))
             {
@@ -417,7 +417,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Second phase, for remaining filters, flag matching search results, then remove unflagged values.
         for (size_t i = filterIndex; i < request.Filters.size(); ++i)
         {
-            const ApplicationMatchFilter& filter = request.Filters[i];
+            const PackageMatchFilter& filter = request.Filters[i];
 
             resultsTable->PrepareToFilter();
 
@@ -432,41 +432,37 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return resultsTable->GetSearchResults(request.MaximumResults);
     }
 
-    std::optional<std::string> Interface::GetIdStringById(SQLite::Connection& connection, SQLite::rowid_t id)
+    std::optional<std::string> Interface::GetPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const
     {
-        return IdTable::SelectValueById(connection, id);
-    }
-
-    std::optional<std::string> Interface::GetNameStringById(SQLite::Connection& connection, SQLite::rowid_t id)
-    {
-        std::optional<SQLite::rowid_t> manifestIdOpt = GetManifestIdByKey(connection, id);
-
-        if (!manifestIdOpt)
+        if (!ManifestTable::ExistsById(connection, manifestId))
         {
-            AICLI_LOG(Repo, Info, << "Did not find manifest by Id id: " << id);
+            AICLI_LOG(Repo, Info, << "Did not find manifest by id: " << manifestId);
             return {};
         }
 
-        auto [name] = ManifestTable::GetValuesById<NameTable>(connection, manifestIdOpt.value());
-        return name;
-    }
-
-    std::optional<std::string> Interface::GetPathStringByKey(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel)
-    {
-        std::optional<SQLite::rowid_t> manifestIdOpt = GetManifestIdByKey(connection, id, version, channel);
-
-        if (!manifestIdOpt)
+        switch (property)
         {
-            AICLI_LOG(Repo, Info, << "Did not find manifest for: " << id << ", " << version << ", " << channel);
+        case AppInstaller::Repository::PackageVersionProperty::Id:
+            return std::get<0>(ManifestTable::GetValuesById<IdTable>(connection, manifestId));
+        case AppInstaller::Repository::PackageVersionProperty::Name:
+            return std::get<0>(ManifestTable::GetValuesById<NameTable>(connection, manifestId));
+        case AppInstaller::Repository::PackageVersionProperty::Version:
+            return std::get<0>(ManifestTable::GetValuesById<VersionTable>(connection, manifestId));
+        case AppInstaller::Repository::PackageVersionProperty::Channel:
+            return std::get<0>(ManifestTable::GetValuesById<ChannelTable>(connection, manifestId));
+        case AppInstaller::Repository::PackageVersionProperty::RelativePath:
+            return PathPartTable::GetPathById(connection, std::get<0>(ManifestTable::GetIdsById<PathPartTable>(connection, manifestId)));
+        default:
             return {};
         }
-
-        auto [pathPartId] = ManifestTable::GetIdsById<PathPartTable>(connection, manifestIdOpt.value());
-
-        return PathPartTable::GetPathById(connection, pathPartId);
     }
 
-    std::vector<Utility::VersionAndChannel> Interface::GetVersionsById(SQLite::Connection& connection, SQLite::rowid_t id)
+    std::optional<SQLite::rowid_t> Interface::GetManifestIdByKey(const SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel) const
+    {
+        return StaticGetManifestIdByKey(connection, id, version, channel);
+    }
+
+    std::vector<Utility::VersionAndChannel> Interface::GetVersionKeysById(const SQLite::Connection& connection, SQLite::rowid_t id) const
     {
         auto versionsAndChannels = ManifestTable::GetAllValuesById<IdTable, VersionTable, ChannelTable>(connection, id);
 
@@ -482,7 +478,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return result;
     }
 
-    std::unique_ptr<SearchResultsTable> Interface::CreateSearchResultsTable(SQLite::Connection& connection) const
+    std::unique_ptr<SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
     {
         return std::make_unique<SearchResultsTable>(connection);
     }
@@ -514,11 +510,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
         for (MatchType match : GetMatchTypeOrder(query.Type))
         {
-            resultsTable.SearchOnField(ApplicationMatchField::Id, match, query.Value);
-            resultsTable.SearchOnField(ApplicationMatchField::Name, match, query.Value);
-            resultsTable.SearchOnField(ApplicationMatchField::Moniker, match, query.Value);
-            resultsTable.SearchOnField(ApplicationMatchField::Command, match, query.Value);
-            resultsTable.SearchOnField(ApplicationMatchField::Tag, match, query.Value);
+            resultsTable.SearchOnField(PackageMatchField::Id, match, query.Value);
+            resultsTable.SearchOnField(PackageMatchField::Name, match, query.Value);
+            resultsTable.SearchOnField(PackageMatchField::Moniker, match, query.Value);
+            resultsTable.SearchOnField(PackageMatchField::Command, match, query.Value);
+            resultsTable.SearchOnField(PackageMatchField::Tag, match, query.Value);
         }
     }
 }

@@ -84,12 +84,12 @@ namespace AppInstaller::CLI::Workflow
 
     void ShowAppVersions(Execution::Context& context)
     {
-        auto app = context.Get<Execution::Data::SearchResult>().Matches.at(0).Application.get();
+        auto versions = context.Get<Execution::Data::SearchResult>().Matches.at(0).Package->GetAvailableVersionKeys();
 
         Execution::TableOutput<2> table(context.Reporter, { Resource::String::ShowVersion, Resource::String::ShowChannel });
-        for (auto& version : app->GetVersions())
+        for (const auto& version : versions)
         {
-            table.OutputLine({ version.GetVersion().ToString(), version.GetChannel().ToString() });
+            table.OutputLine({ version.Version, version.Channel });
         }
         table.Complete();
     }

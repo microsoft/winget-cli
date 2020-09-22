@@ -146,7 +146,7 @@ namespace AppInstaller::Repository::Microsoft
 
                 SQLiteIndex index = SQLiteIndex::Open(indexLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
 
-                return std::make_shared<SQLiteIndexSource>(details, std::move(index), std::move(lock));
+                return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(index), std::move(lock));
             }
 
             void UpdateInternal(std::string packageLocation, const SourceDetails& details, IProgressCallback& progress) override
@@ -251,7 +251,7 @@ namespace AppInstaller::Repository::Microsoft
 
                 SQLiteIndex index = SQLiteIndex::Open(packageLocation.u8string(), SQLiteIndex::OpenDisposition::Read);
 
-                return std::make_shared<SQLiteIndexSource>(details, std::move(index), std::move(lock));
+                return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(index), std::move(lock));
             }
 
             void UpdateInternal(std::string packageLocation, const SourceDetails& details, IProgressCallback& progress) override

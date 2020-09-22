@@ -57,7 +57,7 @@ namespace AppInstaller::CLI::Workflow
         {
             if (searchResult.Matches[i].MatchCriteria.Value.empty())
             {
-                OutputCompletionString(stream, searchResult.Matches[i].Application->GetId());
+                OutputCompletionString(stream, searchResult.Matches[i].Package->GetLatestAvailableVersion()->GetProperty(Repository::PackageVersionProperty::Id));
             }
             else
             {
@@ -71,12 +71,11 @@ namespace AppInstaller::CLI::Workflow
         const std::string& word = context.Get<Data::CompletionData>().Word();
         auto stream = context.Reporter.Completion();
 
-        for (const auto& vc : context.Get<Execution::Data::SearchResult>().Matches[0].Application->GetVersions())
+        for (const auto& vc : context.Get<Execution::Data::SearchResult>().Matches[0].Package->GetAvailableVersionKeys())
         {
-            std::string version = vc.GetVersion().ToString();
-            if (word.empty() || Utility::CaseInsensitiveStartsWith(version, word))
+            if (word.empty() || Utility::CaseInsensitiveStartsWith(vc.Version, word))
             {
-                OutputCompletionString(stream, version);
+                OutputCompletionString(stream, vc.Version);
             }
         }
     }
@@ -88,13 +87,12 @@ namespace AppInstaller::CLI::Workflow
 
         std::vector<std::string> channels;
 
-        for (const auto& vc : context.Get<Execution::Data::SearchResult>().Matches[0].Application->GetVersions())
+        for (const auto& vc : context.Get<Execution::Data::SearchResult>().Matches[0].Package->GetAvailableVersionKeys())
         {
-            std::string channel = vc.GetChannel().ToString();
-            if ((word.empty() || Utility::CaseInsensitiveStartsWith(channel, word)) &&
-                std::find(channels.begin(), channels.end(), channel) == channels.end())
+            if ((word.empty() || Utility::CaseInsensitiveStartsWith(vc.Channel, word)) &&
+                std::find(channels.begin(), channels.end(), vc.Channel) == channels.end())
             {
-                channels.emplace_back(std::move(channel));
+                channels.emplace_back(vc.Channel);
             }
         }
 
@@ -121,31 +119,31 @@ namespace AppInstaller::CLI::Workflow
         case Execution::Args::Type::Id:
             context <<
                 Workflow::OpenSource <<
-                Workflow::SearchSourceForCompletionField(Repository::ApplicationMatchField::Id) <<
+                Workflow::SearchSourceForCompletionField(Repository::PackageMatchField::Id) <<
                 Workflow::CompleteWithMatchedField;
             break;
         case Execution::Args::Type::Name:
             context <<
                 Workflow::OpenSource <<
-                Workflow::SearchSourceForCompletionField(Repository::ApplicationMatchField::Name) <<
+                Workflow::SearchSourceForCompletionField(Repository::PackageMatchField::Name) <<
                 Workflow::CompleteWithMatchedField;
             break;
         case Execution::Args::Type::Moniker:
             context <<
                 Workflow::OpenSource <<
-                Workflow::SearchSourceForCompletionField(Repository::ApplicationMatchField::Moniker) <<
+                Workflow::SearchSourceForCompletionField(Repository::PackageMatchField::Moniker) <<
                 Workflow::CompleteWithMatchedField;
             break;
         case Execution::Args::Type::Tag:
             context <<
                 Workflow::OpenSource <<
-                Workflow::SearchSourceForCompletionField(Repository::ApplicationMatchField::Tag) <<
+                Workflow::SearchSourceForCompletionField(Repository::PackageMatchField::Tag) <<
                 Workflow::CompleteWithMatchedField;
             break;
         case Execution::Args::Type::Command:
             context <<
                 Workflow::OpenSource <<
-                Workflow::SearchSourceForCompletionField(Repository::ApplicationMatchField::Command) <<
+                Workflow::SearchSourceForCompletionField(Repository::PackageMatchField::Command) <<
                 Workflow::CompleteWithMatchedField;
             break;
         case Execution::Args::Type::Version:

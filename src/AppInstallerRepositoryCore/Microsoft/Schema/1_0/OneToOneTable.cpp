@@ -49,7 +49,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
         }
 
-        std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool useLike)
+        std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool useLike)
         {
             SQLite::Builder::StatementBuilder selectBuilder;
             selectBuilder.Select(SQLite::RowIDName).From(tableName).Where(valueName);
@@ -92,7 +92,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
         }
 
-        std::vector<SQLite::rowid_t> OneToOneTableGetAllRowIds(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, size_t limit)
+        std::vector<SQLite::rowid_t> OneToOneTableGetAllRowIds(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, size_t limit)
         {
             SQLite::Builder::StatementBuilder selectBuilder;
             selectBuilder.Select(SQLite::RowIDName).From(tableName).OrderBy(valueName);
@@ -165,7 +165,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
         }
 
-        uint64_t OneToOneTableGetCount(SQLite::Connection& connection, std::string_view tableName)
+        uint64_t OneToOneTableGetCount(const SQLite::Connection& connection, std::string_view tableName)
         {
             SQLite::Builder::StatementBuilder builder;
             builder.Select(SQLite::Builder::RowCount).From(tableName);

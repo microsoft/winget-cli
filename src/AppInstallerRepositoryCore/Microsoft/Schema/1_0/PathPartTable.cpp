@@ -198,7 +198,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return { (createIfNotFound ? partsAdded : true), parent.value() };
     }
 
-    std::optional<std::string> PathPartTable::GetPathById(SQLite::Connection& connection, SQLite::rowid_t id)
+    std::optional<std::string> PathPartTable::GetPathById(const SQLite::Connection& connection, SQLite::rowid_t id)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.Select({ s_PathPartTable_ParentValue_Name, s_PathPartTable_PartValue_Name }).
