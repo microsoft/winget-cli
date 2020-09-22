@@ -77,8 +77,6 @@ jobs:
                     /p:AppxBundle=Always 
                     /p:UapAppxPackageBuildMode=StoreUpload'
 
-
-  
   - task: PowerShell@2
     displayName: Install Tests Dependencies
     inputs:
@@ -222,7 +220,7 @@ jobs:
     displayName: Launch LocalhostWebServer
     inputs:
       filePath: 'src\LocalhostWebServer\Run-LocalhostWebServer.ps1'
-      arguments: '-BuildRoot $(system.defaultWorkingDirectory)\src\AnyCPU\Release\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
+      arguments: '-BuildRoot $(system.defaultWorkingDirectory)\src\x86\Release\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
     condition: succeededOrFailed()
 
 #  - task: VSTest@2
