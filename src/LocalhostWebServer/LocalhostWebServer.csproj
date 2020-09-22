@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
 	<OutDir>$(SolutionDir)$(Platform)\$(Configuration)\LocalhostWebServer\</OutDir>
+	<Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
 </Project>
