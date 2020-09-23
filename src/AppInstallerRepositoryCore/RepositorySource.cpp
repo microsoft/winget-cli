@@ -575,6 +575,35 @@ namespace AppInstaller::Repository
         }
     }
 
+    std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress)
+    {
+        SourceDetails details;
+
+        switch (source)
+        {
+        case PredefinedSource::Installed:
+            // TODO: Pull directly from factory
+            details.Type = "Microsoft.Predefined.Installed";
+            return CreateSourceFromDetails(details, progress);
+        case PredefinedSource::ARP_System:
+            // TODO: Pull directly from factory
+            details.Type = "Microsoft.Predefined.ARP";
+            details.Arg = "system";
+            return CreateSourceFromDetails(details, progress);
+        case PredefinedSource::ARP_User:
+            // TODO: Pull directly from factory
+            details.Type = "Microsoft.Predefined.ARP";
+            details.Arg = "user";
+            return CreateSourceFromDetails(details, progress);
+        case PredefinedSource::MSIX:
+            // TODO: Pull directly from factory
+            details.Type = "Microsoft.Predefined.MSIX";
+            return CreateSourceFromDetails(details, progress);
+        }
+
+        THROW_HR(E_UNEXPECTED);
+    }
+
     bool UpdateSource(std::string_view name, IProgressCallback& progress)
     {
         THROW_HR_IF(E_INVALIDARG, name.empty());

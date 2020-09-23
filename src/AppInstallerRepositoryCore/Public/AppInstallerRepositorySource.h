@@ -88,6 +88,20 @@ namespace AppInstaller::Repository
     // Passing an empty string as the name of the source will return a source that aggregates all others.
     std::shared_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress);
 
+    // A predefined source.
+    // These sources are not under the direct control of the user, such as packages installed on the system.
+    enum class PredefinedSource
+    {
+        Installed,
+        ARP_System,
+        ARP_User,
+        MSIX,
+    };
+
+    // Opens a predefined source.
+    // These sources are not under the direct control of the user, such as packages installed on the system.
+    std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress);
+
     // Updates an existing source.
     // Return value indicates whether the named source was found.
     bool UpdateSource(std::string_view name, IProgressCallback& progress);

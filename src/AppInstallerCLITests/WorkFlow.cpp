@@ -62,6 +62,11 @@ namespace
                 return m_manifest;
             }
 
+            std::map<std::string, std::string> GetInstallationMetadata() const override
+            {
+                return {};
+            }
+
             Manifest m_manifest;
         };
 
