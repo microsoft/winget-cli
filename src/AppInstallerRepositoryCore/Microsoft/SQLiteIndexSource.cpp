@@ -149,6 +149,11 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
+            bool IsUpdateAvailable() const override
+            {
+                return false;
+            }
+
         private:
             SQLiteIndex::IdType m_idId;
         };

@@ -152,6 +152,9 @@ namespace AppInstaller::Repository
 
         // Gets a specific version of this package.
         virtual std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const = 0;
+
+        // Gets a value indicating whether an available version is newer than the installed version.
+        virtual bool IsUpdateAvailable() const = 0;
     };
 
     // A single result from the search.

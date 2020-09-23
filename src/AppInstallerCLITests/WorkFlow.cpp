@@ -102,6 +102,11 @@ namespace
                 }
             }
 
+            bool IsUpdateAvailable() const override
+            {
+                return false;
+            }
+
             Manifest m_manifest;
         };
 
