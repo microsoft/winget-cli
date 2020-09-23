@@ -39,6 +39,8 @@
 #include <functional>
 #include <initializer_list>
 #include <iomanip>
+#include <map>
+#include <memory>
 #include <optional>
 #include <set>
 #include <string>
@@ -49,7 +51,3 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-#include <map>
-#endif

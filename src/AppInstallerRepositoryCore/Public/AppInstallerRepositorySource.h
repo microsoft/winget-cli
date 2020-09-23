@@ -66,6 +66,15 @@ namespace AppInstaller::Repository
         virtual SearchResult Search(const SearchRequest& request) const = 0;
     };
 
+    // Interface extension to ISource for locally installed packages.
+    struct IInstalledPackageSource : public ISource
+    {
+        virtual ~IInstalledPackageSource() = default;
+
+        // Adds an installed package version to the source.
+        virtual std::shared_ptr<IInstalledPackageVersion> AddInstalledPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
+    };
+
     // Gets the details for all sources.
     std::vector<SourceDetails> GetSources();
 
@@ -78,6 +87,20 @@ namespace AppInstaller::Repository
     // Opens an existing source.
     // Passing an empty string as the name of the source will return a source that aggregates all others.
     std::shared_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress);
+
+    // A predefined source.
+    // These sources are not under the direct control of the user, such as packages installed on the system.
+    enum class PredefinedSource
+    {
+        Installed,
+        ARP_System,
+        ARP_User,
+        MSIX,
+    };
+
+    // Opens a predefined source.
+    // These sources are not under the direct control of the user, such as packages installed on the system.
+    std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress);
 
     // Updates an existing source.
     // Return value indicates whether the named source was found.
