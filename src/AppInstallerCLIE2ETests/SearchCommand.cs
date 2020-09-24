@@ -4,13 +4,11 @@
 namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
-    using System.Threading;
 
     public class SearchCommand
     {
-        // Todo: use created test source when available
-        private const string SearchTestSourceUrl = @"https://winget-int.azureedge.net/cache";
         private const string SearchTestSourceName = @"SearchTestSource";
+        private const string SearchTestSourceUrl = @"https://localhost:5001/TestKit";
 
         [SetUp]
         public void Setup()
@@ -29,36 +27,44 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void SearchWithoutArgs()
         {
-            // Search without args list every app
-            var result = TestCommon.RunAICLICommand("search", "");
+            var result = TestCommon.RunAICLICommand("search", $"-s {SearchTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Microsoft.PowerToys"));
-            Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestBurnInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
         [Test]
         public void SearchQuery()
         {
-            // Search query
-            var result = TestCommon.RunAICLICommand("search", "VisualStudioCode");
+            var result = TestCommon.RunAICLICommand("search", "TestExampleInstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
+            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
         [Test]
         public void SearchWithID()
         {
-            // Search through id found the app
-            var result = TestCommon.RunAICLICommand("search", "--id VisualStudioCode");
+            var result = TestCommon.RunAICLICommand("search", "--id AppInstallerTest.TestExampleInstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
+            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+        }
+
+        [Test]
+        public void SearchWithName()
+        {
+            var result = TestCommon.RunAICLICommand("search", "--name TestExampleInstaller");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
         [Test]
         public void SearchWithInvalidName()
         {
-            // Search through name. No app found because name is "Visual Studio Code"
-            var result = TestCommon.RunAICLICommand("search", "--name VisualStudioCode");
+            var result = TestCommon.RunAICLICommand("search", "--name InvalidName");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }
@@ -67,17 +73,18 @@ namespace AppInstallerCLIE2ETests
         public void SearchReturnsMultiple()
         {
             // Search Microsoft should return multiple
-            var result = TestCommon.RunAICLICommand("search", "Microsoft");
+            var result = TestCommon.RunAICLICommand("search", "AppInstallerTest");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Microsoft.PowerToys"));
-            Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestBurnInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
         [Test]
         public void SearchWithExactArg()
         {
-            // Search 'powertoys' with exact arg should return none due to case sensitivity
-            var result = TestCommon.RunAICLICommand("search", "powertoys -e");
+            // Search 'testexampleinstaller' with exact arg should return none due to case sensitivity
+            var result = TestCommon.RunAICLICommand("search", "testexampleinstaller -e");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }

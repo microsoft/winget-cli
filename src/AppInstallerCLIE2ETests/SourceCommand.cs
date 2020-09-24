@@ -7,9 +7,8 @@ namespace AppInstallerCLIE2ETests
 
     public class SourceCommand
     {
-        // Todo: switch to use prod index when available
-        private const string SourceTestSourceUrl = @"https://winget-int.azureedge.net/cache";
         private const string SourceTestSourceName = @"SourceTestSource";
+        private const string SourceTestSourceUrl = @"https://localhost:5001/TestKit";
 
         [SetUp]
         public void Setup()
@@ -67,7 +66,7 @@ namespace AppInstallerCLIE2ETests
             // List with no args should list all available sources
             var result = TestCommon.RunAICLICommand("source list", "");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("https://winget-int.azureedge.net/cache"));
+            Assert.True(result.StdOut.Contains("https://localhost:5001/TestKit"));
         }
 
         [Test]
@@ -76,8 +75,8 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("source list", $"-n {SourceTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("SourceTestSource"));
-            Assert.True(result.StdOut.Contains("https://winget-int.azureedge.net/cache"));
-            Assert.True(result.StdOut.Contains("Microsoft.Winget.Source"));
+            Assert.True(result.StdOut.Contains("https://localhost:5001/TestKit"));
+            Assert.True(result.StdOut.Contains("Microsoft.PreIndexed.Package"));
             Assert.True(result.StdOut.Contains("Updated"));
         }
 
@@ -106,6 +105,14 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
+        public void SourceRemoveValidName()
+        {
+            var result = TestCommon.RunAICLICommand("source remove", $"-n {SourceTestSourceName}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Done"));
+        }
+
+        [Test]
         public void SourceRemoveInvalidName()
         {
             var result = TestCommon.RunAICLICommand("source remove", "-n UnknownName");
@@ -114,11 +121,28 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void SourceRemoveValidName()
+        public void SourceReset()
         {
-            var result = TestCommon.RunAICLICommand("source remove", $"-n {SourceTestSourceName}");
+            var result = TestCommon.RunAICLICommand("source reset", "");
+            Assert.True(result.StdOut.Contains("The following sources will be reset if the --force option is given:"));
+            Assert.True(result.StdOut.Contains("SourceTestSource"));
+            Assert.True(result.StdOut.Contains("https://localhost:5001/TestKit"));
+        }
+
+        [Test]
+        public void SourceForceReset()
+        {
+            // Force Reset Sources
+            var result = TestCommon.RunAICLICommand("source reset", "--force");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Done"));
+            Assert.True(result.StdOut.Contains("Resetting all sources...Done"));
+
+            //Verify sources have been reset
+            result = TestCommon.RunAICLICommand("source list", "");
+            Assert.True(result.StdOut.Contains("winget"));
+            Assert.True(result.StdOut.Contains("https://winget.azureedge.net/cache"));
+            Assert.False(result.StdOut.Contains($"{SourceTestSourceName}"));
+            Assert.False(result.StdOut.Contains($"{SourceTestSourceUrl}"));
         }
     }
 }

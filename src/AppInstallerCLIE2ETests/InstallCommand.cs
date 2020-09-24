@@ -8,7 +8,6 @@ namespace AppInstallerCLIE2ETests
 
     public class InstallCommand
     {
-        // Todo: add unicode test cases after install tests are enabled.
         private const string InstallTestSourceUrl = @"https://localhost:5001/TestKit";
         private const string InstallTestSourceName = @"InstallTestSource";
         private const string DefaultTestSourceUrl = @"https://winget.azureedge.net/cache";
