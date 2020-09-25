@@ -133,6 +133,8 @@ namespace AppInstaller::Utility
 
     void DownloadPWAInstaller(
         const std::string& url, 
+        const std::string& Id,
+        const std::string& version,
         std::filesystem::path& dest,
         std::string& publisher, 
         std::string& name, 
@@ -146,6 +148,8 @@ namespace AppInstaller::Utility
         //Creating JSON body
         Json::Value jsonObject;
         jsonObject["url"] = url;
+        jsonObject["packageId"] = Id;
+        jsonObject["version"] = version;
         jsonObject["edgeChannel"] = "canary";
         Json::StreamWriterBuilder builder;
         builder["indentation"] = ""; 

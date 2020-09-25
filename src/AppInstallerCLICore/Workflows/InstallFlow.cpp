@@ -191,7 +191,7 @@ namespace AppInstaller::CLI::Workflow
         std::filesystem::create_directories(tempInstallerPath);
         tempInstallerPath /= (Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version + ".msix"));
         
-        context.Reporter.ExecuteWithProgress(std::bind(Utility::DownloadPWAInstaller,installer.Url,tempInstallerPath, std::ref(publisher), std::ref(name), std::placeholders::_1));
+        context.Reporter.ExecuteWithProgress(std::bind(Utility::DownloadPWAInstaller,installer.Url, manifest.Id, manifest.Version, tempInstallerPath, std::ref(publisher), std::ref(name), std::placeholders::_1));
         
         //Update the name and publisher based on most updated version of PWA
         manifest.Name = name;
