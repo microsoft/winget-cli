@@ -125,7 +125,7 @@ namespace AppInstallerCLIE2ETests
 
         
 
-        //[Test]
+        [Test]
         public void InstallTestMSIX()
         {
             var result = TestCommon.RunAICLICommand("install", $"TestMsixInstaller");
@@ -134,7 +134,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(VerifyTestMsixInstalledAndCleanup());
         }
 
-        //[Test]
+        [Test]
         public void InstallTestMSIXWithSignature()
         {
             var installDir = TestCommon.GetRandomTestDir();
@@ -144,7 +144,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(VerifyTestMsixInstalledAndCleanup());
         }
 
-        //[Test]
+        [Test]
         public void InstallTestMSIXWithSignatureHashMismatch()
         {
             var result = TestCommon.RunAICLICommand("install", $"TestMsixSignatureHashMismatch");

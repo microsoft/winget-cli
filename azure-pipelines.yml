@@ -209,6 +209,24 @@ jobs:
     inputs:
         secureFile: 'HTTPSDevCert.pfx'
 
+  - task: MSBuild@1
+    displayName: Build MSIX Test Installer File
+    inputs:
+      platform: 'x86'
+      solution: 'src/AppInstallerTestMsixInstaller/AppInstallerTestMsixInstaller.wapproj'
+      configuration: '$(buildConfiguration)'
+      msbuildArguments: '/p:AppxPackageOutput="$(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix"
+                         /p:AppxBundle=Never 
+                         /p:UapAppxPackageBuildMode=SideLoadOnly 
+                         /p:AppxPackageSigningEnabled=true
+                         /p:PackageCertificateKeyFile="$(AppInstallerTest.secureFilePath)"
+                         /p:PackageCertificatePassword=microsoft'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: drop'
+    inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+
   - task: PowerShell@2
     displayName: Install Root Certificate
     inputs:
@@ -245,6 +263,7 @@ jobs:
                                   -LooseFileRegistration true
                                   -InvokeCommandInDesktopPackage true
                                   -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
+                                  -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
                                   -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x64\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
     condition: succeededOrFailed()
