@@ -93,7 +93,7 @@ namespace AppInstallerCLIE2ETests
             File.Copy(TestCommon.ExeInstallerPath, exeInstallerFullName, true);
             TestCommon.ExeInstallerPath = exeInstallerFullName;
 
-            // Sign Installer File
+            // Sign EXE Installer File
             string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
             string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
             RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {exeInstallerFullName}");
@@ -110,6 +110,11 @@ namespace AppInstallerCLIE2ETests
 
             File.Copy(TestCommon.MsixInstallerPath, msixInstallerFullName, true);
             TestCommon.MsixInstallerPath = msixInstallerFullName;
+
+            // Sign MSIX Installer File
+            string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
+            string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
+            RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {msixInstallerFullName}");
         }
 
         private static void SetupLocalTestDirectory(string staticFileRootPath)

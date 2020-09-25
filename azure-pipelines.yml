@@ -218,14 +218,7 @@ jobs:
       msbuildArguments: '/p:AppxPackageOutput="$(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix"
                          /p:AppxBundle=Never 
                          /p:UapAppxPackageBuildMode=SideLoadOnly 
-                         /p:AppxPackageSigningEnabled=true
-                         /p:PackageCertificateKeyFile="$(AppInstallerTest.secureFilePath)"
-                         /p:PackageCertificatePassword=microsoft'
-
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact: drop'
-    inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+                         /p:AppxPackageSigningEnabled=false'
 
   - task: PowerShell@2
     displayName: Install Root Certificate
