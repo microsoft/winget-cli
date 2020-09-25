@@ -38,7 +38,7 @@ Publisher: Microsoft Corporation
 AppMoniker: fintimes
 License: Test
 InstallerType: PWA
-MinOSVersion: 10.0.0.0
+MinOSVersion: 10.0.19041.0
 Installers:
 - Arch: x64
   Url: https://app.ft.com
