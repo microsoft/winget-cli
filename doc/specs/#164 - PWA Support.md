@@ -31,10 +31,10 @@ The "InstallerType" field in the YAML manifest file specifies the type of the ap
 Each PWA would have its own manifest YAML file. A sample manifest file would look like this:
 
 ```
-Id: Microsoft.FinTimes
+Id: FinancialTimesLimited.FinTimes
 Version: 1.0.0.0
 Name: AppInstaller FinTimes
-Publisher: Microsoft Corporation
+Publisher: Financial Times Limited
 AppMoniker: fintimes
 License: Test
 InstallerType: PWA
