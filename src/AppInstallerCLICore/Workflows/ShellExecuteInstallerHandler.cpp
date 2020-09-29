@@ -61,34 +61,37 @@ namespace AppInstaller::CLI::Workflow
         // Gets the escaped installer args.
         std::string GetInstallerArgsTemplate(Execution::Context& context)
         {
+            bool isUpdate = context.Contains(Execution::Data::CommandType) &&
+                context.Get<Execution::Data::CommandType>() == Execution::CommandType::Update;
+
             std::string installerArgs = "";
             const std::map<ManifestInstaller::InstallerSwitchType, Utility::NormalizedString>& installerSwitches = context.Get<Execution::Data::Installer>()->Switches;
 
             // Construct install experience arg.
             // SilentWithProgress is default, so look for it first.
-            auto argsItr = installerSwitches.find(ManifestInstaller::InstallerSwitchType::SilentWithProgress);
+            auto experienceArgsItr = installerSwitches.find(ManifestInstaller::InstallerSwitchType::SilentWithProgress);
 
             if (context.Args.Contains(Execution::Args::Type::Interactive))
             {
                 // If interacive requested, always use Interactive (or nothing). If the installer supports
                 // interactive it is usually the default, and thus it is cumbersome to put a blank entry in
                 // the manifest.
-                argsItr = installerSwitches.find(ManifestInstaller::InstallerSwitchType::Interactive);
+                experienceArgsItr = installerSwitches.find(ManifestInstaller::InstallerSwitchType::Interactive);
             }
             // If no SilentWithProgress exists, or Silent requested, try to find Silent.
-            else if (argsItr == installerSwitches.end() || context.Args.Contains(Execution::Args::Type::Silent))
+            else if (experienceArgsItr == installerSwitches.end() || context.Args.Contains(Execution::Args::Type::Silent))
             {
                 auto silentItr = installerSwitches.find(ManifestInstaller::InstallerSwitchType::Silent);
                 // If Silent requested, but doesn't exist, then continue using SilentWithProgress.
                 if (silentItr != installerSwitches.end())
                 {
-                    argsItr = silentItr;
+                    experienceArgsItr = silentItr;
                 }
             }
 
-            if (argsItr != installerSwitches.end())
+            if (experienceArgsItr != installerSwitches.end())
             {
-                installerArgs += argsItr->second;
+                installerArgs += experienceArgsItr->second;
             }
 
             // Construct language arg if necessary.
@@ -97,22 +100,29 @@ namespace AppInstaller::CLI::Workflow
                 installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::Language);
             }
 
-            // Construct install location arg if necessary.
-            if (context.Args.Contains(Execution::Args::Type::InstallLocation) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::InstallLocation) != installerSwitches.end())
-            {
-                installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::InstallLocation);
-            }
-
             // Construct log path arg.
             if (installerSwitches.find(ManifestInstaller::InstallerSwitchType::Log) != installerSwitches.end())
             {
                 installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::Log);
             }
 
-            // Construct custom arg.
-            if (installerSwitches.find(ManifestInstaller::InstallerSwitchType::Custom) != installerSwitches.end())
+            if (isUpdate && installerSwitches.find(ManifestInstaller::InstallerSwitchType::Update) != installerSwitches.end())
             {
-                installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::Custom);
+                installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::Update);
+            }
+            else
+            {
+                // Construct custom arg.
+                if (installerSwitches.find(ManifestInstaller::InstallerSwitchType::Custom) != installerSwitches.end())
+                {
+                    installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::Custom);
+                }
+            }
+
+            // Construct install location arg if necessary.
+            if (!isUpdate && context.Args.Contains(Execution::Args::Type::InstallLocation) && installerSwitches.find(ManifestInstaller::InstallerSwitchType::InstallLocation) != installerSwitches.end())
+            {
+                installerArgs += ' ' + installerSwitches.at(ManifestInstaller::InstallerSwitchType::InstallLocation);
             }
 
             return installerArgs;

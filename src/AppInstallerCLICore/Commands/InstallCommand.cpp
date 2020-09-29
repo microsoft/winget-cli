@@ -13,10 +13,6 @@ using namespace AppInstaller::CLI::Workflow;
 
 namespace AppInstaller::CLI
 {
-    using namespace std::string_view_literals;
-
-    constexpr std::string_view s_InstallCommand_ArgName_SilentAndInteractive = "silent|interactive"sv;
-
     std::vector<Argument> InstallCommand::GetArguments() const
     {
         return {
@@ -84,6 +80,8 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ExecuteInternal(Execution::Context& context) const
     {
+        context.Add<Execution::Data::CommandType>(CommandType::Install);
+
         context <<
             Workflow::GetManifest <<
             Workflow::EnsureMinOSVersion <<
@@ -93,13 +91,5 @@ namespace AppInstaller::CLI
             Workflow::DownloadInstaller <<
             Workflow::ExecuteInstaller <<
             Workflow::RemoveInstaller;
-    }
-
-    void InstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
-    {
-        if (execArgs.Contains(Execution::Args::Type::Silent) && execArgs.Contains(Execution::Args::Type::Interactive))
-        {
-            throw CommandException(Resource::String::TooManyBehaviorsError, s_InstallCommand_ArgName_SilentAndInteractive);
-        }
     }
 }

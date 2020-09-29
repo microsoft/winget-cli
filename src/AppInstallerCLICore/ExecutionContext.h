@@ -52,7 +52,18 @@ namespace AppInstaller::CLI::Execution
         LogPath,
         InstallerArgs,
         CompletionData,
+        CommandType,
+        InstalledPackageVersion,
         Max
+    };
+
+    enum class CommandType
+    {
+        Install,
+        Search,
+        Show,
+        Uninstall,
+        Update
     };
 
     namespace details
@@ -123,6 +134,18 @@ namespace AppInstaller::CLI::Execution
             using value_t = CLI::CompletionData;
         };
 
+        template <>
+        struct DataMapping<Data::InstalledPackageVersion>
+        {
+            using value_t = std::shared_ptr<Repository::IPackageVersion>;
+        };
+
+        template <>
+        struct DataMapping<Data::CommandType>
+        {
+            using value_t = CommandType;
+        };
+
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.
         template <size_t... I>
         inline auto Deduce(std::index_sequence<I...>) { return std::variant<std::monostate, DataMapping<static_cast<Data>(I)>::value_t...>{}; }
@@ -167,6 +190,9 @@ namespace AppInstaller::CLI::Execution
 
         // Set the context to the terminated state.
         void Terminate(HRESULT hr, std::string_view file = {}, size_t line = {});
+
+        // Resumes the context
+        void Resume() { m_terminationHR = S_OK; m_isTerminated = false; }
 
         // Adds a value to the context data, or overwrites an existing entry.
         // This must be used to create the initial data entry, but Get can be used to modify.

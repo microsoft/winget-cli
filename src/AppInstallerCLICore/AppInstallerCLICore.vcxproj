@@ -184,6 +184,7 @@
     <ClInclude Include="Commands\InstallCommand.h" />
     <ClInclude Include="Commands\RootCommand.h" />
     <ClInclude Include="Commands\SourceCommand.h" />
+    <ClInclude Include="Commands\UpdateCommand.h" />
     <ClInclude Include="Commands\ValidateCommand.h" />
     <ClInclude Include="Commands\SettingsCommand.h" />
     <ClInclude Include="CompletionData.h" />
@@ -199,11 +200,13 @@
     <ClInclude Include="TableOutput.h" />
     <ClInclude Include="VTSupport.h" />
     <ClInclude Include="Workflows\CompletionFlow.h" />
+    <ClInclude Include="Workflows\MSStoreInstallerHandler.h" />
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
     <ClInclude Include="Workflows\InstallFlow.h" />
     <ClInclude Include="Workflows\ManifestComparator.h" />
     <ClInclude Include="Workflows\ShowFlow.h" />
     <ClInclude Include="Workflows\SourceFlow.h" />
+    <ClInclude Include="Workflows\UpdateFlow.h" />
     <ClInclude Include="Workflows\WorkflowBase.h" />
   </ItemGroup>
   <ItemGroup>
@@ -219,6 +222,7 @@
     <ClCompile Include="Commands\InstallCommand.cpp" />
     <ClCompile Include="Commands\RootCommand.cpp" />
     <ClCompile Include="Commands\SourceCommand.cpp" />
+    <ClCompile Include="Commands\UpdateCommand.cpp" />
     <ClCompile Include="Commands\ValidateCommand.cpp" />
     <ClCompile Include="Commands\SettingsCommand.cpp" />
     <ClCompile Include="CompletionData.cpp" />
@@ -232,11 +236,13 @@
     <ClCompile Include="Resources.cpp" />
     <ClCompile Include="VTSupport.cpp" />
     <ClCompile Include="Workflows\CompletionFlow.cpp" />
+    <ClCompile Include="Workflows\MSStoreInstallerHandler.cpp" />
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
     <ClCompile Include="Workflows\InstallFlow.cpp" />
     <ClCompile Include="Workflows\ManifestComparator.cpp" />
     <ClCompile Include="Workflows\ShowFlow.cpp" />
     <ClCompile Include="Workflows\SourceFlow.cpp" />
+    <ClCompile Include="Workflows\UpdateFlow.cpp" />
     <ClCompile Include="Workflows\WorkflowBase.cpp" />
   </ItemGroup>
   <ItemGroup>

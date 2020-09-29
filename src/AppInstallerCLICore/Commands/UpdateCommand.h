@@ -5,9 +5,9 @@
 
 namespace AppInstaller::CLI
 {
-    struct InstallCommand final : public Command
+    struct UpdateCommand final : public Command
     {
-        InstallCommand(std::string_view parent) : Command("install", parent) {}
+        UpdateCommand(std::string_view parent) : Command("update", parent) {}
 
         std::vector<Argument> GetArguments() const override;
 

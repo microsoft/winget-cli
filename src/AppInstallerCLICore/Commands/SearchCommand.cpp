@@ -66,6 +66,8 @@ namespace AppInstaller::CLI
 
     void SearchCommand::ExecuteInternal(Context& context) const
     {
+        context.Add<Execution::Data::CommandType>(CommandType::Search);
+
         context <<
             Workflow::OpenSource <<
             Workflow::SearchSourceForMany <<

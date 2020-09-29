@@ -81,6 +81,9 @@ namespace AppInstaller::Repository
     // Gets the details for a single source.
     std::optional<SourceDetails> GetSource(std::string_view name);
 
+    // Gets the SourceId for a single source.
+    std::string GetSourceIdByName(std::string_view name);
+
     // Adds a new source for the user.
     void AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress);
 
@@ -101,6 +104,10 @@ namespace AppInstaller::Repository
     // Opens a predefined source.
     // These sources are not under the direct control of the user, such as packages installed on the system.
     std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress);
+
+    // Creates a composite source from input sources.
+    // The composite source will correlate entries from input sources.
+    std::shared_ptr<ISource> CreateCompositeSource(std::shared_ptr<ISource>& source1, std::shared_ptr<ISource>& source2);
 
     // Updates an existing source.
     // Return value indicates whether the named source was found.

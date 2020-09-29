@@ -16,6 +16,8 @@ namespace AppInstaller::CLI::Execution
 
 namespace AppInstaller::CLI::Workflow
 {
+    static const char* s_InstallationMetadata_Key_InstallerType = "InstallerType";
+
     // A task in the workflow.
     struct WorkflowTask
     {
@@ -177,6 +179,24 @@ namespace AppInstaller::CLI::Workflow
     private:
         Settings::ExperimentalFeature::Feature m_feature;
     };
+
+    // Create a composite source from installed source and available source.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: Source
+    void GetCompositeSourceFromInstalledAndAvailable(Execution::Context& context);
+
+    // Performs a search on the source with the semantics of targeting packages matching input manifest
+    // Required Args: None
+    // Inputs: Source, Manifest
+    // Outputs: SearchResult
+    void SearchSourceUsingManifest(Execution::Context& context);
+
+    // Gets the installed package
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: InstalledPackageVersion
+    void GetInstalledPackage(Execution::Context& context);
 }
 
 // Passes the context to the function if it has not been terminated; returns the context.

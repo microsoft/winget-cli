@@ -118,7 +118,7 @@ namespace AppInstaller::CLI::Workflow
             if (context.Args.Contains(Execution::Args::Type::Source) && !sources.empty())
             {
                 // A bad name was given, try to help.
-                context.Reporter.Error() << "No sources match the given value: " << sourceName << std::endl;
+                context.Reporter.Error() << "No sources match the given value: " << context.Args.GetArg(Execution::Args::Type::Source) << std::endl;
                 context.Reporter.Info() << "The configured sources are:" << std::endl;
                 for (const auto& details : sources)
                 {
@@ -134,6 +134,22 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED);
             }
         }
+        else
+        {
+            context.Add<Execution::Data::Source>(std::move(source));
+        }
+    }
+
+    void GetCompositeSourceFromInstalledAndAvailable(Execution::Context& context)
+    {
+        context << OpenSource;
+
+        std::shared_ptr<Repository::ISource> availableSource = context.Get<Execution::Data::Source>();
+
+        std::shared_ptr<Repository::ISource> installedSource = context.Reporter.ExecuteWithProgress(
+            std::bind(Repository::OpenPredefinedSource, PredefinedSource::Installed, std::placeholders::_1), true);
+
+        std::shared_ptr<Repository::ISource> source = CreateCompositeSource(installedSource, availableSource);
 
         context.Add<Execution::Data::Source>(std::move(source));
     }
@@ -281,7 +297,18 @@ namespace AppInstaller::CLI::Workflow
         if (searchResult.Matches.size() == 0)
         {
             Logging::Telemetry().LogNoAppMatch();
-            context.Reporter.Info() << Resource::String::NoPackageFound << std::endl;
+
+            if (context.Contains(Execution::Data::CommandType) &&
+                (context.Get<Execution::Data::CommandType>() == Execution::CommandType::Update ||
+                 context.Get<Execution::Data::CommandType>() == Execution::CommandType::Uninstall))
+            {
+                context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
+            }
+            else
+            {
+                context.Reporter.Info() << Resource::String::NoPackageFound << std::endl;
+            }
+
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
         }
     }
@@ -297,7 +324,18 @@ namespace AppInstaller::CLI::Workflow
             if (searchResult.Matches.size() > 1)
             {
                 Logging::Telemetry().LogMultiAppMatch();
-                context.Reporter.Warn() << Resource::String::MultiplePackagesFound << std::endl;
+
+                if (context.Contains(Execution::Data::CommandType) &&
+                    (context.Get<Execution::Data::CommandType>() == Execution::CommandType::Update ||
+                     context.Get<Execution::Data::CommandType>() == Execution::CommandType::Uninstall))
+                {
+                    context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Warn() << Resource::String::MultiplePackagesFound << std::endl;
+                }
+
                 context << ReportSearchResult;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
             }
@@ -403,7 +441,15 @@ namespace AppInstaller::CLI::Workflow
 
     void SelectInstaller(Execution::Context& context)
     {
-        ManifestComparator manifestComparator(context.Args);
+        std::optional<std::map<std::string, std::string>> installationMetadata;
+
+        if (context.Contains(Execution::Data::CommandType) && context.Get<Execution::Data::CommandType>() == Execution::CommandType::Update)
+        {
+            const auto& installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
+            installationMetadata = installedPackage->GetInstallationMetadata();
+        }
+
+        ManifestComparator manifestComparator(context.Args, installationMetadata);
         context.Add<Execution::Data::Installer>(manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>()));
     }
 
@@ -425,6 +471,24 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Error, << Settings::ExperimentalFeature::GetFeature(m_feature).Name() << " feature is disabled. Execution cancelled.");
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
         }
+    }
+
+    void SearchSourceUsingManifest(Execution::Context& context)
+    {
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
+
+        SearchRequest searchRequest;
+        searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, manifest.Id));
+        // In case there're same Ids from different sources, filter the result using package name
+        searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Name, MatchType::Exact, manifest.Name));
+
+        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>()->Search(searchRequest));
+    }
+
+    void GetInstalledPackage(Execution::Context& context)
+    {
+        const auto& searchResult = context.Get<Execution::Data::SearchResult>();
+        context.Add<Execution::Data::InstalledPackageVersion>(searchResult.Matches.at(0).Package->GetInstalledVersion());
     }
 }
 

@@ -341,11 +341,11 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Failed to calculate MSIX signature hash.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Failed to install Microsoft Store package because the specific app is blocked by policy</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Failed to install or update Microsoft Store package because the specific app is blocked by policy</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Failed to install Microsoft Store package. Error code:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Failed to install or update Microsoft Store package. Error code:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Verifying/Requesting package acquisition failed: network error</value>
@@ -359,11 +359,14 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Verifying/Requesting package acquisition success</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Failed to install Microsoft Store package because Microsoft Store client is blocked by policy</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Failed to install or update Microsoft Store package because Microsoft Store client is blocked by policy</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Verifying/Requesting package acquisition...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Multiple installed packages found matching input criteria. Please refine the input.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Multiple packages found matching input criteria. Please refine the input.</value>
@@ -376,6 +379,9 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>There are currently no exprimental features available. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>No installed package found matching input criteria.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>No package found matching input criteria.</value>
@@ -619,13 +625,26 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Argument provided more times than allowed</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>More than one install behavior argument provided</value>
+    <value>More than one execution behavior argument provided</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>An unexpected error occurred while executing the command:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Unrecognized command</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Update all installed packages to latest if avaialable</value>
+  </data>
+  <data name="UpdateCommandLongDescription" xml:space="preserve">
+    <value>Updates the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpdateCommandShortDescription" xml:space="preserve">
+    <value>Updates the given package</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>No applicable update found.</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>usage</value>

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "WorkflowBase.h"
 #include "ManifestComparator.h"
 
 using namespace AppInstaller::CLI;
@@ -10,6 +11,28 @@ namespace AppInstaller::CLI::Workflow
 {
     bool InstallerComparator::operator() (const ManifestInstaller& installer1, const ManifestInstaller& installer2)
     {
+        // Applicable architecture should always come before inapplicable architecture
+        if (Utility::IsApplicableArchitecture(installer1.Arch) != -1 && Utility::IsApplicableArchitecture(installer2.Arch) == -1)
+        {
+            return true;
+        }
+
+        // If there's installation metadata, pick the preferred one or compatible one
+        if (m_installationMetadata.has_value())
+        {
+            auto installedType = Manifest::ManifestInstaller::ConvertToInstallerTypeEnum(
+                m_installationMetadata.value().find(s_InstallationMetadata_Key_InstallerType)->second);
+            if (installer1.InstallerType == installedType && installer2.InstallerType != installedType)
+            {
+                return true;
+            }
+            if (Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer1.InstallerType, installedType) &&
+                !Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer2.InstallerType, installedType))
+            {
+                return true;
+            }
+        }
+
         // Todo: Compare only architecture for now. Need more work and spec.
         if (Utility::IsApplicableArchitecture(installer1.Arch) > Utility::IsApplicableArchitecture(installer2.Arch))
         {
@@ -41,12 +64,24 @@ namespace AppInstaller::CLI::Workflow
 
         // Sorting the list of available installers according to rules defined in InstallerComparator.
         auto installers = manifest.Installers;
-        std::sort(installers.begin(), installers.end(), InstallerComparator());
+        std::sort(installers.begin(), installers.end(), m_installerComparator);
 
-        // If the first one is inapplicable, then no installer is applicable.
+        // If the first one's architecture is inapplicable, then no installer is applicable.
         if (Utility::IsApplicableArchitecture(installers[0].Arch) == -1)
         {
             return {};
+        }
+
+        // If the first one's InstallerType is inapplicable, then no installer is applicable.
+        if (m_installationMetadata.has_value())
+        {
+            std::string installedType = m_installationMetadata.value().find(s_InstallationMetadata_Key_InstallerType)->second;
+            if (!Manifest::ManifestInstaller::IsInstallerTypeCompatible(
+                installers[0].InstallerType,
+                Manifest::ManifestInstaller::ConvertToInstallerTypeEnum(installedType)))
+            {
+                return {};
+            }
         }
 
         ManifestInstaller& selectedInstaller = installers[0];
@@ -66,7 +101,7 @@ namespace AppInstaller::CLI::Workflow
         if (!manifest.Localization.empty())
         {
             auto localization = manifest.Localization;
-            std::sort(localization.begin(), localization.end(), LocalizationComparator());
+            std::sort(localization.begin(), localization.end(), m_localizationComparator);
 
             // TODO: needs to check language applicability here
 

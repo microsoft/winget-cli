@@ -6,6 +6,7 @@
 #include <AppInstallerDownloader.h>
 #include <AppInstallerStrings.h>
 #include <Workflows/InstallFlow.h>
+#include <Workflows/MSStoreInstallerHandler.h>
 #include <Workflows/ShowFlow.h>
 #include <Workflows/ShellExecuteInstallerHandler.h>
 #include <Workflows/WorkflowBase.h>
