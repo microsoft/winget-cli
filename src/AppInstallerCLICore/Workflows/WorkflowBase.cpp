@@ -10,6 +10,7 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    using namespace AppInstaller::Utility::literals;
     using namespace AppInstaller::Repository;
 
     namespace
@@ -107,7 +108,7 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (...)
         {
-            context.Reporter.Error() << "Failed to open the source; try removing and re-adding it" << std::endl;
+            context.Reporter.Error() << Resource::String::SourceOpenFailedSuggestion << std::endl;
             throw;
         }
 
@@ -118,11 +119,11 @@ namespace AppInstaller::CLI::Workflow
             if (context.Args.Contains(Execution::Args::Type::Source) && !sources.empty())
             {
                 // A bad name was given, try to help.
-                context.Reporter.Error() << "No sources match the given value: " << sourceName << std::endl;
-                context.Reporter.Info() << "The configured sources are:" << std::endl;
+                context.Reporter.Error() << Resource::String::NoSourcesMatchValue << " : "_liv << sourceName << std::endl;
+                context.Reporter.Info() <<  Resource::String::ConfiguredSourcesListing << " :"_liv << std::endl;
                 for (const auto& details : sources)
                 {
-                    context.Reporter.Info() << "  " << details.Name << std::endl;
+                    context.Reporter.Info() << "  "_liv << details.Name << std::endl;
                 }
 
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
@@ -130,10 +131,29 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 // Even if a name was given, there are no sources
-                context.Reporter.Error() << "No sources defined; add one with 'source add' or reset to defaults with 'source reset'" << std::endl;
+                context.Reporter.Error() << Resource::String::NoSourcesDefinedSuggestion << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED);
             }
         }
+
+        context.Add<Execution::Data::Source>(std::move(source));
+    }
+
+    void OpenPredefinedSource::operator()(Execution::Context& context) const
+    {
+        std::shared_ptr<Repository::ISource> source;
+        try
+        {
+            source = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenPredefinedSource, m_predefinedSource, std::placeholders::_1), true);
+        }
+        catch (...)
+        {
+            context.Reporter.Error() << Resource::String::SourceOpenPredefinedFailedSuggestion << std::endl;
+            throw;
+        }
+
+        // A well known predefined source should return a value.
+        THROW_HR_IF(E_UNEXPECTED, !source);
 
         context.Add<Execution::Data::Source>(std::move(source));
     }
@@ -264,6 +284,41 @@ namespace AppInstaller::CLI::Workflow
                 GetMatchCriteriaDescriptor(searchResult.Matches[i]),
                 searchResult.Matches[i].SourceName
             });
+        }
+
+        table.Complete();
+
+        if (searchResult.Truncated)
+        {
+            context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
+        }
+    }
+
+    void ReportListResult(Execution::Context& context)
+    {
+        auto& searchResult = context.Get<Execution::Data::SearchResult>();
+
+        Execution::TableOutput<5> table(context.Reporter, { Resource::String::SearchName, Resource::String::SearchId, Resource::String::SearchVersion, Resource::String::AvailableHeader });
+
+        for (size_t i = 0; i < searchResult.Matches.size(); ++i)
+        {
+            auto installedVersion = searchResult.Matches[i].Package->GetInstalledVersion();
+
+            if (installedVersion)
+            {
+                Utility::LocIndString availableVersion;
+                if (searchResult.Matches[i].Package->IsUpdateAvailable())
+                {
+                    availableVersion = searchResult.Matches[i].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Version);
+                }
+
+                table.OutputLine({
+                    installedVersion->GetProperty(PackageVersionProperty::Name),
+                    installedVersion->GetProperty(PackageVersionProperty::Id),
+                    installedVersion->GetProperty(PackageVersionProperty::Version),
+                    availableVersion
+                    });
+            }
         }
 
         table.Complete();

@@ -50,6 +50,20 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Source
     void OpenSource(Execution::Context& context);
 
+    // Creates a source object for a predefined 
+    // Required Args: None
+    // Inputs: None
+    // Outputs: Source
+    struct OpenPredefinedSource : public WorkflowTask
+    {
+        OpenPredefinedSource(Repository::PredefinedSource source) : WorkflowTask("OpenPredefinedSource"), m_predefinedSource(source) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Repository::PredefinedSource m_predefinedSource;
+    };
+
     // Performs a search on the source.
     // Required Args: None
     // Inputs: Source
@@ -95,6 +109,12 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: SearchResult
     // Outputs: None
     void ReportSearchResult(Execution::Context& context);
+
+    // Outputs the search results as the list command would show.
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: None
+    void ReportListResult(Execution::Context& context);
 
     // Ensures that there is at least one result in the search.
     // Required Args: None

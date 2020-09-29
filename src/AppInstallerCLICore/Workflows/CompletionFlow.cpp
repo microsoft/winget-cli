@@ -107,8 +107,27 @@ namespace AppInstaller::CLI::Workflow
         switch (m_type)
         {
         case Execution::Args::Type::Query:
+        case Execution::Args::Type::Id:
+        case Execution::Args::Type::Name:
+        case Execution::Args::Type::Moniker:
+        case Execution::Args::Type::Tag:
+        case Execution::Args::Type::Command:
+        case Execution::Args::Type::Version:
+        case Execution::Args::Type::Channel:
             context <<
-                Workflow::OpenSource <<
+                Workflow::OpenSource;
+            break;
+        }
+
+        context << CompleteWithSingleSemanticsForValueUsingExistingSource(m_type);
+    }
+
+    void CompleteWithSingleSemanticsForValueUsingExistingSource::operator()(Execution::Context& context) const
+    {
+        switch (m_type)
+        {
+        case Execution::Args::Type::Query:
+            context <<
                 Workflow::RequireCompletionWordNonEmpty <<
                 Workflow::SearchSourceForSingleCompletion <<
                 Workflow::CompleteWithMatchedField;
@@ -118,38 +137,32 @@ namespace AppInstaller::CLI::Workflow
             break;
         case Execution::Args::Type::Id:
             context <<
-                Workflow::OpenSource <<
                 Workflow::SearchSourceForCompletionField(Repository::PackageMatchField::Id) <<
                 Workflow::CompleteWithMatchedField;
             break;
         case Execution::Args::Type::Name:
             context <<
-                Workflow::OpenSource <<
                 Workflow::SearchSourceForCompletionField(Repository::PackageMatchField::Name) <<
                 Workflow::CompleteWithMatchedField;
             break;
         case Execution::Args::Type::Moniker:
             context <<
-                Workflow::OpenSource <<
                 Workflow::SearchSourceForCompletionField(Repository::PackageMatchField::Moniker) <<
                 Workflow::CompleteWithMatchedField;
             break;
         case Execution::Args::Type::Tag:
             context <<
-                Workflow::OpenSource <<
                 Workflow::SearchSourceForCompletionField(Repository::PackageMatchField::Tag) <<
                 Workflow::CompleteWithMatchedField;
             break;
         case Execution::Args::Type::Command:
             context <<
-                Workflow::OpenSource <<
                 Workflow::SearchSourceForCompletionField(Repository::PackageMatchField::Command) <<
                 Workflow::CompleteWithMatchedField;
             break;
         case Execution::Args::Type::Version:
             // Here we require that the standard search finds a single entry, and we list those versions.
             context <<
-                Workflow::OpenSource <<
                 Workflow::SearchSourceForSingle <<
                 Workflow::EnsureOneMatchFromSearchResult <<
                 Workflow::CompleteWithSearchResultVersions;
@@ -157,7 +170,6 @@ namespace AppInstaller::CLI::Workflow
         case Execution::Args::Type::Channel:
             // Here we require that the standard search finds a single entry, and we list those channels.
             context <<
-                Workflow::OpenSource <<
                 Workflow::SearchSourceForSingle <<
                 Workflow::EnsureOneMatchFromSearchResult <<
                 Workflow::CompleteWithSearchResultChannels;

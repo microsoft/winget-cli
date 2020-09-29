@@ -67,3 +67,13 @@ Microsoft Store App support in WinGet is currently implemented as an experimenta
        "experimentalMSStore": true
    },
 ```
+
+### list
+
+While work is in progress on list, the command is hidden behind a feature toggle. One can enable it as below:
+
+```
+   "experimentalFeatures": {
+       "list": true
+   },
+```

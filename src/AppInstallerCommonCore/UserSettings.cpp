@@ -196,6 +196,12 @@ namespace AppInstaller::Settings
         {
             return value;
         }
+
+        std::optional<SettingMapping<Setting::EFList>::value_t>
+            SettingMapping<Setting::EFList>::Validate(const SettingMapping<Setting::EFList>::json_t& value)
+        {
+            return value;
+        }
     }
 
     UserSettings::UserSettings() : m_type(UserSettingsType::Default)

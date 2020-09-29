@@ -52,6 +52,21 @@ namespace AppInstaller::CLI::Workflow
         Execution::Args::Type m_type;
     };
 
+    // Executes the appropriate completion flow for the given argument in the context of a command
+    // that targets a single manifest (ex. show or install), using the already open source.
+    // Required Args: None
+    // Inputs: CompletionData, Source
+    // Outputs: None
+    struct CompleteWithSingleSemanticsForValueUsingExistingSource : public WorkflowTask
+    {
+        CompleteWithSingleSemanticsForValueUsingExistingSource(Execution::Args::Type type) : WorkflowTask("CompleteWithSingleSemanticsForValueUsingExistingSource"), m_type(type) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Execution::Args::Type m_type;
+    };
+
     // Outputs an empty line to indicate that there are no completions.
     // Required Args: None
     // Inputs: None

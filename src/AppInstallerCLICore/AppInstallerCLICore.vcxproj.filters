@@ -123,6 +123,9 @@
     <ClInclude Include="ChannelStreams.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\ListCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -211,6 +214,9 @@
     </ClCompile>
     <ClCompile Include="ChannelStreams.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ListCommand.cpp">
+      <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

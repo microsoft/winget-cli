@@ -130,6 +130,10 @@
     <value>The following commands are available:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Available</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>The following options are available:</value>
   </data>
@@ -158,6 +162,9 @@
   </data>
   <data name="CompleteCommandShortDescription" xml:space="preserve">
     <value>Enables context sensitive command line completion</value>
+  </data>
+  <data name="ConfiguredSourcesListing" xml:space="preserve">
+    <value>The configured sources are</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Show no more than specified number of results</value>
@@ -304,6 +311,13 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Links</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>The list command displays the packages installed on the system, as well as whether an update is available. Additional options can be provided to filter the output, much like the search command.</value>
+    <comment>{Locked="list"}{Locked="search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Display installed packages</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Location to install to (if supported)</value>
   </data>
@@ -380,6 +394,13 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="NoPackageFound" xml:space="preserve">
     <value>No package found matching input criteria.</value>
   </data>
+  <data name="NoSourcesDefinedSuggestion" xml:space="preserve">
+    <value>No sources defined; add one with 'source add' or reset to defaults with 'source reset'</value>
+    <comment>{Locked="source add"}{Locked="source reset"}</comment>
+  </data>
+  <data name="NoSourcesMatchValue" xml:space="preserve">
+    <value>No sources match the given value</value>
+  </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Disables VirtualTerminal display</value>
     <comment>{Locked="VirtualTerminal"}</comment>
@@ -420,7 +441,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Progress display as the default color</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Searches for pacakges from configured sources.</value>
+    <value>Searches for packages from configured sources.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Find and show basic info of packages</value>
@@ -550,6 +571,14 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Name of the source</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Failed to open the source; try the 'source reset' command if the problem persists.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Failed to open the predefined source; please report to winget maintainers.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Removing all sources...</value>
