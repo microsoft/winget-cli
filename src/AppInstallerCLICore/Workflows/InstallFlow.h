@@ -82,9 +82,22 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: InstallerPath
     // Outputs: None
     void RemoveInstaller(Execution::Context& context);
-
-    void PWAInstall(Execution::Context& context);
-    void LaunchPWA(Execution::Context& context);
+    
+    //Generates the MSIX for PWA
+    //Required Args: None
+    //Inputs: Manifest
+    //Outputs: None
     void GeneratePwaMsix(Execution::Context& context);
 
+    //Installs the PWA using the generated MSIX
+    //Required Args: None
+    //Inputs: InstallerPath
+    //Outputs: None
+    void PWAInstall(Execution::Context& context);
+
+    //Launches the PWA if the interactive flag is on
+    //Required args: None
+    //Inputs: Manifest
+    //Outputs : None
+    void LaunchPWA(Execution::Context& context);
 }
