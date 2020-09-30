@@ -1,4 +1,5 @@
 {
+  "$id": "https://aka.ms/winget-settings.schema.json",
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
   "title": "Microsoft's Windows Terminal Settings Profile Schema",
   "definitions": {
