@@ -65,7 +65,6 @@ namespace IndexCreationTool
                         outputFile.WriteLine($"\"{IndexName}\" \"{IndexPathInPackage}\"");
                         outputFile.WriteLine($"\"{appxManifestPath}\" \"AppxManifest.xml\"");
                     }
-
                     RunCommand("makeappx.exe", $"pack /f MappingFile.txt /o /nv /p {IndexPackageName}");
 
                     if (!string.IsNullOrEmpty(certPath))

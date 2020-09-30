@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerRepositorySource.h"
-#include <winget/UserSettings.h>
 
+#include "AggregatedSource.h"
 #include "SourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 
@@ -28,6 +28,10 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_Source_WingetCommunityDefault_Name = "winget"sv;
     constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://winget.azureedge.net/cache"sv;
     constexpr std::string_view s_Source_WingetCommunityDefault_Data = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
+
+    constexpr std::string_view s_Source_WingetMSStoreDefault_Name = "msstore"sv;
+    constexpr std::string_view s_Source_WingetMSStoreDefault_Arg = "https://winget.azureedge.net/msstore"sv;
+    constexpr std::string_view s_Source_WingetMSStoreDefault_Data = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
 
     namespace
     {
@@ -80,7 +84,7 @@ namespace AppInstaller::Repository
             {
                 document = YAML::Load(settingValue);
             }
-            catch (const std::runtime_error& e)
+            catch (const std::exception& e)
             {
                 AICLI_LOG(YAML, Error, << "Setting '" << settingName << "' contained invalid YAML (" << e.what() << "):\n" << settingValue);
                 return false;
@@ -88,7 +92,7 @@ namespace AppInstaller::Repository
 
             try
             {
-                YAML::Node sources = document[std::string{ rootName }];
+                YAML::Node sources = document[rootName];
                 if (!sources)
                 {
                     AICLI_LOG(Repo, Error, << "Setting '" << settingName << "' did not contain the expected format (missing " << rootName << "):\n" << settingValue);
@@ -107,7 +111,7 @@ namespace AppInstaller::Repository
                     return false;
                 }
 
-                for (const auto& source : sources)
+                for (const auto& source : sources.Sequence())
                 {
                     SourceDetailsInternal details;
                     if (!parse(details, settingValue, source))
@@ -118,7 +122,7 @@ namespace AppInstaller::Repository
                     result.emplace_back(std::move(details));
                 }
             }
-            catch (const std::runtime_error& e)
+            catch (const std::exception& e)
             {
                 AICLI_LOG(YAML, Error, << "Setting '" << settingName << "' contained unexpected YAML (" << e.what() << "):\n" << settingValue);
                 return false;
@@ -189,6 +193,16 @@ namespace AppInstaller::Repository
                 details.Arg = s_Source_WingetCommunityDefault_Arg;
                 details.Data = s_Source_WingetCommunityDefault_Data;
                 result.emplace_back(std::move(details));
+
+                if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore))
+                {
+                    SourceDetailsInternal storeDetails;
+                    storeDetails.Name = s_Source_WingetMSStoreDefault_Name;
+                    storeDetails.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+                    storeDetails.Arg = s_Source_WingetMSStoreDefault_Arg;
+                    storeDetails.Data = s_Source_WingetMSStoreDefault_Data;
+                    result.emplace_back(std::move(storeDetails));
+                }
             }
                 break;
             case SourceOrigin::User:
@@ -268,12 +282,6 @@ namespace AppInstaller::Repository
             return result;
         }
 
-        // Make up for the lack of string_view support in YAML CPP.
-        YAML::Emitter& operator<<(YAML::Emitter& out, std::string_view sv)
-        {
-            return (out << std::string(sv));
-        }
-
         // Sets the sources for a particular setting, from a particular origin.
         void SetSourcesToSettingWithFilter(const Settings::StreamDefinition& setting, SourceOrigin origin, const std::vector<SourceDetailsInternal>& sources)
         {
@@ -299,7 +307,7 @@ namespace AppInstaller::Repository
             out << YAML::EndSeq;
             out << YAML::EndMap;
 
-            Settings::SetSetting(setting, out.c_str());
+            Settings::SetSetting(setting, out.str());
         }
 
         // Sets the metadata only (which is not a secure setting and can be set unprivileged)
@@ -321,7 +329,7 @@ namespace AppInstaller::Repository
             out << YAML::EndSeq;
             out << YAML::EndMap;
 
-            Settings::SetSetting(Settings::Streams::SourcesMetadata, out.c_str());
+            Settings::SetSetting(Settings::Streams::SourcesMetadata, out.str());
         }
 
         // Sets the sources for a given origin.
@@ -512,11 +520,37 @@ namespace AppInstaller::Repository
                 AICLI_LOG(Repo, Info, << "Default source requested, but no sources configured");
                 return {};
             }
+            else if(currentSources.size() == 1)
+            {
+                AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].Name);
+                return OpenSource(currentSources[0].Name, progress);
+            }
             else
             {
-                // TODO: Create aggregate source here.  For now, just get the first in the list.
-                AICLI_LOG(Repo, Info, << "Default source requested, using first source: " << currentSources[0].Name);
-                return OpenSource(currentSources[0].Name, progress);
+                AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, creating aggregated source.");
+                auto aggregatedSource = std::make_shared<AggregatedSource>("*DefaultSource");
+
+                bool sourceUpdated = false;
+                for (auto& source : currentSources)
+                {
+                    AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << source.Name);
+
+                    if (ShouldUpdateBeforeOpen(source))
+                    {
+                        // TODO: Consider adding a context callback to indicate we are doing the same action
+                        // to avoid the progress bar fill up multiple times.
+                        UpdateSourceFromDetails(source, progress);
+                        sourceUpdated = true;
+                    }
+                    aggregatedSource->AddSource(CreateSourceFromDetails(source, progress));
+                }
+
+                if (sourceUpdated)
+                {
+                    SetMetadata(currentSources);
+                }
+
+                return aggregatedSource;
             }
         }
         else
@@ -539,6 +573,35 @@ namespace AppInstaller::Repository
                 return CreateSourceFromDetails(*itr, progress);
             }
         }
+    }
+
+    std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress)
+    {
+        SourceDetails details;
+
+        switch (source)
+        {
+        case PredefinedSource::Installed:
+            // TODO: Pull directly from factory
+            details.Type = "Microsoft.Predefined.Installed";
+            return CreateSourceFromDetails(details, progress);
+        case PredefinedSource::ARP_System:
+            // TODO: Pull directly from factory
+            details.Type = "Microsoft.Predefined.ARP";
+            details.Arg = "system";
+            return CreateSourceFromDetails(details, progress);
+        case PredefinedSource::ARP_User:
+            // TODO: Pull directly from factory
+            details.Type = "Microsoft.Predefined.ARP";
+            details.Arg = "user";
+            return CreateSourceFromDetails(details, progress);
+        case PredefinedSource::MSIX:
+            // TODO: Pull directly from factory
+            details.Type = "Microsoft.Predefined.MSIX";
+            return CreateSourceFromDetails(details, progress);
+        }
+
+        THROW_HR(E_UNEXPECTED);
     }
 
     bool UpdateSource(std::string_view name, IProgressCallback& progress)
@@ -598,6 +661,20 @@ namespace AppInstaller::Repository
                 THROW_HR(E_UNEXPECTED);
             }
 
+            // Add back tombstoned default sources, otherwise the info will be lost by SetSourcesByOrigin
+            auto defaultSources = GetSourcesByOrigin(SourceOrigin::Default);
+            for (const auto& defaultSource : defaultSources)
+            {
+                if (FindSourceByName(currentSources, defaultSource.Name) == currentSources.end())
+                {
+                    SourceDetailsInternal tombstone;
+                    tombstone.Name = defaultSource.Name;
+                    tombstone.IsTombstone = true;
+                    tombstone.Origin = SourceOrigin::User;
+                    currentSources.emplace_back(std::move(tombstone));
+                }
+            }
+
             SetSourcesByOrigin(SourceOrigin::User, currentSources);
 
             return true;
@@ -654,12 +731,12 @@ namespace AppInstaller::Repository
 
         for (const auto& include : Inclusions)
         {
-            result << " Inclusions:" << ApplicationMatchFieldToString(include.Field) << "='" << include.Value << "'[" << MatchTypeToString(include.Type) << "]";
+            result << " Inclusions:" << PackageMatchFieldToString(include.Field) << "='" << include.Value << "'[" << MatchTypeToString(include.Type) << "]";
         }
 
         for (const auto& filter : Filters)
         {
-            result << " Filter:" << ApplicationMatchFieldToString(filter.Field) << "='" << filter.Value << "'[" << MatchTypeToString(filter.Type) << "]";
+            result << " Filter:" << PackageMatchFieldToString(filter.Field) << "='" << filter.Value << "'[" << MatchTypeToString(filter.Type) << "]";
         }
 
         if (MaximumResults)

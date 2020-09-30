@@ -147,8 +147,17 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>លទ្ធផល​តម្រង​តាម​ពាក្យ​បញ្ជា</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>បន្ទាត់បញ្ជា​ពេញលេញ​សម្រាប់ការបំពេញ</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>ពាក្យ​បញ្ជា​នេះ​ទាមទារ​​សិទ្ធិ​ជា​អ្នកគ្រប់គ្រង​ដើម្បី​ប្រតិបត្តិ។</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>ការ​​បញ្ជានេះ​អាច​ប្រើ​បានដើម្បីស្នើសុំ​ការបំពេញ​បន្ទាត់​ពាក្យ​បញ្ជា​ដែល​រសើប​ខាងបរិបទ។ បន្ទាត់ពាក្យ​បញ្ជា​ ទីតាំងទស្សន៍ទ្រនិច និង ពាក្យ​​ដែលត្រូវបំពេញ​ ត្រូវ​បាន​ចម្លង​បញ្ចូល។ លទ្ធផល​ជា​សំណុំ​តម្លៃ​ដែលអាចមាន ផ្អែកលើ​ទិន្នន័យ​បញ្ចូល​ ត្រឹម​តម្លៃដែលអាចមានមួយ​ប៉ុណ្ណោះ​ក្នុង​មួយ​បន្ទាត់។</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>បើក​ដំណើរការការបំពេញ​​បន្ទាត់​ពាក្យ​បញ្ជា​ដែល​រសើបខាងបរិបទ</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>មិន​បង្ហាញ​ច្រើន​ជាងចំនួនលទ្ធផល​ដែល​បាន​បញ្ជាក់</value>
@@ -389,6 +398,9 @@
   <data name="PendingWorkError" xml:space="preserve">
     <value>អូ យើងភ្លេចធ្វើ...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>ទីតាំង​របស់​ទស្ស​ន៍ទ្រនិច​នៅក្នុង​បន្ទាត់​ពាក្យ​បញ្ជា</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>មើលជាមុន</value>
   </data>
@@ -422,6 +434,9 @@
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>ឈ្មោះ</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>ប្រភព</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>ធាតុបន្ថែមបានកាត់ដោយសារតែដែនកំណត់លទ្ធផល</value>
@@ -636,5 +651,8 @@
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>បង្ហាញ​កំណែដែលមាន​របស់កញ្ចប់</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>តម្លៃដែលបានផ្តល់មកមុនពេល​ស្នើសុំ​ការបញ្ចប់</value>
   </data>
 </root>

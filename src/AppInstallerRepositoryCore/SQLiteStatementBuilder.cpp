@@ -598,6 +598,24 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::CreateUniqueIndex(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE UNIQUE INDEX", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::CreateUniqueIndex(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE UNIQUE INDEX", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::CreateUniqueIndex(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE UNIQUE INDEX", table);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::DropIndex(std::string_view table)
     {
         OutputOperationAndTable(m_stream, "DROP INDEX", table);
@@ -695,7 +713,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
-    Statement StatementBuilder::Prepare(Connection& connection)
+    Statement StatementBuilder::Prepare(const Connection& connection)
     {
         Statement result = Statement::Create(connection, m_stream.str());
         for (const auto& f : m_binders)
@@ -705,7 +723,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         return result;
     }
 
-    void StatementBuilder::Execute(Connection& connection)
+    void StatementBuilder::Execute(const Connection& connection)
     {
         Prepare(connection).Execute();
     }

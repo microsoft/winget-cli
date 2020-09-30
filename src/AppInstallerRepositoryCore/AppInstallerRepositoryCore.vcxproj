@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.191111.2\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.191111.2\build\native\Microsoft.Windows.CppWinRT.props')" />
+  <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.200729.8\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.200729.8\build\native\Microsoft.Windows.CppWinRT.props')" />
   <PropertyGroup Label="Globals">
     <CppWinRTOptimized>true</CppWinRTOptimized>
     <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
@@ -122,9 +122,9 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;Ole32.lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;Ole32.lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;Ole32.lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatWarningAsError>
@@ -139,7 +139,7 @@
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;Ole32.lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -152,10 +152,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\YamlCppLib\yaml-cpp\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;Ole32.lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;Ole32.lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;Ole32.lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;Ole32.lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</TreatWarningAsError>
@@ -172,12 +172,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AggregatedSource.h" />
     <ClInclude Include="ICU\SQLiteICU.h" />
-    <ClInclude Include="Manifest\Manifest.h" />
-    <ClInclude Include="Manifest\ManifestInstaller.h" />
-    <ClInclude Include="Manifest\ManifestLocalization.h" />
-    <ClInclude Include="Manifest\YamlParser.h" />
-    <ClInclude Include="Manifest\ManifestValidation.h" />
     <ClInclude Include="Microsoft\PreIndexedPackageSourceFactory.h" />
     <ClInclude Include="Microsoft\Schema\1_0\ChannelTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\CommandsTable.h" />
@@ -192,6 +188,10 @@
     <ClInclude Include="Microsoft\Schema\1_0\SearchResultsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\TagsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\VersionTable.h" />
+    <ClInclude Include="Microsoft\Schema\1_1\Interface.h" />
+    <ClInclude Include="Microsoft\Schema\1_1\PackageFamilyNameTable.h" />
+    <ClInclude Include="Microsoft\Schema\1_1\ProductCodeTable.h" />
+    <ClInclude Include="Microsoft\Schema\1_1\SearchResultsTable.h" />
     <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h" />
     <ClInclude Include="Microsoft\Schema\MetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\Version.h" />
@@ -206,6 +206,7 @@
     <ClInclude Include="SQLiteWrapper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AggregatedSource.cpp" />
     <ClCompile Include="ICU\SQLiteICU.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -216,17 +217,15 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Manifest\Manifest.cpp" />
-    <ClCompile Include="Manifest\ManifestInstaller.cpp" />
-    <ClCompile Include="Manifest\YamlParser.cpp" />
-    <ClCompile Include="Manifest\ManifestValidation.cpp" />
     <ClCompile Include="Microsoft\PreIndexedPackageSourceFactory.cpp" />
-    <ClCompile Include="Microsoft\Schema\1_0\Interface.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_0\Interface_1_0.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\ManifestTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\OneToManyTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\OneToOneTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\PathPartTable.cpp" />
-    <ClCompile Include="Microsoft\Schema\1_0\SearchResultsTable.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_0\SearchResultsTable_1_0.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_1\Interface_1_1.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_1\SearchResultsTable_1_1.cpp" />
     <ClCompile Include="Microsoft\Schema\MetadataTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />
@@ -246,15 +245,15 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.191111.2\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.191111.2\build\native\Microsoft.Windows.CppWinRT.targets')" />
-    <Import Project="$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.191107.2\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.191107.2\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
+    <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.200729.8\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.200729.8\build\native\Microsoft.Windows.CppWinRT.targets')" />
+    <Import Project="$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.200519.2\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.200519.2\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.191111.2\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.191111.2\build\native\Microsoft.Windows.CppWinRT.props'))" />
-    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.191111.2\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.191111.2\build\native\Microsoft.Windows.CppWinRT.targets'))" />
-    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.191107.2\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.191107.2\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
+    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.200729.8\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.200729.8\build\native\Microsoft.Windows.CppWinRT.props'))" />
+    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.200729.8\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.200729.8\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.200519.2\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.200519.2\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
   </Target>
 </Project>

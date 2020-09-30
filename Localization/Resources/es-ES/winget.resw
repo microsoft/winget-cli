@@ -138,7 +138,7 @@
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
-    <value>Usar el canal especificado, el valor predeterminado es público general</value>
+    <value>Usar el canal especificado; el valor predeterminado es público general</value>
   </data>
   <data name="Command" xml:space="preserve">
     <value>comando</value>
@@ -147,11 +147,20 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtrar resultados por comando</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>Línea de comandos completa para la finalización</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>Este comando requiere que se ejecuten privilegios de administrador.</value>
   </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>Este comando puede usarse para solicitar la finalización sensible al contexto de la línea de comandos. Se pasan la línea de comandos, la posición del cursor y la palabra que se debe completar. El resultado es un conjunto de valores potenciales basado en las entradas, un valor posible por línea.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>Habilita la finalización sensible al contexto de la línea de comandos</value>
+  </data>
   <data name="CountArgumentDescription" xml:space="preserve">
-    <value>No mostrar más que el número especificado de resultados</value>
+    <value>No mostrar más del número especificado de resultados</value>
   </data>
   <data name="Done" xml:space="preserve">
     <value>Listo</value>
@@ -210,10 +219,10 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Archivo al que se va a aplicar un algoritmo hash</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
-    <value>El argumento de marca no puede contener un valor contiguo</value>
+    <value>El argumento de marca no puede contener un valor adjunto</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
-    <value>Calcula el hash de un archivo local, apropiado para la entrada en un manifiesto.  También puede calcular el hash del archivo de firma de un paquete MSIX para habilitar las instalaciones de transmisión por secuencias.</value>
+    <value>Calcula el hash de un archivo local, apropiado para la entrada en un manifiesto.  También puede calcular el hash del archivo de firma de un paquete MSIX para habilitar las instalaciones en streaming.</value>
   </data>
   <data name="HashCommandShortDescription" xml:space="preserve">
     <value>Aplicación auxiliar para aplicar un algoritmo hash a los archivos del instalador</value>
@@ -222,16 +231,16 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Muestra la ayuda sobre el comando seleccionado</value>
   </data>
   <data name="HelpForDetails" xml:space="preserve">
-    <value>Para más información sobre un comando específico, pásalo al argumento de ayuda.</value>
+    <value>Para más información sobre un comando específico, pásalo como argumento de ayuda.</value>
   </data>
   <data name="HelpLinkPreamble" xml:space="preserve">
     <value>Puedes encontrar más ayuda en:</value>
   </data>
   <data name="IdArgumentDescription" xml:space="preserve">
-    <value>Filtrar resultados por id.</value>
+    <value>Filtrar resultados por id</value>
   </data>
   <data name="InstallationDisclaimer1" xml:space="preserve">
-    <value>Esta aplicación tiene concedida una licencia para usted por parte de su propietario.</value>
+    <value>El propietario de esta aplicación le concede una licencia.</value>
   </data>
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft no es responsable, ni tampoco concede ninguna licencia de paquetes de terceros.</value>
@@ -244,21 +253,21 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>No se puede instalar el paquete porque requiere una versión superior de Windows:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Instala el paquete seleccionado, que se encuentra al buscar una fuente configurada o directamente desde un manifiesto. De forma predeterminada, la consulta debe distinguir entre mayúsculas y minúsculas la identificación, el nombre o el moniker del paquete. Se pueden usar otros campos pasando su opción apropiada.</value>
+    <value>Instala el paquete seleccionado, encontrado al buscar en una fuente configurada o bien, directamente desde un manifiesto. De forma predeterminada, la consulta debe distinguir entre mayúsculas y minúsculas el id, nombre o el moniker del paquete. Se pueden usar otros campos usando su opción apropiada.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Instala el paquete proporcionado</value>
   </data>
   <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
-    <value>El hash del instalador no coincide, no se puede reemplazar al ejecutarse como administrador</value>
+    <value>El hash del instalador no coincide; esto no se puede sobreescribir al ejecutarse como administrador</value>
   </data>
   <data name="InstallerHashMismatchOverridden" xml:space="preserve">
-    <value>El hash del instalador no coincide, prosiguiendo debido a --force</value>
+    <value>El hash del instalador no coincide, continuando debido a --force</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
-    <value>El hash del instalador no coincide, para invalidar esta verificación, use --force</value>
+    <value>El hash del instalador no coincide, para sobreescribir esta verificación, use --force</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
@@ -271,7 +280,7 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Iniciando instalación de paquete...</value>
   </data>
   <data name="InstallForceArgumentDescription" xml:space="preserve">
-    <value>Invalidar la comprobación hash del instalador</value>
+    <value>Sobreescribir la comprobación hash del instalador</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Solicitar instalación interactiva; es posible que se necesite la participación del usuario</value>
@@ -280,13 +289,13 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>No se reconoció el alias del argumento para el comando actual</value>
   </data>
   <data name="InvalidArgumentSpecifierError" xml:space="preserve">
-    <value>Especificador de argumento no válido</value>
+    <value>Argumento especificado no válido</value>
   </data>
   <data name="InvalidNameError" xml:space="preserve">
     <value>No se reconoció el nombre del argumento para el comando actual</value>
   </data>
   <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Idioma que se instalará (si se admite)</value>
+    <value>Idioma a instalar (si existe)</value>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>Contrato de licencia</value>
@@ -296,10 +305,10 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <comment>Links to different webpages</comment>
   </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
-    <value>Ubicación en la que instalar (si se admite)</value>
+    <value>Ubicación en la que instalar (si es posible)</value>
   </data>
   <data name="LogArgumentDescription" xml:space="preserve">
-    <value>Ubicación del registro (si se admite)</value>
+    <value>Ubicación del registro (si es posible)</value>
   </data>
   <data name="MainCopyrightNotice" xml:space="preserve">
     <value>Copyright (c) Microsoft Corporation. Todos los derechos reservados.</value>
@@ -321,25 +330,25 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Validación del manifiesto correcta con advertencias.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
-    <value>Se necesita un valor de argumento, pero no se encuentra ninguno</value>
+    <value>El argumento necesita un valor, pero no se encuentra ninguno</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
     <value>Filtrar resultados por moniker</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
-    <value>El archivo de entrada será tratado como msix. Si está firmado, se proporcionará hash de firma</value>
+    <value>El archivo de entrada será tratado como msix; Si está firmado, se proporcionará hash de firma</value>
   </data>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>No se pudo calcular el hash de firma MSIX.</value>
   </data>
   <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>No se pudo instalar el paquete de Microsoft Store porque la directiva ha bloqueado la aplicación específica</value>
+    <value>No se pudo instalar el paquete de Microsoft Store porque la aplicación esta bloqueada por una directiva</value>
   </data>
   <data name="MSStoreInstallFailed" xml:space="preserve">
     <value>No se pudo instalar el paquete de Microsoft Store. Código de error:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
-    <value>Error en la comprobación o solicitud de la adquisición de paquete: error de red</value>
+    <value>Error en la comprobación/solicitud de la adquisición del paquete: error de conectividad</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
     <value>Error en la comprobación o solicitud de la adquisición de paquete: no se encontró la cuenta de almacenamiento</value>
@@ -351,25 +360,25 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Comprobación o solicitud de adquisición de paquetes completada con éxito</value>
   </data>
   <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>No se pudo instalar el paquete de Microsoft Store porque la directiva ha bloqueado el cliente de Microsoft Store</value>
+    <value>No se pudo instalar el paquete de Microsoft Store porque el cliente ha sido bloqueado por la directiva</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
-    <value>Comprobación o solicitud de adquisición de paquete...</value>
+    <value>Comprobando/solicitando la adquisición del paquete...</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
-    <value>Se encontraron varios paquetes coincidentes con los criterios de entrada. Restringe la entrada.</value>
+    <value>Se encontraron varios paquetes coincidentes con los criterios de entrada. Por favor, reajusta tu busqueda.</value>
   </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtrar resultados por nombre</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>No se aplica ningún instalador al sistema actual.</value>
+    <value>No se encuentra ningún instalador para el sistema actual.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Actualmente, no hay ninguna característica experimental disponible. </value>
+    <value>Actualmente, no hay ninguna característica experimental disponible.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
-    <value>No se encontró ningún paquete coincidente con los criterios de entrada.</value>
+    <value>No se encontró ningún paquete coincidente con los criterios de busqueda.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Deshabilita la pantalla VirtualTerminal</value>
@@ -380,7 +389,7 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
-    <value>Invalidar argumentos que se van a pasar al instalador</value>
+    <value>Sobreescribir argumentos pasados al instalador</value>
   </data>
   <data name="Package" xml:space="preserve">
     <value>Paquete</value>
@@ -388,6 +397,9 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
   </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Vaya, olvidamos hacer esto...</value>
+  </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>La posición del cursor en la línea de comandos</value>
   </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Vista previa</value>
@@ -414,7 +426,7 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Buscar y mostrar información básica de paquetes</value>
   </data>
   <data name="SearchId" xml:space="preserve">
-    <value>Id.</value>
+    <value>Id</value>
     <comment>Abbreviation of Identifier.</comment>
   </data>
   <data name="SearchMatch" xml:space="preserve">
@@ -423,8 +435,11 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
   <data name="SearchName" xml:space="preserve">
     <value>Nombre</value>
   </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>Origen</value>
+  </data>
   <data name="SearchTruncated" xml:space="preserve">
-    <value>se truncaron otras entradas por el límite de resultados</value>
+    <value>se omitieron otras entradas por el límite de resultados</value>
   </data>
   <data name="SearchVersion" xml:space="preserve">
     <value>Versión</value>
@@ -445,7 +460,7 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Canal</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Muestra información sobre una paquete específico. De forma predeterminada, la consulta debe distinguir entre mayúsculas y minúsculas la identificación, el nombre o el moniker del paquete. Se pueden usar otros campos pasando su opción apropiada.</value>
+    <value>Muestra información sobre una paquete específico. De forma predeterminada, la consulta debe distinguir entre mayúsculas y minúsculas el id, el nombre o el moniker del paquete. Se pueden usar otros campos pasando su opción apropiada.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Muestra información sobre un paquete</value>
@@ -472,16 +487,16 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Agregando origen:</value>
   </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Agrega un nuevo origen. Un origen proporciona los datos para que puedas detectar e instalar paquetes. Agrega un origen nuevo solo si confías en él como una ubicación segura.</value>
+    <value>Agrega un nuevo origen. Un origen proporciona los datos para que puedas detectar e instalar paquetes. Agrega un origen nuevo solo si confías que será una ubicación segura.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
-    <value>Agregar un origen nuevo</value>
+    <value>Agregar un nuevo origen</value>
   </data>
   <data name="SourceArgArgumentDescription" xml:space="preserve">
     <value>El argumento dado al origen</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Buscar paquete con el origen especificado</value>
+    <value>Buscar paquete usando el origen especificado</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
     <value>Administrar orígenes con los subcomandos. Un origen proporciona los datos para que puedas detectar e instalar paquetes. Agrega un origen nuevo solo si confías en él como una ubicación segura.</value>
@@ -512,7 +527,7 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <comment>The name of the source.</comment>
   </data>
   <data name="SourceListNoneFound" xml:space="preserve">
-    <value>No se encontró un origen denominado:</value>
+    <value>No se encontró un origen con nombre:</value>
   </data>
   <data name="SourceListNoSources" xml:space="preserve">
     <value>No hay ningún origen configurado.</value>
@@ -552,7 +567,7 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Restableciendo todos los orígenes...</value>
   </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
-    <value>Este comando quita los orígenes existentes lo que puede dejar atrás cualquier dato local. Sin ningún argumento, eliminará todos los orígenes y agregará los valores predeterminados. Si se proporciona un origen con nombre, solo se eliminará ese origen.</value>
+    <value>Este comando quita los orígenes existentes lo que puede dejar atrás información local. Sin argumentos, eliminará todos los orígenes y agregará los valores predeterminados. Si se proporciona el nombre de un origen, solo se eliminará ese origen.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Restablecer orígenes</value>
@@ -617,7 +632,7 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
-    <value>Valida un manifiesto con un conjunto estricto de instrucciones. El propósito es poder comprobar el manifiesto antes de enviarlo a un repositorio.</value>
+    <value>Valida un manifiesto usando un conjunto estricto de instrucciones. El propósito es permitirle comprobar el manifiesto antes de enviarlo a un repositorio.</value>
   </data>
   <data name="ValidateCommandShortDescription" xml:space="preserve">
     <value>Valida un archivo de manifiesto</value>
@@ -629,12 +644,15 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Permite el registro detallado para WinGet</value>
   </data>
   <data name="VerifyFileSignedMsix" xml:space="preserve">
-    <value>Compruebe que el archivo de entrada es un MSIX válido firmado.</value>
+    <value>Compruebe que el archivo de entrada es un archivo de tipo MSIX válido y firmado.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
-    <value>Usar la versión especificada. el valor predeterminado es la última versión</value>
+    <value>Usar la versión especificada. El valor predeterminado es la última versión</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>Mostrar las versiones disponibles del paquete</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>Se pide el valor proporcionado antes de la finalización</value>
   </data>
 </root>

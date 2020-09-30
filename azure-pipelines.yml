@@ -76,7 +76,7 @@ jobs:
                     /p:AppxPackageDir="$(appxPackageDir)" 
                     /p:AppxBundle=Always 
                     /p:UapAppxPackageBuildMode=StoreUpload'
-  
+
   - task: PowerShell@2
     displayName: Install Tests Dependencies
     inputs:
@@ -197,6 +197,32 @@ jobs:
       failTaskOnFailedTests: true
     condition: succeededOrFailed()
 
+  - task: DownloadSecureFile@1
+    name: AppInstallerTest
+    displayName: 'Download Source Package Certificate'
+    inputs:
+        secureFile: 'AppInstallerTest.pfx'
+
+  - task: DownloadSecureFile@1
+    name: HTTPSDevCert
+    displayName: 'Download Kestrel Certificate'
+    inputs:
+        secureFile: 'HTTPSDevCert.pfx'
+
+  - task: PowerShell@2
+    displayName: Install Root Certificate
+    inputs:
+      filePath: 'src\LocalhostWebServer\InstallDevCert.ps1'
+      arguments: '-pfxpath $(HTTPSDevCert.secureFilePath) -password microsoft'
+    condition: succeededOrFailed()
+
+  - task: PowerShell@2
+    displayName: Launch LocalhostWebServer
+    inputs:
+      filePath: 'src\LocalhostWebServer\Run-LocalhostWebServer.ps1'
+      arguments: '-BuildRoot $(system.defaultWorkingDirectory)\src\x86\Release\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
+    condition: succeededOrFailed()
+
 #  - task: VSTest@2
 #    displayName: Run E2E Tests Unpackaged x64
 #    inputs:
@@ -217,7 +243,10 @@ jobs:
                                   -AICLIPackagePath $(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x64\Release
                                   -AICLIPath AppInstallerCLI\AppInstallerCLI.exe
                                   -LooseFileRegistration true
-                                  -InvokeCommandInDesktopPackage true'
+                                  -InvokeCommandInDesktopPackage true
+                                  -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
+                                  -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x64\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
+                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
     condition: succeededOrFailed()
 
 #  - task: VSTest@2
@@ -240,7 +269,10 @@ jobs:
                                   -AICLIPackagePath $(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x86\Release
                                   -AICLIPath AppInstallerCLI\AppInstallerCLI.exe
                                   -LooseFileRegistration true
-                                  -InvokeCommandInDesktopPackage true'
+                                  -InvokeCommandInDesktopPackage true
+                                  -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
+                                  -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
+                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
     condition: succeededOrFailed()
   
   - task: PublishBuildArtifacts@1

@@ -147,8 +147,17 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtrare rezultate după comandă</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>Linia de comandă completă pentru finalizare</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>Această comandă necesită privilegii de administrator pentru a fi executată.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>Această comandă poate fi utilizată pentru a solicita finalizarea liniei de comandă sensibilă la context. Linia de comandă, poziția cursorului și cuvântul pentru finalizare sunt transmise. Rezultatul este un set de valori posibile pe baza datelor de intrare, o valoare posibilă în fiecare linie.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>Activează finalizarea liniei de comandă sensibilă la context</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Nu se afișează mai mult decât numărul specificat de rezultate</value>
@@ -389,6 +398,9 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Hopa, am uitat să facem acest lucru...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>Poziția cursorului în linia de comandă</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Previzualizare</value>
   </data>
@@ -422,6 +434,9 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>Nume</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>Sursă</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>intrări suplimentare trunchiate din cauza limitei privind rezultatele</value>
@@ -636,5 +651,8 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>Afișați versiunile disponibile ale pachetului</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>Valoarea furnizată este solicitată înainte de completare</value>
   </data>
 </root>

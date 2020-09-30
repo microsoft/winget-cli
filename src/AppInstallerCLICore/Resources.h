@@ -127,6 +127,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SearchId);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchMatch);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchName);
+        WINGET_DEFINE_RESOURCE_STRINGID(SearchSource);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchTruncated);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingLoadFailure);

@@ -10,7 +10,7 @@ namespace AppInstaller
 {
     namespace
     {
-        const char* const GetMessageForAppInstallerHR(HRESULT hr)
+        const char* GetMessageForAppInstallerHR(HRESULT hr)
         {
             switch (hr)
             {
@@ -101,13 +101,15 @@ namespace AppInstaller
         return strstr.str();
     }
 
-    std::string GetUserPresentableMessage(const winrt::hresult_error& hre)
-    {
-        return Utility::ConvertToUTF8(hre.message());
-    }
-
     std::string GetUserPresentableMessage(const std::exception& e)
     {
         return e.what();
     }
+
+#ifndef WINGET_DISABLE_FOR_FUZZING
+    std::string GetUserPresentableMessage(const winrt::hresult_error& hre)
+    {
+        return Utility::ConvertToUTF8(hre.message());
+    }
+#endif
 }

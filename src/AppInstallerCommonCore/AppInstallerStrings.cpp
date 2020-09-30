@@ -79,6 +79,12 @@ namespace AppInstaller::Utility
                 return m_currentBrk;
             }
 
+            // Returns code point of the chracter at m_currentBrk, or U_SENTINEL if m_currentBrk points to the end.
+            UChar32 CurrentCodePoint()
+            {
+                return utext_char32At(m_text.get(), m_currentBrk);
+            }
+
         private:
             wil::unique_any<UText*, decltype(utext_close), &utext_close> m_text;
             wil::unique_any<UBreakIterator*, decltype(ubrk_close), &ubrk_close> m_brk;
@@ -117,21 +123,21 @@ namespace AppInstaller::Utility
         return result;
     }
 
-    std::wstring ConvertToUTF16(std::string_view input)
+    std::wstring ConvertToUTF16(std::string_view input, UINT codePage)
     {
         if (input.empty())
         {
             return {};
         }
 
-        int utf16CharCount = MultiByteToWideChar(CP_UTF8, 0, input.data(), wil::safe_cast<int>(input.length()), nullptr, 0);
+        int utf16CharCount = MultiByteToWideChar(codePage, 0, input.data(), wil::safe_cast<int>(input.length()), nullptr, 0);
         THROW_LAST_ERROR_IF(utf16CharCount == 0);
 
         // Since the string view should not contain the null char, the result won't either.
         // This allows us to use the resulting size value directly in the string constructor.
         std::wstring result(wil::safe_cast<size_t>(utf16CharCount), L'\0');
 
-        int utf16CharsWritten = MultiByteToWideChar(CP_UTF8, 0, input.data(), wil::safe_cast<int>(input.length()), &result[0], wil::safe_cast<int>(result.size()));
+        int utf16CharsWritten = MultiByteToWideChar(codePage, 0, input.data(), wil::safe_cast<int>(input.length()), &result[0], wil::safe_cast<int>(result.size()));
         FAIL_FAST_HR_IF(E_UNEXPECTED, utf16CharCount != utf16CharsWritten);
 
         return result;
@@ -149,6 +155,25 @@ namespace AppInstaller::Utility
         }
 
         return numGraphemeClusters;
+    }
+
+    size_t UTF8ColumnWidth(const NormalizedUTF8<NormalizationC>& input)
+    {
+        ICUBreakIterator itr{ input, UBRK_CHARACTER };
+
+        size_t columnWidth = 0;
+        UChar32 currentCP = 0;
+
+        currentCP = itr.CurrentCodePoint();
+        while (itr.Next() != UBRK_DONE && currentCP != U_SENTINEL)
+        {
+            int32_t width = u_getIntPropertyValue(currentCP, UCHAR_EAST_ASIAN_WIDTH);
+            columnWidth += width == U_EA_FULLWIDTH || width == U_EA_WIDE ? 2 : 1;
+
+            currentCP = itr.CurrentCodePoint();
+        }
+
+        return columnWidth;
     }
 
     std::string_view UTF8Substring(std::string_view input, size_t offset, size_t count)
@@ -175,6 +200,40 @@ namespace AppInstaller::Utility
         }
 
         return input.substr(utf8Offset, utf8Count);
+    }
+
+    std::string UTF8TrimRightToColumnWidth(const NormalizedUTF8<NormalizationC>& input, size_t expectedWidth, size_t& actualWidth)
+    {
+        ICUBreakIterator itr{ input, UBRK_CHARACTER };
+
+        size_t columnWidth = 0;
+        UChar32 currentCP = 0;
+        int32_t currentBrk = 0;
+        int32_t nextBrk = 0;
+
+        currentCP = itr.CurrentCodePoint();
+        currentBrk = itr.CurrentBreak();
+        nextBrk = itr.Next();
+        while (nextBrk != UBRK_DONE && currentCP != U_SENTINEL)
+        {
+            int32_t width = u_getIntPropertyValue(currentCP, UCHAR_EAST_ASIAN_WIDTH);
+            int charWidth = width == U_EA_FULLWIDTH || width == U_EA_WIDE ? 2 : 1;
+            columnWidth += charWidth;
+
+            if (columnWidth > expectedWidth)
+            {
+                columnWidth -= charWidth;
+                break;
+            }
+
+            currentCP = itr.CurrentCodePoint();
+            currentBrk = nextBrk;
+            nextBrk = itr.Next();
+        }
+
+        actualWidth = columnWidth;
+
+        return input.substr(0, currentBrk);
     }
 
     std::string Normalize(std::string_view input, NORM_FORM form)
@@ -233,6 +292,55 @@ namespace AppInstaller::Utility
         std::wstring result(in);
         std::transform(result.begin(), result.end(), result.begin(),
             [](unsigned short c) { return std::towlower(c); });
+        return result;
+    }
+
+    std::string FoldCase(std::string_view input)
+    {
+        if (input.empty())
+        {
+            return {};
+        }
+
+        wil::unique_any<UCaseMap*, decltype(ucasemap_close), &ucasemap_close> caseMap;
+        UErrorCode errorCode = UErrorCode::U_ZERO_ERROR;
+        caseMap.reset(ucasemap_open(nullptr, U_FOLD_CASE_DEFAULT, &errorCode));
+
+        if (U_FAILURE(errorCode))
+        {
+            AICLI_LOG(Core, Error, << "ucasemap_open returned " << errorCode);
+            THROW_HR(E_UNEXPECTED);
+        }
+
+        int32_t cch = ucasemap_utf8FoldCase(caseMap.get(), nullptr, 0, input.data(), static_cast<int32_t>(input.size()), &errorCode);
+        if (errorCode != U_BUFFER_OVERFLOW_ERROR)
+        {
+            AICLI_LOG(Core, Error, << "ucasemap_utf8FoldCase returned " << errorCode);
+            THROW_HR(E_UNEXPECTED);
+        }
+
+        errorCode = UErrorCode::U_ZERO_ERROR;
+
+        std::string result(cch, '\0');
+        cch = ucasemap_utf8FoldCase(caseMap.get(), &result[0], cch, input.data(), static_cast<int32_t>(input.size()), &errorCode);
+        if (U_FAILURE(errorCode))
+        {
+            AICLI_LOG(Core, Error, << "ucasemap_utf8FoldCase returned " << errorCode);
+            THROW_HR(E_UNEXPECTED);
+        }
+
+        while (result.back() == '\0')
+        {
+            result.pop_back();
+        }
+
+        return result;
+    }
+
+    NormalizedString FoldCase(const NormalizedString& input)
+    {
+        NormalizedString result;
+        result.assign(FoldCase(static_cast<std::string_view>(input)));
         return result;
     }
 

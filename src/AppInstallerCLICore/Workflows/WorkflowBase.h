@@ -82,12 +82,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct SearchSourceForCompletionField : public WorkflowTask
     {
-        SearchSourceForCompletionField(Repository::ApplicationMatchField field) : WorkflowTask("SearchSourceForCompletionField"), m_field(field) {}
+        SearchSourceForCompletionField(Repository::PackageMatchField field) : WorkflowTask("SearchSourceForCompletionField"), m_field(field) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        Repository::ApplicationMatchField m_field;
+        Repository::PackageMatchField m_field;
     };
 
     // Outputs the search results.

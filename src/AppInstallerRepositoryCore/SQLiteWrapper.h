@@ -142,7 +142,7 @@ namespace AppInstaller::Repository::SQLite
         rowid_t GetLastInsertRowID();
 
         // Gets the count of changed rows for the last executed statement.
-        int GetChanges();
+        int GetChanges() const;
 
         operator sqlite3* () const { return m_dbconn.get(); }
 
@@ -155,9 +155,9 @@ namespace AppInstaller::Repository::SQLite
     // A SQL statement.
     struct Statement
     {
-        static Statement Create(Connection& connection, const std::string& sql);
-        static Statement Create(Connection& connection, std::string_view sql);
-        static Statement Create(Connection& connection, char const* const sql);
+        static Statement Create(const Connection& connection, const std::string& sql);
+        static Statement Create(const Connection& connection, std::string_view sql);
+        static Statement Create(const Connection& connection, char const* const sql);
 
         Statement() = default;
 
@@ -231,7 +231,7 @@ namespace AppInstaller::Repository::SQLite
         operator bool() const { return static_cast<bool>(m_stmt); }
 
     private:
-        Statement(Connection& connection, std::string_view sql);
+        Statement(const Connection& connection, std::string_view sql);
 
         // Helper to receive the integer sequence from the public function.
         // This is equivalent to calling:

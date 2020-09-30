@@ -43,6 +43,9 @@ namespace AppInstaller::Repository
 
         // The origin of the source.
         SourceOrigin Origin = SourceOrigin::Default;
+
+        // If the source is an aggregated source
+        bool IsAggregated = false;
     };
 
     // Interface for interacting with a source from outside of the repository lib.
@@ -53,8 +56,23 @@ namespace AppInstaller::Repository
         // Get the source's details.
         virtual const SourceDetails& GetDetails() const = 0;
 
+        // Gets the source's identifier; a unique identifier independent of the name
+        // that will not change between a remove/add or between additional adds.
+        // Must be suitable for filesystem names unless the source is internal to winget,
+        // in which case the identifier should begin with a '*' character.
+        virtual const std::string& GetIdentifier() const = 0;
+
         // Execute a search on the source.
-        virtual SearchResult Search(const SearchRequest& request) = 0;
+        virtual SearchResult Search(const SearchRequest& request) const = 0;
+    };
+
+    // Interface extension to ISource for locally installed packages.
+    struct IInstalledPackageSource : public ISource
+    {
+        virtual ~IInstalledPackageSource() = default;
+
+        // Adds an installed package version to the source.
+        virtual std::shared_ptr<IInstalledPackageVersion> AddInstalledPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
     };
 
     // Gets the details for all sources.
@@ -69,6 +87,20 @@ namespace AppInstaller::Repository
     // Opens an existing source.
     // Passing an empty string as the name of the source will return a source that aggregates all others.
     std::shared_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress);
+
+    // A predefined source.
+    // These sources are not under the direct control of the user, such as packages installed on the system.
+    enum class PredefinedSource
+    {
+        Installed,
+        ARP_System,
+        ARP_User,
+        MSIX,
+    };
+
+    // Opens a predefined source.
+    // These sources are not under the direct control of the user, such as packages installed on the system.
+    std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress);
 
     // Updates an existing source.
     // Return value indicates whether the named source was found.

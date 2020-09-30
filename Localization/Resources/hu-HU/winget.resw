@@ -147,8 +147,17 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Találatok szűrése parancs alapján</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>A teljes parancssor a befejezéshez</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>Ennek a parancsnak a végrehajtásához rendszergazdai jogosultságok szükségesek.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>Ez a parancs használható a környezetfüggő parancssor-befejezés kérelmezéséhez. A parancssor, a kurzor pozíciója és a szó a befejezéshez be vannak nyújtva. A kimenet a bemeneteken alapuló potenciális értékek csoportja, soronként egy lehetséges értékkel.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>Engedélyezi a környezetfüggő parancssor-befejezés</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Csak a megadott számú vagy kevesebb eredmény megjelenítése</value>
@@ -389,6 +398,9 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   <data name="PendingWorkError" xml:space="preserve">
     <value>Hoppá, erről megfeledkeztünk...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>A kurzor pozíciója a parancssoron belül</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Előzetes verzió</value>
   </data>
@@ -422,6 +434,9 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>Név</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>Forrás</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>az eredmények számának korlátja miatt a további bejegyzések nem láthatók</value>
@@ -636,5 +651,8 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>A csomag elérhető verzióinak megjelenítése</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>A befejezés előtt megadott érték kérelmezve</value>
   </data>
 </root>

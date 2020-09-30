@@ -22,6 +22,5 @@
   <ItemGroup>
     <None Include="PropertySheet.props" />
     <None Include="packages.config" />
-    <None Include="..\packages\pwa_builder.86.571.0-CI-20200708-094419\identity_proxy\resources.pri" />
   </ItemGroup>
 </Project>

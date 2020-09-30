@@ -92,76 +92,107 @@ Sources:
     IsTombstone: false
 )"sv;
 
-// Helper to create a simple source.
-struct TestSource : public ISource
+constexpr std::string_view s_TwoSource_AggregateSourceTest = R"(
+Sources:
+  - Name: winget
+    Type: testType
+    Arg: testArg
+    Data: testData
+    IsTombstone: false
+  - Name: msstore
+    Type: testType
+    Arg: testArg
+    Data: testData
+    IsTombstone: false
+)"sv;
+
+namespace
 {
-    TestSource() = default;
-    TestSource(const SourceDetails& details) : m_details(details) {}
-
-    static std::shared_ptr<ISource> Create(const SourceDetails& details)
+    // Helper to create a simple source.
+    struct TestSource : public ISource
     {
-        // using return std::make_shared<TestSource>(details); will crash the x86 test during destruction.
-        return std::shared_ptr<ISource>(new TestSource(details));
-    }
+        TestSource() = default;
+        TestSource(const SourceDetails& details) : m_details(details) {}
 
-    // ISource
-    const SourceDetails& GetDetails() const override
+        static std::shared_ptr<ISource> Create(const SourceDetails& details)
+        {
+            // using return std::make_shared<TestSource>(details); will crash the x86 test during destruction.
+            return std::shared_ptr<ISource>(new TestSource(details));
+        }
+
+        // ISource
+        const SourceDetails& GetDetails() const override
+        {
+            return m_details;
+        }
+
+        const std::string& GetIdentifier() const override
+        {
+            return m_identifier;
+        }
+
+        SearchResult Search(const SearchRequest& request) const override
+        {
+            UNREFERENCED_PARAMETER(request);
+
+            SearchResult result;
+            PackageMatchFilter testMatchFilter1{ PackageMatchField::Id, MatchType::Exact, "test" };
+            PackageMatchFilter testMatchFilter2{ PackageMatchField::Name, MatchType::Exact, "test" };
+            PackageMatchFilter testMatchFilter3{ PackageMatchField::Id, MatchType::CaseInsensitive, "test" };
+            result.Matches.emplace_back(std::unique_ptr<IPackage>(), testMatchFilter1);
+            result.Matches.emplace_back(std::unique_ptr<IPackage>(), testMatchFilter2);
+            result.Matches.emplace_back(std::unique_ptr<IPackage>(), testMatchFilter3);
+            return result;
+        }
+
+        SourceDetails m_details;
+        std::string m_identifier = "*TestSource";
+    };
+
+    // Helper that allows some lambdas to be wrapped into a source factory.
+    struct TestSourceFactory : public ISourceFactory
     {
-        return m_details;
-    }
+        using CreateFunctor = std::function<std::shared_ptr<ISource>(const SourceDetails&)>;
+        using AddFunctor = std::function<void(SourceDetails&)>;
+        using UpdateFunctor = std::function<void(const SourceDetails&)>;
+        using RemoveFunctor = std::function<void(const SourceDetails&)>;
 
-    SearchResult Search(const SearchRequest& request) override
-    {
-        UNREFERENCED_PARAMETER(request);
-        return {};
-    }
+        TestSourceFactory() :
+            m_Create(TestSource::Create), m_Add([](SourceDetails&) {}), m_Update([](const SourceDetails&) {}), m_Remove([](const SourceDetails&) {}) {}
 
-    SourceDetails m_details;
-};
+        // ISourceFactory
+        std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback&) override
+        {
+            return m_Create(details);
+        }
 
-// Helper that allows some lambdas to be wrapped into a source factory.
-struct TestSourceFactory : public ISourceFactory
-{
-    using CreateFunctor = std::function<std::shared_ptr<ISource>(const SourceDetails&)>;
-    using AddFunctor = std::function<void(SourceDetails&)>;
-    using UpdateFunctor = std::function<void(const SourceDetails&)>;
-    using RemoveFunctor = std::function<void(const SourceDetails&)>;
+        void Add(SourceDetails& details, IProgressCallback&) override
+        {
+            m_Add(details);
+        }
 
-    TestSourceFactory() :
-        m_Create(TestSource::Create), m_Add([](SourceDetails&) {}), m_Update([](const SourceDetails&) {}), m_Remove([](const SourceDetails&) {}) {}
+        void Update(const SourceDetails& details, IProgressCallback&) override
+        {
+            m_Update(details);
+        }
 
-    // ISourceFactory
-    std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback&) override
-    {
-        return m_Create(details);
-    }
+        void Remove(const SourceDetails& details, IProgressCallback&) override
+        {
+            m_Remove(details);
+        }
 
-    void Add(SourceDetails& details, IProgressCallback&) override
-    {
-        m_Add(details);
-    }
+        // Make copies of self when requested.
+        operator std::function<std::unique_ptr<ISourceFactory>()>()
+        {
+            return [this]() { return std::make_unique<TestSourceFactory>(*this); };
+        }
 
-    void Update(const SourceDetails& details, IProgressCallback&) override
-    {
-        m_Update(details);
-    }
-
-    void Remove(const SourceDetails& details, IProgressCallback&) override
-    {
-        m_Remove(details);
-    }
-
-    // Make copies of self when requested.
-    operator std::function<std::unique_ptr<ISourceFactory>()>()
-    {
-        return [this]() { return std::make_unique<TestSourceFactory>(*this); };
-    }
-
-    CreateFunctor m_Create;
-    AddFunctor m_Add;
-    UpdateFunctor m_Update;
-    RemoveFunctor m_Remove;
-};
+        CreateFunctor m_Create;
+        AddFunctor m_Add;
+        UpdateFunctor m_Update;
+        RemoveFunctor m_Remove;
+    };
+}
 
 
 TEST_CASE("RepoSources_UserSettingDoesNotExist", "[sources]")
@@ -546,4 +577,40 @@ TEST_CASE("RepoSources_DropAllSources", "[sources]")
     sources = GetSources();
     REQUIRE(sources.size() == 1);
     REQUIRE(sources[0].Origin == SourceOrigin::Default);
+}
+
+TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
+{
+    TestHook_ClearSourceFactoryOverrides();
+    TestSourceFactory factory;
+    TestHook_SetSourceFactoryOverride("testType", factory);
+
+    SetSetting(Streams::UserSources, s_TwoSource_AggregateSourceTest);
+
+    ProgressCallback progress;
+    auto source = OpenSource("", progress);
+
+    REQUIRE(source->GetDetails().IsAggregated);
+
+    SearchRequest request;
+    auto result = source->Search(request);
+    REQUIRE(result.Matches.size() == 6);
+    REQUIRE_FALSE(result.Truncated);
+    // matches are sorted in expected order
+    REQUIRE((result.Matches[0].MatchCriteria.Type == MatchType::Exact && result.Matches[0].MatchCriteria.Field == PackageMatchField::Id));
+    REQUIRE((result.Matches[1].MatchCriteria.Type == MatchType::Exact && result.Matches[1].MatchCriteria.Field == PackageMatchField::Id));
+    REQUIRE((result.Matches[2].MatchCriteria.Type == MatchType::Exact && result.Matches[2].MatchCriteria.Field == PackageMatchField::Name));
+    REQUIRE((result.Matches[3].MatchCriteria.Type == MatchType::Exact && result.Matches[3].MatchCriteria.Field == PackageMatchField::Name));
+    REQUIRE((result.Matches[4].MatchCriteria.Type == MatchType::CaseInsensitive && result.Matches[4].MatchCriteria.Field == PackageMatchField::Id));
+    REQUIRE((result.Matches[5].MatchCriteria.Type == MatchType::CaseInsensitive && result.Matches[5].MatchCriteria.Field == PackageMatchField::Id));
+
+    // when truncate required
+    request.MaximumResults = 3;
+    result = source->Search(request);
+    REQUIRE(result.Matches.size() == 3);
+    REQUIRE(result.Truncated);
+    // matches are sorted in expected order
+    REQUIRE((result.Matches[0].MatchCriteria.Type == MatchType::Exact && result.Matches[0].MatchCriteria.Field == PackageMatchField::Id));
+    REQUIRE((result.Matches[1].MatchCriteria.Type == MatchType::Exact && result.Matches[1].MatchCriteria.Field == PackageMatchField::Id));
+    REQUIRE((result.Matches[2].MatchCriteria.Type == MatchType::Exact && result.Matches[2].MatchCriteria.Field == PackageMatchField::Name));
 }

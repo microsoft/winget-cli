@@ -6,7 +6,20 @@
 #include <windows.h>
 #include <shellapi.h>
 #include <WinInet.h>
-#include <iterator> //Adding this here to fix the build error 'back_inserter': is not a member of 'std'" (Also an issue on winget repo : https://github.com/microsoft/winget-cli/issues/207)
+
+#include <array>
+#include <iostream>
+#include <fstream>
+#include <future>
+#include <functional>
+#include <iterator>
+#include <memory>
+#include <numeric>
+#include <optional>
+#include <sstream>
+#include <string_view>
+#include <vector>
+
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Management.Deployment.h>
@@ -17,20 +30,6 @@
 
 #include <wil/result_macros.h>
 #include <wil/safecast.h>
-
-#include <array>
-#include <iostream>
-#include <fstream>
-#include <future>
-#include <functional>
-#include <memory>
-#include <numeric>
-#include <optional>
-#include <sstream>
-#include <string_view>
-#include <vector>
-
-#include <yaml-cpp\yaml.h>
 
 #include <wrl/client.h>
 #include <AppxPackaging.h>
@@ -47,6 +46,6 @@
 #include <AppInstallerSHA256.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerTelemetry.h>
-#include <Manifest/YamlParser.h>
-#include <winget/LocIndependent.h>
 #include <winget/ExperimentalFeature.h>
+#include <winget/LocIndependent.h>
+#include <winget/ManifestYamlParser.h>

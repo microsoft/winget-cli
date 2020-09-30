@@ -5,9 +5,14 @@
 
 namespace AppInstaller::Utility
 {
-    Version::Version(std::string&& version, std::string_view splitChars) :
-        m_version(std::move(version))
+    Version::Version(std::string&& version, std::string_view splitChars)
     {
+        Assign(std::move(version), splitChars);
+    }
+
+    void Version::Assign(std::string&& version, std::string_view splitChars)
+    {
+        m_version = std::move(version);
         size_t pos = 0;
 
         while (pos < m_version.length())
@@ -103,15 +108,19 @@ namespace AppInstaller::Utility
 
     Version::Part::Part(const std::string& part)
     {
-        size_t end = 0;
-        try
+        const char* begin = part.c_str();
+        char* end = nullptr;
+        errno = 0;
+        Integer = strtoull(begin, &end, 10);
+
+        if (errno == ERANGE)
         {
-            Integer = std::stoull(part, &end);
+            Integer = 0;
+            Other = part;
         }
-        CATCH_LOG();
-        if (end != part.length())
+        else if (static_cast<size_t>(end - begin) != part.length())
         {
-            Other = part.substr(end);
+            Other = end;
         }
     }
 
@@ -124,6 +133,16 @@ namespace AppInstaller::Utility
         else if (Integer > other.Integer)
         {
             return false;
+        }
+        else if (Other.empty())
+        {
+            // If this Other is empty, it is at least >=
+            return false;
+        }
+        else if (!Other.empty() && other.Other.empty())
+        {
+            // If the other Other is empty and this is not, this is less.
+            return true;
         }
         else if (Other < other.Other)
         {

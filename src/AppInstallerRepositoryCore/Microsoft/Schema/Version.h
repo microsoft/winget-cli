@@ -22,14 +22,21 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // All changes to the schema warrant a change to the minor version.
         uint32_t MinorVersion{};
 
-        bool operator==(Version other) const
+        bool operator==(const Version& other) const
         {
             return (MajorVersion == other.MajorVersion && MinorVersion == other.MinorVersion);
         }
 
-        bool operator!=(Version other) const
+        bool operator!=(const Version& other) const
         {
             return !operator==(other);
+        }
+
+        bool operator>=(const Version& other) const
+        {
+            if (MajorVersion > other.MajorVersion) return true;
+            if (MajorVersion < other.MajorVersion) return false;
+            return MinorVersion >= other.MinorVersion;
         }
 
         // Gets a version that represents the latest schema known to the implementation.
@@ -51,9 +58,9 @@ namespace AppInstaller::Repository::Microsoft::Schema
         void SetSchemaVersion(SQLite::Connection& connection);
 
         // Creates the interface object for this version.
-        std::unique_ptr<ISQLiteIndex> CreateISQLiteIndex();
+        std::unique_ptr<ISQLiteIndex> CreateISQLiteIndex() const;
     };
-}
 
-// Output the version
-std::ostream& operator<<(std::ostream& out, const AppInstaller::Repository::Microsoft::Schema::Version& version);
+    // Output the version
+    std::ostream& operator<<(std::ostream& out, const Version& version);
+}

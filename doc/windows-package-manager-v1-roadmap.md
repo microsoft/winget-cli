@@ -39,20 +39,19 @@ Releases will be available here on GitHub first We will release to the App Insta
 
 Ultimately, we're aiming for Windows Package Manager v1.0 to be released in Spring 2021:
 
-| Release or Milestone end date | Milestone Name | Key Deliverables |
+| Release or Milestone end date | Milestone(s) | Key Features |
 | --- | --- | --- |
 | 2020-05-19 | [v0.1](https://github.com/microsoft/winget-cli/releases/tag/v0.1.4331-preview) | Windows Package Manager [announced](https://devblogs.microsoft.com/commandline/windows-package-manager-preview/) & open-sourced ([Build 2020 Windows Package Manager session]) |
-| June 2020 | [v0.2](https://github.com/microsoft/winget-cli/milestone/4) | |
-| July 2020 | [v0.3](https://github.com/microsoft/winget-cli/milestone/5) | |
-| August 2020 | [v0.4](https://github.com/microsoft/winget-cli/milestone/6) | |
-| September 2020 | [v0.5](https://github.com/microsoft/winget-cli/milestone/7) | |
-| October 2020 | [v0.6](https://github.com/microsoft/winget-cli/milestone/8) | |
-| November 2020 | [v0.7](https://github.com/microsoft/winget-cli/milestone/9) | |
-| December 2020 | [v0.8](https://github.com/microsoft/winget-cli/milestone/10) | |
-| January 2021 | [v0.9](https://github.com/microsoft/winget-cli/milestone/11) | |
-| February 2021 | [v0.10](https://github.com/microsoft/winget-cli/milestone/12) | |
-| March 2021 | [v0.11](https://github.com/microsoft/winget-cli/milestone/13) | |
-| April 2021 | [v0.12](https://github.com/microsoft/winget-cli/milestone/14) | |
+| July 2020 |  | |
+| August 2020 |  | |
+| September 2020 | [v0.2](https://github.com/microsoft/winget-cli/milestone/4) | Support for Microsoft Store (curated list of developer tools in experimental feature)|
+| October 2020 | [v0.3](https://github.com/microsoft/winget-cli/milestone/5), [v0.4](https://github.com/microsoft/winget-cli/milestone/6), [v0.5](https://github.com/microsoft/winget-cli/milestone/7)  | List, Upgrade, and Uninstall (includes Apps in Control Panel/Add Remove Programs) |
+| November 2020 | [v0.6](https://github.com/microsoft/winget-cli/milestone/8), [v0.7](https://github.com/microsoft/winget-cli/milestone/9) | Import / Export and Dependency Support|
+| December 2020 | [v0.8](https://github.com/microsoft/winget-cli/milestone/10) | Multiple Architectures |
+| January 2021 | [v0.9](https://github.com/microsoft/winget-cli/milestone/11) | Multiple Languages |
+| February 2021 | [v0.10](https://github.com/microsoft/winget-cli/milestone/12) | User vs. System installation |
+| March 2021 | [v0.11](https://github.com/microsoft/winget-cli/milestone/13) | Third party REST source|
+| April 2021 | [v0.12](https://github.com/microsoft/winget-cli/milestone/14) | Group Policy|
 | May 2021 | [v1.0](https://github.com/microsoft/winget-cli/milestone/1) | Windows Package Manager v1.0 Release |
 
 ## GitHub Milestones
@@ -62,6 +61,36 @@ Each Release above is/will be reflected in our [GitHub milestones](https://githu
 | Milestone | Description |
 | --- | --- |
 | [v0.1](https://github.com/microsoft/winget-cli/milestone/3) | Initial Preview |
+| [v0.2](https://github.com/microsoft/winget-cli/milestone/4) | `winget upgrade` and Pin a package |
+| [v0.3](https://github.com/microsoft/winget-cli/milestone/5) | `winget list` |
+| [v0.4](https://github.com/microsoft/winget-cli/milestone/6) | `winget upgrade` |
+| [v0.5](https://github.com/microsoft/winget-cli/milestone/7) | `winget uninstall` |
+| [v0.6](https://github.com/microsoft/winget-cli/milestone/8) | Import / Export |
+| [v0.7](https://github.com/microsoft/winget-cli/milestone/9) | Dependency Support |
+| [v0.8](https://github.com/microsoft/winget-cli/milestone/10) | Multiple Architectures |
+| [v0.9](https://github.com/microsoft/winget-cli/milestone/11) | User vs. System |
+| [v0.10](https://github.com/microsoft/winget-cli/milestone/12) | Multiple Languages |
+| [v0.11](https://github.com/microsoft/winget-cli/milestone/13) | Third party REST source |
+| [v0.12](https://github.com/microsoft/winget-cli/milestone/14) | Group Policy |
+| [v0.13](https://github.com/microsoft/winget-cli/milestone/15) | Delivery Optimization |
+| [v0.14](https://github.com/microsoft/winget-cli/milestone/16) | Metered Networks |
+| [v0.15](https://github.com/microsoft/winget-cli/milestone/17) | App Config Files |
+| [v0.16](https://github.com/microsoft/winget-cli/milestone/18) | .zip |
+| [v0.17](https://github.com/microsoft/winget-cli/milestone/19) | .exe  |
+| [v0.18](https://github.com/microsoft/winget-cli/milestone/20) | Portable/Standalone Apps |
+| [v0.19](https://github.com/microsoft/winget-cli/milestone/21) | Specify App Install Directory |
+| [v0.20](https://github.com/microsoft/winget-cli/milestone/22) | Non zero exit codes |
+| [v0.21](https://github.com/microsoft/winget-cli/milestone/23) | Telemetry Opt Out |
+| [v0.22](https://github.com/microsoft/winget-cli/milestone/24) | Client Verbosity Settings |
+| [v0.23](https://github.com/microsoft/winget-cli/milestone/25) | Release Channels |
+| [v0.24](https://github.com/microsoft/winget-cli/milestone/26) | Native Power Shell |
+| [v0.25](https://github.com/microsoft/winget-cli/milestone/27) | PWA |
+| [v0.26](https://github.com/microsoft/winget-cli/milestone/28) | Install Multiple Apps (command) |
+| [v0.27](https://github.com/microsoft/winget-cli/milestone/29) | Suppress reboot on default |
+| [v0.28](https://github.com/microsoft/winget-cli/milestone/30) | Version specification |
+| [v0.29](https://github.com/microsoft/winget-cli/milestone/31) | Parallel download |
+| [v0.30](https://github.com/microsoft/winget-cli/milestone/32) | Fonts |
+| [v0.31](https://github.com/microsoft/winget-cli/milestone/33) | Auto Upgrade Apps |
 | [Backlog](https://github.com/microsoft/winget-cli/milestone/2) | Work not yet assigned to a milestone or release |
 
 ## Issue Triage & Prioritization
@@ -80,35 +109,43 @@ The following are a list of the key scenarios we're aiming to deliver for Window
 
 | Release | Feature | Description/Notes |
 | --- | --- | --- |
-| V1 | Microsoft Store | Support for installing Apps from the Microsoft Store |
-| V1 | REST Repository | Support for a REST based repository |
-| V1 | --list | The client should be able to tell you what Apps are installed |
-| V1 | --update | The client should be able to update one or "all" installed Apps |
-| V1 | --uninstall | The client should be able to uninstall Apps |
-| V1 | Multiple Installers | The client should be able to choose between multiple different installers from the same manifest |
-| V1 | Multiple Languages | The client will support installation for almost every language for which there is a fixed-width font including East Asian languages. Bonus points for RTL languages/scripts. |
-| V1 | Multiple Architectures | The client should support multiple architectures in the same manifest |
-| V1 | Non-Zero Exit Codes | The client should support applications with non-zero exit codes as success |
-| V1 | Install .zip | The client should be able to install programs in a .zip file |
-| V1 | Configurability & Customization | The client will have a modern, flexible settings mechanism that persists settings to/from a JSON file stored in the user's app data folders, and/or in files synchronized between machines via OneDrive, etc. |
+| [v0.1.41331-preview](https://github.com/microsoft/winget-cli/releases/tag/v0.1.4331-preview) | Elevated Privileges | The client should support installing Apps that require elevated privileges |
+| [v0.1.41821-preview](https://github.com/microsoft/winget-cli/releases/tag/v0.1.41821-preview) | Configurability & Customization | The client will have a modern, flexible settings mechanism that persists settings to/from a JSON file stored in the user's app data folders, and/or in files synchronized between machines via OneDrive, etc. |
+| [v0.1.41821-preview](https://github.com/microsoft/winget-cli/releases/tag/v0.1.41821-preview) | Color Theming & Styling | The client will honor the user's Windows dark/light theme settings, and/or color accent settings. |
+| [v0.1.42241-preview](https://github.com/microsoft/winget-cli/releases/tag/v0.1.42241-preview) | Autocomplete | The client will support autocomplete for all commands and packages in the local cache |
+| V1 | #119 `winget list` | The client should be able to tell you what Apps are installed including the Control Panel|
+| V1 | #120 `winget upgrade` | The client should be able to update one or "all" installed Apps |
+| V1 | #121 `winget uninstall` | The client should be able to uninstall Apps |
+| V1 | #220 Export/Import | The client should be able to export the list of installed Apps and import the exported list |
+| V1 | #163 Dependencies | The client should be able to install package dependencies |
+| V1 | #132 Multiple Architectures | The client should support multiple architectures in the same manifest |
+| V1 | #149 User vs. System | Applications may be installed for the local user or for the system |
+| V1 | #124 Multiple Languages | The client will support installation for almost every language for which there is a fixed-width font including East Asian languages. Bonus points for RTL languages/scripts. |
+| V1 | #226 REST Repository | Support for a REST based repository |
+| V1 | #154 Group Policy | Support for Group Policy control |
+| V1 | #151 Delivery Optimization | Delivery Optimization should be leveraged for large Apps |
+| V1 | #150 Metered Networks | The client should download responsibly when on metered networks |
+| V1 | #158 App Config Files | Support for silent installers that require a configuration file |
+| V1 | #140 Install .zip | The client should be able to install programs in a .zip file |
+| V1 | #194 Install .exe | The client should be able to install a static .exe file |
+| V1 | #182 Install portable app | The client should be able to install portable Apps |
+| V1 | #201 Specify install directory | The client should be able to install to an alternate directory |
+| V1 | #137 Non-Zero Exit Codes | The client should support applications with non-zero exit codes as success |
+| V1 | #279 Opt-Out of Telemetry | The client should be able to Opt-Out of Telemetry |
+| V1 | #161 Client Verbosity Settings | The client should support different verbosity settings |
+| V1 | #147 Release Channels | Some applications have different release channels and we should support them |
+| V1 | #221 Native PowerShell | Native PowerShell support for the client |
+| V1 | #164 Install PWA | Support installing Progressive Web Applications |
+| V1 | #219 Install Multiple Apps | The client should allow a user to specify multiple apps to install |
+| V1 | #229 Suppress reboot | The client should allow a user to suppress reboot as a default setting |
+| V1 | #227 Version specification | The client should allow more variation to specifying package versions for installation |
+| V1 | #225 Parallel download | The client should support multiple connections per package for download |
+| V1 | #166 Fonts | The client should support installing fonts |
+| V1 | #212 Auto Upgrade | The client should be able to auto upgrade installed apps if configured to do so |
+| V1 | #157 Manifest Wizard | Help a user generate a manifest |
+| V1 | #161 Verbosity | Client Verbosity Settings |
+| V1 | #117 Microsoft Store | Support for installing Apps from the Microsoft Store |
 | V1 | Accessibility (A11y) | The client will be highly accessible and inclusive. It will expose its contents via [UIA](https://docs.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview) to support tools such as [Windows Narrator](https://support.microsoft.com/en-us/help/22798/windows-10-complete-guide-to-narrator), and UI automation tools including [WinAppDriver](https://github.com/Microsoft/WinAppDriver) |
-| V1 | Color Theming & Styling | The client will honor the user's Windows dark/light theme settings, and/or color accent settings. |
-| V1 | Autocomplete | The client will support autocomplete for all commands and packages in the local cache |
-| V1 | Release Channels | Some applications have different release channels and we should support them |
-| V1 | User vs. System | Applications may be installed for the local user or for the system |
-| V1 | Metered Networks | The client should download responsibly when on metered networks |
-| V1 | Delivery Optimization | Delivery Optimization should be leveraged for large Apps |
-| V1 | Elevated Privileges | The client should support installing Apps that require elevated privileges |
-| V1 | Control Panel | Support for Apps installed in the Control Panel |
-| V1 | Group Policy | Support for Group Policy control |
-| V1 | Package Snapshot | Support for exporting all installed packages as a package set |
-| V1 | Package Set | Support for installing a set of packages |
-| V1 | Manifest Wizard | --create helps a user generate a manifest |
-| V1 | App Config Files | Support for silent installers that require a configuration file |
-| V1 | UX Enhancements | Client Verbosity Settings |
-| V1 | Dependency Support | Some Apps depend on other Apps to be present like IDEs and Programming Languages |
-| V1 | Install PWA | Support installing Progressive Web Applications |
-
 Feature Notes:
 
 \* Feature Priorities will be influenced by community feedback on issues.

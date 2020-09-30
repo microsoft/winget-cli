@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 #pragma once
 #include "SQLiteWrapper.h"
-#include "Manifest/Manifest.h"
 #include "Microsoft/Schema/ISQLiteIndex.h"
 #include "Microsoft/Schema/Version.h"
 #include "Public/AppInstallerRepositorySearch.h"
 #include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerVersions.h>
+#include <winget/Manifest.h>
 
 #include <chrono>
 #include <filesystem>
@@ -51,6 +51,12 @@ namespace AppInstaller::Repository::Microsoft
         // Gets the schema version of the index.
         Schema::Version GetVersion() const { return m_version; }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        // Changes the version of the interface being used to operate on the database.
+        // Should only be used for testing.
+        void ForceVersion(const Schema::Version& version);
+#endif
+
         // Gets the last write time for the index.
         std::chrono::system_clock::time_point GetLastWriteTime();
 
@@ -82,20 +88,17 @@ namespace AppInstaller::Repository::Microsoft
         void PrepareForPackaging();
 
         // Performs a search based on the given criteria.
-        Schema::ISQLiteIndex::SearchResult Search(const SearchRequest& request);
+        Schema::ISQLiteIndex::SearchResult Search(const SearchRequest& request) const;
 
-        // Gets the Id string for the given id, if present.
-        std::optional<std::string> GetIdStringById(IdType id);
+        // Gets the string for the given property and manifest id, if present.
+        std::optional<std::string> GetPropertyByManifestId(IdType manifestId, PackageVersionProperty property) const;
 
-        // Gets the Name string for the given id, if present.
-        std::optional<std::string> GetNameStringById(IdType id);
-
-        // Gets the relative path string for the given { id, version, channel }, if present.
+        // Gets the manifest id for the given { id, version, channel }, if present.
         // If version is empty, gets the value for the 'latest' version.
-        std::optional<std::string> GetPathStringByKey(IdType id, std::string_view version, std::string_view channel);
+        std::optional<IdType> GetManifestIdByKey(IdType id, std::string_view version, std::string_view channel) const;
 
         // Gets all versions and channels for the given id.
-        std::vector<Utility::VersionAndChannel> GetVersionsById(IdType id);
+        std::vector<Utility::VersionAndChannel> GetVersionKeysById(IdType id) const;
 
     private:
         // Constructor used to open an existing index.

@@ -147,8 +147,17 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>ውጤቶችን በትዕዛዝ አጣራ</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>ለማጠናቀቅ ሙሉ የትእዛዝ መስመር</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>ይህ ትዕዛዝ ለመፈጸም የአስተዳዳሪ ፈቃድ ይፈልጋል።</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>ይህ ትዕዛዝ አውድ ስሱ የትእዛዝ መስመር ማጠናቀቅን ለመጠየቅ ሊያገለግል ይችላል፡፡ የሚጠናቀቀው የትእዛዝ መስመር፣ ጠቋሚ ቦታ እና ቃል ተላልፈዋል። ውጤቱ በግብዓት ላይ በመመስረት እምቅ እሴቶች ስብስብ ነው፣ በአንድ መስመር አንድ ሊኖር የሚችል እሴት።</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>አውዳዊ ስሱ የትዕዛዝ መስመር ማጠናቀቅ ነቅቷል</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>ከተገለጸው ብዛት በላይ የሆኑ ውጤቶችን አታሳይ</value>
@@ -389,6 +398,9 @@
   <data name="PendingWorkError" xml:space="preserve">
     <value>ውይ፣ ይህንን ማድረግ ረስተናል...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>በትእዛዝ መስመሩ ውስጥ የጠቋሚው አቀማመጥ</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>ቅድመ ዕይታ</value>
   </data>
@@ -422,6 +434,9 @@
   </data>
   <data name="SearchName" xml:space="preserve">
     <value>ስም</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>ምንጭ</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
     <value>በውጤት ወሰን ምክንያት ተጨማሪ ግቤቶች ተጥለዋል</value>
@@ -636,5 +651,8 @@
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>የሚገኙትን የጥቅል ስሪቶች አሳይ</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>ከመጠናቀቁ በፊት የቀረበው እሴት ተጠይቋል</value>
   </data>
 </root>

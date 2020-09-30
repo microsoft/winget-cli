@@ -16,7 +16,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     namespace details
     {
         std::optional<SQLite::rowid_t> ManifestTableSelectByValueIds(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             std::initializer_list<std::string_view> values,
             std::initializer_list<SQLite::rowid_t> ids)
         {
@@ -61,7 +61,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         SQLite::Statement ManifestTableGetIdsById_Statement(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             SQLite::rowid_t id,
             std::initializer_list<std::string_view> values)
         {
@@ -81,7 +81,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // JOIN [ids] ON [manifest].[id] = [ids].[rowid]
         // WHERE [manifest].[rowid] = 1
         SQLite::Statement ManifestTableGetValuesById_Statement(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             SQLite::rowid_t id,
             std::initializer_list<SQLite::Builder::QualifiedColumn> columns)
         {
@@ -106,7 +106,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         SQLite::Statement ManifestTableGetAllValuesByIds_Statement(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids)
@@ -150,7 +150,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         std::vector<std::string> ManifestTableGetAllValuesByIds(
-            SQLite::Connection& connection,
+            const SQLite::Connection& connection,
             std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids)
@@ -229,7 +229,66 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return s_ManifestTable_Table_Name;
     }
 
+    // Starting in V1.1, all code should be going this route of creating named indeces rather than using primary or unique keys on columns.
+    // The resulting database will function the same, but give us control to drop the indeces to reduce space.
     void ManifestTable::Create(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values)
+    {
+        using namespace SQLite::Builder;
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createManifestTable_v1_1");
+
+        StatementBuilder createTableBuilder;
+        createTableBuilder.CreateTable(s_ManifestTable_Table_Name).BeginColumns();
+
+        for (const ManifestColumnInfo& value : values)
+        {
+            createTableBuilder.Column(ColumnBuilder(value.Name, Type::Int64).NotNull());
+        }
+
+        createTableBuilder.EndColumns();
+
+        createTableBuilder.Execute(connection);
+
+        // Create a unique index with the primary key values
+        StatementBuilder pkIndexBuilder;
+
+        pkIndexBuilder.CreateUniqueIndex({ s_ManifestTable_Table_Name, s_ManifestTable_Index_Suffix }).On(s_ManifestTable_Table_Name).BeginColumns();
+
+        for (const ManifestColumnInfo& value : values)
+        {
+            if (value.PrimaryKey)
+            {
+                pkIndexBuilder.Column(value.Name);
+            }
+        }
+
+        pkIndexBuilder.EndColumns();
+
+        pkIndexBuilder.Execute(connection);
+
+        // Create an index on every value to improve performance
+        for (const ManifestColumnInfo& value : values)
+        {
+            StatementBuilder createIndexBuilder;
+
+            if (value.Unique)
+            {
+                createIndexBuilder.CreateUniqueIndex({ s_ManifestTable_Table_Name, s_ManifestTable_Index_Separator, value.Name, s_ManifestTable_Index_Suffix });
+            }
+            else
+            {
+                createIndexBuilder.CreateIndex({ s_ManifestTable_Table_Name, s_ManifestTable_Index_Separator, value.Name, s_ManifestTable_Index_Suffix });
+            }
+
+            createIndexBuilder.On(s_ManifestTable_Table_Name).Columns(value.Name);
+
+            createIndexBuilder.Execute(connection);
+        }
+
+        savepoint.Commit();
+    }
+
+    void ManifestTable::Create_deprecated(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values)
     {
         using namespace SQLite::Builder;
 
@@ -293,6 +352,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return connection.GetLastInsertRowID();
     }
 
+    bool ManifestTable::ExistsById(const SQLite::Connection& connection, SQLite::rowid_t id)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.Select(SQLite::Builder::RowCount).From(s_ManifestTable_Table_Name).Where(SQLite::RowIDName).Equals(id);
+
+        SQLite::Statement countStatement = builder.Prepare(connection);
+
+        THROW_HR_IF(E_UNEXPECTED, !countStatement.Step());
+
+        return (countStatement.GetColumn<int>(0) != 0);
+    }
+
     void ManifestTable::DeleteById(SQLite::Connection& connection, SQLite::rowid_t id)
     {
         SQLite::Builder::StatementBuilder builder;
@@ -302,6 +373,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     }
 
     void ManifestTable::PrepareForPackaging(SQLite::Connection& connection, std::initializer_list<std::string_view> values)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "pfpManifestTable_v1_1");
+
+        PrepareForPackaging_deprecated(connection, values);
+
+        SQLite::Builder::StatementBuilder dropPKIndexBuilder;
+        dropPKIndexBuilder.DropIndex({ s_ManifestTable_Table_Name, s_ManifestTable_Index_Suffix });
+        dropPKIndexBuilder.Execute(connection);
+
+        savepoint.Commit();
+    }
+
+    void ManifestTable::PrepareForPackaging_deprecated(SQLite::Connection& connection, std::initializer_list<std::string_view> values)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "pfpManifestTable_v1_0");
 

@@ -3,8 +3,8 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <SQLiteWrapper.h>
-#include <Manifest/Manifest.h>
 #include <Microsoft/SQLiteIndex.h>
+#include <winget/Manifest.h>
 
 #include <Microsoft/Schema/1_0/IdTable.h>
 #include <Microsoft/Schema/1_0/NameTable.h>
@@ -25,9 +25,42 @@ using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Repository::SQLite;
 using namespace AppInstaller::Utility;
 
-SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std::string& relativePath)
+SQLiteIndex CreateTestIndex(const std::string& filePath, std::optional<Schema::Version> version = {})
 {
-    SQLiteIndex index = SQLiteIndex::CreateNew(filePath, Schema::Version::Latest());
+    // If no specific version requested, then use generator to run against all versions.
+    if (!version)
+    {
+        version = GENERATE(Schema::Version{ 1, 0 }, Schema::Version::Latest());
+    }
+
+    return SQLiteIndex::CreateNew(filePath, version.value());
+}
+
+Schema::Version TestPrepareForRead(SQLiteIndex& index)
+{
+    // This will only be called for tests that want to support cross version checks.
+    // Based on the version of the incoming, we only want to generate versions less or equal to it.
+    if (index.GetVersion() == Schema::Version{ 1, 0 })
+    {
+        // Nothing to do here
+    }
+    else if (index.GetVersion() == Schema::Version{ 1, 1 })
+    {
+        auto changeVersion = GENERATE(false, true);
+
+        if (changeVersion)
+        {
+            index.ForceVersion(Schema::Version{ 1, 0 });
+            return { 1, 0 };
+        }
+    }
+
+    return index.GetVersion();
+}
+
+SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std::string& relativePath, std::optional<Schema::Version> version = {})
+{
+    SQLiteIndex index = CreateTestIndex(filePath, version);
 
     manifest.Id = "Test.Id";
     manifest.Name = "Test Name";
@@ -46,6 +79,50 @@ SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std
 
 struct IndexFields
 {
+    IndexFields(
+        std::string id,
+        std::string name,
+        std::string moniker,
+        std::string version,
+        std::string channel,
+        std::vector<NormalizedString> tags,
+        std::vector<NormalizedString> commands,
+        std::string path
+    ) :
+        Id(std::move(id)),
+        Name(std::move(name)),
+        Moniker(std::move(moniker)),
+        Version(std::move(version)),
+        Channel(std::move(channel)),
+        Tags(std::move(tags)),
+        Commands(std::move(commands)),
+        Path(std::move(path))
+    {}
+
+    IndexFields(
+        std::string id,
+        std::string name,
+        std::string moniker,
+        std::string version,
+        std::string channel,
+        std::vector<NormalizedString> tags,
+        std::vector<NormalizedString> commands,
+        std::string path,
+        std::vector<NormalizedString> packageFamilyNames,
+        std::vector<NormalizedString> productCodes
+    ) :
+        Id(std::move(id)),
+        Name(std::move(name)),
+        Moniker(std::move(moniker)),
+        Version(std::move(version)),
+        Channel(std::move(channel)),
+        Tags(std::move(tags)),
+        Commands(std::move(commands)),
+        Path(std::move(path)),
+        PackageFamilyNames(std::move(packageFamilyNames)),
+        ProductCodes(std::move(productCodes))
+    {}
+
     std::string Id;
     std::string Name;
     std::string Moniker;
@@ -54,11 +131,13 @@ struct IndexFields
     std::vector<NormalizedString> Tags;
     std::vector<NormalizedString> Commands;
     std::string Path;
+    std::vector<NormalizedString> PackageFamilyNames;
+    std::vector<NormalizedString> ProductCodes;
 };
 
-SQLiteIndex SearchTestSetup(const std::string& filePath, std::initializer_list<IndexFields> data = {}, Schema::Version version = Schema::Version::Latest())
+SQLiteIndex SearchTestSetup(const std::string& filePath, std::initializer_list<IndexFields> data = {}, std::optional<Schema::Version> version = {})
 {
-    SQLiteIndex index = SQLiteIndex::CreateNew(filePath, version);
+    SQLiteIndex index = CreateTestIndex(filePath, version);
 
     Manifest manifest;
 
@@ -71,6 +150,18 @@ SQLiteIndex SearchTestSetup(const std::string& filePath, std::initializer_list<I
         manifest.Tags = d.Tags;
         manifest.Commands = d.Commands;
 
+        manifest.Installers.resize(std::max(d.PackageFamilyNames.size(), d.ProductCodes.size()));
+
+        for (size_t i = 0; i < d.PackageFamilyNames.size(); ++i)
+        {
+            manifest.Installers[i].PackageFamilyName = d.PackageFamilyNames[i];
+        }
+
+        for (size_t i = 0; i < d.ProductCodes.size(); ++i)
+        {
+            manifest.Installers[i].ProductCode = d.ProductCodes[i];
+        }
+
         index.AddManifest(manifest, d.Path);
     };
 
@@ -80,6 +171,43 @@ SQLiteIndex SearchTestSetup(const std::string& filePath, std::initializer_list<I
     }
 
     return index;
+}
+
+bool ArePackageFamilyNameAndProductCodeSupported(const SQLiteIndex& index, const Schema::Version& testVersion)
+{
+    UNSCOPED_INFO("Index " << index.GetVersion() << " | Test " << testVersion);
+    return (index.GetVersion() >= Schema::Version{ 1, 1 } && testVersion >= Schema::Version{ 1, 1 });
+}
+
+std::string GetPropertyStringByKey(const SQLiteIndex& index, SQLite::rowid_t id, PackageVersionProperty property, std::string_view version, std::string_view channel)
+{
+    auto manifestId = index.GetManifestIdByKey(id, version, channel);
+    REQUIRE(manifestId);
+    auto result = index.GetPropertyByManifestId(manifestId.value(), property);
+    REQUIRE(result);
+    return result.value();
+}
+
+std::string GetPropertyStringById(const SQLiteIndex& index, SQLite::rowid_t id, PackageVersionProperty property)
+{
+    auto versions = index.GetVersionKeysById(id);
+    REQUIRE(!versions.empty());
+    return GetPropertyStringByKey(index, id, property, versions[0].GetVersion().ToString(), versions[0].GetChannel().ToString());
+}
+
+std::string GetIdStringById(const SQLiteIndex& index, SQLite::rowid_t id)
+{
+    return GetPropertyStringById(index, id, PackageVersionProperty::Id);
+}
+
+std::string GetNameStringById(const SQLiteIndex& index, SQLite::rowid_t id)
+{
+    return GetPropertyStringById(index, id, PackageVersionProperty::Name);
+}
+
+std::string GetPathStringByKey(const SQLiteIndex& index, SQLite::rowid_t id, std::string_view version, std::string_view channel)
+{
+    return GetPropertyStringByKey(index, id, PackageVersionProperty::RelativePath, version, channel);
 }
 
 TEST_CASE("SQLiteIndexCreateLatestAndReopen", "[sqliteindex]")
@@ -136,7 +264,7 @@ TEST_CASE("SQLiteIndexCreateAndAddManifestFile", "[sqliteindex]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, Schema::Version::Latest());
+    SQLiteIndex index = CreateTestIndex(tempFile);
 
     TestDataFile manifestFile{ "Manifest-Good.yaml" };
     std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yaml" };
@@ -168,7 +296,7 @@ TEST_CASE("SQLiteIndexCreateAndAddManifestDuplicate", "[sqliteindex]")
 
 TEST_CASE("SQLiteIndex_RemoveManifestFile_NotPresent", "[sqliteindex]")
 {
-    SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
+    SQLiteIndex index = CreateTestIndex(SQLITE_MEMORY_DB_CONNECTION_TARGET);
 
     TestDataFile manifestFile{ "Manifest-Good.yaml" };
     std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yaml" };
@@ -557,7 +685,7 @@ TEST_CASE("SQLiteIndex_IdCaseInsensitivity", "[sqliteindex][V1_0]")
 
         auto results = index.Search({});
         REQUIRE(results.Matches.size() == 1);
-        REQUIRE(manifest1.Id == index.GetIdStringById(results.Matches[0].first));
+        REQUIRE(manifest1.Id == GetIdStringById(index, results.Matches[0].first));
     }
 
     {
@@ -567,7 +695,7 @@ TEST_CASE("SQLiteIndex_IdCaseInsensitivity", "[sqliteindex][V1_0]")
 
         auto results = index.Search({});
         REQUIRE(results.Matches.size() == 1);
-        REQUIRE(manifest2.Id == index.GetIdStringById(results.Matches[0].first));
+        REQUIRE(manifest2.Id == GetIdStringById(index, results.Matches[0].first));
     }
 
     {
@@ -579,7 +707,7 @@ TEST_CASE("SQLiteIndex_IdCaseInsensitivity", "[sqliteindex][V1_0]")
 
         auto results = index.Search({});
         REQUIRE(results.Matches.size() == 1);
-        REQUIRE(manifest1.Id == index.GetIdStringById(results.Matches[0].first));
+        REQUIRE(manifest1.Id == GetIdStringById(index, results.Matches[0].first));
     }
 
     {
@@ -589,7 +717,7 @@ TEST_CASE("SQLiteIndex_IdCaseInsensitivity", "[sqliteindex][V1_0]")
 
         auto results = index.Search({});
         REQUIRE(results.Matches.size() == 1);
-        REQUIRE(manifest1.Id == index.GetIdStringById(results.Matches[0].first));
+        REQUIRE(manifest1.Id == GetIdStringById(index, results.Matches[0].first));
     }
 
     {
@@ -687,7 +815,7 @@ TEST_CASE("SQLiteIndex_PrepareForPackaging", "[sqliteindex]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, Schema::Version::Latest());
+    SQLiteIndex index = CreateTestIndex(tempFile);
 
     TestDataFile manifestFile{ "Manifest-Good.yaml" };
     std::filesystem::path manifestPath{ "microsoft/msixsdk/microsoft.msixsdk-1.7.32.yaml" };
@@ -706,12 +834,14 @@ TEST_CASE("SQLiteIndex_Search_IdExactMatch", "[sqliteindex]")
     std::string relativePath;
     SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, manifest.Id);
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 1);
-    REQUIRE(results.Matches[0].second.Field == ApplicationMatchField::Id);
+    REQUIRE(results.Matches[0].second.Field == PackageMatchField::Id);
     REQUIRE(results.Matches[0].second.Type == MatchType::Exact);
     REQUIRE(results.Matches[0].second.Value == manifest.Id);
 }
@@ -728,13 +858,15 @@ TEST_CASE("SQLiteIndex_Search_MultipleMatch", "[sqliteindex]")
     manifest.Version = "2.0.0";
     index.AddManifest(manifest, relativePath + "2");
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, manifest.Id);
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 1);
 
-    auto result = index.GetVersionsById(results.Matches[0].first);
+    auto result = index.GetVersionKeysById(results.Matches[0].first);
     REQUIRE(result.size() == 2);
 }
 
@@ -746,6 +878,8 @@ TEST_CASE("SQLiteIndex_Search_NoMatch", "[sqliteindex]")
     Manifest manifest;
     std::string relativePath;
     SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
+
+    TestPrepareForRead(index);
 
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, "THIS DOES NOT MATCH ANYTHING!");
@@ -763,15 +897,16 @@ TEST_CASE("SQLiteIndex_IdString", "[sqliteindex]")
     std::string relativePath;
     SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, manifest.Id);
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 1);
 
-    auto result = index.GetIdStringById(results.Matches[0].first);
-    REQUIRE(result.has_value());
-    REQUIRE(result.value() == manifest.Id);
+    auto result = GetIdStringById(index, results.Matches[0].first);
+    REQUIRE(result == manifest.Id);
 }
 
 TEST_CASE("SQLiteIndex_NameString", "[sqliteindex]")
@@ -783,15 +918,16 @@ TEST_CASE("SQLiteIndex_NameString", "[sqliteindex]")
     std::string relativePath;
     SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, manifest.Id);
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 1);
 
-    auto result = index.GetNameStringById(results.Matches[0].first);
-    REQUIRE(result.has_value());
-    REQUIRE(result.value() == manifest.Name);
+    auto result = GetNameStringById(index, results.Matches[0].first);
+    REQUIRE(result == manifest.Name);
 }
 
 TEST_CASE("SQLiteIndex_PathString", "[sqliteindex]")
@@ -803,19 +939,19 @@ TEST_CASE("SQLiteIndex_PathString", "[sqliteindex]")
     std::string relativePath;
     SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, manifest.Id);
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 1);
 
-    auto specificResult = index.GetPathStringByKey(results.Matches[0].first, manifest.Version, manifest.Channel);
-    REQUIRE(specificResult.has_value());
-    REQUIRE(specificResult.value() == relativePath);
+    auto specificResult = GetPathStringByKey(index, results.Matches[0].first, manifest.Version, manifest.Channel);
+    REQUIRE(specificResult == relativePath);
 
-    auto latestResult = index.GetPathStringByKey(results.Matches[0].first, "", manifest.Channel);
-    REQUIRE(latestResult.has_value());
-    REQUIRE(latestResult.value() == relativePath);
+    auto latestResult = GetPathStringByKey(index, results.Matches[0].first, "", manifest.Channel);
+    REQUIRE(latestResult == relativePath);
 }
 
 TEST_CASE("SQLiteIndex_Versions", "[sqliteindex]")
@@ -827,13 +963,15 @@ TEST_CASE("SQLiteIndex_Versions", "[sqliteindex]")
     std::string relativePath;
     SQLiteIndex index = SimpleTestSetup(tempFile, manifest, relativePath);
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, manifest.Id);
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 1);
 
-    auto result = index.GetVersionsById(results.Matches[0].first);
+    auto result = index.GetVersionKeysById(results.Matches[0].first);
     REQUIRE(result.size() == 1);
     REQUIRE(result[0].GetVersion().ToString() == manifest.Version);
     REQUIRE(result[0].GetChannel().ToString() == manifest.Channel);
@@ -867,13 +1005,15 @@ TEST_CASE("SQLiteIndex_Search_VersionSorting", "[sqliteindex]")
         { "Id", "Name", "Moniker", "13.0.0", "", { "foo" }, { "com3" }, "Path8" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
-    request.Filters.emplace_back(ApplicationMatchField::Id, MatchType::Exact, "Id");
+    request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Id");
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 1);
 
-    auto result = index.GetVersionsById(results.Matches[0].first);
+    auto result = index.GetVersionKeysById(results.Matches[0].first);
     REQUIRE(result.size() == sortedList.size());
 
     for (size_t i = 0; i < result.size(); ++i)
@@ -915,26 +1055,25 @@ TEST_CASE("SQLiteIndex_PathString_VersionSorting", "[sqliteindex]")
         { "Id", "Name", "Moniker", "13.0.0", "", { "foo" }, { "com3" }, "Path8" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
-    request.Filters.emplace_back(ApplicationMatchField::Id, MatchType::Exact, "Id");
+    request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Id");
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 1);
 
-    auto result = index.GetPathStringByKey(results.Matches[0].first, "", "");
-    REQUIRE(result.has_value());
-    REQUIRE(result.value() == "Path3");
+    auto result = GetPathStringByKey(index, results.Matches[0].first, "", "");
+    REQUIRE(result == "Path3");
 
-    result = index.GetPathStringByKey(results.Matches[0].first, "", "alpha");
-    REQUIRE(result.has_value());
-    REQUIRE(result.value() == "Path2");
+    result = GetPathStringByKey(index, results.Matches[0].first, "", "alpha");
+    REQUIRE(result == "Path2");
 
-    result = index.GetPathStringByKey(results.Matches[0].first, "", "beta");
-    REQUIRE(result.has_value());
-    REQUIRE(result.value() == "Path5");
+    result = GetPathStringByKey(index, results.Matches[0].first, "", "beta");
+    REQUIRE(result == "Path5");
 
-    result = index.GetPathStringByKey(results.Matches[0].first, "", "gamma");
-    REQUIRE(!result.has_value());
+    auto nonResult = index.GetManifestIdByKey(results.Matches[0].first, "", "gamma");
+    REQUIRE(!nonResult.has_value());
 }
 
 TEST_CASE("SQLiteIndex_PathString_CaseInsensitive", "[sqliteindex]")
@@ -953,19 +1092,21 @@ TEST_CASE("SQLiteIndex_PathString_CaseInsensitive", "[sqliteindex]")
         { "Id", "Name", "Moniker", "13.0.0", "", { "foo" }, { "com3" }, "Path8" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
-    request.Filters.emplace_back(ApplicationMatchField::Id, MatchType::Exact, "Id");
+    request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Id");
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 1);
 
-    auto result = index.GetPathStringByKey(results.Matches[0].first, "", "Alpha");
+    auto result = index.GetManifestIdByKey(results.Matches[0].first, "", "Alpha");
     REQUIRE(result.has_value());
 
-    result = index.GetPathStringByKey(results.Matches[0].first, "13.2.0-BugFix", "");
+    result = index.GetManifestIdByKey(results.Matches[0].first, "13.2.0-BugFix", "");
     REQUIRE(result.has_value());
 
-    result = index.GetPathStringByKey(results.Matches[0].first, "13.2.0-BugFix", "BETA");
+    result = index.GetManifestIdByKey(results.Matches[0].first, "13.2.0-BugFix", "BETA");
     REQUIRE(!result.has_value());
 }
 
@@ -977,7 +1118,7 @@ TEST_CASE("SQLiteIndex_SearchResultsTableSearches", "[sqliteindex][V1_0]")
     Manifest manifest;
     std::string relativePath;
     {
-        (void)SimpleTestSetup(tempFile, manifest, relativePath);
+        (void)SimpleTestSetup(tempFile, manifest, relativePath, Schema::Version{ 1, 0 });
     }
 
     Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
@@ -986,7 +1127,7 @@ TEST_CASE("SQLiteIndex_SearchResultsTableSearches", "[sqliteindex][V1_0]")
     std::string value = "test";
 
     // Perform every type of field and match search
-    for (auto field : { ApplicationMatchField::Id, ApplicationMatchField::Name, ApplicationMatchField::Moniker, ApplicationMatchField::Tag, ApplicationMatchField::Command })
+    for (auto field : { PackageMatchField::Id, PackageMatchField::Name, PackageMatchField::Moniker, PackageMatchField::Tag, PackageMatchField::Command })
     {
         for (auto match : { MatchType::Exact, MatchType::Fuzzy, MatchType::FuzzySubstring, MatchType::Substring, MatchType::Wildcard })
         {
@@ -1007,6 +1148,8 @@ TEST_CASE("SQLiteIndex_Search_EmptySearch", "[sqliteindex]")
         { "Id3", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path4" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
 
     auto results = index.Search(request);
@@ -1022,6 +1165,8 @@ TEST_CASE("SQLiteIndex_Search_Exact", "[sqliteindex]")
         { "Id", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1" },
         { "Id2", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
         });
+
+    TestPrepareForRead(index);
 
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, "Id");
@@ -1040,6 +1185,8 @@ TEST_CASE("SQLiteIndex_Search_Substring", "[sqliteindex]")
         { "Id2", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Substring, "Id");
 
@@ -1057,14 +1204,16 @@ TEST_CASE("SQLiteIndex_Search_ExactBeforeSubstring", "[sqliteindex]")
         { "Id", "Name", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Substring, "Id");
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 2);
 
-    REQUIRE(index.GetIdStringById(results.Matches[0].first) == "Id");
-    REQUIRE(index.GetIdStringById(results.Matches[1].first) == "Id2");
+    REQUIRE(GetIdStringById(index, results.Matches[0].first) == "Id");
+    REQUIRE(GetIdStringById(index, results.Matches[1].first) == "Id2");
 }
 
 TEST_CASE("SQLiteIndex_Search_SingleFilter", "[sqliteindex]")
@@ -1078,8 +1227,10 @@ TEST_CASE("SQLiteIndex_Search_SingleFilter", "[sqliteindex]")
         { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
-    request.Filters.emplace_back(ApplicationMatchField::Name, MatchType::Substring, "a");
+    request.Filters.emplace_back(PackageMatchField::Name, MatchType::Substring, "a");
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 2);
@@ -1105,6 +1256,8 @@ TEST_CASE("SQLiteIndex_Search_Multimatch", "[sqliteindex]")
         { "Id3", "Name", "Moniker", "Version3", "", { "Tag" }, { "Command" }, "Path7" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
     // An empty string should match all substrings
     request.Query = RequestMatch(MatchType::Substring, "");
@@ -1124,16 +1277,17 @@ TEST_CASE("SQLiteIndex_Search_QueryAndFilter", "[sqliteindex]")
         { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Substring, "Id");
-    request.Filters.emplace_back(ApplicationMatchField::Name, MatchType::Substring, "Na");
+    request.Filters.emplace_back(PackageMatchField::Name, MatchType::Substring, "Na");
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 1);
 
-    auto result = index.GetIdStringById(results.Matches[0].first);
-    REQUIRE(result.has_value());
-    REQUIRE(result.value() == "Id2");
+    auto result = GetIdStringById(index, results.Matches[0].first);
+    REQUIRE(result == "Id2");
 }
 
 TEST_CASE("SQLiteIndex_Search_QueryAndMultipleFilters", "[sqliteindex]")
@@ -1151,18 +1305,19 @@ TEST_CASE("SQLiteIndex_Search_QueryAndMultipleFilters", "[sqliteindex]")
         { "Id3", "Tagit", "new", "Version3", "", { "foo" }, { "com3" }, "Path7" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Substring, "tag");
-    request.Filters.emplace_back(ApplicationMatchField::Command, MatchType::Exact, "com3");
-    request.Filters.emplace_back(ApplicationMatchField::Tag, MatchType::Substring, "foo");
-    request.Filters.emplace_back(ApplicationMatchField::Moniker, MatchType::Substring, "new");
+    request.Filters.emplace_back(PackageMatchField::Command, MatchType::Exact, "com3");
+    request.Filters.emplace_back(PackageMatchField::Tag, MatchType::Substring, "foo");
+    request.Filters.emplace_back(PackageMatchField::Moniker, MatchType::Substring, "new");
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 1);
 
-    auto result = index.GetIdStringById(results.Matches[0].first);
-    REQUIRE(result.has_value());
-    REQUIRE(result.value() == "Id3");
+    auto result = GetIdStringById(index, results.Matches[0].first);
+    REQUIRE(result == "Id3");
 }
 
 TEST_CASE("SQLiteIndex_Search_SimpleICULike", "[sqliteindex]")
@@ -1176,16 +1331,17 @@ TEST_CASE("SQLiteIndex_Search_SimpleICULike", "[sqliteindex]")
         { u8"AwesomeApp", "Nope", "Moniker", "Version", "Channel", { "foot" }, { "com34" }, "Path2" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
     // Search for anything containing: [lower] a + umlaut
-    request.Filters.emplace_back(ApplicationMatchField::Id, MatchType::Substring, u8"\xE4");
+    request.Filters.emplace_back(PackageMatchField::Id, MatchType::Substring, u8"\xE4");
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 1);
 
-    auto result = index.GetNameStringById(results.Matches[0].first);
-    REQUIRE(result.has_value());
-    REQUIRE(result.value() == "HasUmlaut");
+    auto result = GetNameStringById(index, results.Matches[0].first);
+    REQUIRE(result == "HasUmlaut");
 }
 
 TEST_CASE("SQLiteIndex_Search_MaximumResults_Equal", "[sqliteindex]")
@@ -1198,6 +1354,8 @@ TEST_CASE("SQLiteIndex_Search_MaximumResults_Equal", "[sqliteindex]")
         { "Id2", "Na", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
         { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
         });
+
+    TestPrepareForRead(index);
 
     SearchRequest request;
     request.MaximumResults = 3;
@@ -1218,6 +1376,8 @@ TEST_CASE("SQLiteIndex_Search_MaximumResults_Less", "[sqliteindex]")
         { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
     request.MaximumResults = 2;
 
@@ -1236,6 +1396,8 @@ TEST_CASE("SQLiteIndex_Search_MaximumResults_Greater", "[sqliteindex]")
         { "Id2", "Na", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2" },
         { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
         });
+
+    TestPrepareForRead(index);
 
     SearchRequest request;
     request.MaximumResults = 4;
@@ -1256,9 +1418,11 @@ TEST_CASE("SQLiteIndex_Search_QueryAndInclusion", "[sqliteindex]")
         { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
     request.Query = RequestMatch(MatchType::CaseInsensitive, "id3");
-    request.Inclusions.emplace_back(ApplicationMatchField::Name, MatchType::Substring, "Na");
+    request.Inclusions.emplace_back(PackageMatchField::Name, MatchType::Substring, "Na");
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 3);
@@ -1275,8 +1439,10 @@ TEST_CASE("SQLiteIndex_Search_InclusionOnly", "[sqliteindex]")
         { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
-    request.Inclusions.emplace_back(ApplicationMatchField::Name, MatchType::Substring, "Na");
+    request.Inclusions.emplace_back(PackageMatchField::Name, MatchType::Substring, "Na");
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 2);
@@ -1293,16 +1459,17 @@ TEST_CASE("SQLiteIndex_Search_InclusionAndFilter", "[sqliteindex]")
         { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
-    request.Inclusions.emplace_back(ApplicationMatchField::Name, MatchType::Substring, "Na");
-    request.Filters.emplace_back(ApplicationMatchField::Name, MatchType::CaseInsensitive, "name");
+    request.Inclusions.emplace_back(PackageMatchField::Name, MatchType::Substring, "Na");
+    request.Filters.emplace_back(PackageMatchField::Name, MatchType::CaseInsensitive, "name");
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 1);
 
-    auto result = index.GetIdStringById(results.Matches[0].first);
-    REQUIRE(result.has_value());
-    REQUIRE(result.value() == "Nope");
+    auto result = GetIdStringById(index, results.Matches[0].first);
+    REQUIRE(result == "Nope");
 }
 
 TEST_CASE("SQLiteIndex_Search_QueryInclusionAndFilter", "[sqliteindex]")
@@ -1316,10 +1483,12 @@ TEST_CASE("SQLiteIndex_Search_QueryInclusionAndFilter", "[sqliteindex]")
         { "Id3", "No", "moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Substring, "id3");
-    request.Inclusions.emplace_back(ApplicationMatchField::Name, MatchType::Substring, "na");
-    request.Filters.emplace_back(ApplicationMatchField::Moniker, MatchType::CaseInsensitive, "MONIKER");
+    request.Inclusions.emplace_back(PackageMatchField::Name, MatchType::Substring, "na");
+    request.Filters.emplace_back(PackageMatchField::Moniker, MatchType::CaseInsensitive, "MONIKER");
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 2);
@@ -1335,6 +1504,8 @@ TEST_CASE("SQLiteIndex_Search_CaseInsensitive", "[sqliteindex]")
         { "Id2", "Na", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2" },
         { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
         });
+
+    TestPrepareForRead(index);
 
     SearchRequest request;
     request.Query = RequestMatch(MatchType::CaseInsensitive, "id3");
@@ -1354,9 +1525,219 @@ TEST_CASE("SQLiteIndex_Search_StartsWith", "[sqliteindex]")
         { "Id3", "No", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3" },
         });
 
+    TestPrepareForRead(index);
+
     SearchRequest request;
-    request.Inclusions.push_back(ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::StartsWith, "id"));
+    request.Inclusions.push_back(PackageMatchFilter(PackageMatchField::Id, MatchType::StartsWith, "id"));
 
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 2);
+}
+
+TEST_CASE("SQLiteIndex_Search_Query_PackageFamilyNameSubstring", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { "Id3", "Name3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Substring, "PFN");
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 0);
+}
+
+TEST_CASE("SQLiteIndex_Search_Query_ProductCodeSubstring", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { "Id3", "Name3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Substring, "PC");
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 0);
+}
+
+TEST_CASE("SQLiteIndex_Search_Query_PackageFamilyNameMatch", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { "Id3", "Name3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Substring, "pfn1");
+
+    auto results = index.Search(request);
+
+    if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
+    {
+        REQUIRE(results.Matches.size() == 1);
+    }
+    else
+    {
+        REQUIRE(results.Matches.size() == 0);
+    }
+}
+
+TEST_CASE("SQLiteIndex_Search_Query_ProductCodeMatch", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { "Id3", "Name3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Substring, "pc2");
+
+    auto results = index.Search(request);
+
+    if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
+    {
+        REQUIRE(results.Matches.size() == 1);
+    }
+    else
+    {
+        REQUIRE(results.Matches.size() == 0);
+    }
+}
+
+TEST_CASE("SQLiteIndex_Search_PackageFamilyNameSubstring", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { "Id3", "Name3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Inclusions.emplace_back(PackageMatchField::PackageFamilyName, MatchType::Substring, "PFN");
+
+    auto results = index.Search(request);
+
+    if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
+    {
+        REQUIRE(results.Matches.size() == 3);
+    }
+    else
+    {
+        REQUIRE(results.Matches.size() == 0);
+    }
+}
+
+TEST_CASE("SQLiteIndex_Search_ProductCodeSubstring", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { "Id3", "Name3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Inclusions.emplace_back(PackageMatchField::ProductCode, MatchType::Substring, "PC");
+
+    auto results = index.Search(request);
+
+    if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
+    {
+        REQUIRE(results.Matches.size() == 3);
+    }
+    else
+    {
+        REQUIRE(results.Matches.size() == 0);
+    }
+}
+
+TEST_CASE("SQLiteIndex_Search_PackageFamilyNameMatch", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { "Id3", "Name3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Inclusions.emplace_back(PackageMatchField::PackageFamilyName, MatchType::Exact, "pfn1");
+
+    auto results = index.Search(request);
+
+    if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
+    {
+        REQUIRE(results.Matches.size() == 1);
+    }
+    else
+    {
+        REQUIRE(results.Matches.size() == 0);
+    }
+}
+
+TEST_CASE("SQLiteIndex_Search_ProductCodeMatch", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { "Id3", "Name3", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Inclusions.emplace_back(PackageMatchField::ProductCode, MatchType::Exact, "pc2");
+
+    auto results = index.Search(request);
+
+    if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
+    {
+        REQUIRE(results.Matches.size() == 1);
+    }
+    else
+    {
+        REQUIRE(results.Matches.size() == 0);
+    }
 }

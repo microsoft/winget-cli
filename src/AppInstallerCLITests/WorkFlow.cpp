@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <AppInstallerLogging.h>
-#include <Manifest/YamlParser.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerStrings.h>
 #include <Workflows/InstallFlow.h>
@@ -15,6 +14,7 @@
 #include <Commands/InstallCommand.h>
 #include <Commands/ShowCommand.h>
 #include <winget/LocIndependent.h>
+#include <winget/ManifestYamlParser.h>
 #include <Resources.h>
 
 using namespace winrt::Windows::Foundation;
@@ -32,151 +32,201 @@ using namespace AppInstaller::Utility;
     REQUIRE(_context_.IsTerminated()); \
     REQUIRE(_hr_ == _context_.GetTerminationHR())
 
-struct TestSource : public ISource
+namespace
 {
-    struct TestApplication : public IApplication
+    struct TestSource : public ISource
     {
-        TestApplication(const Manifest manifest) : m_manifest(manifest) {}
-
-        std::optional<Manifest> GetManifest(const NormalizedString&, const NormalizedString&) override
+        struct TestPackageVersion : public IPackageVersion
         {
-            return m_manifest;
-        }
+            TestPackageVersion(const Manifest& manifest) : m_manifest(manifest) {}
 
-        LocIndString GetId() override
-        {
-            return LocIndString{ m_manifest.Id };
-        }
+            LocIndString GetProperty(PackageVersionProperty property) const override
+            {
+                switch (property)
+                {
+                case PackageVersionProperty::Id:
+                    return LocIndString{ m_manifest.Id };
+                case PackageVersionProperty::Name:
+                    return LocIndString{ m_manifest.Name };
+                case PackageVersionProperty::Version:
+                    return LocIndString{ m_manifest.Version };
+                case PackageVersionProperty::Channel:
+                    return LocIndString{ m_manifest.Channel };
+                default:
+                    return {};
+                }
+            }
 
-        LocIndString GetName() override
-        {
-            return LocIndString{ m_manifest.Name };
-        }
+            Manifest GetManifest() const override
+            {
+                return m_manifest;
+            }
 
-        std::vector<VersionAndChannel> GetVersions() override
+            std::map<std::string, std::string> GetInstallationMetadata() const override
+            {
+                return {};
+            }
+
+            Manifest m_manifest;
+        };
+
+        struct TestPackage : public IPackage
         {
-            std::vector<VersionAndChannel> result;
-            result.emplace_back(Version(m_manifest.Version), Channel(m_manifest.Channel));
+            TestPackage(const Manifest& manifest) : m_manifest(manifest) {}
+
+            std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
+            {
+                return {};
+            }
+
+            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
+            {
+                return { { "", m_manifest.Version, m_manifest.Channel } };
+            }
+
+            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
+            {
+                return std::make_shared<TestPackageVersion>(m_manifest);
+            }
+
+            std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override
+            {
+                if ((versionKey.Version.empty() || versionKey.Version == m_manifest.Version) &&
+                    (versionKey.Channel.empty() || versionKey.Channel == m_manifest.Channel))
+                {
+                    return std::make_shared<TestPackageVersion>(m_manifest);
+                }
+                else
+                {
+                    return {};
+                }
+            }
+
+            bool IsUpdateAvailable() const override
+            {
+                return false;
+            }
+
+            Manifest m_manifest;
+        };
+
+        SearchResult Search(const SearchRequest& request) const override
+        {
+            SearchResult result;
+
+            std::string input;
+
+            if (request.Query)
+            {
+                input = request.Query->Value;
+            }
+            else if (!request.Inclusions.empty())
+            {
+                input = request.Inclusions[0].Value;
+            }
+
+            if (input == "TestQueryReturnOne")
+            {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        std::make_unique<TestPackage>(manifest),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnOne")));
+            }
+            else if (input == "TestQueryReturnTwo")
+            {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        std::make_unique<TestPackage>(manifest),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
+
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        std::make_unique<TestPackage>(manifest2),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
+            }
+
             return result;
         }
 
-        Manifest m_manifest;
+        const SourceDetails& GetDetails() const override { THROW_HR(E_NOTIMPL); }
+
+        const std::string& GetIdentifier() const override { THROW_HR(E_NOTIMPL); }
     };
 
-    SearchResult Search(const SearchRequest& request) override
+    struct TestContext;
+
+    struct WorkflowTaskOverride
     {
-        SearchResult result;
+        WorkflowTaskOverride(WorkflowTask::Func f, const std::function<void(TestContext&)>& o) :
+            Target(f), Override(o) {}
 
-        std::string input;
+        WorkflowTaskOverride(std::string_view n, const std::function<void(TestContext&)>& o) :
+            Target(n), Override(o) {}
 
-        if (request.Query)
-        {
-            input = request.Query->Value;
-        }
-        else if (!request.Inclusions.empty())
-        {
-            input = request.Inclusions[0].Value;
-        }
+        WorkflowTaskOverride(const WorkflowTask& t, const std::function<void(TestContext&)>& o) :
+            Target(t), Override(o) {}
 
-        if (input == "TestQueryReturnOne")
-        {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    std::make_unique<TestApplication>(manifest),
-                    ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, "TestQueryReturnOne")));
-        }
-        else if (input == "TestQueryReturnTwo")
-        {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    std::make_unique<TestApplication>(manifest),
-                    ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
+        bool Used = false;
+        WorkflowTask Target;
+        std::function<void(TestContext&)> Override;
+    };
 
-            auto manifest2 = YamlParser::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    std::make_unique<TestApplication>(manifest2),
-                    ApplicationMatchFilter(ApplicationMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
-        }
-
-        return result;
-    }
-
-    const SourceDetails& GetDetails() const override { THROW_HR(E_NOTIMPL); }
-};
-
-struct TestContext;
-
-struct WorkflowTaskOverride
-{
-    WorkflowTaskOverride(WorkflowTask::Func f, const std::function<void(TestContext&)>& o) :
-        Target(f), Override(o) {}
-
-    WorkflowTaskOverride(std::string_view n, const std::function<void(TestContext&)>& o) :
-        Target(n), Override(o) {}
-
-    WorkflowTaskOverride(const WorkflowTask& t, const std::function<void(TestContext&)>& o) :
-        Target(t), Override(o) {}
-
-    bool Used = false;
-    WorkflowTask Target;
-    std::function<void(TestContext&)> Override;
-};
-
-// Enables overriding the behavior of specific workflow tasks.
-struct TestContext : public Context
-{
-    TestContext(std::ostream& out, std::istream& in) : Context(out, in)
+    // Enables overriding the behavior of specific workflow tasks.
+    struct TestContext : public Context
     {
-        WorkflowTaskOverride wto
-        { RemoveInstaller, [](TestContext&)
+        TestContext(std::ostream& out, std::istream& in) : Context(out, in)
+        {
+            WorkflowTaskOverride wto
+            { RemoveInstaller, [](TestContext&)
+                {
+                    // Do nothing; we never want to remove the test files.
+            } };
+
+            // Mark this one as used so that it doesn't anger the destructor.
+            wto.Used = true;
+
+            Override(wto);
+        }
+
+        ~TestContext()
+        {
+            for (const auto& wto : m_overrides)
             {
-                // Do nothing; we never want to remove the test files.
-        } };
-
-        // Mark this one as used so that it doesn't anger the destructor.
-        wto.Used = true;
-
-        Override(wto);
-    }
-
-    ~TestContext()
-    {
-        for (const auto& wto : m_overrides)
-        {
-            if (!wto.Used)
-            {
-                FAIL("Unused override");
+                if (!wto.Used)
+                {
+                    FAIL("Unused override");
+                }
             }
         }
-    }
 
-    bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task) override
-    {
-        auto itr = std::find_if(m_overrides.begin(), m_overrides.end(), [&](const WorkflowTaskOverride& wto) { return wto.Target == task; });
-
-        if (itr == m_overrides.end())
+        bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task) override
         {
-            return true;
+            auto itr = std::find_if(m_overrides.begin(), m_overrides.end(), [&](const WorkflowTaskOverride& wto) { return wto.Target == task; });
+
+            if (itr == m_overrides.end())
+            {
+                return true;
+            }
+            else
+            {
+                itr->Used = true;
+                itr->Override(*this);
+                return false;
+            }
         }
-        else
+
+        void Override(const WorkflowTaskOverride& wto)
         {
-            itr->Used = true;
-            itr->Override(*this);
-            return false;
+            m_overrides.emplace_back(wto);
         }
-    }
 
-    void Override(const WorkflowTaskOverride& wto)
-    {
-        m_overrides.emplace_back(wto);
-    }
-
-private:
-    std::vector<WorkflowTaskOverride> m_overrides;
-};
+    private:
+        std::vector<WorkflowTaskOverride> m_overrides;
+    };
+}
 
 void OverrideForOpenSource(TestContext& context)
 {

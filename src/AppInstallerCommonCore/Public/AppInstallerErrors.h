@@ -2,7 +2,10 @@
 // Licensed under the MIT License.
 #pragma once
 #include <wil/result_macros.h>
+
+#ifndef WINGET_DISABLE_FOR_FUZZING
 #include <winrt/base.h>
+#endif
 
 #include <exception>
 #include <string>
@@ -41,12 +44,25 @@
 #define APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED    ((HRESULT)0x8A15001D)
 #define APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED           ((HRESULT)0x8A15001E)
 #define APPINSTALLER_CLI_ERROR_COMPLETE_INPUT_BAD               ((HRESULT)0x8A15001F)
-#define APPINSTALLER_CLI_ERROR_PWA_INSTALL_FAILED               ((HRESULT)0x8A150020)
-
+#define APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED                 ((HRESULT)0x8A150020)
+#define APPINSTALLER_CLI_ERROR_YAML_INVALID_MAPPING_KEY         ((HRESULT)0x8A150021)
+#define APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY       ((HRESULT)0x8A150022)
+#define APPINSTALLER_CLI_ERROR_YAML_INVALID_OPERATION           ((HRESULT)0x8A150023)
+#define APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED            ((HRESULT)0x8A150024)
+#define APPINSTALLER_CLI_ERROR_YAML_INVALID_EMITTER_STATE       ((HRESULT)0x8A150025)
+#define APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA                ((HRESULT)0x8A150026)
+#define APPINSTALLER_CLI_ERROR_LIBYAML_ERROR                    ((HRESULT)0x8A150027)
+#define APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_WARNING      ((HRESULT)0x8A150028)
+#define APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_FAILURE      ((HRESULT)0x8A150029)
+#define APPINSTALLER_CLI_ERROR_INVALID_MANIFEST                 ((HRESULT)0x8A15002A)
+#define APPINSTALLER_CLI_ERROR_PWA_INSTALL_FAILED               ((HRESULT)0x8A15002B)
 namespace AppInstaller
 {
     // Gets error messages that are presentable to the user.
     std::string GetUserPresentableMessage(const wil::ResultException& re);
-    std::string GetUserPresentableMessage(const winrt::hresult_error& hre);
     std::string GetUserPresentableMessage(const std::exception& e);
+
+#ifndef WINGET_DISABLE_FOR_FUZZING
+    std::string GetUserPresentableMessage(const winrt::hresult_error& hre);
+#endif
 }

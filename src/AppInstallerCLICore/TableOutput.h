@@ -42,7 +42,7 @@ namespace AppInstaller::CLI::Execution
             for (size_t i = 0; i < FieldCount; ++i)
             {
                 m_columns[i].Name = std::move(header[i]);
-                m_columns[i].MinLength = Utility::UTF8Length(m_columns[i].Name.get());
+                m_columns[i].MinLength = Utility::UTF8ColumnWidth(m_columns[i].Name.get());
                 m_columns[i].MaxLength = 0;
             }
         }
@@ -93,7 +93,7 @@ namespace AppInstaller::CLI::Execution
             {
                 for (size_t i = 0; i < FieldCount; ++i)
                 {
-                    m_columns[i].MaxLength = std::max(m_columns[i].MaxLength, Utility::UTF8Length(line[i]));
+                    m_columns[i].MaxLength = std::max(m_columns[i].MaxLength, Utility::UTF8ColumnWidth(line[i]));
                 }
             }
 
@@ -189,12 +189,18 @@ namespace AppInstaller::CLI::Execution
 
                 if (col.MaxLength)
                 {
-                    size_t valueLength = Utility::UTF8Length(line[i]);
+                    size_t valueLength = Utility::UTF8ColumnWidth(line[i]);
 
                     if (valueLength > col.MaxLength)
                     {
-                        out << Utility::UTF8Substring(line[i], 0, col.MaxLength - 1);
-                        out << "\xE2\x80\xA6"; // UTF8 encoding of ellipsis (…) character
+                        size_t actualWidth;
+                        out << Utility::UTF8TrimRightToColumnWidth(line[i], col.MaxLength - 1, actualWidth) << "\xE2\x80\xA6"; // UTF8 encoding of ellipsis (…) character
+
+                        // Some characters take 2 unit space, the trimmed string length might be 1 less than the expected length.
+                        if (actualWidth != col.MaxLength - 1)
+                        {
+                            out << ' ';
+                        }
 
                         if (col.SpaceAfter)
                         {
