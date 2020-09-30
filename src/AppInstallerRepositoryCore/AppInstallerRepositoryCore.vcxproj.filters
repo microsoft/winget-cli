@@ -129,6 +129,9 @@
     <ClInclude Include="Microsoft\Schema\1_1\SearchResultsTable.h">
       <Filter>Microsoft\Schema\1_1</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\PredefinedInstalledSourceFactory.h">
+      <Filter>Microsoft</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -190,6 +193,9 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_1\SearchResultsTable_1_1.cpp">
       <Filter>Microsoft\Schema\1_1</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\PredefinedInstalledSourceFactory.cpp">
+      <Filter>Microsoft</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

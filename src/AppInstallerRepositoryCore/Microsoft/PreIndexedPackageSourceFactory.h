@@ -8,6 +8,8 @@
 
 namespace AppInstaller::Repository::Microsoft
 {
+    using namespace std::string_view_literals;
+
     // A source where the index is precomputed and stored on a server within an optional MSIX package.
     // In addition, the manifest files are also individually available on the server.
     // Arg  ::  Expected to be a fully qualified path to the root of the data.

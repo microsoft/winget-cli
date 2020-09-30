@@ -5,6 +5,7 @@
 
 #include "AggregatedSource.h"
 #include "SourceFactory.h"
+#include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 
 namespace AppInstaller::Repository
@@ -368,6 +369,11 @@ namespace AppInstaller::Repository
             {
                 return Microsoft::PreIndexedPackageSourceFactory::Create();
             }
+            // Should always come from code, so no need for case insensitivity
+            else if (Microsoft::PredefinedInstalledSourceFactory::Type() == type)
+            {
+                return Microsoft::PredefinedInstalledSourceFactory::Create();
+            }
 
             THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
         }
@@ -578,26 +584,25 @@ namespace AppInstaller::Repository
     std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress)
     {
         SourceDetails details;
+        details.Origin = SourceOrigin::Predefined;
 
         switch (source)
         {
         case PredefinedSource::Installed:
-            // TODO: Pull directly from factory
-            details.Type = "Microsoft.Predefined.Installed";
+            details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+            details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::None);
             return CreateSourceFromDetails(details, progress);
         case PredefinedSource::ARP_System:
-            // TODO: Pull directly from factory
-            details.Type = "Microsoft.Predefined.ARP";
-            details.Arg = "system";
+            details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+            details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::ARP_System);
             return CreateSourceFromDetails(details, progress);
         case PredefinedSource::ARP_User:
-            // TODO: Pull directly from factory
-            details.Type = "Microsoft.Predefined.ARP";
-            details.Arg = "user";
+            details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+            details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::ARP_User);
             return CreateSourceFromDetails(details, progress);
         case PredefinedSource::MSIX:
-            // TODO: Pull directly from factory
-            details.Type = "Microsoft.Predefined.MSIX";
+            details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+            details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::MSIX);
             return CreateSourceFromDetails(details, progress);
         }
 

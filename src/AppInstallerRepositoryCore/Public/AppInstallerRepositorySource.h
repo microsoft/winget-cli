@@ -19,6 +19,7 @@ namespace AppInstaller::Repository
     {
         Default,
         User,
+        Predefined,
     };
 
     std::string_view ToString(SourceOrigin origin);

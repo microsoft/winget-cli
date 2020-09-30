@@ -8,8 +8,6 @@
 #include <functional>
 #include <string>
 
-#define SQLITE_MEMORY_DB_CONNECTION_TARGET ":memory:"
-
 #define REQUIRE_THROWS_HR(_expr_, _hr_)     REQUIRE_THROWS_MATCHES(_expr_, wil::ResultException, ::TestCommon::ResultExceptionHRMatcher(_hr_))
 
 namespace TestCommon

@@ -254,7 +254,7 @@ namespace AppInstaller::Repository::SQLite
         m_rollbackTo = Statement::Create(connection, "ROLLBACK TO ["s + m_name + "]");
         m_release = Statement::Create(connection, "RELEASE ["s + m_name + "]");
 
-        AICLI_LOG(SQL, Info, << "Begin savepoint: " << m_name);
+        AICLI_LOG(SQL, Verbose, << "Begin savepoint: " << m_name);
         begin.Step();
     }
 
@@ -272,7 +272,7 @@ namespace AppInstaller::Repository::SQLite
     {
         if (m_inProgress)
         {
-            AICLI_LOG(SQL, Info, << "Roll back savepoint: " << m_name);
+            AICLI_LOG(SQL, Verbose, << "Roll back savepoint: " << m_name);
             m_rollbackTo.Step(true);
             // 'ROLLBACK TO' *DOES NOT* remove the savepoint from the transaction stack.
             // In order to remove it, we must RELEASE. Since we just invoked a ROLLBACK TO
@@ -286,7 +286,7 @@ namespace AppInstaller::Repository::SQLite
     {
         if (m_inProgress)
         {
-            AICLI_LOG(SQL, Info, << "Commit savepoint: " << m_name);
+            AICLI_LOG(SQL, Verbose, << "Commit savepoint: " << m_name);
             m_release.Step(true);
             m_inProgress = false;
         }
