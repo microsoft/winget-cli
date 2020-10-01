@@ -674,4 +674,29 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>The value provided before completion is requested</value>
   </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>No version found matching:</value>
+  </data>
+  <data name="OpenSourceFailed" xml:space="preserve">
+    <value>Failed to open the source; try removing and re-adding it</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>No sources match the given value:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>The configured sources are:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>No sources defined; add one with 'source add' or reset to defaults with 'source reset'</value>
+    <comment>'source add' and 'source reset' are winget commands. It would be beneficial to not translate them</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Found</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Path is a directory:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>File does not exist:</value>
+  </data>
 </root>

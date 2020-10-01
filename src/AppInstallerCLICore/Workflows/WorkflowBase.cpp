@@ -31,7 +31,7 @@ namespace AppInstaller::CLI::Workflow
 
         void ReportIdentity(Execution::Context& context, std::string_view name, std::string_view id)
         {
-            context.Reporter.Info() << "Found " << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << ']' << std::endl;
+            context.Reporter.Info() << Resource::String::ReportIdentityFound << ' ' << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << ']' << std::endl;
         }
 
         void SearchSourceApplyFilters(Execution::Context& context, SearchRequest& searchRequest, MatchType matchType)
@@ -107,7 +107,7 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (...)
         {
-            context.Reporter.Error() << "Failed to open the source; try removing and re-adding it" << std::endl;
+            context.Reporter.Error() << Resource::String::OpenSourceFailed << std::endl;
             throw;
         }
 
@@ -118,8 +118,8 @@ namespace AppInstaller::CLI::Workflow
             if (context.Args.Contains(Execution::Args::Type::Source) && !sources.empty())
             {
                 // A bad name was given, try to help.
-                context.Reporter.Error() << "No sources match the given value: " << context.Args.GetArg(Execution::Args::Type::Source) << std::endl;
-                context.Reporter.Info() << "The configured sources are:" << std::endl;
+                context.Reporter.Error() << Resource::String::OpenSourceFailedNoMatch << ' ' << context.Args.GetArg(Execution::Args::Type::Source) << std::endl;
+                context.Reporter.Info() << Resource::String::OpenSourceFailedNoMatchHelp << std::endl;
                 for (const auto& details : sources)
                 {
                     context.Reporter.Info() << "  " << details.Name << std::endl;
@@ -130,7 +130,7 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 // Even if a name was given, there are no sources
-                context.Reporter.Error() << "No sources defined; add one with 'source add' or reset to defaults with 'source reset'" << std::endl;
+                context.Reporter.Error() << Resource::String::OpenSourceFailedNoSourceDefined << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED);
             }
         }
@@ -361,7 +361,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!manifest)
         {
-            context.Reporter.Error() << "No version found matching: ";
+            context.Reporter.Error() << Resource::String::GetManifestResultVersionNotFound << ' ';
             if (!version.empty())
             {
                 context.Reporter.Error() << version;
@@ -385,13 +385,13 @@ namespace AppInstaller::CLI::Workflow
 
         if (!std::filesystem::exists(path))
         {
-            context.Reporter.Error() << "File does not exist: " << path.u8string() << std::endl;
+            context.Reporter.Error() << Resource::String::VerifyFileFailedNotExist << ' ' << path.u8string() << std::endl;
             AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND));
         }
 
         if (std::filesystem::is_directory(path))
         {
-            context.Reporter.Error() << "Path is a directory: " << path.u8string() << std::endl;
+            context.Reporter.Error() << Resource::String::VerifyFileFailedIsDirectory << ' ' << path.u8string() << std::endl;
             AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_DIRECTORY_NOT_SUPPORTED));
         }
     }

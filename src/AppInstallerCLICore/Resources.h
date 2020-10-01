@@ -59,6 +59,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesStatus);
         WINGET_DEFINE_RESOURCE_STRINGID(FileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FlagContainAdjoinedError);
+        WINGET_DEFINE_RESOURCE_STRINGID(GetManifestResultVersionNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(HashCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(HashCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(HelpArgumentDescription);
@@ -113,6 +114,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NoInstalledPackageFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoVTArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatch);
+        WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatchHelp);
+        WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoSourceDefined);
         WINGET_DEFINE_RESOURCE_STRINGID(Options);
         WINGET_DEFINE_RESOURCE_STRINGID(OverrideArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Package);
@@ -122,6 +127,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PrivacyStatement);
         WINGET_DEFINE_RESOURCE_STRINGID(QueryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RainbowArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityFound);
         WINGET_DEFINE_RESOURCE_STRINGID(RequiredArgError);
         WINGET_DEFINE_RESOURCE_STRINGID(RetroArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandLongDescription);
@@ -199,6 +205,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ValidateCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ValidateManifestArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(VerboseLogsArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(VerifyFileFailedIsDirectory);
+        WINGET_DEFINE_RESOURCE_STRINGID(VerifyFileFailedNotExist);
         WINGET_DEFINE_RESOURCE_STRINGID(VerifyFileSignedMsix);
         WINGET_DEFINE_RESOURCE_STRINGID(VersionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(VersionsArgumentDescription);

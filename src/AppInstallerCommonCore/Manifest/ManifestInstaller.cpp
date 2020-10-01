@@ -59,9 +59,9 @@ namespace AppInstaller::Manifest
         {
             result = UpdateBehaviorEnum::Install;
         }
-        else if (inStrLower == "removeprevious")
+        else if (inStrLower == "uninstallprevious")
         {
-            result = UpdateBehaviorEnum::RemovePrevious;
+            result = UpdateBehaviorEnum::UninstallPrevious;
         }
 
         return result;

@@ -36,7 +36,7 @@ namespace AppInstaller::Manifest
         enum class UpdateBehaviorEnum
         {
             Install,
-            RemovePrevious,
+            UninstallPrevious,
             Unknown,
         };
 

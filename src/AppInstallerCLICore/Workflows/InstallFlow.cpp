@@ -204,7 +204,7 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::Msi:
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
         case ManifestInstaller::InstallerTypeEnum::Wix:
-            if (isUpdate && installer.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::RemovePrevious)
+            if (isUpdate && installer.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::UninstallPrevious)
             {
                 // TODO: hook up with uninstall when uninstall is implemented
             }

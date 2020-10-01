@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionContext.h"
+#include "WorkflowBase.h"
 
 namespace AppInstaller::CLI::Workflow
 {

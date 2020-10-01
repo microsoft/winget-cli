@@ -51,6 +51,7 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(manifest.InstallerType == ManifestInstaller::InstallerTypeEnum::Zip);
     REQUIRE(manifest.PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
     REQUIRE(manifest.ProductCode == "{Foo}");
+    REQUIRE(manifest.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::UninstallPrevious);
 
     // default switches
     auto switches = manifest.Switches;
@@ -61,6 +62,7 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(switches.at(ManifestInstaller::InstallerSwitchType::Language) == "/en-us");
     REQUIRE(switches.at(ManifestInstaller::InstallerSwitchType::Log) == "/log=<LOGPATH>");
     REQUIRE(switches.at(ManifestInstaller::InstallerSwitchType::InstallLocation) == "/dir=<INSTALLPATH>");
+    REQUIRE(switches.at(ManifestInstaller::InstallerSwitchType::Update) == "/update");
 
     // installers
     REQUIRE(manifest.Installers.size() == 2);
@@ -73,6 +75,7 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(installer1.Scope == "user");
     REQUIRE(installer1.PackageFamilyName == "");
     REQUIRE(installer1.ProductCode == "");
+    REQUIRE(installer1.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::Install);
 
     auto installer1Switches = installer1.Switches;
     REQUIRE(installer1Switches.at(ManifestInstaller::InstallerSwitchType::Custom) == "/c");
@@ -82,6 +85,7 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(installer1Switches.at(ManifestInstaller::InstallerSwitchType::Language) == "/en");
     REQUIRE(installer1Switches.at(ManifestInstaller::InstallerSwitchType::Log) == "/l=<LOGPATH>");
     REQUIRE(installer1Switches.at(ManifestInstaller::InstallerSwitchType::InstallLocation) == "/d=<INSTALLPATH>");
+    REQUIRE(installer1Switches.at(ManifestInstaller::InstallerSwitchType::Update) == "/u");
 
     ManifestInstaller installer2 = manifest.Installers.at(1);
     REQUIRE(installer2.Arch == Architecture::X64);
@@ -92,6 +96,7 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(installer2.Scope == "user");
     REQUIRE(installer2.PackageFamilyName == "");
     REQUIRE(installer2.ProductCode == "");
+    REQUIRE(installer2.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::UninstallPrevious);
 
     // Installer2 does not declare switches, it inherits switches from package default.
     auto installer2Switches = installer2.Switches;
@@ -102,6 +107,7 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(installer2Switches.at(ManifestInstaller::InstallerSwitchType::Language) == "/en-us");
     REQUIRE(installer2Switches.at(ManifestInstaller::InstallerSwitchType::Log) == "/log=<LOGPATH>");
     REQUIRE(installer2Switches.at(ManifestInstaller::InstallerSwitchType::InstallLocation) == "/dir=<INSTALLPATH>");
+    REQUIRE(installer2Switches.at(ManifestInstaller::InstallerSwitchType::Update) == "/update");
 
     // Localization
     REQUIRE(manifest.Localization.size() == 1);
@@ -235,6 +241,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "InstallFlowTest_MSStore.yaml", "Field value is not supported. Field: InstallerType Value: MSStore" },
         { "Manifest-Bad-PackageFamilyNameOnMSI.yaml", "The specified installer type does not support PackageFamilyName. Field: InstallerType Value: Msi" },
         { "Manifest-Bad-ProductCodeOnMSIX.yaml", "The specified installer type does not support ProductCode. Field: InstallerType Value: Msix" },
+        { "Manifest-Bad-InvalidUpdateBehavior.yaml", "Invalid field value. Field: UpdateBehavior" },
     };
 
     for (auto const& testCase : TestCases)
