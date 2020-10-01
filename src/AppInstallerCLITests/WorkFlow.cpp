@@ -957,7 +957,7 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotApplicable", "[UpdateFlow]")
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }
 
-/*TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow]")
+TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow]")
 {
     TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
     TestCommon::TempFile updateMsixResultPath("TestMsixInstalled.txt");
@@ -979,4 +979,4 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotApplicable", "[UpdateFlow]")
     REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
-}*/
+}

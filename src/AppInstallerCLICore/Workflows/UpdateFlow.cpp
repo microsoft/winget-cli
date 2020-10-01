@@ -145,4 +145,41 @@ namespace AppInstaller::CLI::Workflow
                 GetUpdateManifestAndInstallerFromSearchResult;
         }
     }
+
+    void UpdateAllApplicable(Execution::Context& context)
+    {
+        const auto& matches = context.Get<Execution::Data::SearchResult>().Matches;
+        bool updateAllHasFailure = false;
+        for (const auto& match : matches)
+        {
+            std::thread tryOneUpdate([&]
+                {
+                    // We want to do best effort to update all applicable updates regardless on previous update failure
+                    context.Resume();
+                    context.Reporter.Info() << std::endl;
+
+                    context.Add<Execution::Data::InstalledPackageVersion>(match.Package->GetInstalledVersion());
+
+                    context <<
+                        SelectLatestApplicableUpdate(*(match.Package)) <<
+                        ShowInstallationDisclaimer <<
+                        DownloadInstaller <<
+                        ExecuteInstaller <<
+                        RemoveInstaller;
+                });
+
+            tryOneUpdate.join();
+
+            if (context.GetTerminationHR() != S_OK &&
+                context.GetTerminationHR() != APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
+            {
+                updateAllHasFailure = true;
+            }
+        }
+
+        if (updateAllHasFailure)
+        {
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE);
+        }
+    }
 }

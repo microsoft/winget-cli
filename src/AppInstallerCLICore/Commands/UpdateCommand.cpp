@@ -89,35 +89,8 @@ namespace AppInstaller::CLI
             context <<
                 GetCompositeSourceFromInstalledAndAvailable <<
                 SearchSourceForMany <<
-                EnsureMatchesFromSearchResult;
-
-            const auto& matches = context.Get<Execution::Data::SearchResult>().Matches;
-            bool updateAllHasFailure = false;
-            for (const auto& match : matches)
-            {
-                std::thread tryOneUpdate([&]
-                    {
-                        // We want to do best effort to update all applicable updates regardless on previous update failure
-                        context.Resume();
-                        context.Reporter.Info() << std::endl;
-                        context <<
-                            SelectLatestApplicableUpdate(*(match.Package)) <<
-                            ShowInstallationDisclaimer <<
-                            DownloadInstaller <<
-                            ExecuteInstaller <<
-                            RemoveInstaller;
-                    });
-
-                tryOneUpdate.join();
-
-                if (context.GetTerminationHR() != S_OK &&
-                    context.GetTerminationHR() != APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
-                {
-                    updateAllHasFailure = true;
-                }
-            }
-
-            AICLI_TERMINATE_CONTEXT(updateAllHasFailure ? APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE : S_OK);
+                EnsureMatchesFromSearchResult <<
+                UpdateAllApplicable;
         }
         else
         {

@@ -34,9 +34,15 @@ namespace AppInstaller::CLI::Workflow
         const AppInstaller::Repository::IPackage& m_package;
     };
 
-    // Ensures the update package has higher version than installed 
+    // Ensures the update package has higher version than installed
     // Required Args: None
     // Inputs: Manifest, InstalledPackageVersion
     // Outputs: None
     void EnsureUpdateVersionApplicable(Execution::Context& context);
+
+    // Update all packages from SearchResult to latest if applicable
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: None
+    void UpdateAllApplicable(Execution::Context& context);
 }
