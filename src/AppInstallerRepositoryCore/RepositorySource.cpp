@@ -482,20 +482,6 @@ namespace AppInstaller::Repository
         }
     }
 
-    std::string GetSourceIdByName(std::string_view name)
-    {
-        // Check all sources for the given name.
-        auto currentSources = GetSourcesInternal();
-
-        auto itr = FindSourceByName(currentSources, name);
-        if (itr != currentSources.end() && itr->Type == Microsoft::PreIndexedPackageSourceFactory::Type())
-        {
-            return itr->Data;
-        }
-
-        return {};
-    }
-
     void AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress)
     {
         THROW_HR_IF(E_INVALIDARG, name.empty());
@@ -620,6 +606,7 @@ namespace AppInstaller::Repository
 
     std::shared_ptr<ISource> CreateCompositeSource(std::shared_ptr<ISource>& source1, std::shared_ptr<ISource>&)
     {
+        // TODO: needs implementation
         return source1;
     }
 

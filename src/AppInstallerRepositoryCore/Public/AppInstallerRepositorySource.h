@@ -81,9 +81,6 @@ namespace AppInstaller::Repository
     // Gets the details for a single source.
     std::optional<SourceDetails> GetSource(std::string_view name);
 
-    // Gets the SourceId for a single source.
-    std::string GetSourceIdByName(std::string_view name);
-
     // Adds a new source for the user.
     void AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress);
 
