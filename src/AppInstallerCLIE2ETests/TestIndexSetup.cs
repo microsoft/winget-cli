@@ -71,10 +71,8 @@ namespace AppInstallerCLIE2ETests
 
                 // Package Test Source and Sign With Package Certificate
                 string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
-                string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
-
                 RunCommand(makeappxExecutable, $"pack /nv /v /o /d {packageDir} /p {indexPackageDestPath}");
-                RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {indexPackageDestPath}");
+                SignFile(indexPackageDestPath);
             }
             catch (Exception e)
             {
@@ -94,9 +92,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.ExeInstallerPath = exeInstallerFullName;
 
             // Sign EXE Installer File
-            string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
-            string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
-            RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {exeInstallerFullName}");
+            SignFile(TestCommon.ExeInstallerPath);
         }
 
         private static void CopyMsixInstallerToTestDirectory()
@@ -112,9 +108,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.MsixInstallerPath = msixInstallerFullName;
 
             // Sign MSIX Installer File
-            string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
-            string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
-            RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {msixInstallerFullName}");
+            SignFile(TestCommon.MsixInstallerPath);
         }
 
         private static void SetupLocalTestDirectory(string staticFileRootPath)
@@ -127,6 +121,13 @@ namespace AppInstallerCLIE2ETests
             string sourcePath = Path.Combine(currentDirectory, TestDataName);
 
             CopyDirectory(sourcePath, TestCommon.StaticFileRootPath);
+        }
+
+        public static void SignFile(string filePath)
+        {
+            string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
+            string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
+            RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {filePath}");
         }
 
         /// <summary>
