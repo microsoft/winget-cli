@@ -41,12 +41,7 @@ namespace AppInstallerCLIE2ETests
 
         private bool VerifyTestExeUninstalled(string uninstallDir)
         {
-            if (!File.Exists(Path.Combine(uninstallDir, UninstallTestExeInstalledFile)))
-            {
-                return false;
-            }
-
-            return true;
+            return File.Exists(Path.Combine(uninstallDir, UninstallTestExeInstalledFile));
         }
     }
 }
