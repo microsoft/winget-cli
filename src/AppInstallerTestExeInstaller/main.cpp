@@ -75,11 +75,11 @@ void WriteToUninstallRegistry() {
         std::cout << "Successfully opened registry key";
         try {
             // Set Display Name Property Value
-            RegSetValueEx(hkey, L"DisplayName", NULL, REG_SZ, (LPBYTE)displayName, (wcslen(displayName) + 1)*sizeof(wchar_t));
+            RegSetValueEx(hkey, L"DisplayName", NULL, REG_SZ, (LPBYTE)displayName, (DWORD)(wcslen(displayName) + 1)*sizeof(wchar_t));
             // Set Publisher Property Value
-            RegSetValueEx(hkey, L"Publisher", NULL, REG_SZ, (LPBYTE)publisher, (wcslen(publisher) + 1) * sizeof(wchar_t));
+            RegSetValueEx(hkey, L"Publisher", NULL, REG_SZ, (LPBYTE)publisher, (DWORD)(wcslen(publisher) + 1) * sizeof(wchar_t));
             // Set UninstallString Property Value
-            RegSetValueEx(hkey, L"UninstallString", NULL, REG_EXPAND_SZ, (LPBYTE)uninstallString, wcslen(uninstallString + 1)*sizeof(wchar_t*));
+            RegSetValueEx(hkey, L"UninstallString", NULL, REG_EXPAND_SZ, (LPBYTE)uninstallString, (DWORD)wcslen(uninstallString + 1)*sizeof(wchar_t*));
             // Set Version Property Value
             RegSetValueEx(hkey, L"Version", NULL, REG_DWORD, (LPBYTE)&version, sizeof(version));
             // Set WindowsInstaller Property Value
