@@ -590,8 +590,6 @@ TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
     ProgressCallback progress;
     auto source = OpenSource("", progress);
 
-    REQUIRE(source->GetDetails().IsAggregated);
-
     SearchRequest request;
     auto result = source->Search(request);
     REQUIRE(result.Matches.size() == 6);

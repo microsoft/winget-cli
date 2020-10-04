@@ -37,6 +37,7 @@ namespace AppInstaller::CLI
 
     void ListCommand::Complete(Execution::Context& context, Execution::Args::Type valueType) const
     {
+        // TODO: Needs work based on implementation of execute!!!
         switch (valueType)
         {
         case Execution::Args::Type::Query:
@@ -67,7 +68,8 @@ namespace AppInstaller::CLI
     void ListCommand::ExecuteInternal(Context& context) const
     {
         context <<
-            Workflow::OpenPredefinedSource(Repository::PredefinedSource::Installed) <<
+            Workflow::OpenSource <<
+            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForMany <<
             Workflow::EnsureMatchesFromSearchResult <<
             Workflow::ReportListResult;

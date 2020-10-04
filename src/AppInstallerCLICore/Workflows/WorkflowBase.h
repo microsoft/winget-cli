@@ -50,13 +50,27 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Source
     void OpenSource(Execution::Context& context);
 
-    // Creates a source object for a predefined 
+    // Creates a source object for a predefined source.
     // Required Args: None
     // Inputs: None
     // Outputs: Source
     struct OpenPredefinedSource : public WorkflowTask
     {
         OpenPredefinedSource(Repository::PredefinedSource source) : WorkflowTask("OpenPredefinedSource"), m_predefinedSource(source) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Repository::PredefinedSource m_predefinedSource;
+    };
+
+    // Creates a composite source from the given predefined source and the existing source.
+    // Required Args: None
+    // Inputs: Source
+    // Outputs: Source
+    struct OpenCompositeSource : public WorkflowTask
+    {
+        OpenCompositeSource(Repository::PredefinedSource source) : WorkflowTask("OpenCompositeSource"), m_predefinedSource(source) {}
 
         void operator()(Execution::Context& context) const override;
 

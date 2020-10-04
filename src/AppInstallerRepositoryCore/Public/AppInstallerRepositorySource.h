@@ -44,9 +44,6 @@ namespace AppInstaller::Repository
 
         // The origin of the source.
         SourceOrigin Origin = SourceOrigin::Default;
-
-        // If the source is an aggregated source
-        bool IsAggregated = false;
     };
 
     // Interface for interacting with a source from outside of the repository lib.
@@ -102,6 +99,9 @@ namespace AppInstaller::Repository
     // Opens a predefined source.
     // These sources are not under the direct control of the user, such as packages installed on the system.
     std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress);
+
+    // Creates a source that merges the installed packages with the given available packages.
+    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource);
 
     // Updates an existing source.
     // Return value indicates whether the named source was found.

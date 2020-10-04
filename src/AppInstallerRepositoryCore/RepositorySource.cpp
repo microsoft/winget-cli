@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "Public/AppInstallerRepositorySource.h"
 
-#include "AggregatedSource.h"
+#include "CompositeSource.h"
 #include "SourceFactory.h"
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
@@ -534,7 +534,7 @@ namespace AppInstaller::Repository
             else
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, creating aggregated source.");
-                auto aggregatedSource = std::make_shared<AggregatedSource>("*DefaultSource");
+                auto aggregatedSource = std::make_shared<CompositeSource>("*DefaultSource");
 
                 bool sourceUpdated = false;
                 for (auto& source : currentSources)
@@ -548,7 +548,7 @@ namespace AppInstaller::Repository
                         UpdateSourceFromDetails(source, progress);
                         sourceUpdated = true;
                     }
-                    aggregatedSource->AddSource(CreateSourceFromDetails(source, progress));
+                    aggregatedSource->AddAvailableSource(CreateSourceFromDetails(source, progress));
                 }
 
                 if (sourceUpdated)
@@ -607,6 +607,21 @@ namespace AppInstaller::Repository
         }
 
         THROW_HR(E_UNEXPECTED);
+    }
+
+    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource)
+    {
+        std::shared_ptr<CompositeSource> result = std::dynamic_pointer_cast<CompositeSource>(availableSource);
+
+        if (!result)
+        {
+            result = std::make_shared<CompositeSource>("*CompositeSource");
+            result->AddAvailableSource(availableSource);
+        }
+
+        result->SetInstalledSource(installedSource);
+
+        return result;
     }
 
     bool UpdateSource(std::string_view name, IProgressCallback& progress)
@@ -718,6 +733,11 @@ namespace AppInstaller::Repository
                 return true;
             }
         }
+    }
+
+    bool SearchRequest::IsForEverything() const
+    {
+        return (!Query.has_value() && Inclusions.empty() && Filters.empty());
     }
 
     std::string SearchRequest::ToString() const

@@ -144,6 +144,31 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             savepoint.Commit();
         }
 
+        std::vector<std::string> OneToManyTableGetValuesByManifestId(
+            const SQLite::Connection& connection,
+            std::string_view tableName,
+            std::string_view valueName,
+            SQLite::rowid_t manifestId)
+        {
+            using QCol = SQLite::Builder::QualifiedColumn;
+
+            std::vector<std::string> result;
+
+            SQLite::Builder::StatementBuilder builder;
+            builder.Select(QCol(tableName, valueName)).
+                From({ tableName, s_OneToManyTable_MapTable_Suffix }).As("map").Join(tableName).
+                On(QCol("map", valueName), QCol(tableName, SQLite::RowIDName)).Where(QCol("map", s_OneToManyTable_MapTable_ManifestName)).Equals(manifestId);
+
+            SQLite::Statement statement = builder.Prepare(connection);
+
+            while (statement.Step())
+            {
+                result.emplace_back(statement.GetColumn<std::string>(0));
+            }
+
+            return result;
+        }
+
         void OneToManyTableEnsureExistsAndInsert(SQLite::Connection& connection,
             std::string_view tableName, std::string_view valueName,
             const std::vector<Utility::NormalizedString>& values, SQLite::rowid_t manifestId)
@@ -246,12 +271,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             savepoint.Commit();
         }
 
-        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndeces, bool preserveValuesIndex)
+        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndeces, bool preserveManifestIndex, bool preserveValuesIndex)
         {
-            SQLite::Builder::StatementBuilder dropMapTableIndexBuilder;
-            dropMapTableIndexBuilder.DropIndex({ tableName, s_OneToManyTable_MapTable_Suffix, s_OneToManyTable_MapTable_IndexSuffix });
+            if (!preserveManifestIndex)
+            {
+                SQLite::Builder::StatementBuilder dropMapTableIndexBuilder;
+                dropMapTableIndexBuilder.DropIndex({ tableName, s_OneToManyTable_MapTable_Suffix, s_OneToManyTable_MapTable_IndexSuffix });
 
-            dropMapTableIndexBuilder.Execute(connection);
+                dropMapTableIndexBuilder.Execute(connection);
+            }
 
             OneToOneTablePrepareForPackaging(connection, tableName, useNamedIndeces, preserveValuesIndex);
         }

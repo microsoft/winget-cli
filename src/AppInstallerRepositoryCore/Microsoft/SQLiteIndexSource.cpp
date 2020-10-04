@@ -49,6 +49,19 @@ namespace AppInstaller::Repository::Microsoft
                 }
             }
 
+            std::vector<Utility::LocIndString> GetMultiProperty(PackageVersionMultiProperty property) const override
+            {
+                std::vector<Utility::LocIndString> result;
+
+                for (auto&& value : GetSource()->GetIndex().GetMultiPropertyByManifestId(m_manifestId, property))
+                {
+                    // Values coming from the index will always be localized/independent.
+                    result.emplace_back(std::move(value));
+                }
+
+                return result;
+            }
+
             Manifest::Manifest GetManifest() const override
             {
                 std::shared_ptr<const SQLiteIndexSource> source = GetSource();
@@ -150,7 +163,13 @@ namespace AppInstaller::Repository::Microsoft
             std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override
             {
                 std::shared_ptr<const SQLiteIndexSource> source = GetSource();
-                THROW_HR_IF(E_INVALIDARG, !versionKey.SourceId.empty() && versionKey.SourceId != source->GetIdentifier());
+
+                // Ensure that this key targets this (or any) source
+                if (!versionKey.SourceId.empty() && versionKey.SourceId != source->GetIdentifier())
+                {
+                    return {};
+                }
+
                 std::optional<SQLiteIndex::IdType> manifestId = source->GetIndex().GetManifestIdByKey(m_idId, versionKey.Version, versionKey.Channel);
 
                 if (manifestId)

@@ -350,8 +350,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     ISQLiteIndex::SearchResult Interface::Search(const SQLite::Connection& connection, const SearchRequest& request) const
     {
-        // If an empty request, get everything
-        if (!request.Query && request.Inclusions.empty() && request.Filters.empty())
+        if (request.IsForEverything())
         {
             std::vector<SQLite::rowid_t> ids = IdTable::GetAllRowIds(connection, request.MaximumResults);
 
@@ -455,6 +454,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         default:
             return {};
         }
+    }
+
+    std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection&, SQLite::rowid_t, PackageVersionMultiProperty) const
+    {
+        return {};
     }
 
     std::optional<SQLite::rowid_t> Interface::GetManifestIdByKey(const SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel) const

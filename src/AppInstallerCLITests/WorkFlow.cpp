@@ -57,6 +57,17 @@ namespace
                 }
             }
 
+            std::vector<LocIndString> GetMultiProperty(PackageVersionMultiProperty property) const override
+            {
+                switch (property)
+                {
+                case PackageVersionMultiProperty::PackageFamilyName:
+                case PackageVersionMultiProperty::ProductCode:
+                default:
+                    return {};
+                }
+            }
+
             Manifest GetManifest() const override
             {
                 return m_manifest;

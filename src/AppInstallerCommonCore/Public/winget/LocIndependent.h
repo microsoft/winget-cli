@@ -51,6 +51,8 @@ namespace AppInstaller::Utility
 
         bool operator==(std::string_view sv) { return m_value == sv; }
 
+        bool operator<(const LocIndString& other) const { return m_value < other.m_value; }
+
     private:
         std::string m_value;
     };

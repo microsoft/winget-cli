@@ -22,6 +22,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         void PrepareForPackaging(SQLite::Connection& connection) override;
         SearchResult Search(const SQLite::Connection& connection, const SearchRequest& request) const override;
         std::optional<std::string> GetPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const override;
+        std::vector<std::string> GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const override;
         std::optional<SQLite::rowid_t> GetManifestIdByKey(const SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel) const override;
         std::vector<Utility::VersionAndChannel> GetVersionKeysById(const SQLite::Connection& connection, SQLite::rowid_t id) const override;
 

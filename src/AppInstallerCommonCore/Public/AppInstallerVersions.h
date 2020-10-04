@@ -72,6 +72,7 @@ namespace AppInstaller::Utility
     // Compared lexicographically.
     struct Channel
     {
+        Channel() = default;
         Channel(const std::string& channel) : m_channel(channel) {}
         Channel(std::string&& channel) : m_channel(std::move(channel)) {}
 
@@ -95,6 +96,7 @@ namespace AppInstaller::Utility
     //  2.0, "alpha"
     struct VersionAndChannel
     {
+        VersionAndChannel() = default;
         VersionAndChannel(Version&& version, Channel&& channel);
 
         const Version& GetVersion() const { return m_version; }

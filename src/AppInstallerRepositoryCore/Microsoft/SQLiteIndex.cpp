@@ -218,6 +218,11 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->GetPropertyByManifestId(m_dbconn, manifestId, property);
     }
 
+    std::vector<std::string> SQLiteIndex::GetMultiPropertyByManifestId(IdType manifestId, PackageVersionMultiProperty property) const
+    {
+        return m_interface->GetMultiPropertyByManifestId(m_dbconn, manifestId, property);
+    }
+
     std::optional<SQLiteIndex::IdType> SQLiteIndex::GetManifestIdByKey(IdType id, std::string_view version, std::string_view channel) const
     {
         return m_interface->GetManifestIdByKey(m_dbconn, id, version, channel);

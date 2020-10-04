@@ -93,6 +93,9 @@ namespace AppInstaller::Repository::Microsoft
         // Gets the string for the given property and manifest id, if present.
         std::optional<std::string> GetPropertyByManifestId(IdType manifestId, PackageVersionProperty property) const;
 
+        // Gets the string values for the given property and manifest id, if present.
+        std::vector<std::string> GetMultiPropertyByManifestId(IdType manifestId, PackageVersionMultiProperty property) const;
+
         // Gets the manifest id for the given { id, version, channel }, if present.
         // If version is empty, gets the value for the 'latest' version.
         std::optional<IdType> GetManifestIdByKey(IdType id, std::string_view version, std::string_view channel) const;

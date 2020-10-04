@@ -158,6 +158,21 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::Source>(std::move(source));
     }
 
+    void OpenCompositeSource::operator()(Execution::Context& context) const
+    {
+        // Get the already open source for use as the available.
+        std::shared_ptr<Repository::ISource> availableSource = context.Get<Execution::Data::Source>();
+
+        // Open the predefined source.
+        context << OpenPredefinedSource(m_predefinedSource);
+
+        // Create the composite source from the two.
+        std::shared_ptr<Repository::ISource> compositeSource = Repository::CreateCompositeSource(context.Get<Execution::Data::Source>(), availableSource);
+
+        // Overwrite the source with the composite.
+        context.Add<Execution::Data::Source>(std::move(compositeSource));
+    }
+
     void SearchSourceForMany(Execution::Context& context)
     {
         const auto& args = context.Args;
@@ -204,6 +219,11 @@ namespace AppInstaller::CLI::Workflow
         if (args.Contains(Execution::Args::Type::Query))
         {
             std::string_view query = args.GetArg(Execution::Args::Type::Query);
+
+            // Regardless of match type, always use an exact match for the system reference strings.
+            searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, query));
+            searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, query));
+
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, matchType, query));
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Name, matchType, query));
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Moniker, matchType, query));
@@ -271,7 +291,7 @@ namespace AppInstaller::CLI::Workflow
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
         Logging::Telemetry().LogSearchResultCount(searchResult.Matches.size());
 
-        Execution::TableOutput<5> table(context.Reporter, { Resource::String::SearchName, Resource::String::SearchId, Resource::String::SearchVersion, Resource::String::SearchMatch, Resource::String::SearchSource });
+        Execution::TableOutput<4> table(context.Reporter, { Resource::String::SearchName, Resource::String::SearchId, Resource::String::SearchVersion, Resource::String::SearchMatch });
 
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
@@ -281,8 +301,7 @@ namespace AppInstaller::CLI::Workflow
                 latestVersion->GetProperty(PackageVersionProperty::Name),
                 latestVersion->GetProperty(PackageVersionProperty::Id),
                 latestVersion->GetProperty(PackageVersionProperty::Version),
-                GetMatchCriteriaDescriptor(searchResult.Matches[i]),
-                searchResult.Matches[i].SourceName
+                GetMatchCriteriaDescriptor(searchResult.Matches[i])
             });
         }
 
@@ -307,7 +326,8 @@ namespace AppInstaller::CLI::Workflow
             if (installedVersion)
             {
                 Utility::LocIndString availableVersion;
-                if (searchResult.Matches[i].Package->IsUpdateAvailable())
+                //if (searchResult.Matches[i].Package->IsUpdateAvailable())
+                if (searchResult.Matches[i].Package->GetLatestAvailableVersion())
                 {
                     availableVersion = searchResult.Matches[i].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Version);
                 }

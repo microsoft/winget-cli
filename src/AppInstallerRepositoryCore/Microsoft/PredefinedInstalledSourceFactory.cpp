@@ -23,12 +23,58 @@ namespace AppInstaller::Repository::Microsoft
         // Populates the index with the entries from MSIX.
         void PopulateIndexFromMSIX(SQLiteIndex& index)
         {
-            Manifest::Manifest manifest;
-            manifest.Id = "test";
-            manifest.Name = "Test!";
-            manifest.Version = "1.2.3";
+            using namespace winrt::Windows::ApplicationModel;
+            using namespace winrt::Windows::Management::Deployment;
 
-            index.AddManifest(manifest, "nope");
+            PackageManager packageManager;
+            auto packages = packageManager.FindPackagesForUserWithPackageTypes({}, PackageTypes::Main);
+
+            // Reuse the same manifest object, as we will be setting the same values every time.
+            Manifest::Manifest manifest;
+            // Add one installer for storing the package family name.
+            manifest.Installers.emplace_back();
+            // Every package will have the same tags currently.
+            manifest.Tags = { "msix" };
+
+            // Fields in the index but not populated:
+            //  AppMoniker - Not sure what we 
+            //  Channel - We don't know this information here.
+            //  Commands - We could open the manifest and look for these eventually.
+            //  Tags - Not sure what else we could put in here.
+            for (const auto& package : packages)
+            {
+                // TODO: Determine if we need to filter out certain classes of packages.
+
+                // System packages are part of the OS, and cannot be managed by the user.
+                // Filter them out as there is no point in showing them in a package manager.
+                auto signatureKind = package.SignatureKind();
+                if (signatureKind == PackageSignatureKind::System)
+                {
+                    continue;
+                }
+
+                auto packageId = package.Id();
+                Utility::NormalizedString familyName = Utility::ConvertToUTF8(packageId.FamilyName());
+
+                manifest.Id = familyName;
+                manifest.Name = Utility::ConvertToUTF8(package.DisplayName());
+
+                if (manifest.Name.empty())
+                {
+                    manifest.Name = Utility::ConvertToUTF8(packageId.Name());
+                }
+
+                std::ostringstream strstr;
+                auto packageVersion = packageId.Version();
+                strstr << packageVersion.Major << '.' << packageVersion.Minor << '.' << packageVersion.Build << '.' << packageVersion.Revision;
+
+                manifest.Version = strstr.str();
+                
+                manifest.Installers[0].PackageFamilyName = familyName;
+
+                // Use the family name as a unique key for the path
+                index.AddManifest(manifest, std::filesystem::path{ packageId.FamilyName().c_str() });
+            }
         }
 
         // The factory for the predefined installed source.
