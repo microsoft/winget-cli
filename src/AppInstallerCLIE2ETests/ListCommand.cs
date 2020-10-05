@@ -24,9 +24,17 @@ namespace AppInstallerCLIE2ETests
         }
 
         //[Test]
-        public void ListTest()
+        public void List()
         {
-            // Example List Command Test
+            var result = TestCommon.RunAICLICommand("list", "");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("PowerShell"));
+            Assert.True(result.StdOut.Contains("Microsoft.PowerShell"));
+        }
+
+        //[Test]
+        public void ListAfterInstall()
+        {
             var installDir = TestCommon.GetRandomTestDir();
             TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
             var result = TestCommon.RunAICLICommand("list", "");

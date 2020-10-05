@@ -35,7 +35,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void AppToInstallDoesNotExist()
+        public void InstallAppDoesNotExist()
         {
             var result = TestCommon.RunAICLICommand("install", "DoesNotExist");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
@@ -43,7 +43,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void MultipleAppsMatchQuery()
+        public void InstallWithMultipleAppsMatchingQuery()
         {
             var result = TestCommon.RunAICLICommand("install", "TestExeInstaller");
             Assert.AreEqual(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND, result.ExitCode);
@@ -51,7 +51,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void InstallTestExe()
+        public void InstallExe()
         {
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
@@ -61,7 +61,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void InstallTestExeWithInsufficientMinOsVersion()
+        public void InstallExeWithInsufficientMinOsVersion()
         {
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"InapplicableOsVersion --silent -l {installDir}");
@@ -71,7 +71,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void ExeInstallWithHashMismatch()
+        public void InstallExeWithHashMismatch()
         {
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"TestExeSha256Mismatch --silent -l {installDir}");
@@ -92,7 +92,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void InstallTestBurn()
+        public void InstallBurn()
         {
             // Install test burn, manifest does not provide silent switch, we should be populating the default
             var installDir = TestCommon.GetRandomTestDir();
@@ -103,7 +103,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void InstallTestNullSoft()
+        public void InstallNullSoft()
         {
             // Install test Nullsoft, manifest does not provide silent switch, we should be populating the default
             var installDir = TestCommon.GetRandomTestDir();
@@ -114,7 +114,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         //[Test]
-        public void InstallTestMSI()
+        public void InstallMSI()
         {
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"TestMsiInstaller --silent -l {installDir}");
@@ -126,7 +126,7 @@ namespace AppInstallerCLIE2ETests
         
 
         [Test]
-        public void InstallTestMSIX()
+        public void InstallMSIX()
         {
             var result = TestCommon.RunAICLICommand("install", $"TestMsixInstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
@@ -135,7 +135,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void InstallTestMSIXWithSignature()
+        public void InstallMSIXWithSignature()
         {
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"TestMsixWithSignatureHash --silent -l {installDir}");
@@ -145,7 +145,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void InstallTestMSIXWithSignatureHashMismatch()
+        public void InstallMSIXWithSignatureHashMismatch()
         {
             var result = TestCommon.RunAICLICommand("install", $"TestMsixSignatureHashMismatch");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALLER_HASH_MISMATCH, result.ExitCode);

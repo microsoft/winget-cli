@@ -24,7 +24,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void AddSource()
+        public void SourceAdd()
         {
             var result = TestCommon.RunAICLICommand("source add", $"SourceTest {SourceTestSourceUrl}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
@@ -33,7 +33,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void AddSourceWithDuplicateName()
+        public void SourceAddWithDuplicateName()
         {
             // Add source with duplicate name should fail
             var result = TestCommon.RunAICLICommand("source add", $"{SourceTestSourceName} https://microsoft.com");
@@ -42,7 +42,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void AddSourceWithInvalidURL()
+        public void SourceAddWithInvalidURL()
         {
             // Add source with invalid url should fail
             var result = TestCommon.RunAICLICommand("source add", "AnotherSource https://microsoft.com");
@@ -52,7 +52,7 @@ namespace AppInstallerCLIE2ETests
 
 
         [Test]
-        public void AddSourceWithHttpURL()
+        public void SourceAddWithHttpURL()
         {
             // Add source with an HTTP url should fail
             var result = TestCommon.RunAICLICommand("source add", "Insecure http://microsoft.com");
@@ -61,7 +61,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void ListWithNoArgs()
+        public void SourceListWithNoArgs()
         {
             // List with no args should list all available sources
             var result = TestCommon.RunAICLICommand("source list", "");
@@ -70,7 +70,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void ListWithSourceName()
+        public void SourceListWithName()
         {
             var result = TestCommon.RunAICLICommand("source list", $"-n {SourceTestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
@@ -81,7 +81,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void ListSourceNameMismatch()
+        public void SourceListNameMismatch()
         {
             var result = TestCommon.RunAICLICommand("source list", "-n UnknownName");
             Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
