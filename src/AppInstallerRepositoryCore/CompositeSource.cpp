@@ -62,6 +62,16 @@ namespace AppInstaller::Repository
 
             std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
             {
+                if (m_availablePackages.empty())
+                {
+                    return {};
+                }
+
+                if (m_availablePackages.size() == 1)
+                {
+                    return m_availablePackages[0]->GetAvailableVersionKeys();
+                }
+
                 std::vector<SortablePackageVersionKey> sortableResults;
 
                 for (const auto& availablePackage : m_availablePackages)
@@ -85,6 +95,16 @@ namespace AppInstaller::Repository
 
             std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
             {
+                if (m_availablePackages.empty())
+                {
+                    return {};
+                }
+
+                if (m_availablePackages.size() == 1)
+                {
+                    return m_availablePackages[0]->GetLatestAvailableVersion();
+                }
+
                 std::shared_ptr<IPackageVersion> result;
                 Utility::VersionAndChannel resultVersion;
 
@@ -114,6 +134,16 @@ namespace AppInstaller::Repository
 
             std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override
             {
+                if (m_availablePackages.empty())
+                {
+                    return {};
+                }
+
+                if (m_availablePackages.size() == 1)
+                {
+                    return m_availablePackages[0]->GetAvailableVersion(versionKey);
+                }
+
                 for (const auto& availablePackage : m_availablePackages)
                 {
                     std::shared_ptr<IPackageVersion> result = availablePackage->GetAvailableVersion(versionKey);
@@ -194,7 +224,33 @@ namespace AppInstaller::Repository
     // Available sources need to be merged with each other as well.
     SearchResult CompositeSource::Search(const SearchRequest& request) const
     {
-        // The result is our primary list, while the maps give allow us to look up results by system reference string.
+        if (m_installedSource)
+        {
+            return SearchInstalled(request);
+        }
+        else
+        {
+            return SearchAvailable(request);
+        }
+    }
+
+    void CompositeSource::AddAvailableSource(std::shared_ptr<ISource> source)
+    {
+        m_availableSources.emplace_back(std::move(source));
+    }
+
+    void CompositeSource::SetInstalledSource(std::shared_ptr<ISource> source)
+    {
+        m_installedSource = std::move(source);
+    }
+
+    // An installed search first finds all installed packages that match the request, then correlates with available sources.
+    // Next the search is performed against the available sources and correlated with the installed source. A result will only
+    // be added if there exists an installed package that was not found by the initial search.
+    // This allows for search terms to find installed packages by their available metadata, as well as the local values.
+    SearchResult CompositeSource::SearchInstalled(const SearchRequest& request) const
+    {
+        // The result is our primary list, while the maps allow us to look up results by system reference string.
         SearchResult result;
 
         // Non-owning pointers to objects that live in result.
@@ -207,79 +263,170 @@ namespace AppInstaller::Repository
         std::map<Utility::LocIndString, CompositeResultReference> packageFamilyNameMap;
         std::map<Utility::LocIndString, CompositeResultReference> productCodeMap;
 
-        // If installed source is present:
-        //  1. Search against it
-        //  2. For each package found, search available sources for matching references
-        if (m_installedSource)
+        // Search installed source
+        SearchResult installedResult = m_installedSource->Search(request);
+        result.Truncated = installedResult.Truncated;
+
+        for (auto&& match : installedResult.Matches)
         {
-            SearchResult installedResult = m_installedSource->Search(request);
-            result.Truncated = installedResult.Truncated;
+            auto compositePackage = std::make_shared<CompositePackage>(m_identifier, std::move(match.Package));
+            CompositeResultReference compositeResultRef{ result.Matches.size(), compositePackage.get() };
 
-            for (auto&& match : installedResult.Matches)
+            // Create a search request to run against all available sources
+            // TODO: Determine if we should create a single search or one for each installed package.
+            SearchRequest systemReferenceSearch;
+
+            auto installedVersion = compositePackage->GetInstalledVersion();
+
+            // While we don't expect more than one, allow for it anyway.
+            for (auto&& packageFamilyName : installedVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName))
             {
-                auto compositePackage = std::make_shared<CompositePackage>(m_identifier, std::move(match.Package));
-                CompositeResultReference compositeResultRef{ result.Matches.size(), compositePackage.get() };
+                if (packageFamilyNameMap.find(packageFamilyName) != packageFamilyNameMap.end())
+                {
+                    AICLI_LOG(Repo, Error, << "Multiple installed packages found with package family name [" << packageFamilyName << "], ignoring secondary packages for correlation.");
+                }
+                else
+                {
+                    systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, packageFamilyName));
+                    packageFamilyNameMap.emplace(std::move(packageFamilyName), compositeResultRef);
+                }
+            }
 
-                // Create a search request to run against all available sources
-                // TODO: Determine if we should create a single search or one for each installed package.
+            for (auto&& productCode : installedVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode))
+            {
+                if (productCodeMap.find(productCode) != productCodeMap.end())
+                {
+                    AICLI_LOG(Repo, Error, << "Multiple installed packages found with product code [" << productCode << "], ignoring secondary packages for correlation.");
+                }
+                else
+                {
+                    systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, productCode));
+                    productCodeMap.emplace(std::move(productCode), compositeResultRef);
+                }
+            }
+
+            if (!systemReferenceSearch.Inclusions.empty())
+            {
+                // Search sources and pile into result
+                for (const auto& source : m_availableSources)
+                {
+                    SearchResult availableResult = source->Search(systemReferenceSearch);
+
+                    for (auto&& available : availableResult.Matches)
+                    {
+                        compositePackage->AddAvailablePackage(std::move(available.Package));
+                    }
+                }
+            }
+
+            // Move the installed result into the composite result
+            result.Matches.emplace_back(std::move(compositePackage), std::move(match.MatchCriteria));
+        }
+
+        // Optimization for the "everything installed" case, no need to allow for reverse correlations
+        if (request.IsForEverything())
+        {
+            return result;
+        }
+
+        // Search available sources
+        auto availableResult = SearchAvailable(request);
+
+        for (auto&& match : availableResult.Matches)
+        {
+            // Check for a package already in the result that should have been correlated already
+            auto latestVersion = match.Package->GetLatestAvailableVersion();
+            auto packageFamilyNames = latestVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
+            auto productCodes = latestVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
+            bool foundExistingPackage = false;
+
+            for (const auto& packageFamilyName : packageFamilyNames)
+            {
+                auto itr = packageFamilyNameMap.find(packageFamilyName);
+                if (itr != packageFamilyNameMap.end())
+                {
+                    foundExistingPackage = true;
+
+                    if (ResultMatchComparator{}(match, result.Matches[itr->second.ResultIndex]))
+                    {
+                        result.Matches[itr->second.ResultIndex].MatchCriteria = match.MatchCriteria;
+                    }
+                }
+            }
+
+            for (const auto& productCode : productCodes)
+            {
+                auto itr = productCodeMap.find(productCode);
+                if (itr != productCodeMap.end())
+                {
+                    foundExistingPackage = true;
+
+                    if (ResultMatchComparator{}(match, result.Matches[itr->second.ResultIndex]))
+                    {
+                        result.Matches[itr->second.ResultIndex].MatchCriteria = match.MatchCriteria;
+                    }
+                }
+            }
+
+            // If no package was found that was already in the results, do a correlation lookup with the installed
+            // source to create a new composite package entry if we find any packages there.
+            if (!foundExistingPackage)
+            {
+                // Create a search request to run against the installed source
                 SearchRequest systemReferenceSearch;
 
-                auto installedVersion = compositePackage->GetInstalledVersion();
-                bool hasSystemReferenceString = false;
-
-                // While we don't expect more than one, allow for it anyway.
-                for (auto&& packageFamilyName : installedVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName))
+                for (auto&& packageFamilyName : packageFamilyNames)
                 {
-                    if (packageFamilyNameMap.find(packageFamilyName) != packageFamilyNameMap.end())
-                    {
-                        AICLI_LOG(Repo, Error, << "Multiple installed packages found with package family name [" << packageFamilyName << "], ignoring secondary packages for correlation.");
-                    }
-                    else
-                    {
-                        hasSystemReferenceString = true;
-                        systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, packageFamilyName));
-                        packageFamilyNameMap.emplace(std::move(packageFamilyName), compositeResultRef);
-                    }
+                    systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, packageFamilyName));
                 }
 
-                for (auto&& productCode : installedVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode))
+                for (auto&& productCode : productCodes)
                 {
-                    if (productCodeMap.find(productCode) != productCodeMap.end())
-                    {
-                        AICLI_LOG(Repo, Error, << "Multiple installed packages found with product code [" << productCode << "], ignoring secondary packages for correlation.");
-                    }
-                    else
-                    {
-                        hasSystemReferenceString = true;
-                        systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, productCode));
-                        productCodeMap.emplace(std::move(productCode), compositeResultRef);
-                    }
+                    systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, productCode));
                 }
 
-                if (hasSystemReferenceString)
+                if (!systemReferenceSearch.Inclusions.empty())
                 {
-                    // Search sources and pile into result
-                    for (const auto& source : m_availableSources)
-                    {
-                        SearchResult availableResult = source->Search(systemReferenceSearch);
+                    SearchResult installedCrossRef = m_installedSource->Search(systemReferenceSearch);
 
-                        for (auto&& available : availableResult.Matches)
-                        {
-                            compositePackage->AddAvailablePackage(std::move(available.Package));
-                        }
+                    for (auto&& crossRef : installedCrossRef.Matches)
+                    {
+                        auto compositePackage = std::make_shared<CompositePackage>(m_identifier, std::move(crossRef.Package));
+                        compositePackage->AddAvailablePackage(match.Package);
+
+                        result.Matches.emplace_back(std::move(compositePackage), match.MatchCriteria);
                     }
                 }
-
-                // Move the installed result into the composite result
-                result.Matches.emplace_back(std::move(compositePackage), std::move(match.MatchCriteria));
-            }
-
-            // Optimization for the "everything installed" case, no need to allow for reverse correlations
-            if (request.IsForEverything())
-            {
-                return result;
             }
         }
+
+        SortResultMatches(result.Matches);
+
+        if (request.MaximumResults > 0 && result.Matches.size() > request.MaximumResults)
+        {
+            result.Truncated = true;
+            result.Matches.erase(result.Matches.begin() + request.MaximumResults, result.Matches.end());
+        }
+
+        return result;
+    }
+
+    // An available search goes through each source, searching individually and then correlating with
+    // any existing results. If no existing results are found, a new result is added to the return values.
+    SearchResult CompositeSource::SearchAvailable(const SearchRequest& request) const
+    {
+        // The result is our primary list, while the maps allow us to look up results by system reference string.
+        SearchResult result;
+
+        // Non-owning pointers to objects that live in result.
+        struct CompositeResultReference
+        {
+            size_t ResultIndex;
+            CompositePackage* Package;
+        };
+
+        std::map<Utility::LocIndString, CompositeResultReference> packageFamilyNameMap;
+        std::map<Utility::LocIndString, CompositeResultReference> productCodeMap;
 
         // Search available sources
         for (const auto& source : m_availableSources)
@@ -325,7 +472,7 @@ namespace AppInstaller::Repository
                 }
 
                 // If not an installed package search and no existing package found to correlate with, add this package to the result
-                if (!m_installedSource && !foundExistingPackage)
+                if (!foundExistingPackage)
                 {
                     auto compositePackage = std::make_shared<CompositePackage>(m_identifier);
                     compositePackage->AddAvailablePackage(std::move(match.Package));
@@ -355,16 +502,6 @@ namespace AppInstaller::Repository
         }
 
         return result;
-    }
-
-    void CompositeSource::AddAvailableSource(std::shared_ptr<ISource> source)
-    {
-        m_availableSources.emplace_back(std::move(source));
-    }
-
-    void CompositeSource::SetInstalledSource(std::shared_ptr<ISource> source)
-    {
-        m_installedSource = std::move(source);
     }
 
     void CompositeSource::SortResultMatches(std::vector<ResultMatch>& matches)

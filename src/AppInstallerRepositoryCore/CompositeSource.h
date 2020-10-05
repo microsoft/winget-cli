@@ -40,6 +40,13 @@ namespace AppInstaller::Repository
         void SetInstalledSource(std::shared_ptr<ISource> source);
 
     private:
+        // Performs a search when an installed source is present.
+        // Will only return packages that are installed.
+        SearchResult SearchInstalled(const SearchRequest& request) const;
+
+        // Performs a search when no installed source is present.
+        SearchResult SearchAvailable(const SearchRequest& request) const;
+
         // Sorts a vector of results.
         static void SortResultMatches(std::vector<ResultMatch>& matches);
 

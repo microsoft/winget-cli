@@ -319,22 +319,35 @@ namespace AppInstaller::CLI::Workflow
 
         Execution::TableOutput<5> table(context.Reporter, { Resource::String::SearchName, Resource::String::SearchId, Resource::String::SearchVersion, Resource::String::AvailableHeader });
 
-        for (size_t i = 0; i < searchResult.Matches.size(); ++i)
+        for (const auto& match : searchResult.Matches)
         {
-            auto installedVersion = searchResult.Matches[i].Package->GetInstalledVersion();
+            auto installedVersion = match.Package->GetInstalledVersion();
 
             if (installedVersion)
             {
-                Utility::LocIndString availableVersion;
-                //if (searchResult.Matches[i].Package->IsUpdateAvailable())
-                if (searchResult.Matches[i].Package->GetLatestAvailableVersion())
+                auto latestVersion = match.Package->GetLatestAvailableVersion();
+
+                Utility::LocIndString name, id, availableVersion;
+
+                if (latestVersion)
                 {
-                    availableVersion = searchResult.Matches[i].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Version);
+                    name = latestVersion->GetProperty(PackageVersionProperty::Name);
+                    id = latestVersion->GetProperty(PackageVersionProperty::Id);
+
+                    //if (match.Package->IsUpdateAvailable()) // TODO: Uncomment me
+                    {
+                        availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
+                    }
+                }
+                else
+                {
+                    name = installedVersion->GetProperty(PackageVersionProperty::Name);
+                    id = installedVersion->GetProperty(PackageVersionProperty::Id);
                 }
 
                 table.OutputLine({
-                    installedVersion->GetProperty(PackageVersionProperty::Name),
-                    installedVersion->GetProperty(PackageVersionProperty::Id),
+                    name,
+                    id,
                     installedVersion->GetProperty(PackageVersionProperty::Version),
                     availableVersion
                     });
