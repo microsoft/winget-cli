@@ -209,7 +209,7 @@ namespace AppInstaller::Utility
 
 
         StringCchPrintfA((LPSTR)lpOutBuffer, dwSize, "pwabuilder-package-name");
-        THROW_LAST_ERROR_IF_MSG(HttpQueryInfoA(hRequest.get(), HTTP_QUERY_CUSTOM,
+        THROW_LAST_ERROR_IF_MSG(!HttpQueryInfoA(hRequest.get(), HTTP_QUERY_CUSTOM,
             lpOutBuffer, &dwSize, NULL), "Could not get package name.");
 
         name.append(std::move(lpOutBuffer));
@@ -217,7 +217,7 @@ namespace AppInstaller::Utility
         LONGLONG contentLength = 0;
         DWORD cbContentLength = sizeof(contentLength);
 
-        THROW_LAST_ERROR_IF_MSG(HttpQueryInfoA(
+        THROW_LAST_ERROR_IF_MSG(!HttpQueryInfoA(
             hRequest.get(),
             HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER64,
             &contentLength,
