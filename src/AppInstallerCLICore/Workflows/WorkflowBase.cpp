@@ -384,24 +384,6 @@ namespace AppInstaller::CLI::Workflow
 
     void GetManifest(Execution::Context& context)
     {
-        auto arg = context.Args.GetArg(Execution::Args::Type::Query);
-        if (arg == "fintimes")
-        {
-            context.Args.AddArg(Execution::Args::Type::Manifest, std::string("C:\\Users\\amsrin\\Documents\\WinGetForPWA\\src\\AppInstallerCLI\\PWAtest.json"));
-        }
-        else if (arg == "mradio")
-        {
-            context.Args.AddArg(Execution::Args::Type::Manifest, std::string("C:\\Users\\amsrin\\Documents\\WinGetForPWA\\src\\AppInstallerCLI\\PWAtest2.json"));
-        }
-        else if (arg == "starbucks")
-        {
-            //context.Args.AddArg(Execution::Args::Type::Manifest, "C:\\Users\\amsrin\\Documents\\WinGetForPWA\\src\\AppInstallerCLI\\PWAtest3.json");
-            context.Args.AddArg(Execution::Args::Type::Manifest, std::string("C:\\Users\\amsrin\\Documents\\winget-pkgs-preprod\\manifests\\PWAtest\\Starbucks\\1.0.0.0.yaml"));
-        }
-        else if (arg == "spotify")
-        {
-            context.Args.AddArg(Execution::Args::Type::Manifest, std::string("C:\\Users\\amsrin\\Documents\\WinGetForPWA\\src\\AppInstallerCLI\\PWAtest4.json"));
-        }
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
             context <<

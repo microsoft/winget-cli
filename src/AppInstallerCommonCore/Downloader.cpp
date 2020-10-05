@@ -8,8 +8,6 @@
 #include "Public/AppInstallerLogging.h"
 #include "json.h"
 
-
-
 using namespace AppInstaller::Runtime;
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -128,8 +126,6 @@ namespace AppInstaller::Utility
 
         return result;
     }
-
-
 
     void DownloadPWAInstaller(
         const std::string& url, 

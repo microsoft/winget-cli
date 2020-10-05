@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "ShellExecuteInstallerHandler.h"
-    
+#include "ShellExecuteInstallerHandler.h"   
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
@@ -147,27 +146,6 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void ShellExecuteGenerateMsix(Execution::Context& context)
-    {
-        const std::filesystem::path& filePath = context.Get<Execution::Data::InstallerPath>();
-        const auto& installer = context.Get<Execution::Data::Installer>().value();
-        const std::string url = installer.Url;
-        const std::string target = filePath.string();
-        const std::string pwabuilderexe = "pwa_builder.exe";
-        const std::string urlArgument = " --url=";
-        const std::string targetArgument = " --target=";
-        const std::string archArgument = " --arch";
-     
-        AICLI_LOG(CLI, Info, << "Starting installer. Path: " << filePath);
-        // Architecture? What does InstallerPath mean?
-        std::string command = pwabuilderexe + urlArgument + url + targetArgument + target;
-        const char* command_cast = const_cast<char*>(command.c_str());
-        auto res = system(command_cast);
-        if (res != 0)
-        {
-            res = 0;
-        }
-    }
     void ShellExecuteInstallImpl(Execution::Context& context)
     {
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;

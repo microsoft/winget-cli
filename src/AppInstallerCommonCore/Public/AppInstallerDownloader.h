@@ -41,5 +41,12 @@ namespace AppInstaller::Utility
     // Apply Mark of the web if the target file is on NTFS, otherwise does nothing.
     void ApplyMotwIfApplicable(const std::filesystem::path& filePath);
 
+    //Calls a web service to generate the MSIX of the PWA based on its URL, ID and Version
+    //  url : The url of the PWA
+    //  Id : Id from the manifest
+    //  Version : Version of the PWA from the manifest
+    //  The path the MSIX is to be downloaded to
+    //  Publisher : The publisher string in the response from the web service
+    //  Name : The package id string in the response from the web service
     void DownloadPWAInstaller(const std::string& url, const std::string& Id, const std::string& version, std::filesystem::path& dest, std::string& publisher, std::string& name, IProgressCallback& progress);
 }

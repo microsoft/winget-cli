@@ -8,13 +8,7 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<PathCch.h>
-
-
 #include <ShObjIdl_core.h>
-
-
-
-//#include <windows.management.deployment.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -22,7 +16,6 @@ namespace AppInstaller::CLI::Workflow
     using namespace winrt::Windows::Foundation;
     using namespace winrt::Windows::Foundation::Collections;
     using namespace winrt::Windows::Management::Deployment;
-    //using namespace winrt::Windows::Web;
     using namespace AppInstaller::Utility;
     using namespace AppInstaller::Manifest;
 
@@ -101,7 +94,6 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-
     void PWAInstall(Execution::Context& context)
     {
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
@@ -179,7 +171,6 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
- 
     void GeneratePwaMsix(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>().value();
@@ -198,10 +189,8 @@ namespace AppInstaller::CLI::Workflow
         manifest.Publisher = publisher;
 
         context.Add<Execution::Data::InstallerPath>(std::move(tempInstallerPath));
-
     }
    
-
     void DownloadInstallerFile(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
@@ -350,14 +339,14 @@ namespace AppInstaller::CLI::Workflow
 
     void MsixInstall(Execution::Context& context)
     {
-        winrt::Windows::Foundation::Uri uri = nullptr;
+        Uri uri = nullptr;
         if (context.Contains(Execution::Data::InstallerPath))
         {
-            uri = winrt::Windows::Foundation::Uri(context.Get<Execution::Data::InstallerPath>().c_str());
+            uri = Uri(context.Get<Execution::Data::InstallerPath>().c_str());
         }
         else
         {
-            uri = winrt::Windows::Foundation::Uri(Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->Url));
+            uri = Uri(Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->Url));
         }
 
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
@@ -386,9 +375,9 @@ namespace AppInstaller::CLI::Workflow
         // Path may not be present if installed from a URL for MSIX
         if (context.Contains(Execution::Data::InstallerPath))
         {           
-                const auto& path = context.Get<Execution::Data::InstallerPath>();
-                AICLI_LOG(CLI, Info, << "Removing installer: " << path);
-                std::filesystem::remove(path);
+            const auto& path = context.Get<Execution::Data::InstallerPath>();
+            AICLI_LOG(CLI, Info, << "Removing installer: " << path);
+            std::filesystem::remove(path);
         }
     }
 
