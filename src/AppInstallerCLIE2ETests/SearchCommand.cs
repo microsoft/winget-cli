@@ -44,18 +44,18 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void SearchWithID()
+        public void SearchWithName()
         {
-            var result = TestCommon.RunAICLICommand("search", "--id AppInstallerTest.TestExampleInstaller");
+            var result = TestCommon.RunAICLICommand("search", "--name testexampleinstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("TestExampleInstaller"));
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
         [Test]
-        public void SearchWithName()
+        public void SearchWithID()
         {
-            var result = TestCommon.RunAICLICommand("search", "--name TestExampleInstaller");
+            var result = TestCommon.RunAICLICommand("search", "--id appinstallertest.testexampleinstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("TestExampleInstaller"));
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
@@ -81,10 +81,27 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void SearchWithExactArg()
+        public void SearchWithExactName()
         {
-            // Search 'testexampleinstaller' with exact arg should return none due to case sensitivity
-            var result = TestCommon.RunAICLICommand("search", "testexampleinstaller -e");
+            var result = TestCommon.RunAICLICommand("search", "--exact TestExampleInstaller");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+        }
+
+        [Test]
+        public void SearchWithExactID()
+        {
+            var result = TestCommon.RunAICLICommand("search", "--exact AppInstallerTest.TestExampleInstaller");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+        }
+
+        [Test]
+        public void SearchWithExactArgCaseSensitivity()
+        {
+            var result = TestCommon.RunAICLICommand("search", "--exact testexampleinstaller");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }
