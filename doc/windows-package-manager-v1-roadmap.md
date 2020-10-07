@@ -97,8 +97,8 @@ Each Release above is/will be reflected in our [GitHub milestones](https://githu
 
 Incoming issues/asks/etc. are triaged several times a week, labelled appropriately, and assigned to a milestone in priority order:
 
-* P0 (serious crashes, data loss, etc.) issues are scheduled to be dealt with ASAP
-* P1/2 issues/features/asks  assigned to the current or future milestone, or to the [Windows Package Manager v1.0 milestone](https://github.com/microsoft/winget-cli/milestone/1) for future assignment, if required to deliver a v1.0 feature
+* P0 (serious crashes, data loss, etc.) issues are scheduled to be dealt with ASAP.
+* P1/2 issues/features/asks  assigned to the current or future milestone, or to the [Windows Package Manager v1.0 milestone](https://github.com/microsoft/winget-cli/milestone/1) for future assignment, if required to deliver a v1.0 feature.
 * Issues/features/asks not on our list of v1.0 features is assigned to the [Windows Package Manager Backlog](https://github.com/microsoft/winget-cli/milestone/2) for subsequent triage, prioritization & scheduling.
 
 ## v1.0 Scenarios
@@ -109,43 +109,43 @@ The following are a list of the key scenarios we're aiming to deliver for Window
 
 | Release | Feature | Description/Notes |
 | --- | --- | --- |
-| [v0.1.41331-preview](https://github.com/microsoft/winget-cli/releases/tag/v0.1.4331-preview) | Elevated Privileges | The client should support installing Apps that require elevated privileges |
+| [v0.1.41331-preview](https://github.com/microsoft/winget-cli/releases/tag/v0.1.4331-preview) | Elevated Privileges | The client should support installing Apps that require elevated privileges. |
 | [v0.1.41821-preview](https://github.com/microsoft/winget-cli/releases/tag/v0.1.41821-preview) | Configurability & Customization | The client will have a modern, flexible settings mechanism that persists settings to/from a JSON file stored in the user's app data folders, and/or in files synchronized between machines via OneDrive, etc. |
 | [v0.1.41821-preview](https://github.com/microsoft/winget-cli/releases/tag/v0.1.41821-preview) | Color Theming & Styling | The client will honor the user's Windows dark/light theme settings, and/or color accent settings. |
-| [v0.1.42241-preview](https://github.com/microsoft/winget-cli/releases/tag/v0.1.42241-preview) | Autocomplete | The client will support autocomplete for all commands and packages in the local cache |
-| V1 | #119 `winget list` | The client should be able to tell you what Apps are installed including the Control Panel|
-| V1 | #120 `winget upgrade` | The client should be able to update one or "all" installed Apps |
-| V1 | #121 `winget uninstall` | The client should be able to uninstall Apps |
-| V1 | #220 Export/Import | The client should be able to export the list of installed Apps and import the exported list |
-| V1 | #163 Dependencies | The client should be able to install package dependencies |
-| V1 | #132 Multiple Architectures | The client should support multiple architectures in the same manifest |
-| V1 | #149 User vs. System | Applications may be installed for the local user or for the system |
+| [v0.1.42241-preview](https://github.com/microsoft/winget-cli/releases/tag/v0.1.42241-preview) | Autocomplete | The client will support autocomplete for all commands and packages in the local cache. |
+| V1 | #119 `winget list` | The client should be able to tell you what Apps are installed including the Control Panel. |
+| V1 | #120 `winget upgrade` | The client should be able to update one or "all" installed Apps. |
+| V1 | #121 `winget uninstall` | The client should be able to uninstall Apps. |
+| V1 | #220 Export/Import | The client should be able to export the list of installed Apps and import the exported list. |
+| V1 | #163 Dependencies | The client should be able to install package dependencies. |
+| V1 | #132 Multiple Architectures | The client should support multiple architectures in the same manifest. |
+| V1 | #149 User vs. System | Applications may be installed for the local user or for the system. |
 | V1 | #124 Multiple Languages | The client will support installation for almost every language for which there is a fixed-width font including East Asian languages. Bonus points for RTL languages/scripts. |
-| V1 | #226 REST Repository | Support for a REST based repository |
-| V1 | #154 Group Policy | Support for Group Policy control |
-| V1 | #151 Delivery Optimization | Delivery Optimization should be leveraged for large Apps |
-| V1 | #150 Metered Networks | The client should download responsibly when on metered networks |
-| V1 | #158 App Config Files | Support for silent installers that require a configuration file |
-| V1 | #140 Install .zip | The client should be able to install programs in a .zip file |
-| V1 | #194 Install .exe | The client should be able to install a static .exe file |
-| V1 | #182 Install portable app | The client should be able to install portable Apps |
-| V1 | #201 Specify install directory | The client should be able to install to an alternate directory |
-| V1 | #137 Non-Zero Exit Codes | The client should support applications with non-zero exit codes as success |
-| V1 | #279 Opt-Out of Telemetry | The client should be able to Opt-Out of Telemetry |
-| V1 | #161 Client Verbosity Settings | The client should support different verbosity settings |
-| V1 | #147 Release Channels | Some applications have different release channels and we should support them |
-| V1 | #221 Native PowerShell | Native PowerShell support for the client |
-| V1 | #164 Install PWA | Support installing Progressive Web Applications |
-| V1 | #219 Install Multiple Apps | The client should allow a user to specify multiple apps to install |
-| V1 | #229 Suppress reboot | The client should allow a user to suppress reboot as a default setting |
-| V1 | #227 Version specification | The client should allow more variation to specifying package versions for installation |
-| V1 | #225 Parallel download | The client should support multiple connections per package for download |
-| V1 | #166 Fonts | The client should support installing fonts |
-| V1 | #212 Auto Upgrade | The client should be able to auto upgrade installed apps if configured to do so |
-| V1 | #157 Manifest Wizard | Help a user generate a manifest |
-| V1 | #161 Verbosity | Client Verbosity Settings |
-| V1 | #117 Microsoft Store | Support for installing Apps from the Microsoft Store |
-| V1 | Accessibility (A11y) | The client will be highly accessible and inclusive. It will expose its contents via [UIA](https://docs.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview) to support tools such as [Windows Narrator](https://support.microsoft.com/en-us/help/22798/windows-10-complete-guide-to-narrator), and UI automation tools including [WinAppDriver](https://github.com/Microsoft/WinAppDriver) |
+| V1 | #226 REST Repository | Support for a REST based repository. |
+| V1 | #154 Group Policy | Support for Group Policy control. |
+| V1 | #151 Delivery Optimization | Delivery Optimization should be leveraged for large Apps. |
+| V1 | #150 Metered Networks | The client should download responsibly when on metered networks. |
+| V1 | #158 App Config Files | Support for silent installers that require a configuration file. |
+| V1 | #140 Install .zip | The client should be able to install programs in a .zip file. |
+| V1 | #194 Install .exe | The client should be able to install a static .exe file. |
+| V1 | #182 Install portable app | The client should be able to install portable Apps. |
+| V1 | #201 Specify install directory | The client should be able to install to an alternate directory. |
+| V1 | #137 Non-Zero Exit Codes | The client should support applications with non-zero exit codes as success. |
+| V1 | #279 Opt-Out of Telemetry | The client should be able to Opt-Out of Telemetry. |
+| V1 | #161 Client Verbosity Settings | The client should support different verbosity settings. |
+| V1 | #147 Release Channels | Some applications have different release channels and we should support them. |
+| V1 | #221 Native PowerShell | Native PowerShell support for the client. |
+| V1 | #164 Install PWA | Support installing Progressive Web Applications. |
+| V1 | #219 Install Multiple Apps | The client should allow a user to specify multiple apps to install. |
+| V1 | #229 Suppress reboot | The client should allow a user to suppress reboot as a default setting. |
+| V1 | #227 Version specification | The client should allow more variation to specifying package versions for installation. |
+| V1 | #225 Parallel download | The client should support multiple connections per package for download. |
+| V1 | #166 Fonts | The client should support installing fonts. |
+| V1 | #212 Auto Upgrade | The client should be able to auto upgrade installed apps if configured to do so. |
+| V1 | #157 Manifest Wizard | Help a user generate a manifest. |
+| V1 | #161 Verbosity | Client Verbosity Settings. |
+| V1 | #117 Microsoft Store | Support for installing Apps from the Microsoft Store. |
+| V1 | Accessibility (A11y) | The client will be highly accessible and inclusive. It will expose its contents via [UIA](https://docs.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview) to support tools such as [Windows Narrator](https://support.microsoft.com/en-us/help/22798/windows-10-complete-guide-to-narrator), and UI automation tools including [WinAppDriver](https://github.com/Microsoft/WinAppDriver). |
 Feature Notes:
 
 \* Feature Priorities will be influenced by community feedback on issues.
