@@ -27,34 +27,15 @@ namespace AppInstaller::CLI::Workflow
             {
                 // If installer type is MSStore, we'll let Store api to handle updates later
                 const auto& installationMetadata = installedPackage->GetInstallationMetadata();
-                const auto& installerType = installationMetadata.find(s_InstallationMetadata_Key_InstallerType)->second;
-                if (Manifest::ManifestInstaller::InstallerTypeEnum::MSStore == Manifest::ManifestInstaller::ConvertToInstallerTypeEnum(installerType))
+                auto installerTypeItr = installationMetadata.find(s_InstallationMetadata_Key_InstallerType);
+                if (installerTypeItr != installationMetadata.end() &&
+                    Manifest::ManifestInstaller::InstallerTypeEnum::MSStore == Manifest::ManifestInstaller::ConvertToInstallerTypeEnum(installerTypeItr->second))
                 {
                     updateApplicable = true;
                 }
             }
 
             return updateApplicable;
-        }
-    }
-
-    void GetUpdateManifestAndInstallerFromSearchResult(Execution::Context& context)
-    {
-        if (context.Args.Contains(Execution::Args::Type::Version))
-        {
-            // If version specified, use the version
-            context <<
-                GetManifestFromSearchResult <<
-                EnsureUpdateVersionApplicable <<
-                EnsureMinOSVersion <<
-                SelectInstaller <<
-                EnsureApplicableInstaller;
-        }
-        else
-        {
-            // iterate through available versions to find latest applicable
-            context <<
-                SelectLatestApplicableUpdate(*(context.Get<Execution::Data::SearchResult>().Matches.at(0).Package));
         }
     }
 
@@ -118,60 +99,29 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void GetUpdateManifestAndInstaller(Execution::Context& context)
-    {
-        if (context.Args.Contains(Execution::Args::Type::Manifest))
-        {
-            context <<
-                GetManifestFromArg <<
-                ReportManifestIdentity <<
-                GetCompositeSourceFromInstalledAndAvailable <<
-                SearchSourceUsingManifest <<
-                EnsureOneMatchFromSearchResult <<
-                GetInstalledPackage <<
-                EnsureUpdateVersionApplicable <<
-                EnsureMinOSVersion <<
-                SelectInstaller <<
-                EnsureApplicableInstaller;
-        }
-        else
-        {
-            context <<
-                GetCompositeSourceFromInstalledAndAvailable <<
-                SearchSourceForSingle <<
-                EnsureOneMatchFromSearchResult <<
-                ReportSearchResultIdentity <<
-                GetInstalledPackage <<
-                GetUpdateManifestAndInstallerFromSearchResult;
-        }
-    }
-
     void UpdateAllApplicable(Execution::Context& context)
     {
         const auto& matches = context.Get<Execution::Data::SearchResult>().Matches;
         bool updateAllHasFailure = false;
         for (const auto& match : matches)
         {
-            std::thread tryOneUpdate([&]
-                {
-                    // We want to do best effort to update all applicable updates regardless on previous update failure
-                    context.Resume();
-                    context.Reporter.Info() << std::endl;
+            // We want to do best effort to update all applicable updates regardless on previous update failure
+            auto updateContextPtr = context.Clone();
+            Execution::Context& updateContext = *updateContextPtr;
+            updateContext.Reporter.Info() << std::endl;
 
-                    context.Add<Execution::Data::InstalledPackageVersion>(match.Package->GetInstalledVersion());
+            updateContext.Add<Execution::Data::InstalledPackageVersion>(match.Package->GetInstalledVersion());
+            updateContext.Get<Execution::Data::ContextFlag>() = context.Get<Execution::Data::ContextFlag>();
 
-                    context <<
-                        SelectLatestApplicableUpdate(*(match.Package)) <<
-                        ShowInstallationDisclaimer <<
-                        DownloadInstaller <<
-                        ExecuteInstaller <<
-                        RemoveInstaller;
-                });
+            updateContext <<
+                SelectLatestApplicableUpdate(*(match.Package)) <<
+                ShowInstallationDisclaimer <<
+                DownloadInstaller <<
+                ExecuteInstaller <<
+                RemoveInstaller;
 
-            tryOneUpdate.join();
-
-            if (context.GetTerminationHR() != S_OK &&
-                context.GetTerminationHR() != APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
+            if (updateContext.GetTerminationHR() != S_OK &&
+                updateContext.GetTerminationHR() != APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
             {
                 updateAllHasFailure = true;
             }

@@ -52,18 +52,16 @@ namespace AppInstaller::CLI::Execution
         LogPath,
         InstallerArgs,
         CompletionData,
-        CommandType,
+        ContextFlag,
         InstalledPackageVersion,
         Max
     };
 
-    enum class CommandType
+    // bit masks used as Context flags
+    namespace ContextFlag
     {
-        Install,
-        Search,
-        Show,
-        Uninstall,
-        Update
+        static const int None = 0x0;
+        static const int InstallerExecutionUseUpdate = 0x1;
     };
 
     namespace details
@@ -141,9 +139,9 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::CommandType>
+        struct DataMapping<Data::ContextFlag>
         {
-            using value_t = CommandType;
+            using value_t = int;
         };
 
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.
@@ -162,7 +160,10 @@ namespace AppInstaller::CLI::Execution
     // arguments via Execution::Args.
     struct Context
     {
-        Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
+        Context(std::ostream& out, std::istream& in) : Reporter(out, in) { m_data[Data::ContextFlag] = ContextFlag::None; }
+
+        // Clone the reporter for this constructor.
+        Context(Execution::Reporter& reporter) : Reporter(reporter, Execution::Reporter::clone_t{}) {}
 
         virtual ~Context();
 
@@ -173,7 +174,7 @@ namespace AppInstaller::CLI::Execution
         Args Args;
 
         // Creates a copy of this context as it was at construction.
-        Context Clone();
+        virtual std::unique_ptr<Context> Clone();
 
         // Enables reception of CTRL signals.
         // Only one context can be enabled to handle CTRL signals at a time.
@@ -190,9 +191,6 @@ namespace AppInstaller::CLI::Execution
 
         // Set the context to the terminated state.
         void Terminate(HRESULT hr, std::string_view file = {}, size_t line = {});
-
-        // Resumes the context
-        void Resume() { m_terminationHR = S_OK; m_isTerminated = false; }
 
         // Adds a value to the context data, or overwrites an existing entry.
         // This must be used to create the initial data entry, but Get can be used to modify.
@@ -220,9 +218,6 @@ namespace AppInstaller::CLI::Execution
 #endif
 
     private:
-        // Clone the reporter for this constructor.
-        Context(Execution::Reporter& reporter) : Reporter(reporter, Execution::Reporter::clone_t{}) {}
-
         DestructionToken m_disableCtrlHandlerOnExit = false;
         bool m_isTerminated = false;
         HRESULT m_terminationHR = S_OK;

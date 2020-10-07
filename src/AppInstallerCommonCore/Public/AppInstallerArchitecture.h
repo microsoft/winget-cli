@@ -6,6 +6,8 @@
 
 namespace AppInstaller::Utility
 {
+    static const int s_InapplicableArchitecture = -1;
+
     enum class Architecture
     {
         Unknown = -1,

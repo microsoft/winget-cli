@@ -142,8 +142,6 @@ namespace AppInstaller::CLI::Workflow
 
     void GetCompositeSourceFromInstalledAndAvailable(Execution::Context& context)
     {
-        context << OpenSource;
-
         std::shared_ptr<Repository::ISource> availableSource = context.Get<Execution::Data::Source>();
 
         std::shared_ptr<Repository::ISource> installedSource = context.Reporter.ExecuteWithProgress(
@@ -298,9 +296,7 @@ namespace AppInstaller::CLI::Workflow
         {
             Logging::Telemetry().LogNoAppMatch();
 
-            if (context.Contains(Execution::Data::CommandType) &&
-                (context.Get<Execution::Data::CommandType>() == Execution::CommandType::Update ||
-                 context.Get<Execution::Data::CommandType>() == Execution::CommandType::Uninstall))
+            if ((context.Get<Execution::Data::ContextFlag>() & Execution::ContextFlag::InstallerExecutionUseUpdate) != 0)
             {
                 context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
             }
@@ -325,9 +321,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                if (context.Contains(Execution::Data::CommandType) &&
-                    (context.Get<Execution::Data::CommandType>() == Execution::CommandType::Update ||
-                     context.Get<Execution::Data::CommandType>() == Execution::CommandType::Uninstall))
+                if ((context.Get<Execution::Data::ContextFlag>() & Execution::ContextFlag::InstallerExecutionUseUpdate) != 0)
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
                 }
@@ -441,12 +435,12 @@ namespace AppInstaller::CLI::Workflow
 
     void SelectInstaller(Execution::Context& context)
     {
-        std::optional<std::map<std::string, std::string>> installationMetadata;
+        bool isUpdate = (context.Get<Execution::Data::ContextFlag>() & Execution::ContextFlag::InstallerExecutionUseUpdate) != 0;
 
-        if (context.Contains(Execution::Data::CommandType) && context.Get<Execution::Data::CommandType>() == Execution::CommandType::Update)
+        std::map<std::string, std::string> installationMetadata;
+        if (isUpdate)
         {
-            const auto& installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
-            installationMetadata = installedPackage->GetInstallationMetadata();
+            installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetInstallationMetadata();
         }
 
         ManifestComparator manifestComparator(context.Args, installationMetadata);
@@ -476,16 +470,43 @@ namespace AppInstaller::CLI::Workflow
     void SearchSourceUsingManifest(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
+        auto source = context.Get<Execution::Data::Source>();
 
+        // First try search using ProductId or PackageFamilyName
+        for (const auto& installer : manifest.Installers)
+        {
+            SearchRequest searchRequest;
+            if (!installer.PackageFamilyName.empty())
+            {
+                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, installer.PackageFamilyName));
+            }
+            else if (!installer.ProductCode.empty())
+            {
+                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, installer.ProductCode));
+            }
+
+            if (!searchRequest.Inclusions.empty())
+            {
+                auto searchResult = source->Search(searchRequest);
+
+                if (!searchResult.Matches.empty())
+                {
+                    context.Add<Execution::Data::SearchResult>(std::move(searchResult));
+                    return;
+                }
+            }
+        }
+
+        // If we cannot find a package using PackageFamilyName or ProductId, try manifest Id and Name pair
         SearchRequest searchRequest;
-        searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, manifest.Id));
+        searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, manifest.Id));
         // In case there're same Ids from different sources, filter the result using package name
-        searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Name, MatchType::Exact, manifest.Name));
+        searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Name, MatchType::CaseInsensitive, manifest.Name));
 
-        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>()->Search(searchRequest));
+        context.Add<Execution::Data::SearchResult>(source->Search(searchRequest));
     }
 
-    void GetInstalledPackage(Execution::Context& context)
+    void GetInstalledPackageVersion(Execution::Context& context)
     {
         const auto& searchResult = context.Get<Execution::Data::SearchResult>();
         context.Add<Execution::Data::InstalledPackageVersion>(searchResult.Matches.at(0).Package->GetInstalledVersion());

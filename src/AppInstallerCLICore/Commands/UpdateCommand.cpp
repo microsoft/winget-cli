@@ -47,59 +47,88 @@ namespace AppInstaller::CLI
         return { Resource::String::UpdateCommandLongDescription };
     }
 
-    void UpdateCommand::Complete(Execution::Context& context, Execution::Args::Type valueType) const
+    void UpdateCommand::Complete(Execution::Context&, Execution::Args::Type) const
     {
-        switch (valueType)
-        {
-        case Execution::Args::Type::Query:
-        case Execution::Args::Type::Manifest:
-        case Execution::Args::Type::Id:
-        case Execution::Args::Type::Name:
-        case Execution::Args::Type::Moniker:
-        case Execution::Args::Type::Version:
-        case Execution::Args::Type::Channel:
-        case Execution::Args::Type::Source:
-            context <<
-                Workflow::CompleteWithSingleSemanticsForValue(valueType);
-            break;
-        case Execution::Args::Type::Language:
-            // May well move to CompleteWithSingleSemanticsForValue,
-            // but for now output nothing.
-            context <<
-                Workflow::CompleteWithEmptySet;
-            break;
-        case Execution::Args::Type::Log:
-            // Intentionally output nothing to allow pass through to filesystem.
-            break;
-        }
+        // TODO: Should be done similar to list completion
     }
 
     std::string UpdateCommand::HelpLink() const
     {
         // TODO: point to correct location
-        return "https://aka.ms/winget-command-update";
+        return "https://aka.ms/winget-command-upgrade";
     }
 
     void UpdateCommand::ExecuteInternal(Execution::Context& context) const
     {
-        context.Add<Execution::Data::CommandType>(CommandType::Update);
+        context.Get<Execution::Data::ContextFlag>() |= Execution::ContextFlag::InstallerExecutionUseUpdate;
 
-        if (context.Args.Contains(Execution::Args::Type::All))
+        context <<
+            OpenSource <<
+            GetCompositeSourceFromInstalledAndAvailable;
+
+        if (context.Args.Empty())
         {
+            // Upgrade with no args list packages with updates available
+            // TODO: go to list filtered to packages with update available
+        }
+        else if (context.Args.Contains(Execution::Args::Type::All))
+        {
+            // --all switch updates all packages found
             context <<
-                GetCompositeSourceFromInstalledAndAvailable <<
                 SearchSourceForMany <<
                 EnsureMatchesFromSearchResult <<
                 UpdateAllApplicable;
         }
+        else if (context.Args.Contains(Execution::Args::Type::Manifest))
+        {
+            // --manifest case where new manifest is provided
+            context <<
+                GetManifestFromArg <<
+                ReportManifestIdentity <<
+                SearchSourceUsingManifest <<
+                EnsureOneMatchFromSearchResult <<
+                GetInstalledPackageVersion <<
+                EnsureUpdateVersionApplicable <<
+                EnsureMinOSVersion <<
+                SelectInstaller <<
+                EnsureApplicableInstaller <<
+                ShowInstallationDisclaimer <<
+                DownloadInstaller <<
+                ExecuteInstaller <<
+                RemoveInstaller;
+        }
         else
         {
+            // The remaining case: search for single installed package to update
             context <<
-                Workflow::GetUpdateManifestAndInstaller <<
-                Workflow::ShowInstallationDisclaimer <<
-                Workflow::DownloadInstaller <<
-                Workflow::ExecuteInstaller <<
-                Workflow::RemoveInstaller;
+                SearchSourceForSingle <<
+                EnsureOneMatchFromSearchResult <<
+                ReportSearchResultIdentity <<
+                GetInstalledPackageVersion;
+
+                if (context.Args.Contains(Execution::Args::Type::Version))
+                {
+                    // If version specified, use the version and verify applicability
+                    context <<
+                        GetManifestFromSearchResult <<
+                        EnsureUpdateVersionApplicable <<
+                        EnsureMinOSVersion <<
+                        SelectInstaller <<
+                        EnsureApplicableInstaller;
+                }
+                else
+                {
+                    // iterate through available versions to find latest applicable update
+                    // This step also populates Manifest and Installer in context data
+                    context <<
+                        SelectLatestApplicableUpdate(*(context.Get<Execution::Data::SearchResult>().Matches.at(0).Package));
+                }
+
+                context <<
+                    ShowInstallationDisclaimer <<
+                    DownloadInstaller <<
+                    ExecuteInstaller <<
+                    RemoveInstaller;
         }
     }
 }

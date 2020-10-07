@@ -52,14 +52,13 @@ namespace AppInstaller::Manifest
 
     ManifestInstaller::UpdateBehaviorEnum ManifestInstaller::ConvertToUpdateBehaviorEnum(const std::string& in)
     {
-        std::string inStrLower = Utility::ToLower(in);
         UpdateBehaviorEnum result = UpdateBehaviorEnum::Unknown;
 
-        if (inStrLower == "install")
+        if (Utility::CaseInsensitiveEquals(in, "install"))
         {
             result = UpdateBehaviorEnum::Install;
         }
-        else if (inStrLower == "uninstallprevious")
+        else if (Utility::CaseInsensitiveEquals(in, "uninstallprevious"))
         {
             result = UpdateBehaviorEnum::UninstallPrevious;
         }

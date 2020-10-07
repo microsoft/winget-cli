@@ -7,7 +7,7 @@ namespace AppInstaller::CLI
 {
     struct UpdateCommand final : public Command
     {
-        UpdateCommand(std::string_view parent) : Command("update", parent) {}
+        UpdateCommand(std::string_view parent) : Command("upgrade", parent, Settings::ExperimentalFeature::Feature::ExperimentalUpgrade) {}
 
         std::vector<Argument> GetArguments() const override;
 

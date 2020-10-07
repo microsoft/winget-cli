@@ -193,8 +193,7 @@ namespace AppInstaller::CLI::Workflow
     {
         const auto& installer = context.Get<Execution::Data::Installer>().value();
 
-        bool isUpdate = context.Contains(Execution::Data::CommandType) &&
-            context.Get<Execution::Data::CommandType>() == Execution::CommandType::Update;
+        bool isUpdate = (context.Get<Execution::Data::ContextFlag>() & Execution::ContextFlag::InstallerExecutionUseUpdate) != 0;
 
         switch (installer.InstallerType)
         {
@@ -207,6 +206,7 @@ namespace AppInstaller::CLI::Workflow
             if (isUpdate && installer.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::UninstallPrevious)
             {
                 // TODO: hook up with uninstall when uninstall is implemented
+                AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }
             context << ShellExecuteInstall;
             break;

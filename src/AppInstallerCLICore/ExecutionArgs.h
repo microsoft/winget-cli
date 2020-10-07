@@ -111,6 +111,11 @@ namespace AppInstaller::CLI::Execution
             m_parsedArgs[arg].emplace_back(value);
         }
 
+        bool Empty()
+        {
+            return m_parsedArgs.empty();
+        }
+
     private:
         std::map<Type, std::vector<std::string>> m_parsedArgs;
     };

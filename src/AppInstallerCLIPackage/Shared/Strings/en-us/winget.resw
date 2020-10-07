@@ -688,7 +688,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
     <value>No sources defined; add one with 'source add' or reset to defaults with 'source reset'</value>
-    <comment>'source add' and 'source reset' are winget commands. It would be beneficial to not translate them</comment>
+    <comment>{Locked="source add","source reset"}</comment>
   </data>
   <data name="ReportIdentityFound" xml:space="preserve">
     <value>Found</value>

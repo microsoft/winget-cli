@@ -182,7 +182,7 @@ namespace AppInstaller::CLI::Workflow
 
     // Create a composite source from installed source and available source.
     // Required Args: None
-    // Inputs: None
+    // Inputs: Source
     // Outputs: Source
     void GetCompositeSourceFromInstalledAndAvailable(Execution::Context& context);
 
@@ -192,11 +192,11 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: SearchResult
     void SearchSourceUsingManifest(Execution::Context& context);
 
-    // Gets the installed package
+    // Gets the installed package version
     // Required Args: None
     // Inputs: SearchResult
     // Outputs: InstalledPackageVersion
-    void GetInstalledPackage(Execution::Context& context);
+    void GetInstalledPackageVersion(Execution::Context& context);
 }
 
 // Passes the context to the function if it has not been terminated; returns the context.

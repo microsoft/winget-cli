@@ -12,7 +12,7 @@ namespace AppInstaller::CLI::Workflow
     // This is used in sorting the list of available installers to get the best match.
     struct InstallerComparator
     {
-        InstallerComparator(std::optional<std::map<std::string, std::string>> installationMetadata) :
+        InstallerComparator(const std::map<std::string, std::string>& installationMetadata) :
             m_installationMetadata(installationMetadata) {}
 
         bool operator() (
@@ -20,7 +20,7 @@ namespace AppInstaller::CLI::Workflow
             const Manifest::ManifestInstaller& installer2);
 
     private:
-        std::optional<std::map<std::string, std::string>> m_installationMetadata;
+        const std::map<std::string, std::string>& m_installationMetadata;
     };
 
     // This is used in sorting the list of available localizations to get the best match.
@@ -34,7 +34,7 @@ namespace AppInstaller::CLI::Workflow
     // Class in charge of comparing manifest entries
     struct ManifestComparator
     {
-        ManifestComparator(const Execution::Args&, std::optional<std::map<std::string, std::string>> installationMetadata) : 
+        ManifestComparator(const Execution::Args&, const std::map<std::string, std::string>& installationMetadata) :
             m_installationMetadata(installationMetadata), m_installerComparator(installationMetadata) {}
 
         std::optional<Manifest::ManifestInstaller> GetPreferredInstaller(const Manifest::Manifest& manifest);
@@ -42,7 +42,7 @@ namespace AppInstaller::CLI::Workflow
 
     private:
         // TODO: Handle args to change how we select.
-        std::optional<std::map<std::string, std::string>> m_installationMetadata;
+        const std::map<std::string, std::string>& m_installationMetadata;
         LocalizationComparator m_localizationComparator;
         InstallerComparator m_installerComparator;
     };

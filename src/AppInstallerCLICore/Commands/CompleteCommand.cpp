@@ -54,7 +54,8 @@ namespace AppInstaller::CLI
             }
 
             // Create a new Context to execute the Complete from
-            Context subContext = context.Clone();
+            auto subContextPtr = context.Clone();
+            Context& subContext = *subContextPtr;
             subContext.Reporter.SetChannel(Execution::Reporter::Channel::Completion);
             subContext.Add<Data::CompletionData>(std::move(data));
 

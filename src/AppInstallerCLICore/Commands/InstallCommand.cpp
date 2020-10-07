@@ -80,8 +80,6 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ExecuteInternal(Execution::Context& context) const
     {
-        context.Add<Execution::Data::CommandType>(CommandType::Install);
-
         context <<
             Workflow::GetManifest <<
             Workflow::EnsureMinOSVersion <<

@@ -282,8 +282,10 @@ namespace
     // Enables overriding the behavior of specific workflow tasks.
     struct TestContext : public Context
     {
-        TestContext(std::ostream& out, std::istream& in) : Context(out, in)
+        TestContext(std::ostream& out, std::istream& in) : m_out(out), m_in(in), Context(out, in)
         {
+            m_overrides = std::make_shared<std::vector<WorkflowTaskOverride>>();
+
             WorkflowTaskOverride wto
             { RemoveInstaller, [](TestContext&)
                 {
@@ -296,22 +298,29 @@ namespace
             Override(wto);
         }
 
+        // For clone
+        TestContext(std::ostream& out, std::istream& in, std::shared_ptr<std::vector<WorkflowTaskOverride>> overrides) :
+            m_out(out), m_in(in), m_overrides(overrides), m_isClone(true), Context(out, in) {}
+
         ~TestContext()
         {
-            for (const auto& wto : m_overrides)
+            if (!m_isClone)
             {
-                if (!wto.Used)
+                for (const auto& wto : *m_overrides)
                 {
-                    FAIL("Unused override");
+                    if (!wto.Used)
+                    {
+                        FAIL("Unused override");
+                    }
                 }
             }
         }
 
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task) override
         {
-            auto itr = std::find_if(m_overrides.begin(), m_overrides.end(), [&](const WorkflowTaskOverride& wto) { return wto.Target == task; });
+            auto itr = std::find_if(m_overrides->begin(), m_overrides->end(), [&](const WorkflowTaskOverride& wto) { return wto.Target == task; });
 
-            if (itr == m_overrides.end())
+            if (itr == m_overrides->end())
             {
                 return true;
             }
@@ -325,11 +334,19 @@ namespace
 
         void Override(const WorkflowTaskOverride& wto)
         {
-            m_overrides.emplace_back(wto);
+            m_overrides->emplace_back(wto);
+        }
+
+        std::unique_ptr<Context> Clone() override
+        {
+            return std::make_unique<TestContext>(m_out, m_in, m_overrides);
         }
 
     private:
-        std::vector<WorkflowTaskOverride> m_overrides;
+        std::shared_ptr<std::vector<WorkflowTaskOverride>> m_overrides;
+        std::ostream& m_out;
+        std::istream& m_in;
+        bool m_isClone = false;
     };
 }
 
@@ -343,6 +360,10 @@ void OverrideForOpenSource(TestContext& context)
 
 void OverrideForCompositeInstalledSource(TestContext& context)
 {
+    context.Override({ Workflow::OpenSource, [](TestContext&)
+    {
+    } });
+
     context.Override({ Workflow::GetCompositeSourceFromInstalledAndAvailable, [](TestContext& context)
     {
         context.Add<Execution::Data::Source>(std::make_shared<TestCompositeInstalledSource>());

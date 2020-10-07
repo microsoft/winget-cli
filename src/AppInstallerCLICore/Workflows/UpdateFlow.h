@@ -6,19 +6,6 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    // Composite flow that fetches installed package version and an update manifest; either from one given on the command line or by searching.
-    // Required Args: None
-    // Inputs: None
-    // Outputs: Manifest, InstalledPackageVersion
-    void GetUpdateManifestAndInstaller(Execution::Context& context);
-
-    // Gets the update manifest from SearchResult. If Version arg is used, pick the version and ensure update applicability.
-    // If Version arg is not used, a latest applicable update will be picked.
-    // Required Args: None
-    // Inputs: InstalledPackageVersion, SearchResult
-    // Outputs: Manifest?, Installer?
-    void GetUpdateManifestAndInstallerFromSearchResult(Execution::Context& context);
-
     // Iterates through all available versions from a package and find latest applicable update
     // Required Args: the package
     // Inputs: InstalledPackageVersion

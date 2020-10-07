@@ -48,8 +48,6 @@ namespace AppInstaller::CLI
 
     void ShowCommand::ExecuteInternal(Execution::Context& context) const
     {
-        context.Add<Execution::Data::CommandType>(Execution::CommandType::Show);
-
         if (context.Args.Contains(Execution::Args::Type::ListVersions))
         {
             if (context.Args.Contains(Execution::Args::Type::Manifest))

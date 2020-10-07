@@ -12,22 +12,23 @@ namespace AppInstaller::CLI::Workflow
     bool InstallerComparator::operator() (const ManifestInstaller& installer1, const ManifestInstaller& installer2)
     {
         // Applicable architecture should always come before inapplicable architecture
-        if (Utility::IsApplicableArchitecture(installer1.Arch) != -1 && Utility::IsApplicableArchitecture(installer2.Arch) == -1)
+        if (Utility::IsApplicableArchitecture(installer1.Arch) != Utility::s_InapplicableArchitecture &&
+            Utility::IsApplicableArchitecture(installer2.Arch) == Utility::s_InapplicableArchitecture)
         {
             return true;
         }
 
         // If there's installation metadata, pick the preferred one or compatible one
-        if (m_installationMetadata.has_value())
+        auto installerTypeItr = m_installationMetadata.find(s_InstallationMetadata_Key_InstallerType);
+        if (installerTypeItr != m_installationMetadata.end())
         {
-            auto installedType = Manifest::ManifestInstaller::ConvertToInstallerTypeEnum(
-                m_installationMetadata.value().find(s_InstallationMetadata_Key_InstallerType)->second);
-            if (installer1.InstallerType == installedType && installer2.InstallerType != installedType)
+            auto installerType = Manifest::ManifestInstaller::ConvertToInstallerTypeEnum(installerTypeItr->second);
+            if (installer1.InstallerType == installerType && installer2.InstallerType != installerType)
             {
                 return true;
             }
-            if (Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer1.InstallerType, installedType) &&
-                !Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer2.InstallerType, installedType))
+            if (Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer1.InstallerType, installerType) &&
+                !Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer2.InstallerType, installerType))
             {
                 return true;
             }
@@ -67,18 +68,17 @@ namespace AppInstaller::CLI::Workflow
         std::sort(installers.begin(), installers.end(), m_installerComparator);
 
         // If the first one's architecture is inapplicable, then no installer is applicable.
-        if (Utility::IsApplicableArchitecture(installers[0].Arch) == -1)
+        if (Utility::IsApplicableArchitecture(installers[0].Arch) == Utility::s_InapplicableArchitecture)
         {
             return {};
         }
 
         // If the first one's InstallerType is inapplicable, then no installer is applicable.
-        if (m_installationMetadata.has_value())
+        auto installerTypeItr = m_installationMetadata.find(s_InstallationMetadata_Key_InstallerType);
+        if (installerTypeItr != m_installationMetadata.end())
         {
-            std::string installedType = m_installationMetadata.value().find(s_InstallationMetadata_Key_InstallerType)->second;
-            if (!Manifest::ManifestInstaller::IsInstallerTypeCompatible(
-                installers[0].InstallerType,
-                Manifest::ManifestInstaller::ConvertToInstallerTypeEnum(installedType)))
+            auto installerType = Manifest::ManifestInstaller::ConvertToInstallerTypeEnum(installerTypeItr->second);
+            if (!Manifest::ManifestInstaller::IsInstallerTypeCompatible(installers[0].InstallerType, installerType))
             {
                 return {};
             }
