@@ -142,7 +142,7 @@
   </data>
   <data name="Command" xml:space="preserve">
     <value>comando</value>
-    <comment>A command to give the software</comment>
+    <comment>Un comando da dare al software</comment>
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtra i risultati per comando</value>
@@ -193,7 +193,7 @@
     <value>Mostra lo stato delle funzionalità sperimentali</value>
   </data>
   <data name="FeaturesDisabled" xml:space="preserve">
-    <value>Disabilitate</value>
+    <value>Disabilitata</value>
   </data>
   <data name="FeaturesEnabled" xml:space="preserve">
     <value>Abilitata</value>
@@ -206,7 +206,7 @@
   </data>
   <data name="FeaturesMessage" xml:space="preserve">
     <value>Le seguenti funzionalità sperimentali sono in corso.
-Possono essere configurati tramite il file di impostazioni ' winget settings '.</value>
+Possono essere configurate tramite il file di impostazioni ' winget settings '.</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesProperty" xml:space="preserve">
@@ -360,19 +360,19 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Verifica/richiesta di acquisizione pacchetto riuscita</value>
   </data>
   <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Non è possibile installare il pacchetto Microsoft Store perché il client Microsoft Store è bloccato dai criteri</value>
+    <value>Non è possibile installare il pacchetto Microsoft Store perché il client Microsoft Store è bloccato dai criteri di sicurezzza</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Verifica/richiesta di acquisizione pacchetti...</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
-    <value>Multipli pacchetti hanno trovato criteri di input corrispondenti. Ridefinisci l'input.</value>
+    <value>Multeplici pacchetti hanno trovato criteri di input corrispondenti. Ridefinisci l'input.</value>
   </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtra i risultati per nome</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Nessun programmi di installazione è applicabile al sistema corrente.</value>
+    <value>Nessun programma di installazione è applicabile al sistema corrente.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Al momento non sono disponibili funzionalità sperimentali. </value>
@@ -385,7 +385,7 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <comment>{Locked="VirtualTerminal"}</comment>
   </data>
   <data name="Options" xml:space="preserve">
-    <value>opzioni</value>
+    <value>Opzioni</value>
     <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
@@ -439,7 +439,7 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Origine</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
-    <value>voci aggiuntive troncate a causa del limite dei risultati</value>
+    <value>Voci aggiuntive troncate a causa del limite dei risultati</value>
   </data>
   <data name="SearchVersion" xml:space="preserve">
     <value>Versione</value>
@@ -448,7 +448,7 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Sono stati trovati i seguenti errori durante la convalida delle impostazioni:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Apri le impostazioni nell'editor di testo json predefinito. Se nessun editor è configurato, apre le impostazioni nel blocco note. Per le impostazioni disponibili, vedi https://aka.ms/winget-settings</value>
+    <value>Apri le impostazioni nell'editor di testo json predefinito. Se nessun editor è configurato, apre le impostazioni nel blocco note di windows. Per le impostazioni disponibili, vedi https://aka.ms/winget-settings</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
     <value>Apri impostazioni</value>

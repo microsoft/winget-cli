@@ -51,6 +51,7 @@ When a word value is provided, the completion operates in replacement mode.  It 
 When a word value is not provided (an empty value is provided for word, ex. `--word=`), the completion operates in insertion mode.  It will suggest completions that would fit as a new value in the cursor's location.
 
 Based on the arguments, the completions suggested can be one of:
+
 1. A sub command :: The cursor is located just after a command and there are sub commands available.
 2. An argument specifier :: The cursor is not positioned after an argument specifier that expects a value, and there are arguments available.
 3. An argument value :: The cursor is positioned after an argument specifier that expects a value, or a positional argument is expected.

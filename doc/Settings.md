@@ -1,6 +1,6 @@
 # WinGet CLI Settings
 
-You can configure WinGet by editing the `settings.json` file. Running `winget settings` will open the file in the default json editor, if no editor is configured, notepad.exe is used.
+You can configure WinGet by editing the `settings.json` file. Running `winget settings` will open the file in the default JSON editor, if no editor is configured, notepad.exe is used.
 
 ## File Location
 
@@ -12,11 +12,11 @@ If you are using the non-packaged WinGet version by building it from source code
 
 The `source` settings involve configuration to the WinGet source.
 
-```
+```json
     "source": {
         "autoUpdateIntervalInMinutes": 3
     },
-``` 
+```
 
 ### autoUpdateIntervalInMinutes
 
@@ -31,7 +31,7 @@ To manually update the source use `winget source update`
 
 The `visual` settings involve visual elements that are displayed by WinGet
 
-```
+```json
     "visual": {
         "progressBar": "accent"
     },
@@ -39,7 +39,7 @@ The `visual` settings involve visual elements that are displayed by WinGet
 
 ### progressBar
 
-Color of the progress bar that WinGet displays when not specified by arguments. 
+Color of the progress bar that WinGet displays when not specified by arguments.
 
 - accent (default)
 - retro
@@ -47,11 +47,11 @@ Color of the progress bar that WinGet displays when not specified by arguments.
 
 ## Experimental Features
 
-To allow work to be done and distributed to early adopters for feedback, settings can be used to enable "experimental" features. 
+To allow work to be done and distributed to early adopters for feedback, settings can be used to enable "experimental" features.
 
 The `experimentalFeatures` settings involve the configuration of these "experimental" features. Individual features can be enabled under this node. The example below shows sample experimental features.
 
-```
+```json
    "experimentalFeatures": {
        "experimentalCmd": true,
        "experimentalArg": false
@@ -62,7 +62,7 @@ The `experimentalFeatures` settings involve the configuration of these "experime
 
 Microsoft Store App support in WinGet is currently implemented as an experimental feature. It supports a curated list of utility apps from Microsoft Store. You can enable the feature as shown below.
 
-```
+```json
    "experimentalFeatures": {
        "experimentalMSStore": true
    },
