@@ -46,10 +46,23 @@ namespace AppInstaller::Utility
         bool operator==(const Version& other) const;
         bool operator!=(const Version& other) const;
 
+        // Determines if this version is the sentinel value defining the 'Latest' version
+        bool IsLatest() const;
+
+        // Returns a Version that will return true for IsLatest
+        static Version CreateLatest();
+
+        // Determines if this version is the sentinel value defining an 'Unknown' version
+        bool IsUnknown() const;
+
+        // Returns a Version that will return true for IsUnknown
+        static Version CreateUnknown();
+
         // An individual version part in between split characters.
         struct Part
         {
             Part(const std::string& part);
+            Part(uint64_t integer, std::string other);
 
             bool operator<(const Part& other) const;
             bool operator==(const Part& other) const;

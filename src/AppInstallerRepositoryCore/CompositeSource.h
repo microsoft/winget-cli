@@ -28,6 +28,10 @@ namespace AppInstaller::Repository
         // Must be suitable for filesystem names.
         const std::string& GetIdentifier() const override;
 
+        // Gets a value indicating whether this source is a composite of other sources,
+        // and thus the packages may come from disparate sources as well.
+        bool IsComposite() const override { return true; }
+
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
 

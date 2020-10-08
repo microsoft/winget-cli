@@ -85,6 +85,19 @@ namespace
         {
             TestPackage(const Manifest& manifest) : m_manifest(manifest) {}
 
+            LocIndString GetProperty(PackageProperty property) const override
+            {
+                switch (property)
+                {
+                case PackageProperty::Id:
+                    return LocIndString{ m_manifest.Id };
+                case PackageProperty::Name:
+                    return LocIndString{ m_manifest.Name };
+                default:
+                    return {};
+                }
+            }
+
             std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
             {
                 return {};

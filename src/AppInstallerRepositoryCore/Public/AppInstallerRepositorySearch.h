@@ -93,7 +93,8 @@ namespace AppInstaller::Repository
     {
         Id,
         Name,
-        SourceId,
+        SourceIdentifier,
+        SourceName,
         Version,
         Channel,
         RelativePath,
@@ -134,6 +135,8 @@ namespace AppInstaller::Repository
     // A key to identify a package version within a package.
     struct PackageVersionKey
     {
+        PackageVersionKey() = default;
+
         PackageVersionKey(Utility::NormalizedString sourceId, Utility::NormalizedString version, Utility::NormalizedString channel) :
             SourceId(std::move(sourceId)), Version(std::move(version)), Channel(std::move(channel)) {}
 
@@ -147,10 +150,20 @@ namespace AppInstaller::Repository
         Utility::NormalizedString Channel;
     };
 
+    // A property of a package.
+    enum class PackageProperty
+    {
+        Id,
+        Name,
+    };
+
     // A package, potentially containing information about it's local state and the available versions.
     struct IPackage
     {
         virtual ~IPackage() = default;
+
+        // Gets a property of this package.
+        virtual Utility::LocIndString GetProperty(PackageProperty property) const = 0;
 
         // Gets the installed package information.
         virtual std::shared_ptr<IPackageVersion> GetInstalledVersion() const = 0;

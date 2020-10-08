@@ -60,6 +60,10 @@ namespace AppInstaller::Repository
         // in which case the identifier should begin with a '*' character.
         virtual const std::string& GetIdentifier() const = 0;
 
+        // Gets a value indicating whether this source is a composite of other sources,
+        // and thus the packages may come from disparate sources as well.
+        virtual bool IsComposite() const { return false; }
+
         // Execute a search on the source.
         virtual SearchResult Search(const SearchRequest& request) const = 0;
     };

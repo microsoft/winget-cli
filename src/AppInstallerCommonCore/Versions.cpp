@@ -5,6 +5,11 @@
 
 namespace AppInstaller::Utility
 {
+    using namespace std::string_view_literals;
+
+    static constexpr std::string_view s_Version_Part_Latest = "Latest"sv;
+    static constexpr std::string_view s_Version_Part_Unknown = "Unknown"sv;
+
     Version::Version(std::string&& version, std::string_view splitChars)
     {
         Assign(std::move(version), splitChars);
@@ -42,6 +47,26 @@ namespace AppInstaller::Utility
 
     bool Version::operator<(const Version& other) const
     {
+        // Sort Latest higher than any other values
+        bool thisIsLatest = IsLatest();
+        bool otherIsLatest = other.IsLatest();
+
+        if (thisIsLatest || otherIsLatest)
+        {
+            // If at least one is latest, this can only be less than if the other is and this is not.
+            return (otherIsLatest && !thisIsLatest);
+        }
+
+        // Sort Unknown lower than any known values
+        bool thisIsUnknown = IsUnknown();
+        bool otherIsUnknown = other.IsUnknown();
+
+        if (thisIsUnknown || otherIsUnknown)
+        {
+            // If at least one is unknown, this can only be less than if it is and the other is not.
+            return (thisIsUnknown && !otherIsUnknown);
+        }
+
         for (size_t i = 0; i < m_parts.size(); ++i)
         {
             if (i >= other.m_parts.size())
@@ -106,6 +131,30 @@ namespace AppInstaller::Utility
         return !(*this == other);
     }
 
+    bool Version::IsLatest() const
+    {
+        return (m_parts.size() == 1 && m_parts[0].Integer == 0 && m_parts[0].Other == s_Version_Part_Latest);
+    }
+
+    Version Version::CreateLatest()
+    {
+        Version result;
+        result.m_parts.emplace_back(0, std::string{ s_Version_Part_Latest });
+        return result;
+    }
+
+    bool Version::IsUnknown() const
+    {
+        return (m_parts.size() == 1 && m_parts[0].Integer == 0 && m_parts[0].Other == s_Version_Part_Unknown);
+    }
+
+    Version Version::CreateUnknown()
+    {
+        Version result;
+        result.m_parts.emplace_back(0, std::string{ s_Version_Part_Unknown });
+        return result;
+    }
+
     Version::Part::Part(const std::string& part)
     {
         const char* begin = part.c_str();
@@ -123,6 +172,9 @@ namespace AppInstaller::Utility
             Other = end;
         }
     }
+
+    Version::Part::Part(uint64_t integer, std::string other) :
+        Integer(integer), Other(std::move(other)) {}
 
     bool Version::Part::operator<(const Part& other) const
     {

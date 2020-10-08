@@ -37,12 +37,14 @@ namespace AppInstaller::CLI
 
     void ListCommand::Complete(Execution::Context& context, Execution::Args::Type valueType) const
     {
-        // TODO: Needs work based on implementation of execute!!!
+        context <<
+            Workflow::OpenSource <<
+            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+
         switch (valueType)
         {
         case Execution::Args::Type::Query:
             context <<
-                Workflow::OpenPredefinedSource(Repository::PredefinedSource::Installed) <<
                 Workflow::RequireCompletionWordNonEmpty <<
                 Workflow::SearchSourceForManyCompletion <<
                 Workflow::CompleteWithMatchedField;
@@ -53,7 +55,6 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Tag:
         case Execution::Args::Type::Command:
             context <<
-                Workflow::OpenPredefinedSource(Repository::PredefinedSource::Installed) <<
                 Workflow::CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
             break;
         }

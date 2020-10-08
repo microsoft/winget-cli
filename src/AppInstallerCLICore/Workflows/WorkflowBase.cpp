@@ -10,6 +10,7 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    using namespace std::string_literals;
     using namespace AppInstaller::Utility::literals;
     using namespace AppInstaller::Repository;
 
@@ -291,7 +292,15 @@ namespace AppInstaller::CLI::Workflow
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
         Logging::Telemetry().LogSearchResultCount(searchResult.Matches.size());
 
-        Execution::TableOutput<4> table(context.Reporter, { Resource::String::SearchName, Resource::String::SearchId, Resource::String::SearchVersion, Resource::String::SearchMatch });
+        bool sourceIsComposite = context.Get<Execution::Data::Source>()->IsComposite();
+        Execution::TableOutput<5> table(context.Reporter,
+            {
+                Resource::String::SearchName,
+                Resource::String::SearchId,
+                Resource::String::SearchVersion,
+                Resource::String::SearchMatch,
+                Resource::String::SearchSource
+            });
 
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
@@ -301,7 +310,8 @@ namespace AppInstaller::CLI::Workflow
                 latestVersion->GetProperty(PackageVersionProperty::Name),
                 latestVersion->GetProperty(PackageVersionProperty::Id),
                 latestVersion->GetProperty(PackageVersionProperty::Version),
-                GetMatchCriteriaDescriptor(searchResult.Matches[i])
+                GetMatchCriteriaDescriptor(searchResult.Matches[i]),
+                sourceIsComposite ? static_cast<std::string>(latestVersion->GetProperty(PackageVersionProperty::SourceName)) : ""s
             });
         }
 
@@ -317,7 +327,14 @@ namespace AppInstaller::CLI::Workflow
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
 
-        Execution::TableOutput<5> table(context.Reporter, { Resource::String::SearchName, Resource::String::SearchId, Resource::String::SearchVersion, Resource::String::AvailableHeader });
+        Execution::TableOutput<5> table(context.Reporter,
+            {
+                Resource::String::SearchName,
+                Resource::String::SearchId,
+                Resource::String::SearchVersion,
+                Resource::String::AvailableHeader,
+                Resource::String::SearchSource
+            });
 
         for (const auto& match : searchResult.Matches)
         {
@@ -327,29 +344,20 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto latestVersion = match.Package->GetLatestAvailableVersion();
 
-                Utility::LocIndString name, id, availableVersion;
+                Utility::LocIndString availableVersion, sourceName;
 
-                if (latestVersion)
+                //if (match.Package->IsUpdateAvailable()) // TODO: Uncomment me
                 {
-                    name = latestVersion->GetProperty(PackageVersionProperty::Name);
-                    id = latestVersion->GetProperty(PackageVersionProperty::Id);
-
-                    //if (match.Package->IsUpdateAvailable()) // TODO: Uncomment me
-                    {
-                        availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
-                    }
-                }
-                else
-                {
-                    name = installedVersion->GetProperty(PackageVersionProperty::Name);
-                    id = installedVersion->GetProperty(PackageVersionProperty::Id);
+                    availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
+                    sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
                 }
 
                 table.OutputLine({
-                    name,
-                    id,
+                    match.Package->GetProperty(PackageProperty::Name),
+                    match.Package->GetProperty(PackageProperty::Id),
                     installedVersion->GetProperty(PackageVersionProperty::Version),
-                    availableVersion
+                    availableVersion,
+                    sourceName
                     });
             }
         }

@@ -94,8 +94,7 @@ namespace AppInstaller::Utility
 
     bool CaseInsensitiveEquals(std::string_view a, std::string_view b)
     {
-        // TODO: When we bring in ICU, do this correctly.
-        return ToLower(a) == ToLower(b);
+        return FoldCase(a) == FoldCase(b);
     }
 
     bool CaseInsensitiveStartsWith(std::string_view a, std::string_view b)

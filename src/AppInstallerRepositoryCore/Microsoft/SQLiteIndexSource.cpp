@@ -41,8 +41,10 @@ namespace AppInstaller::Repository::Microsoft
             {
                 switch (property)
                 {
-                case PackageVersionProperty::SourceId:
+                case PackageVersionProperty::SourceIdentifier:
                     return LocIndString{ GetSource()->GetIdentifier() };
+                case PackageVersionProperty::SourceName:
+                    return LocIndString{ GetSource()->GetDetails().Name };
                 default:
                     // Values coming from the index will always be localized/independent.
                     return LocIndString{ GetSource()->GetIndex().GetPropertyByManifestId(m_manifestId, property).value() };
@@ -114,6 +116,21 @@ namespace AppInstaller::Repository::Microsoft
             PackageBase(const std::shared_ptr<const SQLiteIndexSource>& source, SQLiteIndex::IdType idId) :
                 SourceReference(source), m_idId(idId) {}
 
+            Utility::LocIndString GetProperty(PackageProperty property) const
+            {
+                std::shared_ptr<IPackageVersion> truth = GetLatestVersionInternal();
+
+                switch (property)
+                {
+                case PackageProperty::Id:
+                    return truth->GetProperty(PackageVersionProperty::Id);
+                case PackageProperty::Name:
+                    return truth->GetProperty(PackageVersionProperty::Name);
+                default:
+                    THROW_HR(E_UNEXPECTED);
+                }
+            }
+
         protected:
             std::shared_ptr<IPackageVersion> GetLatestVersionInternal() const
             {
@@ -137,6 +154,11 @@ namespace AppInstaller::Repository::Microsoft
             using PackageBase::PackageBase;
 
             // Inherited via IPackage
+            Utility::LocIndString GetProperty(PackageProperty property) const override
+            {
+                return PackageBase::GetProperty(property);
+            }
+
             std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
             {
                 return {};
@@ -192,6 +214,11 @@ namespace AppInstaller::Repository::Microsoft
             using PackageBase::PackageBase;
 
             // Inherited via IPackage
+            Utility::LocIndString GetProperty(PackageProperty property) const override
+            {
+                return PackageBase::GetProperty(property);
+            }
+
             std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
             {
                 return GetLatestVersionInternal();

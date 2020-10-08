@@ -57,7 +57,7 @@ namespace AppInstaller::CLI::Workflow
         {
             if (searchResult.Matches[i].MatchCriteria.Value.empty())
             {
-                OutputCompletionString(stream, searchResult.Matches[i].Package->GetLatestAvailableVersion()->GetProperty(Repository::PackageVersionProperty::Id));
+                OutputCompletionString(stream, searchResult.Matches[i].Package->GetProperty(Repository::PackageProperty::Id));
             }
             else
             {
