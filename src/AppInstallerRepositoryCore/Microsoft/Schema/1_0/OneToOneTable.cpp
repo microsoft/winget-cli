@@ -26,6 +26,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 StatementBuilder createTableBuilder;
 
                 createTableBuilder.CreateTable(tableName).Columns({
+                    IntegerPrimaryKey(),
                     ColumnBuilder(valueName, Type::Text).NotNull()
                     });
 

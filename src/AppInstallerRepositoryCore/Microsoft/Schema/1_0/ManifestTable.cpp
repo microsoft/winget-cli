@@ -240,6 +240,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         StatementBuilder createTableBuilder;
         createTableBuilder.CreateTable(s_ManifestTable_Table_Name).BeginColumns();
 
+        // Add an integer primary key to keep the manifest rowid consistent
+        createTableBuilder.Column(IntegerPrimaryKey());
+
         for (const ManifestColumnInfo& value : values)
         {
             createTableBuilder.Column(ColumnBuilder(value.Name, Type::Int64).NotNull());

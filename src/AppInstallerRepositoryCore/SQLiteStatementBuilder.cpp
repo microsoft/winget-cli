@@ -143,6 +143,20 @@ namespace AppInstaller::Repository::SQLite::Builder
         }
     }
 
+    IntegerPrimaryKey::IntegerPrimaryKey()
+    {
+        m_stream << SQLite::RowIDName << " INTEGER PRIMARY KEY";
+    }
+
+    IntegerPrimaryKey& IntegerPrimaryKey::AutoIncrement(bool isTrue)
+    {
+        if (isTrue)
+        {
+            m_stream << " AUTOINCREMENT";
+        }
+        return *this;
+    }
+
     ColumnBuilder::ColumnBuilder(std::string_view column, Type type)
     {
         OutputColumns(m_stream, "", column);

@@ -97,6 +97,22 @@ namespace AppInstaller::Repository::SQLite::Builder
         Min
     };
 
+    // Helper to mark create an integer primary key for rowid, making it stable across vacuum.
+    struct IntegerPrimaryKey : public details::SubBuilderBase
+    {
+        IntegerPrimaryKey();
+
+        IntegerPrimaryKey(const IntegerPrimaryKey&) = default;
+        IntegerPrimaryKey& operator=(const IntegerPrimaryKey&) = default;
+
+        IntegerPrimaryKey(IntegerPrimaryKey&&) noexcept = default;
+        IntegerPrimaryKey& operator=(IntegerPrimaryKey&&) noexcept = default;
+
+        // Set the column to autoincrement. SQLite recommends against using this value unless
+        // you need to ensure that rowids are not ever reused.
+        IntegerPrimaryKey& AutoIncrement(bool isTrue = true);
+    };
+
     // Helper used when creating a table.
     struct ColumnBuilder : public details::SubBuilderBase
     {
