@@ -11,19 +11,15 @@
 
 using namespace std::filesystem;
 
-std::wstring registrySubkey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
-std::wstring defaultProductID = L"{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}";
+std::wstring_view registrySubkey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
+std::wstring_view defaultProductID = L"{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}";
 
-std::wstring uninstallWideString;
-std::wstring overriddenProductCode;
-
-void GenerateUninstaller() {
+std::wstring GenerateUninstaller() {
     path tempPath = temp_directory_path();
     path uninstallerPath = tempPath;
     uninstallerPath /= "UninstallTestExe.bat";
 
     std::cout << "Uninstaller located at path: " << uninstallerPath << '\n';
-    uninstallWideString = uninstallerPath.wstring();
 
     path uninstallerOutputTextFilePath = tempPath;
     uninstallerOutputTextFilePath /= "TestExeUninstalled.txt";
@@ -33,35 +29,36 @@ void GenerateUninstaller() {
     uninstallerScript << "ECHO. >" << uninstallerOutputTextFilePath << "\n";
     uninstallerScript << "ECHO AppInstallerTestExeInstaller.exe uninstalled successfully.\n";
     uninstallerScript.close();
+
+    return uninstallerPath.wstring();
 }
 
-void WriteToUninstallRegistry() {
+void WriteToUninstallRegistry(std::wstring productID, std::wstring uninstallerPath) {
     HKEY hkey;
     LONG lReg;
 
     // String inputs to registry must be of wide char type
     const wchar_t* displayName = L"AppInstallerTestExeInstaller\0";
     const wchar_t* publisher = L"Microsoft Corporation\0";
-    const wchar_t* uninstallString = uninstallWideString.c_str();
+    const wchar_t* uninstallString = uninstallerPath.c_str();
     DWORD version = 1;
-    DWORD windowsInstaller = 1;
 
-    std::wstring productCode;
+    std::wstring registryKey = (std::wstring)registrySubkey;
 
-    if (!overriddenProductCode.empty()) 
+    if (!productID.empty()) 
     {
-        productCode = registrySubkey + overriddenProductCode;
-        std::wcout << "Product Code Overrided to: " << productCode.c_str() << "\n";
+        registryKey += productID;
+        std::wcout << "Product Code Overrided to: " << registryKey.c_str() << "\n";
     }
     else 
     {
-        productCode = registrySubkey + defaultProductID;
-        std::wcout << "Default Product Code Used: " << productCode.c_str() << "\n";
+        registryKey += defaultProductID;
+        std::wcout << "Default Product Code Used: " << registryKey.c_str() << "\n";
     }
 
     lReg = RegCreateKeyEx(
         HKEY_LOCAL_MACHINE,
-        productCode.c_str(),
+        registryKey.c_str(),
         0,
         NULL,
         REG_OPTION_NON_VOLATILE,
@@ -72,25 +69,36 @@ void WriteToUninstallRegistry() {
 
     if (lReg == ERROR_SUCCESS) {
 
-        std::cout << "Successfully opened registry key";
-        try {
-            // Set Display Name Property Value
-            RegSetValueEx(hkey, L"DisplayName", NULL, REG_SZ, (LPBYTE)displayName, (DWORD)(wcslen(displayName) + 1)*sizeof(wchar_t));
-            // Set Publisher Property Value
-            RegSetValueEx(hkey, L"Publisher", NULL, REG_SZ, (LPBYTE)publisher, (DWORD)(wcslen(publisher) + 1) * sizeof(wchar_t));
-            // Set UninstallString Property Value
-            RegSetValueEx(hkey, L"UninstallString", NULL, REG_EXPAND_SZ, (LPBYTE)uninstallString, (DWORD)wcslen(uninstallString + 1)*sizeof(wchar_t*));
-            // Set Version Property Value
-            RegSetValueEx(hkey, L"Version", NULL, REG_DWORD, (LPBYTE)&version, sizeof(version));
-            // Set WindowsInstaller Property Value
-            RegSetValueEx(hkey, L"WindowsInstaller", NULL, REG_DWORD, (LPBYTE)&windowsInstaller, sizeof(windowsInstaller));
+        std::cout << "Successfully opened registry key \n";
+
+        // Set Display Name Property Value
+        if (RegSetValueEx(hkey, L"DisplayName", NULL, REG_SZ, (LPBYTE)displayName, (DWORD)(wcslen(displayName) + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
+        {
+            std::cout << "Failed to write DisplayName value \n";
         }
-        catch (int e) {
-            std::cout << "An exception occurred " << e << '\n';
-        };
+
+        // Set Publisher Property Value
+        if (RegSetValueEx(hkey, L"Publisher", NULL, REG_SZ, (LPBYTE)publisher, (DWORD)(wcslen(publisher) + 1) * sizeof(wchar_t)) != ERROR_SUCCESS) 
+        {
+            std::cout << "Failed to write Publisher value \n";
+        }
+
+        // Set UninstallString Property Value
+        if (RegSetValueEx(hkey, L"UninstallString", NULL, REG_EXPAND_SZ, (LPBYTE)uninstallString, (DWORD)wcslen(uninstallString + 1) * sizeof(wchar_t*)) != ERROR_SUCCESS) 
+        {
+            std::cout << "Failed to write UninstallString value \n";
+        }
+
+        // Set Version Property Value
+        if (RegSetValueEx(hkey, L"Version", NULL, REG_DWORD, (LPBYTE)&version, sizeof(version)) != ERROR_SUCCESS) 
+        {
+            std::cout << "Failed to write Version value \n";
+        }
+
+        std::cout << "Write to registry key completed \n";
     }
     else {
-        std::cout << "Key Creation Failed";
+        std::cout << "Key Creation Failed\n";
     }
 
     RegCloseKey(hkey);
@@ -102,6 +110,7 @@ int main(int argc, const char** argv)
     path outFilePath = temp_directory_path();
     std::wstringstream productCodeStream;
     std::stringstream outContent;
+    std::wstring productCode;
 
     for (int i = 1; i < argc; i++)
     {
@@ -117,7 +126,6 @@ int main(int argc, const char** argv)
         // Supports custom product code ID
         if (_stricmp(argv[i], "/ProductID") == 0 && ++i < argc)
         {
-            std::cout << argc;
             productCodeStream << argv[i];
         }
     }
@@ -131,12 +139,12 @@ int main(int argc, const char** argv)
 
     if (!productCodeStream.str().empty()) 
     {
-        overriddenProductCode = productCodeStream.str();
+        productCode = productCodeStream.str();
     }
     
-    GenerateUninstaller();
+    std::wstring uninstallerPath = GenerateUninstaller();
 
-    WriteToUninstallRegistry();
+    WriteToUninstallRegistry(productCode, uninstallerPath);
    
     return 0;
 }

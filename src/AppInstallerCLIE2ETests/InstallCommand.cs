@@ -10,9 +10,6 @@ namespace AppInstallerCLIE2ETests
     {
         private const string InstallTestSourceName = @"InstallTestSource";
         private const string InstallTestSourceUrl = @"https://localhost:5001/TestKit";
-        private const string DefaultTestSourceName = @"winget";
-        private const string DefaultTestSourceUrl = @"https://winget.azureedge.net/cache";
-
         private const string InstallTestExeInstalledFile = @"TestExeInstalled.txt";
         private const string InstallTestMsiInstalledFile = @"AppInstallerTestMsiInstaller.msi";
         private const string InstallTestMsiProductId = @"{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
@@ -21,16 +18,13 @@ namespace AppInstallerCLIE2ETests
         [SetUp]
         public void Setup()
         {
-            TestCommon.RunAICLICommand("source remove", DefaultTestSourceName);
             Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{InstallTestSourceName} {InstallTestSourceUrl}").ExitCode);
-            
         }
 
         [TearDown]
         public void TearDown()
         {
             TestCommon.RunAICLICommand("source remove", InstallTestSourceName);
-            TestCommon.RunAICLICommand("source add", $"{DefaultTestSourceName} {DefaultTestSourceUrl}");
             TestCommon.WaitForDeploymentFinish();
         }
 

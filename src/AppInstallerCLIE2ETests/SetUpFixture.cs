@@ -11,6 +11,8 @@ namespace AppInstallerCLIE2ETests
     [SetUpFixture]
     public class SetUpFixture
     {
+        private const string DefaultTestSourceName = @"winget";
+        private const string DefaultTestSourceUrl = @"https://winget.azureedge.net/cache";
         private static bool ShouldDisableDevModeOnExit = true;
         private static bool ShouldRevertDefaultFileTypeRiskOnExit = true;
         private static string DefaultFileTypes = string.Empty;
@@ -98,6 +100,8 @@ namespace AppInstallerCLIE2ETests
             ReadTestInstallerPaths();
 
             TestIndexSetup.GenerateTestDirectory();
+
+            TestCommon.RunAICLICommand("source remove", DefaultTestSourceName);
         }
 
         [OneTimeTearDown]
@@ -120,6 +124,8 @@ namespace AppInstallerCLIE2ETests
             {
                 TestCommon.RemoveMsix(Constants.AICLIPackageName);
             }
+
+            TestCommon.RunAICLICommand("source add", $"{DefaultTestSourceName} {DefaultTestSourceUrl}");
         }
 
         // Returns whether there's a change to the dev mode state after execution

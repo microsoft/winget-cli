@@ -27,7 +27,7 @@
 	  <Parameter name="LooseFileRegistration" value="false" />
 	  <Parameter name="InvokeCommandInDesktopPackage" value="false" />
 	  <Parameter name="StaticFileRootPath" value="\TestLocalIndex" />
-	  <Parameter name="MsixTestInstallerPath" value="MsixTestInstaller.msix" />
+	  <Parameter name="MsixTestInstallerPath" value="MsixTestInstaller.exe" />
 	  <Parameter name="ExeTestInstallerPath" value="ExeTestInstaller.exe" />
 	  <Parameter name="PackageCertificatePath" value="certificate.pfx"/>
   </TestRunParameters>
