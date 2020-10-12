@@ -7,29 +7,11 @@ namespace AppInstallerCLIE2ETests
 
     public class ShowCommand
     {
-        private const string ShowTestSourceName = @"ShowTestSource";
-        private const string ShowTestSourceUrl = @"https://localhost:5001/TestKit";
-
-
-        [SetUp]
-        public void Setup()
-        {
-            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{ShowTestSourceName} {ShowTestSourceUrl}").ExitCode);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            TestCommon.RunAICLICommand("source remove", ShowTestSourceName);
-
-            TestCommon.WaitForDeploymentFinish();
-        }
-
         [Test]
         public void ShowWithNoArgs()
         {
             // Show with no arg lists every app and a warning message
-            var result = TestCommon.RunAICLICommand("show", $"-s {ShowTestSourceName}");
+            var result = TestCommon.RunAICLICommand("show", "");
             Assert.AreEqual(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("Multiple packages found matching input criteria. Please refine the input."));
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
@@ -41,7 +23,7 @@ namespace AppInstallerCLIE2ETests
         public void ShowWithNoMatches()
         {
             // Show with 0 search match shows a "please refine input"
-            var result = TestCommon.RunAICLICommand("show", $"DoesNotExist -s {ShowTestSourceName}");
+            var result = TestCommon.RunAICLICommand("show", $"DoesNotExist");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }
@@ -50,7 +32,7 @@ namespace AppInstallerCLIE2ETests
         public void ShowWithSubstringMatch()
         {
             // Show with a substring match still returns 0 results
-            var result = TestCommon.RunAICLICommand("show", $"AppInstallerTest -s {ShowTestSourceName}");
+            var result = TestCommon.RunAICLICommand("show", $"AppInstallerTest");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }
@@ -58,7 +40,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ShowWithNameMatch()
         {
-            var result = TestCommon.RunAICLICommand("show", $"--name testexampleinstaller -s {ShowTestSourceName}");
+            var result = TestCommon.RunAICLICommand("show", $"--name testexampleinstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
             Assert.True(result.StdOut.Contains("TestExampleInstaller"));
@@ -68,7 +50,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ShowWithIDMatch()
         { 
-            var result = TestCommon.RunAICLICommand("show", $"--id appinstallertest.testexampleinstaller -s {ShowTestSourceName}");
+            var result = TestCommon.RunAICLICommand("show", $"--id appinstallertest.testexampleinstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
             Assert.True(result.StdOut.Contains("TestExampleInstaller"));
@@ -79,7 +61,7 @@ namespace AppInstallerCLIE2ETests
         public void ShowWithVersions()
         {
             // Show with --versions list the versions
-            var result = TestCommon.RunAICLICommand("show", $"TestExampleInstaller --versions -s {ShowTestSourceName}");
+            var result = TestCommon.RunAICLICommand("show", $"TestExampleInstaller --versions");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("TestExampleInstaller"));
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
@@ -89,7 +71,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ShowWithExactName()
         {
-            var result = TestCommon.RunAICLICommand("show", $"--exact TestExampleInstaller -s {ShowTestSourceName}");
+            var result = TestCommon.RunAICLICommand("show", $"--exact TestExampleInstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
             Assert.True(result.StdOut.Contains("TestExampleInstaller"));
@@ -99,7 +81,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ShowWithExactID()
         {
-            var result = TestCommon.RunAICLICommand("show", $"--exact AppInstallerTest.TestExampleInstaller -s {ShowTestSourceName}");
+            var result = TestCommon.RunAICLICommand("show", $"--exact AppInstallerTest.TestExampleInstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
             Assert.True(result.StdOut.Contains("TestExampleInstaller"));
@@ -109,7 +91,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ShowWithExactArgCaseSensitivity()
         {
-            var result = TestCommon.RunAICLICommand("show", $"--exact testexampleinstaller -s {ShowTestSourceName}");
+            var result = TestCommon.RunAICLICommand("show", $"--exact testexampleinstaller");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }

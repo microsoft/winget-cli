@@ -8,25 +8,10 @@ namespace AppInstallerCLIE2ETests
 
     public class InstallCommand
     {
-        private const string InstallTestSourceName = @"InstallTestSource";
-        private const string InstallTestSourceUrl = @"https://localhost:5001/TestKit";
         private const string InstallTestExeInstalledFile = @"TestExeInstalled.txt";
         private const string InstallTestMsiInstalledFile = @"AppInstallerTestMsiInstaller.msi";
         private const string InstallTestMsiProductId = @"{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
         private const string InstallTestMsixName = @"6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
-
-        [SetUp]
-        public void Setup()
-        {
-            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{InstallTestSourceName} {InstallTestSourceUrl}").ExitCode);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            TestCommon.RunAICLICommand("source remove", InstallTestSourceName);
-            TestCommon.WaitForDeploymentFinish();
-        }
 
         [Test]
         public void InstallAppDoesNotExist()
@@ -116,8 +101,6 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Successfully installed"));
             Assert.True(VerifyTestMsiInstalledAndCleanup(installDir));
         }
-
-        
 
         [Test]
         public void InstallMSIX()

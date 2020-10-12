@@ -7,27 +7,10 @@ namespace AppInstallerCLIE2ETests
 
     public class SearchCommand
     {
-        private const string SearchTestSourceName = @"SearchTestSource";
-        private const string SearchTestSourceUrl = @"https://localhost:5001/TestKit";
-
-        [SetUp]
-        public void Setup()
-        {
-            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{SearchTestSourceName} {SearchTestSourceUrl}").ExitCode);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            TestCommon.RunAICLICommand("source remove", SearchTestSourceName);
-
-            TestCommon.WaitForDeploymentFinish();
-        }
-
         [Test]
         public void SearchWithoutArgs()
         {
-            var result = TestCommon.RunAICLICommand("search", $"-s {SearchTestSourceName}");
+            var result = TestCommon.RunAICLICommand("search", "");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestBurnInstaller"));

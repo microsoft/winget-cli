@@ -7,22 +7,6 @@ namespace AppInstallerCLIE2ETests
 
     public class ListCommand
     {
-        private const string ListTestSourceName = @"ListTestSource";
-        private const string ListTestSourceUrl = @"https://localhost:5001/TestKit";
-
-        [SetUp]
-        public void Setup()
-        {
-            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{ListTestSourceName} {ListTestSourceUrl}").ExitCode);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            TestCommon.RunAICLICommand("source remove", ListTestSourceName);
-            TestCommon.WaitForDeploymentFinish();
-        }
-
         //[Test]
         public void List()
         {

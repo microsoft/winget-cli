@@ -8,24 +8,7 @@ namespace AppInstallerCLIE2ETests
 
     public class UninstallCommand
     {
-        private const string UninstallTestSourceName = @"InstallTestSource";
-        private const string UninstallTestSourceUrl = @"https://localhost:5001/TestKit";
-
         private const string UninstallTestExeInstalledFile = @"TestExeUninstalled.txt";
-
-        [SetUp]
-        public void Setup()
-        {
-            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{UninstallTestSourceName} {UninstallTestSourceUrl}").ExitCode);
-
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            TestCommon.RunAICLICommand("source remove", UninstallTestSourceName);
-            TestCommon.WaitForDeploymentFinish();
-        }
 
         //[Test]
         public void UninstallTestExe()

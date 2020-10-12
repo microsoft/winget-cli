@@ -248,7 +248,7 @@ jobs:
     displayName: Show files in localappdata directory
     inputs:
       script: |
-        cd C:\Users\VssAdministrator\AppData\Local
+        cd %LOCALAPPDATA%
         dir /s
     condition: succeededOrFailed()
 
@@ -272,7 +272,7 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: Publish E2E Tests Packaged x64 Log
     inputs:
-      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState'
+      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir'
       ArtifactName: 'E2ETestPackagedLog'
       publishLocation: 'Container'
     condition: succeededOrFailed()
@@ -307,7 +307,7 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: Publish E2E Tests Packaged x86 Log
     inputs:
-      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState'
+      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir'
       ArtifactName: 'E2ETestPackagedLog'
       publishLocation: 'Container'
     condition: succeededOrFailed()  
