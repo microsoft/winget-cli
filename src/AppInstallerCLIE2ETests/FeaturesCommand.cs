@@ -11,7 +11,7 @@ namespace AppInstallerCLIE2ETests
 
     public class FeaturesCommand
     {
-        private const string SettingsJsonFilePath = @"Microsoft\WinGet\Settings\settings.json";
+        private const string SettingsJsonFilePath = @"Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json";
         private const string LocalAppData = "LocalAppData";
 
         [SetUp]
