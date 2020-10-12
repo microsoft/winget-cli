@@ -244,6 +244,14 @@ jobs:
 #                                  -AICLIPath $(system.defaultWorkingDirectory)\src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'
 #    condition: succeededOrFailed()
 
+  - task: CmdLine@2
+    displayName: Show files in localappdata directory
+    inputs:
+      script: |
+        cd C:\Users\VssAdministrator\AppData\Local
+        dir /s
+    condition: succeededOrFailed()
+
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x64
     inputs:
@@ -259,6 +267,14 @@ jobs:
                                   -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
                                   -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x64\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
+    condition: succeededOrFailed()
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish E2E Tests Packaged x64 Log
+    inputs:
+      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState'
+      ArtifactName: 'E2ETestPackagedLog'
+      publishLocation: 'Container'
     condition: succeededOrFailed()
 
 #  - task: VSTest@2
@@ -287,7 +303,15 @@ jobs:
                                   -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
     condition: succeededOrFailed()
-  
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish E2E Tests Packaged x86 Log
+    inputs:
+      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState'
+      ArtifactName: 'E2ETestPackagedLog'
+      publishLocation: 'Container'
+    condition: succeededOrFailed()  
+
   - task: PublishBuildArtifacts@1
     displayName: Publish CLI Binary
     inputs:
