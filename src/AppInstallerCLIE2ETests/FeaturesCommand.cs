@@ -45,7 +45,6 @@ namespace AppInstallerCLIE2ETests
             ConfigureFeature("experimentalMSStore", true);
             var result = TestCommon.RunAICLICommand("features", "");
             Assert.True(result.StdOut.Contains("Enabled"));
-            Assert.False(result.StdOut.Contains("Disabled"));
         }
 
         private void ConfigureFeature(string featureName, bool status)

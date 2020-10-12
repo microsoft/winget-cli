@@ -125,7 +125,7 @@ namespace AppInstallerCLIE2ETests
                 TestCommon.RemoveMsix(Constants.AICLIPackageName);
             }
 
-            TestCommon.RunAICLICommand("source add", $"{DefaultTestSourceName} {DefaultTestSourceUrl}");
+            TestCommon.RunAICLICommand("source reset", "--force");
         }
 
         // Returns whether there's a change to the dev mode state after execution

@@ -33,7 +33,7 @@ std::wstring GenerateUninstaller() {
     return uninstallerPath.wstring();
 }
 
-void WriteToUninstallRegistry(std::wstring productID, std::wstring uninstallerPath) {
+void WriteToUninstallRegistry(const std::wstring& productID, const std::wstring& uninstallerPath) {
     HKEY hkey;
     LONG lReg;
 
@@ -72,27 +72,27 @@ void WriteToUninstallRegistry(std::wstring productID, std::wstring uninstallerPa
         std::cout << "Successfully opened registry key \n";
 
         // Set Display Name Property Value
-        if (RegSetValueEx(hkey, L"DisplayName", NULL, REG_SZ, (LPBYTE)displayName, (DWORD)(wcslen(displayName) + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
+        if (LONG res = RegSetValueEx(hkey, L"DisplayName", NULL, REG_SZ, (LPBYTE)displayName, (DWORD)(wcslen(displayName) + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
         {
-            std::cout << "Failed to write DisplayName value \n";
+            std::cout << "Failed to write DisplayName value. Error Code: " << res << "\n";
         }
 
         // Set Publisher Property Value
-        if (RegSetValueEx(hkey, L"Publisher", NULL, REG_SZ, (LPBYTE)publisher, (DWORD)(wcslen(publisher) + 1) * sizeof(wchar_t)) != ERROR_SUCCESS) 
+        if (LONG res = RegSetValueEx(hkey, L"Publisher", NULL, REG_SZ, (LPBYTE)publisher, (DWORD)(wcslen(publisher) + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
         {
-            std::cout << "Failed to write Publisher value \n";
+            std::cout << "Failed to write Publisher value. Error Code: " << res << "\n";
         }
 
         // Set UninstallString Property Value
-        if (RegSetValueEx(hkey, L"UninstallString", NULL, REG_EXPAND_SZ, (LPBYTE)uninstallString, (DWORD)wcslen(uninstallString + 1) * sizeof(wchar_t*)) != ERROR_SUCCESS) 
+        if (LONG res = RegSetValueEx(hkey, L"UninstallString", NULL, REG_EXPAND_SZ, (LPBYTE)uninstallString, (DWORD)wcslen(uninstallString + 1) * sizeof(wchar_t*)) != ERROR_SUCCESS)
         {
-            std::cout << "Failed to write UninstallString value \n";
+            std::cout << "Failed to write UninstallString value. Error Code: " << res << "\n";
         }
 
         // Set Version Property Value
-        if (RegSetValueEx(hkey, L"Version", NULL, REG_DWORD, (LPBYTE)&version, sizeof(version)) != ERROR_SUCCESS) 
+        if (LONG res = RegSetValueEx(hkey, L"Version", NULL, REG_DWORD, (LPBYTE)&version, sizeof(version)) != ERROR_SUCCESS)
         {
-            std::cout << "Failed to write Version value \n";
+            std::cout << "Failed to write Version value. Error Code: " << res << "\n";
         }
 
         std::cout << "Write to registry key completed \n";
