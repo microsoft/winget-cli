@@ -228,16 +228,5 @@ namespace AppInstallerCLIE2ETests
         {
             return RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage");
         }
-
-        public static void WaitForDeploymentFinish()
-        {
-            if (PackagedContext)
-            {
-                // Since we are doing a lot index add/remove, and some of the methods are fire and forget.
-                // Sometimes process start will fail because app is updating.
-                // Or index package is not completely added, removed.
-                Thread.Sleep(5000);
-            }
-        }
     }
 }

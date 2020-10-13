@@ -58,7 +58,7 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("source list", $"-n {Constants.TestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("SourceTestSource"));
+            Assert.True(result.StdOut.Contains("TestSource"));
             Assert.True(result.StdOut.Contains("https://localhost:5001/TestKit"));
             Assert.True(result.StdOut.Contains("Microsoft.PreIndexed.Package"));
             Assert.True(result.StdOut.Contains("Updated"));
@@ -94,7 +94,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("source remove", $"-n {Constants.TestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
-            TestCommon.RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
+            ResetTestSource();
         }
 
         [Test]
@@ -110,7 +110,7 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("source reset", "");
             Assert.True(result.StdOut.Contains("The following sources will be reset if the --force option is given:"));
-            Assert.True(result.StdOut.Contains("SourceTestSource"));
+            Assert.True(result.StdOut.Contains("TestSource"));
             Assert.True(result.StdOut.Contains("https://localhost:5001/TestKit"));
         }
 
@@ -128,6 +128,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("https://winget.azureedge.net/cache"));
             Assert.False(result.StdOut.Contains($"{Constants.TestSourceName}"));
             Assert.False(result.StdOut.Contains($"{Constants.TestSourceUrl}"));
+            ResetTestSource();
         }
     }
 }
