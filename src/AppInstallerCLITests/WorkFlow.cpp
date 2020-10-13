@@ -339,7 +339,9 @@ namespace
 
         std::unique_ptr<Context> Clone() override
         {
-            return std::make_unique<TestContext>(m_out, m_in, m_overrides);
+            auto clone = std::make_unique<TestContext>(m_out, m_in, m_overrides);
+            clone->GetFlags() = this->GetFlags();
+            return clone;
         }
 
     private:

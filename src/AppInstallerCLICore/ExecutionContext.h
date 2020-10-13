@@ -60,7 +60,7 @@ namespace AppInstaller::CLI::Execution
     enum class ContextFlag : int
     {
         None = 0x0,
-        InstallerExecutionUseUpdate,
+        InstallerExecutionUseUpdate = 0x1,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);

@@ -61,7 +61,7 @@ namespace AppInstaller::CLI::Workflow
         // Gets the escaped installer args.
         std::string GetInstallerArgsTemplate(Execution::Context& context)
         {
-            bool isUpdate = (context.GetFlags() & Execution::ContextFlag::InstallerExecutionUseUpdate) != Execution::ContextFlag::None;
+            bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
 
             const auto& installer = context.Get<Execution::Data::Installer>();
             const auto& installerSwitches = installer->Switches;

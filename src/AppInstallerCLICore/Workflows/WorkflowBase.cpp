@@ -296,7 +296,7 @@ namespace AppInstaller::CLI::Workflow
         {
             Logging::Telemetry().LogNoAppMatch();
 
-            if ((context.GetFlags() & Execution::ContextFlag::InstallerExecutionUseUpdate) != Execution::ContextFlag::None)
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate))
             {
                 context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
             }
@@ -321,7 +321,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                if ((context.GetFlags() & Execution::ContextFlag::InstallerExecutionUseUpdate) != Execution::ContextFlag::None)
+                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate))
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
                 }
@@ -435,7 +435,7 @@ namespace AppInstaller::CLI::Workflow
 
     void SelectInstaller(Execution::Context& context)
     {
-        bool isUpdate = (context.GetFlags() & Execution::ContextFlag::InstallerExecutionUseUpdate) != Execution::ContextFlag::None;
+        bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
 
         std::map<std::string, std::string> installationMetadata;
         if (isUpdate)

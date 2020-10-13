@@ -58,9 +58,26 @@ namespace AppInstaller::CLI
         return "https://aka.ms/winget-command-upgrade";
     }
 
+    void UpgradeCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        if (execArgs.Contains(Execution::Args::Type::Manifest) &&
+            (execArgs.Contains(Execution::Args::Type::Query) ||
+             execArgs.Contains(Execution::Args::Type::Id) ||
+             execArgs.Contains(Execution::Args::Type::Name) ||
+             execArgs.Contains(Execution::Args::Type::Moniker) ||
+             execArgs.Contains(Execution::Args::Type::Version) ||
+             execArgs.Contains(Execution::Args::Type::Channel) ||
+             execArgs.Contains(Execution::Args::Type::Source) ||
+             execArgs.Contains(Execution::Args::Type::Exact) ||
+             execArgs.Contains(Execution::Args::Type::All)))
+        {
+            throw CommandException(Resource::String::BothManifestAndSearchQueryProvided, "");
+        }
+    }
+
     void UpgradeCommand::ExecuteInternal(Execution::Context& context) const
     {
-        context.GetFlags() |= Execution::ContextFlag::InstallerExecutionUseUpdate;
+        WI_SetFlag(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
 
         context <<
             OpenSource <<

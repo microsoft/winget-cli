@@ -727,20 +727,6 @@ namespace AppInstaller::CLI
         {
             throw CommandException(Resource::String::TooManyBehaviorsError, s_Command_ArgName_SilentAndInteractive);
         }
-
-        if (execArgs.Contains(Execution::Args::Type::Manifest) &&
-            (execArgs.Contains(Execution::Args::Type::Query) ||
-             execArgs.Contains(Execution::Args::Type::Id) ||
-             execArgs.Contains(Execution::Args::Type::Name) ||
-             execArgs.Contains(Execution::Args::Type::Moniker) ||
-             execArgs.Contains(Execution::Args::Type::Version) ||
-             execArgs.Contains(Execution::Args::Type::Channel) ||
-             execArgs.Contains(Execution::Args::Type::Source) ||
-             execArgs.Contains(Execution::Args::Type::Exact) ||
-             execArgs.Contains(Execution::Args::Type::All)))
-        {
-            throw CommandException(Resource::String::BothManifestAndSearchQueryProvided, "");
-        }
     }
 
     void Command::ExecuteInternal(Execution::Context& context) const
