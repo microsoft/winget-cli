@@ -346,7 +346,7 @@ namespace AppInstaller::CLI::Workflow
 
                 Utility::LocIndString availableVersion, sourceName;
 
-                //if (match.Package->IsUpdateAvailable()) // TODO: Uncomment me
+                if (match.Package->IsUpdateAvailable())
                 {
                     availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
                     sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);

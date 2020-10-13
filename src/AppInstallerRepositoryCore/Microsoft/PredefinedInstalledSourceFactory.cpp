@@ -37,14 +37,12 @@ namespace AppInstaller::Repository::Microsoft
             manifest.Tags = { "msix" };
 
             // Fields in the index but not populated:
-            //  AppMoniker - Not sure what we 
+            //  AppMoniker - Not sure what we would put.
             //  Channel - We don't know this information here.
             //  Commands - We could open the manifest and look for these eventually.
             //  Tags - Not sure what else we could put in here.
             for (const auto& package : packages)
             {
-                // TODO: Determine if we need to filter out certain classes of packages.
-
                 // System packages are part of the OS, and cannot be managed by the user.
                 // Filter them out as there is no point in showing them in a package manager.
                 auto signatureKind = package.SignatureKind();
