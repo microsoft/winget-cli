@@ -234,15 +234,30 @@ jobs:
       arguments: '-BuildRoot $(system.defaultWorkingDirectory)\src\x86\Release\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
     condition: succeededOrFailed()
 
-#  - task: VSTest@2
-#    displayName: Run E2E Tests Unpackaged x64
-#    inputs:
-#      testSelector: 'testAssemblies'
-#      testAssemblyVer2: 'src\x64\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
-#      runSettingsFile: 'src\x64\Release\AppInstallerCLIE2ETests\Test.runsettings'
-#      overrideTestrunParameters: '-PackagedContext false
-#                                  -AICLIPath $(system.defaultWorkingDirectory)\src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'
-#    condition: succeededOrFailed()
+  - task: VSTest@2
+    displayName: Run E2E Tests Packaged x86
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: 'src\x86\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
+      runSettingsFile: 'src\x86\Release\AppInstallerCLIE2ETests\Test.runsettings'
+      overrideTestrunParameters: '-PackagedContext true
+                                  -AICLIPackagePath $(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x86\Release
+                                  -AICLIPath AppInstallerCLI\AppInstallerCLI.exe
+                                  -LooseFileRegistration true
+                                  -InvokeCommandInDesktopPackage true
+                                  -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
+                                  -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
+                                  -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
+                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
+    condition: succeededOrFailed()
+    
+  - task: PublishBuildArtifacts@1
+    displayName: Publish E2E Tests Packaged x86 Log
+    inputs:
+      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir'
+      ArtifactName: 'E2ETestPackagedx86Log'
+      publishLocation: 'Container'
+    condition: succeededOrFailed()  
 
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x64
@@ -266,41 +281,6 @@ jobs:
     inputs:
       PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir'
       ArtifactName: 'E2ETestPackagedx64Log'
-      publishLocation: 'Container'
-    condition: succeededOrFailed()  
-
-#  - task: VSTest@2
-#    displayName: Run E2E Tests Unpackaged x86
-#    inputs:
-#      testSelector: 'testAssemblies'
-#      testAssemblyVer2: 'src\x86\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
-#      runSettingsFile: 'src\x86\Release\AppInstallerCLIE2ETests\Test.runsettings'
-#      overrideTestrunParameters: '-PackagedContext false
-#                                  -AICLIPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerCLI\AppInstallerCLI.exe'
-#    condition: succeededOrFailed()
-
-  - task: VSTest@2
-    displayName: Run E2E Tests Packaged x86
-    inputs:
-      testSelector: 'testAssemblies'
-      testAssemblyVer2: 'src\x86\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
-      runSettingsFile: 'src\x86\Release\AppInstallerCLIE2ETests\Test.runsettings'
-      overrideTestrunParameters: '-PackagedContext true
-                                  -AICLIPackagePath $(system.defaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\x86\Release
-                                  -AICLIPath AppInstallerCLI\AppInstallerCLI.exe
-                                  -LooseFileRegistration true
-                                  -InvokeCommandInDesktopPackage true
-                                  -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
-                                  -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
-                                  -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
-                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
-    condition: succeededOrFailed()
-    
-  - task: PublishBuildArtifacts@1
-    displayName: Publish E2E Tests Packaged x86 Log
-    inputs:
-      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir'
-      ArtifactName: 'E2ETestPackagedx86Log'
       publishLocation: 'Container'
     condition: succeededOrFailed()  
 
