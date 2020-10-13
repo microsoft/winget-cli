@@ -261,13 +261,6 @@ jobs:
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
     condition: succeededOrFailed()
 
-  - task: CmdLine@2
-    displayName: Show files in localappdata directory
-    inputs:
-      script: dir /s
-      workingDirectory: %LOCALAPPDATA%
-    condition: succeededOrFailed()
-
 #  - task: PublishBuildArtifacts@1
 #    displayName: Publish E2E Tests Packaged x64 Log
 #    inputs:
