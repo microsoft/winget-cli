@@ -104,6 +104,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         StatementBuilder createTableBuilder;
         createTableBuilder.CreateTable(s_PathPartTable_Table_Name).Columns({
+            IntegerPrimaryKey(),
             ColumnBuilder(s_PathPartTable_ParentValue_Name, Type::Int64),
             ColumnBuilder(s_PathPartTable_PartValue_Name, Type::Text).NotNull()
             });
