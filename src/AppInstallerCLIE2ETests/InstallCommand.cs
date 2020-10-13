@@ -6,7 +6,7 @@ namespace AppInstallerCLIE2ETests
     using NUnit.Framework;
     using System.IO;
 
-    public class InstallCommand
+    public class InstallCommand : BaseCommand
     {
         private const string InstallTestExeInstalledFile = @"TestExeInstalled.txt";
         private const string InstallTestMsiInstalledFile = @"AppInstallerTestMsiInstaller.msi";

@@ -5,7 +5,7 @@ namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
 
-    public class ShowCommand
+    public class ShowCommand : BaseCommand
     {
         [Test]
         public void ShowWithNoArgs()

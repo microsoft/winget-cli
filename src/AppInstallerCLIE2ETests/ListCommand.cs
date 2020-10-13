@@ -5,7 +5,7 @@ namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
 
-    public class ListCommand
+    public class ListCommand : BaseCommand
     {
         //[Test]
         public void List()

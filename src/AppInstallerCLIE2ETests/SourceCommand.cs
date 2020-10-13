@@ -5,28 +5,12 @@ namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
 
-    public class SourceCommand
+    public class SourceCommand : BaseCommand
     {
-        private const string SourceTestSourceName = @"SourceTestSource";
-        private const string SourceTestSourceUrl = @"https://localhost:5001/TestKit";
-
-        [SetUp]
-        public void Setup()
-        {
-            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{SourceTestSourceName} {SourceTestSourceUrl}").ExitCode);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            TestCommon.RunAICLICommand("source remove", SourceTestSourceName);
-            TestCommon.WaitForDeploymentFinish();
-        }
-
         [Test]
         public void SourceAdd()
         {
-            var result = TestCommon.RunAICLICommand("source add", $"SourceTest {SourceTestSourceUrl}");
+            var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
             TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
@@ -36,7 +20,7 @@ namespace AppInstallerCLIE2ETests
         public void SourceAddWithDuplicateName()
         {
             // Add source with duplicate name should fail
-            var result = TestCommon.RunAICLICommand("source add", $"{SourceTestSourceName} https://microsoft.com");
+            var result = TestCommon.RunAICLICommand("source add", $"{Constants.TestSourceName} https://microsoft.com");
             Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_ALREADY_EXISTS, result.ExitCode);
             Assert.True(result.StdOut.Contains("A source with the given name already exists and refers to a different location"));
         }
@@ -72,7 +56,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void SourceListWithName()
         {
-            var result = TestCommon.RunAICLICommand("source list", $"-n {SourceTestSourceName}");
+            var result = TestCommon.RunAICLICommand("source list", $"-n {Constants.TestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("SourceTestSource"));
             Assert.True(result.StdOut.Contains("https://localhost:5001/TestKit"));
@@ -91,7 +75,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void SourceUpdate()
         {
-            var result = TestCommon.RunAICLICommand("source update", $"-n {SourceTestSourceName}");
+            var result = TestCommon.RunAICLICommand("source update", $"-n {Constants.TestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
         }
@@ -107,9 +91,10 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void SourceRemoveValidName()
         {
-            var result = TestCommon.RunAICLICommand("source remove", $"-n {SourceTestSourceName}");
+            var result = TestCommon.RunAICLICommand("source remove", $"-n {Constants.TestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
+            TestCommon.RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
         }
 
         [Test]
@@ -141,8 +126,8 @@ namespace AppInstallerCLIE2ETests
             result = TestCommon.RunAICLICommand("source list", "");
             Assert.True(result.StdOut.Contains("winget"));
             Assert.True(result.StdOut.Contains("https://winget.azureedge.net/cache"));
-            Assert.False(result.StdOut.Contains($"{SourceTestSourceName}"));
-            Assert.False(result.StdOut.Contains($"{SourceTestSourceUrl}"));
+            Assert.False(result.StdOut.Contains($"{Constants.TestSourceName}"));
+            Assert.False(result.StdOut.Contains($"{Constants.TestSourceUrl}"));
         }
     }
 }

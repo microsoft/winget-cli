@@ -98,9 +98,6 @@ namespace AppInstallerCLIE2ETests
             ReadTestInstallerPaths();
 
             TestIndexSetup.GenerateTestDirectory();
-
-            TestCommon.RunAICLICommand("source remove", Constants.DefaultSourceName);
-            TestCommon.RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
         }
 
         [OneTimeTearDown]
@@ -123,8 +120,6 @@ namespace AppInstallerCLIE2ETests
             {
                 TestCommon.RemoveMsix(Constants.AICLIPackageName);
             }
-
-            TestCommon.RunAICLICommand("source reset", "--force");
         }
 
         // Returns whether there's a change to the dev mode state after execution

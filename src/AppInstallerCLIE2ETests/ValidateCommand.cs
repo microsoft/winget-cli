@@ -5,7 +5,7 @@ namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
 
-    public class ValidateCommand
+    public class ValidateCommand : BaseCommand
     {
         [Test] 
         public void ValidateManifest()

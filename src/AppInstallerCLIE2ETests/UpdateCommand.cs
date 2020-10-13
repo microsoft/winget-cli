@@ -5,7 +5,7 @@ namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
 
-    public class UpdateCommand
+    public class UpdateCommand : BaseCommand
     {
         //[Test]
         public void UpdateTest()

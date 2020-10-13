@@ -6,7 +6,7 @@ namespace AppInstallerCLIE2ETests
     using NUnit.Framework;
     using System.IO;
 
-    public class UninstallCommand
+    public class UninstallCommand : BaseCommand
     {
         private const string UninstallTestExeInstalledFile = @"TestExeUninstalled.txt";
 

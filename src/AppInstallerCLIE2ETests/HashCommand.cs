@@ -6,7 +6,7 @@ namespace AppInstallerCLIE2ETests
     using NUnit.Framework;
     using NUnit.Framework.Internal;
 
-    public class HashCommand
+    public class HashCommand : BaseCommand
     {
         [Test]
         public void HashFile()

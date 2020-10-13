@@ -5,7 +5,7 @@ namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
 
-    public class SearchCommand
+    public class SearchCommand : BaseCommand
     {
         [Test]
         public void SearchWithoutArgs()
