@@ -269,14 +269,14 @@ jobs:
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
     condition: succeededOrFailed()
 
-  - task: PublishBuildArtifacts@1
-    displayName: Publish E2E Tests Packaged x64 Log
-    inputs:
-      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir'
-      ArtifactName: 'E2ETestPackagedLog'
-      publishLocation: 'Container'
-    condition: succeededOrFailed()
-
+#  - task: PublishBuildArtifacts@1
+#    displayName: Publish E2E Tests Packaged x64 Log
+#    inputs:
+#      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir'
+#      ArtifactName: 'E2ETestPackagedLog'
+#      publishLocation: 'Container'
+#    condition: succeededOrFailed()
+#
 #  - task: VSTest@2
 #    displayName: Run E2E Tests Unpackaged x86
 #    inputs:
