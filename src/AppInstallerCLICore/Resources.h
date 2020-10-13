@@ -33,6 +33,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableCommands);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableOptions);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableSubcommands);
+        WINGET_DEFINE_RESOURCE_STRINGID(BothManifestAndSearchQueryProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(ChannelArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Command);
         WINGET_DEFINE_RESOURCE_STRINGID(CommandArgumentDescription);
@@ -197,9 +198,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UnexpectedErrorExecutingCommand);
         WINGET_DEFINE_RESOURCE_STRINGID(UnrecognizedCommand);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateAllArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(UpdateCommandLongDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(UpdateCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateNotApplicable);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Usage);
         WINGET_DEFINE_RESOURCE_STRINGID(ValidateCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ValidateCommandShortDescription);

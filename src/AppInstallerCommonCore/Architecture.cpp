@@ -111,7 +111,7 @@ namespace AppInstaller::Utility
         }
         else
         {
-            return s_InapplicableArchitecture;
+            return InapplicableArchitecture;
         }
     }
 }

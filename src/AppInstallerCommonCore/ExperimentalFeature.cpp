@@ -39,7 +39,7 @@ namespace AppInstaller::Settings
         case Feature::ExperimentalMSStore:
             return ExperimentalFeature{ "Microsoft Store Support", "experimentalMSStore", "https://aka.ms/winget-settings", Feature::ExperimentalMSStore };
         case Feature::ExperimentalUpgrade:
-            return ExperimentalFeature{ "Upgrade Command", "experimentalUpgrade", "https://aka.ms/winget-settings", Feature::ExperimentalUpgrade };
+            return ExperimentalFeature{ "Upgrade Command", "upgrade", "https://aka.ms/winget-settings", Feature::ExperimentalUpgrade };
         default:
             THROW_HR(E_UNEXPECTED);
         }

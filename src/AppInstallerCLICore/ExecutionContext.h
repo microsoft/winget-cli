@@ -52,17 +52,18 @@ namespace AppInstaller::CLI::Execution
         LogPath,
         InstallerArgs,
         CompletionData,
-        ContextFlag,
         InstalledPackageVersion,
         Max
     };
 
     // bit masks used as Context flags
-    namespace ContextFlag
+    enum class ContextFlag : int
     {
-        static const int None = 0x0;
-        static const int InstallerExecutionUseUpdate = 0x1;
+        None = 0x0,
+        InstallerExecutionUseUpdate,
     };
+
+    DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
 
     namespace details
     {
@@ -138,12 +139,6 @@ namespace AppInstaller::CLI::Execution
             using value_t = std::shared_ptr<Repository::IPackageVersion>;
         };
 
-        template <>
-        struct DataMapping<Data::ContextFlag>
-        {
-            using value_t = int;
-        };
-
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.
         template <size_t... I>
         inline auto Deduce(std::index_sequence<I...>) { return std::variant<std::monostate, DataMapping<static_cast<Data>(I)>::value_t...>{}; }
@@ -160,7 +155,7 @@ namespace AppInstaller::CLI::Execution
     // arguments via Execution::Args.
     struct Context
     {
-        Context(std::ostream& out, std::istream& in) : Reporter(out, in) { m_data[Data::ContextFlag] = ContextFlag::None; }
+        Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
 
         // Clone the reporter for this constructor.
         Context(Execution::Reporter& reporter) : Reporter(reporter, Execution::Reporter::clone_t{}) {}
@@ -212,6 +207,12 @@ namespace AppInstaller::CLI::Execution
             return std::get<details::DataIndex(D)>(itr->second);
         }
 
+        // Gets context flags; which can be modified in place.
+        ContextFlag& GetFlags()
+        {
+            return m_flags;
+        }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
         virtual bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask&) { return true; }
@@ -223,5 +224,6 @@ namespace AppInstaller::CLI::Execution
         HRESULT m_terminationHR = S_OK;
         std::map<Data, details::DataVariant> m_data;
         size_t m_CtrlSignalCount = 0;
+        ContextFlag m_flags = ContextFlag::None;
     };
 }

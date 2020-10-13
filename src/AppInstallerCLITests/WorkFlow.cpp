@@ -16,7 +16,7 @@
 #include <Public/AppInstallerRepositorySearch.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/ShowCommand.h>
-#include <Commands/UpdateCommand.h>
+#include <Commands/UpgradeCommand.h>
 #include <winget/LocIndependent.h>
 #include <winget/ManifestYamlParser.h>
 #include <Resources.h>
@@ -759,7 +759,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifest", "[UpdateFlow]")
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("UpdateFlowTest_Exe.yaml").GetPath().u8string());
 
-    UpdateCommand update({});
+    UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
 
@@ -783,7 +783,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifestMSStore", "[UpdateFlow]")
     OverrideForMSStore(context, true);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_MSStore.yaml").GetPath().u8string());
 
-    UpdateCommand update({});
+    UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
 
@@ -805,7 +805,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifestAppNotInstalled", "[UpdateFlow]")
     OverrideForCompositeInstalledSource(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallerArgTest_Inno_NoSwitches.yaml").GetPath().u8string());
 
-    UpdateCommand update({});
+    UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
 
@@ -824,7 +824,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifestVersionAlreadyInstalled", "[UpdateFlow]"
     OverrideForCompositeInstalledSource(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
 
-    UpdateCommand update({});
+    UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
 
@@ -845,7 +845,7 @@ TEST_CASE("UpdateFlow_UpdateExe", "[UpdateFlow]")
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
     context.Args.AddArg(Execution::Args::Type::Silent);
 
-    UpdateCommand update({});
+    UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
 
@@ -869,7 +869,7 @@ TEST_CASE("UpdateFlow_UpdateMsix", "[UpdateFlow]")
     OverrideForMSIX(context);
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestMsixInstaller"sv);
 
-    UpdateCommand update({});
+    UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
 
@@ -887,7 +887,7 @@ TEST_CASE("UpdateFlow_UpdateMSStore", "[UpdateFlow]")
     OverrideForMSStore(context, true);
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestMSStoreInstaller"sv);
 
-    UpdateCommand update({});
+    UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
 
@@ -909,7 +909,7 @@ TEST_CASE("UpdateFlow_UpdateExeLatestAlreadyInstalled", "[UpdateFlow]")
     OverrideForCompositeInstalledSource(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithLatestInstalled"sv);
 
-    UpdateCommand update({});
+    UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
 
@@ -928,7 +928,7 @@ TEST_CASE("UpdateFlow_UpdateExeInstallerTypeNotApplicable", "[UpdateFlow]")
     OverrideForCompositeInstalledSource(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithIncompatibleInstallerType"sv);
 
-    UpdateCommand update({});
+    UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
 
@@ -948,7 +948,7 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotFound", "[UpdateFlow]")
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
     context.Args.AddArg(Execution::Args::Type::Version, "1.2.3.4"sv);
 
-    UpdateCommand update({});
+    UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
 
@@ -968,7 +968,7 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotApplicable", "[UpdateFlow]")
     context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithIncompatibleInstallerType"sv);
     context.Args.AddArg(Execution::Args::Type::Version, "1.0.0.0"sv);
 
-    UpdateCommand update({});
+    UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
 
@@ -992,7 +992,7 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow]")
     OverrideForMSStore(context, true);
     context.Args.AddArg(Execution::Args::Type::All);
 
-    UpdateCommand update({});
+    UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
 

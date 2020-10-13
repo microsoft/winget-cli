@@ -111,7 +111,7 @@ namespace AppInstaller::CLI::Workflow
             updateContext.Reporter.Info() << std::endl;
 
             updateContext.Add<Execution::Data::InstalledPackageVersion>(match.Package->GetInstalledVersion());
-            updateContext.Get<Execution::Data::ContextFlag>() = context.Get<Execution::Data::ContextFlag>();
+            updateContext.GetFlags() = context.GetFlags();
 
             updateContext <<
                 SelectLatestApplicableUpdate(*(match.Package)) <<

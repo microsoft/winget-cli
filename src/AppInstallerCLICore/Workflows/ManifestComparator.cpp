@@ -12,8 +12,8 @@ namespace AppInstaller::CLI::Workflow
     bool InstallerComparator::operator() (const ManifestInstaller& installer1, const ManifestInstaller& installer2)
     {
         // Applicable architecture should always come before inapplicable architecture
-        if (Utility::IsApplicableArchitecture(installer1.Arch) != Utility::s_InapplicableArchitecture &&
-            Utility::IsApplicableArchitecture(installer2.Arch) == Utility::s_InapplicableArchitecture)
+        if (Utility::IsApplicableArchitecture(installer1.Arch) != Utility::InapplicableArchitecture &&
+            Utility::IsApplicableArchitecture(installer2.Arch) == Utility::InapplicableArchitecture)
         {
             return true;
         }
@@ -68,7 +68,7 @@ namespace AppInstaller::CLI::Workflow
         std::sort(installers.begin(), installers.end(), m_installerComparator);
 
         // If the first one's architecture is inapplicable, then no installer is applicable.
-        if (Utility::IsApplicableArchitecture(installers[0].Arch) == Utility::s_InapplicableArchitecture)
+        if (Utility::IsApplicableArchitecture(installers[0].Arch) == Utility::InapplicableArchitecture)
         {
             return {};
         }

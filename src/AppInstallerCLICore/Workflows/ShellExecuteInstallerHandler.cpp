@@ -61,7 +61,7 @@ namespace AppInstaller::CLI::Workflow
         // Gets the escaped installer args.
         std::string GetInstallerArgsTemplate(Execution::Context& context)
         {
-            bool isUpdate = (context.Get<Execution::Data::ContextFlag>() & Execution::ContextFlag::InstallerExecutionUseUpdate) != 0;
+            bool isUpdate = (context.GetFlags() & Execution::ContextFlag::InstallerExecutionUseUpdate) != Execution::ContextFlag::None;
 
             const auto& installer = context.Get<Execution::Data::Installer>();
             const auto& installerSwitches = installer->Switches;
@@ -119,7 +119,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // Construct install location arg if necessary.
-            if ((!isUpdate || installer->UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::UninstallPrevious) &&
+            if (!isUpdate &&
                 context.Args.Contains(Execution::Args::Type::InstallLocation) &&
                 installerSwitches.find(ManifestInstaller::InstallerSwitchType::InstallLocation) != installerSwitches.end())
             {

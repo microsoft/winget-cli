@@ -15,7 +15,7 @@ namespace AppInstaller::CLI::Workflow
         const auto& manifest = context.Get<Execution::Data::Manifest>();
         const auto& installer = context.Get<Execution::Data::Installer>();
 
-        ManifestComparator manifestComparator(context.Args, {});
+        ManifestComparator manifestComparator(context.Args);
         auto selectedLocalization = manifestComparator.GetPreferredLocalization(manifest);
 
         // TODO: Come up with a prettier format

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "UpdateCommand.h"
+#include "UpgradeCommand.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/UpdateFlow.h"
@@ -14,7 +14,7 @@ using namespace AppInstaller::CLI::Workflow;
 
 namespace AppInstaller::CLI
 {
-    std::vector<Argument> UpdateCommand::GetArguments() const
+    std::vector<Argument> UpgradeCommand::GetArguments() const
     {
         return {
             Argument::ForType(Args::Type::Query),
@@ -37,30 +37,30 @@ namespace AppInstaller::CLI
         };
     }
 
-    Resource::LocString UpdateCommand::ShortDescription() const
+    Resource::LocString UpgradeCommand::ShortDescription() const
     {
-        return { Resource::String::UpdateCommandShortDescription };
+        return { Resource::String::UpgradeCommandShortDescription };
     }
 
-    Resource::LocString UpdateCommand::LongDescription() const
+    Resource::LocString UpgradeCommand::LongDescription() const
     {
-        return { Resource::String::UpdateCommandLongDescription };
+        return { Resource::String::UpgradeCommandLongDescription };
     }
 
-    void UpdateCommand::Complete(Execution::Context&, Execution::Args::Type) const
+    void UpgradeCommand::Complete(Execution::Context&, Execution::Args::Type) const
     {
         // TODO: Should be done similar to list completion
     }
 
-    std::string UpdateCommand::HelpLink() const
+    std::string UpgradeCommand::HelpLink() const
     {
         // TODO: point to correct location
         return "https://aka.ms/winget-command-upgrade";
     }
 
-    void UpdateCommand::ExecuteInternal(Execution::Context& context) const
+    void UpgradeCommand::ExecuteInternal(Execution::Context& context) const
     {
-        context.Get<Execution::Data::ContextFlag>() |= Execution::ContextFlag::InstallerExecutionUseUpdate;
+        context.GetFlags() |= Execution::ContextFlag::InstallerExecutionUseUpdate;
 
         context <<
             OpenSource <<
@@ -106,29 +106,29 @@ namespace AppInstaller::CLI
                 ReportSearchResultIdentity <<
                 GetInstalledPackageVersion;
 
-                if (context.Args.Contains(Execution::Args::Type::Version))
-                {
-                    // If version specified, use the version and verify applicability
-                    context <<
-                        GetManifestFromSearchResult <<
-                        EnsureUpdateVersionApplicable <<
-                        EnsureMinOSVersion <<
-                        SelectInstaller <<
-                        EnsureApplicableInstaller;
-                }
-                else
-                {
-                    // iterate through available versions to find latest applicable update
-                    // This step also populates Manifest and Installer in context data
-                    context <<
-                        SelectLatestApplicableUpdate(*(context.Get<Execution::Data::SearchResult>().Matches.at(0).Package));
-                }
-
+            if (context.Args.Contains(Execution::Args::Type::Version))
+            {
+                // If version specified, use the version and verify applicability
                 context <<
-                    ShowInstallationDisclaimer <<
-                    DownloadInstaller <<
-                    ExecuteInstaller <<
-                    RemoveInstaller;
+                    GetManifestFromSearchResult <<
+                    EnsureUpdateVersionApplicable <<
+                    EnsureMinOSVersion <<
+                    SelectInstaller <<
+                    EnsureApplicableInstaller;
+            }
+            else
+            {
+                // iterate through available versions to find latest applicable update
+                // This step also populates Manifest and Installer in context data
+                context <<
+                    SelectLatestApplicableUpdate(*(context.Get<Execution::Data::SearchResult>().Matches.at(0).Package));
+            }
+
+            context <<
+                ShowInstallationDisclaimer <<
+                DownloadInstaller <<
+                ExecuteInstaller <<
+                RemoveInstaller;
         }
     }
 }

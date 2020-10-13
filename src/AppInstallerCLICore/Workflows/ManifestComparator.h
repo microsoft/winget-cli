@@ -34,7 +34,7 @@ namespace AppInstaller::CLI::Workflow
     // Class in charge of comparing manifest entries
     struct ManifestComparator
     {
-        ManifestComparator(const Execution::Args&, const std::map<std::string, std::string>& installationMetadata) :
+        ManifestComparator(const Execution::Args&, const std::map<std::string, std::string>& installationMetadata = {}) :
             m_installationMetadata(installationMetadata), m_installerComparator(installationMetadata) {}
 
         std::optional<Manifest::ManifestInstaller> GetPreferredInstaller(const Manifest::Manifest& manifest);

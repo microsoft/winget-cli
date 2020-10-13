@@ -636,15 +636,15 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
     <value>Update all installed packages to latest if avaialable</value>
   </data>
-  <data name="UpdateCommandLongDescription" xml:space="preserve">
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>No applicable update found.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>Updates the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
-  <data name="UpdateCommandShortDescription" xml:space="preserve">
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
     <value>Updates the given package</value>
-  </data>
-  <data name="UpdateNotApplicable" xml:space="preserve">
-    <value>No applicable update found.</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>usage</value>
@@ -698,5 +698,8 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="VerifyFileFailedNotExist" xml:space="preserve">
     <value>File does not exist:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Both local manifest and search query args are provided</value>
   </data>
 </root>
