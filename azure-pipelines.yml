@@ -295,7 +295,7 @@ jobs:
                                   -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
     condition: succeededOrFailed()
-    z
+    
   - task: PublishBuildArtifacts@1
     displayName: Publish E2E Tests Packaged x86 Log
     inputs:
