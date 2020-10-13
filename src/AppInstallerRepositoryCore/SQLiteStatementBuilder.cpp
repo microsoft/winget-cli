@@ -350,9 +350,9 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
-    StatementBuilder& StatementBuilder::IsNull()
+    StatementBuilder& StatementBuilder::IsNull(bool isNull)
     {
-        m_stream << " IS NULL";
+        m_stream << " IS " << (isNull ? "" : "NOT ") << "NULL";
         return *this;
     }
 
@@ -383,6 +383,24 @@ namespace AppInstaller::Repository::SQLite::Builder
     StatementBuilder& StatementBuilder::Join(std::initializer_list<std::string_view> table)
     {
         OutputOperationAndTable(m_stream, " JOIN", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::LeftOuterJoin(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, " LEFT OUTER JOIN", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::LeftOuterJoin(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, " LEFT OUTER JOIN", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::LeftOuterJoin(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, " LEFT OUTER JOIN", table);
         return *this;
     }
 

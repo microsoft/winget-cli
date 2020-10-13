@@ -421,6 +421,8 @@ TEST_CASE("SQLiteIndex_RemoveManifest_EnsureConsistentRowId", "[sqliteindex]")
     // Now remove manifest1 and prepare
     index.RemoveManifest(manifest1, manifest1Path);
     index.PrepareForPackaging();
+    // Checking consistency will also uncover issues, but not potentially the same ones as below.
+    REQUIRE(index.CheckConsistency(true));
 
     // Repeat search to ensure consistent ids
     result = index.Search(request);
@@ -1801,5 +1803,63 @@ TEST_CASE("SQLiteIndex_Search_ProductCodeMatch", "[sqliteindex]")
     else
     {
         REQUIRE(results.Matches.size() == 0);
+    }
+}
+
+TEST_CASE("SQLiteIndex_CheckConsistency_Failure", "[sqliteindex][V1_1]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string manifest1Path = "test/id/test.id-1.0.0.yaml";
+    Manifest manifest1;
+    manifest1.Id = "test.id";
+    manifest1.Name = "Test Name";
+    manifest1.AppMoniker = "testmoniker";
+    manifest1.Version = "1.0.0";
+    manifest1.Channel = "test";
+    manifest1.Tags = { "t1", "t2" };
+    manifest1.Commands = { "test1", "test2" };
+
+    std::string manifest2Path = "test/woah/test.id-1.0.0.yaml";
+    Manifest manifest2;
+    manifest2.Id = "test.woah";
+    manifest2.Name = "Test Name WOAH";
+    manifest2.AppMoniker = "testmoniker";
+    manifest2.Version = "1.0.0";
+    manifest2.Channel = "test";
+    manifest2.Tags = {};
+    manifest2.Commands = { "test1", "test2", "test3" };
+
+    SQLite::rowid_t manifestRowId = 0;
+
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 1 });
+
+        index.AddManifest(manifest1, manifest1Path);
+        index.AddManifest(manifest2, manifest2Path);
+
+        // Get the first manifest's id for removal
+        SearchRequest request;
+        request.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, manifest1.Id));
+        auto result = index.Search(request);
+
+        REQUIRE(result.Matches.size() == 1);
+        manifestRowId = result.Matches[0].first;
+    }
+
+    {
+        // Open it directly to modify the table
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+
+        SQLite::Builder::StatementBuilder builder;
+        builder.DeleteFrom(Schema::V1_0::IdTable::TableName()).Where(SQLite::RowIDName).Equals(manifestRowId);
+        builder.Execute(connection);
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+
+        REQUIRE(!index.CheckConsistency(true));
     }
 }

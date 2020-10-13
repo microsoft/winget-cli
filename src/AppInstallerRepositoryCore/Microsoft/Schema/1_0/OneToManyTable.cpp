@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Microsoft/Schema/1_0/OneToManyTable.h"
 #include "Microsoft/Schema/1_0/OneToOneTable.h"
+#include "Microsoft/Schema/1_0/ManifestTable.h"
 #include "SQLiteStatementBuilder.h"
 
 
@@ -254,6 +255,79 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             dropMapTableIndexBuilder.Execute(connection);
 
             OneToOneTablePrepareForPackaging(connection, tableName, useNamedIndeces, preserveValuesIndex);
+        }
+
+        bool OneToManyTableCheckConsistency(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool log)
+        {
+            using QCol = SQLite::Builder::QualifiedColumn;
+            constexpr std::string_view s_map = "map"sv;
+
+            bool result = true;
+
+            {
+                // Build a select statement to find map rows containing references to manifests with non-existent rowids
+                // Such as:
+                // Select map.rowid, map.manifest from tags_map as map left outer join manifest on map.manifest = manifest.rowid where manifest.id is null
+
+                SQLite::Builder::StatementBuilder builder;
+                builder.
+                    Select({ QCol(s_map, SQLite::RowIDName), QCol(s_map, s_OneToManyTable_MapTable_ManifestName) }).
+                    From({ tableName, s_OneToManyTable_MapTable_Suffix }).As(s_map).
+                    LeftOuterJoin(ManifestTable::TableName()).On(QCol(s_map, s_OneToManyTable_MapTable_ManifestName), QCol(ManifestTable::TableName(), SQLite::RowIDName)).
+                    Where(QCol(ManifestTable::TableName(), SQLite::RowIDName)).IsNull();
+
+                SQLite::Statement select = builder.Prepare(connection);
+
+                while (select.Step())
+                {
+                    result = false;
+
+                    if (!log)
+                    {
+                        break;
+                    }
+
+                    AICLI_LOG(Repo, Info, << "  [INVALID] " << tableName << s_OneToManyTable_MapTable_Suffix << " [" << select.GetColumn<SQLite::rowid_t>(0) <<
+                        "] refers to " << ManifestTable::TableName() << " [" << select.GetColumn<SQLite::rowid_t>(1) << "]");
+                }
+            }
+
+            if (!result && !log)
+            {
+                return result;
+            }
+
+            {
+                // Build a select statement to find map rows containing references to 1:1 tables with non-existent rowids
+                // Such as:
+                // Select map.rowid, map.tag from tags_map as map left outer join tags on map.tag = tags.rowid where tags.tag is null
+                SQLite::Builder::StatementBuilder builder;
+                builder.
+                    Select({ QCol(s_map, SQLite::RowIDName), QCol(s_map, valueName) }).
+                    From({ tableName, s_OneToManyTable_MapTable_Suffix }).As(s_map).
+                    LeftOuterJoin(tableName).On(QCol(s_map, valueName), QCol(tableName, SQLite::RowIDName)).
+                    Where(QCol(tableName, valueName)).IsNull();
+
+                SQLite::Statement select = builder.Prepare(connection);
+                bool secondaryResult = true;
+
+                while (select.Step())
+                {
+                    secondaryResult = false;
+
+                    if (!log)
+                    {
+                        break;
+                    }
+
+                    AICLI_LOG(Repo, Info, << "  [INVALID] " << tableName << s_OneToManyTable_MapTable_Suffix << " [" << select.GetColumn<SQLite::rowid_t>(0) <<
+                        "] refers to " << tableName << " [" << select.GetColumn<SQLite::rowid_t>(1) << "]");
+                }
+
+                result = result && secondaryResult;
+            }
+
+            return result;
         }
 
         bool OneToManyTableIsEmpty(SQLite::Connection& connection, std::string_view tableName)

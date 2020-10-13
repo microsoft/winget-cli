@@ -50,6 +50,10 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Removes data that is no longer needed for an index that is to be published.
         virtual void PrepareForPackaging(SQLite::Connection& connection) = 0;
 
+        // Checks the consistency of the index to ensure that every referenced row exists.
+        // Returns true if index is consistent; false if it is not.
+        virtual bool CheckConsistency(const SQLite::Connection& connection, bool log) const = 0;
+
         // Performs a search based on the given criteria.
         virtual SearchResult Search(const SQLite::Connection& connection, const SearchRequest& request) const = 0;
 
