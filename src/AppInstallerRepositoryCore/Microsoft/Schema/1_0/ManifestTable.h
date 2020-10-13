@@ -56,6 +56,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Update the value of a single column for the manifest with the given rowid.
         void ManifestTableUpdateValueIdById(SQLite::Connection& connection, std::string_view valueName, SQLite::rowid_t value, SQLite::rowid_t id);
+
+        // Checks the consistency of the index to ensure that every referenced row exists.
+        // Returns true if index is consistent; false if it is not.
+        bool ManifestTableCheckConsistency(const SQLite::Connection& connection, const SQLite::Builder::QualifiedColumn& target, bool log);
     }
 
     // Info on the manifest columns.
@@ -155,6 +159,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Removes data that is no longer needed for an index that is to be published.
         static void PrepareForPackaging_deprecated(SQLite::Connection& connection, std::initializer_list<std::string_view> values);
+
+        // Checks the consistency of the index to ensure that every referenced row exists.
+        // Returns true if index is consistent; false if it is not.
+        template <typename Table>
+        static bool CheckConsistency(const SQLite::Connection& connection, bool log)
+        {
+            return details::ManifestTableCheckConsistency(connection, SQLite::Builder::QualifiedColumn{ Table::TableName(), Table::ValueName() }, log);
+        }
 
         // Determines if the table is empty.
         static bool IsEmpty(SQLite::Connection& connection);

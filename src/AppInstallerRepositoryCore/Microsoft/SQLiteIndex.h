@@ -87,6 +87,10 @@ namespace AppInstaller::Repository::Microsoft
         // Removes data that is no longer needed for an index that is to be published.
         void PrepareForPackaging();
 
+        // Checks the consistency of the index to ensure that every referenced row exists.
+        // Returns true if index is consistent; false if it is not.
+        bool CheckConsistency(bool log = false) const;
+
         // Performs a search based on the given criteria.
         Schema::ISQLiteIndex::SearchResult Search(const SearchRequest& request) const;
 
