@@ -111,6 +111,12 @@ namespace AppInstaller::Utility
 
     bool Version::operator==(const Version& other) const
     {
+        if ((IsLatest() && other.IsLatest()) ||
+            (IsUnknown() && other.IsUnknown()))
+        {
+            return true;
+        }
+
         if (m_parts.size() != other.m_parts.size())
         {
             return false;

@@ -5,6 +5,7 @@
 #include <SQLiteWrapper.h>
 #include <Microsoft/SQLiteIndex.h>
 #include <winget/Manifest.h>
+#include <AppInstallerStrings.h>
 
 #include <Microsoft/Schema/1_0/IdTable.h>
 #include <Microsoft/Schema/1_0/NameTable.h>
@@ -18,6 +19,7 @@
 #include <Microsoft/Schema/1_0/SearchResultsTable.h>
 
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 using namespace TestCommon;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
@@ -1885,8 +1887,8 @@ TEST_CASE("SQLiteIndex_GetMultiProperty_PackageFamilyName", "[sqliteindex]")
     if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
     {
         REQUIRE(props.size() == 2);
-        REQUIRE(std::find(props.begin(), props.end(), "PFN1") != props.end());
-        REQUIRE(std::find(props.begin(), props.end(), "PFN2") != props.end());
+        REQUIRE(std::find(props.begin(), props.end(), FoldCase("PFN1"sv)) != props.end());
+        REQUIRE(std::find(props.begin(), props.end(), FoldCase("PFN2"sv)) != props.end());
     }
     else
     {
@@ -1915,8 +1917,8 @@ TEST_CASE("SQLiteIndex_GetMultiProperty_ProductCode", "[sqliteindex]")
     if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
     {
         REQUIRE(props.size() == 2);
-        REQUIRE(std::find(props.begin(), props.end(), "PC1") != props.end());
-        REQUIRE(std::find(props.begin(), props.end(), "PC2") != props.end());
+        REQUIRE(std::find(props.begin(), props.end(), FoldCase("PC1"sv)) != props.end());
+        REQUIRE(std::find(props.begin(), props.end(), FoldCase("PC2"sv)) != props.end());
     }
     else
     {

@@ -98,12 +98,6 @@ namespace TestCommon
         return false;
     }
 
-    SearchResult TestSource::Search(const SearchRequest&) const
-    {
-        SearchResult result;
-        return result;
-    }
-
     const SourceDetails& TestSource::GetDetails() const
     {
         return Details;
@@ -112,5 +106,16 @@ namespace TestCommon
     const std::string& TestSource::GetIdentifier() const
     {
         return Identifier;
+    }
+
+    SearchResult TestSource::Search(const SearchRequest&) const
+    {
+        SearchResult result;
+        return result;
+    }
+
+    bool TestSource::IsComposite() const
+    {
+        return Composite;
     }
 }
