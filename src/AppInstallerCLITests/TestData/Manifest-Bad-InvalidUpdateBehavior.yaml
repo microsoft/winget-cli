@@ -1,0 +1,13 @@
+# Bad manifest. Invalid UpdateBehavior
+Id: microsoft.msixsdk
+Name: MSIX SDK
+Version: 1.7.32
+Publisher: Microsoft
+InstallerType: Zip
+License: Test
+Installers:
+  - Arch: x86
+    Url: NotAUrl
+    Sha256: 98B67758CEAFFCBB3FE47838FD0A8D7BD581C2650842D6B2B0E0D49A23270CCD
+    UpdateBehavior: InvalidUpdate
+ManifestVersion: 0.1.0

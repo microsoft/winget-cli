@@ -71,12 +71,6 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void MsixInstall(Execution::Context& context);
 
-    // Deploys the Store app.
-    // Required Args: None
-    // Inputs: Manifest?, Installer
-    // Outputs: None
-    void MSStoreInstall(Execution::Context& context);
-
     // Deletes the installer file.
     // Required Args: None
     // Inputs: InstallerPath

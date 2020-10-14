@@ -102,6 +102,10 @@ namespace AppInstaller::Repository
     // These sources are not under the direct control of the user, such as packages installed on the system.
     std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress);
 
+    // Creates a composite source from input sources.
+    // The composite source will correlate entries from input sources.
+    std::shared_ptr<ISource> CreateCompositeSource(std::shared_ptr<ISource>& source1, std::shared_ptr<ISource>& source2);
+
     // Updates an existing source.
     // Return value indicates whether the named source was found.
     bool UpdateSource(std::string_view name, IProgressCallback& progress);

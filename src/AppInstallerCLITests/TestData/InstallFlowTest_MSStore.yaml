@@ -1,5 +1,5 @@
 Id: AppInstallerCliTest.TestMSStoreInstaller
-Version: 1.0.0.0
+Version: Latest
 Name: AppInstaller Test Installer
 Publisher: Microsoft Corporation
 AppMoniker: AICLITestMSStore

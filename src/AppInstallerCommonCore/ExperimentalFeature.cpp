@@ -21,6 +21,8 @@ namespace AppInstaller::Settings
             return User().Get<Setting::EFExperimentalArg>();
         case Feature::ExperimentalMSStore:
             return User().Get<Setting::EFExperimentalMSStore>();
+        case Feature::ExperimentalUpgrade:
+            return User().Get<Setting::EFExperimentalUpgrade>();
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -36,6 +38,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Argument Sample", "experimentalArg", "https://aka.ms/winget-settings", Feature::ExperimentalArg };
         case Feature::ExperimentalMSStore:
             return ExperimentalFeature{ "Microsoft Store Support", "experimentalMSStore", "https://aka.ms/winget-settings", Feature::ExperimentalMSStore };
+        case Feature::ExperimentalUpgrade:
+            return ExperimentalFeature{ "Upgrade Command", "upgrade", "https://aka.ms/winget-settings", Feature::ExperimentalUpgrade };
         default:
             THROW_HR(E_UNEXPECTED);
         }

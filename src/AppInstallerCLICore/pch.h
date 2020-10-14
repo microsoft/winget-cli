@@ -34,6 +34,7 @@
 #include <wrl/client.h>
 #include <AppxPackaging.h>
 
+#include <AppInstallerArchitecture.h>
 #include <AppInstallerDateTime.h>
 #include <AppInstallerDeployment.h>
 #include <AppInstallerDownloader.h>
