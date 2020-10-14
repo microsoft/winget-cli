@@ -243,6 +243,7 @@ namespace AppInstallerCLIE2ETests
                 if (Directory.Exists(testLogsDestPath))
                 {
                     TestIndexSetup.DeleteDirectoryContents(new DirectoryInfo(testLogsDestPath));
+                    Directory.Delete(testLogsDestPath);
                 }
                 TestIndexSetup.CopyDirectory(testLogsSourcePath, testLogsDestPath);
             }
