@@ -15,32 +15,6 @@ using namespace AppInstaller::Repository;
 using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Utility;
 
-using Factory = AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory;
-
-std::shared_ptr<ISource> CreatePredefinedInstalledSource(Factory::Filter filter = Factory::Filter::None)
+TEST_CASE("CompositeSource", "[repository]")
 {
-    SourceDetails details;
-    details.Type = Factory::Type();
-    details.Arg = Factory::FilterToString(filter);
-
-    TestProgress progress;
-
-    auto factory = Factory::Create();
-    return factory->Create(details, progress);
-}
-
-TEST_CASE("PredefinedInstalledSource_Create", "[installed][list]")
-{
-    auto source = CreatePredefinedInstalledSource();
-}
-
-TEST_CASE("PredefinedInstalledSource_Search", "[installed][list]")
-{
-    auto source = CreatePredefinedInstalledSource();
-
-    SearchRequest request;
-
-    auto results = source->Search(request);
-
-    REQUIRE(!results.Matches.empty());
 }

@@ -50,6 +50,7 @@ namespace AppInstaller::Settings
         EFExperimentalArg,
         EFExperimentalMSStore,
         EFList,
+        EFExperimentalUpgrade,
         Max
     };
 
@@ -83,7 +84,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalArg, bool, bool, false, ".experimentalFeatures.experimentalArg"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalMSStore, bool, bool, false, ".experimentalFeatures.experimentalMSStore"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFList, bool, bool, false, ".experimentalFeatures.list"sv);
-
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalUpgrade, bool, bool, false, ".experimentalFeatures.upgrade"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>

@@ -145,6 +145,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         savepoint.Commit();
     }
 
+    std::string_view PathPartTable::TableName()
+    {
+        return s_PathPartTable_Table_Name;
+    }
+
     std::string_view PathPartTable::ValueName()
     {
         return s_PathPartTable_PartValue_Name;
@@ -294,6 +299,41 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Builder::StatementBuilder dropIndexBuilder;
         dropIndexBuilder.DropIndex(s_PathPartTable_ParentIndex_Name);
         dropIndexBuilder.Execute(connection);
+    }
+
+    bool PathPartTable::CheckConsistency(const SQLite::Connection& connection, bool log)
+    {
+        using QCol = SQLite::Builder::QualifiedColumn;
+
+        // Build a select statement to find pathpart rows containing references to parents with non-existent rowids
+        // Such as:
+        // Select l.rowid, l.parent from pathparts as l left outer join pathparts as r on l.parent = r.rowid where l.parent is not null and r.pathpart is null
+        constexpr std::string_view s_left = "left"sv;
+        constexpr std::string_view s_right = "right"sv;
+
+        SQLite::Builder::StatementBuilder builder;
+        builder.
+            Select({ QCol(s_left, SQLite::RowIDName), QCol(s_left, s_PathPartTable_ParentValue_Name) }).
+            From(s_PathPartTable_Table_Name).As(s_left).
+            LeftOuterJoin(s_PathPartTable_Table_Name).As(s_right).On(QCol(s_left, s_PathPartTable_ParentValue_Name), QCol(s_right, SQLite::RowIDName)).
+            Where(QCol(s_left, s_PathPartTable_ParentValue_Name)).IsNotNull().And(QCol(s_right, s_PathPartTable_PartValue_Name)).IsNull();
+
+        SQLite::Statement select = builder.Prepare(connection);
+        bool result = true;
+
+        while (select.Step())
+        {
+            result = false;
+
+            if (!log)
+            {
+                break;
+            }
+
+            AICLI_LOG(Repo, Info, << "  [INVALID] pathparts [" << select.GetColumn<SQLite::rowid_t>(0) << "] refers to " << s_PathPartTable_ParentValue_Name << " [" << select.GetColumn<SQLite::rowid_t>(1) << "]");
+        }
+
+        return result;
     }
 
     bool PathPartTable::IsEmpty(SQLite::Connection& connection)

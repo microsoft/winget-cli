@@ -1,0 +1,14 @@
+﻿# Same content with InstallFlowTest_Msix_StreamingFlow.yaml but with higher version
+Id: AppInstallerCliTest.TestMsixInstaller
+Version: 2.0.0.0
+Name: AppInstaller Test MSIX Installer
+Publisher: Microsoft Corporation
+AppMoniker: AICLITestMsix
+License: Test
+Installers: 
+    - Arch: x64
+      Url: https://github.com/microsoft/msix-packaging/blob/master/src/test/testData/unpack/TestAppxPackage_x64.appx?raw=true
+      InstallerType: msix
+      Sha256: 6a2d3683fa19bf00e58e07d1313d20a5f5735ebbd6a999d33381d28740ee07ea
+      SignatureSha256: 138781c3e6f635240353f3d14d1d57bdcb89413e49be63b375e6a5d7b93b0d07
+ManifestVersion: 0.1.0

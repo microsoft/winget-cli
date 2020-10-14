@@ -5,6 +5,7 @@
 #include <AppInstallerProgress.h>
 
 #include <chrono>
+#include <filesystem>
 #include <memory>
 #include <optional>
 #include <string>

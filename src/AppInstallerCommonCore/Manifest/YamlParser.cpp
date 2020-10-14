@@ -72,6 +72,7 @@ namespace AppInstaller::Manifest
             { "Protocols", [this](const YAML::Node& value) { m_p_manifest->Protocols = SplitMultiValueField(value.as<std::string>()); } },
             { "FileExtensions", [this](const YAML::Node& value) { m_p_manifest->FileExtensions = SplitMultiValueField(value.as<std::string>()); } },
             { "InstallerType", [this](const YAML::Node& value) { m_p_manifest->InstallerType = ManifestInstaller::ConvertToInstallerTypeEnum(value.as<std::string>()); } },
+            { "UpdateBehavior", [this](const YAML::Node& value) { m_p_manifest->UpdateBehavior = ManifestInstaller::ConvertToUpdateBehaviorEnum(value.as<std::string>()); } },
             { "PackageFamilyName", [this](const YAML::Node& value) { m_p_manifest->PackageFamilyName = value.as<std::string>(); }, false, "[-.A-Za-z0-9]+_[A-Za-z0-9]{13}" },
             { "ProductCode", [this](const YAML::Node& value) { m_p_manifest->ProductCode = value.as<std::string>(); } },
             { "Description", [this](const YAML::Node& value) { m_p_manifest->Description = value.as<std::string>(); } },
@@ -91,6 +92,7 @@ namespace AppInstaller::Manifest
             { "Language", [this](const YAML::Node& value) { m_p_installer->Language = value.as<std::string>(); } },
             { "Scope", [this](const YAML::Node& value) { m_p_installer->Scope = value.as<std::string>(); } },
             { "InstallerType", [this](const YAML::Node& value) { m_p_installer->InstallerType = ManifestInstaller::ConvertToInstallerTypeEnum(value.as<std::string>()); } },
+            { "UpdateBehavior", [this](const YAML::Node& value) { m_p_installer->UpdateBehavior = ManifestInstaller::ConvertToUpdateBehaviorEnum(value.as<std::string>()); } },
             { "PackageFamilyName", [this](const YAML::Node& value) { m_p_installer->PackageFamilyName = value.as<std::string>(); }, false, "[-.A-Za-z0-9]+_[A-Za-z0-9]{13}" },
             { "ProductCode", [this](const YAML::Node& value) { m_p_installer->ProductCode = value.as<std::string>(); } },
             { "Switches", [this](const YAML::Node& value) { *m_p_switchesNode = value; } },
@@ -105,6 +107,7 @@ namespace AppInstaller::Manifest
             { "Language", [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::Language] = value.as<std::string>(); } },
             { "Log", [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::Log] = value.as<std::string>(); } },
             { "InstallLocation", [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::InstallLocation] = value.as<std::string>(); } },
+            { "Update", [this](const YAML::Node& value) { (*m_p_switches)[ManifestInstaller::InstallerSwitchType::Update] = value.as<std::string>(); } },
         };
 
         LocalizationFieldInfos =
@@ -246,6 +249,7 @@ namespace AppInstaller::Manifest
 
             // Populate defaults
             installer.InstallerType = manifest.InstallerType;
+            installer.UpdateBehavior = manifest.UpdateBehavior;
             installer.Scope = "user";
 
             m_p_installer = &installer;
@@ -421,7 +425,8 @@ namespace AppInstaller::Manifest
                 {ManifestInstaller::InstallerSwitchType::Silent, ManifestInstaller::string_t("/quiet")},
                 {ManifestInstaller::InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/passive")},
                 {ManifestInstaller::InstallerSwitchType::Log, ManifestInstaller::string_t("/log \"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
-                {ManifestInstaller::InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("TARGETDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
+                {ManifestInstaller::InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("TARGETDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")},
+                {ManifestInstaller::InstallerSwitchType::Update, ManifestInstaller::string_t("REINSTALL=ALL REINSTALLMODE=vamus")}
             };
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
             return

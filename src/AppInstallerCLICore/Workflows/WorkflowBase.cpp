@@ -33,7 +33,7 @@ namespace AppInstaller::CLI::Workflow
 
         void ReportIdentity(Execution::Context& context, std::string_view name, std::string_view id)
         {
-            context.Reporter.Info() << "Found " << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << ']' << std::endl;
+            context.Reporter.Info() << Resource::String::ReportIdentityFound << ' ' << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << ']' << std::endl;
         }
 
         void SearchSourceApplyFilters(Execution::Context& context, SearchRequest& searchRequest, MatchType matchType)
@@ -120,8 +120,8 @@ namespace AppInstaller::CLI::Workflow
             if (context.Args.Contains(Execution::Args::Type::Source) && !sources.empty())
             {
                 // A bad name was given, try to help.
-                context.Reporter.Error() << Resource::String::NoSourcesMatchValue << " : "_liv << sourceName << std::endl;
-                context.Reporter.Info() <<  Resource::String::ConfiguredSourcesListing << " :"_liv << std::endl;
+                context.Reporter.Error() << Resource::String::OpenSourceFailedNoMatch << ' ' << context.Args.GetArg(Execution::Args::Type::Source) << std::endl;
+                context.Reporter.Info() << Resource::String::OpenSourceFailedNoMatchHelp << std::endl;
                 for (const auto& details : sources)
                 {
                     context.Reporter.Info() << "  "_liv << details.Name << std::endl;
@@ -132,12 +132,14 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 // Even if a name was given, there are no sources
-                context.Reporter.Error() << Resource::String::NoSourcesDefinedSuggestion << std::endl;
+                context.Reporter.Error() << Resource::String::OpenSourceFailedNoSourceDefined << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED);
             }
         }
-
-        context.Add<Execution::Data::Source>(std::move(source));
+        else
+        {
+            context.Add<Execution::Data::Source>(std::move(source));
+        }
     }
 
     void OpenPredefinedSource::operator()(Execution::Context& context) const
@@ -165,7 +167,6 @@ namespace AppInstaller::CLI::Workflow
         std::shared_ptr<Repository::ISource> availableSource = context.Get<Execution::Data::Source>();
 
         // Open the predefined source.
-        context << OpenPredefinedSource(m_predefinedSource);
 
         // Create the composite source from the two.
         std::shared_ptr<Repository::ISource> compositeSource = Repository::CreateCompositeSource(context.Get<Execution::Data::Source>(), availableSource);
@@ -377,7 +378,16 @@ namespace AppInstaller::CLI::Workflow
         if (searchResult.Matches.size() == 0)
         {
             Logging::Telemetry().LogNoAppMatch();
-            context.Reporter.Info() << Resource::String::NoPackageFound << std::endl;
+
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate))
+            {
+                context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
+            }
+            else
+            {
+                context.Reporter.Info() << Resource::String::NoPackageFound << std::endl;
+            }
+
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
         }
     }
@@ -393,7 +403,16 @@ namespace AppInstaller::CLI::Workflow
             if (searchResult.Matches.size() > 1)
             {
                 Logging::Telemetry().LogMultiAppMatch();
-                context.Reporter.Warn() << Resource::String::MultiplePackagesFound << std::endl;
+
+                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate))
+                {
+                    context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Warn() << Resource::String::MultiplePackagesFound << std::endl;
+                }
+
                 context << ReportSearchResult;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
             }
@@ -419,7 +438,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!manifest)
         {
-            context.Reporter.Error() << "No version found matching: ";
+            context.Reporter.Error() << Resource::String::GetManifestResultVersionNotFound << ' ';
             if (!version.empty())
             {
                 context.Reporter.Error() << version;
@@ -443,13 +462,13 @@ namespace AppInstaller::CLI::Workflow
 
         if (!std::filesystem::exists(path))
         {
-            context.Reporter.Error() << "File does not exist: " << path.u8string() << std::endl;
+            context.Reporter.Error() << Resource::String::VerifyFileFailedNotExist << ' ' << path.u8string() << std::endl;
             AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND));
         }
 
         if (std::filesystem::is_directory(path))
         {
-            context.Reporter.Error() << "Path is a directory: " << path.u8string() << std::endl;
+            context.Reporter.Error() << Resource::String::VerifyFileFailedIsDirectory << ' ' << path.u8string() << std::endl;
             AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_DIRECTORY_NOT_SUPPORTED));
         }
     }
@@ -499,7 +518,15 @@ namespace AppInstaller::CLI::Workflow
 
     void SelectInstaller(Execution::Context& context)
     {
-        ManifestComparator manifestComparator(context.Args);
+        bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
+
+        std::map<std::string, std::string> installationMetadata;
+        if (isUpdate)
+        {
+            installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetInstallationMetadata();
+        }
+
+        ManifestComparator manifestComparator(context.Args, installationMetadata);
         context.Add<Execution::Data::Installer>(manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>()));
     }
 
@@ -521,6 +548,51 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Error, << Settings::ExperimentalFeature::GetFeature(m_feature).Name() << " feature is disabled. Execution cancelled.");
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
         }
+    }
+
+    void SearchSourceUsingManifest(Execution::Context& context)
+    {
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
+        auto source = context.Get<Execution::Data::Source>();
+
+        // First try search using ProductId or PackageFamilyName
+        for (const auto& installer : manifest.Installers)
+        {
+            SearchRequest searchRequest;
+            if (!installer.PackageFamilyName.empty())
+            {
+                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, installer.PackageFamilyName));
+            }
+            else if (!installer.ProductCode.empty())
+            {
+                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, installer.ProductCode));
+            }
+
+            if (!searchRequest.Inclusions.empty())
+            {
+                auto searchResult = source->Search(searchRequest);
+
+                if (!searchResult.Matches.empty())
+                {
+                    context.Add<Execution::Data::SearchResult>(std::move(searchResult));
+                    return;
+                }
+            }
+        }
+
+        // If we cannot find a package using PackageFamilyName or ProductId, try manifest Id and Name pair
+        SearchRequest searchRequest;
+        searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, manifest.Id));
+        // In case there're same Ids from different sources, filter the result using package name
+        searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Name, MatchType::CaseInsensitive, manifest.Name));
+
+        context.Add<Execution::Data::SearchResult>(source->Search(searchRequest));
+    }
+
+    void GetInstalledPackageVersion(Execution::Context& context)
+    {
+        const auto& searchResult = context.Get<Execution::Data::SearchResult>();
+        context.Add<Execution::Data::InstalledPackageVersion>(searchResult.Matches.at(0).Package->GetInstalledVersion());
     }
 }
 

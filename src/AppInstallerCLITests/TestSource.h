@@ -2,92 +2,51 @@
 // Licensed under the MIT License.
 #pragma once
 #include <Public/AppInstallerRepositorySource.h>
+#include <winget/Manifest.h>
 
 #include <functional>
 
 namespace TestCommon
 {
-    using namespace AppInstaller::Manifest;
-    using namespace AppInstaller::Repository;
-    using namespace AppInstaller::Utility;
-
     // IPackageVersion for TestSource
-    struct TestPackageVersion : public IPackageVersion
+    struct TestPackageVersion : public AppInstaller::Repository::IPackageVersion
     {
-        TestPackageVersion(const Manifest& manifest) : m_manifest(manifest) {}
-        LocIndString GetProperty(PackageVersionProperty property) const override;
-        std::vector<LocIndString> GetMultiProperty(PackageVersionMultiProperty property) const override;
-        Manifest GetManifest() const override;
+        TestPackageVersion(const AppInstaller::Manifest::Manifest& manifest);
+
+        AppInstaller::Utility::LocIndString GetProperty(AppInstaller::Repository::PackageVersionProperty property) const override;
+        std::vector<AppInstaller::Utility::LocIndString> GetMultiProperty(AppInstaller::Repository::PackageVersionMultiProperty property) const override;
+        AppInstaller::Manifest::Manifest GetManifest() const override;
         std::map<std::string, std::string> GetInstallationMetadata() const override;
 
-        Manifest m_manifest;
+        AppInstaller::Manifest::Manifest m_manifest;
     };
 
     // IPackage for TestSource
-    struct TestPackage : public IPackage
+    struct TestPackage : public AppInstaller::Repository::IPackage
     {
-        TestPackage(const Manifest& manifest) : m_manifest(manifest) {}
+        TestPackage(const AppInstaller::Manifest::Manifest& manifest);
 
-        LocIndString GetProperty(PackageProperty property) const override
-        {
-            switch (property)
-            {
-            case PackageProperty::Id:
-                return LocIndString{ m_manifest.Id };
-            case PackageProperty::Name:
-                return LocIndString{ m_manifest.Name };
-            default:
-                return {};
-            }
-        }
+        AppInstaller::Utility::LocIndString GetProperty(AppInstaller::Repository::PackageProperty property) const override;
+        std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetInstalledVersion() const override;
+        std::vector<AppInstaller::Repository::PackageVersionKey> GetAvailableVersionKeys() const override;
+        std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetLatestAvailableVersion() const override;
+        std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetAvailableVersion(const AppInstaller::Repository::PackageVersionKey& versionKey) const override;
+        bool IsUpdateAvailable() const override;
 
-        std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
-        {
-            return {};
-        }
-
-        std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
-        {
-            return { { "", m_manifest.Version, m_manifest.Channel } };
-        }
-
-        std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
-        {
-            return std::make_shared<TestPackageVersion>(m_manifest);
-        }
-
-        std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override
-        {
-            if ((versionKey.Version.empty() || versionKey.Version == m_manifest.Version) &&
-                (versionKey.Channel.empty() || versionKey.Channel == m_manifest.Channel))
-            {
-                return std::make_shared<TestPackageVersion>(m_manifest);
-            }
-            else
-            {
-                return {};
-            }
-        }
-
-        bool IsUpdateAvailable() const override
-        {
-            return false;
-        }
-
-        Manifest m_manifest;
+        AppInstaller::Manifest::Manifest m_manifest;
     };
 
     // An ISource implementation for use across the test code.
-    struct TestSource : public ISource
+    struct TestSource : public AppInstaller::Repository::ISource
     {
-        const SourceDetails& GetDetails() const override;
+        const AppInstaller::Repository::SourceDetails& GetDetails() const override;
         const std::string& GetIdentifier() const override;
-        SearchResult Search(const SearchRequest& request) const override;
+        AppInstaller::Repository::SearchResult Search(const AppInstaller::Repository::SearchRequest& request) const override;
         bool IsComposite() const override;
 
-        SourceDetails Details;
+        AppInstaller::Repository::SourceDetails Details;
         std::string Identifier = "*TestSource";
-        std::function<SearchResult(const SearchRequest& request)> SearchFunction;
+        std::function<AppInstaller::Repository::SearchResult(const AppInstaller::Repository::SearchRequest& request)> SearchFunction;
         bool Composite = false;
     };
 }

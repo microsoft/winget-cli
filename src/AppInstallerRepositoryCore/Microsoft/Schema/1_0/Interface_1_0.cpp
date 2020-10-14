@@ -348,6 +348,61 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         builder.Execute(connection);
     }
 
+    bool Interface::CheckConsistency(const SQLite::Connection& connection, bool log) const
+    {
+        bool result = true;
+
+        // Check the manifest table references to it's 1:1 tables
+        if (result || log)
+        {
+            result = ManifestTable::CheckConsistency<IdTable>(connection, log) && result;
+        }
+
+        if (result || log)
+        {
+            result = ManifestTable::CheckConsistency<NameTable>(connection, log) && result;
+        }
+
+        if (result || log)
+        {
+            result = ManifestTable::CheckConsistency<MonikerTable>(connection, log) && result;
+        }
+
+        if (result || log)
+        {
+            result = ManifestTable::CheckConsistency<VersionTable>(connection, log) && result;
+        }
+
+        if (result || log)
+        {
+            result = ManifestTable::CheckConsistency<ChannelTable>(connection, log) && result;
+        }
+
+        if (result || log)
+        {
+            result = ManifestTable::CheckConsistency<PathPartTable>(connection, log) && result;
+        }
+
+        // Check the pathpaths table for consistency
+        if (result || log)
+        {
+            result = PathPartTable::CheckConsistency(connection, log) && result;
+        }
+
+        // Check the 1:N map tables for consistency
+        if (result || log)
+        {
+            result = TagsTable::CheckConsistency(connection, log) && result;
+        }
+
+        if (result || log)
+        {
+            result = CommandsTable::CheckConsistency(connection, log) && result;
+        }
+
+        return result;
+    }
+
     ISQLiteIndex::SearchResult Interface::Search(const SQLite::Connection& connection, const SearchRequest& request) const
     {
         if (request.IsForEverything())

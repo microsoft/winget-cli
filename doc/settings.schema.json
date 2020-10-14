@@ -52,6 +52,11 @@
           "description": "Enable the list command while it is in development",
           "type": "boolean",
           "default": "false"
+        },
+        "upgrade": {
+          "description": "Enable the upgrade command while it is in development",
+          "type": "boolean",
+          "default": "false"
         }
       }
     }

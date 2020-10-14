@@ -226,7 +226,9 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& Not();
         StatementBuilder& In();
 
-        StatementBuilder& IsNull();
+        // IsNull(true) means the value is null; IsNull(false) means the value is not null.
+        StatementBuilder& IsNull(bool isNull = true);
+        StatementBuilder& IsNotNull() { return IsNull(false); }
 
         // Operators for combining filter clauses.
         StatementBuilder& And(std::string_view column);
@@ -237,6 +239,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& Join(std::string_view table);
         StatementBuilder& Join(QualifiedTable table);
         StatementBuilder& Join(std::initializer_list<std::string_view> table);
+
+        // Begin a left outer join clause.
+        // The initializer_list form enables the table name to be constructed from multiple parts.
+        StatementBuilder& LeftOuterJoin(std::string_view table);
+        StatementBuilder& LeftOuterJoin(QualifiedTable table);
+        StatementBuilder& LeftOuterJoin(std::initializer_list<std::string_view> table);
 
         // Set the join constraint.
         StatementBuilder& On(const QualifiedColumn& column1, const QualifiedColumn& column2);

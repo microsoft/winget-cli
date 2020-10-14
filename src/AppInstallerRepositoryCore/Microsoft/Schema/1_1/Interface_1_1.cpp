@@ -173,6 +173,24 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         builder.Execute(connection);
     }
 
+    bool Interface::CheckConsistency(const SQLite::Connection& connection, bool log) const
+    {
+        bool result = V1_0::Interface::CheckConsistency(connection, log);
+
+        // If the v1.0 index was consistent, or if full logging of inconsistency was requested, check the v1.1 data.
+        if (result || log)
+        {
+            result = PackageFamilyNameTable::CheckConsistency(connection, log) && result;
+        }
+
+        if (result || log)
+        {
+            result = ProductCodeTable::CheckConsistency(connection, log) && result;
+        }
+
+        return result;
+    }
+
     ISQLiteIndex::SearchResult Interface::Search(const SQLite::Connection& connection, const SearchRequest& request) const
     {
         // Update any system reference strings to be folded

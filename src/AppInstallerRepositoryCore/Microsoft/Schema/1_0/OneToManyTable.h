@@ -43,6 +43,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Removes data that is no longer needed for an index that is to be published.
         void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndeces, bool preserveManifestIndex, bool preserveValuesIndex);
 
+        // Checks the consistency of the index to ensure that every referenced row exists.
+        // Returns true if index is consistent; false if it is not.
+         bool OneToManyTableCheckConsistency(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool log);
+
         // Determines if the table is empty.
         bool OneToManyTableIsEmpty(SQLite::Connection& connection, std::string_view tableName);
     }
@@ -115,6 +119,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         static void PrepareForPackaging_deprecated(SQLite::Connection& connection)
         {
             details::OneToManyTablePrepareForPackaging(connection, TableInfo::TableName(), false, false, false);
+        }
+
+        // Checks the consistency of the index to ensure that every referenced row exists.
+        // Returns true if index is consistent; false if it is not.
+        static bool CheckConsistency(const SQLite::Connection& connection, bool log)
+        {
+            return details::OneToManyTableCheckConsistency(connection, TableInfo::TableName(), TableInfo::ValueName(), log);
         }
 
         // Determines if the table is empty.

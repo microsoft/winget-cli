@@ -70,9 +70,11 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    Context Context::Clone()
+    std::unique_ptr<Context> Context::Clone()
     {
-        return { Reporter };
+        auto clone = std::make_unique<Context>(Reporter);
+        clone->GetFlags() = m_flags;
+        return clone;
     }
 
     void Context::EnableCtrlHandler(bool enabled)

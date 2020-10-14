@@ -73,6 +73,9 @@ namespace AppInstaller::Manifest
 
         ManifestInstaller::InstallerTypeEnum InstallerType = ManifestInstaller::InstallerTypeEnum::Unknown;
 
+        // Default is Install if not specified
+        ManifestInstaller::UpdateBehaviorEnum UpdateBehavior = ManifestInstaller::UpdateBehaviorEnum::Install;
+
         // Package family name for MSIX packaged installers.
         string_t PackageFamilyName;
 

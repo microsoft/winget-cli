@@ -123,6 +123,15 @@
     <ClInclude Include="ChannelStreams.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Workflows\UpdateFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\MSStoreInstallerHandler.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\UpgradeCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
     <ClInclude Include="Commands\ListCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
@@ -214,6 +223,15 @@
     </ClCompile>
     <ClCompile Include="ChannelStreams.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\UpdateFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\MSStoreInstallerHandler.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\UpgradeCommand.cpp">
+      <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="Commands\ListCommand.cpp">
       <Filter>Commands</Filter>

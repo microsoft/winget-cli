@@ -11,6 +11,8 @@ namespace AppInstaller::CLI
     using namespace Utility::literals;
     using namespace Settings;
 
+    constexpr std::string_view s_Command_ArgName_SilentAndInteractive = "silent|interactive"sv;
+
     Command::Command(std::string_view name, std::string_view parent, Command::Visibility visibility, ExperimentalFeature::Feature feature) :
         m_name(name), m_visibility(visibility), m_feature(feature)
     {
@@ -719,6 +721,11 @@ namespace AppInstaller::CLI
             {
                 throw CommandException(Resource::String::TooManyArgError, arg.Name());
             }
+        }
+
+        if (execArgs.Contains(Execution::Args::Type::Silent) && execArgs.Contains(Execution::Args::Type::Interactive))
+        {
+            throw CommandException(Resource::String::TooManyBehaviorsError, s_Command_ArgName_SilentAndInteractive);
         }
     }
 
