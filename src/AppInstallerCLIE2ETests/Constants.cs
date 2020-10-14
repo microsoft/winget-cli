@@ -43,6 +43,7 @@ namespace AppInstallerCLIE2ETests
         public const string SignTool = "signtool.exe";
         public const string IndexCreationTool = "IndexCreationTool";
         public const string WinGetUtil = "WinGetUtil";
+        public const string E2ETestLogsPath = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir";
 
         public class ErrorCode
         {

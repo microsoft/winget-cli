@@ -228,5 +228,24 @@ namespace AppInstallerCLIE2ETests
         {
             return RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage");
         }
+
+        /// <summary>
+        /// Copies log files to the path %LOCALAPPDATA%\E2ETestLogs
+        /// </summary>
+        public static void PublishE2ETestLogs()
+        {
+            string localAppDataPath = Environment.GetEnvironmentVariable("LocalAppData");
+            string testLogsSourcePath = Path.Combine(localAppDataPath, Constants.E2ETestLogsPath);
+            string testLogsDestPath = Path.Combine(localAppDataPath, "E2ETestLogs");
+
+            if (Directory.Exists(testLogsSourcePath))
+            {
+                if (Directory.Exists(testLogsDestPath))
+                {
+                    TestIndexSetup.DeleteDirectoryContents(new DirectoryInfo(testLogsDestPath));
+                }
+                TestIndexSetup.CopyDirectory(testLogsSourcePath, testLogsDestPath);
+            }
+        }
     }
 }
