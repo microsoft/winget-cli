@@ -296,6 +296,10 @@ void OverrideForPWA(TestContext& context)
         file << context.Get<Execution::Data::Installer>()->Url;
         file.close();
        } });
+
+    context.Override({ "EnsureFeatureEnabled", [](TestContext&)
+    {
+    } });
     
 }
 TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
@@ -363,7 +367,7 @@ TEST_CASE("MSStoreInstallFlowWithTestManifest", "[InstallFlow]")
 
 TEST_CASE("PWAInstallFlowWithTestManifest", "[InstallFlow]")
 {
-    TestCommon::TempFile installResultPath("PWAInstalled.txt");
+    TestCommon::TempFile installResultPath("TestPWAInstalled.txt");
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
