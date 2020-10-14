@@ -159,3 +159,30 @@ TEST_CASE("MinOsVersion_Check", "[versions]")
     REQUIRE(Runtime::IsCurrentOSVersionGreaterThanOrEqual(Version("6.1")));
     REQUIRE(!Runtime::IsCurrentOSVersionGreaterThanOrEqual(Version("10.0.65535")));
 }
+
+TEST_CASE("VersionLatest", "[versions]")
+{
+    REQUIRE(Version::CreateLatest().IsLatest());
+    REQUIRE(Version("latest").IsLatest());
+    REQUIRE(Version("LATEST").IsLatest());
+    REQUIRE(!Version("1.0").IsLatest());
+
+    RequireLessThan("1.0", "latest");
+    RequireLessThan("100", "latest");
+    RequireLessThan("943849587389754876.1", "latest");
+
+    RequireEqual("latest", "LATEST");
+}
+
+TEST_CASE("VersionUnknown", "[versions]")
+{
+    REQUIRE(Version::CreateUnknown().IsUnknown());
+    REQUIRE(Version("unknown").IsUnknown());
+    REQUIRE(Version("UNKNOWN").IsUnknown());
+    REQUIRE(!Version("1.0").IsUnknown());
+
+    RequireLessThan("unknown", "1.0");
+    RequireLessThan("unknown", "1.fork");
+
+    RequireEqual("unknown", "UNKNOWN");
+}

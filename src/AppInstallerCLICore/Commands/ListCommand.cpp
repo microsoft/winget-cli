@@ -62,7 +62,6 @@ namespace AppInstaller::CLI
 
     std::string ListCommand::HelpLink() const
     {
-        // TODO: Make me
         return "https://aka.ms/winget-command-list";
     }
 

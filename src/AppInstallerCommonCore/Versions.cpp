@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerVersions.h"
+#include "Public/AppInstallerStrings.h"
 
 namespace AppInstaller::Utility
 {
@@ -133,7 +134,7 @@ namespace AppInstaller::Utility
 
     bool Version::IsLatest() const
     {
-        return (m_parts.size() == 1 && m_parts[0].Integer == 0 && m_parts[0].Other == s_Version_Part_Latest);
+        return (m_parts.size() == 1 && m_parts[0].Integer == 0 && Utility::CaseInsensitiveEquals(m_parts[0].Other, s_Version_Part_Latest));
     }
 
     Version Version::CreateLatest()
@@ -145,7 +146,7 @@ namespace AppInstaller::Utility
 
     bool Version::IsUnknown() const
     {
-        return (m_parts.size() == 1 && m_parts[0].Integer == 0 && m_parts[0].Other == s_Version_Part_Unknown);
+        return (m_parts.size() == 1 && m_parts[0].Integer == 0 && Utility::CaseInsensitiveEquals(m_parts[0].Other, s_Version_Part_Unknown));
     }
 
     Version Version::CreateUnknown()

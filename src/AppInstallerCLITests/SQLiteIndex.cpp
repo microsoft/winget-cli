@@ -1803,3 +1803,63 @@ TEST_CASE("SQLiteIndex_Search_ProductCodeMatch", "[sqliteindex]")
         REQUIRE(results.Matches.size() == 0);
     }
 }
+
+TEST_CASE("SQLiteIndex_GetMultiProperty_PackageFamilyName", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1", "PFN2" }, {} },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 1);
+
+    auto props = index.GetMultiPropertyByManifestId(results.Matches[0].first, PackageVersionMultiProperty::PackageFamilyName);
+
+    if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
+    {
+        REQUIRE(props.size() == 2);
+        REQUIRE(std::find(props.begin(), props.end(), "PFN1") != props.end());
+        REQUIRE(std::find(props.begin(), props.end(), "PFN2") != props.end());
+    }
+    else
+    {
+        REQUIRE(props.empty());
+    }
+}
+
+TEST_CASE("SQLiteIndex_GetMultiProperty_ProductCode", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", {}, { "PC1", "PC2" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 1);
+
+    auto props = index.GetMultiPropertyByManifestId(results.Matches[0].first, PackageVersionMultiProperty::ProductCode);
+
+    if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
+    {
+        REQUIRE(props.size() == 2);
+        REQUIRE(std::find(props.begin(), props.end(), "PC1") != props.end());
+        REQUIRE(std::find(props.begin(), props.end(), "PC2") != props.end());
+    }
+    else
+    {
+        REQUIRE(props.empty());
+    }
+}

@@ -19,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{8D53
 		..\cgmanifest.json = ..\cgmanifest.json
 		..\README.md = ..\README.md
 		..\doc\Settings.md = ..\doc\Settings.md
+		..\doc\settings.schema.json = ..\doc\settings.schema.json
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "catch2", "catch2\catch2.vcxitems", "{5295E21E-9868-4DE2-A177-FBB97B36579B}"

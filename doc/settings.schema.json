@@ -47,6 +47,11 @@
           "description": "Experimental support for Microsoft Store source",
           "type": "boolean",
           "default": "false"
+        },
+        "list": {
+          "description": "Enable the list command while it is in development",
+          "type": "boolean",
+          "default": "false"
         }
       }
     }

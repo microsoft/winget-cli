@@ -16,6 +16,8 @@ namespace AppInstaller::Settings
 
     static constexpr std::string_view s_SettingEmpty =
         R"({
+    "$schema": "https://aka.ms/winget-settings.schema.json",
+
     // For documentation on these settings, see: https://aka.ms/winget-settings
     // "source": {
     //    "autoUpdateIntervalInMinutes": 5
