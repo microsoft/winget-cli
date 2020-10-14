@@ -56,6 +56,7 @@ namespace AppInstaller::CLI::Execution
             Position,
 
             // Other
+            All, // Used in Update command to update all installed packages to latest
             Force,      // Generic flag to enable a command to skip some check
             ListVersions, // Used in Show command to list all available versions of an app
             NoVT, // Disable VirtualTerminal outputs
@@ -108,6 +109,11 @@ namespace AppInstaller::CLI::Execution
         void AddArg(Type arg, std::string_view value)
         {
             m_parsedArgs[arg].emplace_back(value);
+        }
+
+        bool Empty()
+        {
+            return m_parsedArgs.empty();
         }
 
     private:

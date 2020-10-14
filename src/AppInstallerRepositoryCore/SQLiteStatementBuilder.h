@@ -97,6 +97,22 @@ namespace AppInstaller::Repository::SQLite::Builder
         Min
     };
 
+    // Helper to mark create an integer primary key for rowid, making it stable across vacuum.
+    struct IntegerPrimaryKey : public details::SubBuilderBase
+    {
+        IntegerPrimaryKey();
+
+        IntegerPrimaryKey(const IntegerPrimaryKey&) = default;
+        IntegerPrimaryKey& operator=(const IntegerPrimaryKey&) = default;
+
+        IntegerPrimaryKey(IntegerPrimaryKey&&) noexcept = default;
+        IntegerPrimaryKey& operator=(IntegerPrimaryKey&&) noexcept = default;
+
+        // Set the column to autoincrement. SQLite recommends against using this value unless
+        // you need to ensure that rowids are not ever reused.
+        IntegerPrimaryKey& AutoIncrement(bool isTrue = true);
+    };
+
     // Helper used when creating a table.
     struct ColumnBuilder : public details::SubBuilderBase
     {
@@ -210,7 +226,9 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& Not();
         StatementBuilder& In();
 
-        StatementBuilder& IsNull();
+        // IsNull(true) means the value is null; IsNull(false) means the value is not null.
+        StatementBuilder& IsNull(bool isNull = true);
+        StatementBuilder& IsNotNull() { return IsNull(false); }
 
         // Operators for combining filter clauses.
         StatementBuilder& And(std::string_view column);
@@ -221,6 +239,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& Join(std::string_view table);
         StatementBuilder& Join(QualifiedTable table);
         StatementBuilder& Join(std::initializer_list<std::string_view> table);
+
+        // Begin a left outer join clause.
+        // The initializer_list form enables the table name to be constructed from multiple parts.
+        StatementBuilder& LeftOuterJoin(std::string_view table);
+        StatementBuilder& LeftOuterJoin(QualifiedTable table);
+        StatementBuilder& LeftOuterJoin(std::initializer_list<std::string_view> table);
 
         // Set the join constraint.
         StatementBuilder& On(const QualifiedColumn& column1, const QualifiedColumn& column2);

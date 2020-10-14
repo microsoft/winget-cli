@@ -54,6 +54,22 @@ namespace AppInstaller::Manifest
         return result;
     }
 
+    ManifestInstaller::UpdateBehaviorEnum ManifestInstaller::ConvertToUpdateBehaviorEnum(const std::string& in)
+    {
+        UpdateBehaviorEnum result = UpdateBehaviorEnum::Unknown;
+
+        if (Utility::CaseInsensitiveEquals(in, "install"))
+        {
+            result = UpdateBehaviorEnum::Install;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "uninstallprevious"))
+        {
+            result = UpdateBehaviorEnum::UninstallPrevious;
+        }
+
+        return result;
+    }
+
     std::string ManifestInstaller::InstallerTypeToString(ManifestInstaller::InstallerTypeEnum installerType)
     {
         std::string result = "Unknown";
@@ -111,5 +127,31 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Wix ||
             installerType == InstallerTypeEnum::Burn
             );
+    }
+
+    bool ManifestInstaller::IsInstallerTypeCompatible(InstallerTypeEnum type1, InstallerTypeEnum type2)
+    {
+        if (type1 == InstallerTypeEnum::Unknown || type2 == InstallerTypeEnum::Unknown)
+        {
+            return false;
+        }
+
+        std::vector<InstallerTypeEnum> compatList1 =
+        {
+            InstallerTypeEnum::Exe,
+            InstallerTypeEnum::Inno,
+            InstallerTypeEnum::Nullsoft,
+            InstallerTypeEnum::Burn,
+        };
+
+        std::vector<InstallerTypeEnum> compatList2 =
+        {
+            InstallerTypeEnum::Msi,
+            InstallerTypeEnum::Wix
+        };
+
+        return type1 == type2 ||
+            (std::find(compatList1.begin(), compatList1.end(), type1) != compatList1.end() && std::find(compatList1.begin(), compatList1.end(), type2) != compatList1.end()) ||
+            (std::find(compatList2.begin(), compatList2.end(), type1) != compatList2.end() && std::find(compatList2.begin(), compatList2.end(), type2) != compatList2.end());
     }
 }

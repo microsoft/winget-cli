@@ -23,6 +23,8 @@ namespace AppInstaller::Settings
             return User().Get<Setting::EFExperimentalMSStore>();
         case Feature::ExperimentalPWA:
             return User().Get<Setting::EFExperimentalPWA>();
+        case Feature::ExperimentalUpgrade:
+            return User().Get<Setting::EFExperimentalUpgrade>();
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -40,6 +42,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Microsoft Store Support", "experimentalMSStore", "https://aka.ms/winget-settings", Feature::ExperimentalMSStore };
         case Feature::ExperimentalPWA:
             return ExperimentalFeature{ "PWA Support", "experimentalPWA", "https://aka.ms/winget-settings", Feature::ExperimentalPWA };
+        case Feature::ExperimentalUpgrade:
+            return ExperimentalFeature{ "Upgrade Command", "upgrade", "https://aka.ms/winget-settings", Feature::ExperimentalUpgrade };
         default:
             THROW_HR(E_UNEXPECTED);
         }

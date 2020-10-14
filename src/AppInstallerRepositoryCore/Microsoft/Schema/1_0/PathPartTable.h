@@ -23,6 +23,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Creates the table with standard primary keys.
         static void Create_deprecated(SQLite::Connection& connection);
 
+        // Gets the table name.
+        static std::string_view TableName();
+
         // Gets the value name.
         static std::string_view ValueName();
 
@@ -48,6 +51,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Removes data that is no longer needed for an index that is to be published.
         static void PrepareForPackaging_deprecated(SQLite::Connection& connection);
+
+        // Checks the consistency of the index to ensure that every referenced row exists.
+        // Returns true if index is consistent; false if it is not.
+        static bool CheckConsistency(const SQLite::Connection& connection, bool log);
 
         // Determines if the table is empty.
         static bool IsEmpty(SQLite::Connection& connection);

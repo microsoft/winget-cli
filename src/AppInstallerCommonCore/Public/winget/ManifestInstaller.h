@@ -34,6 +34,13 @@ namespace AppInstaller::Manifest
             Unknown
         };
 
+        enum class UpdateBehaviorEnum
+        {
+            Install,
+            UninstallPrevious,
+            Unknown,
+        };
+
         enum class InstallerSwitchType
         {
             Custom,
@@ -43,6 +50,7 @@ namespace AppInstaller::Manifest
             Language,
             Log,
             InstallLocation,
+            Update
         };
 
         // Required. Values: x86, x64, arm, arm64, all.
@@ -76,10 +84,15 @@ namespace AppInstaller::Manifest
         // If present, has more precedence than root
         InstallerTypeEnum InstallerType;
 
+        // Default is Install if not specified
+        UpdateBehaviorEnum UpdateBehavior;
+
         // If present, has more precedence than root
         std::map<InstallerSwitchType, string_t> Switches;
 
         static InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
+
+        static UpdateBehaviorEnum ConvertToUpdateBehaviorEnum(const std::string& in);
 
         static std::string InstallerTypeToString(InstallerTypeEnum installerType);
 
@@ -88,5 +101,8 @@ namespace AppInstaller::Manifest
 
         // Gets a value indicating whether the given installer type uses the ProductCode system reference.
         static bool DoesInstallerTypeUseProductCode(InstallerTypeEnum installerType);
+
+        // Checks whether 2 installer types are compatible. E.g. inno and exe are update compatible
+        static bool IsInstallerTypeCompatible(InstallerTypeEnum type1, InstallerTypeEnum type2);
     };
 }

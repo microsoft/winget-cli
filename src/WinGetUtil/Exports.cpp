@@ -157,6 +157,21 @@ extern "C"
     }
     CATCH_RETURN()
 
+    WINGET_UTIL_API WinGetSQLiteIndexCheckConsistency(
+        WINGET_SQLITE_INDEX_HANDLE index,
+        BOOL* succeeded) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !index);
+        THROW_HR_IF(E_INVALIDARG, !succeeded);
+
+        bool result = reinterpret_cast<SQLiteIndex*>(index)->CheckConsistency(true);
+
+        *succeeded = (result ? TRUE : FALSE);
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
     WINGET_UTIL_API WinGetValidateManifest(
         WINGET_STRING manifestPath,
         BOOL* succeeded,

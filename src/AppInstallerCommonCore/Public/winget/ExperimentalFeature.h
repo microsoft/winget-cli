@@ -23,7 +23,8 @@ namespace AppInstaller::Settings
             ExperimentalArg = 0x2,
             ExperimentalMSStore = 0x4,
             ExperimentalPWA = 0x5,
-            Max = 0x8, // This MUST always be last
+            ExperimentalUpgrade = 0x8,
+            Max = 0x10, // This MUST always be last
         };
 
         using Feature_t = std::underlying_type_t<ExperimentalFeature::Feature>;

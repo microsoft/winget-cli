@@ -52,8 +52,18 @@ namespace AppInstaller::CLI::Execution
         LogPath,
         InstallerArgs,
         CompletionData,
+        InstalledPackageVersion,
         Max
     };
+
+    // bit masks used as Context flags
+    enum class ContextFlag : int
+    {
+        None = 0x0,
+        InstallerExecutionUseUpdate = 0x1,
+    };
+
+    DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
 
     namespace details
     {
@@ -123,6 +133,12 @@ namespace AppInstaller::CLI::Execution
             using value_t = CLI::CompletionData;
         };
 
+        template <>
+        struct DataMapping<Data::InstalledPackageVersion>
+        {
+            using value_t = std::shared_ptr<Repository::IPackageVersion>;
+        };
+
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.
         template <size_t... I>
         inline auto Deduce(std::index_sequence<I...>) { return std::variant<std::monostate, DataMapping<static_cast<Data>(I)>::value_t...>{}; }
@@ -141,6 +157,9 @@ namespace AppInstaller::CLI::Execution
     {
         Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
 
+        // Clone the reporter for this constructor.
+        Context(Execution::Reporter& reporter) : Reporter(reporter, Execution::Reporter::clone_t{}) {}
+
         virtual ~Context();
 
         // The path for console input/output for all functionality.
@@ -150,7 +169,7 @@ namespace AppInstaller::CLI::Execution
         Args Args;
 
         // Creates a copy of this context as it was at construction.
-        Context Clone();
+        virtual std::unique_ptr<Context> Clone();
 
         // Enables reception of CTRL signals.
         // Only one context can be enabled to handle CTRL signals at a time.
@@ -188,19 +207,23 @@ namespace AppInstaller::CLI::Execution
             return std::get<details::DataIndex(D)>(itr->second);
         }
 
+        // Gets context flags; which can be modified in place.
+        ContextFlag& GetFlags()
+        {
+            return m_flags;
+        }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
         virtual bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask&) { return true; }
 #endif
 
     private:
-        // Clone the reporter for this constructor.
-        Context(Execution::Reporter& reporter) : Reporter(reporter, Execution::Reporter::clone_t{}) {}
-
         DestructionToken m_disableCtrlHandlerOnExit = false;
         bool m_isTerminated = false;
         HRESULT m_terminationHR = S_OK;
         std::map<Data, details::DataVariant> m_data;
         size_t m_CtrlSignalCount = 0;
+        ContextFlag m_flags = ContextFlag::None;
     };
 }

@@ -604,6 +604,12 @@ namespace AppInstaller::Repository
         THROW_HR(E_UNEXPECTED);
     }
 
+    std::shared_ptr<ISource> CreateCompositeSource(std::shared_ptr<ISource>& source1, std::shared_ptr<ISource>&)
+    {
+        // TODO: needs implementation
+        return source1;
+    }
+
     bool UpdateSource(std::string_view name, IProgressCallback& progress)
     {
         THROW_HR_IF(E_INVALIDARG, name.empty());

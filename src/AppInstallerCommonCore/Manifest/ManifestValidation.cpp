@@ -80,6 +80,11 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "InstallerType");
             }
 
+            if (installer.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::Unknown)
+            {
+                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "UpdateBehavior");
+            }
+
             // Validate system reference strings if they are set at the installer level
             if (!installer.PackageFamilyName.empty() && !ManifestInstaller::DoesInstallerTypeUsePackageFamilyName(installer.InstallerType))
             {

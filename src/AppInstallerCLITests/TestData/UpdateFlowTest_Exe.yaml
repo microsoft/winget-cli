@@ -1,5 +1,6 @@
+# Same content with InstallFlowTest_Exe.yaml but with higher version
 Id: AppInstallerCliTest.TestExeInstaller
-Version: 1.0.0.0
+Version: 2.0.0.0
 Name: AppInstaller Test Installer
 Publisher: Microsoft Corporation
 AppMoniker: AICLITestExe

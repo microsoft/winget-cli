@@ -206,6 +206,17 @@ namespace AppInstaller::Repository::Microsoft
         m_interface->PrepareForPackaging(m_dbconn);
     }
 
+    bool SQLiteIndex::CheckConsistency(bool log) const
+    {
+        AICLI_LOG(Repo, Info, << "Checking index consistency...");
+
+        bool result = m_interface->CheckConsistency(m_dbconn, log);
+
+        AICLI_LOG(Repo, Info, << "...index *WAS" << (result ? "*" : " NOT*") << " consistent.");
+
+        return result;
+    }
+
     Schema::ISQLiteIndex::SearchResult SQLiteIndex::Search(const SearchRequest& request) const
     {
         AICLI_LOG(Repo, Info, << "Performing search: " << request.ToString());

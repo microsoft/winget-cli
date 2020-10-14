@@ -202,6 +202,12 @@ namespace AppInstaller::Settings
         {
             return value;
         }
+
+        std::optional<SettingMapping<Setting::EFExperimentalUpgrade>::value_t>
+            SettingMapping<Setting::EFExperimentalUpgrade>::Validate(const SettingMapping<Setting::EFExperimentalUpgrade>::json_t& value)
+        {
+            return value;
+        }
     }
 
     UserSettings::UserSettings() : m_type(UserSettingsType::Default)

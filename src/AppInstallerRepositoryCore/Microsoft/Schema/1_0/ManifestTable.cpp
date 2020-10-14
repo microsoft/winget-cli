@@ -222,6 +222,38 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             builder.Execute(connection);
         }
+
+        bool ManifestTableCheckConsistency(const SQLite::Connection& connection, const SQLite::Builder::QualifiedColumn& target, bool log)
+        {
+            using QCol = SQLite::Builder::QualifiedColumn;
+
+            // Build a select statement to find manifest rows containing references to 1:1 tables with non-existent rowids
+            // Such as:
+            // Select manifest.rowid, manifest.id, ids.id from manifest left outer join ids on manifest.id = ids.rowid where ids.id is NULL
+            SQLite::Builder::StatementBuilder builder;
+            builder.
+                Select({ QCol(s_ManifestTable_Table_Name, SQLite::RowIDName), QCol(s_ManifestTable_Table_Name, target.Column) }).
+                From(s_ManifestTable_Table_Name).
+                LeftOuterJoin(target.Table).On(QCol(s_ManifestTable_Table_Name, target.Column), QCol(target.Table, SQLite::RowIDName)).
+                Where(target).IsNull();
+
+            SQLite::Statement select = builder.Prepare(connection);
+            bool result = true;
+
+            while (select.Step())
+            {
+                result = false;
+
+                if (!log)
+                {
+                    break;
+                }
+
+                AICLI_LOG(Repo, Info, << "  [INVALID] manifest [" << select.GetColumn<SQLite::rowid_t>(0) << "] refers to " << target.Table << " [" << select.GetColumn<SQLite::rowid_t>(1) << "]");
+            }
+
+            return result;
+        }
     }
 
     std::string_view ManifestTable::TableName()
@@ -239,6 +271,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         StatementBuilder createTableBuilder;
         createTableBuilder.CreateTable(s_ManifestTable_Table_Name).BeginColumns();
+
+        // Add an integer primary key to keep the manifest rowid consistent
+        createTableBuilder.Column(IntegerPrimaryKey());
 
         for (const ManifestColumnInfo& value : values)
         {
