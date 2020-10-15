@@ -75,7 +75,7 @@ Therefore to run the executable in the command line, simply change into the dire
 		</TestRunParameters>
 	</RunSettings>
   
-  #### Example of Test.runsettings with completed parameters:
+#### Example of Test.runsettings with completed parameters:
 Make sure to replace **MSFT** with your own user name. Modifying this example with the correct path to each test run parameter for your own local computer should be sufficient to successfully run the E2E tests  once all steps are completed.
    
 	<RunSettings>
@@ -93,3 +93,9 @@ Make sure to replace **MSFT** with your own user name. Modifying this example wi
 		</TestRunParameters>
 	</RunSettings>
 
+
+#### Log Files
+After running the E2E Tests, the logs can be found in either the following two paths:
+
+- **%LOCALAPPDATA%\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir**
+- **%LOCALAPPDATA%\E2ETestLogs**
