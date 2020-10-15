@@ -251,6 +251,13 @@ jobs:
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
     condition: succeededOrFailed()
 
+  - task: CmdLine@2	
+    displayName: Show files in localappdata directory	
+    inputs:	
+      script: dir /s	
+      workingDirectory: %LOCALAPPDATA%	
+    condition: succeededOrFailed()
+
   - task: PublishBuildArtifacts@1
     displayName: Publish E2E Tests Packaged x64 Log
     inputs:
@@ -274,6 +281,13 @@ jobs:
                                   -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
                                   -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
+    condition: succeededOrFailed()
+
+  - task: CmdLine@2	
+    displayName: Show files in localappdata directory	
+    inputs:	
+      script: dir /s	
+      workingDirectory: %LOCALAPPDATA%	
     condition: succeededOrFailed()
     
   - task: PublishBuildArtifacts@1

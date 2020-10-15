@@ -116,8 +116,6 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RunCommand("certutil.exe", $"-delstore \"TRUSTEDPEOPLE\" {Constants.AppInstallerTestCertThumbprint}");
             TestCommon.RunCommand("certutil.exe", $"-delstore \"ROOT\" {Constants.IndexPackageRootCertThumbprint}");
 
-            //Save logs before running removeMSIX
-
             TestCommon.PublishE2ETestLogs();
 
             if (TestCommon.PackagedContext)

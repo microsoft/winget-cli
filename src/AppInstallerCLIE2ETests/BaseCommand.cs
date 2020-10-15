@@ -4,6 +4,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
+    using System.Threading;
 
     public class BaseCommand
     {
@@ -24,6 +25,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RunAICLICommand("source reset", "--force");
             TestCommon.RunAICLICommand("source remove", Constants.DefaultSourceName);
             TestCommon.RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
+            Thread.Sleep(5000);
         }
     }
 }

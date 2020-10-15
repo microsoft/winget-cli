@@ -238,12 +238,14 @@ namespace AppInstallerCLIE2ETests
             string testLogsSourcePath = Path.Combine(localAppDataPath, Constants.E2ETestLogsPath);
             string testLogsDestPath = Path.Combine(localAppDataPath, "E2ETestLogs");
 
+            if (Directory.Exists(testLogsDestPath))
+            {
+                TestIndexSetup.DeleteDirectoryContents(new DirectoryInfo(testLogsDestPath));
+                Directory.Delete(testLogsDestPath);
+            }
+
             if (Directory.Exists(testLogsSourcePath))
             {
-                if (Directory.Exists(testLogsDestPath))
-                {
-                    TestIndexSetup.DeleteDirectoryContents(new DirectoryInfo(testLogsDestPath));
-                }
                 TestIndexSetup.CopyDirectory(testLogsSourcePath, testLogsDestPath);
             }
         }
