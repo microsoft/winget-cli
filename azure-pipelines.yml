@@ -279,7 +279,7 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: Publish E2E Tests Packaged x86 Log
     inputs:
-      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\E2ETestLogs'
+      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir'
       ArtifactName: 'E2ETestPackagedx86Log'
       publishLocation: 'Container'
     condition: succeededOrFailed()  
