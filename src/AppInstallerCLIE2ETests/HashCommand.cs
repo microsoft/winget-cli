@@ -4,8 +4,9 @@
 namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
+    using NUnit.Framework.Internal;
 
-    public class HashCommand
+    public class HashCommand : BaseCommand
     {
         [Test]
         public void HashFile()
@@ -27,7 +28,6 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void HashInvalidMSIX()
         {
-            // The input is not msix but -m is used
             var result = TestCommon.RunAICLICommand("hash", TestCommon.GetTestDataFile("AppInstallerTest.cer") + " -m");
             Assert.AreEqual(Constants.ErrorCode.OPC_E_ZIP_MISSING_END_OF_CENTRAL_DIRECTORY, result.ExitCode);
             Assert.True(result.StdOut.Contains("9b4c49ad7e47afd97d2e666e93347745e1647c55f1a7ebba6d31b7dd5f69ee68"));

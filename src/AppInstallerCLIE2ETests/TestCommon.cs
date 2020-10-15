@@ -229,14 +229,24 @@ namespace AppInstallerCLIE2ETests
             return RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage");
         }
 
-        public static void WaitForDeploymentFinish()
+        /// <summary>
+        /// Copies log files to the path %LOCALAPPDATA%\E2ETestLogs
+        /// </summary>
+        public static void PublishE2ETestLogs()
         {
-            if (PackagedContext)
+            string localAppDataPath = Environment.GetEnvironmentVariable("LocalAppData");
+            string testLogsSourcePath = Path.Combine(localAppDataPath, Constants.E2ETestLogsPath);
+            string testLogsDestPath = Path.Combine(localAppDataPath, "E2ETestLogs");
+
+            if (Directory.Exists(testLogsDestPath))
             {
-                // Since we are doing a lot index add/remove, and some of the methods are fire and forget.
-                // Sometimes process start will fail because app is updating.
-                // Or index package is not completely added, removed.
-                Thread.Sleep(5000);
+                TestIndexSetup.DeleteDirectoryContents(new DirectoryInfo(testLogsDestPath));
+                Directory.Delete(testLogsDestPath);
+            }
+
+            if (Directory.Exists(testLogsSourcePath))
+            {
+                TestIndexSetup.CopyDirectory(testLogsSourcePath, testLogsDestPath);
             }
         }
     }

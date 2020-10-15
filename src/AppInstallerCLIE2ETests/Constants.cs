@@ -20,6 +20,12 @@ namespace AppInstallerCLIE2ETests
         public const string AppInstallerTestCert = "AppInstallerTest.cer";
         public const string AppInstallerTestCertThumbprint = "d03e7a688b388b1edde8476a627531c49db88017";
 
+        // Test Sources
+        public const string DefaultSourceName = @"winget";
+        public const string DefaultSourceUrl = @"https://winget.azureedge.net/cache";
+        public const string TestSourceName = @"TestSource";
+        public const string TestSourceUrl = @"https://localhost:5001/TestKit";
+
         // Todo: not needed if switch to use prod index for source tests
         public const string IndexPackageRootCert = "IndexPackageIntRoot.cer";
         public const string IndexPackageRootCertThumbprint = "d17697cc206ed26e1a51f5bb96e9356d6d610b74";
@@ -37,6 +43,7 @@ namespace AppInstallerCLIE2ETests
         public const string SignTool = "signtool.exe";
         public const string IndexCreationTool = "IndexCreationTool";
         public const string WinGetUtil = "WinGetUtil";
+        public const string E2ETestLogsPath = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir";
 
         public class ErrorCode
         {

@@ -5,10 +5,10 @@ namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
 
-    public class ValidateCommand
+    public class ValidateCommand : BaseCommand
     {
         [Test] 
-        public void ValidManifest()
+        public void ValidateManifest()
         {
             var result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestValidManifest.yaml"));
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
@@ -16,7 +16,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void ValidManifestWithExtendedCharacter()
+        public void ValidateManifestWithExtendedCharacter()
         {
             var result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TëstExeInstaller.yaml"));
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
@@ -24,7 +24,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void InvalidManifest()
+        public void ValidateInvalidManifest()
         {
             var result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestInvalidManifest.yaml"));
             Assert.AreEqual(Constants.ErrorCode.ERROR_MANIFEST_VALIDATION_FAILURE, result.ExitCode);
@@ -32,7 +32,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void ManifestDoesNotExist()
+        public void ValidateManifestDoesNotExist()
         {
             var result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\DoesNotExist"));
             Assert.AreEqual(Constants.ErrorCode.ERROR_FILE_NOT_FOUND, result.ExitCode);
