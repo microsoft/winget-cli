@@ -252,7 +252,7 @@ jobs:
     condition: succeededOrFailed()
 
   - task: CmdLine@2	
-    displayName: Show files in localappdata directory	
+    displayName: Show files in localappdata directory 1	
     inputs:	
       script: dir /s	
       workingDirectory: %LOCALAPPDATA%	
