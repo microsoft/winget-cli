@@ -255,7 +255,7 @@ jobs:
     displayName: Show files in localappdata directory	
     inputs:	
       script: dir /s	
-      workingDirectory: %LOCALAPPDATA%	
+      workingDirectory: 'C:\Users\VssAdministrator\AppData\Local'
     condition: succeededOrFailed()
 
   - task: CmdLine@2	
