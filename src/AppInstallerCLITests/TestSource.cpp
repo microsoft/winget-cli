@@ -4,62 +4,118 @@
 #include "TestCommon.h"
 #include "TestSource.h"
 
-using namespace AppInstaller::Manifest;
+using namespace AppInstaller;
 using namespace AppInstaller::Repository;
-using namespace AppInstaller::Utility;
 
 namespace TestCommon
 {
-    TestPackageVersion::TestPackageVersion(const Manifest& manifest) : m_manifest(manifest) {}
+    TestPackageVersion::TestPackageVersion(const Manifest& manifest, InstallationMetadataMap installationMetadata) :
+        VersionManifest(manifest), InstallationMetadata(std::move(installationMetadata)) {}
 
-    LocIndString TestPackageVersion::GetProperty(PackageVersionProperty property) const
+    TestPackageVersion::LocIndString TestPackageVersion::GetProperty(PackageVersionProperty property) const
     {
         switch (property)
         {
         case PackageVersionProperty::Id:
-            return LocIndString{ m_manifest.Id };
+            return LocIndString{ VersionManifest.Id };
         case PackageVersionProperty::Name:
-            return LocIndString{ m_manifest.Name };
+            return LocIndString{ VersionManifest.Name };
         case PackageVersionProperty::Version:
-            return LocIndString{ m_manifest.Version };
+            return LocIndString{ VersionManifest.Version };
         case PackageVersionProperty::Channel:
-            return LocIndString{ m_manifest.Channel };
+            return LocIndString{ VersionManifest.Channel };
         default:
             return {};
         }
     }
 
-    std::vector<LocIndString> TestPackageVersion::GetMultiProperty(PackageVersionMultiProperty property) const
+    std::vector<TestPackageVersion::LocIndString> TestPackageVersion::GetMultiProperty(PackageVersionMultiProperty property) const
     {
+        std::vector<LocIndString> result;
+
         switch (property)
         {
         case PackageVersionMultiProperty::PackageFamilyName:
+            for (const auto& installer : VersionManifest.Installers)
+            {
+                AddFoldedIfHasValueAndNotPresent(installer.PackageFamilyName, result);
+            }
+            break;
         case PackageVersionMultiProperty::ProductCode:
-        default:
-            return {};
+            for (const auto& installer : VersionManifest.Installers)
+            {
+                AddFoldedIfHasValueAndNotPresent(installer.ProductCode, result);
+            }
+            break;
         }
+
+        return result;
     }
 
-    Manifest TestPackageVersion::GetManifest() const
+    TestPackageVersion::Manifest TestPackageVersion::GetManifest() const
     {
-        return m_manifest;
+        return VersionManifest;
     }
 
     std::map<std::string, std::string> TestPackageVersion::GetInstallationMetadata() const
     {
-        return {};
+        return InstallationMetadata;
     }
 
-    TestPackage::TestPackage(const Manifest& manifest) : m_manifest(manifest) {}
-
-    LocIndString TestPackage::GetProperty(PackageProperty property) const
+    void TestPackageVersion::AddFoldedIfHasValueAndNotPresent(const Utility::NormalizedString& value, std::vector<LocIndString>& target)
     {
+        if (!value.empty())
+        {
+            std::string folded = FoldCase(value);
+            auto itr = std::find(target.begin(), target.end(), folded);
+            if (itr == target.end())
+            {
+                target.emplace_back(std::move(folded));
+            }
+        }
+    }
+
+    TestPackage::TestPackage(const std::vector<Manifest>& available)
+    {
+        for (const auto& manifest : available)
+        {
+            AvailableVersions.emplace_back(TestPackageVersion::Make(manifest));
+        }
+    }
+
+    TestPackage::TestPackage(const Manifest& installed, InstallationMetadataMap installationMetadata, const std::vector<Manifest>& available) :
+        InstalledVersion(TestPackageVersion::Make(installed, std::move(installationMetadata)))
+    {
+        for (const auto& manifest : available)
+        {
+            AvailableVersions.emplace_back(TestPackageVersion::Make(manifest));
+        }
+    }
+
+    TestPackage::LocIndString TestPackage::GetProperty(PackageProperty property) const
+    {
+        std::shared_ptr<IPackageVersion> truth;
+
+        if (!AvailableVersions.empty())
+        {
+            truth = AvailableVersions[0];
+        }
+        else
+        {
+            truth = InstalledVersion;
+        }
+
+        if (!truth)
+        {
+            THROW_HR(E_NOT_VALID_STATE);
+        }
+
         switch (property)
         {
         case PackageProperty::Id:
-            return LocIndString{ m_manifest.Id };
+            return truth->GetProperty(PackageVersionProperty::Id);
         case PackageProperty::Name:
-            return LocIndString{ m_manifest.Name };
+            return truth->GetProperty(PackageVersionProperty::Name);
         default:
             return {};
         }
@@ -67,34 +123,53 @@ namespace TestCommon
 
     std::shared_ptr<IPackageVersion> TestPackage::GetInstalledVersion() const
     {
-        return {};
+        return InstalledVersion;
     }
 
     std::vector<PackageVersionKey> TestPackage::GetAvailableVersionKeys() const
     {
-        return { { "", m_manifest.Version, m_manifest.Channel } };
+        std::vector<PackageVersionKey> result;
+        for (const auto& version : AvailableVersions)
+        {
+            result.emplace_back(PackageVersionKey("", version->GetProperty(PackageVersionProperty::Version).get(), version->GetProperty(PackageVersionProperty::Channel).get()));
+        }
+        return result;
     }
 
     std::shared_ptr<IPackageVersion> TestPackage::GetLatestAvailableVersion() const
     {
-        return std::make_shared<TestPackageVersion>(m_manifest);
+        if (AvailableVersions.empty())
+        {
+            return {};
+        }
+
+        return AvailableVersions[0];
     }
 
     std::shared_ptr<IPackageVersion> TestPackage::GetAvailableVersion(const PackageVersionKey& versionKey) const
     {
-        if ((versionKey.Version.empty() || versionKey.Version == m_manifest.Version) &&
-            (versionKey.Channel.empty() || versionKey.Channel == m_manifest.Channel))
+        for (const auto& version : AvailableVersions)
         {
-            return std::make_shared<TestPackageVersion>(m_manifest);
+            if ((versionKey.Version.empty() || versionKey.Version == version->GetProperty(PackageVersionProperty::Version).get()) && 
+                (versionKey.Channel.empty() ||  versionKey.Channel == version->GetProperty(PackageVersionProperty::Channel).get()))
+            {
+                return version;
+            }
         }
-        else
-        {
-            return {};
-        }
+
+        return {};
     }
 
     bool TestPackage::IsUpdateAvailable() const
     {
+        if (InstalledVersion && !AvailableVersions.empty())
+        {
+            Utility::Version installed{ InstalledVersion->GetProperty(PackageVersionProperty::Version) };
+            Utility::Version available{ AvailableVersions[0]->GetProperty(PackageVersionProperty::Version) };
+
+            return available > installed;
+        }
+
         return false;
     }
 
@@ -108,10 +183,16 @@ namespace TestCommon
         return Identifier;
     }
 
-    SearchResult TestSource::Search(const SearchRequest&) const
+    SearchResult TestSource::Search(const SearchRequest& request) const
     {
-        SearchResult result;
-        return result;
+        if (SearchFunction)
+        {
+            return SearchFunction(request);
+        }
+        else
+        {
+            return {};
+        }
     }
 
     bool TestSource::IsComposite() const

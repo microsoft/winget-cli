@@ -49,7 +49,7 @@ namespace AppInstaller::Utility
 
         const std::string* operator->() const { return &m_value; }
 
-        bool operator==(std::string_view sv) { return m_value == sv; }
+        bool operator==(std::string_view sv) const { return m_value == sv; }
 
         bool operator<(const LocIndString& other) const { return m_value < other.m_value; }
 

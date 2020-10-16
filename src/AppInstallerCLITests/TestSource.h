@@ -5,26 +5,55 @@
 #include <winget/Manifest.h>
 
 #include <functional>
+#include <utility>
 
 namespace TestCommon
 {
     // IPackageVersion for TestSource
     struct TestPackageVersion : public AppInstaller::Repository::IPackageVersion
     {
-        TestPackageVersion(const AppInstaller::Manifest::Manifest& manifest);
+        using Manifest = AppInstaller::Manifest::Manifest;
+        using LocIndString = AppInstaller::Utility::LocIndString;
+        using InstallationMetadataMap = std::map<std::string, std::string>;
 
-        AppInstaller::Utility::LocIndString GetProperty(AppInstaller::Repository::PackageVersionProperty property) const override;
-        std::vector<AppInstaller::Utility::LocIndString> GetMultiProperty(AppInstaller::Repository::PackageVersionMultiProperty property) const override;
-        AppInstaller::Manifest::Manifest GetManifest() const override;
-        std::map<std::string, std::string> GetInstallationMetadata() const override;
+        TestPackageVersion(const Manifest& manifest, InstallationMetadataMap installationMetadata = {});
 
-        AppInstaller::Manifest::Manifest m_manifest;
+        template <typename... Args>
+        static std::shared_ptr<TestPackageVersion> Make(Args&&... args)
+        {
+            return std::make_shared<TestPackageVersion>(std::forward<Args>(args)...);
+        }
+
+        LocIndString GetProperty(AppInstaller::Repository::PackageVersionProperty property) const override;
+        std::vector<LocIndString> GetMultiProperty(AppInstaller::Repository::PackageVersionMultiProperty property) const override;
+        Manifest GetManifest() const override;
+        InstallationMetadataMap GetInstallationMetadata() const override;
+
+        Manifest VersionManifest;
+        InstallationMetadataMap InstallationMetadata;
+
+    protected:
+        static void AddFoldedIfHasValueAndNotPresent(const AppInstaller::Utility::NormalizedString& value, std::vector<LocIndString>& target);
     };
 
     // IPackage for TestSource
     struct TestPackage : public AppInstaller::Repository::IPackage
     {
-        TestPackage(const AppInstaller::Manifest::Manifest& manifest);
+        using Manifest = AppInstaller::Manifest::Manifest;
+        using LocIndString = AppInstaller::Utility::LocIndString;
+        using InstallationMetadataMap = TestPackageVersion::InstallationMetadataMap;
+
+        // Create a package with only available versions using these manifests.
+        TestPackage(const std::vector<Manifest>& available);
+
+        // Create a package with an installed version, metadata, and optionally available versions.
+        TestPackage(const Manifest& installed, InstallationMetadataMap installationMetadata, const std::vector<Manifest>& available = {});
+
+        template <typename... Args>
+        static std::shared_ptr<TestPackage> Make(Args&&... args)
+        {
+            return std::make_shared<TestPackage>(std::forward<Args>(args)...);
+        }
 
         AppInstaller::Utility::LocIndString GetProperty(AppInstaller::Repository::PackageProperty property) const override;
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetInstalledVersion() const override;
@@ -33,7 +62,8 @@ namespace TestCommon
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetAvailableVersion(const AppInstaller::Repository::PackageVersionKey& versionKey) const override;
         bool IsUpdateAvailable() const override;
 
-        AppInstaller::Manifest::Manifest m_manifest;
+        std::shared_ptr<AppInstaller::Repository::IPackageVersion> InstalledVersion;
+        std::vector<std::shared_ptr<AppInstaller::Repository::IPackageVersion>> AvailableVersions;
     };
 
     // An ISource implementation for use across the test code.

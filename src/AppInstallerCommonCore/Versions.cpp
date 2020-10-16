@@ -262,4 +262,15 @@ namespace AppInstaller::Utility
         // else m_version >= other.m_version
         return false;
     }
+
+    bool VersionAndChannel::IsUpdatedBy(const VersionAndChannel& other) const
+    {
+        // Channel crossing should not happen here.
+        if (!Utility::CaseInsensitiveEquals(m_channel.ToString(), other.m_channel.ToString()))
+        {
+            return false;
+        }
+
+        return m_version < other.m_version;
+    }
 }

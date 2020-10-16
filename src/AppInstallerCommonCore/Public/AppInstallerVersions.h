@@ -119,6 +119,9 @@ namespace AppInstaller::Utility
 
         bool operator<(const VersionAndChannel& other) const;
 
+        // A convenience function to make more sematic sense at call sites over the somewhat awkward less than ordering.
+        bool IsUpdatedBy(const VersionAndChannel& other) const;
+
     private:
         Version m_version;
         Channel m_channel;
