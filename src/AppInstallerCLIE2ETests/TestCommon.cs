@@ -235,7 +235,8 @@ namespace AppInstallerCLIE2ETests
         public static void PublishE2ETestLogs()
         {
             string tempPath = Path.GetTempPath();
-            string testLogsSourcePath = Path.Combine(tempPath, Constants.E2ETestLogsPath);
+            string localAppDataPath = Environment.GetEnvironmentVariable("LocalAppData");
+            string testLogsSourcePath = Path.Combine(localAppDataPath, Constants.E2ETestLogsPath);
             string testLogsDestPath = Path.Combine(tempPath, "E2ETestLogs");
 
             if (Directory.Exists(testLogsDestPath))
