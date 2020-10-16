@@ -2,7 +2,7 @@
 
 This repository contains the source code for the Windows Package Manager Client (aka winget.exe).
 
-![winget install powertoys](.github/images/WIPowerToys.gif)
+![winget install Microsoft.WindowsTerminal](.github/images/WingetInstallTerminal.gif)
 
 The packages available to the client are in the [Community repo](https://github.com/microsoft/winget-pkgs).
 
