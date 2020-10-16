@@ -230,13 +230,13 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Copies log files to the path %LOCALAPPDATA%\E2ETestLogs
+        /// Copies log files to the path %TEMP%\E2ETestLogs
         /// </summary>
         public static void PublishE2ETestLogs()
         {
-            string localAppDataPath = Environment.GetEnvironmentVariable("LocalAppData");
-            string testLogsSourcePath = Path.Combine(localAppDataPath, Constants.E2ETestLogsPath);
-            string testLogsDestPath = Path.Combine(localAppDataPath, "E2ETestLogs");
+            string tempPath = Environment.GetEnvironmentVariable("TEMP");
+            string testLogsSourcePath = Path.Combine(tempPath, Constants.E2ETestLogsPath);
+            string testLogsDestPath = Path.Combine(tempPath, "E2ETestLogs");
 
             if (Directory.Exists(testLogsDestPath))
             {

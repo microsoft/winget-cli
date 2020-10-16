@@ -254,7 +254,7 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: Publish E2E Tests Packaged x64 Log
     inputs:
-      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\E2ETestLogs'
+      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Temp\E2ETestLogs'
       ArtifactName: 'E2ETestPackagedx64Log'
       publishLocation: 'Container'
     condition: succeededOrFailed()  
