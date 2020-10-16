@@ -234,7 +234,7 @@ namespace AppInstallerCLIE2ETests
         /// </summary>
         public static void PublishE2ETestLogs()
         {
-            string tempPath = Environment.GetEnvironmentVariable("TEMP");
+            string tempPath = Path.GetTempPath();
             string testLogsSourcePath = Path.Combine(tempPath, Constants.E2ETestLogsPath);
             string testLogsDestPath = Path.Combine(tempPath, "E2ETestLogs");
 

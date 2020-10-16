@@ -251,24 +251,10 @@ jobs:
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
     condition: succeededOrFailed()
 
-  - task: CmdLine@2	
-    displayName: Show files in localappdata directory	
-    inputs:	
-      script: dir /s	
-      workingDirectory: 'C:\Users\VssAdministrator\AppData\Local'
-    condition: succeededOrFailed()
-
-  - task: CmdLine@2	
-    displayName: Show files in localappdata directory	
-    inputs:	
-      script: dir /s	
-      workingDirectory: $(Agent.TempDirectory)
-    condition: succeededOrFailed()
-
   - task: PublishBuildArtifacts@1
     displayName: Publish E2E Tests Packaged x64 Log
     inputs:
-      PathtoPublish: '$(Agent.TempDirectory)\E2ETestLogs'
+      PathtoPublish: 'C:\Users\VssAdministrator\AppData\Local\Temp\E2ETestLogs'
       ArtifactName: 'E2ETestPackagedx64Log'
       publishLocation: 'Container'
     condition: succeededOrFailed()  
