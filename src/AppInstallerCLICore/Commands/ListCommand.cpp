@@ -72,6 +72,6 @@ namespace AppInstaller::CLI
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForMany <<
             Workflow::EnsureMatchesFromSearchResult <<
-            Workflow::ReportListResult;
+            Workflow::ReportListResult();
     }
 }

@@ -324,7 +324,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void ReportListResult(Execution::Context& context)
+    void ReportListResult::operator()(Execution::Context& context) const
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
 
@@ -344,22 +344,27 @@ namespace AppInstaller::CLI::Workflow
             if (installedVersion)
             {
                 auto latestVersion = match.Package->GetLatestAvailableVersion();
+                bool updateAvailable = match.Package->IsUpdateAvailable();
 
-                Utility::LocIndString availableVersion, sourceName;
-
-                if (match.Package->IsUpdateAvailable())
+                // The only time we don't want to output a line is when filtering and no update is available.
+                if (updateAvailable || !m_onlyShowUpgrades)
                 {
-                    availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
-                    sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
-                }
+                    Utility::LocIndString availableVersion, sourceName;
 
-                table.OutputLine({
-                    match.Package->GetProperty(PackageProperty::Name),
-                    match.Package->GetProperty(PackageProperty::Id),
-                    installedVersion->GetProperty(PackageVersionProperty::Version),
-                    availableVersion,
-                    sourceName
-                    });
+                    if (updateAvailable)
+                    {
+                        availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
+                        sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
+                    }
+
+                    table.OutputLine({
+                        match.Package->GetProperty(PackageProperty::Name),
+                        match.Package->GetProperty(PackageProperty::Id),
+                        installedVersion->GetProperty(PackageVersionProperty::Version),
+                        availableVersion,
+                        sourceName
+                        });
+                }
             }
         }
 

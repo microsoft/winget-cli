@@ -130,7 +130,15 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: SearchResult
     // Outputs: None
-    void ReportListResult(Execution::Context& context);
+    struct ReportListResult : public WorkflowTask
+    {
+        ReportListResult(bool onlyShowUpgrades = false) : WorkflowTask("ReportListResult"), m_onlyShowUpgrades(onlyShowUpgrades) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        bool m_onlyShowUpgrades;
+    };
 
     // Ensures that there is at least one result in the search.
     // Required Args: None
