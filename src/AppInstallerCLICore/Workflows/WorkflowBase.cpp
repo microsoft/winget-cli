@@ -167,6 +167,7 @@ namespace AppInstaller::CLI::Workflow
         std::shared_ptr<Repository::ISource> availableSource = context.Get<Execution::Data::Source>();
 
         // Open the predefined source.
+        context << OpenPredefinedSource(m_predefinedSource);
 
         // Create the composite source from the two.
         std::shared_ptr<Repository::ISource> compositeSource = Repository::CreateCompositeSource(context.Get<Execution::Data::Source>(), availableSource);
