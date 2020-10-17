@@ -8,7 +8,6 @@
 
 namespace AppInstaller::CLI
 {
-    using namespace AppInstaller::CLI::Execution;
     using namespace std::string_view_literals;
 
     std::vector<Argument> ListCommand::GetArguments() const
@@ -18,6 +17,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Id),
             Argument::ForType(Execution::Args::Type::Name),
             Argument::ForType(Execution::Args::Type::Moniker),
+            Argument::ForType(Execution::Args::Type::Source),
             Argument::ForType(Execution::Args::Type::Tag),
             Argument::ForType(Execution::Args::Type::Command),
             Argument::ForType(Execution::Args::Type::Count),
@@ -52,6 +52,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Id:
         case Execution::Args::Type::Name:
         case Execution::Args::Type::Moniker:
+        case Execution::Args::Type::Source:
         case Execution::Args::Type::Tag:
         case Execution::Args::Type::Command:
             context <<
@@ -65,7 +66,7 @@ namespace AppInstaller::CLI
         return "https://aka.ms/winget-command-list";
     }
 
-    void ListCommand::ExecuteInternal(Context& context) const
+    void ListCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
             Workflow::OpenSource <<
