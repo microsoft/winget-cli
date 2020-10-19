@@ -96,6 +96,18 @@ namespace AppInstaller::Repository
         RelativePath,
     };
 
+    // A metadata item of a package version.
+    enum class PackageVersionMetadata
+    {
+
+    };
+
+    // Convert a PackageVersionMetadata to a string.
+    constexpr inline std::string_view ToString(PackageVersionMetadata pvm);
+
+    // Convert a string to a PackageVersionMetadata.
+    inline PackageVersionMetadata ToPackageVersionMetadata(std::string_view s);
+
     // A single package version.
     struct IPackageVersion
     {
@@ -107,8 +119,9 @@ namespace AppInstaller::Repository
         // Gets the manifest of this package version.
         virtual Manifest::Manifest GetManifest() const = 0;
 
-        // Gets any metadata associated with this version if it is installed.
-        virtual std::map<std::string, std::string> GetInstallationMetadata() const = 0;
+        // Gets any metadata associated with this package version.
+        // Primarily stores data on installed packages.
+        virtual std::map<std::string, std::string> GetMetadata() const = 0;
     };
 
     // An installed package version.
