@@ -26,6 +26,7 @@ namespace AppInstaller::Repository::Microsoft
             using namespace winrt::Windows::ApplicationModel;
             using namespace winrt::Windows::Management::Deployment;
 
+            // TODO: Consider if Optional packages should also be enumerated
             PackageManager packageManager;
             auto packages = packageManager.FindPackagesForUserWithPackageTypes({}, PackageTypes::Main);
 
