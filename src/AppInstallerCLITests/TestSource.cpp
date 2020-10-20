@@ -151,7 +151,7 @@ namespace TestCommon
         for (const auto& version : AvailableVersions)
         {
             if ((versionKey.Version.empty() || versionKey.Version == version->GetProperty(PackageVersionProperty::Version).get()) && 
-                (versionKey.Channel.empty() ||  versionKey.Channel == version->GetProperty(PackageVersionProperty::Channel).get()))
+                (versionKey.Channel.empty() || versionKey.Channel == version->GetProperty(PackageVersionProperty::Channel).get()))
             {
                 return version;
             }

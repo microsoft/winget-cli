@@ -186,3 +186,8 @@ TEST_CASE("VersionUnknown", "[versions]")
 
     RequireEqual("unknown", "UNKNOWN");
 }
+
+TEST_CASE("VersionUnknownLessThanLatest", "[versions]")
+{
+    REQUIRE(Version::CreateUnknown() < Version::CreateLatest());
+}

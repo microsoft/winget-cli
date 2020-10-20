@@ -115,7 +115,7 @@ namespace AppInstaller::Repository
         // Gets a property of this package version.
         virtual Utility::LocIndString GetProperty(PackageVersionProperty property) const = 0;
 
-        // Gets a property of this package version.
+        // Gets a property of this package version that can have multiple values.
         virtual std::vector<Utility::LocIndString> GetMultiProperty(PackageVersionMultiProperty property) const = 0;
 
         // Gets the manifest of this package version.

@@ -310,7 +310,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="ListCommandLongDescription" xml:space="preserve">
     <value>The list command displays the packages installed on the system, as well as whether an update is available. Additional options can be provided to filter the output, much like the search command.</value>
-    <comment>{Locked="list"}{Locked="search"}</comment>
+    <comment>{Locked="list","search"}</comment>
   </data>
   <data name="ListCommandShortDescription" xml:space="preserve">
     <value>Display installed packages</value>

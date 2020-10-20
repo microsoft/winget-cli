@@ -160,7 +160,7 @@ namespace AppInstaller::Repository::Microsoft
         }
         else if (filter == FilterToString(Filter::MSIX))
         {
-            return Filter::ARP_User;
+            return Filter::MSIX;
         }
         else
         {

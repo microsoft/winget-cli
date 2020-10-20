@@ -18,7 +18,6 @@ namespace AppInstaller::Repository::Microsoft
         // Get the type string for this source.
         static constexpr std::string_view Type()
         {
-            using namespace std::string_view_literals;
             return "Microsoft.Predefined.Installed"sv;
         }
 

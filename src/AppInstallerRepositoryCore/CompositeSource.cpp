@@ -324,7 +324,7 @@ namespace AppInstaller::Repository
 
             bool HandleSystemReferenceStringTypeForCheckForExistingResultFromAvailablePackageMatch(
                 const ResultMatch& match,
-                IPackageVersion* installedVersion,
+                IPackageVersion* availableVersion,
                 PackageVersionMultiProperty prop,
                 PackageMatchField field,
                 std::string_view logType,
@@ -332,7 +332,7 @@ namespace AppInstaller::Repository
             {
                 bool foundExistingPackage = false;
 
-                for (auto&& string : installedVersion->GetMultiProperty(prop))
+                for (auto&& string : availableVersion->GetMultiProperty(prop))
                 {
                     SystemReferenceString srs(field, std::move(string));
 

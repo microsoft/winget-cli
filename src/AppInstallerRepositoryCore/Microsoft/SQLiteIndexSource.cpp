@@ -118,17 +118,23 @@ namespace AppInstaller::Repository::Microsoft
 
             Utility::LocIndString GetProperty(PackageProperty property) const
             {
-                std::shared_ptr<IPackageVersion> truth = GetLatestVersionInternal();
+                Utility::LocIndString result;
 
-                switch (property)
+                std::shared_ptr<IPackageVersion> truth = GetLatestVersionInternal();
+                if (truth)
                 {
-                case PackageProperty::Id:
-                    return truth->GetProperty(PackageVersionProperty::Id);
-                case PackageProperty::Name:
-                    return truth->GetProperty(PackageVersionProperty::Name);
-                default:
-                    THROW_HR(E_UNEXPECTED);
+                    switch (property)
+                    {
+                    case PackageProperty::Id:
+                        return truth->GetProperty(PackageVersionProperty::Id);
+                    case PackageProperty::Name:
+                        return truth->GetProperty(PackageVersionProperty::Name);
+                    default:
+                        THROW_HR(E_UNEXPECTED);
+                    }
                 }
+
+                return result;
             }
 
         protected:
