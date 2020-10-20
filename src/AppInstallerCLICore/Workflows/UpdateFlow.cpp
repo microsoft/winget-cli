@@ -15,8 +15,7 @@ namespace AppInstaller::CLI::Workflow
     {
         bool IsUpdateVersionApplicable(const Utility::Version& installedVersion, const Utility::Version& updateVersion)
         {
-            // TODO: Merge in list change to get IsLatest
-            return (installedVersion < updateVersion /*|| updateVersion.IsLatest()*/);
+            return (installedVersion < updateVersion || updateVersion.IsLatest());
         }
     }
 

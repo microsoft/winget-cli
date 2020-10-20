@@ -16,16 +16,16 @@ namespace AppInstaller::CLI::Workflow
         {
             if (Utility::IsApplicableArchitecture(installer.Arch) == Utility::InapplicableArchitecture)
             {
-                return true;
+                return false;
             }
 
             if (currentType != Manifest::ManifestInstaller::InstallerTypeEnum::Unknown &&
                 !Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer.InstallerType, currentType))
             {
-                return true;
+                return false;
             }
 
-            return false;
+            return true;
         }
 
         // This is used in sorting the list of available installers to get the best match.
