@@ -60,6 +60,9 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Gets the string for the given property and manifest id, if present.
         virtual std::optional<std::string> GetPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const = 0;
 
+        // Gets the string values for the given property and manifest id, if present.
+        virtual std::vector<std::string> GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const = 0;
+
         // Gets the manifest id for the given { id, version, channel }, if present.
         // If version is empty, gets the value for the 'latest' version.
         virtual std::optional<SQLite::rowid_t> GetManifestIdByKey(const SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel) const = 0;

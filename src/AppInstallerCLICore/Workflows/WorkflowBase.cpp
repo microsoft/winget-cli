@@ -10,6 +10,8 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    using namespace std::string_literals;
+    using namespace AppInstaller::Utility::literals;
     using namespace AppInstaller::Repository;
 
     namespace
@@ -107,7 +109,7 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (...)
         {
-            context.Reporter.Error() << Resource::String::OpenSourceFailed << std::endl;
+            context.Reporter.Error() << Resource::String::SourceOpenFailedSuggestion << std::endl;
             throw;
         }
 
@@ -122,7 +124,7 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Info() << Resource::String::OpenSourceFailedNoMatchHelp << std::endl;
                 for (const auto& details : sources)
                 {
-                    context.Reporter.Info() << "  " << details.Name << std::endl;
+                    context.Reporter.Info() << "  "_liv << details.Name << std::endl;
                 }
 
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
@@ -140,16 +142,38 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void GetCompositeSourceFromInstalledAndAvailable(Execution::Context& context)
+    void OpenPredefinedSource::operator()(Execution::Context& context) const
     {
-        std::shared_ptr<Repository::ISource> availableSource = context.Get<Execution::Data::Source>();
+        std::shared_ptr<Repository::ISource> source;
+        try
+        {
+            source = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenPredefinedSource, m_predefinedSource, std::placeholders::_1), true);
+        }
+        catch (...)
+        {
+            context.Reporter.Error() << Resource::String::SourceOpenPredefinedFailedSuggestion << std::endl;
+            throw;
+        }
 
-        std::shared_ptr<Repository::ISource> installedSource = context.Reporter.ExecuteWithProgress(
-            std::bind(Repository::OpenPredefinedSource, PredefinedSource::Installed, std::placeholders::_1), true);
-
-        std::shared_ptr<Repository::ISource> source = CreateCompositeSource(installedSource, availableSource);
+        // A well known predefined source should return a value.
+        THROW_HR_IF(E_UNEXPECTED, !source);
 
         context.Add<Execution::Data::Source>(std::move(source));
+    }
+
+    void OpenCompositeSource::operator()(Execution::Context& context) const
+    {
+        // Get the already open source for use as the available.
+        std::shared_ptr<Repository::ISource> availableSource = context.Get<Execution::Data::Source>();
+
+        // Open the predefined source.
+        context << OpenPredefinedSource(m_predefinedSource);
+
+        // Create the composite source from the two.
+        std::shared_ptr<Repository::ISource> compositeSource = Repository::CreateCompositeSource(context.Get<Execution::Data::Source>(), availableSource);
+
+        // Overwrite the source with the composite.
+        context.Add<Execution::Data::Source>(std::move(compositeSource));
     }
 
     void SearchSourceForMany(Execution::Context& context)
@@ -198,6 +222,11 @@ namespace AppInstaller::CLI::Workflow
         if (args.Contains(Execution::Args::Type::Query))
         {
             std::string_view query = args.GetArg(Execution::Args::Type::Query);
+
+            // Regardless of match type, always use an exact match for the system reference strings.
+            searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, query));
+            searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, query));
+
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, matchType, query));
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Name, matchType, query));
             searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Moniker, matchType, query));
@@ -265,7 +294,15 @@ namespace AppInstaller::CLI::Workflow
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
         Logging::Telemetry().LogSearchResultCount(searchResult.Matches.size());
 
-        Execution::TableOutput<5> table(context.Reporter, { Resource::String::SearchName, Resource::String::SearchId, Resource::String::SearchVersion, Resource::String::SearchMatch, Resource::String::SearchSource });
+        bool sourceIsComposite = context.Get<Execution::Data::Source>()->IsComposite();
+        Execution::TableOutput<5> table(context.Reporter,
+            {
+                Resource::String::SearchName,
+                Resource::String::SearchId,
+                Resource::String::SearchVersion,
+                Resource::String::SearchMatch,
+                Resource::String::SearchSource
+            });
 
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
@@ -276,8 +313,60 @@ namespace AppInstaller::CLI::Workflow
                 latestVersion->GetProperty(PackageVersionProperty::Id),
                 latestVersion->GetProperty(PackageVersionProperty::Version),
                 GetMatchCriteriaDescriptor(searchResult.Matches[i]),
-                searchResult.Matches[i].SourceName
+                sourceIsComposite ? static_cast<std::string>(latestVersion->GetProperty(PackageVersionProperty::SourceName)) : ""s
             });
+        }
+
+        table.Complete();
+
+        if (searchResult.Truncated)
+        {
+            context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
+        }
+    }
+
+    void ReportListResult::operator()(Execution::Context& context) const
+    {
+        auto& searchResult = context.Get<Execution::Data::SearchResult>();
+
+        Execution::TableOutput<5> table(context.Reporter,
+            {
+                Resource::String::SearchName,
+                Resource::String::SearchId,
+                Resource::String::SearchVersion,
+                Resource::String::AvailableHeader,
+                Resource::String::SearchSource
+            });
+
+        for (const auto& match : searchResult.Matches)
+        {
+            auto installedVersion = match.Package->GetInstalledVersion();
+
+            if (installedVersion)
+            {
+                auto latestVersion = match.Package->GetLatestAvailableVersion();
+                bool updateAvailable = match.Package->IsUpdateAvailable();
+
+                // The only time we don't want to output a line is when filtering and no update is available.
+                if (updateAvailable || !m_onlyShowUpgrades)
+                {
+                    Utility::LocIndString availableVersion, sourceName;
+
+                    if (updateAvailable)
+                    {
+                        availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
+                        sourceName = latestVersion->GetProperty(PackageVersionProperty::SourceName);
+                    }
+
+                    table.OutputLine({
+                        match.Package->GetProperty(PackageProperty::Name),
+                        match.Package->GetProperty(PackageProperty::Id),
+                        installedVersion->GetProperty(PackageVersionProperty::Version),
+                        availableVersion,
+                        sourceName
+                        });
+                }
+            }
         }
 
         table.Complete();

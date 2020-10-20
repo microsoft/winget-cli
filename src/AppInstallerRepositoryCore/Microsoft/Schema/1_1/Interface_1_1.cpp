@@ -159,10 +159,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
             V1_0::PathPartTable::ValueName(),
             });
 
-        V1_0::TagsTable::PrepareForPackaging(connection);
-        V1_0::CommandsTable::PrepareForPackaging(connection);
-        PackageFamilyNameTable::PrepareForPackaging(connection, true);
-        ProductCodeTable::PrepareForPackaging(connection, true);
+        V1_0::TagsTable::PrepareForPackaging(connection, false);
+        V1_0::CommandsTable::PrepareForPackaging(connection, false);
+        PackageFamilyNameTable::PrepareForPackaging(connection, true, true);
+        ProductCodeTable::PrepareForPackaging(connection, true, true);
 
         savepoint.Commit();
 
@@ -216,6 +216,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         }
 
         return V1_0::Interface::Search(connection, foldedRequest);
+    }
+
+    std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const
+    {
+        switch (property)
+        {
+        case PackageVersionMultiProperty::PackageFamilyName:
+            return PackageFamilyNameTable::GetValuesByManifestId(connection, manifestId);
+        case PackageVersionMultiProperty::ProductCode:
+            return ProductCodeTable::GetValuesByManifestId(connection, manifestId);
+        default:
+            return V1_0::Interface::GetMultiPropertyByManifestId(connection, manifestId, property);
+        }
     }
 
     std::unique_ptr<V1_0::SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const

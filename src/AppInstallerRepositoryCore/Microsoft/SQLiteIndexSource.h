@@ -13,7 +13,7 @@ namespace AppInstaller::Repository::Microsoft
     // A source that holds a SQLiteIndex and lock.
     struct SQLiteIndexSource : public std::enable_shared_from_this<SQLiteIndexSource>, public ISource
     {
-        SQLiteIndexSource(const SourceDetails& details, std::string identifier, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock = {});
+        SQLiteIndexSource(const SourceDetails& details, std::string identifier, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock = {}, bool isInstalledSource = false);
 
         SQLiteIndexSource(const SQLiteIndexSource&) = delete;
         SQLiteIndexSource& operator=(const SQLiteIndexSource&) = delete;
@@ -41,6 +41,7 @@ namespace AppInstaller::Repository::Microsoft
         SourceDetails m_details;
         std::string m_identifier;
         Synchronization::CrossProcessReaderWriteLock m_lock;
+        bool m_isInstalled;
         SQLiteIndex m_index;
     };
 }

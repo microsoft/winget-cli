@@ -114,9 +114,6 @@
     <ClInclude Include="ICU\SQLiteICU.h">
       <Filter>ICU</Filter>
     </ClInclude>
-    <ClInclude Include="AggregatedSource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Microsoft\Schema\1_1\Interface.h">
       <Filter>Microsoft\Schema\1_1</Filter>
     </ClInclude>
@@ -128,6 +125,12 @@
     </ClInclude>
     <ClInclude Include="Microsoft\Schema\1_1\SearchResultsTable.h">
       <Filter>Microsoft\Schema\1_1</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\PredefinedInstalledSourceFactory.h">
+      <Filter>Microsoft</Filter>
+    </ClInclude>
+    <ClInclude Include="CompositeSource.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -176,9 +179,6 @@
     <ClCompile Include="ICU\SQLiteICU.c">
       <Filter>ICU</Filter>
     </ClCompile>
-    <ClCompile Include="AggregatedSource.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_0\Interface_1_0.cpp">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClCompile>
@@ -190,6 +190,12 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_1\SearchResultsTable_1_1.cpp">
       <Filter>Microsoft\Schema\1_1</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\PredefinedInstalledSourceFactory.cpp">
+      <Filter>Microsoft</Filter>
+    </ClCompile>
+    <ClCompile Include="CompositeSource.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -5,6 +5,7 @@
 #include <AppInstallerProgress.h>
 
 #include <chrono>
+#include <filesystem>
 #include <memory>
 #include <optional>
 #include <string>
@@ -19,6 +20,7 @@ namespace AppInstaller::Repository
     {
         Default,
         User,
+        Predefined,
     };
 
     std::string_view ToString(SourceOrigin origin);
@@ -43,9 +45,6 @@ namespace AppInstaller::Repository
 
         // The origin of the source.
         SourceOrigin Origin = SourceOrigin::Default;
-
-        // If the source is an aggregated source
-        bool IsAggregated = false;
     };
 
     // Interface for interacting with a source from outside of the repository lib.
@@ -61,6 +60,10 @@ namespace AppInstaller::Repository
         // Must be suitable for filesystem names unless the source is internal to winget,
         // in which case the identifier should begin with a '*' character.
         virtual const std::string& GetIdentifier() const = 0;
+
+        // Gets a value indicating whether this source is a composite of other sources,
+        // and thus the packages may come from disparate sources as well.
+        virtual bool IsComposite() const { return false; }
 
         // Execute a search on the source.
         virtual SearchResult Search(const SearchRequest& request) const = 0;
@@ -102,9 +105,8 @@ namespace AppInstaller::Repository
     // These sources are not under the direct control of the user, such as packages installed on the system.
     std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress);
 
-    // Creates a composite source from input sources.
-    // The composite source will correlate entries from input sources.
-    std::shared_ptr<ISource> CreateCompositeSource(std::shared_ptr<ISource>& source1, std::shared_ptr<ISource>& source2);
+    // Creates a source that merges the installed packages with the given available packages.
+    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource);
 
     // Updates an existing source.
     // Return value indicates whether the named source was found.

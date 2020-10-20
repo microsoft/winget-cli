@@ -50,6 +50,7 @@ namespace AppInstaller::Logging
     {
         Verbose,
         Info,
+        Warning,
         Error,
         Crit,
     };

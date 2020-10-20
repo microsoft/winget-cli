@@ -47,9 +47,45 @@ namespace AppInstaller::CLI
         return { Resource::String::UpgradeCommandLongDescription };
     }
 
-    void UpgradeCommand::Complete(Execution::Context&, Execution::Args::Type) const
+    void UpgradeCommand::Complete(Execution::Context& context, Execution::Args::Type valueType) const
     {
-        // TODO: Should be done similar to list completion
+        if (valueType == Execution::Args::Type::Manifest ||
+            valueType == Execution::Args::Type::Log ||
+            valueType == Execution::Args::Type::Override ||
+            valueType == Execution::Args::Type::InstallLocation)
+        {
+            // Intentionally output nothing to allow pass through to filesystem.
+            return;
+        }
+
+        context <<
+            Workflow::OpenSource <<
+            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+
+        switch (valueType)
+        {
+        case Execution::Args::Type::Query:
+            context <<
+                Workflow::RequireCompletionWordNonEmpty <<
+                Workflow::SearchSourceForManyCompletion <<
+                Workflow::CompleteWithMatchedField;
+            break;
+        case Execution::Args::Type::Id:
+        case Execution::Args::Type::Name:
+        case Execution::Args::Type::Moniker:
+        case Execution::Args::Type::Version:
+        case Execution::Args::Type::Channel:
+        case Execution::Args::Type::Source:
+            context <<
+                Workflow::CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
+            break;
+        case Execution::Args::Type::Language:
+            // May well move to CompleteWithSingleSemanticsForValue,
+            // but for now output nothing.
+            context <<
+                Workflow::CompleteWithEmptySet;
+            break;
+        }
     }
 
     std::string UpgradeCommand::HelpLink() const
@@ -81,12 +117,15 @@ namespace AppInstaller::CLI
 
         context <<
             OpenSource <<
-            GetCompositeSourceFromInstalledAndAvailable;
+            OpenCompositeSource(Repository::PredefinedSource::Installed);
 
         if (context.Args.Empty())
         {
             // Upgrade with no args list packages with updates available
-            // TODO: go to list filtered to packages with update available
+            context <<
+                Workflow::SearchSourceForMany <<
+                Workflow::EnsureMatchesFromSearchResult <<
+                Workflow::ReportListResult(true);
         }
         else if (context.Args.Contains(Execution::Args::Type::All))
         {

@@ -16,6 +16,8 @@ namespace AppInstaller::Settings
 
     static constexpr std::string_view s_SettingEmpty =
         R"({
+    "$schema": "https://aka.ms/winget-settings.schema.json",
+
     // For documentation on these settings, see: https://aka.ms/winget-settings
     // "source": {
     //    "autoUpdateIntervalInMinutes": 5
@@ -193,6 +195,12 @@ namespace AppInstaller::Settings
 
         std::optional<SettingMapping<Setting::EFExperimentalMSStore>::value_t>
             SettingMapping<Setting::EFExperimentalMSStore>::Validate(const SettingMapping<Setting::EFExperimentalMSStore>::json_t& value)
+        {
+            return value;
+        }
+
+        std::optional<SettingMapping<Setting::EFList>::value_t>
+            SettingMapping<Setting::EFList>::Validate(const SettingMapping<Setting::EFList>::json_t& value)
         {
             return value;
         }

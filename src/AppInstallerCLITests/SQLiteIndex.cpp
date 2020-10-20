@@ -5,6 +5,7 @@
 #include <SQLiteWrapper.h>
 #include <Microsoft/SQLiteIndex.h>
 #include <winget/Manifest.h>
+#include <AppInstallerStrings.h>
 
 #include <Microsoft/Schema/1_0/IdTable.h>
 #include <Microsoft/Schema/1_0/NameTable.h>
@@ -18,6 +19,7 @@
 #include <Microsoft/Schema/1_0/SearchResultsTable.h>
 
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 using namespace TestCommon;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
@@ -1861,5 +1863,65 @@ TEST_CASE("SQLiteIndex_CheckConsistency_Failure", "[sqliteindex][V1_1]")
         SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
 
         REQUIRE(!index.CheckConsistency(true));
+    }
+}
+
+TEST_CASE("SQLiteIndex_GetMultiProperty_PackageFamilyName", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", { "PFN1", "PFN2" }, {} },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 1);
+
+    auto props = index.GetMultiPropertyByManifestId(results.Matches[0].first, PackageVersionMultiProperty::PackageFamilyName);
+
+    if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
+    {
+        REQUIRE(props.size() == 2);
+        REQUIRE(std::find(props.begin(), props.end(), FoldCase("PFN1"sv)) != props.end());
+        REQUIRE(std::find(props.begin(), props.end(), FoldCase("PFN2"sv)) != props.end());
+    }
+    else
+    {
+        REQUIRE(props.empty());
+    }
+}
+
+TEST_CASE("SQLiteIndex_GetMultiProperty_ProductCode", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", {}, { "PC1", "PC2" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 1);
+
+    auto props = index.GetMultiPropertyByManifestId(results.Matches[0].first, PackageVersionMultiProperty::ProductCode);
+
+    if (ArePackageFamilyNameAndProductCodeSupported(index, testVersion))
+    {
+        REQUIRE(props.size() == 2);
+        REQUIRE(std::find(props.begin(), props.end(), FoldCase("PC1"sv)) != props.end());
+        REQUIRE(std::find(props.begin(), props.end(), FoldCase("PC2"sv)) != props.end());
+    }
+    else
+    {
+        REQUIRE(props.empty());
     }
 }

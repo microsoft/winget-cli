@@ -52,6 +52,34 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Source
     void OpenSource(Execution::Context& context);
 
+    // Creates a source object for a predefined source.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: Source
+    struct OpenPredefinedSource : public WorkflowTask
+    {
+        OpenPredefinedSource(Repository::PredefinedSource source) : WorkflowTask("OpenPredefinedSource"), m_predefinedSource(source) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Repository::PredefinedSource m_predefinedSource;
+    };
+
+    // Creates a composite source from the given predefined source and the existing source.
+    // Required Args: None
+    // Inputs: Source
+    // Outputs: Source
+    struct OpenCompositeSource : public WorkflowTask
+    {
+        OpenCompositeSource(Repository::PredefinedSource source) : WorkflowTask("OpenCompositeSource"), m_predefinedSource(source) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Repository::PredefinedSource m_predefinedSource;
+    };
+
     // Performs a search on the source.
     // Required Args: None
     // Inputs: Source
@@ -97,6 +125,20 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: SearchResult
     // Outputs: None
     void ReportSearchResult(Execution::Context& context);
+
+    // Outputs the search results as the list command would show.
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: None
+    struct ReportListResult : public WorkflowTask
+    {
+        ReportListResult(bool onlyShowUpgrades = false) : WorkflowTask("ReportListResult"), m_onlyShowUpgrades(onlyShowUpgrades) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        bool m_onlyShowUpgrades;
+    };
 
     // Ensures that there is at least one result in the search.
     // Required Args: None
@@ -179,12 +221,6 @@ namespace AppInstaller::CLI::Workflow
     private:
         Settings::ExperimentalFeature::Feature m_feature;
     };
-
-    // Create a composite source from installed source and available source.
-    // Required Args: None
-    // Inputs: Source
-    // Outputs: Source
-    void GetCompositeSourceFromInstalledAndAvailable(Execution::Context& context);
 
     // Performs a search on the source with the semantics of targeting packages matching input manifest
     // Required Args: None
