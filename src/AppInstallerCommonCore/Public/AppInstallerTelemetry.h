@@ -120,8 +120,8 @@ namespace AppInstaller::Logging
         DestructionToken m_token;
     };
 
-    // Sets an execution stage to be reported when failures occur. Not thread safe.
-    void SetExecutionStage(std::string_view stage);
+    // Sets an execution stage to be reported when failures occur.
+    void SetExecutionStage(uint32_t stage);
 
     // An RAII object to log telemetry as sub execution.
     // Does not support nested sub execution.
@@ -136,5 +136,8 @@ namespace AppInstaller::Logging
         SubExecutionTelemetryScope& operator=(SubExecutionTelemetryScope&&) = default;
 
         ~SubExecutionTelemetryScope();
+
+    private:
+        static std::atomic_uint32_t m_sessionId;
     };
 }

@@ -533,26 +533,7 @@ namespace AppInstaller::CLI::Workflow
             THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), "Reporting ExecutionStage to an earlier Stage without allowBackward as true");
         }
 
-        Logging::SetExecutionStage(ExecutionStageToString(context.Get<Execution::Data::ExecutionStage>()));
-    }
-
-    std::string ExecutionStageToString(ExecutionStage stage)
-    {
-        switch (stage)
-        {
-        case ExecutionStage::Discovery:
-            return "Discovery";
-        case ExecutionStage::Download:
-            return "Download";
-        case ExecutionStage::Execution:
-            return "Execution";
-        case ExecutionStage::PostExecution:
-            return "PostExecution";
-        case ExecutionStage::None:
-            return "None";
-        default:
-            return "None";
-        }
+        Logging::SetExecutionStage(static_cast<uint32_t>(context.Get<Execution::Data::ExecutionStage>()));
     }
 }
 

@@ -19,13 +19,13 @@ namespace AppInstaller::CLI::Workflow
     static const char* s_InstallationMetadata_Key_InstallerType = "InstallerType";
 
     // Values are ordered in a typical workflow stages
-    enum class ExecutionStage
+    enum class ExecutionStage : uint32_t
     {
-        None,
-        Discovery,
-        Download,
-        Execution,
-        PostExecution,
+        ParseArgs = 1000,
+        Discovery = 2000,
+        Download = 3000,
+        Execution = 4000,
+        PostExecution = 5000,
     };
 
     // A task in the workflow.
@@ -208,10 +208,10 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: InstalledPackageVersion
     void GetInstalledPackageVersion(Execution::Context& context);
 
-    // Searches the source for the specific field as a completion.
-    // Required Args: None
-    // Inputs: CompletionData, Source
-    // Outputs: None
+    // Reports execution stage in a workflow
+    // Required Args: ExecutionStage
+    // Inputs: ExecutionStage?
+    // Outputs: ExecutionStage
     struct ReportExecutionStage : public WorkflowTask
     {
         ReportExecutionStage(ExecutionStage stage, bool allowBackward = false) : WorkflowTask("ReportExecutionStage"), m_stage(stage), m_allowBackward(allowBackward) {}
@@ -222,9 +222,6 @@ namespace AppInstaller::CLI::Workflow
         mutable ExecutionStage m_stage;
         bool m_allowBackward;
     };
-
-    // Helper function to convert ExecutionStage enum to string
-    static std::string ExecutionStageToString(ExecutionStage stage);
 }
 
 // Passes the context to the function if it has not been terminated; returns the context.
