@@ -30,6 +30,7 @@ namespace AppInstaller::CLI::Execution
     }
 
     // Enables output data in a table format.
+    // TODO: Improve for use with sparse data.
     template <size_t FieldCount>
     struct TableOutput
     {

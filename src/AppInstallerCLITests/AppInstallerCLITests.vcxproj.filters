@@ -27,6 +27,9 @@
     <ClInclude Include="TestHooks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TestSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -93,6 +96,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Completion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PredefinedInstalledSource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CompositeSource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

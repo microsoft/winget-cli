@@ -31,6 +31,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AdjoinedNotFoundError);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableArguments);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableCommands);
+        WINGET_DEFINE_RESOURCE_STRINGID(AvailableHeader);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableOptions);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableSubcommands);
         WINGET_DEFINE_RESOURCE_STRINGID(BothManifestAndSearchQueryProvided);
@@ -87,6 +88,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(LanguageArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreement);
         WINGET_DEFINE_RESOURCE_STRINGID(Links);
+        WINGET_DEFINE_RESOURCE_STRINGID(ListCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ListCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(LocationArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(LogArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(MainCopyrightNotice);
@@ -115,7 +118,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NoInstalledPackageFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoVTArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatch);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatchHelp);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoSourceDefined);
@@ -172,6 +174,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListUpdatedNever);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListValue);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceNameArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenFailedSuggestion);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenPredefinedFailedSuggestion);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveAll);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandShortDescription);

@@ -14,6 +14,8 @@
 #include <type_traits>
 #include <utility>
 
+#define SQLITE_MEMORY_DB_CONNECTION_TARGET ":memory:"
+
 namespace AppInstaller::Repository::SQLite
 {
     // The name of the rowid column in SQLite.

@@ -46,10 +46,23 @@ namespace AppInstaller::Utility
         bool operator==(const Version& other) const;
         bool operator!=(const Version& other) const;
 
+        // Determines if this version is the sentinel value defining the 'Latest' version
+        bool IsLatest() const;
+
+        // Returns a Version that will return true for IsLatest
+        static Version CreateLatest();
+
+        // Determines if this version is the sentinel value defining an 'Unknown' version
+        bool IsUnknown() const;
+
+        // Returns a Version that will return true for IsUnknown
+        static Version CreateUnknown();
+
         // An individual version part in between split characters.
         struct Part
         {
             Part(const std::string& part);
+            Part(uint64_t integer, std::string other);
 
             bool operator<(const Part& other) const;
             bool operator==(const Part& other) const;
@@ -72,6 +85,7 @@ namespace AppInstaller::Utility
     // Compared lexicographically.
     struct Channel
     {
+        Channel() = default;
         Channel(const std::string& channel) : m_channel(channel) {}
         Channel(std::string&& channel) : m_channel(std::move(channel)) {}
 
@@ -95,6 +109,7 @@ namespace AppInstaller::Utility
     //  2.0, "alpha"
     struct VersionAndChannel
     {
+        VersionAndChannel() = default;
         VersionAndChannel(Version&& version, Channel&& channel);
 
         const Version& GetVersion() const { return m_version; }
@@ -103,6 +118,9 @@ namespace AppInstaller::Utility
         std::string ToString() const;
 
         bool operator<(const VersionAndChannel& other) const;
+
+        // A convenience function to make more sematic sense at call sites over the somewhat awkward less than ordering.
+        bool IsUpdatedBy(const VersionAndChannel& other) const;
 
     private:
         Version m_version;

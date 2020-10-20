@@ -7,6 +7,8 @@
 #include "ShowCommand.h"
 #include "SourceCommand.h"
 #include "SearchCommand.h"
+#include "ListCommand.h"
+#include "UpgradeCommand.h"
 #include "HashCommand.h"
 #include "ValidateCommand.h"
 #include "SettingsCommand.h"
@@ -28,6 +30,8 @@ namespace AppInstaller::CLI
             std::make_unique<ShowCommand>(FullName()),
             std::make_unique<SourceCommand>(FullName()),
             std::make_unique<SearchCommand>(FullName()),
+            std::make_unique<ListCommand>(FullName()),
+            std::make_unique<UpgradeCommand>(FullName()),
             std::make_unique<HashCommand>(FullName()),
             std::make_unique<ValidateCommand>(FullName()),
             std::make_unique<SettingsCommand>(FullName()),

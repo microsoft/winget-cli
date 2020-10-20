@@ -3,8 +3,9 @@
 #include "pch.h"
 #include "Public/AppInstallerRepositorySource.h"
 
-#include "AggregatedSource.h"
+#include "CompositeSource.h"
 #include "SourceFactory.h"
+#include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 
 namespace AppInstaller::Repository
@@ -368,6 +369,11 @@ namespace AppInstaller::Repository
             {
                 return Microsoft::PreIndexedPackageSourceFactory::Create();
             }
+            // Should always come from code, so no need for case insensitivity
+            else if (Microsoft::PredefinedInstalledSourceFactory::Type() == type)
+            {
+                return Microsoft::PredefinedInstalledSourceFactory::Create();
+            }
 
             THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
         }
@@ -528,7 +534,7 @@ namespace AppInstaller::Repository
             else
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, creating aggregated source.");
-                auto aggregatedSource = std::make_shared<AggregatedSource>("*DefaultSource");
+                auto aggregatedSource = std::make_shared<CompositeSource>("*DefaultSource");
 
                 bool sourceUpdated = false;
                 for (auto& source : currentSources)
@@ -542,7 +548,7 @@ namespace AppInstaller::Repository
                         UpdateSourceFromDetails(source, progress);
                         sourceUpdated = true;
                     }
-                    aggregatedSource->AddSource(CreateSourceFromDetails(source, progress));
+                    aggregatedSource->AddAvailableSource(CreateSourceFromDetails(source, progress));
                 }
 
                 if (sourceUpdated)
@@ -578,36 +584,44 @@ namespace AppInstaller::Repository
     std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress)
     {
         SourceDetails details;
+        details.Origin = SourceOrigin::Predefined;
 
         switch (source)
         {
         case PredefinedSource::Installed:
-            // TODO: Pull directly from factory
-            details.Type = "Microsoft.Predefined.Installed";
+            details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+            details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::None);
             return CreateSourceFromDetails(details, progress);
         case PredefinedSource::ARP_System:
-            // TODO: Pull directly from factory
-            details.Type = "Microsoft.Predefined.ARP";
-            details.Arg = "system";
+            details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+            details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::ARP_System);
             return CreateSourceFromDetails(details, progress);
         case PredefinedSource::ARP_User:
-            // TODO: Pull directly from factory
-            details.Type = "Microsoft.Predefined.ARP";
-            details.Arg = "user";
+            details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+            details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::ARP_User);
             return CreateSourceFromDetails(details, progress);
         case PredefinedSource::MSIX:
-            // TODO: Pull directly from factory
-            details.Type = "Microsoft.Predefined.MSIX";
+            details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+            details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::MSIX);
             return CreateSourceFromDetails(details, progress);
         }
 
         THROW_HR(E_UNEXPECTED);
     }
 
-    std::shared_ptr<ISource> CreateCompositeSource(std::shared_ptr<ISource>& source1, std::shared_ptr<ISource>&)
+    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource)
     {
-        // TODO: needs implementation
-        return source1;
+        std::shared_ptr<CompositeSource> result = std::dynamic_pointer_cast<CompositeSource>(availableSource);
+
+        if (!result)
+        {
+            result = std::make_shared<CompositeSource>("*CompositeSource");
+            result->AddAvailableSource(availableSource);
+        }
+
+        result->SetInstalledSource(installedSource);
+
+        return result;
     }
 
     bool UpdateSource(std::string_view name, IProgressCallback& progress)
@@ -719,6 +733,11 @@ namespace AppInstaller::Repository
                 return true;
             }
         }
+    }
+
+    bool SearchRequest::IsForEverything() const
+    {
+        return (!Query.has_value() && Inclusions.empty() && Filters.empty());
     }
 
     std::string SearchRequest::ToString() const

@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestHooks.h"
+#include "TestSource.h"
 
 #include <AppInstallerRepositorySource.h>
 #include <AppInstallerDateTime.h>
@@ -109,44 +110,31 @@ Sources:
 namespace
 {
     // Helper to create a simple source.
-    struct TestSource : public ISource
+    struct SourcesTestSource : public TestCommon::TestSource
     {
-        TestSource() = default;
-        TestSource(const SourceDetails& details) : m_details(details) {}
+        SourcesTestSource() = default;
+        SourcesTestSource(const SourceDetails& details)
+        {
+            Details = details;
+        }
 
         static std::shared_ptr<ISource> Create(const SourceDetails& details)
         {
             // using return std::make_shared<TestSource>(details); will crash the x86 test during destruction.
-            return std::shared_ptr<ISource>(new TestSource(details));
+            return std::shared_ptr<ISource>(new SourcesTestSource(details));
         }
 
-        // ISource
-        const SourceDetails& GetDetails() const override
+        SearchResult Search(const SearchRequest&) const override
         {
-            return m_details;
-        }
-
-        const std::string& GetIdentifier() const override
-        {
-            return m_identifier;
-        }
-
-        SearchResult Search(const SearchRequest& request) const override
-        {
-            UNREFERENCED_PARAMETER(request);
-
             SearchResult result;
             PackageMatchFilter testMatchFilter1{ PackageMatchField::Id, MatchType::Exact, "test" };
             PackageMatchFilter testMatchFilter2{ PackageMatchField::Name, MatchType::Exact, "test" };
             PackageMatchFilter testMatchFilter3{ PackageMatchField::Id, MatchType::CaseInsensitive, "test" };
-            result.Matches.emplace_back(std::unique_ptr<IPackage>(), testMatchFilter1);
-            result.Matches.emplace_back(std::unique_ptr<IPackage>(), testMatchFilter2);
-            result.Matches.emplace_back(std::unique_ptr<IPackage>(), testMatchFilter3);
+            result.Matches.emplace_back(std::shared_ptr<IPackage>(), testMatchFilter1);
+            result.Matches.emplace_back(std::shared_ptr<IPackage>(), testMatchFilter2);
+            result.Matches.emplace_back(std::shared_ptr<IPackage>(), testMatchFilter3);
             return result;
         }
-
-        SourceDetails m_details;
-        std::string m_identifier = "*TestSource";
     };
 
     // Helper that allows some lambdas to be wrapped into a source factory.
@@ -158,7 +146,7 @@ namespace
         using RemoveFunctor = std::function<void(const SourceDetails&)>;
 
         TestSourceFactory() :
-            m_Create(TestSource::Create), m_Add([](SourceDetails&) {}), m_Update([](const SourceDetails&) {}), m_Remove([](const SourceDetails&) {}) {}
+            m_Create(SourcesTestSource::Create), m_Add([](SourceDetails&) {}), m_Update([](const SourceDetails&) {}), m_Remove([](const SourceDetails&) {}) {}
 
         // ISourceFactory
         std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback&) override
@@ -589,8 +577,6 @@ TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
 
     ProgressCallback progress;
     auto source = OpenSource("", progress);
-
-    REQUIRE(source->GetDetails().IsAggregated);
 
     SearchRequest request;
     auto result = source->Search(request);

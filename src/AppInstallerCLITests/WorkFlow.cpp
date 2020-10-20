@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestSource.h"
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerDownloader.h>
@@ -38,102 +39,7 @@ using namespace AppInstaller::Utility;
 
 namespace
 {
-    struct TestPackageVersion : public IPackageVersion
-    {
-        TestPackageVersion(const Manifest& manifest, IPackageVersion::Metadata installationMetadata = {}) :
-            m_manifest(manifest), m_installationMetadata(std::move(installationMetadata)) {}
-
-        LocIndString GetProperty(PackageVersionProperty property) const override
-        {
-            switch (property)
-            {
-            case PackageVersionProperty::Id:
-                return LocIndString{ m_manifest.Id };
-            case PackageVersionProperty::Name:
-                return LocIndString{ m_manifest.Name };
-            case PackageVersionProperty::Version:
-                return LocIndString{ m_manifest.Version };
-            case PackageVersionProperty::Channel:
-                return LocIndString{ m_manifest.Channel };
-            default:
-                return {};
-            }
-        }
-
-        Manifest GetManifest() const override
-        {
-            return m_manifest;
-        }
-
-        IPackageVersion::Metadata GetMetadata() const override
-        {
-            return m_installationMetadata;
-        }
-
-        Manifest m_manifest;
-        IPackageVersion::Metadata m_installationMetadata;
-    };
-
-    struct TestPackage : public IPackage
-    {
-        // The input manifest list should have been sorted, GetAvailableVersions will just return in the order of input manifest list..
-        // installedIndex is the index of the manifest in the list to be returned by GetInstalledVersion(),
-        // -1 mean no installed version
-        TestPackage(std::vector<Manifest> manifestList, int installedIndex = -1, IPackageVersion::Metadata installationMetadata = {}) :
-            m_manifestList(manifestList), m_installedIndex(installedIndex), m_installationMetadata(installationMetadata){}
-
-        std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
-        {
-            if (m_installedIndex >= 0)
-            {
-                return std::make_shared<TestPackageVersion>(m_manifestList.at(m_installedIndex), m_installationMetadata);
-            }
-            else
-            {
-                return {};
-            }
-        }
-
-        std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
-        {
-            std::vector<PackageVersionKey> result;
-            for (const auto& manifest : m_manifestList)
-            {
-                result.emplace_back(PackageVersionKey("", manifest.Version, manifest.Channel));
-            }
-            return result;
-        }
-
-        std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
-        {
-            return std::make_shared<TestPackageVersion>(m_manifestList.at(0));
-        }
-
-        std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override
-        {
-            for (const auto& manifest : m_manifestList)
-            {
-                if ((versionKey.Version.empty() || versionKey.Version == manifest.Version) &&
-                    (versionKey.Channel.empty() || versionKey.Channel == manifest.Channel))
-                {
-                    return std::make_shared<TestPackageVersion>(manifest);
-                }
-            }
-
-            return {};
-        }
-
-        bool IsUpdateAvailable() const override
-        {
-            return false;
-        }
-
-        std::vector<Manifest> m_manifestList;
-        int m_installedIndex;
-        IPackageVersion::Metadata m_installationMetadata;
-    };
-
-    struct TestSource : public ISource
+    struct WorkflowTestSource : public TestSource
     {
         SearchResult Search(const SearchRequest& request) const override
         {
@@ -155,7 +61,7 @@ namespace
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        std::make_unique<TestPackage>(std::vector<Manifest>{ manifest }),
+                        TestPackage::Make(std::vector<Manifest>{ manifest }),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnOne")));
             }
             else if (input == "TestQueryReturnTwo")
@@ -163,25 +69,21 @@ namespace
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        std::make_unique<TestPackage>(std::vector<Manifest>{ manifest }),
+                        TestPackage::Make(std::vector<Manifest>{ manifest }),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
 
                 auto manifest2 = YamlParser::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        std::make_unique<TestPackage>(std::vector<Manifest>{ manifest2 }),
+                        TestPackage::Make(std::vector<Manifest>{ manifest2 }),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
             }
 
             return result;
         }
-
-        const SourceDetails& GetDetails() const override { THROW_HR(E_NOTIMPL); }
-
-        const std::string& GetIdentifier() const override { THROW_HR(E_NOTIMPL); }
     };
 
-    struct TestCompositeInstalledSource : public ISource
+    struct WorkflowTestCompositeSource : public TestSource
     {
         SearchResult Search(const SearchRequest& request) const override
         {
@@ -205,8 +107,11 @@ namespace
                 auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        std::make_unique<TestPackage>(std::vector<Manifest>{ manifest2, manifest }, 1,
-                            IPackageVersion::Metadata{ { PackageVersionMetadata::InstalledType, "Exe" } }),
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            std::vector<Manifest>{ manifest2, manifest }
+                        ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
 
@@ -216,8 +121,11 @@ namespace
                 auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Msix.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        std::make_unique<TestPackage>(std::vector<Manifest>{ manifest2, manifest }, 1,
-                            IPackageVersion::Metadata{ { PackageVersionMetadata::InstalledType, "Msix" } }),
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
+                            std::vector<Manifest>{ manifest2, manifest }
+                        ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMsixInstaller")));
             }
 
@@ -226,8 +134,11 @@ namespace
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_MSStore.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        std::make_unique<TestPackage>(std::vector<Manifest>{ manifest }, 0,
-                            IPackageVersion::Metadata{ { PackageVersionMetadata::InstalledType, "MSStore" } }),
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "MSStore" } },
+                            std::vector<Manifest>{ manifest }
+                        ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMSStoreInstaller")));
             }
 
@@ -237,8 +148,11 @@ namespace
                 auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        std::make_unique<TestPackage>(std::vector<Manifest>{ manifest2, manifest }, 0,
-                            IPackageVersion::Metadata{ { PackageVersionMetadata::InstalledType, "Exe" } }),
+                        TestPackage::Make(
+                            manifest2,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            std::vector<Manifest>{ manifest2, manifest }
+                        ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
 
@@ -248,17 +162,16 @@ namespace
                 auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        std::make_unique<TestPackage>(std::vector<Manifest>{ manifest2, manifest }, 1,
-                            IPackageVersion::Metadata{ { PackageVersionMetadata::InstalledType, "Msix" } }),
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
+                            std::vector<Manifest>{ manifest2, manifest }
+                        ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
 
             return result;
         }
-
-        const SourceDetails& GetDetails() const override { THROW_HR(E_NOTIMPL); }
-
-        const std::string& GetIdentifier() const override { THROW_HR(E_NOTIMPL); }
     };
 
     struct TestContext;
@@ -356,7 +269,7 @@ void OverrideForOpenSource(TestContext& context)
 {
     context.Override({ Workflow::OpenSource, [](TestContext& context)
     {
-        context.Add<Execution::Data::Source>(std::make_shared<TestSource>());
+        context.Add<Execution::Data::Source>(std::make_shared<WorkflowTestSource>());
     } });
 }
 
@@ -366,9 +279,9 @@ void OverrideForCompositeInstalledSource(TestContext& context)
     {
     } });
 
-    context.Override({ Workflow::GetCompositeSourceFromInstalledAndAvailable, [](TestContext& context)
+    context.Override({ "OpenCompositeSource", [](TestContext& context)
     {
-        context.Add<Execution::Data::Source>(std::make_shared<TestCompositeInstalledSource>());
+        context.Add<Execution::Data::Source>(std::make_shared<WorkflowTestCompositeSource>());
     } });
 }
 
@@ -440,7 +353,7 @@ void OverrideForMSStore(TestContext& context, bool isUpdate)
     } });
 }
 
-TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
+TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
@@ -463,7 +376,7 @@ TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow]")
     REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
 }
 
-TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow]")
+TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
@@ -481,7 +394,7 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow]")
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
 }
 
-TEST_CASE("MSStoreInstallFlowWithTestManifest", "[InstallFlow]")
+TEST_CASE("MSStoreInstallFlowWithTestManifest", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestMSStoreInstalled.txt");
 
@@ -503,7 +416,7 @@ TEST_CASE("MSStoreInstallFlowWithTestManifest", "[InstallFlow]")
     REQUIRE(installResultStr.find("9WZDNCRFJ364") != std::string::npos);
 }
 
-TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow]")
+TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestMsixInstalled.txt");
 
@@ -527,7 +440,7 @@ TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow]")
     REQUIRE(uri.SchemeName() == L"file");
 }
 
-TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow]")
+TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestMsixInstalled.txt");
 
@@ -551,7 +464,7 @@ TEST_CASE("MsixInstallFlow_StreamingFlow", "[InstallFlow]")
     REQUIRE(uri.SchemeName() == L"https");
 }
 
-TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
+TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
 {
     {
         std::ostringstream installOutput;
@@ -661,7 +574,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow]")
     }
 }
 
-TEST_CASE("InstallFlow_SearchAndInstall", "[InstallFlow]")
+TEST_CASE("InstallFlow_SearchAndInstall", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
@@ -685,7 +598,7 @@ TEST_CASE("InstallFlow_SearchAndInstall", "[InstallFlow]")
     REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
 }
 
-TEST_CASE("InstallFlow_SearchFoundNoApp", "[InstallFlow]")
+TEST_CASE("InstallFlow_SearchFoundNoApp", "[InstallFlow][workflow]")
 {
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -700,7 +613,7 @@ TEST_CASE("InstallFlow_SearchFoundNoApp", "[InstallFlow]")
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::NoPackageFound).get()) != std::string::npos);
 }
 
-TEST_CASE("InstallFlow_SearchFoundMultipleApp", "[InstallFlow]")
+TEST_CASE("InstallFlow_SearchFoundMultipleApp", "[InstallFlow][workflow]")
 {
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -715,7 +628,7 @@ TEST_CASE("InstallFlow_SearchFoundMultipleApp", "[InstallFlow]")
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::MultiplePackagesFound).get()) != std::string::npos);
 }
 
-TEST_CASE("InstallFlow_SearchAndShowAppInfo", "[ShowFlow]")
+TEST_CASE("InstallFlow_SearchAndShowAppInfo", "[ShowFlow][workflow]")
 {
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };
@@ -733,7 +646,7 @@ TEST_CASE("InstallFlow_SearchAndShowAppInfo", "[ShowFlow]")
     REQUIRE(showOutput.str().find("https://ThisIsNotUsed") != std::string::npos);
 }
 
-TEST_CASE("InstallFlow_SearchAndShowAppVersion", "[ShowFlow]")
+TEST_CASE("InstallFlow_SearchAndShowAppVersion", "[ShowFlow][workflow]")
 {
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };
@@ -751,7 +664,7 @@ TEST_CASE("InstallFlow_SearchAndShowAppVersion", "[ShowFlow]")
     REQUIRE(showOutput.str().find("  Download Url: https://ThisIsNotUsed") == std::string::npos);
 }
 
-TEST_CASE("UpdateFlow_UpdateWithManifest", "[UpdateFlow]")
+TEST_CASE("UpdateFlow_UpdateWithManifest", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
 
@@ -775,7 +688,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifest", "[UpdateFlow]")
     REQUIRE(updateResultStr.find("/silentwithprogress") != std::string::npos);
 }
 
-TEST_CASE("UpdateFlow_UpdateWithManifestMSStore", "[UpdateFlow]")
+TEST_CASE("UpdateFlow_UpdateWithManifestMSStore", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestMSStoreUpdated.txt");
 
@@ -798,7 +711,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifestMSStore", "[UpdateFlow]")
     REQUIRE(updateResultStr.find("9WZDNCRFJ364") != std::string::npos);
 }
 
-TEST_CASE("UpdateFlow_UpdateWithManifestAppNotInstalled", "[UpdateFlow]")
+TEST_CASE("UpdateFlow_UpdateWithManifestAppNotInstalled", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
 
@@ -817,7 +730,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifestAppNotInstalled", "[UpdateFlow]")
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
 }
 
-TEST_CASE("UpdateFlow_UpdateWithManifestVersionAlreadyInstalled", "[UpdateFlow]")
+TEST_CASE("UpdateFlow_UpdateWithManifestVersionAlreadyInstalled", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
 
@@ -836,7 +749,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifestVersionAlreadyInstalled", "[UpdateFlow]"
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }
 
-TEST_CASE("UpdateFlow_UpdateExe", "[UpdateFlow]")
+TEST_CASE("UpdateFlow_UpdateExe", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
 
@@ -861,7 +774,7 @@ TEST_CASE("UpdateFlow_UpdateExe", "[UpdateFlow]")
     REQUIRE(updateResultStr.find("/silence") != std::string::npos);
 }
 
-TEST_CASE("UpdateFlow_UpdateMsix", "[UpdateFlow]")
+TEST_CASE("UpdateFlow_UpdateMsix", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestMsixInstalled.txt");
 
@@ -879,7 +792,7 @@ TEST_CASE("UpdateFlow_UpdateMsix", "[UpdateFlow]")
     REQUIRE(std::filesystem::exists(updateResultPath.GetPath()));
 }
 
-TEST_CASE("UpdateFlow_UpdateMSStore", "[UpdateFlow]")
+TEST_CASE("UpdateFlow_UpdateMSStore", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestMSStoreUpdated.txt");
 
@@ -902,7 +815,7 @@ TEST_CASE("UpdateFlow_UpdateMSStore", "[UpdateFlow]")
     REQUIRE(updateResultStr.find("9WZDNCRFJ364") != std::string::npos);
 }
 
-TEST_CASE("UpdateFlow_UpdateExeLatestAlreadyInstalled", "[UpdateFlow]")
+TEST_CASE("UpdateFlow_UpdateExeLatestAlreadyInstalled", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
 
@@ -921,7 +834,7 @@ TEST_CASE("UpdateFlow_UpdateExeLatestAlreadyInstalled", "[UpdateFlow]")
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }
 
-TEST_CASE("UpdateFlow_UpdateExeInstallerTypeNotApplicable", "[UpdateFlow]")
+TEST_CASE("UpdateFlow_UpdateExeInstallerTypeNotApplicable", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
 
@@ -940,7 +853,7 @@ TEST_CASE("UpdateFlow_UpdateExeInstallerTypeNotApplicable", "[UpdateFlow]")
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }
 
-TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotFound", "[UpdateFlow]")
+TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotFound", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
 
@@ -960,7 +873,7 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotFound", "[UpdateFlow]")
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
 }
 
-TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotApplicable", "[UpdateFlow]")
+TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotApplicable", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
 
@@ -980,7 +893,7 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotApplicable", "[UpdateFlow]")
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }
 
-TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow]")
+TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
     TestCommon::TempFile updateMsixResultPath("TestMsixInstalled.txt");

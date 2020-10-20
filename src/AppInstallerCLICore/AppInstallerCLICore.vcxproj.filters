@@ -132,6 +132,9 @@
     <ClInclude Include="Commands\UpgradeCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\ListCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -228,6 +231,9 @@
       <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="Commands\UpgradeCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ListCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>

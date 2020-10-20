@@ -81,19 +81,30 @@ namespace AppInstaller::Repository
         // The default of 0 will place no limit.
         size_t MaximumResults{};
 
+        // Returns a value indicating whether this request is for all available data.
+        bool IsForEverything() const;
+
         // Returns a string summarizing the search request.
         std::string ToString() const;
     };
 
-    // A property of a package.
+    // A property of a package version.
     enum class PackageVersionProperty
     {
         Id,
         Name,
-        SourceId,
+        SourceIdentifier,
+        SourceName,
         Version,
         Channel,
         RelativePath,
+    };
+
+    // A property of a package version that can have multiple values.
+    enum class PackageVersionMultiProperty
+    {
+        PackageFamilyName,
+        ProductCode,
     };
 
     // A metadata item of a package version.
@@ -116,6 +127,9 @@ namespace AppInstaller::Repository
         // Gets a property of this package version.
         virtual Utility::LocIndString GetProperty(PackageVersionProperty property) const = 0;
 
+        // Gets a property of this package version that can have multiple values.
+        virtual std::vector<Utility::LocIndString> GetMultiProperty(PackageVersionMultiProperty property) const = 0;
+
         // Gets the manifest of this package version.
         virtual Manifest::Manifest GetManifest() const = 0;
 
@@ -134,11 +148,13 @@ namespace AppInstaller::Repository
     // A key to identify a package version within a package.
     struct PackageVersionKey
     {
+        PackageVersionKey() = default;
+
         PackageVersionKey(Utility::NormalizedString sourceId, Utility::NormalizedString version, Utility::NormalizedString channel) :
             SourceId(std::move(sourceId)), Version(std::move(version)), Channel(std::move(channel)) {}
 
         // The source id that this version came from.
-        Utility::NormalizedString SourceId;
+        std::string SourceId;
 
         // The version.
         Utility::NormalizedString Version;
@@ -147,10 +163,20 @@ namespace AppInstaller::Repository
         Utility::NormalizedString Channel;
     };
 
+    // A property of a package.
+    enum class PackageProperty
+    {
+        Id,
+        Name,
+    };
+
     // A package, potentially containing information about it's local state and the available versions.
     struct IPackage
     {
         virtual ~IPackage() = default;
+
+        // Gets a property of this package.
+        virtual Utility::LocIndString GetProperty(PackageProperty property) const = 0;
 
         // Gets the installed package information.
         virtual std::shared_ptr<IPackageVersion> GetInstalledVersion() const = 0;
@@ -174,15 +200,12 @@ namespace AppInstaller::Repository
     struct ResultMatch
     {
         // The package found by the search request.
-        std::unique_ptr<IPackage> Package;
+        std::shared_ptr<IPackage> Package;
 
         // The highest order field on which the package matched the search.
         PackageMatchFilter MatchCriteria;
 
-        // The name of the source where the result is from. Used in aggregated source scenario.
-        std::string SourceName = {};
-
-        ResultMatch(std::unique_ptr<IPackage>&& p, PackageMatchFilter f) : Package(std::move(p)), MatchCriteria(std::move(f)) {}
+        ResultMatch(std::shared_ptr<IPackage> p, PackageMatchFilter f) : Package(std::move(p)), MatchCriteria(std::move(f)) {}
     };
 
     // Search result data.
