@@ -105,6 +105,8 @@ namespace AppInstaller::CLI::Workflow
         bool updateAllHasFailure = false;
         for (const auto& match : matches)
         {
+            Logging::SubExecutionTelemetryScope subExecution;
+
             // We want to do best effort to update all applicable updates regardless on previous update failure
             auto updateContextPtr = context.Clone();
             Execution::Context& updateContext = *updateContextPtr;
@@ -113,10 +115,14 @@ namespace AppInstaller::CLI::Workflow
             updateContext.Add<Execution::Data::InstalledPackageVersion>(match.Package->GetInstalledVersion());
 
             updateContext <<
+                Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
                 SelectLatestApplicableUpdate(*(match.Package)) <<
                 ShowInstallationDisclaimer <<
+                Workflow::ReportExecutionStage(ExecutionStage::Download) <<
                 DownloadInstaller <<
+                Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
                 ExecuteInstaller <<
+                Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
                 RemoveInstaller;
 
             if (updateContext.GetTerminationHR() != S_OK &&

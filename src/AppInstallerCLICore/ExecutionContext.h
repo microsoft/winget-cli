@@ -33,6 +33,7 @@
 namespace AppInstaller::CLI::Workflow
 {
     struct WorkflowTask;
+    enum class ExecutionStage;
 }
 
 namespace AppInstaller::CLI::Execution
@@ -53,6 +54,7 @@ namespace AppInstaller::CLI::Execution
         InstallerArgs,
         CompletionData,
         InstalledPackageVersion,
+        ExecutionStage,
         Max
     };
 
@@ -137,6 +139,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::InstalledPackageVersion>
         {
             using value_t = std::shared_ptr<Repository::IPackageVersion>;
+        };
+
+        template <>
+        struct DataMapping<Data::ExecutionStage>
+        {
+            using value_t = Workflow::ExecutionStage;
         };
 
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.

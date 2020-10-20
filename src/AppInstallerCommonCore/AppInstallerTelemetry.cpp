@@ -35,6 +35,10 @@ namespace AppInstaller::Logging
         // Used to disable telemetry on the fly.
         std::atomic_bool s_isTelemetryEnabled{ true };
 
+        std::string s_executionStage;
+
+        std::atomic<GUID> s_subExecutionId{ GUID_NULL };
+
         bool IsTelemetryEnabled()
         {
             return g_IsTelemetryProviderEnabled && s_isTelemetryEnabled;
@@ -83,6 +87,7 @@ namespace AppInstaller::Logging
                 "FailureInfo",
                 GetActivityId(),
                 nullptr,
+                TraceLoggingGuid(s_subExecutionId, "SubExecutionId"),
                 TraceLoggingHResult(failure.hr, "HResult"),
                 TraceLoggingWideString(failure.pszMessage, "Message"),
                 TraceLoggingString(failure.pszModule, "Module"),
@@ -90,6 +95,7 @@ namespace AppInstaller::Logging
                 TraceLoggingUInt32(static_cast<uint32_t>(failure.type), "Type"),
                 TraceLoggingString(failure.pszFile, "File"),
                 TraceLoggingUInt32(failure.uLineNumber, "Line"),
+                AICLI_TraceLoggingStringView(s_executionStage, "ExecutionStage"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
@@ -117,6 +123,7 @@ namespace AppInstaller::Logging
                 "ClientVersion",
                 GetActivityId(),
                 nullptr,
+                TraceLoggingGuid(s_subExecutionId, "SubExecutionId"),
                 TraceLoggingCountedString(version->c_str(), static_cast<ULONG>(version->size()), "Version"),
                 TraceLoggingCountedString(packageVersion->c_str(), static_cast<ULONG>(packageVersion->size()), "PackageVersion"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance|PDT_ProductAndServiceUsage),
@@ -140,6 +147,7 @@ namespace AppInstaller::Logging
                 "CommandFound",
                 GetActivityId(),
                 nullptr,
+                TraceLoggingGuid(s_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(commandName, "Command"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
@@ -156,6 +164,7 @@ namespace AppInstaller::Logging
                 "CommandSuccess",
                 GetActivityId(),
                 nullptr,
+                TraceLoggingGuid(s_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(commandName, "Command"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
@@ -172,9 +181,11 @@ namespace AppInstaller::Logging
                 "CommandTermination",
                 GetActivityId(),
                 nullptr,
+                TraceLoggingGuid(s_subExecutionId, "SubExecutionId"),
                 TraceLoggingHResult(hr, "HResult"),
                 AICLI_TraceLoggingStringView(file, "File"),
                 TraceLoggingUInt64(static_cast<UINT64>(line), "Line"),
+                AICLI_TraceLoggingStringView(s_executionStage, "ExecutionStage"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
@@ -190,9 +201,11 @@ namespace AppInstaller::Logging
                 "Exception",
                 GetActivityId(),
                 nullptr,
+                TraceLoggingGuid(s_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(commandName, "Command"),
                 AICLI_TraceLoggingStringView(type, "Type"),
                 AICLI_TraceLoggingStringView(message, "Message"),
+                AICLI_TraceLoggingStringView(s_executionStage, "ExecutionStage"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
@@ -200,7 +213,22 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Error, << "Caught " << type << ": " << message);
     }
 
-    void TelemetryTraceLogger::LogManifestFields(std::string_view id, std::string_view name, std::string_view version, bool localManifest) noexcept
+    void TelemetryTraceLogger::LogIsManifestLocal(bool isLocalManifest) noexcept
+    {
+        if (IsTelemetryEnabled())
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "GetManifest",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingGuid(s_subExecutionId, "SubExecutionId"),
+                TraceLoggingBool(isLocalManifest, "IsManifestLocal"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+    }
+
+    void TelemetryTraceLogger::LogManifestFields(std::string_view id, std::string_view name, std::string_view version) noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -208,10 +236,10 @@ namespace AppInstaller::Logging
                 "ManifestFields",
                 GetActivityId(),
                 nullptr,
+                TraceLoggingGuid(s_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(id, "Id"),
                 AICLI_TraceLoggingStringView(name,"Name"),
                 AICLI_TraceLoggingStringView(version, "Version"),
-                TraceLoggingBool(localManifest, "IsManifestLocal"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance|PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
@@ -227,6 +255,7 @@ namespace AppInstaller::Logging
                 "NoAppMatch",
                 GetActivityId(),
                 nullptr,
+                TraceLoggingGuid(s_subExecutionId, "SubExecutionId"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
@@ -242,6 +271,7 @@ namespace AppInstaller::Logging
                 "MultiAppMatch",
                 GetActivityId(),
                 nullptr,
+                TraceLoggingGuid(s_subExecutionId, "SubExecutionId"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
@@ -257,6 +287,7 @@ namespace AppInstaller::Logging
                 "AppFound",
                 GetActivityId(),
                 nullptr,
+                TraceLoggingGuid(s_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(name, "Name"),
                 AICLI_TraceLoggingStringView(id, "Id"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
@@ -274,6 +305,7 @@ namespace AppInstaller::Logging
                 "SelectedInstaller",
                 GetActivityId(),
                 nullptr,
+                TraceLoggingGuid(s_subExecutionId, "SubExecutionId"),
                 TraceLoggingInt32(arch, "Arch"),
                 AICLI_TraceLoggingStringView(url, "Url"),
                 AICLI_TraceLoggingStringView(installerType, "InstallerType"),
@@ -308,6 +340,7 @@ namespace AppInstaller::Logging
                 "SearchRequest",
                 GetActivityId(),
                 nullptr,
+                TraceLoggingGuid(s_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(type, "Type"),
                 AICLI_TraceLoggingStringView(query, "Query"),
                 AICLI_TraceLoggingStringView(id, "Id"),
@@ -330,6 +363,7 @@ namespace AppInstaller::Logging
                 "SearchResultCount",
                 GetActivityId(),
                 nullptr,
+                TraceLoggingGuid(s_subExecutionId, "SubExecutionId"),
                 TraceLoggingUInt64(resultCount, "ResultCount"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
@@ -350,6 +384,7 @@ namespace AppInstaller::Logging
                 "HashMismatch",
                 GetActivityId(),
                 nullptr,
+                TraceLoggingGuid(s_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(id, "Id"),
                 AICLI_TraceLoggingStringView(version, "Version"),
                 AICLI_TraceLoggingStringView(channel, "Channel"),
@@ -376,6 +411,7 @@ namespace AppInstaller::Logging
                 "InstallerFailure",
                 GetActivityId(),
                 nullptr,
+                TraceLoggingGuid(s_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(id, "Id"),
                 AICLI_TraceLoggingStringView(version, "Version"),
                 AICLI_TraceLoggingStringView(channel, "Channel"),
@@ -404,5 +440,22 @@ namespace AppInstaller::Logging
         {
             s_isTelemetryEnabled = true;
         }
+    }
+
+    void SetExecutionStage(std::string_view stage)
+    {
+        s_executionStage = stage;
+    }
+
+    SubExecutionTelemetryScope::SubExecutionTelemetryScope()
+    {
+        THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), s_subExecutionId != GUID_NULL, "Cannot create a sub execution telemetry session when a previous session exists.");
+
+        s_subExecutionId = CreateGuid();
+    }
+
+    SubExecutionTelemetryScope::~SubExecutionTelemetryScope()
+    {
+        s_subExecutionId = GUID_NULL;
     }
 }

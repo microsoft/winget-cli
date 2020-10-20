@@ -369,7 +369,7 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
         }
 
-        Logging::Telemetry().LogManifestFields(manifest->Id, manifest->Name, manifest->Version, false);
+        Logging::Telemetry().LogManifestFields(manifest->Id, manifest->Name, manifest->Version);
         context.Add<Execution::Data::Manifest>(std::move(manifest.value()));
     }
 
@@ -392,12 +392,14 @@ namespace AppInstaller::CLI::Workflow
 
     void GetManifestFromArg(Execution::Context& context)
     {
+        Logging::Telemetry().LogIsManifestLocal(true);
+
         context <<
             VerifyFile(Execution::Args::Type::Manifest) <<
             [](Execution::Context& context)
         {
             Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::Manifest)));
-            Logging::Telemetry().LogManifestFields(manifest.Id, manifest.Name, manifest.Version, true);
+            Logging::Telemetry().LogManifestFields(manifest.Id, manifest.Name, manifest.Version);
             context.Add<Execution::Data::Manifest>(std::move(manifest));
         };
     }
@@ -510,6 +512,47 @@ namespace AppInstaller::CLI::Workflow
     {
         const auto& searchResult = context.Get<Execution::Data::SearchResult>();
         context.Add<Execution::Data::InstalledPackageVersion>(searchResult.Matches.at(0).Package->GetInstalledVersion());
+    }
+
+    void ReportExecutionStage::operator()(Execution::Context& context) const
+    {
+        if (!context.Contains(Execution::Data::ExecutionStage))
+        {
+            context.Add<Execution::Data::ExecutionStage>(std::move(m_stage));
+        }
+        else if (context.Get<Execution::Data::ExecutionStage>() == m_stage)
+        {
+            return;
+        }
+        else if (context.Get<Execution::Data::ExecutionStage>() < m_stage || m_allowBackward)
+        {
+            context.Get<Execution::Data::ExecutionStage>() = m_stage;
+        }
+        else
+        {
+            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), "Reporting ExecutionStage to an earlier Stage without allowBackward as true");
+        }
+
+        Logging::SetExecutionStage(ExecutionStageToString(context.Get<Execution::Data::ExecutionStage>()));
+    }
+
+    std::string ExecutionStageToString(ExecutionStage stage)
+    {
+        switch (stage)
+        {
+        case ExecutionStage::Discovery:
+            return "Discovery";
+        case ExecutionStage::Download:
+            return "Download";
+        case ExecutionStage::Execution:
+            return "Execution";
+        case ExecutionStage::PostExecution:
+            return "PostExecution";
+        case ExecutionStage::None:
+            return "None";
+        default:
+            return "None";
+        }
     }
 }
 

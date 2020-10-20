@@ -97,13 +97,17 @@ namespace AppInstaller::CLI
     void InstallCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
+            Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::GetManifest <<
             Workflow::EnsureMinOSVersion <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
             Workflow::ShowInstallationDisclaimer <<
+            Workflow::ReportExecutionStage(ExecutionStage::Download) <<
             Workflow::DownloadInstaller <<
+            Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
             Workflow::ExecuteInstaller <<
+            Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
             Workflow::RemoveInstaller;
     }
 }
