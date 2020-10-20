@@ -450,7 +450,8 @@ namespace AppInstaller::Logging
 
     SubExecutionTelemetryScope::SubExecutionTelemetryScope()
     {
-        THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), s_subExecutionId.exchange(++m_sessionId) != s_RootExecutionId,
+        auto expected = s_RootExecutionId;
+        THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !s_subExecutionId.compare_exchange_strong(expected, ++m_sessionId),
             "Cannot create a sub execution telemetry session when a previous session exists.");
     }
 

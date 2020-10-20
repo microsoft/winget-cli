@@ -219,7 +219,7 @@ namespace AppInstaller::CLI::Workflow
         void operator()(Execution::Context& context) const override;
 
     private:
-        mutable ExecutionStage m_stage;
+        ExecutionStage m_stage;
         bool m_allowBackward;
     };
 }

@@ -33,7 +33,7 @@
 namespace AppInstaller::CLI::Workflow
 {
     struct WorkflowTask;
-    enum class ExecutionStage;
+    enum class ExecutionStage : uint32_t;
 }
 
 namespace AppInstaller::CLI::Execution
@@ -201,6 +201,12 @@ namespace AppInstaller::CLI::Execution
         void Add(typename details::DataMapping<D>::value_t&& v)
         {
             m_data[D].emplace<details::DataIndex(D)>(std::forward<typename details::DataMapping<D>::value_t>(v));
+        }
+        template <Data D>
+        void Add(const typename details::DataMapping<D>::value_t& v)
+        {
+            auto copy = v;
+            m_data[D].emplace<details::DataIndex(D)>(std::forward<typename details::DataMapping<D>::value_t>(std::move(copy)));
         }
 
         // Return a value indicating whether the given data type is stored in the context.

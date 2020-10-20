@@ -518,7 +518,7 @@ namespace AppInstaller::CLI::Workflow
     {
         if (!context.Contains(Execution::Data::ExecutionStage))
         {
-            context.Add<Execution::Data::ExecutionStage>(std::move(m_stage));
+            context.Add<Execution::Data::ExecutionStage>(m_stage);
         }
         else if (context.Get<Execution::Data::ExecutionStage>() == m_stage)
         {
