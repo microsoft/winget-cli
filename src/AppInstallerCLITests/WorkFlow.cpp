@@ -40,7 +40,7 @@ namespace
 {
     struct TestPackageVersion : public IPackageVersion
     {
-        TestPackageVersion(const Manifest& manifest, std::map<std::string, std::string> installationMetadata = {}) :
+        TestPackageVersion(const Manifest& manifest, IPackageVersion::Metadata installationMetadata = {}) :
             m_manifest(manifest), m_installationMetadata(std::move(installationMetadata)) {}
 
         LocIndString GetProperty(PackageVersionProperty property) const override
@@ -65,13 +65,13 @@ namespace
             return m_manifest;
         }
 
-        std::map<std::string, std::string> GetInstallationMetadata() const override
+        IPackageVersion::Metadata GetMetadata() const override
         {
             return m_installationMetadata;
         }
 
         Manifest m_manifest;
-        std::map<std::string, std::string> m_installationMetadata;
+        IPackageVersion::Metadata m_installationMetadata;
     };
 
     struct TestPackage : public IPackage
@@ -79,7 +79,7 @@ namespace
         // The input manifest list should have been sorted, GetAvailableVersions will just return in the order of input manifest list..
         // installedIndex is the index of the manifest in the list to be returned by GetInstalledVersion(),
         // -1 mean no installed version
-        TestPackage(std::vector<Manifest> manifestList, int installedIndex = -1, std::map<std::string, std::string> installationMetadata = {}) :
+        TestPackage(std::vector<Manifest> manifestList, int installedIndex = -1, IPackageVersion::Metadata installationMetadata = {}) :
             m_manifestList(manifestList), m_installedIndex(installedIndex), m_installationMetadata(installationMetadata){}
 
         std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
@@ -130,7 +130,7 @@ namespace
 
         std::vector<Manifest> m_manifestList;
         int m_installedIndex;
-        std::map<std::string, std::string> m_installationMetadata;
+        IPackageVersion::Metadata m_installationMetadata;
     };
 
     struct TestSource : public ISource
@@ -206,7 +206,7 @@ namespace
                 result.Matches.emplace_back(
                     ResultMatch(
                         std::make_unique<TestPackage>(std::vector<Manifest>{ manifest2, manifest }, 1,
-                            std::map<std::string, std::string>{ { s_InstallationMetadata_Key_InstallerType, "Exe" } }),
+                            IPackageVersion::Metadata{ { PackageVersionMetadata::InstalledType, "Exe" } }),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
 
@@ -217,7 +217,7 @@ namespace
                 result.Matches.emplace_back(
                     ResultMatch(
                         std::make_unique<TestPackage>(std::vector<Manifest>{ manifest2, manifest }, 1,
-                            std::map<std::string, std::string>{ { s_InstallationMetadata_Key_InstallerType, "Msix" } }),
+                            IPackageVersion::Metadata{ { PackageVersionMetadata::InstalledType, "Msix" } }),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMsixInstaller")));
             }
 
@@ -227,7 +227,7 @@ namespace
                 result.Matches.emplace_back(
                     ResultMatch(
                         std::make_unique<TestPackage>(std::vector<Manifest>{ manifest }, 0,
-                            std::map<std::string, std::string>{ { s_InstallationMetadata_Key_InstallerType, "MSStore" } }),
+                            IPackageVersion::Metadata{ { PackageVersionMetadata::InstalledType, "MSStore" } }),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMSStoreInstaller")));
             }
 
@@ -238,7 +238,7 @@ namespace
                 result.Matches.emplace_back(
                     ResultMatch(
                         std::make_unique<TestPackage>(std::vector<Manifest>{ manifest2, manifest }, 0,
-                            std::map<std::string, std::string>{ { s_InstallationMetadata_Key_InstallerType, "Exe" } }),
+                            IPackageVersion::Metadata{ { PackageVersionMetadata::InstalledType, "Exe" } }),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
 
@@ -249,7 +249,7 @@ namespace
                 result.Matches.emplace_back(
                     ResultMatch(
                         std::make_unique<TestPackage>(std::vector<Manifest>{ manifest2, manifest }, 1,
-                            std::map<std::string, std::string>{ { s_InstallationMetadata_Key_InstallerType, "Msix" } }),
+                            IPackageVersion::Metadata{ { PackageVersionMetadata::InstalledType, "Msix" } }),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
 

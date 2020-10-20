@@ -16,8 +16,6 @@ namespace AppInstaller::CLI::Execution
 
 namespace AppInstaller::CLI::Workflow
 {
-    static const char* s_InstallationMetadata_Key_InstallerType = "InstallerType";
-
     // A task in the workflow.
     struct WorkflowTask
     {

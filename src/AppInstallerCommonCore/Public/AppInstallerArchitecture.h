@@ -24,8 +24,8 @@ namespace AppInstaller::Utility
     // Gets the system's architecture as Architecture enum
     AppInstaller::Utility::Architecture GetSystemArchitecture();
 
-    // Gets a set of architectures that are applicable to the current system
-    std::vector<Architecture> GetApplicableArchitectures();
+    // Gets the set of architectures that are applicable to the current system
+    const std::vector<Architecture>& GetApplicableArchitectures();
 
     // Gets if an architecture is applicable to the system
     // Returns the priority in the applicable architecture list if the architecture is applicable. 0 has lowest priority.

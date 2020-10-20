@@ -99,18 +99,18 @@ namespace AppInstaller::Repository
     // A metadata item of a package version.
     enum class PackageVersionMetadata
     {
-
+        // The InstallerType of an installed package, as determined by system artifacts.
+        InstalledType,
     };
 
     // Convert a PackageVersionMetadata to a string.
-    constexpr inline std::string_view ToString(PackageVersionMetadata pvm);
-
-    // Convert a string to a PackageVersionMetadata.
-    inline PackageVersionMetadata ToPackageVersionMetadata(std::string_view s);
+    std::string_view ToString(PackageVersionMetadata pvm);
 
     // A single package version.
     struct IPackageVersion
     {
+        using Metadata = std::map<PackageVersionMetadata, std::string>;
+
         virtual ~IPackageVersion() = default;
 
         // Gets a property of this package version.
@@ -121,7 +121,7 @@ namespace AppInstaller::Repository
 
         // Gets any metadata associated with this package version.
         // Primarily stores data on installed packages.
-        virtual std::map<std::string, std::string> GetMetadata() const = 0;
+        virtual Metadata GetMetadata() const = 0;
     };
 
     // An installed package version.

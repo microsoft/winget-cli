@@ -753,6 +753,15 @@ namespace AppInstaller::Repository
         return result.str();
     }
 
+    std::string_view ToString(PackageVersionMetadata pvm)
+    {
+        switch (pvm)
+        {
+        case PackageVersionMetadata::InstalledType: return "InstalledType"sv;
+        default: return "Unknown"sv;
+        }
+    }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
     void TestHook_SetSourceFactoryOverride(const std::string& type, std::function<std::unique_ptr<ISourceFactory>()>&& factory)
     {
