@@ -29,5 +29,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         // Sets the metadata value for the given manifest.
         // The table must exist.
         static void SetMetadataByManifestId(SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMetadata metadata, std::string_view value);
+
+        // Removes all metadata values for the given manifest.
+        // The table must exist.
+        static void DeleteByManifestId(SQLite::Connection& connection, SQLite::rowid_t manifestId);
     };
 }

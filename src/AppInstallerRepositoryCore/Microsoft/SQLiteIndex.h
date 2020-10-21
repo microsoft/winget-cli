@@ -68,11 +68,13 @@ namespace AppInstaller::Repository::Microsoft
 
         // Adds the manifest at the repository relative path to the index.
         // If the function succeeds, the manifest has been added.
-        void AddManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);
+        // Returns the manifest id.
+        IdType AddManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath);
 
         // Adds the manifest at the repository relative path to the index.
         // If the function succeeds, the manifest has been added.
-        void AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
+        // Returns the manifest id.
+        IdType AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
 
         // Updates the manifest with matching { Id, Version, Channel } in the index.
         // The return value indicates whether the index was modified by the function.

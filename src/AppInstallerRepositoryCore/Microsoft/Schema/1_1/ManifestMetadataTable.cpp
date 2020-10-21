@@ -70,5 +70,35 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 
     void ManifestMetadataTable::SetMetadataByManifestId(SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMetadata metadata, std::string_view value)
     {
+        using namespace Builder;
+
+        // First, we attempt to update an existing row. If not changes occurred, we then insert the new value.
+        // UPSERT (aka ON CONFLICT) is not available to us, as it was only introduced in 3.24.0 (2018-06-04),
+        // and we need to support Windows 10 (16299) which was released in 2017.
+        StatementBuilder updateBuilder;
+        updateBuilder.Update(s_ManifestMetadataTable_Table_Name).Set().Column(s_ManifestMetadataTable_Value_Column).Equals(value).
+            Where(s_ManifestMetadataTable_Manifest_Column).Equals(manifestId).And(s_ManifestMetadataTable_Metadata_Column).Equals(metadata);
+
+        updateBuilder.Execute(connection);
+
+        // No changes means we need to insert the row
+        if (connection.GetChanges() == 0)
+        {
+            StatementBuilder insertBuilder;
+            insertBuilder.InsertInto(s_ManifestMetadataTable_Table_Name).
+                Columns({ s_ManifestMetadataTable_Manifest_Column, s_ManifestMetadataTable_Metadata_Column, s_ManifestMetadataTable_Value_Column })
+                .Values(manifestId, metadata, value);
+
+            insertBuilder.Execute(connection);
+        }
+    }
+
+    void ManifestMetadataTable::DeleteByManifestId(SQLite::Connection & connection, SQLite::rowid_t manifestId)
+    {
+        using namespace Builder;
+
+        StatementBuilder builder;
+        builder.DeleteFrom(s_ManifestMetadataTable_Table_Name).Where(s_ManifestMetadataTable_Manifest_Column).Equals(manifestId);
+        builder.Execute(connection);
     }
 }

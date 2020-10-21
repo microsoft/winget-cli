@@ -138,6 +138,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         PackageFamilyNameTable::DeleteIfNotNeededByManifestId(connection, manifestId);
         ProductCodeTable::DeleteIfNotNeededByManifestId(connection, manifestId);
 
+        if (ManifestMetadataTable::Exists)
+        {
+            ManifestMetadataTable::DeleteByManifestId(connection, manifestId);
+        }
+
         savepoint.Commit();
 
         return manifestId;
