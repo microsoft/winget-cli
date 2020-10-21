@@ -205,8 +205,7 @@ namespace AppInstaller::CLI::Execution
         template <Data D>
         void Add(const typename details::DataMapping<D>::value_t& v)
         {
-            auto copy = v;
-            m_data[D].emplace<details::DataIndex(D)>(std::forward<typename details::DataMapping<D>::value_t>(std::move(copy)));
+            m_data[D].emplace<details::DataIndex(D)>(v);
         }
 
         // Return a value indicating whether the given data type is stored in the context.
