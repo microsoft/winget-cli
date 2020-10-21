@@ -244,6 +244,16 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->GetVersionKeysById(m_dbconn, id);
     }
 
+    SQLiteIndex::MetadataResult SQLiteIndex::GetMetadataByManifestId(SQLite::rowid_t manifestId) const
+    {
+        return m_interface->GetMetadataByManifestId(m_dbconn, manifestId);
+    }
+
+    void SQLiteIndex::SetMetadataByManifestId(IdType manifestId, PackageVersionMetadata metadata, std::string_view value)
+    {
+        m_interface->SetMetadataByManifestId(m_dbconn, manifestId, metadata, value);
+    }
+
     // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus
     // should be consistent across systems.
     void SQLiteIndex::SetLastWriteTime()

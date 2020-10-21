@@ -28,6 +28,9 @@ namespace AppInstaller::Repository::Microsoft::Schema
             bool Truncated = false;
         };
 
+        // The non-version specific return value of GetMetadataByManifestId.
+        using MetadataResult = std::vector<std::pair<PackageVersionMetadata, std::string>>;
+
         // Version 1.0
 
         // Gets the schema version that this index interface is built for.
@@ -69,5 +72,13 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         // Gets all versions and channels for the given id.
         virtual std::vector<Utility::VersionAndChannel> GetVersionKeysById(const SQLite::Connection& connection, SQLite::rowid_t id) const = 0;
+
+        // Version 1.1
+
+        // Gets the string for the given metadata and manifest id, if present.
+        virtual MetadataResult GetMetadataByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId) const = 0;
+
+        // Sets the string for the given metadata and manifest id.
+        virtual void SetMetadataByManifestId(SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMetadata metadata, std::string_view value) = 0;
     };
 }

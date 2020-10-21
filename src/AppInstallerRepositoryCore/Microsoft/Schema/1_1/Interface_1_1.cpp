@@ -20,6 +20,8 @@
 
 #include "Microsoft/Schema/1_1/SearchResultsTable.h"
 
+#include "Microsoft/Schema/1_1/ManifestMetadataTable.h"
+
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 {
@@ -229,6 +231,32 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         default:
             return V1_0::Interface::GetMultiPropertyByManifestId(connection, manifestId, property);
         }
+    }
+
+    ISQLiteIndex::MetadataResult Interface::GetMetadataByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId) const
+    {
+        ISQLiteIndex::MetadataResult result;
+
+        if (ManifestMetadataTable::Exists(connection))
+        {
+            result = ManifestMetadataTable::GetMetadataByManifestId(connection, manifestId);
+        }
+
+        return result;
+    }
+
+    void Interface::SetMetadataByManifestId(SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMetadata metadata, std::string_view value)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "setmetadatabymanifestid_v1_1");
+
+        if (!ManifestMetadataTable::Exists(connection))
+        {
+            ManifestMetadataTable::Create(connection);
+        }
+
+        ManifestMetadataTable::SetMetadataByManifestId(connection, manifestId, metadata, value);
+
+        savepoint.Commit();
     }
 
     std::unique_ptr<V1_0::SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const

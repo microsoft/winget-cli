@@ -25,6 +25,12 @@ namespace AppInstaller::Repository::Microsoft
         // An id that refers to a specific application.
         using IdType = SQLite::rowid_t;
 
+        // The return type of Search
+        using SearchResult = Schema::ISQLiteIndex::SearchResult;
+
+        // The return type of GetMetadataByManifestId
+        using MetadataResult = Schema::ISQLiteIndex::MetadataResult;
+
         SQLiteIndex(const SQLiteIndex&) = delete;
         SQLiteIndex& operator=(const SQLiteIndex&) = delete;
 
@@ -92,7 +98,7 @@ namespace AppInstaller::Repository::Microsoft
         bool CheckConsistency(bool log = false) const;
 
         // Performs a search based on the given criteria.
-        Schema::ISQLiteIndex::SearchResult Search(const SearchRequest& request) const;
+        SearchResult Search(const SearchRequest& request) const;
 
         // Gets the string for the given property and manifest id, if present.
         std::optional<std::string> GetPropertyByManifestId(IdType manifestId, PackageVersionProperty property) const;
@@ -106,6 +112,12 @@ namespace AppInstaller::Repository::Microsoft
 
         // Gets all versions and channels for the given id.
         std::vector<Utility::VersionAndChannel> GetVersionKeysById(IdType id) const;
+
+        // Gets the string for the given metadata and manifest id, if present.
+        MetadataResult GetMetadataByManifestId(SQLite::rowid_t manifestId) const;
+
+        // Sets the string for the given metadata and manifest id.
+        void SetMetadataByManifestId(IdType manifestId, PackageVersionMetadata metadata, std::string_view value);
 
     private:
         // Constructor used to open an existing index.

@@ -108,7 +108,7 @@ namespace AppInstaller::Repository
     };
 
     // A metadata item of a package version.
-    enum class PackageVersionMetadata
+    enum class PackageVersionMetadata : uint32_t
     {
         // The InstallerType of an installed package, as determined by system artifacts.
         InstalledType,

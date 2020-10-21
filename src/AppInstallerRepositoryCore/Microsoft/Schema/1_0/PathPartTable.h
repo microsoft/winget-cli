@@ -11,7 +11,7 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
-    // A table that represents a single manifest
+    // A table that represents the parts of a path
     struct PathPartTable
     {
         // The id type
