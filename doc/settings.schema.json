@@ -36,27 +36,27 @@
         "experimentalCMD": {
           "description": "Reference implementation for an experimental command",
           "type": "boolean",
-          "default": "false"
+          "default": false
         },
         "experimentalARG": {
           "description": "Reference implementation for an experimental argument",
           "type": "boolean",
-          "default": "false"
+          "default": false
         },
         "experimentalMSStore": {
           "description": "Experimental support for Microsoft Store source",
           "type": "boolean",
-          "default": "false"
+          "default": false
         },
         "list": {
           "description": "Enable the list command while it is in development",
           "type": "boolean",
-          "default": "false"
+          "default": false
         },
         "upgrade": {
           "description": "Enable the upgrade command while it is in development",
           "type": "boolean",
-          "default": "false"
+          "default": false
         }
       }
     }
