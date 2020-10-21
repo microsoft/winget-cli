@@ -33,6 +33,7 @@
 namespace AppInstaller::CLI::Workflow
 {
     struct WorkflowTask;
+    enum class ExecutionStage : uint32_t;
 }
 
 namespace AppInstaller::CLI::Execution
@@ -53,6 +54,7 @@ namespace AppInstaller::CLI::Execution
         InstallerArgs,
         CompletionData,
         InstalledPackageVersion,
+        ExecutionStage,
         Max
     };
 
@@ -139,6 +141,12 @@ namespace AppInstaller::CLI::Execution
             using value_t = std::shared_ptr<Repository::IPackageVersion>;
         };
 
+        template <>
+        struct DataMapping<Data::ExecutionStage>
+        {
+            using value_t = Workflow::ExecutionStage;
+        };
+
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.
         template <size_t... I>
         inline auto Deduce(std::index_sequence<I...>) { return std::variant<std::monostate, DataMapping<static_cast<Data>(I)>::value_t...>{}; }
@@ -193,6 +201,11 @@ namespace AppInstaller::CLI::Execution
         void Add(typename details::DataMapping<D>::value_t&& v)
         {
             m_data[D].emplace<details::DataIndex(D)>(std::forward<typename details::DataMapping<D>::value_t>(v));
+        }
+        template <Data D>
+        void Add(const typename details::DataMapping<D>::value_t& v)
+        {
+            m_data[D].emplace<details::DataIndex(D)>(v);
         }
 
         // Return a value indicating whether the given data type is stored in the context.

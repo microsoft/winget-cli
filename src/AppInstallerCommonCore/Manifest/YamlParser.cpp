@@ -433,7 +433,7 @@ namespace AppInstaller::Manifest
             {
                 {ManifestInstaller::InstallerSwitchType::Silent, ManifestInstaller::string_t("/S")},
                 {ManifestInstaller::InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/S")},
-                {ManifestInstaller::InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("/D=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
+                {ManifestInstaller::InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("/D=" + std::string(ARG_TOKEN_INSTALLPATH))}
             };
         case ManifestInstaller::InstallerTypeEnum::Inno:
             return
