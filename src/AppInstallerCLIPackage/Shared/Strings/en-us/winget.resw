@@ -718,4 +718,8 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
     <value>Both local manifest and search query args are provided</value>
   </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Logs</value>
+    <comment>Diagnostic files containing information about application use.</comment>
+  </data>
 </root>

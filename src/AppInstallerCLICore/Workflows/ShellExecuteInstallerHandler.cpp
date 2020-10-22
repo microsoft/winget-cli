@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ShellExecuteInstallerHandler.h"
+#include "AppInstallerFileLogger.h"
 
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;
@@ -140,7 +141,16 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                logPath = Utility::ConvertToUTF8(context.Get<Execution::Data::InstallerPath>().c_str()) + ".log";
+                const auto& manifest = context.Get<Execution::Data::Manifest>();
+
+                auto path = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
+                path /= Logging::FileLogger::DefaultPrefix();
+                path += Utility::ConvertToUTF16(manifest.Id + '.' + manifest.Version);
+                path += '-';
+                path += Utility::GetCurrentTimeForFilename();
+                path += Logging::FileLogger::DefaultExt();
+
+                logPath = path.u8string();
             }
 
             if (Utility::FindAndReplace(installerArgs, std::string(ARG_TOKEN_LOGPATH), logPath))
