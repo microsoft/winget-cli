@@ -72,10 +72,18 @@ namespace AppInstaller::Utility
     using NormalizedString = NormalizedUTF8<>;
 
     // Compares the two UTF8 strings in a case insensitive manner.
+    // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveEquals(std::string_view a, std::string_view b);
 
     // Determins if string a starts with string b.
+    // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveStartsWith(std::string_view a, std::string_view b);
+
+    // Compares the two UTF8 strings in a case insensitive manner, using ICU for case folding.
+    bool ICUCaseInsensitiveEquals(std::string_view a, std::string_view b);
+
+    // Determins if string a starts with string b, using ICU for case folding.
+    bool ICUCaseInsensitiveStartsWith(std::string_view a, std::string_view b);
 
     // Returns the number of grapheme clusters (characters) in an UTF8-encoded string.
     size_t UTF8Length(std::string_view input);
