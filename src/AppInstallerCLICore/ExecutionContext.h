@@ -47,6 +47,7 @@ namespace AppInstaller::CLI::Execution
         SearchResult,
         SourceList,
         Manifest,
+        SourceId,
         Installer,
         HashPair,
         InstallerPath,
@@ -97,6 +98,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::Manifest>
         {
             using value_t = Manifest::Manifest;
+        };
+
+        template <>
+        struct DataMapping<Data::SourceId>
+        {
+            using value_t = std::string;
         };
 
         template <>

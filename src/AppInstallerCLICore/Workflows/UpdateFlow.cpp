@@ -52,7 +52,8 @@ namespace AppInstaller::CLI::Workflow
             // Check Update Version
             if (IsUpdateVersionApplicable(context, Utility::Version(key.Version)))
             {
-                auto manifest = m_package.GetAvailableVersion(key)->GetManifest();
+                auto packageVersion = m_package.GetAvailableVersion(key);
+                auto manifest = packageVersion->GetManifest();
 
                 // Check MinOSVersion
                 if (!manifest.MinOSVersion.empty() &&
@@ -70,6 +71,7 @@ namespace AppInstaller::CLI::Workflow
 
                 // Since we already did installer selection, just populate the context Data
                 context.Add<Execution::Data::Manifest>(std::move(manifest));
+                context.Add<Execution::Data::SourceId>(packageVersion->GetProperty(PackageVersionProperty::SourceIdentifier));
                 context.Add<Execution::Data::Installer>(std::move(installer));
 
                 updateFound = true;

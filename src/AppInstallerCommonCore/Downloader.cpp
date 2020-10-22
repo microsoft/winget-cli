@@ -136,7 +136,7 @@ namespace AppInstaller::Utility
 
         std::ofstream emptyDestFile(dest);
         emptyDestFile.close();
-        ApplyMotwIfApplicable(dest);
+        ApplyMotwIfApplicable(dest, URLZONE_INTERNET);
 
         // Use std::ofstream::app to append to previous empty file so that it will not
         // create a new file and clear motw.
@@ -171,50 +171,42 @@ namespace AppInstaller::Utility
         return false;
     }
 
-    void ApplyMotwIfApplicable(const std::filesystem::path& filePath)
+    void ApplyMotwIfApplicable(const std::filesystem::path& filePath, URLZONE zone)
     {
-        AICLI_LOG(Core, Info, << "Started applying motw to " << filePath);
+        AICLI_LOG(Core, Info, << "Started applying motw to " << filePath << " with zone: " << zone);
 
+        if (!IsNTFS(filePath))
         {
-            // Check the file system the input file is on.
-            wil::unique_hfile fileHandle{ CreateFileW(
-                filePath.c_str(), /*lpFileName*/
-                GENERIC_READ, /*dwDesiredAccess*/
-                0, /*dwShareMode*/
-                NULL, /*lpSecurityAttributes*/
-                OPEN_EXISTING, /*dwCreationDisposition*/
-                FILE_ATTRIBUTE_NORMAL, /*dwFlagsAndAttributes*/
-                NULL /*hTemplateFile*/) };
-
-            THROW_LAST_ERROR_IF(fileHandle.get() == INVALID_HANDLE_VALUE);
-
-            wchar_t fileSystemName[MAX_PATH];
-            THROW_LAST_ERROR_IF(!GetVolumeInformationByHandleW(
-                fileHandle.get(), /*hFile*/
-                NULL, /*lpVolumeNameBuffer*/
-                0, /*nVolumeNameSize*/
-                NULL, /*lpVolumeSerialNumber*/
-                NULL, /*lpMaximumComponentLength*/
-                NULL, /*lpFileSystemFlags*/
-                fileSystemName, /*lpFileSystemNameBuffer*/
-                MAX_PATH /*nFileSystemNameSize*/));
-
-            if (_wcsicmp(fileSystemName, L"NTFS") != 0)
-            {
-                AICLI_LOG(Core, Info, << "File system is not NTFS. Skipped applying motw");
-                return;
-            }
+            AICLI_LOG(Core, Info, << "File system is not NTFS. Skipped applying motw");
+            return;
         }
 
-        // Zone Identifier stream name
-        // https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/6e3f7352-d11c-4d76-8c39-2516a9df36e8
-        std::filesystem::path motwPath(filePath);
-        motwPath += L":Zone.Identifier:$DATA";
+        Microsoft::WRL::ComPtr<IZoneIdentifier> zoneIdentifier;
+        THROW_IF_FAILED(CoCreateInstance(CLSID_PersistentZoneIdentifier, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&zoneIdentifier)));
+        THROW_IF_FAILED(zoneIdentifier->SetId(zone));
 
-        // Apply mark of the web. ZoneId 3 means downloaded from internet.
-        std::ofstream motwStream(motwPath);
-        motwStream << "[ZoneTransfer]" << std::endl;
-        motwStream << "ZoneId=3" << std::endl;
+        Microsoft::WRL::ComPtr<IPersistFile> persistFile;
+        THROW_IF_FAILED(zoneIdentifier.As(&persistFile));
+        THROW_IF_FAILED(persistFile->Save(filePath.c_str(), TRUE));
+
+        AICLI_LOG(Core, Info, << "Finished applying motw");
+    }
+
+    void ApplyMotwUsingIAttachmentExecuteIfApplicable(const std::filesystem::path& filePath, const std::string& source)
+    {
+        AICLI_LOG(Core, Info, << "Started applying motw using IAttachmentExecute to " << filePath);
+
+        if (!IsNTFS(filePath))
+        {
+            AICLI_LOG(Core, Info, << "File system is not NTFS. Skipped applying motw");
+            return;
+        }
+
+        Microsoft::WRL::ComPtr<IAttachmentExecute> attachmentExecute;
+        THROW_IF_FAILED(CoCreateInstance(CLSID_AttachmentServices, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&attachmentExecute)));
+        THROW_IF_FAILED(attachmentExecute->SetLocalPath(filePath.c_str()));
+        THROW_IF_FAILED(attachmentExecute->SetSource(Utility::ConvertToUTF16(source).c_str()));
+        THROW_IF_FAILED(attachmentExecute->Save());
 
         AICLI_LOG(Core, Info, << "Finished applying motw");
     }

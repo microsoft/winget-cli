@@ -189,6 +189,30 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void UpdateMotwIfApplicable(Execution::Context& context)
+    {
+        const std::string TrustedSourceIds[] = { "Microsoft.Winget.Source_8wekyb3d8bbwe" };
+
+        if (context.Contains(Execution::Data::InstallerPath))
+        {
+            // Only update Motw if installer hash matches
+            const auto& hashPair = context.Get<Execution::Data::HashPair>();
+            if (std::equal(hashPair.first.begin(), hashPair.first.end(), hashPair.second.begin()))
+            {
+                const auto& sourceId = context.Get<Execution::Data::SourceId>();
+                if (std::find(std::begin(TrustedSourceIds), std::end(TrustedSourceIds), sourceId) != std::end(TrustedSourceIds))
+                {
+                    Utility::ApplyMotwIfApplicable(context.Get<Execution::Data::InstallerPath>(), URLZONE_TRUSTED);
+                }
+                else
+                {
+                    const auto& installer = context.Get<Execution::Data::Installer>();
+                    Utility::ApplyMotwUsingIAttachmentExecuteIfApplicable(context.Get<Execution::Data::InstallerPath>(), installer.value().Url);
+                }
+            }
+        }
+    }
+
     void ExecuteInstaller(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>().value();
@@ -273,7 +297,22 @@ namespace AppInstaller::CLI::Workflow
         {
             const auto& path = context.Get<Execution::Data::InstallerPath>();
             AICLI_LOG(CLI, Info, << "Removing installer: " << path);
-            std::filesystem::remove(path);
+
+            try
+            {
+                // best effort
+                std::filesystem::remove(path);
+            }
+            catch (const std::exception& e)
+            {
+                AICLI_LOG(CLI, Warning, << "Failed to remove installer file after execution. Reason: " << e.what());
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REMOVE_INSTALLER_FAILED);
+            }
+            catch (...)
+            {
+                AICLI_LOG(CLI, Warning, << "Failed to remove installer file after execution. Reason unknown.");
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REMOVE_INSTALLER_FAILED);
+            }
         }
     }
 }
