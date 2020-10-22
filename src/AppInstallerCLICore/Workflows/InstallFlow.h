@@ -57,7 +57,7 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: HashPair, InstallerPath?, SourceId?
     // Outputs: None
-    void UpdateMotwIfApplicable(Execution::Context& context);
+    void UpdateInstallerFileMotwIfApplicable(Execution::Context& context);
 
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None

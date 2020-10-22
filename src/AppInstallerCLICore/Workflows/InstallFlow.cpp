@@ -86,6 +86,8 @@ namespace AppInstaller::CLI::Workflow
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
+
+        context << UpdateInstallerFileMotwIfApplicable;
     }
 
     void DownloadInstallerFile(Execution::Context& context)
@@ -189,7 +191,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void UpdateMotwIfApplicable(Execution::Context& context)
+    void UpdateInstallerFileMotwIfApplicable(Execution::Context& context)
     {
         const std::string TrustedSourceIds[] = { "Microsoft.Winget.Source_8wekyb3d8bbwe" };
 
@@ -199,8 +201,8 @@ namespace AppInstaller::CLI::Workflow
             const auto& hashPair = context.Get<Execution::Data::HashPair>();
             if (std::equal(hashPair.first.begin(), hashPair.first.end(), hashPair.second.begin()))
             {
-                const auto& sourceId = context.Get<Execution::Data::SourceId>();
-                if (std::find(std::begin(TrustedSourceIds), std::end(TrustedSourceIds), sourceId) != std::end(TrustedSourceIds))
+                if (context.Contains(Execution::Data::SourceId) &&
+                    std::find(std::begin(TrustedSourceIds), std::end(TrustedSourceIds), context.Get<Execution::Data::SourceId>()) != std::end(TrustedSourceIds))
                 {
                     Utility::ApplyMotwIfApplicable(context.Get<Execution::Data::InstallerPath>(), URLZONE_TRUSTED);
                 }

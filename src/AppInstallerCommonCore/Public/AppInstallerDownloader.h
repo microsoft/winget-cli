@@ -3,6 +3,8 @@
 #pragma once
 #include <AppInstallerProgress.h>
 
+#include <urlmon.h>
+
 #include <filesystem>
 #include <optional>
 #include <ostream>
