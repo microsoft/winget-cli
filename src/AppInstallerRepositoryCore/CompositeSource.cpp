@@ -68,7 +68,7 @@ namespace AppInstaller::Repository
 
                     // Remove all elements whose channel does not match the installed package.
                     result.erase(
-                        std::remove_if(result.begin(), result.end(), [&](const PackageVersionKey& pvk) { return !Utility::CaseInsensitiveEquals(pvk.Channel, channel); }),
+                        std::remove_if(result.begin(), result.end(), [&](const PackageVersionKey& pvk) { return !Utility::ICUCaseInsensitiveEquals(pvk.Channel, channel); }),
                         result.end());
 
                     return result;
@@ -471,7 +471,7 @@ namespace AppInstaller::Repository
 
                             AICLI_LOG(Repo, Info, << "  Checking system reference match with package id: " << matchId);
 
-                            if (Utility::CaseInsensitiveEquals(id, matchId))
+                            if (Utility::ICUCaseInsensitiveEquals(id, matchId))
                             {
                                 availablePackage = std::move(availableMatch.Package);
                                 break;

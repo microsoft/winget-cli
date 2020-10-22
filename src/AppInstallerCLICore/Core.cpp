@@ -4,6 +4,7 @@
 #include "Public/AppInstallerCLICore.h"
 #include "Commands/RootCommand.h"
 #include "ExecutionContext.h"
+#include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
 
 using namespace winrt;
@@ -60,6 +61,8 @@ namespace AppInstaller::CLI
 
         Execution::Context context{ std::cout, std::cin };
         context.EnableCtrlHandler();
+
+        context << Workflow::ReportExecutionStage(Workflow::ExecutionStage::ParseArgs);
 
         // Convert incoming wide char args to UTF8
         std::vector<std::string> utf8Args;

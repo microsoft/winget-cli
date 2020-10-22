@@ -32,7 +32,7 @@ namespace AppInstaller::CLI::Workflow
 
         for (const auto& source : Repository::GetSources())
         {
-            if (word.empty() || Utility::CaseInsensitiveStartsWith(source.Name, word))
+            if (word.empty() || Utility::ICUCaseInsensitiveStartsWith(source.Name, word))
             {
                 OutputCompletionString(stream, source.Name);
             }
@@ -73,7 +73,7 @@ namespace AppInstaller::CLI::Workflow
 
         for (const auto& vc : context.Get<Execution::Data::SearchResult>().Matches[0].Package->GetAvailableVersionKeys())
         {
-            if (word.empty() || Utility::CaseInsensitiveStartsWith(vc.Version, word))
+            if (word.empty() || Utility::ICUCaseInsensitiveStartsWith(vc.Version, word))
             {
                 OutputCompletionString(stream, vc.Version);
             }
@@ -89,7 +89,7 @@ namespace AppInstaller::CLI::Workflow
 
         for (const auto& vc : context.Get<Execution::Data::SearchResult>().Matches[0].Package->GetAvailableVersionKeys())
         {
-            if ((word.empty() || Utility::CaseInsensitiveStartsWith(vc.Channel, word)) &&
+            if ((word.empty() || Utility::ICUCaseInsensitiveStartsWith(vc.Channel, word)) &&
                 std::find(channels.begin(), channels.end(), vc.Channel) == channels.end())
             {
                 channels.emplace_back(vc.Channel);

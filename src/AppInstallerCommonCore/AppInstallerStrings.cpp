@@ -94,12 +94,22 @@ namespace AppInstaller::Utility
 
     bool CaseInsensitiveEquals(std::string_view a, std::string_view b)
     {
-        return FoldCase(a) == FoldCase(b);
+        return ToLower(a) == ToLower(b);
     }
 
     bool CaseInsensitiveStartsWith(std::string_view a, std::string_view b)
     {
         return a.length() >= b.length() && CaseInsensitiveEquals(a.substr(0, b.length()), b);
+    }
+
+    bool ICUCaseInsensitiveEquals(std::string_view a, std::string_view b)
+    {
+        return FoldCase(a) == FoldCase(b);
+    }
+
+    bool ICUCaseInsensitiveStartsWith(std::string_view a, std::string_view b)
+    {
+        return a.length() >= b.length() && ICUCaseInsensitiveEquals(a.substr(0, b.length()), b);
     }
 
     std::string ConvertToUTF8(std::wstring_view input)

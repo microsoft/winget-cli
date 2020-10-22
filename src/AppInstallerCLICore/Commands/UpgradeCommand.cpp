@@ -116,6 +116,7 @@ namespace AppInstaller::CLI
         WI_SetFlag(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
 
         context <<
+            Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             OpenSource <<
             OpenCompositeSource(Repository::PredefinedSource::Installed);
 
@@ -149,8 +150,11 @@ namespace AppInstaller::CLI
                 SelectInstaller <<
                 EnsureApplicableInstaller <<
                 ShowInstallationDisclaimer <<
+                Workflow::ReportExecutionStage(ExecutionStage::Download) <<
                 DownloadInstaller <<
+                Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
                 ExecuteInstaller <<
+                Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
                 RemoveInstaller;
         }
         else
@@ -182,8 +186,11 @@ namespace AppInstaller::CLI
 
             context <<
                 ShowInstallationDisclaimer <<
+                Workflow::ReportExecutionStage(ExecutionStage::Download) <<
                 DownloadInstaller <<
+                Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
                 ExecuteInstaller <<
+                Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
                 RemoveInstaller;
         }
     }

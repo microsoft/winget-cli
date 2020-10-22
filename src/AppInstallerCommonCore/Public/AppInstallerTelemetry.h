@@ -44,9 +44,12 @@ namespace AppInstaller::Logging
         // Logs the invoked command termination.
         void LogException(std::string_view commandName, std::string_view type, std::string_view message) noexcept;
 
+        // Logs whether the manifest used in workflow is local
+        void LogIsManifestLocal(bool isLocalManifest) noexcept;
+
         // Logs the Manifest fields.
-        void LogManifestFields(std::string_view id, std::string_view name, std::string_view version, bool localManifest) noexcept;
-         
+        void LogManifestFields(std::string_view id, std::string_view name, std::string_view version) noexcept;
+
         // Logs when there is no matching App found for search
         void LogNoAppMatch() noexcept;
 
@@ -115,5 +118,26 @@ namespace AppInstaller::Logging
 
     private:
         DestructionToken m_token;
+    };
+
+    // Sets an execution stage to be reported when failures occur.
+    void SetExecutionStage(uint32_t stage);
+
+    // An RAII object to log telemetry as sub execution.
+    // Does not support nested sub execution.
+    struct SubExecutionTelemetryScope
+    {
+        SubExecutionTelemetryScope();
+
+        SubExecutionTelemetryScope(const SubExecutionTelemetryScope&) = delete;
+        SubExecutionTelemetryScope& operator=(const SubExecutionTelemetryScope&) = delete;
+
+        SubExecutionTelemetryScope(SubExecutionTelemetryScope&&) = default;
+        SubExecutionTelemetryScope& operator=(SubExecutionTelemetryScope&&) = default;
+
+        ~SubExecutionTelemetryScope();
+
+    private:
+        static std::atomic_uint32_t m_sessionId;
     };
 }

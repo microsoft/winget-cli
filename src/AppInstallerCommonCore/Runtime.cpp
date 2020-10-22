@@ -231,9 +231,41 @@ namespace AppInstaller::Runtime
                 result.assign(appStorage.LocalFolder().Path().c_str());
                 break;
             case PathName::DefaultLogLocation:
+            case PathName::DefaultLogLocationForDisplay:
                 // To enable UIF collection through Feedback hub, we must put our logs here.
                 result.assign(appStorage.LocalFolder().Path().c_str());
                 result /= WINGET_DEFAULT_LOG_DIRECTORY;
+
+                if (path == PathName::DefaultLogLocationForDisplay)
+                {
+                    std::filesystem::path localAppData = GetKnownFolderPath(FOLDERID_LocalAppData);
+
+                    auto ladItr = localAppData.begin();
+                    auto resultItr = result.begin();
+
+                    while (ladItr != localAppData.end() && resultItr != result.end())
+                    {
+                        if (*ladItr != *resultItr)
+                        {
+                            break;
+                        }
+
+                        ++ladItr;
+                        ++resultItr;
+                    }
+
+                    if (ladItr == localAppData.end())
+                    {
+                        localAppData.assign("%LOCALAPPDATA%");
+                        
+                        for (;resultItr != result.end(); ++resultItr)
+                        {
+                            localAppData /= *resultItr;
+                        }
+
+                        result = std::move(localAppData);
+                    }
+                }
                 break;
             case PathName::StandardSettings:
                 create = false;
@@ -265,7 +297,11 @@ namespace AppInstaller::Runtime
 
                 result /= s_DefaultTempDirectory;
             }
-            break;
+                break;
+            case PathName::DefaultLogLocationForDisplay:
+                result.assign("%TEMP%");
+                result /= s_DefaultTempDirectory;
+                break;
             case PathName::LocalState:
                 result = GetPathToAppDataDir(s_AppDataDir_State);
                 break;
