@@ -219,6 +219,7 @@ jobs:
                          /p:AppxBundle=Never 
                          /p:UapAppxPackageBuildMode=SideLoadOnly 
                          /p:AppxPackageSigningEnabled=false'
+    condition: succeededOrFailed()
 
   - task: PowerShell@2
     displayName: Install Root Certificate

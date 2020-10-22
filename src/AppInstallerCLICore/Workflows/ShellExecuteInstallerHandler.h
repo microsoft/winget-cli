@@ -19,7 +19,7 @@ namespace AppInstaller::CLI::Workflow
 
     // Gets the installer args from the context.
     // Required Args: None
-    // Inputs: Installer, InstallerPath
+    // Inputs: Manifest?, Installer, InstallerPath
     // Outputs: InstallerArgs
     void GetInstallerArgs(Execution::Context& context);
 
