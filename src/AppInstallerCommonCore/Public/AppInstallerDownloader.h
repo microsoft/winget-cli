@@ -44,5 +44,6 @@ namespace AppInstaller::Utility
     void ApplyMotwIfApplicable(const std::filesystem::path& filePath, URLZONE zone);
 
     // Apply Mark of the web using IAttachmentExecute::Save if the target file is on NTFS, otherwise does nothing.
+    // This method only does a best effort since Attachment Execution Service may be disabled.
     void ApplyMotwUsingIAttachmentExecuteIfApplicable(const std::filesystem::path& filePath, const std::string& source);
 }

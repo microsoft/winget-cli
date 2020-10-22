@@ -202,12 +202,33 @@ namespace AppInstaller::Utility
             return;
         }
 
-        Microsoft::WRL::ComPtr<IAttachmentExecute> attachmentExecute;
-        THROW_IF_FAILED(CoCreateInstance(CLSID_AttachmentServices, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&attachmentExecute)));
-        THROW_IF_FAILED(attachmentExecute->SetLocalPath(filePath.c_str()));
-        THROW_IF_FAILED(attachmentExecute->SetSource(Utility::ConvertToUTF16(source).c_str()));
-        THROW_IF_FAILED(attachmentExecute->Save());
+        // Attachment execution service needs STA to succeed, so we'll create a new thread and CoInitialize with STA.
+        auto updateMotw = [&]() -> HRESULT
+        {
+            Microsoft::WRL::ComPtr<IAttachmentExecute> attachmentExecute;
+            RETURN_IF_FAILED(CoCreateInstance(CLSID_AttachmentServices, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&attachmentExecute)));
+            RETURN_IF_FAILED(attachmentExecute->SetLocalPath(filePath.c_str()));
+            RETURN_IF_FAILED(attachmentExecute->SetSource(Utility::ConvertToUTF16(source).c_str()));
+            RETURN_IF_FAILED(attachmentExecute->Save());
+            return S_OK;
+        };
 
-        AICLI_LOG(Core, Info, << "Finished applying motw");
+        HRESULT hr = S_OK;
+
+        std::thread aesThread([&]()
+            {
+                hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+                if (FAILED(hr))
+                {
+                    return;
+                }
+
+                hr = updateMotw();
+                CoUninitialize();
+            });
+
+        aesThread.join();
+
+        AICLI_LOG(Core, Info, << "Finished applying motw using IAttachmentExecute. Result: " << hr);
     }
 }
