@@ -77,7 +77,7 @@ namespace AppInstaller::Repository::SQLite::Builder
     {
         // The main database's schema table.
         // More info can be found at: https://www.sqlite.org/schematab.html
-        constexpr QualifiedTable MainTable{ "main"sv, "sqlite_schema"sv };
+        constexpr QualifiedTable MainTable{ "main"sv, "sqlite_master"sv };
 
         // The sqlite_schema column name for the type of the object.
         constexpr std::string_view TypeColumn = "type"sv;

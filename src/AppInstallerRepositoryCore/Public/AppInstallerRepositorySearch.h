@@ -108,9 +108,9 @@ namespace AppInstaller::Repository
     };
 
     // A metadata item of a package version.
-    enum class PackageVersionMetadata : uint32_t
+    enum class PackageVersionMetadata : int32_t
     {
-        // The InstallerType of an installed package, as determined by system artifacts.
+        // The InstallerType of an installed package
         InstalledType,
     };
 
@@ -142,7 +142,7 @@ namespace AppInstaller::Repository
     struct IInstalledPackageVersion : public IPackageVersion
     {
         // Sets metadata on the installed version.
-        virtual void SetInstallationMetadata(std::string_view key, std::string_view value) = 0;
+        virtual void SetMetadata(PackageVersionMetadata metadata, std::string_view value) = 0;
     };
 
     // A key to identify a package version within a package.

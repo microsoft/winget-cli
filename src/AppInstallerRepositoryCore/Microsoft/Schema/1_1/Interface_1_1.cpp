@@ -138,7 +138,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         PackageFamilyNameTable::DeleteIfNotNeededByManifestId(connection, manifestId);
         ProductCodeTable::DeleteIfNotNeededByManifestId(connection, manifestId);
 
-        if (ManifestMetadataTable::Exists)
+        if (ManifestMetadataTable::Exists(connection))
         {
             ManifestMetadataTable::DeleteByManifestId(connection, manifestId);
         }

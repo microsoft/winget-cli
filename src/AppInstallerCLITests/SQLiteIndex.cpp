@@ -181,6 +181,12 @@ bool ArePackageFamilyNameAndProductCodeSupported(const SQLiteIndex& index, const
     return (index.GetVersion() >= Schema::Version{ 1, 1 } && testVersion >= Schema::Version{ 1, 1 });
 }
 
+bool IsManifestMetadataSupported(const SQLiteIndex& index, const Schema::Version& testVersion)
+{
+    UNSCOPED_INFO("Index " << index.GetVersion() << " | Test " << testVersion);
+    return (index.GetVersion() >= Schema::Version{ 1, 1 } && testVersion >= Schema::Version{ 1, 1 });
+}
+
 std::string GetPropertyStringByKey(const SQLiteIndex& index, SQLite::rowid_t id, PackageVersionProperty property, std::string_view version, std::string_view channel)
 {
     auto manifestId = index.GetManifestIdByKey(id, version, channel);
@@ -1924,4 +1930,48 @@ TEST_CASE("SQLiteIndex_GetMultiProperty_ProductCode", "[sqliteindex]")
     {
         REQUIRE(props.empty());
     }
+}
+
+TEST_CASE("SQLiteIndex_ManifestMetadata", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", {}, { "PC1", "PC2" } },
+        { "Id2", "Name2", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2", { "PFN1", "PFN2" }, {} },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 2);
+
+    for (const auto [id, match] : results.Matches)
+    {
+        REQUIRE(index.GetMetadataByManifestId(id).empty());
+    }
+
+    auto manifestId1 = results.Matches[0].first;
+    auto manifestId2 = results.Matches[1].first;
+
+    std::string metadataValue = "data about data";
+
+    index.SetMetadataByManifestId(manifestId1, PackageVersionMetadata::InstalledType, metadataValue);
+
+    if (IsManifestMetadataSupported(index, testVersion))
+    {
+        auto metadataResult = index.GetMetadataByManifestId(manifestId1);
+        REQUIRE(metadataResult.size() == 1);
+        REQUIRE(metadataResult[0].first == PackageVersionMetadata::InstalledType);
+        REQUIRE(metadataResult[0].second == metadataValue);
+    }
+    else
+    {
+        REQUIRE(index.GetMetadataByManifestId(manifestId1).empty());
+    }
+
+    REQUIRE(index.GetMetadataByManifestId(manifestId2).empty());
 }
