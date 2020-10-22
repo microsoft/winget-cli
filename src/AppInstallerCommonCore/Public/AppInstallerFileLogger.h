@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <string_view>
 
 namespace AppInstaller::Logging
 {
@@ -23,6 +24,9 @@ namespace AppInstaller::Logging
         FileLogger& operator=(FileLogger&&) = default;
 
         static std::string GetNameForPath(const std::filesystem::path& filePath);
+
+        static std::string_view DefaultPrefix();
+        static std::string_view DefaultExt();
 
         // ILogger
         virtual std::string GetName() const override;

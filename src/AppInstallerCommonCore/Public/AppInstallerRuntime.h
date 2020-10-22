@@ -32,6 +32,8 @@ namespace AppInstaller::Runtime
         LocalState,
         // The default location where log files are located.
         DefaultLogLocation,
+        // The default location, anonymized using environment variables.
+        DefaultLogLocationForDisplay,
         // The location that standard type settings are stored.
         // In a packaged context, this returns a prepend value for the container name.
         StandardSettings,

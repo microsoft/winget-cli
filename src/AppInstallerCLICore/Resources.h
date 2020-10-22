@@ -92,6 +92,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(LocationArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(LogArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(Logs);
         WINGET_DEFINE_RESOURCE_STRINGID(MainCopyrightNotice);
         WINGET_DEFINE_RESOURCE_STRINGID(MainHomepage);
         WINGET_DEFINE_RESOURCE_STRINGID(ManifestArgumentDescription);
