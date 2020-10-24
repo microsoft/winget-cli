@@ -954,7 +954,9 @@ TEST_CASE("UpdateInstallerFileMotw", "[DownloadInstaller][workflow]")
     TestContext context{ updateMotwOutput, std::cin };
     context.Add<Data::HashPair>({ {}, {} });
     context.Add<Data::InstallerPath>(testInstallerPath);
-    context.Add<Data::SourceId>("Microsoft.Winget.Source_8wekyb3d8bbwe");
+    auto packageVersion = std::make_shared<TestPackageVersion>(Manifest{});
+    packageVersion->VersionSourceDetails.TrustLevel = SourceTrustLevel::Trusted;
+    context.Add<Data::PackageVersion>(packageVersion);
     ManifestInstaller installer;
     installer.Url = "http://NotTrusted.com";
     context.Add<Data::Installer>(std::move(installer));
@@ -962,7 +964,7 @@ TEST_CASE("UpdateInstallerFileMotw", "[DownloadInstaller][workflow]")
     UpdateInstallerFileMotwIfApplicable(context);
     VerifyMotw(testInstallerPath, 2);
 
-    context.Add<Data::SourceId>("NotTrustedSourceId");
+    packageVersion->VersionSourceDetails.TrustLevel = SourceTrustLevel::None;
     UpdateInstallerFileMotwIfApplicable(context);
     VerifyMotw(testInstallerPath, 3);
 

@@ -72,6 +72,12 @@ namespace AppInstaller::Repository::Microsoft
                 return GetManifestFromArgAndRelativePath(source->GetDetails().Arg, relativePathOpt.value());
             }
 
+            SourceDetails GetSourceDetails() const override
+            {
+                std::shared_ptr<const SQLiteIndexSource> source = GetSource();
+                return source->GetDetails();
+            }
+
             std::map<std::string, std::string> GetInstallationMetadata() const override
             {
                 return {};

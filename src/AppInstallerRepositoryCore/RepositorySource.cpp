@@ -193,6 +193,7 @@ namespace AppInstaller::Repository
                 details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
                 details.Arg = s_Source_WingetCommunityDefault_Arg;
                 details.Data = s_Source_WingetCommunityDefault_Data;
+                details.TrustLevel = SourceTrustLevel::Trusted;
                 result.emplace_back(std::move(details));
 
                 if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore))
@@ -202,6 +203,7 @@ namespace AppInstaller::Repository
                     storeDetails.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
                     storeDetails.Arg = s_Source_WingetMSStoreDefault_Arg;
                     storeDetails.Data = s_Source_WingetMSStoreDefault_Data;
+                    storeDetails.TrustLevel = SourceTrustLevel::Trusted;
                     result.emplace_back(std::move(storeDetails));
                 }
             }

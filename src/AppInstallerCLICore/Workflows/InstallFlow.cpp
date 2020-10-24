@@ -15,6 +15,7 @@ namespace AppInstaller::CLI::Workflow
     using namespace winrt::Windows::Management::Deployment;
     using namespace AppInstaller::Utility;
     using namespace AppInstaller::Manifest;
+    using namespace AppInstaller::Repository;
 
     void EnsureMinOSVersion(Execution::Context& context)
     {
@@ -193,16 +194,14 @@ namespace AppInstaller::CLI::Workflow
 
     void UpdateInstallerFileMotwIfApplicable(Execution::Context& context)
     {
-        const std::string TrustedSourceIds[] = { "Microsoft.Winget.Source_8wekyb3d8bbwe" };
-
         if (context.Contains(Execution::Data::InstallerPath))
         {
             // Only update Motw if installer hash matches
             const auto& hashPair = context.Get<Execution::Data::HashPair>();
             if (std::equal(hashPair.first.begin(), hashPair.first.end(), hashPair.second.begin()))
             {
-                if (context.Contains(Execution::Data::SourceId) &&
-                    std::find(std::begin(TrustedSourceIds), std::end(TrustedSourceIds), context.Get<Execution::Data::SourceId>()) != std::end(TrustedSourceIds))
+                if (context.Contains(Execution::Data::PackageVersion) &&
+                    SourceTrustLevel::Trusted == context.Get<Execution::Data::PackageVersion>()->GetSourceDetails().TrustLevel)
                 {
                     Utility::ApplyMotwIfApplicable(context.Get<Execution::Data::InstallerPath>(), URLZONE_TRUSTED);
                 }
@@ -308,12 +307,10 @@ namespace AppInstaller::CLI::Workflow
             catch (const std::exception& e)
             {
                 AICLI_LOG(CLI, Warning, << "Failed to remove installer file after execution. Reason: " << e.what());
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REMOVE_INSTALLER_FAILED);
             }
             catch (...)
             {
                 AICLI_LOG(CLI, Warning, << "Failed to remove installer file after execution. Reason unknown.");
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REMOVE_INSTALLER_FAILED);
             }
         }
     }

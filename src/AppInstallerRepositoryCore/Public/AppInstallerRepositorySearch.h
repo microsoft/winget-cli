@@ -16,6 +16,8 @@
 
 namespace AppInstaller::Repository
 {
+    struct SourceDetails;
+
     // The type of matching to perform during a search.
     // The values must be declared in order of preference in search results.
     enum class MatchType
@@ -120,6 +122,9 @@ namespace AppInstaller::Repository
 
         // Gets the manifest of this package version.
         virtual Manifest::Manifest GetManifest() const = 0;
+
+        // Gets the source where this package version is from.
+        virtual SourceDetails GetSourceDetails() const = 0;
 
         // Gets any metadata associated with this version if it is installed.
         virtual std::map<std::string, std::string> GetInstallationMetadata() const = 0;

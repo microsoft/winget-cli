@@ -13,10 +13,11 @@ namespace TestCommon
     struct TestPackageVersion : public AppInstaller::Repository::IPackageVersion
     {
         using Manifest = AppInstaller::Manifest::Manifest;
+        using SourceDetails = AppInstaller::Repository::SourceDetails;
         using LocIndString = AppInstaller::Utility::LocIndString;
         using InstallationMetadataMap = std::map<std::string, std::string>;
 
-        TestPackageVersion(const Manifest& manifest, InstallationMetadataMap installationMetadata = {});
+        TestPackageVersion(const Manifest& manifest, InstallationMetadataMap installationMetadata = {}, SourceDetails sourceDetails = {});
 
         template <typename... Args>
         static std::shared_ptr<TestPackageVersion> Make(Args&&... args)
@@ -27,10 +28,12 @@ namespace TestCommon
         LocIndString GetProperty(AppInstaller::Repository::PackageVersionProperty property) const override;
         std::vector<LocIndString> GetMultiProperty(AppInstaller::Repository::PackageVersionMultiProperty property) const override;
         Manifest GetManifest() const override;
+        SourceDetails GetSourceDetails() const override;
         InstallationMetadataMap GetInstallationMetadata() const override;
 
         Manifest VersionManifest;
         InstallationMetadataMap InstallationMetadata;
+        SourceDetails VersionSourceDetails;
 
     protected:
         static void AddFoldedIfHasValueAndNotPresent(const AppInstaller::Utility::NormalizedString& value, std::vector<LocIndString>& target);

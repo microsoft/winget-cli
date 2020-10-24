@@ -47,7 +47,7 @@ namespace AppInstaller::CLI::Execution
         SearchResult,
         SourceList,
         Manifest,
-        SourceId,
+        PackageVersion,
         Installer,
         HashPair,
         InstallerPath,
@@ -101,9 +101,9 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::SourceId>
+        struct DataMapping<Data::PackageVersion>
         {
-            using value_t = std::string;
+            using value_t = std::shared_ptr<Repository::IPackageVersion>;
         };
 
         template <>

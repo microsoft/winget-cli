@@ -9,8 +9,8 @@ using namespace AppInstaller::Repository;
 
 namespace TestCommon
 {
-    TestPackageVersion::TestPackageVersion(const Manifest& manifest, InstallationMetadataMap installationMetadata) :
-        VersionManifest(manifest), InstallationMetadata(std::move(installationMetadata)) {}
+    TestPackageVersion::TestPackageVersion(const Manifest& manifest, InstallationMetadataMap installationMetadata, SourceDetails sourceDetails) :
+        VersionManifest(manifest), InstallationMetadata(std::move(installationMetadata)), VersionSourceDetails(std::move(sourceDetails)) {}
 
     TestPackageVersion::LocIndString TestPackageVersion::GetProperty(PackageVersionProperty property) const
     {
@@ -55,6 +55,11 @@ namespace TestCommon
     TestPackageVersion::Manifest TestPackageVersion::GetManifest() const
     {
         return VersionManifest;
+    }
+
+    SourceDetails TestPackageVersion::GetSourceDetails() const
+    {
+        return VersionSourceDetails;
     }
 
     std::map<std::string, std::string> TestPackageVersion::GetInstallationMetadata() const

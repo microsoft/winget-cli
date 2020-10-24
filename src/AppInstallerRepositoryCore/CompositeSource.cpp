@@ -145,6 +145,11 @@ namespace AppInstaller::Repository
                     return {};
                 }
 
+                SourceDetails GetSourceDetails() const override
+                {
+                    return {};
+                }
+
                 std::map<std::string, std::string> GetInstallationMetadata() const override
                 {
                     return {};

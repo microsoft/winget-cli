@@ -357,7 +357,7 @@ namespace AppInstaller::Runtime
     {
         wil::unique_hfile fileHandle{ CreateFileW(
             filePath.c_str(), /*lpFileName*/
-            GENERIC_READ, /*dwDesiredAccess*/
+            FILE_READ_ATTRIBUTES, /*dwDesiredAccess*/
             0, /*dwShareMode*/
             NULL, /*lpSecurityAttributes*/
             OPEN_EXISTING, /*dwCreationDisposition*/

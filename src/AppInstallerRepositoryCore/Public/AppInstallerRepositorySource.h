@@ -23,6 +23,13 @@ namespace AppInstaller::Repository
         Predefined,
     };
 
+    // Defines the trust level of the source.
+    enum class SourceTrustLevel
+    {
+        None,
+        Trusted,
+    };
+
     std::string_view ToString(SourceOrigin origin);
 
     // Interface for retrieving information about a source without acting on it.
@@ -45,6 +52,9 @@ namespace AppInstaller::Repository
 
         // The origin of the source.
         SourceOrigin Origin = SourceOrigin::Default;
+
+        // The trust level of the source
+        SourceTrustLevel TrustLevel = SourceTrustLevel::None;
     };
 
     // Interface for interacting with a source from outside of the repository lib.

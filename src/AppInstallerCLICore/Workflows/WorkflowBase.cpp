@@ -460,7 +460,7 @@ namespace AppInstaller::CLI::Workflow
 
         Logging::Telemetry().LogManifestFields(manifest->Id, manifest->Name, manifest->Version);
         context.Add<Execution::Data::Manifest>(std::move(manifest.value()));
-        context.Add<Execution::Data::SourceId>(requestedVersion->GetProperty(PackageVersionProperty::SourceIdentifier));
+        context.Add<Execution::Data::PackageVersion>(std::move(requestedVersion));
     }
 
     void VerifyFile::operator()(Execution::Context& context) const
