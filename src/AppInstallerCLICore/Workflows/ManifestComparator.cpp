@@ -86,7 +86,7 @@ namespace AppInstaller::CLI::Workflow
 
         ManifestInstaller& selectedInstaller = installers[0];
 
-        Logging::Telemetry().LogSelectedInstaller((int)selectedInstaller.Arch, selectedInstaller.Url, Manifest::ManifestInstaller::InstallerTypeToString(selectedInstaller.InstallerType), selectedInstaller.Scope, selectedInstaller.Language);
+        Logging::Telemetry().LogSelectedInstaller((int)selectedInstaller.Arch, selectedInstaller.Url, Manifest::ManifestInstaller::InstallerTypeToString(selectedInstaller.InstallerType), Manifest::ManifestInstaller::ScopeToString(selectedInstaller.Scope), selectedInstaller.Language);
 
         return std::move(selectedInstaller);
     }

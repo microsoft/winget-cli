@@ -411,4 +411,27 @@ namespace AppInstaller::Utility
 
         return result;
     }
+
+    std::wstring ExpandEnvironmentVariables(const std::wstring& input)
+    {
+        if (input.empty())
+        {
+            return {};
+        }
+
+        DWORD charCount = ExpandEnvironmentStringsW(input.c_str(), nullptr, 0);
+        THROW_LAST_ERROR_IF(charCount == 0);
+
+        std::wstring result(wil::safe_cast<size_t>(charCount), L'\0');
+
+        DWORD charCountWritten = ExpandEnvironmentStringsW(input.c_str(), &result[0], charCount);
+        THROW_HR_IF(E_UNEXPECTED, charCount != charCountWritten);
+
+        if (result.back() == L'\0')
+        {
+            result.resize(result.size() - 1);
+        }
+
+        return result;
+    }
 }

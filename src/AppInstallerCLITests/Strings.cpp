@@ -133,3 +133,9 @@ TEST_CASE("FoldCase", "[strings]")
     REQUIRE(FoldCase(u8"f\xF6ldcase"sv) == FoldCase(u8"F\xD6LDCASE"sv));
     REQUIRE(FoldCase(u8"foldc\x430se"sv) == FoldCase(u8"FOLDC\x410SE"sv));
 }
+
+TEST_CASE("ExpandEnvironmentVariables", "[strings]")
+{
+    std::wstring data = L"%TEMP%";
+    REQUIRE(ExpandEnvironmentVariables(data) != data);
+}

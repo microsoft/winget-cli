@@ -6,6 +6,9 @@
 #include "Microsoft/SQLiteIndex.h"
 #include "Microsoft/SQLiteIndexSource.h"
 
+#include <winget/Registry.h>
+#include <AppInstallerArchitecture.h>
+
 using namespace std::string_literals;
 using namespace std::string_view_literals;
 
@@ -13,12 +16,261 @@ namespace AppInstaller::Repository::Microsoft
 {
     namespace
     {
-        // Populates the index with the ARP entries from the given root.
-        void PopulateIndexFromARP(SQLiteIndex& index, HKEY rootKey)
+        // A helper to find the various locations that contain ARP entries.
+        struct ARPHelper
         {
-            UNREFERENCED_PARAMETER(index);
-            UNREFERENCED_PARAMETER(rootKey);
-        }
+            // See https://docs.microsoft.com/en-us/windows/win32/msi/uninstall-registry-key for details.
+            std::wstring SubKeyPath{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall" };
+
+            // REG_SZ
+            std::wstring DisplayName{ L"DisplayName" };
+            // REG_SZ
+            std::wstring Publisher{ L"Publisher" };
+            // REG_SZ
+            std::wstring DisplayVersion{ L"DisplayVersion" };
+            // REG_DWORD (ex. 0xMMmmbbbb, M[ajor], m[inor], b[uild])
+            std::wstring Version{ L"Version" };
+            // REG_DWORD
+            std::wstring VersionMajor{ L"VersionMajor" };
+            // REG_DWORD
+            std::wstring VersionMinor{ L"VersionMinor" };
+            // REG_SZ
+            std::wstring URLInfoAbout{ L"URLInfoAbout" };
+            // REG_SZ
+            std::wstring HelpLink{ L"HelpLink" };
+            // REG_SZ
+            std::wstring InstallLocation{ L"InstallLocation" };
+            // REG_DWORD (ex. 1033 [en-us])
+            std::wstring Language{ L"Language" };
+            // REG_SZ (ex. "english")
+            std::wstring InnoSetupLanguage{ L"Inno Setup: Language" };
+            // REG_EXPAND_SZ
+            std::wstring UninstallString{ L"UninstallString" };
+            // REG_EXPAND_SZ
+            std::wstring QuietUninstallString{ L"QuietUninstallString" };
+            // REG_DWORD (bool, true indicates MSI)
+            std::wstring WindowsInstaller{ L"WindowsInstaller" };
+            // REG_DWORD (bool)
+            std::wstring SystemComponent{ L"SystemComponent" };
+
+            Registry::Key GetARPForArchitecture(HKEY rootKey, Utility::Architecture architecture)
+            {
+                bool isValid = false;
+                REGSAM access = KEY_READ;
+
+                switch (Utility::GetSystemArchitecture())
+                {
+                case Utility::Architecture::X86:
+                    switch (architecture)
+                    {
+                    case Utility::Architecture::X86:
+                        isValid = true;
+                        break;
+                    }
+                    break;
+                case Utility::Architecture::X64:
+                    switch (architecture)
+                    {
+                    case Utility::Architecture::X86:
+                        access |= KEY_WOW64_32KEY;
+                        isValid = true;
+                        break;
+                    case Utility::Architecture::X64:
+                        access |= KEY_WOW64_64KEY;
+                        isValid = true;
+                        break;
+                    }
+                    break;
+                case Utility::Architecture::Arm:
+                    switch (architecture)
+                    {
+                    case Utility::Architecture::Arm:
+                        isValid = true;
+                        break;
+                    }
+                    break;
+                case Utility::Architecture::Arm64:
+                    switch (architecture)
+                    {
+                    case Utility::Architecture::X86:
+#ifdef _X86_
+                        access |= KEY_WOW64_32KEY;
+                        isValid = true;
+#else
+                        // Not sure how to access this if not an x86 process
+                        AICLI_LOG(Repo, Warning, << "Cannot enumerate x86 ARP entries currently");
+#endif
+                        break;
+                    case Utility::Architecture::Arm:
+#ifdef _ARM_
+                        access |= KEY_WOW64_32KEY;
+                        isValid = true;
+#else
+                        // Not sure how to access this if not an ARM process
+                        AICLI_LOG(Repo, Warning, << "Cannot enumerate ARM ARP entries currently");
+#endif
+                        break;
+                    case Utility::Architecture::Arm64:
+                        access |= KEY_WOW64_64KEY;
+                        isValid = true;
+                        break;
+                    }
+                    break;
+                }
+
+                if (isValid)
+                {
+                    return Registry::Key::OpenIfExists(rootKey, SubKeyPath, 0, access);
+                }
+                else
+                {
+                    return {};
+                }
+            }
+
+            // Returns true IFF the value exists and contains a non-zero DWORD.
+            bool GetBoolValue(const Registry::Key& arpKey, const std::wstring& name)
+            {
+                auto value = arpKey[name];
+                return (value && value->GetType() == Registry::Value::Type::DWord && value->GetValue< Registry::Value::Type::DWord>());
+            }
+
+            // Determines the version from an ARP entry.
+            // The priority is:
+            //  DisplayVersion
+            //  Version
+            //  MajorVerison, MinorVersion
+            std::string DetermineVersion(const Registry::Key& arpKey)
+            {
+                auto displayVersion = arpKey[DisplayVersion];
+                if (displayVersion)
+                {
+                    std::string result = displayVersion->GetValue<Registry::Value::Type::String>();
+                    if (!result.empty())
+                    {
+                        return result;
+                    }
+                }
+
+                auto version = arpKey[Version];
+                if (version)
+                {
+                    uint32_t versionInt = version->GetValue<Registry::Value::Type::DWord>();
+                    if (versionInt)
+                    {
+                        std::ostringstream strstr;
+                        strstr << ((versionInt & 0xFF000000) >> 24) << '.' << ((versionInt & 0x00FF0000) >> 16) << '.' << (versionInt & 0x0000FFFF);
+                        return strstr.str();
+                    }
+                }
+
+                auto majorVersion = arpKey[VersionMajor];
+                auto minorVersion = arpKey[VersionMinor];
+                if (majorVersion || minorVersion)
+                {
+                    uint32_t majorVersionInt = 0;
+                    uint32_t minorVersionInt = 0;
+
+                    if (majorVersion)
+                    {
+                        majorVersionInt = majorVersion->GetValue<Registry::Value::Type::DWord>();
+                    }
+
+                    if (minorVersion)
+                    {
+                        minorVersionInt = minorVersion->GetValue<Registry::Value::Type::DWord>();
+                    }
+
+                    if (majorVersionInt || minorVersionInt)
+                    {
+                        std::ostringstream strstr;
+                        strstr << majorVersionInt << '.' << minorVersionInt;
+                        return strstr.str();
+                    }
+                }
+
+                return {};
+            }
+
+            // Populates the index with the ARP entries from the given root.
+            void PopulateIndexFromARP(SQLiteIndex& index, HKEY rootKey, Manifest::ManifestInstaller::ScopeEnum scope)
+            {
+                for (auto architecture : Utility::GetApplicableArchitectures())
+                {
+                    Registry::Key arpRootKey = GetARPForArchitecture(rootKey, architecture);
+
+                    if (arpRootKey)
+                    {
+                        AICLI_LOG(Repo, Info, << "Examining ARP entries for " << Manifest::ManifestInstaller::ScopeToString(scope) << " | " << Utility::ToString(architecture));
+
+                        for (const auto& arpEntry : arpRootKey)
+                        {
+                            Manifest::Manifest manifest;
+                            manifest.Tags = { "ARP" };
+
+                            // Use the key name as the Id, as it is supposed to be unique.
+                            // TODO: We probably want something better here, like constructing the value as
+                            //       `Publisher.DisplayName`. We would need to ensure that there are no matches
+                            //       against the rest of the data however (might happen if same package is
+                            //       installed for multiple architectures/languages).
+                            manifest.Id = arpEntry.Name();
+
+                            manifest.Installers.emplace_back();
+                            // TODO: This likely needs some cleanup applied, as it looks like INNO tends to append an "_is#"
+                            //       that might vary across machines/installs. There may be other things we want to clean up as well,
+                            //       like trimming spaces at the ends, or removing the version string from the product code
+                            //       if it is present.
+                            manifest.Installers[0].ProductCode = arpEntry.Name();
+                            manifest.Installers[0].Scope = scope;
+
+                            Registry::Key arpKey = arpEntry.Open();
+
+                            // Ignore entries that are listed as SystemComponent
+                            if (GetBoolValue(arpKey, SystemComponent)) { continue; }
+
+                            // If no name is provided, ignore this entry
+                            auto displayName = arpKey[DisplayName];
+                            if (!displayName) { continue; }
+                            manifest.Name = displayName->GetValue<Registry::Value::Type::String>();
+                            if (manifest.Name.empty()) { continue; }
+
+                            // If no version can be determined, ignore this entry
+                            manifest.Version = DetermineVersion(arpKey);
+                            if (manifest.Version.empty()) { continue; }
+
+                            auto publisher = arpKey[Publisher];
+                            if (publisher)
+                            {
+                                manifest.Publisher = publisher->GetValue<Registry::Value::Type::String>();
+                            }
+
+                            // TODO: If we want to keep the constructed manifest around to allow for `show` type commands
+                            //       against installed packages, we should use URLInfoAbout/HelpLink for the Homepage.
+
+                            // TODO: Pick up Language/InnoSetupLanguage to enable proper selection of language for upgrade.
+
+                            // TODO: Pass scope along to metadata.
+
+                            // Use the ProductCode as a unique key for the path
+                            try
+                            {
+                                index.AddManifest(manifest, std::filesystem::path{ manifest.Installers[0].ProductCode.c_str() });
+                            }
+                            CATCH_LOG();
+
+                            // TODO: Pick up InstallLocation when upgrade supports remove/install to enable this location
+                            //       to survive across the removal.
+
+                            // TODO: Pick up UninstallString and QuietUninstallString for uninstall.
+
+                            // TODO: Pick up WindowsInstaller to determine if this is an MSI install.
+
+                            // TODO: After merge with metadata PR! Insert InstalledType into metadata.
+                        }
+                    }
+                }
+            }
+        };
 
         // Populates the index with the entries from MSIX.
         void PopulateIndexFromMSIX(SQLiteIndex& index)
@@ -94,14 +346,26 @@ namespace AppInstaller::Repository::Microsoft
                 SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
 
                 // Put installed packages into the index
+                std::optional<ARPHelper> arpHelper;
+
                 if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP_System)
                 {
-                    PopulateIndexFromARP(index, HKEY_LOCAL_MACHINE);
+                    if (!arpHelper)
+                    {
+                        arpHelper = ARPHelper();
+                    }
+
+                    arpHelper->PopulateIndexFromARP(index, HKEY_LOCAL_MACHINE, Manifest::ManifestInstaller::ScopeEnum::Machine);
                 }
 
                 if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP_User)
                 {
-                    PopulateIndexFromARP(index, HKEY_CURRENT_USER);
+                    if (!arpHelper)
+                    {
+                        arpHelper = ARPHelper();
+                    }
+
+                    arpHelper->PopulateIndexFromARP(index, HKEY_CURRENT_USER, Manifest::ManifestInstaller::ScopeEnum::User);
                 }
 
                 if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::MSIX)

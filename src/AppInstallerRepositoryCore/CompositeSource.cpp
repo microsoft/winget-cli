@@ -215,9 +215,9 @@ namespace AppInstaller::Repository
 
                 bool operator<(const SystemReferenceString& other) const
                 {
-                    if (Field < other.Field)
+                    if (Field != other.Field)
                     {
-                        return true;
+                        return Field < other.Field;
                     }
 
                     return String < other.String;

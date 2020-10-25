@@ -138,6 +138,9 @@
     <ClInclude Include="Public\winget\ManifestYamlParser.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\Registry.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -229,6 +232,9 @@
     </ClCompile>
     <ClCompile Include="Manifest\YamlParser.cpp">
       <Filter>Manifest</Filter>
+    </ClCompile>
+    <ClCompile Include="Registry.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

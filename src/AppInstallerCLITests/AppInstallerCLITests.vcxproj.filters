@@ -107,6 +107,9 @@
     <ClCompile Include="TestSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Registry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
