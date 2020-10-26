@@ -72,9 +72,17 @@ namespace AppInstaller::Repository::Microsoft
                 return GetManifestFromArgAndRelativePath(source->GetDetails().Arg, relativePathOpt.value());
             }
 
-            std::map<std::string, std::string> GetInstallationMetadata() const override
+            IPackageVersion::Metadata GetMetadata() const override
             {
-                return {};
+                auto metadata = GetSource()->GetIndex().GetMetadataByManifestId(m_manifestId);
+
+                IPackageVersion::Metadata result;
+                for (auto&& data : metadata)
+                {
+                    result.emplace(std::move(data));
+                }
+
+                return result;
             }
 
         private:

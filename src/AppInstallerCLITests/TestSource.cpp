@@ -9,8 +9,8 @@ using namespace AppInstaller::Repository;
 
 namespace TestCommon
 {
-    TestPackageVersion::TestPackageVersion(const Manifest& manifest, InstallationMetadataMap installationMetadata) :
-        VersionManifest(manifest), InstallationMetadata(std::move(installationMetadata)) {}
+    TestPackageVersion::TestPackageVersion(const Manifest& manifest, MetadataMap installationMetadata) :
+        VersionManifest(manifest), Metadata(std::move(installationMetadata)) {}
 
     TestPackageVersion::LocIndString TestPackageVersion::GetProperty(PackageVersionProperty property) const
     {
@@ -57,9 +57,9 @@ namespace TestCommon
         return VersionManifest;
     }
 
-    std::map<std::string, std::string> TestPackageVersion::GetInstallationMetadata() const
+    TestPackageVersion::MetadataMap TestPackageVersion::GetMetadata() const
     {
-        return InstallationMetadata;
+        return Metadata;
     }
 
     void TestPackageVersion::AddFoldedIfHasValueAndNotPresent(const Utility::NormalizedString& value, std::vector<LocIndString>& target)
@@ -83,7 +83,7 @@ namespace TestCommon
         }
     }
 
-    TestPackage::TestPackage(const Manifest& installed, InstallationMetadataMap installationMetadata, const std::vector<Manifest>& available) :
+    TestPackage::TestPackage(const Manifest& installed, MetadataMap installationMetadata, const std::vector<Manifest>& available) :
         InstalledVersion(TestPackageVersion::Make(installed, std::move(installationMetadata)))
     {
         for (const auto& manifest : available)

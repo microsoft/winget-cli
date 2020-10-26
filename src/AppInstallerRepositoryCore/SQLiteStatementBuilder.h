@@ -12,6 +12,8 @@
 #include <string_view>
 #include <vector>
 
+using namespace std::string_view_literals;
+
 namespace AppInstaller::Repository::SQLite::Builder
 {
     namespace details
@@ -67,9 +69,25 @@ namespace AppInstaller::Repository::SQLite::Builder
         std::string_view Schema;
         std::string_view Table;
 
-        explicit QualifiedTable(std::string_view table) : Table(table) {}
-        explicit QualifiedTable(std::string_view schema, std::string_view table) : Schema(schema), Table(table) {}
+        explicit constexpr QualifiedTable(std::string_view table) : Table(table) {}
+        explicit constexpr QualifiedTable(std::string_view schema, std::string_view table) : Schema(schema), Table(table) {}
     };
+
+    namespace Schema
+    {
+        // The main database's schema table.
+        // More info can be found at: https://www.sqlite.org/schematab.html
+        constexpr QualifiedTable MainTable{ "main"sv, "sqlite_master"sv };
+
+        // The sqlite_schema column name for the type of the object.
+        constexpr std::string_view TypeColumn = "type"sv;
+
+        // The sqlite_schema type value for a table.
+        constexpr std::string_view Type_Table = "table"sv;
+
+        // The sqlite_schema column name for the name of the object.
+        constexpr std::string_view NameColumn = "name"sv;
+    }
 
     // A qualified column reference.
     struct QualifiedColumn

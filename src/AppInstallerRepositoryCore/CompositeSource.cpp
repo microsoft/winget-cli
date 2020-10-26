@@ -145,7 +145,7 @@ namespace AppInstaller::Repository
                     return {};
                 }
 
-                std::map<std::string, std::string> GetInstallationMetadata() const override
+                IPackageVersion::Metadata GetMetadata() const override
                 {
                     return {};
                 }
