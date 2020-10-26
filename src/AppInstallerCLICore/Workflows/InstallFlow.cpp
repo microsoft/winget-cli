@@ -201,7 +201,8 @@ namespace AppInstaller::CLI::Workflow
             if (std::equal(hashPair.first.begin(), hashPair.first.end(), hashPair.second.begin()))
             {
                 if (context.Contains(Execution::Data::PackageVersion) &&
-                    SourceTrustLevel::Trusted == context.Get<Execution::Data::PackageVersion>()->GetSourceDetails().TrustLevel)
+                    context.Get<Execution::Data::PackageVersion>()->GetSource() != nullptr &&
+                    SourceTrustLevel::Trusted == context.Get<Execution::Data::PackageVersion>()->GetSource()->GetDetails().TrustLevel)
                 {
                     Utility::ApplyMotwIfApplicable(context.Get<Execution::Data::InstallerPath>(), URLZONE_TRUSTED);
                 }

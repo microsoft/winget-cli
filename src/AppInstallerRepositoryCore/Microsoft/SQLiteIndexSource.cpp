@@ -19,7 +19,7 @@ namespace AppInstaller::Repository::Microsoft
                 m_source(source) {}
 
         protected:
-            std::shared_ptr<const SQLiteIndexSource> GetSource() const
+            std::shared_ptr<const SQLiteIndexSource> GetReferenceSource() const
             {
                 std::shared_ptr<const SQLiteIndexSource> source = m_source.lock();
                 THROW_HR_IF(E_NOT_VALID_STATE, !source);
@@ -42,12 +42,12 @@ namespace AppInstaller::Repository::Microsoft
                 switch (property)
                 {
                 case PackageVersionProperty::SourceIdentifier:
-                    return LocIndString{ GetSource()->GetIdentifier() };
+                    return LocIndString{ GetReferenceSource()->GetIdentifier() };
                 case PackageVersionProperty::SourceName:
-                    return LocIndString{ GetSource()->GetDetails().Name };
+                    return LocIndString{ GetReferenceSource()->GetDetails().Name };
                 default:
                     // Values coming from the index will always be localized/independent.
-                    return LocIndString{ GetSource()->GetIndex().GetPropertyByManifestId(m_manifestId, property).value() };
+                    return LocIndString{ GetReferenceSource()->GetIndex().GetPropertyByManifestId(m_manifestId, property).value() };
                 }
             }
 
@@ -55,7 +55,7 @@ namespace AppInstaller::Repository::Microsoft
             {
                 std::vector<Utility::LocIndString> result;
 
-                for (auto&& value : GetSource()->GetIndex().GetMultiPropertyByManifestId(m_manifestId, property))
+                for (auto&& value : GetReferenceSource()->GetIndex().GetMultiPropertyByManifestId(m_manifestId, property))
                 {
                     // Values coming from the index will always be localized/independent.
                     result.emplace_back(std::move(value));
@@ -66,16 +66,15 @@ namespace AppInstaller::Repository::Microsoft
 
             Manifest::Manifest GetManifest() const override
             {
-                std::shared_ptr<const SQLiteIndexSource> source = GetSource();
+                std::shared_ptr<const SQLiteIndexSource> source = GetReferenceSource();
                 std::optional<std::string> relativePathOpt = source->GetIndex().GetPropertyByManifestId(m_manifestId, PackageVersionProperty::RelativePath);
                 THROW_HR_IF(E_NOT_SET, !relativePathOpt);
                 return GetManifestFromArgAndRelativePath(source->GetDetails().Arg, relativePathOpt.value());
             }
 
-            SourceDetails GetSourceDetails() const override
+            std::shared_ptr<const ISource> GetSource() const override
             {
-                std::shared_ptr<const SQLiteIndexSource> source = GetSource();
-                return source->GetDetails();
+                return GetReferenceSource();
             }
 
             std::map<std::string, std::string> GetInstallationMetadata() const override
@@ -146,7 +145,7 @@ namespace AppInstaller::Repository::Microsoft
         protected:
             std::shared_ptr<IPackageVersion> GetLatestVersionInternal() const
             {
-                std::shared_ptr<const SQLiteIndexSource> source = GetSource();
+                std::shared_ptr<const SQLiteIndexSource> source = GetReferenceSource();
                 std::optional<SQLiteIndex::IdType> manifestId = source->GetIndex().GetManifestIdByKey(m_idId, {}, {});
 
                 if (manifestId)
@@ -178,7 +177,7 @@ namespace AppInstaller::Repository::Microsoft
 
             std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
             {
-                std::shared_ptr<const SQLiteIndexSource> source = GetSource();
+                std::shared_ptr<const SQLiteIndexSource> source = GetReferenceSource();
                 std::vector<Utility::VersionAndChannel> versions = source->GetIndex().GetVersionKeysById(m_idId);
 
                 std::vector<PackageVersionKey> result;
@@ -196,7 +195,7 @@ namespace AppInstaller::Repository::Microsoft
 
             std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override
             {
-                std::shared_ptr<const SQLiteIndexSource> source = GetSource();
+                std::shared_ptr<const SQLiteIndexSource> source = GetReferenceSource();
 
                 // Ensure that this key targets this (or any) source
                 if (!versionKey.SourceId.empty() && versionKey.SourceId != source->GetIdentifier())

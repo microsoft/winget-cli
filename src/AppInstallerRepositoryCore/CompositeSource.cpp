@@ -145,7 +145,7 @@ namespace AppInstaller::Repository
                     return {};
                 }
 
-                SourceDetails GetSourceDetails() const override
+                std::shared_ptr<const ISource> GetSource() const override
                 {
                     return {};
                 }
