@@ -21,6 +21,7 @@
 #include <winget/LocIndependent.h>
 #include <winget/ManifestYamlParser.h>
 #include <Resources.h>
+#include <AppInstallerFileLogger.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
@@ -28,6 +29,7 @@ using namespace TestCommon;
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::CLI::Workflow;
+using namespace AppInstaller::Logging;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Utility;
@@ -109,7 +111,7 @@ namespace
                     ResultMatch(
                         TestPackage::Make(
                             manifest,
-                            TestPackage::InstallationMetadataMap{ { s_InstallationMetadata_Key_InstallerType, "Exe" } },
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
                             std::vector<Manifest>{ manifest2, manifest }
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
@@ -123,7 +125,7 @@ namespace
                     ResultMatch(
                         TestPackage::Make(
                             manifest,
-                            TestPackage::InstallationMetadataMap{ { s_InstallationMetadata_Key_InstallerType, "Msix" } },
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
                             std::vector<Manifest>{ manifest2, manifest }
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMsixInstaller")));
@@ -136,7 +138,7 @@ namespace
                     ResultMatch(
                         TestPackage::Make(
                             manifest,
-                            TestPackage::InstallationMetadataMap{ { s_InstallationMetadata_Key_InstallerType, "MSStore" } },
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "MSStore" } },
                             std::vector<Manifest>{ manifest }
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMSStoreInstaller")));
@@ -150,7 +152,7 @@ namespace
                     ResultMatch(
                         TestPackage::Make(
                             manifest2,
-                            TestPackage::InstallationMetadataMap{ { s_InstallationMetadata_Key_InstallerType, "Exe" } },
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
                             std::vector<Manifest>{ manifest2, manifest }
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
@@ -164,7 +166,7 @@ namespace
                     ResultMatch(
                         TestPackage::Make(
                             manifest,
-                            TestPackage::InstallationMetadataMap{ { s_InstallationMetadata_Key_InstallerType, "Msix" } },
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
                             std::vector<Manifest>{ manifest2, manifest }
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
@@ -481,12 +483,15 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
         TestContext context{ installOutput, std::cin };
         // Default Msi type with no args passed in, no switches specified in manifest
         auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Msi_NoSwitches.yaml"));
+        context.Add<Data::Manifest>(manifest);
         context.Add<Data::Installer>(manifest.Installers.at(0));
         context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
         REQUIRE(installerArgs.find("/passive") != std::string::npos);
-        REQUIRE(installerArgs.find("AppInstallerTestExeInstaller.exe.log") != std::string::npos);
+        REQUIRE(installerArgs.find(FileLogger::DefaultPrefix()) != std::string::npos);
+        REQUIRE(installerArgs.find(manifest.Id) != std::string::npos);
+        REQUIRE(installerArgs.find(manifest.Version) != std::string::npos);
     }
 
     {
@@ -497,6 +502,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
         context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
+        context.Add<Data::Manifest>(manifest);
         context.Add<Data::Installer>(manifest.Installers.at(0));
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
@@ -513,6 +519,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
         context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
+        context.Add<Data::Manifest>(manifest);
         context.Add<Data::Installer>(manifest.Installers.at(0));
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
@@ -527,12 +534,15 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
         TestContext context{ installOutput, std::cin };
         // Default Inno type with no args passed in, no switches specified in manifest
         auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_NoSwitches.yaml"));
+        context.Add<Data::Manifest>(manifest);
         context.Add<Data::Installer>(manifest.Installers.at(0));
         context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
         REQUIRE(installerArgs.find("/SILENT") != std::string::npos);
-        REQUIRE(installerArgs.find("AppInstallerTestExeInstaller.exe.log") != std::string::npos);
+        REQUIRE(installerArgs.find(FileLogger::DefaultPrefix()) != std::string::npos);
+        REQUIRE(installerArgs.find(manifest.Id) != std::string::npos);
+        REQUIRE(installerArgs.find(manifest.Version) != std::string::npos);
     }
 
     {
@@ -543,6 +553,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
         context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
+        context.Add<Data::Manifest>(manifest);
         context.Add<Data::Installer>(manifest.Installers.at(0));
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
@@ -559,6 +570,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
         context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
+        context.Add<Data::Manifest>(manifest);
         context.Add<Data::Installer>(manifest.Installers.at(0));
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();
@@ -577,6 +589,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
         context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
         context.Args.AddArg(Execution::Args::Type::Override, "/OverrideEverything"sv);
+        context.Add<Data::Manifest>(manifest);
         context.Add<Data::Installer>(manifest.Installers.at(0));
         context << GetInstallerArgs;
         std::string installerArgs = context.Get<Data::InstallerArgs>();

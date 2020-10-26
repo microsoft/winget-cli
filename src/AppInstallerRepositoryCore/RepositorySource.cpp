@@ -46,7 +46,7 @@ namespace AppInstaller::Repository
         // Finds a source from the given vector by its name.
         auto FindSourceByName(std::vector<SourceDetailsInternal>& sources, std::string_view name)
         {
-            return std::find_if(sources.begin(), sources.end(), [&name](const SourceDetailsInternal& sd) { return Utility::CaseInsensitiveEquals(sd.Name, name); });
+            return std::find_if(sources.begin(), sources.end(), [&name](const SourceDetailsInternal& sd) { return Utility::ICUCaseInsensitiveEquals(sd.Name, name); });
         }
 
         // Attempts to read a single scalar value from the node.
@@ -772,6 +772,15 @@ namespace AppInstaller::Repository
         }
 
         return result.str();
+    }
+
+    std::string_view ToString(PackageVersionMetadata pvm)
+    {
+        switch (pvm)
+        {
+        case PackageVersionMetadata::InstalledType: return "InstalledType"sv;
+        default: return "Unknown"sv;
+        }
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

@@ -156,9 +156,32 @@ namespace AppInstallerCLIE2ETests
 
             RunCommandResult result = new RunCommandResult();
 
-            result.ExitCode = File.Exists(exitCodeFile) ? int.Parse(File.ReadAllText(exitCodeFile).Trim()) : unchecked((int)0x80004005);
-            result.StdOut = File.Exists(stdOutFile) ? File.ReadAllText(stdOutFile) : "";
-            result.StdErr = File.Exists(stdErrFile) ? File.ReadAllText(stdErrFile) : "";
+            // Sometimes the files are still in use; allow for this with a wait and retry loop.
+            for (int retryCount = 0; retryCount < 4; ++retryCount)
+            {
+                bool success = false;
+
+                try
+                {
+                    result.ExitCode = File.Exists(exitCodeFile) ? int.Parse(File.ReadAllText(exitCodeFile).Trim()) : unchecked((int)0x80004005);
+                    result.StdOut = File.Exists(stdOutFile) ? File.ReadAllText(stdOutFile) : "";
+                    result.StdErr = File.Exists(stdErrFile) ? File.ReadAllText(stdErrFile) : "";
+                    success = true;
+                }
+                catch (Exception e)
+                {
+                    TestContext.Out.WriteLine("Failed to access files: " + e.Message);
+                }
+
+                if (success)
+                {
+                    break;
+                }
+                else
+                {
+                    Thread.Sleep(250);
+                }
+            }
 
             return result;
         }

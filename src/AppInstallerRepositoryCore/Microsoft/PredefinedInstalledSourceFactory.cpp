@@ -5,6 +5,7 @@
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include "Microsoft/SQLiteIndex.h"
 #include "Microsoft/SQLiteIndexSource.h"
+#include <winget/ManifestInstaller.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -72,7 +73,10 @@ namespace AppInstaller::Repository::Microsoft
                 manifest.Installers[0].PackageFamilyName = familyName;
 
                 // Use the family name as a unique key for the path
-                index.AddManifest(manifest, std::filesystem::path{ packageId.FamilyName().c_str() });
+                auto manifestId = index.AddManifest(manifest, std::filesystem::path{ packageId.FamilyName().c_str() });
+
+                index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType, 
+                    Manifest::ManifestInstaller::InstallerTypeToString(Manifest::ManifestInstaller::InstallerTypeEnum::Msix));
             }
         }
 

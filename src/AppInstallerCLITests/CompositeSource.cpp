@@ -86,7 +86,7 @@ std::shared_ptr<TestPackage> MakeInstalled(std::function<void(Manifest::Manifest
 {
     Manifest::Manifest manifest = MakeDefaultManifest();
     op(manifest);
-    return TestPackage::Make(manifest, TestPackage::InstallationMetadataMap{});
+    return TestPackage::Make(manifest, TestPackage::MetadataMap{});
 }
 
 std::shared_ptr<TestPackage> MakeAvailable(std::function<void(Manifest::Manifest&)> op)

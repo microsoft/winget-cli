@@ -13,36 +13,17 @@ namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
-        bool IsUpdateVersionApplicable(Execution::Context& context, const Utility::Version& updateVersion)
+        bool IsUpdateVersionApplicable(const Utility::Version& installedVersion, const Utility::Version& updateVersion)
         {
-            const auto& installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
-            const auto& installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
-
-            bool updateApplicable = false;
-            if (updateVersion > installedVersion)
-            {
-                updateApplicable = true;
-            }
-            else if (updateVersion == installedVersion)
-            {
-                // If installer type is MSStore, we'll let Store api to handle updates later
-                const auto& installationMetadata = installedPackage->GetInstallationMetadata();
-                auto installerTypeItr = installationMetadata.find(s_InstallationMetadata_Key_InstallerType);
-                if (installerTypeItr != installationMetadata.end() &&
-                    Manifest::ManifestInstaller::InstallerTypeEnum::MSStore == Manifest::ManifestInstaller::ConvertToInstallerTypeEnum(installerTypeItr->second))
-                {
-                    updateApplicable = true;
-                }
-            }
-
-            return updateApplicable;
+            return (installedVersion < updateVersion || updateVersion.IsLatest());
         }
     }
 
     void SelectLatestApplicableUpdate::operator()(Execution::Context& context) const
     {
-        const auto& installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetInstallationMetadata();
-        ManifestComparator manifestComparator(context.Args, installationMetadata);
+        auto installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
+        Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
+        ManifestComparator manifestComparator(context.Args, installedPackage->GetMetadata());
         bool updateFound = false;
 
         // The version keys should have already been sorted by version
@@ -50,7 +31,7 @@ namespace AppInstaller::CLI::Workflow
         for (const auto& key : versionKeys)
         {
             // Check Update Version
-            if (IsUpdateVersionApplicable(context, Utility::Version(key.Version)))
+            if (IsUpdateVersionApplicable(installedVersion, Utility::Version(key.Version)))
             {
                 auto packageVersion = m_package.GetAvailableVersion(key);
                 auto manifest = packageVersion->GetManifest();
@@ -92,9 +73,11 @@ namespace AppInstaller::CLI::Workflow
 
     void EnsureUpdateVersionApplicable(Execution::Context& context)
     {
+        auto installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
+        Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
         Utility::Version updateVersion(context.Get<Execution::Data::Manifest>().Version);
 
-        if (!IsUpdateVersionApplicable(context, updateVersion))
+        if (!IsUpdateVersionApplicable(installedVersion, updateVersion))
         {
             context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);

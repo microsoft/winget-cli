@@ -529,13 +529,13 @@ namespace AppInstaller::CLI::Workflow
     {
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
 
-        std::map<std::string, std::string> installationMetadata;
+        IPackageVersion::Metadata installationMetadata;
         if (isUpdate)
         {
-            installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetInstallationMetadata();
+            installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
         }
 
-        ManifestComparator manifestComparator(context.Args, installationMetadata);
+        ManifestComparator manifestComparator(context.Args, std::move(installationMetadata));
         context.Add<Execution::Data::Installer>(manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>()));
     }
 

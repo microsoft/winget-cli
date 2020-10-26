@@ -15,9 +15,9 @@ namespace TestCommon
         using Manifest = AppInstaller::Manifest::Manifest;
         using ISource = AppInstaller::Repository::ISource;
         using LocIndString = AppInstaller::Utility::LocIndString;
-        using InstallationMetadataMap = std::map<std::string, std::string>;
+        using MetadataMap = AppInstaller::Repository::IPackageVersion::Metadata;
 
-        TestPackageVersion(const Manifest& manifest, InstallationMetadataMap installationMetadata = {});
+        TestPackageVersion(const Manifest& manifest, MetadataMap installationMetadata = {});
 
         template <typename... Args>
         static std::shared_ptr<TestPackageVersion> Make(Args&&... args)
@@ -29,10 +29,10 @@ namespace TestCommon
         std::vector<LocIndString> GetMultiProperty(AppInstaller::Repository::PackageVersionMultiProperty property) const override;
         Manifest GetManifest() const override;
         std::shared_ptr<const ISource> GetSource() const override;
-        InstallationMetadataMap GetInstallationMetadata() const override;
+        MetadataMap GetMetadata() const override;
 
         Manifest VersionManifest;
-        InstallationMetadataMap InstallationMetadata;
+        MetadataMap Metadata;
         std::shared_ptr<const ISource> Source;
 
     protected:
@@ -44,13 +44,13 @@ namespace TestCommon
     {
         using Manifest = AppInstaller::Manifest::Manifest;
         using LocIndString = AppInstaller::Utility::LocIndString;
-        using InstallationMetadataMap = TestPackageVersion::InstallationMetadataMap;
+        using MetadataMap = TestPackageVersion::MetadataMap;
 
         // Create a package with only available versions using these manifests.
         TestPackage(const std::vector<Manifest>& available);
 
         // Create a package with an installed version, metadata, and optionally available versions.
-        TestPackage(const Manifest& installed, InstallationMetadataMap installationMetadata, const std::vector<Manifest>& available = {});
+        TestPackage(const Manifest& installed, MetadataMap installationMetadata, const std::vector<Manifest>& available = {});
 
         template <typename... Args>
         static std::shared_ptr<TestPackage> Make(Args&&... args)

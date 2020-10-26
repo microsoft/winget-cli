@@ -44,6 +44,16 @@ namespace AppInstaller::Logging
         return "file :: "s + filePath.u8string();
     }
 
+    std::string_view FileLogger::DefaultPrefix()
+    {
+        return s_fileLoggerDefaultFilePrefix;
+    }
+
+    std::string_view FileLogger::DefaultExt()
+    {
+        return s_fileLoggerDefaultFileExt;
+    }
+
     std::string FileLogger::GetName() const
     {
         return m_name;

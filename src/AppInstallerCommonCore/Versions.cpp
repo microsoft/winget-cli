@@ -266,7 +266,7 @@ namespace AppInstaller::Utility
     bool VersionAndChannel::IsUpdatedBy(const VersionAndChannel& other) const
     {
         // Channel crossing should not happen here.
-        if (!Utility::CaseInsensitiveEquals(m_channel.ToString(), other.m_channel.ToString()))
+        if (!Utility::ICUCaseInsensitiveEquals(m_channel.ToString(), other.m_channel.ToString()))
         {
             return false;
         }

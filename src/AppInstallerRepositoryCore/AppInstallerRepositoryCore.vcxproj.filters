@@ -132,6 +132,9 @@
     <ClInclude Include="CompositeSource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_1\ManifestMetadataTable.h">
+      <Filter>Microsoft\Schema\1_1</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -196,6 +199,9 @@
     </ClCompile>
     <ClCompile Include="CompositeSource.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_1\ManifestMetadataTable.cpp">
+      <Filter>Microsoft\Schema\1_1</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
