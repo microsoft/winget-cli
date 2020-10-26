@@ -15,6 +15,7 @@ namespace AppInstaller::CLI::Workflow
     using namespace winrt::Windows::Management::Deployment;
     using namespace AppInstaller::Utility;
     using namespace AppInstaller::Manifest;
+    using namespace AppInstaller::Repository;
 
     void EnsureMinOSVersion(Execution::Context& context)
     {
@@ -86,6 +87,8 @@ namespace AppInstaller::CLI::Workflow
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
+
+        context << UpdateInstallerFileMotwIfApplicable;
     }
 
     void DownloadInstallerFile(Execution::Context& context)
@@ -189,6 +192,29 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void UpdateInstallerFileMotwIfApplicable(Execution::Context& context)
+    {
+        if (context.Contains(Execution::Data::InstallerPath))
+        {
+            // Only update Motw if installer hash matches
+            const auto& hashPair = context.Get<Execution::Data::HashPair>();
+            if (std::equal(hashPair.first.begin(), hashPair.first.end(), hashPair.second.begin()))
+            {
+                if (context.Contains(Execution::Data::PackageVersion) &&
+                    context.Get<Execution::Data::PackageVersion>()->GetSource() != nullptr &&
+                    SourceTrustLevel::Trusted == context.Get<Execution::Data::PackageVersion>()->GetSource()->GetDetails().TrustLevel)
+                {
+                    Utility::ApplyMotwIfApplicable(context.Get<Execution::Data::InstallerPath>(), URLZONE_TRUSTED);
+                }
+                else
+                {
+                    const auto& installer = context.Get<Execution::Data::Installer>();
+                    Utility::ApplyMotwUsingIAttachmentExecuteIfApplicable(context.Get<Execution::Data::InstallerPath>(), installer.value().Url);
+                }
+            }
+        }
+    }
+
     void ExecuteInstaller(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>().value();
@@ -273,7 +299,20 @@ namespace AppInstaller::CLI::Workflow
         {
             const auto& path = context.Get<Execution::Data::InstallerPath>();
             AICLI_LOG(CLI, Info, << "Removing installer: " << path);
-            std::filesystem::remove(path);
+
+            try
+            {
+                // best effort
+                std::filesystem::remove(path);
+            }
+            catch (const std::exception& e)
+            {
+                AICLI_LOG(CLI, Warning, << "Failed to remove installer file after execution. Reason: " << e.what());
+            }
+            catch (...)
+            {
+                AICLI_LOG(CLI, Warning, << "Failed to remove installer file after execution. Reason unknown.");
+            }
         }
     }
 }

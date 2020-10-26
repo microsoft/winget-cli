@@ -52,4 +52,7 @@ namespace AppInstaller::Runtime
 
     // Determines whether the process is running with administrator privileges.
     bool IsRunningAsAdmin();
+
+    // Checks if the file system is NTFS
+    bool IsNTFS(const std::filesystem::path& filePath);
 }

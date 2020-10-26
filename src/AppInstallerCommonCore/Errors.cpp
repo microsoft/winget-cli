@@ -22,6 +22,8 @@ namespace AppInstaller
                 return "Executing command failed";
             case APPINSTALLER_CLI_ERROR_MANIFEST_FAILED:
                 return "Opening manifest failed";
+            case APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED:
+                return "Cancellation signal received";
             case APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED:
                 return "Running ShellExecute failed";
             case APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION:
@@ -58,10 +60,48 @@ namespace AppInstaller
                 return "Multiple packages found matching the criteria";
             case APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND:
                 return "No manifest found matching the criteria";
+            case APPINSTALLER_CLI_ERROR_EXTENSION_PUBLIC_FAILED:
+                return "Failed to get Public folder from source package";
             case APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN:
                 return "Command requires administrator privileges to run";
             case APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE:
                 return "The source location is not secure";
+            case APPINSTALLER_CLI_ERROR_MSSTORE_BLOCKED_BY_POLICY:
+                return "The Microsoft Store client is blocked by policy";
+            case APPINSTALLER_CLI_ERROR_MSSTORE_APP_BLOCKED_BY_POLICY:
+                return "The Microsoft Store app is blocked by policy";
+            case APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED:
+                return "The feature is currently under development. It can be enabled using winget settings.";
+            case APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED:
+                return "Failed to install the Microsoft Store app";
+            case APPINSTALLER_CLI_ERROR_COMPLETE_INPUT_BAD:
+                return "Failed to perform auto complete";
+            case APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED:
+                return "Failed to initialize YAML parser";
+            case APPINSTALLER_CLI_ERROR_YAML_INVALID_MAPPING_KEY:
+                return "Encountered an invalid YAML key";
+            case APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY:
+                return "Encountered a duplicate YAML key";
+            case APPINSTALLER_CLI_ERROR_YAML_INVALID_OPERATION:
+                return "Invalid YAML operation";
+            case APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED:
+                return "Failed to build YAML doc";
+            case APPINSTALLER_CLI_ERROR_YAML_INVALID_EMITTER_STATE:
+                return "Invalid YAML emitter state";
+            case APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA:
+                return "Invalid YAML data";
+            case APPINSTALLER_CLI_ERROR_LIBYAML_ERROR:
+                return "LibYAML error";
+            case APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_WARNING:
+                return "Manifest validation succeeded with warning";
+            case APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_FAILURE:
+                return "Manifest validation failed";
+            case APPINSTALLER_CLI_ERROR_INVALID_MANIFEST:
+                return "Manifest is invalid";
+            case APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE:
+                return "No applicable update found";
+            case APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE:
+                return "winget upgrade --all completed with failures";
             default:
                 return "Uknown Error Code";
             }

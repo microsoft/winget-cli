@@ -47,6 +47,7 @@ namespace AppInstaller::CLI::Execution
         SearchResult,
         SourceList,
         Manifest,
+        PackageVersion,
         Installer,
         HashPair,
         InstallerPath,
@@ -97,6 +98,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::Manifest>
         {
             using value_t = Manifest::Manifest;
+        };
+
+        template <>
+        struct DataMapping<Data::PackageVersion>
+        {
+            using value_t = std::shared_ptr<Repository::IPackageVersion>;
         };
 
         template <>

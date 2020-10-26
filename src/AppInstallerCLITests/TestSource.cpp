@@ -57,6 +57,11 @@ namespace TestCommon
         return VersionManifest;
     }
 
+    std::shared_ptr<const ISource> TestPackageVersion::GetSource() const
+    {
+        return Source;
+    }
+
     TestPackageVersion::MetadataMap TestPackageVersion::GetMetadata() const
     {
         return Metadata;

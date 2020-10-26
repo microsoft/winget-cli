@@ -287,6 +287,13 @@ void OverrideForCompositeInstalledSource(TestContext& context)
     } });
 }
 
+void OverrideForUpdateInstallerMotw(TestContext& context)
+{
+    context.Override({ UpdateInstallerFileMotwIfApplicable, [](TestContext&)
+    {
+    } });
+}
+
 void OverrideForShellExecute(TestContext& context)
 {
     context.Override({ DownloadInstallerFile, [](TestContext& context)
@@ -298,6 +305,8 @@ void OverrideForShellExecute(TestContext& context)
     context.Override({ RenameDownloadedInstaller, [](TestContext&)
     {
     } });
+
+    OverrideForUpdateInstallerMotw(context);
 }
 
 void OverrideForMSIX(TestContext& context)
@@ -425,6 +434,7 @@ TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow][workflow]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     OverrideForMSIX(context);
+    OverrideForUpdateInstallerMotw(context);
     // Todo: point to files from our repo when the repo goes public
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Msix_DownloadFlow.yaml").GetPath().u8string());
 
@@ -928,4 +938,50 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
+}
+
+void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)
+{
+    std::filesystem::path motwFile(testFile);
+    motwFile += ":Zone.Identifier:$data";
+    std::ifstream motwStream(motwFile);
+    std::stringstream motwContent;
+    motwContent << motwStream.rdbuf();
+    std::string motwContentStr = motwContent.str();
+    motwStream.close();
+    REQUIRE(motwContentStr.find("ZoneId=" + std::to_string(zone)) != std::string::npos);
+}
+
+TEST_CASE("UpdateInstallerFileMotw", "[DownloadInstaller][workflow]")
+{
+    TestCommon::TempFile testInstallerPath("TestInstaller.txt");
+
+    std::ofstream ofile(testInstallerPath, std::ofstream::out);
+    ofile << "test";
+    ofile.close();
+
+    ApplyMotwIfApplicable(testInstallerPath, URLZONE_INTERNET);
+    VerifyMotw(testInstallerPath, 3);
+
+    std::ostringstream updateMotwOutput;
+    TestContext context{ updateMotwOutput, std::cin };
+    context.Add<Data::HashPair>({ {}, {} });
+    context.Add<Data::InstallerPath>(testInstallerPath);
+    auto packageVersion = std::make_shared<TestPackageVersion>(Manifest{});
+    auto testSource = std::make_shared<TestSource>();
+    testSource->Details.TrustLevel = SourceTrustLevel::Trusted;
+    packageVersion->Source = testSource;
+    context.Add<Data::PackageVersion>(packageVersion);
+    ManifestInstaller installer;
+    installer.Url = "http://NotTrusted.com";
+    context.Add<Data::Installer>(std::move(installer));
+
+    UpdateInstallerFileMotwIfApplicable(context);
+    VerifyMotw(testInstallerPath, 2);
+
+    testSource->Details.TrustLevel = SourceTrustLevel::None;
+    UpdateInstallerFileMotwIfApplicable(context);
+    VerifyMotw(testInstallerPath, 3);
+
+    INFO(updateMotwOutput.str());
 }
