@@ -107,9 +107,21 @@ namespace AppInstaller::Repository
         ProductCode,
     };
 
+    // A metadata item of a package version.
+    enum class PackageVersionMetadata : int32_t
+    {
+        // The InstallerType of an installed package
+        InstalledType,
+    };
+
+    // Convert a PackageVersionMetadata to a string.
+    std::string_view ToString(PackageVersionMetadata pvm);
+
     // A single package version.
     struct IPackageVersion
     {
+        using Metadata = std::map<PackageVersionMetadata, std::string>;
+
         virtual ~IPackageVersion() = default;
 
         // Gets a property of this package version.
@@ -121,15 +133,16 @@ namespace AppInstaller::Repository
         // Gets the manifest of this package version.
         virtual Manifest::Manifest GetManifest() const = 0;
 
-        // Gets any metadata associated with this version if it is installed.
-        virtual std::map<std::string, std::string> GetInstallationMetadata() const = 0;
+        // Gets any metadata associated with this package version.
+        // Primarily stores data on installed packages.
+        virtual Metadata GetMetadata() const = 0;
     };
 
     // An installed package version.
     struct IInstalledPackageVersion : public IPackageVersion
     {
         // Sets metadata on the installed version.
-        virtual void SetInstallationMetadata(std::string_view key, std::string_view value) = 0;
+        virtual void SetMetadata(PackageVersionMetadata metadata, std::string_view value) = 0;
     };
 
     // A key to identify a package version within a package.

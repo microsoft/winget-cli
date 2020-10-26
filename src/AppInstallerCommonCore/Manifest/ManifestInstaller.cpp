@@ -5,6 +5,33 @@
 
 namespace AppInstaller::Manifest
 {
+    namespace
+    {
+        enum class CompatibilitySet
+        {
+            None,
+            Exe,
+            Msi,
+        };
+
+        CompatibilitySet GetCompatibilitySet(ManifestInstaller::InstallerTypeEnum type)
+        {
+            switch (type)
+            {
+            case ManifestInstaller::InstallerTypeEnum::Inno:
+            case ManifestInstaller::InstallerTypeEnum::Nullsoft:
+            case ManifestInstaller::InstallerTypeEnum::Exe:
+            case ManifestInstaller::InstallerTypeEnum::Burn:
+                return CompatibilitySet::Exe;
+            case ManifestInstaller::InstallerTypeEnum::Wix:
+            case ManifestInstaller::InstallerTypeEnum::Msi:
+                return CompatibilitySet::Msi;
+            default:
+                return CompatibilitySet::None;
+            }
+        }
+    }
+
     ManifestInstaller::InstallerTypeEnum ManifestInstaller::ConvertToInstallerTypeEnum(const std::string& in)
     {
         std::string inStrLower = Utility::ToLower(in);
@@ -141,27 +168,27 @@ namespace AppInstaller::Manifest
 
     bool ManifestInstaller::IsInstallerTypeCompatible(InstallerTypeEnum type1, InstallerTypeEnum type2)
     {
+        // Unknown type cannot be compatible with any other
         if (type1 == InstallerTypeEnum::Unknown || type2 == InstallerTypeEnum::Unknown)
         {
             return false;
         }
 
-        std::vector<InstallerTypeEnum> compatList1 =
+        // Not unknown, so must be compatible
+        if (type1 == type2)
         {
-            InstallerTypeEnum::Exe,
-            InstallerTypeEnum::Inno,
-            InstallerTypeEnum::Nullsoft,
-            InstallerTypeEnum::Burn,
-        };
+            return true;
+        }
 
-        std::vector<InstallerTypeEnum> compatList2 =
+        CompatibilitySet set1 = GetCompatibilitySet(type1);
+        CompatibilitySet set2 = GetCompatibilitySet(type2);
+
+        // If either is none, they can't be compatible
+        if (set1 == CompatibilitySet::None || set2 == CompatibilitySet::None)
         {
-            InstallerTypeEnum::Msi,
-            InstallerTypeEnum::Wix
-        };
+            return false;
+        }
 
-        return type1 == type2 ||
-            (std::find(compatList1.begin(), compatList1.end(), type1) != compatList1.end() && std::find(compatList1.begin(), compatList1.end(), type2) != compatList1.end()) ||
-            (std::find(compatList2.begin(), compatList2.end(), type1) != compatList2.end() && std::find(compatList2.begin(), compatList2.end(), type2) != compatList2.end());
+        return set1 == set2;
     }
 }

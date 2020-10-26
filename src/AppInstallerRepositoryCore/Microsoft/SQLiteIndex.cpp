@@ -131,25 +131,27 @@ namespace AppInstaller::Repository::Microsoft
     }
 #endif
 
-    void SQLiteIndex::AddManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
+    SQLiteIndex::IdType SQLiteIndex::AddManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
     {
         AICLI_LOG(Repo, Info, << "Adding manifest from file [" << manifestPath << "]");
 
         Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(manifestPath);
-        AddManifest(manifest, relativePath);
+        return AddManifest(manifest, relativePath);
     }
 
-    void SQLiteIndex::AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    SQLiteIndex::IdType SQLiteIndex::AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
         AICLI_LOG(Repo, Info, << "Adding manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath << "]");
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_addmanifest");
 
-        m_interface->AddManifest(m_dbconn, manifest, relativePath);
+        IdType result = m_interface->AddManifest(m_dbconn, manifest, relativePath);
 
         SetLastWriteTime();
 
         savepoint.Commit();
+
+        return result;
     }
 
     bool SQLiteIndex::UpdateManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
@@ -242,6 +244,16 @@ namespace AppInstaller::Repository::Microsoft
     std::vector<Utility::VersionAndChannel> SQLiteIndex::GetVersionKeysById(IdType id) const
     {
         return m_interface->GetVersionKeysById(m_dbconn, id);
+    }
+
+    SQLiteIndex::MetadataResult SQLiteIndex::GetMetadataByManifestId(SQLite::rowid_t manifestId) const
+    {
+        return m_interface->GetMetadataByManifestId(m_dbconn, manifestId);
+    }
+
+    void SQLiteIndex::SetMetadataByManifestId(IdType manifestId, PackageVersionMetadata metadata, std::string_view value)
+    {
+        m_interface->SetMetadataByManifestId(m_dbconn, manifestId, metadata, value);
     }
 
     // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus

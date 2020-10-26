@@ -21,6 +21,7 @@ namespace AppInstaller::Manifest
 
         enum class InstallerTypeEnum
         {
+            Unknown,
             Inno,
             Wix,
             Msi,
@@ -30,14 +31,13 @@ namespace AppInstaller::Manifest
             Exe,
             Burn,
             MSStore,
-            Unknown,
         };
 
         enum class UpdateBehaviorEnum
         {
+            Unknown,
             Install,
             UninstallPrevious,
-            Unknown,
         };
 
         enum class InstallerSwitchType

@@ -16,8 +16,6 @@ namespace AppInstaller::CLI::Execution
 
 namespace AppInstaller::CLI::Workflow
 {
-    static const char* s_InstallationMetadata_Key_InstallerType = "InstallerType";
-
     // Values are ordered in a typical workflow stages
     enum class ExecutionStage : uint32_t
     {

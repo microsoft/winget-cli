@@ -9,6 +9,7 @@
 #include <sddl.h>
 #include <Shlobj.h>
 #include <Shlwapi.h>
+#include <wow64apiset.h>
 
 #include "TraceLogging.h"
 

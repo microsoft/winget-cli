@@ -537,6 +537,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return result;
     }
 
+    ISQLiteIndex::MetadataResult Interface::GetMetadataByManifestId(const SQLite::Connection&, SQLite::rowid_t) const
+    {
+        return {};
+    }
+
+    void Interface::SetMetadataByManifestId(SQLite::Connection&, SQLite::rowid_t, PackageVersionMetadata, std::string_view)
+    {
+    }
+
     std::unique_ptr<SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
     {
         return std::make_unique<SearchResultsTable>(connection);
