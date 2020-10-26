@@ -10,6 +10,17 @@ namespace AppInstaller::Utility
 {
     namespace
     {
+        void AddArchitectureIfGuestMachineSupported(std::vector<Architecture>& target, Architecture architecture, USHORT guestMachine)
+        {
+            BOOL supported = FALSE;
+            LOG_IF_FAILED(IsWow64GuestMachineSupported(guestMachine, &supported));
+            
+            if (supported)
+            {
+                target.push_back(architecture);
+            }
+        }
+
         // Gets the applicable architectures for the current machine.
         std::vector<Architecture> CreateApplicableArchitecturesVector()
         {
@@ -19,9 +30,9 @@ namespace AppInstaller::Utility
             {
             case Architecture::Arm64:
                 applicableArchs.push_back(Architecture::Arm64);
+                AddArchitectureIfGuestMachineSupported(applicableArchs, Architecture::Arm, IMAGE_FILE_MACHINE_ARMNT);
+                AddArchitectureIfGuestMachineSupported(applicableArchs, Architecture::X86, IMAGE_FILE_MACHINE_I386);
                 applicableArchs.push_back(Architecture::Neutral);
-                applicableArchs.push_back(Architecture::Arm);
-                applicableArchs.push_back(Architecture::X86);
                 break;
             case Architecture::Arm:
                 applicableArchs.push_back(Architecture::Arm);
@@ -33,8 +44,8 @@ namespace AppInstaller::Utility
                 break;
             case Architecture::X64:
                 applicableArchs.push_back(Architecture::X64);
+                AddArchitectureIfGuestMachineSupported(applicableArchs, Architecture::X86, IMAGE_FILE_MACHINE_I386);
                 applicableArchs.push_back(Architecture::Neutral);
-                applicableArchs.push_back(Architecture::X86);
                 break;
             default:
                 applicableArchs.push_back(Architecture::Neutral);

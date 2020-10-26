@@ -168,7 +168,7 @@ namespace AppInstallerCLIE2ETests
                     result.StdErr = File.Exists(stdErrFile) ? File.ReadAllText(stdErrFile) : "";
                     success = true;
                 }
-                catch (System.Exception e)
+                catch (Exception e)
                 {
                     TestContext.Out.WriteLine("Failed to access files: " + e.Message);
                 }

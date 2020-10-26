@@ -12,15 +12,15 @@ namespace AppInstaller::CLI::Workflow
     namespace
     {
         // Determine if the installer is applicable.
-        bool IsInstallerApplicable(const Manifest::ManifestInstaller& installer, Manifest::ManifestInstaller::InstallerTypeEnum currentType)
+        bool IsInstallerApplicable(const Manifest::ManifestInstaller& installer, Manifest::ManifestInstaller::InstallerTypeEnum installedType)
         {
             if (Utility::IsApplicableArchitecture(installer.Arch) == Utility::InapplicableArchitecture)
             {
                 return false;
             }
 
-            if (currentType != Manifest::ManifestInstaller::InstallerTypeEnum::Unknown &&
-                !Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer.InstallerType, currentType))
+            if (installedType != Manifest::ManifestInstaller::InstallerTypeEnum::Unknown &&
+                !Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer.InstallerType, installedType))
             {
                 return false;
             }
@@ -33,7 +33,7 @@ namespace AppInstaller::CLI::Workflow
         bool IsInstallerBetterMatch(
             const Manifest::ManifestInstaller& installer1,
             const Manifest::ManifestInstaller& installer2,
-            Manifest::ManifestInstaller::InstallerTypeEnum installerType)
+            Manifest::ManifestInstaller::InstallerTypeEnum installedType)
         {
             auto arch1 = Utility::IsApplicableArchitecture(installer1.Arch);
             auto arch2 = Utility::IsApplicableArchitecture(installer2.Arch);
@@ -46,14 +46,14 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // If there's installation metadata, pick the preferred one or compatible one
-            if (installerType != Manifest::ManifestInstaller::InstallerTypeEnum::Unknown)
+            if (installedType != Manifest::ManifestInstaller::InstallerTypeEnum::Unknown)
             {
-                if (installer1.InstallerType == installerType && installer2.InstallerType != installerType)
+                if (installer1.InstallerType == installedType && installer2.InstallerType != installedType)
                 {
                     return true;
                 }
-                if (Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer1.InstallerType, installerType) &&
-                    !Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer2.InstallerType, installerType))
+                if (Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer1.InstallerType, installedType) &&
+                    !Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer2.InstallerType, installedType))
                 {
                     return true;
                 }
@@ -96,11 +96,11 @@ namespace AppInstaller::CLI::Workflow
         AICLI_LOG(CLI, Info, << "Starting installer selection.");
 
         // Get the currently installed package's type (if present)
-        Manifest::ManifestInstaller::InstallerTypeEnum installerType = Manifest::ManifestInstaller::InstallerTypeEnum::Unknown;
+        Manifest::ManifestInstaller::InstallerTypeEnum installedType = Manifest::ManifestInstaller::InstallerTypeEnum::Unknown;
         auto installerTypeItr = m_installationMetadata.find(Repository::PackageVersionMetadata::InstalledType);
         if (installerTypeItr != m_installationMetadata.end())
         {
-            installerType = Manifest::ManifestInstaller::ConvertToInstallerTypeEnum(installerTypeItr->second);
+            installedType = Manifest::ManifestInstaller::ConvertToInstallerTypeEnum(installerTypeItr->second);
         }
 
         const Manifest::ManifestInstaller* result = nullptr;
@@ -109,12 +109,12 @@ namespace AppInstaller::CLI::Workflow
         {
             if (!result)
             {
-                if (IsInstallerApplicable(installer, installerType))
+                if (IsInstallerApplicable(installer, installedType))
                 {
                     result = &installer;
                 }
             }
-            else if (IsInstallerBetterMatch(installer, *result, installerType))
+            else if (IsInstallerBetterMatch(installer, *result, installedType))
             {
                 result = &installer;
             }
