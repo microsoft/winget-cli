@@ -53,8 +53,22 @@ namespace AppInstaller::Repository::Microsoft
             // REG_DWORD (bool)
             std::wstring SystemComponent{ L"SystemComponent" };
 
-            Registry::Key GetARPForArchitecture(HKEY rootKey, Utility::Architecture architecture)
+            Registry::Key GetARPForArchitecture(Manifest::ManifestInstaller::ScopeEnum scope, Utility::Architecture architecture)
             {
+                HKEY rootKey = NULL;
+
+                switch (scope)
+                {
+                case Manifest::ManifestInstaller::ScopeEnum::User:
+                    rootKey = HKEY_CURRENT_USER;
+                    break;
+                case Manifest::ManifestInstaller::ScopeEnum::Machine:
+                    rootKey = HKEY_LOCAL_MACHINE;
+                    break;
+                default:
+                    THROW_HR(E_UNEXPECTED);
+                }
+
                 bool isValid = false;
                 REGSAM access = KEY_READ;
 
@@ -72,8 +86,11 @@ namespace AppInstaller::Repository::Microsoft
                     switch (architecture)
                     {
                     case Utility::Architecture::X86:
-                        access |= KEY_WOW64_32KEY;
-                        isValid = true;
+                        if (scope == Manifest::ManifestInstaller::ScopeEnum::Machine)
+                        {
+                            access |= KEY_WOW64_32KEY;
+                            isValid = true;
+                        }
                         break;
                     case Utility::Architecture::X64:
                         access |= KEY_WOW64_64KEY;
@@ -93,22 +110,28 @@ namespace AppInstaller::Repository::Microsoft
                     switch (architecture)
                     {
                     case Utility::Architecture::X86:
+                        if (scope == Manifest::ManifestInstaller::ScopeEnum::Machine)
+                        {
 #ifdef _X86_
-                        access |= KEY_WOW64_32KEY;
-                        isValid = true;
+                            access |= KEY_WOW64_32KEY;
+                            isValid = true;
 #else
-                        // Not sure how to access this if not an x86 process
-                        AICLI_LOG(Repo, Warning, << "Cannot enumerate x86 ARP entries currently");
+                            // Not sure how to access this if not an x86 process
+                            AICLI_LOG(Repo, Warning, << "Cannot enumerate x86 ARP entries currently");
 #endif
+                        }
                         break;
                     case Utility::Architecture::Arm:
+                        if (scope == Manifest::ManifestInstaller::ScopeEnum::Machine)
+                        {
 #ifdef _ARM_
-                        access |= KEY_WOW64_32KEY;
-                        isValid = true;
+                            access |= KEY_WOW64_32KEY;
+                            isValid = true;
 #else
-                        // Not sure how to access this if not an ARM process
-                        AICLI_LOG(Repo, Warning, << "Cannot enumerate ARM ARP entries currently");
+                            // Not sure how to access this if not an ARM process
+                            AICLI_LOG(Repo, Warning, << "Cannot enumerate ARM ARP entries currently");
 #endif
+                        }
                         break;
                     case Utility::Architecture::Arm64:
                         access |= KEY_WOW64_64KEY;
@@ -132,7 +155,7 @@ namespace AppInstaller::Repository::Microsoft
             bool GetBoolValue(const Registry::Key& arpKey, const std::wstring& name)
             {
                 auto value = arpKey[name];
-                return (value && value->GetType() == Registry::Value::Type::DWord && value->GetValue< Registry::Value::Type::DWord>());
+                return (value && value->GetType() == Registry::Value::Type::DWord && value->GetValue<Registry::Value::Type::DWord>());
             }
 
             // Determines the version from an ARP entry.
@@ -193,11 +216,11 @@ namespace AppInstaller::Repository::Microsoft
             }
 
             // Populates the index with the ARP entries from the given root.
-            void PopulateIndexFromARP(SQLiteIndex& index, HKEY rootKey, Manifest::ManifestInstaller::ScopeEnum scope)
+            void PopulateIndexFromARP(SQLiteIndex& index, Manifest::ManifestInstaller::ScopeEnum scope)
             {
                 for (auto architecture : Utility::GetApplicableArchitectures())
                 {
-                    Registry::Key arpRootKey = GetARPForArchitecture(rootKey, architecture);
+                    Registry::Key arpRootKey = GetARPForArchitecture(scope, architecture);
 
                     if (arpRootKey)
                     {
@@ -249,14 +272,11 @@ namespace AppInstaller::Repository::Microsoft
 
                             // TODO: Pick up Language/InnoSetupLanguage to enable proper selection of language for upgrade.
 
-                            // TODO: Pass scope along to metadata.
-
+                            // TODO: Determine the best way to handle duplicates, which may very well happen...
                             // Use the ProductCode as a unique key for the path
-                            try
-                            {
-                                index.AddManifest(manifest, std::filesystem::path{ manifest.Installers[0].ProductCode.c_str() });
-                            }
-                            CATCH_LOG();
+                            index.AddManifest(manifest, std::filesystem::path{ manifest.Installers[0].ProductCode.c_str() });
+
+                            // TODO: Pass scope along to metadata.
 
                             // TODO: Pick up InstallLocation when upgrade supports remove/install to enable this location
                             //       to survive across the removal.
@@ -355,7 +375,7 @@ namespace AppInstaller::Repository::Microsoft
                         arpHelper = ARPHelper();
                     }
 
-                    arpHelper->PopulateIndexFromARP(index, HKEY_LOCAL_MACHINE, Manifest::ManifestInstaller::ScopeEnum::Machine);
+                    arpHelper->PopulateIndexFromARP(index, Manifest::ManifestInstaller::ScopeEnum::Machine);
                 }
 
                 if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP_User)
@@ -365,7 +385,7 @@ namespace AppInstaller::Repository::Microsoft
                         arpHelper = ARPHelper();
                     }
 
-                    arpHelper->PopulateIndexFromARP(index, HKEY_CURRENT_USER, Manifest::ManifestInstaller::ScopeEnum::User);
+                    arpHelper->PopulateIndexFromARP(index, Manifest::ManifestInstaller::ScopeEnum::User);
                 }
 
                 if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::MSIX)
