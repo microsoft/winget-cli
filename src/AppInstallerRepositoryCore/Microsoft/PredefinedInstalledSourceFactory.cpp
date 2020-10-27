@@ -216,16 +216,33 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
+            static void AddMetadataIfPresent(const Registry::Key& key, const std::wstring& name, SQLiteIndex& index, SQLiteIndex::IdType manifestId, PackageVersionMetadata metadata)
+            {
+                auto value = key[name];
+                if (value)
+                {
+                    auto valueString = value->GetValue<Registry::Value::Type::String>();
+                    if (!valueString.empty())
+                    {
+                        index.SetMetadataByManifestId(manifestId, metadata, valueString);
+                    }
+                }
+            }
+
             // Populates the index with the ARP entries from the given root.
             void PopulateIndexFromARP(SQLiteIndex& index, Manifest::ManifestInstaller::ScopeEnum scope)
             {
+                std::string_view scopeString{ Manifest::ManifestInstaller::ScopeToString(scope) };
+
                 for (auto architecture : Utility::GetApplicableArchitectures())
                 {
                     Registry::Key arpRootKey = GetARPForArchitecture(scope, architecture);
 
                     if (arpRootKey)
                     {
-                        AICLI_LOG(Repo, Info, << "Examining ARP entries for " << Manifest::ManifestInstaller::ScopeToString(scope) << " | " << Utility::ToString(architecture));
+                        std::string_view architectureString = Utility::ToString(architecture);
+
+                        AICLI_LOG(Repo, Info, << "Examining ARP entries for " << scopeString << " | " << architectureString);
 
                         for (const auto& arpEntry : arpRootKey)
                         {
@@ -273,20 +290,58 @@ namespace AppInstaller::Repository::Microsoft
 
                             // TODO: Pick up Language/InnoSetupLanguage to enable proper selection of language for upgrade.
 
-                            // TODO: Determine the best way to handle duplicates, which may very well happen...
-                            // Use the ProductCode as a unique key for the path
-                            index.AddManifest(manifest, std::filesystem::path{ manifest.Installers[0].ProductCode.c_str() });
+                            // TODO: Determine the best way to handle duplicates, which may very well happen.
+                            //       For now, we will attempt to insert and catch, then send failure telemetry.
+                            //       In a future where we cache these entries
+                            std::optional<SQLiteIndex::IdType> manifestIdOpt;
+                            HRESULT addHr = S_OK;
 
-                            // TODO: Pass scope along to metadata.
+                            try
+                            {
+                                // Use the ProductCode as a unique key for the path
+                                manifestIdOpt = index.AddManifest(manifest, Utility::ConvertToUTF16(manifest.Installers[0].ProductCode));
+                            }
+                            catch (wil::ResultException& re)
+                            {
+                                addHr = re.GetErrorCode();
+                            }
+                            catch (...)
+                            {
+                                addHr = E_FAIL;
+                            }
 
-                            // TODO: Pick up InstallLocation when upgrade supports remove/install to enable this location
-                            //       to survive across the removal.
+                            if (!manifestIdOpt)
+                            {
+                                Logging::Telemetry().LogDuplicateARPEntry(addHr, scopeString, Utility::ToString(architecture), manifest.Installers[0].ProductCode, manifest.Name);
+                                continue;
+                            }
 
-                            // TODO: Pick up UninstallString and QuietUninstallString for uninstall.
+                            SQLiteIndex::IdType manifestId = manifestIdOpt.value();
 
-                            // TODO: Pick up WindowsInstaller to determine if this is an MSI install.
+                            // Pass scope along to metadata.
+                            index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledScope, scopeString);
 
-                            // TODO: After merge with metadata PR! Insert InstalledType into metadata.
+                            // TODO: Pass along architecture, although there are cases where it is not clear what architecture the package
+                            //       is from it's ARP location, despite it very clearly being a specific architecture. And not that user
+                            //       scope does not have separate ARP locations, so every architecture would appear as native.
+
+                            // Pick up InstallLocation when upgrade supports remove/install to enable this location
+                            // to survive across the removal.
+                            AddMetadataIfPresent(arpKey, InstallLocation, index, manifestId, PackageVersionMetadata::InstalledLocation);
+
+                            // Pick up UninstallString and QuietUninstallString for uninstall.
+                            AddMetadataIfPresent(arpKey, UninstallString, index, manifestId, PackageVersionMetadata::StandardUninstallCommand);
+                            AddMetadataIfPresent(arpKey, QuietUninstallString, index, manifestId, PackageVersionMetadata::SilentUninstallCommand);
+
+                            // Pick up WindowsInstaller to determine if this is an MSI install.
+                            auto installedType = Manifest::ManifestInstaller::InstallerTypeEnum::Exe;
+
+                            if (GetBoolValue(arpKey, WindowsInstaller))
+                            {
+                                installedType = Manifest::ManifestInstaller::InstallerTypeEnum::Msi;
+                            }
+
+                            index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType, Manifest::ManifestInstaller::InstallerTypeToString(installedType));
                         }
                     }
                 }

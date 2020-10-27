@@ -423,6 +423,27 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Error, << type << " installer failed: " << errorCode);
     }
 
+    void TelemetryTraceLogger::LogDuplicateARPEntry(HRESULT hr, std::string_view scope, std::string_view architecture, std::string_view productCode, std::string_view name)
+    {
+        if (IsTelemetryEnabled())
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "DuplicateARPEntry",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                TraceLoggingHResult(hr, "HResult"),
+                AICLI_TraceLoggingStringView(scope, "Scope"),
+                AICLI_TraceLoggingStringView(architecture, "Architecture"),
+                AICLI_TraceLoggingStringView(productCode, "ProductCode"),
+                AICLI_TraceLoggingStringView(name, "Name"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+
+        AICLI_LOG(CLI, Error, << "Ignoring duplicate ARP entry " << scope << '|' << architecture << '|' << productCode << " [" << name << "]");
+    }
+
     void EnableWilFailureTelemetry()
     {
         wil::SetResultLoggingCallback(wilResultLoggingCallback);
