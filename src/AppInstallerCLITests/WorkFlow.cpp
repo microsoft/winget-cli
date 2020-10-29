@@ -255,7 +255,7 @@ namespace
         std::unique_ptr<Context> Clone() override
         {
             auto clone = std::make_unique<TestContext>(m_out, m_in, m_overrides);
-            clone->GetFlags() = this->GetFlags();
+            clone->SetFlags(this->GetFlags());
             return clone;
         }
 
@@ -981,7 +981,7 @@ TEST_CASE("VerifyInstallerTrustLevelAndUpdateInstallerFileMotw", "[DownloadInsta
     VerifyMotw(testInstallerPath, 2);
 
     testSource->Details.TrustLevel = SourceTrustLevel::None;
-    context.GetFlags() = ContextFlag::None;
+    context.ClearFlags(ContextFlag::InstallerTrusted);
     context << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
     REQUIRE_FALSE(WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerTrusted));
     VerifyMotw(testInstallerPath, 3);

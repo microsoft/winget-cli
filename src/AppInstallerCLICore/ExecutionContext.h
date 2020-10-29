@@ -229,10 +229,22 @@ namespace AppInstaller::CLI::Execution
             return std::get<details::DataIndex(D)>(itr->second);
         }
 
-        // Gets context flags; which can be modified in place.
-        ContextFlag& GetFlags()
+        // Gets context flags
+        ContextFlag GetFlags()
         {
             return m_flags;
+        }
+
+        // Set context flags
+        void SetFlags(ContextFlag flags)
+        {
+            WI_SetAllFlags(m_flags, flags);
+        }
+
+        // Clear context flags
+        void ClearFlags(ContextFlag flags)
+        {
+            WI_ClearAllFlags(m_flags, flags);
         }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

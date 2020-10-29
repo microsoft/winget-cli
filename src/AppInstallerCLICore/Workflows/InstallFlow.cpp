@@ -188,13 +188,13 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info, << "Installer hash verified");
             context.Reporter.Info() << Resource::String::InstallerHashVerified << std::endl;
 
-            WI_SetFlag(context.GetFlags(), Execution::ContextFlag::InstallerHashMatched);
+            context.SetFlags(Execution::ContextFlag::InstallerHashMatched);
 
             if (context.Contains(Execution::Data::PackageVersion) &&
                 context.Get<Execution::Data::PackageVersion>()->GetSource() != nullptr &&
                 SourceTrustLevel::Trusted == context.Get<Execution::Data::PackageVersion>()->GetSource()->GetDetails().TrustLevel)
             {
-                WI_SetFlag(context.GetFlags(), Execution::ContextFlag::InstallerTrusted);
+                context.SetFlags(Execution::ContextFlag::InstallerTrusted);
             }
         }
     }
@@ -232,7 +232,7 @@ namespace AppInstaller::CLI::Workflow
             if (isUpdate && installer.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::UninstallPrevious)
             {
                 // TODO: hook up with uninstall when uninstall is implemented
-                WI_ClearFlag(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
+                context.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
                 AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }
             context << ShellExecuteInstall;
@@ -279,14 +279,8 @@ namespace AppInstaller::CLI::Workflow
                 DeploymentOptions::ForceApplicationShutdown |
                 DeploymentOptions::ForceTargetApplicationShutdown;
 
-            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted))
-            {
-                context.Reporter.ExecuteWithProgress(std::bind(Deployment::AddPackage, uri, deploymentOptions, std::placeholders::_1));
-            }
-            else
-            {
-                context.Reporter.ExecuteWithProgress(std::bind(Deployment::RequestAddPackage, uri, deploymentOptions, std::placeholders::_1));
-            }
+            context.Reporter.ExecuteWithProgress(std::bind(Deployment::AddPackage, uri, deploymentOptions,
+                WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted), std::placeholders::_1));
         }
         catch (const wil::ResultException& re)
         {
