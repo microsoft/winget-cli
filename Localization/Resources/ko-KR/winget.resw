@@ -336,7 +336,7 @@
     <value>결과를 모니커로 필터링합니다.</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
-    <value>입력 파일이 msix로 처리됩니다(서명된 경우 서명 해시가 제공됨).</value>
+    <value>입력 파일이 msix로 처리됩니다. (서명된 경우 서명 해시가 제공됨)</value>
   </data>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX 서명 해시를 계산하지 못했습니다.</value>
@@ -502,7 +502,7 @@
     <value>하위 명령을 사용하여 원본을 관리합니다. 원본은 패키지를 검색하고 설치할 수 있는 데이터를 제공합니다. 새 원본을 보안 위치로 신뢰하는 경우에만 새 원본을 추가합니다.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>패키지 원본 관리.</value>
+    <value>패키지 원본 관리</value>
   </data>
   <data name="SourceListArg" xml:space="preserve">
     <value>인수</value>
@@ -607,7 +607,7 @@
     <value>타사 통지 사항</value>
   </data>
   <data name="ToolDescription" xml:space="preserve">
-    <value>윙넷 명령줄 유틸리티를 사용하면 명령줄에서 응용 프로그램 및 기타 패키지를 설치할 수 있습니다.</value>
+    <value>원넷 명령줄 유틸리티를 사용하면 명령줄에서 응용 프로그램 및 기타 패키지를 설치할 수 있습니다.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>도구의 일반 정보를 표시</value>
