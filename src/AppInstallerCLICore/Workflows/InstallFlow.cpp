@@ -68,17 +68,17 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::Msi:
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
         case ManifestInstaller::InstallerTypeEnum::Wix:
-            context << DownloadInstallerFile << VerifyInstallerHash;
+            context << DownloadInstallerFile << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
             break;
         case ManifestInstaller::InstallerTypeEnum::Msix:
             if (installer.SignatureSha256.empty())
             {
-                context << DownloadInstallerFile << VerifyInstallerHash;
+                context << DownloadInstallerFile << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
             }
             else
             {
                 // Signature hash provided. No download needed. Just verify signature hash.
-                context << GetMsixSignatureHash << VerifyInstallerHash;
+                context << GetMsixSignatureHash << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
             }
             break;
         case ManifestInstaller::InstallerTypeEnum::MSStore:
@@ -87,8 +87,6 @@ namespace AppInstaller::CLI::Workflow
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
-
-        context << UpdateInstallerFileMotwIfApplicable;
     }
 
     void DownloadInstallerFile(Execution::Context& context)
@@ -189,6 +187,15 @@ namespace AppInstaller::CLI::Workflow
         {
             AICLI_LOG(CLI, Info, << "Installer hash verified");
             context.Reporter.Info() << Resource::String::InstallerHashVerified << std::endl;
+
+            WI_SetFlag(context.GetFlags(), Execution::ContextFlag::InstallerHashMatched);
+
+            if (context.Contains(Execution::Data::PackageVersion) &&
+                context.Get<Execution::Data::PackageVersion>()->GetSource() != nullptr &&
+                SourceTrustLevel::Trusted == context.Get<Execution::Data::PackageVersion>()->GetSource()->GetDetails().TrustLevel)
+            {
+                WI_SetFlag(context.GetFlags(), Execution::ContextFlag::InstallerTrusted);
+            }
         }
     }
 
@@ -196,21 +203,14 @@ namespace AppInstaller::CLI::Workflow
     {
         if (context.Contains(Execution::Data::InstallerPath))
         {
-            // Only update Motw if installer hash matches
-            const auto& hashPair = context.Get<Execution::Data::HashPair>();
-            if (std::equal(hashPair.first.begin(), hashPair.first.end(), hashPair.second.begin()))
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted))
             {
-                if (context.Contains(Execution::Data::PackageVersion) &&
-                    context.Get<Execution::Data::PackageVersion>()->GetSource() != nullptr &&
-                    SourceTrustLevel::Trusted == context.Get<Execution::Data::PackageVersion>()->GetSource()->GetDetails().TrustLevel)
-                {
-                    Utility::ApplyMotwIfApplicable(context.Get<Execution::Data::InstallerPath>(), URLZONE_TRUSTED);
-                }
-                else
-                {
-                    const auto& installer = context.Get<Execution::Data::Installer>();
-                    Utility::ApplyMotwUsingIAttachmentExecuteIfApplicable(context.Get<Execution::Data::InstallerPath>(), installer.value().Url);
-                }
+                Utility::ApplyMotwIfApplicable(context.Get<Execution::Data::InstallerPath>(), URLZONE_TRUSTED);
+            }
+            else if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerHashMatched))
+            {
+                const auto& installer = context.Get<Execution::Data::Installer>();
+                Utility::ApplyMotwUsingIAttachmentExecuteIfApplicable(context.Get<Execution::Data::InstallerPath>(), installer.value().Url);
             }
         }
     }
@@ -278,7 +278,15 @@ namespace AppInstaller::CLI::Workflow
             DeploymentOptions deploymentOptions =
                 DeploymentOptions::ForceApplicationShutdown |
                 DeploymentOptions::ForceTargetApplicationShutdown;
-            context.Reporter.ExecuteWithProgress(std::bind(Deployment::RequestAddPackage, uri, deploymentOptions, std::placeholders::_1));
+
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted))
+            {
+                context.Reporter.ExecuteWithProgress(std::bind(Deployment::AddPackage, uri, deploymentOptions, std::placeholders::_1));
+            }
+            else
+            {
+                context.Reporter.ExecuteWithProgress(std::bind(Deployment::RequestAddPackage, uri, deploymentOptions, std::placeholders::_1));
+            }
         }
         catch (const wil::ResultException& re)
         {

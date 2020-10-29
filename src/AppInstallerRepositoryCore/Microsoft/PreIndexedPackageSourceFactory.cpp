@@ -198,10 +198,20 @@ namespace AppInstaller::Repository::Microsoft
                     uri = winrt::Windows::Foundation::Uri(Utility::ConvertToUTF16(packageLocation));
                 }
 
-                Deployment::RequestAddPackage(
-                    uri,
-                    winrt::Windows::Management::Deployment::DeploymentOptions::None,
-                    progress);
+                if (SourceTrustLevel::Trusted == details.TrustLevel)
+                {
+                    Deployment::AddPackage(
+                        uri,
+                        winrt::Windows::Management::Deployment::DeploymentOptions::None,
+                        progress);
+                }
+                else
+                {
+                    Deployment::RequestAddPackage(
+                        uri,
+                        winrt::Windows::Management::Deployment::DeploymentOptions::None,
+                        progress);
+                }
 
                 if (download)
                 {

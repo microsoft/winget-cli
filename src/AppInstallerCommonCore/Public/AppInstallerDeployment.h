@@ -7,6 +7,13 @@
 
 namespace AppInstaller::Deployment
 {
+    // Calls winrt::Windows::Management::Deployment::PackageManager::AddPackageAsync
+    // which does not trigger smart screen scan
+    void AddPackage(
+        const winrt::Windows::Foundation::Uri& uri,
+        winrt::Windows::Management::Deployment::DeploymentOptions options,
+        IProgressCallback& callback);
+
     // Calls winrt::Windows::Management::Deployment::PackageManager::RequestAddPackageAsync
     void RequestAddPackage(
         const winrt::Windows::Foundation::Uri& uri, 

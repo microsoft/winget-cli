@@ -56,6 +56,25 @@ namespace AppInstaller::Deployment
         }
     }
 
+    void AddPackage(const winrt::Windows::Foundation::Uri& uri, winrt::Windows::Management::Deployment::DeploymentOptions options, IProgressCallback& callback)
+    {
+        size_t id = GetDeploymentOperationId();
+        AICLI_LOG(Core, Info, << "Starting AddPackage operation #" << id << ": " << Utility::ConvertToUTF8(uri.AbsoluteUri().c_str()));
+
+        PackageManager packageManager;
+
+        auto deployOperation = packageManager.AddPackageAsync(
+            uri,
+            nullptr, /*dependencyPackageUris*/
+            options,
+            nullptr, /*targetVolume*/
+            nullptr, /*optionalAndRelatedPackageFamilyNames*/
+            nullptr, /*optionalPackageUris*/
+            nullptr /*relatedPackageUris*/);
+
+        WaitForDeployment(deployOperation, id, callback);
+    }
+
     void RequestAddPackage(
         const winrt::Windows::Foundation::Uri& uri,
         winrt::Windows::Management::Deployment::DeploymentOptions options,
