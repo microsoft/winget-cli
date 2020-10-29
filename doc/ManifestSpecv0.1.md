@@ -204,16 +204,19 @@ Installers:
     # Scope is not supported in this preview (5/24/2020)
     Scope: user
   
-    # SystemAppId is a required field.  The value in the field differs depending on the InstallerType.
-    # For MSI it is the product code.  Typically a GUID that is typically found in the uninstall registry location and includes the brackets.
+   
+    # ProductCode will be used in upgrade scenarios and to locate the uninstall string to uninstall the application.
+    # For MSI there is an explicit product code.  Typically a GUID that is typically found in the uninstall registry location and includes the brackets.
     # For example:  {5740BD44-B58D-321A-AFC0-6D3D4556DD6C}
     # [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{3740BD44-B58D-321A-AFC0-6D3D4556DD6C}]
     # [HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{3740BD44-B58D-321A-AFC0-6D3D4556DD6C}]
-    # The Package Manager will use that value to locate the uninstall string to uninstall the application.
-    # For inno, wix, nullsoft, and exe, the SystemAppId should be a string that is located in either of the Uninstall keys above. 
-    # For MSIX the SystemAppId should be the Package Family Name.  For example: Contoso.Toolbox.Finance_7wekyb3d8bbwe  
+    # For inno, wix, nullsoft, and exe, the ProductCode should be a string that is located in either of the Uninstall keys above. 
+    ProductCode: "{05321FDB-BBA2-497D-99C6-C440E184C043}"
+    
+    # PackageFamilyName will be used in upgrade scenarios and to locate the uninstall string to uninstall the application.
+    # MSIX installers have an explicit PackageFamilyName.  For example: Contoso.Toolbox.Finance_7wekyb3d8bbwe  
     # Restrictions: [min: 3, max:128] 
-    SystemAppId: {3740BD44-B58D-321A-AFC0-6D3D4556DD6C}
+    PackageFamilyName: Microsoft.WindowsTerminal_8wekyb3d8bbwe
 
     # Switches in installers can override the root specified switches. See definition earlier in this document.
     Switches:
