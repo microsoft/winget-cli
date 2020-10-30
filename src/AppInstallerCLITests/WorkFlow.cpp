@@ -255,7 +255,7 @@ namespace
         std::unique_ptr<Context> Clone() override
         {
             auto clone = std::make_unique<TestContext>(m_out, m_in, m_overrides);
-            clone->GetFlags() = this->GetFlags();
+            clone->SetFlags(this->GetFlags());
             return clone;
         }
 
@@ -952,7 +952,7 @@ void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)
     REQUIRE(motwContentStr.find("ZoneId=" + std::to_string(zone)) != std::string::npos);
 }
 
-TEST_CASE("UpdateInstallerFileMotw", "[DownloadInstaller][workflow]")
+TEST_CASE("VerifyInstallerTrustLevelAndUpdateInstallerFileMotw", "[DownloadInstaller][workflow]")
 {
     TestCommon::TempFile testInstallerPath("TestInstaller.txt");
 
@@ -976,11 +976,14 @@ TEST_CASE("UpdateInstallerFileMotw", "[DownloadInstaller][workflow]")
     installer.Url = "http://NotTrusted.com";
     context.Add<Data::Installer>(std::move(installer));
 
-    UpdateInstallerFileMotwIfApplicable(context);
+    context << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
+    REQUIRE(WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerTrusted));
     VerifyMotw(testInstallerPath, 2);
 
     testSource->Details.TrustLevel = SourceTrustLevel::None;
-    UpdateInstallerFileMotwIfApplicable(context);
+    context.ClearFlags(ContextFlag::InstallerTrusted);
+    context << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
+    REQUIRE_FALSE(WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerTrusted));
     VerifyMotw(testInstallerPath, 3);
 
     INFO(updateMotwOutput.str());
