@@ -82,7 +82,7 @@ namespace AppInstaller::Deployment
         }
         else
         {
-            packageManager.RequestAddPackageAsync(
+            deployOperation = packageManager.RequestAddPackageAsync(
                 uri,
                 nullptr, /*dependencyPackageUris*/
                 options,
