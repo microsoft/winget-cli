@@ -230,7 +230,7 @@ namespace AppInstaller::CLI::Execution
         }
 
         // Gets context flags
-        ContextFlag GetFlags()
+        ContextFlag GetFlags() const
         {
             return m_flags;
         }
