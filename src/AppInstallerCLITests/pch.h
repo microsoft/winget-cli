@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <WinInet.h>
 #include <shellapi.h>
+#include <objbase.h>
 
 #include <catch.hpp>
 

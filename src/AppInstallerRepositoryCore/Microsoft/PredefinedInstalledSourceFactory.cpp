@@ -113,24 +113,12 @@ namespace AppInstaller::Repository::Microsoft
                     case Utility::Architecture::X86:
                         if (scope == Manifest::ManifestInstaller::ScopeEnum::Machine)
                         {
-#ifdef _X86_
-                            access |= KEY_WOW64_32KEY;
-                            isValid = true;
-#else
-                            // Not sure how to access this if not an x86 process
-                            AICLI_LOG(Repo, Warning, << "Cannot enumerate x86 ARP entries currently");
-#endif
-                        }
-                        break;
-                    case Utility::Architecture::Arm:
-                        if (scope == Manifest::ManifestInstaller::ScopeEnum::Machine)
-                        {
 #ifdef _ARM_
+                            // Not accessible if this is an ARM process
+                            AICLI_LOG(Repo, Warning, << "Cannot enumerate x86 ARP entries currently");
+#else
                             access |= KEY_WOW64_32KEY;
                             isValid = true;
-#else
-                            // Not sure how to access this if not an ARM process
-                            AICLI_LOG(Repo, Warning, << "Cannot enumerate ARM ARP entries currently");
 #endif
                         }
                         break;
@@ -322,7 +310,7 @@ namespace AppInstaller::Repository::Microsoft
                             index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledScope, scopeString);
 
                             // TODO: Pass along architecture, although there are cases where it is not clear what architecture the package
-                            //       is from it's ARP location, despite it very clearly being a specific architecture. And not that user
+                            //       is from it's ARP location, despite it very clearly being a specific architecture. And note that user
                             //       scope does not have separate ARP locations, so every architecture would appear as native.
 
                             // Pick up InstallLocation when upgrade supports remove/install to enable this location

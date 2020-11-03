@@ -136,6 +136,14 @@ TEST_CASE("FoldCase", "[strings]")
 
 TEST_CASE("ExpandEnvironmentVariables", "[strings]")
 {
-    std::wstring data = L"%TEMP%";
-    REQUIRE(ExpandEnvironmentVariables(data) != data);
+    wchar_t buffer[MAX_PATH];
+    GetTempPathW(ARRAYSIZE(buffer), buffer);
+
+    std::wstring tempPath = buffer;
+    if (!tempPath.empty() && tempPath.back() == '\\')
+    {
+        tempPath.resize(tempPath.size() - 1);
+    }
+
+    REQUIRE(ExpandEnvironmentVariables(L"%TEMP%") == tempPath);
 }

@@ -2,12 +2,14 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include <AppInstallerStrings.h>
 #include <winget/Registry.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
 using namespace AppInstaller::Registry;
-
+using namespace AppInstaller::Utility;
+using namespace TestCommon;
 
 TEST_CASE("EmptyKey", "[registry]")
 {
@@ -29,66 +31,117 @@ TEST_CASE("OpenIfExists_NotFound", "[registry]")
 
 TEST_CASE("EnumerateKeys", "[registry]")
 {
-    Key key{ HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall" };
+    wil::unique_hkey root = RegCreateVolatileTestRoot();
+
+    std::vector<std::wstring> subKeyNames = { L"A", L"BEE", L"SEE", L"deigh" };
+    for (const auto& name : subKeyNames)
+    {
+        RegCreateVolatileSubKey(root.get(), name);
+    }
+
+    Key key{ root.get(), L"" };
 
     for (const auto& subkey : key)
     {
         INFO(subkey.Name());
+
+        std::wstring nameUtf16 = ConvertToUTF16(subkey.Name());
+
+        auto itr = std::find(subKeyNames.begin(), subKeyNames.end(), nameUtf16);
+        if (itr == subKeyNames.end())
+        {
+            FAIL();
+        }
+        else
+        {
+            subKeyNames.erase(itr);
+        }
+
         Key sk = subkey.Open();
         REQUIRE(sk);
     }
+
+    REQUIRE(subKeyNames.empty());
 }
 
 TEST_CASE("Values_String", "[registry]")
 {
-    Key key{ HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall" };
+    std::wstring valueName = L"TestValueName";
+    std::wstring valueValue = L"TestValueValue";
 
-    for (const auto& subkey : key)
-    {
-        INFO(subkey.Name());
-        Key sk = subkey.Open();
+    wil::unique_hkey root = RegCreateVolatileTestRoot();
+    SetRegistryValue(root.get(), valueName, valueValue);
 
-        std::optional<Value> value = sk[L"DisplayName"s];
-        if (value)
-        {
-            std::string displayName = value->GetValue<Value::Type::String>();
-        }
-    }
+    Key key{ root.get(), L"" };
+
+    auto value = key[valueName];
+    REQUIRE(value);
+    REQUIRE(value->GetType() == Value::Type::String);
+    REQUIRE(value->GetValue<Value::Type::String>() == ConvertToUTF8(valueValue));
 }
 
 TEST_CASE("Values_ExpandString", "[registry]")
 {
-    Key key{ HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall" };
+    std::wstring valueName = L"TestValueName";
+    std::wstring valueValue = L"%TEMP%";
 
-    for (const auto& subkey : key)
+    wil::unique_hkey root = RegCreateVolatileTestRoot();
+    SetRegistryValue(root.get(), valueName, valueValue, REG_EXPAND_SZ);
+
+    Key key{ root.get(), L"" };
+
+    auto value = key[valueName];
+    REQUIRE(value);
+    REQUIRE(value->GetType() == Value::Type::ExpandString);
+    REQUIRE(value->GetValue<Value::Type::String>() == ConvertToUTF8(valueValue));
+
+    wchar_t buffer[MAX_PATH];
+    GetTempPathW(ARRAYSIZE(buffer), buffer);
+
+    std::string tempPath = ConvertToUTF8(buffer);
+    if (!tempPath.empty() && tempPath.back() == '\\')
     {
-        INFO(subkey.Name());
-        Key sk = subkey.Open();
+        tempPath.resize(tempPath.size() - 1);
+    }
 
-        std::optional<Value> value = sk[L"UninstallString"s];
-        if (value)
-        {
-            std::string uninstallString = value->GetValue<Value::Type::ExpandString>();
-        }
+    REQUIRE(value->GetValue<Value::Type::ExpandString>() == tempPath);
+}
+
+TEST_CASE("Values_Binary", "[registry]")
+{
+    std::wstring valueName = L"TestValueName";
+    std::vector<BYTE> valueValue = { 2, 7, 3, 14, 42 };
+
+    wil::unique_hkey root = RegCreateVolatileTestRoot();
+    SetRegistryValue(root.get(), valueName, valueValue);
+
+    Key key{ root.get(), L"" };
+
+    auto value = key[valueName];
+    REQUIRE(value);
+    REQUIRE(value->GetType() == Value::Type::Binary);
+
+    auto result = value->GetValue<Value::Type::Binary>();
+    REQUIRE(result.size() == valueValue.size());
+    for (size_t i = 0; i < result.size(); ++i)
+    {
+        INFO(i);
+        REQUIRE(result[i] == valueValue[i]);
     }
 }
 
 TEST_CASE("Values_DWORD", "[registry]")
 {
-    Key key{ HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall" };
+    std::wstring valueName = L"TestValueName";
+    DWORD valueValue = 42;
 
-    for (const auto& subkey : key)
-    {
-        INFO(subkey.Name());
-        Key sk = subkey.Open();
+    wil::unique_hkey root = RegCreateVolatileTestRoot();
+    SetRegistryValue(root.get(), valueName, valueValue);
 
-        std::optional<Value> value = sk[L"VersionMajor"s];
-        if (value)
-        {
-            uint32_t majorVersion = value->GetValue<Value::Type::DWord>();
-            // If the endianess is broken, this will fail.
-            // It is also very unlikely that any major version would be so large in a real product.
-            REQUIRE((majorVersion & 0xFF000000) == 0);
-        }
-    }
+    Key key{ root.get(), L"" };
+
+    auto value = key[valueName];
+    REQUIRE(value);
+    REQUIRE(value->GetType() == Value::Type::DWord);
+    REQUIRE(value->GetValue<Value::Type::DWord>() == valueValue);
 }
