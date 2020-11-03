@@ -33,36 +33,38 @@ std::wstring GenerateUninstaller() {
     return uninstallerPath.wstring();
 }
 
-void WriteToUninstallRegistry(const std::wstring& productID, const std::wstring& uninstallerPath) {
+void WriteToUninstallRegistry(const std::wstring& productID, const std::wstring& uninstallerPath)
+{
     HKEY hkey;
     LONG lReg;
 
     // String inputs to registry must be of wide char type
-    const wchar_t* displayName = L"AppInstallerTestExeInstaller\0";
-    const wchar_t* publisher = L"Microsoft Corporation\0";
+    const wchar_t* displayName = L"AppInstallerTestExeInstaller";
+    const wchar_t* displayVersion = L"1.0.0.0";
+    const wchar_t* publisher = L"Microsoft Corporation";
     const wchar_t* uninstallString = uninstallerPath.c_str();
     DWORD version = 1;
 
-    std::wstring registryKey = (std::wstring)registrySubkey;
+    std::wstring registryKey{ registrySubkey };
 
     if (!productID.empty()) 
     {
         registryKey += productID;
-        std::wcout << "Product Code Overrided to: " << registryKey.c_str() << "\n";
+        std::wcout << "Product Code overridden to: " << registryKey.c_str() << "\n";
     }
     else 
     {
         registryKey += defaultProductID;
-        std::wcout << "Default Product Code Used: " << registryKey.c_str() << "\n";
+        std::wcout << "Default Product Code used: " << registryKey.c_str() << "\n";
     }
 
     lReg = RegCreateKeyEx(
-        HKEY_LOCAL_MACHINE,
+        HKEY_CURRENT_USER,
         registryKey.c_str(),
         0,
         NULL,
-        REG_OPTION_NON_VOLATILE,
-        KEY_ALL_ACCESS | KEY_WOW64_64KEY,
+        REG_OPTION_VOLATILE,
+        KEY_ALL_ACCESS,
         NULL,
         &hkey,
         NULL);
@@ -75,6 +77,12 @@ void WriteToUninstallRegistry(const std::wstring& productID, const std::wstring&
         if (LONG res = RegSetValueEx(hkey, L"DisplayName", NULL, REG_SZ, (LPBYTE)displayName, (DWORD)(wcslen(displayName) + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
         {
             std::cout << "Failed to write DisplayName value. Error Code: " << res << "\n";
+        }
+
+        // Set Display Version Property Value
+        if (LONG res = RegSetValueEx(hkey, L"DisplayVersion", NULL, REG_SZ, (LPBYTE)displayVersion, (DWORD)(wcslen(displayVersion) + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
+        {
+            std::cout << "Failed to write DisplayVersion value. Error Code: " << res << "\n";
         }
 
         // Set Publisher Property Value
