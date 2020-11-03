@@ -94,6 +94,11 @@ namespace AppInstaller::Registry
         THROW_HR_IF(E_INVALIDARG, m_type != type);
     }
 
+    Key::Key(HKEY key)
+    {
+        Initialize(key, {}, 0, KEY_READ, false);
+    }
+
     Key::Key(HKEY key, std::string_view subKey, DWORD options, REGSAM access)
     {
         Initialize(key, Utility::ConvertToUTF16(subKey), options, access, false);

@@ -104,8 +104,9 @@ namespace AppInstaller::Registry
     struct Key
     {
         Key() = default;
-        Key(HKEY key, std::string_view subKey = {}, DWORD options = 0, REGSAM access = KEY_READ);
-        Key(HKEY key, const std::wstring& subKey = {}, DWORD options = 0, REGSAM access = KEY_READ);
+        Key(HKEY key);
+        Key(HKEY key, std::string_view subKey, DWORD options = 0, REGSAM access = KEY_READ);
+        Key(HKEY key, const std::wstring& subKey, DWORD options = 0, REGSAM access = KEY_READ);
 
         // --== Sub-Key iteration ==--
         struct const_iterator;

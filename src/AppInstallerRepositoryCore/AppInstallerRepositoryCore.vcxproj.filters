@@ -135,6 +135,9 @@
     <ClInclude Include="Microsoft\Schema\1_1\ManifestMetadataTable.h">
       <Filter>Microsoft\Schema\1_1</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\ARPHelper.h">
+      <Filter>Microsoft</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -202,6 +205,9 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_1\ManifestMetadataTable.cpp">
       <Filter>Microsoft\Schema\1_1</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\ARPHelper.cpp">
+      <Filter>Microsoft</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
