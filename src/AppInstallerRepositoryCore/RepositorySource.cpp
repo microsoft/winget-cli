@@ -705,20 +705,6 @@ namespace AppInstaller::Repository
                 THROW_HR(E_UNEXPECTED);
             }
 
-            // Add back tombstoned default sources, otherwise the info will be lost by SetSourcesByOrigin
-            auto defaultSources = GetSourcesByOrigin(SourceOrigin::Default);
-            for (const auto& defaultSource : defaultSources)
-            {
-                if (FindSourceByName(currentSources, defaultSource.Name) == currentSources.end())
-                {
-                    SourceDetailsInternal tombstone;
-                    tombstone.Name = defaultSource.Name;
-                    tombstone.IsTombstone = true;
-                    tombstone.Origin = SourceOrigin::User;
-                    currentSources.emplace_back(std::move(tombstone));
-                }
-            }
-
             SetSourcesByOrigin(SourceOrigin::User, currentSources);
 
             return true;
