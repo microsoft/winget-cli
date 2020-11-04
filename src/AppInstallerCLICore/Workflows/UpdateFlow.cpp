@@ -122,7 +122,9 @@ namespace AppInstaller::CLI::Workflow
 
             updateContext.Reporter.Info() << std::endl;
 
-            if (updateContext.GetTerminationHR() != S_OK)
+            // msstore update might still terminate with APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE
+            if (updateContext.GetTerminationHR() != S_OK &&
+                updateContext.GetTerminationHR() != APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
             {
                 updateAllHasFailure = true;
             }
