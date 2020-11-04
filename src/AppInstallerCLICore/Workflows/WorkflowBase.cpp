@@ -174,6 +174,14 @@ namespace AppInstaller::CLI::Workflow
 
         // Overwrite the source with the composite.
         context.Add<Execution::Data::Source>(std::move(compositeSource));
+
+        if (m_predefinedSource == PredefinedSource::ARP_System ||
+            m_predefinedSource == PredefinedSource::ARP_User ||
+            m_predefinedSource == PredefinedSource::MSIX ||
+            m_predefinedSource == PredefinedSource::Installed)
+        {
+            context.SetFlags(Execution::ContextFlag::CompositeInstalledSource);
+        }
     }
 
     void SearchSourceForMany(Execution::Context& context)
@@ -371,6 +379,11 @@ namespace AppInstaller::CLI::Workflow
 
         table.Complete();
 
+        if (table.IsEmpty())
+        {
+            context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
+        }
+
         if (searchResult.Truncated)
         {
             context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
@@ -385,7 +398,7 @@ namespace AppInstaller::CLI::Workflow
         {
             Logging::Telemetry().LogNoAppMatch();
 
-            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate))
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::CompositeInstalledSource))
             {
                 context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
             }
@@ -410,21 +423,22 @@ namespace AppInstaller::CLI::Workflow
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate))
+                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::CompositeInstalledSource))
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
+                    context << ReportListResult(false);
                 }
                 else
                 {
                     context.Reporter.Warn() << Resource::String::MultiplePackagesFound << std::endl;
+                    context << ReportSearchResult;
                 }
 
-                context << ReportSearchResult;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
             }
 
-            auto latestVersion = searchResult.Matches.at(0).Package->GetLatestAvailableVersion();
-            Logging::Telemetry().LogAppFound(latestVersion->GetProperty(PackageVersionProperty::Name), latestVersion->GetProperty(PackageVersionProperty::Id));
+            auto package = searchResult.Matches.at(0).Package;
+            Logging::Telemetry().LogAppFound(package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
         };
     }
 
@@ -496,8 +510,8 @@ namespace AppInstaller::CLI::Workflow
 
     void ReportSearchResultIdentity(Execution::Context& context)
     {
-        auto latestVersion = context.Get<Execution::Data::SearchResult>().Matches.at(0).Package->GetLatestAvailableVersion();
-        ReportIdentity(context, latestVersion->GetProperty(PackageVersionProperty::Name), latestVersion->GetProperty(PackageVersionProperty::Id));
+        auto package = context.Get<Execution::Data::SearchResult>().Matches.at(0).Package;
+        ReportIdentity(context, package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
     }
 
     void ReportManifestIdentity(Execution::Context& context)

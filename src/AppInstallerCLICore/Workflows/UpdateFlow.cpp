@@ -66,7 +66,6 @@ namespace AppInstaller::CLI::Workflow
 
         if (!updateFound)
         {
-            context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
         }
     }
@@ -88,6 +87,8 @@ namespace AppInstaller::CLI::Workflow
     {
         const auto& matches = context.Get<Execution::Data::SearchResult>().Matches;
         bool updateAllHasFailure = false;
+        bool updateAllFoundUpdate = false;
+
         for (const auto& match : matches)
         {
             Logging::SubExecutionTelemetryScope subExecution;
@@ -95,13 +96,22 @@ namespace AppInstaller::CLI::Workflow
             // We want to do best effort to update all applicable updates regardless on previous update failure
             auto updateContextPtr = context.Clone();
             Execution::Context& updateContext = *updateContextPtr;
-            updateContext.Reporter.Info() << std::endl;
 
             updateContext.Add<Execution::Data::InstalledPackageVersion>(match.Package->GetInstalledVersion());
 
             updateContext <<
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-                SelectLatestApplicableUpdate(*(match.Package)) <<
+                SelectLatestApplicableUpdate(*(match.Package));
+
+            if (updateContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
+            {
+                continue;
+            }
+
+            updateAllFoundUpdate = true;
+
+            updateContext <<
+                ReportManifestIdentity <<
                 ShowInstallationDisclaimer <<
                 Workflow::ReportExecutionStage(ExecutionStage::Download) <<
                 DownloadInstaller <<
@@ -110,11 +120,17 @@ namespace AppInstaller::CLI::Workflow
                 Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
                 RemoveInstaller;
 
-            if (updateContext.GetTerminationHR() != S_OK &&
-                updateContext.GetTerminationHR() != APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
+            updateContext.Reporter.Info() << std::endl;
+
+            if (updateContext.GetTerminationHR() != S_OK)
             {
                 updateAllHasFailure = true;
             }
+        }
+
+        if (!updateAllFoundUpdate)
+        {
+            context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
         }
 
         if (updateAllHasFailure)

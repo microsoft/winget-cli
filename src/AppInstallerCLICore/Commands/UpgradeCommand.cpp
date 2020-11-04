@@ -120,7 +120,8 @@ namespace AppInstaller::CLI
             OpenSource <<
             OpenCompositeSource(Repository::PredefinedSource::Installed);
 
-        if (context.Args.Empty())
+        if (context.Args.Empty() ||
+            (context.Args.GetArgsCount() == 1 && context.Args.Contains(Execution::Args::Type::Source)))
         {
             // Upgrade with no args list packages with updates available
             context <<
@@ -166,6 +167,11 @@ namespace AppInstaller::CLI
                 ReportSearchResultIdentity <<
                 GetInstalledPackageVersion;
 
+            if (context.IsTerminated())
+            {
+                return;
+            }
+
             if (context.Args.Contains(Execution::Args::Type::Version))
             {
                 // If version specified, use the version and verify applicability
@@ -182,6 +188,11 @@ namespace AppInstaller::CLI
                 // This step also populates Manifest and Installer in context data
                 context <<
                     SelectLatestApplicableUpdate(*(context.Get<Execution::Data::SearchResult>().Matches.at(0).Package));
+
+                if (context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
+                {
+                    context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+                }
             }
 
             context <<
