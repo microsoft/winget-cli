@@ -327,7 +327,6 @@ TEST_CASE("ARPHelper_PopulateIndexFromKey_SingleValid", "[arphelper][list]")
     AddARPEntriesToKey(root.get(), helper, {
         { "ValidButIsSystemComponent", "A", "0.1", true },
         { "NoName", {}, "0.2" },
-        { "NoVersion", "B", {} },
         { "Nothing" },
         });
 
