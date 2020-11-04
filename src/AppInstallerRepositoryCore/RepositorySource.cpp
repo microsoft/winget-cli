@@ -49,6 +49,12 @@ namespace AppInstaller::Repository
             return std::find_if(sources.begin(), sources.end(), [&name](const SourceDetailsInternal& sd) { return Utility::ICUCaseInsensitiveEquals(sd.Name, name); });
         }
 
+        // Finds a source from the given vector by its name. Returned source cannot be modified.
+        auto FindSourceByNameConst(const std::vector<SourceDetailsInternal>& sources, std::string_view name)
+        {
+            return std::find_if(sources.begin(), sources.end(), [&name](const SourceDetailsInternal& sd) { return Utility::ICUCaseInsensitiveEquals(sd.Name, name); });
+        }
+
         // Attempts to read a single scalar value from the node.
         template<typename Value>
         bool TryReadScalar(std::string_view settingName, const std::string& settingValue, const YAML::Node& sourceNode, std::string_view name, Value& value, bool required = true)
@@ -303,6 +309,22 @@ namespace AppInstaller::Repository
                     out << YAML::Key << s_SourcesYaml_Source_Arg << YAML::Value << details.Arg;
                     out << YAML::Key << s_SourcesYaml_Source_Data << YAML::Value << details.Data;
                     out << YAML::Key << s_SourcesYaml_Source_IsTombstone << YAML::Value << details.IsTombstone;
+                    out << YAML::EndMap;
+                }
+            }
+
+            // Copy tombstoned default sources info
+            for (const auto& userSource : GetSourcesByOrigin(SourceOrigin::User))
+            {
+                if (userSource.IsTombstone &&
+                    FindSourceByNameConst(sources, userSource.Name) == sources.end())
+                {
+                    out << YAML::BeginMap;
+                    out << YAML::Key << s_SourcesYaml_Source_Name << YAML::Value << userSource.Name;
+                    out << YAML::Key << s_SourcesYaml_Source_Type << YAML::Value << userSource.Type;
+                    out << YAML::Key << s_SourcesYaml_Source_Arg << YAML::Value << userSource.Arg;
+                    out << YAML::Key << s_SourcesYaml_Source_Data << YAML::Value << userSource.Data;
+                    out << YAML::Key << s_SourcesYaml_Source_IsTombstone << YAML::Value << userSource.IsTombstone;
                     out << YAML::EndMap;
                 }
             }
