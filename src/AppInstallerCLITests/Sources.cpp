@@ -535,7 +535,7 @@ TEST_CASE("RepoSources_DropSourceByName", "[sources]")
     DropSource("testName");
 
     sources = GetSources();
-    REQUIRE(sources.size() == 3);
+    REQUIRE(sources.size() == 2);
 
     const char* suffix[2] = { "2", "3" };
 
@@ -549,8 +549,6 @@ TEST_CASE("RepoSources_DropSourceByName", "[sources]")
         REQUIRE(sources[i].LastUpdateTime == ConvertUnixEpochToSystemClock(i + 1));
         REQUIRE(sources[i].Origin == SourceOrigin::User);
     }
-
-    REQUIRE(sources[2].Origin == SourceOrigin::Default);
 }
 
 TEST_CASE("RepoSources_DropAllSources", "[sources]")
