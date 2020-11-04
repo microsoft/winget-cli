@@ -116,14 +116,12 @@ namespace AppInstaller::CLI::Execution
             // Unless we want to spin a separate thread for all work, we have to just exit here.
             if (m_CtrlSignalCount >= 2)
             {
+                Logging::Telemetry().LogCommandTermination(hr, file, line);
                 std::exit(hr);
             }
         }
 
-        if (!file.empty() && line)
-        {
-            Logging::Telemetry().LogCommandTermination(hr, file, line);
-        }
+        Logging::Telemetry().LogCommandTermination(hr, file, line);
 
         m_isTerminated = true;
         m_terminationHR = hr;
