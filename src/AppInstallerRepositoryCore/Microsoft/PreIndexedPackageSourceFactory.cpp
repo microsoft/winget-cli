@@ -198,9 +198,10 @@ namespace AppInstaller::Repository::Microsoft
                     uri = winrt::Windows::Foundation::Uri(Utility::ConvertToUTF16(packageLocation));
                 }
 
-                Deployment::RequestAddPackage(
+                Deployment::AddPackage(
                     uri,
                     winrt::Windows::Management::Deployment::DeploymentOptions::None,
+                    SourceTrustLevel::Trusted == details.TrustLevel,
                     progress);
 
                 if (download)

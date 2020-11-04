@@ -47,6 +47,7 @@ namespace AppInstaller::CLI::Execution
         SearchResult,
         SourceList,
         Manifest,
+        PackageVersion,
         Installer,
         HashPair,
         InstallerPath,
@@ -63,6 +64,8 @@ namespace AppInstaller::CLI::Execution
     {
         None = 0x0,
         InstallerExecutionUseUpdate = 0x1,
+        InstallerHashMatched = 0x2,
+        InstallerTrusted = 0x4,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
@@ -97,6 +100,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::Manifest>
         {
             using value_t = Manifest::Manifest;
+        };
+
+        template <>
+        struct DataMapping<Data::PackageVersion>
+        {
+            using value_t = std::shared_ptr<Repository::IPackageVersion>;
         };
 
         template <>
@@ -220,10 +229,22 @@ namespace AppInstaller::CLI::Execution
             return std::get<details::DataIndex(D)>(itr->second);
         }
 
-        // Gets context flags; which can be modified in place.
-        ContextFlag& GetFlags()
+        // Gets context flags
+        ContextFlag GetFlags() const
         {
             return m_flags;
+        }
+
+        // Set context flags
+        void SetFlags(ContextFlag flags)
+        {
+            WI_SetAllFlags(m_flags, flags);
+        }
+
+        // Clear context flags
+        void ClearFlags(ContextFlag flags)
+        {
+            WI_ClearAllFlags(m_flags, flags);
         }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

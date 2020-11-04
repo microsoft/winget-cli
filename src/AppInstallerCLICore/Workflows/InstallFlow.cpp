@@ -15,6 +15,7 @@ namespace AppInstaller::CLI::Workflow
     using namespace winrt::Windows::Management::Deployment;
     using namespace AppInstaller::Utility;
     using namespace AppInstaller::Manifest;
+    using namespace AppInstaller::Repository;
 
     void EnsureMinOSVersion(Execution::Context& context)
     {
@@ -67,17 +68,17 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::Msi:
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
         case ManifestInstaller::InstallerTypeEnum::Wix:
-            context << DownloadInstallerFile << VerifyInstallerHash;
+            context << DownloadInstallerFile << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
             break;
         case ManifestInstaller::InstallerTypeEnum::Msix:
             if (installer.SignatureSha256.empty())
             {
-                context << DownloadInstallerFile << VerifyInstallerHash;
+                context << DownloadInstallerFile << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
             }
             else
             {
                 // Signature hash provided. No download needed. Just verify signature hash.
-                context << GetMsixSignatureHash << VerifyInstallerHash;
+                context << GetMsixSignatureHash << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
             }
             break;
         case ManifestInstaller::InstallerTypeEnum::MSStore:
@@ -186,6 +187,31 @@ namespace AppInstaller::CLI::Workflow
         {
             AICLI_LOG(CLI, Info, << "Installer hash verified");
             context.Reporter.Info() << Resource::String::InstallerHashVerified << std::endl;
+
+            context.SetFlags(Execution::ContextFlag::InstallerHashMatched);
+
+            if (context.Contains(Execution::Data::PackageVersion) &&
+                context.Get<Execution::Data::PackageVersion>()->GetSource() != nullptr &&
+                SourceTrustLevel::Trusted == context.Get<Execution::Data::PackageVersion>()->GetSource()->GetDetails().TrustLevel)
+            {
+                context.SetFlags(Execution::ContextFlag::InstallerTrusted);
+            }
+        }
+    }
+
+    void UpdateInstallerFileMotwIfApplicable(Execution::Context& context)
+    {
+        if (context.Contains(Execution::Data::InstallerPath))
+        {
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted))
+            {
+                Utility::ApplyMotwIfApplicable(context.Get<Execution::Data::InstallerPath>(), URLZONE_TRUSTED);
+            }
+            else if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerHashMatched))
+            {
+                const auto& installer = context.Get<Execution::Data::Installer>();
+                Utility::ApplyMotwUsingIAttachmentExecuteIfApplicable(context.Get<Execution::Data::InstallerPath>(), installer.value().Url);
+            }
         }
     }
 
@@ -206,7 +232,7 @@ namespace AppInstaller::CLI::Workflow
             if (isUpdate && installer.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::UninstallPrevious)
             {
                 // TODO: hook up with uninstall when uninstall is implemented
-                WI_ClearFlag(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
+                context.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
                 AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }
             context << ShellExecuteInstall;
@@ -252,7 +278,9 @@ namespace AppInstaller::CLI::Workflow
             DeploymentOptions deploymentOptions =
                 DeploymentOptions::ForceApplicationShutdown |
                 DeploymentOptions::ForceTargetApplicationShutdown;
-            context.Reporter.ExecuteWithProgress(std::bind(Deployment::RequestAddPackage, uri, deploymentOptions, std::placeholders::_1));
+
+            context.Reporter.ExecuteWithProgress(std::bind(Deployment::AddPackage, uri, deploymentOptions,
+                WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted), std::placeholders::_1));
         }
         catch (const wil::ResultException& re)
         {
@@ -273,7 +301,20 @@ namespace AppInstaller::CLI::Workflow
         {
             const auto& path = context.Get<Execution::Data::InstallerPath>();
             AICLI_LOG(CLI, Info, << "Removing installer: " << path);
-            std::filesystem::remove(path);
+
+            try
+            {
+                // best effort
+                std::filesystem::remove(path);
+            }
+            catch (const std::exception& e)
+            {
+                AICLI_LOG(CLI, Warning, << "Failed to remove installer file after execution. Reason: " << e.what());
+            }
+            catch (...)
+            {
+                AICLI_LOG(CLI, Warning, << "Failed to remove installer file after execution. Reason unknown.");
+            }
         }
     }
 }

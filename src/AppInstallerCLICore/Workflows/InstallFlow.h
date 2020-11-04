@@ -53,6 +53,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: SourceList
     void VerifyInstallerHash(Execution::Context& context);
 
+    // Update Motw of the downloaded installer if applicable
+    // Required Args: None
+    // Inputs: HashPair, InstallerPath?, SourceId?
+    // Outputs: None
+    void UpdateInstallerFileMotwIfApplicable(Execution::Context& context);
+
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None
     // Inputs: Installer, InstallerPath

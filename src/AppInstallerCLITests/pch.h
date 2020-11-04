@@ -6,6 +6,7 @@
 #include <WinInet.h>
 #include <shellapi.h>
 #include <objbase.h>
+#include <urlmon.h>
 
 #include <catch.hpp>
 

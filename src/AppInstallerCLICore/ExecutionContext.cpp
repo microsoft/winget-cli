@@ -73,7 +73,7 @@ namespace AppInstaller::CLI::Execution
     std::unique_ptr<Context> Context::Clone()
     {
         auto clone = std::make_unique<Context>(Reporter);
-        clone->GetFlags() = m_flags;
+        clone->m_flags = m_flags;
         return clone;
     }
 

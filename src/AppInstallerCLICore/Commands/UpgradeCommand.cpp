@@ -113,7 +113,7 @@ namespace AppInstaller::CLI
 
     void UpgradeCommand::ExecuteInternal(Execution::Context& context) const
     {
-        WI_SetFlag(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
+        context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
 
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<

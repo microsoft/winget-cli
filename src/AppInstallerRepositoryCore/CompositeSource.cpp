@@ -145,6 +145,11 @@ namespace AppInstaller::Repository
                     return {};
                 }
 
+                std::shared_ptr<const ISource> GetSource() const override
+                {
+                    return {};
+                }
+
                 IPackageVersion::Metadata GetMetadata() const override
                 {
                     return {};

@@ -389,6 +389,33 @@ namespace AppInstaller::Runtime
         return wil::test_token_membership(nullptr, SECURITY_NT_AUTHORITY, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
     }
 
+    bool IsNTFS(const std::filesystem::path& filePath)
+    {
+        wil::unique_hfile fileHandle{ CreateFileW(
+            filePath.c_str(), /*lpFileName*/
+            FILE_READ_ATTRIBUTES, /*dwDesiredAccess*/
+            0, /*dwShareMode*/
+            NULL, /*lpSecurityAttributes*/
+            OPEN_EXISTING, /*dwCreationDisposition*/
+            FILE_ATTRIBUTE_NORMAL, /*dwFlagsAndAttributes*/
+            NULL /*hTemplateFile*/) };
+
+        THROW_LAST_ERROR_IF(fileHandle.get() == INVALID_HANDLE_VALUE);
+
+        wchar_t fileSystemName[MAX_PATH];
+        THROW_LAST_ERROR_IF(!GetVolumeInformationByHandleW(
+            fileHandle.get(), /*hFile*/
+            NULL, /*lpVolumeNameBuffer*/
+            0, /*nVolumeNameSize*/
+            NULL, /*lpVolumeSerialNumber*/
+            NULL, /*lpMaximumComponentLength*/
+            NULL, /*lpFileSystemFlags*/
+            fileSystemName, /*lpFileSystemNameBuffer*/
+            MAX_PATH /*nFileSystemNameSize*/));
+
+        return _wcsicmp(fileSystemName, L"NTFS") == 0;
+    }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
     void TestHook_SetPathOverride(PathName target, const std::filesystem::path& path)
     {
