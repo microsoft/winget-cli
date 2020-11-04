@@ -7,6 +7,19 @@ namespace AppInstallerCLIE2ETests
 
     public class ListCommand : BaseCommand
     {
+        [SetUp]
+        public void Setup()
+        {
+            InitializeAllFeatures(false);
+            ConfigureFeature("list", true);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            InitializeAllFeatures(false);
+        }
+
         [Test]
         public void ListSelf()
         {

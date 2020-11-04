@@ -147,13 +147,13 @@ namespace AppInstaller::Repository::Microsoft
             }
         }
 
-        return {};
+        return Utility::Version::CreateUnknown().ToString();
     }
 
     void ARPHelper::AddMetadataIfPresent(const Registry::Key& key, const std::wstring& name, SQLiteIndex& index, SQLiteIndex::IdType manifestId, PackageVersionMetadata metadata)
     {
         auto value = key[name];
-        if (value)
+        if (value && value->GetType() == Registry::Value::Type::String)
         {
             auto valueString = value->GetValue<Registry::Value::Type::String>();
             if (!valueString.empty())
@@ -182,6 +182,8 @@ namespace AppInstaller::Repository::Microsoft
 
         for (const auto& arpEntry : key)
         {
+            std::string productCode = arpEntry.Name();
+
             Manifest::Manifest manifest;
             manifest.Tags = { "ARP" };
 
@@ -190,32 +192,48 @@ namespace AppInstaller::Repository::Microsoft
             //       `Publisher.DisplayName`. We would need to ensure that there are no matches
             //       against the rest of the data however (might happen if same package is
             //       installed for multiple architectures/languages).
-            manifest.Id = arpEntry.Name();
+            manifest.Id = productCode;
 
             manifest.Installers.emplace_back();
             // TODO: This likely needs some cleanup applied, as it looks like INNO tends to append an "_is#"
             //       that might vary across machines/installs. There may be other things we want to clean up as well,
             //       like trimming spaces at the ends, or removing the version string from the product code
             //       if it is present.
-            manifest.Installers[0].ProductCode = arpEntry.Name();
+            manifest.Installers[0].ProductCode = productCode;
 
             Registry::Key arpKey = arpEntry.Open();
 
             // Ignore entries that are listed as SystemComponent
-            if (GetBoolValue(arpKey, SystemComponent)) { continue; }
+            if (GetBoolValue(arpKey, SystemComponent))
+            {
+                AICLI_LOG(Repo, Verbose, << "Skipping " << productCode << " because it is a SystemComponent");
+                continue;
+            }
 
             // If no name is provided, ignore this entry
             auto displayName = arpKey[DisplayName];
-            if (!displayName) { continue; }
+            if (!displayName || displayName->GetType() != Registry::Value::Type::String)
+            {
+                AICLI_LOG(Repo, Verbose, << "Skipping " << productCode << " because DisplayName is not a REG_SZ value");
+                continue;
+            }
             manifest.Name = displayName->GetValue<Registry::Value::Type::String>();
-            if (manifest.Name.empty()) { continue; }
+            if (manifest.Name.empty())
+            {
+                AICLI_LOG(Repo, Verbose, << "Skipping " << productCode << " because DisplayName is empty");
+                continue;
+            }
 
             // If no version can be determined, ignore this entry
             manifest.Version = DetermineVersion(arpKey);
-            if (manifest.Version.empty()) { continue; }
+            if (manifest.Version.empty())
+            {
+                AICLI_LOG(Repo, Verbose, << "Skipping " << productCode << " because a version could not be determined");
+                continue;
+            }
 
             auto publisher = arpKey[Publisher];
-            if (publisher)
+            if (publisher && publisher->GetType() == Registry::Value::Type::String)
             {
                 manifest.Publisher = publisher->GetValue<Registry::Value::Type::String>();
             }
@@ -247,7 +265,7 @@ namespace AppInstaller::Repository::Microsoft
 
             if (!manifestIdOpt)
             {
-                Logging::Telemetry().LogDuplicateARPEntry(addHr, scope, architecture, manifest.Installers[0].ProductCode, manifest.Name);
+                Logging::Telemetry().LogDuplicateARPEntry(addHr, scope, architecture, productCode, manifest.Name);
                 continue;
             }
 

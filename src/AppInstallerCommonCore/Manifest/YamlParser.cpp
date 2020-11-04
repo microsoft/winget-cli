@@ -250,7 +250,7 @@ namespace AppInstaller::Manifest
             // Populate defaults
             installer.InstallerType = manifest.InstallerType;
             installer.UpdateBehavior = manifest.UpdateBehavior;
-            installer.Scope = ManifestInstaller::ScopeEnum::Unknown;
+            installer.Scope = ManifestInstaller::ScopeEnum::User;
 
             m_p_installer = &installer;
             m_p_switchesNode = &installerSwitchesNode;

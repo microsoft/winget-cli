@@ -263,6 +263,17 @@ TEST_CASE("ARPHelper_DetermineVersion_VersionMajorMinor", "[arphelper][list]")
     REQUIRE(result == "3.14");
 }
 
+TEST_CASE("ARPHelper_DetermineVersion_Unknown", "[arphelper][list]")
+{
+    auto root = RegCreateVolatileTestRoot();
+    Registry::Key key(root.get());
+
+    ARPHelper helper;
+
+    auto result = helper.DetermineVersion(key);
+    REQUIRE(result == Version::CreateUnknown().ToString());
+}
+
 TEST_CASE("ARPHelper_PopulateIndexFromKey_Single", "[arphelper][list]")
 {
     auto root = RegCreateVolatileTestRoot();
