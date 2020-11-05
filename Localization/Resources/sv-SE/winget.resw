@@ -138,7 +138,7 @@
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
-    <value>Använd den angivna kanalen. standard är allmän målgrupp</value>
+    <value>Använd den angivna kanalen. Standard är allmän målgrupp</value>
   </data>
   <data name="Command" xml:space="preserve">
     <value>kommando</value>
@@ -206,7 +206,7 @@
   </data>
   <data name="FeaturesMessage" xml:space="preserve">
     <value>Följande experimentella funktioner är under utveckling.
-De kan konfigureras via inställnings filen "winget settings".</value>
+De kan konfigureras via inställningsfilen "winget settings".</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesProperty" xml:space="preserve">
@@ -243,17 +243,17 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Detta program är licensierat till dig av ägaren.</value>
   </data>
   <data name="InstallationDisclaimer2" xml:space="preserve">
-    <value>Microsoft är inte ansvariga för och tillhandahåller inte heller några licenser förnågra paket från tredje part.</value>
+    <value>Microsoft är inte ansvariga för och tillhandahåller inte heller några licenser för några paket från tredje part.</value>
   </data>
   <data name="InstallationDisclaimerMSStore" xml:space="preserve">
-    <value>Det här paketet tillhandahålls via Microsoft Store. winget kan behöva hämta paketet från Microsoft Store för den aktuella användarens räkning.</value>
+    <value>Det här paketet tillhandahålls via Microsoft Store. Winget kan behöva hämta paketet från Microsoft Store för den aktuella användarens räkning.</value>
     <comment>{Locked="winget"}</comment>
   </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
     <value>Det går inte att installera paketet eftersom en högre version av Windows krävs:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Installerar det markerade paketet, antingen genom att söka i en konfigurerad källa eller direkt från ett manifest. Som standard måste frågan matcha ID, namn eller länksökväg för paketet (inte skiftlägeskänsligt). Du kan använda andra fält genom att ange lämpliga alternativ.</value>
+    <value>Installerar det markerade paketet, antingen genom att söka i en konfigurerad källa eller direkt från ett manifest. Som standard måste sökningen matcha ID, namn eller länksökväg för paketet (inte skiftlägeskänsligt). Du kan använda andra fält genom att ange lämpliga alternativ.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
@@ -628,7 +628,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Okänt kommando</value>
   </data>
   <data name="Usage" xml:space="preserve">
-    <value>användning</value>
+    <value>Användning</value>
     <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
@@ -641,13 +641,13 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Sökvägen till manifestet som ska verifieras</value>
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
-    <value>Aktiverar utförlig loggning för WinGet</value>
+    <value>Aktiverar utförlig loggning för Winget</value>
   </data>
   <data name="VerifyFileSignedMsix" xml:space="preserve">
     <value>Kontrollera att indatafilen är en giltig, signerad MSIX.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
-    <value>Använd den angivna versionen. standard är den senaste versionen</value>
+    <value>Använd den angivna versionen. Standard är den senaste versionen</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>Visa tillgängliga versioner av paketet</value>
