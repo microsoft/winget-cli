@@ -23,9 +23,9 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ListSelf()
         {
-            var result = TestCommon.RunAICLICommand("list", "WinGetDevCLI_8wekyb3d8bbwe");
+            var result = TestCommon.RunAICLICommand("list", Constants.AICLIPackageFamilyName);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("WinGetDevCLI_8wekyb3d8bbwe"));
+            Assert.True(result.StdOut.Contains(Constants.AICLIPackageFamilyName));
         }
 
         [Test]
@@ -38,7 +38,8 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("list", productCode);
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
 
-            TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --override \"/InstallDir {installDir} /ProductID {productCode}\"");
+            result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --override \"/InstallDir {installDir} /ProductID {productCode}\"");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
             result = TestCommon.RunAICLICommand("list", productCode);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
