@@ -130,7 +130,7 @@ namespace AppInstallerCLIE2ETests
             string stdOutFile = Path.Combine(workDirectory, "StdOut.txt");
             string stdErrFile = Path.Combine(workDirectory, "StdErr.txt");
 
-            cmdCommandPiped += $"{AICLIPath} {command} {parameters} > {stdOutFile} 2> {stdErrFile} & call echo %ERRORLEVEL% > {exitCodeFile}";
+            cmdCommandPiped += $"{AICLIPath} {command} {parameters} > {stdOutFile} 2> {stdErrFile}\necho %ERRORLEVEL% > {exitCodeFile}";
             File.WriteAllText(tempBatchFile, cmdCommandPiped);
 
             string psCommand = $"Invoke-CommandInDesktopPackage -PackageFamilyName {Constants.AICLIPackageFamilyName} -AppId {Constants.AICLIAppId} -PreventBreakaway -Command cmd.exe -Args '/c \"{tempBatchFile}\"'";
