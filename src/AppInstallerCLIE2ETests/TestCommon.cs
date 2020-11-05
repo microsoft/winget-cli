@@ -125,14 +125,15 @@ namespace AppInstallerCLIE2ETests
             }
 
             string workDirectory = GetRandomTestDir();
+            string tempBatchFile = Path.Combine(workDirectory, "Batch.cmd");
             string exitCodeFile = Path.Combine(workDirectory, "ExitCode.txt");
             string stdOutFile = Path.Combine(workDirectory, "StdOut.txt");
             string stdErrFile = Path.Combine(workDirectory, "StdErr.txt");
 
-            string escapedParameters = parameters.Replace("\"", "\"\"");
-            cmdCommandPiped += $"{AICLIPath} {command} {escapedParameters} > {stdOutFile} 2> {stdErrFile} & call echo %^ERRORLEVEL% > {exitCodeFile}";
+            cmdCommandPiped += $"{AICLIPath} {command} {parameters} > {stdOutFile} 2> {stdErrFile} & call echo %^ERRORLEVEL% > {exitCodeFile}";
+            File.WriteAllText(tempBatchFile, cmdCommandPiped);
 
-            string psCommand = $"Invoke-CommandInDesktopPackage -PackageFamilyName {Constants.AICLIPackageFamilyName} -AppId {Constants.AICLIAppId} -PreventBreakaway -Command cmd.exe -Args '/c \"{cmdCommandPiped}\"'";
+            string psCommand = $"Invoke-CommandInDesktopPackage -PackageFamilyName {Constants.AICLIPackageFamilyName} -AppId {Constants.AICLIAppId} -PreventBreakaway -Command cmd.exe -Args '/c \"{tempBatchFile}\"'";
 
             var psInvokeResult = RunCommandWithResult("powershell", psCommand);
 
