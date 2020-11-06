@@ -628,7 +628,7 @@ De kan konfigureras via inställningsfilen "winget settings".</value>
     <value>Okänt kommando</value>
   </data>
   <data name="Usage" xml:space="preserve">
-    <value>Användning</value>
+    <value>användning</value>
     <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
