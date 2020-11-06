@@ -71,7 +71,7 @@ namespace AppInstaller::CLI::Workflow
         const std::string& word = context.Get<Data::CompletionData>().Word();
         auto stream = context.Reporter.Completion();
 
-        for (const auto& vc : context.Get<Execution::Data::SearchResult>().Matches[0].Package->GetAvailableVersionKeys())
+        for (const auto& vc : context.Get<Execution::Data::Package>()->GetAvailableVersionKeys())
         {
             if (word.empty() || Utility::ICUCaseInsensitiveStartsWith(vc.Version, word))
             {
@@ -87,7 +87,7 @@ namespace AppInstaller::CLI::Workflow
 
         std::vector<std::string> channels;
 
-        for (const auto& vc : context.Get<Execution::Data::SearchResult>().Matches[0].Package->GetAvailableVersionKeys())
+        for (const auto& vc : context.Get<Execution::Data::Package>()->GetAvailableVersionKeys())
         {
             if ((word.empty() || Utility::ICUCaseInsensitiveStartsWith(vc.Channel, word)) &&
                 std::find(channels.begin(), channels.end(), vc.Channel) == channels.end())
@@ -164,14 +164,14 @@ namespace AppInstaller::CLI::Workflow
             // Here we require that the standard search finds a single entry, and we list those versions.
             context <<
                 Workflow::SearchSourceForSingle <<
-                Workflow::EnsureOneMatchFromSearchResult <<
+                Workflow::EnsureOneMatchFromSearchResult(false) <<
                 Workflow::CompleteWithSearchResultVersions;
             break;
         case Execution::Args::Type::Channel:
             // Here we require that the standard search finds a single entry, and we list those channels.
             context <<
                 Workflow::SearchSourceForSingle <<
-                Workflow::EnsureOneMatchFromSearchResult <<
+                Workflow::EnsureOneMatchFromSearchResult(false) <<
                 Workflow::CompleteWithSearchResultChannels;
             break;
         case Execution::Args::Type::Source:

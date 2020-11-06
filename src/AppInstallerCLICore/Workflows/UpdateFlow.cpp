@@ -21,19 +21,20 @@ namespace AppInstaller::CLI::Workflow
 
     void SelectLatestApplicableUpdate::operator()(Execution::Context& context) const
     {
+        auto package = context.Get<Execution::Data::Package>();
         auto installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
         Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
         ManifestComparator manifestComparator(context.Args, installedPackage->GetMetadata());
         bool updateFound = false;
 
         // The version keys should have already been sorted by version
-        const auto& versionKeys = m_package.GetAvailableVersionKeys();
+        const auto& versionKeys = package->GetAvailableVersionKeys();
         for (const auto& key : versionKeys)
         {
             // Check Update Version
             if (IsUpdateVersionApplicable(installedVersion, Utility::Version(key.Version)))
             {
-                auto packageVersion = m_package.GetAvailableVersion(key);
+                auto packageVersion = package->GetAvailableVersion(key);
                 auto manifest = packageVersion->GetManifest();
 
                 // Check MinOSVersion
@@ -66,6 +67,10 @@ namespace AppInstaller::CLI::Workflow
 
         if (!updateFound)
         {
+            if (m_reportUpdateNotFound)
+            {
+                context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+            }
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
         }
     }
@@ -101,7 +106,7 @@ namespace AppInstaller::CLI::Workflow
 
             updateContext <<
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-                SelectLatestApplicableUpdate(*(match.Package));
+                SelectLatestApplicableUpdate(false);
 
             if (updateContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
             {

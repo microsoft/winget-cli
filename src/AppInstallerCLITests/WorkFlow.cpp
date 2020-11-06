@@ -284,7 +284,6 @@ void OverrideForCompositeInstalledSource(TestContext& context)
     context.Override({ "OpenCompositeSource", [](TestContext& context)
     {
         context.Add<Execution::Data::Source>(std::make_shared<WorkflowTestCompositeSource>());
-        context.SetFlags(Execution::ContextFlag::CompositeInstalledSource);
     } });
 }
 

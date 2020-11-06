@@ -46,6 +46,7 @@ namespace AppInstaller::CLI::Execution
         Source,
         SearchResult,
         SourceList,
+        Package,
         Manifest,
         PackageVersion,
         Installer,
@@ -66,7 +67,6 @@ namespace AppInstaller::CLI::Execution
         InstallerExecutionUseUpdate = 0x1,
         InstallerHashMatched = 0x2,
         InstallerTrusted = 0x4,
-        CompositeInstalledSource = 0x8,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
@@ -95,6 +95,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::SourceList>
         {
             using value_t = std::vector<Repository::SourceDetails>;
+        };
+
+        template <>
+        struct DataMapping<Data::Package>
+        {
+            using value_t = std::shared_ptr<Repository::IPackage>;
         };
 
         template <>

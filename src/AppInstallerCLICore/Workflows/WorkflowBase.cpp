@@ -174,14 +174,6 @@ namespace AppInstaller::CLI::Workflow
 
         // Overwrite the source with the composite.
         context.Add<Execution::Data::Source>(std::move(compositeSource));
-
-        if (m_predefinedSource == PredefinedSource::ARP_System ||
-            m_predefinedSource == PredefinedSource::ARP_User ||
-            m_predefinedSource == PredefinedSource::MSIX ||
-            m_predefinedSource == PredefinedSource::Installed)
-        {
-            context.SetFlags(Execution::ContextFlag::CompositeInstalledSource);
-        }
     }
 
     void SearchSourceForMany(Execution::Context& context)
@@ -390,7 +382,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void EnsureMatchesFromSearchResult(Execution::Context& context)
+    void EnsureMatchesFromSearchResult::operator()(Execution::Context& context) const
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
 
@@ -398,7 +390,7 @@ namespace AppInstaller::CLI::Workflow
         {
             Logging::Telemetry().LogNoAppMatch();
 
-            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::CompositeInstalledSource))
+            if (m_isFromInstalledSource)
             {
                 context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
             }
@@ -411,10 +403,10 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void EnsureOneMatchFromSearchResult(Execution::Context& context)
+    void EnsureOneMatchFromSearchResult::operator()(Execution::Context& context) const
     {
         context <<
-            EnsureMatchesFromSearchResult <<
+            EnsureMatchesFromSearchResult(m_isFromInstalledSource) <<
             [](Execution::Context& context)
         {
             auto& searchResult = context.Get<Execution::Data::SearchResult>();
@@ -423,7 +415,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::CompositeInstalledSource))
+                if (m_isFromInstalledSource)
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
                     context << ReportListResult(false);
@@ -439,16 +431,18 @@ namespace AppInstaller::CLI::Workflow
 
             auto package = searchResult.Matches.at(0).Package;
             Logging::Telemetry().LogAppFound(package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
+
+            context.Add<Execution::Data::Package>(std::move(package));
         };
     }
 
-    void GetManifestFromSearchResult(Execution::Context& context)
+    void GetManifestFromPackage(Execution::Context& context)
     {
         std::string_view version = context.Args.GetArg(Execution::Args::Type::Version);
         std::string_view channel = context.Args.GetArg(Execution::Args::Type::Channel);
 
         PackageVersionKey key("", version, channel);
-        auto requestedVersion = context.Get<Execution::Data::SearchResult>().Matches.at(0).Package->GetAvailableVersion(key);
+        auto requestedVersion = context.Get<Execution::Data::Package>()->GetAvailableVersion(key);
 
         std::optional<Manifest::Manifest> manifest;
         if (requestedVersion)
@@ -508,9 +502,9 @@ namespace AppInstaller::CLI::Workflow
         };
     }
 
-    void ReportSearchResultIdentity(Execution::Context& context)
+    void ReportPackageIdentity(Execution::Context& context)
     {
-        auto package = context.Get<Execution::Data::SearchResult>().Matches.at(0).Package;
+        auto package = context.Get<Execution::Data::Package>();
         ReportIdentity(context, package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
     }
 
@@ -533,9 +527,9 @@ namespace AppInstaller::CLI::Workflow
             context <<
                 OpenSource <<
                 SearchSourceForSingle <<
-                EnsureOneMatchFromSearchResult <<
-                ReportSearchResultIdentity <<
-                GetManifestFromSearchResult;
+                EnsureOneMatchFromSearchResult(false) <<
+                ReportPackageIdentity <<
+                GetManifestFromPackage;
         }
     }
 
@@ -614,8 +608,7 @@ namespace AppInstaller::CLI::Workflow
 
     void GetInstalledPackageVersion(Execution::Context& context)
     {
-        const auto& searchResult = context.Get<Execution::Data::SearchResult>();
-        context.Add<Execution::Data::InstalledPackageVersion>(searchResult.Matches.at(0).Package->GetInstalledVersion());
+        context.Add<Execution::Data::InstalledPackageVersion>(context.Get<Execution::Data::Package>()->GetInstalledVersion());
     }
 
     void ReportExecutionStage::operator()(Execution::Context& context) const
