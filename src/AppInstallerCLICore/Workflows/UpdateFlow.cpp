@@ -102,9 +102,10 @@ namespace AppInstaller::CLI::Workflow
             auto updateContextPtr = context.Clone();
             Execution::Context& updateContext = *updateContextPtr;
 
-            updateContext.Add<Execution::Data::InstalledPackageVersion>(match.Package->GetInstalledVersion());
+            updateContext.Add<Execution::Data::Package>(match.Package);
 
             updateContext <<
+                Workflow::GetInstalledPackageVersion <<
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
                 SelectLatestApplicableUpdate(false);
 
