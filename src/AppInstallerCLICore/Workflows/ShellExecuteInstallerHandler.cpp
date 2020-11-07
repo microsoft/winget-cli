@@ -15,7 +15,7 @@ namespace AppInstaller::CLI::Workflow
         // ShellExecutes the given path.
         std::optional<DWORD> InvokeShellExecute(const std::filesystem::path& filePath, const std::string& args, IProgressCallback& progress)
         {
-            AICLI_LOG(CLI, Info, << "Starting installer: '" << filePath.u8string() << "' with arguments '" << args << "'" );
+            AICLI_LOG(CLI, Info, << "Starting installer: '" << filePath.u8string() << "' with arguments '" << args << '\'');
 
             SHELLEXECUTEINFOW execInfo = { 0 };
             execInfo.cbSize = sizeof(execInfo);

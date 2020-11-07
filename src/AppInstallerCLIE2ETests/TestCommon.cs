@@ -133,7 +133,7 @@ namespace AppInstallerCLIE2ETests
 
             // First change the codepage so that the rest of the batch file works
             cmdCommandPiped += $"chcp 65001\n{AICLIPath} {command} {parameters} > {stdOutFile} 2> {stdErrFile}\necho %ERRORLEVEL% > {exitCodeFile}";
-            File.WriteAllText(tempBatchFile, cmdCommandPiped, Encoding.UTF8);
+            File.WriteAllText(tempBatchFile, cmdCommandPiped, new System.Text.UTF8Encoding(false));
 
             string psCommand = $"Invoke-CommandInDesktopPackage -PackageFamilyName {Constants.AICLIPackageFamilyName} -AppId {Constants.AICLIAppId} -PreventBreakaway -Command cmd.exe -Args '/c \"{tempBatchFile}\"'";
 
