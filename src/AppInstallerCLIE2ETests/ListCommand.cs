@@ -35,10 +35,14 @@ namespace AppInstallerCLIE2ETests
             string productCode = guid.ToString();
             var installDir = TestCommon.GetRandomTestDir();
 
+            string localAppDataPath = System.Environment.GetEnvironmentVariable(LocalAppData);
+            string logFilePath = System.IO.Path.Combine(localAppDataPath, Constants.E2ETestLogsPath);
+            logFilePath = System.IO.Path.Combine(logFilePath, "ListAfterInstall-" + System.IO.Path.GetRandomFileName() + ".log");
+
             var result = TestCommon.RunAICLICommand("list", productCode);
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
 
-            result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --override \"/InstallDir {installDir} /ProductID {productCode}\"");
+            result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --override \"/InstallDir {installDir} /ProductID {productCode} /LogFile {logFilePath}\"");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
             result = TestCommon.RunAICLICommand("list", productCode);
