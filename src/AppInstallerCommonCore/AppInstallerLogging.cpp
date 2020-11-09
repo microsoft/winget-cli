@@ -141,7 +141,7 @@ namespace AppInstaller::Logging
 
     std::ostream& SetHRFormat(std::ostream& out)
     {
-        out << std::hex << std::setw(8) << std::setfill('0');
+        return out << std::hex << std::setw(8) << std::setfill('0');
     }
 }
 

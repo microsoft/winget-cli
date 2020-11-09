@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerLogging.h>
 #include <AppInstallerProgress.h>
 #include <wil/result.h>
 
@@ -79,7 +80,7 @@ namespace TestCommon
         std::string describe() const override
         {
             std::ostringstream result;
-            result << "has HR == 0x" << Logging::SetHRFormat << m_expectedHR;
+            result << "has HR == 0x" << AppInstaller::Logging::SetHRFormat << m_expectedHR;
             return result.str();
         }
 
