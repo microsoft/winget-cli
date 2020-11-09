@@ -79,7 +79,7 @@ namespace TestCommon
         std::string describe() const override
         {
             std::ostringstream result;
-            result << "has HR == 0x" << std::hex << std::setfill('0') << std::setw(8) << m_expectedHR;
+            result << "has HR == 0x" << Logging::SetHRFormat << m_expectedHR;
             return result.str();
         }
 

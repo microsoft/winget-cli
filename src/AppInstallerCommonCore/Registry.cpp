@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
 #include "pch.h"
 #include "Public/winget/Registry.h"
 #include "Public/AppInstallerStrings.h"

@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
 #include "pch.h"
 #include "ARPHelper.h"
 
 namespace AppInstaller::Repository::Microsoft
 {
-    Registry::Key ARPHelper::GetARPForArchitecture(Manifest::ManifestInstaller::ScopeEnum scope, Utility::Architecture architecture) const
+    Registry::Key ARPHelper::GetARPKey(Manifest::ManifestInstaller::ScopeEnum scope, Utility::Architecture architecture) const
     {
         HKEY rootKey = NULL;
 
@@ -167,7 +166,7 @@ namespace AppInstaller::Repository::Microsoft
     {
         for (auto architecture : Utility::GetApplicableArchitectures())
         {
-            Registry::Key arpRootKey = GetARPForArchitecture(scope, architecture);
+            Registry::Key arpRootKey = GetARPKey(scope, architecture);
 
             if (arpRootKey)
             {
@@ -287,6 +286,7 @@ namespace AppInstaller::Repository::Microsoft
             AddMetadataIfPresent(arpKey, QuietUninstallString, index, manifestId, PackageVersionMetadata::SilentUninstallCommand);
 
             // Pick up WindowsInstaller to determine if this is an MSI install.
+            // TODO: Could also determine Inno (and maybe other types) through detecting other keys here.
             auto installedType = Manifest::ManifestInstaller::InstallerTypeEnum::Exe;
 
             if (GetBoolValue(arpKey, WindowsInstaller))

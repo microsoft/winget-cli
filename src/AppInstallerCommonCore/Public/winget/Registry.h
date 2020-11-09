@@ -131,7 +131,6 @@ namespace AppInstaller::Registry
             SubKeyRef() = default;
 
             // Enumerates the subkey of m_parentKey at the given index.
-            // Returns a value indicating whether that index is valid.
             void Enum(DWORD index);
 
             wil::shared_hkey m_parentKey;

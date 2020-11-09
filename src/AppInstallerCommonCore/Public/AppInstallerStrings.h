@@ -125,6 +125,6 @@ namespace AppInstaller::Utility
     // Reads the entire stream into a string.
     std::string ReadEntireStream(std::istream& stream);
 
-    // Expands environment variables withing the input.
+    // Expands environment variables within the input.
     std::wstring ExpandEnvironmentVariables(const std::wstring& input);
 }

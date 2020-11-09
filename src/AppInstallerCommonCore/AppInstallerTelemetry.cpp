@@ -189,7 +189,7 @@ namespace AppInstaller::Logging
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
-        AICLI_LOG(CLI, Error, << "Terminating context: 0x" << std::hex << std::setw(8) << std::setfill('0') << hr << " at " << file << ":" << line);
+        AICLI_LOG(CLI, Error, << "Terminating context: 0x" << SetHRFormat << hr << " at " << file << ":" << line);
     }
 
     void TelemetryTraceLogger::LogException(std::string_view commandName, std::string_view type, std::string_view message) noexcept

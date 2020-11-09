@@ -50,7 +50,7 @@ namespace AppInstaller::Repository::Microsoft
 
         // Gets the registry key associated with the given scope and architecture on this platform.
         // May return an empty key if there is no valid location (bad combination or not found).
-        Registry::Key GetARPForArchitecture(Manifest::ManifestInstaller::ScopeEnum scope, Utility::Architecture architecture) const;
+        Registry::Key GetARPKey(Manifest::ManifestInstaller::ScopeEnum scope, Utility::Architecture architecture) const;
 
         // Returns true IFF the value exists and contains a non-zero DWORD.
         static bool GetBoolValue(const Registry::Key& arpKey, const std::wstring& name);
@@ -70,7 +70,8 @@ namespace AppInstaller::Repository::Microsoft
         void PopulateIndexFromARP(SQLiteIndex& index, Manifest::ManifestInstaller::ScopeEnum scope) const;
 
         // Populates the index with the ARP entries from the given key.
-        // Exists to allow easier testing of the functionality by providing a controlled test key.
+        // This entry point is primarily to allow unit tests to operate of arbitrary keys;
+        // product code should use PopulateIndexFromARP.
         void PopulateIndexFromKey(SQLiteIndex& index, const Registry::Key& key, std::string_view scope, std::string_view architecture) const;
     };
 }

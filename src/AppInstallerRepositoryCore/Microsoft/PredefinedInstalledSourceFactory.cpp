@@ -54,7 +54,22 @@ namespace AppInstaller::Repository::Microsoft
                 Utility::NormalizedString familyName = Utility::ConvertToUTF8(packageId.FamilyName());
 
                 manifest.Id = familyName;
-                manifest.Name = Utility::ConvertToUTF8(package.DisplayName());
+
+                // Attempt to get the DisplayName. Since this will retrieve the localized value, it has a chance to fail.
+                // Rather than completely skip this package in that case, we will simply fall back to using the package name below.
+                try
+                {
+                    manifest.Name = Utility::ConvertToUTF8(package.DisplayName());
+                }
+                catch (const winrt::hresult_error& hre)
+                {
+                    AICLI_LOG(Repo, Info, << "winrt::hresult_error[0x" << Logging::SetHRFormat << hre.code() << ": " <<
+                        Utility::ConvertToUTF8(hre.message()) << "] exception thrown when getting DisplayName for " << familyName);
+                }
+                catch (...)
+                {
+                    AICLI_LOG(Repo, Info, << "Unknown exception thrown when getting DisplayName for " << familyName);
+                }
 
                 if (manifest.Name.empty())
                 {

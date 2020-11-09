@@ -3,6 +3,7 @@
 #pragma once
 #include "pch.h"
 #include "Public/AppInstallerErrors.h"
+#include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
 
 
@@ -109,7 +110,7 @@ namespace AppInstaller
 
         void GetUserPresentableMessageForHR(std::ostringstream& strstr, HRESULT hr)
         {
-            strstr << "0x" << std::hex << std::setw(8) << std::setfill('0') << hr << " : ";
+            strstr << "0x" << Logging::SetHRFormat << hr << " : ";
 
             if (HRESULT_FACILITY(hr) == APPINSTALLER_CLI_ERROR_FACILITY)
             {

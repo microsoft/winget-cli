@@ -151,7 +151,7 @@ TEST_CASE("ARPHelper_GetARPForArchitecture", "[arphelper][list]")
 
     ARPHelper helper;
 
-    auto nativeMachineKey = helper.GetARPForArchitecture(ManifestInstaller::ScopeEnum::Machine, systemArch);
+    auto nativeMachineKey = helper.GetARPKey(ManifestInstaller::ScopeEnum::Machine, systemArch);
     REQUIRE(nativeMachineKey);
 }
 
@@ -163,7 +163,7 @@ TEST_CASE("ARPHelper_GetBoolValue_DoesNotExist", "[arphelper][list]")
 
     ARPHelper helper;
 
-    REQUIRE(!helper.GetBoolValue(key, valueName));
+    REQUIRE_FALSE(helper.GetBoolValue(key, valueName));
 }
 
 TEST_CASE("ARPHelper_GetBoolValue_NotDword", "[arphelper][list]")
@@ -176,7 +176,7 @@ TEST_CASE("ARPHelper_GetBoolValue_NotDword", "[arphelper][list]")
 
     ARPHelper helper;
 
-    REQUIRE(!helper.GetBoolValue(key, valueName));
+    REQUIRE_FALSE(helper.GetBoolValue(key, valueName));
 }
 
 TEST_CASE("ARPHelper_GetBoolValue_Zero", "[arphelper][list]")
@@ -189,7 +189,7 @@ TEST_CASE("ARPHelper_GetBoolValue_Zero", "[arphelper][list]")
 
     ARPHelper helper;
 
-    REQUIRE(!helper.GetBoolValue(key, valueName));
+    REQUIRE_FALSE(helper.GetBoolValue(key, valueName));
 }
 
 TEST_CASE("ARPHelper_GetBoolValue_One", "[arphelper][list]")
@@ -398,5 +398,5 @@ TEST_CASE("PredefinedInstalledSource_Search", "[installed][list]")
 
     auto results = source->Search(request);
 
-    REQUIRE(!results.Matches.empty());
+    REQUIRE_FALSE(results.Matches.empty());
 }

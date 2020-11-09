@@ -138,6 +138,11 @@ namespace AppInstaller::Logging
     {
         FileLogger::BeginCleanup(Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation));
     }
+
+    std::ostream& SetHRFormat(std::ostream& out)
+    {
+        out << std::hex << std::setw(8) << std::setfill('0');
+    }
 }
 
 std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time)
