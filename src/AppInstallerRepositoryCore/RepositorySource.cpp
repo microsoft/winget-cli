@@ -43,12 +43,6 @@ namespace AppInstaller::Repository
             bool IsTombstone = false;
         };
 
-        // Finds a source from the given vector by its name. Returned source cannot be modified.
-        auto FindSourceByNameConst(const std::vector<SourceDetailsInternal>& sources, std::string_view name)
-        {
-            return std::find_if(sources.begin(), sources.end(), [&name](const SourceDetailsInternal& sd) { return Utility::ICUCaseInsensitiveEquals(sd.Name, name); });
-        }
-
         // Attempts to read a single scalar value from the node.
         template<typename Value>
         bool TryReadScalar(std::string_view settingName, const std::string& settingValue, const YAML::Node& sourceNode, std::string_view name, Value& value, bool required = true)
@@ -408,19 +402,17 @@ namespace AppInstaller::Repository
             std::vector<std::reference_wrapper<SourceDetailsInternal>> GetCurrentSourceRefs();
 
             // Current source means source that's not in tombstone
-            bool ContainsCurrentSource(std::string_view name);
-            SourceDetailsInternal& GetCurrentSource(std::string_view name);
+            SourceDetailsInternal* GetCurrentSource(std::string_view name);
 
             // Source includes ones in tombstone
-            bool ContainsSource(std::string_view name);
-            SourceDetailsInternal& GetSource(std::string_view name);
+            SourceDetailsInternal* GetSource(std::string_view name);
 
             // Add/remove a current source
             void AddSource(const SourceDetailsInternal& source);
             void RemoveSource(const SourceDetailsInternal& source);
 
             // Save source metadata. Currently only LastTimeUpdated is used.
-            void SaveMetadata();
+            void SaveMetadata() const;
 
         private:
             std::vector<SourceDetailsInternal> m_sourceList;
@@ -437,15 +429,15 @@ namespace AppInstaller::Repository
 
                 for (auto&& source : forOrigin)
                 {
-                    if (!ContainsSource(source.Name))
+                    auto foundSource = GetSource(source.Name);
+                    if (!foundSource)
                     {
                         // Name not already defined, add it
                         m_sourceList.emplace_back(std::move(source));
                     }
                     else
                     {
-                        auto& found = GetSource(source.Name);
-                        AICLI_LOG(Repo, Info, << "Source named '" << found.Name << "' is already defined at origin " << ToString(found.Origin) <<
+                        AICLI_LOG(Repo, Info, << "Source named '" << foundSource->Name << "' is already defined at origin " << ToString(foundSource->Origin) <<
                             ". The source from origin " << ToString(origin) << " is dropped.");
                     }
                 }
@@ -454,9 +446,10 @@ namespace AppInstaller::Repository
             auto metadata = GetMetadata();
             for (const auto& metaSource : metadata)
             {
-                if (ContainsSource(metaSource.Name))
+                auto source = GetSource(metaSource.Name);
+                if (source)
                 {
-                    GetSource(metaSource.Name).LastUpdateTime = metaSource.LastUpdateTime;
+                    source->LastUpdateTime = metaSource.LastUpdateTime;
                 }
             }
         }
@@ -490,32 +483,28 @@ namespace AppInstaller::Repository
                 });
         }
 
-        bool SourceListInternal::ContainsCurrentSource(std::string_view name)
-        {
-            return FindSource(name) != m_sourceList.end();
-        }
-
-        SourceDetailsInternal& SourceListInternal::GetCurrentSource(std::string_view name)
+        SourceDetailsInternal* SourceListInternal::GetCurrentSource(std::string_view name)
         {
             auto itr = FindSource(name);
-            THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), itr == m_sourceList.end());
-            return *itr;
+            return itr == m_sourceList.end() ? nullptr : &(*itr);
         }
 
-        bool SourceListInternal::ContainsSource(std::string_view name)
-        {
-            return FindSource(name, true) != m_sourceList.end();
-        }
-
-        SourceDetailsInternal& SourceListInternal::GetSource(std::string_view name)
+        SourceDetailsInternal* SourceListInternal::GetSource(std::string_view name)
         {
             auto itr = FindSource(name, true);
-            THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), itr == m_sourceList.end());
-            return *itr;
+            return itr == m_sourceList.end() ? nullptr : &(*itr);
         }
 
         void SourceListInternal::AddSource(const SourceDetailsInternal& details)
         {
+            // Erase the source's tombstone entry if applicable
+            auto itr = FindSource(details.Name, true);
+            if (itr != m_sourceList.end())
+            {
+                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !itr->IsTombstone);
+                m_sourceList.erase(itr);
+            }
+
             m_sourceList.emplace_back(details);
 
             SetSourcesByOrigin(SourceOrigin::User, m_sourceList);
@@ -544,7 +533,7 @@ namespace AppInstaller::Repository
             SetSourcesByOrigin(SourceOrigin::User, m_sourceList);
         }
 
-        void SourceListInternal::SaveMetadata()
+        void SourceListInternal::SaveMetadata() const
         {
             SetMetadata(m_sourceList);
         }
@@ -581,13 +570,14 @@ namespace AppInstaller::Repository
         // Check all sources for the given name.
         SourceListInternal sourceList;
 
-        if (!sourceList.ContainsCurrentSource(name))
+        auto source = sourceList.GetCurrentSource(name);
+        if (!source)
         {
             return {};
         }
         else
         {
-            return sourceList.GetCurrentSource(name);
+            return *source;
         }
     }
 
@@ -600,7 +590,8 @@ namespace AppInstaller::Repository
         // Check all sources for the given name.
         SourceListInternal sourceList;
 
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, sourceList.ContainsCurrentSource(name));
+        auto source = sourceList.GetCurrentSource(name);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, source != nullptr);
 
         SourceDetailsInternal details;
         details.Name = name;
@@ -663,22 +654,22 @@ namespace AppInstaller::Repository
         }
         else
         {
-            if (!sourceList.ContainsCurrentSource(name))
+            auto source = sourceList.GetCurrentSource(name);
+            if (!source)
             {
                 AICLI_LOG(Repo, Info, << "Named source requested, but not found: " << name);
                 return {};
             }
             else
             {
-                auto& source = sourceList.GetCurrentSource(name);
-                AICLI_LOG(Repo, Info, << "Named source requested, found: " << source.Name);
+                AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
 
-                if (ShouldUpdateBeforeOpen(source))
+                if (ShouldUpdateBeforeOpen(*source))
                 {
-                    UpdateSourceFromDetails(source, progress);
+                    UpdateSourceFromDetails(*source, progress);
                     sourceList.SaveMetadata();
                 }
-                return CreateSourceFromDetails(source, progress);
+                return CreateSourceFromDetails(*source, progress);
             }
         }
     }
@@ -732,17 +723,17 @@ namespace AppInstaller::Repository
 
         SourceListInternal sourceList;
 
-        if (!sourceList.ContainsCurrentSource(name))
+        auto source = sourceList.GetCurrentSource(name);
+        if (!source)
         {
             AICLI_LOG(Repo, Info, << "Named source to be updated, but not found: " << name);
             return false;
         }
         else
         {
-            auto& source = sourceList.GetCurrentSource(name);
-            AICLI_LOG(Repo, Info, << "Named source to be updated, found: " << source.Name);
+            AICLI_LOG(Repo, Info, << "Named source to be updated, found: " << source->Name);
 
-            UpdateSourceFromDetails(source, progress);
+            UpdateSourceFromDetails(*source, progress);
 
             sourceList.SaveMetadata();
             return true;
@@ -755,18 +746,18 @@ namespace AppInstaller::Repository
 
         SourceListInternal sourceList;
 
-        if (!sourceList.ContainsCurrentSource(name))
+        auto source = sourceList.GetCurrentSource(name);
+        if (!source)
         {
             AICLI_LOG(Repo, Info, << "Named source to be removed, but not found: " << name);
             return false;
         }
         else
         {
-            auto& source = sourceList.GetCurrentSource(name);
-            AICLI_LOG(Repo, Info, << "Named source to be removed, found: " << source.Name << " [" << ToString(source.Origin) << ']');
-            RemoveSourceFromDetails(source, progress);
+            AICLI_LOG(Repo, Info, << "Named source to be removed, found: " << source->Name << " [" << ToString(source->Origin) << ']');
+            RemoveSourceFromDetails(*source, progress);
 
-            sourceList.RemoveSource(source);
+            sourceList.RemoveSource(*source);
 
             return true;
         }
@@ -784,17 +775,17 @@ namespace AppInstaller::Repository
         {
             SourceListInternal sourceList;
 
-            if (!sourceList.ContainsCurrentSource(name))
+            auto source = sourceList.GetCurrentSource(name);
+            if (!source)
             {
                 AICLI_LOG(Repo, Info, << "Named source to be dropped, but not found: " << name);
                 return false;
             }
             else
             {
-                auto& source = sourceList.GetCurrentSource(name);
-                AICLI_LOG(Repo, Info, << "Named source to be dropped, found: " << source.Name);
+                AICLI_LOG(Repo, Info, << "Named source to be dropped, found: " << source->Name);
 
-                sourceList.RemoveSource(source);
+                sourceList.RemoveSource(*source);
 
                 return true;
             }
