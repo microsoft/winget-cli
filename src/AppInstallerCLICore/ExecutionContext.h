@@ -46,6 +46,7 @@ namespace AppInstaller::CLI::Execution
         Source,
         SearchResult,
         SourceList,
+        Package,
         Manifest,
         PackageVersion,
         Installer,
@@ -94,6 +95,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::SourceList>
         {
             using value_t = std::vector<Repository::SourceDetails>;
+        };
+
+        template <>
+        struct DataMapping<Data::Package>
+        {
+            using value_t = std::shared_ptr<Repository::IPackage>;
         };
 
         template <>

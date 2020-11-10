@@ -50,6 +50,8 @@ namespace AppInstaller::CLI::Execution
 
         void OutputLine(line_t&& line)
         {
+            m_empty = false;
+
             if (m_buffer.size() < m_sizingBuffer)
             {
                 m_buffer.emplace_back(std::move(line));
@@ -63,7 +65,15 @@ namespace AppInstaller::CLI::Execution
 
         void Complete()
         {
-            EvaluateAndFlushBuffer();
+            if (!m_empty)
+            {
+                EvaluateAndFlushBuffer();
+            }
+        }
+
+        bool IsEmpty()
+        {
+            return m_empty;
         }
 
     private:
@@ -81,6 +91,7 @@ namespace AppInstaller::CLI::Execution
         size_t m_sizingBuffer;
         std::vector<line_t> m_buffer;
         bool m_bufferEvaluated = false;
+        bool m_empty = true;
 
         void EvaluateAndFlushBuffer()
         {

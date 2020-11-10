@@ -69,7 +69,7 @@ namespace AppInstaller::CLI
         context <<
             Workflow::OpenSource <<
             Workflow::SearchSourceForMany <<
-            Workflow::EnsureMatchesFromSearchResult <<
+            Workflow::EnsureMatchesFromSearchResult(false) <<
             Workflow::ReportSearchResult;
     }
 }

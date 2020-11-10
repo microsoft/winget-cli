@@ -12,6 +12,7 @@ namespace AppInstaller::Manifest
             None,
             Exe,
             Msi,
+            Msix,
         };
 
         CompatibilitySet GetCompatibilitySet(ManifestInstaller::InstallerTypeEnum type)
@@ -26,6 +27,9 @@ namespace AppInstaller::Manifest
             case ManifestInstaller::InstallerTypeEnum::Wix:
             case ManifestInstaller::InstallerTypeEnum::Msi:
                 return CompatibilitySet::Msi;
+            case ManifestInstaller::InstallerTypeEnum::Msix:
+            case ManifestInstaller::InstallerTypeEnum::MSStore:
+                return CompatibilitySet::Msix;
             default:
                 return CompatibilitySet::None;
             }
