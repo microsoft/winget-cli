@@ -834,6 +834,10 @@ namespace AppInstaller::Repository
         switch (pvm)
         {
         case PackageVersionMetadata::InstalledType: return "InstalledType"sv;
+        case PackageVersionMetadata::InstalledScope: return "InstalledScope"sv;
+        case PackageVersionMetadata::InstalledLocation: return "InstalledLocation"sv;
+        case PackageVersionMetadata::StandardUninstallCommand: return "StandardUninstallCommand"sv;
+        case PackageVersionMetadata::SilentUninstallCommand: return "SilentUninstallCommand"sv;
         default: return "Unknown"sv;
         }
     }

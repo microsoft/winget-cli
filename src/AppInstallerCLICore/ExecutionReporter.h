@@ -20,7 +20,7 @@
 
 namespace AppInstaller::CLI::Execution
 {
-#define WINGET_OSTREAM_FORMAT_HRESULT(hr) "0x" << std::hex << std::setw(8) << std::setfill('0') << hr
+#define WINGET_OSTREAM_FORMAT_HRESULT(hr) "0x" << Logging::SetHRFormat << hr
 
     // Reporter should be the central place to show workflow status to user.
     struct Reporter : public IProgressSink

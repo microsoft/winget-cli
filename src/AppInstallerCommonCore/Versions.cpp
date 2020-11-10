@@ -146,6 +146,7 @@ namespace AppInstaller::Utility
     Version Version::CreateLatest()
     {
         Version result;
+        result.m_version = s_Version_Part_Latest;
         result.m_parts.emplace_back(0, std::string{ s_Version_Part_Latest });
         return result;
     }
@@ -158,6 +159,7 @@ namespace AppInstaller::Utility
     Version Version::CreateUnknown()
     {
         Version result;
+        result.m_version = s_Version_Part_Unknown;
         result.m_parts.emplace_back(0, std::string{ s_Version_Part_Unknown });
         return result;
     }

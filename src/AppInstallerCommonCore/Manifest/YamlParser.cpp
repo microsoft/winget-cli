@@ -90,7 +90,7 @@ namespace AppInstaller::Manifest
             { "Sha256", [this](const YAML::Node& value) { m_p_installer->Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); }, false, "^[A-Fa-f0-9]{64}$" },
             { "SignatureSha256", [this](const YAML::Node& value) { m_p_installer->SignatureSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); }, false, "^[A-Fa-f0-9]{64}$" },
             { "Language", [this](const YAML::Node& value) { m_p_installer->Language = value.as<std::string>(); } },
-            { "Scope", [this](const YAML::Node& value) { m_p_installer->Scope = value.as<std::string>(); } },
+            { "Scope", [this](const YAML::Node& value) { m_p_installer->Scope = ManifestInstaller::ConvertToScopeEnum(value.as<std::string>()); } },
             { "InstallerType", [this](const YAML::Node& value) { m_p_installer->InstallerType = ManifestInstaller::ConvertToInstallerTypeEnum(value.as<std::string>()); } },
             { "UpdateBehavior", [this](const YAML::Node& value) { m_p_installer->UpdateBehavior = ManifestInstaller::ConvertToUpdateBehaviorEnum(value.as<std::string>()); } },
             { "PackageFamilyName", [this](const YAML::Node& value) { m_p_installer->PackageFamilyName = value.as<std::string>(); }, false, "[-.A-Za-z0-9]+_[A-Za-z0-9]{13}" },
@@ -250,7 +250,7 @@ namespace AppInstaller::Manifest
             // Populate defaults
             installer.InstallerType = manifest.InstallerType;
             installer.UpdateBehavior = manifest.UpdateBehavior;
-            installer.Scope = "user";
+            installer.Scope = ManifestInstaller::ScopeEnum::User;
 
             m_p_installer = &installer;
             m_p_switchesNode = &installerSwitchesNode;

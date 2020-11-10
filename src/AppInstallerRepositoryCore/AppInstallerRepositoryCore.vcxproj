@@ -174,6 +174,7 @@
   <ItemGroup>
     <ClInclude Include="CompositeSource.h" />
     <ClInclude Include="ICU\SQLiteICU.h" />
+    <ClInclude Include="Microsoft\ARPHelper.h" />
     <ClInclude Include="Microsoft\PredefinedInstalledSourceFactory.h" />
     <ClInclude Include="Microsoft\PreIndexedPackageSourceFactory.h" />
     <ClInclude Include="Microsoft\Schema\1_0\ChannelTable.h" />
@@ -219,6 +220,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Microsoft\ARPHelper.cpp" />
     <ClCompile Include="Microsoft\PredefinedInstalledSourceFactory.cpp" />
     <ClCompile Include="Microsoft\PreIndexedPackageSourceFactory.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\Interface_1_0.cpp" />

@@ -89,6 +89,10 @@ namespace AppInstaller::Logging
         // Logs a faild installation attempt.
         void LogInstallerFailure(std::string_view id, std::string_view version, std::string_view channel, std::string_view type, uint32_t errorCode);
 
+        // Logs a failure to insert a value into the in-memory cache of installed system packages.
+        // The most likely reason is due to the same key name being used under multiple ARP scope/architecture locations.
+        void LogDuplicateARPEntry(HRESULT hr, std::string_view scope, std::string_view architecture, std::string_view productCode, std::string_view name);
+
     private:
         TelemetryTraceLogger();
     };

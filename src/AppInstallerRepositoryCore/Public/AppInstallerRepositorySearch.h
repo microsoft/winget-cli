@@ -114,6 +114,14 @@ namespace AppInstaller::Repository
     {
         // The InstallerType of an installed package
         InstalledType,
+        // The Scope of an installed package
+        InstalledScope,
+        // The system path where the package is installed
+        InstalledLocation,
+        // The standard uninstall command; which may be interactive
+        StandardUninstallCommand,
+        // An uninstall command that should be non-interactive
+        SilentUninstallCommand,
     };
 
     // Convert a PackageVersionMetadata to a string.
