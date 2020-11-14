@@ -653,7 +653,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Unrecognized command</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Update all installed packages to latest if avaialable</value>
+    <value>Update all installed packages to latest if available</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>No applicable update found.</value>
