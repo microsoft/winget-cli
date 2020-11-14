@@ -556,7 +556,7 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>heç vaxt</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Qiymət</value>

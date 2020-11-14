@@ -556,7 +556,7 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>không bao giờ</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Giá trị</value>

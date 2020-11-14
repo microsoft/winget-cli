@@ -556,7 +556,7 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>niciodată</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Valoare</value>

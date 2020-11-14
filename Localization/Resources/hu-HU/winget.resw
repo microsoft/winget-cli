@@ -556,7 +556,7 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>soha</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Érték</value>

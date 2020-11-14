@@ -556,7 +556,7 @@ Ze kunnen worden geconfigureerd via het instellingenbestand ' winget settings '.
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>nooit</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Waarde</value>

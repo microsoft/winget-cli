@@ -556,7 +556,7 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>tidak pernah</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Nilai</value>

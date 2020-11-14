@@ -556,7 +556,7 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>mitte kunagi</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Väärtus</value>

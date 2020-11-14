@@ -556,7 +556,7 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>nooit</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Waarde</value>

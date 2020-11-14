@@ -556,7 +556,7 @@ jih je mogoče konfigurirati v datoteki z nastavitvami »winget settings«.</val
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>nikoli</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Vrednost</value>
