@@ -138,7 +138,7 @@ namespace AppInstaller::Logging
     // Starts a background task to clean up old log files.
     void BeginLogFileCleanup();
 
-    // Calls the various stream format functions to produce an 8 character hexidecimal output.
+    // Calls the various stream format functions to produce an 8 character hexadecimal output.
     std::ostream& SetHRFormat(std::ostream& out);
 }
 
