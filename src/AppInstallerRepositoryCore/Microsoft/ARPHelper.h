@@ -59,7 +59,7 @@ namespace AppInstaller::Repository::Microsoft
         // The priority is:
         //  DisplayVersion
         //  Version
-        //  MajorVerison, MinorVersion
+        //  MajorVersion, MinorVersion
         std::string DetermineVersion(const Registry::Key& arpKey) const;
 
         // Reads a value and adds it to the metadata if it exists.
