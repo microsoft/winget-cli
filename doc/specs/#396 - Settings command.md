@@ -120,7 +120,7 @@ All setting must be documented in the winget-cli repository in doc\Settings.md. 
 
 ### Version property
 
-A version property can be added to the settings, such as the manifest has, to have a more structured validation. I am currently opposed at the idea because for future settings, we will need to always bump up the version and force the users to modify two pieces: the settings they want to use and the version property. I can also see settings growth more dynamic and bumpting the version per addition/removal seems like an overkill.
+A version property can be added to the settings, such as the manifest has, to have a more structured validation. I am currently opposed at the idea because for future settings, we will need to always bump up the version and force the users to modify two pieces: the settings they want to use and the version property. I can also see settings growth more dynamic and bumping the version per addition/removal seems like an overkill.
 
 ### Settings
 
