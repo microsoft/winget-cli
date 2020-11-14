@@ -183,7 +183,7 @@ namespace AppInstaller::Repository
 
             bool IsUpdateAvailable() const override
             {
-                // Lie here so that list and upgrade will carry on to be able to output the diagnositic information.
+                // Lie here so that list and upgrade will carry on to be able to output the diagnostic information.
                 return true;
             }
         };
