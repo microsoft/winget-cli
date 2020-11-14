@@ -104,7 +104,7 @@ namespace AppInstaller
             case APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE:
                 return "winget upgrade --all completed with failures";
             default:
-                return "Uknown Error Code";
+                return "Unknown Error Code";
             }
         }
 
