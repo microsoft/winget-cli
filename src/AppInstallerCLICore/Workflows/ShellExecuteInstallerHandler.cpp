@@ -74,7 +74,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (context.Args.Contains(Execution::Args::Type::Interactive))
             {
-                // If interacive requested, always use Interactive (or nothing). If the installer supports
+                // If interactive requested, always use Interactive (or nothing). If the installer supports
                 // interactive it is usually the default, and thus it is cumbersome to put a blank entry in
                 // the manifest.
                 experienceArgsItr = installerSwitches.find(ManifestInstaller::InstallerSwitchType::Interactive);
