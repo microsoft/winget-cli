@@ -94,8 +94,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
     }
 
-    // Starting in V1.1, all code should be going this route of creating named indeces rather than using primary or unique keys on columns.
-    // The resulting database will function the same, but give us control to drop the indeces to reduce space.
+    // Starting in V1.1, all code should be going this route of creating named indices rather than using primary or unique keys on columns.
+    // The resulting database will function the same, but give us control to drop the indices to reduce space.
     void PathPartTable::Create(SQLite::Connection& connection)
     {
         using namespace SQLite::Builder;
