@@ -486,7 +486,7 @@ namespace AppInstaller::Repository
                         // We did not find an exact match on Id in the results
                         if (!availablePackage)
                         {
-                            AICLI_LOG(Repo, Warning, << "  Appropriate available package could not be determined, setting availablility state to unknown");
+                            AICLI_LOG(Repo, Warning, << "  Appropriate available package could not be determined, setting availability state to unknown");
                             availablePackage = std::make_shared<UnknownAvailablePackage>();
                         }
                     }
