@@ -79,7 +79,7 @@ namespace AppInstaller::Utility
                 return m_currentBrk;
             }
 
-            // Returns code point of the chracter at m_currentBrk, or U_SENTINEL if m_currentBrk points to the end.
+            // Returns code point of the character at m_currentBrk, or U_SENTINEL if m_currentBrk points to the end.
             UChar32 CurrentCodePoint()
             {
                 return utext_char32At(m_text.get(), m_currentBrk);
