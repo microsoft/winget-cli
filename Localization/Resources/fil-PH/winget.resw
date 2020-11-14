@@ -389,7 +389,7 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
     <value>Walang pang-install na angkop sa kasalukuyang sistema.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Kasalukuyang walang mga exprimental na feature na magagamit. </value>
+    <value>Kasalukuyang walang mga experimental na feature na magagamit. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Walang nakitang naka-install na package na tumutugma sa pamantayan ng input.</value>
