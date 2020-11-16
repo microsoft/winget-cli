@@ -41,9 +41,9 @@ struct ComponentTestSource : public TestSource
 };
 
 // A helper to create the sources used by the majority of tests in this file.
-struct CompositeTestSeup
+struct CompositeTestSetup
 {
-    CompositeTestSeup() : Composite("*Tests")
+    CompositeTestSetup() : Composite("*Tests")
     {
         Installed = std::make_shared<ComponentTestSource>();
         Available = std::make_shared<ComponentTestSource>();
@@ -111,7 +111,7 @@ TEST_CASE("CompositeSource_PackageFamilyName_NotAvailable", "[CompositeSource]")
     // Pre-folded for easier ==
     std::string pfn = "sortof_apfn";
 
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled(WithPFN(pfn)), Criteria());
 
     SearchResult result = setup.Search();
@@ -125,7 +125,7 @@ TEST_CASE("CompositeSource_PackageFamilyName_Available", "[CompositeSource]")
 {
     std::string pfn = "sortof_apfn";
 
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled(WithPFN(pfn)), Criteria());
     setup.Available->SearchFunction = [&](const SearchRequest& request)
     {
@@ -148,7 +148,7 @@ TEST_CASE("CompositeSource_ProductCode_NotAvailable", "[CompositeSource]")
 {
     std::string pc = "thiscouldbeapc";
 
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled(WithPC(pc)), Criteria());
 
     SearchResult result = setup.Search();
@@ -162,7 +162,7 @@ TEST_CASE("CompositeSource_ProductCode_Available", "[CompositeSource]")
 {
     std::string pc = "thiscouldbeapc";
 
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled(WithPC(pc)), Criteria());
     setup.Available->SearchFunction = [&](const SearchRequest& request)
     {
@@ -185,7 +185,7 @@ TEST_CASE("CompositeSource_MultiMatch_FindsId", "[CompositeSource]")
 {
     std::string name = "MatchingName";
 
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled(WithPFN("sortof_apfn")), Criteria());
     setup.Available->SearchFunction = [&](const SearchRequest&)
     {
@@ -206,7 +206,7 @@ TEST_CASE("CompositeSource_MultiMatch_FindsId", "[CompositeSource]")
 
 TEST_CASE("CompositeSource_MultiMatch_DoesNotFindId", "[CompositeSource]")
 {
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled(WithPFN("sortof_apfn")), Criteria());
     setup.Available->SearchFunction = [&](const SearchRequest&)
     {
@@ -228,7 +228,7 @@ TEST_CASE("CompositeSource_FoundByBothRootSearches", "[CompositeSource]")
 {
     std::string pfn = "sortof_apfn";
 
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled(WithPFN(pfn)), Criteria());
     setup.Installed->SearchFunction = [&](const SearchRequest& request)
     {
@@ -262,7 +262,7 @@ TEST_CASE("CompositeSource_OnlyAvailableFoundByRootSearch", "[CompositeSource]")
 {
     std::string pfn = "sortof_apfn";
 
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     setup.Installed->SearchFunction = [&](const SearchRequest& request)
     {
         REQUIRE(request.Inclusions.size() == 1);
@@ -295,7 +295,7 @@ TEST_CASE("CompositeSource_FoundByAvailableRootSearch_NotInstalled", "[Composite
 {
     std::string pfn = "sortof_apfn";
 
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     setup.Available->Everything.Matches.emplace_back(MakeAvailable(WithPFN(pfn)), Criteria());
     setup.Available->SearchFunction = [&](const SearchRequest& request)
     {
@@ -318,7 +318,7 @@ TEST_CASE("CompositeSource_UpdateWithBetterMatchCriteria", "[CompositeSource]")
     MatchType originalType = MatchType::Wildcard;
     MatchType type = MatchType::Exact;
 
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled(WithPFN(pfn)), Criteria());
 
     setup.Available->SearchFunction = [&](const SearchRequest& request)
@@ -363,7 +363,7 @@ TEST_CASE("CompositePackage_PropertyFromInstalled", "[CompositeSource]")
 {
     std::string id = "Special test ID";
 
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled([&](Manifest::Manifest& m) { m.Id = id; }), Criteria());
 
     SearchResult result = setup.Search();
@@ -377,7 +377,7 @@ TEST_CASE("CompositePackage_PropertyFromAvailable", "[CompositeSource]")
     std::string id = "Special test ID";
     std::string pfn = "sortof_apfn";
 
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled(WithPFN(pfn)), Criteria());
     setup.Available->SearchFunction = [&](const SearchRequest&)
     {
@@ -397,7 +397,7 @@ TEST_CASE("CompositePackage_AvailableVersions_ChannelFilteredOut", "[CompositeSo
     std::string pfn = "sortof_apfn";
     std::string channel = "Channel";
 
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled(WithPFN(pfn)), Criteria());
     setup.Available->SearchFunction = [&](const SearchRequest&)
     {
@@ -433,7 +433,7 @@ TEST_CASE("CompositePackage_AvailableVersions_NoChannelFilteredOut", "[Composite
     std::string pfn = "sortof_apfn";
     std::string channel = "Channel";
 
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled([&](Manifest::Manifest& m) { m.Installers[0].PackageFamilyName = pfn; m.Channel = channel; }), Criteria());
     setup.Available->SearchFunction = [&](const SearchRequest&)
     {
@@ -470,7 +470,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchFirst", "[CompositeSour
     std::string firstName = "Name1";
     std::string secondName = "Name2";
 
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     std::shared_ptr<ComponentTestSource> secondAvailable = std::make_shared<ComponentTestSource>();
     setup.Composite.AddAvailableSource(secondAvailable);
 
@@ -510,7 +510,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchSecond", "[CompositeSou
     std::string firstName = "Name1";
     std::string secondName = "Name2";
 
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     std::shared_ptr<ComponentTestSource> secondAvailable = std::make_shared<ComponentTestSource>();
     setup.Composite.AddAvailableSource(secondAvailable);
 
@@ -538,7 +538,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_ReverseMatchBoth", "[Composi
 {
     std::string pfn = "sortof_apfn";
 
-    CompositeTestSeup setup;
+    CompositeTestSetup setup;
     std::shared_ptr<ComponentTestSource> secondAvailable = std::make_shared<ComponentTestSource>();
     setup.Composite.AddAvailableSource(secondAvailable);
 

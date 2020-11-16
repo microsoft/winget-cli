@@ -389,7 +389,7 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
     <value>Walang pang-install na angkop sa kasalukuyang sistema.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Kasalukuyang walang mga exprimental na feature na magagamit. </value>
+    <value>Kasalukuyang walang mga experimental na feature na magagamit. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Walang nakitang naka-install na package na tumutugma sa pamantayan ng input.</value>
@@ -534,7 +534,7 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Field</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Pangalan</value>
@@ -556,7 +556,7 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>hindi kailanman</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Halaga</value>

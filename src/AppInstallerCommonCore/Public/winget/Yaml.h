@@ -232,7 +232,7 @@ namespace AppInstaller::YAML
         // If set, defines the type of the next scalar (Key or Value).
         std::optional<InputType> m_scalarInfo;
 
-        // Converts the intput type to a bitmask value.
+        // Converts the input type to a bitmask value.
         size_t GetInputBitmask(InputType type);
 
         // Checks the state of the emitter to ensure that the incoming value is acceptable.

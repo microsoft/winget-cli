@@ -261,8 +261,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return s_ManifestTable_Table_Name;
     }
 
-    // Starting in V1.1, all code should be going this route of creating named indeces rather than using primary or unique keys on columns.
-    // The resulting database will function the same, but give us control to drop the indeces to reduce space.
+    // Starting in V1.1, all code should be going this route of creating named indices rather than using primary or unique keys on columns.
+    // The resulting database will function the same, but give us control to drop the indices to reduce space.
     void ManifestTable::Create(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values)
     {
         using namespace SQLite::Builder;

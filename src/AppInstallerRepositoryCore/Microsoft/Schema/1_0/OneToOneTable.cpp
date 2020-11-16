@@ -13,13 +13,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         using namespace std::string_view_literals;
         static constexpr std::string_view s_OneToOneTable_IndexSuffix = "_pkindex"sv;
 
-        void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool useNamedIndeces)
+        void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool useNamedIndices)
         {
             using namespace SQLite::Builder;
 
-            // Starting in V1.1, all code should be going this route of creating named indeces rather than using primary or unique keys on columns.
-            // The resulting database will function the same, but give us control to drop the indeces to reduce space.
-            if (useNamedIndeces)
+            // Starting in V1.1, all code should be going this route of creating named indices rather than using primary or unique keys on columns.
+            // The resulting database will function the same, but give us control to drop the indices to reduce space.
+            if (useNamedIndices)
             {
                 SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } + "_create_v1_1");
 
@@ -156,9 +156,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             builder.Execute(connection);
         }
 
-        void OneToOneTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndeces, bool preserveValuesIndex)
+        void OneToOneTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndices, bool preserveValuesIndex)
         {
-            if (useNamedIndeces && !preserveValuesIndex)
+            if (useNamedIndices && !preserveValuesIndex)
             {
                 SQLite::Builder::StatementBuilder dropIndexBuilder;
                 dropIndexBuilder.DropIndex({ tableName, s_OneToOneTable_IndexSuffix });

@@ -534,7 +534,7 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Polje</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Ime</value>
@@ -556,7 +556,7 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>nikad</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Vrednost</value>

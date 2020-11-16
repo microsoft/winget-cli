@@ -534,7 +534,7 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Medan</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Nama</value>
@@ -556,7 +556,7 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>tidak pernah</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Nilai</value>

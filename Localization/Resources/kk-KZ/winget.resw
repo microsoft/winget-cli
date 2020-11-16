@@ -534,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Өріс</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Аты</value>
@@ -556,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>ешқашан</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Мән</value>

@@ -77,30 +77,30 @@ namespace AppInstaller::CLI
             ParseInto(commandLine, allArgs, true);
 
             // Find the word amongst the arguments
-            std::vector<size_t> wordIndeces;
+            std::vector<size_t> wordIndices;
             for (size_t i = 0; i < allArgs.size(); ++i)
             {
                 if (m_word == allArgs[i])
                 {
-                    wordIndeces.push_back(i);
+                    wordIndices.push_back(i);
                 }
             }
 
             // If we didn't find a matching string, we probably made some bad assumptions.
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMPLETE_INPUT_BAD, wordIndeces.empty());
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMPLETE_INPUT_BAD, wordIndices.empty());
 
             // If we find an exact match only once, we can just split on that.
-            size_t wordIndexForSplit = wordIndeces[0];
+            size_t wordIndexForSplit = wordIndices[0];
 
             // If we found more than one match, we have to rely on the position to
             // determine which argument is the word in question.
-            if (wordIndeces.size() > 1)
+            if (wordIndices.size() > 1)
             {
                 // Escape the word and search for it in the command line.
                 std::string escapedWord = m_word;
                 Utility::FindAndReplace(escapedWord, "\"", "\"\"");
 
-                std::vector<size_t> escapedIndeces;
+                std::vector<size_t> escapedIndices;
                 for (size_t offset = 0; offset < commandLine.length();)
                 {
                     size_t pos = commandLine.find(escapedWord, offset);
@@ -110,21 +110,21 @@ namespace AppInstaller::CLI
                         break;
                     }
 
-                    escapedIndeces.push_back(pos);
+                    escapedIndices.push_back(pos);
                     offset = pos + escapedWord.length();
                 }
 
                 // If these are out of sync we don't have much hope.
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMPLETE_INPUT_BAD, wordIndeces.size() != escapedIndeces.size());
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMPLETE_INPUT_BAD, wordIndices.size() != escapedIndices.size());
 
                 // Find the closest one to the position. This can be fooled as above if there is
                 // leading whitespace in the statement. But it is the best we can do.
                 size_t indexToUse = std::numeric_limits<size_t>::max();
                 size_t distanceToCursor = std::numeric_limits<size_t>::max();
 
-                for (size_t i = 0; i < escapedIndeces.size(); ++i)
+                for (size_t i = 0; i < escapedIndices.size(); ++i)
                 {
-                    size_t lowerBound = escapedIndeces[i];
+                    size_t lowerBound = escapedIndices[i];
                     size_t upperBound = lowerBound + escapedWord.length();
                     size_t distance = 0;
 
@@ -153,7 +153,7 @@ namespace AppInstaller::CLI
                 // It really would be unexpected to not find a closest one.
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_COMPLETE_INPUT_BAD, indexToUse == std::numeric_limits<size_t>::max());
 
-                wordIndexForSplit = wordIndeces[indexToUse];
+                wordIndexForSplit = wordIndices[indexToUse];
             }
 
             std::vector<std::string>* moveTarget = &argsBeforeWord;

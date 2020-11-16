@@ -98,16 +98,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return s_OneToManyTable_MapTable_ManifestName;
         }
 
-        void CreateOneToManyTable(SQLite::Connection& connection, bool useNamedIndeces, std::string_view tableName, std::string_view valueName)
+        void CreateOneToManyTable(SQLite::Connection& connection, bool useNamedIndices, std::string_view tableName, std::string_view valueName)
         {
             using namespace SQLite::Builder;
 
             SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } + "_create_v1_0");
 
             // Create the data table as a 1:1
-            CreateOneToOneTable(connection, tableName, valueName, useNamedIndeces);
+            CreateOneToOneTable(connection, tableName, valueName, useNamedIndices);
 
-            if (useNamedIndeces)
+            if (useNamedIndices)
             {
                 // Create the mapping table
                 StatementBuilder createMapTableBuilder;
@@ -272,7 +272,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             savepoint.Commit();
         }
 
-        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndeces, bool preserveManifestIndex, bool preserveValuesIndex)
+        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndices, bool preserveManifestIndex, bool preserveValuesIndex)
         {
             if (!preserveManifestIndex)
             {
@@ -282,7 +282,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 dropMapTableIndexBuilder.Execute(connection);
             }
 
-            OneToOneTablePrepareForPackaging(connection, tableName, useNamedIndeces, preserveValuesIndex);
+            OneToOneTablePrepareForPackaging(connection, tableName, useNamedIndices, preserveValuesIndex);
         }
 
         bool OneToManyTableCheckConsistency(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool log)

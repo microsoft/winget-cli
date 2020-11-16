@@ -389,7 +389,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>No installers are applicable to the current system.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>There are currently no exprimental features available. </value>
+    <value>There are currently no experimental features available. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>No installed package found matching input criteria.</value>
@@ -537,7 +537,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Field</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Name</value>
@@ -559,7 +559,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>never</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Value</value>
@@ -653,7 +653,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Unrecognized command</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Update all installed packages to latest if avaialable</value>
+    <value>Update all installed packages to latest if available</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>No applicable update found.</value>

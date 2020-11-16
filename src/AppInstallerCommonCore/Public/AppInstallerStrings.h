@@ -75,14 +75,14 @@ namespace AppInstaller::Utility
     // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveEquals(std::string_view a, std::string_view b);
 
-    // Determins if string a starts with string b.
+    // Determines if string a starts with string b.
     // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveStartsWith(std::string_view a, std::string_view b);
 
     // Compares the two UTF8 strings in a case insensitive manner, using ICU for case folding.
     bool ICUCaseInsensitiveEquals(std::string_view a, std::string_view b);
 
-    // Determins if string a starts with string b, using ICU for case folding.
+    // Determines if string a starts with string b, using ICU for case folding.
     bool ICUCaseInsensitiveStartsWith(std::string_view a, std::string_view b);
 
     // Returns the number of grapheme clusters (characters) in an UTF8-encoded string.
