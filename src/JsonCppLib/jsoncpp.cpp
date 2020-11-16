@@ -1865,7 +1865,7 @@ namespace Json {
             const auto digit(static_cast<Value::UInt>(c - '0'));
             if (value >= threshold) {
                 // We've hit or exceeded the max value divided by 10 (rounded down). If
-                // a) we've only just touched the limit, meaning value == threshold,
+                // a) we've only just touched the limit, meaing value == threshold,
                 // b) this is the last digit, or
                 // c) it's small enough to fit in that rounding delta, we're okay.
                 // Otherwise treat this number as a double to avoid overflow.
@@ -3841,7 +3841,7 @@ namespace Json {
         if (!ptr_) {
             ptr_ = std::unique_ptr<Array>(new Array());
         }
-        // check comments array boundary.
+        // check comments array boundry.
         if (slot < CommentPlacement::numberOfCommentPlacement) {
             (*ptr_)[slot] = std::move(comment);
         }
