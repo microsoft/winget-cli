@@ -722,4 +722,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Logs</value>
     <comment>Diagnostic files containing information about application use.</comment>
   </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Uninstall (TODO: long description)</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Uninstall (TODO: short description)</value>
+  </data>
 </root>

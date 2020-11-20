@@ -135,6 +135,9 @@
     <ClInclude Include="Commands\ListCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\UninstallCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -234,6 +237,9 @@
       <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="Commands\ListCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\UninstallCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>

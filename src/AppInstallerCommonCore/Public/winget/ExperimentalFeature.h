@@ -24,7 +24,8 @@ namespace AppInstaller::Settings
             ExperimentalMSStore = 0x4,
             ExperimentalList = 0x8,
             ExperimentalUpgrade = 0x10,
-            Max = 0x11, // This MUST always be last
+            ExperimentalUninstall = 0x20,
+            Max, // This MUST always be last
         };
 
         using Feature_t = std::underlying_type_t<ExperimentalFeature::Feature>;

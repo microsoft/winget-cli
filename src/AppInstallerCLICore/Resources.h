@@ -104,13 +104,13 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MsixArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(MsixSignatureHashFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreAppBlocked);
-        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallOrUpdateFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallGetEntitlementNetworkError);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallGetEntitlementNoStoreAccount);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallGetEntitlementServerError);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallGetEntitlementSuccess);
-        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreStoreClientBlocked);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallOrUpdateFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallTryGetEntitlement);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreStoreClientBlocked);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleInstalledPackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiplePackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NameArgumentDescription);
@@ -201,6 +201,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyArgError);
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyBehaviorsError);
         WINGET_DEFINE_RESOURCE_STRINGID(UnexpectedErrorExecutingCommand);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UnrecognizedCommand);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateAllArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateNotApplicable);
