@@ -103,6 +103,8 @@ namespace AppInstaller
                 return "No applicable update found";
             case APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE:
                 return "winget upgrade --all completed with failures";
+            case APPINSTALLER_CLI_ERROR_INSTALLER_SECURITY_CHECK_FAILED:
+                return "Installer failed security check";
             default:
                 return "Unknown Error Code";
             }

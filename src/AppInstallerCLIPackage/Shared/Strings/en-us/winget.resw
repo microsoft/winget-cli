@@ -722,4 +722,13 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Logs</value>
     <comment>Diagnostic files containing information about application use.</comment>
   </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>The installer is blocked by policy</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>The installer failed security check</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>An anti-virus product reports an infection in the installer</value>
+  </data>
 </root>

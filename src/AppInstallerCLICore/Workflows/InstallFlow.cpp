@@ -210,7 +210,26 @@ namespace AppInstaller::CLI::Workflow
             else if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerHashMatched))
             {
                 const auto& installer = context.Get<Execution::Data::Installer>();
-                Utility::ApplyMotwUsingIAttachmentExecuteIfApplicable(context.Get<Execution::Data::InstallerPath>(), installer.value().Url);
+                HRESULT hr = Utility::ApplyMotwUsingIAttachmentExecuteIfApplicable(context.Get<Execution::Data::InstallerPath>(), installer.value().Url);
+
+                // Not using SUCCEEDED(hr) to check since there are cases file is missing after a successful scan
+                if (hr != S_OK)
+                {
+                    switch (hr)
+                    {
+                    case INET_E_SECURITY_PROBLEM:
+                        context.Reporter.Error() << Resource::String::InstallerBlockedByPolicy << std::endl;
+                        break;
+                    case E_FAIL:
+                        context.Reporter.Error() << Resource::String::InstallerFailedVirusScan << std::endl;
+                        break;
+                    default:
+                        context.Reporter.Error() << Resource::String::InstallerFailedSecurityCheck << std::endl;
+                    }
+
+                    AICLI_LOG(Fail, Error, << "Installer failed security check. Url: " << installer.value().Url << " Result: " << WINGET_OSTREAM_FORMAT_HRESULT(hr));
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_SECURITY_CHECK_FAILED);
+                }
             }
         }
     }
