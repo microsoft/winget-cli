@@ -166,7 +166,8 @@ namespace AppInstaller::CLI::Workflow
             }
             catch (const winrt::hresult_error& e)
             {
-                if (e.code() == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED))
+                if (e.code() == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED) ||
+                    HRESULT_FACILITY(e.code()) == FACILITY_HTTP)
                 {
                     // Server does not support range request, use download
                     downloadInstead = true;

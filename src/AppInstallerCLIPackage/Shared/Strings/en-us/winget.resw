@@ -731,4 +731,7 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="InstallerFailedVirusScan" xml:space="preserve">
     <value>An anti-virus product reports an infection in the installer</value>
   </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Failed in attempting to update the source:</value>
+  </data>
 </root>

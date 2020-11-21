@@ -97,9 +97,18 @@ namespace AppInstaller::Repository
     // Adds a new source for the user.
     void AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress);
 
+    struct OpenSourceResult
+    {
+        // The ISource returned by OpenSource
+        std::shared_ptr<ISource> Source;
+
+        // List of SourceDetails that failed to update
+        std::vector<SourceDetails> SourcesWithUpdateFailure;
+    };
+
     // Opens an existing source.
     // Passing an empty string as the name of the source will return a source that aggregates all others.
-    std::shared_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress);
+    OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress);
 
     // A predefined source.
     // These sources are not under the direct control of the user, such as packages installed on the system.

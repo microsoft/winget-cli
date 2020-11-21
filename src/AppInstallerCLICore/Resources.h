@@ -180,6 +180,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceNameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenFailedSuggestion);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenPredefinedFailedSuggestion);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenWithFailedUpdate);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveAll);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandShortDescription);
