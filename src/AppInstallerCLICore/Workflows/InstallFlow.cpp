@@ -148,45 +148,31 @@ namespace AppInstaller::CLI::Workflow
 
     void GetMsixSignatureHash(Execution::Context& context)
     {
-        const auto& installer = context.Get<Execution::Data::Installer>().value();
-
         // We use this when the server won't support streaming install to swap to download.
         bool downloadInstead = false;
-        const int MaxRetryCount = 2;
-        for (int retryCount = 0; retryCount < MaxRetryCount; ++retryCount)
-        {
-            bool success = false;
-            try
-            {
-                Msix::MsixInfo msixInfo(installer.Url);
-                auto signature = msixInfo.GetSignature();
-                auto signatureHash = SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
-                context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));
-                success = true;
-            }
-            catch (const winrt::hresult_error& e)
-            {
-                if (e.code() == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED) ||
-                    HRESULT_FACILITY(e.code()) == FACILITY_HTTP)
-                {
-                    // Server does not support range request, use download
-                    downloadInstead = true;
-                    break;
-                }
-                else if (retryCount < MaxRetryCount - 1)
-                {
-                    AICLI_LOG(CLI, Info, << "Failed to get msix signature hash, waiting a bit and retry. Url: " << installer.Url);
-                    Sleep(500);
-                }
-                else
-                {
-                    throw;
-                }
-            }
 
-            if (success)
+        try
+        {
+            const auto& installer = context.Get<Execution::Data::Installer>().value();
+
+            Msix::MsixInfo msixInfo(installer.Url);
+            auto signature = msixInfo.GetSignature();
+
+            auto signatureHash = SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
+
+            context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));
+        }
+        catch (const winrt::hresult_error& e)
+        {
+            if (e.code() == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED) ||
+                HRESULT_FACILITY(e.code()) == FACILITY_HTTP)
             {
-                break;
+                // Server does not support range request, use download
+                downloadInstead = true;
+            }
+            else
+            {
+                throw;
             }
         }
 
