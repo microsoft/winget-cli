@@ -109,6 +109,12 @@ namespace AppInstaller::Utility
 
         dest.flush();
 
+        // Check download size matches if content length is provided in response header
+        if (contentLength > 0)
+        {
+            THROW_HR_IF(E_UNEXPECTED, bytesDownloaded != contentLength);
+        }
+
         std::vector<BYTE> result;
         if (computeHash)
         {
