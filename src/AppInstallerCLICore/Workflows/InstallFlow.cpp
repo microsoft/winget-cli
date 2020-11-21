@@ -101,11 +101,40 @@ namespace AppInstaller::CLI::Workflow
 
         context.Reporter.Info() << "Downloading " << Execution::UrlEmphasis << installer.Url << std::endl;
 
-        auto hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
-            installer.Url,
-            tempInstallerPath,
-            std::placeholders::_1,
-            true));
+        std::optional<std::vector<BYTE>> hash;
+
+        const int MaxRetryCount = 2;
+        for (int retryCount = 0; retryCount < MaxRetryCount; ++retryCount)
+        {
+            bool success = false;
+            try
+            {
+                hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
+                    installer.Url,
+                    tempInstallerPath,
+                    std::placeholders::_1,
+                    true));
+
+                success = true;
+            }
+            catch (...)
+            {
+                if (retryCount < MaxRetryCount - 1)
+                {
+                    AICLI_LOG(CLI, Info, << "Failed to download, waiting a bit and retry. Url: " << installer.Url);
+                    Sleep(500);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            if (success)
+            {
+                break;
+            }
+        }
 
         if (!hash)
         {
@@ -119,30 +148,44 @@ namespace AppInstaller::CLI::Workflow
 
     void GetMsixSignatureHash(Execution::Context& context)
     {
+        const auto& installer = context.Get<Execution::Data::Installer>().value();
+
         // We use this when the server won't support streaming install to swap to download.
         bool downloadInstead = false;
-
-        try
+        const int MaxRetryCount = 2;
+        for (int retryCount = 0; retryCount < MaxRetryCount; ++retryCount)
         {
-            const auto& installer = context.Get<Execution::Data::Installer>().value();
-
-            Msix::MsixInfo msixInfo(installer.Url);
-            auto signature = msixInfo.GetSignature();
-
-            auto signatureHash = SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
-
-            context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));
-        }
-        catch (const winrt::hresult_error& e)
-        {
-            if (e.code() == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED))
+            bool success = false;
+            try
             {
-                // Server does not support range request, use download
-                downloadInstead = true;
+                Msix::MsixInfo msixInfo(installer.Url);
+                auto signature = msixInfo.GetSignature();
+                auto signatureHash = SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
+                context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));
+                success = true;
             }
-            else
+            catch (const winrt::hresult_error& e)
             {
-                throw;
+                if (e.code() == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED))
+                {
+                    // Server does not support range request, use download
+                    downloadInstead = true;
+                    break;
+                }
+                else if (retryCount < MaxRetryCount - 1)
+                {
+                    AICLI_LOG(CLI, Info, << "Failed to get msix signature hash, waiting a bit and retry. Url: " << installer.Url);
+                    Sleep(500);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            if (success)
+            {
+                break;
             }
         }
 
