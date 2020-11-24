@@ -86,4 +86,10 @@ extern "C"
         WINGET_STRING filePath,
         BYTE* sha256Hash,
         UINT32 sha256HashLength);
+
+    // Compares two version strings, returning -1 if versionA is less than versionB, 0 if they're equal, or 1 if versionA is greater than versionB
+    WINGET_UTIL_API WinGetCompareVersions(
+        WINGET_STRING versionA,
+        WINGET_STRING versionB,
+        INT* comparisonResult);
 }

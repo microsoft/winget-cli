@@ -12,3 +12,4 @@ EXPORTS
     WinGetSQLiteIndexCheckConsistency
     WinGetValidateManifest
     WinGetDownload
+    WinGetCompareVersions
