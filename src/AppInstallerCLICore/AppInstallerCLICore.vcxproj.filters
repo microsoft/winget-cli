@@ -138,6 +138,9 @@
     <ClInclude Include="Commands\UninstallCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="Workflows\UninstallFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -241,6 +244,9 @@
     </ClCompile>
     <ClCompile Include="Commands\UninstallCommand.cpp">
       <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\UninstallFlow.cpp">
+      <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

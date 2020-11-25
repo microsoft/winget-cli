@@ -728,4 +728,10 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="UninstallCommandShortDescription" xml:space="preserve">
     <value>Uninstall (TODO: short description)</value>
   </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>TODO</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>TODO</value>
+  </data>
 </root>

@@ -203,6 +203,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UnexpectedErrorExecutingCommand);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowUninstallSuccess);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowStartingPackageUninstall);
         WINGET_DEFINE_RESOURCE_STRINGID(UnrecognizedCommand);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateAllArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateNotApplicable);

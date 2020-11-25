@@ -185,6 +185,11 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void MSStoreUninstall(Execution::Context&)
+    {
+        // TODO
+    }
+
     void EnsureStorePolicySatisfied(Execution::Context& context)
     {
         auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);

@@ -155,7 +155,7 @@ namespace AppInstaller::CLI::Workflow
     void ReportMultiplePackageFoundResult(Execution::Context& context);
 
     // Ensures that there is at least one result in the search.
-    // Required Args: bool indicating id the search result is from installed source
+    // Required Args: bool indicating if the search result is from installed source
     // Inputs: SearchResult
     // Outputs: None
     struct EnsureMatchesFromSearchResult : public WorkflowTask
@@ -170,7 +170,7 @@ namespace AppInstaller::CLI::Workflow
     };
 
     // Ensures that there is only one result in the search.
-    // Required Args: bool indicating id the search result is from installed source
+    // Required Args: bool indicating if the search result is from installed source
     // Inputs: SearchResult
     // Outputs: None
     struct EnsureOneMatchFromSearchResult : public WorkflowTask
