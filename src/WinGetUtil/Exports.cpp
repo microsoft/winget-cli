@@ -239,7 +239,7 @@ extern "C"
         Version vA{ ConvertToUTF8(versionA) };
         Version vB{ ConvertToUTF8(versionB) };
 
-        *comparisonResult = vA < vB ? -1 : vA == vB ? 0 : 1;
+        *comparisonResult = vA < vB ? -1 : (vA == vB ? 0 : 1);
 
         return S_OK;
     }
