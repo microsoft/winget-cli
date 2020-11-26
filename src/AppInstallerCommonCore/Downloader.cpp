@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerDownloader.h"
 #include "Public/AppInstallerSHA256.h"
@@ -109,6 +110,12 @@ namespace AppInstaller::Utility
 
         dest.flush();
 
+        // Check download size matches if content length is provided in response header
+        if (contentLength > 0)
+        {
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH, bytesDownloaded != contentLength);
+        }
+
         std::vector<BYTE> result;
         if (computeHash)
         {
@@ -192,24 +199,26 @@ namespace AppInstaller::Utility
         AICLI_LOG(Core, Info, << "Finished applying motw");
     }
 
-    void ApplyMotwUsingIAttachmentExecuteIfApplicable(const std::filesystem::path& filePath, const std::string& source)
+    HRESULT ApplyMotwUsingIAttachmentExecuteIfApplicable(const std::filesystem::path& filePath, const std::string& source)
     {
         AICLI_LOG(Core, Info, << "Started applying motw using IAttachmentExecute to " << filePath);
 
         if (!IsNTFS(filePath))
         {
             AICLI_LOG(Core, Info, << "File system is not NTFS. Skipped applying motw");
-            return;
+            return S_OK;
         }
 
         // Attachment execution service needs STA to succeed, so we'll create a new thread and CoInitialize with STA.
+        HRESULT aesSaveResult = S_OK;
         auto updateMotw = [&]() -> HRESULT
         {
             Microsoft::WRL::ComPtr<IAttachmentExecute> attachmentExecute;
             RETURN_IF_FAILED(CoCreateInstance(CLSID_AttachmentServices, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&attachmentExecute)));
             RETURN_IF_FAILED(attachmentExecute->SetLocalPath(filePath.c_str()));
             RETURN_IF_FAILED(attachmentExecute->SetSource(Utility::ConvertToUTF16(source).c_str()));
-            RETURN_IF_FAILED(attachmentExecute->Save());
+            aesSaveResult = attachmentExecute->Save();
+            RETURN_IF_FAILED(aesSaveResult);
             return S_OK;
         };
 
@@ -229,6 +238,8 @@ namespace AppInstaller::Utility
 
         aesThread.join();
 
-        AICLI_LOG(Core, Info, << "Finished applying motw using IAttachmentExecute. Result: " << hr);
+        AICLI_LOG(Core, Info, << "Finished applying motw using IAttachmentExecute. Result: " << hr << " IAttachmentExecute::Save() result: " << aesSaveResult);
+
+        return aesSaveResult;
     }
 }

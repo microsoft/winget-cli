@@ -607,7 +607,7 @@ namespace AppInstaller::Repository
         sourceList.AddSource(details);
     }
 
-    std::shared_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress)
+    OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress)
     {
         SourceListInternal sourceList;
         auto currentSources = sourceList.GetCurrentSourceRefs();
@@ -628,6 +628,7 @@ namespace AppInstaller::Repository
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, creating aggregated source.");
                 auto aggregatedSource = std::make_shared<CompositeSource>("*DefaultSource");
+                OpenSourceResult result;
 
                 bool sourceUpdated = false;
                 for (auto& source : currentSources)
@@ -636,10 +637,18 @@ namespace AppInstaller::Repository
 
                     if (ShouldUpdateBeforeOpen(source))
                     {
-                        // TODO: Consider adding a context callback to indicate we are doing the same action
-                        // to avoid the progress bar fill up multiple times.
-                        UpdateSourceFromDetails(source, progress);
-                        sourceUpdated = true;
+                        try
+                        {
+                            // TODO: Consider adding a context callback to indicate we are doing the same action
+                            // to avoid the progress bar fill up multiple times.
+                            UpdateSourceFromDetails(source, progress);
+                            sourceUpdated = true;
+                        }
+                        catch (...)
+                        {
+                            AICLI_LOG(Repo, Warning, << "Failed to update source: " << source.get().Name);
+                            result.SourcesWithUpdateFailure.emplace_back(source);
+                        }
                     }
                     aggregatedSource->AddAvailableSource(CreateSourceFromDetails(source, progress));
                 }
@@ -649,7 +658,8 @@ namespace AppInstaller::Repository
                     sourceList.SaveMetadata();
                 }
 
-                return aggregatedSource;
+                result.Source = aggregatedSource;
+                return result;
             }
         }
         else
@@ -664,12 +674,24 @@ namespace AppInstaller::Repository
             {
                 AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
 
+                OpenSourceResult result;
+
                 if (ShouldUpdateBeforeOpen(*source))
                 {
-                    UpdateSourceFromDetails(*source, progress);
-                    sourceList.SaveMetadata();
+                    try
+                    {
+                        UpdateSourceFromDetails(*source, progress);
+                        sourceList.SaveMetadata();
+                    }
+                    catch (...)
+                    {
+                        AICLI_LOG(Repo, Warning, << "Failed to update source: " << (*source).Name);
+                        result.SourcesWithUpdateFailure.emplace_back(*source);
+                    }
                 }
-                return CreateSourceFromDetails(*source, progress);
+
+                result.Source = CreateSourceFromDetails(*source, progress);
+                return result;
             }
         }
     }
