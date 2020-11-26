@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerDownloader.h"
 #include "Public/AppInstallerSHA256.h"
@@ -112,7 +113,7 @@ namespace AppInstaller::Utility
         // Check download size matches if content length is provided in response header
         if (contentLength > 0)
         {
-            THROW_HR_IF(E_UNEXPECTED, bytesDownloaded != contentLength);
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH, bytesDownloaded != contentLength);
         }
 
         std::vector<BYTE> result;
@@ -237,7 +238,7 @@ namespace AppInstaller::Utility
 
         aesThread.join();
 
-        AICLI_LOG(Core, Info, << "Finished applying motw using IAttachmentExecute. Result: " << hr << " AES Save result: " << aesSaveResult);
+        AICLI_LOG(Core, Info, << "Finished applying motw using IAttachmentExecute. Result: " << hr << " IAttachmentExecute::Save() result: " << aesSaveResult);
 
         return aesSaveResult;
     }

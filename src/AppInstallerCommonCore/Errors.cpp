@@ -105,6 +105,8 @@ namespace AppInstaller
                 return "winget upgrade --all completed with failures";
             case APPINSTALLER_CLI_ERROR_INSTALLER_SECURITY_CHECK_FAILED:
                 return "Installer failed security check";
+            case APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH:
+                return "Download size does not match expected content length";
             default:
                 return "Unknown Error Code";
             }

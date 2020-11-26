@@ -167,7 +167,7 @@ namespace AppInstaller::CLI::Workflow
             if (e.code() == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED) ||
                 HRESULT_FACILITY(e.code()) == FACILITY_HTTP)
             {
-                // Server does not support range request, use download
+                // Failed to get signature hash through HttpStream, use download
                 downloadInstead = true;
             }
             else

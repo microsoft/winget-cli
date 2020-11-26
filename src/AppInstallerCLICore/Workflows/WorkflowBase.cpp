@@ -108,6 +108,7 @@ namespace AppInstaller::CLI::Workflow
             auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1), true);
             source = result.Source;
 
+            // We'll only report the source update failure as warning and continue
             for (const auto& s : result.SourcesWithUpdateFailure)
             {
                 context.Reporter.Warn() << Resource::String::SourceOpenWithFailedUpdate << ' ' << s.Name << std::endl;
