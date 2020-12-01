@@ -347,13 +347,13 @@ void OverrideForMSIX(TestContext& context)
 
 void OverrideForMSIXUninstall(TestContext& context)
 {
-    context.Override({ MsixUninstall, [](TestContext&)
+    context.Override({ MsixUninstall, [](TestContext& context)
     {
-        // TODO: What do we write out?
+        // Write out the package full name
         std::filesystem::path temp = std::filesystem::temp_directory_path();
         temp /= "TestMsixUninstalled.txt";
         std::ofstream file(temp, std::ofstream::out);
-        // file << context.Get<Execution::Data::UninstallCommand>();
+        file << context.Get<Execution::Data::UninstallCommand>();
         file.close();
     } });
 }
@@ -399,12 +399,13 @@ void OverrideForMSStore(TestContext& context, bool isUpdate)
 
 void OverrideForMSStoreUninstall(TestContext& context)
 {
-    context.Override({ MSStoreUninstall, [](TestContext&)
+    context.Override({ MSStoreUninstall, [](TestContext& context)
     {
+        // Write out the product ID
         std::filesystem::path temp = std::filesystem::temp_directory_path();
         temp /= "TestMSStoreUninstalled.txt";
         std::ofstream file(temp, std::ofstream::out);
-        // TODO: file << context.Get<Execution::Data::Installer>()->ProductId;
+        file << context.Get<Execution::Data::Installer>()->ProductId;
         file.close();
     } });
 
@@ -1026,14 +1027,13 @@ TEST_CASE("UninstallFlow_UninstallMsix", "[UninstallFlow][workflow]")
     uninstall.Execute(context);
     INFO(uninstallOutput.str());
 
-    // Verify Uninstaller is called.
+    // Verify Uninstaller is called with the package full name.
     REQUIRE(std::filesystem::exists(uninstallResultPath.GetPath()));
     std::ifstream uninstallResultFile(uninstallResultPath.GetPath());
     REQUIRE(uninstallResultFile.is_open());
     std::string uninstallResultStr;
     std::getline(uninstallResultFile, uninstallResultStr);
-    // TODO:
-    REQUIRE(uninstallResultStr.find("") != std::string::npos);
+    REQUIRE(uninstallResultStr.find("20477fca-282d-49fb-b03e-371dca074f0f_1.0.0.0_x64__8wekyb3d8bbwe") != std::string::npos);
 }
 
 TEST_CASE("UninstallFlow_UninstallMSStore", "[UninstallFlow][workflow]")
@@ -1050,7 +1050,7 @@ TEST_CASE("UninstallFlow_UninstallMSStore", "[UninstallFlow][workflow]")
     uninstall.Execute(context);
     INFO(uninstallOutput.str());
 
-    // Verify Installer is called.
+    // Verify Uninstaller is called with the ProductId
     REQUIRE(std::filesystem::exists(uninstallResultPath.GetPath()));
     std::ifstream uninstallResultFile(uninstallResultPath.GetPath());
     REQUIRE(uninstallResultFile.is_open());
@@ -1066,8 +1066,8 @@ TEST_CASE("UninstallFlow_UninstallWithManifest", "[UninstallFlow][workflow]")
     std::ostringstream uninstallOutput;
     TestContext context{ uninstallOutput, std::cin };
     OverrideForCompositeInstalledSource(context);
-    // OverrideForExeUninstall(context);
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("UninstallFlowTest_Exe.yaml").GetPath().u8string());
+    OverrideForExeUninstall(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
 
     UninstallCommand uninstall({});
     uninstall.Execute(context);
@@ -1079,9 +1079,8 @@ TEST_CASE("UninstallFlow_UninstallWithManifest", "[UninstallFlow][workflow]")
     REQUIRE(uninstallResultFile.is_open());
     std::string uninstallResultStr;
     std::getline(uninstallResultFile, uninstallResultStr);
-    // TODO: Determine what will be written in the results
-    // REQUIRE(uninstallResultStr.find("/uninstall") != std::string::npos);
-    // REQUIRE(uninstallResultStr.find("/silence") != std::string::npos);
+    REQUIRE(uninstallResultStr.find("/uninstall") != std::string::npos);
+    REQUIRE(uninstallResultStr.find("/silence") != std::string::npos);
 }
 
 TEST_CASE("UninstallFlow_UninstallExeNotFound", "[UninstallFlow][workflow]")
