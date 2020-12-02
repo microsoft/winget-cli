@@ -18,26 +18,18 @@ namespace AppInstaller::CLI::Workflow
     {
         std::optional<DWORD> InvokeCreateProcess(const std::string& command, IProgressCallback& progress)
         {
-            // TODO: log
-            // TODO: this probably can be done better
-            LPWSTR commandUtf16 = _wcsdup(Utility::ConvertToUTF16(command).c_str());
+            std::wstring commandUtf16 = Utility::ConvertToUTF16(command);
 
-            // TODO: review parameters
+            // Parse the command string as application and command line for CreateProcess
+            PWSTR app, commandLine;
+            THROW_IF_FAILED(SHEvaluateSystemCommandTemplate(commandUtf16.c_str(), &app, &commandLine, NULL));
+
             STARTUPINFOW startupInfo = { sizeof(startupInfo) };
             PROCESS_INFORMATION processInfo;
-            BOOL success = CreateProcessW(
-                NULL,         // lpApplicationName
-                commandUtf16, // lpCommandLine
-                NULL,         // lpProcessAttributes
-                NULL,         // lpThreadAttributes
-                FALSE,        // bInheritAttributes
-                0,            // dwCreationFlags
-                NULL,         // lpEnvironment - use parent's
-                NULL,         // lpCurrentDirectory - use parent's
-                &startupInfo,
-                &processInfo);
+            BOOL success = CreateProcessW(app, commandLine, NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo);
 
-            free(commandUtf16);
+            CoTaskMemFree(app);
+            CoTaskMemFree(commandLine);
 
             if (!success)
             {
@@ -55,6 +47,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     break;
                 }
+
                 if (waitResult != WAIT_TIMEOUT)
                 {
                     THROW_LAST_ERROR_MSG("Unexpected WaitForSingleObjectResult: %d", waitResult);
