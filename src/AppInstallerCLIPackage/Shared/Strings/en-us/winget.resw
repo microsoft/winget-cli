@@ -723,15 +723,15 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>Diagnostic files containing information about application use.</comment>
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
-    <value>Uninstall (TODO: long description)</value>
+    <value>Uninstalls the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
   </data>
   <data name="UninstallCommandShortDescription" xml:space="preserve">
-    <value>Uninstall (TODO: short description)</value>
+    <value>Uninstalls the given package</value>
   </data>
   <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
-    <value>TODO</value>
+    <value>Starting package install...</value>
   </data>
   <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
-    <value>TODO</value>
+    <value>Successfully uninstalled</value>
   </data>
 </root>
