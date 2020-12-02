@@ -722,6 +722,18 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Logs</value>
     <comment>Diagnostic files containing information about application use.</comment>
   </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>The installer is blocked by policy</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>The installer failed security check</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>An anti-virus product reports an infection in the installer</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Failed in attempting to update the source:</value>
+  </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
     <value>Uninstalls the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
   </data>

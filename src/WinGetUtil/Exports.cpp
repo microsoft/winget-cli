@@ -227,4 +227,21 @@ extern "C"
         return S_OK;
     }
     CATCH_RETURN()
+
+    WINGET_UTIL_API WinGetCompareVersions(
+        WINGET_STRING versionA,
+        WINGET_STRING versionB,
+        INT* comparisonResult) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !versionA);
+        THROW_HR_IF(E_INVALIDARG, !versionB);
+
+        Version vA{ ConvertToUTF8(versionA) };
+        Version vB{ ConvertToUTF8(versionB) };
+
+        *comparisonResult = vA < vB ? -1 : (vA == vB ? 0 : 1);
+
+        return S_OK;
+    }
+    CATCH_RETURN()
 }

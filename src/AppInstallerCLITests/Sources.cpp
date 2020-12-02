@@ -510,7 +510,7 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
     SetSetting(Streams::UserSources, s_SingleSource);
 
     ProgressCallback progress;
-    auto source = OpenSource(name, progress);
+    auto source = OpenSource(name, progress).Source;
 
     REQUIRE(updateCalledOnFactory);
 
@@ -574,7 +574,7 @@ TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
     SetSetting(Streams::UserSources, s_TwoSource_AggregateSourceTest);
 
     ProgressCallback progress;
-    auto source = OpenSource("", progress);
+    auto source = OpenSource("", progress).Source;
 
     SearchRequest request;
     auto result = source->Search(request);

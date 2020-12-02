@@ -30,7 +30,7 @@ namespace AppInstallerCLIE2ETests
         {
             // Add source with invalid url should fail
             var result = TestCommon.RunAICLICommand("source add", "AnotherSource https://microsoft.com");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_RANGES_PROCESSED, result.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.HTTP_E_STATUS_NOT_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("An unexpected error occurred while executing the command"));
         }
 
