@@ -29,10 +29,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),
-            Argument::ForType(Args::Type::Language),
             Argument::ForType(Args::Type::Log),
-            Argument::ForType(Args::Type::Override),
-            Argument::ForType(Args::Type::InstallLocation),
         };
     }
 
@@ -48,12 +45,8 @@ namespace AppInstaller::CLI
 
     void UninstallCommand::Complete(Execution::Context& context, Execution::Args::Type valueType) const
     {
-        // copied from upgrade; it's also very similar to install
-        // TODO: refactor common parts?
         if (valueType == Execution::Args::Type::Manifest ||
-            valueType == Execution::Args::Type::Log ||
-            valueType == Execution::Args::Type::Override ||
-            valueType == Execution::Args::Type::InstallLocation)
+            valueType == Execution::Args::Type::Log)
         {
             // Intentionally output nothing to allow pass through to filesystem.
             return;
@@ -80,12 +73,6 @@ namespace AppInstaller::CLI
             context <<
                 Workflow::CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
             break;
-        case Execution::Args::Type::Language:
-            // May well move to CompleteWithSingleSemanticsForValue,
-            // but for now output nothing.
-            context <<
-                Workflow::CompleteWithEmptySet;
-            break;
         }
     }
 
@@ -97,7 +84,6 @@ namespace AppInstaller::CLI
 
     void UninstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        // TODO: maybe refactor? it's the same in install, and almost the same in upgrade
         if (execArgs.Contains(Execution::Args::Type::Manifest) &&
             (execArgs.Contains(Execution::Args::Type::Query) ||
              execArgs.Contains(Execution::Args::Type::Id) ||
@@ -121,7 +107,6 @@ namespace AppInstaller::CLI
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
 
         // find the uninstaller
-        // TODO: this is very similar to install/update; maybe refactor?
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
             // --manifest case where new manifest is provided

@@ -5,17 +5,19 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    // Gets the command string or package family names used to uninstall the package.
     // Required Args: None
     // Inputs: InstalledPackageVersion
     // Output: UninstallString?, PackageFamilyNames?
     void GetUninstallInfo(Execution::Context& context);
 
+    // Uninstalls the package according to its type.
     // Required Args: None
     // Inputs: InstalledPackageVersion, UninstallString?, PackageFamilyNames?
     // Output: None
     void ExecuteUninstaller(Execution::Context& context);
 
-    // Runs the uninstaller via CreateProcess.
+    // Runs the uninstaller command via CreateProcess.
     // Required Args: None
     // Inputs: UninstallString
     // Outputs: None

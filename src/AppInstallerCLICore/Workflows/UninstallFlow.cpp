@@ -18,6 +18,7 @@ namespace AppInstaller::CLI::Workflow
     {
         std::optional<DWORD> InvokeCreateProcess(const std::string& command, IProgressCallback& progress)
         {
+            // TODO: log
             // TODO: this probably can be done better
             LPWSTR commandUtf16 = _wcsdup(Utility::ConvertToUTF16(command).c_str());
 
@@ -76,20 +77,53 @@ namespace AppInstaller::CLI::Workflow
     void GetUninstallInfo(Execution::Context& context)
     {
         auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
-
-        // Note: this only exists for EXE/MSI
-        // TODO: check other flags & settings
-        IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
-        if (context.Args.Contains(Execution::Args::Type::Silent))
+        const std::string insalledTypeString = installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledType];
+        switch (ManifestInstaller::ConvertToInstallerTypeEnum(insalledTypeString))
         {
-            context.Add<Execution::Data::UninstallString>(packageMetadata[PackageVersionMetadata::SilentUninstallCommand]);
-        }
-        else
+        case ManifestInstaller::InstallerTypeEnum::Exe:
+        case ManifestInstaller::InstallerTypeEnum::Burn:
+        case ManifestInstaller::InstallerTypeEnum::Inno:
+        case ManifestInstaller::InstallerTypeEnum::Msi:
+        case ManifestInstaller::InstallerTypeEnum::Nullsoft:
+        case ManifestInstaller::InstallerTypeEnum::Wix:
         {
-            context.Add<Execution::Data::UninstallString>(packageMetadata[PackageVersionMetadata::StandardUninstallCommand]);
-        }
+            IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
+            IPackageVersion::Metadata::iterator itr;
 
-        context.Add<Execution::Data::PackageFamilyNames>(installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName));
+            if (context.Args.Contains(Execution::Args::Type::Interactive))
+            {
+                itr = packageMetadata.find(PackageVersionMetadata::StandardUninstallCommand);
+            }
+            else if (context.Args.Contains(Execution::Args::Type::Silent))
+            {
+                itr = packageMetadata.find(PackageVersionMetadata::SilentUninstallCommand);
+            }
+            else
+            {
+                itr = packageMetadata.find(PackageVersionMetadata::StandardUninstallCommand);
+                if (itr == packageMetadata.end())
+                {
+                    itr = packageMetadata.find(PackageVersionMetadata::SilentUninstallCommand);
+                }
+            }
+
+            if (itr == packageMetadata.end())
+            {
+                AICLI_TERMINATE_CONTEXT(E_ABORT);
+            }
+            context.Add<Execution::Data::UninstallString>(itr->second);
+
+            break;
+        }
+        case ManifestInstaller::InstallerTypeEnum::Msix:
+        case ManifestInstaller::InstallerTypeEnum::MSStore:
+        {
+            context.Add<Execution::Data::PackageFamilyNames>(installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName));
+            break;
+        }
+        default:
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+        }
     }
 
     void ExecuteUninstaller(Execution::Context& context)
