@@ -20,12 +20,6 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void MSStoreUpdate(Execution::Context& context);
 
-    // Removes the Store app.
-    // Required Args: None
-    // Inputs:
-    // Outputs: None
-    void MSStoreUninstall(Execution::Context& context);
-
     // Ensure the Store app is not blocked by policy.
     // Required Args: None
     // Inputs: Installer

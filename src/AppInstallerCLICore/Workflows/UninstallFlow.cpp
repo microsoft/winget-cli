@@ -82,12 +82,14 @@ namespace AppInstaller::CLI::Workflow
         IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
         if (context.Args.Contains(Execution::Args::Type::Silent))
         {
-            context.Add<Execution::Data::UninstallCommand>(packageMetadata[PackageVersionMetadata::SilentUninstallCommand]);
+            context.Add<Execution::Data::UninstallString>(packageMetadata[PackageVersionMetadata::SilentUninstallCommand]);
         }
         else
         {
-            context.Add<Execution::Data::UninstallCommand>(packageMetadata[PackageVersionMetadata::StandardUninstallCommand]);
+            context.Add<Execution::Data::UninstallString>(packageMetadata[PackageVersionMetadata::StandardUninstallCommand]);
         }
+
+        context.Add<Execution::Data::PackageFamilyNames>(installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName));
     }
 
     void ExecuteUninstaller(Execution::Context& context)
@@ -109,8 +111,7 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::MSStore:
             context <<
                 Workflow::EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore) <<
-                Workflow::EnsureStorePolicySatisfied <<
-                Workflow::MSStoreUninstall;
+                Workflow::MsixUninstall;
             break;
         default:
         THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
@@ -123,7 +124,7 @@ namespace AppInstaller::CLI::Workflow
 
         auto uninstallResult = context.Reporter.ExecuteWithProgress(
             std::bind(InvokeCreateProcess,
-                context.Get<Execution::Data::UninstallCommand>(),
+                context.Get<Execution::Data::UninstallString>(),
                 std::placeholders::_1));
 
         if (!uninstallResult)
@@ -145,17 +146,18 @@ namespace AppInstaller::CLI::Workflow
 
     void MsixUninstall(Execution::Context& context)
     {
-        auto packageFamilyNames = context.Get<Execution::Data::InstalledPackageVersion>()->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
+        const auto& packageFamilyNames = context.Get<Execution::Data::InstalledPackageVersion>()->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
         context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
 
         try
         {
-            for (auto pfn : packageFamilyNames)
+            for (const auto& packageFamilyName : packageFamilyNames)
             {
-                auto fullname = Msix::GetPackageFullNameFromFamilyName(pfn);
-                if (fullname.has_value())
+                auto packageFullName = Msix::GetPackageFullNameFromFamilyName(packageFamilyName);
+                if (packageFullName.has_value())
                 {
-                    context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, fullname.value(), std::placeholders::_1));
+                    AICLI_LOG(CLI, Info, << "Removing MSIX package: " << packageFullName.value());
+                    context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), std::placeholders::_1));
                 }
             }
         }

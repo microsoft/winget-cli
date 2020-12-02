@@ -319,7 +319,7 @@ void OverrideForExeUninstall(TestContext& context)
         std::filesystem::path temp = std::filesystem::temp_directory_path();
         temp /= "TestExeUninstalled.txt";
         std::ofstream file(temp, std::ofstream::out);
-        file << context.Get<Execution::Data::UninstallCommand>();
+        file << context.Get<Execution::Data::UninstallString>();
         file.close();
     } });
 }
@@ -353,19 +353,12 @@ void OverrideForMSIXUninstall(TestContext& context)
         std::filesystem::path temp = std::filesystem::temp_directory_path();
         temp /= "TestMsixUninstalled.txt";
         std::ofstream file(temp, std::ofstream::out);
-        file << context.Get<Execution::Data::UninstallCommand>();
+        for (const auto& packageFamilyName : context.Get<Execution::Data::PackageFamilyNames>())
+        {
+            file << packageFamilyName << std::endl;
+        }
+
         file.close();
-    } });
-}
-
-void OverrideForMSStoreCommon(TestContext& context)
-{
-    context.Override({ "EnsureFeatureEnabled", [](TestContext&)
-    {
-    } });
-
-    context.Override({ Workflow::EnsureStorePolicySatisfied, [](TestContext&)
-    {
     } });
 }
 
@@ -394,22 +387,22 @@ void OverrideForMSStore(TestContext& context, bool isUpdate)
         } });
     }
 
-    OverrideForMSStoreCommon(context);
+    context.Override({ "EnsureFeatureEnabled", [](TestContext&)
+    {
+    } });
+
+    context.Override({ Workflow::EnsureStorePolicySatisfied, [](TestContext&)
+    {
+    } });
 }
 
 void OverrideForMSStoreUninstall(TestContext& context)
 {
-    context.Override({ MSStoreUninstall, [](TestContext& context)
+    context.Override({ "EnsureFeatureEnabled", [](TestContext&)
     {
-        // Write out the product ID
-        std::filesystem::path temp = std::filesystem::temp_directory_path();
-        temp /= "TestMSStoreUninstalled.txt";
-        std::ofstream file(temp, std::ofstream::out);
-        file << context.Get<Execution::Data::Installer>()->ProductId;
-        file.close();
     } });
 
-    OverrideForMSStoreCommon(context);
+    OverrideForMSIXUninstall(context);
 }
 
 TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow][workflow]")
@@ -1038,7 +1031,7 @@ TEST_CASE("UninstallFlow_UninstallMsix", "[UninstallFlow][workflow]")
 
 TEST_CASE("UninstallFlow_UninstallMSStore", "[UninstallFlow][workflow]")
 {
-    TestCommon::TempFile uninstallResultPath("TestMSStoreUninstalled.txt");
+    TestCommon::TempFile uninstallResultPath("TestMsixUninstalled.txt");
 
     std::ostringstream uninstallOutput;
     TestContext context{ uninstallOutput, std::cin };
@@ -1050,13 +1043,13 @@ TEST_CASE("UninstallFlow_UninstallMSStore", "[UninstallFlow][workflow]")
     uninstall.Execute(context);
     INFO(uninstallOutput.str());
 
-    // Verify Uninstaller is called with the ProductId
+    // Verify Uninstaller is called with the package full name
     REQUIRE(std::filesystem::exists(uninstallResultPath.GetPath()));
     std::ifstream uninstallResultFile(uninstallResultPath.GetPath());
     REQUIRE(uninstallResultFile.is_open());
     std::string uninstallResultStr;
     std::getline(uninstallResultFile, uninstallResultStr);
-    REQUIRE(uninstallResultStr.find("9WZDNCRFJ364") != std::string::npos);
+    REQUIRE(uninstallResultStr.find("microsoft.skypeapp_kzf8qxf38zg5c") != std::string::npos);
 }
 
 TEST_CASE("UninstallFlow_UninstallWithManifest", "[UninstallFlow][workflow]")
@@ -1090,7 +1083,7 @@ TEST_CASE("UninstallFlow_UninstallExeNotFound", "[UninstallFlow][workflow]")
     std::ostringstream uninstallOutput;
     TestContext context{ uninstallOutput, std::cin };
     OverrideForCompositeInstalledSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.MissingApp"sv);
     context.Args.AddArg(Execution::Args::Type::Silent);
 
     UninstallCommand uninstall({});
@@ -1099,8 +1092,8 @@ TEST_CASE("UninstallFlow_UninstallExeNotFound", "[UninstallFlow][workflow]")
 
     // Verify Uninstaller is not called.
     REQUIRE(!std::filesystem::exists(uninstallResultPath.GetPath()));
-    REQUIRE(uninstallOutput.str().find(Resource::LocString(Resource::String::GetManifestResultVersionNotFound).get()) != std::string::npos);
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
+    REQUIRE(uninstallOutput.str().find(Resource::LocString(Resource::String::NoInstalledPackageFound).get()) != std::string::npos);
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
 }
 
 void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)

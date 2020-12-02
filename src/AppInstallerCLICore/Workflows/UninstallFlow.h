@@ -7,23 +7,23 @@ namespace AppInstaller::CLI::Workflow
 {
     // Required Args: None
     // Inputs: InstalledPackageVersion
-    // Output: None
+    // Output: UninstallString?, PackageFamilyNames?
     void GetUninstallInfo(Execution::Context& context);
 
     // Required Args: None
-    // Inputs:
+    // Inputs: InstalledPackageVersion, UninstallString?, PackageFamilyNames?
     // Output: None
     void ExecuteUninstaller(Execution::Context& context);
 
-    // Runs the uninstaller via ShellExecute.
+    // Runs the uninstaller via CreateProcess.
     // Required Args: None
-    // Inputs: UninstallerCommand
+    // Inputs: UninstallString
     // Outputs: None
     void ExecuteUninstallString(Execution::Context& context);
 
     // Removes the MSIX.
     // Required Args: None
-    // Inputs: InstalledPackageVersion
+    // Inputs: PackageFamilyNames
     // Outputs: None
     void MsixUninstall(Execution::Context& context);
 }
