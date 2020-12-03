@@ -137,6 +137,9 @@ IInstalled
 incosistencies
 inl
 inor
+INSTALLLEVEL
+INSTALLSTATE
+INSTALLUILEVEL
 iosfwd
 IPackage
 IPersist
@@ -251,6 +254,8 @@ Shlobj
 sid
 SIGNATUREHASH
 Sku
+Skype
+skypeapp
 Solaris
 sortof
 sourceforge
@@ -264,6 +269,7 @@ ssin
 stackoverflow
 Standalone
 startswith
+STARTUPINFOW
 stdarg
 strchr
 strcmp
@@ -288,6 +294,7 @@ uild
 uintptr
 unindent
 Uninitialize
+uninstallation
 uninstaller
 uninstallprevious
 uninstalls
@@ -326,4 +333,3 @@ Wunused
 WZDNCRFJ
 xf
 xl
-INET
