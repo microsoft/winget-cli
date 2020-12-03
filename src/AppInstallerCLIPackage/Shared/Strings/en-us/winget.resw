@@ -741,7 +741,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Uninstalls the given package</value>
   </data>
   <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
-    <value>Starting package install...</value>
+    <value>Starting package uninstall...</value>
   </data>
   <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
     <value>Successfully uninstalled</value>

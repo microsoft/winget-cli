@@ -76,7 +76,6 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::Exe:
         case ManifestInstaller::InstallerTypeEnum::Burn:
         case ManifestInstaller::InstallerTypeEnum::Inno:
-        case ManifestInstaller::InstallerTypeEnum::Msi:
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
         case ManifestInstaller::InstallerTypeEnum::Wix:
         {
@@ -102,16 +101,34 @@ namespace AppInstaller::CLI::Workflow
 
             if (itr == packageMetadata.end())
             {
+                // TODO
                 AICLI_TERMINATE_CONTEXT(E_ABORT);
             }
             context.Add<Execution::Data::UninstallString>(itr->second);
 
             break;
         }
+        case ManifestInstaller::InstallerTypeEnum::Msi:
+        {
+            auto productCodes = installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
+            if (productCodes.empty())
+            {
+                AICLI_TERMINATE_CONTEXT(E_ABORT);
+            }
+
+            context.Add<Execution::Data::ProductCodes>(std::move(productCodes));
+            break;
+        }
         case ManifestInstaller::InstallerTypeEnum::Msix:
         case ManifestInstaller::InstallerTypeEnum::MSStore:
         {
-            context.Add<Execution::Data::PackageFamilyNames>(installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName));
+            auto packageFamilyNames = installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
+            if (packageFamilyNames.empty())
+            {
+                AICLI_TERMINATE_CONTEXT(E_ABORT);
+            }
+
+            context.Add<Execution::Data::PackageFamilyNames>(std::move(packageFamilyNames));
             break;
         }
         default:
@@ -127,10 +144,12 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::Exe:
         case ManifestInstaller::InstallerTypeEnum::Burn:
         case ManifestInstaller::InstallerTypeEnum::Inno:
-        case ManifestInstaller::InstallerTypeEnum::Msi:
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
         case ManifestInstaller::InstallerTypeEnum::Wix:
             context << Workflow::ExecuteUninstallString;
+            break;
+        case ManifestInstaller::InstallerTypeEnum::Msi:
+            context << Workflow::MsiUninstall;
             break;
         case ManifestInstaller::InstallerTypeEnum::Msix:
             context << Workflow::MsixUninstall;
@@ -171,9 +190,36 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void MsiUninstall(Execution::Context& context)
+    {
+        const auto productCodes = context.Get<Execution::Data::ProductCodes>();
+        context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
+
+        INSTALLUILEVEL uiLevel;
+        if (context.Args.Contains(Execution::Args::Type::Silent))
+        {
+            uiLevel = INSTALLUILEVEL_NONE;
+        }
+        else
+        {
+            uiLevel = INSTALLUILEVEL_DEFAULT;
+        }
+
+        for (const std::string& productCode : productCodes)
+        {
+            AICLI_LOG(CLI, Info, << "Removing: " << productCode);
+            INSTALLUILEVEL oldUILevel = MsiSetInternalUI(uiLevel, NULL);
+            UINT ret = MsiConfigureProductW(Utility::ConvertToUTF16(productCode).c_str(), INSTALLLEVEL_DEFAULT, INSTALLSTATE_ABSENT);
+            MsiSetInternalUI(oldUILevel, NULL);
+            THROW_IF_FAILED(HRESULT_FROM_WIN32(ret));
+        }
+
+        context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
+    }
+
     void MsixUninstall(Execution::Context& context)
     {
-        const auto& packageFamilyNames = context.Get<Execution::Data::InstalledPackageVersion>()->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
+        const auto packageFamilyNames = context.Get<Execution::Data::PackageFamilyNames>();
         context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
 
         try
