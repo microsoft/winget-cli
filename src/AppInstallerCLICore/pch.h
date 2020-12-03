@@ -33,7 +33,6 @@
 
 #include <wrl/client.h>
 #include <AppxPackaging.h>
-#include <msi.h>
 
 #include <AppInstallerArchitecture.h>
 #include <AppInstallerDateTime.h>

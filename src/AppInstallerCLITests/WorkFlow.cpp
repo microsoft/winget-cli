@@ -113,7 +113,12 @@ namespace
                     ResultMatch(
                         TestPackage::Make(
                             manifest,
-                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            TestPackage::MetadataMap
+                            { 
+                                { PackageVersionMetadata::InstalledType, "Exe" },
+                                { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                                { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                            },
                             std::vector<Manifest>{ manifest2, manifest }
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
@@ -1002,7 +1007,7 @@ TEST_CASE("UninstallFlow_UninstallExe", "[UninstallFlow][workflow]")
     REQUIRE(uninstallResultFile.is_open());
     std::string uninstallResultStr;
     std::getline(uninstallResultFile, uninstallResultStr);
-    REQUIRE(uninstallResultStr.find("/uninstall") != std::string::npos);
+    REQUIRE(uninstallResultStr.find("uninstall.exe") != std::string::npos);
     REQUIRE(uninstallResultStr.find("/silence") != std::string::npos);
 }
 
@@ -1026,7 +1031,7 @@ TEST_CASE("UninstallFlow_UninstallMsix", "[UninstallFlow][workflow]")
     REQUIRE(uninstallResultFile.is_open());
     std::string uninstallResultStr;
     std::getline(uninstallResultFile, uninstallResultStr);
-    REQUIRE(uninstallResultStr.find("20477fca-282d-49fb-b03e-371dca074f0f_1.0.0.0_x64__8wekyb3d8bbwe") != std::string::npos);
+    REQUIRE(uninstallResultStr.find("20477fca-282d-49fb-b03e-371dca074f0f_8wekyb3d8bbwe") != std::string::npos);
 }
 
 TEST_CASE("UninstallFlow_UninstallMSStore", "[UninstallFlow][workflow]")
@@ -1050,30 +1055,6 @@ TEST_CASE("UninstallFlow_UninstallMSStore", "[UninstallFlow][workflow]")
     std::string uninstallResultStr;
     std::getline(uninstallResultFile, uninstallResultStr);
     REQUIRE(uninstallResultStr.find("microsoft.skypeapp_kzf8qxf38zg5c") != std::string::npos);
-}
-
-TEST_CASE("UninstallFlow_UninstallWithManifest", "[UninstallFlow][workflow]")
-{
-    TestCommon::TempFile uninstallResultPath("TestExeUninstalled.txt");
-
-    std::ostringstream uninstallOutput;
-    TestContext context{ uninstallOutput, std::cin };
-    OverrideForCompositeInstalledSource(context);
-    OverrideForExeUninstall(context);
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
-
-    UninstallCommand uninstall({});
-    uninstall.Execute(context);
-    INFO(uninstallOutput.str());
-
-    // Verify Uninstaller is called and parameters are passed in.
-    REQUIRE(std::filesystem::exists(uninstallResultPath.GetPath()));
-    std::ifstream uninstallResultFile(uninstallResultPath.GetPath());
-    REQUIRE(uninstallResultFile.is_open());
-    std::string uninstallResultStr;
-    std::getline(uninstallResultFile, uninstallResultStr);
-    REQUIRE(uninstallResultStr.find("/uninstall") != std::string::npos);
-    REQUIRE(uninstallResultStr.find("/silence") != std::string::npos);
 }
 
 TEST_CASE("UninstallFlow_UninstallExeNotFound", "[UninstallFlow][workflow]")

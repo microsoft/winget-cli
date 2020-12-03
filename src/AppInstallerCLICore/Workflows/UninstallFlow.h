@@ -23,12 +23,6 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ExecuteUninstallString(Execution::Context& context);
 
-    // Removes the MSI
-    // Required Args: None
-    // Inputs: ProductCodes
-    // Output: None
-    void MsiUninstall(Execution::Context& context);
-
     // Removes the MSIX.
     // Required Args: None
     // Inputs: PackageFamilyNames

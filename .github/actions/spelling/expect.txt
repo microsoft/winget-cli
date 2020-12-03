@@ -137,9 +137,6 @@ IInstalled
 incosistencies
 inl
 inor
-INSTALLLEVEL
-INSTALLSTATE
-INSTALLUILEVEL
 iosfwd
 IPackage
 IPersist
