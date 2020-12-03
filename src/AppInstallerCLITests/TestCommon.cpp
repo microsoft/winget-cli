@@ -179,9 +179,9 @@ namespace TestCommon
         THROW_IF_WIN32_ERROR(RegSetValueExW(key, name.c_str(), 0, type, reinterpret_cast<const BYTE*>(value.c_str()), static_cast<DWORD>(sizeof(wchar_t) * (value.size() + 1))));
     }
 
-    void SetRegistryValue(HKEY key, const std::wstring& name, const std::vector<BYTE>& value)
+    void SetRegistryValue(HKEY key, const std::wstring& name, const std::vector<BYTE>& value, DWORD type)
     {
-        THROW_IF_WIN32_ERROR(RegSetValueExW(key, name.c_str(), 0, REG_BINARY, reinterpret_cast<const BYTE*>(value.data()), static_cast<DWORD>(value.size())));
+        THROW_IF_WIN32_ERROR(RegSetValueExW(key, name.c_str(), 0, type, reinterpret_cast<const BYTE*>(value.data()), static_cast<DWORD>(value.size())));
     }
 
     void SetRegistryValue(HKEY key, const std::wstring& name, DWORD value)
