@@ -385,15 +385,6 @@ TEST_CASE("ARPHelper_PopulateIndexFromKey_Two", "[arphelper][list]")
     VerifyEntryAgainstIndex(index, result.Matches[0].first, entry2);
 }
 
-TEST_CASE("ARPHelper_PopulateFromOddStringLength", "[arphelper][list]")
-{
-    Registry::Key key(HKEY_LOCAL_MACHINE, "LISTBUG");
-    ARPHelper helper;
-
-    auto index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET);
-    helper.PopulateIndexFromKey(index, key, s_TestScope, "TestArchitecture");
-}
-
 TEST_CASE("PredefinedInstalledSource_Create", "[installed][list]")
 {
     auto source = CreatePredefinedInstalledSource();
