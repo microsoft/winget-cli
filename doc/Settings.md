@@ -96,3 +96,4 @@ While work is in progress on uninstall, the command is hidden behind a feature t
    "experimentalFeatures": {
        "uninstall": true
    },
+```
