@@ -16,4 +16,4 @@ data:[a-zA-Z=;,/0-9+-]+
 \b([A-Za-z])\1{3,}\b
 El proyecto .* diferentes
 # Package family names
-[-.A-Za-z0-9]+_[a-z0-9]{13}
+\b[-.A-Za-z0-9]+_[a-z0-9]{13}\b
