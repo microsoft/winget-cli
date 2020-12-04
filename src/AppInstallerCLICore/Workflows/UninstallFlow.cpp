@@ -21,28 +21,23 @@ namespace AppInstaller::CLI::Workflow
             std::wstring commandUtf16 = Utility::ConvertToUTF16(command);
 
             // Parse the command string as application and command line for CreateProcess
-            PWSTR app, commandLine;
+            wil::unique_cotaskmem_string app = nullptr;
+            wil::unique_cotaskmem_string commandLine = nullptr;
             THROW_IF_FAILED(SHEvaluateSystemCommandTemplate(commandUtf16.c_str(), &app, &commandLine, NULL));
 
             STARTUPINFOW startupInfo = { sizeof(startupInfo) };
-            PROCESS_INFORMATION processInfo;
-            BOOL success = CreateProcessW(app, commandLine, NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo);
-
-            CoTaskMemFree(app);
-            CoTaskMemFree(commandLine);
+            wil::unique_process_information processInfo = {};
+            BOOL success = CreateProcessW(app.get(), commandLine.get(), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo);
 
             if (!success)
             {
                 return GetLastError();
             }
 
-            CloseHandle(processInfo.hThread);
-            wil::unique_process_handle process{ processInfo.hProcess };
-
             // Wait for uninstallation to finish
             while (!progress.IsCancelled())
             {
-                DWORD waitResult = WaitForSingleObject(process.get(), 250);
+                DWORD waitResult = WaitForSingleObject(processInfo.hProcess, 250);
                 if (waitResult == WAIT_OBJECT_0)
                 {
                     break;
@@ -61,7 +56,7 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 DWORD exitCode = 0;
-                GetExitCodeProcess(process.get(), &exitCode);
+                GetExitCodeProcess(processInfo.hProcess, &exitCode);
                 return exitCode;
             }
         }
@@ -81,31 +76,20 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::Wix:
         {
             IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
-            IPackageVersion::Metadata::iterator itr;
+            IPackageVersion::Metadata::iterator itr = packageMetadata.find(PackageVersionMetadata::StandardUninstallCommand);
 
-            if (context.Args.Contains(Execution::Args::Type::Interactive))
-            {
-                itr = packageMetadata.find(PackageVersionMetadata::StandardUninstallCommand);
-            }
-            else if (context.Args.Contains(Execution::Args::Type::Silent))
+            if (itr == packageMetadata.end() || context.Args.Contains(Execution::Args::Type::Silent))
             {
                 itr = packageMetadata.find(PackageVersionMetadata::SilentUninstallCommand);
-            }
-            else
-            {
-                itr = packageMetadata.find(PackageVersionMetadata::StandardUninstallCommand);
-                if (itr == packageMetadata.end())
-                {
-                    itr = packageMetadata.find(PackageVersionMetadata::SilentUninstallCommand);
-                }
             }
 
             if (itr == packageMetadata.end())
             {
+                // TODO
                 AICLI_TERMINATE_CONTEXT(E_ABORT);
             }
-            context.Add<Execution::Data::UninstallString>(itr->second);
 
+            context.Add<Execution::Data::UninstallString>(itr->second);
             break;
         }
         case ManifestInstaller::InstallerTypeEnum::Msix:
@@ -176,24 +160,14 @@ namespace AppInstaller::CLI::Workflow
         const auto& packageFamilyNames = context.Get<Execution::Data::PackageFamilyNames>(); 
         context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
 
-        try
+        for (const auto& packageFamilyName : packageFamilyNames)
         {
-            for (const auto& packageFamilyName : packageFamilyNames)
+            auto packageFullName = Msix::GetPackageFullNameFromFamilyName(packageFamilyName);
+            if (packageFullName.has_value())
             {
-                auto packageFullName = Msix::GetPackageFullNameFromFamilyName(packageFamilyName);
-                if (packageFullName.has_value())
-                {
-                    AICLI_LOG(CLI, Info, << "Removing MSIX package: " << packageFullName.value());
-                    context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), std::placeholders::_1));
-                }
+                AICLI_LOG(CLI, Info, << "Removing MSIX package: " << packageFullName.value());
+                context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), std::placeholders::_1));
             }
-        }
-        catch (const wil::ResultException& re)
-        {
-            // TODO: telemetry?
-
-            context.Reporter.Error() << GetUserPresentableMessage(re) << std::endl;
-            AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
         }
 
         context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;

@@ -15,4 +15,7 @@ data:[a-zA-Z=;,/0-9+-]+
 \b[0-9a-f]{40}\b
 \b([A-Za-z])\1{3,}\b
 El proyecto .* diferentes
+# Package family names in tests
 PackageFamilyName: \S+
+Microsoft.SkypeApp_kzf8qxf38zg5c
+20477fca-282d-49fb-b03e-371dca074f0f_8wekyb3d8bbwe
