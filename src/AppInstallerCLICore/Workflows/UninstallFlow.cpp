@@ -85,8 +85,8 @@ namespace AppInstaller::CLI::Workflow
 
             if (itr == packageMetadata.end())
             {
-                // TODO
-                AICLI_TERMINATE_CONTEXT(E_ABORT);
+                context.Reporter.Error() << Resource::String::NoUninstallInfoFound << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND);
             }
 
             context.Add<Execution::Data::UninstallString>(itr->second);
@@ -95,7 +95,14 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::Msix:
         case ManifestInstaller::InstallerTypeEnum::MSStore:
         {
-            context.Add<Execution::Data::PackageFamilyNames>(installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName));
+            auto packageFamilyNames = installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
+            if (packageFamilyNames.empty())
+            {
+                context.Reporter.Error() << Resource::String::NoUninstallInfoFound << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND);
+            }
+
+            context.Add<Execution::Data::PackageFamilyNames>(packageFamilyNames);
             break;
         }
         default:
@@ -140,14 +147,14 @@ namespace AppInstaller::CLI::Workflow
 
         if (!uninstallResult)
         {
-            // TODO: log & report
+            context.Reporter.Warn() << Resource::String::UninstallAbandoned << std::endl;
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
         else if (uninstallResult.value() != 0)
         {
-            // TODO: log & report
-            // TODO: set appropriate error
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
+            // TODO: identify other success exit codes
+            context.Reporter.Error() << Resource::String::UninstallFailedWithCode << ' ' << uninstallResult.value() << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
         }
         else
         {

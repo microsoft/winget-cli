@@ -121,6 +121,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NoExperimentalFeaturesMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(NoInstalledPackageFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(NoUninstallInfoFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoVTArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatch);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatchHelp);
@@ -205,8 +206,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyArgError);
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyBehaviorsError);
         WINGET_DEFINE_RESOURCE_STRINGID(UnexpectedErrorExecutingCommand);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallAbandoned);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallFailedWithCode);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowUninstallSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowStartingPackageUninstall);
         WINGET_DEFINE_RESOURCE_STRINGID(UnrecognizedCommand);

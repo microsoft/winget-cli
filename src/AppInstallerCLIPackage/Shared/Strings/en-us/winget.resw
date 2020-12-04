@@ -746,4 +746,13 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
     <value>Successfully uninstalled</value>
   </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>No uninstall info found for this package.</value>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Uninstallation abandoned</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Uninstall failed with exit code:</value>
+  </data>
 </root>
