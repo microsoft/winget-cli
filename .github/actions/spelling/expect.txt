@@ -208,6 +208,7 @@ mysilentwithprogress
 mytool
 Newtonsoft
 nfinity
+NOEXPAND
 noreturn
 nuffing
 nullopt
@@ -241,6 +242,7 @@ REGSAM
 REINSTALLMODE
 rhs
 rosoft
+RRF
 rrr
 rzkzqaqjwj
 schematab

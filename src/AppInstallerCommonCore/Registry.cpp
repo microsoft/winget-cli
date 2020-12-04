@@ -231,7 +231,7 @@ namespace AppInstaller::Registry
         while (data.size() < (64 << 20))
         {
             byteCount = wil::safe_cast<DWORD>(data.size());
-            status = RegQueryValueExW(m_key.get(), name.c_str(), nullptr, &type, data.data(), &byteCount);
+            status = RegGetValueW(m_key.get(), nullptr, name.c_str(), RRF_RT_ANY | RRF_NOEXPAND, &type, data.data(), &byteCount);
 
             if (status == ERROR_MORE_DATA && byteCount > data.size())
             {
