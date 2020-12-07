@@ -4,7 +4,6 @@
 #include "pch.h"
 #include "UninstallFlow.h"
 #include "WorkflowBase.h"
-#include "MSStoreInstallerHandler.h"
 #include "ShellExecuteInstallerHandler.h"
 #include "AppInstallerMsixInfo.h"
 
@@ -76,12 +75,8 @@ namespace AppInstaller::CLI::Workflow
             context << Workflow::ShellExecuteUninstallImpl;
             break;
         case ManifestInstaller::InstallerTypeEnum::Msix:
-            context << Workflow::MsixUninstall;
-            break;
         case ManifestInstaller::InstallerTypeEnum::MSStore:
-            context <<
-                Workflow::EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore) <<
-                Workflow::MsixUninstall;
+            context << Workflow::MsixUninstall;
             break;
         default:
         THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
