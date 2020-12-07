@@ -27,20 +27,25 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::Wix:
         {
             IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
-            IPackageVersion::Metadata::iterator itr = packageMetadata.find(PackageVersionMetadata::StandardUninstallCommand);
 
-            if (itr == packageMetadata.end() || context.Args.Contains(Execution::Args::Type::Silent))
+            // Default to silent unless it is not present or interactivity is requested
+            auto uninstallCommandItr = packageMetadata.find(PackageVersionMetadata::SilentUninstallCommand);
+            if (uninstallCommandItr == packageMetadata.end() || context.Args.Contains(Execution::Args::Type::Interactive))
             {
-                itr = packageMetadata.find(PackageVersionMetadata::SilentUninstallCommand);
+                auto interactiveItr = packageMetadata.find(PackageVersionMetadata::StandardUninstallCommand);
+                if (interactiveItr != packageMetadata.end())
+                {
+                    uninstallCommandItr = interactiveItr;
+                }
             }
 
-            if (itr == packageMetadata.end())
+            if (uninstallCommandItr == packageMetadata.end())
             {
                 context.Reporter.Error() << Resource::String::NoUninstallInfoFound << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND);
             }
 
-            context.Add<Execution::Data::UninstallString>(itr->second);
+            context.Add<Execution::Data::UninstallString>(uninstallCommandItr->second);
             break;
         }
         case ManifestInstaller::InstallerTypeEnum::Msix:
