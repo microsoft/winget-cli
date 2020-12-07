@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "InstallFlow.h"
+#include "UninstallFlow.h"
 #include "Resources.h"
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
@@ -280,9 +281,10 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::Wix:
             if (isUpdate && installer.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::UninstallPrevious)
             {
-                // TODO: hook up with uninstall when uninstall is implemented
+                context <<
+                    GetUninstallInfo <<
+                    ExecuteUninstaller;
                 context.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
-                AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }
             context << ShellExecuteInstall;
             break;
