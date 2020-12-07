@@ -17,12 +17,6 @@ namespace AppInstaller::CLI::Workflow
     // Output: None
     void ExecuteUninstaller(Execution::Context& context);
 
-    // Runs the uninstaller command via CreateProcess.
-    // Required Args: None
-    // Inputs: UninstallString
-    // Outputs: None
-    void ExecuteUninstallString(Execution::Context& context);
-
     // Removes the MSIX.
     // Required Args: None
     // Inputs: PackageFamilyNames

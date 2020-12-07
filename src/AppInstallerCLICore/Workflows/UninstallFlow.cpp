@@ -14,54 +14,6 @@ using namespace AppInstaller::Repository;
 
 namespace AppInstaller::CLI::Workflow
 {
-    namespace
-    {
-        std::optional<DWORD> InvokeCreateProcess(const std::string& command, IProgressCallback& progress)
-        {
-            std::wstring commandUtf16 = Utility::ConvertToUTF16(command);
-
-            // Parse the command string as application and command line for CreateProcess
-            wil::unique_cotaskmem_string app = nullptr;
-            wil::unique_cotaskmem_string commandLine = nullptr;
-            THROW_IF_FAILED(SHEvaluateSystemCommandTemplate(commandUtf16.c_str(), &app, &commandLine, NULL));
-
-            STARTUPINFOW startupInfo = { sizeof(startupInfo) };
-            wil::unique_process_information processInfo = {};
-            BOOL success = CreateProcessW(app.get(), commandLine.get(), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo);
-
-            if (!success)
-            {
-                return GetLastError();
-            }
-
-            // Wait for uninstallation to finish
-            while (!progress.IsCancelled())
-            {
-                DWORD waitResult = WaitForSingleObject(processInfo.hProcess, 250);
-                if (waitResult == WAIT_OBJECT_0)
-                {
-                    break;
-                }
-
-                if (waitResult != WAIT_TIMEOUT)
-                {
-                    THROW_LAST_ERROR_MSG("Unexpected WaitForSingleObjectResult: %d", waitResult);
-                }
-            }
-
-            if (progress.IsCancelled())
-            {
-                return {};
-            }
-            else
-            {
-                DWORD exitCode = 0;
-                GetExitCodeProcess(processInfo.hProcess, &exitCode);
-                return exitCode;
-            }
-        }
-    }
-
     void GetUninstallInfo(Execution::Context& context)
     {
         auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
@@ -121,7 +73,7 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::Msi:
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
         case ManifestInstaller::InstallerTypeEnum::Wix:
-            context << Workflow::ExecuteUninstallString;
+            context << Workflow::ShellExecuteUninstallImpl;
             break;
         case ManifestInstaller::InstallerTypeEnum::Msix:
             context << Workflow::MsixUninstall;
@@ -133,32 +85,6 @@ namespace AppInstaller::CLI::Workflow
             break;
         default:
         THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
-        }
-    }
-
-    void ExecuteUninstallString(Execution::Context& context)
-    {
-        context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
-
-        auto uninstallResult = context.Reporter.ExecuteWithProgress(
-            std::bind(InvokeCreateProcess,
-                context.Get<Execution::Data::UninstallString>(),
-                std::placeholders::_1));
-
-        if (!uninstallResult)
-        {
-            context.Reporter.Warn() << Resource::String::UninstallAbandoned << std::endl;
-            AICLI_TERMINATE_CONTEXT(E_ABORT);
-        }
-        else if (uninstallResult.value() != 0)
-        {
-            // TODO: identify other success exit codes
-            context.Reporter.Error() << Resource::String::UninstallFailedWithCode << ' ' << uninstallResult.value() << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
-        }
-        else
-        {
-            context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
         }
     }
 

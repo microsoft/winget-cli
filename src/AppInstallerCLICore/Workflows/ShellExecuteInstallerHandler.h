@@ -17,6 +17,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ShellExecuteInstallImpl(Execution::Context& context);
 
+    // Uninstall is done through invoking ShellExecute on uninstall string.
+    // Required Args: None
+    // Inputs: UninstallString
+    // Outputs: None
+    void ShellExecuteUninstallImpl(Execution::Context& context);
+
     // Gets the installer args from the context.
     // Required Args: None
     // Inputs: Manifest?, Installer, InstallerPath

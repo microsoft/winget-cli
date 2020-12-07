@@ -15,7 +15,7 @@ namespace AppInstaller::CLI::Workflow
         // ShellExecutes the given path.
         std::optional<DWORD> InvokeShellExecute(const std::filesystem::path& filePath, const std::string& args, IProgressCallback& progress)
         {
-            AICLI_LOG(CLI, Info, << "Starting installer: '" << filePath.u8string() << "' with arguments '" << args << '\'');
+            AICLI_LOG(CLI, Info, << "Starting: '" << filePath.u8string() << "' with arguments '" << args << '\'');
 
             SHELLEXECUTEINFOW execInfo = { 0 };
             execInfo.cbSize = sizeof(execInfo);
@@ -246,5 +246,38 @@ namespace AppInstaller::CLI::Workflow
 
         installerPath.assign(renamedDownloadedInstaller);
         AICLI_LOG(CLI, Info, << "Successfully renamed downloaded installer. Path: " << installerPath);
+    }
+
+    void ShellExecuteUninstallImpl(Execution::Context& context)
+    {
+        context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
+        std::wstring commandUtf16 = Utility::ConvertToUTF16(context.Get<Execution::Data::UninstallString>());
+
+        // Parse the command string as application and command line for CreateProcess
+        wil::unique_cotaskmem_string app = nullptr;
+        wil::unique_cotaskmem_string args = nullptr;
+        THROW_IF_FAILED(SHEvaluateSystemCommandTemplate(commandUtf16.c_str(), &app, NULL, &args));
+
+        auto uninstallResult = context.Reporter.ExecuteWithProgress(
+            std::bind(InvokeShellExecute,
+                std::filesystem::path(app.get()),
+                Utility::ConvertToUTF8(args.get()),
+                std::placeholders::_1));
+
+        if (!uninstallResult)
+        {
+            context.Reporter.Warn() << Resource::String::UninstallAbandoned << std::endl;
+            AICLI_TERMINATE_CONTEXT(E_ABORT);
+        }
+        else if (uninstallResult.value() != 0)
+        {
+            // TODO: identify other success exit codes
+            context.Reporter.Error() << Resource::String::UninstallFailedWithCode << ' ' << uninstallResult.value() << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
+        }
+        else
+        {
+            context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
+        }
     }
 }
