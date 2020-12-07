@@ -96,11 +96,14 @@ namespace AppInstaller::CLI::Workflow
         for (const auto& packageFamilyName : packageFamilyNames)
         {
             auto packageFullName = Msix::GetPackageFullNameFromFamilyName(packageFamilyName);
-            if (packageFullName.has_value())
+            if (!packageFullName.has_value())
             {
-                AICLI_LOG(CLI, Info, << "Removing MSIX package: " << packageFullName.value());
-                context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), std::placeholders::_1));
+                AICLI_LOG(CLI, Warning, << "No package found with family name: " << packageFamilyName);
+                continue;
             }
+
+            AICLI_LOG(CLI, Info, << "Removing MSIX package: " << packageFullName.value());
+            context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), std::placeholders::_1));
         }
 
         context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
