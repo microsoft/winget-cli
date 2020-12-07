@@ -401,15 +401,6 @@ void OverrideForMSStore(TestContext& context, bool isUpdate)
     } });
 }
 
-void OverrideForMSStoreUninstall(TestContext& context)
-{
-    context.Override({ "EnsureFeatureEnabled", [](TestContext&)
-    {
-    } });
-
-    OverrideForMSIXUninstall(context);
-}
-
 TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
@@ -1041,7 +1032,7 @@ TEST_CASE("UninstallFlow_UninstallMSStore", "[UninstallFlow][workflow]")
     std::ostringstream uninstallOutput;
     TestContext context{ uninstallOutput, std::cin };
     OverrideForCompositeInstalledSource(context);
-    OverrideForMSStoreUninstall(context);
+    OverrideForMSIXUninstall(context);
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestMSStoreInstaller"sv);
 
     UninstallCommand uninstall({});
