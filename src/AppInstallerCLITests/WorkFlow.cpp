@@ -114,7 +114,7 @@ namespace
                         TestPackage::Make(
                             manifest,
                             TestPackage::MetadataMap
-                            { 
+                            {
                                 { PackageVersionMetadata::InstalledType, "Exe" },
                                 { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
                                 { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },

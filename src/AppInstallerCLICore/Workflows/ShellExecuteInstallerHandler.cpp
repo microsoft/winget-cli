@@ -26,10 +26,8 @@ namespace AppInstaller::CLI::Workflow
             // Some installers force UI. Setting to SW_HIDE will hide installer UI and installation will never complete.
             // Verified setting to SW_SHOW does not hurt silent mode since no UI will be shown.
             execInfo.nShow = SW_SHOW;
-            if (!ShellExecuteExW(&execInfo) || !execInfo.hProcess)
-            {
-                return GetLastError();
-            }
+
+            THROW_LAST_ERROR_IF(!ShellExecuteExW(&execInfo) || !execInfo.hProcess);
 
             wil::unique_process_handle process{ execInfo.hProcess };
 
@@ -166,6 +164,27 @@ namespace AppInstaller::CLI::Workflow
 
             // Todo: language token support will be implemented later
         }
+
+        // Gets the arguments for uninstalling an MSI with MsiExec
+        std::string GetMsiExecUninstallArgs(Execution::Context& context, const Utility::LocIndString& productCode)
+        {
+            std::string args = "/x" + productCode.get();
+
+            // Set UI level for MsiExec with the /q flag.
+            // If interactive is requested, use the default instead of Reduced or Full as the installer may not use them.
+            if (context.Args.Contains(Execution::Args::Type::Silent))
+            {
+                // n = None = silent
+                args += " /qn";
+            }
+            else if (!context.Args.Contains(Execution::Args::Type::Interactive))
+            {
+                // b = Basic = only progress bar
+                args += " /qb";
+            }
+
+            return args;
+        }
     }
 
     void ShellExecuteInstallImpl(Execution::Context& context)
@@ -271,7 +290,6 @@ namespace AppInstaller::CLI::Workflow
         }
         else if (uninstallResult.value() != 0)
         {
-            // TODO: identify other success exit codes
             context.Reporter.Error() << Resource::String::UninstallFailedWithCode << ' ' << uninstallResult.value() << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
         }
@@ -279,5 +297,37 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
         }
+    }
+
+    void ShellExecuteMsiExecUninstall(Execution::Context& context)
+    {
+        const auto& productCodes = context.Get<Execution::Data::ProductCodes>();
+        context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
+
+        const std::filesystem::path msiexecPath{ ExpandEnvironmentVariables(L"%windir%\\system32\\msiexec.exe") };
+
+        for (const auto& productCode : productCodes)
+        {
+            AICLI_LOG(CLI, Info, << "Removing: " << productCode);
+            auto uninstallResult = context.Reporter.ExecuteWithProgress(
+                std::bind(InvokeShellExecute,
+                    msiexecPath,
+                    GetMsiExecUninstallArgs(context, productCode),
+                    std::placeholders::_1));
+
+            if (!uninstallResult)
+            {
+                context.Reporter.Warn() << Resource::String::UninstallAbandoned << std::endl;
+                AICLI_TERMINATE_CONTEXT(E_ABORT);
+            }
+            else if (uninstallResult.value() != 0)
+            {
+                // TODO: Check for other success codes
+                context.Reporter.Error() << Resource::String::UninstallFailedWithCode << ' ' << uninstallResult.value() << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
+            }
+        }
+
+        context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
     }
 }

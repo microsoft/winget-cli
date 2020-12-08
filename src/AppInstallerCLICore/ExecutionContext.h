@@ -59,6 +59,7 @@ namespace AppInstaller::CLI::Execution
         ExecutionStage,
         UninstallString,
         PackageFamilyNames,
+        ProductCodes,
         Max
     };
 
@@ -173,6 +174,12 @@ namespace AppInstaller::CLI::Execution
 
         template <>
         struct DataMapping<Data::PackageFamilyNames>
+        {
+            using value_t = std::vector<Utility::LocIndString>;
+        };
+
+        template <>
+        struct DataMapping<Data::ProductCodes>
         {
             using value_t = std::vector<Utility::LocIndString>;
         };

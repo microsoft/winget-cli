@@ -22,9 +22,7 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::Exe:
         case ManifestInstaller::InstallerTypeEnum::Burn:
         case ManifestInstaller::InstallerTypeEnum::Inno:
-        case ManifestInstaller::InstallerTypeEnum::Msi:
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
-        case ManifestInstaller::InstallerTypeEnum::Wix:
         {
             IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
 
@@ -46,6 +44,21 @@ namespace AppInstaller::CLI::Workflow
             }
 
             context.Add<Execution::Data::UninstallString>(uninstallCommandItr->second);
+            break;
+        }
+        case ManifestInstaller::InstallerTypeEnum::Msi:
+        case ManifestInstaller::InstallerTypeEnum::Wix:
+        {
+            // Uninstall strings for MSI don't include UI level (/q) needed to avoid interactivity,
+            // so we handle them differently.
+            auto productCodes = installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
+            if (productCodes.empty())
+            {
+                context.Reporter.Error() << Resource::String::NoUninstallInfoFound << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND);
+            }
+
+            context.Add<Execution::Data::ProductCodes>(std::move(productCodes));
             break;
         }
         case ManifestInstaller::InstallerTypeEnum::Msix:
@@ -74,10 +87,12 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::Exe:
         case ManifestInstaller::InstallerTypeEnum::Burn:
         case ManifestInstaller::InstallerTypeEnum::Inno:
-        case ManifestInstaller::InstallerTypeEnum::Msi:
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
-        case ManifestInstaller::InstallerTypeEnum::Wix:
             context << Workflow::ShellExecuteUninstallImpl;
+            break;
+        case ManifestInstaller::InstallerTypeEnum::Msi:
+        case ManifestInstaller::InstallerTypeEnum::Wix:
+            context << Workflow::ShellExecuteMsiExecUninstall;
             break;
         case ManifestInstaller::InstallerTypeEnum::Msix:
         case ManifestInstaller::InstallerTypeEnum::MSStore:
@@ -90,7 +105,7 @@ namespace AppInstaller::CLI::Workflow
 
     void MsixUninstall(Execution::Context& context)
     {
-        const auto& packageFamilyNames = context.Get<Execution::Data::PackageFamilyNames>(); 
+        const auto& packageFamilyNames = context.Get<Execution::Data::PackageFamilyNames>();
         context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
 
         for (const auto& packageFamilyName : packageFamilyNames)

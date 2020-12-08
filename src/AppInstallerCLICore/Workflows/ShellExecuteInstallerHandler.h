@@ -23,6 +23,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ShellExecuteUninstallImpl(Execution::Context& context);
 
+    // Removes the MSI
+    // Required Args: None
+    // Inputs: ProductCodes
+    // Output: None
+    void ShellExecuteMsiExecUninstall(Execution::Context& context);
+
     // Gets the installer args from the context.
     // Required Args: None
     // Inputs: Manifest?, Installer, InstallerPath
