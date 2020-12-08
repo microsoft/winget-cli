@@ -747,7 +747,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Successfully uninstalled</value>
   </data>
   <data name="NoUninstallInfoFound" xml:space="preserve">
-    <value>No uninstall info found for this package.</value>
+    <value>The Windows Package Manager cannot locate the uninstall command for this application. Please reach out to the application publisher for support.</value>
   </data>
   <data name="UninstallAbandoned" xml:space="preserve">
     <value>Uninstallation abandoned</value>
