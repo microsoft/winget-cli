@@ -236,6 +236,7 @@ PWAs
 PWSTR
 py
 pz
+qn
 qword
 readonly
 REGSAM
@@ -321,6 +322,7 @@ website
 wesome
 wiki
 wikipedia
+windir
 windowsdeveloper
 winerror
 wingetdev

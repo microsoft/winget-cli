@@ -414,6 +414,7 @@ und
 undef
 unicode
 uninstall
+uninstalling
 Unregister
 updatemanifest
 UPLEVEL
