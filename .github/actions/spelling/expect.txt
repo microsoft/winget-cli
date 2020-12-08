@@ -236,7 +236,7 @@ PWAs
 PWSTR
 py
 pz
-qn
+qb
 qword
 readonly
 REGSAM
