@@ -14,7 +14,7 @@ using namespace std::filesystem;
 std::string_view registrySubkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
 std::string_view defaultProductID = "{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}";
 
-std::wstring GenerateUninstaller(std::ostream& out, const path& installDirectory) {
+std::wstring GenerateUninstaller(std::ostream& out, const path& installDirectory, const std::wstring& productID) {
     path uninstallerPath = installDirectory;
     uninstallerPath /= "UninstallTestExe.bat";
 
@@ -23,11 +23,21 @@ std::wstring GenerateUninstaller(std::ostream& out, const path& installDirectory
     path uninstallerOutputTextFilePath = installDirectory;
     uninstallerOutputTextFilePath /= "TestExeUninstalled.txt";
 
-    // TODO: Needs to re-invoke the installer and remove the Uninstall key that it added
+    path registryKey = "HKEY_CURRENT_USER" / path{ registrySubkey };
+    if (!productID.empty())
+    {
+        registryKey /= productID;
+    }
+    else
+    {
+        registryKey /= defaultProductID;
+    }
+
     std::ofstream uninstallerScript(uninstallerPath);
     uninstallerScript << "@echo off\n";
     uninstallerScript << "ECHO. >" << uninstallerOutputTextFilePath << "\n";
     uninstallerScript << "ECHO AppInstallerTestExeInstaller.exe uninstalled successfully.\n";
+    uninstallerScript << "REG DELETE " << registryKey.string() << " /f\n";
     uninstallerScript.close();
 
     return uninstallerPath.wstring();
@@ -162,7 +172,7 @@ int main(int argc, const char** argv)
         productCode = productCodeStream.str();
     }
     
-    std::wstring uninstallerPath = GenerateUninstaller(*out, installDirectory);
+    std::wstring uninstallerPath = GenerateUninstaller(*out, installDirectory, productCode);
 
     WriteToUninstallRegistry(*out, productCode, uninstallerPath);
    

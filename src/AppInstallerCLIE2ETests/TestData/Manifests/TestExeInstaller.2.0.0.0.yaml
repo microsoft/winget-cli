@@ -8,6 +8,7 @@ Installers:
     Url: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
     Sha256: <EXEHASH>
     InstallerType: exe
+    ProductCode: '{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}'
     Switches:
       Custom: /execustom
       SilentWithProgress: /exeswp

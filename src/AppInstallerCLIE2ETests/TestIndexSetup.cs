@@ -31,6 +31,11 @@ namespace AppInstallerCLIE2ETests
                 CopyExeInstallerToTestDirectory();
             }
 
+            if (!string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
+            {
+                CopyMsiInstallerToTestDirectory();
+            }
+
             if (!string.IsNullOrEmpty(TestCommon.MsixInstallerPath))
             {
                 CopyMsixInstallerToTestDirectory();
@@ -93,6 +98,22 @@ namespace AppInstallerCLIE2ETests
 
             // Sign EXE Installer File
             SignFile(TestCommon.ExeInstallerPath);
+        }
+
+        private static void CopyMsiInstallerToTestDirectory()
+        {
+            // Set MSI Test Installer Path
+            string msiInstallerDestPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.MsiInstaller);
+            DirectoryInfo msiInstallerDestDir = Directory.CreateDirectory(msiInstallerDestPath);
+
+            // Copy MSI Test Installer to Destination Path
+            string msiInstallerFullName = Path.Combine(msiInstallerDestDir.FullName, "AppInstallerTestMsiInstaller.msi");
+
+            File.Copy(TestCommon.MsiInstallerPath, msiInstallerFullName, true);
+            TestCommon.MsiInstallerPath = msiInstallerFullName;
+
+            // Sign MSI Installer File
+            SignFile(TestCommon.MsiInstallerPath);
         }
 
         private static void CopyMsixInstallerToTestDirectory()
