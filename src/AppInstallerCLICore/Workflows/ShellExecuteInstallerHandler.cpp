@@ -7,6 +7,7 @@
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
+using namespace AppInstaller::Repository;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -290,6 +291,13 @@ namespace AppInstaller::CLI::Workflow
         }
         else if (uninstallResult.value() != 0)
         {
+            const auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+            Logging::Telemetry().LogUninstallerFailure(
+                installedPackageVersion->GetProperty(PackageVersionProperty::Id),
+                installedPackageVersion->GetProperty(PackageVersionProperty::Version),
+                "UninstallString",
+                uninstallResult.value());
+
             context.Reporter.Error() << Resource::String::UninstallFailedWithCode << ' ' << uninstallResult.value() << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
         }
@@ -323,6 +331,13 @@ namespace AppInstaller::CLI::Workflow
             else if (uninstallResult.value() != 0)
             {
                 // TODO: Check for other success codes
+                const auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+                Logging::Telemetry().LogUninstallerFailure(
+                    installedPackageVersion->GetProperty(PackageVersionProperty::Id),
+                    installedPackageVersion->GetProperty(PackageVersionProperty::Version),
+                    "MsiExec",
+                    uninstallResult.value());
+
                 context.Reporter.Error() << Resource::String::UninstallFailedWithCode << ' ' << uninstallResult.value() << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
             }
