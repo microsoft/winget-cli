@@ -14,7 +14,8 @@ using namespace std::filesystem;
 std::string_view registrySubkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
 std::string_view defaultProductID = "{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}";
 
-std::wstring GenerateUninstaller(std::ostream& out, const path& installDirectory, const std::wstring& productID) {
+path GenerateUninstaller(std::ostream& out, const path& installDirectory, const std::string& productID)
+{
     path uninstallerPath = installDirectory;
     uninstallerPath /= "UninstallTestExe.bat";
 
@@ -23,27 +24,28 @@ std::wstring GenerateUninstaller(std::ostream& out, const path& installDirectory
     path uninstallerOutputTextFilePath = installDirectory;
     uninstallerOutputTextFilePath /= "TestExeUninstalled.txt";
 
-    path registryKey = "HKEY_CURRENT_USER" / path{ registrySubkey };
+    std::string registryKey{ "HKEY_CURRENT_USER\\" };
+    registryKey += registrySubkey;
     if (!productID.empty())
     {
-        registryKey /= productID;
+        registryKey += productID;
     }
     else
     {
-        registryKey /= defaultProductID;
+        registryKey += defaultProductID;
     }
 
     std::ofstream uninstallerScript(uninstallerPath);
     uninstallerScript << "@echo off\n";
     uninstallerScript << "ECHO. >" << uninstallerOutputTextFilePath << "\n";
     uninstallerScript << "ECHO AppInstallerTestExeInstaller.exe uninstalled successfully.\n";
-    uninstallerScript << "REG DELETE " << registryKey.string() << " /f\n";
+    uninstallerScript << "REG DELETE " << registryKey << " /f\n";
     uninstallerScript.close();
 
-    return uninstallerPath.wstring();
+    return uninstallerPath;
 }
 
-void WriteToUninstallRegistry(std::ostream& out, const std::wstring& productID, const std::wstring& uninstallerPath)
+void WriteToUninstallRegistry(std::ostream& out, const std::string& productID, const path& uninstallerPath)
 {
     HKEY hkey;
     LONG lReg;
@@ -55,20 +57,20 @@ void WriteToUninstallRegistry(std::ostream& out, const std::wstring& productID, 
     const wchar_t* uninstallString = uninstallerPath.c_str();
     DWORD version = 1;
 
-    path registryKey{ registrySubkey };
+    std::string registryKey{ registrySubkey };
 
     if (!productID.empty()) 
     {
-        registryKey /= productID;
+        registryKey += productID;
         out << "Product Code overridden to: " << registryKey << "\n";
     }
     else 
     {
-        registryKey /= defaultProductID;
+        registryKey += defaultProductID;
         out << "Default Product Code used: " << registryKey << "\n";
     }
 
-    lReg = RegCreateKeyEx(
+    lReg = RegCreateKeyExA(
         HKEY_CURRENT_USER,
         registryKey.c_str(),
         0,
@@ -79,8 +81,8 @@ void WriteToUninstallRegistry(std::ostream& out, const std::wstring& productID, 
         &hkey,
         NULL);
 
-    if (lReg == ERROR_SUCCESS) {
-
+    if (lReg == ERROR_SUCCESS)
+    {
         out << "Successfully opened registry key \n";
 
         // Set Display Name Property Value
@@ -126,9 +128,8 @@ void WriteToUninstallRegistry(std::ostream& out, const std::wstring& productID, 
 int main(int argc, const char** argv)
 {
     path installDirectory = temp_directory_path();
-    std::wstringstream productCodeStream;
     std::stringstream outContent;
-    std::wstring productCode;
+    std::string productCode;
 
     // Output to cout by default, but swap to a file if requested
     std::ostream* out = &std::cout;
@@ -148,7 +149,7 @@ int main(int argc, const char** argv)
         // Supports custom product code ID
         if (_stricmp(argv[i], "/ProductID") == 0 && ++i < argc)
         {
-            productCodeStream << argv[i];
+            productCode = argv[i];
         }
 
         // Supports log file
@@ -167,12 +168,7 @@ int main(int argc, const char** argv)
 
     file.close();
 
-    if (!productCodeStream.str().empty()) 
-    {
-        productCode = productCodeStream.str();
-    }
-    
-    std::wstring uninstallerPath = GenerateUninstaller(*out, installDirectory, productCode);
+    path uninstallerPath = GenerateUninstaller(*out, installDirectory, productCode);
 
     WriteToUninstallRegistry(*out, productCode, uninstallerPath);
    

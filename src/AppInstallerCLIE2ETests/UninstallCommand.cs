@@ -8,9 +8,16 @@ namespace AppInstallerCLIE2ETests
 
     public class UninstallCommand : BaseCommand
     {
+        // Custom product code for overriding the default in the test exe
         private const string CustomProductCode = "{f08fc03c-0b7e-4fca-9b3c-3a384d18a9f3}";
+
+        // File written when uninstalling the test exe
         private const string UninstallTestExeUninstalledFile = "TestExeUninstalled.txt";
+
+        // Name of a file installed by the MSI that will be removed during uninstall
         private const string UninstallTestMsiInstalledFile = "AppInstallerTestExeInstaller.exe";
+
+        // Package name of the test MSIX package
         private const string UninstallTestMsixName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
 
         [OneTimeSetUp]
