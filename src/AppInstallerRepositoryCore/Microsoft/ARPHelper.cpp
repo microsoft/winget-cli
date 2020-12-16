@@ -152,9 +152,19 @@ namespace AppInstaller::Repository::Microsoft
     void ARPHelper::AddMetadataIfPresent(const Registry::Key& key, const std::wstring& name, SQLiteIndex& index, SQLiteIndex::IdType manifestId, PackageVersionMetadata metadata)
     {
         auto value = key[name];
-        if (value && value->GetType() == Registry::Value::Type::String)
+        if (value)
         {
-            auto valueString = value->GetValue<Registry::Value::Type::String>();
+            std::string valueString;
+
+            if (value->GetType() == Registry::Value::Type::String)
+            {
+                valueString = value->GetValue<Registry::Value::Type::String>();
+            }
+            else if (value->GetType() == Registry::Value::Type::ExpandString)
+            {
+                valueString = value->GetValue<Registry::Value::Type::ExpandString>();
+            }
+
             if (!valueString.empty())
             {
                 index.SetMetadataByManifestId(manifestId, metadata, valueString);

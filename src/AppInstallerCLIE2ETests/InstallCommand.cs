@@ -9,7 +9,7 @@ namespace AppInstallerCLIE2ETests
     public class InstallCommand : BaseCommand
     {
         private const string InstallTestExeInstalledFile = @"TestExeInstalled.txt";
-        private const string InstallTestMsiInstalledFile = @"AppInstallerTestMsiInstaller.msi";
+        private const string InstallTestMsiInstalledFile = @"AppInstallerTestExeInstaller.exe";
         private const string InstallTestMsiProductId = @"{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
         private const string InstallTestMsixName = @"6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
 
@@ -92,9 +92,14 @@ namespace AppInstallerCLIE2ETests
             Assert.True(VerifyTestExeInstalled(installDir, "/S"));
         }
 
-        //[Test]
+        [Test]
         public void InstallMSI()
         {
+            if (string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
+            {
+                Assert.Ignore("MSI installer not available");
+            }
+
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"TestMsiInstaller --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);

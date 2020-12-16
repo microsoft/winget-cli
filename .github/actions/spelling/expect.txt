@@ -236,6 +236,7 @@ PWAs
 PWSTR
 py
 pz
+qb
 qword
 readonly
 REGSAM
@@ -254,6 +255,8 @@ Shlobj
 sid
 SIGNATUREHASH
 Sku
+Skype
+skypeapp
 Solaris
 sortof
 sourceforge
@@ -267,6 +270,7 @@ ssin
 stackoverflow
 Standalone
 startswith
+STARTUPINFOW
 stdarg
 strchr
 strcmp
@@ -291,6 +295,7 @@ uild
 uintptr
 unindent
 Uninitialize
+uninstallation
 uninstaller
 uninstallprevious
 uninstalls
@@ -317,6 +322,7 @@ website
 wesome
 wiki
 wikipedia
+windir
 windowsdeveloper
 winerror
 wingetdev

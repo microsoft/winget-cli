@@ -25,6 +25,8 @@ namespace AppInstaller::Settings
             return User().Get<Setting::EFList>();
         case Feature::ExperimentalUpgrade:
             return User().Get<Setting::EFExperimentalUpgrade>();
+        case Feature::ExperimentalUninstall:
+            return User().Get<Setting::EFUninstall>();
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -44,6 +46,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "List Command", "list", "https://aka.ms/winget-settings", Feature::ExperimentalList };
         case Feature::ExperimentalUpgrade:
             return ExperimentalFeature{ "Upgrade Command", "upgrade", "https://aka.ms/winget-settings", Feature::ExperimentalUpgrade };
+        case Feature::ExperimentalUninstall:
+            return ExperimentalFeature{ "Uninstall Command", "uninstall", "https://aka.ms/winget-settings", Feature::ExperimentalUninstall };
         default:
             THROW_HR(E_UNEXPECTED);
         }

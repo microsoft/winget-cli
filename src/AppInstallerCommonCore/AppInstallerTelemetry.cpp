@@ -423,6 +423,26 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Error, << type << " installer failed: " << errorCode);
     }
 
+    void TelemetryTraceLogger::LogUninstallerFailure(std::string_view id, std::string_view version, std::string_view type, uint32_t errorCode)
+    {
+        if (IsTelemetryEnabled())
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "UninstallerFailure",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                AICLI_TraceLoggingStringView(id, "Id"),
+                AICLI_TraceLoggingStringView(version, "Version"),
+                AICLI_TraceLoggingStringView(type, "Type"),
+                TraceLoggingUInt32(errorCode, "ErrorCode"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+
+        AICLI_LOG(CLI, Error, << type << " uninstaller failed: " << errorCode);
+    }
+
     void TelemetryTraceLogger::LogDuplicateARPEntry(HRESULT hr, std::string_view scope, std::string_view architecture, std::string_view productCode, std::string_view name)
     {
         if (IsTelemetryEnabled())

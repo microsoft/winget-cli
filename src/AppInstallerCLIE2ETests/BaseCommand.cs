@@ -12,7 +12,9 @@ namespace AppInstallerCLIE2ETests
 
     public class BaseCommand
     {
-        public readonly string SettingsJsonFilePath = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\settings.json";
+        public string SettingsJsonFilePath => TestCommon.PackagedContext ?
+            @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\settings.json" :
+            @"Microsoft\WinGet\Settings\settings.json";
         public readonly string LocalAppData = "LocalAppData";
 
         [OneTimeSetUp]
@@ -57,7 +59,8 @@ namespace AppInstallerCLIE2ETests
                     experimentalCmd = status,
                     experimentalMSStore = status,
                     list = status,
-                    upgrade = status
+                    upgrade = status,
+                    uninstall = status,
                 }
             };
 

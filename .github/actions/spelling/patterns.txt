@@ -15,3 +15,5 @@ data:[a-zA-Z=;,/0-9+-]+
 \b[0-9a-f]{40}\b
 \b([A-Za-z])\1{3,}\b
 El proyecto .* diferentes
+# Package family names
+\b[-.A-Za-z0-9]+_[a-z0-9]{13}\b

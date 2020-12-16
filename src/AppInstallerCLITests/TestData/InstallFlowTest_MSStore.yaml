@@ -9,4 +9,5 @@ Installers:
       Url: https://ThisIsNotUsed
       InstallerType: MSStore
       ProductId: 9WZDNCRFJ364
+      PackageFamilyName: Microsoft.SkypeApp_kzf8qxf38zg5c
 ManifestVersion: 0.2.0-msstore

@@ -57,6 +57,9 @@ namespace AppInstaller::CLI::Execution
         CompletionData,
         InstalledPackageVersion,
         ExecutionStage,
+        UninstallString,
+        PackageFamilyNames,
+        ProductCodes,
         Max
     };
 
@@ -161,6 +164,24 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::ExecutionStage>
         {
             using value_t = Workflow::ExecutionStage;
+        };
+
+        template <>
+        struct DataMapping<Data::UninstallString>
+        {
+            using value_t = std::string;
+        };
+
+        template <>
+        struct DataMapping<Data::PackageFamilyNames>
+        {
+            using value_t = std::vector<Utility::LocIndString>;
+        };
+
+        template <>
+        struct DataMapping<Data::ProductCodes>
+        {
+            using value_t = std::vector<Utility::LocIndString>;
         };
 
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.

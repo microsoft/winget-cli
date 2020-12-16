@@ -45,6 +45,14 @@ namespace AppInstallerCLIE2ETests
         public const string WinGetUtil = "WinGetUtil";
         public const string E2ETestLogsPath = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir";
 
+        // Test installers' package IDs
+        public const string ExeInstallerPackageId = "AppInstallerTest.TestExeInstaller";
+        public const string MsiInstallerPackageId = "AppInstallerTest.TestMsiInstaller";
+        public const string MsixInstallerPackageId = "AppInstallerTest.TestMsixInstaller";
+
+        public const string MsiInstallerProductCode = "{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
+        public const string MsixInstallerPackageFamilyName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e_8wekyb3d8bbwe";
+
         public class ErrorCode
         {
             public const int S_OK = 0;
