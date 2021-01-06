@@ -60,6 +60,20 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Source
     void OpenSource(Execution::Context& context);
 
+    // Creates a source object for a source from its name.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: Source
+    struct OpenNamedSource : public WorkflowTask
+    {
+        OpenNamedSource(std::string_view sourceName) : WorkflowTask("OpenNamedSource"), m_sourceName(sourceName) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        std::string_view m_sourceName;
+    };
+
     // Creates a source object for a predefined source.
     // Required Args: None
     // Inputs: None

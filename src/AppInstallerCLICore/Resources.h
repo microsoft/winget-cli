@@ -48,6 +48,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExportCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExportCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExtraPositionalError);
         WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesCommandLongDescription);
@@ -68,6 +70,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(HelpForDetails);
         WINGET_DEFINE_RESOURCE_STRINGID(HelpLinkPreamble);
         WINGET_DEFINE_RESOURCE_STRINGID(IdArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ImportFileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer1);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer2);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimerMSStore);
@@ -127,6 +132,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatchHelp);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoSourceDefined);
         WINGET_DEFINE_RESOURCE_STRINGID(Options);
+        WINGET_DEFINE_RESOURCE_STRINGID(OutputFileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OverrideArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Package);
         WINGET_DEFINE_RESOURCE_STRINGID(PendingWorkError);
@@ -210,8 +216,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFailedWithCode);
-        WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowUninstallSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowStartingPackageUninstall);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowUninstallSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(UnrecognizedCommand);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateAllArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateNotApplicable);

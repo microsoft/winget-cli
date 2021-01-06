@@ -102,10 +102,15 @@ namespace AppInstaller::CLI::Workflow
             sourceName = context.Args.GetArg(Execution::Args::Type::Source);
         }
 
+        context << OpenNamedSource(sourceName);
+    }
+
+    void OpenNamedSource::operator()(Execution::Context& context) const
+    {
         std::shared_ptr<Repository::ISource> source;
         try
         {
-            auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1), true);
+            auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, m_sourceName, std::placeholders::_1), true);
             source = result.Source;
 
             // We'll only report the source update failure as warning and continue

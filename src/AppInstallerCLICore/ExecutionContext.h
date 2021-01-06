@@ -8,6 +8,7 @@
 #include "ExecutionReporter.h"
 #include "ExecutionArgs.h"
 #include "CompletionData.h"
+#include "PackageCollection.h"
 
 #include <filesystem>
 #include <map>
@@ -57,9 +58,16 @@ namespace AppInstaller::CLI::Execution
         CompletionData,
         InstalledPackageVersion,
         ExecutionStage,
+        // On Uninstall: Uninstall string to be executed
         UninstallString,
+        // On Uninstall: Package Family Names of an MSIX package to uninstall
         PackageFamilyNames,
+        // On Uninstall: Product codes of an MSI to uninstall
         ProductCodes,
+        // On Import: Packages to be installed from each source
+        PackageRequests,
+
+        PackagesToInstall,
         Max
     };
 
@@ -182,6 +190,19 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::ProductCodes>
         {
             using value_t = std::vector<Utility::LocIndString>;
+        };
+
+        template <>
+        struct DataMapping<Data::PackageRequests>
+        {
+            using value_t = PackageCollectionRequest;
+        };
+
+
+        template <>
+        struct DataMapping<Data::PackagesToInstall>
+        {
+            using value_t = std::vector< std::shared_ptr<Repository::IPackageVersion>>;
         };
 
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.

@@ -1,0 +1,76 @@
+{
+  "$id": "https://aka.ms/winget-packages.schema.json",
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+
+  "title": "winget Packages List Schema",
+  "description": "Describes a list of packages for batch installs",
+
+  "properties": {
+    "wingetVersion": {
+      "description": "Version of winget that generated this list",
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]\\.[0-9]$"
+    },
+
+    "creationDate": {
+      "description": "Date when this list was generated",
+      "type": "string",
+      "format": "date-time"
+    },
+
+    "sources": {
+      "description": "List of sources from wich each package comes from",
+      "type": "array",
+      "items": {
+        "description": "A source and the list of packages to install from it",
+        "type": "object",
+        "required": true,
+        "properties": {
+          "name": {
+            "description": "Name of the source",
+            "type": "string",
+            "required": true
+          },
+
+          "argument": {
+            "description": "TODO",
+            "type": "string",
+            "required": true
+          },
+
+          "packages": {
+            "description": "List of packages installed from this source",
+            "type": "array",
+            "required": true,
+            "minItems": 1,
+            "items": {
+              "description": "A package to be installed from this source",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "Package ID",
+                  "type": "string",
+                  "required": true
+                },
+
+                "version": {
+                  "description": "Package version",
+                  "type": "string",
+                  "required": true
+                },
+
+                "channel": {
+                  "description": "TODO",
+                  "type": "string",
+                  "required": false
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "additionalProperties": true
+}

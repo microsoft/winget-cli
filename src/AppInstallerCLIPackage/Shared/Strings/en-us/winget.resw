@@ -756,4 +756,22 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Uninstall failed with exit code:</value>
   </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>TODO Export description</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>TODO Export</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>TODO Import description</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>TODO Import</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>TODO</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>TODO</value>
+  </data>
 </root>

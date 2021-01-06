@@ -368,4 +368,39 @@ namespace AppInstaller::CLI::Workflow
             }
         }
     }
+
+    void InstallPackageVersion(Execution::Context& context)
+    {
+        context <<
+            Workflow::EnsureMinOSVersion <<
+            Workflow::SelectInstaller <<
+            Workflow::EnsureApplicableInstaller <<
+            Workflow::ShowInstallationDisclaimer <<
+            Workflow::ReportExecutionStage(ExecutionStage::Download) <<
+            Workflow::DownloadInstaller <<
+            Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
+            Workflow::ExecuteInstaller <<
+            Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
+            Workflow::RemoveInstaller;
+    }
+
+    void InstallMultiple(Execution::Context& context)
+    {
+        for (auto package : context.Get<Execution::Data::PackagesToInstall>())
+        {
+            Logging::SubExecutionTelemetryScope subExecution;
+
+            // We want to do best effort to install all packages regardless of previous failures
+            auto installContextPtr = context.Clone();
+            Execution::Context& installContext = *installContextPtr;
+
+            // Extract the data needed for installing
+            installContext.Add<Execution::Data::PackageVersion>(package);
+            installContext.Add<Execution::Data::Manifest>(package->GetManifest());
+
+            installContext << InstallPackageVersion;
+
+            // TODO: Handle errors in sub context
+        }
+    }
 }

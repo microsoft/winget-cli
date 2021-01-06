@@ -25,6 +25,7 @@ namespace AppInstaller::Settings
             ExperimentalList = 0x8,
             ExperimentalUpgrade = 0x10,
             ExperimentalUninstall = 0x20,
+            ExperimentalImportExport = 0x40,
             Max, // This MUST always be last
         };
 

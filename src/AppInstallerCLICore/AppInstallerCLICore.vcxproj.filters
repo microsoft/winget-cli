@@ -141,6 +141,18 @@
     <ClInclude Include="Workflows\UninstallFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\ExportCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="PackageCollection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\ImportExportFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\ImportCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -247,6 +259,18 @@
     </ClCompile>
     <ClCompile Include="Workflows\UninstallFlow.cpp">
       <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ExportCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="PackageCollection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\ImportExportFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ImportCommand.cpp">
+      <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
