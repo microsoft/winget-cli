@@ -116,6 +116,11 @@ namespace AppInstaller::CLI::Execution
             return m_parsedArgs.empty();
         }
 
+        size_t GetArgsCount()
+        {
+            return m_parsedArgs.size();
+        }
+
     private:
         std::map<Type, std::vector<std::string>> m_parsedArgs;
     };

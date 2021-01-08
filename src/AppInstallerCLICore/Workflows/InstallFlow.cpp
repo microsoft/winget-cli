@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "InstallFlow.h"
+#include "UninstallFlow.h"
 #include "Resources.h"
 #include "ShellExecuteInstallerHandler.h"
 #include "MSStoreInstallerHandler.h"
@@ -68,17 +69,17 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::Msi:
         case ManifestInstaller::InstallerTypeEnum::Nullsoft:
         case ManifestInstaller::InstallerTypeEnum::Wix:
-            context << DownloadInstallerFile << VerifyInstallerHash;
+            context << DownloadInstallerFile << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
             break;
         case ManifestInstaller::InstallerTypeEnum::Msix:
             if (installer.SignatureSha256.empty())
             {
-                context << DownloadInstallerFile << VerifyInstallerHash;
+                context << DownloadInstallerFile << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
             }
             else
             {
                 // Signature hash provided. No download needed. Just verify signature hash.
-                context << GetMsixSignatureHash << VerifyInstallerHash;
+                context << GetMsixSignatureHash << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
             }
             break;
         case ManifestInstaller::InstallerTypeEnum::MSStore:
@@ -87,8 +88,6 @@ namespace AppInstaller::CLI::Workflow
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
-
-        context << UpdateInstallerFileMotwIfApplicable;
     }
 
     void DownloadInstallerFile(Execution::Context& context)
@@ -103,11 +102,40 @@ namespace AppInstaller::CLI::Workflow
 
         context.Reporter.Info() << "Downloading " << Execution::UrlEmphasis << installer.Url << std::endl;
 
-        auto hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
-            installer.Url,
-            tempInstallerPath,
-            std::placeholders::_1,
-            true));
+        std::optional<std::vector<BYTE>> hash;
+
+        const int MaxRetryCount = 2;
+        for (int retryCount = 0; retryCount < MaxRetryCount; ++retryCount)
+        {
+            bool success = false;
+            try
+            {
+                hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
+                    installer.Url,
+                    tempInstallerPath,
+                    std::placeholders::_1,
+                    true));
+
+                success = true;
+            }
+            catch (...)
+            {
+                if (retryCount < MaxRetryCount - 1)
+                {
+                    AICLI_LOG(CLI, Info, << "Failed to download, waiting a bit and retry. Url: " << installer.Url);
+                    Sleep(500);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            if (success)
+            {
+                break;
+            }
+        }
 
         if (!hash)
         {
@@ -137,9 +165,10 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (const winrt::hresult_error& e)
         {
-            if (e.code() == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED))
+            if (e.code() == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED) ||
+                HRESULT_FACILITY(e.code()) == FACILITY_HTTP)
             {
-                // Server does not support range request, use download
+                // Failed to get signature hash through HttpStream, use download
                 downloadInstead = true;
             }
             else
@@ -189,6 +218,15 @@ namespace AppInstaller::CLI::Workflow
         {
             AICLI_LOG(CLI, Info, << "Installer hash verified");
             context.Reporter.Info() << Resource::String::InstallerHashVerified << std::endl;
+
+            context.SetFlags(Execution::ContextFlag::InstallerHashMatched);
+
+            if (context.Contains(Execution::Data::PackageVersion) &&
+                context.Get<Execution::Data::PackageVersion>()->GetSource() != nullptr &&
+                SourceTrustLevel::Trusted == context.Get<Execution::Data::PackageVersion>()->GetSource()->GetDetails().TrustLevel)
+            {
+                context.SetFlags(Execution::ContextFlag::InstallerTrusted);
+            }
         }
     }
 
@@ -196,20 +234,32 @@ namespace AppInstaller::CLI::Workflow
     {
         if (context.Contains(Execution::Data::InstallerPath))
         {
-            // Only update Motw if installer hash matches
-            const auto& hashPair = context.Get<Execution::Data::HashPair>();
-            if (std::equal(hashPair.first.begin(), hashPair.first.end(), hashPair.second.begin()))
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted))
             {
-                if (context.Contains(Execution::Data::PackageVersion) &&
-                    context.Get<Execution::Data::PackageVersion>()->GetSource() != nullptr &&
-                    SourceTrustLevel::Trusted == context.Get<Execution::Data::PackageVersion>()->GetSource()->GetDetails().TrustLevel)
+                Utility::ApplyMotwIfApplicable(context.Get<Execution::Data::InstallerPath>(), URLZONE_TRUSTED);
+            }
+            else if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerHashMatched))
+            {
+                const auto& installer = context.Get<Execution::Data::Installer>();
+                HRESULT hr = Utility::ApplyMotwUsingIAttachmentExecuteIfApplicable(context.Get<Execution::Data::InstallerPath>(), installer.value().Url);
+
+                // Not using SUCCEEDED(hr) to check since there are cases file is missing after a successful scan
+                if (hr != S_OK)
                 {
-                    Utility::ApplyMotwIfApplicable(context.Get<Execution::Data::InstallerPath>(), URLZONE_TRUSTED);
-                }
-                else
-                {
-                    const auto& installer = context.Get<Execution::Data::Installer>();
-                    Utility::ApplyMotwUsingIAttachmentExecuteIfApplicable(context.Get<Execution::Data::InstallerPath>(), installer.value().Url);
+                    switch (hr)
+                    {
+                    case INET_E_SECURITY_PROBLEM:
+                        context.Reporter.Error() << Resource::String::InstallerBlockedByPolicy << std::endl;
+                        break;
+                    case E_FAIL:
+                        context.Reporter.Error() << Resource::String::InstallerFailedVirusScan << std::endl;
+                        break;
+                    default:
+                        context.Reporter.Error() << Resource::String::InstallerFailedSecurityCheck << std::endl;
+                    }
+
+                    AICLI_LOG(Fail, Error, << "Installer failed security check. Url: " << installer.value().Url << " Result: " << WINGET_OSTREAM_FORMAT_HRESULT(hr));
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_SECURITY_CHECK_FAILED);
                 }
             }
         }
@@ -231,9 +281,10 @@ namespace AppInstaller::CLI::Workflow
         case ManifestInstaller::InstallerTypeEnum::Wix:
             if (isUpdate && installer.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::UninstallPrevious)
             {
-                // TODO: hook up with uninstall when uninstall is implemented
-                WI_ClearFlag(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
-                AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+                context <<
+                    GetUninstallInfo <<
+                    ExecuteUninstaller;
+                context.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
             }
             context << ShellExecuteInstall;
             break;
@@ -278,7 +329,9 @@ namespace AppInstaller::CLI::Workflow
             DeploymentOptions deploymentOptions =
                 DeploymentOptions::ForceApplicationShutdown |
                 DeploymentOptions::ForceTargetApplicationShutdown;
-            context.Reporter.ExecuteWithProgress(std::bind(Deployment::RequestAddPackage, uri, deploymentOptions, std::placeholders::_1));
+
+            context.Reporter.ExecuteWithProgress(std::bind(Deployment::AddPackage, uri, deploymentOptions,
+                WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted), std::placeholders::_1));
         }
         catch (const wil::ResultException& re)
         {

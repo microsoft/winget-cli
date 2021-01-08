@@ -130,6 +130,10 @@
     <value>Perintah berikut tersedia:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Tersedia</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Opsi berikut tersedia:</value>
   </data>
@@ -304,6 +308,13 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
     <value>Tautan</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Perintah list menampilkan paket yang terinstal di sistem, serta apakah pembaruan tersedia. Opsi lainnya dapat disediakan untuk memfilter output, mirip dengan perintah search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Tampilkan paket terinstal</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Lokasi untuk diinstal (jika didukung)</value>
   </data>
@@ -341,11 +352,11 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Gagal menghitung hash tandatangan MSIX.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Gagal menginstal paket Microsoft Store karena aplikasi tertentu diblokir oleh kebijakan</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Gagal menginstal atau memperbarui paket Microsoft Store karena aplikasi tertentu diblokir oleh kebijakan</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Gagal menginstal paket Microsoft Store. Kode kesalahan:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Gagal menginstal atau memperbarui paket Microsoft Store. Kode galat:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Memverifikasi/Meminta akuisisi paket gagal: kesalahan jaringan</value>
@@ -359,11 +370,14 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Memverifikasi/Meminta akuisisi paket berhasil</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Gagal menginstal paket Microsoft Store karena aplikasi tertentu diblokir oleh kebijakan</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Gagal menginstal atau memperbarui paket Microsoft Store karena klien Microsoft Store diblokir oleh kebijakan</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Memverifikasi/Meminta akuisisi paket...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Banyak paket terinstal ditemukan cocok dengan kriteria input. Persempit input.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Beberapa paket menemukan kriteria input yang cocok. Silakan Perbaiki input.</value>
@@ -376,6 +390,9 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Saat ini tidak ada fitur eksperimental yang tersedia. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Tidak ditemukan paket terinstal yang cocok dengan kriteria input.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Tidak ditemukan paket yang cocok dengan kriteria input.</value>
@@ -420,7 +437,7 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
     <value>Tampilan kemajuan sebagai warna default</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Mencari paket dari sumber terkonfigurasi.</value>
+    <value>Mencari paket dari sumber yang terkonfigurasi.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Temukan dan tampilkan info dasar paket</value>
@@ -458,9 +475,6 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Saluran</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Menampilkan informasi pada paket tertentu. Secara default, kueri harus tidak peka huruf besar/kecil sesuai dengan id, nama, atau moniker paket. Bidang lain dapat digunakan dengan cara melewati opsi yang tepat.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Tampilkan info tentang paket</value>
@@ -520,7 +534,7 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Bidang</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Nama</value>
@@ -542,7 +556,7 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>tidak pernah</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Nilai</value>
@@ -550,6 +564,14 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Nama sumber</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Gagal membuka sumber; coba perintah 'source reset' jika masalah berlanjut.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Gagal membuka sumber yang ditentukan sebelumnya; laporkan ke pengelola winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Menghapus semua sumber...</value>
@@ -619,13 +641,26 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
     <value>Argumen yang diberikan lebih banyak dari yang diizinkan</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Ada lebih dari satu argumen perilaku penginstalan yang disediakan</value>
+    <value>Lebih dari satu argumen perilaku eksekusi disediakan</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Terjadi kesalahan tak terduga saat mengeksekusi perintah:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Perintah tidak dikenal</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Perbarui semua paket terinstal ke versi terbaru jika tersedia</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Tidak ditemukan pembaruan yang dapat diterapkan.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Memperbarui paket yang dipilih, ditemukan dengan mencari daftar paket yang diinstal atau secara langsung dari manifes. Secara default, kueri harus huruf-insensitively cocok dengan id, nama, atau moniker paket. Bidang lain dapat digunakan dengan cara melewati opsi yang tepat.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Memperbarui paket yang diberikan</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>penggunaan</value>
@@ -654,5 +689,34 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Nilai yang diberikan sebelum penyelesaian diminta</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Tidak ditemukan versi yang cocok:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Tidak ada sumber yang cocok dengan nilai yang diberikan:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Sumber terkonfigurasi adalah:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Tidak ada sumber yang ditentukan; tambahkan sumber dengan 'source add' atau atur ulang ke default dengan 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Ditemukan</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Jalur adalah direktori:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>File tidak ada:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Argumen manifes lokal dan kueri pencarian disediakan</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Log</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

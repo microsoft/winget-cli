@@ -130,6 +130,10 @@
     <value>使用できるコマンドは次のとおりです:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>利用可能</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>次のオプションを使用できます。</value>
   </data>
@@ -304,6 +308,13 @@
     <value>リンク</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>list コマンドは、システムにインストール済みのパッケージ、および更新プログラムが利用可能かどうかを表示します。また search コマンドと同様に、出力をフィルタリングするための追加オプションを提供できます。</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>インストール済みパッケージを表示する</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>インストール先 (サポートされている場合)</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX 署名ハッシュを計算できませんでした。</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>特定のアプリがポリシーによってブロックされているため、Microsoft Store パッケージのインストールに失敗しました</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>特定のアプリがポリシーによってブロックされているため、Microsoft Store パッケージのインストールまたは更新に失敗しました</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Microsoft Store パッケージのインストールに失敗しました。エラー コード:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Microsoft Store パッケージのインストールまたは更新に失敗しました。エラー コード:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>パッケージ取得の成功の確認/要求に失敗しました: ネットワーク エラー</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>パッケージ取得の成功の確認/要求</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Microsoft Store クライアントがポリシーによってブロックされているため、Microsoft Store パッケージのインストールに失敗しました</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Store クライアントがポリシーによってブロックされているため、Microsoft Store パッケージのインストールまたは更新に失敗しました</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>パッケージ取得の確認/要求...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>複数のインストール済みパッケージが一致する入力条件を検出しました。入力内容を修正してください。</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>複数のパッケージが入力条件に一致しました。入力内容を修正してください。</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>現在、試験的機能はありません。</value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>入力条件に一致するインストール済みのパッケージが見つかりませんでした。</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>入力条件に一致するパッケージが見つかりませんでした。</value>
@@ -459,9 +476,6 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>チャネル</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>特定のパッケージの情報を表示します。既定では、クエリはパッケージの ID、名前、モニカーに大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>パッケージに関する情報の表示</value>
   </data>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>フィールド</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>名前</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>なし</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>値</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>ソース名</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>ソースを開くことができませんでした。問題が解決しない場合は、'source reset' コマンドを実行してください。</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>定義済みのソースを開けませんでした; winget メンテナに報告してください。</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>すべてのソースを削除しています...</value>
@@ -619,13 +641,26 @@
     <value>引数が許可されたよりも多く提供されました</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>複数のインストール動作引数が提供されています</value>
+    <value>複数の実行動作引数が提供されています</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>コマンドの実行中に予期しないエラーが発生しました:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>認識されないコマンド</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>インストールされているすべてのパッケージを利用可能であれば最新のに更新する</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>適用可能な更新は見つかりませんでした。</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>インストールされたパッケージ リストから、またはマニフェストから直接検索して見つけた選択されたパッケージを更新します。既定では、クエリはパッケージの ID、名前、モニカーに大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>指定されたパッケージを更新する</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>使用状況</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>完了する前に提供された値が要求されます</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>一致するバージョンが見つかりませんでした:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>指定された値に一致するソースがありません:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>構成されたソースは次のとおりです:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>ソースが定義されていません。 [source add]で追加するか、 [source reset]で規定値にリセットします</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>見つかりました</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>パスはディレクトリです:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>ファイルが存在しません。</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>ローカル マニフェストと検索クエリ引数の両方が提供されている</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>ログ</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

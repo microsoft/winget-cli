@@ -130,6 +130,10 @@
     <value>Estan disponibles les ordres següents:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Disponible</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Estan disponibles les opcions següents:</value>
   </data>
@@ -304,6 +308,13 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
     <value>Enllaços</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>L'ordre llista mostra els paquets instal·lats al sistema i si hi ha una actualització disponible. Es poden proporcionar opcions addicionals per filtrar la sortida, com ara l'ordre de search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Visualitza els paquets instal·lats</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Ubicació on s'instal·larà (si és compatible)</value>
   </data>
@@ -341,11 +352,11 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>No s'ha pogut calcular el hash de l'MSIX de signatura.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>No s'ha pogut instal·lar el paquet del Microsoft Store perquè l'aplicació concreta està bloquejada per la norma</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>No s'ha pogut instal·lar o actualitzar el paquet del Microsoft Store perquè l'aplicació concreta està bloquejada per la norma.</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>No s'ha pogut instal·lar el paquet del Microsoft Store. Codi d'error:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>No s'ha pogut instal·lar o actualitzar el paquet del Microsoft Store. Codi d'error:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>S'ha produït un error en verificar o sol·licitar l'adquisició del paquet: error de xarxa</value>
@@ -359,11 +370,14 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>S'està verificant o sol·licitant si el paquet s'ha adquirit correctament</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>No s'ha pogut instal·lar el paquet del Microsoft Store perquè el client està bloquejat per la norma</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>No s'ha pogut instal·lar o actualitzar el paquet del Microsoft Store perquè el client està bloquejat per la norma.</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>S'està verificant o sol·licitant l”adquisició del paquet...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>S'han trobat diversos paquets instal·lats que coincideixen amb els criteris d'entrada. Refineu l'entrada.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Diversos paquets han trobat criteris d'entrada coincidents. Refineu l'entrada.</value>
@@ -376,6 +390,9 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Actualment no hi ha cap característica experimental disponible. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>No s'ha trobat cap paquet instal·lat que coincideixi amb els criteris d'entrada.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>No hi ha cap paquet que coincideixi amb els criteris d'entrada.</value>
@@ -459,9 +476,6 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   <data name="ShowChannel" xml:space="preserve">
     <value>Canal</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Mostra informació sobre un paquet concret. Per defecte, la consulta ha de coincidir amb l'identificador, el nom o el sobrenom del paquet sense distingir entre majúscules i minúscules. Es poden utilitzar altres camps passant la seva opció apropiada.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Mostra informació sobre un paquet</value>
   </data>
@@ -520,7 +534,7 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Camp</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Nom</value>
@@ -542,7 +556,7 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>mai</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Valor</value>
@@ -550,6 +564,14 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Nom de l'origen</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>No s'ha pogut obrir l'origen. Proveu l'ordre 'source reset' si el problema continua.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>No s'ha pogut obrir l'origen predefinit. Informeu-ne als mantenidors del winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>S'estan suprimint tots els orígens...</value>
@@ -619,13 +641,26 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
     <value>L'argument s'ha proporcionat més vegades de les permeses</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>S'ha proporcionat més d'un argument de comportament de la instal·lació</value>
+    <value>S'ha proporcionat més d'un argument de comportament de la execució</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>S'ha produït un error inesperat en executar l'ordre:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Ordre no reconeguda</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Actualitza tots els paquets instal·lats al més recent (si està disponible)</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>No s'ha trobat cap actualització aplicable.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Actualitza el paquet seleccionat, ja es troba cercant la llista de paquets instal·lats o directament des d'un manifest. Per defecte, la consulta ha de coincidir amb l'identificador, el nom o el sobrenom del paquet. Es poden utilitzar altres camps passant la seva opció apropiada.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Actualitza el paquet especificat</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>ús</value>
@@ -654,5 +689,34 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Se sol·licita el valor proporcionat abans de la compleció</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>No s'ha trobat cap versió coincident:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>No hi ha cap origen que coincideixi amb el valor proporcionat:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Els orígens configurats són:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>No hi ha cap origen definit. Afegiu-ne un amb 'source add' o restabliu els valors per defecte amb 'source reset'.</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Trobat</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>El camí és un directori:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>El fitxer no existeix:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Es proporcionen els arguments del manifest local i de la consulta de cerca</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Registres</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

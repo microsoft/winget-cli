@@ -2,10 +2,14 @@
 // Licensed under the MIT License.
 #pragma once
 #include "pch.h"
+#include "Microsoft/ARPHelper.h"
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include "Microsoft/SQLiteIndex.h"
 #include "Microsoft/SQLiteIndexSource.h"
 #include <winget/ManifestInstaller.h>
+
+#include <winget/Registry.h>
+#include <AppInstallerArchitecture.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -14,13 +18,6 @@ namespace AppInstaller::Repository::Microsoft
 {
     namespace
     {
-        // Populates the index with the ARP entries from the given root.
-        void PopulateIndexFromARP(SQLiteIndex& index, HKEY rootKey)
-        {
-            UNREFERENCED_PARAMETER(index);
-            UNREFERENCED_PARAMETER(rootKey);
-        }
-
         // Populates the index with the entries from MSIX.
         void PopulateIndexFromMSIX(SQLiteIndex& index)
         {
@@ -57,7 +54,22 @@ namespace AppInstaller::Repository::Microsoft
                 Utility::NormalizedString familyName = Utility::ConvertToUTF8(packageId.FamilyName());
 
                 manifest.Id = familyName;
-                manifest.Name = Utility::ConvertToUTF8(package.DisplayName());
+
+                // Attempt to get the DisplayName. Since this will retrieve the localized value, it has a chance to fail.
+                // Rather than completely skip this package in that case, we will simply fall back to using the package name below.
+                try
+                {
+                    manifest.Name = Utility::ConvertToUTF8(package.DisplayName());
+                }
+                catch (const winrt::hresult_error& hre)
+                {
+                    AICLI_LOG(Repo, Info, << "winrt::hresult_error[0x" << Logging::SetHRFormat << hre.code() << ": " <<
+                        Utility::ConvertToUTF8(hre.message()) << "] exception thrown when getting DisplayName for " << familyName);
+                }
+                catch (...)
+                {
+                    AICLI_LOG(Repo, Info, << "Unknown exception thrown when getting DisplayName for " << familyName);
+                }
 
                 if (manifest.Name.empty())
                 {
@@ -98,14 +110,26 @@ namespace AppInstaller::Repository::Microsoft
                 SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
 
                 // Put installed packages into the index
+                std::optional<ARPHelper> arpHelper;
+
                 if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP_System)
                 {
-                    PopulateIndexFromARP(index, HKEY_LOCAL_MACHINE);
+                    if (!arpHelper)
+                    {
+                        arpHelper = ARPHelper();
+                    }
+
+                    arpHelper->PopulateIndexFromARP(index, Manifest::ManifestInstaller::ScopeEnum::Machine);
                 }
 
                 if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP_User)
                 {
-                    PopulateIndexFromARP(index, HKEY_CURRENT_USER);
+                    if (!arpHelper)
+                    {
+                        arpHelper = ARPHelper();
+                    }
+
+                    arpHelper->PopulateIndexFromARP(index, Manifest::ManifestInstaller::ScopeEnum::User);
                 }
 
                 if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::MSIX)

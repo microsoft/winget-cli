@@ -8,6 +8,7 @@
 #include <AppInstallerDownloader.h>
 #include <AppInstallerStrings.h>
 #include <Workflows/InstallFlow.h>
+#include <Workflows/UninstallFlow.h>
 #include <Workflows/UpdateFlow.h>
 #include <Workflows/MSStoreInstallerHandler.h>
 #include <Workflows/ShowFlow.h>
@@ -17,6 +18,7 @@
 #include <Public/AppInstallerRepositorySearch.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/ShowCommand.h>
+#include <Commands/UninstallCommand.h>
 #include <Commands/UpgradeCommand.h>
 #include <winget/LocIndependent.h>
 #include <winget/ManifestYamlParser.h>
@@ -111,7 +113,12 @@ namespace
                     ResultMatch(
                         TestPackage::Make(
                             manifest,
-                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            TestPackage::MetadataMap
+                            {
+                                { PackageVersionMetadata::InstalledType, "Exe" },
+                                { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                                { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                            },
                             std::vector<Manifest>{ manifest2, manifest }
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
@@ -255,7 +262,7 @@ namespace
         std::unique_ptr<Context> Clone() override
         {
             auto clone = std::make_unique<TestContext>(m_out, m_in, m_overrides);
-            clone->GetFlags() = this->GetFlags();
+            clone->SetFlags(this->GetFlags());
             return clone;
         }
 
@@ -309,6 +316,19 @@ void OverrideForShellExecute(TestContext& context)
     OverrideForUpdateInstallerMotw(context);
 }
 
+void OverrideForExeUninstall(TestContext& context)
+{
+    context.Override({ ShellExecuteUninstallImpl, [](TestContext& context)
+    {
+        // Write out the uninstall command
+        std::filesystem::path temp = std::filesystem::temp_directory_path();
+        temp /= "TestExeUninstalled.txt";
+        std::ofstream file(temp, std::ofstream::out);
+        file << context.Get<Execution::Data::UninstallString>();
+        file.close();
+    } });
+}
+
 void OverrideForMSIX(TestContext& context)
 {
     context.Override({ MsixInstall, [](TestContext& context)
@@ -324,6 +344,23 @@ void OverrideForMSIX(TestContext& context)
         else
         {
             file << context.Get<Execution::Data::Installer>()->Url;
+        }
+
+        file.close();
+    } });
+}
+
+void OverrideForMSIXUninstall(TestContext& context)
+{
+    context.Override({ MsixUninstall, [](TestContext& context)
+    {
+        // Write out the package full name
+        std::filesystem::path temp = std::filesystem::temp_directory_path();
+        temp /= "TestMsixUninstalled.txt";
+        std::ofstream file(temp, std::ofstream::out);
+        for (const auto& packageFamilyName : context.Get<Execution::Data::PackageFamilyNames>())
+        {
+            file << packageFamilyName << std::endl;
         }
 
         file.close();
@@ -940,6 +977,97 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
 }
 
+TEST_CASE("UninstallFlow_UninstallExe", "[UninstallFlow][workflow]")
+{
+    TestCommon::TempFile uninstallResultPath("TestExeUninstalled.txt");
+
+    std::ostringstream uninstallOutput;
+    TestContext context{ uninstallOutput, std::cin };
+    OverrideForCompositeInstalledSource(context);
+    OverrideForExeUninstall(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::Silent);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(context);
+    INFO(uninstallOutput.str());
+
+    // Verify Uninstaller is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(uninstallResultPath.GetPath()));
+    std::ifstream uninstallResultFile(uninstallResultPath.GetPath());
+    REQUIRE(uninstallResultFile.is_open());
+    std::string uninstallResultStr;
+    std::getline(uninstallResultFile, uninstallResultStr);
+    REQUIRE(uninstallResultStr.find("uninstall.exe") != std::string::npos);
+    REQUIRE(uninstallResultStr.find("/silence") != std::string::npos);
+}
+
+TEST_CASE("UninstallFlow_UninstallMsix", "[UninstallFlow][workflow]")
+{
+    TestCommon::TempFile uninstallResultPath("TestMsixUninstalled.txt");
+
+    std::ostringstream uninstallOutput;
+    TestContext context{ uninstallOutput, std::cin };
+    OverrideForCompositeInstalledSource(context);
+    OverrideForMSIXUninstall(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestMsixInstaller"sv);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(context);
+    INFO(uninstallOutput.str());
+
+    // Verify Uninstaller is called with the package full name.
+    REQUIRE(std::filesystem::exists(uninstallResultPath.GetPath()));
+    std::ifstream uninstallResultFile(uninstallResultPath.GetPath());
+    REQUIRE(uninstallResultFile.is_open());
+    std::string uninstallResultStr;
+    std::getline(uninstallResultFile, uninstallResultStr);
+    REQUIRE(uninstallResultStr.find("20477fca-282d-49fb-b03e-371dca074f0f_8wekyb3d8bbwe") != std::string::npos);
+}
+
+TEST_CASE("UninstallFlow_UninstallMSStore", "[UninstallFlow][workflow]")
+{
+    TestCommon::TempFile uninstallResultPath("TestMsixUninstalled.txt");
+
+    std::ostringstream uninstallOutput;
+    TestContext context{ uninstallOutput, std::cin };
+    OverrideForCompositeInstalledSource(context);
+    OverrideForMSIXUninstall(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestMSStoreInstaller"sv);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(context);
+    INFO(uninstallOutput.str());
+
+    // Verify Uninstaller is called with the package full name
+    REQUIRE(std::filesystem::exists(uninstallResultPath.GetPath()));
+    std::ifstream uninstallResultFile(uninstallResultPath.GetPath());
+    REQUIRE(uninstallResultFile.is_open());
+    std::string uninstallResultStr;
+    std::getline(uninstallResultFile, uninstallResultStr);
+    REQUIRE(uninstallResultStr.find("microsoft.skypeapp_kzf8qxf38zg5c") != std::string::npos);
+}
+
+TEST_CASE("UninstallFlow_UninstallExeNotFound", "[UninstallFlow][workflow]")
+{
+    TestCommon::TempFile uninstallResultPath("TestExeUninstalled.txt");
+
+    std::ostringstream uninstallOutput;
+    TestContext context{ uninstallOutput, std::cin };
+    OverrideForCompositeInstalledSource(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.MissingApp"sv);
+    context.Args.AddArg(Execution::Args::Type::Silent);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(context);
+    INFO(uninstallOutput.str());
+
+    // Verify Uninstaller is not called.
+    REQUIRE(!std::filesystem::exists(uninstallResultPath.GetPath()));
+    REQUIRE(uninstallOutput.str().find(Resource::LocString(Resource::String::NoInstalledPackageFound).get()) != std::string::npos);
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
+}
+
 void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)
 {
     std::filesystem::path motwFile(testFile);
@@ -952,7 +1080,7 @@ void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)
     REQUIRE(motwContentStr.find("ZoneId=" + std::to_string(zone)) != std::string::npos);
 }
 
-TEST_CASE("UpdateInstallerFileMotw", "[DownloadInstaller][workflow]")
+TEST_CASE("VerifyInstallerTrustLevelAndUpdateInstallerFileMotw", "[DownloadInstaller][workflow]")
 {
     TestCommon::TempFile testInstallerPath("TestInstaller.txt");
 
@@ -976,11 +1104,14 @@ TEST_CASE("UpdateInstallerFileMotw", "[DownloadInstaller][workflow]")
     installer.Url = "http://NotTrusted.com";
     context.Add<Data::Installer>(std::move(installer));
 
-    UpdateInstallerFileMotwIfApplicable(context);
+    context << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
+    REQUIRE(WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerTrusted));
     VerifyMotw(testInstallerPath, 2);
 
     testSource->Details.TrustLevel = SourceTrustLevel::None;
-    UpdateInstallerFileMotwIfApplicable(context);
+    context.ClearFlags(ContextFlag::InstallerTrusted);
+    context << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
+    REQUIRE_FALSE(WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerTrusted));
     VerifyMotw(testInstallerPath, 3);
 
     INFO(updateMotwOutput.str());

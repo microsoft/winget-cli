@@ -130,6 +130,10 @@
     <value>Pieejamas šādas komandas:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Pieejams</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Pieejamas šādas opcijas:</value>
   </data>
@@ -304,6 +308,13 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
     <value>Saites</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Komanda “list” parāda sistēmā instalētās pakotnes, kā arī to, vai ir pieejams atjauninājums. Papildu opcijas var tikt nodrošinātas, lai filtrētu izvadi, līdzīgi kā komanda “search”.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Parādīt instalētās pakotnes</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Atrašanās vieta, kurā instalēt (ja tiek atbalstīta)</value>
   </data>
@@ -341,11 +352,11 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Neizdevās aprēķināt MSIX paraksta jaucējkodu.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Neizdevās instalēt Microsoft Store pakotni, jo konkrēto programmu bloķē politika</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Neizdevās instalēt vai atjaunināt Microsoft Store pakotni, jo konkrēto programmu bloķē politika</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Neizdevās instalēt Microsoft Store pakotni. Kļūdas kods:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Neizdevās instalēt vai atjaunināt Microsoft Store pakotni. Kļūdas kods:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Pakotnes iegūšanas pārbaude/pieprasīšana neizdevās: tīkla kļūda</value>
@@ -359,11 +370,14 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Pakotnes iegādes pārbaude/pieprasīšana sekmīga</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Neizdevās instalēt Microsoft Store pakotni, jo Microsoft Store klientu bloķē politika</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Neizdevās instalēt vai atjaunināt Microsoft Store pakotni, jo Microsoft Store klientu bloķē politika</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Tiek veikta pakotnes iegādes pārbaude/pieprasīšana...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Atrastas vairākas instalētās pakotnes, kas atbilstu ievades kritērijiem. Lūdzu, precizējiet ievadi.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Atrastas vairākas pakotnes, kas atbilstu ievades kritērijiem. Lūdzu, precizējiet ievadi.</value>
@@ -376,6 +390,9 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Pašlaik nav pieejami izmēģinājuma līdzekļi. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Nav atrasta neviena instalēta pakotne, kas atbilstu ievades kritērijiem.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Nav atrasta pakotne, kas atbilstu ievades kritērijiem.</value>
@@ -459,9 +476,6 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanāls</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Rāda informāciju par noteiktu pakotni. Pēc noklusējuma vaicājumam ir jābūt reģistrnejutīgai atbilstībai ar pakotnes ID, nosaukumu vai pavārdu. Citi lauki var tikt izmantoti, nododot tiem atbilstošo opciju.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Rāda informāciju par pakotni</value>
   </data>
@@ -520,7 +534,7 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Lauks</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Nosaukums</value>
@@ -542,7 +556,7 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>nekad</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Vērtība</value>
@@ -550,6 +564,14 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Avota nosaukums</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Neizdevās atvērt avotu; Ja problēma joprojām pastāv, mēģiniet komandu 'source reset'.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Neizdevās atvērt iepriekš definētu avotu; Lūdzu, ziņojiet winget Maintainers.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Noņem visus avotus...</value>
@@ -619,13 +641,26 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
     <value>Arguments norādīts vairāk reižu nekā atļauts</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Norādīti vairāki instalēšanas darbības argumenti</value>
+    <value>Norādīti vairāki izpildes darbības argumenti</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Izpildot komandu, radās neparedzēta kļūda:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Neatpazīta komanda</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Atjaunināt visas instalētās pakotnes uz jaunāko, ja pieejama</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Nav atrasti atbilstoši atjauninājumi.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Atjaunina atlasīto pakotni, atrast, meklējot instalētos pakotņu sarakstu vai tieši no manifesta. Pēc noklusējuma vaicājumā ir jābūt insensitively, kas atbilst pakotnes ID, nosaukumam vai Pavārds neaptver. Citus laukus var izmantot, nodot to atbilstošu opciju.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Atjaunina norādīto pakotni</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>lietojums</value>
@@ -654,5 +689,34 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Tiek pieprasīta vērtība, kas ievadīta pirms pabeigšanas</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Nav atrasta neviena versija, kas atbilst:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Nav avotu, kas atbilst norādītajai vērtībai:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Konfigurētie avoti ir:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Nav definētu avotu; pievienojiet vienu ar 'source add' vai atiestatiet uz noklusējumu ar 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Atrasts</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Ceļš ir direktorijs:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Fails nepastāv:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Tiek nodrošināts gan lokālais manifests, gan meklēšanas vaicājuma argumenti</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Žurnāli</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

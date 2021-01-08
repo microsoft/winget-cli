@@ -130,6 +130,10 @@
     <value>Доступні такі команди:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Доступно</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Доступні наведені нижче параметри.</value>
   </data>
@@ -304,6 +308,13 @@
     <value>Посилання</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>У команді list відображаються пакети, інстальовані в системі, а також доступність оновлення. Можна вказати додаткові параметри, щоб фільтрувати вихідні дані, як у команді search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Відображення інстальованих пакетів</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Розташування для інсталяції (якщо підтримується)</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Не вдалося обчислити геш-код підпису MSIX.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Не вдалось інсталювати пакет із Microsoft Store, тому що певну програму заблоковано політикою</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Не вдалось інсталювати або оновити пакет із Microsoft Store, тому що певну програму заблоковано політикою</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Не вдалось інсталювати пакет із Microsoft Store. Код помилки:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Не вдалось інсталювати або оновити пакет із Microsoft Store. Код помилки:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Не вдалося перевірити або виконати запит на придбання пакета: помилка мережі</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Перевірку або запит на придбання пакета виконано успішно</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Не вдалось інсталювати пакет із Microsoft Store, тому що клієнт Microsoft Store заблоковано політикою</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Не вдалось інсталювати або оновити пакет із Microsoft Store, тому що клієнт Microsoft Store заблоковано політикою</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Перевірка або запит на придбання пакета…</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Знайдено кілька інстальованих пакетів, які відповідають умовам вводу. Уточніть введені дані.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Знайдено кілька пакетів, які відповідають умовам вводу. Уточніть введені дані.</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Зараз немає доступних експериментальних функцій. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Не знайдено інстальованого пакета, який відповідав би умовам вводу.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Не знайдено пакета, який відповідав би умовам вводу.</value>
@@ -459,9 +476,6 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>Канал</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Відображає відомості про певний пакет. За замовчуванням запит має без урахування регістра збігатися з ідентифікатором, іменем або монікером пакета. Інші поля можна використовувати, передаючи його відповідні параметри.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Відображає відомості про пакет</value>
   </data>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Поле</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Ім’я</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>ніколи</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Значення</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Ім’я джерела</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Не вдалося відкрити джерело. Якщо проблема не зникне, спробуйте виконати команду "source reset".</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Не вдалося відкрити попередньо визначене джерело. Повідомте про це спеціалістам із підтримки winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Вилучення всіх джерел…</value>
@@ -619,13 +641,26 @@
     <value>Аргумент наведено більше разів, ніж дозволено</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Наведено більше одного аргумента поведінки інсталяції</value>
+    <value>Наведено кілька аргументів поведінки виконання</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Під час виконання команди сталася неочікувана помилка:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Нерозпізнана команда</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Оновіть усі інстальовані пакети до найновішого, якщо доступно</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Не знайдено застосовних оновлень.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Оновлення вибраного пакета, знайдено за допомогою пошуку інстальованих списку пакетів або безпосередньо з маніфесту. За замовчуванням запит має insensitively збігається з ідентифікатором, іменем або монікер пакета. Інші поля можна використовувати, достатня відповідний параметр.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Оновлення вказаного пакета</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>використання</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Значення, введене до того, як запитано завершення</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Не знайдено версії, яка відповідала б:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Немає джерел, які відповідають указаному значенню:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Налаштовані джерела:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Немає визначених джерел. Додайте джерело за допомогою команди "source add" або відновіть значення за замовчуванням за допомогою "source reset"</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Знайдено</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Шлях є шляхом до каталогу:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Файл не існує:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Надано аргументи локального маніфесту та пошукового запиту</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Журнали</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

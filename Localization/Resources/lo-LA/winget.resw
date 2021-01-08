@@ -130,6 +130,10 @@
     <value>ສາມາດໃຊ້ຄຳສັ່ງຕໍ່ໄປນີ້ໄດ້:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>ມີຢູ່</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>ສາມາດໃຊ້ຕົວເລືອກຕໍ່ໄປນີ້ໄດ້:</value>
   </data>
@@ -304,6 +308,13 @@
     <value>ລິ້ງ</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>ຄຳສັ່ງ list ຈະສະແດງຊຸດທີ່ຕິດຕັ້ງຢູ່ໃນລະບົບ, ພ້ອມທັງກວດເບິ່ງວ່າມີການອັບ​ເດດໃໝ່ຫຼືບໍ່. ຕົວເລືອກເພີ່ມເຕີມສາມາດໃຫ້ເພື່ອກັ່ນຕອງຜົນໄດ້ຮັບ, ຄືກັບຄຳສັ່ງ search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>ສະແດງແພັກເກດທີ່ຕິດຕັ້ງແລ້ວ</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>ບ່ອນຕິດຕັ້ງໄປໃສ່ (ຖ້າຮອງຮັບ)</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>ຄຳນວນແຮຊລາຍເຊັນ MSIX ບໍ່ສຳເລັດ.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>ຕິດຕັ້ງແພັກເກດ Microsoft Store ບໍ່ສຳເລັດ ເພາະວ່າແອັບສະເພາະຖືກບລັອໄວ້ຕາມນະໂຍບາຍ</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>ຕິດຕັ້ງ ຫຼື ອັບເດດແພັກເກດ Microsoft Store ບໍ່ສຳເລັດເພາະວ່າແອັບທີ່ກຳນົດຖືກບລັອກໄວ້ຕາມນະໂຍບາຍ</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>ຕິດຕັ້ງແພັກເກດ Microsoft Store ບໍ່ສຳເລັດ. ລະຫັດຂໍ້ຜິດພາດ:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>ຕິດຕັ້ງ ຫຼື ອັບເດດແພັກເກດ Microsoft Store ບໍ່ສຳເລັດ. ລະຫັດຂໍ້ຜິດພາດ:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>ການກວດສອບ/ການຂໍຮັບແພັກເກດບໍ່ສຳເລັດ: ເຄືອຂ່າຍຂັດຂ້ອງ</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>ການກວດສອບ/ການຂໍຮັບແພັກເກດສຳເລັດແລ້ວ</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>ຕິດຕັ້ງແພັກເກດ Microsoft Store ບໍ່ສຳເລັດ ເພາະວ່າລູກຂ່າຍ Microsoft Store ຖືກບລັອໄວ້ຕາມນະໂຍບາຍ</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>ຕິດຕັ້ງ ຫຼື ອັບເດດແພັກເກດ Microsoft Store ບໍ່ສຳເລັດເພາະວ່າລູກຂ່າຍ Microsoft Store ຖືກບລັອກໄວ້ຕາມນະໂຍບາຍ</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>ກຳລັງກວດສອບ/ກຳລັງຂໍຮັບແພັກເກດ...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>ພົບແພັກເກດທີ່ຕິດຕັ້ງຫຼາຍອັນທີ່ກົງກັບເກນເງື່ອນໄຂການປ້ອນຂໍ້ມູນ. ກະລຸນາກັ່ນຕອງການປ້ອນຂໍ້ມູນ.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>ພົບແພັກເກດຫຼາຍອັນທີ່ກົງກັບເກນເງື່ອນໄຂການປ້ອນຂໍ້ມູນ. ກະລຸນາກັ່ນຕອງການປ້ອນຂໍ້ມູນ.</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>ບໍ່ມີຄຸນສົມບັດແບບທົດລອງ.</value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>ບໍ່ພົບແພັກເກດຕິດຕັ້ງແລ້ວທີ່ກົງກັບເກນເງື່ອນໄຂການປ້ອນຂໍ້ມູນ.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>ບໍ່ພົບແພັກເກດທີ່ກົງກັບເກນເງື່ອນໄຂການປ້ອນຂໍ້ມູນ.</value>
@@ -459,9 +476,6 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>ຊ່ອງ</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>ສະແດງຂໍ້ມູນກ່ຽວກັບແພັກເກດສະເພາະ. ຕາມຄ່າເລີ່ມຕົ້ນ, ຄຳຖາມຕ້ອງກົງກັບໄອດີ, ຊື່ ຫຼື ຊື່ຫຼິ້ນຂອງແພັກເກດຕາມຕົວອັກສອນນ້ອຍໃຫຍ່. ສາມາດໃຊ້ຊ່ອງຂໍ້ມູນອື່ນໂດຍການຜ່ານຕົວເລືອກທີ່ເໝາະສົມຂອງພວກມັນ.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>ສະແດງຂໍ້ມູນກ່ຽວກັບແພັກເກດ</value>
   </data>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>ສະໜາມຫຍ້າ</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>ຊື່</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>ບໍ່ເຄີຍ</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>ຄ່າ</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>ຊື່ແຫຼ່ງທີ່ມາ</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>ລົ້ມເຫລວໃນການເປີດແຫລ່ງຂໍ້ມູນ; ລອງໃຊ້ຄຳສັ່ງ 'source reset' ຖ້າມີປັນຫາ.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>ລົ້ມເຫລວໃນການເປີດແຫຼ່ງຂໍ້ມູນທີ່ກຳນົດໄວ້ກ່ອນ; ກະລຸນາລາຍງານໃຫ້ຜູ້ເບິ່ງແຍງລະບົບ winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>ກຳລັງລຶບແຫຼ່ງທີ່ມາທັງໝົດອອກ...</value>
@@ -619,13 +641,26 @@
     <value>ລະບຸອາກິວເມັນເກີນທີ່ອະນຸຍາດໄວ້</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>ລະບຸອາກິວເມັນພຶດຕິກຳການຕິດຕັ້ງຫຼາຍກວ່າໜຶ່ງອັນ</value>
+    <value>ລະບຸອາກິວເມັນເຮັດວຽກການຫຼາຍກວ່າໜຶ່ງອັນ</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>ເກີດຄວາມຜິດພາດທີ່ບໍ່ຄາດຄິດຂຶ້ນໃນລະຫວ່າງການດຳເນີນຄຳສັ່ງ:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>ຄຳສັ່ງທີ່ບໍ່ຮູ້ຈັກ</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>ອັບເດດຊຸດທີ່ຕິດຕັ້ງທັງໝົດໃຫ້ໃໝ່ຫຼ້າສຸດຖ້າມີ</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>ບໍ່ພົບການອັບເດດທີ່ເໝາະສົມ.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>ອັບເດດແພັກເກດທີ່ເລືອກ, ບໍ່ວ່າຈະພົບໂດຍການຊອກຫາ​ລາຍ​ການແພັກເກດທີ່ຕິດຕັ້ງແລ້ວ ຫຼື ໂດຍກົງຈາກລາຍການສະແດງ. ຕາມຄ່າເລີ່ມຕົ້ນ, ຄຳຖາມຕ້ອງກົງກັບໄອດີ, ຊື່ ຫຼື ຊື່ຫຼິ້ນຂອງແພັກເກດຕາມຕົວອັກສອນນ້ອຍໃຫຍ່. ສາມາດໃຊ້ຊ່ອງຂໍ້ມູນອື່ນໂດຍການຜ່ານຕົວເລືອກທີ່ເໝາະສົມຂອງພວກມັນ.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>ອັບເດດແພັກເກດທີ່ໃຫ້ມາ</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>ການໃຊ້</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>ມີການຮ້ອງຂໍຄ່າທີ່ສະໜອງໃຫ້ກ່ອນຄວາມສຳເລັດ</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>ບໍ່ພົບເວີຊັນທີ່ກົງກັນ:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>ບໍ່ມີແຫຼ່ງຂໍ້ມູນໃດທີ່ກົງກັບມູນຄ່າທີ່ກຳນົດໄວ້:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>ແຫຼ່ງຂໍ້ມູນທີ່ກຳນົດໄວ້ແມ່ນ:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>ບໍ່ມີແຫລ່ງທີ່ກຳນົດ; ເພີ່ມດ້ວຍ 'source add' ຫຼື ຣີເຊັດເປັນຄ່າເລີ່ມຕົ້ນກັບ 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>ພົບ</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>ເສັ້ນທາງເປັນ​ໄດ​ເຣັກ​ທໍຣີ:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>ບໍ່ມີໄຟລ໌ຢູ່:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>ມີການລະບຸທັງລາຍການໃນເຄື່ອງແລະອາກິວເມັນຄຳ​ຖາມ​ຊອກ​ຫາ</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>ບັນທຶກ</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

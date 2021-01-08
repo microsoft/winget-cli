@@ -37,9 +37,9 @@
 #include <type_traits>
 #include <vector>
 
+#include <wil/resource.h>
 #include <wil/result_macros.h>
 #include <wil/safecast.h>
-#include <wil/resource.h>
 #include <wil/token_helpers.h>
 
 #ifndef WINGET_DISABLE_FOR_FUZZING

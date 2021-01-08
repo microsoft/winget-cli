@@ -130,6 +130,10 @@
     <value>కింది ఆదేశాలు అందుబాటులో ఉన్నాయి:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>అందుబాటులో ఉంది</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>కింది ఎంపికలు అందుబాటులో ఉన్నాయి:</value>
   </data>
@@ -304,6 +308,13 @@
     <value>లింక్‌లు</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>list ఆదేశం సిస్టమ్‌లో వ్యవస్థాపించిన ప్యాకేజీలను, అలాగే నవీకరణ అందుబాటులో ఉందో లేదో ప్రదర్శిస్తుంది. search ఆదేశం వలె అవుట్‌ఫుట్‌ను ఫిల్టర్ చేయడానికి అదనపు ఎంపికలు అందించబడతాయి.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>వ్యవస్థాపించిన ప్యాకేజీలను ప్రదర్శించు</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>వ్యవస్థాపించవలసిన స్థానం (మద్దతు ఉంటే)</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX సంతకం హాష్‌ను లెక్కించడంలో విఫలమైంది.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Microsoft Store ప్యాకేజీని వ్యవస్థాపించడంలో విఫలమైంది ఎందుకంటే విధానం ద్వారా నిర్దిష్ట అప్లికేషన్ బ్లాక్ చేయబడింది</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Microsoft Store ప్యాకేజీని వ్యవస్థాపించడంలో లేదా నవీకరించడంలో విఫలమైంది ఎందుకంటే విధానం ద్వారా నిర్దిష్ట అప్లికేషన్ బ్లాక్ చేయబడింది</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Microsoft Store ప్యాకేజీని వ్యవస్థాపించడంలో విఫలమైంది. దోష కోడ్:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Microsoft Store ప్యాకేజీని వ్యవస్థాపించడంలో లేదా నవీకరించడంలో విఫలమైంది. దోష కోడ్:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>ప్యాకేజీ అక్విజిషన్ ధృవీకరించడం/అభ్యర్థించడం విఫలమైంది: నెట్‌వర్క్ దోషం</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>ప్యాకేజీ అక్విజిషన్ ధృవీకరించడం/అభ్యర్థించడం విజయవంతమైంది</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Microsoft Store ప్యాకేజీని వ్యవస్థాపించడంలో విఫలమైంది ఎందుకంటే విధానం ద్వారా Microsoft Store క్లయింట్ బ్లాక్ చేయబడింది</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Store ప్యాకేజీని వ్యవస్థాపించడంలో లేదా నవీకరించడంలో విఫలమైంది ఎందుకంటే విధానం ద్వారా Microsoft Store క్లయింట్ బ్లాక్ చేయబడింది</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>ప్యాకేజీ అక్విజిషన్ ధృవీకరిస్తోంది/అభ్యర్థిస్తోంది...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>ఇన్‌పుట్ ప్రమాణానికి సరిపోలే బహుళ ఇన్‌స్టాల్ చేసిన ప్యాకేజీలు కనుగొనబడ్డాయి. దయచేసి ఇన్‌పుట్‌ను మెరుగుపరచండి.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>ఇన్‌పుట్ ప్రమాణానికి సరిపోలే బహుళ ప్యాకేజీలు కనుగొనబడ్డాయి. దయచేసి ఇన్‌పుట్‌ని మెరుగుపరచు.</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>ప్రస్తుతం ఎటువంటి ప్రయోగాత్మక ఫీచర్‌లు అందుబాటులో లేవు. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>ఇన్‌పుట్ ప్రమాణానికి సరిపోయే ఇన్‌స్టాల్ చేయబడిన ప్యాకేజీ కనుగొనబడలేదు.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>ఇన్‌పుట్‌ ప్రమాణానికి సరిపోలే ప్యాకేజీ కనుగొనబడలేదు.</value>
@@ -420,7 +437,7 @@
     <value>డిఫాల్ట్ రంగుగా పురోగతి ప్రదర్శన</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>నిర్మితీకరించిన మూలాల నుండి ప్యాకేజీల కోసం శోధనలు.</value>
+    <value>నిర్మితీకరించిన మూలాల నుండి ప్యాకేజీల కోసం శోధిస్తుంది.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>ప్యాకేజీల ప్రాథమిక సమాచారాన్ని కనుగొని చూపించు</value>
@@ -458,9 +475,6 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>ఛానెల్</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>ఒక నిర్దిష్ట ప్యాకేజీపై సమాచారాన్ని ప్రదర్శిస్తుంది. డిఫాల్ట్‌గా, ప్రశ్న తప్పనిసరిగా ప్యాకేజీ యొక్క id, పేరు లేదా మోనికర్‌తో కేస్ సెన్సిటివ్‌గా సరిపోలాలి. ఇతర ఫీల్డ్‌లు వాటి తగిన ఎంపికను అందించడం ద్వారా ఉపయోగించవచ్చు.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>ప్యాకేజి గురించి సమాచారాన్ని చూపుతుంది</value>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>ఫీల్డ్</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>పేరు</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>ఎప్పటికీ వద్దు</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>మూల్యం</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>మూలం పేరు</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>మూలాన్ని తెరవడంలో విఫలమైంది; సమస్య కొనసాగితే 'source reset' ఆదేశాన్ని ప్రయత్నించండి.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>ముందే నిర్వచించిన మూలాన్ని తెరవడంలో విఫలమైంది; దయచేసి winget నిర్వాహకులతో నివేదించండి.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>అన్ని మూలాలను తీసివేస్తోంది...</value>
@@ -619,13 +641,26 @@
     <value>వాదన అనుమతించిన దానికంటే ఎక్కువ సార్లు అందించబడింది</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>ఒకటి కంటే ఎక్కువ వ్యవస్థాప ప్రవర్తన వాదన అందించబడింది</value>
+    <value>ఒకటి కంటే ఎక్కువ అమలు ప్రవర్తన వాదన అందించబడింది</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>ఆదేశాన్ని అమలు చేస్తున్నప్పుడు ఊహించని లోపం సంభవించింది:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>గుర్తించబడని ఆదేశం</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>వ్యవస్థాపించిన అన్ని ప్యాకేజీలు అందుబాటులో ఉంటే తాజా దానికి నవీకరించండి</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>వర్తించే నవీకరణ కనుగొనబడలేదు.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>ఇన్‌స్టాల్ చేయబడిన ప్యాకేజీల జాబితాను శోధించడం ద్వారా లేదా మానిఫెస్ట్ నుండి నేరుగా ఎంచుకున్న ప్యాకేజీని నవీకరిస్తుంది. డిఫాల్ట్‌గా ప్రశ్న తప్పనిసరిగా ప్యాకేజీ యొక్క ఐడీ, పేరు లేదా మోనికేర్‌తో కేస్-ఇన్‌సెన్సిటివ్‌గా సరిపోలాలి. ఇతర ఫీల్డ్‌లు వాటి తగిన ఎంపికను దాటడం ద్వారా ఉపయోగించవచ్చు.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>ఇచ్చిన ప్యాకేజీని నవీకరిస్తుంది</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>ఉపయోగం</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>పూర్తి చేయడానికి ముందు అందించిన విలువ అభ్యర్థించబడింది</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>ఏ వెర్షన్ సరిపోలలేదు:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>ఇచ్చిన మూల్యానికి ఏ మూలాలు సరిపోలడం లేదు:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>నిర్మితీకరించబడిన మూలాలు:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>మూలాలు నిర్వచించబడలేదు; 'source add' తో ఒకదాన్ని జోడించండి లేదా 'source reset' తో డిఫాల్ట్‌లకు రీసెట్ చేయండి</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>కనుగొనబడింది</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>పథం ఒక డైరెక్టరీ:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>ఫైలు ఉనికిలో లేదు:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>స్థానిక మానిఫెస్ట్ మరియు శోధన ప్రశ్న args రెండూ అందించబడ్డాయి</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>లాగ్‌లు</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

@@ -130,6 +130,10 @@
     <value>Предлагат се следните команди:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Налична</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Предлагат се следните опции:</value>
   </data>
@@ -304,6 +308,13 @@
     <value>Връзки</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Командата „list“ показва пакетите, инсталирани в системата, както и дали има налична актуализация. Могат да се предоставят допълнителни опции за филтриране на изхода, подобно на командата „search“.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Показване на инсталираните пакети</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Местоположение за инсталиране в (ако се поддържа)</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Неуспешно изчисляване на хеш на подпис MSIX.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Неуспешно инсталиране на пакета от Microsoft Store, защото конкретното приложение е блокирано от правила</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Неуспешно инсталиране или актуализиране на пакета от Microsoft Store, тъй като конкретното приложение е блокирано от правила</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Неуспешно инсталиране на пакета от Microsoft Store. Код на грешка:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Неуспешно инсталиране или актуализиране на пакета от Microsoft Store. Код на грешка:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Неуспешна проверка/искане за придобиване на пакет: мрежова грешка</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Проверка/искане на успешно придобиване на пакет</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Неуспешно инсталиране на пакета от Microsoft Store, защото клиентът на Microsoft Store е блокиран от правила</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Неуспешно инсталиране или актуализиране на пакета от Microsoft Store, защото клиентът на Microsoft Store е блокиран от правила</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Проверка/искане на придобиване на пакет...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>За няколко пакета са намерени съответстващи критерии за въвеждане. Уточнете въведеното.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Няколко пакета са намерили съответстващи критерии за въвеждане. Уточнете въведеното.</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>В момента няма налични експериментални функции. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Не е открит инсталиран пакет, който да отговаря на критериите за въвеждане.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Не е открит пакет, който да съвпада на критериите за въвеждане.</value>
@@ -420,7 +437,7 @@
     <value>Дисплей за напредъка като цвят по подразбиране</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Търсят се пакети от конфигурирани източници.</value>
+    <value>Търсене на пакети от конфигурирани източници.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Намиране и показване на основна информация за пакети</value>
@@ -458,9 +475,6 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Канал</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Показва информация за конкретен пакет. По подразбиране заявката трябва да съвпада без значение дали са използвани малки или главни букви (нечувствително към положението на регистъра) с ИД, името или псевдонима на пакета. Други полета могат да се използват, като се предаване на съответната опция.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Показва информация за пакет</value>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Поле</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Име</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>никога</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Стойност</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Име на източника</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Неуспешно отваряне на източника; ако проблемът продължава, изпробвайте командата „source reset“.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Неуспешно отваряне на предварително дефинирания източник; съобщете на отговорниците за winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Премахване на всички източници...</value>
@@ -619,13 +641,26 @@
     <value>Аргументът е предоставен повече пъти от позволено</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Дадени са няколко аргумента за поведение на инсталацията</value>
+    <value>Предоставени са няколко аргумента за поведение при изпълнение</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Възникна неочаквана грешка при изпълнение на командата:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Неразпозната команда</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Актуализиране на всички инсталирани пакети до най-новите, ако са налични</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Не са намерени приложими актуализации.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Актуализира избрания пакет или е открит чрез търсене в списъка с инсталирани пакети, или директно от манифест. По подразбиране заявката трябва да съвпада нечувствително с ИД, името или псевдонима на пакета. Други полета могат да се използват, като се премине съответната опция.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Актуализира дадения пакет</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>използване</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Стойността, предоставена преди завършването, е поискана</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Не е намерена съвпадаща версия:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Няма източници, съответстващи на дадената стойност:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Конфигурираните източници са:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Не са дефинирани източници; добавете такъв с „source add“, или нулирайте настройките по подразбиране с „source reset“</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Намерен</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Пътят е директория:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Файлът не съществува:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Предоставени са както локални манифести, така и опции за заявки за търсене на аргументи</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Регистрационни файлове</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

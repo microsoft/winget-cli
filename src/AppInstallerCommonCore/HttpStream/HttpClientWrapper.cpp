@@ -45,7 +45,9 @@ namespace AppInstaller::Utility::HttpStream
 
         HttpResponseMessage response = co_await m_httpClient.SendRequestAsync(request, HttpCompletionOption::ResponseHeadersRead);
 
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED), response.StatusCode() != HttpStatusCode::Ok);
+        THROW_HR_IF(
+            MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, response.StatusCode()),
+            response.StatusCode() != HttpStatusCode::Ok);
 
         // Get the length from the response
         if (response.Content().Headers().HasKey(L"Content-Length"))

@@ -283,7 +283,7 @@ TEST_CASE("CommandComplete_PartialCommandMatch", "[complete]")
     CompletionTestContext ctc{ "cart", "winget cart", "11" };
 
     CompletionTestCommand command;
-    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
     command.Complete(ctc.context);
 
@@ -300,7 +300,7 @@ TEST_CASE("CommandComplete_CommandsNotAllowed", "[complete]")
     CompletionTestContext ctc{ "", "winget foobar ", "14" };
 
     CompletionTestCommand command;
-    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
     command.Complete(ctc.context);
 
@@ -316,7 +316,7 @@ TEST_CASE("CommandComplete_Routing1", "[complete]")
     CompletionTestContext ctc{ "", "winget --arg1 ", "14" };
 
     CompletionTestCommand command;
-    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
         Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
         Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Standard },
@@ -337,7 +337,7 @@ TEST_CASE("CommandComplete_Routing2", "[complete]")
     CompletionTestContext ctc{ "", "winget --arg2 ", "14" };
 
     CompletionTestCommand command;
-    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
         Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
         Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Standard },
@@ -358,7 +358,7 @@ TEST_CASE("CommandComplete_PositionalRouting", "[complete]")
     CompletionTestContext ctc{ "", "winget ", "7" };
 
     CompletionTestCommand command;
-    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
         Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
         Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
@@ -381,7 +381,7 @@ TEST_CASE("CommandComplete_PositionalRoutingAfterArgs", "[complete]")
     CompletionTestContext ctc{ "", "winget --arg1 value ", "20" };
 
     CompletionTestCommand command;
-    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
         Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
         Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
@@ -403,7 +403,7 @@ TEST_CASE("CommandComplete_PositionalRoutingAfterDoubleDash", "[complete]")
     CompletionTestContext ctc{ "", "winget -- ", "10" };
 
     CompletionTestCommand command;
-    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
         Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
         Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
@@ -424,7 +424,7 @@ TEST_CASE("CommandComplete_ArgNamesAfterDash", "[complete]")
     CompletionTestContext ctc{ "-", "winget -", "8" };
 
     CompletionTestCommand command;
-    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
         Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
         Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
@@ -444,7 +444,7 @@ TEST_CASE("CommandComplete_AliasNames", "[complete]")
     CompletionTestContext ctc{ "-a", "winget -a", "9" };
 
     CompletionTestCommand command;
-    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
         Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
         Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
@@ -464,7 +464,7 @@ TEST_CASE("CommandComplete_ArgNamesFilter", "[complete]")
     CompletionTestContext ctc{ "--a", "winget --a", "10" };
 
     CompletionTestCommand command;
-    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
         Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
         Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
@@ -485,7 +485,7 @@ TEST_CASE("CommandComplete_IgnoreBadArgs", "[complete]")
     CompletionTestContext ctc{ "", "winget foo bar --arg1 ", "22" };
 
     CompletionTestCommand command;
-    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
         Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
         Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Standard },
@@ -506,7 +506,7 @@ TEST_CASE("CommandComplete_OtherArgsParsed", "[complete]")
     CompletionTestContext ctc{ "", "winget --arg1 value1  --arg2 value2", "21" };
 
     CompletionTestCommand command;
-    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
         Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
         Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Standard },
@@ -530,7 +530,7 @@ TEST_CASE("CommandComplete_Complex", "[complete]")
     CompletionTestContext ctc{ "", "winget foo --arg1 value1 bar junk --arg2 ", "41" };
 
     CompletionTestCommand command;
-    command.SubCommandNames = { "car", "cart", "cartesion", "carpet" };
+    command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
         Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
         Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Standard },

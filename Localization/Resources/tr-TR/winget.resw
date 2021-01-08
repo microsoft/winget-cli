@@ -130,6 +130,10 @@
     <value>Şu komutlar kullanılabilir:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Kullanılabilir</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Şu seçenekler kullanılabilir:</value>
   </data>
@@ -304,6 +308,13 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
     <value>Bağlantılar</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Bu list komutu sistemde yüklü paketlerin yanı sıra güncelleştirme olup olmadığı görüntüler. Çıkışı filtrelemek için search komutuna benzer ek seçenekler sağlanabilir.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Yüklü paketleri görüntüleyin</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Yüklenecek konum (destekleniyorsa)</value>
   </data>
@@ -341,11 +352,11 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX imza karması hesaplanamadı.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Belirli bir uygulama ilke tarafından engellendiği için Microsoft Store paketi yüklenemedi</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Belirli uygulama ilke tarafından engellendiği için Microsoft Store paketi yüklenemedi veya güncelleştirilemedi</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Microsoft Store paketi yüklenemedi. Hata kodu:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Microsoft Store paketi yüklenemedi veya güncelleştirilemedi. Hata kodu:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Paket alımı doğrulama/isteme başarısız oldu: ağ hatası</value>
@@ -359,11 +370,14 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Paket alımı doğrulama/isteme başarılı</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Microsoft Store istemcisi ilke tarafından engellendiği için Microsoft Store paketi yüklenemedi</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Store istemcisi ilke tarafından engellendiği için Microsoft Store paketi yüklenemedi veya güncelleştirilemedi</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Paket alımı doğrulama/isteme...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Birden çok yüklü paket, giriş ölçütleriyle eşleşen bir şekilde bulundu. Lütfen girişi daraltın.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Birden çok paket, giriş ölçütleriyle eşleşen bulundu. Lütfen girişi daraltın.</value>
@@ -376,6 +390,9 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Şu anda kullanılabilir deneysel özellik yok. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Giriş ölçütleriyle eşleşen yüklü paket bulunamadı.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Giriş ölçütleriyle eşleşen paket bulunamadı.</value>
@@ -459,9 +476,6 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Belirli bir paketteki bilgileri gösterir. Varsayılan olarak, sorgunun büyük/küçük harfe duyarlı olmaması durumunda, paketin kimliği, adı veya adıyla eşleşmesi gerekir. Diğer alanlar uygun seçeneklerden geçirilerek kullanılabilir.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Bir paketle ilgili bilgileri gösterir</value>
   </data>
@@ -520,7 +534,7 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Alan</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Ad</value>
@@ -542,7 +556,7 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>hiçbir zaman</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Değer</value>
@@ -550,6 +564,14 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Kaynak adı</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Kaynak açılamadı; sorun devam ederse ‘source reset’ komutunu deneyin.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Önceden tanımlanmış kaynak açılamadı; Lütfen winget sürdürülebilir bildirin.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Tüm kaynaklar kaldırılıyor...</value>
@@ -619,13 +641,26 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
     <value>İzin verilenden daha fazla sayıda bağımsız değişken sağlandı</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Birden fazla yükleme davranışı bağımsız değişkeni sağlandı</value>
+    <value>Birden fazla yürütme davranışı bağımsız değişkeni sağlandı</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Komut yürütülürken beklenmeyen bir hata oluştu:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Tanınmayan komut</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Tüm yüklü paketleri varsa en son sürüme güncelleştirin</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Uygulanabilir güncelleştirme bulunamadı.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Yüklü paketler listesi aranarak bulunan veya doğrudan bir bildirimdeki seçili paketi güncelleştirir. Varsayılan olarak, sorgu, paketin kimliğiyle, adıyla veya bilinen adıyla büyük/küçük harfe duyarlı olmadan eşleşmelidir. Diğer alanlar uygun seçenekleri aktarılarak kullanılabilir.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Verilen paketi güncelleştirir</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>kullanım</value>
@@ -654,5 +689,34 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Tamamlama istenmeden önce sağlanan değer</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Eşleşen sürüm bulunamadı:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Verilen değerle eşleşen kaynak yok:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Yapılandırılmış kaynaklar şunlardır:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Tanımlanmış kaynak yok; ‘source add’ ile bir kaynak ekleyin veya ‘source reset’ ile varsayılanlara sıfırlayın</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Bulundu</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Yol bir dizindir:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Dosya yok:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Hem yerel bildirim hem de arama sorgusu bağımsız değişkenleri sağlandı</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Günlükler</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

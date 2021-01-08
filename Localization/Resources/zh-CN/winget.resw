@@ -130,6 +130,10 @@
     <value>下列命令有效:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>可用</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>下列选项可用：</value>
   </data>
@@ -304,6 +308,13 @@
     <value>链接</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>list 命令显示系统上安装的程序包，以及是否有可用的更新。可以提供其他选项来筛选输出，这与 search 命令非常相似。</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>显示已安装的程序包</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>要安装到的位置（如支持）</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>无法计算 MSIX 签名哈希。</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>无法安装 Microsoft Store 程序包，因为策略阻止了特定应用</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>无法安装或更新 Microsoft Store 程序包，因为策略阻止了特定应用</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>无法安装 Microsoft Store 程序包。错误代码:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>无法安装或更新 Microsoft Store 程序包。错误代码：</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>验证/请求程序包获取失败: 网络错误</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>验证/请求程序包获取成功</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>无法安装 Microsoft Store 程序包，因为策略阻止了 Microsoft Store 客户端</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>无法安装或更新 Microsoft Store 程序包，因为策略阻止了 Microsoft Store 客户端</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>验证/请求程序包获取成功...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>找到多个与输入标准匹配的已安装程序包。请修改输入。</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>找到多个与输入条件匹配的程序包。请修改输入。</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>当前没有实验性功能可用。</value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>找不到与输入条件匹配的已安装程序包。</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>找不到与输入条件匹配的程序包。</value>
@@ -459,9 +476,6 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>频道</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>显示有关特定程序包的信息。默认情况下，查询必须以不区分大小写的方式匹配程序包的 ID、名称或名字对象。可通过传递相应的选项来使用其他字段。</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>显示有关程序包的信息</value>
   </data>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>字段</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>名称</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>从不</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>值</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>源名称</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>无法打开源; 如果问题仍然存在，请尝试“source reset”命令。</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>打开预定义源失败; 请向 winget 维护人员报告。</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>正在删除所有源...</value>
@@ -619,13 +641,26 @@
     <value>提供的参数超过允许的参数</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>提供多个安装行为参数</value>
+    <value>提供了多个执行行为参数</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>执行此命令时发生意外错误：</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>无法识别的命令</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>如果可用，将所有已安装的程序包更新为最新版本</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>找不到适用的更新。</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>通过搜索 "已安装的包" 列表或直接从清单更新所选的包。默认情况下，查询必须 insensitively 匹配程序包的 id、名称或名字对象。可通过传递适当的选项来使用其他字段。</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>更新给定的程序包</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>使用情况</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>请求补全前提供的值</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>找不到匹配的版本:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>没有与给定值匹配的源:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>配置的源为:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>未定义源; 使用“source add”添加一个或使用“source reset”重置为默认值</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>已找到</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>路径是一个目录：</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>文件不存在:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>同时提供本地清单和搜索查询参数</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>日志</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

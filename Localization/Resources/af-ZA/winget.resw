@@ -130,6 +130,10 @@
     <value>Die volgende bevele is beskikbaar:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Beskikbaar</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Die volgende opsies is beskikbaar:</value>
   </data>
@@ -304,6 +308,13 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
     <value>Skakels</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Die list-bevel vertoon die pakkette wat op die stelsel geïnstalleer is, asook of ’n bywerking beskikbaar is. Bykomende opsies kan verskaf word om die afvoer te filter, baie soos die search-bevel.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Wys geïnstalleerde pakkette</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Ligging om na te installeer (indien dit ondersteun word)</value>
   </data>
@@ -341,11 +352,11 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Berekening van MSIX-handtekeninghuts het misluk.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Kon nie Microsoft Store-pakket installeer nie omdat die spesifieke toepassing deur beleid geblokkeer is</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Kon nie Microsoft Store-pakket installeer of bywerk nie omdat die spesifieke toepassing deur beleid geblokkeer word</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Kon nie Microsoft Store-pakket installeer nie. Foutkode:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Kon nie Microsoft Store-pakket installeer of bywerk nie. Foutkode:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Verifikasie van/Versoek vir pakketverkryging het misluk: netwerkfout</value>
@@ -359,11 +370,14 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Verifikasie van/Versoek vir pakketverkryging was suksesvol</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Kon nie Microsoft Store-pakket installeer nie omdat Microsoft Store-kliënt deur beleid geblokkeer is</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Kon nie Microsoft Store-pakket installeer of bywerk nie omdat Microsoft Store-kliënt deur beleid geblokkeer word</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Verifikasie van/Versoek vir pakketverkryging...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Veelvuldige geïnstalleerde pakkette gevind wat by toevoerkriteria pas. Verfyn asseblief die toevoer.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Veelvuldige pakkette gevind wat by toevoerkriteria pas. Verfyn asseblief die toevoer.</value>
@@ -376,6 +390,9 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Daar is tans geen eksperimentele kenmerke beskikbaar nie. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Geen geïnstalleerde pakket gevind wat by toevoerkriteria pas nie.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Geen pakket gevind wat by toevoerkriteria pas nie.</value>
@@ -420,7 +437,7 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
     <value>Vordering wys as die verstekkleur</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Soek na pakkette vanaf gekonfigureerde bronne.</value>
+    <value>Soektogte na pakkette vanaf gekonfigureerde bronne.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Vind en wys basiese inligting van pakkette</value>
@@ -458,9 +475,6 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanaal</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Wys inligting oor ’n spesifieke pakket. By verstek moet die navraag nie-kassensitief by die ID, naam of bynaam van die pakket pas. Ander velde kan gebruik word deur hulle geskikte opsie te slaag.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Wys inligting oor ’n pakket</value>
@@ -520,7 +534,7 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Veld</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Naam</value>
@@ -542,7 +556,7 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>nooit</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Waarde</value>
@@ -550,6 +564,14 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Naam van die bron</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Kon nie die bron oopmaak nie; probeer die bevel 'source reset' as die probleem voortduur.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Kon nie die vooraf gedefinieerde bron oopmaak nie; rapporteer asseblief aan winget-handhawers.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Verwyder tans alle bronne ...</value>
@@ -619,13 +641,26 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
     <value>Argument het meer tye verskaf as wat toegelaat word</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Meer as een installeergedragsargument is verskaf</value>
+    <value>Meer as een uitvoeringgedragsargument is verskaf</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>’n Onverwagse fout het voorgekom tydens die uitvoering van die bevel:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Onerkende bevel</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Werk alle geïnstalleerde pakkette by na nuutste as beskikbaar</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Geen toepaslike bywerking gevind nie.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Werk die geselekteerde pakket by; hetsy gevind deur in die lys van geïnstalleerde pakkette te soek of direk vanaf ’n manifes. By verstek moet die navraag niekassensitief by die ID, naam of bynaam van die pakket pas. Ander velde kan gebruik word deur hulle toepaslike opsie te slaag.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Werk die gegewe pakket by</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>gebruik</value>
@@ -654,5 +689,34 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Die waarde wat verskaf is voordat voltooiing versoek is</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Geen weergawe gevind wat pas by:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Geen bronne pas by die gegewe waarde:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Die gekonfigureerde bronne is:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Geen bronne gedefinieer nie; voeg een by met 'source add' of stel terug na verstek met 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Gevind</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Pad is ’n gids:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Lêer bestaan nie:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Beide plaaslike manifes en soeknavraagargumente word verskaf</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Logs</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

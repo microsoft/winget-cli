@@ -130,6 +130,10 @@
     <value>Các lệnh sau đây đang sẵn dùng:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Khả dụng</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Các lựa chọn sau đây đang sẵn dùng:</value>
   </data>
@@ -304,6 +308,13 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
     <value>Liên kết</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Lệnh list hiển thị các gói được cài đặt trên hệ thống, cũng như liệu có bản cập nhật hay không. Các tùy chọn bổ sung có thể được cung cấp để lọc đầu ra, giống như lệnh search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Hiển thị các gói đã cài đặt</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Vị trí cần cài đặt (nếu có hỗ trợ)</value>
   </data>
@@ -341,11 +352,11 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Không thể tính toán hàm băm chữ ký MSIX.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Không thể cài đặt gói Microsoft Store vì ứng dụng cụ thể đã bị chặn bởi chính sách</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Không thể cài đặt hoặc cập nhật gói Microsoft Store vì ứng dụng cụ thể đã bị chặn bởi chính sách</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Không thể cài đặt gói Microsoft Store. Mã lỗi:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Không thể cài đặt hoặc cập nhật gói Microsoft Store. Mã lỗi:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Đang xác minh/yêu cầu mua gói thất bại: lỗi mạng</value>
@@ -359,11 +370,14 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Đang xác minh/yêu cầu mua gói thành công</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Không thể cài đặt gói Microsoft Store vì máy khách Microsoft Store đã bị chặn bởi chính sách</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Không thể cài đặt hoặc cập nhật gói Microsoft Store vì ứng dụng máy khách Microsoft Store đã bị chặn bởi chính sách</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Đang xác minh/yêu cầu mua gói thành công...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Đã tìm thấy nhiều gói đã cài đặt phù hợp với tiêu chí đầu vào. Vui lòng tinh chỉnh đầu vào.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Nhiều gói được tìm thấy phù hợp với tiêu chí đầu vào. Vui lòng tinh chỉnh đầu vào.</value>
@@ -376,6 +390,9 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Hiện tại không có các tính năng thử nghiệm có sẵn. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Không tìm thấy gói đã cài đặt nào phù hợp với tiêu chí đầu vào.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Không tìm thấy gói nào phù hợp với các tiêu chí đầu vào.</value>
@@ -420,7 +437,7 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
     <value>Tiến độ hiển thị theo màu sắc mặc định</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Tìm kiếm gói từ các nguồn đã cấu hình.</value>
+    <value>Tìm kiếm các gói từ các nguồn đã định cấu hình.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Tìm và hiển thị thông tin cơ bản của gói</value>
@@ -458,9 +475,6 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kênh</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Hiển thị thông tin của gói cụ thể. Theo mặc định, truy vấn phải khớp với ID, tên hoặc biệt danh của gói không phân biệt chữ hoa thường. Bạn có thể sử dụng các trường khác bằng cách chuyến đến tùy chọn thích hợp.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Hiển thị thông tin về gói</value>
@@ -520,7 +534,7 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Trường</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Tên</value>
@@ -542,7 +556,7 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>không bao giờ</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Giá trị</value>
@@ -550,6 +564,14 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Tên nguồn dữ liệu</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Không mở được mã nguồn; hãy thử lệnh 'source reset' nếu sự cố vẫn tiếp diễn.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Không mở được nguồn xác định trước; vui lòng báo cáo cho người bảo trì winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Xóa tất cả các nguồn...</value>
@@ -619,13 +641,26 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
     <value>Đối số được cung cấp nhiều lần hơn cho phép</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Nhiều hơn một đối số hành vi cài đặt được cung cấp</value>
+    <value>Đã cung cấp nhiều đối số hành vi thực thi</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Đã xảy ra lỗi ngoài dự kiến khi đang thực hiện lệnh:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Lệnh không nhận dạng được:</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Cập nhật tất cả các gói đã cài đặt lên mới nhất nếu có</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Không tìm thấy bản cập nhật thích hợp.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Cập Nhật gói đã chọn, được tìm thấy bằng cách tìm kiếm danh sách gói đã cài đặt hoặc trực tiếp từ một tệp kê khai. Theo mặc định, truy vấn phải là chữ hoa-insensitively khớp với ID, tên hoặc moniker của gói. Các trường khác có thể được sử dụng bằng cách chuyển tùy chọn phù hợp của chúng.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Cập nhật gói đã cho</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>mức sử dụng</value>
@@ -654,5 +689,34 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Cần có giá trị được cung cấp trước khi hoàn thành</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Không tìm thấy phiên bản nào phù hợp:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Không có nguồn nào phù hợp với giá trị đã cho:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Các nguồn được cấu hình là:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Không có nguồn xác định; thêm một cái bằng 'source add' hoặc đặt lại về mặc định với 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Đã tìm thấy</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Đường dẫn là một thư mục:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Tập tin không tồn tại:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Cả tệp kê khai cục bộ và nhóm truy vấn tìm kiếm đều được cung cấp</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Nhật ký</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

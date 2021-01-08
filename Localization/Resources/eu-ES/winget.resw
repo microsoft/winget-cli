@@ -130,6 +130,10 @@
     <value>Honako komandoak daude erabilgarri:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Erabilgarri</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Honako aukerak daude erabilgarri:</value>
   </data>
@@ -304,6 +308,13 @@
     <value>Estekak</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Sisteman instalatutako paketeak bistaratzen ditu list komandoak, bai eta eguneratzerik erabilgarri dagoen ere. Aukera gehigarriak eman daitezke emaitza iragazteko, search-komandoekin bezala.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Bistaratu instalatutako paketeak</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Non instalatzeko kokapena (onartzen bada)</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Huts egin du MSIX sinaduraren hash-a kalkulatzeak.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Ezin izan da instalatu Microsoft Store-ko paketea, aplikazio jakin hori gidalerro bidez baitago blokeatuta</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Ezin izan da instalatu edo eguneratu Microsoft Store-ko paketea, aplikazio jakin hori gidalerro bidez baitago blokeatuta</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Ezin izan da instalatu Microsoft Store-ko paketea. Errore-kodea:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Ezin izan da instalatu edo eguneratu Microsoft Store-ko paketea. Errore-kodea:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Ezin izan da egiaztatu/eskatu pakete-eskuratzea: sare-errorea</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Egiaztatu/Eskatu da pakete-eskuratzea</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Ezin izan da instalatu Microsoft Store-ko paketea, Microsoft Store bezeroa gidalerro bidez baitago blokeatuta</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Ezin izan da instalatu edo eguneratu Microsoft Store-ko paketea, Microsoft Store bezeroa gidalerro bidez baitago blokeatuta</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Pakete-eskuratzea egiaztatzen/eskatzen…</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Sartutako irizpideekin bat datozen pakete ugari aurkitu dira instalatuta. Findu irizpideak.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Sartutako irizpideekin bat datozen pakete ugari aurkitu dira. Findu irizpideak.</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Une honetan ez dago erabilgarri eginbide esperimentalik.</value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Ez da aurkitu sartutako irizpideekin bat datorren paketerik instalatuta.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Ez da aurkitu sartutako irizpideekin bat datorren paketerik.</value>
@@ -459,9 +476,6 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanala</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Pakete jakin baten informazioa erakusten du. Modu lehenetsian, kontsultako maiuskulak eta minuskulak bat etorri behar dira paketearen ID, izen edo monikerreko maiuskulekin eta minuskulekin.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Pakete bati buruzko informazioa erakusten du</value>
   </data>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Eremua</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Izena</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>inoiz ez</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Balioa</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Iturburuaren izena</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Ezin izan da ireki iturburua; arazoak bere horretan badirau, probatu “source reset” komandoa.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Ezin izan da ireki aurrez definitutako iturburua; jarri harremanetan winget mantentzaileekin.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Iturburu guztiak kentzen...</value>
@@ -619,13 +641,26 @@
     <value>Baimendutakoa baino gehiagotan eman da argumentua</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Instalaziorako jokabide-argumentu bat baino gehiago eman dira</value>
+    <value>Exekuziorako jokabide-argumentu bat baino gehiago eman dira</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Ustekabeko errorea gertatu da komandoa exekutatzen zen bitartean:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Komando ezezaguna</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Eguneratu instalatutako pakete guztiak azken bertsiora, erabilgarri badago</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Ez da aurkitu aplikagarria den eguneratzerik.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Hautatutako paketea eguneratzen du, dela instalatutako paketeen zerrenda bilatzean aurkitutakoa, dela zuzenean manifestuan aurkitutakoa. Modu lehenetsian, kontsultako maiuskulak eta minuskulak bat etorri behar dira paketearen ID, izen edo monikerreko maiuskulekin eta minuskulekin. Beste eremuak dagokion aukera pasatuta erabil daitezke.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Emandako paketea eguneratzen du</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>erabilera</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Osatu baino lehen emandako balioa eskatzen da</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Ez da aurkitu bat datorren bertsiorik:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Ez dago emandako balioarekin bat datorren iturbururik:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Konfiguratutako iturburuak hauek dira:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Ez da definitu iturbururik; gehitu bat “source add” erabilita, edo berrezarri balio lehenetsiak “source reset” erabilita</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Aurkitu da</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Bide-izena direktorio bat da:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Ez dago fitxategia:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Manifestu lokala eta bilaketa-kontsultaren argumentuak eman dira</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Erregistroak</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

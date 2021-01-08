@@ -130,6 +130,10 @@
     <value>Dostupne su sledeće komande:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Dostupno</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Dostupne su sledeće opcije:</value>
   </data>
@@ -304,6 +308,13 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
     <value>Veze</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Komanda liste prikazuje pakete instalirane na sistemu, kao i da li je dostupno ažuriranje. Dodatne opcije se mogu obezbediti za filtriranje rezultata, slično kao i komanda za search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Prikaži instalirane pakete</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Lokacija na kojoj treba instalirati (ako je podržana)</value>
   </data>
@@ -341,11 +352,11 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Izračunavanje heša MSIX potpisa nije uspelo.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Nije uspelo instaliranje paketa Microsoft prodavnice zbog toga što je smernica blokirala određenu aplikaciju</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Nije uspelo instaliranje ili ažuriranje paketa Microsoft Store zbog toga što su smernice blokirale određenu aplikaciju</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Nije uspelo instaliranje paketa Microsoft prodavnice. Kôd greške:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Nije uspelo instaliranje ili ažuriranje paketa Microsoft Store. Kôd greške:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Provera/zahtevanje preuzimanja paketa nije uspelo: greška na mreži</value>
@@ -359,11 +370,14 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Verifikovanje/zahtevanje uspešnog preuzimanja paketa</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Nije uspelo instaliranje paketa Microsoft prodavnice zato što su smernice blokirale klijenta Microsoft prodavnice</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Nije uspelo instaliranje ili ažuriranje paketa Microsoft Store zato što su smernice blokirale klijenta Microsoft prodavnice</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Verifikovanje/zahtevanje preuzimanja paketa...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Pronađeno je više instaliranih paketa koji se podudaraju sa ulaznim kriterijumima. Suzite obim unosa.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Pronađeno je više paketa koji se podudaraju sa ulaznim kriterijumima. Suzite obim unosa.</value>
@@ -376,6 +390,9 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Trenutno nema dostupnih eksperimentalnih funkcija. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Nije pronađen nijedan instaliran paket koji se podudara sa ulaznim kriterijumima.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Nije pronađen nijedan paket koji se podudara sa ulaznim kriterijumima.</value>
@@ -459,9 +476,6 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Prikazuje informacije o određenom paketu. Veličina slova upita podrazumevano mora da se podudara sa ID-om, imenom ili monikerom paketa. Druga polja mogu da se koriste izborom odgovarajuće opcije.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Prikazuje informacije o paketu</value>
   </data>
@@ -520,7 +534,7 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Polje</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Ime</value>
@@ -542,7 +556,7 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>nikad</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Vrednost</value>
@@ -550,6 +564,14 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Ime izvora</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Otvaranje izvora nije uspelo; pokušajte komandu 'source reset' ako ponovo dođe do problema.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Otvaranje unapred definisanih izvora nije uspelo; prijavite onima koji održavaju winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Uklanjanje svih izvora...</value>
@@ -619,13 +641,26 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
     <value>Argument je obezbeđen više puta nego što je dozvoljeno</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Obezbeđeno je više argumenata ponašanja instalacije</value>
+    <value>Obezbeđeno je više argumenata ponašanja izvršavanja</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Došlo je do neočekivane greške prilikom izvršavanja komande:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Neprepoznata komanda</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Ažuriraj sve instalirane pakete na najnoviji koji je dostupan</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Nije pronađena nijedna primenljiva ispravka.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Ažurira izabrani paket, koji se nalazi ili pretraživanjem instalirane liste paketa ili direktno sa manifesta. Veličina slova upita podrazumevano mora da se poklopi sa ID-om, imenom ili monikerom paketa. Druga polja mogu da se koriste izborom odgovarajuće opcije.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Ažurira dati paket</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>potrošnja</value>
@@ -654,5 +689,34 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Zahteva se unos vrednosti pre dovršavanja</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Nije pronađena nijedna odgovarajuća verzija:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Nijedan izvor se ne podudara sa datom vrednošću:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Konfigurisani izvori su:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Nije definisan nijedan izvor; dodajte jedan uz pomoć 'source add' ili uspostavite početne vrednosti na podrazumevane vrednosti 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Pronađeno</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Putanja je direktorijum:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Datoteka ne postoji:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Dati su argumentu i za lokalni manifest i za upit pretrage</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Datoteke evidencije</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

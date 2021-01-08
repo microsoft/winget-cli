@@ -130,6 +130,10 @@
     <value>pandangan berikut tersedia:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Tersedia</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>perkaitan berikut tersedia:</value>
   </data>
@@ -304,6 +308,13 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
     <value>Pautan</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>list perintah memaparkan pakej yang dipasang pada sistem, juga sama ada kemas kini tersedia. Pilihan tambahan boleh disediakan untuk menapis output, sama seperti perintah search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Papar pakej terpasang</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Lokasi untuk dipasang (jika disokong)</value>
   </data>
@@ -341,10 +352,10 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Gagal mengira cincangan tandatangan MSIX.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Gagal memasang pakej Microsoft Store kerana aplikasi yang khusus disekat oleh dasar</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Gagal memasang atau mengemas kini pakej Microsoft Store kerana aplikasi tertentu disekat oleh polisi</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
     <value>Gagal memasang pakej Microsoft Store. Kod ralat:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
@@ -359,11 +370,14 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Menentusahkan/Meminta kejayaan pemerolehan pakej</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Gagal memasang pakej Microsoft Store kerana klien Microsoft Store disekat oleh dasar</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Gagal memasang pakej Microsoft Store kerana klien Microsoft Store disekat oleh polisi</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Menentusahkan/Meminta pemerolehan pakej...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Berbilang pakej yang sepadan dengan kriteria input ditemui. Sila perhalusi input.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Berbilang pakej ditemui yang sepadan dengan kriteria input. Sila perhalusi input.</value>
@@ -376,6 +390,9 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Pada masa ini tiada ciri eksperimen yang tersedia. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Tiada pakej ditemui yang sepadan dengan kriteria input.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Tiada pakej ditemui yang sepadan dengan kriteria input.</value>
@@ -459,9 +476,6 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   <data name="ShowChannel" xml:space="preserve">
     <value>Saluran</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Tunjukkan maklumat tentang pakej tertentu. Secara lalai, pertanyaan mesti sepadan dengan ID, nama atau laluan pautan bagi pakej tanpa sensitif huruf. Medan lain boleh digunakan dengan lulus opsyen yang sesuai.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Menunjukkan maklumat tentang pakej</value>
   </data>
@@ -520,7 +534,7 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Medan</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Nama</value>
@@ -542,7 +556,7 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>tidak pernah</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Nilai</value>
@@ -550,6 +564,14 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Nama sumber</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Gagal membuka sumber; cuba perintah 'source reset' Jika masalah berlanjutan.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Gagal membuka sumber yang dipratentukan; sila laporkan kepada penyenggara winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Mengalih keluar semua sumber...</value>
@@ -619,13 +641,26 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
     <value>Argumen menyediakan lebih banyak masa daripada yang diizinkan</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>lebih daripada satu argumen kelakuan yang disediakan</value>
+    <value>Lebih daripada satu pelaksanaan argumen tingkah laku disediakan</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Ralat tidak dijangka telah berlaku semasa melaksanakan perintah:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Perintah tidak dikenali</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Kemas kini semua pakej yang dipasang ke yang terkini jika tersedia</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Tiada kemas kini yang berkaitan ditemui.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Mengemas kini pakej yang dipilih, sama ada ditemui dengan mencari di senarai pakej yang dipasang atau terus daripada manifes. Secara lalai, pertanyaan mesti menepati secara tidak sensitif huruf dengan ID, nama atau moniker pakej. Medan lain boleh digunakan dengan lulus pilihan yang sesuai.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Memasang pakej yang diberikan</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>penggunaan</value>
@@ -654,5 +689,34 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Nilai yang diberikan sebelum penyelesaian sedang diminta</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Tiada versi bersesuaian ditemui:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Tiada sumber yang sepadan dengan nilai yang diberikan:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Sumber yang dikonfigurasi ialah:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Tiada sumber ditentukan; tambah satu dengan 'source add' atau tetap semula kepada lalai dengan 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Dijumpai</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Laluan ialah Direktori:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Fail tidak wujud:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Kedua-dua manifes tempatan dan pertanyaan carian yang sama dengan ARG disediakan</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Log</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

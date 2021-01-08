@@ -130,6 +130,10 @@
     <value>பின்வரும் கட்டளைகள் உள்ளன:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>கிடைக்கிறது</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>பின்வரும் விருப்பங்கள் உள்ளன:</value>
   </data>
@@ -304,6 +308,13 @@
     <value>இணைப்புகள்</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>list கட்டளை கணினியில் நிறுவப்பட்ட தொகுப்புகளைக் காட்டுகிறது, அதே போல் ஒரு புதுப்பித்தல் உள்ளதா என்பதையும் காட்டுகிறது. search கட்டளையைப் போலவே வெளியீட்டை வடிகட்ட கூடுதல் விருப்பங்கள் வழங்கப்படலாம்.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>நிறுவிய தொகுப்புகளைக் காட்டவும்</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>(ஆதரிக்கப்பட்டால்) நிறுவ வேண்டிய இடம்</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX கையொப்ப ஹாஷை கணக்கிடுவதில் தோல்வி.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>கொள்கையின் காரணமாக குறிப்பிட்ட பயன்பாடு தடுக்கப்படுவதால் Microsoft Store தொகுப்பை நிறுவுவதில் தோல்வி ஏற்பட்டது.</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>கொள்கையின் காரணமாக குறிப்பிட்ட பயன்பாடு தடுக்கப்படுவதால் Microsoft Store தொகுப்பை நிறுவ அல்லது புதுப்பிக்க முடியவில்லை.</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Microsoft Store தொகுப்பை நிறுவுவதில் தோல்வியுற்றது. பிழைக் குறியீடு:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Microsoft Store தொகுப்பை நிறுவ அல்லது புதுப்பிக்க முடியவில்லை. பிழைக் குறியீடு:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>தொகுப்புக் கையகப்படுத்தலைச் சரிபார்த்தல்/கோருதல் தோல்வியடைந்தது. நெட்வொர்க் பிழை</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>தொகுப்புக் கையகப்படுத்தல் வெற்றியைச் சரிபார்த்தல்/கோருதல்</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>கொள்கையின் காரணமாக Microsoft Store பயனகம் தடுக்கப்படுவதால் Microsoft Store தொகுப்பை நிறுவுவதில் தோல்வி ஏற்பட்டது.</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>கொள்கையின் காரணமாக Microsoft Store பயனகம் தடுக்கப்படுவதால் Microsoft Store தொகுப்பை நிறுவ அல்லது புதுப்பிக்க முடியவில்லை.</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>தொகுப்பு கையகப்படுத்தலைச் சரிபார்த்தல்/கோருதல்</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>உள்ளீட்டு நிபந்தனையுடன் பல்வேறு தொகுப்புகள் பொருந்துகின்றன. உள்ளீட்டை மீண்டும் நிர்ணயிக்கவும்.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>உள்ளீட்டு நிபந்தனையுடன் பல்வேறு தொகுப்புகள் பொருந்துகின்றன. உள்ளீட்டை மீண்டும் நிர்ணயிக்கவும்.</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>தற்போது எந்தவிதப் பரிசோதனை அம்சங்களும் கிடைக்கவில்லை. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>உள்ளீட்டு நிபந்தனைக்குப் பொருந்தும் தொகுப்பு எதுவும் காணப்படவில்லை.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>உள்ளீட்டு நிபந்தனைக்குப் பொருந்தும் தொகுப்பு எதுவும் காணப்படவில்லை.</value>
@@ -459,9 +476,6 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>சேனல்</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>ஒரு குறிப்பிட்ட தொகுப்பைப் பற்றிய தகவலை காண்பிக்கும். இயல்புநிலையில், ID, பெயர் அல்லது தொகுப்பின் மோனிக்கர் ஆகியவற்றுடன் வினவலின் எழுத்துமாறுபாடு உணர்திறன் அற்றது பொருந்த வேண்டும். மற்ற புலங்களை அவற்றின் பொருத்தமான விருப்பத்தைக் கடப்பதன் மூலம் பயன்படுத்தலாம்.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>தொகுப்பைப் பற்றிய தகவலைக் காட்டுகிறது</value>
   </data>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>புலம்</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>பெயர்</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>ஒருபோதும் இல்லை</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>மதிப்பு</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>மூலத்தின் பெயர்</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>மூலத்தைத் திறக்கமுடியவில்லை; சிக்கல் தொடர்ந்தால் ‘source reset’ கட்டளையைப் பயன்படுத்திப் பார்க்கவும்.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>முன்வரையறுக்கப்பட்ட மூலத்தைத் திறக்க முடியவில்லை; winget பராமரிப்பவர்களிடம் அறிக்கையளிக்கவும்.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>எல்லா மூலங்களையும் அகற்றுகிறது...</value>
@@ -619,13 +641,26 @@
     <value>அனுமதிக்கப்பட்ட தடவையை விட கூடுதல் தடவை மதிப்புரு வழங்கப்பட்டது</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>ஒன்றுக்கும் மேற்பட்ட நிறுவல் நடத்தைகளை மதிப்புரு வழங்கியது</value>
+    <value>ஒன்றுக்கும் மேற்பட்ட செயல்படுத்தல் நடத்தைகளை மதிப்புரு வழங்கியது</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>கட்டளையை செயல்படுத்தும்போது எதிர்பாராத பிழை ஏற்பட்டது:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>அறியப்படாத கட்டளை</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>கிடைக்கப்பெறுகிறது எனில் நிறுவிய அனைத்துத் தொகுப்புகளையும் சமீபத்தியதாகப் புதுப்பிக்கவும்</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>பொருந்தக்கூடிய புதுப்பிப்பு எதுவும் கண்டுபிடிக்கப்படவில்லை.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>நிறுவிய தொகுப்புகளின் பட்டியல் அல்லது வெளியிலிருந்து நேரடியாகத் தேடுவதன் மூலம் கண்டுபிடிக்கப்பட்ட, தேர்ந்தெடுத்த தொகுப்பைப் புதுப்பிக்கிறது. இயல்புநிலையில், ID, பெயர் அல்லது தொகுப்பின் மோனிக்கர் ஆகியவற்றுடன் வினவலின் எழுத்துமாறுபாடு உணர்திறன் அற்றது பொருந்த வேண்டும். மற்ற புலங்களை அவற்றின் பொருத்தமான விருப்பத்தைக் கடப்பதன் மூலம் பயன்படுத்தலாம்.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>வழங்கப்பட்ட தொகுப்பை நிறுவும்</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>பயன்படுத்துதல்</value>
@@ -655,5 +690,34 @@
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>நிறைவு செய்வதற்கு முன் வழங்கப்பட்ட மதிப்பு கோரப்படும்
 </value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>பொருந்துவதற்கான பதிப்பு எதுவும் கண்டுபிடிக்கப்படவில்லை:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>கொடுக்கப்பட்ட மதிப்புடன் எந்த மூலங்களும் பொருந்தவில்லை:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>உள்ளமைக்கப்பட்ட மூலங்கள்:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>மூலங்கள் எதுவும் வரையறுக்கப்படவில்லை; ‘source add’ என்பதுடன் ஒன்றைச் சேர்க்கவும் அல்லது ‘source reset’ என்பதுடன் இயல்புநிலைகளுக்கு மீட்டமைக்கவும்</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>கண்டுபிடிக்கப்பட்டது</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>பாதை என்பது ஒரு கோப்பகம்:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>கோப்பு இங்கே இல்லை:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>இரண்டு அகத் தோற்றம் மற்றும் தேடல் வினவல் மதிப்புருக்கள் வழங்கப்படுகின்றன</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>பதிவுகள்</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

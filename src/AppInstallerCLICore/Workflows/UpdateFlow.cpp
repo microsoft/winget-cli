@@ -21,19 +21,20 @@ namespace AppInstaller::CLI::Workflow
 
     void SelectLatestApplicableUpdate::operator()(Execution::Context& context) const
     {
+        auto package = context.Get<Execution::Data::Package>();
         auto installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
         Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
         ManifestComparator manifestComparator(context.Args, installedPackage->GetMetadata());
         bool updateFound = false;
 
         // The version keys should have already been sorted by version
-        const auto& versionKeys = m_package.GetAvailableVersionKeys();
+        const auto& versionKeys = package->GetAvailableVersionKeys();
         for (const auto& key : versionKeys)
         {
             // Check Update Version
             if (IsUpdateVersionApplicable(installedVersion, Utility::Version(key.Version)))
             {
-                auto packageVersion = m_package.GetAvailableVersion(key);
+                auto packageVersion = package->GetAvailableVersion(key);
                 auto manifest = packageVersion->GetManifest();
 
                 // Check MinOSVersion
@@ -66,7 +67,10 @@ namespace AppInstaller::CLI::Workflow
 
         if (!updateFound)
         {
-            context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+            if (m_reportUpdateNotFound)
+            {
+                context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+            }
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
         }
     }
@@ -88,6 +92,8 @@ namespace AppInstaller::CLI::Workflow
     {
         const auto& matches = context.Get<Execution::Data::SearchResult>().Matches;
         bool updateAllHasFailure = false;
+        bool updateAllFoundUpdate = false;
+
         for (const auto& match : matches)
         {
             Logging::SubExecutionTelemetryScope subExecution;
@@ -95,13 +101,23 @@ namespace AppInstaller::CLI::Workflow
             // We want to do best effort to update all applicable updates regardless on previous update failure
             auto updateContextPtr = context.Clone();
             Execution::Context& updateContext = *updateContextPtr;
-            updateContext.Reporter.Info() << std::endl;
 
-            updateContext.Add<Execution::Data::InstalledPackageVersion>(match.Package->GetInstalledVersion());
+            updateContext.Add<Execution::Data::Package>(match.Package);
 
             updateContext <<
+                Workflow::GetInstalledPackageVersion <<
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-                SelectLatestApplicableUpdate(*(match.Package)) <<
+                SelectLatestApplicableUpdate(false);
+
+            if (updateContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
+            {
+                continue;
+            }
+
+            updateAllFoundUpdate = true;
+
+            updateContext <<
+                ReportManifestIdentity <<
                 ShowInstallationDisclaimer <<
                 Workflow::ReportExecutionStage(ExecutionStage::Download) <<
                 DownloadInstaller <<
@@ -110,11 +126,19 @@ namespace AppInstaller::CLI::Workflow
                 Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
                 RemoveInstaller;
 
+            updateContext.Reporter.Info() << std::endl;
+
+            // msstore update might still terminate with APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE
             if (updateContext.GetTerminationHR() != S_OK &&
                 updateContext.GetTerminationHR() != APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
             {
                 updateAllHasFailure = true;
             }
+        }
+
+        if (!updateAllFoundUpdate)
+        {
+            context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
         }
 
         if (updateAllHasFailure)

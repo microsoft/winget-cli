@@ -130,6 +130,10 @@
     <value>ಈ ಕೆಳಗಿನ ಕಮಾಂಡ್‌ಗಳು ಲಭ್ಯವಿದೆ:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>ಲಭ್ಯ</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>ಈ ಕೆಳಗಿನ ಆಯ್ಕೆ‌ಗಳು ಲಭ್ಯವಿದೆ:</value>
   </data>
@@ -304,6 +308,13 @@
     <value>ಲಿಂಕ್‍ಗಳು</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>list ಆದೇಶವು ಸಿಸ್ಟಂನಲ್ಲಿ ಸ್ಥಾಪಿಸಲಾದ ಪ್ಯಾಕೇಜುಗಳನ್ನು ಪ್ರದರ್ಶಿಸುತ್ತದೆ, ಹಾಗೆಯೇ ನವೀಕರಣವು ಲಭ್ಯವಿದೆಯೇ ಎಂಬುದನ್ನು ತೋರಿಸುತ್ತದೆ. search ಆದೇಶದಂತೆ, ಔಟ್‍ಪುಟ್ ಅನ್ನು ಫಿಲ್ಟರ್ ಮಾಡಲು ಹೆಚ್ಚುವರಿ ಆಯ್ಕೆಗಳನ್ನು ಒದಗಿಸಬಹುದು.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>ಸ್ಥಾಪಿತ ಪ್ಯಾಕೇಜ್‍ಗಳನ್ನು ಪ್ರದರ್ಶಿಸು</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>ಸ್ಥಾಪಿಸಲು ಸ್ಥಳ (ಒಂದು ವೇಳೆ ಬೆಂಬಲಿಸಿದರೆ)</value>
   </data>
@@ -341,10 +352,10 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX ಸಹಿ ಹ್ಯಾಶ್ ಲೆಕ್ಕ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>ನಿರ್ದಿಷ್ಟ ಅಪ್ಲಿಯನ್ನು ನೀತಿಯಿಂದ ನಿರ್ಬಂಧಿಸಲಾಗಿರುವ ಕಾರಣ Microsoft Store ಪ್ಯಾಕೇಜ್ ಅನ್ನು ಸ್ಥಾಪಿಸಲು ವಿಫಲವಾಗಿದೆ</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>ನಿರ್ದಿಷ್ಟ ಅಪ್ಲಿಯನ್ನು ನೀತಿಯಿಂದ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ ಯಾಕೆಂದರೆ Microsoft Store ಪ್ಯಾಕೇಜ್ ಅನ್ನು ಸ್ಥಾಪಿಸಲು ಅಥವಾ ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
     <value>Microsoft Store ಪ್ಯಾಕೇಜ್ ಸ್ಥಾಪಿಸಲು ವಿಫಲವಾಗಿದೆ. ದೋಷ ಕೋಡ್:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>ಪ್ಯಾಕೇಜ್ ಸ್ವಾಧೀನ ಯಶಸ್ಸನ್ನು ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ/ವಿನಂತಿಸುತ್ತಿದೆ</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Microsoft Store ಕ್ಲೈಂಟ್ ಅನ್ನು ನೀತಿಯಿಂದ ನಿರ್ಬಂಧಿಸಲಾಗಿರುವ ಕಾರಣ Microsoft Store ಪ್ಯಾಕೇಜ್ ಅನ್ನು ಸ್ಥಾಪಿಸಲು ವಿಫಲವಾಗಿದೆ</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Store ಕ್ಲೈಂಟ್ ಅನ್ನು ನೀತಿಯಿಂದ ನಿರ್ಬಂಧಿಸಲಾಗಿರುವ ಕಾರಣ Microsoft Store ಪ್ಯಾಕೇಜ್ ಅನ್ನು ಸ್ಥಾಪಿಸಲು ಅಥವಾ ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>ಪ್ಯಾಕೇಜ್ ಸ್ವಾಧೀನವನ್ನು ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ/ವಿನಂತಿಸುತ್ತಿದೆ</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>ಇನ್‍ಪುಟ್ ಮಾನದಂಡಕ್ಕೆ ಹೊಂದಿಕೆಯಾಗುವ ಬಹು ಸ್ಥಾಪಿತ ಪ್ಯಾಕೇಜ್‍ಗಳು ಕಂಡುಬಂದಿವೆ. ದಯವಿಟ್ಟು ಇನ್‍ಪುಟ್ ಅನ್ನು ಸಂಸ್ಕರಿಸಬೇಡಿ.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>ಇನ್‍ಪುಟ್ ಮಾನದಂಡಗಳಿಗೆ ಬಹು ಪ್ಯಾಕೇಜ್‍ಗಳು ಕಂಡುಬಂದಿವೆ. ಇನ್‍ಪುಟ್ ಅನ್ನು ದಯವಿಟ್ಟು ಸಂಸ್ಕರಿಸಿ.</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>ಯಾವುದೇ ಪ್ರಾಯೋಗಿಕ ವೈಶಿಷ್ಟ್ಯಗಳು ಪ್ರಸ್ತುತ ಲಭ್ಯವಿಲ್ಲ.</value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>ಇನ್‍ಪುಟ್ ಮಾನದಂಡಗಳಿಗೆ ಯಾವುದೇ ಸ್ಥಾಪಿತ ಪ್ಯಾಕೇಜ್ ಕಂಡುಬಂದಿಲ್ಲ.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>ಇನ್‍ಪುಟ್ ಮಾನದಂಡಗಳಿಗೆ ಯಾವುದೇ ಪ್ಯಾಕೇಜ್ ಕಂಡುಬಂದಿಲ್ಲ.</value>
@@ -420,7 +437,7 @@
     <value>ಡೀಫಾಲ್ಟ್ ಬಣ್ಣವಾಗಿ ಪ್ರಗತಿಯನ್ನು ಪ್ರದರ್ಶಿಸಿ</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>ಕಾನ್ಫಿಗರ್ ಮಾಡಿದ ಮೂಲಗಳಿಂದ ಪ್ಯಾಕೇಜ್‌ಗಳಿಗಾಗಿ ಶೋಧಿಸುತ್ತದೆ.</value>
+    <value>ಕಾನ್ಫಿಗರ್ ಮಾಡಿದ ಮೂಲಗಳಿಂದ ಪ್ಯಾಕೇಜ್‍ಗಳಿಗಾಗಿ ಶೋಧಿಸುತ್ತದೆ.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>ಪ್ಯಾಕೇಜ್‍ಗಳ ಮೂಲ ಮಾಹಿತಿಯನ್ನು ಹುಡುಕಿ ಮತ್ತು ತೋರಿಸಿ</value>
@@ -458,9 +475,6 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>ಚಾನಲ್</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>ನಿರ್ದಿಷ್ಟ ಪ್ಯಾಕೇಜ್‍ನಲ್ಲಿ ಮಾಹಿತಿಯನ್ನು ತೋರಿಸುತ್ತದೆ. ಡೀಫಾಲ್ಟ್ ಆಗಿ, ಪ್ರಶ್ನಾವಳಿಯು ಪ್ಯಾಕೇಜ್‍ನ ಐಡಿ, ಹೆಸರು ಅಥವಾ ಮೋನಿಕರ್ ಗೆ ಹೋಲಿಕೆಯಾಗಬೇಕು. ಇತರ ಕ್ಷೇತ್ರಗಳನ್ನ ಅವುಗಳ ಸೂಕ್ತ ಆಯ್ಕೆಯನ್ನು ಪಾಸ್ ಮಾಡುವ ಮೂಲಕ ಬಳಸಬಹುದು.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>ಒಂದು ಪ್ಯಾಕೇಜ್ ಬಗ್ಗೆ ಮಾಹಿತಿಯನ್ನು ತೋರಿಸುತ್ತದೆ</value>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>ಕ್ಷೇತ್ರ</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>ಹೆಸರು</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>ಎಂದಿಗೂ ಇಲ್ಲ</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>ಮೌಲ್ಯ</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>ಮೂಲದ ಹೆಸರು</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>ಮೂಲವನ್ನು ತೆರೆಯಲು ವಿಫಲವಾಗಿದೆ; ಸಮಸ್ಯೆ ಯು ಉಳಿದರೆ 'source reset' ಆದೇಶವನ್ನು ಪ್ರಯತ್ನಿಸಿ.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>ಪೂರ್ವನಿರ್ಧರಿತ ಮೂಲವನ್ನು ತೆರೆಯಲು ವಿಫಲವಾಗಿದೆ; ಮತ್ತು winget ನಿರ್ವಹಿಸುವವರಿಗೆ ವರದಿ ಮಾಡಿ.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>ಎಲ್ಲಾ ಮೂಲಗಳನ್ನು ತೆಗೆದುಹಾಕಲಾಗುತ್ತಿದೆ...</value>
@@ -619,13 +641,26 @@
     <value>ಅನುಮತಿಸಿದ ಮಿತಿಗಿಂತ ವಾದವು ಹೆಚ್ಚು ಸಮಯವನ್ನು ಒದಗಿಸಿದೆ</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>ಒಂದಕ್ಕಿಂತ ಹೆಚ್ಚಿನ ಸ್ಥಾಪನೆ ನಡವಳಿಕೆಯ ವಾದವನ್ನು ಒದಗಿಸಲಾಗಿದೆ</value>
+    <value>ಒಂದಕ್ಕಿಂತ ಹೆಚ್ಚಿನ ಸ್ಥಾಪನೆ ಜಾರಿಗೊಳಿಸುವಿಕೆಯ ನಡವಳಿಕೆಯ ವಾದವನ್ನು ಒದಗಿಸಲಾಗಿದೆ</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>ಆದೇಶವನ್ನು ಕಾರ್ಯಗತಗೊಳಿಸುತ್ತಿರುವಾಗ ಅನಿರೀಕ್ಷಿತ ದೋಷ ಸಂಭವಿಸಿದೆ:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>ಗುರುತಿಸಲಾಗದ ಕಮಾಂಡ್</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>ಲಭ್ಯವಿದ್ದರೆ ಎಲ್ಲಾ ಸ್ಥಾಪಿತ ಪ್ಯಾಕೇಜುಗಳನ್ನು ಇತ್ತೀಚಿನ ವರೆಗೆ ನವೀಕರಿಸಿ</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>ಯಾವುದೇ ಅನ್ವಯವಾಗುವ ನವೀಕರಣ ವು ಕಂಡುಬಂದಿಲ್ಲ.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>ಸ್ಥಾಪಿತ ಪ್ಯಾಕೇಜ್‍ಗಳ ಪಟ್ಟಿಯಿಂದ ಅಥವಾ ನೇರವಾಗಿ ಮ್ಯಾನಿಫೆಸ್ಟ್‍ನಿಂದ ಶೋಧಿಸುವ ಮೂಲಕ ಆಯ್ಕೆ ಮಾಡಿದ ಪ್ಯಾಕೇಜ್ ಪರಿಷ್ಕರಿಸಿ. ಡೀಫಾಲ್ಟ್ ಆಗಿ, ಪ್ರಶ್ನಾವಳಿಯು ಪ್ಯಾಕೇಜ್‍ನ ಐಡಿ, ಹೆಸರು ಅಥವಾ ಮೋನಿಕರ್ ಗೆ ಹೋಲಿಕೆಯಾಗಬೇಕು. ಇತರ ಕ್ಷೇತ್ರಗಳನ್ನ ಅವುಗಳ ಸೂಕ್ತ ಆಯ್ಕೆಯನ್ನು ಪಾಸ್ ಮಾಡುವ ಮೂಲಕ ಬಳಸಬಹುದು.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>ನೀಡಲಾದ ಪ್ಯಾಕೇಜ್ ಅನ್ನು ನವೀಕರಿಸುತ್ತದೆ</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>ಬಳಕೆ</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>ಪೂರ್ಣಗೊಳ್ಳುವ ಮೊದಲು ಒದಗಿಸಲಾದ ಮೌಲ್ಯವನ್ನು ವಿನಂತಿಸಲಾಗಿದೆ</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>ಯಾವುದೇ ಆವೃತ್ತಿ ಹೋಲಿಕೆಯಾಗಿಲ್ಲ:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>ಕೊಟ್ಟಿರುವ ಮೌಲ್ಯಕ್ಕೆ ಯಾವುದೇ ಮೂಲಗಳು ಹೋಲಿಕೆಯಾಗುವುದಿಲ್ಲ:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>ಕಾನ್ಫಿಗರ್ ಮಾಡಿದ ಮೂಲಗಳು ಹೀಗಿವೆ:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>ಯಾವುದೇ ಮೂಲಗಳನ್ನು ನಿರ್ದಿಷ್ಟಪಡಿಸಲಾಗಿಲ್ಲ; 'source add' ಜೊತೆಗಿನ ಒಂದನ್ನು ಸೇರಿಸು ಅಥವಾ 'source reset' ಜೊತೆಗೆ ಡೀಫಾಲ್ಟ್‍ಗಳಿಗೆ ಮರುಹೊಂದಿಸು</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>ಸಿಕ್ಕಿದೆ</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>ಹಾದಿ ಒಂದು ಡೈರೆಕ್ಟರಿ ಆಗಿದೆ</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>ಫೈಲ್ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>ಸ್ಥಳೀಯ ಮ್ಯಾನಿಫೆಸ್ಟ್ ಮತ್ತು ಸರ್ಚ್ ಕ್ವೆರಿ ಆರ್ಗ್‍ಗಳನ್ನು ಒದಗಿಸಲಾಗಿದೆ</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>ಲಾಗ್‌ಗಳು</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

@@ -130,6 +130,10 @@
     <value>Достапни се следниве наредби:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Достапно</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Достапни се следниве опции:</value>
   </data>
@@ -304,6 +308,13 @@
     <value>Врски</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Наредбата „list“ ги прикажува пакетите инсталирани на системот, како и дали е достапно ажурирање. Може да се наведат дополнителни опции за филтрирање на резултатот, слично како наредбата „search“.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Прикажи ги инсталираните пакети</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Локација за инсталирање (ако е поддржана)</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Не успеа да се пресмета хашот со MSIX потпис.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Не успеа да се инсталира пакетот на Microsoft Store затоа што наведената апликација е блокирана од правилата</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Пакетот на Microsoft Store не успеа да се инсталира или ажурира затоа што наведената апликација е блокирана од правилата</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Не успеа да се инсталира пакетот на Microsoft Store. Идентификатор на грешката:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Пакетот на Microsoft Store не успеа да се инсталира или ажурира. Идентификатор на грешката:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Проверката/Барањето за добивање на пакетот не успеа: грешка во мрежата</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Проверката/Барањето за добивање на пакетот e успешно</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Пакетот на Microsoft Store не успеа да се инсталира затоа што клиентот на Microsoft Store е блокиран од правилата</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Пакетот на Microsoft Store не успеа да се инсталира или ажурира затоа што клиентот на Microsoft Store е блокиран од правилата</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Проверка/Барање за добивање на пакет....</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Најдени се повеќе инсталирани пакети што се совпаѓаат со внесените критериуми. Рафинирајте ја внесената вредност.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Најдени се повеќе пакети што се совпаѓаат со внесените критериуми. Рафинирајте го внесеното.</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Во моментов не се достапни пробни функции.</value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Не е најден инсталиран пакет што се совпаѓа со внесените критериуми.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Не е најден пакет што се совпаѓа со внесените критериуми.</value>
@@ -459,9 +476,6 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>Канал</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Прикажува информации за одреден пакет. Стандардно, прашалникот не мора да разликува големи и мали букви и мора да се совпаѓа со ИД, име или moniker на пакетот. Другите полиња може да се користат со пренесување на нивната соодветна опција.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Прикажува информации за пакетот</value>
   </data>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Поле</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Име</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>никогаш</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Вредност</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Име на изворот</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Изворот не може да се отвори; обидете се со наредбата „source reset“ ако проблемот опстои.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Однапред дефинираниот извор не може да се отвори; пријавете кај сервисерите на winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Отстранување на сите извори...</value>
@@ -619,13 +641,26 @@
     <value>Аргументот е наведен повеќе пати од дозволеното</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Наведени се повеќе аргументи со однесување за инсталирање</value>
+    <value>Наведени се повеќе аргументи со однесување за извршување</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Се појави неочекувана грешка при извршувањето на наредбата:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Непрепознаена наредба</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Ажурирајте ги сите инсталирани пакети со најновите верзии ако се достапни</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Не е најдено применливо ажурирање.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Го ажурира избраниот пакет, кој е најден или со пребарување на списокот со инсталирани пакети или директно од манифестот. Стандардно, прашалникот не мора да разликува големи и мали букви, но мора да се совпаѓа со идентитетот, името или прекарот на пакетот. Другите полиња може да се користат со пренесување на нивната соодветна опција.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Го ажурира дадениот пакет</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>користење</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Потребна е вредноста наведена пред завршувањето</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Не е најдена верзија што одговара:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Ниеден извор не се совпаѓа со дадената вредност:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Конфигурираните извори се:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Не се дефинирани извори; додајте извор со „source add“ или ресетирајте на стандардните вредности со „source reset“</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Најдено</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Патеката е директориум:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Датотеката не постои:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Наведени се и аргументот за локалниот манифест и за прашалникот за пребарување</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Дневници</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

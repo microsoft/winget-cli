@@ -130,6 +130,10 @@
     <value>Galimos šios komandos:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Pasiekiama</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Galimos šios parinktys:</value>
   </data>
@@ -304,6 +308,13 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
     <value>Saitai</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Komanda „list“ rodo sistemoje įdiegtus paketus ir ar yra pasiekiamas naujinimas. Gali būti pateikiamos papildomos parinktys, skirtos filtruoti rezultatui, panašiai kaip naudojant komandą „search“.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Rodyti įdiegtus paketus</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Vieta, į kurią reikia diegti (jei palaikoma)</value>
   </data>
@@ -341,11 +352,11 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Apskaičiuoti MSIX parašo maišos nepavyko.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Nepavyko įdiegti „Microsoft Store“ paketo, nes konkrečią programą blokuoja strategija</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Nepavyko įdiegti arba atnaujinti „Microsoft Store“ paketo, nes konkrečią programą blokuoja strategija</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Nepavyko įdiegti „Microsoft Store“ paketo. Klaidos kodas:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Nepavyko įdiegti arba atnaujinti „Microsoft Store“ paketo. Klaidos kodas:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Paketo įsigijimo tikrinimas / užklausa nepavyko: tinklo klaida</value>
@@ -359,11 +370,14 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Paketo įsigijimo tikrinimas / užklausa pavyko</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Nepavyko įdiegti „Microsoft Store“ paketo, nes „Microsoft Store“ klientą blokuoja strategija</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Nepavyko įdiegti arba atnaujinti „Microsoft Store“ paketo, nes „Microsoft Store“ klientą blokuoja strategija</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Tikrinamas / užklausiamas paketo įsigijimas...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Rasti keli įdiegti paketai, atitinkantys įvesties kriterijus. Patikslinkite įvestį.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Aptikti keli paketai, atitinkantys įvesties kriterijus. Patikslinkite įvestį.</value>
@@ -376,6 +390,9 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Šiuo metu pasiekiamų eksperimentinių funkcijų nėra.</value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Įvesties kriterijus atitinkančių įdiegtų paketų nerasta.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Įvesties kriterijus atitinkančių paketų nerasta.</value>
@@ -459,9 +476,6 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanalas</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Rodoma informacija apie konkretų paketą. Pagal numatytuosius nustatymus užklausa turi atitikti (įskaitant didžiųjų ir mažųjų raidžių naudojimą) paketo ID, pavadinimą arba iškvietimo komponentą. Perduodant atitinkamą parinktį, gali būti naudojami kiti laukai.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Rodoma informacija apie paketą</value>
   </data>
@@ -520,7 +534,7 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Laukas</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Pavadinimas</value>
@@ -542,7 +556,7 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>niekada</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Reikšmė</value>
@@ -550,6 +564,14 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Šaltinio pavadinimas</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Nepavyko atidaryti šaltinio; jei problema kartojasi, bandykite naudoti komandą „source reset“.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Nepavyko atidaryti iš anksto apibrėžto šaltinio; praneškite prižiūrintiesiems winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Šalinami visi šaltiniai...</value>
@@ -619,13 +641,26 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
     <value>Argumentas pateiktas daugiau kartų nei leidžiama</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Pateiktas daugiau nei vienas įdiegimo būdo argumentas</value>
+    <value>Pateiktas daugiau nei vienas vykdymo būdo argumentas</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Vykdant komandą įvyko netikėta klaida:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Neatpažinta komanda</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Atnaujinkite visus įdiegtus paketus į naujausius, jei yra</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Taikomų naujinimų nerasta.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Naujina pasirinktą paketą, rasti įdiegtus paketų sąrašą arba tiesiogiai iš deklaracijos. Pagal numatytuosius nustatymus užklausa turi insensitively atitikti ID, pavadinimą arba iškvietimo komponentas paketą. Kiti laukai gali būti naudojami perduodant savo atitinkamą parinktį.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Atnaujina nurodytą paketą</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>naudojimas</value>
@@ -654,5 +689,34 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Būtina reikšmė, pateikta prieš baigiant užklausą</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Nerasta versijų, atitinkančių:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Nėra šaltinių, atitinkančių nurodytą reikšmę:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Sukonfigūruoti šaltiniai:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Nėra apibrėžtų šaltinių; įtraukite pasirinkdami „source add“ arba iš naujo nustatykite numatytąsias reikšmes naudodami „source reset“</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Rasta</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Kelias yra katalogas:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Failo nėra:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Pateikta ir vietinė deklaracija, ir ieškos užklausos argumentai</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Žurnalai</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

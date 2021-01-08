@@ -130,6 +130,10 @@
     <value>K dispozici jsou následující příkazy:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Dostupné</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>K dispozici jsou následující možnosti:</value>
   </data>
@@ -304,6 +308,13 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
     <value>Odkazy</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Příkaz list zobrazí balíčky nainstalované v systému a také to, zda je k dispozici aktualizace. K filtrování výstupu lze zadat další možnosti, podobně jako u příkazu search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Zobrazit nainstalované balíčky</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Umístění k instalaci (pokud se podporuje)</value>
   </data>
@@ -341,11 +352,11 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Hodnotu hash podpisu MSIX se nepodařilo vypočítat.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Balíček Microsoft Storu se nepodařilo nainstalovat, protože konkrétní aplikaci blokuje zásada.</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Balíček Microsoft Storu se nepodařilo nainstalovat nebo aktualizovat, protože konkrétní aplikaci blokuje zásada.</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Nepovedlo se nainstalovat balíček Microsoft Storu. Kód chyby:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Nepovedlo se nainstalovat nebo aktualizovat balíček Microsoft Storu. Kód chyby:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Ověřování získání balíčku nebo požádání o získání balíčku se nepovedlo: chyba sítě</value>
@@ -359,11 +370,14 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Ověřování získání balíčku nebo požádání o získání balíčku se povedlo.</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Balíček Microsoft Storu se nepodařilo nainstalovat, protože klienta Microsoft Storu blokuje zásada.</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Balíček Microsoft Storu se nepodařilo nainstalovat nebo aktualizovat, protože klienta Microsoft Storu blokuje zásada.</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Ověřování získání balíčku nebo požádání o získání balíčku…</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Bylo nalezeno více nainstalovaných balíčků odpovídajících vstupním kritériím. Upřesněte prosím vstup.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Bylo nalezeno více balíčků odpovídajících vstupním kritériím. Upřesněte prosím vstup.</value>
@@ -376,6 +390,9 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Nyní nejsou k dispozici žádné experimentální funkce. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Nebyl nalezen žádný nainstalovaný balíček odpovídající vstupním kritériím.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Nebyl nalezen žádný balíček odpovídající vstupním kritériím.</value>
@@ -459,9 +476,6 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanál</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Zobrazí informace o konkrétním balíčku. Ve výchozím nastavení se dotaz musí shodovat s ID balíčku, jeho názvem a cestou odkazu (nerozlišují se malá a velká písmena). Zadáním vhodných možností se dají použít i další pole.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Zobrazuje podrobnosti o balíčku</value>
   </data>
@@ -520,7 +534,7 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Pole</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Název</value>
@@ -542,7 +556,7 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>nikdy</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Hodnota</value>
@@ -550,6 +564,14 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Název zdroje</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Nepovedlo se otevřít zdroj. Pokud potíže přetrvávají, zkuste příkaz „source reset“.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Nepodařilo se otevřít předdefinovaný zdroj. Nahlaste to prosím správcům winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Probíhá odebírání všech zdrojů…</value>
@@ -619,13 +641,26 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
     <value>Argument byl zadán víckrát, než je povoleno.</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Je zadán více než jeden argument chování při instalaci.</value>
+    <value>Je zadáno více argumentů chování při spuštění.</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Při provádění příkazu došlo k neočekávané chybě:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Nerozpoznaný příkaz</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Aktualizovat všechny nainstalované balíčky na nejnovější, pokud k dispozici</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Žádná vhodná aktualizace nebyla nalezena.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Aktualizuje vybraný balíček, který byl nalezen prohledáním seznamu nainstalovaných balíčků nebo přímo z manifestu. Ve výchozím nastavení se musí dotaz bez rozlišování malých a velkých písmen shodovat s ID, názvem nebo monikerem balíčku. Další pole lze použít předáním příslušné možnosti.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Aktualizuje daný balíček</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>použití</value>
@@ -654,5 +689,34 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Požaduje se zadání hodnoty, která se má dokončit.</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Nebyla nalezena žádná odpovídající verze:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Dané hodnotě neodpovídají žádné zdroje:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Nakonfigurované zdroje jsou:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Nejsou definovány žádné zdroje. Přidejte nějaký pomocí „source add“ nebo obnovte výchozí pomocí „source reset“.</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Nalezeno</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Cesta je adresář:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Soubor neexistuje:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Místní manifest i argumenty dotazu vyhledávání jsou zadány.</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Protokoly</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

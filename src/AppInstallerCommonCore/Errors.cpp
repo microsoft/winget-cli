@@ -3,6 +3,7 @@
 #pragma once
 #include "pch.h"
 #include "Public/AppInstallerErrors.h"
+#include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
 
 
@@ -102,14 +103,18 @@ namespace AppInstaller
                 return "No applicable update found";
             case APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE:
                 return "winget upgrade --all completed with failures";
+            case APPINSTALLER_CLI_ERROR_INSTALLER_SECURITY_CHECK_FAILED:
+                return "Installer failed security check";
+            case APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH:
+                return "Download size does not match expected content length";
             default:
-                return "Uknown Error Code";
+                return "Unknown Error Code";
             }
         }
 
         void GetUserPresentableMessageForHR(std::ostringstream& strstr, HRESULT hr)
         {
-            strstr << "0x" << std::hex << std::setw(8) << std::setfill('0') << hr << " : ";
+            strstr << "0x" << Logging::SetHRFormat << hr << " : ";
 
             if (HRESULT_FACILITY(hr) == APPINSTALLER_CLI_ERROR_FACILITY)
             {

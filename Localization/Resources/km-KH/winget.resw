@@ -130,6 +130,10 @@
     <value>ពាក្យបញ្ជាខាងក្រោមអាចប្រើបាន៖</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>ដែលអាចប្រើបាន</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>មានជម្រើសដូចខាងក្រោម៖</value>
   </data>
@@ -304,6 +308,13 @@
     <value>តំណភ្ជាប់</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>ពាក្យបញ្ជា list បង្ហាញកញ្ចប់ដែលបានដំឡើងនៅលើប្រព័ន្ធក៏ដូចជាថាតើមានបច្ចុប្បន្នភាពទេ។ ជម្រើសបន្ថែមអាចត្រូវបានផ្តល់ជូនដើម្បីច្រោះលទ្ធផលដូចជាពាក្យបញ្ជា​ search។</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>បង្ហាញកញ្ចប់ដែលបានដំឡើង</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>ទីតាំង​ត្រូវ​ដំឡើង​ (ប្រសិនបើ​បាន​គាំទ្រ)</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>មិន​អាចគណនា​ហាស​ហត្ថលេខា MSIX បាន​ទេ។</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>បាន​បរាជ័យ​ក្នុងការដំឡើង​កញ្ចប់ Microsoft Store ពីព្រោះ​កម្មវិធីជាក់លាក់​ត្រូវ​ប្លុក​ដោយ​គោលនយោបាយ</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>បានបរាជ័យក្នុងការដំឡើង ឬ​អាប់ដេត​កញ្ចប់ Microsoft Store ពីព្រោះកម្មវិធីជាក់លាក់ត្រូវ​ទប់ស្កាត់​ដោយគោលនយោបាយ</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>បានបរាជ័យ​ក្នុងការដំឡើងកញ្ចប់ Microsoft Store។ កូដកំហុស៖</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>បាន​បរាជ័យ​ក្នុងការ​ដំឡើង ឬ​អាប់ដេត​កញ្ចប់ Microsoft Store។ កូដ​កំហុស៖</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>ការផ្ទៀងផ្ទាត់/ការស្នើសុំ​ការទទួលបានកញ្ចប់​បានបរាជ័យ៖ កំហុសបណ្ដាញ</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>ការផ្ទៀងផ្ទាត់/ការស្នើសុំការទទួលបាន​កញ្ចប់ទទួលបានជោគជ័យ</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>បានបរាជ័យ​ក្នុងការដំឡើងកញ្ចប់ Microsoft Store ពីព្រោះ​ម៉ាស៊ីនកូន​ Microsoft Store ត្រូវបានប្លុកដោយគោលនយោបាយ</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>បានបរាជ័យក្នុងការដំឡើង ឬ​អាប់ដេត​កញ្ចប់ Microsoft Store ពីព្រោះម៉ាស៊ីន​កូន Microsoft Store ត្រូវបានប្លុកដោយគោលនយោបាយ</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>កំពុងផ្ទៀងផ្ទាត់/កំពុងស្នើសុំការទទួលបាន​កញ្ចប់...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>កញ្ចប់ដែលបានដំឡើងច្រើនបានរកឃើញលក្ខណៈវិនិច្ឆ័យបញ្ចូលដែលត្រូវគ្នា។ សូមសម្រាំងព័ត៌មានបញ្ចូល។</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>កញ្ចប់ច្រើនបានរកឃើញលក្ខណៈវិនិច្ឆ័យបញ្ចូលដែលត្រូវគ្នា។ សូមសម្រាំងព័ត៌មានបញ្ចូល។</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>បច្ចុប្បន្ននេះមិនមានលក្ខណៈពិសោធន៍សាកល្បងទេ។ </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>រកមិនឃើញកញ្ចប់ដែលបានដំឡើងត្រូវនឹងលក្ខខណ្ឌបញ្ចូលដែលត្រូវគ្នា។</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>រកមិនឃើញកញ្ចប់ដែលត្រូវនឹងលក្ខខណ្ឌបញ្ចូលដែលត្រូវគ្នា។</value>
@@ -420,7 +437,7 @@
     <value>វឌ្ឍនភាព​បង្ហាញ​ជា​ពណ៌​លំនាំដើម</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>ស្វែងរក​កញ្ចប់​ពី​ប្រភពដែលបានរៀបចំ។</value>
+    <value>ស្វែងរកកញ្ចប់ពីប្រភពដែលបានដំឡើង។</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>រកមើល និង​បង្ហាញ​ព័ត៌មានមូលដ្ឋាននៃកញ្ចប់</value>
@@ -458,9 +475,6 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>កាណាល់</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>បង្ហាញ​ព័ត៌មាន​អំពីកញ្ចប់ជាក់លាក់។ តាមលំនាំដើម​ សំណើ​ត្រូវតែ​ប្រកាន់អក្សរ​តូចធំ​ដូចនឹង id ឈ្មោះ ឬឈ្មោះក្រៅរបស់​កញ្ចប់ដែរ។ កន្លែង​បញ្ចូល​ដទៃទៀត​អាច​ត្រូវបានប្រើ​ដោយ​ផ្ដល់​នូវជម្រើស​សមស្របរបស់ពួកវា។</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>បង្ហាញ​ព័ត៌មាន​អំពីកញ្ចប់</value>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>កន្លែងបញ្ចូល</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>ឈ្មោះ</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>មិនដែល</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>តម្លៃ</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>ឈ្មោះ​ប្រភព</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>បរាជ័យក្នុងការបើកប្រភព; សាកល្បងពាក្យបញ្ជា ‘source reset’ ប្រសិនបើនៅតែមានបញ្ហា។</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>បរាជ័យក្នុងការបើកប្រភពដែលបានកំណត់ជាមុន; សូមរាយការណ៍ទៅអ្នកថែរក្សា winget។</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>ដកប្រភពទាំងអស់ចេញ...</value>
@@ -619,13 +641,26 @@
     <value>អាគុយម៉ង់បានផ្តល់ពេលវេលាច្រើនជាងការអនុញ្ញាត</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>បានផ្តល់អាគុយម៉ង់ឥរិយាបទដំឡើងច្រើនជាងមួយ</value>
+    <value>អាគុយម៉ង់ការប្រតិបត្តិច្រើនជាងមួយបានផ្តល់ឱ្យ</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>កំហុស​ដែល​មិន​រំពឹង​ទុកមួយ​បានកើត​ឡើង​នៅ​ពេល​ប្រតិបត្តិពាក្យ​បញ្ជា៖</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>ពាក្យបញ្ជាដែលមិនស្គាល់</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>ធ្វើបច្ចុប្បន្នភាពកញ្ចប់ដែលបានដំឡើងទាំងអស់ទៅថ្មីបំផុតប្រសិនបើមាន</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>រកមិនឃើញបច្ចុប្បន្នភាពដែលអាចអនុវត្តបានទេ។</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>ធ្វើបច្ចុប្បន្នភាពកញ្ចប់ដែលបានជ្រើស រកឃើញដោយស្វែងរកបញ្ជីកញ្ចប់ដែលបានដំឡើង ឬដោយផ្ទាល់ពីមេនីហ្វេស។ តាមលំនាំដើមសំណួរត្រូវតែស៊ីគ្នានឹងលេខសម្គាល់ឈ្មោះ ឬអ្នកផ្តាច់កញ្ចប់។ វាលផ្សេងទៀតអាចត្រូវបានប្រើដោយឆ្លងកាត់ជម្រើសសមស្របរបស់ពួកគេ។</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>ធ្វើបច្ចុប្បន្នភាពកញ្ចប់ដែលបានផ្តល់ឱ្យ</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>ការប្រើ</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>តម្លៃដែលបានផ្តល់មកមុនពេល​ស្នើសុំ​ការបញ្ចប់</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>រកមិនឃើញកំណែត្រូវគ្នា៖</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>គ្មានប្រភពណាត្រូវនឹងតម្លៃដែលបានផ្ដល់ទេ៖</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>ប្រភពដែលបានកំណត់រចនាសម្ព័ន្ធគឺ៖</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>គ្មានប្រភពកំណត់; បន្ថែមមួយជាមួយ 'source add' ឬកំណត់ឡើងវិញទៅលំនាំដើមដោយ 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>បានរកឃើញ</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>ផ្លូវជាថតឯកសារ៖</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>មិនមានឯកសារ៖</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>ទាំងអាគុយម៉ង់ក្នុងតំបន់ និងអាគុយម៉ង់សំណួរស្វែងរកត្រូវបានផ្តល់ជូន</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>កំណត់ហេតុ</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

@@ -130,6 +130,10 @@
     <value>다음 명령을 사용할 수 있음</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>사용 가능</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>다음 선택 사항을 사용할 수 있음</value>
   </data>
@@ -304,6 +308,13 @@
     <value>링크</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>list 명령은 시스템에 설치된 패키지를 표시하거나 업데이트를 사용할 수 있는지 여부를 표시합니다. search 명령과 같이 출력을 필터링하는 데 추가 옵션을 제공할 수 도 있습니다.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>설치된 패키지 표시</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>설치할 위치(지원되는 경우)</value>
   </data>
@@ -336,16 +347,16 @@
     <value>결과를 모니커로 필터링합니다.</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
-    <value>입력 파일이 msix로 처리됩니다(서명된 경우 서명 해시가 제공됨).</value>
+    <value>입력 파일이 msix로 처리됩니다. (서명된 경우 서명 해시가 제공됨)</value>
   </data>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX 서명 해시를 계산하지 못했습니다.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>특정 앱이 정책에 의해 차단되어 Microsoft Store 패키지를 설치하지 못했습니다.</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>특정 앱이 정책에 의해 차단되어 Microsoft Store 패키지를 설치 또는 업데이트하지 못했습니다.</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Microsoft Store 패키지를 설치하지 못했습니다. 오류 코드</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Microsoft Store 패키지를 설치 또는 업데이트하지 못했습니다. 오류 코드:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>패키지 획득을 확인/요청하지 못했습니다. 네트워크 오류</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>패키지 획득 성공을 확인/요청하고 있습니다.</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Microsoft Store 클라이언트가 정책에 의해 차단되어 Microsoft Store 패키지를 설치하지 못했습니다.</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Store 클라이언트가 정책에 의해 차단되어 Microsoft Store 패키지를 설치 또는 업데이트하지 못했습니다.</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>패키지 획득을 확인/요청하는 중..</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>입력 기준과 일치하는 여러 개의 패키지를 찾았습니다. 입력을 구체화하십시오.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>입력 조건과 일치하는 패키지가 여러 개 있습니다. 입력을 구체화하십시오.</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>현재 사용 가능한 추가 기능이 없습니다.</value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>입력 조건과 일치하는 설치된 패키지를 찾을 수 없습니다.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>입력 조건과 일치하는 패키지를 찾을 수 없습니다.</value>
@@ -420,7 +437,7 @@
     <value>기본 색깔로 진행률 표시</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>구성된 원본에서 패키지 검색</value>
+    <value>구성된 원본에서 패키지를 검색합니다.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>패키지의 기본 정보를 찾아 표시</value>
@@ -458,9 +475,6 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>채널</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>특정 패키지에 대한 정보를 표시합니다. 기본적으로 쿼리는 패키지의 ID, 이름 또는 모니커와 대/소문자를 구분하지 않고 일치해야 합니다. 다른 필드는 적절한 옵션을 전달하여 사용할 수 있습니다.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>패키지에 대한 정보 표시</value>
@@ -502,7 +516,7 @@
     <value>하위 명령을 사용하여 원본을 관리합니다. 원본은 패키지를 검색하고 설치할 수 있는 데이터를 제공합니다. 새 원본을 보안 위치로 신뢰하는 경우에만 새 원본을 추가합니다.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>패키지 원본 관리.</value>
+    <value>패키지 원본 관리</value>
   </data>
   <data name="SourceListArg" xml:space="preserve">
     <value>인수</value>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>필드</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>이름</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>사용 안 함</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>값</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>원본의 이름</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>원본을 열지 못했습니다. 문제가 계속되면 'source reset' 명령을 시도하십시오.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>미리 정의된 출처를 열지 못했습니다. 유지 관리 winget 신고하세요.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>모든 원본을 제거하는 중...</value>
@@ -607,7 +629,7 @@
     <value>타사 통지 사항</value>
   </data>
   <data name="ToolDescription" xml:space="preserve">
-    <value>윙넷 명령줄 유틸리티를 사용하면 명령줄에서 응용 프로그램 및 기타 패키지를 설치할 수 있습니다.</value>
+    <value>원넷 명령줄 유틸리티를 사용하면 명령줄에서 응용 프로그램 및 기타 패키지를 설치할 수 있습니다.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>도구의 일반 정보를 표시</value>
@@ -619,13 +641,26 @@
     <value>인수가 허용 되는 횟수 보다 더 많이 제공 됨</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>둘 이상의 설치 동작 인수가 제공 되었음</value>
+    <value>둘 이상의 실행 동작 인수가 제공됨</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>명령을 실행하는 동안 예기치 않은 오류가 발생했습니다.</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>인식할 수 없는 명령임</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>사용 가능한 경우 설치된 모든 패키지를 최신으로 업데이트</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>적용 가능한 업데이트를 찾을 수 없습니다.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>설치된 패키지 목록을 검색하거나 매니페스트에서 직접 검색하여 선택한 패키지를 업데이트합니다. 기본적으로 쿼리는 패키지의 ID, 이름 또는 모양과 대/소문자를 구분하지 않는 다섯 번이 어려져야 합니다. 적절한 옵션을 전달하여 다른 필드를 사용할 수 있습니다.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>지정된 패키지를 업데이트</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>사용</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>완료되기 전에 제공한 값이 요청되었습니다.</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>일치하는 버전을 찾을 수 없는 경우:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>지정된 값과 일치하는 원본이 없는 경우:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>구성된 원본은 다음과 같습니다.</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>정의된 원본이 없습니다. 'source add'를 사용해 추가하거나 'source reset'을 사용하여 기본값으로 다시 설정</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>찾음</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>경로가 디렉터리인 경우:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>파일이 없는 경우:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>로컬 매니페스트 및 검색 쿼리 에개가 모두 제공됩니다.</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>로그</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

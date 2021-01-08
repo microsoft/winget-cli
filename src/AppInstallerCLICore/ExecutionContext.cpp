@@ -73,7 +73,7 @@ namespace AppInstaller::CLI::Execution
     std::unique_ptr<Context> Context::Clone()
     {
         auto clone = std::make_unique<Context>(Reporter);
-        clone->GetFlags() = m_flags;
+        clone->m_flags = m_flags;
         return clone;
     }
 
@@ -116,14 +116,12 @@ namespace AppInstaller::CLI::Execution
             // Unless we want to spin a separate thread for all work, we have to just exit here.
             if (m_CtrlSignalCount >= 2)
             {
+                Logging::Telemetry().LogCommandTermination(hr, file, line);
                 std::exit(hr);
             }
         }
 
-        if (!file.empty() && line)
-        {
-            Logging::Telemetry().LogCommandTermination(hr, file, line);
-        }
+        Logging::Telemetry().LogCommandTermination(hr, file, line);
 
         m_isTerminated = true;
         m_terminationHR = hr;

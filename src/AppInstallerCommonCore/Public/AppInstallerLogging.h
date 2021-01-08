@@ -137,7 +137,10 @@ namespace AppInstaller::Logging
 
     // Starts a background task to clean up old log files.
     void BeginLogFileCleanup();
+
+    // Calls the various stream format functions to produce an 8 character hexadecimal output.
+    std::ostream& SetHRFormat(std::ostream& out);
 }
 
-// Enable output of system_clock timepoints.
+// Enable output of system_clock time_points.
 std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time);

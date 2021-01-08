@@ -82,7 +82,7 @@ This application is licensed to you by its owner.
 Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
 Starting package install...
 <Progress bar>
-Succesfully installed! Launching app now. This is a necessary step to complete installation.
+Successfully installed! Launching app now. This is a necessary step to complete installation.
 (App launches on Edge)
 ```
 

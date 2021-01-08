@@ -130,6 +130,10 @@
     <value>Seuraavat komennot ovat saatavilla:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Käytettävissä</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Seuraavat vaihtoehdot ovat saatavilla:</value>
   </data>
@@ -304,6 +308,13 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
     <value>Linkit</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>list-komento näyttää järjestelmään asennetut paketit sekä sen, onko päivitys saatavilla. Lisävalinnoilla voi suodattaa tuloksia, kuten search-komennolla.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Näytä asennetut paketit</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Sijainti, johon asennetaan (jos tuettu)</value>
   </data>
@@ -341,11 +352,11 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX-allekirjoituksen hajautusarvon laskeminen epäonnistui.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Microsoft Storen pakettia ei voitu asentaa, koska sovellus on estetty käytännöllä</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Microsoft Storen pakettia ei voitu asentaa tai päivittää, koska sovellus on estetty käytännöllä</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Microsoft Storen pakettia ei voitu asentaa. Virhekoodi:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Microsoft Storen pakettia ei voitu asentaa tai päivittää. Virhekoodi:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Pakettien hankinnan tarkistaminen tai pyytäminen epäonnistui: verkkovirhe</value>
@@ -359,11 +370,14 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Pakettien hankinnan onnistumisen tarkistaminen tai pyytäminen</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Microsoft Storen pakettia ei voitu asentaa, koska Microsoft Storen asiakasohjelma on estetty käytännöllä</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Storen pakettia ei voitu asentaa tai päivittää, koska Microsoft Storen asiakasohjelma on estetty käytännöllä</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Pakettien hankinnan tarkistaminen tai pyytäminen...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Syötteen ehtoja vastaavia paketteja löytyi useampi. Täsmennä syötettä.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Syötteen ehtoja vastaavia paketteja löytyi useampi. Tarkenna syötettä.</value>
@@ -376,6 +390,9 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Tällä hetkellä ei ole saatavilla kokeellisia ominaisuuksia. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Mikään asennettu paketti ei vastannut syötteen ehtoja.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Mikään paketti ei vastannut syötteen ehtoja.</value>
@@ -459,9 +476,6 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanava</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Näyttää tietoja tietystä paketista. Kyselyn on oletusarvoisesti vastattava pakkauksen tunnusta, nimeä tai monikeria. Muita kenttiä voidaan käyttää ohittamalla sopiva vaihtoehto.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Näyttää tietoja paketista</value>
   </data>
@@ -520,7 +534,7 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Kenttä</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Nimi</value>
@@ -542,7 +556,7 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>ei koskaan</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Arvo</value>
@@ -550,6 +564,14 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Lähteen nimi</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Lähteen avaaminen epäonnistui; Yritä source reset -komentoa, jos ongelma ei poistu.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Ennalta määritetyn lähteen avaaminen epäonnistui; Ilmoita winget-ylläpitäjille.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Poistetaan kaikki lähteet...</value>
@@ -619,13 +641,26 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
     <value>Argumentti annettu sallittua useammin</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Annettu useampi kuin yksi asennuksen toiminta-argumentti</value>
+    <value>Annettu useampi kuin yksi suorituksen toiminta-argumentti.</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Odottamaton virhe komentoa suoritettaessa:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Tunnistamaton komento</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Päivitä kaikki asennetut paketit uusimpiin, jos saatavilla</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Soveltuvia päivityksiä ei löytynyt.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Päivittää valitun paketin joko etsimällä määritetystä lähteestä tai suoraan luettelosta. Kyselyn on oletusarvoisesti vastattava paketin tunnusta, nimeä tai monikeria. Muita kenttiä voidaan käyttää ohittamalla sopiva vaihtoehto.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Asentaa määritetyn paketin</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>käyttö</value>
@@ -654,5 +689,34 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Annettu arvo ennen kuin täyttämistä pyydetään</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Täsmäävää versiota ei löytynyt:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Mikään lähde ei vastaa määritettyä arvoa:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Määritetyt lähteet ovat:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Lähteitä ei ole määritetty; Lisää lähde käyttämällä source add -komentoa tai palauta oletusasetukset käyttämällä source reset -komentoa.</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Löydetty</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Polku on hakemisto:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Tiedostoa ei ole:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Sekä paikallisen luettelon että hakukyselyn argumentit annetaan</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Lokit</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

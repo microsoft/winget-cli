@@ -187,6 +187,7 @@
     <ClCompile Include="MsixInfo.cpp" />
     <ClCompile Include="PredefinedInstalledSource.cpp" />
     <ClCompile Include="PreIndexedPackageSource.cpp" />
+    <ClCompile Include="Registry.cpp" />
     <ClCompile Include="SQLiteIndexSource.cpp" />
     <ClCompile Include="Strings.cpp" />
     <ClCompile Include="TestSource.cpp" />

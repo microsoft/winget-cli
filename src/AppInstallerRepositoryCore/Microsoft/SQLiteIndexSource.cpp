@@ -106,7 +106,34 @@ namespace AppInstaller::Repository::Microsoft
 
                     AICLI_LOG(Repo, Info, << "Downloading manifest");
                     ProgressCallback emptyCallback;
-                    (void)Utility::DownloadToStream(fullPath, manifestStream, emptyCallback);
+
+                    const int MaxRetryCount = 2;
+                    for (int retryCount = 0; retryCount < MaxRetryCount; ++retryCount)
+                    {
+                        bool success = false;
+                        try
+                        {
+                            (void)Utility::DownloadToStream(fullPath, manifestStream, emptyCallback);
+                            success = true;
+                        }
+                        catch (...)
+                        {
+                            if (retryCount < MaxRetryCount - 1)
+                            {
+                                AICLI_LOG(Repo, Info, << "Downloading manifest failed, waiting a bit and retrying: " << fullPath);
+                                Sleep(500);
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+
+                        if (success)
+                        {
+                            break;
+                        }
+                    }
 
                     std::string manifestContents = manifestStream.str();
                     AICLI_LOG(Repo, Verbose, << "Manifest contents: " << manifestContents);

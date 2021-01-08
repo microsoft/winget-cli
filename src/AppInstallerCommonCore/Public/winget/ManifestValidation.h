@@ -58,6 +58,9 @@ namespace AppInstaller::Manifest
         ValidationError(std::string message, std::string field) :
             Message(std::move(message)), Field(std::move(field)) {}
 
+        ValidationError(std::string message, std::string field, std::string_view value) :
+            Message(std::move(message)), Field(std::move(field)), Value(value) {}
+
         ValidationError(std::string message, std::string field, std::string value) :
             Message(std::move(message)), Field(std::move(field)), Value(std::move(value)) {}
 

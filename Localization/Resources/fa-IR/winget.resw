@@ -130,6 +130,10 @@
     <value>فرمان‌های زیر در دسترس هستند:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>موجود</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>گزینه‌های زیر در دسترس هستند:</value>
   </data>
@@ -304,6 +308,13 @@
     <value>پیوندها</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>دستور list بسته‎‌های نصب شده روی سیستم و همچنین در دسترس بودن به‌روزرسانی را نشان می دهد. گزینه‌های اضافی می تواند برای فیلتر کردن خروجی ارائه شود، دقیقاً مانند دستور search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>نمایش بسته‌های نصب شده</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>مکانی است که (در صورت پشتیبانی) در آن نصب انجام می‌شود</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>محاسبه هش امضای MSIX انجام نشد.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>نصب بسته Microsoft Store انجام نشد، زیرا برنامه خاص توسط خط مشی مسدود شده است</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>نصب یا به‌روزرسانی بسته Microsoft Store انجام نشد، زیرا برنامه خاص توسط خط مشی مسدود شده است</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>نصب بسته Microsoft Store انجام نشد. کد خطا:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>نصب یا به‌روزرسانی بسته Microsoft Store انجام نشد. کد خطا:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>تأیید/درخواست اکتساب بسته انجام نشد: خطای شبکه</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>تأیید/درخواست اکتساب بسته موفقیت‌آمیز بود</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>نصب بسته Microsoft Store انجام نشد، زیرا سرویس‌گیرنده Microsoft Store توسط خط مشی مسدود شده است</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>نصب یا به‌روزرسانی بسته Microsoft Store انجام نشد، زیرا سرویس‌گیرنده Microsoft Store توسط خط مشی مسدود شده است</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>در حال تأیید/درخواست اکتساب بسته...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>چندین بسته نصب شده با معیارهای ورودی مطابقت دارند. لطفاً ورودی را اصلاح کنید.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>بسته های چندگانه با معیارهای ورودی مطابقت دارند. لطفا ورودی را تصحیح کنید.</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>در حال حاضر هیچ ویژگی تجربی در دسترس نیست. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>هیچ بسته نصب شده با معیارهای ورودی مطابقت ندارد.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>هیچ بسته ای با معیارهای ورودی مطابقت ندارد.</value>
@@ -420,7 +437,7 @@
     <value>وضعیت پیشرفت را به‌صورت رنگ پیش‌فرض نمایش می‌دهد</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>بسته‌ها از منابع پیکربندی‌شده جستجو می‌کند.</value>
+    <value>جستجو برای بسته‌ها از منابع پیکربندی شده.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>اطلاعات پایه بسته‌ها را می‌یابد و نمایش می‌دهد</value>
@@ -458,9 +475,6 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>کانال</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>اطلاعات مربوط به یک بسته خاص را نشان می‌دهد. به‌طور پیش‌فرض، جستار باید از لحاظ بزرگی یا کوچکی حروف با شناسه، نام یا اسم بسته مطابقت داشته باشد. فیلدهای دیگر را می‌توان با گذراندن گزینه مناسب آنها استفاده کرد.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>اطلاعات مربوط به یک بسته را نشان می‌دهد</value>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>فیلد</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>نام</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>هرگز</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>مقدار</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>نام منبع است</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>منبع باز نشد؛ در صورت ادامه مشکل، دستور 'source reset' را امتحان کنید.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>منبع از پیش تعریف شده باز نشد؛ لطفا به نگهدارندگان winget گزارش دهید.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>در حال حذف همه منابع...</value>
@@ -619,13 +641,26 @@
     <value>آرگومان به تعداد دفعات بیشتر از حد مجاز ارائه شده است</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>بیش از یک آرگومان رفتار نصب ارائه شده است</value>
+    <value>بیش از یک استدلال رفتار اجرا ارائه شده است</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>هنگام اجرای فرمان، خطای غیرمنتظره‌ای رخ داد:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>فرمان تشخیص‌داده‌نشده</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>در صورت موجود بودن، همه بسته‌های نصب شده را به جدیدترین نسخه آن به‌روز کنید</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>هیچ به روزرسانی کاربردی یافت نشد.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>بسته انتخاب شده را به‌روز می کند، یا با جستجو در لیست بسته‌های نصب شده یا مستقیم از یک بیانیه پیدا می شود. به طور پیش‌فرض، پرس‌و‌جو باید از نظر کوچک و بزرگ با شناسه، نام یا مانیتور بسته مطابقت داشته باشد. با عبور از گزینه مناسب می توان از سایر زمینه‌ها استفاده کرد.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>بسته داده شده را به‌روز می کند</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>استفاده</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>مقدار ارائه‌شده قبل از تکمیل درخواست شده است</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>هیچ نسخه مطابقی یافت نشد:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>هیچ منبعی با مقدار داده شده مطابقت ندارد:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>منابع پیکربندی شده عبارتند از:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>هیچ منبعی تعریف نشده است؛ اضافه کردن یکی با 'source add' یا تنظیم مجدد به طور پیش‌فرض با 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>‏‏پیدا شده</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>مسیر یک دایرکتوری است:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>فایل وجود ندارد:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>هر دو بیانیه محلی و استدلال آرایه‌های جستجو ارائه می شوند</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>گزارش‌ها</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

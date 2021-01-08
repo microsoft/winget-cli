@@ -130,6 +130,10 @@
     <value>Están dispoñibles os comandos seguintes:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Dispoñible</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Están dispoñibles as opcións seguintes:</value>
   </data>
@@ -304,6 +308,13 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
     <value>Ligazóns</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>O comando de “list” mostra os paquetes instalados no sistema e se hai actualizacións dispoñibles. É posible fornecer máis opcións para filtrar o resultado, algo semellante ao comando de “search”.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Mostrar paquetes instalados</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Localización na que realizar a instalación (se se permite)</value>
   </data>
@@ -341,11 +352,11 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Erro ao calcular o hash da sinatura MSIX.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Erro ao instalar o paquete de Microsoft Store porque a aplicación específica está bloqueada por unha política</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Erro ao instalar ou actualizar o paquete de Microsoft Store porque hai unha política que bloquea a aplicación específica</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Erro ao instalar o paquete de Microsoft Store. Código de erro:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Erro ao instalar ou actualizar o paquete de Microsoft Store. Código de erro:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Erro verificando/Solicitando adquisición de paquete: erro de rede</value>
@@ -359,11 +370,14 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Verificando/Solicitando adquisición de paquete correctamente</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Non foi posible instalar o paquete de Microsoft Store porque o cliente de Microsoft Store está bloqueado pola política</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Non foi posible instalar nin actualizar o paquete de Microsoft Store porque hai unha política que bloquea o cliente de Microsoft Store</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Verificando/solicitando adquisición de paquete...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Encontráronse varios paquetes instalados que cumpren os criterios de entrada. Limita a entrada.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Encontráronse varios paquetes que cumpren os criterios de entrada. Limite a entrada.</value>
@@ -376,6 +390,9 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Actualmente non hai funcionalidades exprimentais dispoñibles. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Non se encontrou ningún paquete instalado que cumpra os criterios de entrada.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Non se encontrou ningún paquete que cumpra os criterios de entrada.</value>
@@ -459,9 +476,6 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
   <data name="ShowChannel" xml:space="preserve">
     <value>Canle</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Mostra información sobre un paquete específico. Por defecto, a consulta debe coincidir sen diferenciar maiúsculas e minúsculas co id, o nome ou co moniker do paquete. Poden usarse outros campos pasando as opcións apropiadas.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Mostra información acerca dun paquete</value>
   </data>
@@ -520,7 +534,7 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Campo</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Nome</value>
@@ -542,7 +556,7 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>nunca</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Valor</value>
@@ -550,6 +564,14 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Nome da orixe</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Non se puido abrir a orixe. Se o problema continúa, proba o comando “source reset”.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Non se puido abrir a orixe predefinida. Informa os encargados de mantemento dos winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Eliminar todas as orixes...</value>
@@ -619,13 +641,26 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
     <value>O argumento forneceuse máis veces das permitidas</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Fornécese máis dun argumento de instalación de comportamento</value>
+    <value>Fornécese máis dun argumento de execución do comportamento</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Ocorreu un erro inesperado mentres se executaba o comando:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Comando non recoñecido</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Actualizar todos os paquetes instalados á versión máis recente que estea dispoñible</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Non se atoparon actualizacións aplicables.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Actualiza o paquete seleccionado, que se atopa buscando a lista de paquetes instalados ou directamente desde un manifesto. Por defecto, a consulta debe coincidir co id, name ou moniker do paquete sen diferenciar maiúsculas e minúsculas. Poden usarse outros campos transmitindo as opcións apropiadas.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Actualiza o paquete fornecido</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>uso</value>
@@ -654,5 +689,34 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Requírese o valor fornecido antes da finalización</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Non se atopou ningunha versión que coincida:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Non hai orixes coincidentes co valor indicado:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>As orixes configuradas son as seguintes:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Non se estableceron orixes. Engade unha con “source add” ou restablece os valores predefinidos con “source reset”</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Localizouse</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>O camiño é un directorio:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>O ficheiro non existe:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Fornecéronse tanto o manifesto local como os argumentos de consulta de busca</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Informes</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

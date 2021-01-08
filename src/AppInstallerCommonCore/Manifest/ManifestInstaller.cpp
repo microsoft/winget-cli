@@ -12,6 +12,7 @@ namespace AppInstaller::Manifest
             None,
             Exe,
             Msi,
+            Msix,
         };
 
         CompatibilitySet GetCompatibilitySet(ManifestInstaller::InstallerTypeEnum type)
@@ -26,6 +27,9 @@ namespace AppInstaller::Manifest
             case ManifestInstaller::InstallerTypeEnum::Wix:
             case ManifestInstaller::InstallerTypeEnum::Msi:
                 return CompatibilitySet::Msi;
+            case ManifestInstaller::InstallerTypeEnum::Msix:
+            case ManifestInstaller::InstallerTypeEnum::MSStore:
+                return CompatibilitySet::Msix;
             default:
                 return CompatibilitySet::None;
             }
@@ -93,44 +97,60 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    std::string ManifestInstaller::InstallerTypeToString(ManifestInstaller::InstallerTypeEnum installerType)
+    ManifestInstaller::ScopeEnum ManifestInstaller::ConvertToScopeEnum(const std::string& in)
     {
-        std::string result = "Unknown";
+        ScopeEnum result = ScopeEnum::Unknown;
 
-        switch (installerType)
+        if (Utility::CaseInsensitiveEquals(in, "user"))
         {
-        case ManifestInstaller::InstallerTypeEnum::Exe:
-            result = "Exe";
-            break;
-        case ManifestInstaller::InstallerTypeEnum::Inno:
-            result = "Inno";
-            break;
-        case ManifestInstaller::InstallerTypeEnum::Msi:
-            result = "Msi";
-            break;
-        case ManifestInstaller::InstallerTypeEnum::Msix:
-            result = "Msix";
-            break;
-        case ManifestInstaller::InstallerTypeEnum::Nullsoft:
-            result = "Nullsoft";
-            break;
-        case ManifestInstaller::InstallerTypeEnum::Wix:
-            result = "Wix";
-            break;
-        case ManifestInstaller::InstallerTypeEnum::Zip:
-            result = "Zip";
-            break;
-        case ManifestInstaller::InstallerTypeEnum::Burn:
-            result = "Burn";
-            break;
-        case ManifestInstaller::InstallerTypeEnum::MSStore:
-            result = "MSStore";
-            break;
-        default:
-            break;
+            result = ScopeEnum::User;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "machine"))
+        {
+            result = ScopeEnum::Machine;
         }
 
         return result;
+    }
+
+    std::string_view ManifestInstaller::InstallerTypeToString(ManifestInstaller::InstallerTypeEnum installerType)
+    {
+        switch (installerType)
+        {
+        case InstallerTypeEnum::Exe:
+            return "Exe"sv;
+        case InstallerTypeEnum::Inno:
+            return "Inno"sv;
+        case InstallerTypeEnum::Msi:
+            return "Msi"sv;
+        case InstallerTypeEnum::Msix:
+            return "Msix"sv;
+        case InstallerTypeEnum::Nullsoft:
+            return "Nullsoft"sv;
+        case InstallerTypeEnum::Wix:
+            return "Wix"sv;
+        case InstallerTypeEnum::Zip:
+            return "Zip"sv;
+        case InstallerTypeEnum::Burn:
+            return "Burn"sv;
+        case InstallerTypeEnum::MSStore:
+            return "MSStore"sv;
+        }
+
+        return "Unknown"sv;
+    }
+
+    std::string_view ManifestInstaller::ScopeToString(ScopeEnum scope)
+    {
+        switch (scope)
+        {
+        case ScopeEnum::User:
+            return "User"sv;
+        case ScopeEnum::Machine:
+            return "Machine"sv;
+        }
+
+        return "Unknown"sv;
     }
 
     bool ManifestInstaller::DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType)

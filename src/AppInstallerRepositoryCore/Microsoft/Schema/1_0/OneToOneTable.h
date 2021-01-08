@@ -13,7 +13,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     namespace details
     {
         // Creates the table.
-        void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool useNamedIndeces);
+        void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool useNamedIndices);
 
         // Selects the value from the table, returning the rowid if it exists.
         std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool useLike = false);
@@ -31,7 +31,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         void OneToOneTableDeleteIfNotNeededById(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id);
 
         // Removes data that is no longer needed for an index that is to be published.
-        void OneToOneTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndeces, bool preserveValuesIndex);
+        void OneToOneTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndices, bool preserveValuesIndex);
 
         // Gets the total number of rows in the table.
         uint64_t OneToOneTableGetCount(const SQLite::Connection& connection, std::string_view tableName);
@@ -50,7 +50,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // The id type
         using id_t = SQLite::rowid_t;
 
-        // Creates the table with named indeces.
+        // Creates the table with named indices.
         static void Create(SQLite::Connection& connection)
         {
             details::CreateOneToOneTable(connection, TableInfo::TableName(), TableInfo::ValueName(), true);

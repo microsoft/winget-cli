@@ -130,6 +130,10 @@
     <value>הפקודות הבאות זמינות:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>זמין</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>האפשרויות הבאות זמינות:</value>
   </data>
@@ -304,6 +308,13 @@
     <value>קישורים</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>הפקודה 'list' מציגה את החבילות המותקנות במערכת, וכן אם יש עדכון זמין. ניתן לספק אפשרויות נוספות כדי לסנן את הפלט, בדומה לפקודה 'search'.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>הצג חבילות מותקנות</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>המיקום שיש להתקין בו (אם הוא נתמך)</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>חישוב Hash החתימה של MSIX נכשל.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>לא ניתן להתקין את חבילת Microsoft Store מכיוון שהיישום הספציפי נחסם על-ידי מדיניות</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>לא היתה אפשרות להתקין או לעדכן את חבילת Microsoft Store מכיוון שהאפליקציה הספציפית נחסמה על-ידי מדיניות</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>התקנת חבילת Microsoft Store נכשלה. קוד שגיאה:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>לא היתה אפשרות להתקין או לעדכן את חבילת Microsoft Store. קוד שגיאה:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>פעולת האימות/בקשה לרכישת חבילות נכשלה: שגיאת רשת</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>פעולת האימות/בקשה לרכישת חבילות הצליחה</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>התקנת חבילת Microsoft Store נכשלה מכיוון שלקוח Microsoft Store חסום על-ידי מדיניות</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>לא היתה אפשרות להתקין או לעדכן את חבילת Microsoft Store מכיוון שלקוח Microsoft Store נחסם על-ידי מדיניות</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>מאמת/מבקש רכישת חבילות...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>נמצאו חבילות מותקנות מרובות המתאימות לקריטריוני הקלט. מקד את הקלט.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>נמצאו חבילות מרובות המתאימות לקריטריוני הקלט. מקד את הקלט.</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>אין כרגע תכונות ניסיוניות זמינות. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>לא נמצאה חבילה מותקנת התואמת לקריטריוני קלט.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>לא נמצאה חבילה התואמת לקריטריוני קלט.</value>
@@ -459,9 +476,6 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>ערוץ</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>הצגת מידע על חבילה ספציפית. כברירת מחדל, השאילתה צריכה להתאים, ללא תלות באותיות רישיות, למזהה, לשם או לכינוי של החבילה. ניתן להשתמש בשדות אחרים על-ידי העברת האפשרות המתאימה להם.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>הצגת מידע אודות חבילה</value>
   </data>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>שדה</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>שם</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>לעולם לא</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>ערך</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>שם המקור</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>פתיחת המקור נכשלה; נסה את הפקודה 'source reset' אם הבעיה נמשכת.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>פתיחת המקור המוגדר מראש נכשלה; דווח לאנשי התחזוקה של winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>מסיר את כל המקורות...</value>
@@ -619,13 +641,26 @@
     <value>הארגומנט סופק יותר פעמים מהמותר</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>סופק יותר מארגומנט אחד הקובע את התנהגות ההתקנה</value>
+    <value>סופק יותר מארגומנט אחד הקובע את התנהגות הביצוע</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>אירעה שגיאה לא צפויה בעת ביצוע הפקודה:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>פקודה בלתי מזוהה</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>עדכן את כל החבילות המותקנות לחבילות העדכניות ביותר, אם הן זמינות</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>לא נמצא עדכון רלוונטי.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>עדכון החבילה שנבחרה, נמצא על-ידי חיפוש ברשימת החבילות המותקנות או ישירות ממניפסט. כברירת מחדל, השאילתה חייבת להיות מתאימה לרישיות בהתאם למזהה, לשם או לכינוי של החבילה. ניתן להשתמש בשדות אחרים על-ידי העברת האפשרות המתאימה שלהם.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>עדכון החבילה הנתונה</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>שימוש</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>הערך סופק לפני בקשת ההשלמה</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>לא נמצאה גירסה תואמת:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>אין מקורות התואמים לערך הנתון:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>המקורות שתצורתם נקבעה:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>לא הוגדרו מקורות; הוסף מקור באמצעות 'source add' או אפס לברירות המחדל באמצעות 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>נמצא</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>הנתיב הוא ספריה:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>הקובץ אינו קיים:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>סופקו ארגומנטים גם למניפסט היישום מקומי וגם לשאילת החיפוש</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>יומנים</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

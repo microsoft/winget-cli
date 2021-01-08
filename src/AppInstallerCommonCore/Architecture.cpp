@@ -83,6 +83,25 @@ namespace AppInstaller::Utility
         return Architecture::Unknown;
     }
 
+    std::string_view ToString(Architecture architecture)
+    {
+        switch (architecture)
+        {
+        case Architecture::Neutral:
+            return "Neutral"sv;
+        case Architecture::X86:
+            return "X86"sv;
+        case Architecture::X64:
+            return "X64"sv;
+        case Architecture::Arm:
+            return "Arm"sv;
+        case Architecture::Arm64:
+            return "Arm64"sv;
+        }
+
+        return "Unknown"sv;
+    }
+
     Architecture GetSystemArchitecture()
     {
         Architecture systemArchitecture = Architecture::Unknown;

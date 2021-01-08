@@ -130,6 +130,10 @@
     <value>Komandat në vijim janë në dispozicion:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Në dispozicion</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Opsionet në vijim janë në dispozicion:</value>
   </data>
@@ -304,6 +308,13 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
     <value>Lidhjet</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Komanda e listës afishon paketat e instaluara në sistem, si dhe nëse ka një përditësim në dispozicion. Mund të jepen opsione shtesë për të filtruar daljen, si edhe komandën e search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Afisho paketat e instaluara</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Vendndodhja ku do të instalohet (nëse mbështetet)</value>
   </data>
@@ -341,11 +352,11 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Llogaritja e hash-it të nënshkrimit MSIX dështoi.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Dështoi të instalojë paketën e Microsoft Store sepse aplikacioni specifik është bllokuar nga rregullorja</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Instalimi ose përditësimi i paketës së Microsoft Store dështoi, sepse aplikacioni specifik është bllokuar nga rregullorja</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Dështoi të instalonte paketën e Microsoft Store. Kodi i gabimit:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Instalimi ose përditësimi i paketës së Microsoft Store dështoi. Kodi i gabimit:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Verifikimi/kërkimi i blerjes së paketës dështoi: gabim i rrjetit</value>
@@ -359,11 +370,14 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Verifikimi/kërkimi i blerjes së paketës i suksesshëm</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Dështoi të instalojë paketën e Microsoft Store sepse klienti i Microsoft Store është bllokuar nga rregullorja</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Instalimi ose përditësimi i paketës së Microsoft Store dështoi, sepse klienti i Microsoft Store është bllokuar nga rregullorja</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Verifikimi/kërkimi i blerjes së paketës...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>U gjetën më shumë paketa të instaluara që përputhen me kriterin e hyrjes. Përsos hyrjen.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>U gjetën më shumë paketa që përputhen me kriterin e hyrjes. Përsos hyrjen.</value>
@@ -376,6 +390,9 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Nuk ka aktualisht asnjë tipar eksperimental në dispozicion.</value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Nuk u gjet asnjë paketë e instaluar që përputhet me kriterin e hyrjes.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Nuk u gjet asnjë paketë që përputhet me kriterin e hyrjes.</value>
@@ -459,9 +476,6 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Shfaq informacionin për një paketë specifike. Sipas parazgjedhjes, pyetja duhet të përputhet me ID-në edhe në madhësinë e shkronjave, emrin ose pseudonimin e paketës. Fushat e tjera mund të përdoren duke kaluar opsionin e tyre të përshtatshëm.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Shfaq informacione rreth një pakete</value>
   </data>
@@ -520,7 +534,7 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Fushë</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Emri</value>
@@ -542,7 +556,7 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>asnjëherë</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Vlerë</value>
@@ -550,6 +564,14 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Emri i burimit</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Hapja e burimit dështoi; provo komandën 'source reset' nëse problemi vazhdon.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Hapja e burimit të paracaktuar dështoi; raportoje te mirëmbajtësit e winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Duke larguar të gjitha burimet...</value>
@@ -619,13 +641,26 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
     <value>Argumenti u dha më shumë herë se sa lejohet</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>U dha më shumë se një argument i sjelljes së instalimit</value>
+    <value>U dha më shumë se një argument i sjelljes së ekzekutimit</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Ndodhi një gabim i papritur gjatë ekzekutimit të komandës:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Komandë e panjohur</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Përditëso të gjitha paketat e instaluara në më të fundit nëse janë në dispozicion</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Nuk u gjet asnjë përditësim i aplikueshëm.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Përditëson paketën e përzgjedhur, që është gjetur duke kërkuar listën e paketave të instaluara ose drejtpërdrejt nga manifesti. Sipas parazgjedhjes, pyetja duhet të përputhet me ID-në, emrin ose pseudonimin e paketës pa ndjeshmëri ndaj kapitaleve. Fushat e tjera mund të përdoren duke kaluar opsionin e tyre përkatës.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Përditëson paketën e dhënë</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>përdorimi</value>
@@ -654,5 +689,34 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Kërkohet vlera e dhënë para përfundimit</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Nuk u gjet asnjë version që përputhet me:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Asnjë burim nuk përputhet me vlerën e dhënë:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Burimet e konfiguruara janë:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Nuk ka burime të përcaktuara; shto një me 'source add' ose rivendos te parazgjedhjet me 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>U gjet</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Shtegu është një direktori:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Skedari nuk ekziston:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Është dhënë edhe argumenti i manifestit lokal edhe ai i pyetjes së kërkimit</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Evidencat</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

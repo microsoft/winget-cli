@@ -16,7 +16,7 @@ namespace AppInstaller::YAML::Wrapper
     // A parsed document, created by the Parser.
     struct Document
     {
-        // Intializes the document.
+        // Initializes the document.
         Document(bool init = false);
 
         Document(const Document&) = delete;

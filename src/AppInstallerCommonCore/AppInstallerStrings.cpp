@@ -79,7 +79,7 @@ namespace AppInstaller::Utility
                 return m_currentBrk;
             }
 
-            // Returns code point of the chracter at m_currentBrk, or U_SENTINEL if m_currentBrk points to the end.
+            // Returns code point of the character at m_currentBrk, or U_SENTINEL if m_currentBrk points to the end.
             UChar32 CurrentCodePoint()
             {
                 return utext_char32At(m_text.get(), m_currentBrk);
@@ -408,6 +408,29 @@ namespace AppInstaller::Utility
         THROW_HR_IF(E_OUTOFMEMORY, offset > static_cast<std::streamoff>(std::numeric_limits<uint32_t>::max()));
         std::string result(static_cast<size_t>(offset), '\0');
         stream.read(&result[0], offset);
+
+        return result;
+    }
+
+    std::wstring ExpandEnvironmentVariables(const std::wstring& input)
+    {
+        if (input.empty())
+        {
+            return {};
+        }
+
+        DWORD charCount = ExpandEnvironmentStringsW(input.c_str(), nullptr, 0);
+        THROW_LAST_ERROR_IF(charCount == 0);
+
+        std::wstring result(wil::safe_cast<size_t>(charCount), L'\0');
+
+        DWORD charCountWritten = ExpandEnvironmentStringsW(input.c_str(), &result[0], charCount);
+        THROW_HR_IF(E_UNEXPECTED, charCount != charCountWritten);
+
+        if (result.back() == L'\0')
+        {
+            result.resize(result.size() - 1);
+        }
 
         return result;
     }

@@ -32,6 +32,12 @@ namespace TestCommon
         static std::vector<std::filesystem::path> s_TempFilesOnFile;
 
         static std::filesystem::path s_TestDataFileBasePath{};
+
+        bool CleanVolatileTestRoot(HKEY root)
+        {
+            THROW_IF_WIN32_ERROR(RegDeleteTreeW(root, nullptr));
+            return true;
+        }
     }
 
     TempFile::TempFile(const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction)
@@ -141,5 +147,46 @@ namespace TestCommon
     AppInstaller::IProgressCallback::CancelFunctionRemoval TestProgress::SetCancellationFunction(std::function<void()>&&)
     {
         return {};
+    }
+
+    wil::unique_hkey RegCreateVolatileTestRoot()
+    {
+        // First create/open the real test root
+        wil::unique_hkey root;
+        THROW_IF_WIN32_ERROR(RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\WinGet\\TestRoot", 0, nullptr, REG_OPTION_VOLATILE, KEY_ALL_ACCESS, nullptr, &root, nullptr));
+
+        static bool s_ignored = CleanVolatileTestRoot(root.get());
+
+        // Create a random name
+        GUID name{};
+        (void)CoCreateGuid(&name);
+
+        wchar_t nameBuffer[256];
+        (void)StringFromGUID2(name, nameBuffer, ARRAYSIZE(nameBuffer));
+
+        return RegCreateVolatileSubKey(root.get(), nameBuffer);
+    }
+
+    wil::unique_hkey RegCreateVolatileSubKey(HKEY parent, const std::wstring& name)
+    {
+        wil::unique_hkey result;
+        THROW_IF_WIN32_ERROR(RegCreateKeyExW(parent, name.c_str(), 0, nullptr, REG_OPTION_VOLATILE, KEY_ALL_ACCESS, nullptr, &result, nullptr));
+        return result;
+    }
+
+    void SetRegistryValue(HKEY key, const std::wstring& name, const std::wstring& value, DWORD type)
+    {
+        THROW_IF_WIN32_ERROR(RegSetValueExW(key, name.c_str(), 0, type, reinterpret_cast<const BYTE*>(value.c_str()), static_cast<DWORD>(sizeof(wchar_t) * (value.size() + 1))));
+    }
+
+    void SetRegistryValue(HKEY key, const std::wstring& name, const std::vector<BYTE>& value, DWORD type)
+    {
+        THROW_IF_WIN32_ERROR(RegSetValueExW(key, name.c_str(), 0, type, reinterpret_cast<const BYTE*>(value.data()), static_cast<DWORD>(value.size())));
+    }
+
+    void SetRegistryValue(HKEY key, const std::wstring& name, DWORD value)
+    {
+
+        THROW_IF_WIN32_ERROR(RegSetValueExW(key, name.c_str(), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), sizeof(DWORD)));
     }
 }

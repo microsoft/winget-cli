@@ -130,6 +130,10 @@
     <value>Sono disponibili i seguenti comandi:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Disponibile</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Sono disponibili le seguenti opzioni:</value>
   </data>
@@ -304,6 +308,13 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Collegamenti</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Il comando list mostra i pacchetti installati nel sistema nonché la disponibilità di un aggiornamento. È possibile fornire opzioni aggiuntive per filtrare l'output, molto simili al comando search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Visualizza pacchetti installati</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Percorso di installazione (se supportato)</value>
   </data>
@@ -341,11 +352,11 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Non è possibile calcolare l'hash della firma MSIX.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Impossibile installare il pacchetto di Microsoft Store perché l'app specifica è bloccata dai criteri</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Non è stato possibile installare o aggiornare il pacchetto di Microsoft Store perché l'app specifica è bloccata dai criteri</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Impossibile installare il pacchetto di Microsoft Store. Codice di errore:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Non è stato possibile installare o aggiornare il pacchetto di Microsoft Store. Codice di errore:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Verifica/richiesta di acquisizione pacchetto non riuscita: errore di rete</value>
@@ -359,11 +370,14 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Verifica/richiesta di acquisizione pacchetto riuscita</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Non è possibile installare il pacchetto Microsoft Store perché il client Microsoft Store è bloccato dai criteri</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Non è stato possibile installare o aggiornare il pacchetto Microsoft Store perché il client Microsoft Store è bloccato dai criteri</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Verifica/richiesta di acquisizione pacchetti...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Trovati più pacchetti installati corrispondenti ai criteri di input. Ridefinire l'input.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Multipli pacchetti hanno trovato criteri di input corrispondenti. Ridefinisci l'input.</value>
@@ -376,6 +390,9 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Al momento non sono disponibili funzionalità sperimentali. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Non è stato trovato alcun pacchetto installato corrispondente ai criteri di input.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Nessun pacchetto trovato con criteri di input corrispondenti.</value>
@@ -420,7 +437,7 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Lo stato di avanzamento viene mostrato come il colore predefinito</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Cerca i pacchetti da origini configurate.</value>
+    <value>Esegue ricerche di pacchetti da origini configurate.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Trova e mostra le informazioni di base dei pacchetti</value>
@@ -458,9 +475,6 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Canale</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Mostra le informazioni relative a un pacchetto specifico. Per impostazione predefinita, la query deve essere non sensibile alle maiuscole e minuscole, corrispondere all’ID, al nome o al moniker del pacchetto. Gli altri campi possono essere utilizzati passando all'opzione appropriata.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Mostra le informazioni relative a un pacchetto</value>
@@ -520,7 +534,7 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Campo</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Nome</value>
@@ -542,7 +556,7 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>mai</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Valore</value>
@@ -550,6 +564,14 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Nome dell'origine</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Impossibile aprire l'origine; provare il comando 'source reset' se il problema persiste.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Non è stato possibile aprire l'origine predefinita. Informare i gestori winget</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Rimozione di tutte le origini in corso...</value>
@@ -619,13 +641,26 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Argomento fornito più volte di quanto consentito</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>È stato fornito più di un argomento sul comportamento di installazione</value>
+    <value>È stato fornito più di un argomento sul comportamento di esecuzione</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Si è verificato un errore imprevisto durante l'esecuzione del comando:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Comando non riconosciuto</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Aggiorna tutti i pacchetti installati alla versione più recente se disponibile</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Non è stato trovato alcun aggiornamento applicabile.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Aggiorna il pacchetto selezionato, trovato eseguendo la ricerca nell'elenco dei pacchetti installati o direttamente da un manifesto. Per impostazione predefinita, la query deve essere insensitively con l'ID, il nome o il moniker del pacchetto. Altri campi possono essere utilizzati passando l'opzione appropriata.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Aggiorna il pacchetto specificato</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>uso</value>
@@ -654,5 +689,34 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>È richiesto il valore specificato prima del completamento</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Non sono state trovate versioni corrispondenti:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Nessuna origine corrisponde al valore specificato:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Le origini configurate sono:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Non è stata definita alcuna origine. Aggiungerne una con "source add" o ripristinare i valori predefiniti con "source reset"</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Trovato</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Il percorso è una directory:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Il file non esiste:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Sono stati forniti gli argomenti del manifesto locale e della query di ricerca</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Log</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

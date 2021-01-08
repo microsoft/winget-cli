@@ -130,6 +130,10 @@
     <value>The following commands are available:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Available</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>The following options are available:</value>
   </data>
@@ -304,6 +308,13 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Links</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>The list command displays the packages installed on the system, as well as whether an update is available. Additional options can be provided to filter the output, much like the search command.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Display installed packages</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Location to install to (if supported)</value>
   </data>
@@ -341,11 +352,11 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Failed to calculate MSIX signature hash.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Failed to install Microsoft Store package because the specific app is blocked by policy</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Failed to install or update Microsoft Store package because the specific app is blocked by policy</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Failed to install Microsoft Store package. Error code:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Failed to install or update Microsoft Store package. Error code:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Verifying/Requesting package acquisition failed: network error</value>
@@ -359,11 +370,14 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Verifying/Requesting package acquisition success</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Failed to install Microsoft Store package because Microsoft Store client is blocked by policy</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Failed to install or update Microsoft Store package because Microsoft Store client is blocked by policy</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Verifying/Requesting package acquisition...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Multiple installed packages found matching input criteria. Please refine the input.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Multiple packages found matching input criteria. Please refine the input.</value>
@@ -375,7 +389,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>No installers are applicable to the current system.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>There are currently no exprimental features available. </value>
+    <value>There are currently no experimental features available. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>No installed package found matching input criteria.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>No package found matching input criteria.</value>
@@ -420,7 +437,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Progress display as the default colour</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Searches for pacakges from configured sources.</value>
+    <value>Searches for packages from configured sources.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Find and show basic info of packages</value>
@@ -458,9 +475,6 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Channel</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Shows information on a specific pacakge. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Shows info about an package</value>
@@ -520,7 +534,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Field</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Name</value>
@@ -542,7 +556,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>never</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Value</value>
@@ -550,6 +564,14 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Name of the source</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Failed to open the source; try the 'source reset' command if the problem persists.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Failed to open the predefined source; please report to winget maintainers.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Removing all sources...</value>
@@ -619,13 +641,26 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Argument provided more times than allowed</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>More than one install behaviour argument provided</value>
+    <value>More than one execution behaviour argument provided</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>An unexpected error occurred while executing the command:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Unrecognised command</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Update all installed packages to latest if available</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>No applicable update found.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Updates the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Updates the given package</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>usage</value>
@@ -654,5 +689,34 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>The value provided before completion is requested</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>No version found matching:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>No sources match the given value:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>The configured sources are:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>No sources defined; add one with 'source add' or reset to defaults with 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Found</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Path is a directory:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>File does not exist:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Both local manifest and search query args are provided</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Logs</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

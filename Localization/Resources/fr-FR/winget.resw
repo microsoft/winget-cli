@@ -130,6 +130,10 @@
     <value>Les commandes suivantes sont disponibles :</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Disponible</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Les options suivantes sont disponibles :</value>
   </data>
@@ -240,7 +244,7 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
     <value>Filtrer les résultats par identifiant</value>
   </data>
   <data name="InstallationDisclaimer1" xml:space="preserve">
-    <value>La licence d’utilisation de cette application vous est octroyée pas son propriétaire.</value>
+    <value>La licence d’utilisation de cette application vous est octroyée par son propriétaire.</value>
   </data>
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft n’est pas responsable des paquets tiers et n’accorde pas de licences à ceux-ci.</value>
@@ -304,6 +308,13 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
     <value>Liens</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>La commande list affiche les packages installés sur le système, et indique si une mise à jour est disponible. Des options supplémentaires peuvent être proposées pour filtrer la sortie, comme pour la commande search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Afficher les packages installés</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Emplacement d’installation (si pris en charge)</value>
   </data>
@@ -341,11 +352,11 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Impossible de calculer le hachage de la signature MSIX.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Nous n’avons pas pu installer le package Microsoft Store en raison du blocage de l’application spécifique par une stratégie</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Échec de l’installation ou de la mise à jour du package Microsoft Store en raison du blocage de l’application en question par une stratégie</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Nous n’avons pas pu installer le package Microsoft Store. Code d’erreur :</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Échec de l’installation ou de la mise à jour du package Microsoft Store. Code d’erreur :</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Nous n’avons pas pu effectuer la vérification/demande d’acquisition du package : erreur réseau</value>
@@ -359,11 +370,14 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Vérification/demande relative à la réussite de l’acquisition du package</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Nous n’avons pas pu installer le package Microsoft Store en raison du blocage du client Microsoft Store par une stratégie</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Échec de l’installation ou de la mise à jour du package Microsoft Store en raison du blocage du client Microsoft Store par une stratégie</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Vérification/demande en cours relative à l’acquisition du package...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Plusieurs packages installés correspondent à vos critères saisis. Veuillez affiner votre recherche.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Plusieurs packages correspondent à vos critères. Veuillez affiner votre recherche.</value>
@@ -376,6 +390,9 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Aucune fonctionnalité expérimentale n’est actuellement disponible. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Aucun package installé ne correspond aux critères saisis.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Aucun package ne correspond aux critères sélectionnés.</value>
@@ -459,9 +476,6 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   <data name="ShowChannel" xml:space="preserve">
     <value>Canal</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Affiche des informations sur un package précis. Par défaut, la requête doit correspondre, sans respect de la casse, à l’ID, au nom ou au moniker du package. D’autres champs peuvent être utilisés en transmettant leur option appropriée.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Affiche des informations sur un package</value>
   </data>
@@ -520,7 +534,7 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Champ</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Nom</value>
@@ -542,7 +556,7 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>jamais</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Valeur</value>
@@ -550,6 +564,14 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Nom de la source</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Échec de l’ouverture de la source ; Essayez la commande 'source reset' si le problème persiste.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Échec de l’ouverture de la source prédéfinie ; veuillez le signaler aux chargés de maintenance winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Suppression en cours de toutes les sources... Merci de patienter.</value>
@@ -619,13 +641,26 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
     <value>Argument fourni plus de fois que le nombre autorisé</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Plusieurs arguments de comportement d’installation fournis</value>
+    <value>Plusieurs arguments de comportement d’exécution sont fournis</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Une erreur inattendue s'est produite lors de l'exécution de la commande :</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Commande non reconnue</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Mettre à jour tous les packages installés vers la dernière version si disponible</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Aucune mise à jour applicable trouvée.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Met à jour le package sélectionné, trouvé en recherchant la liste des packages installés ou directement à partir d’un manifeste. Par défaut, la requête doit correspondre de façon non sensible à la casse à l’ID, au nom ou au moniker du package. D’autres champs peuvent être utilisés en passant l’option appropriée.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Met à jour le package donné</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>consommation</value>
@@ -654,5 +689,34 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>La valeur fournie avant l’achèvement est demandée</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Aucune version correspondante trouvée :</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Aucune source ne correspond à la valeur spécifiée :</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Les sources configurées sont :</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Aucune source définie ; ajoutez-en une avec « source add » ou rétablissez les valeurs par défaut de « source reset »</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Trouvé</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Le chemin d’accès est un répertoire :</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Le fichier n'existe pas :</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Les arguments manifeste et requête de recherche locaux sont tous deux spécifiés</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Journaux</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

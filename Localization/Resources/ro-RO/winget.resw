@@ -130,6 +130,10 @@
     <value>Sunt disponibile următoarele comenzi:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Disponibil</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Sunt disponibile următoarele opțiuni:</value>
   </data>
@@ -304,6 +308,13 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
     <value>Linkuri</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Comanda listă afișează pachetele instalate în sistem, precum și dacă este disponibilă o actualizare. Pot fi furnizate opțiuni suplimentare pentru a filtra ieșirea, asemănătoare cu comanda de search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Afișare pachete instalate</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Locație pentru instalare (dacă este acceptată)</value>
   </data>
@@ -341,11 +352,11 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Nu s-a reușit calcularea codului hash pentru semnătura MSIX.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Nu s-a reușit instalarea pachetului Microsoft Store, deoarece aplicația specifică este blocată de politică</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Nu s-a reușit instalarea sau actualizarea pachetului Microsoft Store, deoarece aplicația specifică este blocată de politică</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Nu s-a reușit instalarea pachetului Microsoft Store. Cod de eroare:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Nu s-a reușit instalarea sau actualizarea pachetului Microsoft Store. Cod de eroare:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Verificarea/solicitarea de obținere a pachetului nu a reușit: eroare de rețea</value>
@@ -359,11 +370,14 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Verificarea/solicitarea de obținere a pachetului a reușit</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Nu s-a reușit instalarea pachetului Microsoft Store, deoarece clientul Microsoft Store este blocat de politică</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Nu s-a reușit instalarea sau actualizarea pachetului Microsoft Store, deoarece clientul Microsoft Store este blocat de politică</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Se verifică/se solicită obținerea pachetului...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Mai multe pachete instalate au găsit criterii de intrare care se potrivesc. Vă rugăm să rafinați intrarea.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Mai multe pachete au găsit criterii de intrare care se potrivesc. Rafinați intrarea.</value>
@@ -376,6 +390,9 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Momentan nu există caracteristici experimentale disponibile. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Nu s-a găsit niciun pachet care să se potrivească criteriilor de intrare.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Nu s-a găsit niciun pachet care să se potrivească criteriilor de intrare.</value>
@@ -459,9 +476,6 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   <data name="ShowChannel" xml:space="preserve">
     <value>Canal</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Afișează informații despre un anumit pachet. În mod implicit, interogarea trebuie să se potrivească cu ID-ul, numele sau monikerul pachetului, fără a distinge între literele mari și mici. Alte câmpuri pot fi utilizate prin transmiterea opțiunii corespunzătoare.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Afișează informații despre un pachet</value>
   </data>
@@ -520,7 +534,7 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Câmp</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Nume</value>
@@ -542,7 +556,7 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>niciodată</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Valoare</value>
@@ -550,6 +564,14 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Numele sursei</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Deschiderea sursei nu a reușit; încercați comanda 'source reset' dacă problema persistă.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Imposibil de deschis sursa predefinită; Vă rugăm să raportați winget maintainers.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Se elimină toate sursele...</value>
@@ -619,13 +641,26 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
     <value>Argument furnizat de mai multe ori decât este permis</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Mai multe argumente despre comportamentul de instalare a fost furnizat</value>
+    <value>Mai multe argumente despre comportamentul de execuție furnizat</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Eroare neașteptată la executarea comenzii:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Comandă nerecunoscută</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Se actualizează toate pachetele instalate la cea mai recentă dacă sunt disponibile</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Nu s-au găsit actualizări aplicabile.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Actualizează pachetul selectat, fie găsit prin căutarea în lista de pachete instalate sau direct dintr-un manifest. În mod implicit, interogarea trebuie să insensitively cu ID-ul, numele sau moniker pachetului. Alte câmpuri pot fi utilizate prin transmiterea opțiunii corespunzătoare.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Actualizează pachetul dat</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>utilizare</value>
@@ -654,5 +689,34 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Valoarea furnizată este solicitată înainte de completare</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Nu s-a găsit nicio versiune potrivită:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Nicio sursă nu se potrivește cu valoarea dată:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Sursele configurate sunt:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Nicio sursă definită; Adăugați unul cu 'source add' sau resetați la valorile implicite cu 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Găsit</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Calea este un director:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Fișierul nu există:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Sunt furnizate și manifestele locale și argumentele interogării de căutare</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Jurnale</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

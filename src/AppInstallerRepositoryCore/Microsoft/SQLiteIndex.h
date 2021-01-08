@@ -38,7 +38,7 @@ namespace AppInstaller::Repository::Microsoft
         SQLiteIndex& operator=(SQLiteIndex&&) = default;
 
         // Creates a new index database of the given version.
-        static SQLiteIndex CreateNew(const std::string& filePath, Schema::Version version);
+        static SQLiteIndex CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest());
 
         // The disposition for opening the index.
         enum class OpenDisposition

@@ -56,24 +56,40 @@ namespace AppInstaller::Deployment
         }
     }
 
-    void RequestAddPackage(
+    void AddPackage(
         const winrt::Windows::Foundation::Uri& uri,
         winrt::Windows::Management::Deployment::DeploymentOptions options,
+        bool skipSmartScreen,
         IProgressCallback& callback)
     {
         size_t id = GetDeploymentOperationId();
-        AICLI_LOG(Core, Info, << "Starting RequestAddPackage operation #" << id << ": " << Utility::ConvertToUTF8(uri.AbsoluteUri().c_str()));
+        AICLI_LOG(Core, Info, << "Starting AddPackage operation #" << id << ": " << Utility::ConvertToUTF8(uri.AbsoluteUri().c_str()) << "SkipSmartScreen: " << skipSmartScreen);
 
         PackageManager packageManager;
 
-        // RequestAddPackageAsync will invoke smart screen.
-        auto deployOperation = packageManager.RequestAddPackageAsync(
-            uri,
-            nullptr, /*dependencyPackageUris*/
-            options,
-            nullptr, /*targetVolume*/
-            nullptr, /*optionalAndRelatedPackageFamilyNames*/
-            nullptr /*relatedPackageUris*/);
+        IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> deployOperation;
+
+        if (skipSmartScreen)
+        {
+            deployOperation = packageManager.AddPackageAsync(
+                uri,
+                nullptr, /*dependencyPackageUris*/
+                options,
+                nullptr, /*targetVolume*/
+                nullptr, /*optionalAndRelatedPackageFamilyNames*/
+                nullptr, /*optionalPackageUris*/
+                nullptr /*relatedPackageUris*/);
+        }
+        else
+        {
+            deployOperation = packageManager.RequestAddPackageAsync(
+                uri,
+                nullptr, /*dependencyPackageUris*/
+                options,
+                nullptr, /*targetVolume*/
+                nullptr, /*optionalAndRelatedPackageFamilyNames*/
+                nullptr /*relatedPackageUris*/);
+        }
 
         WaitForDeployment(deployOperation, id, callback);
     }

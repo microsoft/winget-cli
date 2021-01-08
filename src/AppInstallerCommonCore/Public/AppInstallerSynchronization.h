@@ -33,11 +33,14 @@ namespace AppInstaller::Synchronization
 
         static CrossProcessReaderWriteLock LockForWrite(std::string_view name);
 
+        bool WasAbandoned() { return m_wasAbandoned; }
+
     private:
         CrossProcessReaderWriteLock(std::string_view name);
 
         wil::unique_mutex m_mutex;
         wil::unique_semaphore m_semaphore;
         ResetWhenMovedFrom<LONG> m_semaphoreReleases{ 0 };
+        bool m_wasAbandoned = false;
     };
 }

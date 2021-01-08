@@ -130,6 +130,10 @@
     <value>Применимы следующие команды:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Доступно</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Доступны следующие опции:</value>
   </data>
@@ -304,6 +308,13 @@
     <value>Ссылки</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Команда list отображает пакеты, установленные в системе, а также доступность обновления. Для фильтрации выходных данных можно указать дополнительные параметры по аналогии с командой search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Отображать установленные пакеты</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Место для установки (если поддерживается)</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Не удалось вычислить хэш подписи MSIX.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Не удалось установить пакет Microsoft Store, поскольку конкретное приложение заблокировано политикой</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Не удалось установить или обновить пакет Microsoft Store, поскольку конкретное приложение заблокировано политикой</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Не удалось установить пакет Microsoft Store. Код ошибки:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Не удалось установить или обновить пакет Microsoft Store. Код ошибки:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Проверка/запрос ошибки при получении пакета: ошибка сети</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Проверка/запрос успешного состояния получения пакета</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Не удалось установить пакет Microsoft Store, поскольку клиент Microsoft Store заблокирован политикой</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Не удалось установить или обновить пакет Microsoft Store, поскольку клиент Microsoft Store заблокирован политикой</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Проверка/запрос сведений о получении пакета...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Обнаружено несколько установленных пакетов, соответствующих введенным условиям. Уточните условия.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Обнаружено несколько пакетов, совпадающих с введенными условиями. Уточните условия.</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>В настоящее время нет доступных экспериментальных компонентов. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Не найдены установленные пакеты, соответствующие введенным условиям.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Не найдены пакеты, совпадающие с введенными условиями.</value>
@@ -459,9 +476,6 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>Канал</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Отображает сведения о конкретном пакете. По умолчанию запрос должен сравнить идентификатор, имя или моникер пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Отображение сведений о пакете</value>
   </data>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Поле</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Имя</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>никогда</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Значение</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Имя источника</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Не удалось открыть источник; Попробуйте 'source reset' команду, если проблема повторится.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Не удалось открыть предопределенный источник. Сообщите об этом специалистам по обслуживанию winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Удаление всех источников...</value>
@@ -619,13 +641,26 @@
     <value>Аргумент предоставлен больше раз, чем позволено</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Предоставлено более одного аргумента поведения при установке</value>
+    <value>Предоставлено несколько аргументов поведения выполнения</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>При выполнении команды произошла непредвиденная ошибка:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Нераспознанная команда</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Обновить все установленные пакеты до последней версии, если она доступна</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Применимые обновления не найдены.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Обновление выбранного пакета, обнаруженного путем поиска в списке установленных пакетов либо непосредственно из манифеста. По умолчанию запрос должен соответствовать идентификатору, имени или моникеру пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Обновление указанного пакета</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>использование</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Значение, указанное до запроса завершения</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Не найдены версии, соответствующие:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Ни один из источников не соответствует указанному значению:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Настроенные источники:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Источники не указаны. Добавьте источник с помощью команды "source add" или восстановите значения по умолчанию с помощью "source reset"</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Найдено</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Указан путь к каталогу:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Файл не существует:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Предоставлены аргументы локального манифеста и поискового запроса</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Журналы</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

@@ -57,6 +57,11 @@
           "description": "Enable the upgrade command while it is in development",
           "type": "boolean",
           "default": false
+        },
+        "uninstall": {
+          "description": "Enable the uninstall command while it is in development",
+          "type": "boolean",
+          "default": false
         }
       }
     }

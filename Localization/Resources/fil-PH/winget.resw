@@ -130,6 +130,10 @@
     <value>Ang sumusunod na mga utos ay magagamit:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Available</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Ang sumusunod na mga opsyon ay magagamit:</value>
   </data>
@@ -304,6 +308,13 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
     <value>Mga Link</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Ipinapakita ng command ng listahan ang mga package na naka-install sa system, pati na rin kung may update na available. Maaaring magbigay ng karagdagang opsyon para i-filter ang output, tulad ng search command.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Mag-display ng mga naka-install na package</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Lokasyon kung saan mag-i-install (kung suportado)</value>
   </data>
@@ -341,11 +352,11 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Nabigo sa pagkalkula ng MSIX na hash na lagda.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Nabigo sa pag-install ng package ng Microsoft Store dahil na-block ng patakaran ang partikular na app</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Nabigong i-install o i-update ang package ng Microsoft Store dahil na-block ng patakaran ang partikular na app</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Nabigo sa pag-install ng package ng Microsoft Store. Error code:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Nabigong i-install o i-update ang package ng Microsoft Store. Error code:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Nabigo sa Pagkumpirma/Paghiling ng pagkuha ng package: error sa network</value>
@@ -359,11 +370,14 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Tagumpay sa Pagkumpirma/Paghiling ng pagkuha ng package</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Nabigo sa pag-install ng package ng Microsoft Store dahil na-block ng patakaran ang Microst Store client</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Nabigong i-install o i-update ang package ng Microsoft Store dahil na-block ng patakaran ang client ng Microst Store</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Pagkumpirma/Paghiling ng pagkuha ng package...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Maramihang naka-install na package ang nakitang tumutugma sa pamantayan ng input. Pinuhin ang input.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Maraming nakitang mga paketeng tumutugma sa mga pamantayan ng input. Pakipinuhin ang input.</value>
@@ -375,7 +389,10 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
     <value>Walang pang-install na angkop sa kasalukuyang sistema.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Kasalukuyang walang mga exprimental na feature na magagamit. </value>
+    <value>Kasalukuyang walang mga experimental na feature na magagamit. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Walang nakitang naka-install na package na tumutugma sa pamantayan ng input.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Walang nakitang paketeng tumutugma sa mga pamantayan ng input.</value>
@@ -420,7 +437,7 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
     <value>I-progress ang display bilang default na kulay</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Naghahanap ng mga package mula sa mga nakompigurang pinagmulan.</value>
+    <value>Mga paghahanap ng mga package mula sa mga nakompigurang pinagmulan.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Hanapin at ipakita ang pangunahing impormasyon ng mga package</value>
@@ -458,9 +475,6 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Channel</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Nagpapakita ng impormasyon sa partikular na pacakge. Bilang default, dapat na case-sensitively na tumutugma ang id, pangalan, o moniker ng package. Magagamit ang iba pang mga field sa pamamagitan ng pagpasa sa kanilang angkop na opsyon.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Nagpapakita ng impormasyon tungkol sa package</value>
@@ -520,7 +534,7 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Field</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Pangalan</value>
@@ -542,7 +556,7 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>hindi kailanman</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Halaga</value>
@@ -550,6 +564,14 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Pangalan ng pinagmulan</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Nabigong buksan ang pinagmulan; subukan ang 'source reset' na command kung magpapatuloy ang problema.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Nabigong buksan ang paunang tinukoy na pinagmulan; pakiulat sa mga winget maintainer.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Tinatanggal ang lahat ng mga source...</value>
@@ -619,13 +641,26 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
     <value>Ang argumento ay naibigay ng mas maraming beses kaysa sa pinapayagan</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Higit sa isang argumento ng pag-install na gawi ang ibinigay</value>
+    <value>Ibinigay ang higit sa isang pagsasagawang argumento ng pag-uugali</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Hindi inaasahang error ang naganap habang isinasagawa ang command:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Hindi makilalang utos</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>I-update ang lahat ng naka-install na package sa pinakabago kung available</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Walang nakitang naaangkop na update.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Ina-update ang napiling package, matatagpuan sa pamamagitan ng paghahanap sa mga naka-install na package o direkta mula sa manifest. Bilang default, dapat na tumugma ng case-insensitively ang query sa id, pangalan, o moniker ng package. Maaaring gamitin ang ibang mga field sa pamamagitan ng pagpasa ng kanilang angkop na opsyon.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Ina-update ang ibinigay na package</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>paggamit</value>
@@ -654,5 +689,34 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Ang value na ibinigay bago humiling ng pagkumpleto</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Walang nakitang tumutugmang bersyon:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Walang pinagmulang tumutugma sa ibinigay na value:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Ang mga na-configure na pinagmulan ay:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Walang pinagmulang tinukoy; magdagdag ng isa gamit ang 'source add' o i-reset sa mga default gamit ang 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Nakita</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Ang path ay direktoryo:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Hindi umiiral ang file:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Ibinibigay ang parehong lokal na manifest at args ng query ng paghahanap</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Mga Log</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

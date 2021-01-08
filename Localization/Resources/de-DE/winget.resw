@@ -130,6 +130,10 @@
     <value>Folgende Befehle sind verfügbar:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Verfügbar</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Die folgenden Optionen stehen zur Verfügung:</value>
   </data>
@@ -304,6 +308,13 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
     <value>Links</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Der Befehl "list" zeigt sowie die auf dem System installierten Pakete an, als auch ob ein Update verfügbar ist. Weitere Optionen können zum Filtern der Ausgabe angegeben werden, ähnlich wie der Befehl „search“.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Installierte Pakete anzeigen</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Installationsspeicherort (falls unterstützt)</value>
   </data>
@@ -341,11 +352,11 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Fehler beim Berechnen des MSIX-Signaturhashs.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Microsoft Store-Paket konnte nicht installiert werden, da diese App von einer Richtlinie blockiert wird.</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Microsoft Store-Paket konnte nicht installiert oder aktualisiert werden, da diese App von einer Richtlinie blockiert wird.</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Microsoft Store-Paket konnte nicht installiert werden. Fehlercode:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Microsoft Store-Paket konnte nicht installiert oder aktualisiert werden. Fehlercode:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Fehler beim Überprüfen/Anfordern der Paketübernahme: Netzwerkfehler.</value>
@@ -359,11 +370,14 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Überprüfen/anfordern der erfolgreichen Paketübernahme</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Microsoft Store-Paket konnte nicht installiert werden, da der Microsoft Store-Client von einer Richtlinie blockiert wird.</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Store-Paket konnte nicht installiert oder aktualisiert werden, da der Microsoft Store-Client von einer Richtlinie blockiert wird.</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Überprüfen/anfordern der Paketübernahme</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Mehrere installierte Pakete mit übereinstimmenden Eingabekriterien gefunden. Bitte verfeinern Sie die Eingabe.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Mehrere Pakete mit übereinstimmenden Eingabekriterien gefunden. Bitte verfeinern Sie die Eingabe.</value>
@@ -376,6 +390,9 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Zurzeit sind keine Exprimentalfunktionen verfügbar. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Es wurde kein installiertes Paket gefunden, das den Eingabekriterien entspricht.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Es wurde kein Paket gefunden, das den Eingabekriterien entspricht.</value>
@@ -420,7 +437,7 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
     <value>Statusanzeige in Standardfarbe</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Suchen nach Paketen aus konfigurierten Quellen.</value>
+    <value>Sucht nach Paketen aus konfigurierten Quellen.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Suchen und Anzeigen grundlegender Informationen zu Paketen</value>
@@ -458,9 +475,6 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Zeigt Informationen zu einem bestimmten Paket an. Standardmäßig muss die Abfrage ohne Berücksichtigung der Groß/Kleinschreibung mit der ID, dem Namen oder dem Moniker des Pakets übereinstimmen. Andere Felder können verwendet werden, indem Ihre entsprechende Option übergeben wird.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Zeigt Informationen zu einem Paket an</value>
@@ -520,7 +534,7 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Bereich</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Name</value>
@@ -542,7 +556,7 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>Nie</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Wert</value>
@@ -550,6 +564,14 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Name der Quelle</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Fehler beim Öffnen der Quelle; Versuchen Sie den 'source reset'-Befehl, falls das Problem weiterhin besteht.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Fehler beim Öffnen der vordefinierten Quelle. Bitte melden Sie sie es an winget maintainers.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Alle Quellen werden entfernt...</value>
@@ -619,13 +641,26 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
     <value>Argument gab mehr Zeiten an als zulässig</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Es wurde mehr als ein Argument zur Installation angegeben</value>
+    <value>Es wurde mehr als ein Argument zur Ausführung angegeben</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Unerwarteter Fehler beim Ausführen des Befehls:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Nicht erkannter Befehl</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Alle installierten Pakete in die neuesten Updates aktualisieren, wenn diese verfügbar sind</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Es wurden keine anwendbaren Aktualisierungen gefunden.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Aktualisiert das ausgewählte Paket, das entweder durch Suchen der Liste der installierten Pakete oder direkt aus einem Manifest gefunden wurde. Standard mäßig muss die Abfrage Groß-insensitively mit der ID, dem Namen oder dem Moniker des Pakets überein stimmen. Andere Felder können verwendet werden, indem Sie Ihre entsprechende Option übergeben.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Aktualisiert das angegebene Paket</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>Nutzung</value>
@@ -654,5 +689,34 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Der vor der Vervollständigung angegebene Wert wird angefordert.</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Es wurde keine übereinstimmende Version gefunden:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Keine Quellen entsprechen dem angegebenen Wert:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Die konfigurierten Quellen sind:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Keine Quellen definiert; Fügen Sie eine 'source add' hinzu, oder setzen Sie sie mittels 'source reset' auf Standards zurück</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Gefunden</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Pfad ist ein Verzeichnis:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Die Datei konnte nicht gefunden werden:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Es werden sowohl lokale Manifeste als auch die Suchabfragenargumente bereitgestellt.</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Protokolle</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

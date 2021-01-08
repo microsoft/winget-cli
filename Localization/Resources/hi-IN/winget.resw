@@ -130,6 +130,10 @@
     <value>निम्न आदेश उपलब्ध हैं:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>उपलब्ध</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>निम्न विकल्प उपलब्ध हैं:</value>
   </data>
@@ -304,6 +308,13 @@
     <value>लिंक्स</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>list आदेश सिस्टम पर स्थापित किए गए पैकेजों को प्रदर्शित करता है, साथ ही यह कि कोई अद्यतन उपलब्ध है या नहीं. आउटपुट को फ़िल्टर करने के लिए अतिरिक्त विकल्प प्रदान किए जा सकते हैं, बहुत कुछ search आदेश की तरह.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>स्थापित पैकेज प्रदर्शित करें</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>स्थापित करने के लिए स्थान (यदि समर्थित हो) </value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX हस्ताक्षर हैश का परिकलन करने में विफल.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Microsoft Store पैकेज को स्थापित करने में विफल रहे क्योंकि इस विशिष्ट ऐप को नीति द्वारा ब्लॉक किया गया है</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Microsoft Store पैकेज को स्थापित या अपडेट करने में विफल रहे क्योंकि इस विशिष्ट ऐप को नीति द्वारा ब्लॉक किया गया है</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Microsoft Store पैकेज को स्थापित करने में विफल रहे. त्रुटि कोड:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Microsoft Store पैकेज़ को स्थापित या अपडेट करने में विफल रहे. त्रुटि कोड:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>पैकेज प्राप्ति का सत्यापन/अनुरोध करना विफल रहा: नेटवर्क त्रुटि</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>पैकेज प्राप्ति सफलता का सत्यापन/अनुरोध कर रहे हैं</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Microsoft Store पैकेज को स्थापित करने में विफल रहे क्योंकि Microsoft स्टोर क्लायंट को नीति द्वारा ब्लॉक किया गया है</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Store पैकेज को स्थापित या अपडेट करने में विफल रहे क्योंकिे Microsoft Store क्लायंट को नीति द्वारा ब्लॉक किया गया है</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>पैकेज प्राप्ति का सत्यापन/अनुरोध कर रहे हैं</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>एकाधिक स्थापित पैकेज से मेल खाते इनपुट मापदंड मिले. कृपया इनपुट को परिष्कृत करें.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>एकाधिक पैकेज से मेल खाते इनपुट मापदंड मिले. कृपया इनपुट को परिष्कृत करें.</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>वर्तमान में कोई प्रयोगात्मक सुविधाएँ उपलब्ध नहीं हैं.</value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>इनपुट मानदंड से मेल खाता कोई स्थापित पैकेज नहीं मिला.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>इनपुट मानदंड से मेल खाता कोई पैकेज नहीं मिला.</value>
@@ -420,7 +437,7 @@
     <value>प्रगति प्रदर्शन डिफ़ॉल्ट रंग के रूप में</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>कॉंफ़िगर किए गए स्रोतों में से पैकेजेस को खोजता है.</value>
+    <value>कॉन्फ़िगर किए गए स्रोतों में से पैकेजेस को खोजता है.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>पैकेजेस की मूलभूत जानकारी ढूँढें और दिखाएँ</value>
@@ -458,9 +475,6 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>चैनल</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>किसी विशिष्ट पैकेज पर जानकारी दिखाता है. डिफ़ॉल्ट रूप से, क्वेरी का केस-असंवेदी तरीके से पैकेज के ID, नाम, या मॉनीकेर से मेल खाना आवश्यक है. अन्य फ़ील्ड्स का उपयोग उनके उचित विकल्प को पास करके किया जा सकता है.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>किसी पैकेज के बारे में जानकारी दिखाता है</value>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>फ़ील्ड</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>नाम</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>कभी नहीं</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>मान</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>स्रोत का नाम</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>स्रोत को खोलने में विफल रहा; यदि समस्या बनी रहती है, तो 'source reset ' आदेश का प्रयास करें.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>पूर्वनिर्धारित स्रोत को खोलने में विफल रहा; winget रखरखावकर्ता को रिपोर्ट करें.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>सभी स्रोतों को निकाल रहे हैं...</value>
@@ -627,6 +649,19 @@
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>अपरिचित आदेश</value>
   </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>सभी स्थापित पैकेज को नवीनतम के लिए अद्यतन करें यदि उपलब्ध हैं</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>कोई लागू अद्यतन नहीं मिला.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>चयनित पैकेज का अद्यतन करता है, या तो स्थापित पैकेज सूची को खोज कर या सीधे किसी मैनिफ़ेस्ट से पाया जाता है. डिफ़ॉल्ट रूप से, क्वेरी को केस-संवेदी रूप से पैकेज के id, नाम, या moniker से मेल खाना आवश्यक है. अन्य फ़ील्ड्स का उचित विकल्प पास करके उपयोग किया जा सकता है.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>दिए गए पैकेज को अद्यतन करता है</value>
+  </data>
   <data name="Usage" xml:space="preserve">
     <value>उपयोग</value>
     <comment>The way to use the software</comment>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>पूर्ण होने से पहले प्रदान किया गया मान अनुरोधित है</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>मेल खाने वाला कोई संस्करण नहीं मिला:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>कोई स्रोत दिए गए मान से मेल नहीं खाते:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>कॉन्फ़िगर किए गए स्रोत हैं:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>कोई स्रोत परिभाषित नहीं है; 'source add' के साथ एक जोड़ें या 'source reset करें' के साथ डिफ़ॉल्ट पर रीसेट करें</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>पाया गया</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>पथ एक निर्देशिका है:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>फ़ाइल मौजूद नहीं है:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>स्थानीय मैनिफ़ेस्ट और खोज क्वेरी args दोनों प्रदान किए गए हैं</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>लॉग</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

@@ -130,6 +130,10 @@
     <value>የሚከተሉት ትዕዛዞች ይገኛሉ:-</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>ይገኛል</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>የሚከተሉት አማራጮች ይገኛሉ:-</value>
   </data>
@@ -304,6 +308,13 @@
     <value>አገናኞች</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>የ list ትእዛዝ በስርዓቱ ላይ የተጫኑ ጥቅሎችን እናም ዝመና የሚገኝ ከሆለ ያሳያል። ከ search ትእዛዝ ጋር በተመሳሳይ ሁኔታ ተጨማሪ አማራጮች ወጪውን እንዲያጣራ ሊቀርቡ ይችላሉ።</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>የተጫኑ ጥቅሎችን አሳይ</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>የሚጫንበት አካባቢ (የሚደገፍ ከሆነ)</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>የ MSIX ሲግኔቸር ሃሽ ማስላት አልተሳካም።</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>የተወሰነ መተግበሪያ በፖሊሲ የታገደ ስለሆነ የ Microsoft Store ጥቅልን መጫን አልተሳካም</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>መተግበሪያው በፖሊሲ ስለታገደ የ Microsoft Store ጥቅል መጫን ወይም ማዘመን አልተሳካም</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>የ Microsoft Store ጥቅል መጫን አልተሳካም። የስህተት ኮድ:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>የ Microsoft Store ጥቅል መጫን ወይም ማዘመን አልተሳካም። የስህተት ኮድ:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>የጥቅል ግኝት ማረጋገጥ/መጠየቅ አልተሳካም: የአውታረ መረብ ስህተት</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>የጥቅል ግኝት ስኬት ማረጋገጥ/መጠየቅ</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>የ Microsoft Store ደንበኛው በፖሊሲ የታገደ ስለሆነ የ Microsoft Store ጥቅልን መጫን አልተሳካም</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>የ Microsoft Store ደንበኛው በፖሊሲ የታገደ ስለሆነ የ Microsoft Store ጥቅልን መጫን ወይም ማዘመን አልተሳካም</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>የጥቅል ግኝት በማረጋገጥ/በመጠየቅ ላይ...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>በርካታ የተጫኑ ጥቅሎች ጋር የሚዛመዱ የግቤት መስፈርቶችን አግኝተዋል። እባክዎ ግቤቱን ያጣሩ።</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>በርካታ ጥቅሎች የሚዛመዱ የግቤት መስፈርቶችን አግኝተዋል። እባክዎ ግቤቱን ያጣሩ።</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>በአሁኑ ጊዜ ምንም የሙከራ ባህሪዎች የሉም። </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>ከግቤት መስፈርት ጋር የሚዛመድ የተጫኑ ጥቅል የለም።</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>ምንም ጥቅል የሚዛመድ የግቤት መስፈርት አላገኘም።</value>
@@ -420,7 +437,7 @@
     <value>የሂደት ማሳያ እንደ ነባሪ ቀለም</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>ከተዋቀሩ ምንጮች ጥቅሎችን ይፈልጋል።</value>
+    <value>ከተዋቀሩ ምንጮች የጥቅሎች ፍለጋዎች።</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>የጥቅሎችን መሰረታዊ መረጃ አግኝና አሳይ</value>
@@ -458,9 +475,6 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>ጣቢያ</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>በአንድ የተወሰነ ጥቅል ላይ መረጃን ያሳያል። በነባሪነት መጠይቁ case-insensitive በሆነ መልኩ ከጥቅሉ መታወቂያ፣ ስም፣ ወይም ቅጽል ስም ጋር መዛመድ አለበት። ተገቢውን አማራጭ በማለፍ ሌሎች መስኮች ሊያገለግሉ ይችላሉ።</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>ስለ አንድ ጥቅል መረጃ ያሳያል</value>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>መስክ</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>ስም</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>በፍጹም</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>እሴት</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>የምንጩ ስም</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>ምንጭ መክፈት አልተሳካም፤ ችግሩ ከቀጠለ የ'source reset' ትእዛዝን ይሞክሩ።</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>ቀድመው የተበየኑት ምንጭ መክፈት አልተቻለም። እባክዎ ወደ winget ጠጋኞች ሪፖርት አድርግ።</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>ሁሉንም ምንጮች በማስወገድ ላይ...</value>
@@ -619,13 +641,26 @@
     <value>ነጋሪ እሴት ከሚፈቀደው በላይ ጊዜ ሰጥቷል</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>ከአንድ በላይ የጭነት ባህሪ ሙግት ቀርቧል</value>
+    <value>ከአንድ በላይ የአፈጻጸም ባህሪ ሙግት ቀርቧል</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>ትዕዛዙን በመፈጸም ላይ ያልተጠአቀ ስህተት ተከስቷል፡</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>ያልታወቀ ትእዛዝ</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>የሚገኙ ከሆነ ሁሉንም የተጫኑ ጥቅሎችን አዘምን</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>አግባብ ዝመና አልተገኘም።</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>የተጫኑ ጥቅሎች ዝርዝር በመፈለግ ይሁን በቀጥታ ይገኝ የተመረጠው ጥቅል ይዘምናል። በነባሪነት መጠይቁ case-insensitive በሆነ መልኩ ከጥቅሉ መታወቂያ፣ ስም፣ ወይም ቅጽል ስም ጋር መዛመድ አለበት። ተገቢውን አማራጭ በማለፍ ሌሎች መስኮች ሊያገለግሉ ይችላሉ።</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>የቀረበውን ጥቅል ይዘምናል</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>አጠቃቀም</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>ከመጠናቀቁ በፊት የቀረበው እሴት ተጠይቋል</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>ከሚከተለው ጋር የሚዛመድ ስሪት አልተገኘም:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>ከተሰጠው እሴት ጋር የሚዛመድ ምንጭ የለም:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>የተዋቀሩት ምንጮች ናቸው የሚከተሉት ናቸው:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>ምንም ምንጮች አልተበየኑም; በ ‘source add’ አንድ ያክሉ ወይም በ’source reset’ ወደ ነባር ዳግም ያስጀምሩ።</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>የተገኘ</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>የዱካ ማውጫ የሚከተለው ነው:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>ፋይል አልኖረም:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>ሁለቱም የአካባቢ አንጸባራቂ እና የፍለጋ መጠይቅ ሙግቶች ቀርበዋል</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>ምዝግቦች</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

@@ -130,6 +130,10 @@
     <value>Følgende kommandoer er tilgjengelige:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Tilgjengelige</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Følgende alternativer er tilgjengelige:</value>
   </data>
@@ -304,6 +308,13 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
     <value>Koblinger</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>list-kommandoen viser pakkene som er installert på systemet, samt om en oppdatering er tilgjengelig. Ytterligere alternativer kan gis for å filtrere utdata, omtrent som search-kommandoen.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Vis installerte pakker</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Plassering for installasjon (hvis det støttes)</value>
   </data>
@@ -341,11 +352,11 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Kan ikke beregne hash for MSIX-signatur.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Kan ikke installere Microsoft Store-pakken fordi den bestemte appen er blokkert av policy</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Kan ikke installere eller oppdatere Microsoft Store-pakken da den bestemte appen er blokkert av policy</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Kunne ikke installere Microsoft Store-pakke. Feilkode:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Kunne ikke installere eller oppdatere Microsoft Store-pakke. Feilkode:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Verifisering/forespørsel om pakkehenting mislyktes: nettverks feil</value>
@@ -359,11 +370,14 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Verifiserering/spørring om pakkehenting er fullført</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Kunne ikke installere Microsoft Store-pakken fordi Microsoft Store-klienten er blokkert av policy</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Kan ikke installere eller oppdagere Microsoft Store-pakken da Microsoft Store-klienten er blokkert av policy</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Kontrollerer/ber om pakkeinnhenting...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Flere installerte pakker funnet samsvarende med inndatakriterier. Vennligst finpuss inndataene.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Fant flere pakker som samsvarer med inndata-kriteriene. Begrens inndataene.</value>
@@ -376,6 +390,9 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Det er for øyeblikket ingen tilgjengelige eksperimentelle funksjoner. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Ingen installert pakke funnet som samsvarer med inndatakriteriene.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Finner ingen pakke som samsvarer med inndata-kriteriene.</value>
@@ -459,9 +476,6 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Viser informasjon om en bestemt pakke. Spørringen må som standard skille mellom små og store bokstaver, og matche ID, navn eller kallenavn for pakken. Andre felt kan brukes ved å sende riktig alternativ.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Viser informasjon om en pakke</value>
   </data>
@@ -520,7 +534,7 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Felt</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Navn</value>
@@ -542,7 +556,7 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>aldri</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Verdi</value>
@@ -550,6 +564,14 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Navn på kilden</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Kunne ikke åpne kilden; prøv kommandoen 'source reset' hvis problemet vedvarer.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Kan ikke åpne den forhånds definerte kilden. rapporter til winget vedlikehold.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Fjerner alle kilder...</value>
@@ -619,13 +641,26 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
     <value>Argumentet er angitt flere ganger enn tillatt</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Mer enn ett-argument for installasjonsatferd er angitt</value>
+    <value>Mer enn ett argument for utførelsesatferd er angitt</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Det oppstod en uventet feil under utføring av kommandoen:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Ukjent kommando</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Oppdater alle installerte pakker til senest hvis tilgjengelige</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Ingen relevant oppdatering funnet.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Oppdaterer den valgte pakken, enten funnet ved å søke i listen over installerte pakker eller direkte fra et manifest. Som standard må spørringen skille mellom store og små bokstaver i ID-en, navnet eller navnet på pakken. Andre felt kan brukes ved å angi riktig alternativ.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Oppdaterer den gitte pakken</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>bruk</value>
@@ -654,5 +689,34 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Verdien som er angitt før fullføring er forespurt</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Ingen versjon funnet som samsvarer:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Ingen kilder samsvarer med den gitte verdien:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>De konfigurerte kildene er:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Ingen kilder definert; legg til en med 'source add' eller reset til standardinnstillinger med 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Funnet</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Bane er en katalog:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Filen finnes ikke:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Det finnes både lokale manifest-og søke streng argumenter</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Logger</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

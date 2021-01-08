@@ -130,6 +130,10 @@
     <value>Følgende kommandoer er tilgængelige:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Tilgængelig</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Følgende indstillinger er tilgængelige:</value>
   </data>
@@ -304,6 +308,13 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
     <value>Links</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Kommando list viser de pakker, der er installeret på systemet, samt om der findes en opdatering. Der kan være flere muligheder for at filtrere outputtet, ligesom search kommandoen.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Vis installerede pakker</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Placering, der skal installeres til (hvis det understøttes)</value>
   </data>
@@ -341,11 +352,11 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX-signatur hash kunne ikke beregnes.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Microsoft Store-pakken kunne ikke installeres, fordi den specifikke app er blokeret af en politik</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Microsoft store-pakken kunne ikke installeres eller opdateres, fordi den bestemte app er blokeret af en politik</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Microsoft Store-pakken kunne ikke installeres. Fejlkode:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Microsoft store-pakken kunne ikke installeres eller opdateres. Fejlkode:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Bekræfter/anmoder om, at pakkeanskaffelsen mislykkedes: netværksfejl</value>
@@ -359,11 +370,14 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Bekræfter/anmoder om, at pakkeanskaffelsen er fuldført</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Microsoft Store-pakken kunne ikke installeres, fordi Microsoft Store-klienten er blokeret af en politik</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft store-pakken kunne ikke installeres eller opdateres, da Microsoft store Client er blokeret af en politik</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Bekræfter/anmoder om, at pakkeanskaffelsen...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Der blev fundet flere pakker, som matcher inputkriterierne. Du bedes finindstille input.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Der blev fundet flere pakker, som matcher til inputkriteriet. Finindstil input.</value>
@@ -376,6 +390,9 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Der er i øjeblikket ingen tilgængelige eksperimentale-funktioner. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Ingen installeret pakke blev fundet, der matcher inputkriterierne.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Der blev ikke fundet nogen pakke, der matcher inputkriterier.</value>
@@ -459,9 +476,6 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Viser oplysninger om en bestemt pakke. Som standard skal forespørgslen matche pakkens id, navn eller kaldenavn uden at udvise versalfølsom. Andre felter kan bruges ved at videregive deres relevante indstilling.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Viser oplysninger om en pakke</value>
   </data>
@@ -520,7 +534,7 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Felt</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Navn</value>
@@ -542,7 +556,7 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>aldrig</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Værdi</value>
@@ -550,6 +564,14 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Kildens navn</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Kilden kunne ikke åbnes. Prøv 'source reset'-kommandoen, hvis problemet fortsætter.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Den foruddefinerede kilde kunne ikke åbnes. Rapportér til winget-vedligeholdere.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Fjerner alle kilder...</value>
@@ -619,13 +641,26 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
     <value>Argument angivet flere gange en tilladt</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Der er angivet mere end et installationsadfærdsargument</value>
+    <value>Der gives mere end et udførelsesargument</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Der opstod en uventet fejl under udførelse af kommandoen:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Ikke-genkendt kommando</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Opdater alle installerede pakker til de nyeste, hvis de er tilgængelige</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Ingen relevante opdateringer blev fundet.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Opdaterer den valgte pakke, enten ved at søge på listen over installerede pakker eller direkte fra et manifest. Forespørgslen skal som standard skelne mellem store og små bogstaver i pakkens id, navn eller moniker. Andre felter kan bruges ved at videregive de ønskede indstillinger.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Opdaterer den pågældende pakke</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>forbrug</value>
@@ -654,5 +689,34 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Den værdi, der blev angivet, inden anmodning om fuldførelse</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Ingen matchende version blev fundet:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Ingen kilder matcher den angivne værdi:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>De konfigurerede kilder er:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Ingen kilder defineret. Tilføj en kilde med 'source add' eller nulstil til standardindstillinger med 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Fundet</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Sti er en mappe:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Filen findes ikke:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Argumenter gives for både lokalt manifest og søgeforespørgsel</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Logfiler</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

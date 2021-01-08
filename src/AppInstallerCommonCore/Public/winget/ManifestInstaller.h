@@ -52,6 +52,13 @@ namespace AppInstaller::Manifest
             Update
         };
 
+        enum class ScopeEnum
+        {
+            Unknown,
+            User,
+            Machine,
+        };
+
         // Required. Values: x86, x64, arm, arm64, all.
         AppInstaller::Utility::Architecture Arch;
 
@@ -69,7 +76,7 @@ namespace AppInstaller::Manifest
         string_t Language;
 
         // Name TBD
-        string_t Scope;
+        ScopeEnum Scope;
 
         // Store Product Id
         string_t ProductId;
@@ -93,7 +100,11 @@ namespace AppInstaller::Manifest
 
         static UpdateBehaviorEnum ConvertToUpdateBehaviorEnum(const std::string& in);
 
-        static std::string InstallerTypeToString(InstallerTypeEnum installerType);
+        static ScopeEnum ConvertToScopeEnum(const std::string& in);
+
+        static std::string_view InstallerTypeToString(InstallerTypeEnum installerType);
+
+        static std::string_view ScopeToString(ScopeEnum scope);
 
         // Gets a value indicating whether the given installer type uses the PackageFamilyName system reference.
         static bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType);

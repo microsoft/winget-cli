@@ -130,6 +130,10 @@
     <value>Келесі пәрмендер қолжетімді:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Қолжетімді</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Келесі параметрлер қолжетімді:</value>
   </data>
@@ -304,6 +308,13 @@
     <value>Сілтемелер</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>list пәрменінде жүйеде орнатылған бумалар, сондай-ақ, жаңартудың қолжетімділігі көрсетіледі. Дәл search пәрмені сияқты шығыс көзін сүзу үшін қосымша опциялар берілуі мүмкін.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Орнатылған бумаларды көрсету</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Орнатылатын орын (қолдау көрсетілетін болса)</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX қолтаңба хэшін есептеу мүмкін болмады.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Microsoft Store бумасын орнату сәтсіз аяқталды, себебі белгілі бір бағдарлама саясат тарапынан блокталған</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Microsoft Store бумасын орнату немесе жаңарту әрекеті сәтсіз аяқталды, себебі белгілі бір бағдарлама саясат тарапынан блокталған</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Microsoft Store бумасын орнату мүмкін болмады. Қате коды:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Microsoft Store бумасын орнату немесе жаңарту мүмкін болмады. Қате коды:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Буманы алу кезіндегі қатені тексеру/сұрау: желі қатесі</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Буманы алудың сәтті күйін тексеру/сұрау</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Microsoft Store бумасын орнату сәтсіз аяқталды, себебі Microsoft Store клиенті саясат тарапынан блокталған</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Store бумасын орнату немесе жаңарту әрекеті сәтсіз аяқталды, себебі Microsoft Store клиенті саясат тарапынан блокталған</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Буманы алу туралы мәліметтерді тексеру/сұрау...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Енгізілген шарттарға сәйкес келетін бірнеше орнатылған бума табылды. Шарттарды нақтылаңыз.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Кіріс шарттарына сәйкес келетін бірнеше пакет табылды. Кірісті нақтылаңыз.</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Қазіргі уақытта қолжетімді эксперименттік мүмкіндіктер жоқ.</value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Енгізілген шарттарға сәйкес келетін ешқандай орнатылған бума табылмады.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Кіріс шарттарына сәйкес келетін ешқандай жиынтық табылмады.</value>
@@ -420,7 +437,7 @@
     <value>Әдепкі түспен орындалу барысын көрсету</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Бумаларды реттелген дерек көздерінен іздейді.</value>
+    <value>Бумаларды конфигурацияланған дерек көздерінен іздейді.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Бумалар туралы негізгі ақпаратты табу және көрсету</value>
@@ -458,9 +475,6 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Арна</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Белгілі бір бума туралы мәліметтерді көрсетеді. Әдепкі бойынша сұрау буманың идентификаторын, атын немесе моникерін (регистрді ескермей) салыстыруы қажет. Тиісті параметрді көрсету арқылы басқа өрістерді пайдалануға болады.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Бума туралы ақпаратты көрсетеді</value>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Өріс</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Аты</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>ешқашан</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Мән</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Дерек көзінің аты</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Дерек көзін ашу мүмкін болмады; мәселе қайталанса, 'source reset' пәрменін байқап көріңіз.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Алдын ала анықталған дерек көзді ашу мүмкін болмады; winget жөндеу бойынша қызметкерлерге хабарлаңыз.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Барлық көздерді жою...</value>
@@ -619,13 +641,26 @@
     <value>Аргумент рұқсат етілген шамадан көп рет енгізілді</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Орнату кезінде бірнеше аргумент көрсетілді</value>
+    <value>Орындау кезінде бірнеше әрекет аргументі берілген</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Пәрменді орындау кезінде күтпеген қате орын алды:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Пәрмен анықталмады</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Қолжетімді болса, барлық орнатылған бумаларды жаңарту</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Қолжетімді жаңарту табылмады.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Орнатылған бумалар тізімінен іздеу арқылы немесе манифесттен тікелей табылған, таңдалған буманы жаңартады. Әдепкі бойынша сұрау буманың идентификаторын, атын немесе моникерін (регистрді ескермей) салыстыруы қажет. Тиісті параметрді көрсету арқылы басқа өрістерді пайдалануға болады.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Берілген буманы жаңартады</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>пайдалану</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Әрекет аяқталмай тұрып енгізілген мән қажет</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Сәйкес келетін нұсқа табылмады:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Берілген мәнге ешқандай дерек көздері сәйкес келмейді:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Конфигурацияланған дерек көздері мыналар:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Дерек көздері анықталмады; 'source add' пәрменімен біреуін қосу және 'source reset' пәрменімен әдепкі мәндеріне келтіру</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Табылғаны</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Жол - каталог:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Файл жоқ:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Жергілікті манифест және іздеу сұрауы аргументі берілген</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Журналдар</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

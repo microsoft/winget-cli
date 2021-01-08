@@ -130,6 +130,10 @@
     <value>പിന്തുടരുന്ന കമാൻഡുകൾ ലഭ്യമാണ്:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>ലഭ്യമാണ്</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>പിന്തുടരുന്ന ഐച്ഛികങ്ങൾ ലഭ്യമാണ്:</value>
   </data>
@@ -304,6 +308,13 @@
     <value>ലിങ്കുകൾ</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>സിസ്റ്റത്തിൽ ഇൻസ്റ്റാൾ ചെയ്ത പാക്കേജുകളും, ഒരു അപ്ഡേറ്റ് ലഭ്യമാണോ എന്നതും list കമാൻഡ് പ്രദർശിപ്പിക്കുന്നു. തിരയൽ search പോലെ ഔട്ട്പുട്ട് ഫിൽട്ടർ ചെയ്യുന്നതിന് അധിക ഓപ്ഷനുകൾ നൽകാവുന്നതാണ്.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾ ചെയ്ത പാക്കേജുകൾ പ്രദർശിപ്പിക്കുക</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>ഇതിലേക്ക് ഇൻസ്റ്റാൾ ചെയ്യേണ്ട സ്ഥാനം (പിന്തുണയ്ക്കുന്നുവെങ്കിൽ)</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX ഒപ്പ് ഹാഷ് കണക്കാക്കുന്നതിൽ പരാജയപ്പെട്ടു.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>നയം മുഖേന നിർദ്ദിഷ്ട ആപ്പ് തടഞ്ഞതിനാൽ Microsoft Store പാക്കേജ് ഇൻസ്റ്റാൾ ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>നയം മുഖേന നിർദ്ദിഷ്ട ആപ്പ് തടഞ്ഞതിനാൽ Microsoft Store പാക്കേജ് ഇൻസ്റ്റാൾ അല്ലെങ്കിൽ അപ്ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Microsoft Store പാക്കേജ് ഇൻസ്റ്റാൾ ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു. പിശക് കോഡ്:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Microsoft Store പാക്കേജ് ഇൻസ്റ്റാൾ അല്ലെങ്കിൽ അപ്ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു. പിശക് കോഡ്:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>നെറ്റ്‌വർക്ക് പിശക്: പരിശോധിച്ചുറപ്പിക്കുന്ന/അഭ്യർത്ഥിക്കുന്ന പാക്കേജ് അക്വിസിഷൻ പരാജയപ്പെട്ടു</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>പരിശോധിച്ചുറപ്പിക്കുന്ന/അഭ്യർത്ഥിക്കുന്ന പാക്കേജ് അക്വിസിഷൻ വിജയകരം</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>നയം മുഖേന Microsoft Store ക്ലയന്റിനെ തടഞ്ഞതിനാൽ Microsoft Store പാക്കേജ് ഇൻസ്റ്റാൾ ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>നയം മുഖേന Microsoft Store ക്ലയന്റിനെ തടഞ്ഞതിനാൽ Microsoft Store പാക്കേജ് ഇൻസ്റ്റാൾ അല്ലെങ്കിൽ അപ്ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>പരിശോധിച്ചുറപ്പിക്കുന്ന/അഭ്യർത്ഥിക്കുന്ന പാക്കേജ് അക്വിസിഷൻ...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>ഇൻ‌പുട്ട് മാനദണ്ഡങ്ങളുമായി പൊരുത്തപ്പെടുന്ന ഒന്നിലധികം ഇൻ‌സ്റ്റാൾ‌ ചെയ്‌ത പാക്കേജുകൾ‌ കണ്ടെത്തി. ദയവായി ഇൻപുട്ട് പരിഷ്കരിക്കുക.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>ഇൻപുട്ട് മാനദണ്ഡത്തോട് ചേരുന്ന ഒന്നിലധികം പാക്കേജുകൾ കണ്ടെത്തി. ഇൻപുട്ട് കൂടുതൽ സ്പഷ്ടമാക്കുക.</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>പരീക്ഷണ സവിശേഷതകളൊന്നും ഇപ്പോൾ നിലവിലില്ല.</value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>ഇൻപുട്ട് മാനദണ്ഡങ്ങളുമായി പൊരുത്തപ്പെടുന്ന ഇൻസ്റ്റാൾ ചെയ്‌ത പാക്കേജുകളൊന്നും കണ്ടെത്തിയില്ല.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>ഇൻപുട്ട് മാനദണ്ഡത്തോട് ചേരുന്ന പാക്കേജൊന്നും കണ്ടെത്തിയില്ല.</value>
@@ -420,7 +437,7 @@
     <value>സ്ഥിരസ്ഥിതി വർണ്ണമായി പുരോഗതി പ്രദർശനം</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>കോൺഫിഗർ ചെയ്ത ഉറവിടങ്ങളിൽ നിന്നുമുള്ള പാക്കേജുകൾക്കായി തിരയുന്നു.</value>
+    <value>കോൺഫിഗർ ചെയ്ത ഉറവിടങ്ങളിൽ നിന്നുള്ള പാക്കേജുകൾക്കായി തിരയുന്നു.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>പാക്കേജുകളുടെ അടിസ്ഥാന വിവരങ്ങൾ കണ്ടെത്തി കാണിക്കുക</value>
@@ -458,9 +475,6 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>ചാനൽ</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>ഒരു പ്രത്യേക പാക്കേജ് വിവരങ്ങള്‍ കാണിക്കുന്നു. സ്ഥിരസ്ഥിതിയായി, ചോദ്യം കേസ്-സെൻസിറ്റീവ് ആയി id, നാമം, അല്ലെങ്കിൽ പാക്കേജിന്റെ മോണിക്കര്‍ എന്നിവയുമായി പൊരുത്തപ്പെട്ടിരിക്കണം. അവരുടെ ഉചിതമായ ഐച്ഛികം പാസിംഗ് പ്രകാരം മറ്റ് മണ്ഡലങ്ങളിൽ ഉപയോഗിക്കാൻ കഴിയും.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>ഒരു പാക്കേജിനെക്കുറിച്ചുള്ള വിവരങ്ങൾ കാണിക്കുന്നു</value>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>മണ്ഡലം</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>നാമം</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>ഒരിക്കലുമില്ല</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>മൂല്യം</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>ഉറവിടത്തിന്റെ പേര്</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>ഉറവിടം തുറക്കുന്നതിൽ പരാജയപ്പെട്ടു; പ്രശ്നം തുടരുന്നുവെങ്കിൽ 'source reset' കമാൻഡ് പരീക്ഷിക്കുക.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>മുൻ നിർവ്വചിത ഉറവിടം തുറക്കുന്നതിൽ പരാജയപ്പെട്ടു; ദയവായി winget  സംരക്ഷകർക്ക് റിപ്പോർട്ട് ചെയ്യുക.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>എല്ലാ ഉറവിടങ്ങളും... നീക്കംചെയ്യുന്നു...</value>
@@ -619,13 +641,26 @@
     <value>അനുവദനീയമായതിലും കൂടുതൽ തവണ വാദം നൽകി</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>പെരുമാറ്റ വാദം നൽകികൊണ്ട് ഒന്നിൽ കൂടുതൽ ഇൻസ്റ്റാൾ ചെയ്യുക</value>
+    <value>ഒന്നിലധികം നിറവേറ്റൽ പെരുമാറ്റ ആർഗ്യുമെന്റ് നൽകിയിട്ടുണ്ട്</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>കമാൻഡ് പൂര്‍ത്തിയാക്കുമ്പോൾ ഒരു അപ്രതീക്ഷിത പിശക് സംഭവിച്ചു:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>തിരിച്ചറിയാത്ത കമാൻഡ്</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾചെയ്ത എല്ലാ പാക്കേജുകളും ലഭ്യമാണെങ്കിൽ ഏറ്റവും പുതിയതിലേക്ക് അപ്ഡേറ്റ് ചെയ്യുക</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>ബാധകമായ അപ്ഡേറ്റുകളൊന്നും കണ്ടെത്തിയില്ല.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾചെയ്‌ത പാക്കേജുകളുടെ ലിസ്റ്റ് തിരയുന്നതിലൂടെ അല്ലെങ്കിൽ ഒരു മാനിഫെസ്റ്റിൽ നിന്ന് നേരിട്ട് കണ്ടെത്തുന്നത് മുഖേന തിരഞ്ഞെടുത്ത പാക്കേജ് ഇൻസ്റ്റാൾ ചെയ്യുന്നു. ഡിഫോൾട്ടായി, നിർവ്വികാരമായ ചോദ്യ id, പേര് അല്ലെങ്കിൽ പാക്കേജിന്റെ മോണിക്കർ എന്നിവയുമായി പൊരുത്തപ്പെട്ടിരിക്കണം. മറ്റ് ഫീൽഡുകൾക്ക് ഉചിതമായ ഐച്ഛികം കൈമാറുന്നതിലൂടെ ഉപയോഗിക്കാവുന്നതാണ്.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>നൽകിയ പാക്കേജ് അപ്‌ഡേറ്റ് ചെയ്യുന്നു</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>ഉപയോഗം</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>പൂർത്തിയാക്കുന്നതിന് മുമ്പ് നൽകിയ മൂല്യം അഭ്യർത്ഥിക്കുന്നു</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>പൊരുത്തപ്പെടുന്ന പതിപ്പുകളൊന്നും കണ്ടെത്തിയില്ല:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>നൽകിയ മൂല്യവുമായി ഉറവിടങ്ങളൊന്നും പൊരുത്തപ്പെടുന്നില്ല:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>കോൺഫിഗർ ചെയ്ത ഉറവിടങ്ങൾ ഇവയാണ്:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>ഉറവിടങ്ങളൊന്നും നിർവചിച്ചിട്ടില്ല; 'source add' ഉപയോഗിച്ച് ഒരെണ്ണം ചേർക്കുക അല്ലെങ്കിൽ 'source reset' ഉപയോഗിച്ച് ഡിഫോൾട്ടായി പുനഃസജ്ജമാക്കുക</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>കണ്ടെത്തി</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>പാത്ത് ഒരു ഡയറക്ടറിയാണ്:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>ഫയൽ നിലവിലില്ല:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>പ്രാദേശിക മാനിഫെസ്റ്റ്, തിരയൽ അന്വേഷണ ആർഗുകൾ ഇവ് രണ്ടും നൽകിയിട്ടുണ്ട്</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>ലോഗുകള്‍</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

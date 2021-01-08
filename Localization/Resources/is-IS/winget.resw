@@ -130,6 +130,10 @@
     <value>Eftirfarandi skipanir eru tiltækar:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Tiltækt</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Eftirfarandi valkostir eru tiltækir:</value>
   </data>
@@ -304,6 +308,13 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
     <value>Tenglar</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>lista-skipun birtir pakka sem settir hafa verið upp á kerfinu, sem og hvort uppfærsla sé í boði. Hægt er að útvega viðbótar valkosti til að sía úttakið, líkt og search-skipunina.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Birta uppsetta pakka</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Staðsetning sett upp á (ef stutt)</value>
   </data>
@@ -341,11 +352,11 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Ekki tókst að reikna út tætigildi MSIX-undirritunar.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Ekki tókst að setja upp Microsoft Store-pakka þar sem tiltekið forrit er útilokað af reglu</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Ekki tókst að setja upp eða uppfæra Microsoft Store-pakka þar sem tiltekið forrit er útilokað af reglu</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Ekki tókst að setja upp Microsoft Store-pakka. Villukóði:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Ekki tókst að setja upp eða uppfæra Microsoft Store-pakka. Villukóði:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Ekki tókst að sannprófa/biðja um kaup á pakka: netvilla</value>
@@ -359,11 +370,14 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Sannprófun/beiðni um kaup á pakka tókst</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
     <value>Ekki tókst að setja upp Microsoft Store-pakka vegna þess að Microsoft Store-biðlarinn er útilokaður af reglu</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Sannprófar/biður um kaup á pakka...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Margir pakkar pössuðu við inntaksskilyrði. Vinsamlegast þrengdu inntakið.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Margir pakkar pössuðu við innslegin skilyrði. Þrengdu skilyrðin.</value>
@@ -376,6 +390,9 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Engir eiginleikar á tilraunastigi eru tiltækir eins og er. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Enginn pakki samsvaraði inntaksskilyrðum.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Enginn pakki samsvaraði innslegnum skilyrðum.</value>
@@ -420,7 +437,7 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
     <value>Framvinduskjár sem sjálfgefinn litur</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Leitar eftir pökkum í skilgreindum uppruna.</value>
+    <value>Leitar eftir pökkum frá skilgreindum uppruna.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
     <value>Finna og sýna grunnupplýsingar pakka</value>
@@ -458,9 +475,6 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Rás</value>
-  </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Sýnir upplýsingar um tiltekinn pakka. Fyrirspurnin verður sjálfgefið að samsvara auðkenni, heiti eða viðurnefni pakkans án þess að greina á milli há- og lágstafa. Hægt er að nota aðra reiti með því að senda viðeigandi valkosti þeirra.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Sýnir upplýsingar um pakka</value>
@@ -520,7 +534,7 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Svæði</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Heiti</value>
@@ -542,7 +556,7 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>aldrei</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Gildi</value>
@@ -550,6 +564,14 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Heiti upprunans</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Ekki tókst að opna uppruna; reyndu 'source reset' skipunina ef vandamálið leysist ekki.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Ekki tókst að opna fyrirframskilgreindan uppruna; Vinsamlegast tilkynntu til winget maintainers.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Fjarlægir alla uppruna...</value>
@@ -619,13 +641,26 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
     <value>Frumbreyta gefin upp oftar en heimilt er</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Fleiri en ein frumbreyta fyrir uppsetningarhegðun gefin upp</value>
+    <value>Fleiri en ein uppsetningarhegðun fyrir frumbreytu gefin upp</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Óvænt villa kom upp þegar verið var að framkvæma skipunina:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Óþekkt skipun</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Uppfærðu alla uppsetta pakka í nýjustu ef þeir eru tiltækir</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Engin viðeigandi uppfærsla fannst.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Setur upp valinn pakka, sem annað hvort fannst með því að leita að uppsettum pakkalistum eða beint úr farmskrá. Fyrirspurnin verður sjálfgefið að samsvara auðkenni, heiti eða viðurnefni pakkans án þess að greina á milli há- og lágstafa. Hægt er að nota aðra reiti með því að senda viðeigandi valkosti.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Setur upp pakkann</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>notkun</value>
@@ -654,5 +689,34 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Beðið var um gildið sem gefið var upp fyrir lok</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Engin útgáfa fannst sem samsvarar:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Engar heimildir samsvara gefnu gildi:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Skilgreindir upprunar eru:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Engar heimildir skilgreindar; bættu við einni með 'source add' eða endurstilltu sjálfgefnar stillingar með 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Fundið</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Slóðin er skráasafn:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Skrá er ekki til:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Boðið er upp á bæði staðbundna skrá og arg leitarfyrirspurnir</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Annálar</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

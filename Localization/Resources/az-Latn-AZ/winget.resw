@@ -130,6 +130,10 @@
     <value>Aşağıdakı əmrlər əlçatandır:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Mövcud</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Aşağıdakı seçimlər əlçatandır:</value>
   </data>
@@ -304,6 +308,13 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
     <value>Keçidlər</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>list əmri sistemdə quraşdırılmış paketləri, o cümlədən yeniləmənin mövcud olub-olmadığını göstərir. Nəticəni süzgəcdən keçirmək üçün əlavə seçimlər, əsasən də search əmri təqdim edilə bilər.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Quraşdırılmış paketləri göstər</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Quraşdırılacaq məkan (dəstəklənirsə)</value>
   </data>
@@ -341,11 +352,11 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX imza heşini hesablamaq alınmadı.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Xüsusi proqram siyasətlə bloklandığından Microsoft Store paketini quraşdırmaq alınmadı</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Xüsusi proqram siyasətlə bloklandığından Microsoft Store paketini quraşdırmaq və ya yeniləmək alınmadı</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Microsoft Store paketini quraşdırmaq alınmadı. Səhv kodu:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Microsoft Mağaza paketi quraşdırılmadı və ya yenilənmədi. Səhv kodu:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Paketin əldə olunmasının yoxlanılması/sorğulanması alınmadı: şəbəkə səhvi var</value>
@@ -359,11 +370,14 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Paketin əldə olunmasının yoxlanılması/sorğulanması uğurlu oldu</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Microsoft Store müştərisi siyasətlə bloklandığından Microsoft Store paketini quraşdırmaq mümkün olmadı</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Store müştərisi siyasətlə bloklandığından Microsoft Store paketini quraşdırmaq və ya yeniləmək alınmadı</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Paketin əldə olunması yoxlanılır/sorğulanır...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Daxiletmə meyarına uyğun gələn çoxlu quraşdırılmış paketlər tapıldı. Lütfən, daxiletməni təkmilləşdirin.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Daxiletmə meyarına uyğun gələn çoxlu paketlər tapıldı. Lütfən, daxiletməni təkmilləşdirin..</value>
@@ -376,6 +390,9 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Hal-hazırda heç bir eksperimental xüsusiyyətlər mövcud deyil.</value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Daxiletmə meyarına uyğun gələn quraşdırılmış paket tapılmadı.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Daxiletmə meyarına uyğun gələn heç bir paket tapılmadı.</value>
@@ -459,9 +476,6 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Xüsusi paketlə bağlı məlumatı göstərir. Standart şəkildə sorğu böyük-kiçik hərfə həssas olmadan paketin identifikatoru, adı və ya ayaması ilə uyğun gəlməlidir. Başqa sahələrdən onların müvafiq seçimini ötürməklə istifadə oluna bilər.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Paket haqqında məlumatı göstərir</value>
   </data>
@@ -520,7 +534,7 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Sahə</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Ad</value>
@@ -542,7 +556,7 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>heç vaxt</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Qiymət</value>
@@ -550,6 +564,14 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Mənbənin adı</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Mənbəni açmaq alınmadı; problem davam edərsə, 'source reset' əmrini sınaqdan keçirin.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Əvvəlcədən müəyyən edilmiş mənbəni açmaq mümkün olmadı; winget ustalarına bildirməyiniz xahiş olunur.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Bütün mənbələr silinir...</value>
@@ -619,13 +641,26 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
     <value>Arqument icazə veriləndən çox təmin edildi</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Birdən çox quraşdırma əməliyyatı arqumenti təmin edilib</value>
+    <value>Birdən çox dinamik davranış arqumenti təqdim edilib</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Əmri icra edərkən gözlənilməz səhv baş verdi:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Tanınmayan əmr</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Bütün quraşdırılmış paketləri, mövcud olarsa, ən son versiyaya yeniləyin</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Müvafiq yeniləmə tapılmadı.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Ya quraşdırılmış paketlər siyahısını axtarmaqla, ya da birbaşa manifestdən tapılan seçilmiş paketi yeniləyir. Standart olaraq sorğu böyük-kiçik hərfə həssas olmadan paketin identifikatoru, adı və ya ayaması ilə uyğun gəlməlidir. Başqa sahələrdən onların müvafiq seçimini ötürməklə istifadə oluna bilər.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Verilmiş paketi yeniləyir</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>istifadə</value>
@@ -654,5 +689,34 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Tamamlanmadan əvvəl verilən qiymət tələb olunur</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Uyğun gələn versiya tapılmadı:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Verilən qiymətə uyğun mənbə tapılmadı:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Konfiqurasiya edilmiş mənbələr:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Mənbə müəyyən edilməyib; 'source add' ilə birini seçin və ya 'source reset' ilə standart qiymətlərə sıfırlayın</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Tapıldı</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Yol kataloqdur:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Fayl mövcud deyil:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Həm lokal manifest, həm də axtarış sorğusu arqumentləri təqdim olunub</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Jurnallar</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

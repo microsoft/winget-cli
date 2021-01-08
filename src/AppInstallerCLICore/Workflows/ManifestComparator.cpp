@@ -125,7 +125,12 @@ namespace AppInstaller::CLI::Workflow
             return {};
         }
 
-        Logging::Telemetry().LogSelectedInstaller(static_cast<int>(result->Arch), result->Url, Manifest::ManifestInstaller::InstallerTypeToString(result->InstallerType), result->Scope, result->Language);
+        Logging::Telemetry().LogSelectedInstaller(
+            static_cast<int>(result->Arch),
+            result->Url,
+            Manifest::ManifestInstaller::InstallerTypeToString(result->InstallerType),
+            Manifest::ManifestInstaller::ScopeToString(result->Scope),
+            result->Language);
 
         return *result;
     }

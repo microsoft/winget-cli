@@ -130,6 +130,10 @@
     <value>A következő parancsok használhatók:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Elérhető</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>A következő kapcsolók használhatók:</value>
   </data>
@@ -304,6 +308,13 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
     <value>Hivatkozások</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>A list parancs megjeleníti a rendszerre telepített csomagokat, valamint azt, hogy elérhető-e frissítés. További beállítások adhatók meg a kimenet szűréséhez, akárcsak a search parancsnál.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Telepített csomagok megjelenítése</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>A telepítés célhelye (ha támogatott)</value>
   </data>
@@ -341,11 +352,11 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Nem sikerült kiszámítani az MSIX-aláírás kivonatát.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Nem sikerült a csomagot a Microsoft áruházból telepíteni, mert az adott alkalmazást a házirend letiltotta</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Nem sikerült a csomagot a Microsoft Store-ból telepíteni vagy frissíteni, mert az adott alkalmazást a házirend letiltotta</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Nem sikerült a csomagot a Microsoft áruházból telepíteni. Hibakód:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Nem sikerült a csomagot a Microsoft Store-ból telepíteni vagy frissíteni. Hibakód:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>A csomagszerzés ellenőrzése/kérése nem sikerült: hálózati hiba</value>
@@ -359,11 +370,14 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>A csomagszerzés ellenőrzése/kérése sikeres</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Nem sikerült a csomagot a Microsoft áruházból telepíteni, mert a Microsoft áruház ügyfélprogramot a házirend letiltotta</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Nem sikerült a csomagot a Microsoft Store-ból telepíteni vagy frissíteni, mert a Microsoft áruház-ügyfelet a házirend letiltotta</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>A csomagszerzés ellenőrzése/kérése folyamatban...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Több olyan telepített csomag található, amely megfelel a bemeneti feltételeknek. Pontosítsa a bemenetet.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Több olyan csomag található, amely megfelel a bemeneti feltételeknek. Pontosítsa a bemenetet.</value>
@@ -376,6 +390,9 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Jelenleg nincsenek elérhető kísérleti fázisú funkciók. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Nem található a bemeneti feltételeknek megfelelő telepített csomag.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Nem található a bemeneti feltételeknek megfelelő csomag.</value>
@@ -459,9 +476,6 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   <data name="ShowChannel" xml:space="preserve">
     <value>Csatorna</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Egy adott csomagra vonatkozó információt jelenít meg. Alapértelmezés szerint a lekérdezésnek kis- és nagybetűk megkülönböztetése nélkül kell egyezést keresnie a csomag azonosítójával, nevével vagy monikerével. Más mezők is használhatók a megfelelő opciók átadásával.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Csomagra vonatkozó adatok megjelenítése</value>
   </data>
@@ -520,7 +534,7 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Mező</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Név</value>
@@ -542,7 +556,7 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>soha</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Érték</value>
@@ -550,6 +564,14 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>A forrás neve</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Nem sikerült megnyitni a forrást; próbálja meg a 'source reset' parancsot, ha a probléma továbbra is fennáll.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Nem sikerült megnyitni az előre definiált forrást; kérjük, küldjön jelentést a winget fenntartóinak.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Az összes forrás eltávolítása...</value>
@@ -619,13 +641,26 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
     <value>Az argumentum az engedélyezettnél többször van megadva</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Egynél több, a telepítési viselkedést meghatározó argumentum van megadva</value>
+    <value>Egynél több, a végrehajtási viselkedést meghatározó argumentum van megadva</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Váratlan hiba történt a parancs végrehajtása közben:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Ismeretlen parancs</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Az összes telepített csomag frissítése a legújabb verzióra, ha elérhető</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Nem találhatók alkalmazható frissítések.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>A kijelölt csomag (például a telepített csomagok listája, illetve egy jegyzékből történő) keresése. Alapértelmezés szerint a lekérdezésnek meg kell insensitively, hogy megfeleljen a csomag azonosítója, neve vagy a moniker között. A megfelelő beállítás alapján más mezők is használhatók.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Az adott csomag frissítése</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>használat</value>
@@ -654,5 +689,34 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>A befejezés előtt megadott érték kérelmezve</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Nem található megfelelő verzió:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Egyetlen forrás sem felel meg a megadott értéknek:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>A beállított források a következők:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Nincs megadva forrás; Vegyen fel egyet a 'source add' paranccsal, vagy állítsa vissza az alapértékek a 'source reset' paranccsal</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Megtalálva</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Az elérési út egy könyvtár:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Nem létező fájl:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>A helyi jegyzékfájl és a keresési lekérdezés argumentumok is meg vannak adva</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Naplók</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

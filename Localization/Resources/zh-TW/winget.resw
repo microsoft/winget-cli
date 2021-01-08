@@ -130,6 +130,10 @@
     <value>以下是所有可用的命令:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>可用</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>以下是可用的選項:</value>
   </data>
@@ -304,6 +308,13 @@
     <value>連結</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>[list] 命令會顯示安裝在系統上的套件，以及是否有可用的更新。系統可以提供其他選項來篩選輸出 (這與 [search] 命令很相似)。</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>顯示已安裝的套件</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>要安裝的位置 (如果有支援的話)</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>無法計算 MSIX 簽章訊息摘要。</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>安裝 Microsoft Store 套件失敗，因為特定的應用程式受原則所封鎖</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>無法安裝或更新 Microsoft Store 套件，因為特定應用程式受原則封鎖</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>安裝 Microsoft Store 套件失敗。錯誤碼：</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>無法安裝或更新 Microsoft Store 套件。錯誤碼:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>正在驗證/正在要求套件取得失敗：網路錯誤</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>正在驗證/正在要求套件取得成功</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>安裝 Microsoft Store 套件失敗，因為 Microsoft Store 用戶端受原則所封鎖</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>無法安裝或更新 Microsoft Store 套件，因為 Microsoft Store 用戶端受原則封鎖</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>正在驗證/正在要求套件取得...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>找到多個符合輸入條件的已安裝套件。請精煉輸入。</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>找到多個符合輸入條件的套件。請精煉輸入。</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>目前沒有可用的實驗功能。</value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>未找到符合輸入條件的已安裝套件。</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>未找到符合輸入條件的套件。</value>
@@ -459,9 +476,6 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>頻道</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>顯示特定套件的資訊。根據預設，查詢必須不區分大小寫地符合套件的識別碼、名稱或連結路徑。您可以透過傳遞適當的選項來使用其他欄位。</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>顯示與套件的相關資訊</value>
   </data>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>欄位</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>名稱</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>永不</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>值</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>來源的名稱</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>無法開啟來源；如果此問題持續發生，請嘗試使用 [source reset] 命令。</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>無法開啟預先定義的來源;請回報 winget maintainers。</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>正在移除所有來源...</value>
@@ -619,13 +641,26 @@
     <value>引數提供的次數超過允許的次數</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>提供多個安裝行為引數</value>
+    <value>提供多個執行行為引數</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>執行命令時，發生意外的錯誤：</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>無法辨識的命令</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>將所有已安裝的套件更新到最新版本 (如果有可用更新的話)</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>找不到適用的更新。</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>通過搜尋已安裝的套件清單或直接從資訊清單來更新選取的封裝。根據預設，查詢必須 insensitively 符合封裝的識別碼、名稱或名字物件。您可以透過傳遞適當的選項來使用其他欄位。</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>更新指定的套件</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>使用</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>完成前提供的值已要求</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>找不到相符的版本：</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>沒有符合給定值的來源：</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>設定的來源為：</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>未定義來源；使用 [source add]，以進行新增，或使用 [source reset] 將之重設成預設值</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>找到</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>路徑為目錄：</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>檔案不存在:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>系統同時提供本機資訊清單與搜尋查詢參數</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>記錄檔</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>

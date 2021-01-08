@@ -130,6 +130,10 @@
     <value>Οι ακόλουθες εντολές είναι διαθέσιμες:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Διαθέσιμα</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Οι ακόλουθες επιλογές είναι διαθέσιμες:</value>
   </data>
@@ -304,6 +308,13 @@
     <value>Συνδέσεις</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Η εντολή list εμφανίζει τα πακέτα που είναι εγκατεστημένα στο σύστημα, καθώς και αν υπάρχει διαθέσιμη ενημέρωση. Μπορούν να δοθούν επιπλέον επιλογές για το φιλτράρισμα της εξόδου, όπως είναι η εντολή search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Εμφάνιση εγκατεστημένων πακέτων</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Τοποθεσία εγκατάστασης στο (εάν υποστηρίζεται)</value>
   </data>
@@ -341,11 +352,11 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Δεν ήταν δυνατός ο υπολογισμός του κατακερματισμού υπογραφής MSIX.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Δεν ήταν δυνατή η εγκατάσταση του πακέτου Microsoft Store επειδή η συγκεκριμένη εφαρμογή έχει αποκλειστεί από την πολιτική</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η εγκατάσταση ή η ενημέρωση του πακέτου Microsoft Store επειδή η συγκεκριμένη εφαρμογή έχει αποκλειστεί από την πολιτική</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Δεν ήταν δυνατή η εγκατάσταση του πακέτου Microsoft Store. Κωδικός σφάλματος:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η εγκατάσταση ή η ενημέρωση του πακέτου Microsoft Store. Κωδικός σφάλματος:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Η επαλήθευση/υποβολή αιτήματος για λήψη πακέτου απέτυχε: σφάλμα δικτύου</value>
@@ -359,11 +370,14 @@
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Επιτυχία επαλήθευσης/υποβολής αιτήματος για λήψη πακέτου</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Δεν ήταν δυνατή η εγκατάσταση του πακέτου Microsoft Store επειδή το πρόγραμμα-πελάτης του Microsoft Store έχει αποκλειστεί από την πολιτική</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η εγκατάσταση ή η ενημέρωση του πακέτου Microsoft Store επειδή το πρόγραμμα-πελάτης του Microsoft Store έχει αποκλειστεί από την πολιτική</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Επαλήθευση/υποβολή αιτήματος για λήψη πακέτου...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Βρέθηκαν πολλά εγκατεστημένα πακέτα που ταιριάζουν με τα κριτήρια εισόδου. Περιορίστε τα δεδομένα εισόδου.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Βρέθηκαν πολλά πακέτα που ταιριάζουν με τα κριτήρια εισόδου. Περιορίστε τα δεδομένα εισόδου.</value>
@@ -376,6 +390,9 @@
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Αυτή τη στιγμή δεν υπάρχουν διαθέσιμες πειραματικές δυνατότητες. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Δεν βρέθηκαν εγκατεστημένα πακέτα που να πληρούν τα κριτήρια εισαγωγής.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Δεν βρέθηκαν πακέτα που να πληρούν τα κριτήρια εισαγωγής.</value>
@@ -459,9 +476,6 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>Κανάλι</value>
   </data>
-  <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Εμφανίζει πληροφορίες σχετικά με ένα συγκεκριμένο πακέτο. Από προεπιλογή, το ερώτημα πρέπει να συμφωνεί χωρίς διάκριση πεζών-κεφαλαίων με την ταυτότητα, το όνομα ή το αναγνωριστικό του πακέτου. Άλλα πεδία μπορούν να χρησιμοποιηθούν με την κατάλληλη επιλογή.</value>
-  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Εμφανίζει πληροφορίες σχετικά με ένα πακέτο</value>
   </data>
@@ -520,7 +534,7 @@
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Λιβάδι</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Όνομα</value>
@@ -542,7 +556,7 @@
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>ποτέ</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Τιμή</value>
@@ -550,6 +564,14 @@
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Όνομα της προέλευσης</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Το άνοιγμα της προέλευσης απέτυχε. Δοκιμάστε την εντολή "επαναφορά προέλευσης" (source reset) αν το πρόβλημα δεν επιλυθεί.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Απέτυχε το άνοιγμα της προκαθορισμένη προέλευσης. Αναφέρετέ το στα προγράμματα διατήρησης winget.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Κατάργηση όλων των προελεύσεων...</value>
@@ -619,13 +641,26 @@
     <value>Το όρισμα παρέχεται περισσότερες φορές από όσες επιτρέπονται</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Παρέχεται παραπάνω από ένα όρισμα συμπεριφοράς εγκατάστασης</value>
+    <value>Παρέχεται παραπάνω από ένα όρισμα συμπεριφοράς εκτέλεσης</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Παρουσιάστηκε μη αναμενόμενο σφάλμα κατά την εκτέλεση της εντολής:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Η εντολή δεν αναγνωρίστηκε</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Ενημέρωση όλων των εγκατεστημένων πακέτων στην πιο πρόσφατη έκδοση, εάν απαιτείται</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Δεν βρέθηκαν ισχύουσες ενημερώσεις.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Ενημερώνει το επιλεγμένο πακέτο, που βρέθηκε με αναζήτηση στη λίστα εγκατεστημένων πακέτων ή απευθείας από μια διακήρυξη. Από προεπιλογή, το ερώτημα πρέπει να insensitively να συμφωνεί με το Αναγνωριστικό, το όνομα ή το αναγνωριστικό του πακέτου. Τα άλλα πεδία μπορούν να χρησιμοποιηθούν μέσω της κατάλληλης επιλογής τους.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Ενημερώνει το συγκεκριμένο πακέτο</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>χρήση</value>
@@ -654,5 +689,34 @@
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Ζητείται η τιμή που παρέχεται πριν από την ολοκλήρωση</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Δεν βρέθηκε έκδοση που να ταιριάζει:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Δεν υπάρχουν προελεύσεις που να ταιριάζουν με τη δεδομένη τιμή:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Οι ρυθμισμένες προελεύσεις είναι:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Δεν έχουν οριστεί προελεύσεις. Προσθέστε μία με την εντολή "προσθήκη προέλευσης" (source add) ή επαναφέρετε τις προεπιλογές με την εντολή "επαναφορά προέλευσης" (source reset)</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Εντοπίστηκαν</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Η διαδρομή είναι ένας κατάλογος:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Το αρχείο δεν υπάρχει:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Παρέχονται τόσο τα ορίσματα τοπικής διακήρυξης όσο και ερωτήματος αναζήτησης</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Αρχεία καταγραφής</value>
+    <comment>Diagnostic files containing information about application use.</comment>
   </data>
 </root>
