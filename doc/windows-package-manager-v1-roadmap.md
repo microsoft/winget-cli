@@ -95,7 +95,7 @@ Each Release above is/will be reflected in our [GitHub milestones](https://githu
 | [v0.31](https://github.com/microsoft/winget-cli/milestone/33) | Auto Upgrade Apps |
 | [Backlog](https://github.com/microsoft/winget-cli/milestone/2) | Work not yet assigned to a milestone or release |
 
-* Versions with strikethroug have been pushed post v1.0.
+* Versions with strikethrough have been pushed post v1.0.
 
 ## Issue Triage & Prioritization
 
