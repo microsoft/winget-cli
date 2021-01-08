@@ -51,7 +51,7 @@ Ultimately, we're aiming for Windows Package Manager v1.0 to be released in Spri
 | January 2021 | [v0.6](https://github.com/microsoft/winget-cli/milestone/8) | Import / Export |
 | February 2021 | , [v0.7](https://github.com/microsoft/winget-cli/milestone/9), [v0.8](https://github.com/microsoft/winget-cli/milestone/10), [v0.9](https://github.com/microsoft/winget-cli/milestone/11), [v0.10](https://github.com/microsoft/winget-cli/milestone/12) | Dependency Support, Multiple Architectures, Multiple Languages, and User vs. System installation |
 | March 2021 | [v0.11](https://github.com/microsoft/winget-cli/milestone/13),  [v0.12](https://github.com/microsoft/winget-cli/milestone/14), [v0.13](https://github.com/microsoft/winget-cli/milestone/15), [v0.14](https://github.com/microsoft/winget-cli/milestone/16), [v0.16](https://github.com/microsoft/winget-cli/milestone/18), [v0.17](https://github.com/microsoft/winget-cli/milestone/19) | Third party REST source, Group Policy, Delivery Optimization, Metered Networks, .zip, and .exe|
-| April 2021 || Group Policy|
+| April 2021 |||
 | May 2021 | [v1.0](https://github.com/microsoft/winget-cli/milestone/1) | Windows Package Manager v1.0 Release |
 
 Note: Many of the features have been implemented in experimental mode. If you execute `winget features` a list of experimental features and their status is displayed. You may modify your settings file with `winget settings` to enable or disable them. The experimental "list" feature is a prerequisite for "upgrade", "uninstall", and other features in development. Once the "list" feature has been fully implemented, the other stable features depending on it will also be migrated from experimental to default.
