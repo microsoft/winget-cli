@@ -353,6 +353,7 @@ strcoll
 streamoff
 streampos
 stricmp
+strikethrough
 STRINGID
 STRINGIFY
 STRINGIZE
