@@ -29,7 +29,7 @@ namespace AppInstallerCLIE2ETests
         public void SourceAddWithInvalidURL()
         {
             // Add source with invalid url should fail
-            var result = TestCommon.RunAICLICommand("source add", "AnotherSource https://microsoft.com");
+            var result = TestCommon.RunAICLICommand("source add", $"AnotherSource {Constants.TestSourceUrl}/Invalid/Directory/Dont/Add/Me");
             Assert.AreEqual(Constants.ErrorCode.HTTP_E_STATUS_NOT_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("An unexpected error occurred while executing the command"));
         }
