@@ -1,0 +1,30 @@
+[
+    {
+        "description": "format: uri-template",
+        "schema": {
+            "format": "uri-template"
+        },
+        "tests": [
+            {
+                "description": "a valid uri-template",
+                "data": "http://example.com/dictionary/{term:1}/{term}",
+                "valid": true
+            },
+            {
+                "description": "an invalid uri-template",
+                "data": "http://example.com/dictionary/{term:1}/{term",
+                "valid": false
+            },
+            {
+                "description": "a valid uri-template without variables",
+                "data": "http://example.com/dictionary",
+                "valid": true
+            },
+            {
+                "description": "a valid relative uri-template",
+                "data": "dictionary/{term:1}/{term}",
+                "valid": true
+            }
+        ]
+    }
+]
