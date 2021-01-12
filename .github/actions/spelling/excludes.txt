@@ -13,6 +13,7 @@
 ^NOTICE$
 ^src/AppInstallerCLICore/Commands/ExperimentalCommand\.cpp$
 ^src/catch2/
-^src/YamlCppLib/
 ^src/JsonCppLib/
+^src/Valijson/
+^src/YamlCppLib/
 ^\.github/
