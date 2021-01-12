@@ -1,0 +1,35 @@
+Tristan Penman, tristan@tristanpenman.com
+	Core library development
+
+James Jensen, jjensen@akamai.com, changes Copyright (c) 2016 Akamai Technologies
+	Polymorphic constraint support
+
+Tengiz Sharafiev, btolfa+github@gmail.com
+	Adapter for nlohmann/json parser library
+
+hotwatermorning (github username), hotwatermorning@gmail.com
+	Adapter for json11 parser library
+
+shsfre09 (github username), <email address unknown>
+	Adapter for picojson parser library
+
+Michael Smith, michael.smith@puppetlabs.com
+	Memory management improvements for RapidJson parser library
+
+Richard Clamp, richardc@unixbeard.net
+	Boost-related fixes
+
+Lars Immisch, lars@ibp.de
+	noboost branch
+
+Nicolas Witczak, n_witczak@yahoo.com
+	C++11 improvements
+
+Martin Robinson, 0x4d52@gmail.com
+	Bug fixes
+
+Pierre Lamot, pierre.lamot@yahoo.fr
+	Adapter for Qt JSON parser
+
+drewxa (github username), bo.ro.da@mail.ru
+	Adapter for Poco JSON parser
