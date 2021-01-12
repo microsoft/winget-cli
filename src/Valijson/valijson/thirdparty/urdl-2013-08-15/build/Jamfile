@@ -1,0 +1,102 @@
+import common ;
+import os ;
+import modules ;
+
+if [ os.name ] = SOLARIS
+{
+  lib socket ;
+  lib nsl ;
+}
+else if [ os.name ] = NT
+{
+  lib ws2_32 ;
+  lib mswsock ;
+}
+else if [ os.name ] = HPUX
+{
+  lib ipv6 ;
+}
+
+local SSL_OPTIONS ;
+if [ modules.peek : URDL_DISABLE_SSL ] = 1
+{
+  SSL_OPTIONS = <define>URDL_DISABLE_SSL=1 ;
+}
+else if [ os.name ] = NT
+{
+  OPENSSL_ROOT = [ modules.peek : OPENSSL_ROOT ] ;
+  lib user32 ;
+  lib advapi32 ;
+  lib gdi32 ;
+  SSL_OPTIONS = <include>$(OPENSSL_ROOT)/inc32
+                <library>$(OPENSSL_ROOT)/out32dll/libeay32.lib
+                <library>$(OPENSSL_ROOT)/out32dll/ssleay32.lib
+                <library>user32 <library>advapi32 <library>gdi32 ;
+}
+else
+{
+  lib ssl ;
+  lib crypto ;
+  SSL_OPTIONS = <library>ssl <library>crypto ;
+}
+
+project urdl
+    :
+      source-location ../src
+    :
+      requirements
+      <threading>multi
+    :
+      usage-requirements         
+      <link>shared:<define>URDL_DYN_LINK=1
+      <link>static:<define>URDL_STATIC_LINK=1
+      <include>$(URDL_ROOT)/include
+      <library>/boost/system//boost_system
+      <library>/boost/date_time//boost_date_time
+      <define>BOOST_ALL_NO_LIB=1
+      <os>SOLARIS:<library>socket
+      <os>SOLARIS:<library>nsl
+      <os>NT:<define>_WIN32_WINNT=0x0501
+      <os>NT:<define>WIN32_LEAN_AND_MEAN=1
+      <os>NT,<toolset>msvc:<define>_SCL_SECURE_NO_WARNINGS=1
+      <os>NT,<toolset>msvc:<define>_CRT_SECURE_NO_WARNINGS=1
+      <os>NT,<toolset>gcc:<library>ws2_32
+      <os>NT,<toolset>gcc:<library>mswsock
+      <os>NT,<toolset>gcc-cygwin:<define>__USE_W32_SOCKETS
+      <os>HPUX,<toolset>gcc:<define>_XOPEN_SOURCE_EXTENDED
+      <os>HPUX:<library>ipv6
+      $(SSL_OPTIONS)
+    ;
+
+lib urdl
+    :
+      urdl.cpp
+    :
+      <link>shared:<define>BOOST_ALL_DYN_LINK=1
+      <link>static:<define>BOOST_ALL_STATIC_LINK=1
+      <include>$(URDL_ROOT)/include
+      <library>/boost/system//boost_system
+      <library>/boost/date_time//boost_date_time
+      <define>BOOST_ALL_NO_LIB=1
+      <os>SOLARIS:<library>socket
+      <os>SOLARIS:<library>nsl
+      <os>NT:<define>_WIN32_WINNT=0x0501
+      <os>NT,<toolset>msvc:<define>_SCL_SECURE_NO_WARNINGS=1
+      <os>NT,<toolset>msvc:<define>_CRT_SECURE_NO_WARNINGS=1
+      <os>NT,<toolset>gcc:<library>ws2_32
+      <os>NT,<toolset>gcc:<library>mswsock
+      <os>NT,<toolset>gcc-cygwin:<define>__USE_W32_SOCKETS
+      <os>HPUX,<toolset>gcc:<define>_XOPEN_SOURCE_EXTENDED
+      <os>HPUX:<library>ipv6
+      <debug-symbols>on
+      <tag>@tag
+      $(SSL_OPTIONS)
+    ;
+
+rule tag ( name : type ? : property-set )
+{
+  local result = [ common.format-name
+      <base> <runtime>
+      : $(name) : $(type) : $(property-set) ] ;
+  return "$(result)" ;
+}
