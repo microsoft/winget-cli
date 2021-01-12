@@ -29,7 +29,7 @@ namespace AppInstallerCLIE2ETests
         public void SourceAddWithInvalidURL()
         {
             // Add source with invalid url should fail
-            var result = TestCommon.RunAICLICommand("source add", "AnotherSource https://microsoft.com");
+            var result = TestCommon.RunAICLICommand("source add", $"AnotherSource {Constants.TestSourceUrl}/Invalid/Directory/Dont/Add/Me");
             Assert.AreEqual(Constants.ErrorCode.HTTP_E_STATUS_NOT_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("An unexpected error occurred while executing the command"));
         }
@@ -50,7 +50,7 @@ namespace AppInstallerCLIE2ETests
             // List with no args should list all available sources
             var result = TestCommon.RunAICLICommand("source list", "");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("https://localhost:5001/TestKit"));
+            Assert.True(result.StdOut.Contains(Constants.TestSourceUrl));
         }
 
         [Test]
@@ -58,8 +58,8 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("source list", $"-n {Constants.TestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("TestSource"));
-            Assert.True(result.StdOut.Contains("https://localhost:5001/TestKit"));
+            Assert.True(result.StdOut.Contains(Constants.TestSourceName));
+            Assert.True(result.StdOut.Contains(Constants.TestSourceUrl));
             Assert.True(result.StdOut.Contains("Microsoft.PreIndexed.Package"));
             Assert.True(result.StdOut.Contains("Updated"));
         }
@@ -110,8 +110,8 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("source reset", "");
             Assert.True(result.StdOut.Contains("The following sources will be reset if the --force option is given:"));
-            Assert.True(result.StdOut.Contains("TestSource"));
-            Assert.True(result.StdOut.Contains("https://localhost:5001/TestKit"));
+            Assert.True(result.StdOut.Contains(Constants.TestSourceName));
+            Assert.True(result.StdOut.Contains(Constants.TestSourceUrl));
         }
 
         [Test]
@@ -126,8 +126,8 @@ namespace AppInstallerCLIE2ETests
             result = TestCommon.RunAICLICommand("source list", "");
             Assert.True(result.StdOut.Contains("winget"));
             Assert.True(result.StdOut.Contains("https://winget.azureedge.net/cache"));
-            Assert.False(result.StdOut.Contains($"{Constants.TestSourceName}"));
-            Assert.False(result.StdOut.Contains($"{Constants.TestSourceUrl}"));
+            Assert.False(result.StdOut.Contains(Constants.TestSourceName));
+            Assert.False(result.StdOut.Contains(Constants.TestSourceUrl));
             ResetTestSource();
         }
     }

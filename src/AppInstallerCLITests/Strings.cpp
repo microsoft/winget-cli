@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <AppInstallerStrings.h>
+#include <ExecutionReporter.h>
 
 using namespace std::string_view_literals;
 using namespace AppInstaller::Utility;
@@ -146,4 +147,20 @@ TEST_CASE("ExpandEnvironmentVariables", "[strings]")
     }
 
     REQUIRE(ExpandEnvironmentVariables(L"%TEMP%") == tempPath);
+}
+
+TEST_CASE("PathOutput", "[strings]")
+{
+    std::string original = "\xe6\xb5\x8b\xe8\xaf\x95";
+    std::filesystem::path path = ConvertToUTF16(original);
+    AICLI_LOG(Test, Info, << path);
+
+    std::istringstream in;
+    std::ostringstream out;
+    AppInstaller::CLI::Execution::Reporter reporter{ out, in };
+
+    reporter.Info() << path;
+
+    std::string output = out.str();
+    REQUIRE(output.substr(output.size() - original.size()) == original);
 }
