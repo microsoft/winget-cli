@@ -8,7 +8,7 @@ namespace AppInstaller::CLI
     // Command to install a set of packages from a list.
     struct ImportCommand final : public Command
     {
-        ImportCommand(std::string_view parent) : Command("Import", parent, Settings::ExperimentalFeature::Feature::ExperimentalImportExport) {}
+        ImportCommand(std::string_view parent) : Command("import", parent, Settings::ExperimentalFeature::Feature::ExperimentalImportExport) {}
 
         std::vector<Argument> GetArguments() const override;
 
