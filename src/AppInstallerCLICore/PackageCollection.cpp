@@ -1,14 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+
 #include "PackageCollection.h"
-#include "AppInstallerRepositorySource.h"
 #include "AppInstallerRuntime.h"
 
-#include <json.h>
 #include <algorithm>
 #include <ostream>
-#include <chrono>
 
 namespace AppInstaller::CLI
 {
@@ -30,6 +28,19 @@ namespace AppInstaller::CLI
             return node[propertyName];
         }
 
+        // Sets a property of a JSON object to a string if it is not empty
+        void SetJsonProperty(Json::Value& node, const std::string& propertyName, const std::string& value)
+        {
+            if (!value.empty())
+            {
+                node[propertyName] = value;
+            }
+            else if (node.isMember(propertyName))
+            {
+                node.removeMember(propertyName);
+            }
+        }
+
         // Reads the description of a package from a Package node in the JSON.
         PackageRequest ParsePackageNode(const Json::Value& packageNode)
         {
@@ -45,11 +56,16 @@ namespace AppInstaller::CLI
         // Reads the description of a Source and all the packages needed from it, from a Source node in the JSON.
         PackageRequestsFromSource ParseSourceNode(const Json::Value& sourceNode)
         {
-            PackageRequestsFromSource requestsFromSource
+            PackageRequestsFromSource requestsFromSource;
+
+            if (sourceNode.isMember(SOURCE_DETAILS_PROPERTY))
             {
-                Utility::LocIndString{ sourceNode[SOURCE_NAME_PROPERTY].asString() },
-                Utility::LocIndString{ sourceNode[SOURCE_ARGUMENT_PROPERTY].asString() }
-            };
+                auto& detailsNode = sourceNode[SOURCE_DETAILS_PROPERTY];
+                requestsFromSource.SourceIdentifier = Utility::LocIndString{ detailsNode[SOURCE_IDENTIFIER_PROPERTY].asString() };
+                requestsFromSource.Details.Name = detailsNode[SOURCE_NAME_PROPERTY].asString();
+                requestsFromSource.Details.Arg = detailsNode[SOURCE_ARGUMENT_PROPERTY].asString();
+                requestsFromSource.Details.Type = detailsNode[SOURCE_TYPE_PROPERTY].asString();
+            }
 
             for (const auto& packageNode : sourceNode[PACKAGES_PROPERTY])
             {
@@ -83,12 +99,9 @@ namespace AppInstaller::CLI
             root[WINGET_VERSION_PROPERTY] = Runtime::GetClientVersion().get();
             root[SCHEMA_PROPERTY] = SCHEMA_PATH;
 
-            // TODO: Clean up. Do we need this?
-            std::time_t currentTimeTT = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-            std::tm currentTimeTM;
+            // TODO: This uses localtime. Do we want to use UTC or add timezone?
             std::stringstream currentTimeStream;
-            gmtime_s(&currentTimeTM, &currentTimeTT);
-            currentTimeStream << std::put_time(&currentTimeTM, "%c");
+            Utility::OutputTimePoint(currentTimeStream, std::chrono::system_clock::now());
             root[CREATION_DATE_PROPERTY] = currentTimeStream.str();
 
             return root;
@@ -97,8 +110,17 @@ namespace AppInstaller::CLI
         Json::Value& AddSourceNode(Json::Value& root, const PackageRequestsFromSource& source)
         {
             Json::Value sourceNode{ Json::ValueType::objectValue };
-            sourceNode[SOURCE_NAME_PROPERTY] = source.SourceName.get();
-            sourceNode[SOURCE_ARGUMENT_PROPERTY] = source.SourceArg.get();
+
+            if (!source.Details.Name.empty())
+            {
+                Json::Value sourceDetailsNode{ Json::ValueType::objectValue };
+                sourceDetailsNode[SOURCE_NAME_PROPERTY] = source.Details.Name;
+                sourceDetailsNode[SOURCE_ARGUMENT_PROPERTY] = source.Details.Arg;
+                sourceDetailsNode[SOURCE_IDENTIFIER_PROPERTY] = source.SourceIdentifier.get();
+                sourceDetailsNode[SOURCE_TYPE_PROPERTY] = source.Details.Type;
+                sourceNode[SOURCE_DETAILS_PROPERTY] = std::move(sourceDetailsNode);
+            }
+
             sourceNode[PACKAGES_PROPERTY] = Json::Value{ Json::ValueType::arrayValue };
 
             auto& sourcesNode = GetJsonProperty<Json::ValueType::arrayValue>(root, SOURCES_PROPERTY);
@@ -125,6 +147,31 @@ namespace AppInstaller::CLI
 
             return sourceNode[PACKAGES_PROPERTY].append(std::move(packageNode));
         }
+
+        Json::Value CreateJson(const PackageCollection& packages)
+        {
+            Json::Value root = PackagesJson::CreateRoot();
+            for (const auto& source : packages.RequestsFromSources)
+            {
+                PackagesJson::AddSourceNode(root, source);
+            }
+
+            return root;
+        }
+
+        PackageCollection ParseJson(const Json::Value& root)
+        {
+            // TODO: Validate schema. The following assumes the file is already valid.
+            PackageCollection packages;
+            packages.ClientVersion = root[WINGET_VERSION_PROPERTY].asString();
+            for (const auto& sourceNode : root[SOURCES_PROPERTY])
+            {
+                // TODO: Prevent duplicates?
+                packages.RequestsFromSources.push_back(ParseSourceNode(sourceNode));
+            }
+
+            return packages;
+        }
     }
 
     PackageRequest::PackageRequest(Utility::LocIndString&& id, Utility::Version&& version, Utility::Channel&& channel) :
@@ -133,60 +180,9 @@ namespace AppInstaller::CLI
     PackageRequest::PackageRequest(Utility::LocIndString&& id, Utility::VersionAndChannel&& versionAndChannel) :
         Id(std::move(id)), VersionAndChannel(std::move(versionAndChannel)) {}
 
-    PackageRequestsFromSource::PackageRequestsFromSource(Utility::LocIndString&& sourceName, Utility::LocIndString&& sourceArg) :
-        SourceName(std::move(sourceName)), SourceArg(std::move(sourceArg)) {}
+    PackageRequestsFromSource::PackageRequestsFromSource(const Utility::LocIndString& sourceIdentifier, const SourceDetails& sourceDetails) :
+        SourceIdentifier(sourceIdentifier), Details(sourceDetails) {}
 
-    std::vector<PackageRequestsFromSource> ParsePackageCollection(const Json::Value& root)
-    {
-        // TODO: Validate schema. The following assumes the file is already valid.
-        // TODO: Use version & creation date?
-
-        std::vector<PackageRequestsFromSource> requests = {};
-        for (const auto& sourceNode : root[SOURCES_PROPERTY])
-        {
-            requests.push_back(ParseSourceNode(sourceNode));
-        }
-
-        return requests;
-    }
-
-    std::vector<PackageRequestsFromSource> ConvertSearchResultToPackageRequests(const SearchResult& packages)
-    {
-        std::vector<PackageRequestsFromSource> requests = {};
-        for (const auto& packageMatch : packages.Matches)
-        {
-            auto availableVersion = GetAvailableVersionMatchingInstalled(*packageMatch.Package);
-            if (!availableVersion)
-            {
-                AICLI_LOG(CLI, Info, << "No available package found for " << packageMatch.Package->GetProperty(PackageProperty::Id));
-                continue;
-            }
-
-            auto sourceDetails = availableVersion->GetSource()->GetDetails();
-            auto sourceItr = std::find_if(requests.begin(), requests.end(), [&](const PackageRequestsFromSource& s) { return s.SourceName == sourceDetails.Name; });
-            if (sourceItr == requests.end())
-            {
-                requests.emplace_back(Utility::LocIndString{ sourceDetails.Name }, Utility::LocIndString{ sourceDetails.Arg });
-                sourceItr = std::prev(requests.end());
-            }
-
-            sourceItr->Packages.emplace_back(
-                availableVersion->GetProperty(PackageVersionProperty::Id),
-                availableVersion->GetProperty(PackageVersionProperty::Version).get(),
-                availableVersion->GetProperty(PackageVersionProperty::Channel).get());
-        }
-
-        return requests;
-    }
-
-    Json::Value ConvertPackageRequestsToJson(const PackageCollectionRequest& packages)
-    {
-        Json::Value root = CreateRoot();
-        for (const auto& source : packages)
-        {
-            AddSourceNode(root, source);
-        }
-
-        return root;
-    }
+    PackageRequestsFromSource::PackageRequestsFromSource(Utility::LocIndString&& sourceIdentifier, SourceDetails&& sourceDetails) :
+        SourceIdentifier(std::move(sourceIdentifier)), Details(std::move(sourceDetails)) {}
 }

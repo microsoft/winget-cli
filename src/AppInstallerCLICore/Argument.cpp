@@ -67,6 +67,8 @@ namespace AppInstaller::CLI
             return Argument{ "output", 'o', Args::Type::OutputFile, Resource::String::OutputFileArgumentDescription, ArgumentType::Positional, true };
         case Args::Type::ImportFile:
             return Argument{ "input", 'i', Args::Type::ImportFile, Resource::String::ImportFileArgumentDescription, ArgumentType::Positional, true };
+        case Args::Type::ExactVersions:
+            return Argument{ "exactVersions", NoAlias, Args::Type::ExactVersions, Resource::String::ExactVersionsArgumentDescription, ArgumentType::Flag };
         case Args::Type::ListVersions:
             return Argument{ "versions", NoAlias, Args::Type::ListVersions, Resource::String::VersionsArgumentDescription, ArgumentType::Flag };
         case Args::Type::Help:

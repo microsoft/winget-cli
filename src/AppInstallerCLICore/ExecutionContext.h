@@ -58,15 +58,13 @@ namespace AppInstaller::CLI::Execution
         CompletionData,
         InstalledPackageVersion,
         ExecutionStage,
-        // On Uninstall: Uninstall string to be executed
         UninstallString,
-        // On Uninstall: Package Family Names of an MSIX package to uninstall
         PackageFamilyNames,
-        // On Uninstall: Product codes of an MSI to uninstall
         ProductCodes,
-        // On Import: Packages to be installed from each source
-        PackageRequests,
-
+        // On export: A collection of packages to be exported to a file
+        // On import: A collection of packages read from a file
+        PackageCollection,
+        // On import: A collection of specific package versions to install
         PackagesToInstall,
         Max
     };
@@ -193,9 +191,9 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::PackageRequests>
+        struct DataMapping<Data::PackageCollection>
         {
-            using value_t = PackageCollectionRequest;
+            using value_t = CLI::PackageCollection;
         };
 
 

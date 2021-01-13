@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 #pragma once
 
-#include "AppInstallerRepositorySearch.h"
+#include "AppInstallerDateTime.h"
 
 #include <json.h>
+
 #include <vector>
 
 namespace AppInstaller::CLI
@@ -26,24 +27,23 @@ namespace AppInstaller::CLI
     struct PackageRequestsFromSource
     {
         PackageRequestsFromSource() = default;
-        PackageRequestsFromSource(Utility::LocIndString&& sourceName, Utility::LocIndString&& sourceArg);
+        PackageRequestsFromSource(const Utility::LocIndString& sourceIdentifier, const SourceDetails& sourceDetails);
+        PackageRequestsFromSource(Utility::LocIndString&& sourceIdentifier, SourceDetails&& sourceDetails);
 
-        Utility::LocIndString SourceName;
-        Utility::LocIndString SourceArg;
+        Utility::LocIndString SourceIdentifier;
+        SourceDetails Details;
         std::vector<PackageRequest> Packages;
     };
 
-    using PackageCollectionRequest = std::vector<PackageRequestsFromSource>;
+    // Container for data to identify multiple packages to be installed from multiple sources.
+    struct PackageCollection
+    {
+        // Version of the WinGet client that produced this request.
+        std::string ClientVersion;
 
-    // Parses a package collection from a JSON file.
-    PackageCollectionRequest ParsePackageCollection(const Json::Value& root);
-
-    // Converts the result of a search to a collection of package
-    // requests adequate for exporting.
-    PackageCollectionRequest ConvertSearchResultToPackageRequests(const SearchResult& packages);
-
-    // Creates a JSON representing a package collection.
-    Json::Value ConvertPackageRequestsToJson(const PackageCollectionRequest& packages);
+        // Requests from each individual source.
+        std::vector<PackageRequestsFromSource> RequestsFromSources;
+    };
 
     namespace PackagesJson
     {
@@ -51,17 +51,20 @@ namespace AppInstaller::CLI
         // Most will be used to access a JSON value, so they need to be std::string
         const std::string SCHEMA_PROPERTY = "$schema";
         const std::string SCHEMA_PATH = "https://aka.ms/winget-packages.schema.json";
-        const std::string WINGET_VERSION_PROPERTY = "wingetVersion";
-        const std::string CREATION_DATE_PROPERTY = "creationDate";
+        const std::string WINGET_VERSION_PROPERTY = "WinGetVersion";
+        const std::string CREATION_DATE_PROPERTY = "CreationDate";
 
-        const std::string SOURCES_PROPERTY = "sources";
-        const std::string SOURCE_NAME_PROPERTY = "name";
-        const std::string SOURCE_ARGUMENT_PROPERTY = "argument";
+        const std::string SOURCES_PROPERTY = "Sources";
+        const std::string SOURCE_DETAILS_PROPERTY = "SourceDetails";
+        const std::string SOURCE_NAME_PROPERTY = "Name";
+        const std::string SOURCE_IDENTIFIER_PROPERTY = "Identifier";
+        const std::string SOURCE_ARGUMENT_PROPERTY = "Argument";
+        const std::string SOURCE_TYPE_PROPERTY = "Type";
 
-        const std::string PACKAGES_PROPERTY = "packages";
-        const std::string PACKAGE_ID_PROPERTY = "id";
-        const std::string PACKAGE_VERSION_PROPERTY = "version";
-        const std::string PACKAGE_CHANNEL_PROPERTY = "channel";
+        const std::string PACKAGES_PROPERTY = "Packages";
+        const std::string PACKAGE_ID_PROPERTY = "Id";
+        const std::string PACKAGE_VERSION_PROPERTY = "Version";
+        const std::string PACKAGE_CHANNEL_PROPERTY = "Channel";
 
         // Creates a minimal root object of a Packages JSON file.
         Json::Value CreateRoot();
@@ -71,5 +74,10 @@ namespace AppInstaller::CLI
 
         // Adds a new Package node to a Source node in the Json file, and returns it.
         Json::Value& AddPackageToSource(Json::Value& source, const PackageRequest& package);
+
+        // Converts a collection of packages to its JSON representation for exporting.
+        Json::Value CreateJson(const PackageCollection& packages);
+
+        PackageCollection ParseJson(const Json::Value& root);
     }
 }

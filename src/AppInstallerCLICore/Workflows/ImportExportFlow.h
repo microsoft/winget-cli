@@ -5,17 +5,27 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    // 
-    // Required Args: 
-    // Inputs: 
-    // Outputs: 
-    void Export(Execution::Context& context);
+    // Selects the package versions to list on the exported file
+    // Required Args: None
+    // Inputs: SearchResult
+    // Outputs: PackageCollection
+    void SelectVersionsToExport(Execution::Context& context);
 
+    // Exports a collection of packages to a JSON import file
+    // Required Args: OutputFile
+    // Inputs: PackageCollection
+    // Outputs: None
+    void WriteImportFile(Execution::Context& context);
+
+    // Reads the contents of an import file
     // Required Args: ImportFile
-    // Outputs: PackageRequests
+    // Inputs: None
+    // Outputs: PackageCollection
     void ReadImportFile(Execution::Context& context);
 
-    // Inputs: PackageRequests
+    // Finds the package versions to install matching their descriptions
+    // Required Args: None
+    // Inputs: PackageCollection
     // Outputs: PackagesToInstall
     void SearchPackagesForImport(Execution::Context& context);
 }

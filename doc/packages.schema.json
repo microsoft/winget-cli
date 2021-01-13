@@ -5,62 +5,90 @@
   "title": "winget Packages List Schema",
   "description": "Describes a list of packages for batch installs",
 
+  "additionalProperties": true,
+
   "properties": {
-    "wingetVersion": {
-      "description": "Version of winget that generated this list",
+    "WinGetVersion": {
+      "description": "Version of winget that generated this file",
       "type": "string",
       "pattern": "^[0-9]+\\.[0-9]\\.[0-9]$"
     },
 
-    "creationDate": {
+    "CreationDate": {
       "description": "Date when this list was generated",
       "type": "string",
       "format": "date-time"
     },
 
-    "sources": {
-      "description": "List of sources from wich each package comes from",
+    "Sources": {
+      "description": "Sources from which each package comes from",
       "type": "array",
+
       "items": {
         "description": "A source and the list of packages to install from it",
         "type": "object",
         "required": true,
+        "additionalProperties": true,
+
         "properties": {
-          "name": {
-            "description": "Name of the source",
-            "type": "string",
-            "required": true
+          "SourceDetails": {
+            "description": "Details about this source",
+            "type": "object",
+            "required": false,
+            "additionalProperties": true,
+
+            "properties": {
+              "Name": {
+                "description": "Name of the source",
+                "type": "string",
+                "required": true
+              },
+
+              "Identifier": {
+                "description": "Identifier for the source",
+                "type": "string",
+                "required": true
+              },
+
+              "Argument": {
+                "description": "Argument used to install the source",
+                "type": "string",
+                "required": true
+              },
+
+              "Type": {
+                "description": "Type of the source",
+                "type": "string",
+                "required": true
+              }
+            }
           },
 
-          "argument": {
-            "description": "TODO",
-            "type": "string",
-            "required": true
-          },
-
-          "packages": {
-            "description": "List of packages installed from this source",
+          "Packages": {
+            "description": "Packages installed from this source",
             "type": "array",
             "required": true,
             "minItems": 1,
+
             "items": {
               "description": "A package to be installed from this source",
               "type": "object",
+              "additionalProperties": true,
               "properties": {
-                "id": {
+                "Id": {
                   "description": "Package ID",
                   "type": "string",
                   "required": true
                 },
 
-                "version": {
+                "Version": {
                   "description": "Package version",
                   "type": "string",
                   "required": true
                 },
 
-                "channel": {
-                  "description": "TODO",
+                "Channel": {
+                  "description": "Package channel",
                   "type": "string",
                   "required": false
                 }
@@ -70,7 +98,5 @@
         }
       }
     }
-  },
-
-  "additionalProperties": true
+  }
 }

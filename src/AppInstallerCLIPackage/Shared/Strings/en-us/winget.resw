@@ -774,4 +774,7 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="ImportFileArgumentDescription" xml:space="preserve">
     <value>TODO</value>
   </data>
+  <data name="ExactVersionsArgumentDescription" xml:space="preserve">
+    <value>TODO</value>
+  </data>
 </root>

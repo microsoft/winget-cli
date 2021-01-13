@@ -16,6 +16,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Execution::Args::Type::ImportFile),
+            Argument::ForType(Execution::Args::Type::Exact),
         };
     }
 

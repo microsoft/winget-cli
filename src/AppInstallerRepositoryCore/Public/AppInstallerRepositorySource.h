@@ -44,7 +44,7 @@ namespace AppInstaller::Repository
         // The argument used when adding the source.
         std::string Arg;
 
-        // The sources extra data string.
+        // The source's extra data string.
         std::string Data;
 
         // The last time that this source was updated.
