@@ -99,7 +99,7 @@ namespace AppInstaller::CLI
             root[WINGET_VERSION_PROPERTY] = Runtime::GetClientVersion().get();
             root[SCHEMA_PROPERTY] = SCHEMA_PATH;
 
-            // TODO: This uses localtime. Do we want to use UTC or add timezone?
+            // TODO: This uses localtime. Do we want to use UTC or add time zone?
             std::stringstream currentTimeStream;
             Utility::OutputTimePoint(currentTimeStream, std::chrono::system_clock::now());
             root[CREATION_DATE_PROPERTY] = currentTimeStream.str();
