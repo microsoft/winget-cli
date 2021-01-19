@@ -113,6 +113,7 @@ namespace AppInstaller::Utility
     NormalizedString FoldCase(const NormalizedString& input);
 
     // Checks if the input string is empty or whitespace
+    bool IsEmptyOrWhitespace(std::string_view str);
     bool IsEmptyOrWhitespace(std::wstring_view str);
 
     // Find token in the input string and replace with value.

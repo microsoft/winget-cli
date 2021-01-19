@@ -353,6 +353,16 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    bool IsEmptyOrWhitespace(std::string_view str)
+    {
+        if (str.empty())
+        {
+            return true;
+        }
+
+        return str.find_last_not_of(s_SpaceChars) == std::string_view::npos;
+    }
+
     bool IsEmptyOrWhitespace(std::wstring_view str)
     {
         if (str.empty())
@@ -360,10 +370,7 @@ namespace AppInstaller::Utility
             return true;
         }
 
-        std::wstring inputAsWStr(str.data());
-        bool nonWhitespaceNotFound = inputAsWStr.find_last_not_of(s_WideSpaceChars) == std::wstring::npos;
-
-        return nonWhitespaceNotFound;
+        return str.find_last_not_of(s_WideSpaceChars) == std::wstring_view::npos;
     }
 
     bool FindAndReplace(std::string& inputStr, std::string_view token, std::string_view value)
