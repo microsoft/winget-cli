@@ -389,7 +389,7 @@ Se pueden configurar con el archivo de configuración "winget settings".</value>
     <value>No hay instaladores aplicables al sistema actual.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Actualmente no hay características experimentales disponibles.</value>
+    <value>Actualmente no hay características experimentales disponibles. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>No se encontró ningún paquete instalado que coincida con los criterios de entrada.</value>
@@ -475,6 +475,9 @@ Se pueden configurar con el archivo de configuración "winget settings".</value>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Canal</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Muestra información sobre un paquete específico. De forma predeterminada, la consulta debe coincidir, sin distinción entre mayúsculas y minúsculas, con el ID, el nombre o el apodo del paquete. Se pueden usar otros campos si se pasa la opción correspondiente.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Muestra información sobre un paquete.</value>
@@ -718,5 +721,39 @@ Se pueden configurar con el archivo de configuración "winget settings".</value>
   <data name="Logs" xml:space="preserve">
     <value>Registros</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>El instalador está bloqueado por directiva</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>El instalador ha producido un error de comprobación de seguridad</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Un producto antivirus informa de una infección en el instalador</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Error al intentar actualizar el origen:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Desinstala el paquete seleccionado, ya sea que se encuentre buscando en la lista de paquetes instalados o directamente desde un manifiesto. De forma predeterminada, la consulta debe coincidir sin distinción entre mayúsculas y minúsculas con el ID, el nombre o el apodo del paquete. Se pueden usar otros campos pasando su opción apropiada.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Desinstala el paquete determinado</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Iniciando la desinstalación del paquete...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Se desinstaló correctamente</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget no se puede encontrar el comando de desinstalación de este paquete. Comunícate con el editor del paquete para obtener asistencia.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Desinstalación abandonada</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Error de desinstalación con el código de salida:</value>
   </data>
 </root>

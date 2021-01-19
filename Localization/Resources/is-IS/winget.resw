@@ -476,6 +476,9 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   <data name="ShowChannel" xml:space="preserve">
     <value>Rás</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Sýnir upplýsingar um tiltekinn pakka. Fyrirspurnin verður sjálfgefið að samsvara auðkenni, heiti eða viðurnefni pakkans. Hægt er að nota aðra reiti með því að senda viðeigandi valkosti þeirra.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Sýnir upplýsingar um pakka</value>
   </data>
@@ -718,5 +721,39 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   <data name="Logs" xml:space="preserve">
     <value>Annálar</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Regla útilokar uppsetningarforritið</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Uppsetningarforritið stóðst ekki öryggisathugun</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Vírusvarnarvara tilkynnir uppsetningarforritinu um sýkingu</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Mistókst að uppfæra upprunann:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Fjarlægir valinn pakka, sem annað hvort fannst með því að leita að uppsettum pakkalistum eða beint úr farmskrá. Fyrirspurnin verður sjálfgefið að samsvara auðkenni, heiti eða viðurnefni pakkans án þess að greina á milli há- og lágstafa. Hægt er að nota aðra reiti með því að senda viðeigandi valkosti.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Fjarlægir pakkann</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Byrjar fjarlægingu á pakka...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Fjarlægt</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget finnur ekki skipun um að fjarlægja þennan pakka. Hafðu samband við útgefanda pakkans til að fá aðstoð.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Hætt við fjarlægingu</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Fjarlæging mistókst með lokunarkóða:</value>
   </data>
 </root>

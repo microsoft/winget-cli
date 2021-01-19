@@ -476,6 +476,9 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>ערוץ</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>הצגת מידע על חבילה ספציפית. כברירת מחדל, השאילתה צריכה להתאים, ללא תלות באותיות רישיות, למזהה, לשם או לכינוי של החבילה. ניתן להשתמש בשדות אחרים על-ידי העברת האפשרות המתאימה להם.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>הצגת מידע אודות חבילה</value>
   </data>
@@ -718,5 +721,39 @@
   <data name="Logs" xml:space="preserve">
     <value>יומנים</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>המתקין חסום על-ידי מדיניות</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>המתקין נכשל בבדיקת אבטחה</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>מוצר למניעת וירוס מדווח על הידבקות במתקין</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>הניסיון לעדכן את המקור נכשל:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>הסרת ההתקנה של החבילה שנבחרה, נמצאה על-ידי חיפוש ברשימת החבילות המותקנות או ישירות ממניפסט. כברירת מחדל, השאילתה חייבת להיות מתאימה לרישיות בהתאם למזהה, לשם או לכינוי של החבילה. ניתן להשתמש בשדות אחרים על-ידי העברת האפשרות המתאימה שלהם.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>מסיר התקנה לחבילה נתונה</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>מתחיל הסרת התקנה של חבילה...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>ההתקנה הוסרה בהצלחה</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget אין אפשרות לאתר את פקודת הסרת ההתקנה עבור חבילה זו. פנה אל מפרסם החבילה לקבלת תמיכה.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>הסרת התקנה ננטשה</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>הסרת ההתקנה נכשלה עם קוד יציאה:</value>
   </data>
 </root>

@@ -476,6 +476,9 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Viser informasjon om en bestemt pakke. Spørringen må som standard skille mellom små og store bokstaver mellom ID, navn eller kalle navn for pakken. Andre felt kan brukes ved å sende riktig alternativ.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Viser informasjon om en pakke</value>
   </data>
@@ -718,5 +721,39 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
   <data name="Logs" xml:space="preserve">
     <value>Logger</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Installasjonsprogrammet er blokkert av policy</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Installasjonsprogrammet passerte ikke sikkerhetskontrollen</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Et antivirus-produkt rapporterer en infeksjon i installasjonsprogrammet</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Feil under forsøk på å oppdatere kilden:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Avinstallerer den valgte pakken, enten funnet ved å søke i listen installerte pakker eller direkte fra et manifest. Spørringen må som standard skille mellom små og store bokstaver mellom ID, navn eller kalle navn for pakken. Andre felt kan brukes ved å sende riktig alternativ.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Avinstallerer angitt pakke</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Starter avinstallasjon av pakke...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Avinstallasjon vellykket</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget ikke finne Avinstaller-kommandoen for denne pakken. Ta kontakt med Package-utgiveren for å få hjelp.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Avinstallasjonen er avbrutt</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Avinstallasjon mislyktes med avslutningskode:</value>
   </data>
 </root>

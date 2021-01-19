@@ -389,7 +389,7 @@
     <value>現在のシステムに適用できるインストーラーはありません。</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>現在、試験的機能はありません。</value>
+    <value>現在、試験的な機能はありません。</value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>入力条件に一致するインストール済みのパッケージが見つかりませんでした。</value>
@@ -475,6 +475,9 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>チャネル</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>特定のパッケージの情報を表示します。既定では、クエリはパッケージの ID、名前、モニカーに大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>パッケージに関する情報の表示</value>
@@ -650,7 +653,7 @@
     <value>認識されないコマンド</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>インストールされているすべてのパッケージを利用可能であれば最新のに更新する</value>
+    <value>インストールされているすべてのパッケージが利用可能であれば最新のものに更新する</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>適用可能な更新は見つかりませんでした。</value>
@@ -718,5 +721,39 @@
   <data name="Logs" xml:space="preserve">
     <value>ログ</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>インストーラーはポリシーによってブロックされています</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>インストーラーのセキュリティチェックに失敗しました</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>ウイルス対策製品がインストーラーに感染を報告します</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>ソースを更新中に失敗しました:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>インストールされているパッケージ リストを検索するか、マニフェストから直接検索して、選択したパッケージをアンインストールします。既定では、クエリはパッケージの ID、名前、モニカーと大文字と小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>指定されたパッケージをアンインストール</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>パッケージのアンインストールを開始しています...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>正常にアンインストールされました</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget は、このパッケージのアンインストールコマンドを見つけることができません。サポートについては、パッケージの発行元に問い合わせてください。</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>アンインストールが中止されました</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>終了コードでアンインストールに失敗しました:</value>
   </data>
 </root>

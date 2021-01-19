@@ -389,7 +389,7 @@ Ze kunnen worden geconfigureerd via het instellingenbestand ' winget settings '.
     <value>Er zijn geen installatieprogramma's van toepassing op het huidige systeem.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Er zijn momenteel geen Exprimental-functies beschikbaar. </value>
+    <value>Er zijn momenteel geen experimentele functies beschikbaar.</value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Er is geen geïnstalleerd pakket gevonden dat overeenkomt met de invoercriteria.</value>
@@ -475,6 +475,9 @@ Ze kunnen worden geconfigureerd via het instellingenbestand ' winget settings '.
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanaal</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Informatie over een specifiek pakket weergeven. Standaard moet de query hoofdlettergevoelig overeenkomen met de id of naam van het pakket. Andere velden kunnen worden gebruikt door de juiste optie door te geven.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Toont informatie over een pakket</value>
@@ -718,5 +721,39 @@ Ze kunnen worden geconfigureerd via het instellingenbestand ' winget settings '.
   <data name="Logs" xml:space="preserve">
     <value>Logboeken</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Het installatieprogramma is geblokkeerd op basis van beleid</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>De beveiligingscontrole van het installatieprogramma is mislukt</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Een antivirusproduct meldt een besmetting in het installatieprogramma</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Er is een fout opgetreden tijdens het bijwerken van de bron:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Installatie van het geselecteerde pakket ongedaan maken door in de lijst met geïnstalleerde pakketten te zoeken of rechtstreeks vanuit een manifest te zoeken. De query moet standaard niet-hoofdlettergevoelig zijn voor de id, naam of moniker van het pakket. Andere velden kunnen worden gebruikt door de juiste optie door te geven.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Installatie van het opgegeven pakket ongedaan maken</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Installatie ongedaan maken van het pakket wordt gestart...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Installatie ongedaan gemaakt</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget kan de uninstall-opdracht voor dit pakket niet vinden. Neem contact op met de uitgever van het pakket voor ondersteuning.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Installatie ongedaan maken is afgebroken</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Installatie ongedaan maken is mislukt met afsluitcode:</value>
   </data>
 </root>
