@@ -142,10 +142,10 @@
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
-    <value>Använd den angivna kanalen. standard är allmän målgrupp</value>
+    <value>Använd den angivna kanalen. Standard är allmän målgrupp</value>
   </data>
   <data name="Command" xml:space="preserve">
-    <value>kommando</value>
+    <value>Kommando</value>
     <comment>A command to give the software</comment>
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
@@ -210,7 +210,7 @@
   </data>
   <data name="FeaturesMessage" xml:space="preserve">
     <value>Följande experimentella funktioner är under utveckling.
-De kan konfigureras via inställnings filen "winget settings".</value>
+De kan konfigureras via inställningsfilen "winget settings".</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesProperty" xml:space="preserve">
@@ -247,10 +247,10 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Detta program är licensierat till dig av ägaren.</value>
   </data>
   <data name="InstallationDisclaimer2" xml:space="preserve">
-    <value>Microsoft är inte ansvariga för och tillhandahåller inte heller några licenser förnågra paket från tredje part.</value>
+    <value>Microsoft är inte ansvariga för och tillhandahåller inte heller några licenser för några paket från tredje part.</value>
   </data>
   <data name="InstallationDisclaimerMSStore" xml:space="preserve">
-    <value>Det här paketet tillhandahålls via Microsoft Store. winget kan behöva hämta paketet från Microsoft Store för den aktuella användarens räkning.</value>
+    <value>Det här paketet tillhandahålls via Microsoft Store. Winget kan behöva hämta paketet från Microsoft Store för den aktuella användarens räkning.</value>
     <comment>{Locked="winget"}</comment>
   </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
@@ -287,7 +287,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Åsidosätt installationsprogrammets hash-kontroll</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
-    <value>Begära interaktiv installation. användarindata kan behövas</value>
+    <value>Begära interaktiv installation. Användarindata kan behövas</value>
   </data>
   <data name="InvalidAliasError" xml:space="preserve">
     <value>Argumentalias kändes inte igen för det aktuella kommandot</value>
@@ -377,7 +377,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Verifierar/begär pakethämtning...</value>
   </data>
   <data name="MultipleInstalledPackagesFound" xml:space="preserve">
-    <value>Flera installerade paket hittade för matchande indatavillkoren. Förfina indata.</value>
+    <value>Flera installerade paket hittades som matchar indatavillkoren. Förfina indata.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Flera paket hittades som matchar indatavillkoren. Förfina dina indata.</value>
@@ -392,7 +392,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Det finns för närvarande inga experimentella funktioner. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
-    <value>Inget installerat paket hittades som matchade ingångskriterier.</value>
+    <value>Inget installerat paket hittades som matchade indatavillkoren.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Inget paket hittades som uppfyller indatavillkoren.</value>
@@ -402,7 +402,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <comment>{Locked="VirtualTerminal"}</comment>
   </data>
   <data name="Options" xml:space="preserve">
-    <value>alternativ</value>
+    <value>Alternativ</value>
     <comment>Options to change how a command works</comment>
   </data>
   <data name="OverrideArgumentDescription" xml:space="preserve">
@@ -413,7 +413,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <comment>A software package</comment>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
-    <value>Hoppsan! vi glömde att göra detta...</value>
+    <value>Hoppsan! Vi glömde att göra detta...</value>
   </data>
   <data name="PositionArgumentDescription" xml:space="preserve">
     <value>Placeringen av markören i kommandoraden</value>
@@ -428,7 +428,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Frågan som används för att söka efter ett paket</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
-    <value>Förlopp visa en regnbåge av färger</value>
+    <value>Förlopp visar en regnbåge av färger</value>
   </data>
   <data name="RequiredArgError" xml:space="preserve">
     <value>Obligatoriska argument saknas</value>
@@ -456,7 +456,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Källa</value>
   </data>
   <data name="SearchTruncated" xml:space="preserve">
-    <value>ytterligare poster trunkerades på grund av resultatgräns</value>
+    <value>Ytterligare poster trunkerades på grund av resultatgräns</value>
   </data>
   <data name="SearchVersion" xml:space="preserve">
     <value>Version</value>
@@ -465,7 +465,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Följande fel hittades vid validering av inställningarna:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Öppna inställningar i JSON-standardtextredigeraren. Om ingen redigerare har konfigurerats öppnas inställningarna i anteckningar. För tillgängliga inställningar se https://aka.ms/winget-settings</value>
+    <value>Öppna inställningar i JSON-standardtextredigeraren. Om ingen redigerare har konfigurerats öppnas inställningarna i anteckningar. För tillgängliga inställningar se: https://aka.ms/winget-settings</value>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
     <value>Öppna inställningar</value>
@@ -555,7 +555,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <comment>The last time the source was updated.</comment>
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
-    <value>aldrig</value>
+    <value>Aldrig</value>
     <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
@@ -589,7 +589,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Återställer alla källor...</value>
   </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
-    <value>Detta kommando bryter befintliga källor och eventuellt lämnar lokala data bakom. Utan argument tas alla källor bort och standardinställningar läggs till. Om en namngiven källa anges kommer bara den källan att tas bort.</value>
+    <value>Detta kommando bryter befintliga källor och eventuellt lämnar lokal data kvar. Utan argument tas alla källor bort och standardinställningar läggs till. Om en namngiven källa anges kommer bara den källan att tas bort.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Återställa källor</value>
@@ -663,14 +663,14 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Uppdaterar det givna paketet</value>
   </data>
   <data name="Usage" xml:space="preserve">
-    <value>användning</value>
+    <value>Användning</value>
     <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Verifierar ett manifest med hjälp av en strikt uppsättning riktlinjer. Det gör att du kan kontrollera manifestet innan du skickar det till en repo.</value>
   </data>
   <data name="ValidateCommandShortDescription" xml:space="preserve">
-    <value>Verifierar en manifest fil</value>
+    <value>Verifierar en manifestfil</value>
   </data>
   <data name="ValidateManifestArgumentDescription" xml:space="preserve">
     <value>Sökvägen till manifestet som ska verifieras</value>
@@ -682,7 +682,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Kontrollera att indatafilen är en giltig, signerad MSIX.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
-    <value>Använd den angivna versionen. standard är den senaste versionen</value>
+    <value>Använd den angivna versionen. Standard är den senaste versionen</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>Visa tillgängliga versioner av paketet</value>
@@ -707,7 +707,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Hittades</value>
   </data>
   <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
-    <value>Sökväg är en katalog:</value>
+    <value>Sökvägen är en katalog:</value>
   </data>
   <data name="VerifyFileFailedNotExist" xml:space="preserve">
     <value>Filen finns inte:</value>
