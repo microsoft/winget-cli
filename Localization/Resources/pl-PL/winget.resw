@@ -389,7 +389,7 @@ Można je skonfigurować za pomocą pliku ustawień "winget settings".</value>
     <value>Żadni instalatorzy nie mają zastosowania w bieżącym systemie.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Obecnie nie są dostępne żadne funkcje ekaperymentalne. </value>
+    <value>Obecnie nie są dostępne żadne funkcje eksperymentalne. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Nie znaleziono żadnego zainstalowanego pakietu pasującego do wprowadzonych kryteriów.</value>
@@ -475,6 +475,9 @@ Można je skonfigurować za pomocą pliku ustawień "winget settings".</value>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanał</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Pokaż informacje o określonym pakiecie. Domyślnie kwerenda musi być zgodna z wielkością liter, nazwą lub monikerem pakietu. Inne pola mogą być używane przez przekazanie odpowiedniej opcji.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Wyświetla informacje o pakiecie</value>
@@ -718,5 +721,39 @@ Można je skonfigurować za pomocą pliku ustawień "winget settings".</value>
   <data name="Logs" xml:space="preserve">
     <value>Dzienniki</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Instalator jest blokowany przez zasady</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Sprawdzanie zabezpieczeń w instalatorze nie powiodło się</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Oprogramowanie antywirusowe zgłasza infekcję w instalatorze</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Próba zaktualizowania źródła nie powiodła się:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Odinstalowuje wybrany pakiet, który został znaleziony przez przeszukiwanie listy zainstalowanych pakietów lub bezpośrednio z manifestu. Domyślnie kwerenda musi być zgodna z wielkością liter, nazwą lub monikerem pakietu. Inne pola mogą być używane przez przekazanie odpowiedniej opcji.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Odinstalowuje dany pakiet</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Rozpoczynanie dezinstalacji pakietu</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Pomyślnie odinstalowano</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget nie może zlokalizować polecenia Uninstall dla tego pakietu. Skontaktuj się z wydawcą pakietu, aby uzyskać pomoc techniczną.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Dezinstalacja została porzucona</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Dezinstalacja nie powiodła się. Kod zakończenia:</value>
   </data>
 </root>

@@ -476,6 +476,9 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>频道</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>显示有关特定程序包的信息。默认情况下，查询必须以不区分大小写的方式匹配程序包的 ID、名称或名字对象。可通过传递相应的选项来使用其他字段。</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>显示有关程序包的信息</value>
   </data>
@@ -718,5 +721,39 @@
   <data name="Logs" xml:space="preserve">
     <value>日志</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>安装程序已被策略阻止</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>安装程序未通过安全性检查</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>防病毒产品报告安装程序受感染</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>尝试更新源时失败：</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>通过搜索已安装的程序包列表或直接从清单中卸载选择的程序包。默认情况下，查询必须 insensitively 匹配程序包的 id、名称或名字对象。可通过传递适当的选项来使用其他字段。</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>卸载给定的程序包</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>正在启动程序包卸载...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>已成功卸载</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget 找不到此程序包的卸载命令。请与程序包发布者联系以获取支持。</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>卸载已放弃</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>卸载失败，退出代码为：</value>
   </data>
 </root>

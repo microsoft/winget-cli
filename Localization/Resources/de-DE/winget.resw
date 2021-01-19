@@ -389,7 +389,7 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
     <value>Für das aktuelle System sind keine Installationsprogramme verfügbar.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Zurzeit sind keine Exprimentalfunktionen verfügbar. </value>
+    <value>Derzeit sind keine experimentellen Funktionen verfügbar. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Es wurde kein installiertes Paket gefunden, das den Eingabekriterien entspricht.</value>
@@ -475,6 +475,9 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Zeigt Informationen zu einem bestimmten Paket an. Standard mäßig muss die Abfrage Groß-insensitively mit der ID, dem Namen oder dem Moniker des Pakets überein stimmen. Andere Felder können verwendet werden, indem Sie Ihre entsprechende Option übergeben.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Zeigt Informationen zu einem Paket an</value>
@@ -650,7 +653,7 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
     <value>Nicht erkannter Befehl</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Alle installierten Pakete in die neuesten Updates aktualisieren, wenn diese verfügbar sind</value>
+    <value>Aktualisieren aller installierten Pakete auf den neuesten Stand, falls verfügbar</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Es wurden keine anwendbaren Aktualisierungen gefunden.</value>
@@ -718,5 +721,39 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   <data name="Logs" xml:space="preserve">
     <value>Protokolle</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Der Installer wird von einer Richtlinie blockiert.</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Fehler bei der Sicherheitsprüfung des Installer</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Ein Antivirenprodukt meldet ein Infektion im Installer</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Fehler beim Versuch, die Quelle zu aktualisieren:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Deinstalliert das ausgewählte Paket, das entweder durch Suchen der Liste der installierten Pakete oder direkt aus einem Manifest gefunden wurde. Standard mäßig muss die Abfrage Groß-insensitively mit der ID, dem Namen oder dem Moniker des Pakets überein stimmen. Andere Felder können verwendet werden, indem Sie Ihre entsprechende Option übergeben.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Deinstalliert das angegebene Paket</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Paket-Deinstallation wird gestartet...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Erfolgreich deinstalliert</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>Das „winget“-Tool kann den Deinstallationsbefehl für dieses Paket nicht finden. Bitte wenden Sie sich an den Herausgeber des Pakets, um Unterstützung zu erhalten.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Deinstallation abgebrochen</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Deinstallation fehlgeschlagen mit Exitcode:</value>
   </data>
 </root>

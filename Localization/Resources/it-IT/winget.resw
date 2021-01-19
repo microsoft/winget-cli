@@ -389,7 +389,7 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Nessun programmi di installazione è applicabile al sistema corrente.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Al momento non sono disponibili funzionalità sperimentali. </value>
+    <value>Al momento non sono disponibili funzionalità sperimentali.</value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Non è stato trovato alcun pacchetto installato corrispondente ai criteri di input.</value>
@@ -475,6 +475,9 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Canale</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Visualizza informazioni su un pacchetto specifico. Per impostazione predefinita, la query deve essere insensitively con l'ID, il nome o il moniker del pacchetto. Altri campi possono essere utilizzati passando l'opzione appropriata.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Mostra le informazioni relative a un pacchetto</value>
@@ -718,5 +721,39 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="Logs" xml:space="preserve">
     <value>Log</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Programma di installazione bloccato dai criteri</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Non è stato possibile eseguire il controllo di sicurezza per il programma di installazione</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Un antivirus ha rilevato una infezione nel programma di installazione</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Errore durante il tentativo di aggiornare l'origine:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Disinstalla il pacchetto selezionato, trovato mediante la ricerca dell'elenco dei pacchetti installati o direttamente da un manifesto. Per impostazione predefinita, la query deve essere insensitively con l'ID, il nome o il moniker del pacchetto. Altri campi possono essere utilizzati passando l'opzione appropriata.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Disinstalla il pacchetto specificato</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Avvio disinstallazione pacchetto in corso...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Installazione completata</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget non riesce a individuare il comando di disinstallazione per questo pacchetto. Contattare l'autore del pacchetto per chiedere supporto.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Disinstallazione interrotta</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Disinstallazione non riuscita con codice di uscita:</value>
   </data>
 </root>

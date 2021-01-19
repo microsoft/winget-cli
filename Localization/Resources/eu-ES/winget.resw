@@ -389,7 +389,7 @@
     <value>Uneko sisteman aplika daitekeen instalatzailerik ez dago.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Une honetan ez dago erabilgarri eginbide esperimentalik.</value>
+    <value>Une honetan ez dago erabilgarri eginbide esperimentalik. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Ez da aurkitu sartutako irizpideekin bat datorren paketerik instalatuta.</value>
@@ -475,6 +475,9 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanala</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Pakete espezifiko bati buruzko informazioa erakusten du. Lehenespenez, kontsultak bat etorri behar du paketearen IDarekin, izenarekin edo monikerrarekin (ez dira bereizten maiuskulak eta minuskulak). Beste eremu batzuk erabil daitezke dagokien aukera pasatuta.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Pakete bati buruzko informazioa erakusten du</value>
@@ -718,5 +721,39 @@
   <data name="Logs" xml:space="preserve">
     <value>Erregistroak</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Gidalerroek instalatzailea blokeatu dute</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Instalatzaileak huts egin du segurtasun-kontrolean</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Birusen kontrako produktu batek instalatzailearen infekzio baten berri ematen du</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Iturburua eguneratzeko saiakeran huts egin du:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Hautatutako paketea desinstalatzen du, dela instalatutako paketeen zerrenda bilatzean aurkitutakoa, dela zuzenean manifestuan aurkitutakoa. Modu lehenetsian, kontsultako maiuskulak eta minuskulak bat etorri behar dira paketearen ID, izen edo monikerreko maiuskulekin eta minuskulekin. Beste eremuak dagokion aukera pasatuta erabil daitezke.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Emandako paketea desinstalatzen du</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Desinstalazio paketea abiarazten...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Desinstalatu da</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>wingetek ezin du aurkitu pakete hau desinstalatzeko komandoa. Mesedez, jarri harremanetan paketearen editorearekin laguntza lortzeko.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Desinstalazioa bertan behera utzi da</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Desinstalazioak huts egin du irteera-kode honekin:</value>
   </data>
 </root>

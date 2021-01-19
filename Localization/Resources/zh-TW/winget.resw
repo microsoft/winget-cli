@@ -476,6 +476,9 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>頻道</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>顯示特定封裝的資訊。根據預設，查詢必須 insensitively 符合封裝的識別碼、名稱或名字物件。您可以透過傳遞適當的選項來使用其他欄位。</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>顯示與套件的相關資訊</value>
   </data>
@@ -718,5 +721,39 @@
   <data name="Logs" xml:space="preserve">
     <value>記錄檔</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>安裝程式受到政策封鎖</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>安裝程式的安全性檢查失敗</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>防毒程式產品報告安裝程式中有感染</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>嘗試更新資料來源失敗:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>可透過搜尋已安裝的套件或直接從資訊清單中，解除安裝已選取的套件。根據預設，查詢必須不區分大小寫地符合該套件的識別碼、名稱或連結路徑。您可以透過傳遞適當的選項，來使用其他欄位。</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>解除安裝指定的套件</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>正在啟動套件解除安裝...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>已成功解除安裝</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget 找不到此套件的解除安裝命令。請向套件發行者尋求支援。</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>已放棄解除安裝</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>解除安裝失敗，結束代碼:</value>
   </data>
 </root>

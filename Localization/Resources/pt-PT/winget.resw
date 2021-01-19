@@ -389,7 +389,7 @@ Podem ser configurados através do ficheiro de definições ' winget settings '.
     <value>Não existem instaladores aplicáveis ao sistema atual.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Não existem actualmente características exprimentares disponíveis. </value>
+    <value>Atualmente, não existem funcionalidades experimentais disponíveis. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Não foi encontrado nenhum pacote instalado que corresponda aos critérios de entrada.</value>
@@ -475,6 +475,9 @@ Podem ser configurados através do ficheiro de definições ' winget settings '.
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Canal</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Mostra informação sobre um pacote específico. Por predefinição, a consulta tem de corresponder, sem distinção de maiúsculas e minúsculas, ao id, nome, ou caminho de ligação do pacote. Outros campos podem ser utilizados, passando a sua opção apropriada.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Mostra informações acerca de um pacote</value>
@@ -718,5 +721,39 @@ Podem ser configurados através do ficheiro de definições ' winget settings '.
   <data name="Logs" xml:space="preserve">
     <value>Registos</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>O instalador está bloqueado por uma política</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>A verificação de segurança do instalador falhou</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Um produto antivírus relata um infeção no instalador</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Ocorreu uma falha ao tentar atualizar a origem:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Desinstala o pacote selecionado, quer seja encontrado através de pesquisa na lista de pacotes instalados ou diretamente a partir de um manifesto. Por defeito, a consulta tem de corresponder, sem distinção de maiúsculas e minúsculas, ao ID, nome, ou caminho da ligação do pacote. Outros campos podem ser utilizados, passando a opção apropriada.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Desinstala o pacote fornecido</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>A iniciar a desinstalação do pacote…</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Desinstalado com êxito</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>Não winget possível localizar o comando desinstalar para este pacote. Contacte o fabricante do pacote para obter suporte.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Desinstalação abandonada</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Ocorreu uma falha na desinstalação com o código de saída:</value>
   </data>
 </root>

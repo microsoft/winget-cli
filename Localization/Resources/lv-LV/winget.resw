@@ -476,6 +476,9 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanāls</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Parāda informāciju noteiktā pakotnē. Pēc noklusējuma vaicājumā ir jābūt insensitively, kas atbilst pakotnes ID, nosaukumam vai Pavārds neaptver. Citus laukus var izmantot, nodot to atbilstošu opciju.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Rāda informāciju par pakotni</value>
   </data>
@@ -718,5 +721,39 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   <data name="Logs" xml:space="preserve">
     <value>Žurnāli</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Politika ir bloķējusi instalētāju</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Instalētāja drošības pārbaude neizdevās</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Pretvīrusu produkts ziņo par infekciju instalētājā</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Neizdevās mēģinājums atjaunināt avotu:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Atinstalē atlasīto pakotni, konstatējām, meklējot instalētos pakotņu sarakstu vai tieši no manifesta. Pēc noklusējuma vaicājumā ir jābūt insensitively, kas atbilst pakotnes ID, nosaukumam vai Pavārds neaptver. Citus laukus var izmantot, nodot to atbilstošu opciju.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Atinstalē norādīto pakotni</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Sāk pakotnes atinstalēšanu...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Sekmīgi atinstalēts</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget nevar atrast šīs pakotnes atinstalēšanas komandu. Lūdzu, sazinieties ar pakotnes izdevēju, lai saņemtu atbalstu.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Atinstalēšana pārtraukta</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Atinstalēšana neizdevās ar izejas kodu:</value>
   </data>
 </root>

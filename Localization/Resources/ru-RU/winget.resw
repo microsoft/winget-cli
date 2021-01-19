@@ -476,6 +476,9 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>Канал</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Отображает сведения о конкретном пакете. По умолчанию запрос должен сравнить идентификатор, имя или моникер пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Отображение сведений о пакете</value>
   </data>
@@ -718,5 +721,39 @@
   <data name="Logs" xml:space="preserve">
     <value>Журналы</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Установщик заблокирован политикой</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Установщик не прошел проверку безопасности</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Антивирусная программа сообщает о заражении в установщике</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Не удалось обновить источник:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Удаление выбранного пакета, обнаруженного путем поиска в списке установленных пакетов либо непосредственно из манифеста. По умолчанию запрос должен соответствовать идентификатору, имени или моникеру пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Удаление указанного пакета</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Запуск удаления пакета...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Удалено</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget не может найти команду удаления для пакета. Обратитесь за помощью к издателю пакетов.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Удаление прекращено</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Сбой удаления с кодом выхода:</value>
   </data>
 </root>

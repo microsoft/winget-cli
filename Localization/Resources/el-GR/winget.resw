@@ -476,6 +476,9 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>Κανάλι</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Εμφανίζει πληροφορίες για ένα συγκεκριμένο πακέτο. Από προεπιλογή, το ερώτημα πρέπει να insensitively να συμφωνεί με το Αναγνωριστικό, το όνομα ή το αναγνωριστικό του πακέτου. Τα άλλα πεδία μπορούν να χρησιμοποιηθούν μέσω της κατάλληλης επιλογής τους.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Εμφανίζει πληροφορίες σχετικά με ένα πακέτο</value>
   </data>
@@ -650,7 +653,7 @@
     <value>Η εντολή δεν αναγνωρίστηκε</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Ενημέρωση όλων των εγκατεστημένων πακέτων στην πιο πρόσφατη έκδοση, εάν απαιτείται</value>
+    <value>Ενημέρωση όλων των εγκατεστημένων πακέτων στην πιο πρόσφατη έκδοση, εάν είναι διαθέσιμη</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Δεν βρέθηκαν ισχύουσες ενημερώσεις.</value>
@@ -718,5 +721,39 @@
   <data name="Logs" xml:space="preserve">
     <value>Αρχεία καταγραφής</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Το πρόγραμμα εγκατάστασης αποκλείστηκε από την πολιτική</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Το πρόγραμμα εγκατάστασης δεν πραγματοποίησε έλεγχο ασφαλείας</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Προϊόν προστασίας από ιούς αναφέρει προσβολή από ιό στο πρόγραμμα εγκατάστασης</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Η απόπειρα ενημέρωσης της προέλευσης απέτυχε:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Καταργεί την εγκατάσταση το επιλεγμένο πακέτο, που εντοπίζεται με αναζήτηση στη λίστα εγκατεστημένων πακέτων ή απευθείας από μια διακήρυξη. Από προεπιλογή, το ερώτημα πρέπει να insensitively να συμφωνεί με το Αναγνωριστικό, το όνομα ή το αναγνωριστικό του πακέτου. Τα άλλα πεδία μπορούν να χρησιμοποιηθούν μέσω της κατάλληλης επιλογής τους.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Κατάργηση εγκατάστασης του συγκεκριμένου πακέτου</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Έναρξη κατάργησης εγκατάστασης πακέτου...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Η εγκατάσταση καταργήθηκε επιτυχώς</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget δεν είναι δυνατό να εντοπίσει την εντολή κατάργησης εγκατάστασης για αυτό το πακέτο. Επικοινωνήστε με τον εκδότη του πακέτου για υποστήριξη.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Η κατάργηση εγκατάστασης ματαιώθηκε</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Η κατάργηση εγκατάστασης με κωδικό εξόδου απέτυχε:</value>
   </data>
 </root>
