@@ -51,6 +51,14 @@ namespace AppInstaller::CLI
             return Argument{ "override", NoAlias, Args::Type::Override, Resource::String::OverrideArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::InstallLocation:
             return Argument{ "location", 'l', Args::Type::InstallLocation, Resource::String::LocationArgumentDescription, ArgumentType::Standard };
+        case Args::Type::HashFile:
+            return Argument{ "file", 'f', Args::Type::HashFile, Resource::String::FileArgumentDescription, ArgumentType::Positional, true };
+        case Args::Type::Msix:
+            return Argument{ "msix", 'm', Args::Type::Msix, Resource::String::MsixArgumentDescription, ArgumentType::Flag };
+        case Args::Type::ListVersions:
+            return Argument{ "versions", NoAlias, Args::Type::ListVersions, Resource::String::VersionsArgumentDescription, ArgumentType::Flag };
+        case Args::Type::Help:
+            return Argument{ "help", APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_CHAR, Args::Type::Help, Resource::String::HelpArgumentDescription, ArgumentType::Flag };
         case Args::Type::SourceName:
             return Argument{ "name", 'n', Args::Type::SourceName,Resource::String::SourceNameArgumentDescription, ArgumentType::Positional, false };
         case Args::Type::SourceArg:
@@ -59,20 +67,6 @@ namespace AppInstaller::CLI
             return Argument{ "type", 't', Args::Type::SourceType, Resource::String::SourceTypeArgumentDescription, ArgumentType::Positional };
         case Args::Type::ValidateManifest:
             return Argument{ "manifest", NoAlias, Args::Type::ValidateManifest, Resource::String::ValidateManifestArgumentDescription, ArgumentType::Positional, true };
-        case Args::Type::HashFile:
-            return Argument{ "file", 'f', Args::Type::HashFile, Resource::String::FileArgumentDescription, ArgumentType::Positional, true };
-        case Args::Type::Msix:
-            return Argument{ "msix", 'm', Args::Type::Msix, Resource::String::MsixArgumentDescription, ArgumentType::Flag };
-        case Args::Type::OutputFile:
-            return Argument{ "output", 'o', Args::Type::OutputFile, Resource::String::OutputFileArgumentDescription, ArgumentType::Positional, true };
-        case Args::Type::ImportFile:
-            return Argument{ "input", 'i', Args::Type::ImportFile, Resource::String::ImportFileArgumentDescription, ArgumentType::Positional, true };
-        case Args::Type::ExactVersions:
-            return Argument{ "exactVersions", NoAlias, Args::Type::ExactVersions, Resource::String::ExactVersionsArgumentDescription, ArgumentType::Flag };
-        case Args::Type::ListVersions:
-            return Argument{ "versions", NoAlias, Args::Type::ListVersions, Resource::String::VersionsArgumentDescription, ArgumentType::Flag };
-        case Args::Type::Help:
-            return Argument{ "help", APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_CHAR, Args::Type::Help, Resource::String::HelpArgumentDescription, ArgumentType::Flag };
         case Args::Type::NoVT:
             return Argument{ "no-vt", NoAlias, Args::Type::NoVT, Resource::String::NoVTArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
         case Args::Type::RainbowStyle:

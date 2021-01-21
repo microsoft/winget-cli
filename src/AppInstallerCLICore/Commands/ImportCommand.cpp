@@ -15,8 +15,8 @@ namespace AppInstaller::CLI
     std::vector<Argument> ImportCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Execution::Args::Type::ImportFile),
-            Argument::ForType(Execution::Args::Type::Exact),
+            Argument{ "importFile", 'i', Execution::Args::Type::ImportFile, Resource::String::ImportFileArgumentDescription, ArgumentType::Positional, true },
+            Argument{ "exactVersions", Argument::NoAlias, Execution::Args::Type::ExactVersions, Resource::String::ExactVersionsArgumentDescription, ArgumentType::Flag },
         };
     }
 

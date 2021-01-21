@@ -777,4 +777,7 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="ExactVersionsArgumentDescription" xml:space="preserve">
     <value>TODO</value>
   </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Export packages from the specified source</value>
+  </data>
 </root>

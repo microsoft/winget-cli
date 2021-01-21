@@ -14,8 +14,8 @@ namespace AppInstaller::CLI
     std::vector<Argument> ExportCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Execution::Args::Type::OutputFile),
-            Argument::ForType(Execution::Args::Type::Source),
+            Argument{ "output", 'o', Execution::Args::Type::OutputFile, Resource::String::OutputFileArgumentDescription, ArgumentType::Positional, true },
+            Argument{ "source", 's', Execution::Args::Type::Source, Resource::String::ExportSourceArgumentDescription, ArgumentType::Standard },
         };
     }
 
