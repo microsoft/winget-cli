@@ -36,18 +36,10 @@ namespace AppInstaller::CLI
         return "https://aka.ms/winget-command-import";
     }
 
-    void ImportCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
-    {
-        if (!std::filesystem::exists(execArgs.GetArg(Execution::Args::Type::ImportFile)))
-        {
-            // TODO
-            throw CommandException(Resource::String::VerifyFileFailedNotExist, execArgs.GetArg(Execution::Args::Type::ImportFile));
-        }
-    }
-
     void ImportCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
+            Workflow::VerifyFile(Execution::Args::Type::ImportFile) <<
             Workflow::ReadImportFile <<
             Workflow::SearchPackagesForImport <<
             Workflow::InstallMultiple;

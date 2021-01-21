@@ -18,7 +18,6 @@ namespace AppInstaller::CLI
         std::string HelpLink() const override;
 
     protected:
-        void ValidateArgumentsInternal(Execution::Args& execArgs) const override;
         void ExecuteInternal(Execution::Context& context) const override;
     };
 }
