@@ -25,9 +25,16 @@ namespace AppInstaller::Utility
         NormalizedName() = default;
 
         const std::string& Name() const { return m_name; }
+        void Name(std::string&& name) { m_name = std::move(name); }
+
         Utility::Architecture Architecture() const { return m_arch; }
+        void Architecture(Utility::Architecture arch) { m_arch = arch; }
+
         const std::string& Locale() const { return m_locale; }
+        void Locale(std::string&& locale) { m_locale = std::move(locale); }
+
         const std::string& Publisher() const { return m_publisher; }
+        void Publisher(std::string&& publisher) { m_publisher = std::move(publisher); }
 
     private:
         std::string m_name;
@@ -38,7 +45,7 @@ namespace AppInstaller::Utility
 
     namespace details
     {
-        // p-impl for NameNormalizer
+        // NameNormalizer interface to allow different versions.
         struct INameNormalizer
         {
             virtual ~INameNormalizer() = default;

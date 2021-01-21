@@ -27,7 +27,7 @@ namespace AppInstaller::Utility
         // arbitrary new processor architecture from names would hopefully only affect existing packages
         // that were not matching properly. Fixing a bug that was causing bad strings to be produced would
         // be impactful, and thus should likely result in a new iteration.
-        struct NormalizationInitial
+        struct NormalizationInitial : public details::INameNormalizer
         {
         private:
             static std::string PrepareForValidation(std::string_view value)
@@ -363,7 +363,7 @@ namespace AppInstaller::Utility
         public:
             NormalizationInitial() = default;
 
-            NameNormalizationResult NormalizeName(std::string_view name)
+            NameNormalizationResult NormalizeName(std::string_view name) const
             {
                 NameNormalizationResult result;
                 result.Name = PrepareForValidation(name);
@@ -391,7 +391,7 @@ namespace AppInstaller::Utility
                 return result;
             }
 
-            PublisherNormalizationResult NormalizePublisher(std::string_view publisher)
+            PublisherNormalizationResult NormalizePublisher(std::string_view publisher) const
             {
                 PublisherNormalizationResult result;
 
@@ -404,31 +404,37 @@ namespace AppInstaller::Utility
 
                 return result;
             }
+
+            NormalizedName Normalize(std::string_view name, std::string_view publisher) const override
+            {
+                NameNormalizationResult nameResult = NormalizeName(name);
+                PublisherNormalizationResult pubResult = NormalizePublisher(publisher);
+
+                NormalizedName result;
+                result.Name(std::move(nameResult.Name));
+                result.Architecture(nameResult.Architecture);
+                result.Locale(std::move(nameResult.Locale));
+                result.Publisher(std::move(pubResult.Publisher));
+
+                return result;
+            }
         };
     }
 
-    NormalizedName NormalizedName::Create(std::string_view name, std::string_view publisher, NormalizationVersion version)
+    NameNormalizer::NameNormalizer(NormalizationVersion version)
     {
-        NameNormalizationResult nameResult;
-        PublisherNormalizationResult publisherResult;
-
         switch (version)
         {
         case AppInstaller::Utility::NormalizationVersion::Initial:
-        {
-            NormalizationInitial norm;
-            nameResult = norm.NormalizeName(name);
-            publisherResult = norm.NormalizePublisher(publisher);
-        }
+            m_normalizer = std::make_unique<NormalizationInitial>();
             break;
+        default:
+            THROW_HR(E_INVALIDARG);
         }
+    }
 
-        NormalizedName result;
-        result.m_name = std::move(nameResult.Name);
-        result.m_arch = nameResult.Architecture;
-        result.m_locale = std::move(nameResult.Locale);
-        result.m_publisher = std::move(publisherResult.Publisher);
-
-        return result;
+    NormalizedName NameNormalizer::Normalize(std::string_view name, std::string_view publisher) const
+    {
+        return m_normalizer->Normalize(name, publisher);
     }
 }
