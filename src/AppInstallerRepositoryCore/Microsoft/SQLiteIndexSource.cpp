@@ -293,8 +293,9 @@ namespace AppInstaller::Repository::Microsoft
     }
 
     SQLiteIndexSource::SQLiteIndexSource(const SourceDetails& details, std::string identifier, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
-        m_details(details), m_identifier(std::move(identifier)), m_lock(std::move(lock)), m_isInstalled(isInstalledSource), m_index(std::move(index))
+        m_details(details), m_lock(std::move(lock)), m_isInstalled(isInstalledSource), m_index(std::move(index))
     {
+        m_details.Identifier = std::move(identifier);
     }
 
     const SourceDetails& SQLiteIndexSource::GetDetails() const
@@ -304,7 +305,7 @@ namespace AppInstaller::Repository::Microsoft
 
     const std::string& SQLiteIndexSource::GetIdentifier() const
     {
-        return m_identifier;
+        return m_details.Identifier;
     }
 
     SearchResult SQLiteIndexSource::Search(const SearchRequest& request) const

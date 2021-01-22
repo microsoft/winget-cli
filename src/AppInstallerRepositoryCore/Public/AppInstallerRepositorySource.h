@@ -47,6 +47,9 @@ namespace AppInstaller::Repository
         // The source's extra data string.
         std::string Data;
 
+        // The source's unique identifier.
+        std::string Identifier;
+
         // The last time that this source was updated.
         std::chrono::system_clock::time_point LastUpdateTime = {};
 

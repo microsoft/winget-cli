@@ -196,7 +196,6 @@ namespace AppInstaller::CLI::Execution
             using value_t = CLI::PackageCollection;
         };
 
-
         template <>
         struct DataMapping<Data::PackagesToInstall>
         {

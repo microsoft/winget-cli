@@ -127,12 +127,10 @@ namespace AppInstaller::CLI::Workflow
             if (!requiredSource.Details.Name.empty())
             {
                 // For packages that come from a specific source, find the matching available source.
-                // Match required sources with the available sources by their arguments, as they may have been added with a different name.
-                // TODO: Can we do this with identifiers without opening the source?
                 std::optional<SourceDetails> matchingSource = {};
                 for (auto& availableSource : availableSources)
                 {
-                    if (availableSource.Arg == requiredSource.Details.Arg)
+                    if (availableSource.Identifier == requiredSource.Details.Identifier)
                     {
                         matchingSource = availableSource;
                         break;

@@ -57,7 +57,6 @@ namespace AppInstaller::Repository
         std::shared_ptr<ISource> m_installedSource;
         std::vector<std::shared_ptr<ISource>> m_availableSources;
         SourceDetails m_details;
-        std::string m_identifier;
     };
 }
 
