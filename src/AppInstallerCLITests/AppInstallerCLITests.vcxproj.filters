@@ -113,6 +113,9 @@
     <ClCompile Include="NameNormalization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Regex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

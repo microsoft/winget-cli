@@ -38,7 +38,7 @@ namespace AppInstaller::Utility
 
     private:
         std::string m_name;
-        Utility::Architecture m_arch;
+        Utility::Architecture m_arch = Utility::Architecture::Unknown;
         std::string m_locale;
         std::string m_publisher;
     };

@@ -3,22 +3,23 @@
 #include "pch.h"
 #include "Public/winget/NameNormalization.h"
 #include "Public/AppInstallerStrings.h"
+#include "Public/winget/Regex.h"
 
 
 namespace AppInstaller::Utility
 {
     namespace
     {
-        struct NameNormalizationResult
+        struct InterimNameNormalizationResult
         {
-            std::string Name;
+            std::wstring Name;
             Architecture Architecture;
-            std::string Locale;
+            std::wstring Locale;
         };
 
-        struct PublisherNormalizationResult
+        struct InterimPublisherNormalizationResult
         {
-            std::string Publisher;
+            std::wstring Publisher;
         };
 
         // To maintain consistency, changes that result in different output must be done in a new version.
@@ -30,16 +31,16 @@ namespace AppInstaller::Utility
         struct NormalizationInitial : public details::INameNormalizer
         {
         private:
-            static std::string PrepareForValidation(std::string_view value)
+            static std::wstring PrepareForValidation(std::string_view value)
             {
                 std::string result = FoldCase(value);
                 Trim(result);
-                return result.substr(0, result.find("@@", 3));
+                return ConvertToUTF16(result.substr(0, result.find("@@", 3)));
             }
 
             // If the string is wrapped with some character groups, remove them.
             // Returns true if string was wrapped; false if not.
-            static bool Unwrap(std::string& value)
+            static bool Unwrap(std::wstring& value)
             {
                 if (value.length() >= 2)
                 {
@@ -47,12 +48,12 @@ namespace AppInstaller::Utility
 
                     switch (value[0])
                     {
-                    case '"':
-                        unwrap = value.back() == '"';
+                    case L'"':
+                        unwrap = value.back() == L'"';
                         break;
 
-                    case '(':
-                        unwrap = value.back() == ')';
+                    case L'(':
+                        unwrap = value.back() == L')';
                         break;
                     }
 
@@ -66,23 +67,17 @@ namespace AppInstaller::Utility
                 return false;
             }
 
-            // Returns true if the entire string is a match for the regex.
-            static bool IsMatch(const std::regex& re, std::string_view value)
-            {
-                return std::regex_match(value.begin(), value.end(), re);
-            }
-
             // Removes all matches from the input string.
-            static bool Remove(const std::regex& re, std::string& input)
+            static bool Remove(const Regex::Expression& re, std::wstring& input)
             {
-                std::string output = std::regex_replace(input, re, std::string{});
+                std::wstring output = re.Replace(input, {});
                 bool result = (output != input);
                 input = std::move(output);
                 return result;
             }
 
             // Removes the architecture and returns the value, if any
-            Architecture RemoveArchitecture(std::string& value) const
+            Architecture RemoveArchitecture(std::wstring& value) const
             {
                 Architecture result = Architecture::Unknown;
 
@@ -99,7 +94,7 @@ namespace AppInstaller::Utility
             }
 
             // Removes all matches for the given regular expressions
-            static bool RemoveAll(const std::vector<std::regex*>& regexes, std::string& value)
+            static bool RemoveAll(const std::vector<Regex::Expression*>& regexes, std::wstring& value)
             {
                 bool result = false;
 
@@ -113,71 +108,62 @@ namespace AppInstaller::Utility
             }
 
             // Removes all locales and returns the common value, if any
-            std::string RemoveLocale(std::string& value) const
+            std::wstring RemoveLocale(std::wstring& value) const
             {
                 bool localeFound = false;
-                std::string result;
+                std::wstring result;
 
-                std::string newValue;
+                std::wstring newValue;
                 auto newValueInserter = std::back_inserter(newValue);
-                auto startItr = value.cbegin();
 
-                std::sregex_iterator begin{ value.begin(), value.end(), Locale };
-                std::sregex_iterator end;
-
-                for (auto i = begin; i != end; ++i)
-                {
-                    const std::smatch& match = *i;
-
-                    // Copy range before match to newValue
-                    std::copy(startItr, match[0].first, newValueInserter);
-                    startItr = match[0].first;
-
-                    std::string matchStr = match.str();
-
-                    // Ensure that the value is in the locale list
-                    auto bound = std::lower_bound(Locales.begin(), Locales.end(), matchStr);
-
-                    if (bound == Locales.end() || *bound != matchStr)
+                Locale.ForEach(value,
+                    [&](bool isMatch, std::wstring_view text)
                     {
-                        // Match was not a locale in our list, so copy it out
-                        std::copy(startItr, match[0].second, newValueInserter);
-                        startItr = match[0].second;
-                        continue;
-                    }
-                    else
-                    {
-                        // Move for next copy operation
-                        startItr = match[0].second;
-                    }
+                        bool copy = !isMatch;
 
-                    if (!localeFound)
-                    {
-                        // First/only match, just extract the value
-                        result = std::move(matchStr);
-                        localeFound = true;
-                    }
-                    else if (!result.empty())
-                    {
-                        // For some reason, there are multiple locales listed.
-                        // See if they have anything in common.
-                        if (result != matchStr)
+                        if (isMatch)
                         {
-                            // Not completely the same (expected), see if they are at least the same language
-                            result.erase(result.find('-'));
-                            matchStr.erase(matchStr.find('-'));
+                            // Ensure that the value is in the locale list
+                            auto bound = std::lower_bound(Locales.begin(), Locales.end(), text);
 
-                            if (result != matchStr)
+                            if (bound == Locales.end() || *bound != text)
                             {
-                                // Not the same language, abandon having a locale and just clean them
-                                result.clear();
+                                // Match was not a locale in our list, so copy it out
+                                copy = true;
+                            }
+                            else if (!localeFound)
+                            {
+                                // First/only match, just extract the value
+                                result = text;
+                                localeFound = true;
+                            }
+                            else if (!result.empty())
+                            {
+                                // For some reason, there are multiple locales listed.
+                                // See if they have anything in common.
+                                if (result != text)
+                                {
+                                    // Not completely the same (expected), see if they are at least the same language
+                                    result.erase(result.find(L'-'));
+                                    std::wstring textString{ text };
+                                    textString.erase(textString.find(L'-'));
+
+                                    if (result != textString)
+                                    {
+                                        // Not the same language, abandon having a locale and just clean them
+                                        result.clear();
+                                    }
+                                }
                             }
                         }
-                    }
-                }
 
-                // Copy the last bit of the old string over
-                std::copy(startItr, value.cend(), newValueInserter);
+                        if (copy)
+                        {
+                            std::copy(text.begin(), text.end(), newValueInserter);
+                        }
+
+                        return true;
+                    });
 
                 value = std::move(newValue);
 
@@ -186,65 +172,36 @@ namespace AppInstaller::Utility
 
             // Splits the string based on the regex matches, excluding empty/whitespace strings
             // and any values found in the exclusions.
-            static std::vector<std::string> Split(const std::regex& re, const std::string& value, const std::vector<std::string_view>& exclusions, bool stopOnExclusion = false)
+            static std::vector<std::wstring> Split(const Regex::Expression& re, const std::wstring& value, const std::vector<std::wstring_view>& exclusions, bool stopOnExclusion = false)
             {
-                std::vector<std::string> result;
+                std::vector<std::wstring> result;
 
-                auto startItr = value.cbegin();
-
-                std::sregex_iterator begin{ value.begin(), value.end(), re };
-                std::sregex_iterator end;
-
-                bool stopEarly = false;
-
-                auto MoveIfAllowed = [&](std::string&& input)
-                {
-                    if (IsEmptyOrWhitespace(input))
+                re.ForEach(value,
+                    [&](bool, std::wstring_view text)
                     {
-                        return;
-                    }
+                        if (IsEmptyOrWhitespace(text))
+                        {
+                            return true;
+                        }
 
-                    auto bound = std::lower_bound(exclusions.begin(), exclusions.end(), input);
+                        auto bound = std::lower_bound(exclusions.begin(), exclusions.end(), text);
 
-                    if (bound != exclusions.end() && *bound == input)
-                    {
-                        stopEarly = stopOnExclusion;
-                        return;
-                    }
+                        if (bound != exclusions.end() && *bound == text)
+                        {
+                            return !stopOnExclusion;
+                        }
 
-                    result.emplace_back(std::move(input));
-                };
-
-                for (auto i = begin; i != end; ++i)
-                {
-                    const std::smatch& match = *i;
-
-                    // Deal with range before match
-                    MoveIfAllowed(std::string{ startItr, match[0].first });
-
-                    if (stopEarly)
-                    {
-                        break;
-                    }
-
-                    // Deal with match
-                    MoveIfAllowed(match.str());
-
-                    if (stopEarly)
-                    {
-                        break;
-                    }
-
-                    startItr = match[0].second;
-                }
+                        result.emplace_back(std::wstring{ text });
+                        return true;
+                    });
 
                 return result;
             }
 
             // Joins all of the given strings into a single value
-            static std::string Join(const std::vector<std::string>& values)
+            static std::wstring Join(const std::vector<std::wstring>& values)
             {
-                std::string result;
+                std::wstring result;
 
                 for (const auto& v : values)
                 {
@@ -254,43 +211,43 @@ namespace AppInstaller::Utility
                 return result;
             }
 
-            static constexpr std::regex::flag_type reOptions = std::regex::flag_type::icase | std::regex::flag_type::optimize;
+            static constexpr Regex::Options reOptions = Regex::Options::CaseInsensitive;
 
             // Archictecture
-            std::regex ArchitectureX32{ R"((X32|X86)(?=\P{Nd}|$)(?:\sEDITION)?)", reOptions };
-            std::regex ArchitectureX64{ R"((X64|X86([\p{Pd}\p{Pc}]64))(?=\P{Nd}|$)(?:\sEDITION)?)", reOptions };
-            std::regex Architecture32Bit{ R"((?<=^|\P{Nd})(32[\p{Pd}\p{Pc}\p{Z}]?BIT)S?(?:\sEDITION)?)", reOptions };
-            std::regex Architecture64Bit{ R"((?<=^|\P{Nd})(64[\p{Pd}\p{Pc}\p{Z}]?BIT)S?(?:\sEDITION)?)", reOptions };
+            Regex::Expression ArchitectureX32{ R"((X32|X86)(?=\P{Nd}|$)(?:\sEDITION)?)", reOptions };
+            Regex::Expression ArchitectureX64{ R"((X64|X86([\p{Pd}\p{Pc}]64))(?=\P{Nd}|$)(?:\sEDITION)?)", reOptions };
+            Regex::Expression Architecture32Bit{ R"((?<=^|\P{Nd})(32[\p{Pd}\p{Pc}\p{Z}]?BIT)S?(?:\sEDITION)?)", reOptions };
+            Regex::Expression Architecture64Bit{ R"((?<=^|\P{Nd})(64[\p{Pd}\p{Pc}\p{Z}]?BIT)S?(?:\sEDITION)?)", reOptions };
 
             // Locale
-            std::regex Locale{ R"((?<![A-Z])((?:\p{Lu}{2,3}(-(CANS|CYRL|LATN|MONG))?-\p{Lu}{2})(?![A-Z])(?:-VALENCIA)?))", reOptions };
+            Regex::Expression Locale{ R"((?<![A-Z])((?:\p{Lu}{2,3}(-(CANS|CYRL|LATN|MONG))?-\p{Lu}{2})(?![A-Z])(?:-VALENCIA)?))", reOptions };
 
             // Specifically for SAP Business Objects programs
-            std::regex SAPPackage{ R"(^(?:[\p{Lu}\p{Nd}]+[\._])+[\p{Lu}\p{Nd}]+(?:-(?:\p{Nd}+\.)+\p{Nd}+)(?:-(?:\p{Lu}{2}(?:_\p{Lu}{2})?|CORE))(?:-(?:\p{Lu}{2}|\p{Nd}{2}))$)", reOptions };
+            Regex::Expression SAPPackage{ R"(^(?:[\p{Lu}\p{Nd}]+[\._])+[\p{Lu}\p{Nd}]+(?:-(?:\p{Nd}+\.)+\p{Nd}+)(?:-(?:\p{Lu}{2}(?:_\p{Lu}{2})?|CORE))(?:-(?:\p{Lu}{2}|\p{Nd}{2}))$)", reOptions };
 
-            std::regex VersionDelimited{ R"((?:(?<!\p{L})(?:V|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)\P{L}?)?\p{Nd}+(?:[\p{Po}\p{Pd}\p{Pc}]\p{Nd}?(?:RC|B|A|R|SP|K)?\p{Nd}+)+(?:[\p{Po}\p{Pd}\p{Pc}]?\p{Lu}(?:\P{Lu}|$))?)", reOptions };
-            std::regex Version{ R"((FOR\s)?(?<!\p{L})(?:P|V|R|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)(?:\P{L}|\P{L}\p{L})?[\p{Nd}\.]+(?:RC|B|A|R|V|SP)?\p{Nd}?)", reOptions };
-            std::regex VersionLetter{ R"((?<!\p{L})(?:(?:V|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)\P{L})?\p{Lu}\p{Nd}+(?:[\p{Po}\p{Pd}\p{Pc}]\p{Nd}+)+)", reOptions };
-            std::regex NonNestedBracket{ R"(\([^\(\)]*\)|\[[^\[\]]*\])", reOptions }; // remove things in parentheses, if there aren't parentheses nested inside
-            std::regex BracketEnclosed{ R"((?:\p{Ps}.*\p{Pe}|".*"))", reOptions }; // Impossible to properly handle nested parens with regex
-            std::regex LeadingNonLetters{ R"(^\P{L}+)", reOptions }; // remove non-letters at the beginning
-            std::regex TrailingNonLetters{ R"(\P{L}+$)", reOptions }; // remove non-letters at the end
-            std::regex PrefixParens{ R"(^\(.*?\))", reOptions }; // remove things in parentheses at the front of program names
-            std::regex EmptyParens{ R"((\(\s*\)|\[\s*\]|"\s*"))", reOptions }; // remove appearances of (), [], and "", with any number of spaces within
-            std::regex EN{ R"(\sEN\s*$)", reOptions }; // remove appearances of EN (represents English language) at the ends of program names
-            std::regex TrailingSymbols{ R"([^\p{L}\p{Nd}]+$)", reOptions }; // remove all non-letter/numbers
-            std::regex FilePath{ R"(((INSTALLED\sAT|IN)\s)?[CDEF]:\\(.+?\\)*[^\s]*\\?)", reOptions }; // remove file paths
-            std::regex FilePathGHS{ R"(\(CHANGE #\d{1,2} TO [CDEF]:\\(.+?\\)*[^\s]*\\?\))", reOptions }; // remove file paths in certain Green Hills Software program names
-            std::regex FilePathParens{ R"(\([CDEF]:\\(.+?\\)*[^\s]*\\?\))", reOptions }; // remove file paths within parentheses
-            std::regex FilePathQuotes{ R"("[CDEF]:\\(.+?\\)*[^\s]*\\?")", reOptions }; // remove file paths within quotes
-            std::regex Roblox{ R"((?<=^ROBLOX\s(PLAYER|STUDIO))(\sFOR\s.*))", reOptions }; // for Roblox programs
-            std::regex Bomgar{ R"((?<=^BOMGAR\s(JUMP CLIENT|(ACCESS|REPRESENTATIVE) CONSOLE|BUTTON)|^EMBEDDED CALLBACK)(\s.*))", reOptions }; // for Bomgar programs
-            std::regex AcronymSeparators{ R"((?:(?<=^\p{L})|(?<=\P{L}\p{L}))(?:\.|/)(?=\p{L}(?:\P{L}|$)))", reOptions };
-            std::regex NonLetters{ R"((?<=^|\s)[^\p{L}]+(?=\s|$))", reOptions }; // remove all non-letters not attached to 
-            std::regex ProgramNameSplit{ R"([^\p{L}\p{Nd}\+\&])", reOptions }; // used to separate 'words' in program names
-            std::regex PublisherNameSplit{ R"([^\p{L}\p{Nd}])", reOptions }; // used to separate 'words' in publisher names
+            Regex::Expression VersionDelimited{ R"((?:(?<!\p{L})(?:V|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)\P{L}?)?\p{Nd}+(?:[\p{Po}\p{Pd}\p{Pc}]\p{Nd}?(?:RC|B|A|R|SP|K)?\p{Nd}+)+(?:[\p{Po}\p{Pd}\p{Pc}]?\p{Lu}(?:\P{Lu}|$))?)", reOptions };
+            Regex::Expression Version{ R"((FOR\s)?(?<!\p{L})(?:P|V|R|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)(?:\P{L}|\P{L}\p{L})?[\p{Nd}\.]+(?:RC|B|A|R|V|SP)?\p{Nd}?)", reOptions };
+            Regex::Expression VersionLetter{ R"((?<!\p{L})(?:(?:V|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)\P{L})?\p{Lu}\p{Nd}+(?:[\p{Po}\p{Pd}\p{Pc}]\p{Nd}+)+)", reOptions };
+            Regex::Expression NonNestedBracket{ R"(\([^\(\)]*\)|\[[^\[\]]*\])", reOptions }; // remove things in parentheses, if there aren't parentheses nested inside
+            Regex::Expression BracketEnclosed{ R"((?:\p{Ps}.*\p{Pe}|".*"))", reOptions }; // Impossible to properly handle nested parens with regex
+            Regex::Expression LeadingNonLetters{ R"(^\P{L}+)", reOptions }; // remove non-letters at the beginning
+            Regex::Expression TrailingNonLetters{ R"(\P{L}+$)", reOptions }; // remove non-letters at the end
+            Regex::Expression PrefixParens{ R"(^\(.*?\))", reOptions }; // remove things in parentheses at the front of program names
+            Regex::Expression EmptyParens{ R"((\(\s*\)|\[\s*\]|"\s*"))", reOptions }; // remove appearances of (), [], and "", with any number of spaces within
+            Regex::Expression EN{ R"(\sEN\s*$)", reOptions }; // remove appearances of EN (represents English language) at the ends of program names
+            Regex::Expression TrailingSymbols{ R"([^\p{L}\p{Nd}]+$)", reOptions }; // remove all non-letter/numbers
+            Regex::Expression FilePath{ R"(((INSTALLED\sAT|IN)\s)?[CDEF]:\\(.+?\\)*[^\s]*\\?)", reOptions }; // remove file paths
+            Regex::Expression FilePathGHS{ R"(\(CHANGE #\d{1,2} TO [CDEF]:\\(.+?\\)*[^\s]*\\?\))", reOptions }; // remove file paths in certain Green Hills Software program names
+            Regex::Expression FilePathParens{ R"(\([CDEF]:\\(.+?\\)*[^\s]*\\?\))", reOptions }; // remove file paths within parentheses
+            Regex::Expression FilePathQuotes{ R"("[CDEF]:\\(.+?\\)*[^\s]*\\?")", reOptions }; // remove file paths within quotes
+            Regex::Expression Roblox{ R"((?<=^ROBLOX\s(PLAYER|STUDIO))(\sFOR\s.*))", reOptions }; // for Roblox programs
+            Regex::Expression Bomgar{ R"((?<=^BOMGAR\s(JUMP CLIENT|(ACCESS|REPRESENTATIVE) CONSOLE|BUTTON)|^EMBEDDED CALLBACK)(\s.*))", reOptions }; // for Bomgar programs
+            Regex::Expression AcronymSeparators{ R"((?:(?<=^\p{L})|(?<=\P{L}\p{L}))(?:\.|/)(?=\p{L}(?:\P{L}|$)))", reOptions };
+            Regex::Expression NonLetters{ R"((?<=^|\s)[^\p{L}]+(?=\s|$))", reOptions }; // remove all non-letters not attached to 
+            Regex::Expression ProgramNameSplit{ R"([^\p{L}\p{Nd}\+\&])", reOptions }; // used to separate 'words' in program names
+            Regex::Expression PublisherNameSplit{ R"([^\p{L}\p{Nd}])", reOptions }; // used to separate 'words' in publisher names
 
-            const std::vector<std::regex*> ProgramNameRegexes
+            const std::vector<Regex::Expression*> ProgramNameRegexes
             {
                 &Roblox,
                 &Bomgar,
@@ -311,7 +268,7 @@ namespace AppInstaller::Utility
                 &TrailingSymbols
             };
 
-            const std::vector<std::regex*> PublisherNameRegexes
+            const std::vector<Regex::Expression*> PublisherNameRegexes
             {
                 &VersionDelimited,
                 &Version,
@@ -323,54 +280,54 @@ namespace AppInstaller::Utility
             };
 
             // Must be in sorted order so that search can be efficient
-            const std::vector<std::string_view> Locales
+            const std::vector<std::wstring_view> Locales
             {
-                "AF-ZA", "AM-ET", "AR-AE", "AR-BH", "AR-DZ", "AR-EG", "AR-IQ", "AR-JO", "AR-KW", "AR-LB", "AR-LY",
-                "AR-MA", "ARN-CL", "AR-OM", "AR-QA", "AR-SA", "AR-SY", "AR-TN", "AR-YE", "AS-IN", "BA-RU", "BE-BY",
-                "BG-BG", "BN-BD", "BN-IN", "BO-CN", "BR-FR", "CA-ES", "CA-ES-VALENCIA",
-                "CO-FR", "CS-CZ", "CY-GB", "DA-DK", "DE-AT",
-                "DE-CH", "DE-DE", "DE-LI", "DE-LU", "DSB-DE", "DV-MV", "EL-GR", "EN-AU", "EN-BZ", "EN-CA", "EN-GB",
-                "EN-IE", "EN-IN", "EN-JM", "EN-MY", "EN-NZ", "EN-PH", "EN-SG", "EN-TT", "EN-US", "EN-ZA", "EN-ZW",
-                "ES-AR", "ES-BO", "ES-CL", "ES-CO", "ES-CR", "ES-DO", "ES-EC", "ES-ES", "ES-GT", "ES-HN", "ES-MX",
-                "ES-NI", "ES-PA", "ES-PE", "ES-PR", "ES-PY", "ES-SV", "ES-US", "ES-UY", "ES-VE", "ET-EE", "EU-ES",
-                "FA-IR", "FI-FI", "FIL-PH", "FO-FO", "FR-BE", "FR-CA", "FR-CH", "FR-FR", "FR-LU", "FR-MC", "FY-NL",
-                "GA-IE", "GD-DB", "GL-ES", "GSW-FR", "GU-IN", "HE-IL", "HI-IN", "HR-BA", "HR-HR", "HSB-DE", "HU-HU",
-                "HY-AM", "ID-ID", "IG-NG", "II-CN", "IS-IS", "IT-CH", "IT-IT", "JA-JP", "KA-GE", "KK-KZ", "KL-GL",
-                "KM-KH", "KN-IN", "KOK-IN", "KO-KR", "KY-KG", "LB-LU", "LO-LA", "LT-LT", "LV-LV", "MI-NZ", "MK-MK",
-                "ML-IN", "MN-MN", "MOH-CA", "MR-IN", "MS-BN", "MS-MY", "MT-MT", "NB-NO", "NE-NP", "NL-BE", "NL-NL",
-                "NN-NO", "NSO-ZA", "OC-FR", "OR-IN", "PA-IN", "PL-PL", "PRS-AF", "PS-AF", "PT-BR", "PT-PT", "QUT-GT",
-                "QUZ-BO", "QUZ-EC", "QUZ-PE", "RM-CH", "RO-RO", "RU-RU", "RW-RW", "SAH-RU", "SA-IN", "SE-FI", "SE-NO",
-                "SE-SE", "SI-LK", "SK-SK", "SL-SI", "SMA-NO", "SMA-SE", "SMJ-NO", "SMJ-SE", "SMN-FI", "SMS-FI", "SQ-AL",
-                "SV-FI", "SV-SE", "SW-KE", "SYR-SY", "TA-IN", "TE-IN", "TH-TH", "TK-TM", "TN-ZA", "TR-TR", "TT-RU",
-                "UG-CN", "UK-UA", "UR-PK", "VI-VN", "WO-SN", "XH-ZA", "YO-NG", "ZH-CN", "ZH-HK", "ZH-MO", "ZH-SG",
-                "ZH-TW", "ZU-ZA", "AZ-CYRL-AZ", "AZ-LATN-AZ", "BS-CYRL-BA", "BS-LATN-BA", "HA-LATN-NG", "IU-CANS-CA",
-                "IU-LATN-CA", "MN-MONG-CN", "SR-CYRL-BA", "SR-CYRL-CS", "SR-CYRL-ME", "SR-CYRL-RS", "SR-LATN-BA",
-                "SR-LATN-CS", "SR-LATN-ME", "SR-LATN-RS", "TG-CYRL-TJ", "TZM-LATN-DZ", "UZ-CYRL-UZ", "UZ-LATN-UZ",
+                L"AF-ZA", L"AM-ET", L"AR-AE", L"AR-BH", L"AR-DZ", L"AR-EG", L"AR-IQ", L"AR-JO", L"AR-KW", L"AR-LB", L"AR-LY",
+                L"AR-MA", L"ARN-CL", L"AR-OM", L"AR-QA", L"AR-SA", L"AR-SY", L"AR-TN", L"AR-YE", L"AS-IN", L"BA-RU", L"BE-BY",
+                L"BG-BG", L"BN-BD", L"BN-IN", L"BO-CN", L"BR-FR", L"CA-ES", L"CA-ES-VALENCIA",
+                L"CO-FR", L"CS-CZ", L"CY-GB", L"DA-DK", L"DE-AT",
+                L"DE-CH", L"DE-DE", L"DE-LI", L"DE-LU", L"DSB-DE", L"DV-MV", L"EL-GR", L"EN-AU", L"EN-BZ", L"EN-CA", L"EN-GB",
+                L"EN-IE", L"EN-IN", L"EN-JM", L"EN-MY", L"EN-NZ", L"EN-PH", L"EN-SG", L"EN-TT", L"EN-US", L"EN-ZA", L"EN-ZW",
+                L"ES-AR", L"ES-BO", L"ES-CL", L"ES-CO", L"ES-CR", L"ES-DO", L"ES-EC", L"ES-ES", L"ES-GT", L"ES-HN", L"ES-MX",
+                L"ES-NI", L"ES-PA", L"ES-PE", L"ES-PR", L"ES-PY", L"ES-SV", L"ES-US", L"ES-UY", L"ES-VE", L"ET-EE", L"EU-ES",
+                L"FA-IR", L"FI-FI", L"FIL-PH", L"FO-FO", L"FR-BE", L"FR-CA", L"FR-CH", L"FR-FR", L"FR-LU", L"FR-MC", L"FY-NL",
+                L"GA-IE", L"GD-DB", L"GL-ES", L"GSW-FR", L"GU-IN", L"HE-IL", L"HI-IN", L"HR-BA", L"HR-HR", L"HSB-DE", L"HU-HU",
+                L"HY-AM", L"ID-ID", L"IG-NG", L"II-CN", L"IS-IS", L"IT-CH", L"IT-IT", L"JA-JP", L"KA-GE", L"KK-KZ", L"KL-GL",
+                L"KM-KH", L"KN-IN", L"KOK-IN", L"KO-KR", L"KY-KG", L"LB-LU", L"LO-LA", L"LT-LT", L"LV-LV", L"MI-NZ", L"MK-MK",
+                L"ML-IN", L"MN-MN", L"MOH-CA", L"MR-IN", L"MS-BN", L"MS-MY", L"MT-MT", L"NB-NO", L"NE-NP", L"NL-BE", L"NL-NL",
+                L"NN-NO", L"NSO-ZA", L"OC-FR", L"OR-IN", L"PA-IN", L"PL-PL", L"PRS-AF", L"PS-AF", L"PT-BR", L"PT-PT", L"QUT-GT",
+                L"QUZ-BO", L"QUZ-EC", L"QUZ-PE", L"RM-CH", L"RO-RO", L"RU-RU", L"RW-RW", L"SAH-RU", L"SA-IN", L"SE-FI", L"SE-NO",
+                L"SE-SE", L"SI-LK", L"SK-SK", L"SL-SI", L"SMA-NO", L"SMA-SE", L"SMJ-NO", L"SMJ-SE", L"SMN-FI", L"SMS-FI", L"SQ-AL",
+                L"SV-FI", L"SV-SE", L"SW-KE", L"SYR-SY", L"TA-IN", L"TE-IN", L"TH-TH", L"TK-TM", L"TN-ZA", L"TR-TR", L"TT-RU",
+                L"UG-CN", L"UK-UA", L"UR-PK", L"VI-VN", L"WO-SN", L"XH-ZA", L"YO-NG", L"ZH-CN", L"ZH-HK", L"ZH-MO", L"ZH-SG",
+                L"ZH-TW", L"ZU-ZA", L"AZ-CYRL-AZ", L"AZ-LATN-AZ", L"BS-CYRL-BA", L"BS-LATN-BA", L"HA-LATN-NG", L"IU-CANS-CA",
+                L"IU-LATN-CA", L"MN-MONG-CN", L"SR-CYRL-BA", L"SR-CYRL-CS", L"SR-CYRL-ME", L"SR-CYRL-RS", L"SR-LATN-BA",
+                L"SR-LATN-CS", L"SR-LATN-ME", L"SR-LATN-RS", L"TG-CYRL-TJ", L"TZM-LATN-DZ", L"UZ-CYRL-UZ", L"UZ-LATN-UZ",
             };
 
             // Must be in sorted order so that search can be efficient
-            const std::vector<std::string_view> LegalEntitySuffixes
+            const std::vector<std::wstring_view> LegalEntitySuffixes
             {
                 // Acronyms
-                "AB", "AD", "AG", "APS", "AS", "ASA", "BV", "CO", "CV", "DOO", "GES", "GESMBH", "GMBH", "INC", "KG",
-                "KS", "PS", "LLC", "LP", "LTD", "LTDA", "MBH", "NV", "PLC", "SL", "PTY", "PVT", "SA", "SARL",
-                "SC", "SCA", "SL", "SP", "SPA", "SRL", "SRO",
+                L"AB", L"AD", L"AG", L"APS", L"AS", L"ASA", L"BV", L"CO", L"CV", L"DOO", L"GES", L"GESMBH", L"GMBH", L"INC", L"KG",
+                L"KS", L"PS", L"LLC", L"LP", L"LTD", L"LTDA", L"MBH", L"NV", L"PLC", L"SL", L"PTY", L"PVT", L"SA", L"SARL",
+                L"SC", L"SCA", L"SL", L"SP", L"SPA", L"SRL", L"SRO",
 
                 // Words
-                "COMPANY", "CORP", "CORPORATION", "HOLDING", "HOLDINGS", "INCORPORATED", "LIMITED", "SUBSIDIARY"
+                L"COMPANY", L"CORP", L"CORPORATION", L"HOLDING", L"HOLDINGS", L"INCORPORATED", L"LIMITED", L"SUBSIDIARY"
             };
 
         public:
             NormalizationInitial() = default;
 
-            NameNormalizationResult NormalizeName(std::string_view name) const
+            InterimNameNormalizationResult NormalizeName(std::string_view name) const
             {
-                NameNormalizationResult result;
+                InterimNameNormalizationResult result;
                 result.Name = PrepareForValidation(name);
                 while (Unwrap(result.Name)); // remove wrappers
 
                 // handle (large majority of) SAP Business Object programs
-                if (IsMatch(SAPPackage, result.Name))
+                if (SAPPackage.IsMatch(result.Name))
                 {
                     return result;
                 }
@@ -391,9 +348,9 @@ namespace AppInstaller::Utility
                 return result;
             }
 
-            PublisherNormalizationResult NormalizePublisher(std::string_view publisher) const
+            InterimPublisherNormalizationResult NormalizePublisher(std::string_view publisher) const
             {
-                PublisherNormalizationResult result;
+                InterimPublisherNormalizationResult result;
 
                 result.Publisher = PrepareForValidation(publisher);
 
@@ -407,14 +364,14 @@ namespace AppInstaller::Utility
 
             NormalizedName Normalize(std::string_view name, std::string_view publisher) const override
             {
-                NameNormalizationResult nameResult = NormalizeName(name);
-                PublisherNormalizationResult pubResult = NormalizePublisher(publisher);
+                InterimNameNormalizationResult nameResult = NormalizeName(name);
+                InterimPublisherNormalizationResult pubResult = NormalizePublisher(publisher);
 
                 NormalizedName result;
-                result.Name(std::move(nameResult.Name));
+                result.Name(ConvertToUTF8(nameResult.Name));
                 result.Architecture(nameResult.Architecture);
-                result.Locale(std::move(nameResult.Locale));
-                result.Publisher(std::move(pubResult.Publisher));
+                result.Locale(ConvertToUTF8(nameResult.Locale));
+                result.Publisher(ConvertToUTF8(pubResult.Publisher));
 
                 return result;
             }

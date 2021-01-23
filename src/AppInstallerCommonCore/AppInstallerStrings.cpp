@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
+#include "Public/AppInstallerErrors.h"
+#include "Public/AppInstallerLogging.h"
 #include "icu.h"
 
 namespace AppInstaller::Utility
@@ -27,28 +28,28 @@ namespace AppInstaller::Utility
                 if (U_FAILURE(err))
                 {
                     AICLI_LOG(Core, Error, << "utext_openUTF8 returned " << err);
-                    THROW_HR(E_UNEXPECTED);
+                    THROW_HR(APPINSTALLER_CLI_ERROR_ICU_BREAK_ITERATOR_ERROR);
                 }
 
                 m_brk.reset(ubrk_open(type, nullptr, nullptr, 0, &err));
                 if (U_FAILURE(err))
                 {
                     AICLI_LOG(Core, Error, << "ubrk_open returned " << err);
-                    THROW_HR(E_UNEXPECTED);
+                    THROW_HR(APPINSTALLER_CLI_ERROR_ICU_BREAK_ITERATOR_ERROR);
                 }
 
                 ubrk_setUText(m_brk.get(), m_text.get(), &err);
                 if (U_FAILURE(err))
                 {
                     AICLI_LOG(Core, Error, << "ubrk_setUText returned " << err);
-                    THROW_HR(E_UNEXPECTED);
+                    THROW_HR(APPINSTALLER_CLI_ERROR_ICU_BREAK_ITERATOR_ERROR);
                 }
 
                 int32_t i = ubrk_first(m_brk.get());
                 if (i != 0)
                 {
                     AICLI_LOG(Core, Error, << "ubrk_first returned " << i);
-                    THROW_HR(E_UNEXPECTED);
+                    THROW_HR(APPINSTALLER_CLI_ERROR_ICU_BREAK_ITERATOR_ERROR);
                 }
             }
 
@@ -58,7 +59,7 @@ namespace AppInstaller::Utility
             // Gets the current byte offset, throwing if the value is UBRK_DONE or negative.
             size_t CurrentOffset() const
             {
-                THROW_HR_IF(E_UNEXPECTED, m_currentBrk < 0);
+                THROW_HR_IF(E_NOT_VALID_STATE, m_currentBrk < 0);
                 return static_cast<size_t>(m_currentBrk);
             }
 
@@ -318,14 +319,14 @@ namespace AppInstaller::Utility
         if (U_FAILURE(errorCode))
         {
             AICLI_LOG(Core, Error, << "ucasemap_open returned " << errorCode);
-            THROW_HR(E_UNEXPECTED);
+            THROW_HR(APPINSTALLER_CLI_ERROR_ICU_CASEMAP_ERROR);
         }
 
         int32_t cch = ucasemap_utf8FoldCase(caseMap.get(), nullptr, 0, input.data(), static_cast<int32_t>(input.size()), &errorCode);
         if (errorCode != U_BUFFER_OVERFLOW_ERROR)
         {
             AICLI_LOG(Core, Error, << "ucasemap_utf8FoldCase returned " << errorCode);
-            THROW_HR(E_UNEXPECTED);
+            THROW_HR(APPINSTALLER_CLI_ERROR_ICU_CASEMAP_ERROR);
         }
 
         errorCode = UErrorCode::U_ZERO_ERROR;
@@ -335,7 +336,7 @@ namespace AppInstaller::Utility
         if (U_FAILURE(errorCode))
         {
             AICLI_LOG(Core, Error, << "ucasemap_utf8FoldCase returned " << errorCode);
-            THROW_HR(E_UNEXPECTED);
+            THROW_HR(APPINSTALLER_CLI_ERROR_ICU_CASEMAP_ERROR);
         }
 
         while (result.back() == '\0')
