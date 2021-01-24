@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="schema">
+      <UniqueIdentifier>{d6998b42-8ce1-440a-ad12-8b505a284d7b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)schema\schema_v0.1.0.json">
+      <Filter>schema</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)schema\schema_v1.0.0_defaultLocale.json">
+      <Filter>schema</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)schema\schema_v1.0.0_installer.json">
+      <Filter>schema</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)schema\schema_v1.0.0_locale.json">
+      <Filter>schema</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)schema\schema_v1.0.0_singleton.json">
+      <Filter>schema</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)schema\schema_v1.0.0_version.json">
+      <Filter>schema</Filter>
+    </None>
+  </ItemGroup>
+</Project>
