@@ -75,12 +75,17 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportFileArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ImportInstallFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(ImportSearchFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(ImportSourceNotInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer1);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer2);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimerMSStore);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationRequiresHigherWindows);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstalledPackageNotAvailable);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstalledPackageVersionNotAvailable);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerBlockedByPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedSecurityCheck);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedVirusScan);
@@ -128,6 +133,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NoExperimentalFeaturesMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(NoInstalledPackageFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(NoPackagesFoundInImportFile);
         WINGET_DEFINE_RESOURCE_STRINGID(NoUninstallInfoFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoVTArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatch);

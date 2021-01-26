@@ -5,82 +5,68 @@
 #include "ImportExportFlow.h"
 #include "PackageCollection.h"
 #include "WorkflowBase.h"
-#include "CompositeSource.h"
 #include "AppInstallerRepositorySearch.h"
 
 namespace AppInstaller::CLI::Workflow
 {
-    namespace
-    {
-        // Gets the available PackageVersion that has the same version as the installed version.
-        // The package must have an installed version.
-        std::shared_ptr<IPackageVersion> GetAvailableVersionMatchingInstalledVersion(const IPackage& package)
-        {
-            auto installedVersion = package.GetInstalledVersion();
-            PackageVersionKey installedVersionKey
-            {
-                "",
-                installedVersion->GetProperty(PackageVersionProperty::Version).get(),
-                installedVersion->GetProperty(PackageVersionProperty::Channel).get(),
-            };
-            return package.GetAvailableVersion(installedVersionKey);
-        }
-
-        // Selects which version of an installed package to list when exporting.
-        std::shared_ptr<IPackageVersion> SelectPackageVersionToExport(const IPackage& package)
-        {
-            // See if the installed version is available from some source
-            auto availableVersion = GetAvailableVersionMatchingInstalledVersion(package);
-            if (!availableVersion)
-            {
-                // If the exact version isn't available, list the latest.
-                availableVersion = package.GetLatestAvailableVersion();
-            }
-
-            if (availableVersion)
-            {
-                AICLI_LOG(
-                    CLI,
-                    Info,
-                    << "Found package " << availableVersion->GetProperty(PackageVersionProperty::Id)
-                    << " " << availableVersion->GetProperty(PackageVersionProperty::Version)
-                    << " available from " << availableVersion->GetSource()->GetIdentifier());
-                return availableVersion;
-            }
-
-            // If there is no available version, we didn't have a mapping for the ARP
-            // entry of the package. List the installed version so it can be later installed
-            // if we get a better mapping.
-            auto installedVersion = package.GetInstalledVersion();
-            AICLI_LOG(CLI, Warning, << "No available version of package " << installedVersion->GetProperty(PackageVersionProperty::Id) << " was found to export");
-            return installedVersion;
-        }
-    }
+    using namespace AppInstaller::Repository;
 
     void SelectVersionsToExport(Execution::Context& context)
     {
         const auto& searchResult = context.Get<Execution::Data::SearchResult>();
-        PackageCollection versionsToExport = {};
-        auto& requestsFromSource = versionsToExport.RequestsFromSources;
+        PackageCollection exportedPackages = {};
+        auto& exportedSources = exportedPackages.Sources;
         for (const auto& packageMatch : searchResult.Matches)
         {
-            auto packageVersion = SelectPackageVersionToExport(*packageMatch.Package);
+            auto installedPackageVersion = packageMatch.Package->GetInstalledVersion();
+            auto version = installedPackageVersion->GetProperty(PackageVersionProperty::Version);
+            auto channel = installedPackageVersion->GetProperty(PackageVersionProperty::Channel);
 
-            const auto& sourceIdentifier = packageVersion->GetSource()->GetIdentifier();
-            auto sourceItr = std::find_if(requestsFromSource.begin(), requestsFromSource.end(), [&](const PackageRequestsFromSource& s) { return s.SourceIdentifier == sourceIdentifier; });
-            if (sourceItr == requestsFromSource.end())
+            // Find an available version of this package to determine its source.
+            auto availablePackageVersion = packageMatch.Package->GetAvailableVersion({ "", version.get(), channel.get() });
+            if (!availablePackageVersion)
             {
-                requestsFromSource.emplace_back(Utility::LocIndString{ sourceIdentifier }, packageVersion->GetSource()->GetDetails());
-                sourceItr = std::prev(requestsFromSource.end());
+                availablePackageVersion = packageMatch.Package->GetLatestAvailableVersion();
+                if (!availablePackageVersion)
+                {
+                    // Report package not found and move to next package.
+                    AICLI_LOG(CLI, Warning, << "No available version of package [" << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << "] was found to export");
+                    context.Reporter.Warn() << Resource::String::InstalledPackageNotAvailable << ' ' << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << std::endl;
+                    continue;
+                }
+                else
+                {
+                    // Warn installed version is not available.
+                    AICLI_LOG(
+                        CLI,
+                        Info,
+                        << "Installed package version not available. Package Id [" << availablePackageVersion->GetProperty(PackageVersionProperty::Id) << "]"
+                        << ", Version [" << version << "], Channel [" << channel << "]");
+                    context.Reporter.Warn() << Resource::String::InstalledPackageVersionNotAvailable << ' ' << availablePackageVersion->GetProperty(PackageVersionProperty::Id) << std::endl;
+                }
             }
 
+            const auto& sourceIdentifier = availablePackageVersion->GetSource()->GetIdentifier();
+            AICLI_LOG(CLI, Info,
+                << "Installed package is available. Package Id [" << availablePackageVersion->GetProperty(PackageVersionProperty::Id) << "], Source [" << sourceIdentifier << "]");
+
+            // Find the exported source for this package
+            auto sourceItr = std::find_if(exportedSources.begin(), exportedSources.end(), [&](const PackageCollection::Source& s) { return s.Details.Identifier == sourceIdentifier; });
+            if (sourceItr == exportedSources.end())
+            {
+                exportedSources.emplace_back(availablePackageVersion->GetSource()->GetDetails());
+                sourceItr = std::prev(exportedSources.end());
+            }
+
+            // Take the Id from the available package because that is the one used in the source,
+            // but take the exported version from the installed package.
             sourceItr->Packages.emplace_back(
-                packageVersion->GetProperty(PackageVersionProperty::Id),
-                packageVersion->GetProperty(PackageVersionProperty::Version).get(),
-                packageVersion->GetProperty(PackageVersionProperty::Channel).get());
+                availablePackageVersion->GetProperty(PackageVersionProperty::Id),
+                version.get(),
+                channel.get());
         }
 
-        context.Add<Execution::Data::PackageCollection>(std::move(versionsToExport));
+        context.Add<Execution::Data::PackageCollection>(std::move(exportedPackages));
     }
 
     void WriteImportFile(Execution::Context& context)
@@ -101,102 +87,97 @@ namespace AppInstaller::CLI::Workflow
         std::ifstream{ importFilePath } >> jsonRoot;
 
         auto packages = PackagesJson::ParseJson(jsonRoot);
-        context.Add<Execution::Data::PackageCollection>(packages);
-
-        if (packages.RequestsFromSources.empty())
+        if (packages.Sources.empty())
         {
             AICLI_LOG(CLI, Warning, << "No packages to install");
+            context.Reporter.Info() << Resource::String::NoPackagesFoundInImportFile << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
         }
+
+        context.Add<Execution::Data::PackageCollection>(packages);
     }
 
     void SearchPackagesForImport(Execution::Context& context)
     {
         auto availableSources = Repository::GetSources();
-        std::vector<std::shared_ptr<IPackageVersion>> packagesToInstall;
+        std::vector<std::shared_ptr<IPackageVersion>> packagesToInstall = {};
+        bool foundAll = true;
 
-        // Aggregated source with all the required sources.
-        // We keep it as the source of the root context to keep all the
-        // source objects alive for install.
-        auto aggregatedSource = std::make_shared<Repository::CompositeSource>("*ImportSource");
+        // List of all the sources used for import.
+        // Needed to keep all the source objects alive for install.
+        std::vector<std::shared_ptr<ISource>> sources = {};
 
         // Look for the packages needed from each source independently.
         // If a package is available from multiple sources, this ensures we will get it from the right one.
-        for (auto& requiredSource : context.Get<Execution::Data::PackageCollection>().RequestsFromSources)
+        for (auto& requiredSource : context.Get<Execution::Data::PackageCollection>().Sources)
         {
-            if (!requiredSource.Details.Name.empty())
+            // Find the installed source matching the one described in the collection.
+            auto matchingSource = std::find_if(
+                availableSources.begin(),
+                availableSources.end(),
+                [&](const SourceDetails& s) { return s.Identifier == requiredSource.Details.Identifier; });
+            if (matchingSource != availableSources.end())
             {
-                // For packages that come from a specific source, find the matching available source.
-                std::optional<SourceDetails> matchingSource = {};
-                for (auto& availableSource : availableSources)
-                {
-                    if (availableSource.Identifier == requiredSource.Details.Identifier)
-                    {
-                        matchingSource = availableSource;
-                        break;
-                    }
-                }
-
-                if (matchingSource.has_value())
-                {
-                    requiredSource.Details.Name = matchingSource.value().Name;
-                }
-                else
-                {
-                    // TODO: Add option for ignoring/installing missing sources?
-                    AICLI_LOG(CLI, Error, << "Missing required source: " << requiredSource.Details.Name);
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
-                }
+                requiredSource.Details.Name = matchingSource->Name;
+            }
+            else
+            {
+                AICLI_LOG(CLI, Error, << "Missing required source: " << requiredSource.Details.Name);
+                context.Reporter.Warn() << Resource::String::ImportSourceNotInstalled << ' ' << requiredSource.Details.Name << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
             }
 
+            // Search for all the packages in the source.
+            // Each search is done in a sub context to search everything regardless of previous failures.
             context << OpenNamedSource(requiredSource.Details.Name);
             auto source = context.Get<Execution::Data::Source>();
-            aggregatedSource->AddAvailableSource(source);
             for (const auto& packageRequest : requiredSource.Packages)
             {
-                // Search for all the packages in the source
                 Logging::SubExecutionTelemetryScope subExecution;
 
-                // We want to do best effort to install all packages regardless of previous failures
                 auto searchContextPtr = context.Clone();
                 Execution::Context& searchContext = *searchContextPtr;
                 searchContext.Add<Execution::Data::Source>(source);
 
-                // TODO: Case insensitive?
-                MatchType matchType = MatchType::Exact;
-
+                // Search for the current package
                 SearchRequest searchRequest;
-                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, matchType, packageRequest.Id));
-
+                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, packageRequest.Id));
                 searchContext.Add<Execution::Data::SearchResult>(source->Search(searchRequest));
-                searchContext << EnsureOneMatchFromSearchResult(false);
+
+                Utility::VersionAndChannel versionAndChannel = {};
+                if (context.Args.Contains(Execution::Args::Type::ExactVersions))
+                {
+                    versionAndChannel = packageRequest.VersionAndChannel;
+                }
+
+                // Find the single version we want is available
+                searchContext <<
+                    Workflow::EnsureOneMatchFromSearchResult(false) <<
+                    Workflow::GetManifestWithVersionFromPackage(versionAndChannel);
 
                 if (searchContext.IsTerminated())
                 {
-                    AICLI_LOG(CLI, Warning, << "Package not found [" << packageRequest.Id << "] in source [" << source->GetIdentifier() << "]");
+                    AICLI_LOG(CLI, Info, << "Package not found for import: [" << packageRequest.Id << "], Version " << versionAndChannel.ToString());
+                    context.Reporter.Info() << Resource::String::ImportSearchFailed << ' ' << packageRequest.Id << std::endl;
+
+                    // Keep searching for the remaining packages and only fail at the end.
+                    foundAll = false;
                     continue;
                 }
 
-                if (context.Args.Contains(Execution::Args::Type::ExactVersions))
-                {
-                    PackageVersionKey requestedVersion
-                    {
-                        requiredSource.SourceIdentifier.get(),
-                        packageRequest.VersionAndChannel.GetVersion().ToString(),
-                        packageRequest.VersionAndChannel.GetChannel().ToString(),
-                    };
-
-                    // TODO: handle unavailable version
-                    packagesToInstall.push_back(searchContext.Get<Execution::Data::Package>()->GetAvailableVersion(requestedVersion));
-                }
-                else
-                {
-                    packagesToInstall.push_back(searchContext.Get<Execution::Data::Package>()->GetLatestAvailableVersion());
-                }
+                packagesToInstall.push_back(std::move(searchContext.Get<Execution::Data::PackageVersion>()));
             }
+
+            sources.push_back(std::move(source));
+        }
+
+        if (!foundAll)
+        {
+            // TODO: Set better error; report; log
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
         }
 
         context.Add<Execution::Data::PackagesToInstall>(std::move(packagesToInstall));
-        context.Add<Execution::Data::Source>(std::move(aggregatedSource));
+        context.Add<Execution::Data::Sources>(std::move(sources));
     }
 }

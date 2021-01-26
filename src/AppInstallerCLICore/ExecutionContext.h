@@ -66,6 +66,8 @@ namespace AppInstaller::CLI::Execution
         PackageCollection,
         // On import: A collection of specific package versions to install
         PackagesToInstall,
+        // On import: Sources for the imported packages
+        Sources,
         Max
     };
 
@@ -199,7 +201,13 @@ namespace AppInstaller::CLI::Execution
         template <>
         struct DataMapping<Data::PackagesToInstall>
         {
-            using value_t = std::vector< std::shared_ptr<Repository::IPackageVersion>>;
+            using value_t = std::vector<std::shared_ptr<Repository::IPackageVersion>>;
+        };
+
+        template <>
+        struct DataMapping<Data::Sources>
+        {
+            using value_t = std::vector<std::shared_ptr<Repository::ISource>>;
         };
 
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.

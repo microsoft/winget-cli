@@ -386,6 +386,7 @@ namespace AppInstaller::CLI::Workflow
 
     void InstallMultiple(Execution::Context& context)
     {
+        bool allSucceeded = true;
         for (auto package : context.Get<Execution::Data::PackagesToInstall>())
         {
             Logging::SubExecutionTelemetryScope subExecution;
@@ -399,8 +400,16 @@ namespace AppInstaller::CLI::Workflow
             installContext.Add<Execution::Data::Manifest>(package->GetManifest());
 
             installContext << InstallPackageVersion;
+            if (installContext.IsTerminated())
+            {
+                allSucceeded = false;
+            }
+        }
 
-            // TODO: Handle errors in sub context
+        if (!allSucceeded)
+        {
+            context.Reporter.Error() << Resource::String::ImportInstallFailed << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED);
         }
     }
 }

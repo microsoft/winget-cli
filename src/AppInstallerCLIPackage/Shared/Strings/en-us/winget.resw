@@ -756,28 +756,47 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Uninstall failed with exit code:</value>
   </data>
-  <data name="ExportCommandLongDescription" xml:space="preserve">
-    <value>TODO Export description</value>
-  </data>
   <data name="ExportCommandShortDescription" xml:space="preserve">
-    <value>TODO Export</value>
+    <value>Exports a list of the installed packages</value>
   </data>
   <data name="ImportCommandLongDescription" xml:space="preserve">
-    <value>TODO Import description</value>
+    <value>Installs all the packages listed in a file.</value>
   </data>
   <data name="ImportCommandShortDescription" xml:space="preserve">
-    <value>TODO Import</value>
+    <value>Installs all the packages in a file</value>
   </data>
   <data name="OutputFileArgumentDescription" xml:space="preserve">
-    <value>TODO</value>
+    <value>File where the result is to be written</value>
   </data>
   <data name="ImportFileArgumentDescription" xml:space="preserve">
-    <value>TODO</value>
+    <value>File describing the packages to install</value>
   </data>
   <data name="ExactVersionsArgumentDescription" xml:space="preserve">
-    <value>TODO</value>
+    <value>Install the exact versions listed in the import file</value>
   </data>
   <data name="ExportSourceArgumentDescription" xml:space="preserve">
     <value>Export packages from the specified source</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Writes a list of the installed packages to a file. The packages can then be installed with the import command.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>One or more imported packages failed to install</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Package not found for import:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Source required for import is not installed:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Installed package is not available from any source:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Installed version of package is not available from any source:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>No packages found in import file</value>
   </data>
 </root>

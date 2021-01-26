@@ -477,12 +477,9 @@ namespace AppInstaller::CLI::Workflow
         };
     }
 
-    void GetManifestFromPackage(Execution::Context& context)
+    void GetManifestWithVersionFromPackage::operator()(Execution::Context& context) const
     {
-        std::string_view version = context.Args.GetArg(Execution::Args::Type::Version);
-        std::string_view channel = context.Args.GetArg(Execution::Args::Type::Channel);
-
-        PackageVersionKey key("", version, channel);
+        PackageVersionKey key("", m_version, m_channel);
         auto requestedVersion = context.Get<Execution::Data::Package>()->GetAvailableVersion(key);
 
         std::optional<Manifest::Manifest> manifest;
@@ -494,13 +491,13 @@ namespace AppInstaller::CLI::Workflow
         if (!manifest)
         {
             context.Reporter.Error() << Resource::String::GetManifestResultVersionNotFound << ' ';
-            if (!version.empty())
+            if (!m_version.empty())
             {
-                context.Reporter.Error() << version;
+                context.Reporter.Error() << m_version;
             }
-            if (!channel.empty())
+            if (!m_channel.empty())
             {
-                context.Reporter.Error() << '[' << channel << ']';
+                context.Reporter.Error() << '[' << m_channel << ']';
             }
 
             context.Reporter.Error() << std::endl;
@@ -510,6 +507,11 @@ namespace AppInstaller::CLI::Workflow
         Logging::Telemetry().LogManifestFields(manifest->Id, manifest->Name, manifest->Version);
         context.Add<Execution::Data::Manifest>(std::move(manifest.value()));
         context.Add<Execution::Data::PackageVersion>(std::move(requestedVersion));
+    }
+
+    void GetManifestFromPackage(Execution::Context& context)
+    {
+        context << GetManifestWithVersionFromPackage(context.Args.GetArg(Execution::Args::Type::Version), context.Args.GetArg(Execution::Args::Type::Channel));
     }
 
     void VerifyFile::operator()(Execution::Context& context) const

@@ -107,6 +107,12 @@ namespace AppInstaller
                 return "Installer failed security check";
             case APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH:
                 return "Download size does not match expected content length";
+            case APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND:
+                return "Uninstall command not found";
+            case APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED:
+                return "Running uninstall command failed";
+            case APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED:
+                return "Failed to install one or more imported packages";
             default:
                 return "Unknown Error Code";
             }

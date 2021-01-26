@@ -34,7 +34,7 @@
           "SourceDetails": {
             "description": "Details about this source",
             "type": "object",
-            "required": false,
+            "required": true,
             "additionalProperties": true,
 
             "properties": {

@@ -199,6 +199,25 @@ namespace AppInstaller::CLI::Workflow
     };
 
     // Gets the manifest from package.
+    // Required Args: Version and channel; can be empty
+    // Inputs: Package
+    // Outputs: Manifest, PackageVersion
+    struct GetManifestWithVersionFromPackage : public WorkflowTask
+    {
+        GetManifestWithVersionFromPackage(const Utility::VersionAndChannel& versionAndChannel) :
+            WorkflowTask("GetManifestWithVersionFromPackage"), m_version(versionAndChannel.GetVersion().ToString()), m_channel(versionAndChannel.GetChannel().ToString()) {}
+
+        GetManifestWithVersionFromPackage(std::string_view version, std::string_view channel) :
+            WorkflowTask("GetManifestWithVersionFromPackage"), m_version(version), m_channel(channel) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        std::string_view m_version;
+        std::string_view m_channel;
+    };
+
+    // Gets the manifest from package.
     // Required Args: None
     // Inputs: Package
     // Outputs: Manifest, PackageVersion
