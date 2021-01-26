@@ -90,7 +90,10 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="Shared" />
+  <ImportGroup Label="Shared">
+    <Import Project="..\Valijson\Valijson.vcxitems" Label="Shared" />
+    <Import Project="..\ManifestSchema\ManifestSchema.vcxitems" Label="Shared" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -268,9 +271,12 @@
     <ClInclude Include="Public\winget\Manifest.h" />
     <ClInclude Include="Public\winget\ManifestInstaller.h" />
     <ClInclude Include="Public\winget\ManifestLocalization.h" />
+    <ClInclude Include="Public\winget\ManifestTypes.h" />
     <ClInclude Include="Public\winget\ManifestValidation.h" />
     <ClInclude Include="Public\winget\ManifestYamlParser.h" />
+    <ClInclude Include="Public\winget\ManifestYamlPopulator.h" />
     <ClInclude Include="Public\winget\Registry.h" />
+    <ClInclude Include="Public\winget\ManifestSchemaValidation.h" />
     <ClInclude Include="Public\winget\Settings.h" />
     <ClInclude Include="Public\winget\UserSettings.h" />
     <ClInclude Include="Public\winget\Yaml.h" />
@@ -303,9 +309,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="JsonUtil.cpp" />
-    <ClCompile Include="Manifest\Manifest.cpp" />
-    <ClCompile Include="Manifest\ManifestInstaller.cpp" />
+    <ClCompile Include="Manifest\ManifestCommon.cpp" />
     <ClCompile Include="Manifest\ManifestValidation.cpp" />
+    <ClCompile Include="Manifest\ManifestSchemaValidation.cpp" />
+    <ClCompile Include="Manifest\ManifestYamlPopulator.cpp" />
     <ClCompile Include="Manifest\YamlParser.cpp" />
     <ClCompile Include="MsixInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>

@@ -16,6 +16,13 @@
 #define YAML_DECLARE_STATIC
 #include <yaml.h>
 
+#include <json.h>
+
+#include <valijson/schema.hpp>
+#include <valijson/schema_parser.hpp>
+#include <valijson/validator.hpp>
+#include <valijson/adapters/jsoncpp_adapter.hpp>
+
 #include <algorithm>
 #include <chrono>
 #include <cwctype>

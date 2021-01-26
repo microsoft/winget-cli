@@ -71,10 +71,11 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Valijson\Valijson.vcxitems*{358bc478-0624-4ad1-a933-0422b5292af8}*SharedItemsImports = 9
 		catch2\catch2.vcxitems*{5295e21e-9868-4de2-a177-fbb97b36579b}*SharedItemsImports = 9
+		ManifestSchema\ManifestSchema.vcxitems*{5890d6ed-7c3b-40f3-b436-b54f640d9e65}*SharedItemsImports = 4
+		Valijson\Valijson.vcxitems*{5890d6ed-7c3b-40f3-b436-b54f640d9e65}*SharedItemsImports = 4
 		binver\binver.vcxitems*{5b6f90df-fd19-4bae-83d9-24dad128e777}*SharedItemsImports = 4
 		binver\binver.vcxitems*{6e36ddd7-1602-474e-b1d7-d0a7e1d5ad86}*SharedItemsImports = 9
 		ManifestSchema\ManifestSchema.vcxitems*{7d05f64d-ce5a-42aa-a2c1-e91458f061cf}*SharedItemsImports = 9
-		catch2\catch2.vcxitems*{89b1aab4-2bbc-4b65-9ed7-a01d5cf88230}*SharedItemsImports = 4
 		binver\binver.vcxitems*{fb313532-38b0-4676-9303-ab200aa13576}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

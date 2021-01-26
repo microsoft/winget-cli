@@ -418,6 +418,14 @@ namespace AppInstaller::YAML
         return stream.str();
     }
 
+    void Emitter::Get(std::ostream& out)
+    {
+        Wrapper::Emitter emitter(out);
+
+        emitter.Dump(*m_document);
+        emitter.Flush();
+    }
+
     void Emitter::AppendNode(int id)
     {
         if (!m_containers.empty())

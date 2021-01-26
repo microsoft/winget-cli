@@ -25,4 +25,11 @@
       <Filter>schema</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ManifestSchema.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="$(MSBuildThisFileDirectory)ManifestSchema.rc" />
+  </ItemGroup>
 </Project>

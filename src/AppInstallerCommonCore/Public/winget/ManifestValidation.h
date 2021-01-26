@@ -31,6 +31,11 @@ namespace AppInstaller::Manifest
         const char* const DuplicateInstallerEntry = "Duplicate installer entry found.";
         const char* const InstallerTypeDoesNotSupportPackageFamilyName = "The specified installer type does not support PackageFamilyName.";
         const char* const InstallerTypeDoesNotSupportProductCode = "The specified installer type does not support ProductCode.";
+        const char* const IncompleteMultiFileManifest = "The multi file manifest is incomplete.";
+        const char* const InconsistentMultiFileManifestFieldValue = "The multi file manifest has inconsistent field values.";
+        const char* const DuplicateMultiFileManifestType = "The multi file manifest should contain only one file with the particular ManifestType.";
+        const char* const UnsupportedMultiFileManifestType = "The multi file manifest should not contain file with the particular ManifestType.";
+        const char* const InconsistentMultiFileManifestDefaultLocale = "DefaultLocale value in version manifest does not match PackageLocale value in defaultLocale manifest.";
     }
 
     struct ValidationError
@@ -48,6 +53,7 @@ namespace AppInstaller::Manifest
         size_t Line = 0;
         size_t Column = 0;
         Level ErrorLevel = Level::Error;
+        std::string FileName;
 
         ValidationError(std::string message) :
             Message(std::move(message)) {}
@@ -69,6 +75,20 @@ namespace AppInstaller::Manifest
 
         ValidationError(std::string message, std::string field, std::string value, size_t line, size_t column, Level level) :
             Message(std::move(message)), Field(std::move(field)), Value(std::move(value)), Line(line), Column(column), ErrorLevel(level) {}
+
+        static ValidationError MessageWithFile(std::string message, std::string file)
+        {
+            ValidationError error{ message };
+            error.FileName = file;
+            return error;
+        }
+
+        static ValidationError MessageFieldValueWithFile(std::string message, std::string field, std::string value, std::string file)
+        {
+            ValidationError error{ message, field, value };
+            error.FileName = file;
+            return error;
+        }
     };
 
     struct ManifestException : public wil::ResultException

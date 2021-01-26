@@ -111,5 +111,12 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\utils\utf8_utils.hpp">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\constraint_builder.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\schema.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\schema_parser.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\subschema.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\validation_results.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\validation_visitor.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\validator.hpp" />
   </ItemGroup>
 </Project>

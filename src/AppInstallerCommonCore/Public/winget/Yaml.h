@@ -195,6 +195,9 @@ namespace AppInstaller::YAML
         // Gets the result of the emitter; can only be retrieved once.
         std::string str();
 
+        // Gets the result of the emitter to out stream; can only be retrieved once.
+        void Get(std::ostream& out);
+
     private:
         // Appends the given node to the current container if applicable.
         void AppendNode(int id);
