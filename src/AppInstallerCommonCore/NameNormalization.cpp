@@ -28,14 +28,18 @@ namespace AppInstaller::Utility
         // arbitrary new processor architecture from names would hopefully only affect existing packages
         // that were not matching properly. Fixing a bug that was causing bad strings to be produced would
         // be impactful, and thus should likely result in a new iteration.
-        struct NormalizationInitial : public details::INameNormalizer
+        class NormalizationInitial : public details::INameNormalizer
         {
-        private:
             static std::wstring PrepareForValidation(std::string_view value)
             {
-                std::string result = FoldCase(value);
+                std::wstring result = Utility::Normalize(ConvertToUTF16(value));
                 Trim(result);
-                return ConvertToUTF16(result.substr(0, result.find("@@", 3)));
+                size_t atPos = result.find(L"@@", 3);
+                if (atPos != std::wstring::npos)
+                {
+                    result = result.substr(0, atPos);
+                }
+                return result;
             }
 
             // If the string is wrapped with some character groups, remove them.
@@ -81,13 +85,19 @@ namespace AppInstaller::Utility
             {
                 Architecture result = Architecture::Unknown;
 
-                if (Remove(ArchitectureX32, value) || Remove(Architecture32Bit, value))
+                // Must detect this first because "32/64 bit" is a superstring of "64 bit"
+                if (Remove(Architecture32Or64Bit, value))
                 {
-                    result = Architecture::X86;
+                    // If the program is 32 and 64 bit in the same installer, leave as unknown.
                 }
+                // Must detect 64 bit before 32 bit because of "x86-64" being a superstring of "x86"
                 else if (Remove(ArchitectureX64, value) || Remove(Architecture64Bit, value))
                 {
                     result = Architecture::X64;
+                }
+                else if (Remove(ArchitectureX32, value) || Remove(Architecture32Bit, value))
+                {
+                    result = Architecture::X86;
                 }
 
                 return result;
@@ -100,7 +110,6 @@ namespace AppInstaller::Utility
 
                 for (const auto& re : regexes)
                 {
-
                     result = Remove(*re, value) || result;
                 }
 
@@ -123,10 +132,12 @@ namespace AppInstaller::Utility
 
                         if (isMatch)
                         {
-                            // Ensure that the value is in the locale list
-                            auto bound = std::lower_bound(Locales.begin(), Locales.end(), text);
+                            std::wstring foldedText = ConvertToUTF16(FoldCase(text));
 
-                            if (bound == Locales.end() || *bound != text)
+                            // Ensure that the value is in the locale list
+                            auto bound = std::lower_bound(Locales.begin(), Locales.end(), foldedText);
+
+                            if (bound == Locales.end() || *bound != foldedText)
                             {
                                 // Match was not a locale in our list, so copy it out
                                 copy = true;
@@ -134,21 +145,20 @@ namespace AppInstaller::Utility
                             else if (!localeFound)
                             {
                                 // First/only match, just extract the value
-                                result = text;
+                                result = foldedText;
                                 localeFound = true;
                             }
                             else if (!result.empty())
                             {
                                 // For some reason, there are multiple locales listed.
                                 // See if they have anything in common.
-                                if (result != text)
+                                if (result != foldedText)
                                 {
                                     // Not completely the same (expected), see if they are at least the same language
                                     result.erase(result.find(L'-'));
-                                    std::wstring textString{ text };
-                                    textString.erase(textString.find(L'-'));
+                                    foldedText.erase(foldedText.find(L'-'));
 
-                                    if (result != textString)
+                                    if (result != foldedText)
                                     {
                                         // Not the same language, abandon having a locale and just clean them
                                         result.clear();
@@ -172,7 +182,7 @@ namespace AppInstaller::Utility
 
             // Splits the string based on the regex matches, excluding empty/whitespace strings
             // and any values found in the exclusions.
-            static std::vector<std::wstring> Split(const Regex::Expression& re, const std::wstring& value, const std::vector<std::wstring_view>& exclusions, bool stopOnExclusion = false)
+            static std::vector<std::wstring> Split(const Regex::Expression& re, const std::wstring& value, const std::vector<std::wstring>& exclusions, bool stopOnExclusion = false)
             {
                 std::vector<std::wstring> result;
 
@@ -184,11 +194,17 @@ namespace AppInstaller::Utility
                             return true;
                         }
 
-                        auto bound = std::lower_bound(exclusions.begin(), exclusions.end(), text);
-
-                        if (bound != exclusions.end() && *bound == text)
+                        // Do not stop for an exclusion if it is the first word found
+                        if (!result.empty())
                         {
-                            return !stopOnExclusion;
+                            std::wstring foldedText = ConvertToUTF16(FoldCase(text));
+
+                            auto bound = std::lower_bound(exclusions.begin(), exclusions.end(), foldedText);
+
+                            if (bound != exclusions.end() && *bound == foldedText)
+                            {
+                                return !stopOnExclusion;
+                            }
                         }
 
                         result.emplace_back(std::wstring{ text });
@@ -214,10 +230,11 @@ namespace AppInstaller::Utility
             static constexpr Regex::Options reOptions = Regex::Options::CaseInsensitive;
 
             // Archictecture
-            Regex::Expression ArchitectureX32{ R"((X32|X86)(?=\P{Nd}|$)(?:\sEDITION)?)", reOptions };
-            Regex::Expression ArchitectureX64{ R"((X64|X86([\p{Pd}\p{Pc}]64))(?=\P{Nd}|$)(?:\sEDITION)?)", reOptions };
-            Regex::Expression Architecture32Bit{ R"((?<=^|\P{Nd})(32[\p{Pd}\p{Pc}\p{Z}]?BIT)S?(?:\sEDITION)?)", reOptions };
-            Regex::Expression Architecture64Bit{ R"((?<=^|\P{Nd})(64[\p{Pd}\p{Pc}\p{Z}]?BIT)S?(?:\sEDITION)?)", reOptions };
+            Regex::Expression ArchitectureX32{ R"((?<=^|[^\p{L}\p{Nd}])(X32|X86)(?=\P{Nd}|$)(?:\sEDITION)?)", reOptions };
+            Regex::Expression ArchitectureX64{ R"((?<=^|[^\p{L}\p{Nd}])(X64|AMD64|X86([\p{Pd}\p{Pc}]64))(?=\P{Nd}|$)(?:\sEDITION)?)", reOptions };
+            Regex::Expression Architecture32Bit{ R"((?<=^|[^\p{L}\p{Nd}])(32[\p{Pd}\p{Pc}\p{Z}]?BIT)S?(?:\sEDITION)?)", reOptions };
+            Regex::Expression Architecture64Bit{ R"((?<=^|[^\p{L}\p{Nd}])(64[\p{Pd}\p{Pc}\p{Z}]?BIT)S?(?:\sEDITION)?)", reOptions };
+            Regex::Expression Architecture32Or64Bit{ R"((?<=^|[^\p{L}\p{Nd}])((64[\\\/]32|32[\\\/]64)[\p{Pd}\p{Pc}\p{Z}]?BIT)S?(?:\sEDITION)?)", reOptions };
 
             // Locale
             Regex::Expression Locale{ R"((?<![A-Z])((?:\p{Lu}{2,3}(-(CANS|CYRL|LATN|MONG))?-\p{Lu}{2})(?![A-Z])(?:-VALENCIA)?))", reOptions };
@@ -225,24 +242,30 @@ namespace AppInstaller::Utility
             // Specifically for SAP Business Objects programs
             Regex::Expression SAPPackage{ R"(^(?:[\p{Lu}\p{Nd}]+[\._])+[\p{Lu}\p{Nd}]+(?:-(?:\p{Nd}+\.)+\p{Nd}+)(?:-(?:\p{Lu}{2}(?:_\p{Lu}{2})?|CORE))(?:-(?:\p{Lu}{2}|\p{Nd}{2}))$)", reOptions };
 
+            // Extract KB numbers from their parens to preserve them
+            Regex::Expression KBNumbers{ R"(\((KB\d+)\))", reOptions };
+
+            Regex::Expression NonLettersAndDigits{ R"([^\p{L}\p{Nd}])", reOptions };
+            Regex::Expression URIProtocol{ R"((?<!\p{L})(?:http[s]?|ftp):\/\/)", reOptions }; // remove protocol from URIs
+
             Regex::Expression VersionDelimited{ R"((?:(?<!\p{L})(?:V|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)\P{L}?)?\p{Nd}+(?:[\p{Po}\p{Pd}\p{Pc}]\p{Nd}?(?:RC|B|A|R|SP|K)?\p{Nd}+)+(?:[\p{Po}\p{Pd}\p{Pc}]?\p{Lu}(?:\P{Lu}|$))?)", reOptions };
-            Regex::Expression Version{ R"((FOR\s)?(?<!\p{L})(?:P|V|R|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)(?:\P{L}|\P{L}\p{L})?[\p{Nd}\.]+(?:RC|B|A|R|V|SP)?\p{Nd}?)", reOptions };
+            Regex::Expression Version{ R"((FOR\s)?(?<!\p{L})(?:P|V|R|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)(?:\P{L}|\P{L}\p{L})?(\p{Nd}|\.\p{Nd})+(?:RC|B|A|R|V|SP)?\p{Nd}?)", reOptions };
             Regex::Expression VersionLetter{ R"((?<!\p{L})(?:(?:V|VER|VERSI(?:O|Ó)N|VERSÃO|VERSIE|WERSJA|BUILD|RELEASE|RC|SP)\P{L})?\p{Lu}\p{Nd}+(?:[\p{Po}\p{Pd}\p{Pc}]\p{Nd}+)+)", reOptions };
             Regex::Expression NonNestedBracket{ R"(\([^\(\)]*\)|\[[^\[\]]*\])", reOptions }; // remove things in parentheses, if there aren't parentheses nested inside
             Regex::Expression BracketEnclosed{ R"((?:\p{Ps}.*\p{Pe}|".*"))", reOptions }; // Impossible to properly handle nested parens with regex
-            Regex::Expression LeadingNonLetters{ R"(^\P{L}+)", reOptions }; // remove non-letters at the beginning
+            Regex::Expression LeadingSymbols{ R"(^[^\p{L}\p{Nd}]+)", reOptions }; // remove symbols at the beginning
             Regex::Expression TrailingNonLetters{ R"(\P{L}+$)", reOptions }; // remove non-letters at the end
             Regex::Expression PrefixParens{ R"(^\(.*?\))", reOptions }; // remove things in parentheses at the front of program names
             Regex::Expression EmptyParens{ R"((\(\s*\)|\[\s*\]|"\s*"))", reOptions }; // remove appearances of (), [], and "", with any number of spaces within
             Regex::Expression EN{ R"(\sEN\s*$)", reOptions }; // remove appearances of EN (represents English language) at the ends of program names
-            Regex::Expression TrailingSymbols{ R"([^\p{L}\p{Nd}]+$)", reOptions }; // remove all non-letter/numbers
+            Regex::Expression TrailingSymbols{ R"([^\p{L}\p{Nd}]+$)", reOptions }; // remove all non-letter/numbers at the end
             Regex::Expression FilePath{ R"(((INSTALLED\sAT|IN)\s)?[CDEF]:\\(.+?\\)*[^\s]*\\?)", reOptions }; // remove file paths
             Regex::Expression FilePathGHS{ R"(\(CHANGE #\d{1,2} TO [CDEF]:\\(.+?\\)*[^\s]*\\?\))", reOptions }; // remove file paths in certain Green Hills Software program names
             Regex::Expression FilePathParens{ R"(\([CDEF]:\\(.+?\\)*[^\s]*\\?\))", reOptions }; // remove file paths within parentheses
             Regex::Expression FilePathQuotes{ R"("[CDEF]:\\(.+?\\)*[^\s]*\\?")", reOptions }; // remove file paths within quotes
             Regex::Expression Roblox{ R"((?<=^ROBLOX\s(PLAYER|STUDIO))(\sFOR\s.*))", reOptions }; // for Roblox programs
             Regex::Expression Bomgar{ R"((?<=^BOMGAR\s(JUMP CLIENT|(ACCESS|REPRESENTATIVE) CONSOLE|BUTTON)|^EMBEDDED CALLBACK)(\s.*))", reOptions }; // for Bomgar programs
-            Regex::Expression AcronymSeparators{ R"((?:(?<=^\p{L})|(?<=\P{L}\p{L}))(?:\.|/)(?=\p{L}(?:\P{L}|$)))", reOptions };
+            Regex::Expression AcronymSeparators{ R"((?:(?<=^\p{L})|(?<=\P{L}\p{L}))(\.|\/)(?=\p{L}(?:\P{L}|$)))", reOptions };
             Regex::Expression NonLetters{ R"((?<=^|\s)[^\p{L}]+(?=\s|$))", reOptions }; // remove all non-letters not attached to 
             Regex::Expression ProgramNameSplit{ R"([^\p{L}\p{Nd}\+\&])", reOptions }; // used to separate 'words' in program names
             Regex::Expression PublisherNameSplit{ R"([^\p{L}\p{Nd}])", reOptions }; // used to separate 'words' in publisher names
@@ -261,10 +284,10 @@ namespace AppInstaller::Utility
                 &VersionDelimited,
                 &Version,
                 &EN,
-                &EmptyParens,
                 &NonNestedBracket,
                 &BracketEnclosed,
-                &LeadingNonLetters,
+                &URIProtocol,
+                &LeadingSymbols,
                 &TrailingSymbols
             };
 
@@ -274,13 +297,14 @@ namespace AppInstaller::Utility
                 &Version,
                 &NonNestedBracket,
                 &BracketEnclosed,
+                &URIProtocol,
                 &NonLetters,
                 &TrailingNonLetters,
                 &AcronymSeparators
             };
 
-            // Must be in sorted order so that search can be efficient
-            const std::vector<std::wstring_view> Locales
+            // Must be in sorted order so that search can be efficient; use Locales
+            const std::vector<std::wstring_view> LocaleViews
             {
                 L"AF-ZA", L"AM-ET", L"AR-AE", L"AR-BH", L"AR-DZ", L"AR-EG", L"AR-IQ", L"AR-JO", L"AR-KW", L"AR-LB", L"AR-LY",
                 L"AR-MA", L"ARN-CL", L"AR-OM", L"AR-QA", L"AR-SA", L"AR-SY", L"AR-TN", L"AR-YE", L"AS-IN", L"BA-RU", L"BE-BY",
@@ -305,11 +329,13 @@ namespace AppInstaller::Utility
                 L"SR-LATN-CS", L"SR-LATN-ME", L"SR-LATN-RS", L"TG-CYRL-TJ", L"TZM-LATN-DZ", L"UZ-CYRL-UZ", L"UZ-LATN-UZ",
             };
 
-            // Must be in sorted order so that search can be efficient
-            const std::vector<std::wstring_view> LegalEntitySuffixes
+            const std::vector<std::wstring> Locales;
+
+            // Must be in sorted order so that search can be efficient; use LegalEntitySuffixes
+            const std::vector<std::wstring_view> LegalEntitySuffixViews
             {
                 // Acronyms
-                L"AB", L"AD", L"AG", L"APS", L"AS", L"ASA", L"BV", L"CO", L"CV", L"DOO", L"GES", L"GESMBH", L"GMBH", L"INC", L"KG",
+                L"AB", L"AD", L"AG", L"APS", L"AS", L"ASA", L"BV", L"CO", L"CV", L"DOO", L"eV", L"GES", L"GESMBH", L"GMBH", L"INC", L"KG",
                 L"KS", L"PS", L"LLC", L"LP", L"LTD", L"LTDA", L"MBH", L"NV", L"PLC", L"SL", L"PTY", L"PVT", L"SA", L"SARL",
                 L"SC", L"SCA", L"SL", L"SP", L"SPA", L"SRL", L"SRO",
 
@@ -317,8 +343,20 @@ namespace AppInstaller::Utility
                 L"COMPANY", L"CORP", L"CORPORATION", L"HOLDING", L"HOLDINGS", L"INCORPORATED", L"LIMITED", L"SUBSIDIARY"
             };
 
+            const std::vector<std::wstring> LegalEntitySuffixes;
+
+            static std::vector<std::wstring> FoldAndSort(const std::vector<std::wstring_view>& input)
+            {
+                std::vector<std::wstring> result;
+                std::transform(input.begin(), input.end(), std::back_inserter(result), [](const std::wstring_view wsv) { return Utility::ConvertToUTF16(Utility::FoldCase(wsv)); });
+                std::sort(result.begin(), result.end());
+                return result;
+            }
+
         public:
-            NormalizationInitial() = default;
+            NormalizationInitial() : Locales(FoldAndSort(LocaleViews)), LegalEntitySuffixes(FoldAndSort(LegalEntitySuffixViews))
+            {
+            }
 
             InterimNameNormalizationResult NormalizeName(std::string_view name) const
             {
@@ -333,17 +371,19 @@ namespace AppInstaller::Utility
                 }
 
                 result.Architecture = RemoveArchitecture(result.Name);
-
-                // First pass to remove the majority
-                RemoveAll(ProgramNameRegexes, result.Name);
-
                 result.Locale = RemoveLocale(result.Name);
+
+                // Extract KB numbers from their parens and preserve them
+                result.Name = KBNumbers.Replace(result.Name, L"$1");
 
                 // Repeatedly remove matches for the regexes to create the minimum name
                 while (RemoveAll(ProgramNameRegexes, result.Name));
 
                 auto tokens = Split(ProgramNameSplit, result.Name, LegalEntitySuffixes);
                 result.Name = Join(tokens);
+
+                // Drop all undesired characters
+                Remove(NonLettersAndDigits, result.Name);
 
                 return result;
             }
@@ -353,11 +393,15 @@ namespace AppInstaller::Utility
                 InterimPublisherNormalizationResult result;
 
                 result.Publisher = PrepareForValidation(publisher);
+                while (Unwrap(result.Publisher)); // remove wrappers
 
                 while (RemoveAll(PublisherNameRegexes, result.Publisher));
 
                 auto tokens = Split(PublisherNameSplit, result.Publisher, LegalEntitySuffixes, true);
                 result.Publisher = Join(tokens);
+
+                // Drop all undesired characters
+                Remove(NonLettersAndDigits, result.Publisher);
 
                 return result;
             }

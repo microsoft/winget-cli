@@ -389,16 +389,39 @@ namespace AppInstaller::Utility
 
     std::string& Trim(std::string& str)
     {
-        size_t begin = str.find_first_not_of(s_SpaceChars);
-        size_t end = str.find_last_not_of(s_SpaceChars);
+        if (!str.empty())
+        {
+            size_t begin = str.find_first_not_of(s_SpaceChars);
+            size_t end = str.find_last_not_of(s_SpaceChars);
 
-        if (begin == std::string_view::npos || end == std::string_view::npos)
-        {
-            str.clear();
+            if (begin == std::string_view::npos || end == std::string_view::npos)
+            {
+                str.clear();
+            }
+            else if (begin != 0 || end != str.length() - 1)
+            {
+                str = str.substr(begin, (end - begin) + 1);
+            }
         }
-        else
+
+        return str;
+    }
+
+    std::wstring& Trim(std::wstring& str)
+    {
+        if (!str.empty())
         {
-            str = str.substr(begin, (end - begin) + 1);
+            size_t begin = str.find_first_not_of(s_WideSpaceChars);
+            size_t end = str.find_last_not_of(s_WideSpaceChars);
+
+            if (begin == std::string_view::npos || end == std::string_view::npos)
+            {
+                str.clear();
+            }
+            else if (begin != 0 || end != str.length() - 1)
+            {
+                str = str.substr(begin, (end - begin) + 1);
+            }
         }
 
         return str;

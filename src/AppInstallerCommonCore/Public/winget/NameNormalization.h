@@ -62,8 +62,6 @@ namespace AppInstaller::Utility
 
         NormalizedName Normalize(std::string_view name, std::string_view publisher) const;
 
-        // TODO: Expose test only function to ensure internal data consistency (such as sorted arrays)
-
     private:
         std::unique_ptr<details::INameNormalizer> m_normalizer;
     };
