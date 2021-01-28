@@ -16,3 +16,6 @@
 ^src/YamlCppLib/
 ^src/JsonCppLib/
 ^\.github/
+^src/AppInstallerCLITests/TestData/InputNames.txt$
+^src/AppInstallerCLITests/TestData/InputPublishers.txt$
+^src/AppInstallerCLITests/TestData/NormalizationInitialIds.txt$
