@@ -41,6 +41,8 @@ namespace AppInstaller::CLI
         context <<
             Workflow::VerifyFile(Execution::Args::Type::ImportFile) <<
             Workflow::ReadImportFile <<
+            Workflow::OpenSourcesForImport <<
+            Workflow::OpenPredefinedSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchPackagesForImport <<
             Workflow::InstallMultiple;
     }

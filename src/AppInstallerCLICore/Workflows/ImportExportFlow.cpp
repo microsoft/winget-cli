@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "InstallFlow.h"
 #include "ImportExportFlow.h"
+#include "UpdateFlow.h"
 #include "PackageCollection.h"
 #include "WorkflowBase.h"
 #include "AppInstallerRepositorySearch.h"
@@ -80,11 +81,18 @@ namespace AppInstaller::CLI::Workflow
 
     void ReadImportFile(Execution::Context& context)
     {
-        std::filesystem::path importFilePath{ context.Args.GetArg(Execution::Args::Type::ImportFile) };
+        std::ifstream importFile{ context.Args.GetArg(Execution::Args::Type::ImportFile) };
+        THROW_LAST_ERROR_IF(importFile.fail());
 
-        // TODO: Handle errors
         Json::Value jsonRoot;
-        std::ifstream{ importFilePath } >> jsonRoot;
+        Json::CharReaderBuilder builder;
+        Json::String errors;
+        if (!Json::parseFromStream(builder, importFile, &jsonRoot, &errors))
+        {
+            AICLI_LOG(CLI, Error, << "Failed to read JSON: " << errors);
+            context.Reporter.Error() << Resource::String::InvalidJsonFile << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
+        }
 
         auto packages = PackagesJson::ParseJson(jsonRoot);
         if (packages.Sources.empty())
@@ -97,18 +105,14 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::PackageCollection>(packages);
     }
 
-    void SearchPackagesForImport(Execution::Context& context)
+    void OpenSourcesForImport(Execution::Context& context)
     {
         auto availableSources = Repository::GetSources();
-        std::vector<std::shared_ptr<IPackageVersion>> packagesToInstall = {};
-        bool foundAll = true;
 
         // List of all the sources used for import.
         // Needed to keep all the source objects alive for install.
         std::vector<std::shared_ptr<ISource>> sources = {};
 
-        // Look for the packages needed from each source independently.
-        // If a package is available from multiple sources, this ensures we will get it from the right one.
         for (auto& requiredSource : context.Get<Execution::Data::PackageCollection>().Sources)
         {
             // Find the installed source matching the one described in the collection.
@@ -127,21 +131,52 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
             }
 
+            context << Workflow::OpenNamedSource(requiredSource.Details.Name);
+            if (context.IsTerminated())
+            {
+                return;
+            }
+
+            sources.push_back(context.Get<Execution::Data::Source>());
+        }
+
+        context.Add<Execution::Data::Sources>(std::move(sources));
+    }
+
+    void SearchPackagesForImport(Execution::Context& context)
+    {
+        const auto& sources = context.Get<Execution::Data::Sources>();
+        std::vector<std::shared_ptr<IPackageVersion>> packagesToInstall = {};
+        bool foundAll = true;
+
+        // Look for the packages needed from each source independently.
+        // If a package is available from multiple sources, this ensures we will get it from the right one.
+        for (auto& requiredSource : context.Get<Execution::Data::PackageCollection>().Sources)
+        {
+            // Find the required source among the open sources. This must exist as we already found them.
+            auto sourceItr = std::find_if(
+                sources.begin(),
+                sources.end(),
+                [&](const std::shared_ptr<ISource>& s) { return s->GetIdentifier() == requiredSource.Details.Identifier; });
+            if (sourceItr == sources.end())
+            {
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
+            }
+
             // Search for all the packages in the source.
             // Each search is done in a sub context to search everything regardless of previous failures.
-            context << OpenNamedSource(requiredSource.Details.Name);
-            auto source = context.Get<Execution::Data::Source>();
+            auto source = Repository::CreateCompositeSource(context.Get<Execution::Data::Source>(), *sourceItr);
             for (const auto& packageRequest : requiredSource.Packages)
             {
                 Logging::SubExecutionTelemetryScope subExecution;
 
-                auto searchContextPtr = context.Clone();
-                Execution::Context& searchContext = *searchContextPtr;
-                searchContext.Add<Execution::Data::Source>(source);
-
                 // Search for the current package
                 SearchRequest searchRequest;
                 searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, packageRequest.Id));
+
+                auto searchContextPtr = context.Clone();
+                Execution::Context& searchContext = *searchContextPtr;
+                searchContext.Add<Execution::Data::Source>(source);
                 searchContext.Add<Execution::Data::SearchResult>(source->Search(searchRequest));
 
                 Utility::VersionAndChannel versionAndChannel = {};
@@ -153,31 +188,39 @@ namespace AppInstaller::CLI::Workflow
                 // Find the single version we want is available
                 searchContext <<
                     Workflow::EnsureOneMatchFromSearchResult(false) <<
-                    Workflow::GetManifestWithVersionFromPackage(versionAndChannel);
+                    Workflow::GetManifestWithVersionFromPackage(versionAndChannel) <<
+                    Workflow::GetInstalledPackageVersion <<
+                    Workflow::EnsureUpdateVersionApplicable;
 
                 if (searchContext.IsTerminated())
                 {
-                    AICLI_LOG(CLI, Info, << "Package not found for import: [" << packageRequest.Id << "], Version " << versionAndChannel.ToString());
-                    context.Reporter.Info() << Resource::String::ImportSearchFailed << ' ' << packageRequest.Id << std::endl;
+                    if (searchContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
+                    {
+                        AICLI_LOG(CLI, Info, << "Package is already installed: [" << packageRequest.Id << "]");
+                        context.Reporter.Info() << Resource::String::ImportPackageAlreadyInstalled << ' ' << packageRequest.Id << std::endl;
+                        continue;
+                    }
+                    else
+                    {
+                        AICLI_LOG(CLI, Info, << "Package not found for import: [" << packageRequest.Id << "], Version " << versionAndChannel.ToString());
+                        context.Reporter.Info() << Resource::String::ImportSearchFailed << ' ' << packageRequest.Id << std::endl;
 
-                    // Keep searching for the remaining packages and only fail at the end.
-                    foundAll = false;
-                    continue;
+                        // Keep searching for the remaining packages and only fail at the end.
+                        foundAll = false;
+                        continue;
+                    }
                 }
 
                 packagesToInstall.push_back(std::move(searchContext.Get<Execution::Data::PackageVersion>()));
             }
-
-            sources.push_back(std::move(source));
         }
 
         if (!foundAll)
         {
-            // TODO: Set better error; report; log
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
+            AICLI_LOG(CLI, Info, << "Could not find one or more packages for import");
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
         }
 
         context.Add<Execution::Data::PackagesToInstall>(std::move(packagesToInstall));
-        context.Add<Execution::Data::Sources>(std::move(sources));
     }
 }

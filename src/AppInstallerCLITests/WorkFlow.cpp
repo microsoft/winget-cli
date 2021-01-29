@@ -7,6 +7,7 @@
 #include <AppInstallerLogging.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerStrings.h>
+#include <Workflows/ImportExportFlow.h>
 #include <Workflows/InstallFlow.h>
 #include <Workflows/UninstallFlow.h>
 #include <Workflows/UpdateFlow.h>
@@ -16,6 +17,8 @@
 #include <Workflows/WorkflowBase.h>
 #include <Public/AppInstallerRepositorySource.h>
 #include <Public/AppInstallerRepositorySearch.h>
+#include <Commands/ExportCommand.h>
+#include <Commands/ImportCommand.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/ShowCommand.h>
 #include <Commands/UninstallCommand.h>
@@ -65,7 +68,7 @@ namespace
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        TestPackage::Make(std::vector<Manifest>{ manifest }),
+                        TestPackage::Make(std::vector<Manifest>{ manifest }, this->shared_from_this()),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnOne")));
             }
             else if (input == "TestQueryReturnTwo")
@@ -73,13 +76,13 @@ namespace
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        TestPackage::Make(std::vector<Manifest>{ manifest }),
+                        TestPackage::Make(std::vector<Manifest>{ manifest }, this->shared_from_this()),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
 
                 auto manifest2 = YamlParser::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        TestPackage::Make(std::vector<Manifest>{ manifest2 }),
+                        TestPackage::Make(std::vector<Manifest>{ manifest2 }, this->shared_from_this()),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
             }
 
@@ -119,7 +122,8 @@ namespace
                                 { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
                                 { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
                             },
-                            std::vector<Manifest>{ manifest2, manifest }
+                            std::vector<Manifest>{ manifest2, manifest },
+                            this->shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
@@ -133,7 +137,8 @@ namespace
                         TestPackage::Make(
                             manifest,
                             TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
-                            std::vector<Manifest>{ manifest2, manifest }
+                            std::vector<Manifest>{ manifest2, manifest },
+                            this->shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMsixInstaller")));
             }
@@ -146,7 +151,8 @@ namespace
                         TestPackage::Make(
                             manifest,
                             TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "MSStore" } },
-                            std::vector<Manifest>{ manifest }
+                            std::vector<Manifest>{ manifest },
+                            this->shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMSStoreInstaller")));
             }
@@ -160,7 +166,8 @@ namespace
                         TestPackage::Make(
                             manifest2,
                             TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
-                            std::vector<Manifest>{ manifest2, manifest }
+                            std::vector<Manifest>{ manifest2, manifest },
+                            this->shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
@@ -174,7 +181,8 @@ namespace
                         TestPackage::Make(
                             manifest,
                             TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
-                            std::vector<Manifest>{ manifest2, manifest }
+                            std::vector<Manifest>{ manifest2, manifest },
+                            this->shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
@@ -291,6 +299,19 @@ void OverrideForCompositeInstalledSource(TestContext& context)
     context.Override({ "OpenCompositeSource", [](TestContext& context)
     {
         context.Add<Execution::Data::Source>(std::make_shared<WorkflowTestCompositeSource>());
+    } });
+}
+
+void OverrideForImportSource(TestContext& context)
+{
+    context.Override({ "OpenPredefinedSource", [](TestContext& context)
+    {
+        context.Add<Execution::Data::Source>({});
+    } });
+
+    context.Override({ Workflow::OpenSourcesForImport, [](TestContext& context)
+    {
+        context.Add<Execution::Data::Sources>(std::vector<std::shared_ptr<ISource>>{ std::make_shared<WorkflowTestCompositeSource>() });
     } });
 }
 
@@ -1066,6 +1087,165 @@ TEST_CASE("UninstallFlow_UninstallExeNotFound", "[UninstallFlow][workflow]")
     REQUIRE(!std::filesystem::exists(uninstallResultPath.GetPath()));
     REQUIRE(uninstallOutput.str().find(Resource::LocString(Resource::String::NoInstalledPackageFound).get()) != std::string::npos);
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
+}
+
+TEST_CASE("ExportFlow_ExportAll", "[ExportFlow][workflow]")
+{
+    TestCommon::TempFile exportResultPath("TestExport.json");
+
+    std::ostringstream exportOutput;
+    TestContext context{ exportOutput, std::cin };
+    OverrideForCompositeInstalledSource(context);
+    context.Args.AddArg(Execution::Args::Type::OutputFile, exportResultPath);
+
+    ExportCommand exportCommand({});
+    exportCommand.Execute(context);
+    INFO(exportOutput.str());
+
+    // Verify contents of exported collection
+    const auto& exportedCollection = context.Get<Execution::Data::PackageCollection>();
+    REQUIRE(exportedCollection.Sources.size() == 1);
+    REQUIRE(exportedCollection.Sources[0].Details.Identifier == "*TestSource");
+
+    const auto& exportedPackages = exportedCollection.Sources[0].Packages;
+    REQUIRE(exportedPackages.size() == 3);
+    REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
+        {
+            return p.Id == "AppInstallerCliTest.TestExeInstaller" && p.VersionAndChannel.GetVersion().ToString() == "1.0.0.0";
+        }));
+    REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
+        {
+            return p.Id == "AppInstallerCliTest.TestMsixInstaller" && p.VersionAndChannel.GetVersion().ToString() == "1.0.0.0";
+        }));
+    REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
+        {
+            return p.Id == "AppInstallerCliTest.TestMSStoreInstaller" && p.VersionAndChannel.GetVersion().ToString() == "Latest";
+        }));
+}
+
+TEST_CASE("ImportFlow_Successful", "[ImportFlow][workflow]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+    TestCommon::TempFile msixInstallResultPath("TestMsixInstalled.txt");
+
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    OverrideForImportSource(context);
+    OverrideForMSIX(context);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good.json").GetPath().string());
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+    INFO(importOutput.str());
+
+    // Verify all packages were installed
+    REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(msixInstallResultPath.GetPath()));
+}
+
+TEST_CASE("ImportFlow_PackageAlreadyInstalled", "[ImportFlow][workflow]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    OverrideForImportSource(context);
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good.json").GetPath().string());
+    context.Args.AddArg(Execution::Args::Type::ExactVersions);
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+    INFO(importOutput.str());
+
+    // Exe should not have been installed again
+    REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportPackageAlreadyInstalled).get()) != std::string::npos);
+}
+
+TEST_CASE("ImportFlow_MissingSource", "[ImportFlow][workflow]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Bad-UnknownSource.json").GetPath().string());
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+    INFO(importOutput.str());
+
+    // Installer should not be called
+    REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSourceNotInstalled).get()) != std::string::npos);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
+}
+
+TEST_CASE("ImportFlow_MissingPackage", "[ImportFlow][workflow]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    OverrideForImportSource(context);
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Bad-UnknownPackage.json").GetPath().string());
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+    INFO(importOutput.str());
+
+    // Installer should not be called
+    REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed).get()) != std::string::npos);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
+}
+
+TEST_CASE("ImportFlow_MissingVersion", "[ImportFlow][workflow]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    OverrideForImportSource(context);
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Bad-UnknownPackageVersion.json").GetPath().string());
+    context.Args.AddArg(Execution::Args::Type::ExactVersions);
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+    INFO(importOutput.str());
+
+    // Installer should not be called
+    REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed).get()) != std::string::npos);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
+}
+
+TEST_CASE("ImportFlow_MalformedJsonFile", "[ImportFlow][workflow]")
+{
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Bad-Malformed.json").GetPath().string());
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+    INFO(importOutput.str());
+
+    // Installer should not be called
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
+}
+
+TEST_CASE("ImportFlow_InvalidJsonFile", "[ImportFlow][workflow]")
+{
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Bad-Invalid.json").GetPath().string());
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+    INFO(importOutput.str());
+
+    // Installer should not be called
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
 }
 
 void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)

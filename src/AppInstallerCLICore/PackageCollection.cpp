@@ -127,15 +127,13 @@ namespace AppInstaller::CLI
         {
             Json::Value sourceNode{ Json::ValueType::objectValue };
 
-            if (!source.Details.Name.empty())
-            {
-                Json::Value sourceDetailsNode{ Json::ValueType::objectValue };
-                sourceDetailsNode[s_PackagesJson_Source_Name] = source.Details.Name;
-                sourceDetailsNode[s_PackagesJson_Source_Argument] = source.Details.Arg;
-                sourceDetailsNode[s_PackagesJson_Source_Identifier] = source.Details.Identifier;
-                sourceDetailsNode[s_PackagesJson_Source_Type] = source.Details.Type;
-                sourceNode[s_PackagesJson_Source_Details] = std::move(sourceDetailsNode);
-            }
+
+            Json::Value sourceDetailsNode{ Json::ValueType::objectValue };
+            sourceDetailsNode[s_PackagesJson_Source_Name] = source.Details.Name;
+            sourceDetailsNode[s_PackagesJson_Source_Argument] = source.Details.Arg;
+            sourceDetailsNode[s_PackagesJson_Source_Identifier] = source.Details.Identifier;
+            sourceDetailsNode[s_PackagesJson_Source_Type] = source.Details.Type;
+            sourceNode[s_PackagesJson_Source_Details] = std::move(sourceDetailsNode);
 
             sourceNode[s_PackagesJson_Packages] = Json::Value{ Json::ValueType::arrayValue };
 

@@ -113,6 +113,8 @@ namespace AppInstaller
                 return "Running uninstall command failed";
             case APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED:
                 return "Failed to install one or more imported packages";
+            case APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND:
+                return "Could not find one or more requested packages";
             default:
                 return "Unknown Error Code";
             }

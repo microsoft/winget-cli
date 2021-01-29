@@ -12,6 +12,9 @@ namespace TestCommon
     TestPackageVersion::TestPackageVersion(const Manifest& manifest, MetadataMap installationMetadata) :
         VersionManifest(manifest), Metadata(std::move(installationMetadata)) {}
 
+    TestPackageVersion::TestPackageVersion(const Manifest& manifest, std::weak_ptr<const ISource> source) :
+        VersionManifest(manifest), Source(source) {}
+
     TestPackageVersion::LocIndString TestPackageVersion::GetProperty(PackageVersionProperty property) const
     {
         switch (property)
@@ -59,7 +62,7 @@ namespace TestCommon
 
     std::shared_ptr<const ISource> TestPackageVersion::GetSource() const
     {
-        return Source;
+        return Source.lock();
     }
 
     TestPackageVersion::MetadataMap TestPackageVersion::GetMetadata() const
@@ -80,20 +83,20 @@ namespace TestCommon
         }
     }
 
-    TestPackage::TestPackage(const std::vector<Manifest>& available)
+    TestPackage::TestPackage(const std::vector<Manifest>& available, std::weak_ptr<const ISource> source)
     {
         for (const auto& manifest : available)
         {
-            AvailableVersions.emplace_back(TestPackageVersion::Make(manifest));
+            AvailableVersions.emplace_back(TestPackageVersion::Make(manifest, source));
         }
     }
 
-    TestPackage::TestPackage(const Manifest& installed, MetadataMap installationMetadata, const std::vector<Manifest>& available) :
+    TestPackage::TestPackage(const Manifest& installed, MetadataMap installationMetadata, const std::vector<Manifest>& available, std::weak_ptr<const ISource> source) :
         InstalledVersion(TestPackageVersion::Make(installed, std::move(installationMetadata)))
     {
         for (const auto& manifest : available)
         {
-            AvailableVersions.emplace_back(TestPackageVersion::Make(manifest));
+            AvailableVersions.emplace_back(TestPackageVersion::Make(manifest, source));
         }
     }
 
@@ -185,7 +188,7 @@ namespace TestCommon
 
     const std::string& TestSource::GetIdentifier() const
     {
-        return Identifier;
+        return Details.Identifier;
     }
 
     SearchResult TestSource::Search(const SearchRequest& request) const

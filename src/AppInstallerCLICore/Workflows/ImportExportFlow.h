@@ -23,9 +23,16 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: PackageCollection
     void ReadImportFile(Execution::Context& context);
 
-    // Finds the package versions to install matching their descriptions
+    // Opens the sources specified in an import file
     // Required Args: None
     // Inputs: PackageCollection
+    // Outputs: Sources
+    void OpenSourcesForImport(Execution::Context& context);
+
+    // Finds the package versions to install matching their descriptions
+    // Needs the sources for all packages and the installed source
+    // Required Args: None
+    // Inputs: PackageCollection, Sources, Source
     // Outputs: PackagesToInstall
     void SearchPackagesForImport(Execution::Context& context);
 }

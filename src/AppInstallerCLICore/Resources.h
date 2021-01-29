@@ -76,6 +76,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportFileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportInstallFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(ImportPackageAlreadyInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportSearchFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportSourceNotInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer1);
@@ -99,6 +100,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InteractiveArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidAliasError);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidArgumentSpecifierError);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidJsonFile);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidNameError);
         WINGET_DEFINE_RESOURCE_STRINGID(LanguageArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreement);
