@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Microsoft.Packaging.WinGetUtil</id>
+    <version>$version$</version>
+    <title></title>
+    <authors>Microsoft</authors>
+    <owners>Microsoft</owners>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/microsoft/winget-cli</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>The utility binary for use with the WinGet CLI.</description>
+    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="src\x64\Release\WinGetUtil\WinGetUtil.dll" target="runtimes\win-x64\native\WinGetUtil.dll"/>
+    <file src="src\x86\Release\WinGetUtil\WinGetUtil.dll" target="runtimes\win-x86\native\WinGetUtil.dll"/>
+  </files>
+</package>
