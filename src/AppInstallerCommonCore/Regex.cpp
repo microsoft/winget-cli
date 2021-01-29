@@ -138,7 +138,7 @@ namespace AppInstaller::Regex
             WINGET_THROW_REGEX_ERROR_IF_FAILED(uec, uregex_findNext);
 
             // Finally, send any remaining part
-            if (input.length() > startPos)
+            if (input.length() > static_cast<size_t>(startPos))
             {
                 f(false, input.substr(startPos));
             }
