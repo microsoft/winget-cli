@@ -1230,7 +1230,7 @@ TEST_CASE("ImportFlow_MalformedJsonFile", "[ImportFlow][workflow]")
     importCommand.Execute(context);
     INFO(importOutput.str());
 
-    // Installer should not be called
+    // Command should have failed
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
 }
 
@@ -1244,7 +1244,7 @@ TEST_CASE("ImportFlow_InvalidJsonFile", "[ImportFlow][workflow]")
     importCommand.Execute(context);
     INFO(importOutput.str());
 
-    // Installer should not be called
+    // Command should have failed
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
 }
 

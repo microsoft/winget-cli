@@ -15,7 +15,8 @@ namespace AppInstaller::CLI::Workflow
     void SelectVersionsToExport(Execution::Context& context)
     {
         const auto& searchResult = context.Get<Execution::Data::SearchResult>();
-        PackageCollection exportedPackages = {};
+        PackageCollection exportedPackages;
+        exportedPackages.ClientVersion = Runtime::GetClientVersion().get();
         auto& exportedSources = exportedPackages.Sources;
         for (const auto& packageMatch : searchResult.Matches)
         {
@@ -95,14 +96,20 @@ namespace AppInstaller::CLI::Workflow
         }
 
         auto packages = PackagesJson::ParseJson(jsonRoot);
-        if (packages.Sources.empty())
+        if (!packages.has_value())
+        {
+            context.Reporter.Error() << Resource::String::InvalidJsonFile << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
+        }
+
+        if (packages.value().Sources.empty())
         {
             AICLI_LOG(CLI, Warning, << "No packages to install");
             context.Reporter.Info() << Resource::String::NoPackagesFoundInImportFile << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
         }
 
-        context.Add<Execution::Data::PackageCollection>(packages);
+        context.Add<Execution::Data::PackageCollection>(packages.value());
     }
 
     void OpenSourcesForImport(Execution::Context& context)

@@ -5,6 +5,8 @@
   "title": "winget Packages List Schema",
   "description": "Describes a list of packages for batch installs",
 
+  "type": "object",
+  "required": [ "WinGetVersion", "Sources" ],
   "additionalProperties": true,
 
   "properties": {
@@ -27,39 +29,35 @@
       "items": {
         "description": "A source and the list of packages to install from it",
         "type": "object",
-        "required": true,
+        "required": [ "SourceDetails", "Packages" ],
         "additionalProperties": true,
 
         "properties": {
           "SourceDetails": {
             "description": "Details about this source",
             "type": "object",
-            "required": true,
+            "required": [ "Name", "Identifier", "Argument", "Type" ],
             "additionalProperties": true,
 
             "properties": {
               "Name": {
                 "description": "Name of the source",
-                "type": "string",
-                "required": true
+                "type": "string"
               },
 
               "Identifier": {
                 "description": "Identifier for the source",
-                "type": "string",
-                "required": true
+                "type": "string"
               },
 
               "Argument": {
                 "description": "Argument used to install the source",
-                "type": "string",
-                "required": true
+                "type": "string"
               },
 
               "Type": {
                 "description": "Type of the source",
-                "type": "string",
-                "required": true
+                "type": "string"
               }
             }
           },
@@ -67,7 +65,7 @@
           "Packages": {
             "description": "Packages installed from this source",
             "type": "array",
-            "required": true,
+            "required": [ "Id" ],
             "minItems": 1,
 
             "items": {
@@ -77,20 +75,17 @@
               "properties": {
                 "Id": {
                   "description": "Package ID",
-                  "type": "string",
-                  "required": true
+                  "type": "string"
                 },
 
                 "Version": {
                   "description": "Package version",
-                  "type": "string",
-                  "required": true
+                  "type": "string"
                 },
 
                 "Channel": {
                   "description": "Package channel",
-                  "type": "string",
-                  "required": false
+                  "type": "string"
                 }
               }
             }

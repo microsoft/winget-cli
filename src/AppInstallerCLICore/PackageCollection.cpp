@@ -5,6 +5,14 @@
 #include "PackageCollection.h"
 #include "AppInstallerRuntime.h"
 
+#pragma warning (push, 0)
+#include "valijson/adapters/jsoncpp_adapter.hpp"
+#include "valijson/utils/jsoncpp_utils.hpp"
+#include "valijson/schema.hpp"
+#include "valijson/schema_parser.hpp"
+#include "valijson/validator.hpp"
+#pragma warning (pop)
+
 #include <algorithm>
 #include <ostream>
 
@@ -49,7 +57,7 @@ namespace AppInstaller::CLI
         PackageCollection::Package ParsePackageNode(const Json::Value& packageNode)
         {
             std::string id = packageNode[s_PackagesJson_Package_Id].asString();
-            std::string version = packageNode[s_PackagesJson_Package_Version].asString();
+            std::string version = packageNode.isMember(s_PackagesJson_Package_Version) ? packageNode[s_PackagesJson_Package_Version].asString() : "";
             std::string channel = packageNode.isMember(s_PackagesJson_Package_Channel) ? packageNode[s_PackagesJson_Package_Channel].asString() : "";
 
             PackageCollection::Package package{ Utility::LocIndString{ id }, Utility::Version{ version }, Utility::Channel{ channel } };
@@ -90,11 +98,12 @@ namespace AppInstaller::CLI
             };
             return package.GetAvailableVersion(installedVersionKey);
         }
+
         // Creates a minimal root object of a Packages JSON file.
-        Json::Value CreateRoot()
+        Json::Value CreateRoot(const std::string& wingetVersion)
         {
             Json::Value root{ Json::ValueType::objectValue };
-            root[s_PackagesJson_WinGetVersion] = Runtime::GetClientVersion().get();
+            root[s_PackagesJson_WinGetVersion] = wingetVersion;
             root[s_PackagesJson_Schema] = s_PackagesJson_SchemaUri_V0;
 
             // TODO: This uses localtime. Do we want to use UTC or add time zone?
@@ -145,13 +154,47 @@ namespace AppInstaller::CLI
 
             return sourcesNode.append(std::move(sourceNode));
         }
+
+        bool IsValidJson(const Json::Value& document, const std::filesystem::path& schemaPath)
+        {
+            Json::Value schemaDocument;
+            if (!valijson::utils::loadDocument(schemaPath.string(), schemaDocument))
+            {
+                // TODO: fail
+            }
+
+            valijson::Schema schema;
+            valijson::SchemaParser parser;
+            valijson::adapters::JsonCppAdapter schemaAdapter{ schemaDocument };
+            parser.populateSchema(schemaAdapter, schema);
+
+            valijson::Validator validator;
+            valijson::ValidationResults results;
+             if (validator.validate(schema, valijson::adapters::JsonCppAdapter{ document }, &results)) {
+                return true;
+            }
+
+            for (const auto& result : results)
+            {
+                std::stringstream ss;
+                ss << result.description << ' ';
+                for (const auto& context : result.context)
+                {
+                    ss << '\\' << context;
+                }
+
+                AICLI_LOG(CLI, Error, << "JSON file is invalid: " << ss.str());
+            }
+
+            return false;
+        }
     }
 
     namespace PackagesJson
     {
         Json::Value CreateJson(const PackageCollection& packages)
         {
-            Json::Value root = CreateRoot();
+            Json::Value root = CreateRoot(packages.ClientVersion);
             for (const auto& source : packages.Sources)
             {
                 AddSourceNode(root, source);
@@ -160,15 +203,28 @@ namespace AppInstaller::CLI
             return root;
         }
 
-        PackageCollection ParseJson(const Json::Value& root)
+        std::optional<PackageCollection> ParseJson(const Json::Value& root)
         {
-            // TODO: Validate schema. The following assumes the file is already valid.
+            // TODO: Embed schema in binaries
+            if (!IsValidJson(root, "C:\\src\\winget-cli\\doc\\packages.schema.json"))
+            {
+                return {};
+            }
+
             PackageCollection packages;
             packages.ClientVersion = root[s_PackagesJson_WinGetVersion].asString();
             for (const auto& sourceNode : root[s_PackagesJson_Sources])
             {
-                // TODO: Prevent duplicates?
-                packages.Sources.push_back(ParseSourceNode(sourceNode));
+                auto newSource = ParseSourceNode(sourceNode);
+                auto existingSource = std::find_if(packages.Sources.begin(), packages.Sources.end(), [&](const PackageCollection::Source& s) { return s.Details.Identifier == newSource.Details.Identifier; });
+                if (existingSource == packages.Sources.end())
+                {
+                    packages.Sources.push_back(std::move(newSource));
+                }
+                else
+                {
+                    existingSource->Packages.insert(existingSource->Packages.end(), newSource.Packages.begin(), newSource.Packages.end());
+                }
             }
 
             return packages;

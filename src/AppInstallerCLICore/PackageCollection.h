@@ -3,8 +3,10 @@
 #pragma once
 
 #include "AppInstallerDateTime.h"
+#include "AppInstallerLanguageUtilities.h"
+#include "AppInstallerRepositorySource.h"
 
-#include <json.h>
+#include <json/json.h>
 
 #include <vector>
 
@@ -52,6 +54,6 @@ namespace AppInstaller::CLI
         // Converts a collection of packages to its JSON representation for exporting.
         Json::Value CreateJson(const PackageCollection& packages);
 
-        PackageCollection ParseJson(const Json::Value& root);
+        std::optional<PackageCollection> ParseJson(const Json::Value& root);
     }
 }
