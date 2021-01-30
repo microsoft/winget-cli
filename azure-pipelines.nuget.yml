@@ -125,9 +125,34 @@ jobs:
           versionEnvVar: version
           packDestination: "$(Build.ArtifactStagingDirectory)"
 
+      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+        displayName: "ESRP CodeSigning - NuGet package"
+        inputs:
+          ConnectedServiceName: "Peet ESRP CodeSigning"
+          FolderPath: "$(Build.ArtifactStagingDirectory)"
+          Pattern: "Microsoft.Packaging.WinGetUtil.$(version).nupkg"
+          signConfigType: inlineSignParams
+          inlineOperation: |
+            [
+              {
+                  "KeyCode" : "CP-401405",
+                  "OperationCode" : "NuGetSign",
+                  "Parameters" : {},
+                  "ToolName" : "sign",
+                  "ToolVersion" : "1.0"
+              },
+              {
+                  "KeyCode" : "CP-401405",
+                  "OperationCode" : "NuGetVerify",
+                  "Parameters" : {},
+                  "ToolName" : "sign",
+                  "ToolVersion" : "1.0"
+              }
+            ]
+
       - task: PublishBuildArtifacts@1
         displayName: Publish nuget package to artifacts
         inputs:
-          PathtoPublish: '$(Build.ArtifactStagingDirectory)\Microsoft.Packaging.WinGetUtil.*.nupkg'
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)\Microsoft.Packaging.WinGetUtil.$(version).nupkg'
           ArtifactName: "Microsoft.Packaging.WinGetUtil"
           publishLocation: "Container"
