@@ -11,7 +11,6 @@ pool:
 variables:
   solution: "src/AppInstallerCLI.sln"
   buildConfiguration: "Release"
-  appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
 
 jobs:
   - job: "Build"
@@ -63,7 +62,7 @@ jobs:
           ConnectedServiceName: "Peet ESRP CodeSigning"
           FolderPath: src
           Pattern: |
-            *\Release\WinGetUtil\WinGetUtil.dll
+            *\$(buildConfiguration)\WinGetUtil\WinGetUtil.dll
           UseMinimatch: true
           signConfigType: inlineSignParams
           inlineOperation: |
@@ -89,13 +88,6 @@ jobs:
                   "ToolVersion" : "1.0"
               }
             ]
-
-      - task: PublishBuildArtifacts@1
-        displayName: Publish Util Binary x64
-        inputs:
-          PathtoPublish: 'src\x64\Release\WinGetUtil\WinGetUtil.dll'
-          ArtifactName: "WinGetUtil.dll_x64"
-          publishLocation: "Container"
 
       - task: NuGetCommand@2
         displayName: Pack WingetUtil nuget package
