@@ -61,15 +61,15 @@ jobs:
         displayName: "ESRP CodeSigning - Package contents"
         inputs:
           ConnectedServiceName: "Peet ESRP CodeSigning"
-          FolderPath: 'src\'
+          FolderPath: src
           Pattern: |
-            x64\Release\WinGetUtil\WinGetUtil.dll
-            x86\Release\WinGetUtil\WinGetUtil.dll
+            *\Release\WinGetUtil\WinGetUtil.dll
+          UseMinimatch: true
           signConfigType: inlineSignParams
           inlineOperation: |
             [
               {
-                  "KeyCode" : "CP-230012",
+                  "KeyCode" : "CP-230217",
                   "OperationCode" : "SigntoolSign",
                   "Parameters" : {
                       "OpusName" : "Microsoft",
@@ -82,7 +82,7 @@ jobs:
                   "ToolVersion" : "1.0"
               },
               {
-                  "KeyCode" : "CP-230012",
+                  "KeyCode" : "CP-230217",
                   "OperationCode" : "SigntoolVerify",
                   "Parameters" : {},
                   "ToolName" : "sign",
@@ -138,10 +138,10 @@ jobs:
           ArtifactName: "Microsoft.Packaging.WinGetUtil"
           publishLocation: "Container"
 
-      - task: NuGetCommand@2
-        displayName: Push WingetUtil nuget package
-        inputs:
-          command: push
-          feedsToUse: config
-          includeNugetOrg: true
-          packagesToPush: '$(Build.ArtifactStagingDirectory)\Microsoft.Packaging.WinGetUtil.$(version).nupkg'
+      # - task: NuGetCommand@2
+      #   displayName: Push WingetUtil nuget package
+      #   inputs:
+      #     command: push
+      #     feedsToUse: config
+      #     includeNugetOrg: true
+      #     packagesToPush: '$(Build.ArtifactStagingDirectory)\Microsoft.Packaging.WinGetUtil.$(version).nupkg'
