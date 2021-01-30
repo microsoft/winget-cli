@@ -62,7 +62,8 @@ jobs:
         inputs:
           ConnectedServiceName: "Peet ESRP CodeSigning"
           FolderPath: "$(Build.SourcesDirectory)"
-          Pattern: "**/WinGetUtil.dll"
+          Pattern: |
+            **/WinGetUtil.dll
           signConfigType: inlineSignParams
           inlineOperation: |
             [
