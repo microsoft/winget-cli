@@ -43,12 +43,12 @@ jobs:
           arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer) -MajorMinorOverride ${{ parameters.version }}'
           workingDirectory: "src"
 
-      # - task: VSBuild@1
-      #   displayName: Build Solution x86
-      #   inputs:
-      #     platform: "x86"
-      #     solution: "$(solution)"
-      #     configuration: "$(buildConfiguration)"
+      - task: VSBuild@1
+        displayName: Build Solution x86
+        inputs:
+          platform: "x86"
+          solution: "$(solution)"
+          configuration: "$(buildConfiguration)"
 
       - task: VSBuild@1
         displayName: Build Solution x64
@@ -61,8 +61,10 @@ jobs:
         displayName: "ESRP CodeSigning - Package contents"
         inputs:
           ConnectedServiceName: "Peet ESRP CodeSigning"
-          FolderPath: 'src\x64\Release\WinGetUtil\'
-          Pattern: "WinGetUtil.dll"
+          FolderPath: 'src\'
+          Pattern: |
+            x64\Release\WinGetUtil\WinGetUtil.dll
+            x86\Release\WinGetUtil\WinGetUtil.dll
           signConfigType: inlineSignParams
           inlineOperation: |
             [
@@ -94,27 +96,6 @@ jobs:
           PathtoPublish: 'src\x64\Release\WinGetUtil\WinGetUtil.dll'
           ArtifactName: "WinGetUtil.dll_x64"
           publishLocation: "Container"
-
-      # - task: PublishBuildArtifacts@1
-      #   displayName: Publish Util Binary x86
-      #   inputs:
-      #     PathtoPublish: 'src\x86\Release\WinGetUtil\WinGetUtil.dll'
-      #     ArtifactName: "WinGetUtil.dll_x86"
-      #     publishLocation: "Container"
-
-      # - task: PublishBuildArtifacts@1
-      #   displayName: Publish Util Symbols x64
-      #   inputs:
-      #     PathtoPublish: 'src\x64\Release\WinGetUtil\WinGetUtil.pdb'
-      #     ArtifactName: "WinGetUtil.pdb_x64"
-      #     publishLocation: "Container"
-
-      # - task: PublishBuildArtifacts@1
-      #   displayName: Publish Util Symbols x86
-      #   inputs:
-      #     PathtoPublish: 'src\x86\Release\WinGetUtil\WinGetUtil.pdb'
-      #     ArtifactName: "WinGetUtil.pdb_x86"
-      #     publishLocation: "Container"
 
       - task: NuGetCommand@2
         displayName: Pack WingetUtil nuget package
@@ -156,3 +137,11 @@ jobs:
           PathtoPublish: '$(Build.ArtifactStagingDirectory)\Microsoft.Packaging.WinGetUtil.$(version).nupkg'
           ArtifactName: "Microsoft.Packaging.WinGetUtil"
           publishLocation: "Container"
+
+      - task: NuGetCommand@2
+        displayName: Push WingetUtil nuget package
+        inputs:
+          command: push
+          feedsToUse: config
+          includeNugetOrg: true
+          packagesToPush: '$(Build.ArtifactStagingDirectory)\Microsoft.Packaging.WinGetUtil.$(version).nupkg'
