@@ -16,6 +16,6 @@
   </metadata>
   <files>
     <file src="src\x64\Release\WinGetUtil\WinGetUtil.dll" target="runtimes\win-x64\native\WinGetUtil.dll"/>
-    <file src="src\x86\Release\WinGetUtil\WinGetUtil.dll" target="runtimes\win-x86\native\WinGetUtil.dll"/>
+    <!-- <file src="src\x86\Release\WinGetUtil\WinGetUtil.dll" target="runtimes\win-x86\native\WinGetUtil.dll"/> -->
   </files>
 </package>

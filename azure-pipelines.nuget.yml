@@ -17,7 +17,7 @@ jobs:
   - job: "Build"
     variables:
       BuildVer: $[counter(${{ parameters.version }}, 1)]
-      version: ${{ parameters.version }}$(BuildVer)
+      version: ${{ parameters.version }}.$(BuildVer)
     steps:
       - script: echo $(version)
 
@@ -43,12 +43,12 @@ jobs:
           arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer) -MajorMinorOverride ${{ parameters.version }}'
           workingDirectory: "src"
 
-      - task: VSBuild@1
-        displayName: Build Solution x86
-        inputs:
-          platform: "x86"
-          solution: "$(solution)"
-          configuration: "$(buildConfiguration)"
+      # - task: VSBuild@1
+      #   displayName: Build Solution x86
+      #   inputs:
+      #     platform: "x86"
+      #     solution: "$(solution)"
+      #     configuration: "$(buildConfiguration)"
 
       - task: VSBuild@1
         displayName: Build Solution x64
@@ -57,6 +57,37 @@ jobs:
           solution: "$(solution)"
           configuration: "$(buildConfiguration)"
 
+      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+        displayName: "ESRP CodeSigning - Package contents"
+        inputs:
+          ConnectedServiceName: "Peet ESRP CodeSigning"
+          FolderPath: "$(Build.BinariesDirectory)"
+          Pattern: "**/WinGetUtil.dll"
+          signConfigType: inlineSignParams
+          inlineOperation: |
+            [
+              {
+                  "KeyCode" : "CP-230012",
+                  "OperationCode" : "SigntoolSign",
+                  "Parameters" : {
+                      "OpusName" : "Microsoft",
+                      "OpusInfo" : "http://www.microsoft.com",
+                      "FileDigest" : "/fd \"SHA256\"",
+                      "PageHash" : "/NPH",
+                      "TimeStamp" : "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+                  },
+                  "ToolName" : "sign",
+                  "ToolVersion" : "1.0"
+              },
+              {
+                  "KeyCode" : "CP-230012",
+                  "OperationCode" : "SigntoolVerify",
+                  "Parameters" : {},
+                  "ToolName" : "sign",
+                  "ToolVersion" : "1.0"
+              }
+            ]
+
       - task: PublishBuildArtifacts@1
         displayName: Publish Util Binary x64
         inputs:
@@ -64,26 +95,26 @@ jobs:
           ArtifactName: "WinGetUtil.dll_x64"
           publishLocation: "Container"
 
-      - task: PublishBuildArtifacts@1
-        displayName: Publish Util Binary x86
-        inputs:
-          PathtoPublish: 'src\x86\Release\WinGetUtil\WinGetUtil.dll'
-          ArtifactName: "WinGetUtil.dll_x86"
-          publishLocation: "Container"
+      # - task: PublishBuildArtifacts@1
+      #   displayName: Publish Util Binary x86
+      #   inputs:
+      #     PathtoPublish: 'src\x86\Release\WinGetUtil\WinGetUtil.dll'
+      #     ArtifactName: "WinGetUtil.dll_x86"
+      #     publishLocation: "Container"
 
-      - task: PublishBuildArtifacts@1
-        displayName: Publish Util Symbols x64
-        inputs:
-          PathtoPublish: 'src\x64\Release\WinGetUtil\WinGetUtil.pdb'
-          ArtifactName: "WinGetUtil.pdb_x64"
-          publishLocation: "Container"
+      # - task: PublishBuildArtifacts@1
+      #   displayName: Publish Util Symbols x64
+      #   inputs:
+      #     PathtoPublish: 'src\x64\Release\WinGetUtil\WinGetUtil.pdb'
+      #     ArtifactName: "WinGetUtil.pdb_x64"
+      #     publishLocation: "Container"
 
-      - task: PublishBuildArtifacts@1
-        displayName: Publish Util Symbols x86
-        inputs:
-          PathtoPublish: 'src\x86\Release\WinGetUtil\WinGetUtil.pdb'
-          ArtifactName: "WinGetUtil.pdb_x86"
-          publishLocation: "Container"
+      # - task: PublishBuildArtifacts@1
+      #   displayName: Publish Util Symbols x86
+      #   inputs:
+      #     PathtoPublish: 'src\x86\Release\WinGetUtil\WinGetUtil.pdb'
+      #     ArtifactName: "WinGetUtil.pdb_x86"
+      #     publishLocation: "Container"
 
       - task: NuGetCommand@2
         displayName: Pack WingetUtil nuget package
@@ -92,10 +123,11 @@ jobs:
           packagesToPack: WinGetUtil.nuspec
           versioningScheme: byEnvVar
           versionEnvVar: version
+          packDestination: "$(Build.ArtifactStagingDirectory)"
 
       - task: PublishBuildArtifacts@1
         displayName: Publish nuget package to artifacts
         inputs:
-          PathtoPublish: "**/*.nupkg"
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)\Microsoft.Packaging.WinGetUtil.*.nupkg'
           ArtifactName: "Microsoft.Packaging.WinGetUtil"
           publishLocation: "Container"
