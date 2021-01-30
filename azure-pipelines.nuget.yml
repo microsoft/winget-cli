@@ -69,7 +69,7 @@ jobs:
           inlineOperation: |
             [
               {
-                  "KeyCode" : "CP-230217",
+                  "KeyCode" : "CP-230012",
                   "OperationCode" : "SigntoolSign",
                   "Parameters" : {
                       "OpusName" : "Microsoft",
@@ -82,7 +82,7 @@ jobs:
                   "ToolVersion" : "1.0"
               },
               {
-                  "KeyCode" : "CP-230217",
+                  "KeyCode" : "CP-230012",
                   "OperationCode" : "SigntoolVerify",
                   "Parameters" : {},
                   "ToolName" : "sign",
