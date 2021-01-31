@@ -9,7 +9,7 @@ namespace AppInstaller::Manifest
 {
     struct ManifestYamlPopulator
     {
-        std::vector<ValidationError> PopulateManifest(const YAML::Node& rootNode, Manifest& manifest);
+        static std::vector<ValidationError> PopulateManifest(const YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, bool fullValidation);
 
     private:
 
@@ -22,8 +22,7 @@ namespace AppInstaller::Manifest
             std::function<std::vector<ValidationError>(const YAML::Node&)> ProcessFunc;
         };
 
-        // Installers node need to be processed after other fields in package root for default installer values
-        YAML::Node* m_p_installersNode;
+        bool m_fullValidation = false;
 
         std::vector<FieldProcessInfo> RootFieldInfos;
         std::vector<FieldProcessInfo> InstallerFieldInfos;
@@ -32,18 +31,35 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> PackageDependenciesFieldInfos;
         std::vector<FieldProcessInfo> LocalizationFieldInfos;
 
+        // These pointers are referenced in the processing functions in manifest field process info table.
         AppInstaller::Manifest::Manifest* m_p_manifest = nullptr;
         AppInstaller::Manifest::ManifestInstaller* m_p_installer = nullptr;
         std::map<InstallerSwitchType, Utility::NormalizedString>* m_p_switches = nullptr;
         AppInstaller::Manifest::Dependency* m_p_dependency = nullptr;
         AppInstaller::Manifest::PackageDependency* m_p_packageDependency = nullptr;
-        AppInstaller::Manifest::Localization* m_p_localization = nullptr;
+        AppInstaller::Manifest::ManifestLocalization* m_p_localization = nullptr;
 
-        void GetRootFieldProcessInfo(const ManifestVer& manifestVersion);
-        void GetInstallerFieldProcessInfo(const ManifestVer& manifestVersion);
-        void GetSwitchesFieldProcessInfo(const ManifestVer& manifestVersion);
-        void GetDependenciesFieldProcessInfo(const ManifestVer& manifestVersion);
-        void GetPackageDependenciesFieldProcessInfo(const ManifestVer& manifestVersion);
-        void GetLocalizationFieldProcessInfo(const ManifestVer& manifestVersion);
+        // Cache of Installers node. This needs to be processed after other fields in package root for default installer values
+        YAML::Node* m_p_installersNode;
+
+        std::vector<FieldProcessInfo> GetRootFieldProcessInfo(const ManifestVer& manifestVersion);
+        std::vector<FieldProcessInfo> GetInstallerFieldProcessInfo(const ManifestVer& manifestVersion, bool forRootFields = false);
+        std::vector<FieldProcessInfo> GetSwitchesFieldProcessInfo(const ManifestVer& manifestVersion);
+        std::vector<FieldProcessInfo> GetDependenciesFieldProcessInfo(const ManifestVer& manifestVersion);
+        std::vector<FieldProcessInfo> GetPackageDependenciesFieldProcessInfo(const ManifestVer& manifestVersion);
+        std::vector<FieldProcessInfo> GetLocalizationFieldProcessInfo(const ManifestVer& manifestVersion, bool forRootFields = false);
+
+        // This method takes YAML root node and list of manifest field info.
+        // Yaml lib does not support case insensitive search and it allows duplicate keys. If duplicate keys exist,
+        // the value is undefined. So in this method, we will iterate through the node map and process each individual
+        // pair ourselves. This also helps with generating aggregated error rather than throwing on first failure.
+        std::vector<ValidationError> ValidateAndProcessFields(
+            const YAML::Node& rootNode,
+            const std::vector<FieldProcessInfo>& fieldInfos);
+
+        std::vector<ValidationError> ProcessLocalizationNode(const YAML::Node& rootNode, std::vector<ManifestLocalization>& localizations);
+        std::vector<ValidationError> ProcessPackageDependenciesNode(const YAML::Node& rootNode, std::vector<PackageDependency>& packageDependencies);
+
+        std::vector<ValidationError> PopulateManifestInternal(const YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, bool fullValidation);
     };
 }

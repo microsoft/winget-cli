@@ -24,7 +24,6 @@ namespace AppInstaller::Manifest
         CopyrightUrl,
         ShortDescription,
         Description,
-        Moniker,
         Tags,
         Max
     };
@@ -116,12 +115,6 @@ namespace AppInstaller::Manifest
         };
 
         template <>
-        struct LocalizationMapping<Localization::Moniker>
-        {
-            using value_t = string_t;
-        };
-
-        template <>
         struct LocalizationMapping<Localization::Tags>
         {
             using value_t = std::vector<string_t>;
@@ -147,12 +140,12 @@ namespace AppInstaller::Manifest
         template <Localization L>
         void Add(typename details::LocalizationMapping<L>::value_t&& v)
         {
-            m_data[D].emplace<details::LocalizationIndex(L)>(std::forward<typename details::LocalizationMapping<L>::value_t>(v));
+            m_data[L].emplace<details::LocalizationIndex(L)>(std::forward<typename details::LocalizationMapping<L>::value_t>(v));
         }
         template <Localization L>
         void Add(const typename details::LocalizationMapping<L>::value_t& v)
         {
-            m_data[D].emplace<details::LocalizationIndex(L)>(v);
+            m_data[L].emplace<details::LocalizationIndex(L)>(v);
         }
 
         // Return a value indicating whether the given data type is stored in the context.

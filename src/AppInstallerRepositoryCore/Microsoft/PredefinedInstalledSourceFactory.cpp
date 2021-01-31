@@ -88,7 +88,7 @@ namespace AppInstaller::Repository::Microsoft
                 auto manifestId = index.AddManifest(manifest, std::filesystem::path{ packageId.FamilyName().c_str() });
 
                 index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType, 
-                    Manifest::ManifestInstaller::InstallerTypeToString(Manifest::ManifestInstaller::InstallerTypeEnum::Msix));
+                    Manifest::ManifestInstaller::InstallerTypeToString(Manifest::InstallerTypeEnum::Msix));
             }
         }
 
@@ -119,7 +119,7 @@ namespace AppInstaller::Repository::Microsoft
                         arpHelper = ARPHelper();
                     }
 
-                    arpHelper->PopulateIndexFromARP(index, Manifest::ManifestInstaller::ScopeEnum::Machine);
+                    arpHelper->PopulateIndexFromARP(index, Manifest::ScopeEnum::Machine);
                 }
 
                 if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP_User)
@@ -129,7 +129,7 @@ namespace AppInstaller::Repository::Microsoft
                         arpHelper = ARPHelper();
                     }
 
-                    arpHelper->PopulateIndexFromARP(index, Manifest::ManifestInstaller::ScopeEnum::User);
+                    arpHelper->PopulateIndexFromARP(index, Manifest::ScopeEnum::User);
                 }
 
                 if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::MSIX)

@@ -1,15 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#include "ManifestTypes.h"
+#pragma once
+#include "ManifestCommon.h"
 
-namespace AppInstaller::Manifest
+#include <json.h>
+
+namespace AppInstaller::Manifest::YamlParser
 {
-    struct YamlManifestInfo
-    {
-        YAML::Node Root;
-        std::string FileName;
-        ManifestTypeEnum ManifestType;
-    };
+    // Forward declarations
+    struct YamlManifestInfo;
 
-    std::vector<ValidationError> ValidateAgainstSchema(const std::vector<YamlManifestInfo> manifestList, const ManifestVer& manifestVersion, PCWSTR resourceModuleName);
+    std::string LoadResourceAsString(PCWSTR resourceModuleName, PCWSTR resourceName, PCWSTR resourceType);
+
+    Json::Value LoadSchemaDoc(const ManifestVer& manifestVersion, ManifestTypeEnum manifestType, PCWSTR resourceModuleName);
+
+    std::vector<ValidationError> ValidateAgainstSchema(
+        const std::vector<YamlManifestInfo> manifestList,
+        const ManifestVer& manifestVersion,
+        PCWSTR resourceModuleName);
 }

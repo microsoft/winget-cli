@@ -75,7 +75,7 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Arch");
             }
 
-            if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::Unknown)
+            if (installer.InstallerType == InstallerTypeEnum::Unknown)
             {
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "InstallerType");
             }
@@ -96,7 +96,7 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportProductCode, "InstallerType", ManifestInstaller::InstallerTypeToString(installer.InstallerType));
             }
 
-            if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::MSStore)
+            if (installer.InstallerType == InstallerTypeEnum::MSStore)
             {
                 // MSStore type is not supported in community repo
                 resultErrors.emplace_back(
@@ -126,9 +126,9 @@ namespace AppInstaller::Manifest
                 }
             }
 
-            if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::Exe &&
-                (installer.Switches.find(ManifestInstaller::InstallerSwitchType::SilentWithProgress) == installer.Switches.end() ||
-                 installer.Switches.find(ManifestInstaller::InstallerSwitchType::Silent) == installer.Switches.end()))
+            if (installer.InstallerType == InstallerTypeEnum::Exe &&
+                (installer.Switches.find(InstallerSwitchType::SilentWithProgress) == installer.Switches.end() ||
+                 installer.Switches.find(InstallerSwitchType::Silent) == installer.Switches.end()))
             {
                 resultErrors.emplace_back(ManifestError::ExeInstallerMissingSilentSwitches, ValidationError::Level::Warning);
             }

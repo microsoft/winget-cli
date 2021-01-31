@@ -121,6 +121,7 @@ namespace AppInstaller::Utility
 
     // Removes whitespace from the beginning and end of the string.
     std::string& Trim(std::string& str);
+    std::string Trim(std::string&& str);
 
     // Reads the entire stream into a string.
     std::string ReadEntireStream(std::istream& stream);

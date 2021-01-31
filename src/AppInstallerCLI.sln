@@ -76,6 +76,7 @@ Global
 		binver\binver.vcxitems*{5b6f90df-fd19-4bae-83d9-24dad128e777}*SharedItemsImports = 4
 		binver\binver.vcxitems*{6e36ddd7-1602-474e-b1d7-d0a7e1d5ad86}*SharedItemsImports = 9
 		ManifestSchema\ManifestSchema.vcxitems*{7d05f64d-ce5a-42aa-a2c1-e91458f061cf}*SharedItemsImports = 9
+		catch2\catch2.vcxitems*{89b1aab4-2bbc-4b65-9ed7-a01d5cf88230}*SharedItemsImports = 4
 		binver\binver.vcxitems*{fb313532-38b0-4676-9303-ab200aa13576}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

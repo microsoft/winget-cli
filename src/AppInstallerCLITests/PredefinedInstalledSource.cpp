@@ -151,7 +151,7 @@ TEST_CASE("ARPHelper_GetARPForArchitecture", "[arphelper][list]")
 
     ARPHelper helper;
 
-    auto nativeMachineKey = helper.GetARPKey(ManifestInstaller::ScopeEnum::Machine, systemArch);
+    auto nativeMachineKey = helper.GetARPKey(ScopeEnum::Machine, systemArch);
     REQUIRE(nativeMachineKey);
 }
 

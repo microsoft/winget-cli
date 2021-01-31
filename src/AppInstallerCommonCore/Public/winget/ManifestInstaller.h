@@ -3,7 +3,7 @@
 #pragma once
 #include <AppInstallerArchitecture.h>
 #include <AppInstallerStrings.h>
-#include <winget\ManifestTypes.h>
+#include <winget\ManifestCommon.h>
 
 #include <map>
 #include <string>
@@ -20,15 +20,10 @@ namespace AppInstaller::Manifest
     {
         using string_t = Utility::NormalizedString;
 
-        
-
-        // Required
         AppInstaller::Utility::Architecture Arch;
 
-        // Required
         string_t Url;
 
-        // Required
         std::vector<BYTE> Sha256;
 
         // Optional. Only used by appx/msix type. If provided, Appinstaller will
@@ -76,6 +71,6 @@ namespace AppInstaller::Manifest
 
         std::vector<string_t> RestrictedCapabilities;
 
-        std::vector<Dependency> Dependencies;
+        Dependency Dependencies;
     };
 }

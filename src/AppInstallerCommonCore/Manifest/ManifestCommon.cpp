@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "winget/ManifestTypes.h"
+#include "winget/ManifestCommon.h"
 #include "winget/ManifestValidation.h"
 
 namespace AppInstaller::Manifest
@@ -194,6 +194,22 @@ namespace AppInstaller::Manifest
         return result;
     }
 
+    PlatformEnum ConvertToPlatformEnum(const std::string& in)
+    {
+        PlatformEnum result = PlatformEnum::Unknown;
+
+        if (Utility::CaseInsensitiveEquals(in, "windows.desktop"))
+        {
+            result = PlatformEnum::Desktop;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "windows.universal"))
+        {
+            result = PlatformEnum::Universal;
+        }
+
+        return result;
+    }
+
     ManifestTypeEnum ConvertToManifestTypeEnum(const std::string& in)
     {
         if (in == "singleton")
@@ -307,5 +323,40 @@ namespace AppInstaller::Manifest
         }
 
         return set1 == set2;
+    }
+
+    std::map<InstallerSwitchType, Utility::NormalizedString> GetDefaultKnownSwitches(InstallerTypeEnum installerType)
+    {
+        switch (installerType)
+        {
+        case InstallerTypeEnum::Burn:
+        case InstallerTypeEnum::Wix:
+        case InstallerTypeEnum::Msi:
+            return
+            {
+                {InstallerSwitchType::Silent, ManifestInstaller::string_t("/quiet")},
+                {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/passive")},
+                {InstallerSwitchType::Log, ManifestInstaller::string_t("/log \"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
+                {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("TARGETDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")},
+                {InstallerSwitchType::Update, ManifestInstaller::string_t("REINSTALL=ALL REINSTALLMODE=vamus")}
+            };
+        case InstallerTypeEnum::Nullsoft:
+            return
+            {
+                {InstallerSwitchType::Silent, ManifestInstaller::string_t("/S")},
+                {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/S")},
+                {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("/D=" + std::string(ARG_TOKEN_INSTALLPATH))}
+            };
+        case InstallerTypeEnum::Inno:
+            return
+            {
+                {InstallerSwitchType::Silent, ManifestInstaller::string_t("/VERYSILENT")},
+                {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/SILENT")},
+                {InstallerSwitchType::Log, ManifestInstaller::string_t("/LOG=\"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
+                {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("/DIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
+            };
+        default:
+            return {};
+        }
     }
 }

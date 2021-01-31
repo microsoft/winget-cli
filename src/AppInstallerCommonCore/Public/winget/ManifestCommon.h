@@ -7,6 +7,7 @@
 namespace AppInstaller::Manifest
 {
     using string_t = Utility::NormalizedString;
+    using namespace std::string_view_literals;
 
     // The maximum supported major version known about by this code.
     constexpr uint64_t s_MaxSupportedMajorVersion = 1;
@@ -103,7 +104,7 @@ namespace AppInstaller::Manifest
     struct PackageDependency
     {
         string_t Id;
-        ManifestVer MinVersion;
+        string_t MinVersion;
     };
 
     struct Dependency
@@ -121,6 +122,8 @@ namespace AppInstaller::Manifest
 
     ScopeEnum ConvertToScopeEnum(const std::string& in);
 
+    PlatformEnum ConvertToPlatformEnum(const std::string& in);
+
     ManifestTypeEnum ConvertToManifestTypeEnum(const std::string& in);
 
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType);
@@ -135,4 +138,6 @@ namespace AppInstaller::Manifest
 
     // Checks whether 2 installer types are compatible. E.g. inno and exe are update compatible
     bool IsInstallerTypeCompatible(InstallerTypeEnum type1, InstallerTypeEnum type2);
+
+    std::map<InstallerSwitchType, Utility::NormalizedString> GetDefaultKnownSwitches(InstallerTypeEnum installerType);
 }

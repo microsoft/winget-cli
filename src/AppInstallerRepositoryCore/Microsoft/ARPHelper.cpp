@@ -5,16 +5,16 @@
 
 namespace AppInstaller::Repository::Microsoft
 {
-    Registry::Key ARPHelper::GetARPKey(Manifest::ManifestInstaller::ScopeEnum scope, Utility::Architecture architecture) const
+    Registry::Key ARPHelper::GetARPKey(Manifest::ScopeEnum scope, Utility::Architecture architecture) const
     {
         HKEY rootKey = NULL;
 
         switch (scope)
         {
-        case Manifest::ManifestInstaller::ScopeEnum::User:
+        case Manifest::ScopeEnum::User:
             rootKey = HKEY_CURRENT_USER;
             break;
-        case Manifest::ManifestInstaller::ScopeEnum::Machine:
+        case Manifest::ScopeEnum::Machine:
             rootKey = HKEY_LOCAL_MACHINE;
             break;
         default:
@@ -38,7 +38,7 @@ namespace AppInstaller::Repository::Microsoft
             switch (architecture)
             {
             case Utility::Architecture::X86:
-                if (scope == Manifest::ManifestInstaller::ScopeEnum::Machine)
+                if (scope == Manifest::ScopeEnum::Machine)
                 {
                     access |= KEY_WOW64_32KEY;
                     isValid = true;
@@ -62,7 +62,7 @@ namespace AppInstaller::Repository::Microsoft
             switch (architecture)
             {
             case Utility::Architecture::X86:
-                if (scope == Manifest::ManifestInstaller::ScopeEnum::Machine)
+                if (scope == Manifest::ScopeEnum::Machine)
                 {
 #ifdef _ARM_
                     // Not accessible if this is an ARM process
@@ -172,7 +172,7 @@ namespace AppInstaller::Repository::Microsoft
         }
     }
 
-    void ARPHelper::PopulateIndexFromARP(SQLiteIndex& index, Manifest::ManifestInstaller::ScopeEnum scope) const
+    void ARPHelper::PopulateIndexFromARP(SQLiteIndex& index, Manifest::ScopeEnum scope) const
     {
         for (auto architecture : Utility::GetApplicableArchitectures())
         {
@@ -297,11 +297,11 @@ namespace AppInstaller::Repository::Microsoft
 
             // Pick up WindowsInstaller to determine if this is an MSI install.
             // TODO: Could also determine Inno (and maybe other types) through detecting other keys here.
-            auto installedType = Manifest::ManifestInstaller::InstallerTypeEnum::Exe;
+            auto installedType = Manifest::InstallerTypeEnum::Exe;
 
             if (GetBoolValue(arpKey, WindowsInstaller))
             {
-                installedType = Manifest::ManifestInstaller::InstallerTypeEnum::Msi;
+                installedType = Manifest::InstallerTypeEnum::Msi;
             }
 
             index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType, Manifest::ManifestInstaller::InstallerTypeToString(installedType));

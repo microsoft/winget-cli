@@ -140,6 +140,7 @@ namespace AppInstaller::YAML
         // The workers for the as function.
         std::string as_dispatch(std::string*) const;
         int64_t as_dispatch(int64_t*) const;
+        int as_dispatch(int*) const;
         bool as_dispatch(bool*) const;
 
         Type m_type;
@@ -196,7 +197,7 @@ namespace AppInstaller::YAML
         std::string str();
 
         // Gets the result of the emitter to out stream; can only be retrieved once.
-        void Get(std::ostream& out);
+        void Emit(std::ostream& out);
 
     private:
         // Appends the given node to the current container if applicable.

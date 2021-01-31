@@ -138,9 +138,6 @@
     <ClInclude Include="Public\winget\Registry.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\ManifestTypes.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\ManifestSchemaValidation.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
@@ -148,6 +145,9 @@
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\ManifestYamlPopulator.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\ManifestCommon.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
   </ItemGroup>

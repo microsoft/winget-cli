@@ -2,99 +2,86 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/Yaml.h"
-#include "winget/ManifestTypes.h"
+#include "winget/ManifestCommon.h"
 #include "winget/ManifestSchemaValidation.h"
 #include "winget/ManifestValidation.h"
+#include "winget/ManifestYamlParser.h"
 
 #include <ManifestSchema.h>
 
-namespace AppInstaller::Manifest
+namespace AppInstaller::Manifest::YamlParser
 {
-    Json::Value YamlNodeToJson(const YAML::Node& rootNode)
+    namespace
     {
-        Json::Value result;
+        enum class YamlScalarType
+        {
+            String,
+            Int
+        };
 
-        if (rootNode.IsNull())
+        using namespace std::string_view_literals;
+        const std::map<std::string_view, YamlScalarType> ManifestFieldTypes=
         {
-            result = Json::Value::nullSingleton();
-        }
-        else if (rootNode.IsMap())
+            { "InstallerSuccessCodes"sv, YamlScalarType::Int }
+        };
+
+        YamlScalarType GetManifestScalarValueType(const std::string& key)
         {
-            for (auto const& keyValuePair : rootNode.Mapping())
+            auto iter = ManifestFieldTypes.find(key);
+            if (iter != ManifestFieldTypes.end())
             {
-                // We only support string type as key in our manifest
-                result[keyValuePair.first.as<std::string>()] = YamlNodeToJson(keyValuePair.second);
-            }
-        }
-        else if (rootNode.IsSequence())
-        {
-            for (auto const& value : rootNode.Sequence())
-            {
-                result.append(YamlNodeToJson(value));
-            }
-        }
-        else if (rootNode.IsScalar())
-        {
-            result = YamlScalarNodeToJson(rootNode);
-        }
-        else
-        {
-            THROW_HR(E_UNEXPECTED);
-        }
-
-        return result;
-    }
-
-    Json::Value YamlScalarNodeToJson(const YAML::Node& scalarNode)
-    {
-        return Json::Value(scalarNode.as<std::string>());
-    }
-
-    std::vector<ValidationError> ValidateAgainstSchema(const std::vector<YamlManifestInfo> manifestList, const ManifestVer& manifestVersion, PCWSTR resourceModuleName)
-    {
-        std::vector<ValidationError> errors;
-        std::map<ManifestTypeEnum, valijson::Schema> schemaList;
-        valijson::Validator schemaValidator;
-
-        for (const auto& entry : manifestList)
-        {
-            if (schemaList.find(entry.ManifestType) == schemaList.end())
-            {
-                valijson::Schema newSchema;
-                valijson::SchemaParser schemaParser;
-                Json::Value schemaJson = LoadSchemaDoc(manifestVersion, entry.ManifestType, resourceModuleName);
-                valijson::adapters::JsonCppAdapter jsonSchemaAdapter(schemaJson);
-                schemaParser.populateSchema(jsonSchemaAdapter, newSchema);
-                schemaList.emplace(entry.ManifestType, std::move(newSchema));
+                return iter->second;
             }
 
-            const auto& schema = schemaList.find(entry.ManifestType)->second;
+            return YamlScalarType::String;
+        }
 
-            Json::Value manifestJson = YamlNodeToJson(entry.Root);
-            valijson::adapters::JsonCppAdapter manifestJsonAdapter(manifestJson);
-            valijson::ValidationResults results;
-
-            if (!schemaValidator.validate(schema, manifestJsonAdapter, &results))
+        Json::Value YamlScalarNodeToJson(const YAML::Node& scalarNode, YamlScalarType scalarType)
+        {
+            if (scalarType == YamlScalarType::Int)
             {
-                valijson::ValidationResults::Error error;
-                std::stringstream ss;
+                return Json::Value(scalarNode.as<int>());
+            }
+            else
+            {
+                return Json::Value(scalarNode.as<std::string>());
+            }
+        }
 
-                ss << "Schema validation failed." << std::endl;
-                while (results.popError(error))
+        Json::Value ManifestYamlNodeToJson(const YAML::Node& rootNode, YamlScalarType scalarType = YamlScalarType::String)
+        {
+            Json::Value result;
+
+            if (rootNode.IsNull())
+            {
+                result = Json::Value::nullSingleton();
+            }
+            else if (rootNode.IsMap())
+            {
+                for (auto const& keyValuePair : rootNode.Mapping())
                 {
-                    std::string context;
-                    for (auto itr = error.context.begin(); itr != error.context.end(); itr++)
-                    {
-                        context += *itr;
-                    }
-
-                    ss << "Error:" << std::endl
-                       << "  context: " << context << std::endl
-                       << "  description: " << error.description << std::endl;
+                    // We only support string type as key in our manifest
+                    auto key = keyValuePair.first.as<std::string>();
+                    result[keyValuePair.first.as<std::string>()] = ManifestYamlNodeToJson(keyValuePair.second, GetManifestScalarValueType(key));
                 }
-
-                errors.emplace_back(ValidationError::MessageWithFile(ss.str(), entry.FileName));
             }
+            else if (rootNode.IsSequence())
+            {
+                for (auto const& value : rootNode.Sequence())
+                {
+                    result.append(ManifestYamlNodeToJson(value, scalarType));
+                }
+            }
+            else if (rootNode.IsScalar())
+            {
+                result = YamlScalarNodeToJson(rootNode, scalarType);
+            }
+            else
+            {
+                THROW_HR(E_UNEXPECTED);
+            }
+
+            return result;
         }
     }
 
@@ -164,5 +151,51 @@ namespace AppInstaller::Manifest
         }
 
         return schemaJson;
+    }
+
+    std::vector<ValidationError> ValidateAgainstSchema(const std::vector<YamlManifestInfo>& manifestList, const ManifestVer& manifestVersion, PCWSTR resourceModuleName)
+    {
+        std::vector<ValidationError> errors;
+        std::map<ManifestTypeEnum, valijson::Schema> schemaList;
+        valijson::Validator schemaValidator;
+
+        for (const auto& entry : manifestList)
+        {
+            if (schemaList.find(entry.ManifestType) == schemaList.end())
+            {
+                valijson::Schema newSchema;
+                valijson::SchemaParser schemaParser;
+                Json::Value schemaJson = LoadSchemaDoc(manifestVersion, entry.ManifestType, resourceModuleName);
+                valijson::adapters::JsonCppAdapter jsonSchemaAdapter(schemaJson);
+                schemaParser.populateSchema(jsonSchemaAdapter, newSchema);
+                schemaList.emplace(entry.ManifestType, std::move(newSchema));
+            }
+
+            const auto& schema = schemaList.find(entry.ManifestType)->second;
+
+            Json::Value manifestJson = ManifestYamlNodeToJson(entry.Root);
+            valijson::adapters::JsonCppAdapter manifestJsonAdapter(manifestJson);
+            valijson::ValidationResults results;
+
+            if (!schemaValidator.validate(schema, manifestJsonAdapter, &results))
+            {
+                valijson::ValidationResults::Error error;
+                std::stringstream ss;
+
+                ss << "Schema validation failed." << std::endl;
+                while (results.popError(error))
+                {
+                    std::string context;
+                    for (auto itr = error.context.begin(); itr != error.context.end(); itr++)
+                    {
+                        context += *itr;
+                    }
+
+                    ss << "Error context: " << context << " Description: " << error.description << std::endl;
+                }
+
+                errors.emplace_back(ValidationError::MessageWithFile(ss.str(), entry.FileName));
+            }
+        }
     }
 }

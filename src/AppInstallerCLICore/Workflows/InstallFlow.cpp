@@ -45,7 +45,7 @@ namespace AppInstaller::CLI::Workflow
     {
         auto installerType = context.Get<Execution::Data::Installer>().value().InstallerType;
 
-        if (installerType == ManifestInstaller::InstallerTypeEnum::MSStore)
+        if (installerType == InstallerTypeEnum::MSStore)
         {
             context.Reporter.Info() << Resource::String::InstallationDisclaimerMSStore << std::endl;
         }
@@ -63,15 +63,15 @@ namespace AppInstaller::CLI::Workflow
 
         switch (installer.InstallerType)
         {
-        case ManifestInstaller::InstallerTypeEnum::Exe:
-        case ManifestInstaller::InstallerTypeEnum::Burn:
-        case ManifestInstaller::InstallerTypeEnum::Inno:
-        case ManifestInstaller::InstallerTypeEnum::Msi:
-        case ManifestInstaller::InstallerTypeEnum::Nullsoft:
-        case ManifestInstaller::InstallerTypeEnum::Wix:
+        case InstallerTypeEnum::Exe:
+        case InstallerTypeEnum::Burn:
+        case InstallerTypeEnum::Inno:
+        case InstallerTypeEnum::Msi:
+        case InstallerTypeEnum::Nullsoft:
+        case InstallerTypeEnum::Wix:
             context << DownloadInstallerFile << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
             break;
-        case ManifestInstaller::InstallerTypeEnum::Msix:
+        case InstallerTypeEnum::Msix:
             if (installer.SignatureSha256.empty())
             {
                 context << DownloadInstallerFile << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
@@ -82,7 +82,7 @@ namespace AppInstaller::CLI::Workflow
                 context << GetMsixSignatureHash << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
             }
             break;
-        case ManifestInstaller::InstallerTypeEnum::MSStore:
+        case InstallerTypeEnum::MSStore:
             // Nothing to do here
             break;
         default:
@@ -273,12 +273,12 @@ namespace AppInstaller::CLI::Workflow
 
         switch (installer.InstallerType)
         {
-        case ManifestInstaller::InstallerTypeEnum::Exe:
-        case ManifestInstaller::InstallerTypeEnum::Burn:
-        case ManifestInstaller::InstallerTypeEnum::Inno:
-        case ManifestInstaller::InstallerTypeEnum::Msi:
-        case ManifestInstaller::InstallerTypeEnum::Nullsoft:
-        case ManifestInstaller::InstallerTypeEnum::Wix:
+        case InstallerTypeEnum::Exe:
+        case InstallerTypeEnum::Burn:
+        case InstallerTypeEnum::Inno:
+        case InstallerTypeEnum::Msi:
+        case InstallerTypeEnum::Nullsoft:
+        case InstallerTypeEnum::Wix:
             if (isUpdate && installer.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::UninstallPrevious)
             {
                 context <<
@@ -288,10 +288,10 @@ namespace AppInstaller::CLI::Workflow
             }
             context << ShellExecuteInstall;
             break;
-        case ManifestInstaller::InstallerTypeEnum::Msix:
+        case InstallerTypeEnum::Msix:
             context << MsixInstall;
             break;
-        case ManifestInstaller::InstallerTypeEnum::MSStore:
+        case InstallerTypeEnum::MSStore:
             context <<
                 EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore) <<
                 EnsureStorePolicySatisfied <<

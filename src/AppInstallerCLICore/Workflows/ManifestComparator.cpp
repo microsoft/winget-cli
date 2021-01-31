@@ -12,14 +12,14 @@ namespace AppInstaller::CLI::Workflow
     namespace
     {
         // Determine if the installer is applicable.
-        bool IsInstallerApplicable(const Manifest::ManifestInstaller& installer, Manifest::ManifestInstaller::InstallerTypeEnum installedType)
+        bool IsInstallerApplicable(const Manifest::ManifestInstaller& installer, Manifest::InstallerTypeEnum installedType)
         {
             if (Utility::IsApplicableArchitecture(installer.Arch) == Utility::InapplicableArchitecture)
             {
                 return false;
             }
 
-            if (installedType != Manifest::ManifestInstaller::InstallerTypeEnum::Unknown &&
+            if (installedType != Manifest::InstallerTypeEnum::Unknown &&
                 !Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer.InstallerType, installedType))
             {
                 return false;
@@ -33,7 +33,7 @@ namespace AppInstaller::CLI::Workflow
         bool IsInstallerBetterMatch(
             const Manifest::ManifestInstaller& installer1,
             const Manifest::ManifestInstaller& installer2,
-            Manifest::ManifestInstaller::InstallerTypeEnum installedType)
+            Manifest::InstallerTypeEnum installedType)
         {
             auto arch1 = Utility::IsApplicableArchitecture(installer1.Arch);
             auto arch2 = Utility::IsApplicableArchitecture(installer2.Arch);
@@ -46,7 +46,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // If there's installation metadata, pick the preferred one or compatible one
-            if (installedType != Manifest::ManifestInstaller::InstallerTypeEnum::Unknown)
+            if (installedType != Manifest::InstallerTypeEnum::Unknown)
             {
                 if (installer1.InstallerType == installedType && installer2.InstallerType != installedType)
                 {
@@ -96,7 +96,7 @@ namespace AppInstaller::CLI::Workflow
         AICLI_LOG(CLI, Info, << "Starting installer selection.");
 
         // Get the currently installed package's type (if present)
-        Manifest::ManifestInstaller::InstallerTypeEnum installedType = Manifest::ManifestInstaller::InstallerTypeEnum::Unknown;
+        Manifest::InstallerTypeEnum installedType = Manifest::InstallerTypeEnum::Unknown;
         auto installerTypeItr = m_installationMetadata.find(Repository::PackageVersionMetadata::InstalledType);
         if (installerTypeItr != m_installationMetadata.end())
         {

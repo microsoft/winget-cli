@@ -244,6 +244,11 @@ namespace AppInstaller::YAML
         return std::stoll(m_scalar);
     }
 
+    int Node::as_dispatch(int*) const
+    {
+        return std::stoi(m_scalar);
+    }
+
     bool Node::as_dispatch(bool*) const
     {
         if (Utility::CaseInsensitiveEquals(m_scalar, "true"))
@@ -418,7 +423,7 @@ namespace AppInstaller::YAML
         return stream.str();
     }
 
-    void Emitter::Get(std::ostream& out)
+    void Emitter::Emit(std::ostream& out)
     {
         Wrapper::Emitter emitter(out);
 

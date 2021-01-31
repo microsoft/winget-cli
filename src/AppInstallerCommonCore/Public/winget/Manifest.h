@@ -14,11 +14,11 @@ namespace AppInstaller::Manifest
     {
         using string_t = Utility::NormalizedString;
 
-        // Required
         string_t Id;
 
-        // Required
         string_t Version;
+
+        string_t Moniker;
 
         ManifestVer ManifestVersion;
 
