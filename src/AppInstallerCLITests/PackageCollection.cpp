@@ -176,12 +176,12 @@ TEST_CASE("PackageCollection_Read_SingleSource", "[PackageCollection]")
         {
           "Packages": [
             {
-              "Id": "test.withversion",
+              "Id": "test.WithVersion",
               "Version": "0.1",
               "Channel": "Preview"
             },
             {
-              "Id": "test.noversion"
+              "Id": "test.NoVersion"
             }
           ],
           "SourceDetails": {
@@ -204,8 +204,8 @@ TEST_CASE("PackageCollection_Read_SingleSource", "[PackageCollection]")
     source.Details.Type = "Microsoft.PreIndexed.Package";
     source.Details.Identifier = "TestSourceId";
 
-    source.Packages.emplace_back(LocIndString{ "test.withversion"sv }, Version{ "0.1" }, Channel{ "Preview" });
-    source.Packages.emplace_back(LocIndString{ "test.noversion"sv }, Version{ "" }, Channel{ "" });
+    source.Packages.emplace_back(LocIndString{ "test.WithVersion"sv }, Version{ "0.1" }, Channel{ "Preview" });
+    source.Packages.emplace_back(LocIndString{ "test.NoVersion"sv }, Version{ "" }, Channel{ "" });
 
     PackageCollection expected
     {
