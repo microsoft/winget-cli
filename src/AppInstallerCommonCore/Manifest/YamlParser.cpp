@@ -298,21 +298,27 @@ namespace AppInstaller::Manifest::YamlParser
             outFileStream.close();
         }
 
-        std::vector<ValidationError> ParseManifest(
+        std::vector<ValidationError> ParseManifestImpl(
             std::vector<YamlManifestInfo>& input,
             Manifest& manifest,
             bool fullValidation,
-            bool isPartialManifest,
             PCWSTR resourceDll,
-            const std::filesystem::path& mergedManifestPath)
+            const std::filesystem::path& mergedManifestPath,
+            bool isPartialManifest)
         {
             THROW_HR_IF_MSG(E_INVALIDARG, input.size() == 0, "No manifest file found");
             THROW_HR_IF_MSG(E_INVALIDARG, isPartialManifest && !mergedManifestPath.empty(), "Manifest cannot be merged from partial manifest");
             THROW_HR_IF_MSG(E_INVALIDARG, input.size() == 1 && !mergedManifestPath.empty(), "Manifest cannot be merged from a single manifest");
+            THROW_HR_IF_MSG(E_INVALIDARG, !fullValidation && isPartialManifest, "For partial manifest, only schema validations are performed");
 
             auto manifestVersion = ValidateInput(input, fullValidation, isPartialManifest);
 
-            auto resultErrors = ValidateAgainstSchema(input, manifestVersion, resourceDll);
+            std::vector<ValidationError> resultErrors;
+
+            if (fullValidation)
+            {
+                resultErrors = ValidateAgainstSchema(input, manifestVersion, resourceDll);
+            }
 
             // For partial manifest, only schema validations are performed
             if (isPartialManifest)
@@ -344,9 +350,9 @@ namespace AppInstaller::Manifest::YamlParser
         const std::filesystem::path& inputPath,
         bool fullValidation,
         bool throwOnWarning,
-        bool isPartialManifest,
         PCWSTR resourceDll,
-        const std::filesystem::path& mergedManifestPath)
+        const std::filesystem::path& mergedManifestPath,
+        bool isPartialManifest)
     {
         std::vector<YamlManifestInfo> docList;
 
@@ -377,16 +383,16 @@ namespace AppInstaller::Manifest::YamlParser
             THROW_EXCEPTION_MSG(ManifestException(), e.what());
         }
 
-        return CreateImpl(docList, fullValidation, throwOnWarning, isPartialManifest, resourceDll, mergedManifestPath);
+        return ParseManifest(docList, fullValidation, throwOnWarning, resourceDll, mergedManifestPath, isPartialManifest);
     }
 
     Manifest Create(
         const std::string& input,
         bool fullValidation,
         bool throwOnWarning,
-        bool isPartialManifest,
         PCWSTR resourceDll,
-        const std::filesystem::path& mergedManifestPath)
+        const std::filesystem::path& mergedManifestPath,
+        bool isPartialManifest)
     {
         std::vector<YamlManifestInfo> docList;
 
@@ -401,23 +407,23 @@ namespace AppInstaller::Manifest::YamlParser
             THROW_EXCEPTION_MSG(ManifestException(), e.what());
         }
 
-        return CreateImpl(docList, fullValidation, throwOnWarning, isPartialManifest, resourceDll, mergedManifestPath);
+        return ParseManifest(docList, fullValidation, throwOnWarning, resourceDll, mergedManifestPath, isPartialManifest);
     }
 
-    Manifest CreateImpl(
+    Manifest ParseManifest(
         std::vector<YamlManifestInfo>& input,
         bool fullValidation,
         bool throwOnWarning,
-        bool isPartialManifest,
         PCWSTR resourceDll,
-        const std::filesystem::path& mergedManifestPath)
+        const std::filesystem::path& mergedManifestPath,
+        bool isPartialManifest)
     {
         Manifest manifest;
         std::vector<ValidationError> errors;
 
         try
         {
-            errors = ParseManifest(input, manifest, fullValidation, isPartialManifest, resourceDll, mergedManifestPath);
+            errors = ParseManifestImpl(input, manifest, fullValidation, resourceDll, mergedManifestPath, isPartialManifest);
         }
         catch (const ManifestException&)
         {

@@ -23,26 +23,23 @@ namespace AppInstaller::Manifest::YamlParser
         const std::filesystem::path& inputPath,
         bool fullValidation = false,
         bool throwOnWarning = false,
-        bool isPartialManifest = false,
         PCWSTR resourceDll = nullptr,
-        const std::filesystem::path& mergedManifestPath = {});
+        const std::filesystem::path& mergedManifestPath = {},
+        bool isPartialManifest = false);
 
     Manifest Create(
         const std::string& input,
         bool fullValidation = false,
         bool throwOnWarning = false,
-        bool isPartialManifest = false,
         PCWSTR resourceDll = nullptr,
-        const std::filesystem::path& mergedManifestPath = {});
+        const std::filesystem::path& mergedManifestPath = {},
+        bool isPartialManifest = false);
 
-    Manifest CreateImpl(
+    Manifest ParseManifest(
         std::vector<YamlManifestInfo>& input,
         bool fullValidation,
         bool throwOnWarning,
-        bool isPartialManifest,
         PCWSTR resourceDll,
-        const std::filesystem::path& mergedManifestPath);
-    
-
-    
+        const std::filesystem::path& mergedManifestPath,
+        bool isPartialManifest);
 }

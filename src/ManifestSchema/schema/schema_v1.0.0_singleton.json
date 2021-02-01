@@ -9,6 +9,12 @@
       "maxLength": 128,
       "description": "The package unique identifier"
     },
+    "PackageVersion": {
+      "type": "string",
+      "pattern": "^[^\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]+$",
+      "maxLength": 128,
+      "description": "The package version"
+    },
     "Locale": {
       "type": [ "string", "null" ],
       "pattern": "^([a-zA-Z]{2}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$",
@@ -187,7 +193,7 @@
       "description": "List of file extensions the package could support"
     },
     "Dependencies": {
-      "type": "object",
+      "type": [ "object", "null" ],
       "properties": {
         "WindowsFeatures": {
           "type": [ "array", "null" ],
@@ -214,10 +220,18 @@
         "PackageDependencies": {
           "type": [ "array", "null" ],
           "items": {
-            "$ref": "#/definitions/PackageIdentifier"
+            "type": "object",
+            "properties": {
+              "PackageIdentifier": {
+                "$ref": "#/definitions/PackageIdentifier"
+              },
+              "MinimumVersion": {
+                "$ref": "#/definitions/PackageVersion"
+              }
+            },
+            "required": [ "PackageIdentifier" ]
           },
           "maxItems": 16,
-          "uniqueItems": true,
           "description": "List of package dependencies from current source"
         },
         "ExternalDependencies": {
@@ -365,10 +379,7 @@
       "$ref": "#/definitions/PackageIdentifier"
     },
     "PackageVersion": {
-      "type": "string",
-      "pattern": "^[^\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]+$",
-      "maxLength": 128,
-      "description": "The package version"
+      "$ref": "#/definitions/PackageVersion"
     },
     "PackageLocale": {
       "$ref": "#/definitions/Locale",

@@ -246,7 +246,7 @@ namespace AppInstaller::YAML
 
     int Node::as_dispatch(int*) const
     {
-        return std::stoi(m_scalar);
+        return static_cast<int>(std::stoll(m_scalar, 0, 0));
     }
 
     bool Node::as_dispatch(bool*) const

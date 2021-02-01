@@ -525,12 +525,23 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void VerifyPath::operator()(Execution::Context& context) const
+    {
+        std::filesystem::path path = Utility::ConvertToUTF16(context.Args.GetArg(m_arg));
+
+        if (!std::filesystem::exists(path))
+        {
+            context.Reporter.Error() << Resource::String::VerifyFileFailedNotExist << ' ' << path.u8string() << std::endl;
+            AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND));
+        }
+    }
+
     void GetManifestFromArg(Execution::Context& context)
     {
         Logging::Telemetry().LogIsManifestLocal(true);
 
         context <<
-            VerifyFile(Execution::Args::Type::Manifest) <<
+            VerifyPath(Execution::Args::Type::Manifest) <<
             [](Execution::Context& context)
         {
             Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::Manifest)));

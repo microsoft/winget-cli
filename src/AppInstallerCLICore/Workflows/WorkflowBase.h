@@ -190,13 +190,27 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Manifest, PackageVersion
     void GetManifestFromPackage(Execution::Context& context);
 
-    // Ensures the the file exists and is not a directory.
+    // Ensures the file exists and is not a directory.
     // Required Args: the one given
     // Inputs: None
     // Outputs: None
     struct VerifyFile : public WorkflowTask
     {
         VerifyFile(Execution::Args::Type arg) : WorkflowTask("VerifyFile"), m_arg(arg) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Execution::Args::Type m_arg;
+    };
+
+    // Ensures the path exists.
+    // Required Args: the one given
+    // Inputs: None
+    // Outputs: None
+    struct VerifyPath : public WorkflowTask
+    {
+        VerifyPath(Execution::Args::Type arg) : WorkflowTask("VerifyPath"), m_arg(arg) {}
 
         void operator()(Execution::Context& context) const override;
 

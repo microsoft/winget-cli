@@ -488,22 +488,38 @@ namespace AppInstaller::Manifest
         PackageDependenciesFieldInfos = GetPackageDependenciesFieldProcessInfo(manifestVersion);
         LocalizationFieldInfos = GetLocalizationFieldProcessInfo(manifestVersion);
 
+        // Populate root
         YAML::Node installersNode;
         m_p_installersNode = &installersNode;
         m_p_manifest = &manifest;
         m_p_installer = &(manifest.DefaultInstallerInfo);
         m_p_localization = &(manifest.DefaultLocalization);
-
-        // Populate root
         resultErrors = ValidateAndProcessFields(rootNode, RootFieldInfos);
 
         // Populate installers
         for (auto const& entry : installersNode.Sequence())
         {
             ManifestInstaller installer = manifest.DefaultInstallerInfo;
+
+            // Clear these defaults as PackageFamilyName and ProductCode needs to be copied based on InstallerType
+            installer.PackageFamilyName.clear();
+            installer.ProductCode.clear();
+
             m_p_installer = &installer;
             auto errors = ValidateAndProcessFields(entry, InstallerFieldInfos);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+
+            // Copy in system reference strings from the root if not set in the installer and appropriate
+            if (installer.PackageFamilyName.empty() && DoesInstallerTypeUsePackageFamilyName(installer.InstallerType))
+            {
+                installer.PackageFamilyName = manifest.DefaultInstallerInfo.PackageFamilyName;
+            }
+
+            if (installer.ProductCode.empty() && DoesInstallerTypeUseProductCode(installer.InstallerType))
+            {
+                installer.ProductCode = manifest.DefaultInstallerInfo.ProductCode;
+            }
+
             manifest.Installers.emplace_back(std::move(installer));
         }
 

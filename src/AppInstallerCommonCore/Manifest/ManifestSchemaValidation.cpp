@@ -131,6 +131,7 @@ namespace AppInstaller::Manifest::YamlParser
                 break;
             case AppInstaller::Manifest::ManifestTypeEnum::Locale:
                 schemaStr = LoadResourceAsString(resourceModuleName, MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_LOCALE), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                break;
             default:
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }
