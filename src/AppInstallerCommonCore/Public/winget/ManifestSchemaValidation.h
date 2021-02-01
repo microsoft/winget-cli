@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ManifestCommon.h"
+#include "ManifestValidation.h"
 
 #include <json.h>
 
@@ -15,7 +16,7 @@ namespace AppInstaller::Manifest::YamlParser
     Json::Value LoadSchemaDoc(const ManifestVer& manifestVersion, ManifestTypeEnum manifestType, PCWSTR resourceModuleName);
 
     std::vector<ValidationError> ValidateAgainstSchema(
-        const std::vector<YamlManifestInfo> manifestList,
+        const std::vector<YamlManifestInfo>& manifestList,
         const ManifestVer& manifestVersion,
         PCWSTR resourceModuleName);
 }

@@ -31,5 +31,11 @@ namespace AppInstaller::Manifest
         std::vector<ManifestLocalization> Localizations;
 
         ManifestLocalization CurrentLocalization;
+
+        // If locale is empty, user setting locale will be used
+        void ApplyLocale(const std::string& locale = {});
+
+        std::vector<string_t> GetAggregatedTags() const;
+        std::vector<string_t> GetAggregatedCommands() const;
     };
 }

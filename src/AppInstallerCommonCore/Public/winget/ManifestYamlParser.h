@@ -3,6 +3,7 @@
 #pragma once
 #include <winget/ManifestValidation.h>
 #include <winget/Manifest.h>
+#include <winget/Yaml.h>
 
 #include <filesystem>
 

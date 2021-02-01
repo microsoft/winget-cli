@@ -151,13 +151,19 @@ namespace AppInstaller::Manifest
         // Return a value indicating whether the given data type is stored in the context.
         bool Contains(Localization l) { return (m_data.find(l) != m_data.end()); }
 
-        // Gets context data; which can be modified in place.
+        // Gets context data
         template <Localization L>
-        typename details::LocalizationMapping<L>::value_t& Get()
+        typename details::LocalizationMapping<L>::value_t Get() const
         {
             auto itr = m_data.find(L);
-            THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), itr == m_data.end(), "Get(%d)", L);
-            return std::get<details::LocalizationIndex(L)>(itr->second);
+            if (itr == m_data.end())
+            {
+                return {};
+            }
+            else
+            {
+                return std::get<details::LocalizationIndex(L)>(itr->second);
+            }
         }
 
     private:

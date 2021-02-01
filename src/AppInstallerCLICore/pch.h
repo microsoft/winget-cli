@@ -16,6 +16,7 @@
 #include <memory>
 #include <numeric>
 #include <optional>
+#include <set>
 #include <sstream>
 #include <string_view>
 #include <vector>

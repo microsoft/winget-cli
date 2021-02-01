@@ -309,6 +309,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="JsonUtil.cpp" />
+    <ClCompile Include="Manifest\Manifest.cpp" />
     <ClCompile Include="Manifest\ManifestCommon.cpp" />
     <ClCompile Include="Manifest\ManifestValidation.cpp" />
     <ClCompile Include="Manifest\ManifestSchemaValidation.cpp" />

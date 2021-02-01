@@ -99,7 +99,6 @@ namespace AppInstaller::CLI
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::GetManifest <<
-            Workflow::EnsureMinOSVersion <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
             Workflow::ShowInstallationDisclaimer <<

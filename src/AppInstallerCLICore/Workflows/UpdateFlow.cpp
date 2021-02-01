@@ -37,13 +37,6 @@ namespace AppInstaller::CLI::Workflow
                 auto packageVersion = package->GetAvailableVersion(key);
                 auto manifest = packageVersion->GetManifest();
 
-                // Check MinOSVersion
-                if (!manifest.MinOSVersion.empty() &&
-                    !Runtime::IsCurrentOSVersionGreaterThanOrEqual(Utility::Version(manifest.MinOSVersion)))
-                {
-                    continue;
-                }
-
                 // Check applicable Installer
                 auto installer = manifestComparator.GetPreferredInstaller(manifest);
                 if (!installer.has_value())
@@ -52,6 +45,7 @@ namespace AppInstaller::CLI::Workflow
                 }
 
                 // Since we already did installer selection, just populate the context Data
+                manifest.ApplyLocale();
                 context.Add<Execution::Data::Manifest>(std::move(manifest));
                 context.Add<Execution::Data::PackageVersion>(std::move(packageVersion));
                 context.Add<Execution::Data::Installer>(std::move(installer));

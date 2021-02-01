@@ -18,18 +18,6 @@ namespace AppInstaller::CLI::Workflow
     using namespace AppInstaller::Manifest;
     using namespace AppInstaller::Repository;
 
-    void EnsureMinOSVersion(Execution::Context& context)
-    {
-        const auto& manifest = context.Get<Execution::Data::Manifest>();
-
-        if (!manifest.MinOSVersion.empty() &&
-            !Runtime::IsCurrentOSVersionGreaterThanOrEqual(Version(manifest.MinOSVersion)))
-        {
-            context.Reporter.Error() << Resource::String::InstallationRequiresHigherWindows << ' ' << manifest.MinOSVersion << std::endl;
-            AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_OLD_WIN_VERSION));
-        }
-    }
-
     void EnsureApplicableInstaller(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>();
@@ -195,7 +183,8 @@ namespace AppInstaller::CLI::Workflow
             bool overrideHashMismatch = context.Args.Contains(Execution::Args::Type::Force);
 
             const auto& manifest = context.Get<Execution::Data::Manifest>();
-            Logging::Telemetry().LogInstallerHashMismatch(manifest.Id, manifest.Version, manifest.Channel, hashPair.first, hashPair.second, overrideHashMismatch);
+            const auto& installer = context.Get<Execution::Data::Installer>().value();
+            Logging::Telemetry().LogInstallerHashMismatch(manifest.Id, manifest.Version, installer.Channel, hashPair.first, hashPair.second, overrideHashMismatch);
 
             // If running as admin, do not allow the user to override the hash failure.
             if (Runtime::IsRunningAsAdmin())
@@ -279,7 +268,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Nullsoft:
         case InstallerTypeEnum::Wix:
-            if (isUpdate && installer.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::UninstallPrevious)
+            if (isUpdate && installer.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious)
             {
                 context <<
                     GetUninstallInfo <<
@@ -336,7 +325,8 @@ namespace AppInstaller::CLI::Workflow
         catch (const wil::ResultException& re)
         {
             const auto& manifest = context.Get<Execution::Data::Manifest>();
-            Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, "MSIX", re.GetErrorCode());
+            const auto& installer = context.Get<Execution::Data::Installer>().value();
+            Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, installer.Channel, "MSIX", re.GetErrorCode());
 
             context.Reporter.Error() << GetUserPresentableMessage(re) << std::endl;
             AICLI_TERMINATE_CONTEXT(re.GetErrorCode());

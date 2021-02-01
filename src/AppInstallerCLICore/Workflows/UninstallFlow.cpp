@@ -17,7 +17,7 @@ namespace AppInstaller::CLI::Workflow
     {
         auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
         const std::string installedTypeString = installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledType];
-        switch (ManifestInstaller::ConvertToInstallerTypeEnum(installedTypeString))
+        switch (ConvertToInstallerTypeEnum(installedTypeString))
         {
         case InstallerTypeEnum::Exe:
         case InstallerTypeEnum::Burn:
@@ -82,7 +82,7 @@ namespace AppInstaller::CLI::Workflow
     void ExecuteUninstaller(Execution::Context& context)
     {
         const std::string installedTypeString = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[PackageVersionMetadata::InstalledType];
-        switch (ManifestInstaller::ConvertToInstallerTypeEnum(installedTypeString))
+        switch (ConvertToInstallerTypeEnum(installedTypeString))
         {
         case InstallerTypeEnum::Exe:
         case InstallerTypeEnum::Burn:

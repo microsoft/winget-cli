@@ -526,6 +526,6 @@ namespace AppInstaller::Manifest
     ValidationErrors ManifestYamlPopulator::PopulateManifest(const YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, bool fullValidation)
     {
         ManifestYamlPopulator manifestPopulator;
-        return manifestPopulator.PopulateManifest(rootNode, manifest, manifestVersion, fullValidation);
+        return manifestPopulator.PopulateManifestInternal(rootNode, manifest, manifestVersion, fullValidation);
     }
 }

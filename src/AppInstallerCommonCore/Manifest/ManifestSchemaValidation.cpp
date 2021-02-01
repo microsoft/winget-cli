@@ -4,7 +4,6 @@
 #include "winget/Yaml.h"
 #include "winget/ManifestCommon.h"
 #include "winget/ManifestSchemaValidation.h"
-#include "winget/ManifestValidation.h"
 #include "winget/ManifestYamlParser.h"
 
 #include <ManifestSchema.h>
@@ -163,12 +162,13 @@ namespace AppInstaller::Manifest::YamlParser
         {
             if (schemaList.find(entry.ManifestType) == schemaList.end())
             {
-                valijson::Schema newSchema;
+                // Copy constructor of valijson::Schema was private
+                valijson::Schema& newSchema = schemaList.emplace(
+                    std::piecewise_construct, std::make_tuple(entry.ManifestType), std::make_tuple()).first->second;
                 valijson::SchemaParser schemaParser;
                 Json::Value schemaJson = LoadSchemaDoc(manifestVersion, entry.ManifestType, resourceModuleName);
                 valijson::adapters::JsonCppAdapter jsonSchemaAdapter(schemaJson);
                 schemaParser.populateSchema(jsonSchemaAdapter, newSchema);
-                schemaList.emplace(entry.ManifestType, std::move(newSchema));
             }
 
             const auto& schema = schemaList.find(entry.ManifestType)->second;
@@ -197,5 +197,7 @@ namespace AppInstaller::Manifest::YamlParser
                 errors.emplace_back(ValidationError::MessageWithFile(ss.str(), entry.FileName));
             }
         }
+
+        return errors;
     }
 }

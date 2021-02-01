@@ -3,9 +3,9 @@
 #include "pch.h"
 #include "AppInstallerSHA256.h"
 #include "winget/Yaml.h"
-#include "winget/ManifestYamlParser.h"
 #include "winget/ManifestSchemaValidation.h"
 #include "winget/ManifestYamlPopulator.h"
+#include "winget/ManifestYamlParser.h"
 
 namespace AppInstaller::Manifest::YamlParser
 {
@@ -186,7 +186,7 @@ namespace AppInstaller::Manifest::YamlParser
         {
             // We'll do case insensitive search first and validate correct case later.
             auto iter = std::find_if(input.begin(), input.end(),
-                [](auto const& s)
+                [=](auto const& s)
                 {
                     return s.ManifestType == manifestType;
                 });
@@ -306,6 +306,7 @@ namespace AppInstaller::Manifest::YamlParser
             PCWSTR resourceDll,
             const std::filesystem::path& mergedManifestPath)
         {
+            THROW_HR_IF_MSG(E_INVALIDARG, input.size() == 0, "No manifest file found");
             THROW_HR_IF_MSG(E_INVALIDARG, isPartialManifest && !mergedManifestPath.empty(), "Manifest cannot be merged from partial manifest");
             THROW_HR_IF_MSG(E_INVALIDARG, input.size() == 1 && !mergedManifestPath.empty(), "Manifest cannot be merged from a single manifest");
 

@@ -40,10 +40,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 return {};
             }
 
-            std::optional<SQLite::rowid_t> channelId = ChannelTable::SelectIdByValue(connection, manifest.Channel, true);
+            std::optional<SQLite::rowid_t> channelId = ChannelTable::SelectIdByValue(connection, manifest.Installers[0].Channel, true);
             if (!channelId)
             {
-                AICLI_LOG(Repo, Info, << "Did not find a Channel { " << manifest.Channel << " }");
+                AICLI_LOG(Repo, Info, << "Did not find a Channel { " << manifest.Installers[0].Channel << " }");
                 return {};
             }
 
@@ -51,7 +51,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             if (!result)
             {
-                AICLI_LOG(Repo, Info, << "Did not find a manifest row for { " << manifest.Id << ", " << manifest.Version << ", " << manifest.Channel << " }");
+                AICLI_LOG(Repo, Info, << "Did not find a manifest row for { " << manifest.Id << ", " << manifest.Version << ", " << manifest.Installers[0].Channel << " }");
             }
 
             return result;
@@ -185,10 +185,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Ensure that all of the 1:1 data exists.
         SQLite::rowid_t idId = IdTable::EnsureExists(connection, manifest.Id, true);
-        SQLite::rowid_t nameId = NameTable::EnsureExists(connection, manifest.Name);
-        SQLite::rowid_t monikerId = MonikerTable::EnsureExists(connection, manifest.AppMoniker);
+        SQLite::rowid_t nameId = NameTable::EnsureExists(connection, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>());
+        SQLite::rowid_t monikerId = MonikerTable::EnsureExists(connection, manifest.Moniker);
         SQLite::rowid_t versionId = VersionTable::EnsureExists(connection, manifest.Version);
-        SQLite::rowid_t channelId = ChannelTable::EnsureExists(connection, manifest.Channel);
+        SQLite::rowid_t channelId = ChannelTable::EnsureExists(connection, manifest.Installers[0].Channel);
 
         // Insert the manifest entry.
         SQLite::rowid_t manifestId = ManifestTable::Insert(connection, {
@@ -201,8 +201,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             });
 
         // Add all of the 1:N data.
-        TagsTable::EnsureExistsAndInsert(connection, manifest.Tags, manifestId);
-        CommandsTable::EnsureExistsAndInsert(connection, manifest.Commands, manifestId);
+        TagsTable::EnsureExistsAndInsert(connection, manifest.GetAggregatedTags(), manifestId);
+        CommandsTable::EnsureExistsAndInsert(connection, manifest.GetAggregatedCommands(), manifestId);
 
         savepoint.Commit();
 
@@ -237,21 +237,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             indexModified = true;
         }
 
-        if (channelInIndex != manifest.Channel)
+        if (channelInIndex != manifest.Installers[0].Channel)
         {
-            UpdateManifestValueById<ChannelTable>(connection, manifest.Channel, manifestId);
+            UpdateManifestValueById<ChannelTable>(connection, manifest.Installers[0].Channel, manifestId);
             indexModified = true;
         }
 
-        if (nameInIndex != manifest.Name)
+        auto packageName = manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>();
+        if (nameInIndex != packageName)
         {
-            UpdateManifestValueById<NameTable>(connection, manifest.Name, manifestId);
+            UpdateManifestValueById<NameTable>(connection, packageName, manifestId);
             indexModified = true;
         }
 
-        if (monikerInIndex != manifest.AppMoniker)
+        if (monikerInIndex != manifest.Moniker)
         {
-            UpdateManifestValueById<MonikerTable>(connection, manifest.AppMoniker, manifestId);
+            UpdateManifestValueById<MonikerTable>(connection, manifest.Moniker, manifestId);
             indexModified = true;
         }
 
@@ -273,8 +274,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Update all 1:N tables as necessary
-        indexModified = TagsTable::UpdateIfNeededByManifestId(connection, manifest.Tags, manifestId) || indexModified;
-        indexModified = CommandsTable::UpdateIfNeededByManifestId(connection, manifest.Commands, manifestId) || indexModified;
+        indexModified = TagsTable::UpdateIfNeededByManifestId(connection, manifest.GetAggregatedTags(), manifestId) || indexModified;
+        indexModified = CommandsTable::UpdateIfNeededByManifestId(connection, manifest.GetAggregatedCommands(), manifestId) || indexModified;
 
         savepoint.Commit();
 

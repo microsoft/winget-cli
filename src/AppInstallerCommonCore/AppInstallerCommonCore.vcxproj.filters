@@ -248,6 +248,9 @@
     <ClCompile Include="Manifest\ManifestYamlPopulator.cpp">
       <Filter>Manifest</Filter>
     </ClCompile>
+    <ClCompile Include="Manifest\Manifest.cpp">
+      <Filter>Manifest</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

@@ -33,7 +33,7 @@ namespace AppInstaller::Repository::Microsoft
             // Add one installer for storing the package family name.
             manifest.Installers.emplace_back();
             // Every package will have the same tags currently.
-            manifest.Tags = { "msix" };
+            manifest.DefaultLocalization.Add<Manifest::Localization::Tags>({ "msix" });
 
             // Fields in the index but not populated:
             //  AppMoniker - Not sure what we would put.
@@ -55,11 +55,17 @@ namespace AppInstaller::Repository::Microsoft
 
                 manifest.Id = familyName;
 
+                bool isPackageNameSet = false;
                 // Attempt to get the DisplayName. Since this will retrieve the localized value, it has a chance to fail.
                 // Rather than completely skip this package in that case, we will simply fall back to using the package name below.
                 try
                 {
-                    manifest.Name = Utility::ConvertToUTF8(package.DisplayName());
+                    auto displayName = Utility::ConvertToUTF8(package.DisplayName());
+                    if (!displayName.empty())
+                    {
+                        manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(displayName);
+                        isPackageNameSet = true;
+                    }
                 }
                 catch (const winrt::hresult_error& hre)
                 {
@@ -71,9 +77,9 @@ namespace AppInstaller::Repository::Microsoft
                     AICLI_LOG(Repo, Info, << "Unknown exception thrown when getting DisplayName for " << familyName);
                 }
 
-                if (manifest.Name.empty())
+                if (!isPackageNameSet)
                 {
-                    manifest.Name = Utility::ConvertToUTF8(packageId.Name());
+                    manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(Utility::ConvertToUTF8(packageId.Name()));
                 }
 
                 std::ostringstream strstr;
@@ -88,7 +94,7 @@ namespace AppInstaller::Repository::Microsoft
                 auto manifestId = index.AddManifest(manifest, std::filesystem::path{ packageId.FamilyName().c_str() });
 
                 index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType, 
-                    Manifest::ManifestInstaller::InstallerTypeToString(Manifest::InstallerTypeEnum::Msix));
+                    Manifest::InstallerTypeToString(Manifest::InstallerTypeEnum::Msix));
             }
         }
 
