@@ -108,7 +108,7 @@ TEST_CASE("SQLiteIndexSource_Name", "[sqliteindexsource]")
     REQUIRE(results.Matches[0].Package);
     auto latestVersion = results.Matches[0].Package->GetLatestAvailableVersion();
 
-    REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Name).get() == manifest.Name);
+    REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Name).get() == manifest.DefaultLocalization.Get<Localization::PackageName>());
 }
 
 TEST_CASE("SQLiteIndexSource_Versions", "[sqliteindexsource]")
@@ -131,7 +131,7 @@ TEST_CASE("SQLiteIndexSource_Versions", "[sqliteindexsource]")
     auto result = results.Matches[0].Package->GetAvailableVersionKeys();
     REQUIRE(result.size() == 1);
     REQUIRE(result[0].Version == manifest.Version);
-    REQUIRE(result[0].Channel == manifest.Channel);
+    REQUIRE(result[0].Channel == manifest.Installers[0].Channel);
 }
 
 TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
@@ -152,21 +152,21 @@ TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
     REQUIRE(results.Matches[0].Package);
     auto package = results.Matches[0].Package.get();
 
-    auto specificResultVersion = package->GetAvailableVersion(PackageVersionKey("", manifest.Version, manifest.Channel));
+    auto specificResultVersion = package->GetAvailableVersion(PackageVersionKey("", manifest.Version, manifest.Installers[0].Channel));
     REQUIRE(specificResultVersion);
     auto specificResult = specificResultVersion->GetManifest();
     REQUIRE(specificResult.Id == manifest.Id);
-    REQUIRE(specificResult.Name == manifest.Name);
+    REQUIRE(specificResult.DefaultLocalization.Get<Localization::PackageName>() == manifest.DefaultLocalization.Get<Localization::PackageName>());
     REQUIRE(specificResult.Version == manifest.Version);
-    REQUIRE(specificResult.Channel == manifest.Channel);
+    REQUIRE(specificResult.Installers[0].Channel == manifest.Installers[0].Channel);
 
-    auto latestResultVersion = package->GetAvailableVersion(PackageVersionKey("", "", manifest.Channel));
+    auto latestResultVersion = package->GetAvailableVersion(PackageVersionKey("", "", manifest.Installers[0].Channel));
     REQUIRE(latestResultVersion);
     auto latestResult = latestResultVersion->GetManifest();
     REQUIRE(latestResult.Id == manifest.Id);
-    REQUIRE(latestResult.Name == manifest.Name);
+    REQUIRE(latestResult.DefaultLocalization.Get<Localization::PackageName>() == manifest.DefaultLocalization.Get<Localization::PackageName>());
     REQUIRE(latestResult.Version == manifest.Version);
-    REQUIRE(latestResult.Channel == manifest.Channel);
+    REQUIRE(latestResult.Installers[0].Channel == manifest.Installers[0].Channel);
 
     auto noResultVersion = package->GetAvailableVersion(PackageVersionKey("", "blargle", "flargle"));
     REQUIRE(!noResultVersion);

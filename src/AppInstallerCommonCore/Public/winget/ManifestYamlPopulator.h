@@ -23,6 +23,7 @@ namespace AppInstaller::Manifest
         };
 
         bool m_fullValidation = false;
+        bool m_isMergedManifest = false;
 
         std::vector<FieldProcessInfo> RootFieldInfos;
         std::vector<FieldProcessInfo> InstallerFieldInfos;
@@ -39,8 +40,9 @@ namespace AppInstaller::Manifest
         AppInstaller::Manifest::PackageDependency* m_p_packageDependency = nullptr;
         AppInstaller::Manifest::ManifestLocalization* m_p_localization = nullptr;
 
-        // Cache of Installers node. This needs to be processed after other fields in package root for default installer values
-        YAML::Node* m_p_installersNode;
+        // Cache of Installers node and Localization node
+        YAML::Node const* m_p_installersNode = nullptr;
+        YAML::Node const* m_p_localizationsNode = nullptr;
 
         std::vector<FieldProcessInfo> GetRootFieldProcessInfo(const ManifestVer& manifestVersion);
         std::vector<FieldProcessInfo> GetInstallerFieldProcessInfo(const ManifestVer& manifestVersion, bool forRootFields = false);
@@ -57,7 +59,6 @@ namespace AppInstaller::Manifest
             const YAML::Node& rootNode,
             const std::vector<FieldProcessInfo>& fieldInfos);
 
-        std::vector<ValidationError> ProcessLocalizationNode(const YAML::Node& rootNode, std::vector<ManifestLocalization>& localizations);
         std::vector<ValidationError> ProcessPackageDependenciesNode(const YAML::Node& rootNode, std::vector<PackageDependency>& packageDependencies);
 
         std::vector<ValidationError> PopulateManifestInternal(const YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, bool fullValidation);

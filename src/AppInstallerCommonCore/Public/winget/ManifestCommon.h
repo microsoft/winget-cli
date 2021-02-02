@@ -4,6 +4,8 @@
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
 
+#include <map>
+
 namespace AppInstaller::Manifest
 {
     using string_t = Utility::NormalizedString;

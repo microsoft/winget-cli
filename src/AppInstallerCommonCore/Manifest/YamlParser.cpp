@@ -55,6 +55,8 @@ namespace AppInstaller::Manifest::YamlParser
                 std::string packageId = firstYamlManifest.Root["PackageIdentifier"].as<std::string>();
                 std::string packageVersion = firstYamlManifest.Root["PackageVersion"].as<std::string>();
 
+                std::set<std::string> localesSet;
+
                 bool isVersionManifestFound = false;
                 bool isInstallerManifestFound = false;
                 bool isDefaultLocaleManifestFound = false;
@@ -127,11 +129,33 @@ namespace AppInstaller::Manifest::YamlParser
                         else
                         {
                             isDefaultLocaleManifestFound = true;
-                            defaultLocaleFromDefaultLocaleManifest = entry.Root["PackageLocale"sv].as<std::string>();
+                            auto packageLocale = entry.Root["PackageLocale"sv].as<std::string>();
+                            defaultLocaleFromDefaultLocaleManifest = packageLocale;
+
+                            if (localesSet.find(packageLocale) != localesSet.end())
+                            {
+                                errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                                    ManifestError::DuplicateMultiFileManifestLocale, "PackageLocale", packageLocale, entry.FileName));
+                            }
+                            else
+                            {
+                                localesSet.insert(packageLocale);
+                            }
                         }
                         break;
                     case ManifestTypeEnum::Locale:
-                        // Nothing to validate
+                        {
+                            auto packageLocale = entry.Root["PackageLocale"sv].as<std::string>();
+                            if (localesSet.find(packageLocale) != localesSet.end())
+                            {
+                                errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                                    ManifestError::DuplicateMultiFileManifestLocale, "PackageLocale", packageLocale, entry.FileName));
+                            }
+                            else
+                            {
+                                localesSet.insert(packageLocale);
+                            }
+                        }
                         break;
                     default:
                         errors.emplace_back(ValidationError::MessageFieldValueWithFile(
@@ -328,12 +352,13 @@ namespace AppInstaller::Manifest::YamlParser
 
             const YAML::Node& manifestDoc = (input.size() > 1) ? MergeMultiFileManifest(input) : input[0].Root;
 
-            ManifestYamlPopulator::PopulateManifest(manifestDoc, manifest, manifestVersion, fullValidation);
+            auto errors = ManifestYamlPopulator::PopulateManifest(manifestDoc, manifest, manifestVersion, fullValidation);
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
 
             // Extra semantic validations after basic validation and field population
             if (fullValidation)
             {
-                auto errors = ValidateManifest(manifest);
+                errors = ValidateManifest(manifest);
                 std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
             }
 

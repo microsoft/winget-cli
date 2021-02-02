@@ -76,9 +76,11 @@ extern "C"
     // Validates a given manifest. Returns a bool for validation result and
     // a string representing validation errors if validation failed.
     WINGET_UTIL_API WinGetValidateManifest(
-        WINGET_STRING manifestPath,
+        WINGET_STRING inputPath,
         BOOL* succeeded,
-        WINGET_STRING_OUT* message);
+        WINGET_STRING_OUT* message,
+        WINGET_STRING mergedManifestPath,
+        BOOL isPartialManifest);
 
     // Downloads a file to the given path, returning the SHA 256 hash of the file.
     WINGET_UTIL_API WinGetDownload(

@@ -34,8 +34,10 @@ namespace AppInstaller::Manifest
         const char* const IncompleteMultiFileManifest = "The multi file manifest is incomplete.";
         const char* const InconsistentMultiFileManifestFieldValue = "The multi file manifest has inconsistent field values.";
         const char* const DuplicateMultiFileManifestType = "The multi file manifest should contain only one file with the particular ManifestType.";
+        const char* const DuplicateMultiFileManifestLocale = "The multi file manifest contains duplicate PackageLocale.";
         const char* const UnsupportedMultiFileManifestType = "The multi file manifest should not contain file with the particular ManifestType.";
         const char* const InconsistentMultiFileManifestDefaultLocale = "DefaultLocale value in version manifest does not match PackageLocale value in defaultLocale manifest.";
+        const char* const FieldFailedToProcess = "Failed to process field.";
     }
 
     struct ValidationError
@@ -140,6 +142,10 @@ namespace AppInstaller::Manifest
                         if (error.Line > 0 && error.Column > 0)
                         {
                             m_manifestErrorMessage += " Line: " + std::to_string(error.Line) + ", Column: " + std::to_string(error.Column);
+                        }
+                        if (!error.FileName.empty())
+                        {
+                            m_manifestErrorMessage += " File: " + error.FileName;
                         }
                         m_manifestErrorMessage += '\n';
                     }

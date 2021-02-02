@@ -108,8 +108,8 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> result =
         {
             { "ManifestVersion", [](const YAML::Node&)->ValidationErrors { /* ManifestVersion already populated. Field listed here for duplicate and PascalCase check */ return {}; } },
-            { "Installers", [this](const YAML::Node& value)->ValidationErrors { *m_p_installersNode = value; return {}; } },
-            { "Localization", [this](const YAML::Node& value)->ValidationErrors { return ProcessLocalizationNode(value, m_p_manifest->Localizations); } },
+            { "Installers", [this](const YAML::Node& value)->ValidationErrors { m_p_installersNode = &value; return {}; } },
+            { "Localization", [this](const YAML::Node& value)->ValidationErrors { m_p_localizationsNode = &value; return {}; } },
         };
 
         // Additional version specific fields
@@ -134,6 +134,7 @@ namespace AppInstaller::Manifest
                     { "PackageIdentifier", [this](const YAML::Node& value)->ValidationErrors { m_p_manifest->Id = Utility::Trim(value.as<std::string>()); return {}; } },
                     { "PackageVersion", [this](const YAML::Node& value)->ValidationErrors { m_p_manifest->Version = Utility::Trim(value.as<std::string>()); return {}; } },
                     { "Moniker", [this](const YAML::Node& value)->ValidationErrors {  m_p_manifest->Moniker = Utility::Trim(value.as<std::string>()); return {}; } },
+                    { "ManifestType", [](const YAML::Node&)->ValidationErrors { /* ManifestType already checked. Field listed here for duplicate and PascalCase check */ return {}; } },
                 };
 
                 std::move(v1RootFields.begin(), v1RootFields.end(), std::inserter(result, result.end()));
@@ -144,7 +145,7 @@ namespace AppInstaller::Manifest
         auto rootInstallerFields = GetInstallerFieldProcessInfo(manifestVersion, true);
         std::move(rootInstallerFields.begin(), rootInstallerFields.end(), std::inserter(result, result.end()));
 
-        auto rootLocalizationFields = GetInstallerFieldProcessInfo(manifestVersion, true);
+        auto rootLocalizationFields = GetLocalizationFieldProcessInfo(manifestVersion, true);
         std::move(rootLocalizationFields.begin(), rootLocalizationFields.end(), std::inserter(result, result.end()));
 
         return result;
@@ -264,7 +265,6 @@ namespace AppInstaller::Manifest
             { "Interactive", [this](const YAML::Node& value)->ValidationErrors { (*m_p_switches)[InstallerSwitchType::Interactive] = value.as<std::string>(); return{}; } },
             { "Log", [this](const YAML::Node& value)->ValidationErrors { (*m_p_switches)[InstallerSwitchType::Log] = value.as<std::string>(); return{}; } },
             { "InstallLocation", [this](const YAML::Node& value)->ValidationErrors { (*m_p_switches)[InstallerSwitchType::InstallLocation] = value.as<std::string>(); return{}; } },
-            { "Update", [this](const YAML::Node& value)->ValidationErrors { (*m_p_switches)[InstallerSwitchType::Update] = value.as<std::string>(); return{}; } },
         };
 
         // Additional version specific fields
@@ -272,10 +272,11 @@ namespace AppInstaller::Manifest
         {
             // Language only exists in preview manifests. Though we don't use it in our code yet, keep it here to be consistent with schema.
             result.emplace_back("Language", [this](const YAML::Node& value)->ValidationErrors { (*m_p_switches)[InstallerSwitchType::Language] = value.as<std::string>(); return{}; });
+            result.emplace_back("Update", [this](const YAML::Node& value)->ValidationErrors { (*m_p_switches)[InstallerSwitchType::Update] = value.as<std::string>(); return{}; });
         }
         else if (manifestVersion.Major() == 1)
         {
-            // No new fields in v1 yet
+            result.emplace_back("Upgrade", [this](const YAML::Node& value)->ValidationErrors { (*m_p_switches)[InstallerSwitchType::Update] = value.as<std::string>(); return{}; });
         }
 
         return result;
@@ -388,7 +389,7 @@ namespace AppInstaller::Manifest
 
         if (!rootNode.IsMap() || rootNode.size() == 0)
         {
-            resultErrors.emplace_back(ManifestError::InvalidRootNode, "", "", rootNode.Mark().line, rootNode.Mark().column);
+            resultErrors.emplace_back(ManifestError::InvalidRootNode, "", "", m_isMergedManifest ? 0 : rootNode.Mark().line, m_isMergedManifest ? 0 : rootNode.Mark().column);
             return resultErrors;
         }
 
@@ -414,19 +415,26 @@ namespace AppInstaller::Manifest
                 // Make sure the found key is in Pascal Case
                 if (key != fieldInfo.Name)
                 {
-                    resultErrors.emplace_back(ManifestError::FieldIsNotPascalCase, key, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column);
+                    resultErrors.emplace_back(ManifestError::FieldIsNotPascalCase, key, "", m_isMergedManifest ? 0 : keyValuePair.first.Mark().line, m_isMergedManifest ? 0 : keyValuePair.first.Mark().column);
                 }
 
                 // Make sure it's not a duplicate key
                 if (!processedFields.insert(fieldInfo.Name).second)
                 {
-                    resultErrors.emplace_back(ManifestError::FieldDuplicate, fieldInfo.Name, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column);
+                    resultErrors.emplace_back(ManifestError::FieldDuplicate, fieldInfo.Name, "", m_isMergedManifest ? 0 : keyValuePair.first.Mark().line, m_isMergedManifest ? 0 : keyValuePair.first.Mark().column);
                 }
 
                 if (!valueNode.IsNull())
                 {
-                    auto errors = fieldInfo.ProcessFunc(valueNode);
-                    std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+                    try
+                    {
+                        auto errors = fieldInfo.ProcessFunc(valueNode);
+                        std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+                    }
+                    catch (const std::exception&)
+                    {
+                        resultErrors.emplace_back(ManifestError::FieldFailedToProcess, fieldInfo.Name);
+                    }
                 }
             }
             else
@@ -434,25 +442,9 @@ namespace AppInstaller::Manifest
                 // For full validation, also reports unrecognized fields as warning
                 if (m_fullValidation)
                 {
-                    resultErrors.emplace_back(ManifestError::FieldUnknown, key, "", keyValuePair.first.Mark().line, keyValuePair.first.Mark().column, ValidationError::Level::Warning);
+                    resultErrors.emplace_back(ManifestError::FieldUnknown, key, "", m_isMergedManifest ? 0 : keyValuePair.first.Mark().line, m_isMergedManifest ? 0 : keyValuePair.first.Mark().column, ValidationError::Level::Warning);
                 }
             }
-        }
-
-        return resultErrors;
-    }
-
-    ValidationErrors ManifestYamlPopulator::ProcessLocalizationNode(const YAML::Node& rootNode, std::vector<ManifestLocalization>& localizations)
-    {
-        ValidationErrors resultErrors;
-
-        for (auto const& entry : rootNode.Sequence())
-        {
-            ManifestLocalization localization;
-            m_p_localization = &localization;
-            auto errors = ValidateAndProcessFields(entry, LocalizationFieldInfos);
-            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
-            localizations.emplace_back(std::move(std::move(localization)));
         }
 
         return resultErrors;
@@ -478,6 +470,7 @@ namespace AppInstaller::Manifest
     {
         ValidationErrors resultErrors;
         m_fullValidation = fullValidation;
+        m_isMergedManifest = (rootNode["ManifestType"sv].as<std::string>() == "merged");
         manifest.ManifestVersion = manifestVersion;
 
         // Prepare field infos
@@ -489,15 +482,18 @@ namespace AppInstaller::Manifest
         LocalizationFieldInfos = GetLocalizationFieldProcessInfo(manifestVersion);
 
         // Populate root
-        YAML::Node installersNode;
-        m_p_installersNode = &installersNode;
         m_p_manifest = &manifest;
         m_p_installer = &(manifest.DefaultInstallerInfo);
         m_p_localization = &(manifest.DefaultLocalization);
         resultErrors = ValidateAndProcessFields(rootNode, RootFieldInfos);
 
+        if (!m_p_installersNode)
+        {
+            return resultErrors;
+        }
+
         // Populate installers
-        for (auto const& entry : installersNode.Sequence())
+        for (auto const& entry : m_p_installersNode->Sequence())
         {
             ManifestInstaller installer = manifest.DefaultInstallerInfo;
 
@@ -520,19 +516,29 @@ namespace AppInstaller::Manifest
                 installer.ProductCode = manifest.DefaultInstallerInfo.ProductCode;
             }
 
+            // Populate installer default switches if not exists
+            auto defaultSwitches = GetDefaultKnownSwitches(installer.InstallerType);
+            for (auto const& defaultSwitch : defaultSwitches)
+            {
+                if (installer.Switches.find(defaultSwitch.first) == installer.Switches.end())
+                {
+                    installer.Switches[defaultSwitch.first] = defaultSwitch.second;
+                }
+            }
+
             manifest.Installers.emplace_back(std::move(installer));
         }
 
-        // Populate installer default switches if not exists
-        for (auto& installer : manifest.Installers)
+        // Populate additional localizations
+        if (m_p_localizationsNode && m_p_localizationsNode->IsSequence())
         {
-            auto defaultSwitches = GetDefaultKnownSwitches(installer.InstallerType);
-            for (auto const& entry : defaultSwitches)
+            for (auto const& entry : m_p_localizationsNode->Sequence())
             {
-                if (installer.Switches.find(entry.first) == installer.Switches.end())
-                {
-                    installer.Switches[entry.first] = entry.second;
-                }
+                ManifestLocalization localization;
+                m_p_localization = &localization;
+                auto errors = ValidateAndProcessFields(entry, LocalizationFieldInfos);
+                std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+                manifest.Localizations.emplace_back(std::move(std::move(localization)));
             }
         }
 

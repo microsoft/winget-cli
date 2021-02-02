@@ -173,16 +173,18 @@ extern "C"
     CATCH_RETURN()
 
     WINGET_UTIL_API WinGetValidateManifest(
-        WINGET_STRING manifestPath,
+        WINGET_STRING inputPath,
         BOOL* succeeded,
-        WINGET_STRING_OUT* message) try
+        WINGET_STRING_OUT* message,
+        WINGET_STRING mergedManifestPath,
+        BOOL isPartialManifest) try
     {
-        THROW_HR_IF(E_INVALIDARG, !manifestPath);
+        THROW_HR_IF(E_INVALIDARG, !inputPath);
         THROW_HR_IF(E_INVALIDARG, !succeeded);
 
         try
         {
-            (void)YamlParser::CreateFromPath(manifestPath, true, true);
+            (void)YamlParser::CreateFromPath(inputPath, true, true, L"WinGetUtil.dll", mergedManifestPath, isPartialManifest);
             *succeeded = TRUE;
         }
         catch (const ManifestException& e)

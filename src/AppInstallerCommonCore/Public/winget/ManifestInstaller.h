@@ -44,7 +44,7 @@ namespace AppInstaller::Manifest
         // If present, has more precedence than root
         InstallerTypeEnum InstallerType = InstallerTypeEnum::Unknown;
 
-        ScopeEnum Scope;
+        ScopeEnum Scope = ScopeEnum::User;
 
         std::vector<ScopeEnum> InstallModes;
 

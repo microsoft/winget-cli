@@ -20,7 +20,7 @@ namespace AppInstaller::Manifest
             auto tags = locale.Get<Localization::Tags>();
             for (const auto& tag : tags)
             {
-                if (std::find(resultTags.begin(), resultTags.end(), tag) != resultTags.end())
+                if (std::find(resultTags.begin(), resultTags.end(), tag) == resultTags.end())
                 {
                     resultTags.emplace_back(tag);
                 }
@@ -38,7 +38,7 @@ namespace AppInstaller::Manifest
         {
             for (const auto& command : installer.Commands)
             {
-                if (std::find(resultCommands.begin(), resultCommands.end(), command) != resultCommands.end())
+                if (std::find(resultCommands.begin(), resultCommands.end(), command) == resultCommands.end())
                 {
                     resultCommands.emplace_back(command);
                 }
