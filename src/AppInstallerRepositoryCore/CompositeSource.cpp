@@ -404,9 +404,10 @@ namespace AppInstaller::Repository
         m_availableSources.emplace_back(std::move(source));
     }
 
-    void CompositeSource::SetInstalledSource(std::shared_ptr<ISource> source)
+    void CompositeSource::SetInstalledSource(std::shared_ptr<ISource> source, bool keepInstalledOnly)
     {
         m_installedSource = std::move(source);
+        m_keepInstalledOnly = keepInstalledOnly;
     }
 
     // An installed search first finds all installed packages that match the request, then correlates with available sources.
@@ -515,6 +516,7 @@ namespace AppInstaller::Repository
 
             // If no package was found that was already in the results, do a correlation lookup with the installed
             // source to create a new composite package entry if we find any packages there.
+            bool foundInstalledMatch = false;
             if (packageData && !packageData->SystemReferenceStrings.empty())
             {
                 // Create a search request to run against the installed source
@@ -532,8 +534,15 @@ namespace AppInstaller::Repository
                     auto installedVersion = crossRef.Package->GetInstalledVersion();
                     auto installedPackageData = result.ReserveInstalledPackageSlot(installedVersion.get());
 
+                    foundInstalledMatch = true;
                     result.Matches.emplace_back(std::make_shared<CompositePackage>(std::move(crossRef.Package), std::move(match.Package)), match.MatchCriteria);
                 }
+            }
+
+            // If there was no correlation for this package, add it without one.
+            if (!m_keepInstalledOnly && !foundInstalledMatch)
+            {
+                result.Matches.push_back(std::move(match));
             }
         }
 

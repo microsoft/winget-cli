@@ -104,6 +104,16 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_LIBYAML_ERROR = unchecked((int)0x8A150027);
             public const int ERROR_MANIFEST_VALIDATION_WARNING = unchecked((int)0x8A150028);
             public const int ERROR_MANIFEST_VALIDATION_FAILURE = unchecked((int)0x8A150029);
+            public const int APPINSTALLER_CLI_ERROR_INVALID_MANIFEST = unchecked((int)0x8A15002A);
+            public const int APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE = unchecked((int)0x8A15002B);
+            public const int APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE = unchecked((int)0x8A15002C);
+            public const int APPINSTALLER_CLI_ERROR_INSTALLER_SECURITY_CHECK_FAILED = unchecked((int)0x8A15002D);
+            public const int APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH = unchecked((int)0x8A15002E);
+            public const int APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND = unchecked((int)0x8a15002F);
+            public const int APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED = unchecked((int)0x8a150030);
+            public const int APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED = unchecked((int)0x8a150031);
+            public const int APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND = unchecked((int)0x8a150032);
+            public const int APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE = unchecked((int)0x8a150033);
         }
     }
 }

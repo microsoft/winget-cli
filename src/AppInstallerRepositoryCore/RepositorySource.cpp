@@ -732,7 +732,7 @@ namespace AppInstaller::Repository
         THROW_HR(E_UNEXPECTED);
     }
 
-    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource)
+    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource, bool installedOnly)
     {
         std::shared_ptr<CompositeSource> result = std::dynamic_pointer_cast<CompositeSource>(availableSource);
 
@@ -742,7 +742,7 @@ namespace AppInstaller::Repository
             result->AddAvailableSource(availableSource);
         }
 
-        result->SetInstalledSource(installedSource);
+        result->SetInstalledSource(installedSource, installedOnly);
 
         return result;
     }

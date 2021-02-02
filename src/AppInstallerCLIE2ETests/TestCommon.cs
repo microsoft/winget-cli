@@ -190,7 +190,7 @@ namespace AppInstallerCLIE2ETests
             return result;
         }
 
-        public static bool RunCommand(string fileName, string args, int timeOut = 60000)
+        public static bool RunCommand(string fileName, string args = "", int timeOut = 60000)
         {
             return RunCommandWithResult(fileName, args, timeOut).ExitCode == 0;
         }
@@ -233,11 +233,23 @@ namespace AppInstallerCLIE2ETests
             return GetTestFile(Path.Combine("TestData", fileName));
         }
 
+        public static string GetTestWorkDir()
+        {
+            string workDir = Path.Combine(TestContext.CurrentContext.TestDirectory, "WorkDirectory");
+            Directory.CreateDirectory(workDir);
+            return workDir;
+        }
+
         public static string GetRandomTestDir()
         {
-            string randDir = Path.Combine(TestContext.CurrentContext.TestDirectory, Path.Combine("WorkDirectory", Path.GetRandomFileName()));
+            string randDir = Path.Combine(GetTestWorkDir(), Path.GetRandomFileName());
             Directory.CreateDirectory(randDir);
             return randDir;
+        }
+
+        public static string GetRandomTestFile(string extension)
+        {
+            return Path.Combine(GetTestWorkDir(), Path.GetRandomFileName() + extension);
         }
 
         public static bool InstallMsix(string file)

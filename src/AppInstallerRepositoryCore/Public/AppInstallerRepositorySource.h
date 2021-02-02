@@ -128,7 +128,8 @@ namespace AppInstaller::Repository
     std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress);
 
     // Creates a source that merges the installed packages with the given available packages.
-    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource);
+    // The source can search for installed packages only, or also include non-installed available packages.
+    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource, bool installedOnly = true);
 
     // Updates an existing source.
     // Return value indicates whether the named source was found.

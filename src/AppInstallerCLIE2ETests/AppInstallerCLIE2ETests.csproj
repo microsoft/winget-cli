@@ -23,6 +23,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="TestData\ImportFiles\ImportFile-Bad-Invalid.json" />
+    <None Remove="TestData\ImportFiles\ImportFile-Bad-UnknownPackage.json" />
+    <None Remove="TestData\ImportFiles\ImportFile-Bad-UnknownPackageVersion.json" />
+    <None Remove="TestData\ImportFiles\ImportFile-Bad-UnknownSource.json" />
+    <None Remove="TestData\ImportFiles\ImportFile-Good.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\IndexCreationTool\IndexCreationTool.csproj" />
   </ItemGroup>
 

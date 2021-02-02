@@ -123,6 +123,7 @@ namespace AppInstaller::CLI::Workflow
         for (auto& requiredSource : context.Get<Execution::Data::PackageCollection>().Sources)
         {
             // Find the installed source matching the one described in the collection.
+            AICLI_LOG(CLI, Info, << "Looking for source [" << requiredSource.Details.Identifier << "]");
             auto matchingSource = std::find_if(
                 availableSources.begin(),
                 availableSources.end(),
@@ -172,10 +173,12 @@ namespace AppInstaller::CLI::Workflow
 
             // Search for all the packages in the source.
             // Each search is done in a sub context to search everything regardless of previous failures.
-            auto source = Repository::CreateCompositeSource(context.Get<Execution::Data::Source>(), *sourceItr);
+            auto source = Repository::CreateCompositeSource(context.Get<Execution::Data::Source>(), *sourceItr, false);
+            AICLI_LOG(CLI, Info, << "Searching for packages requested from source [" << requiredSource.Details.Identifier << "]");
             for (const auto& packageRequest : requiredSource.Packages)
             {
                 Logging::SubExecutionTelemetryScope subExecution;
+                AICLI_LOG(CLI, Info, << "Searching for package [" << packageRequest.Id << "]");
 
                 // Search for the current package
                 SearchRequest searchRequest;
@@ -196,8 +199,12 @@ namespace AppInstaller::CLI::Workflow
                 searchContext <<
                     Workflow::EnsureOneMatchFromSearchResult(false) <<
                     Workflow::GetManifestWithVersionFromPackage(versionAndChannel) <<
-                    Workflow::GetInstalledPackageVersion <<
-                    Workflow::EnsureUpdateVersionApplicable;
+                    Workflow::GetInstalledPackageVersion;
+
+                if (searchContext.Contains(Execution::Data::InstalledPackageVersion) && searchContext.Get<Execution::Data::InstalledPackageVersion>())
+                {
+                    searchContext << Workflow::EnsureUpdateVersionApplicable;
+                }
 
                 if (searchContext.IsTerminated())
                 {
