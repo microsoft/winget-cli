@@ -13,6 +13,7 @@ namespace AppInstallerCLIE2ETests
         {
             InitializeAllFeatures(false);
             ConfigureFeature("importExport", true);
+            CleanupTestExe();
         }
 
         [TearDown]
@@ -73,7 +74,7 @@ namespace AppInstallerCLIE2ETests
             // Verify success with message when trying to import a package that is already installed
             var installDir = TestCommon.GetRandomTestDir();
             TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller -l {installDir}");
-            var result = TestCommon.RunAICLICommand("import", $"{GetTestImportFile("ImportFile-Good.json")} --exact-versions");
+            var result = TestCommon.RunAICLICommand("import", $"{GetTestImportFile("ImportFile-Good.json")}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Package is already installed"));
             Assert.False(VerifyTestExeInstalled());
@@ -88,7 +89,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RunAICLICommand("install", "AppInstallerTest.TestExeInstaller");
 
             var jsonFile = TestCommon.GetRandomTestFile(".json");
-            TestCommon.RunAICLICommand("export", $"{jsonFile} -s TestSource", timeOut: 180 * 1000);
+            TestCommon.RunAICLICommand("export", $"{jsonFile} -s TestSource");
 
             // Uninstall the package to ensure we can install it again
             UninstallTestExe();
@@ -125,6 +126,13 @@ namespace AppInstallerCLIE2ETests
             }
 
             TestCommon.RunCommand(Path.Combine(installDir, "UninstallTestExe.bat"));
+        }
+
+        private void CleanupTestExe()
+        {
+            UninstallTestExe();
+            File.Delete(Path.Combine(Path.GetTempPath(), "TestExeInstalled.txt"));
+            File.Delete(Path.Combine(Path.GetTempPath(), "TestExeUninstalled.txt"));
         }
     }
 }
