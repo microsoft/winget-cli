@@ -148,7 +148,7 @@ struct ManifestExceptionMatcher : public Catch::MatcherBase<ManifestException>
 
     virtual std::string describe() const override {
         std::ostringstream ss;
-        ss << std::boolalpha << "Expected exception message: " << m_expectedMessage << "Expected IsWarningOnly: " << m_expectedWarningOnly;
+        ss << std::boolalpha << "Expected exception message: " << m_expectedMessage << " Expected IsWarningOnly: " << m_expectedWarningOnly;
         return ss.str();
     }
 
@@ -316,4 +316,168 @@ TEST_CASE("ManifestVersionExtensions", "[ManifestValidation]")
     REQUIRE(ManifestVer("1.0.0-msstore.2"sv).HasExtension("msstore"));
     REQUIRE(ManifestVer("1.0.0-other-msstore.2"sv).HasExtension("msstore"));
     REQUIRE(ManifestVer("1.0.0-msstore.2-other"sv).HasExtension("msstore"));
+}
+
+void CopyTestDataFilesToFolder(const std::vector<std::string>& testDataFiles, const std::filesystem::path& dest)
+{
+    for (const auto& fileName : testDataFiles)
+    {
+        std::filesystem::copy(TestDataFile(fileName), dest);
+    }
+}
+
+void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
+{
+    REQUIRE(manifest.Id == "microsoft.msixsdk");
+    REQUIRE(manifest.Version == "1.7.32");
+    REQUIRE(manifest.DefaultLocalization.Locale == "en-US");
+    REQUIRE(manifest.DefaultLocalization.Get<Localization::Publisher>() == "Microsoft");
+    REQUIRE(manifest.DefaultLocalization.Get<Localization::PublisherUrl>() == "https://www.microsoft.com");
+    REQUIRE(manifest.DefaultLocalization.Get<Localization::PublisherSupportUrl>() == "https://www.microsoft.com/support");
+    REQUIRE(manifest.DefaultLocalization.Get<Localization::PrivacyUrl>() == "https://www.microsoft.com/privacy");
+    REQUIRE(manifest.DefaultLocalization.Get<Localization::Author>() == "Microsoft");
+    REQUIRE(manifest.DefaultLocalization.Get<Localization::PackageName>() == "MSIX SDK");
+    REQUIRE(manifest.DefaultLocalization.Get<Localization::PackageUrl>() == "https://www.microsoft.com/msixsdk/home");
+    REQUIRE(manifest.DefaultLocalization.Get<Localization::License>() == "MIT License");
+    REQUIRE(manifest.DefaultLocalization.Get<Localization::LicenseUrl>() == "https://www.microsoft.com/msixsdk/license");
+    REQUIRE(manifest.DefaultLocalization.Get<Localization::Copyright>() == "Copyright Microsoft Corporation");
+    REQUIRE(manifest.DefaultLocalization.Get<Localization::CopyrightUrl>() == "https://www.microsoft.com/msixsdk/copyright");
+    REQUIRE(manifest.DefaultLocalization.Get<Localization::ShortDescription>() == "This is MSIX SDK");
+    REQUIRE(manifest.DefaultLocalization.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers");
+    REQUIRE(manifest.Moniker == "msixsdk");
+    REQUIRE(manifest.DefaultLocalization.Get<Localization::Tags>() == MultiValue{ "appxsdk", "sdkformsix" });
+    REQUIRE(manifest.DefaultInstallerInfo.Channel == "release");
+    REQUIRE(manifest.DefaultInstallerInfo.Locale == "en-US");
+    REQUIRE(manifest.DefaultInstallerInfo.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop, PlatformEnum::Universal });
+    REQUIRE(manifest.DefaultInstallerInfo.MinOSVersion == "10.0.0.0");
+    REQUIRE(manifest.DefaultInstallerInfo.InstallerType == InstallerTypeEnum::Zip);
+    REQUIRE(manifest.DefaultInstallerInfo.Scope == ScopeEnum::Machine);
+    REQUIRE(manifest.DefaultInstallerInfo.InstallModes == std::vector<ScopeEnum>{ ScopeEnum::User ,ScopeEnum::Machine });
+
+    auto defaultSwitches = manifest.DefaultInstallerInfo.Switches;
+    REQUIRE(defaultSwitches.at(InstallerSwitchType::Custom) == "/custom");
+    REQUIRE(defaultSwitches.at(InstallerSwitchType::SilentWithProgress) == "/silentwithprogress");
+    REQUIRE(defaultSwitches.at(InstallerSwitchType::Silent) == "/silence");
+    REQUIRE(defaultSwitches.at(InstallerSwitchType::Interactive) == "/interactive");
+    REQUIRE(defaultSwitches.at(InstallerSwitchType::Log) == "/log=<LOGPATH>");
+    REQUIRE(defaultSwitches.at(InstallerSwitchType::InstallLocation) == "/dir=<INSTALLPATH>");
+    REQUIRE(defaultSwitches.at(InstallerSwitchType::Update) == "/upgrade");
+
+    REQUIRE(manifest.DefaultInstallerInfo.InstallerSuccessCodes == std::vector<int>{ 1, static_cast<int>(0x80070005) });
+    REQUIRE(manifest.DefaultInstallerInfo.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious);
+    REQUIRE(manifest.DefaultInstallerInfo.Commands == MultiValue{ "makemsix", "makeappx" });
+    REQUIRE(manifest.DefaultInstallerInfo.Protocols == MultiValue{ "protocol1", "protocol2" });
+    REQUIRE(manifest.DefaultInstallerInfo.FileExtensions == MultiValue{ "appx", "msix", "appxbundle", "msixbundle" });
+
+    auto dependencies = manifest.DefaultInstallerInfo.Dependencies;
+    REQUIRE(dependencies.WindowsFeatures == MultiValue{ "IIS" });
+    REQUIRE(dependencies.WindowsLibraries == MultiValue{ "VC Runtime" });
+    REQUIRE(dependencies.PackageDependencies.size() == 1);
+    REQUIRE(dependencies.PackageDependencies[0].Id == "Microsoft.MsixSdkDep");
+    REQUIRE(dependencies.PackageDependencies[0].MinVersion == "1.0.0");
+    REQUIRE(dependencies.ExternalDependencies == MultiValue{ "Outside dependencies" });
+
+    REQUIRE(manifest.DefaultInstallerInfo.Capabilities == MultiValue{ "internetClient" });
+    REQUIRE(manifest.DefaultInstallerInfo.RestrictedCapabilities == MultiValue{ "runFullTrust" });
+    REQUIRE(manifest.DefaultInstallerInfo.PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
+    REQUIRE(manifest.DefaultInstallerInfo.ProductCode == "{Foo}");
+
+    if (isSingleton)
+    {
+        REQUIRE(manifest.Installers.size() == 1);
+    }
+    else
+    {
+        REQUIRE(manifest.Installers.size() == 2);
+    }
+
+    ManifestInstaller installer1 = manifest.Installers.at(0);
+    REQUIRE(installer1.Arch == Architecture::X86);
+    REQUIRE(installer1.Channel == "preview");
+    REQUIRE(installer1.Locale == "en-GB");
+    REQUIRE(installer1.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop });
+    REQUIRE(installer1.MinOSVersion == "10.0.1.0");
+    REQUIRE(installer1.InstallerType == InstallerTypeEnum::Msix);
+    REQUIRE(installer1.Url == "https://www.microsoft.com/msixsdk/msixsdkx86.msix");
+    REQUIRE(installer1.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+    REQUIRE(installer1.SignatureSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+    REQUIRE(installer1.Scope == ScopeEnum::User);
+    REQUIRE(installer1.InstallModes == std::vector<ScopeEnum>{ ScopeEnum::User });
+
+    auto installer1Switches = installer1.Switches;
+    REQUIRE(installer1Switches.at(InstallerSwitchType::Custom) == "/c");
+    REQUIRE(installer1Switches.at(InstallerSwitchType::SilentWithProgress) == "/sp");
+    REQUIRE(installer1Switches.at(InstallerSwitchType::Silent) == "/s");
+    REQUIRE(installer1Switches.at(InstallerSwitchType::Interactive) == "/i");
+    REQUIRE(installer1Switches.at(InstallerSwitchType::Log) == "/l=<LOGPATH>");
+    REQUIRE(installer1Switches.at(InstallerSwitchType::InstallLocation) == "/d=<INSTALLPATH>");
+    REQUIRE(installer1Switches.at(InstallerSwitchType::Update) == "/u");
+
+    REQUIRE(installer1.UpdateBehavior == UpdateBehaviorEnum::Install);
+    REQUIRE(installer1.Commands == MultiValue{ "makemsixPreview", "makeappxPreview" });
+    REQUIRE(installer1.Protocols == MultiValue{ "protocol1preview", "protocol2preview" });
+    REQUIRE(installer1.FileExtensions == MultiValue{ "appxbundle", "msixbundle", "appx", "msix" });
+
+    auto installer1Dependencies = installer1.Dependencies;
+    REQUIRE(installer1Dependencies.WindowsFeatures == MultiValue{ "PreviewIIS" });
+    REQUIRE(installer1Dependencies.WindowsLibraries == MultiValue{ "Preview VC Runtime" });
+    REQUIRE(installer1Dependencies.PackageDependencies.size() == 1);
+    REQUIRE(installer1Dependencies.PackageDependencies[0].Id == "Microsoft.MsixSdkDepPreview");
+    REQUIRE(installer1Dependencies.ExternalDependencies == MultiValue{ "Preview Outside dependencies" });
+
+    REQUIRE(installer1.Capabilities == MultiValue{ "internetClientPreview" });
+    REQUIRE(installer1.RestrictedCapabilities == MultiValue{ "runFullTrustPreview" });
+    REQUIRE(installer1.PackageFamilyName == "Microsoft.DesktopAppInstallerPreview_8wekyb3d8bbwe");
+
+    if (!isSingleton)
+    {
+        ManifestInstaller installer2 = manifest.Installers.at(1);
+        REQUIRE(installer2.Arch == Architecture::X64);
+        REQUIRE(installer2.InstallerType == InstallerTypeEnum::Exe);
+        REQUIRE(installer2.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
+        REQUIRE(installer2.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+        REQUIRE(installer2.ProductCode == "{Bar}");
+
+        // Localization
+        REQUIRE(manifest.Localizations.size() == 1);
+        ManifestLocalization localization1 = manifest.Localizations.at(0);
+        REQUIRE(localization1.Locale == "en-GB");
+        REQUIRE(localization1.Get<Localization::Publisher>() == "Microsoft UK");
+        REQUIRE(localization1.Get<Localization::PublisherUrl>() == "https://www.microsoft.com/UK");
+        REQUIRE(localization1.Get<Localization::PublisherSupportUrl>() == "https://www.microsoft.com/support/UK");
+        REQUIRE(localization1.Get<Localization::PrivacyUrl>() == "https://www.microsoft.com/privacy/UK");
+        REQUIRE(localization1.Get<Localization::Author>() == "Microsoft UK");
+        REQUIRE(localization1.Get<Localization::PackageName>() == "MSIX SDK UK");
+        REQUIRE(localization1.Get<Localization::PackageUrl>() == "https://www.microsoft.com/msixsdk/home/UK");
+        REQUIRE(localization1.Get<Localization::License>() == "MIT License UK");
+        REQUIRE(localization1.Get<Localization::LicenseUrl>() == "https://www.microsoft.com/msixsdk/license/UK");
+        REQUIRE(localization1.Get<Localization::Copyright>() == "Copyright Microsoft Corporation UK");
+        REQUIRE(localization1.Get<Localization::CopyrightUrl>() == "https://www.microsoft.com/msixsdk/copyright/UK");
+        REQUIRE(localization1.Get<Localization::ShortDescription>() == "This is MSIX SDK UK");
+        REQUIRE(localization1.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers UK");
+        REQUIRE(localization1.Get<Localization::Tags>() == MultiValue{ "appxsdkUK", "sdkformsixUK" });
+    }
+}
+
+TEST_CASE("ValidateV1GoodManifestAndVerifyContents", "[ManifestValidation]")
+{
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, true, true);
+    VerifyV1ManifestContent(singletonManifest, true);
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1-MultiFile-Version.yaml",
+        "ManifestV1-MultiFile-Installer.yaml",
+        "ManifestV1-MultiFile-DefaultLocale.yaml",
+        "ManifestV1-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, true, true, nullptr, mergedManifestFile);
+    VerifyV1ManifestContent(multiFileManifest, false);
+
+    // Read from merged manifest should have the same content as multi file manifest
+    Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
+    VerifyV1ManifestContent(mergedManifest, false);
 }

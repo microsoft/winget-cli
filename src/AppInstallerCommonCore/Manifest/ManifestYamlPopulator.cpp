@@ -454,6 +454,7 @@ namespace AppInstaller::Manifest
     {
         ValidationErrors resultErrors;
 
+        packageDependencies.clear();
         for (auto const& entry : rootNode.Sequence())
         {
             PackageDependency packageDependency;
