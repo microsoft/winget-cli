@@ -17,7 +17,7 @@ TEST_CASE("NameNorm_Update_Database_Initial", "[.]")
     REQUIRE(namesStream);
     std::ifstream publishersStream(TestCommon::TestDataFile("InputPublishers.txt"));
     REQUIRE(publishersStream);
-    std::ofstream resultsStream(TestCommon::TestDataFile("NormalizationInitialIds.txt"), std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
+    std::ofstream resultsStream(TestCommon::TestDataFile("NormalizationInitialIdsUpdate.txt"), std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
     REQUIRE(resultsStream);
 
     // Far larger than any one value; hopefully
