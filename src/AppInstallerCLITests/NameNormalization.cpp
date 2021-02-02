@@ -8,20 +8,21 @@ using namespace std::string_view_literals;
 using namespace AppInstaller::Utility;
 
 
-// If this test is failing, either changes to winget code or the ICU binaries have caused it.
-// This will impact the functionality of the PreIndexedPackageSource, as it is the primary
-// mechanism used to cross reference packages installed outside of winget with those in the
-// source.
-TEST_CASE("NameNorm_Database_Initial", "[name_norm]")
+// This skipped test case can be used to update the test file.
+// It writes back to the output content location, so you must manually
+// copy the file(s) back to the git managed location to update.
+TEST_CASE("NameNorm_Update_Database_Initial", "[.]")
 {
     std::ifstream namesStream(TestCommon::TestDataFile("InputNames.txt"));
+    REQUIRE(namesStream);
     std::ifstream publishersStream(TestCommon::TestDataFile("InputPublishers.txt"));
-    std::ifstream resultsStream(TestCommon::TestDataFile("NormalizationInitialIds.txt"));
+    REQUIRE(publishersStream);
+    std::ofstream resultsStream(TestCommon::TestDataFile("NormalizationInitialIds.txt"), std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
+    REQUIRE(resultsStream);
 
     // Far larger than any one value; hopefully
     char name[4096]{};
     char publisher[4096]{};
-    char id[4096]{};
 
     NameNormalizer normer(NormalizationVersion::Initial);
 
@@ -29,7 +30,55 @@ TEST_CASE("NameNorm_Database_Initial", "[name_norm]")
     {
         namesStream.getline(name, ARRAYSIZE(name));
         publishersStream.getline(publisher, ARRAYSIZE(publisher));
-        resultsStream.getline(id, ARRAYSIZE(id));
+
+        if (namesStream || publishersStream)
+        {
+            REQUIRE(namesStream);
+            REQUIRE(publishersStream);
+
+            INFO("Name[" << name << "], Publisher[" << publisher << "]");
+
+            auto normalized = normer.Normalize(name, publisher);
+
+            std::string normalizedId = normalized.Publisher();
+            normalizedId += '.';
+            normalizedId += normalized.Name();
+
+            resultsStream << normalizedId << std::endl;
+            REQUIRE(resultsStream);
+        }
+        else
+        {
+            break;
+        }
+    }
+}
+
+// If this test is failing, either changes to winget code or the ICU binaries have caused it.
+// This will impact the functionality of the PreIndexedPackageSource, as it is the primary
+// mechanism used to cross reference packages installed outside of winget with those in the
+// source.
+TEST_CASE("NameNorm_Database_Initial", "[name_norm]")
+{
+    std::ifstream namesStream(TestCommon::TestDataFile("InputNames.txt"));
+    REQUIRE(namesStream);
+    std::ifstream publishersStream(TestCommon::TestDataFile("InputPublishers.txt"));
+    REQUIRE(publishersStream);
+    std::ifstream resultsStream(TestCommon::TestDataFile("NormalizationInitialIds.txt"));
+    REQUIRE(resultsStream);
+
+    // Far larger than any one value; hopefully
+    char name[4096]{};
+    char publisher[4096]{};
+    char expectedId[4096]{};
+
+    NameNormalizer normer(NormalizationVersion::Initial);
+
+    for (;;)
+    {
+        namesStream.getline(name, ARRAYSIZE(name));
+        publishersStream.getline(publisher, ARRAYSIZE(publisher));
+        resultsStream.getline(expectedId, ARRAYSIZE(expectedId));
 
         if (namesStream || publishersStream || resultsStream)
         {
@@ -41,11 +90,11 @@ TEST_CASE("NameNorm_Database_Initial", "[name_norm]")
 
             auto normalized = normer.Normalize(name, publisher);
 
-            std::string expected = normalized.Publisher();
-            expected += '.';
-            expected += normalized.Name();
+            std::string normalizedId = normalized.Publisher();
+            normalizedId += '.';
+            normalizedId += normalized.Name();
 
-            REQUIRE(expected == id);
+            REQUIRE(expectedId == normalizedId);
         }
         else
         {
