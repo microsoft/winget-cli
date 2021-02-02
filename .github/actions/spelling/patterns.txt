@@ -17,4 +17,5 @@ data:[a-zA-Z=;,/0-9+-]+
 El proyecto .* diferentes
 # Package family names
 \b[-.A-Za-z0-9]+_[a-z0-9]{13}\b
-"pattern": \b.*\b
+# schema regex
+"pattern": .*$

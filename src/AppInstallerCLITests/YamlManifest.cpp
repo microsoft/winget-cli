@@ -345,7 +345,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
     REQUIRE(manifest.DefaultLocalization.Get<Localization::ShortDescription>() == "This is MSIX SDK");
     REQUIRE(manifest.DefaultLocalization.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers");
     REQUIRE(manifest.Moniker == "msixsdk");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::Tags>() == MultiValue{ "appxsdk", "sdkformsix" });
+    REQUIRE(manifest.DefaultLocalization.Get<Localization::Tags>() == MultiValue{ "appxsdk", "msixsdk" });
     REQUIRE(manifest.DefaultInstallerInfo.Channel == "release");
     REQUIRE(manifest.DefaultInstallerInfo.Locale == "en-US");
     REQUIRE(manifest.DefaultInstallerInfo.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop, PlatformEnum::Universal });
@@ -455,7 +455,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
         REQUIRE(localization1.Get<Localization::CopyrightUrl>() == "https://www.microsoft.com/msixsdk/copyright/UK");
         REQUIRE(localization1.Get<Localization::ShortDescription>() == "This is MSIX SDK UK");
         REQUIRE(localization1.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers UK");
-        REQUIRE(localization1.Get<Localization::Tags>() == MultiValue{ "appxsdkUK", "sdkformsixUK" });
+        REQUIRE(localization1.Get<Localization::Tags>() == MultiValue{ "appxsdkUK", "msixsdkUK" });
     }
 }
 

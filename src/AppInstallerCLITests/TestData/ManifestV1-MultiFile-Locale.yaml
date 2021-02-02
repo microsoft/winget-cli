@@ -16,7 +16,7 @@ ShortDescription: This is MSIX SDK UK
 Description: The MSIX SDK project is an effort to enable developers UK
 Tags:
   - "appxsdkUK"
-  - "sdkformsixUK"
+  - "msixsdkUK"
 
 ManifestType: locale
 ManifestVersion: 1.0.0

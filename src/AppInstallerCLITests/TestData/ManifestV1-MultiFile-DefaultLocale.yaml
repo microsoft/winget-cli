@@ -17,7 +17,7 @@ Description: The MSIX SDK project is an effort to enable developers
 Moniker: msixsdk
 Tags:
   - "appxsdk"
-  - "sdkformsix"
+  - "msixsdk"
 
 ManifestType: defaultLocale
 ManifestVersion: 1.0.0
