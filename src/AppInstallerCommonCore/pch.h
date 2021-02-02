@@ -18,9 +18,8 @@
 
 #include <json.h>
 
-#include <codeanalysis\warnings.h>
 #pragma warning( push )
-#pragma warning ( disable : 4458 4100 )
+#pragma warning ( disable : 4458 4100 4702 )
 #include <valijson/schema.hpp>
 #include <valijson/schema_parser.hpp>
 #include <valijson/validator.hpp>
