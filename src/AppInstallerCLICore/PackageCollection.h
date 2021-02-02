@@ -6,7 +6,7 @@
 #include "AppInstallerLanguageUtilities.h"
 #include "AppInstallerRepositorySource.h"
 
-#include <json/json.h>
+#include <json.h>
 
 #include <vector>
 

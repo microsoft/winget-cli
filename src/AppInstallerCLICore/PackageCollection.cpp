@@ -5,14 +5,6 @@
 #include "PackageCollection.h"
 #include "AppInstallerRuntime.h"
 
-#pragma warning (push, 0)
-#include "valijson/adapters/jsoncpp_adapter.hpp"
-#include "valijson/utils/jsoncpp_utils.hpp"
-#include "valijson/schema.hpp"
-#include "valijson/schema_parser.hpp"
-#include "valijson/validator.hpp"
-#pragma warning (pop)
-
 #include <algorithm>
 #include <ostream>
 
@@ -154,40 +146,6 @@ namespace AppInstaller::CLI
 
             return sourcesNode.append(std::move(sourceNode));
         }
-
-        bool IsValidJson(const Json::Value& document, const std::filesystem::path& schemaPath)
-        {
-            Json::Value schemaDocument;
-            if (!valijson::utils::loadDocument(schemaPath.string(), schemaDocument))
-            {
-                // TODO: fail
-            }
-
-            valijson::Schema schema;
-            valijson::SchemaParser parser;
-            valijson::adapters::JsonCppAdapter schemaAdapter{ schemaDocument };
-            parser.populateSchema(schemaAdapter, schema);
-
-            valijson::Validator validator;
-            valijson::ValidationResults results;
-             if (validator.validate(schema, valijson::adapters::JsonCppAdapter{ document }, &results)) {
-                return true;
-            }
-
-            for (const auto& result : results)
-            {
-                std::stringstream ss;
-                ss << result.description << ' ';
-                for (const auto& context : result.context)
-                {
-                    ss << '\\' << context;
-                }
-
-                AICLI_LOG(CLI, Error, << "JSON file is invalid: " << ss.str());
-            }
-
-            return false;
-        }
     }
 
     namespace PackagesJson
@@ -205,11 +163,7 @@ namespace AppInstaller::CLI
 
         std::optional<PackageCollection> ParseJson(const Json::Value& root)
         {
-            // TODO: Embed schema in binaries
-            if (!IsValidJson(root, "C:\\src\\winget-cli\\doc\\packages.schema.json"))
-            {
-                return {};
-            }
+            // TODO: Embed schema in binaries & validate file
 
             PackageCollection packages;
             packages.ClientVersion = root[s_PackagesJson_WinGetVersion].asString();
