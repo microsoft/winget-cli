@@ -13,6 +13,10 @@ namespace AppInstaller::Manifest
 
     private:
 
+        bool m_fullValidation = false;
+        bool m_isMergedManifest = false;
+
+        // Struct mapping a manifest field to its population logic
         struct FieldProcessInfo
         {
             FieldProcessInfo(std::string name, std::function<std::vector<ValidationError>(const YAML::Node&)> func) :
@@ -21,9 +25,6 @@ namespace AppInstaller::Manifest
             std::string Name;
             std::function<std::vector<ValidationError>(const YAML::Node&)> ProcessFunc;
         };
-
-        bool m_fullValidation = false;
-        bool m_isMergedManifest = false;
 
         std::vector<FieldProcessInfo> RootFieldInfos;
         std::vector<FieldProcessInfo> InstallerFieldInfos;

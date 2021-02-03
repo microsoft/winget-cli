@@ -246,6 +246,7 @@ namespace AppInstaller::YAML
 
     int Node::as_dispatch(int*) const
     {
+        // To allow HResult representation
         return static_cast<int>(std::stoll(m_scalar, 0, 0));
     }
 

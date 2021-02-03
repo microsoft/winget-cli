@@ -67,8 +67,10 @@ namespace AppInstaller::Manifest
         // Product code for ARP (Add/Remove Programs) installers.
         string_t ProductCode;
 
+        // For msix only
         std::vector<string_t> Capabilities;
 
+        // For msix only
         std::vector<string_t> RestrictedCapabilities;
 
         Dependency Dependencies;

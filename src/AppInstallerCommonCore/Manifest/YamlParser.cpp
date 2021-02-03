@@ -11,6 +11,16 @@ namespace AppInstaller::Manifest::YamlParser
 {
     namespace
     {
+        // Input validations:
+        // - Determine manifest version
+        // - Check multi file manifest input integrity
+        //   - All manifests use same PackageIdentifier, PackageVersion, ManifestVersion
+        //   - All required types exist and exist only once. i.e. version, installer, defaultLocale
+        //   - No duplicate locales across manifests
+        //   - DefaultLocale matches in version manifest and defaultLocale manifest
+        // - Validate manifest type correctness
+        //   - Allowed file type in multi file manifest: version, installer, defaultLocale, locale
+        //   - Allowed file type in multi file manifest: preview manifest, merged and singleton
         ManifestVer ValidateInput(std::vector<YamlManifestInfo>& input, bool fullValidation, bool isPartialManifest)
         {
             std::vector<ValidationError> errors;
@@ -206,9 +216,9 @@ namespace AppInstaller::Manifest::YamlParser
             return manifestVersion;
         }
 
+        // Find a unique required manifest from the input in multi manifest case
         const YAML::Node& FindUniqueRequiredDocFromMultiFileManifest(const std::vector<YamlManifestInfo>& input, ManifestTypeEnum manifestType)
         {
-            // We'll do case insensitive search first and validate correct case later.
             auto iter = std::find_if(input.begin(), input.end(),
                 [=](auto const& s)
                 {
@@ -220,6 +230,7 @@ namespace AppInstaller::Manifest::YamlParser
             return iter->Root;
         }
 
+        // Merge one manifest file to the final merged manifest, basically copying the mapping but excluding certain common fields
         void MergeOneManifestToMultiFileManifest(const YAML::Node& input, YAML::Node& destination)
         {
             THROW_HR_IF(E_UNEXPECTED, !input.IsMap());
@@ -350,6 +361,7 @@ namespace AppInstaller::Manifest::YamlParser
                 return resultErrors;
             }
 
+            // Merge manifests in multi file manifest case
             const YAML::Node& manifestDoc = (input.size() > 1) ? MergeMultiFileManifest(input) : input[0].Root;
 
             auto errors = ManifestYamlPopulator::PopulateManifest(manifestDoc, manifest, manifestVersion, fullValidation);
@@ -362,6 +374,7 @@ namespace AppInstaller::Manifest::YamlParser
                 std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
             }
 
+            // Output merged manifest if requested
             if (!mergedManifestPath.empty())
             {
                 OutputYamlDoc(manifestDoc, mergedManifestPath);

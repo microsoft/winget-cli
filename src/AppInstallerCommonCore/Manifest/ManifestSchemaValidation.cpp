@@ -10,6 +10,8 @@
 
 namespace AppInstaller::Manifest::YamlParser
 {
+    using namespace std::string_view_literals;
+
     namespace
     {
         enum class YamlScalarType
@@ -18,7 +20,7 @@ namespace AppInstaller::Manifest::YamlParser
             Int
         };
 
-        using namespace std::string_view_literals;
+        // List of fields that use non string scalar types
         const std::map<std::string_view, YamlScalarType> ManifestFieldTypes=
         {
             { "InstallerSuccessCodes"sv, YamlScalarType::Int }
@@ -156,6 +158,7 @@ namespace AppInstaller::Manifest::YamlParser
     std::vector<ValidationError> ValidateAgainstSchema(const std::vector<YamlManifestInfo>& manifestList, const ManifestVer& manifestVersion, PCWSTR resourceModuleName)
     {
         std::vector<ValidationError> errors;
+        // A list of schema validators to avoid multiple loadings of same schema
         std::map<ManifestTypeEnum, valijson::Schema> schemaList;
         valijson::Validator schemaValidator;
 

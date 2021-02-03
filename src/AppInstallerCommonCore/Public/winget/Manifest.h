@@ -32,10 +32,14 @@ namespace AppInstaller::Manifest
 
         ManifestLocalization CurrentLocalization;
 
+        // ApplyLocale will update the CurrentLocalization according to the specified locale
         // If locale is empty, user setting locale will be used
         void ApplyLocale(const std::string& locale = {});
 
+        // Get all tags across localizations
         std::vector<string_t> GetAggregatedTags() const;
+
+        // Get all commands across installers
         std::vector<string_t> GetAggregatedCommands() const;
     };
 }

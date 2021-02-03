@@ -80,6 +80,7 @@ namespace AppInstaller::CLI::Workflow
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
 
+        // Channel is moved to installer level, get all channels from all installers
         std::set<std::string> channels;
         for (const auto& installer : manifest.Installers)
         {

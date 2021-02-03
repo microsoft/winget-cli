@@ -4,10 +4,13 @@
 #include "TestCommon.h"
 #include <AppInstallerSHA256.h>
 #include <winget/ManifestYamlParser.h>
+#include <winget/Yaml.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::Manifest;
+using namespace AppInstaller::Manifest::YamlParser;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::YAML;
 
 using MultiValue = std::vector<NormalizedString>;
 bool operator==(const MultiValue& a, const MultiValue& b)
@@ -136,7 +139,7 @@ TEST_CASE("ReadGoodManifestWithSpaces", "[ManifestValidation]")
 
 struct ManifestExceptionMatcher : public Catch::MatcherBase<ManifestException>
 {
-    ManifestExceptionMatcher(std::string expectedMessage, bool expectedWarningOnly) :
+    ManifestExceptionMatcher(std::string expectedMessage, bool expectedWarningOnly = false) :
         m_expectedMessage(expectedMessage), m_expectedWarningOnly(expectedWarningOnly) {}
 
     // Performs the test for this matcher
@@ -480,4 +483,94 @@ TEST_CASE("ValidateV1GoodManifestAndVerifyContents", "[ManifestValidation]")
     // Read from merged manifest should have the same content as multi file manifest
     Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
     VerifyV1ManifestContent(mergedManifest, false);
+}
+
+YamlManifestInfo CreateYamlManifestInfo(std::string testDataFile)
+{
+    YamlManifestInfo result;
+    result.Root = AppInstaller::YAML::Load(TestDataFile(testDataFile));
+    result.FileName = testDataFile;
+    return result;
+}
+
+TEST_CASE("MultifileManifestInputValidation", "[ManifestValidation]")
+{
+    auto previewManifest = CreateYamlManifestInfo("Manifest-Good.yaml");
+    auto v1SingletonManifest = CreateYamlManifestInfo("ManifestV1-Singleton.yaml");
+    auto v1VersionManifest = CreateYamlManifestInfo("ManifestV1-MultiFile-Version.yaml");
+    auto v1InstallerManifest = CreateYamlManifestInfo("ManifestV1-MultiFile-Installer.yaml");
+    auto v1DefaultLocaleManifest = CreateYamlManifestInfo("ManifestV1-MultiFile-DefaultLocale.yaml");
+    auto v1LocaleManifest = CreateYamlManifestInfo("ManifestV1-MultiFile-Locale.yaml");
+
+    {
+        // Preview and multi file manifest together
+        std::vector<YamlManifestInfo> input = { previewManifest, v1VersionManifest, v1InstallerManifest, v1DefaultLocaleManifest };
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("Preview manifest does not support multi file manifest format"));
+    }
+
+    {
+        // Singleton and multi file manifest together
+        std::vector<YamlManifestInfo> input = { v1SingletonManifest, v1VersionManifest, v1InstallerManifest, v1DefaultLocaleManifest };
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest should not contain file with the particular ManifestType. Field: ManifestType Value: singleton"));
+    }
+
+    {
+        // More than 1 version manifest
+        std::vector<YamlManifestInfo> input = { v1VersionManifest, v1VersionManifest, v1InstallerManifest, v1DefaultLocaleManifest };
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest should contain only one file with the particular ManifestType. Field: ManifestType Value: version"));
+    }
+
+    {
+        // More than 1 installer manifest
+        std::vector<YamlManifestInfo> input = { v1VersionManifest, v1InstallerManifest, v1InstallerManifest, v1DefaultLocaleManifest };
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest should contain only one file with the particular ManifestType. Field: ManifestType Value: installer"));
+    }
+
+    {
+        // More than 1 default locale manifest
+        std::vector<YamlManifestInfo> input = { v1VersionManifest, v1InstallerManifest, v1DefaultLocaleManifest, v1DefaultLocaleManifest };
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest should contain only one file with the particular ManifestType. Field: ManifestType Value: defaultLocale"));
+    }
+
+    {
+        // Duplicate locales
+        std::vector<YamlManifestInfo> input = { v1VersionManifest, v1InstallerManifest, v1DefaultLocaleManifest, v1LocaleManifest, v1LocaleManifest };
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest contains duplicate PackageLocale. Field: PackageLocale Value: en-GB"));
+    }
+
+    {
+        // default locale not match
+        auto defaultLocaleManifestCopy = v1DefaultLocaleManifest;
+        defaultLocaleManifestCopy.Root["PackageLocale"].SetScalar("fr-fr");
+        std::vector<YamlManifestInfo> input = { v1VersionManifest, v1InstallerManifest, defaultLocaleManifestCopy, v1LocaleManifest };
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("DefaultLocale value in version manifest does not match PackageLocale value in defaultLocale manifest"));
+    }
+
+    {
+        // Package Id does not match
+        auto installerManifestCopy = v1InstallerManifest;
+        installerManifestCopy.Root["PackageIdentifier"].SetScalar("Another.Identifier");
+        std::vector<YamlManifestInfo> input = { v1VersionManifest, installerManifestCopy, v1DefaultLocaleManifest, v1LocaleManifest };
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest has inconsistent field values. Field: PackageIdentifier Value: Another.Identifier"));
+    }
+
+    {
+        // Package Version does not match
+        auto installerManifestCopy = v1InstallerManifest;
+        installerManifestCopy.Root["PackageVersion"].SetScalar("Another.Version");
+        std::vector<YamlManifestInfo> input = { v1VersionManifest, installerManifestCopy, v1DefaultLocaleManifest, v1LocaleManifest };
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest has inconsistent field values. Field: PackageVersion Value: Another.Version"));
+    }
+
+    {
+        // Incomplete multi file manifest, missing installer
+        std::vector<YamlManifestInfo> input = { v1VersionManifest, v1DefaultLocaleManifest };
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest is incomplete"));
+    }
+
+    {
+        // Incomplete multi file manifest, missing default locale
+        std::vector<YamlManifestInfo> input = { v1VersionManifest, v1InstallerManifest };
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest is incomplete"));
+    }
 }
