@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Microsoft.Packaging.WinGetUtil</id>
+    <id>Microsoft.WindowsPackageManager.Utils</id>
     <version>$version$</version>
     <title></title>
     <authors>Microsoft</authors>

@@ -11,6 +11,7 @@ pool:
 variables:
   solution: "src/AppInstallerCLI.sln"
   buildConfiguration: "Release"
+  packageName: Microsoft.WindowsPackageManager.Utils
 
 jobs:
   - job: "Build"
@@ -126,8 +127,8 @@ jobs:
       - task: PublishBuildArtifacts@1
         displayName: Publish nuget package to artifacts
         inputs:
-          PathtoPublish: '$(Build.ArtifactStagingDirectory)\Microsoft.Packaging.WinGetUtil.$(version).nupkg'
-          ArtifactName: "Microsoft.Packaging.WinGetUtil"
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(packageName).$(version).nupkg'
+          ArtifactName: $(packageName)
           publishLocation: Container
 
       - task: NuGetCommand@2
@@ -136,5 +137,5 @@ jobs:
           command: push
           nuGetFeedType: external
           includeNugetOrg: true
-          packagesToPush: '$(Build.ArtifactStagingDirectory)\Microsoft.Packaging.WinGetUtil.$(version).nupkg'
+          packagesToPush: '$(Build.ArtifactStagingDirectory)\$(packageName).$(version).nupkg'
           publishFeedCredentials: "WindowsPackageManagerAzurePipelineNuget - NuGet.org"
