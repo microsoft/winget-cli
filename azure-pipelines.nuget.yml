@@ -128,12 +128,13 @@ jobs:
         inputs:
           PathtoPublish: '$(Build.ArtifactStagingDirectory)\Microsoft.Packaging.WinGetUtil.$(version).nupkg'
           ArtifactName: "Microsoft.Packaging.WinGetUtil"
-          publishLocation: "Container"
+          publishLocation: Container
 
-      # - task: NuGetCommand@2
-      #   displayName: Push WingetUtil nuget package
-      #   inputs:
-      #     command: push
-      #     feedsToUse: config
-      #     includeNugetOrg: true
-      #     packagesToPush: '$(Build.ArtifactStagingDirectory)\Microsoft.Packaging.WinGetUtil.$(version).nupkg'
+      - task: NuGetCommand@2
+        displayName: Push WingetUtil nuget package to nuget.org
+        inputs:
+          command: push
+          nuGetFeedType: external
+          includeNugetOrg: true
+          packagesToPush: '$(Build.ArtifactStagingDirectory)\Microsoft.Packaging.WinGetUtil.$(version).nupkg'
+          publishFeedCredentials: "WindowsPackageManagerAzurePipelineNuget - NuGet.org"
