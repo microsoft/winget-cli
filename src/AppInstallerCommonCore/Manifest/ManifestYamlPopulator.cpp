@@ -469,9 +469,13 @@ namespace AppInstaller::Manifest
 
     ValidationErrors ManifestYamlPopulator::PopulateManifestInternal(const YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, bool fullValidation)
     {
-        ValidationErrors resultErrors;
         m_fullValidation = fullValidation;
-        m_isMergedManifest = (rootNode["ManifestType"sv].as<std::string>() == "merged");
+        if (manifestVersion.Major() >= 1)
+        {
+            m_isMergedManifest = (rootNode["ManifestType"sv].as<std::string>() == "merged");
+        }
+
+        ValidationErrors resultErrors;
         manifest.ManifestVersion = manifestVersion;
 
         // Prepare field infos

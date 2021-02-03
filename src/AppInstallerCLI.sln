@@ -69,6 +69,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ManifestSchema", "ManifestS
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		ManifestSchema\ManifestSchema.vcxitems*{1622da16-914f-4f57-a259-d5169003cc8c}*SharedItemsImports = 4
 		Valijson\Valijson.vcxitems*{358bc478-0624-4ad1-a933-0422b5292af8}*SharedItemsImports = 9
 		catch2\catch2.vcxitems*{5295e21e-9868-4de2-a177-fbb97b36579b}*SharedItemsImports = 9
 		ManifestSchema\ManifestSchema.vcxitems*{5890d6ed-7c3b-40f3-b436-b54f640d9e65}*SharedItemsImports = 4
