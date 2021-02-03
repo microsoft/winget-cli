@@ -78,7 +78,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Package is already installed"));
             Assert.False(VerifyTestExeInstalled());
-            UninstallTestExe(installDir);
+            UninstallTestExe();
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace AppInstallerCLIE2ETests
         {
             // Verify success when importing an exported list of packages.
             // First install the test package to ensure it is exported.
-            TestCommon.RunAICLICommand("install", "AppInstallerTest.TestExeInstaller");
+            TestCommon.RunAICLICommand("install", Constants.ExeInstallerPackageId);
 
             var jsonFile = TestCommon.GetRandomTestFile(".json");
             TestCommon.RunAICLICommand("export", $"{jsonFile} -s TestSource");
@@ -117,19 +117,10 @@ namespace AppInstallerCLIE2ETests
             return File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName));
         }
 
-        private void UninstallTestExe(string installDir = null)
+        private void UninstallTestExe()
         {
-            if (string.IsNullOrEmpty(installDir))
-            {
-                // Default location used by installer
-                installDir = Path.GetTempPath();
-            }
-
-            string uninstaller = Path.Combine(installDir, Constants.TestExeUninstallerFileName);
-            if (File.Exists(uninstaller))
-            {
-                TestCommon.RunCommand(uninstaller);
-            }
+            ConfigureFeature("uninstall", true);
+            TestCommon.RunAICLICommand("uninstall", Constants.ExeInstallerPackageId);
         }
 
         private void CleanupTestExe()
