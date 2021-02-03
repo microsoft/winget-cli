@@ -53,6 +53,9 @@ namespace AppInstallerCLIE2ETests
         public const string MsiInstallerProductCode = "{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
         public const string MsixInstallerPackageFamilyName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e_8wekyb3d8bbwe";
 
+        public const string TestExeInstalledFileName = "TestExeInstalled.txt";
+        public const string TestExeUninstallerFileName = "UninstallTestExe.bat";
+
         public class ErrorCode
         {
             public const int S_OK = 0;

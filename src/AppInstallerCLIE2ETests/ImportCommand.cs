@@ -114,7 +114,7 @@ namespace AppInstallerCLIE2ETests
                 installDir = Path.GetTempPath();
             }
 
-            return File.Exists(Path.Combine(installDir, "TestExeInstalled.txt"));
+            return File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName));
         }
 
         private void UninstallTestExe(string installDir = null)
@@ -125,14 +125,18 @@ namespace AppInstallerCLIE2ETests
                 installDir = Path.GetTempPath();
             }
 
-            TestCommon.RunCommand(Path.Combine(installDir, "UninstallTestExe.bat"));
+            string uninstaller = Path.Combine(installDir, Constants.TestExeUninstallerFileName);
+            if (File.Exists(uninstaller))
+            {
+                TestCommon.RunCommand(uninstaller);
+            }
         }
 
         private void CleanupTestExe()
         {
             UninstallTestExe();
-            File.Delete(Path.Combine(Path.GetTempPath(), "TestExeInstalled.txt"));
-            File.Delete(Path.Combine(Path.GetTempPath(), "TestExeUninstalled.txt"));
+            File.Delete(Path.Combine(Path.GetTempPath(), Constants.TestExeInstalledFileName));
+            File.Delete(Path.Combine(Path.GetTempPath(), Constants.TestExeUninstallerFileName));
         }
     }
 }
