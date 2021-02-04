@@ -46,7 +46,6 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"InapplicableOsVersion --silent -l {installDir}");
             // MinOSVersion is moved to installer level, the check is performed during installer selection
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICABLE_INSTALLER, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Cannot install package, as it requires a higher version of Windows"));
             Assert.False(VerifyTestExeInstalled(installDir));
         }
 
