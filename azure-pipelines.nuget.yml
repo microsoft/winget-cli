@@ -29,12 +29,6 @@ jobs:
         inputs:
           restoreSolution: "$(solution)"
 
-      - task: DotNetCoreCLI@2
-        displayName: DotNet Restore
-        inputs:
-          command: "restore"
-          projects: "**/*.csproj"
-
       - task: PowerShell@2
         displayName: Update Binary Version
         condition: not(eq(variables['Build.Reason'], 'PullRequest'))
@@ -60,7 +54,7 @@ jobs:
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: "ESRP CodeSigning - Package contents"
         inputs:
-          ConnectedServiceName: "Peet ESRP CodeSigning"
+          ConnectedServiceName: "WindowsPackageManager ESRP CodeSigning"
           FolderPath: src
           Pattern: |
             *\$(buildConfiguration)\WinGetUtil\WinGetUtil.dll
@@ -102,7 +96,7 @@ jobs:
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: "ESRP CodeSigning - NuGet package"
         inputs:
-          ConnectedServiceName: "Peet ESRP CodeSigning"
+          ConnectedServiceName: "WindowsPackageManager ESRP CodeSigning"
           FolderPath: "$(Build.ArtifactStagingDirectory)"
           Pattern: "Microsoft.Packaging.WinGetUtil.$(version).nupkg"
           signConfigType: inlineSignParams

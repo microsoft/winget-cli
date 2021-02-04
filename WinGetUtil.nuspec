@@ -10,7 +10,6 @@
     <license type="expression">MIT</license>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>The utility binary for use with the WinGet CLI.</description>
-    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
     <copyright>© Microsoft Corporation. All rights reserved.</copyright>
     <tags>winget</tags>
   </metadata>
