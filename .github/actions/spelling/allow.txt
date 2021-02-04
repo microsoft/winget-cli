@@ -93,6 +93,7 @@ ENU
 enum
 errorlevel
 errstr
+esrp
 etag
 ETW
 EVENTTAG
