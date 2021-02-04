@@ -193,6 +193,7 @@ mday
 metadata
 microsoft
 mimetype
+Minimatch
 MINORVERSION
 monostate
 motw
@@ -232,6 +233,8 @@ NTSTATUS
 nuget
 nullptr
 nullsoft
+nupkg
+nuspec
 nunit
 OAuth
 ofstream
@@ -242,6 +245,7 @@ ostringstream
 OSVERSIONINFOEXW
 outfile
 OUTOFMEMORY
+Params
 parentidx
 pathpart
 Pathto

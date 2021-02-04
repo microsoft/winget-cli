@@ -17,3 +17,12 @@ data:[a-zA-Z=;,/0-9+-]+
 El proyecto .* diferentes
 # Package family names
 \b[-.A-Za-z0-9]+_[a-z0-9]{13}\b
+# URLs
+^(((ht|f)tp(s?))\://)?(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(com|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk)(\:[0-9]+)*(/($|[a-zA-Z0-9\.\,\;\?\'\\\+&%\$#\=~_\-]+))*$
+# All tokens bounded by a slash
+\\[^\\]+\b
+/[^/]+\b
+\b[^\\]+\\
+\b[^/]+/
+# Azure pipeline tasks
+- task: .*
