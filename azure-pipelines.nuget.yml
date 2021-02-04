@@ -24,10 +24,11 @@ jobs:
       - task: NuGetToolInstaller@1
         displayName: Install Nuget
 
-      - task: NuGetCommand@2
-        displayName: Restore Packages
+      - task: DotNetCoreCLI@2
+        displayName: DotNet Restore
         inputs:
-          restoreSolution: "$(solution)"
+          command: "restore"
+          projects: "**/*.csproj"
 
       - task: PowerShell@2
         displayName: Update Binary Version
