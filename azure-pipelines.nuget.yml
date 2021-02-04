@@ -2,7 +2,7 @@ trigger: none
 
 parameters:
   - name: version
-    displayName: Version to stamp on binaries and nuget package
+    displayName: Version to stamp on binaries and nuget package. Should be in form of "major.minor", for example "1.0"
     type: string
 
 pool:
