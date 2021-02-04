@@ -24,6 +24,11 @@ jobs:
       - task: NuGetToolInstaller@1
         displayName: Install Nuget
 
+      - task: NuGetCommand@2
+        displayName: Restore Packages
+        inputs:
+          restoreSolution: "$(solution)"
+
       - task: DotNetCoreCLI@2
         displayName: DotNet Restore
         inputs:
