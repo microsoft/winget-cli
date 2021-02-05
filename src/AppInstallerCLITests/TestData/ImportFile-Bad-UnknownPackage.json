@@ -1,5 +1,5 @@
 {
-  "$schema": "https://aka.ms/winget-packages-v0.schema.json",
+  "$schema": "https://aka.ms/winget-packages.schema.1.0.json",
   "CreationDate": "2021-01-01T12:00:00.000",
   "Sources": [
     {

@@ -14,7 +14,7 @@ using namespace AppInstaller::Repository;
 using namespace AppInstaller::Utility;
 
 const std::string s_PackagesJson_Schema = "$schema";
-const std::string s_PackagesJson_SchemaUri_V0 = "https://aka.ms/winget-packages-v0.schema.json";
+const std::string s_PackagesJson_SchemaUri_v1_0 = "https://aka.ms/winget-packages.schema.1.0.json";
 const std::string s_PackagesJson_WinGetVersion = "WinGetVersion";
 const std::string s_PackagesJson_CreationDate = "CreationDate";
 
@@ -61,7 +61,7 @@ namespace
 
     void ValidateJsonWithCollection(const Json::Value& root, const PackageCollection& collection)
     {
-        ValidateJsonStringProperty(root, s_PackagesJson_Schema, s_PackagesJson_SchemaUri_V0);
+        ValidateJsonStringProperty(root, s_PackagesJson_Schema, s_PackagesJson_SchemaUri_v1_0);
         ValidateJsonStringProperty(root, s_PackagesJson_WinGetVersion, collection.ClientVersion);
         REQUIRE(root.isMember(s_PackagesJson_CreationDate));
 
@@ -170,7 +170,7 @@ TEST_CASE("PackageCollection_Read_SingleSource", "[PackageCollection]")
 {
     auto json = ParseJsonString(R"(
     {
-      "$schema": "https://aka.ms/winget-packages-v0.schema.json",
+      "$schema": "https://aka.ms/winget-packages.schema.1.0.json",
       "CreationDate": "2021-01-01T12:00:00.000",
       "Sources": [
         {
@@ -220,7 +220,7 @@ TEST_CASE("PackageCollection_Read_MultipleSources", "[PackageCollection]")
 {
     auto json = ParseJsonString(R"(
     {
-      "$schema": "https://aka.ms/winget-packages-v0.schema.json",
+      "$schema": "https://aka.ms/winget-packages.schema.1.0.json",
       "CreationDate": "2021-01-01T12:00:00.000",
       "WinGetVersion": "1.0.0",
       "Sources": [
@@ -284,7 +284,7 @@ TEST_CASE("PackageCollection_Read_RepeatedSource", "[PackageCollection]")
 {
     auto json = ParseJsonString(R"(
     {
-      "$schema": "https://aka.ms/winget-packages-v0.schema.json",
+      "$schema": "https://aka.ms/winget-packages.schema.1.0.json",
       "CreationDate": "2021-01-01T12:00:00.000",
       "WinGetVersion": "1.0.0",
       "Sources": [

@@ -17,7 +17,7 @@ namespace AppInstaller::CLI
         // Strings used in the Packages JSON file.
         // Most will be used to access a JSON value, so they need to be std::string
         const std::string s_PackagesJson_Schema = "$schema";
-        const std::string s_PackagesJson_SchemaUri_V0 = "https://aka.ms/winget-packages-v0.schema.json";
+        const std::string s_PackagesJson_SchemaUri_v1_0 = "https://aka.ms/winget-packages.schema.1.0.json";
         const std::string s_PackagesJson_WinGetVersion = "WinGetVersion";
         const std::string s_PackagesJson_CreationDate = "CreationDate";
 
@@ -96,7 +96,7 @@ namespace AppInstaller::CLI
         {
             Json::Value root{ Json::ValueType::objectValue };
             root[s_PackagesJson_WinGetVersion] = wingetVersion;
-            root[s_PackagesJson_Schema] = s_PackagesJson_SchemaUri_V0;
+            root[s_PackagesJson_Schema] = s_PackagesJson_SchemaUri_v1_0;
 
             // TODO: This uses localtime. Do we want to use UTC or add time zone?
             std::stringstream currentTimeStream;
