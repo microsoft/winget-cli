@@ -476,6 +476,9 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Prikazuje informacije o određenom paketu. Veličina slova upita podrazumevano mora da se podudara sa ID-om, imenom ili monikerom paketa. Druga polja mogu da se koriste izborom odgovarajuće opcije.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Prikazuje informacije o paketu</value>
   </data>
@@ -650,7 +653,7 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
     <value>Neprepoznata komanda</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Ažuriraj sve instalirane pakete na najnoviji koji je dostupan</value>
+    <value>Ažuriraj sve instalirane pakete na najnovije ako su dostupni</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Nije pronađena nijedna primenljiva ispravka.</value>
@@ -718,5 +721,39 @@ One se mogu konfigurisati putem „winget settings“ datoteke sa postavkama.</v
   <data name="Logs" xml:space="preserve">
     <value>Datoteke evidencije</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Smernice blokiraju instalacioni program</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Nije uspela provera bezbednosti instalacionog programa</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Antivirusni proizvod prijavljuje zaraženost u instalacionom programu</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Pokušaj ažuriranja izvora nije uspeo:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Deinstalira izabrani paket, koji se pronalazi ili pretraživanjem liste instaliranih paketa ili direktno iz manifesta. Veličina slova upita podrazumevano mora da se podudari sa ID-om, imenom ili monikerom paketa. Druga polja mogu da se koriste izborom odgovarajuće opcije.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Deinstalira dati paket</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Pokretanje deinstalacije paketa...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Uspešno je deinstalirano</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget ne može da pronađe komandu za deinstalaciju za ovaj paket. Obratite se izdavaču paketa za podršku.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Deinstalacija je napuštena</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Deinstalacija nije uspela uz izlazni kôd:</value>
   </data>
 </root>

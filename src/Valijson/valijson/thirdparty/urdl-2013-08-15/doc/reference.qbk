@@ -1,0 +1,4535 @@
+[/
+ / Copyright (c) 2003-2013 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+ /
+ / Distributed under the Boost Software License, Version 1.0. (See accompanying
+ / file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+ /]
+
+[section:reference Reference]
+
+
+
+[section:core Core Classes]
+
+  
+[section:istream istream]
+
+[indexterm2 istream..class] 
+The class `istream` supports reading content from a specified URL. 
+
+
+  class istream :
+    public std::basic_istream< char >
+
+
+['[*Member Functions]]
+[table
+  [[Name][Description]]
+
+  [
+    [[link urdl.reference.core.istream.close [*close]]]
+    [Closes the stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istream.content_length [*content_length]]]
+    [Gets the length of the content obtained from the URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istream.content_type [*content_type]]]
+    [Gets the MIME type of the content obtained from the URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istream.error [*error]]]
+    [Gets the last error associated with the stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istream.get_option [*get_option]]]
+    [Gets the current value of an option that controls the behaviour of the stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istream.get_options [*get_options]]]
+    [Gets the values of all options set on the stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istream.headers [*headers]]]
+    [Gets the protocol-specific headers obtained from the URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istream.is_open [*is_open]]]
+    [Determines whether the stream is open. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istream.istream [*istream]]]
+    [Constructs an object of class istream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istream.open [*open]]]
+    [Opens the specified URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istream.open_timeout [*open_timeout]]]
+    [Gets the open timeout of the stream. 
+
+     Sets the open timeout of the stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istream.rdbuf [*rdbuf]]]
+    [Gets the underlying stream buffer. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istream.read_timeout [*read_timeout]]]
+    [Gets the read timeout of the stream. 
+
+     Sets the read timeout of the stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istream.set_option [*set_option]]]
+    [Sets an option to control the behaviour of the stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istream.set_options [*set_options]]]
+    [Sets options to control the behaviour of the stream. ]
+  ]
+  
+]
+
+
+['[*Remarks]]
+  
+The class stores an object of class `istreambuf`.
+
+Currently supported URL protocols are `http`, `https` and `file`.
+
+
+['[*Example]]
+  
+To read the entire content of a resource located by a URL into a string: 
+
+   urdl::istream is("http://www.boost.org/LICENSE_1_0.txt");
+   if (is)
+   {
+     std::string content;
+     if (std::getline(is, content, std::char_traits<char>::eof()))
+     {
+       ...
+     }
+   }
+
+
+
+
+['[*Requirements]]
+  
+[*Header:] `<urdl/istream.hpp>`
+
+[*Namespace:] `urdl`
+
+
+
+[section:close istream::close]
+
+[indexterm2 close..istream] 
+Closes the stream. 
+
+
+  void close();
+
+
+
+['[*Remarks]]
+  
+Calls `rdbuf()->close()` and, if that function returns a null pointer, calls `setstate(failbit)` (which may throw `ios_base::failure`). 
+
+
+
+[endsect]
+
+
+
+[section:content_length istream::content_length]
+
+[indexterm2 content_length..istream] 
+Gets the length of the content obtained from the URL. 
+
+
+  std::size_t content_length() const;
+
+
+
+['[*Return Value]]
+      
+The length, in bytes, of the content. If the content associated with the URL does not specify a length, `std::numeric_limits<std::size_t>::max()`.
+
+['[*Remarks]]
+  
+Returns `rdbuf()->content_length()`. 
+
+
+
+[endsect]
+
+
+
+[section:content_type istream::content_type]
+
+[indexterm2 content_type..istream] 
+Gets the MIME type of the content obtained from the URL. 
+
+
+  std::string content_type() const;
+
+
+
+['[*Return Value]]
+      
+A string specifying the MIME type. Examples of possible return values include `text/plain`, `text/html` and `image/png`.
+
+['[*Remarks]]
+  
+Returns `rdbuf()->content_type()`.
+
+Not all URL protocols support a content type. For these protocols, this function returns an empty string. 
+
+
+[endsect]
+
+
+
+[section:error istream::error]
+
+[indexterm2 error..istream] 
+Gets the last error associated with the stream. 
+
+
+  const boost::system::error_code & error() const;
+
+
+
+['[*Return Value]]
+      
+An `error_code` corresponding to the last error from the stream.
+
+['[*Remarks]]
+  
+Returns a reference to an `error_code` object representing the last failure reported by an `istreambuf` function. The set of possible `error_code` values and categories depends on the protocol of the URL used to open the stream.
+
+['[*Example]]
+  
+To take action given a specific error: 
+
+   urdl::istream is("http://somesite/page");
+   if (!is)
+   {
+     if (is.error() == urdl::http::errc::forbidden)
+     {
+       std::cout << "Computer says no" << std::endl;
+     }
+   }
+
+
+
+
+
+
+[endsect]
+
+
+
+[section:get_option istream::get_option]
+
+[indexterm2 get_option..istream] 
+Gets the current value of an option that controls the behaviour of the stream. 
+
+
+  template<
+      typename Option>
+  Option get_option() const;
+
+
+
+['[*Return Value]]
+      
+The current value of the option.
+
+['[*Remarks]]
+  
+Returns `rdbuf()->get_option<Option>()`. Options are uniquely identified by type.
+
+['[*Example]]
+  
+
+
+   urdl::istream is;
+   urdl::http::max_redirects option
+     = is.get_option<urdl::http::max_redirects>();
+   std::size_t value = option.value();
+
+
+
+
+
+
+[endsect]
+
+
+
+[section:get_options istream::get_options]
+
+[indexterm2 get_options..istream] 
+Gets the values of all options set on the stream. 
+
+
+  option_set get_options() const;
+
+
+
+['[*Return Value]]
+      
+An option set containing all options from the stream.
+
+['[*Remarks]]
+  
+Returns `rdbuf()->get_options()`.
+
+['[*Example]]
+  
+To get the options that have been set on the stream: 
+
+   urdl::istream is;
+   ...
+   urdl::option_set options(is.get_options());
+   urdl::http::max_redirects option
+     = options.get_option<urdl::http::max_redirects>();
+   std::size_t value = option.value();
+
+
+
+
+
+
+[endsect]
+
+
+
+[section:headers istream::headers]
+
+[indexterm2 headers..istream] 
+Gets the protocol-specific headers obtained from the URL. 
+
+
+  std::string headers() const;
+
+
+
+['[*Return Value]]
+      
+A string containing the headers returned with the content from the URL. The format and interpretation of these headers is specific to the protocol associated with the URL.
+
+['[*Remarks]]
+  
+Returns `rdbuf()->headers()`. 
+
+
+
+[endsect]
+
+
+
+[section:is_open istream::is_open]
+
+[indexterm2 is_open..istream] 
+Determines whether the stream is open. 
+
+
+  bool is_open() const;
+
+
+
+['[*Return Value]]
+      
+`true` if the stream is open, `false` otherwise.
+
+['[*Remarks]]
+  
+Returns `rdbuf()->is_open()`. 
+
+
+
+[endsect]
+
+
+[section:istream istream::istream]
+
+[indexterm2 istream..istream] 
+Constructs an object of class `istream`. 
+
+
+  ``[link urdl.reference.core.istream.istream.overload1 istream]``();
+  ``  [''''&raquo;''' [link urdl.reference.core.istream.istream.overload1 more...]]``
+
+  explicit ``[link urdl.reference.core.istream.istream.overload2 istream]``(
+      const url & u);
+  ``  [''''&raquo;''' [link urdl.reference.core.istream.istream.overload2 more...]]``
+
+  explicit ``[link urdl.reference.core.istream.istream.overload3 istream]``(
+      const url & u,
+      const option_set & options);
+  ``  [''''&raquo;''' [link urdl.reference.core.istream.istream.overload3 more...]]``
+
+
+[section:overload1 istream::istream (1 of 3 overloads)]
+
+
+Constructs an object of class `istream`. 
+
+
+  istream();
+
+
+
+['[*Remarks]]
+  
+Initializes the base class with `std::basic_istream<char>(sb)`, where sb is an object of class `istreambuf` stored within the class. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 istream::istream (2 of 3 overloads)]
+
+
+Constructs an object of class `istream`. 
+
+
+  explicit istream(
+      const url & u);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[u][The URL to open.]]
+
+]
+
+['[*Remarks]]
+  
+Initializes the base class with `std::basic_istream<char>(sb)`, where `sb` is an object of class `istreambuf` stored within the class. It also opens `sb` by performing `sb.open(u)` and, if that fails (returns a null pointer), calls `setstate(failbit)`. 
+
+
+
+[endsect]
+
+
+
+[section:overload3 istream::istream (3 of 3 overloads)]
+
+
+Constructs an object of class `istream`. 
+
+
+  explicit istream(
+      const url & u,
+      const option_set & options);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[u][The URL to open.]]
+
+[[options][The options to be set on the stream.]]
+
+]
+
+['[*Remarks]]
+  
+Initializes the base class with `std::basic_istream<char>(sb)`, where `sb` is an object of class `istreambuf` stored within the class. It also performs `rdbuf()->set_options(options)`, then opens `sb` by performing `sb.open(u)` and, if that fails (returns a null pointer), calls `setstate(failbit)`.
+
+['[*Example]]
+  
+
+
+   urdl::option_set options;
+   options.set_option(urdl::http::max_redirects(1));
+   urdl::istream is("http://www.boost.org", options);
+
+
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:open istream::open]
+
+[indexterm2 open..istream] 
+Opens the specified URL. 
+
+
+  void open(
+      const url & u);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[u][The URL to open.]]
+
+]
+
+['[*Remarks]]
+  
+Calls `rdbuf()->open(u)`. If that function does not return a null pointer, calls `clear()`. Otherwise calls `setstate(failbit)` (which may throw `ios_base::failure`). 
+
+
+
+[endsect]
+
+
+[section:open_timeout istream::open_timeout]
+
+[indexterm2 open_timeout..istream] 
+Gets the open timeout of the stream. 
+
+
+  std::size_t ``[link urdl.reference.core.istream.open_timeout.overload1 open_timeout]``() const;
+  ``  [''''&raquo;''' [link urdl.reference.core.istream.open_timeout.overload1 more...]]``
+
+
+Sets the open timeout of the stream. 
+
+
+  void ``[link urdl.reference.core.istream.open_timeout.overload2 open_timeout]``(
+      std::size_t milliseconds);
+  ``  [''''&raquo;''' [link urdl.reference.core.istream.open_timeout.overload2 more...]]``
+
+
+[section:overload1 istream::open_timeout (1 of 2 overloads)]
+
+
+Gets the open timeout of the stream. 
+
+
+  std::size_t open_timeout() const;
+
+
+
+['[*Return Value]]
+      
+The timeout, in milliseconds, used when opening a URL.
+
+['[*Remarks]]
+  
+Returns `rdbuf()->open_timeout()`. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 istream::open_timeout (2 of 2 overloads)]
+
+
+Sets the open timeout of the stream. 
+
+
+  void open_timeout(
+      std::size_t milliseconds);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[milliseconds][The timeout, in milliseconds, to be used when opening a URL.]]
+
+]
+
+['[*Remarks]]
+  
+Performs `rdbuf()->open_timeout(milliseconds)`. 
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:rdbuf istream::rdbuf]
+
+[indexterm2 rdbuf..istream] 
+Gets the underlying stream buffer. 
+
+
+  istreambuf * rdbuf() const;
+
+
+
+['[*Return Value]]
+      
+A pointer to the stream buffer contained within the class. 
+
+
+
+[endsect]
+
+
+[section:read_timeout istream::read_timeout]
+
+[indexterm2 read_timeout..istream] 
+Gets the read timeout of the stream. 
+
+
+  std::size_t ``[link urdl.reference.core.istream.read_timeout.overload1 read_timeout]``() const;
+  ``  [''''&raquo;''' [link urdl.reference.core.istream.read_timeout.overload1 more...]]``
+
+
+Sets the read timeout of the stream. 
+
+
+  void ``[link urdl.reference.core.istream.read_timeout.overload2 read_timeout]``(
+      std::size_t milliseconds);
+  ``  [''''&raquo;''' [link urdl.reference.core.istream.read_timeout.overload2 more...]]``
+
+
+[section:overload1 istream::read_timeout (1 of 2 overloads)]
+
+
+Gets the read timeout of the stream. 
+
+
+  std::size_t read_timeout() const;
+
+
+
+['[*Return Value]]
+      
+The timeout, in milliseconds, used for individual read operations on the underlying transport.
+
+['[*Remarks]]
+  
+Returns `rdbuf()->read_timeout()`. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 istream::read_timeout (2 of 2 overloads)]
+
+
+Sets the read timeout of the stream. 
+
+
+  void read_timeout(
+      std::size_t milliseconds);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[milliseconds][The timeout, in milliseconds, to be used for individual read operations on the underlying transport.]]
+
+]
+
+['[*Remarks]]
+  
+Performs `rdbuf()->read_timeout(milliseconds)`. 
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:set_option istream::set_option]
+
+[indexterm2 set_option..istream] 
+Sets an option to control the behaviour of the stream. 
+
+
+  template<
+      typename Option>
+  void set_option(
+      const Option & option);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[option][The option to be set on the stream.]]
+
+]
+
+['[*Remarks]]
+  
+Performs `rdbuf()->set_option(option)`. Options are uniquely identified by type.
+
+['[*Example]]
+  
+
+
+   urdl::istream is;
+   is.set_option(urdl::http::max_redirects(1));
+
+
+
+
+
+
+[endsect]
+
+
+
+[section:set_options istream::set_options]
+
+[indexterm2 set_options..istream] 
+Sets options to control the behaviour of the stream. 
+
+
+  void set_options(
+      const option_set & options);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[options][The options to be set on the stream. The options in the set are added on top of any options already set on the stream.]]
+
+]
+
+['[*Remarks]]
+  
+Performs `rdbuf()->set_options(options)`.
+
+['[*Example]]
+  
+
+
+   urdl::istream is;
+   urdl::option_set options;
+   options.set_option(urdl::http::max_redirects(1));
+   options.set_option(urdl::ssl::verify_peer(false));
+   stream.set_options(options);
+
+
+
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:istreambuf istreambuf]
+
+[indexterm2 istreambuf..class] 
+The class `istreambuf` associates the input sequence with the content from a specified URL. 
+
+
+  class istreambuf :
+    public std::streambuf
+
+
+['[*Member Functions]]
+[table
+  [[Name][Description]]
+
+  [
+    [[link urdl.reference.core.istreambuf.close [*close]]]
+    [Closes the stream buffer. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istreambuf.content_length [*content_length]]]
+    [Gets the length of the content obtained from the URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istreambuf.content_type [*content_type]]]
+    [Gets the MIME type of the content obtained from the URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istreambuf.get_option [*get_option]]]
+    [Gets the current value of an option that controls the behaviour of the stream buffer. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istreambuf.get_options [*get_options]]]
+    [Gets the values of all options set on the stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istreambuf.headers [*headers]]]
+    [Gets the protocol-specific headers obtained from the URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istreambuf.is_open [*is_open]]]
+    [Determines whether the stream buffer is open. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istreambuf.istreambuf [*istreambuf]]]
+    [Constructs an object of class istreambuf. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istreambuf.open [*open]]]
+    [Opens the specified URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istreambuf.open_timeout [*open_timeout]]]
+    [Gets the open timeout of the stream buffer. 
+
+     Sets the open timeout of the stream buffer. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istreambuf.puberror [*puberror]]]
+    [Gets the last error associated with the stream buffer. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istreambuf.read_timeout [*read_timeout]]]
+    [Gets the read timeout of the stream buffer. 
+
+     Sets the read timeout of the stream buffer. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istreambuf.set_option [*set_option]]]
+    [Sets an option to control the behaviour of the stream buffer. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istreambuf.set_options [*set_options]]]
+    [Sets options to control the behaviour of the stream buffer. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istreambuf._istreambuf [*~istreambuf]]]
+    [Destroys an object of class istreambuf. ]
+  ]
+  
+]
+
+['[*Protected Member Functions]]
+[table
+  [[Name][Description]]
+
+  [
+    [[link urdl.reference.core.istreambuf.error [*error]]]
+    [Gets the last error associated with the stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.istreambuf.underflow [*underflow]]]
+    [Overrides std::streambuf behaviour. ]
+  ]
+  
+]
+
+
+['[*Requirements]]
+  
+[*Header:] `<urdl/istreambuf.hpp>`
+
+[*Namespace:] `urdl`
+
+
+
+[section:close istreambuf::close]
+
+[indexterm2 close..istreambuf] 
+Closes the stream buffer. 
+
+
+  istreambuf * close();
+
+
+
+['[*Return Value]]
+      
+`this` on success, a null pointer otherwise.
+
+['[*Remarks]]
+  
+If `is_open() == false`, returns a null pointer. Otherwise, closes the underlying transport's resources as required. If any of those operations fail, `close` fails by returning a null pointer. 
+
+
+
+[endsect]
+
+
+
+[section:content_length istreambuf::content_length]
+
+[indexterm2 content_length..istreambuf] 
+Gets the length of the content obtained from the URL. 
+
+
+  std::size_t content_length() const;
+
+
+
+['[*Return Value]]
+      
+The length, in bytes, of the content. If the content associated with the URL does not specify a length, `std::numeric_limits<std::size_t>::max()`. 
+
+
+
+[endsect]
+
+
+
+[section:content_type istreambuf::content_type]
+
+[indexterm2 content_type..istreambuf] 
+Gets the MIME type of the content obtained from the URL. 
+
+
+  std::string content_type() const;
+
+
+
+['[*Return Value]]
+      
+A string specifying the MIME type. Examples of possible return values include `text/plain`, `text/html` and `image/png`.
+
+['[*Remarks]]
+  
+Not all URL protocols support a content type. For these protocols, this function returns an empty string. 
+
+
+
+[endsect]
+
+
+
+[section:error istreambuf::error]
+
+[indexterm2 error..istreambuf] 
+Gets the last error associated with the stream. 
+
+
+  const boost::system::error_code & error() const;
+
+
+
+['[*Return Value]]
+      
+An `error_code` corresponding to the last error from the stream.
+
+['[*Remarks]]
+  
+Returns a reference to an `error_code` object representing the last failure reported by an `istreambuf` function. The set of possible `error_code` values and categories depends on the protocol of the URL used to open the stream buffer. 
+
+
+
+[endsect]
+
+
+
+[section:get_option istreambuf::get_option]
+
+[indexterm2 get_option..istreambuf] 
+Gets the current value of an option that controls the behaviour of the stream buffer. 
+
+
+  template<
+      typename Option>
+  Option get_option() const;
+
+
+
+['[*Return Value]]
+      
+The current value of the option.
+
+['[*Remarks]]
+  
+Options are uniquely identified by type. 
+
+
+
+[endsect]
+
+
+
+[section:get_options istreambuf::get_options]
+
+[indexterm2 get_options..istreambuf] 
+Gets the values of all options set on the stream. 
+
+
+  option_set get_options() const;
+
+
+
+['[*Return Value]]
+      
+An option set containing all options from the stream buffer. 
+
+
+
+[endsect]
+
+
+
+[section:headers istreambuf::headers]
+
+[indexterm2 headers..istreambuf] 
+Gets the protocol-specific headers obtained from the URL. 
+
+
+  std::string headers() const;
+
+
+
+['[*Return Value]]
+      
+A string containing the headers returned with the content from the URL. The format and interpretation of these headers is specific to the protocol associated with the URL. 
+
+
+
+[endsect]
+
+
+
+[section:is_open istreambuf::is_open]
+
+[indexterm2 is_open..istreambuf] 
+Determines whether the stream buffer is open. 
+
+
+  bool is_open() const;
+
+
+
+['[*Return Value]]
+      
+`true` if the stream buffer is open, `false` otherwise.
+
+['[*Remarks]]
+  
+Returns `true` if a previous call to `open` succeeded (returned a non-null value) and there has been no intervening call to `close`. 
+
+
+
+[endsect]
+
+
+
+[section:istreambuf istreambuf::istreambuf]
+
+[indexterm2 istreambuf..istreambuf] 
+Constructs an object of class `istreambuf`. 
+
+
+  istreambuf();
+
+
+
+[endsect]
+
+
+
+[section:open istreambuf::open]
+
+[indexterm2 open..istreambuf] 
+Opens the specified URL. 
+
+
+  istreambuf * open(
+      const url & u);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[u][The URL to open.]]
+
+]
+
+['[*Return Value]]
+      
+`this` on success, a null pointer otherwise.
+
+['[*Remarks]]
+  
+If `is_open() != false`, returns a null pointer. Otherwise, initializes the `istreambuf` as required. 
+
+
+
+[endsect]
+
+
+[section:open_timeout istreambuf::open_timeout]
+
+[indexterm2 open_timeout..istreambuf] 
+Gets the open timeout of the stream buffer. 
+
+
+  std::size_t ``[link urdl.reference.core.istreambuf.open_timeout.overload1 open_timeout]``() const;
+  ``  [''''&raquo;''' [link urdl.reference.core.istreambuf.open_timeout.overload1 more...]]``
+
+
+Sets the open timeout of the stream buffer. 
+
+
+  void ``[link urdl.reference.core.istreambuf.open_timeout.overload2 open_timeout]``(
+      std::size_t milliseconds);
+  ``  [''''&raquo;''' [link urdl.reference.core.istreambuf.open_timeout.overload2 more...]]``
+
+
+[section:overload1 istreambuf::open_timeout (1 of 2 overloads)]
+
+
+Gets the open timeout of the stream buffer. 
+
+
+  std::size_t open_timeout() const;
+
+
+
+['[*Return Value]]
+      
+The timeout, in milliseconds, used when opening a URL. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 istreambuf::open_timeout (2 of 2 overloads)]
+
+
+Sets the open timeout of the stream buffer. 
+
+
+  void open_timeout(
+      std::size_t milliseconds);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[milliseconds][The timeout, in milliseconds, to be used when opening a URL. ]]
+
+]
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:puberror istreambuf::puberror]
+
+[indexterm2 puberror..istreambuf] 
+Gets the last error associated with the stream buffer. 
+
+
+  const boost::system::error_code & puberror() const;
+
+
+
+['[*Return Value]]
+      
+An `error_code` corresponding to the last error from the stream buffer.
+
+['[*Remarks]]
+  
+Returns `error()`. 
+
+
+
+[endsect]
+
+
+[section:read_timeout istreambuf::read_timeout]
+
+[indexterm2 read_timeout..istreambuf] 
+Gets the read timeout of the stream buffer. 
+
+
+  std::size_t ``[link urdl.reference.core.istreambuf.read_timeout.overload1 read_timeout]``() const;
+  ``  [''''&raquo;''' [link urdl.reference.core.istreambuf.read_timeout.overload1 more...]]``
+
+
+Sets the read timeout of the stream buffer. 
+
+
+  void ``[link urdl.reference.core.istreambuf.read_timeout.overload2 read_timeout]``(
+      std::size_t milliseconds);
+  ``  [''''&raquo;''' [link urdl.reference.core.istreambuf.read_timeout.overload2 more...]]``
+
+
+[section:overload1 istreambuf::read_timeout (1 of 2 overloads)]
+
+
+Gets the read timeout of the stream buffer. 
+
+
+  std::size_t read_timeout() const;
+
+
+
+['[*Return Value]]
+      
+The timeout, in milliseconds, used for individual read operations on the underlying transport, when downloading the URL's content. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 istreambuf::read_timeout (2 of 2 overloads)]
+
+
+Sets the read timeout of the stream buffer. 
+
+
+  void read_timeout(
+      std::size_t milliseconds);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[milliseconds][The timeout, in milliseconds, to be used for individual read operations on the underlying transport, when downloading the URL's content. ]]
+
+]
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:set_option istreambuf::set_option]
+
+[indexterm2 set_option..istreambuf] 
+Sets an option to control the behaviour of the stream buffer. 
+
+
+  template<
+      typename Option>
+  void set_option(
+      const Option & option);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[option][The option to be set on the stream buffer.]]
+
+]
+
+['[*Remarks]]
+  
+Options are uniquely identified by type. 
+
+
+
+[endsect]
+
+
+
+[section:set_options istreambuf::set_options]
+
+[indexterm2 set_options..istreambuf] 
+Sets options to control the behaviour of the stream buffer. 
+
+
+  void set_options(
+      const option_set & options);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[options][The options to be set on the stream buffer. ]]
+
+]
+
+
+
+[endsect]
+
+
+
+[section:underflow istreambuf::underflow]
+
+[indexterm2 underflow..istreambuf] 
+Overrides `std::streambuf` behaviour. 
+
+
+  int_type underflow();
+
+
+par Remarks Behaves according to the specification of `std::streambuf::underflow()`. 
+
+
+[endsect]
+
+
+
+[section:_istreambuf istreambuf::~istreambuf]
+
+[indexterm2 ~istreambuf..istreambuf] 
+Destroys an object of class `istreambuf`. 
+
+
+  ~istreambuf();
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:option_set option_set]
+
+[indexterm2 option_set..class] 
+The class `option_set` maintains a collection of options. 
+
+
+  class option_set
+
+
+['[*Member Functions]]
+[table
+  [[Name][Description]]
+
+  [
+    [[link urdl.reference.core.option_set.clear_option [*clear_option]]]
+    [Removes an option from the set. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.option_set.get_option [*get_option]]]
+    [Gets an option from the set. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.option_set.operator_eq_ [*operator=]]]
+    [Assignment operator. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.option_set.option_set [*option_set]]]
+    [Constructs an object of class option_set. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.option_set.set_option [*set_option]]]
+    [Sets the value of an option in the set. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.option_set.set_options [*set_options]]]
+    [Sets multiple options in a set from another set. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.option_set._option_set [*~option_set]]]
+    [Destroys an object of class option_set. ]
+  ]
+  
+]
+
+
+['[*Remarks]]
+  
+Options are uniquely identified by type, so the `option_set` class is a collection of objects of differing types, indexed by type.
+
+The option types stored in the set must meet the type requirements for CopyConstructible.
+
+
+['[*Requirements]]
+  
+[*Header:] `<urdl/option_set.hpp>`
+
+[*Namespace:] `urdl`
+
+
+
+[section:clear_option option_set::clear_option]
+
+[indexterm2 clear_option..option_set] 
+Removes an option from the set. 
+
+
+  template<
+      typename Option>
+  void clear_option();
+
+
+
+['[*Remarks]]
+  
+If the option is queried using the `get_option` member function, it will return the default value of the option. 
+
+
+
+[endsect]
+
+
+
+[section:get_option option_set::get_option]
+
+[indexterm2 get_option..option_set] 
+Gets an option from the set. 
+
+
+  template<
+      typename Option>
+  Option get_option() const;
+
+
+
+['[*Return Value]]
+      
+If the option is present in the set, an object containing the value of the option. Otherwise, returns a default-constructed option. 
+
+
+
+[endsect]
+
+
+
+[section:operator_eq_ option_set::operator=]
+
+[indexterm2 operator=..option_set] 
+Assignment operator. 
+
+
+  option_set & operator=(
+      const option_set & other);
+
+
+
+['[*Remarks]]
+  
+Creates an identical copy of another set. Any option queried using the `get_option` member function will return the same value for both sets. 
+
+
+
+[endsect]
+
+
+[section:option_set option_set::option_set]
+
+[indexterm2 option_set..option_set] 
+Constructs an object of class `option_set`. 
+
+
+  ``[link urdl.reference.core.option_set.option_set.overload1 option_set]``();
+  ``  [''''&raquo;''' [link urdl.reference.core.option_set.option_set.overload1 more...]]``
+
+  ``[link urdl.reference.core.option_set.option_set.overload2 option_set]``(
+      const option_set & other);
+  ``  [''''&raquo;''' [link urdl.reference.core.option_set.option_set.overload2 more...]]``
+
+
+[section:overload1 option_set::option_set (1 of 2 overloads)]
+
+
+Constructs an object of class `option_set`. 
+
+
+  option_set();
+
+
+
+['[*Remarks]]
+  
+Creates an empty set. Any option queried using the `get_option` member function will return the default value of the option. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 option_set::option_set (2 of 2 overloads)]
+
+
+Constructs an object of class `option_set`. 
+
+
+  option_set(
+      const option_set & other);
+
+
+
+['[*Remarks]]
+  
+Creates an identical copy of another set. Any option queried using the `get_option` member function will return the same value for both sets. 
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:set_option option_set::set_option]
+
+[indexterm2 set_option..option_set] 
+Sets the value of an option in the set. 
+
+
+  template<
+      typename Option>
+  void set_option(
+      const Option & o);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[o][The option to be set.]]
+
+]
+
+['[*Remarks]]
+  
+If the type `Option` is already present in the set, first removes that element. Adds the option to the set. 
+
+
+
+[endsect]
+
+
+
+[section:set_options option_set::set_options]
+
+[indexterm2 set_options..option_set] 
+Sets multiple options in a set from another set. 
+
+
+  void set_options(
+      const option_set & other);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[other][An option set containing all options to be set in the target.]]
+
+]
+
+['[*Remarks]]
+  
+Performs a deep copy of all option values from the object `other` into the target set. 
+
+
+
+[endsect]
+
+
+
+[section:_option_set option_set::~option_set]
+
+[indexterm2 ~option_set..option_set] 
+Destroys an object of class `option_set`. 
+
+
+  ~option_set();
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:read_stream read_stream]
+
+[indexterm2 read_stream..class] 
+The class `read_stream` supports reading content from a specified URL using synchronous or asynchronous operations. 
+
+
+  class read_stream
+
+
+['[*Member Functions]]
+[table
+  [[Name][Description]]
+
+  [
+    [[link urdl.reference.core.read_stream.async_open [*async_open]]]
+    [Asynchronously opens the specified URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.read_stream.async_read_some [*async_read_some]]]
+    [Asynchronously reads some data from the stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.read_stream.close [*close]]]
+    [Closes the stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.read_stream.content_length [*content_length]]]
+    [Gets the length of the content obtained from the URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.read_stream.content_type [*content_type]]]
+    [Gets the MIME type of the content obtained from the URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.read_stream.get_io_service [*get_io_service]]]
+    [Gets the io_service associated with the stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.read_stream.get_option [*get_option]]]
+    [Gets the current value of an option that controls the behaviour of the stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.read_stream.get_options [*get_options]]]
+    [Gets the values of all options set on the stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.read_stream.headers [*headers]]]
+    [Gets the protocol-specific headers obtained from the URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.read_stream.is_open [*is_open]]]
+    [Determines whether the stream is open. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.read_stream.open [*open]]]
+    [Opens the specified URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.read_stream.read_some [*read_some]]]
+    [Reads some data from the stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.read_stream.read_stream [*read_stream]]]
+    [Constructs an object of class read_stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.read_stream.set_option [*set_option]]]
+    [Sets an option to control the behaviour of the stream. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.read_stream.set_options [*set_options]]]
+    [Sets options to control the behaviour of the stream. ]
+  ]
+  
+]
+
+
+['[*Remarks]]
+  
+Currently supported URL protocols are `http`, `https` and `file`.
+
+The class `read_stream` meets the type requirements for `SyncReadStream` and `AsyncReadStream`, as defined in the Boost.Asio documentation. This allows objects of class `read_stream` to be used with the functions `boost::asio::read`, `boost::asio::async_read`, `boost::asio::read_until` and `boost::asio::async_read_until`.
+
+
+['[*Example]]
+  
+To synchronously open the URL, read the content and write it to standard output: 
+
+   try
+   {
+     boost::asio::io_service io_service;
+     urdl::read_stream read_stream(io_service);
+     read_stream.open("http://www.boost.org/LICENSE_1_0.txt");
+     for (;;)
+     {
+       char data[1024];
+       boost::system::error_code ec;
+       std::size_t length = stream.read_some(boost::asio::buffer(data), ec);
+       if (ec == boost::asio::error::eof)
+         break;
+       if (ec)
+         throw boost::system::system_error(ec);
+       os.write(data, length);
+     }
+   }
+   catch (std::exception& e)
+   {
+     std::cerr << "Exception: " << e.what() << std::endl;
+   }
+
+
+
+
+To asynchronously open the URL, read the content and write it to standard output: 
+
+   boost::asio::io_service io_service;
+   urdl::read_stream read_stream(io_service)
+   char data[1024];
+   ...
+   read_stream.async_open("http://www.boost.org/LICENSE_1_0.txt", open_handler);
+   ...
+   void open_handler(const boost::system::error_code& ec)
+   {
+     if (!ec)
+     {
+       read_stream.async_read_some(boost::asio::buffer(data), read_handler);
+     }
+   }
+   ...
+   void read_handler(const boost::system::error_code& ec, std::size_t length)
+   {
+     if (!ec)
+     {
+       std::cout.write(data, length);
+       read_stream.async_read_some(boost::asio::buffer(data), read_handler);
+     }
+   }
+
+
+
+
+
+['[*Requirements]]
+  
+[*Header:] `<urdl/read_stream.hpp>`
+
+[*Namespace:] `urdl`
+
+
+
+[section:async_open read_stream::async_open]
+
+[indexterm2 async_open..read_stream] 
+Asynchronously opens the specified URL. 
+
+
+  template<
+      typename Handler>
+  void async_open(
+      const url & u,
+      Handler handler);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[u][The URL to open.]]
+
+[[handler][The handler to be called when the open operation completes. Copies will be made of the handler as required. The function signature of the handler must be: 
+``
+   void handler(
+     const boost::system::error_code& ec // Result of operation.
+   );
+``
+Regardless of whether the asynchronous operation completes immediately or not, the handler will not be invoked from within this function. Invocation of the handler will be performed in a manner equivalent to using `boost::asio::io_service::post()`.]]
+
+]
+
+['[*Example]]
+  
+
+
+   void open_handler(const boost::system::error_code& ec)
+   {
+     if (!ec)
+     {
+       // Open succeeded.
+     }
+   }
+   ...
+   urdl::read_stream read_stream(io_service);
+   read_stream.async_open("http://www.boost.org/", open_handler);
+
+
+
+
+
+
+[endsect]
+
+
+
+[section:async_read_some read_stream::async_read_some]
+
+[indexterm2 async_read_some..read_stream] 
+Asynchronously reads some data from the stream. 
+
+
+  template<
+      typename MutableBufferSequence,
+      typename Handler>
+  void async_read_some(
+      const MutableBufferSequence & buffers,
+      Handler handler);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[buffers][One or more buffers into which the data will be read. The type must meet the requirements for `MutableBufferSequence`, as defined in the Boost.Asio documentation. Although the buffers object may be copied as necessary, ownership of the underlying memory blocks is retained by the caller, which must guarantee that they remain valid until the handler is called.]]
+
+[[handler][The handler to be called when the read operation completes. Copies will be made of the handler as required. The function signature of the handler must be: 
+``
+   void handler(
+     const boost::system::error_code& ec, // Result of operation.
+     std::size_t bytes_transferred        // Number of bytes read.
+   );
+``
+Regardless of whether the asynchronous operation completes immediately or not, the handler will not be invoked from within this function. Invocation of the handler will be performed in a manner equivalent to using `boost::asio::io_service::post()`.]]
+
+]
+
+['[*Remarks]]
+  
+The asynchronous operation will continue until one or more bytes of data has been read successfully, or until an error occurs.
+
+The `async_read_some` operation may not read all of the requested number of bytes. Consider using the `boost::asio::async_read` function if you need to ensure that the requested amount of data is read before the asynchronous operation completes.
+
+
+['[*Example]]
+  
+To read into a single data buffer use the `boost::asio::buffer` function as follows: 
+
+   read_stream.async_read_some(boost::asio::buffer(data, size), handler);
+
+
+See the documentation for the `boost::asio::buffer` function for information on reading into multiple buffers in one go, and how to use it with arrays, `boost::array` or `std::vector`. 
+
+
+
+[endsect]
+
+
+[section:close read_stream::close]
+
+[indexterm2 close..read_stream] 
+Closes the stream. 
+
+
+  void ``[link urdl.reference.core.read_stream.close.overload1 close]``();
+  ``  [''''&raquo;''' [link urdl.reference.core.read_stream.close.overload1 more...]]``
+
+  boost::system::error_code ``[link urdl.reference.core.read_stream.close.overload2 close]``(
+      boost::system::error_code & ec);
+  ``  [''''&raquo;''' [link urdl.reference.core.read_stream.close.overload2 more...]]``
+
+
+[section:overload1 read_stream::close (1 of 2 overloads)]
+
+
+Closes the stream. 
+
+
+  void close();
+
+
+
+['[*Exceptions]]
+    
+
+[variablelist
+  
+[[asio::system_error][Thrown on failure.]]
+
+]
+
+['[*Remarks]]
+  
+Any asynchronous open or read operations will be cancelled, and will complete with the `boost::asio::error::operation_aborted` error. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 read_stream::close (2 of 2 overloads)]
+
+
+Closes the stream. 
+
+
+  boost::system::error_code close(
+      boost::system::error_code & ec);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[ec][Set to indicate what error occurred, if any.]]
+
+]
+
+['[*Return Value]]
+      
+`ec`.
+
+['[*Remarks]]
+  
+Any asynchronous open or read operations will be cancelled, and will complete with the `boost::asio::error::operation_aborted` error. 
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:content_length read_stream::content_length]
+
+[indexterm2 content_length..read_stream] 
+Gets the length of the content obtained from the URL. 
+
+
+  std::size_t content_length() const;
+
+
+
+['[*Return Value]]
+      
+The length, in bytes, of the content. If the content associated with the URL does not specify a length, `std::numeric_limits<std::size_t>::max()`. 
+
+
+
+[endsect]
+
+
+
+[section:content_type read_stream::content_type]
+
+[indexterm2 content_type..read_stream] 
+Gets the MIME type of the content obtained from the URL. 
+
+
+  std::string content_type() const;
+
+
+
+['[*Return Value]]
+      
+A string specifying the MIME type. Examples of possible return values include `text/plain`, `text/html` and `image/png`.
+
+['[*Remarks]]
+  
+Not all URL protocols support a content type. For these protocols, this function returns an empty string. 
+
+
+
+[endsect]
+
+
+
+[section:get_io_service read_stream::get_io_service]
+
+[indexterm2 get_io_service..read_stream] 
+Gets the `io_service` associated with the stream. 
+
+
+  boost::asio::io_service & get_io_service();
+
+
+
+['[*Return Value]]
+      
+A reference to the `io_service` object that the stream will use to dispatch handlers. Ownership is not transferred to the caller. 
+
+
+
+[endsect]
+
+
+
+[section:get_option read_stream::get_option]
+
+[indexterm2 get_option..read_stream] 
+Gets the current value of an option that controls the behaviour of the stream. 
+
+
+  template<
+      typename Option>
+  Option get_option() const;
+
+
+
+['[*Return Value]]
+      
+The current value of the option.
+
+['[*Remarks]]
+  
+Options are uniquely identified by type.
+
+['[*Example]]
+  
+
+
+   urdl::read_stream stream(io_service);
+   urdl::http::max_redirects option
+     = stream.get_option<urdl::http::max_redirects>();
+   std::size_t value = option.value();
+
+
+
+
+
+
+[endsect]
+
+
+
+[section:get_options read_stream::get_options]
+
+[indexterm2 get_options..read_stream] 
+Gets the values of all options set on the stream. 
+
+
+  option_set get_options() const;
+
+
+
+['[*Return Value]]
+      
+An option set containing all options from the stream.
+
+['[*Example]]
+  
+
+
+   urdl::read_stream stream(io_service);
+   ...
+   urdl::option_set options(stream.get_options());
+   urdl::http::max_redirects option
+     = options.get_option<urdl::http::max_redirects>();
+   std::size_t value = option.value();
+
+
+
+
+
+
+[endsect]
+
+
+
+[section:headers read_stream::headers]
+
+[indexterm2 headers..read_stream] 
+Gets the protocol-specific headers obtained from the URL. 
+
+
+  std::string headers() const;
+
+
+
+['[*Return Value]]
+      
+A string containing the headers returned with the content from the URL. The format and interpretation of these headers is specific to the protocol associated with the URL. 
+
+
+
+[endsect]
+
+
+
+[section:is_open read_stream::is_open]
+
+[indexterm2 is_open..read_stream] 
+Determines whether the stream is open. 
+
+
+  bool is_open() const;
+
+
+
+['[*Return Value]]
+      
+`true` if the stream is open, `false` otherwise. 
+
+
+
+[endsect]
+
+
+[section:open read_stream::open]
+
+[indexterm2 open..read_stream] 
+Opens the specified URL. 
+
+
+  void ``[link urdl.reference.core.read_stream.open.overload1 open]``(
+      const url & u);
+  ``  [''''&raquo;''' [link urdl.reference.core.read_stream.open.overload1 more...]]``
+
+  boost::system::error_code ``[link urdl.reference.core.read_stream.open.overload2 open]``(
+      const url & u,
+      boost::system::error_code & ec);
+  ``  [''''&raquo;''' [link urdl.reference.core.read_stream.open.overload2 more...]]``
+
+
+[section:overload1 read_stream::open (1 of 2 overloads)]
+
+
+Opens the specified URL. 
+
+
+  void open(
+      const url & u);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[u][The URL to open.]]
+
+]
+
+['[*Exceptions]]
+    
+
+[variablelist
+  
+[[boost::system::system_error][Thrown on failure.]]
+
+]
+
+['[*Example]]
+  
+
+
+   urdl::read_stream read_stream(io_service);
+
+   try
+   {
+     read_stream.open("http://www.boost.org");
+   }
+   catch (boost::system::error_code& e)
+   {
+     std::cerr << e.what() << std::endl;
+   }
+
+
+
+
+
+
+[endsect]
+
+
+
+[section:overload2 read_stream::open (2 of 2 overloads)]
+
+
+Opens the specified URL. 
+
+
+  boost::system::error_code open(
+      const url & u,
+      boost::system::error_code & ec);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[u][The URL to open.]]
+
+[[ec][Set to indicate what error occurred, if any.]]
+
+]
+
+['[*Return Value]]
+      
+`ec`.
+
+['[*Example]]
+  
+
+
+   urdl::read_stream read_stream(io_service);
+
+   boost::system::error_code ec;
+   read_stream.open("http://www.boost.org", ec);
+   if (ec)
+   {
+     std::cerr << ec.message() << std::endl;
+   }
+
+
+
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:read_some read_stream::read_some]
+
+[indexterm2 read_some..read_stream] 
+Reads some data from the stream. 
+
+
+  template<
+      typename MutableBufferSequence>
+  std::size_t ``[link urdl.reference.core.read_stream.read_some.overload1 read_some]``(
+      const MutableBufferSequence & buffers);
+  ``  [''''&raquo;''' [link urdl.reference.core.read_stream.read_some.overload1 more...]]``
+
+  template<
+      typename MutableBufferSequence>
+  std::size_t ``[link urdl.reference.core.read_stream.read_some.overload2 read_some]``(
+      const MutableBufferSequence & buffers,
+      boost::system::error_code & ec);
+  ``  [''''&raquo;''' [link urdl.reference.core.read_stream.read_some.overload2 more...]]``
+
+
+[section:overload1 read_stream::read_some (1 of 2 overloads)]
+
+
+Reads some data from the stream. 
+
+
+  template<
+      typename MutableBufferSequence>
+  std::size_t read_some(
+      const MutableBufferSequence & buffers);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[buffers][One or more buffers into which the data will be read. The type must meet the requirements for `MutableBufferSequence`, as defined in the Boost.Asio documentation.]]
+
+]
+
+['[*Return Value]]
+      
+The number of bytes read.
+
+['[*Exceptions]]
+    
+
+[variablelist
+  
+[[boost::system::system_error][Thrown on failure. An error code of `boost::asio::error::eof` indicates that the end of the URL content has been reached.]]
+
+]
+
+['[*Remarks]]
+  
+The function call will block until one or more bytes of data has been read successfully, or until an error occurs.
+
+The `read_some` operation may not read all of the requested number of bytes. Consider using the `boost::asio::read` function if you need to ensure that the requested amount of data is read before the blocking operation completes.
+
+
+['[*Example]]
+  
+To read into a single data buffer use the `boost::asio::buffer` function as follows: 
+
+   read_stream.read_some(boost::asio::buffer(data, size));
+
+
+See the documentation for the `boost::asio::buffer` function for information on reading into multiple buffers in one go, and how to use it with arrays, `boost::array` or `std::vector`. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 read_stream::read_some (2 of 2 overloads)]
+
+
+Reads some data from the stream. 
+
+
+  template<
+      typename MutableBufferSequence>
+  std::size_t read_some(
+      const MutableBufferSequence & buffers,
+      boost::system::error_code & ec);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[buffers][One or more buffers into which the data will be read. The type must meet the requirements for `MutableBufferSequence`, as defined in the Boost.Asio documentation.]]
+
+[[ec][Set to indicate what error occurred, if any. An error code of `boost::asio::error::eof` indicates that the end of the URL content has been reached.]]
+
+]
+
+['[*Return Value]]
+      
+The number of bytes read.
+
+['[*Remarks]]
+  
+This function is used to read data from the stream. The function call will block until one or more bytes of data has been read successfully, or until an error occurs.
+
+The `read_some` operation may not read all of the requested number of bytes. Consider using the `boost::asio::read` function if you need to ensure that the requested amount of data is read before the blocking operation completes.
+
+
+['[*Example]]
+  
+To read into a single data buffer use the `boost::asio::buffer` function as follows: 
+
+   read_stream.read_some(boost::asio::buffer(data, size));
+
+
+See the documentation for the `boost::asio::buffer` function for information on reading into multiple buffers in one go, and how to use it with arrays, `boost::array` or `std::vector`. 
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:read_stream read_stream::read_stream]
+
+[indexterm2 read_stream..read_stream] 
+Constructs an object of class `read_stream`. 
+
+
+  explicit read_stream(
+      boost::asio::io_service & io_service);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[io_service][The `io_service` object that the stream will use to dispatch handlers for any asynchronous operations performed on the stream. ]]
+
+]
+
+
+
+[endsect]
+
+
+
+[section:set_option read_stream::set_option]
+
+[indexterm2 set_option..read_stream] 
+Sets an option to control the behaviour of the stream. 
+
+
+  template<
+      typename Option>
+  void set_option(
+      const Option & option);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[option][The option to be set on the stream.]]
+
+]
+
+['[*Remarks]]
+  
+Options are uniquely identified by type.
+
+['[*Example]]
+  
+
+
+   urdl::read_stream stream(io_service);
+   stream.set_option(urdl::http::max_redirects(1));
+
+
+
+
+
+
+[endsect]
+
+
+
+[section:set_options read_stream::set_options]
+
+[indexterm2 set_options..read_stream] 
+Sets options to control the behaviour of the stream. 
+
+
+  void set_options(
+      const option_set & options);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[options][The options to be set on the stream. The options in the set are added on top of any options already set on the stream.]]
+
+]
+
+['[*Example]]
+  
+
+
+   urdl::read_stream stream(io_service);
+   urdl::option_set options;
+   options.set_option(urdl::http::max_redirects(1));
+   options.set_option(urdl::ssl::verify_peer(false));
+   stream.set_options(options);
+
+
+
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+[section:url url]
+
+[indexterm2 url..class] 
+The class `url` enables parsing and accessing the components of URLs. 
+
+
+  class url
+
+
+['[*Types]]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link urdl.reference.core.url.components_type [*components_type]]]
+    [Components of the URL, used with from_string. ]
+  
+  ]
+
+]
+
+['[*Member Functions]]
+[table
+  [[Name][Description]]
+
+  [
+    [[link urdl.reference.core.url.fragment [*fragment]]]
+    [Gets the fragment component of the URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.url.from_string [*from_string]]]
+    [Converts a string representation of a URL into an object of class url. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.url.host [*host]]]
+    [Gets the host component of the URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.url.path [*path]]]
+    [Gets the path component of the URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.url.port [*port]]]
+    [Gets the port component of the URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.url.protocol [*protocol]]]
+    [Gets the protocol component of the URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.url.query [*query]]]
+    [Gets the query component of the URL. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.url.to_string [*to_string]]]
+    [Converts an object of class url to a string representation. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.url.url [*url]]]
+    [Constructs an object of class url. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.url.user_info [*user_info]]]
+    [Gets the user info component of the URL. ]
+  ]
+  
+]
+
+['[*Friends]]
+[table
+  [[Name][Description]]
+
+  [
+    [[link urdl.reference.core.url.operator_not__eq_ [*operator!=]]]
+    [Compares two url objects for inequality. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.url.operator_lt_ [*operator<]]]
+    [Compares two url objects for ordering. ]
+  ]
+  
+  [
+    [[link urdl.reference.core.url.operator_eq__eq_ [*operator==]]]
+    [Compares two url objects for equality. ]
+  ]
+  
+]
+
+
+['[*Example]]
+  
+To extract the components of a URL: 
+
+   urdl::url url("http://user:pass@host:1234/dir/page?param=0#anchor");
+   std::cout << "Protocol: " << url.protocol() << std::endl;
+   std::cout << "User Info: " << url.user_info() << std::endl;
+   std::cout << "Host: " << url.host() << std::endl;
+   std::cout << "Port: " << url.port() << std::endl;
+   std::cout << "Path: " << url.path() << std::endl;
+   std::cout << "Query: " << url.query() << std::endl;
+   std::cout << "Fragment: " << url.fragment() << std::endl;
+
+
+The above code will print: 
+
+   Protocol: http
+   User Info: user:pass
+   Host: host
+   Port: 1234
+   Path: /dir/page
+   Query: param=0
+   Fragment: anchor
+
+
+
+
+['[*Requirements]]
+  
+[*Header:] `<urdl/url.hpp>`
+
+[*Namespace:] `urdl`
+
+
+
+[section:components_type url::components_type]
+
+[indexterm2 components_type..url] 
+Components of the URL, used with `from_string`. 
+
+
+  enum components_type
+
+['[*Values]]
+[variablelist
+
+  [
+    [protocol_component]
+    []
+  ]
+
+  [
+    [user_info_component]
+    []
+  ]
+
+  [
+    [host_component]
+    []
+  ]
+
+  [
+    [port_component]
+    []
+  ]
+
+  [
+    [path_component]
+    []
+  ]
+
+  [
+    [query_component]
+    []
+  ]
+
+  [
+    [fragment_component]
+    []
+  ]
+
+  [
+    [all_components]
+    []
+  ]
+
+]
+
+
+
+[endsect]
+
+
+
+[section:fragment url::fragment]
+
+[indexterm2 fragment..url] 
+Gets the fragment component of the URL. 
+
+
+  std::string fragment() const;
+
+
+
+['[*Return Value]]
+      
+A string containing the fragment of the URL. 
+
+
+
+[endsect]
+
+
+[section:from_string url::from_string]
+
+[indexterm2 from_string..url] 
+Converts a string representation of a URL into an object of class `url`. 
+
+
+  static url ``[link urdl.reference.core.url.from_string.overload1 from_string]``(
+      const char * s);
+  ``  [''''&raquo;''' [link urdl.reference.core.url.from_string.overload1 more...]]``
+
+  static url ``[link urdl.reference.core.url.from_string.overload2 from_string]``(
+      const char * s,
+      boost::system::error_code & ec);
+  ``  [''''&raquo;''' [link urdl.reference.core.url.from_string.overload2 more...]]``
+
+  static url ``[link urdl.reference.core.url.from_string.overload3 from_string]``(
+      const std::string & s);
+  ``  [''''&raquo;''' [link urdl.reference.core.url.from_string.overload3 more...]]``
+
+  static url ``[link urdl.reference.core.url.from_string.overload4 from_string]``(
+      const std::string & s,
+      boost::system::error_code & ec);
+  ``  [''''&raquo;''' [link urdl.reference.core.url.from_string.overload4 more...]]``
+
+
+[section:overload1 url::from_string (1 of 4 overloads)]
+
+
+Converts a string representation of a URL into an object of class `url`. 
+
+
+  static url from_string(
+      const char * s);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[s][URL string to be parsed into its components.]]
+
+]
+
+['[*Return Value]]
+      
+A `url` object corresponding to the specified string.
+
+['[*Exceptions]]
+    
+
+[variablelist
+  
+[[boost::system::system_error][Thrown when the URL string is invalid. ]]
+
+]
+
+
+
+[endsect]
+
+
+
+[section:overload2 url::from_string (2 of 4 overloads)]
+
+
+Converts a string representation of a URL into an object of class `url`. 
+
+
+  static url from_string(
+      const char * s,
+      boost::system::error_code & ec);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[s][URL string to be parsed into its components.]]
+
+[[ec][Error code set to indicate the reason for failure, if any.]]
+
+]
+
+['[*Return Value]]
+      
+A `url` object corresponding to the specified string. 
+
+
+
+[endsect]
+
+
+
+[section:overload3 url::from_string (3 of 4 overloads)]
+
+
+Converts a string representation of a URL into an object of class `url`. 
+
+
+  static url from_string(
+      const std::string & s);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[s][URL string to be parsed into its components.]]
+
+]
+
+['[*Return Value]]
+      
+A `url` object corresponding to the specified string.
+
+['[*Exceptions]]
+    
+
+[variablelist
+  
+[[boost::system::system_error][Thrown when the URL string is invalid. ]]
+
+]
+
+
+
+[endsect]
+
+
+
+[section:overload4 url::from_string (4 of 4 overloads)]
+
+
+Converts a string representation of a URL into an object of class `url`. 
+
+
+  static url from_string(
+      const std::string & s,
+      boost::system::error_code & ec);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[s][URL string to be parsed into its components.]]
+
+[[ec][Error code set to indicate the reason for failure, if any.]]
+
+]
+
+['[*Return Value]]
+      
+A `url` object corresponding to the specified string. 
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:host url::host]
+
+[indexterm2 host..url] 
+Gets the host component of the URL. 
+
+
+  std::string host() const;
+
+
+
+['[*Return Value]]
+      
+A string containing the host name of the URL. 
+
+
+
+[endsect]
+
+
+
+[section:operator_not__eq_ url::operator!=]
+
+[indexterm2 operator!=..url] 
+Compares two `url` objects for inequality. 
+
+
+  friend bool operator!=(
+      const url & a,
+      const url & b);
+
+
+
+[endsect]
+
+
+
+[section:operator_lt_ url::operator<]
+
+[indexterm2 operator<..url] 
+Compares two `url` objects for ordering. 
+
+
+  friend bool operator<(
+      const url & a,
+      const url & b);
+
+
+
+[endsect]
+
+
+
+[section:operator_eq__eq_ url::operator==]
+
+[indexterm2 operator==..url] 
+Compares two `url` objects for equality. 
+
+
+  friend bool operator==(
+      const url & a,
+      const url & b);
+
+
+
+[endsect]
+
+
+
+[section:path url::path]
+
+[indexterm2 path..url] 
+Gets the path component of the URL. 
+
+
+  std::string path() const;
+
+
+
+['[*Return Value]]
+      
+A string containing the path of the URL.
+
+['[*Remarks]]
+  
+The path string is unescaped. To obtain the path in escaped form, use `to_string(url::path_component)`. 
+
+
+
+[endsect]
+
+
+
+[section:port url::port]
+
+[indexterm2 port..url] 
+Gets the port component of the URL. 
+
+
+  unsigned short port() const;
+
+
+
+['[*Return Value]]
+      
+The port number of the URL.
+
+['[*Remarks]]
+  
+If the URL string did not specify a port, and the protocol is one of `http`, `https` or `ftp`, an appropriate default port number is returned. 
+
+
+
+[endsect]
+
+
+
+[section:protocol url::protocol]
+
+[indexterm2 protocol..url] 
+Gets the protocol component of the URL. 
+
+
+  std::string protocol() const;
+
+
+
+['[*Return Value]]
+      
+A string specifying the protocol of the URL. Examples include `http`, `https` or `file`. 
+
+
+
+[endsect]
+
+
+
+[section:query url::query]
+
+[indexterm2 query..url] 
+Gets the query component of the URL. 
+
+
+  std::string query() const;
+
+
+
+['[*Return Value]]
+      
+A string containing the query string of the URL.
+
+['[*Remarks]]
+  
+The query string is not unescaped, but is returned in whatever form it takes in the original URL string. 
+
+
+
+[endsect]
+
+
+
+[section:to_string url::to_string]
+
+[indexterm2 to_string..url] 
+Converts an object of class `url` to a string representation. 
+
+
+  std::string to_string(
+      int components = all_components) const;
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[components][A bitmask specifying which components of the URL should be included in the string. See the `url::components_type` enumeration for possible values.]]
+
+]
+
+['[*Return Value]]
+      
+A string representation of the URL.
+
+['[*Examples]]
+  
+To convert the entire URL to a string: 
+
+   std::string s = url.to_string();
+
+
+To convert only the host and port number into a string: 
+
+   std::string s = url.to_string(
+       urdl::url::host_component
+       | urdl::url::port_component);
+
+
+
+
+
+
+[endsect]
+
+
+[section:url url::url]
+
+[indexterm2 url..url] 
+Constructs an object of class `url`. 
+
+
+  ``[link urdl.reference.core.url.url.overload1 url]``();
+  ``  [''''&raquo;''' [link urdl.reference.core.url.url.overload1 more...]]``
+
+  ``[link urdl.reference.core.url.url.overload2 url]``(
+      const char * s);
+  ``  [''''&raquo;''' [link urdl.reference.core.url.url.overload2 more...]]``
+
+  ``[link urdl.reference.core.url.url.overload3 url]``(
+      const std::string & s);
+  ``  [''''&raquo;''' [link urdl.reference.core.url.url.overload3 more...]]``
+
+
+[section:overload1 url::url (1 of 3 overloads)]
+
+
+Constructs an object of class `url`. 
+
+
+  url();
+
+
+
+['[*Remarks]]
+  
+Postconditions: `protocol()`, `user_info()`, `host()`, `path()`, `query()`, `fragment()` all return an empty string, and `port()` returns 0. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 url::url (2 of 3 overloads)]
+
+
+Constructs an object of class `url`. 
+
+
+  url(
+      const char * s);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[s][URL string to be parsed into its components.]]
+
+]
+
+['[*Exceptions]]
+    
+
+[variablelist
+  
+[[boost::system::system_error][Thrown when the URL string is invalid. ]]
+
+]
+
+
+
+[endsect]
+
+
+
+[section:overload3 url::url (3 of 3 overloads)]
+
+
+Constructs an object of class `url`. 
+
+
+  url(
+      const std::string & s);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[s][URL string to be parsed into its components.]]
+
+]
+
+['[*Exceptions]]
+    
+
+[variablelist
+  
+[[boost::system::system_error][Thrown when the URL string is invalid. ]]
+
+]
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:user_info url::user_info]
+
+[indexterm2 user_info..url] 
+Gets the user info component of the URL. 
+
+
+  std::string user_info() const;
+
+
+
+['[*Return Value]]
+      
+A string containing the user info of the URL. Typically in the format `user:password`, but depends on the protocol. 
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:opt Options]
+
+  
+[section:http__max_redirects http::max_redirects]
+
+[indexterm2 http::max_redirects..class] 
+Option to specify the maximum number of allowed HTTP redirects. 
+
+
+  class max_redirects
+
+
+['[*Member Functions]]
+[table
+  [[Name][Description]]
+
+  [
+    [[link urdl.reference.opt.http__max_redirects.max_redirects [*max_redirects]]]
+    [Constructs an object of class max_redirects. ]
+  ]
+  
+  [
+    [[link urdl.reference.opt.http__max_redirects.value [*value]]]
+    [Gets the value of the option. 
+
+     Sets the value of the option. ]
+  ]
+  
+]
+
+
+['[*Remarks]]
+  
+The default value is for there to be no limit on the number of allowed redirects. Set the option to 0 to disable HTTP redirects.
+
+['[*Example]]
+  
+To set maximum number of redirects for an object of class `urdl::istream:`
+
+   urdl::istream is;
+   is.set_option(urdl::http::max_redirects(1));
+   is.open("http://www.boost.org");
+
+
+
+
+To set maximum number of redirects for an object of class `urdl::read_stream:`
+
+   urdl::read_stream stream;
+   stream.set_option(urdl::http::max_redirects(1));
+   stream.open("http://www.boost.org");
+
+
+
+
+
+['[*Requirements]]
+  
+[*Header:] `<urdl/http.hpp>`
+
+[*Namespace:] `urdl::http`
+
+
+[section:max_redirects http::max_redirects::max_redirects]
+
+[indexterm2 max_redirects..http::max_redirects] 
+Constructs an object of class `max_redirects`. 
+
+
+  ``[link urdl.reference.opt.http__max_redirects.max_redirects.overload1 max_redirects]``();
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__max_redirects.max_redirects.overload1 more...]]``
+
+  explicit ``[link urdl.reference.opt.http__max_redirects.max_redirects.overload2 max_redirects]``(
+      std::size_t v);
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__max_redirects.max_redirects.overload2 more...]]``
+
+
+[section:overload1 http::max_redirects::max_redirects (1 of 2 overloads)]
+
+
+Constructs an object of class `max_redirects`. 
+
+
+  max_redirects();
+
+
+
+['[*Remarks]]
+  
+Postcondition: `value() == std::numeric_limits<std::size_t>::max()`. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 http::max_redirects::max_redirects (2 of 2 overloads)]
+
+
+Constructs an object of class `max_redirects`. 
+
+
+  explicit max_redirects(
+      std::size_t v);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[v][The desired value for the option.]]
+
+]
+
+['[*Remarks]]
+  
+Postcondition: `value() == v`
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:value http::max_redirects::value]
+
+[indexterm2 value..http::max_redirects] 
+Gets the value of the option. 
+
+
+  std::size_t ``[link urdl.reference.opt.http__max_redirects.value.overload1 value]``() const;
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__max_redirects.value.overload1 more...]]``
+
+
+Sets the value of the option. 
+
+
+  void ``[link urdl.reference.opt.http__max_redirects.value.overload2 value]``(
+      std::size_t v);
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__max_redirects.value.overload2 more...]]``
+
+
+[section:overload1 http::max_redirects::value (1 of 2 overloads)]
+
+
+Gets the value of the option. 
+
+
+  std::size_t value() const;
+
+
+
+['[*Return Value]]
+      
+The value of the option. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 http::max_redirects::value (2 of 2 overloads)]
+
+
+Sets the value of the option. 
+
+
+  void value(
+      std::size_t v);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[v][The desired value for the option.]]
+
+]
+
+['[*Remarks]]
+  
+Postcondition: `value() == v`
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[endsect]
+
+[section:http__request_content http::request_content]
+
+[indexterm2 http::request_content..class] 
+Option to specify content to accompany an HTTP request. 
+
+
+  class request_content
+
+
+['[*Member Functions]]
+[table
+  [[Name][Description]]
+
+  [
+    [[link urdl.reference.opt.http__request_content.request_content [*request_content]]]
+    [Constructs an object of class request_content. ]
+  ]
+  
+  [
+    [[link urdl.reference.opt.http__request_content.value [*value]]]
+    [Gets the value of the option. 
+
+     Sets the value of the option. ]
+  ]
+  
+]
+
+
+['[*Remarks]]
+  
+The default is for no content to be sent.
+
+['[*Example]]
+  
+To add content to the HTTP request using an object of class `urdl::istream:`
+
+   urdl::istream is;
+   is.set_option(urdl::http::request_method("POST"));
+   is.set_option(urdl::http::request_content("Hello, world!"));
+   is.set_option(urdl::http::request_content_type("text/plain"));
+   is.open("http://host/path");
+
+
+
+
+To add content to the HTTP request using an object of class `urdl::read_stream:`
+
+   urdl::read_stream stream;
+   stream.set_option(urdl::http::request_method("POST"));
+   stream.set_option(urdl::http::request_content("Hello, world!"));
+   stream.set_option(urdl::http::request_content_type("text/plain"));
+   stream.open("http://host/path");
+
+
+
+
+
+['[*Requirements]]
+  
+[*Header:] `<urdl/http.hpp>`
+
+[*Namespace:] `urdl::http`
+
+
+[section:request_content http::request_content::request_content]
+
+[indexterm2 request_content..http::request_content] 
+Constructs an object of class `request_content`. 
+
+
+  ``[link urdl.reference.opt.http__request_content.request_content.overload1 request_content]``();
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__request_content.request_content.overload1 more...]]``
+
+  explicit ``[link urdl.reference.opt.http__request_content.request_content.overload2 request_content]``(
+      const std::string & v);
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__request_content.request_content.overload2 more...]]``
+
+
+[section:overload1 http::request_content::request_content (1 of 2 overloads)]
+
+
+Constructs an object of class `request_content`. 
+
+
+  request_content();
+
+
+
+['[*Remarks]]
+  
+Postcondition: `value() == ""`. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 http::request_content::request_content (2 of 2 overloads)]
+
+
+Constructs an object of class `request_content`. 
+
+
+  explicit request_content(
+      const std::string & v);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[v][The desired value for the option.]]
+
+]
+
+['[*Remarks]]
+  
+Postcondition: `value() == v`
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:value http::request_content::value]
+
+[indexterm2 value..http::request_content] 
+Gets the value of the option. 
+
+
+  std::string ``[link urdl.reference.opt.http__request_content.value.overload1 value]``() const;
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__request_content.value.overload1 more...]]``
+
+
+Sets the value of the option. 
+
+
+  void ``[link urdl.reference.opt.http__request_content.value.overload2 value]``(
+      const std::string & v);
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__request_content.value.overload2 more...]]``
+
+
+[section:overload1 http::request_content::value (1 of 2 overloads)]
+
+
+Gets the value of the option. 
+
+
+  std::string value() const;
+
+
+
+['[*Return Value]]
+      
+The value of the option. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 http::request_content::value (2 of 2 overloads)]
+
+
+Sets the value of the option. 
+
+
+  void value(
+      const std::string & v);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[v][The desired value for the option.]]
+
+]
+
+['[*Remarks]]
+  
+Postcondition: `value() == v`
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[endsect]
+
+[section:http__request_content_type http::request_content_type]
+
+[indexterm2 http::request_content_type..class] 
+Option to specify the type of the content that accompanies an HTTP request. 
+
+
+  class request_content_type
+
+
+['[*Member Functions]]
+[table
+  [[Name][Description]]
+
+  [
+    [[link urdl.reference.opt.http__request_content_type.request_content_type [*request_content_type]]]
+    [Constructs an object of class request_content_type. ]
+  ]
+  
+  [
+    [[link urdl.reference.opt.http__request_content_type.value [*value]]]
+    [Gets the value of the option. 
+
+     Sets the value of the option. ]
+  ]
+  
+]
+
+
+['[*Remarks]]
+  
+The default is for no content type to be specified in the request.
+
+['[*Example]]
+  
+To add content to the HTTP request using an object of class `urdl::istream:`
+
+   urdl::istream is;
+   is.set_option(urdl::http::request_method("POST"));
+   is.set_option(urdl::http::request_content("Hello, world!"));
+   is.set_option(urdl::http::request_content_type("text/plain"));
+   is.open("http://host/path");
+
+
+
+
+To add content to the HTTP request using an object of class `urdl::read_stream:`
+
+   urdl::read_stream stream;
+   stream.set_option(urdl::http::request_method("POST"));
+   stream.set_option(urdl::http::request_content("Hello, world!"));
+   stream.set_option(urdl::http::request_content_type("text/plain"));
+   stream.open("http://host/path");
+
+
+
+
+
+['[*Requirements]]
+  
+[*Header:] `<urdl/http.hpp>`
+
+[*Namespace:] `urdl::http`
+
+
+[section:request_content_type http::request_content_type::request_content_type]
+
+[indexterm2 request_content_type..http::request_content_type] 
+Constructs an object of class `request_content_type`. 
+
+
+  ``[link urdl.reference.opt.http__request_content_type.request_content_type.overload1 request_content_type]``();
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__request_content_type.request_content_type.overload1 more...]]``
+
+  explicit ``[link urdl.reference.opt.http__request_content_type.request_content_type.overload2 request_content_type]``(
+      const std::string & v);
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__request_content_type.request_content_type.overload2 more...]]``
+
+
+[section:overload1 http::request_content_type::request_content_type (1 of 2 overloads)]
+
+
+Constructs an object of class `request_content_type`. 
+
+
+  request_content_type();
+
+
+
+['[*Remarks]]
+  
+Postcondition: `value() == ""`. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 http::request_content_type::request_content_type (2 of 2 overloads)]
+
+
+Constructs an object of class `request_content_type`. 
+
+
+  explicit request_content_type(
+      const std::string & v);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[v][The desired value for the option.]]
+
+]
+
+['[*Remarks]]
+  
+Postcondition: `value() == v`
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:value http::request_content_type::value]
+
+[indexterm2 value..http::request_content_type] 
+Gets the value of the option. 
+
+
+  std::string ``[link urdl.reference.opt.http__request_content_type.value.overload1 value]``() const;
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__request_content_type.value.overload1 more...]]``
+
+
+Sets the value of the option. 
+
+
+  void ``[link urdl.reference.opt.http__request_content_type.value.overload2 value]``(
+      const std::string & v);
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__request_content_type.value.overload2 more...]]``
+
+
+[section:overload1 http::request_content_type::value (1 of 2 overloads)]
+
+
+Gets the value of the option. 
+
+
+  std::string value() const;
+
+
+
+['[*Return Value]]
+      
+The value of the option. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 http::request_content_type::value (2 of 2 overloads)]
+
+
+Sets the value of the option. 
+
+
+  void value(
+      const std::string & v);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[v][The desired value for the option.]]
+
+]
+
+['[*Remarks]]
+  
+Postcondition: `value() == v`
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[endsect]
+
+[section:http__request_method http::request_method]
+
+[indexterm2 http::request_method..class] 
+Option to specify the HTTP request method. 
+
+
+  class request_method
+
+
+['[*Member Functions]]
+[table
+  [[Name][Description]]
+
+  [
+    [[link urdl.reference.opt.http__request_method.request_method [*request_method]]]
+    [Constructs an object of class request_method. ]
+  ]
+  
+  [
+    [[link urdl.reference.opt.http__request_method.value [*value]]]
+    [Gets the value of the option. 
+
+     Sets the value of the option. ]
+  ]
+  
+]
+
+
+['[*Remarks]]
+  
+The default request method is "GET".
+
+['[*Example]]
+  
+To set the request method for an object of class `urdl::istream:`
+
+   urdl::istream is;
+   is.set_option(urdl::http::request_method("HEAD"));
+   is.open("http://www.boost.org");
+
+
+
+
+To set the request method for an object of class `urdl::read_stream:`
+
+   urdl::read_stream stream;
+   stream.set_option(urdl::http::request_method("HEAD"));
+   stream.open("http://www.boost.org");
+
+
+
+
+
+['[*Requirements]]
+  
+[*Header:] `<urdl/http.hpp>`
+
+[*Namespace:] `urdl::http`
+
+
+[section:request_method http::request_method::request_method]
+
+[indexterm2 request_method..http::request_method] 
+Constructs an object of class `request_method`. 
+
+
+  ``[link urdl.reference.opt.http__request_method.request_method.overload1 request_method]``();
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__request_method.request_method.overload1 more...]]``
+
+  explicit ``[link urdl.reference.opt.http__request_method.request_method.overload2 request_method]``(
+      const std::string & v);
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__request_method.request_method.overload2 more...]]``
+
+
+[section:overload1 http::request_method::request_method (1 of 2 overloads)]
+
+
+Constructs an object of class `request_method`. 
+
+
+  request_method();
+
+
+
+['[*Remarks]]
+  
+Postcondition: `value() == "GET"`. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 http::request_method::request_method (2 of 2 overloads)]
+
+
+Constructs an object of class `request_method`. 
+
+
+  explicit request_method(
+      const std::string & v);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[v][The desired value for the option.]]
+
+]
+
+['[*Remarks]]
+  
+Postcondition: `value() == v`
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:value http::request_method::value]
+
+[indexterm2 value..http::request_method] 
+Gets the value of the option. 
+
+
+  std::string ``[link urdl.reference.opt.http__request_method.value.overload1 value]``() const;
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__request_method.value.overload1 more...]]``
+
+
+Sets the value of the option. 
+
+
+  void ``[link urdl.reference.opt.http__request_method.value.overload2 value]``(
+      const std::string & v);
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__request_method.value.overload2 more...]]``
+
+
+[section:overload1 http::request_method::value (1 of 2 overloads)]
+
+
+Gets the value of the option. 
+
+
+  std::string value() const;
+
+
+
+['[*Return Value]]
+      
+The value of the option. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 http::request_method::value (2 of 2 overloads)]
+
+
+Sets the value of the option. 
+
+
+  void value(
+      const std::string & v);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[v][The desired value for the option.]]
+
+]
+
+['[*Remarks]]
+  
+Postcondition: `value() == v`
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[endsect]
+
+[section:http__user_agent http::user_agent]
+
+[indexterm2 http::user_agent..class] 
+Option to specify the user agent identifier. 
+
+
+  class user_agent
+
+
+['[*Member Functions]]
+[table
+  [[Name][Description]]
+
+  [
+    [[link urdl.reference.opt.http__user_agent.user_agent [*user_agent]]]
+    [Constructs an object of class user_agent. ]
+  ]
+  
+  [
+    [[link urdl.reference.opt.http__user_agent.value [*value]]]
+    [Gets the value of the option. 
+
+     Sets the value of the option. ]
+  ]
+  
+]
+
+
+['[*Remarks]]
+  
+The default is to not specify the user agent.
+
+['[*Example]]
+  
+To set the user agent for an object of class `urdl::istream:`
+
+   urdl::istream is;
+   is.set_option(urdl::http::user_agent("Urdl"));
+   is.open("http://www.boost.org");
+
+
+
+
+To set the user agent for an object of class `urdl::read_stream:`
+
+   urdl::read_stream stream;
+   stream.set_option(urdl::http::user_agent("Urdl"));
+   stream.open("http://www.boost.org");
+
+
+
+
+
+['[*Requirements]]
+  
+[*Header:] `<urdl/http.hpp>`
+
+[*Namespace:] `urdl::http`
+
+
+[section:user_agent http::user_agent::user_agent]
+
+[indexterm2 user_agent..http::user_agent] 
+Constructs an object of class `user_agent`. 
+
+
+  ``[link urdl.reference.opt.http__user_agent.user_agent.overload1 user_agent]``();
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__user_agent.user_agent.overload1 more...]]``
+
+  explicit ``[link urdl.reference.opt.http__user_agent.user_agent.overload2 user_agent]``(
+      const std::string & v);
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__user_agent.user_agent.overload2 more...]]``
+
+
+[section:overload1 http::user_agent::user_agent (1 of 2 overloads)]
+
+
+Constructs an object of class `user_agent`. 
+
+
+  user_agent();
+
+
+
+['[*Remarks]]
+  
+Postcondition: `value() == ""`. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 http::user_agent::user_agent (2 of 2 overloads)]
+
+
+Constructs an object of class `user_agent`. 
+
+
+  explicit user_agent(
+      const std::string & v);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[v][The desired value for the option.]]
+
+]
+
+['[*Remarks]]
+  
+Postcondition: `value() == v`
+
+
+
+[endsect]
+
+
+[endsect]
+
+[section:value http::user_agent::value]
+
+[indexterm2 value..http::user_agent] 
+Gets the value of the option. 
+
+
+  std::string ``[link urdl.reference.opt.http__user_agent.value.overload1 value]``() const;
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__user_agent.value.overload1 more...]]``
+
+
+Sets the value of the option. 
+
+
+  void ``[link urdl.reference.opt.http__user_agent.value.overload2 value]``(
+      const std::string & v);
+  ``  [''''&raquo;''' [link urdl.reference.opt.http__user_agent.value.overload2 more...]]``
+
+
+[section:overload1 http::user_agent::value (1 of 2 overloads)]
+
+
+Gets the value of the option. 
+
+
+  std::string value() const;
+
+
+
+['[*Return Value]]
+      
+The value of the option. 
+
+
+
+[endsect]
+
+
+
+[section:overload2 http::user_agent::value (2 of 2 overloads)]
+
+
+Sets the value of the option. 
+
+
+  void value(
+      const std::string & v);
+
+
+
+['[*Parameters]]
+    
+
+[variablelist
+  
+[[v][The desired value for the option.]]
+
+]
+
+['[*Remarks]]
+  
+Postcondition: `value() == v`
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[endsect]
+
+
+[endsect]
+
+[section:err Error Handling]
+
+  
+
+[section:http__errc__errc_t http::errc::errc_t]
+
+[indexterm1 http::errc::errc_t] 
+HTTP error codes. 
+
+
+  enum errc_t
+
+['[*Values]]
+[variablelist
+
+  [
+    [malformed_status_line]
+    [The response's status line was malformed. ]
+  ]
+
+  [
+    [malformed_response_headers]
+    [The response's headers were malformed. ]
+  ]
+
+  [
+    [continue_request]
+    [The server-generated status code "100 Continue". ]
+  ]
+
+  [
+    [switching_protocols]
+    [The server-generated status code "101 Switching Protocols". ]
+  ]
+
+  [
+    [ok]
+    [The server-generated status code "200 OK". ]
+  ]
+
+  [
+    [created]
+    [The server-generated status code "201 Created". ]
+  ]
+
+  [
+    [accepted]
+    [The server-generated status code "202 Accepted". ]
+  ]
+
+  [
+    [non_authoritative_information]
+    [The server-generated status code "203 Non-Authoritative Information". ]
+  ]
+
+  [
+    [no_content]
+    [The server-generated status code "204 No Content". ]
+  ]
+
+  [
+    [reset_content]
+    [The server-generated status code "205 Reset Content". ]
+  ]
+
+  [
+    [partial_content]
+    [The server-generated status code "206 Partial Content". ]
+  ]
+
+  [
+    [multiple_choices]
+    [The server-generated status code "300 Multiple Choices". ]
+  ]
+
+  [
+    [moved_permanently]
+    [The server-generated status code "301 Moved Permanently". ]
+  ]
+
+  [
+    [found]
+    [The server-generated status code "302 Found". ]
+  ]
+
+  [
+    [see_other]
+    [The server-generated status code "303 See Other". ]
+  ]
+
+  [
+    [not_modified]
+    [The server-generated status code "304 Not Modified". ]
+  ]
+
+  [
+    [use_proxy]
+    [The server-generated status code "305 Use Proxy". ]
+  ]
+
+  [
+    [temporary_redirect]
+    [The server-generated status code "307 Temporary Redirect". ]
+  ]
+
+  [
+    [bad_request]
+    [The server-generated status code "400 Bad Request". ]
+  ]
+
+  [
+    [unauthorized]
+    [The server-generated status code "401 Unauthorized". ]
+  ]
+
+  [
+    [payment_required]
+    [The server-generated status code "402 Payment Required". ]
+  ]
+
+  [
+    [forbidden]
+    [The server-generated status code "403 Forbidden". ]
+  ]
+
+  [
+    [not_found]
+    [The server-generated status code "404 Not Found". ]
+  ]
+
+  [
+    [method_not_allowed]
+    [The server-generated status code "405 Method Not Allowed". ]
+  ]
+
+  [
+    [not_acceptable]
+    [The server-generated status code "406 Not Acceptable". ]
+  ]
+
+  [
+    [proxy_authentication_required]
+    [The server-generated status code "407 Proxy Authentication Required". ]
+  ]
+
+  [
+    [request_timeout]
+    [The server-generated status code "408 Request Time-out". ]
+  ]
+
+  [
+    [conflict]
+    [The server-generated status code "409 Conflict". ]
+  ]
+
+  [
+    [gone]
+    [The server-generated status code "410 Gone". ]
+  ]
+
+  [
+    [length_required]
+    [The server-generated status code "411 Length Required". ]
+  ]
+
+  [
+    [precondition_failed]
+    [The server-generated status code "412 Precondition Failed". ]
+  ]
+
+  [
+    [request_entity_too_large]
+    [The server-generated status code "413 Request Entity Too Large". ]
+  ]
+
+  [
+    [request_uri_too_large]
+    [The server-generated status code "414 Request URI Too Large". ]
+  ]
+
+  [
+    [unsupported_media_type]
+    [The server-generated status code "415 Unsupported Media Type". ]
+  ]
+
+  [
+    [requested_range_not_satisfiable]
+    [The server-generated status code "416 Requested Range Not Satisfiable". ]
+  ]
+
+  [
+    [expectation_failed]
+    [The server-generated status code "417 Expectation Failed". ]
+  ]
+
+  [
+    [internal_server_error]
+    [The server-generated status code "500 Internal Server Error". ]
+  ]
+
+  [
+    [not_implemented]
+    [The server-generated status code "501 Not Implemented". ]
+  ]
+
+  [
+    [bad_gateway]
+    [The server-generated status code "502 Bad Gateway". ]
+  ]
+
+  [
+    [service_unavailable]
+    [The server-generated status code "503 Service Unavailable". ]
+  ]
+
+  [
+    [gateway_timeout]
+    [The server-generated status code "504 Gateway Timeout". ]
+  ]
+
+  [
+    [version_not_supported]
+    [The server-generated status code "505 HTTP Version Not Supported". ]
+  ]
+
+]
+
+
+The enumerators of type `errc_t` are implicitly convertible to objects of type `boost::system::error_code`.
+
+
+['[*Requirements]]
+  
+[*Header:] `<urdl/http.hpp>`
+
+[*Namespace:] `urdl::http`
+
+
+
+[endsect]
+
+
+
+[section:http__errc__make_error_code http::errc::make_error_code]
+
+[indexterm1 http::errc::make_error_code] 
+Converts a value of type `errc_t` to a corresponding object of type `boost::system::error_code`. 
+
+
+  boost::system::error_code make_error_code(
+      errc_t e);
+
+
+
+['[*Requirements]]
+  
+[*Header:] `<urdl/http.hpp>`
+
+[*Namespace:] `urdl::http`
+
+
+
+[endsect]
+
+
+
+[section:http__error_category http::error_category]
+
+[indexterm1 http::error_category] 
+Gets the error category for HTTP errors. 
+
+
+  const boost::system::error_category & error_category();
+
+
+
+['[*Return Value]]
+      
+The `boost::system::error_category` used for HTTP errors.
+
+['[*Requirements]]
+  
+[*Header:] `<urdl/http.hpp>`
+
+[*Namespace:] `urdl::http`
+
+
+
+[endsect]
+
+
+
+[endsect]
+
+  
+[endsect]

@@ -476,6 +476,9 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   <data name="ShowChannel" xml:space="preserve">
     <value>Canal</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Affiche des informations sur un package spécifique. Par défaut, la requête doit correspondre de façon non sensible à la casse à l’ID, au nom ou au moniker du package. D’autres champs peuvent être utilisés en passant l’option appropriée.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Affiche des informations sur un package</value>
   </data>
@@ -650,7 +653,7 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
     <value>Commande non reconnue</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Mettre à jour tous les packages installés vers la dernière version si disponible</value>
+    <value>Mettre à jour tous les paquets installés vers la dernière version si disponible</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Aucune mise à jour applicable trouvée.</value>
@@ -718,5 +721,39 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   <data name="Logs" xml:space="preserve">
     <value>Journaux</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Le programme d’installation est bloqué par une stratégie</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Le programme d’installation a échoué vérification de sécurité</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Un produit antivirus signale une infection dans le programme d’installation</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Désolé...Nous n’avons pas pu tenter la mise à jour de la source :</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Désinstalle le package sélectionné, que vous avez trouvé en effectuant une recherche dans la liste des packages installés ou directement à partir d’un manifeste. Par défaut, la requête doit correspondre de façon non sensible à la casse à l’ID, au nom ou au moniker du package. D’autres champs peuvent être utilisés en passant l’option appropriée.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Désinstallation du paquet donné</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Début de la désinstallation du paquet...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Désinstallé avec succès</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget ne peut pas trouver la commande de désinstallation pour ce package. Veuillez contacter l’éditeur du package pour obtenir de l’aide.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Désinstallation abandonnée</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Désolé... Nous n’avons pas pu effectuer la désinstallation avec le code de sortie :</value>
   </data>
 </root>

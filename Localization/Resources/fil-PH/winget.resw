@@ -389,7 +389,7 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
     <value>Walang pang-install na angkop sa kasalukuyang sistema.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Kasalukuyang walang mga experimental na feature na magagamit. </value>
+    <value>Kasalukuyang walang magagamit na mga pang-eksperimentong tampok.</value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Walang nakitang naka-install na package na tumutugma sa pamantayan ng input.</value>
@@ -475,6 +475,9 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Channel</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Nagpapakita ng impormasyon sa isang parikular na package. Bilang default, ang query ay dapat na case-insensitive na tumutugma sa id, pangalan, o moniker ng package. Maaaring magamit ang iba pang mga field sa pamamagitan ng pagpasa sa kanilang naaangkop na opsyon.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Nagpapakita ng impormasyon tungkol sa package</value>
@@ -650,7 +653,7 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
     <value>Hindi makilalang utos</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>I-update ang lahat ng naka-install na package sa pinakabago kung available</value>
+    <value>I-update ang lahat ng naka-install na mga pakete sa pinakabago kung available</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Walang nakitang naaangkop na update.</value>
@@ -718,5 +721,39 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   <data name="Logs" xml:space="preserve">
     <value>Mga Log</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Na-block ng patakaran ang pang-install</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Pumalya sa pagsusuri ng seguridad ang pang-install</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Isang produktong anti-virus ang nag-uulat ng infection sa pang-install</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Pumalya sa pagtatangkang i-update ang pinagmulan:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Ina-uninstall ang napiling pakete, maaaring makita sa pamamagitan ng paghahanap sa listahan ng mga naka-install na pakete o direkta mula sa isang manifest. Bilang default, ang query ay dapat na case-insensitive na tumutugma sa id, pangalan, o moniker ng pakete. Maaaring magamit ang iba pang mga field sa pamamagitan ng pagpasa sa kanilang naaangkop na opsyon.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Ina-uninstall ang ibinigay na pakete</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Sinisimulan ang pag-uninstall ng pakete...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Matagumpay na na-uninstall</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>hindi mahanap ng winget ang uninstall na utos para sa pakete na ito. Mangyaring makipag-ugnayan sa publisher ng pakete para sa suporta.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Inabandona ang pag-uninstall</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Pumalya ang pag-uninstall na may exit code na:</value>
   </data>
 </root>

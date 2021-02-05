@@ -389,7 +389,7 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
     <value>Nėra diegimo programų, kurios taikomos esamai sistemai.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Šiuo metu pasiekiamų eksperimentinių funkcijų nėra.</value>
+    <value>Šiuo metu pasiekiamų eksperimentinių funkcijų nėra. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Įvesties kriterijus atitinkančių įdiegtų paketų nerasta.</value>
@@ -475,6 +475,9 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanalas</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Rodoma informacija apie konkretų paketą. Pagal numatytuosius nustatymus užklausa turi insensitively atitikti ID, pavadinimą arba iškvietimo komponentas paketą. Kiti laukai gali būti naudojami perduodant savo atitinkamą parinktį.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Rodoma informacija apie paketą</value>
@@ -650,7 +653,7 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
     <value>Neatpažinta komanda</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Atnaujinkite visus įdiegtus paketus į naujausius, jei yra</value>
+    <value>Atnaujinkite visus įdiegtus paketus į naujausius, jei yra pasiekiamų</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Taikomų naujinimų nerasta.</value>
@@ -718,5 +721,39 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
   <data name="Logs" xml:space="preserve">
     <value>Žurnalai</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Diegimo programą užblokavo strategija</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Diegimo programos saugos patikrinimas nepavyko</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Antivirusinis produktas praneša apie diegimo programos užkrėtimą</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Nepavyko atnaujinti šaltinio:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Pašalina pasirinktą paketą, rasti įdiegtus paketų sąrašą arba tiesiogiai iš deklaracijos. Pagal numatytuosius nustatymus užklausa turi insensitively atitikti ID, pavadinimą arba iškvietimo komponentas paketą. Kiti laukai gali būti naudojami perduodant savo atitinkamą parinktį.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Pašalina nurodytą paketą</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Pradedamas paketo pašalinimas...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Sėkmingai pašalinta</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>„winget“ nepavyksta rasti šio paketo šalinimo komandos. Kreipkitės į paketo leidėją, kad gautumėte pagalbos.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Šalinimas nutrauktas</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Pašalinti nepavyko, išėjimo kodas:</value>
   </data>
 </root>

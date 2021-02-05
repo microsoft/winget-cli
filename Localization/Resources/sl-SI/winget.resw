@@ -476,6 +476,9 @@ jih je mogoče konfigurirati v datoteki z nastavitvami »winget settings«.</val
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Prikaže informacije o določenem paketu. Privzeto se mora poizvedba, ki ne razlikuje med velikimi in malimi črkami, ujemati z ID-jem, imenom ali vzdevkom paketa. Druga polja lahko uporabite z vnosom ustreznih možnosti.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Iskanje in prikaz osnovnih informacij paketov</value>
   </data>
@@ -718,5 +721,39 @@ jih je mogoče konfigurirati v datoteki z nastavitvami »winget settings«.</val
   <data name="Logs" xml:space="preserve">
     <value>Dnevniki</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Pravilnik je blokiral namestitveni program</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Varnostno preverjanje namestitvenega programa ni uspelo</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Izdelek za zaščito pred virusi je zaznal okužbo v namestitvenem programu</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Poskus posodobitve vira ni uspel:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Odstrani izbrani paket, ki ga najdete tako, da poiščete seznam nameščenih paketov ali neposredno iz manifesta. Poizvedba mora privzeto insensitively ujemanje z ID-jem, imenom ali vzdevek paketa. Druge polja lahko uporabite tako, da vnesete ustrezno možnost.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Odstrani dani paket</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Začetek odstranjevanja paketa ...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Odstranjevanje je bilo uspešno</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget ne more najti ukaza za odstranitev za ta paket. Za podporo se obrnite na izdajatelja paketa.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Odstranjevanje je bilo opuščeno</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Postopek odstranjevanja ni uspel s kodo izhoda:</value>
   </data>
 </root>

@@ -389,7 +389,7 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
     <value>Geen installeerders is van toepassing op die huidige stelsel nie.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Daar is tans geen eksperimentele kenmerke beskikbaar nie. </value>
+    <value>Daar is huidiglik geen eksperimentele kenmerke beskikbaar nie. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Geen geïnstalleerde pakket gevind wat by toevoerkriteria pas nie.</value>
@@ -475,6 +475,9 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanaal</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Wys inligting oor ’n spesifieke pakket. By verstek moet die navraag nie-kassensitief by die ID, naam of bynaam van die pakket pas. Ander velde kan gebruik word deur hulle geskikte opsie te slaag.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Wys inligting oor ’n pakket</value>
@@ -650,7 +653,7 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
     <value>Onerkende bevel</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Werk alle geïnstalleerde pakkette by na nuutste as beskikbaar</value>
+    <value>Dateer alle geïnstalleerde pakkette op na die nuutste indien beskikbaar</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Geen toepaslike bywerking gevind nie.</value>
@@ -718,5 +721,39 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   <data name="Logs" xml:space="preserve">
     <value>Logs</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Die installeerder word deur die beleid geblokkeer</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Die installeerder se sekuriteitskontrole het misluk</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>'n Anti-virus produk rapporteer 'n infeksie in die installeerder</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Poging om die bron op te dateer het misluk:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Verwyder die geselekteerde pakket, of gevind deur die geïnstalleerde pakket lys te soek, of direk vanaf 'n manifes. By verstek, moet die navraag onbeduidend pas by die id, naam of moniker van die pakket. Ander velde kan gebruik word deur hulle toepaslike opsie te slaag.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Verwyder die gegewe pakket</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Begin pakket verwydering...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Suksesvol verwyder</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget kan nie die verwyderingsopdrag vir hierdie pakket vind nie. Kontak die pakketuitgewer vir ondersteuning.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Verwydering is laat vaar</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Verwydering het misluk met verlaat kode:</value>
   </data>
 </root>

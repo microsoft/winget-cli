@@ -476,6 +476,9 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>Канал</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Показва информация за конкретен пакет. По подразбиране заявката трябва да съвпада нечувствително с ИД, името или псевдонима на пакета. Други полета могат да се използват, като се премине съответната опция.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Показва информация за пакет</value>
   </data>
@@ -650,7 +653,7 @@
     <value>Неразпозната команда</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Актуализиране на всички инсталирани пакети до най-новите, ако са налични</value>
+    <value>Актуализирай всички инсталирани пакети до най-новите, ако има такива</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Не са намерени приложими актуализации.</value>
@@ -718,5 +721,39 @@
   <data name="Logs" xml:space="preserve">
     <value>Регистрационни файлове</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Инсталиращата програма е блокирана от правила</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Неуспешна проверка на защитата за инсталиращата програма</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Антивирусен продукт съобщава за инфекция в инсталиращата програма</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Неуспешен опит за актуализиране на източника:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Деинсталира избрания пакет или е открит чрез търсене в списъка с инсталирани пакети, или директно от манифест. По подразбиране заявката трябва да съвпада нечувствително с ИД, името или псевдонима на пакета. Други полета могат да се използват, като се премине съответната опция.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Деинсталира дадения пакет</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Стартиране на деинсталирането на пакета...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Успешно деинсталиран</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget не може да намери командата за деинсталиране за този пакет. Моля, свържете се с издателя на пакета за поддръжка.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Деинсталирането е прекратено</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Неуспешно деинсталиране с код за излизане:</value>
   </data>
 </root>

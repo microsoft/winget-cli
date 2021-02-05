@@ -142,7 +142,7 @@
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
-    <value>Använd den angivna kanalen. standard är allmän målgrupp</value>
+    <value>Använd den angivna kanalen. Standard är allmän målgrupp</value>
   </data>
   <data name="Command" xml:space="preserve">
     <value>kommando</value>
@@ -210,7 +210,7 @@
   </data>
   <data name="FeaturesMessage" xml:space="preserve">
     <value>Följande experimentella funktioner är under utveckling.
-De kan konfigureras via inställnings filen "winget settings".</value>
+De kan konfigureras via inställningsfilen "winget settings".</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesProperty" xml:space="preserve">
@@ -247,7 +247,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Detta program är licensierat till dig av ägaren.</value>
   </data>
   <data name="InstallationDisclaimer2" xml:space="preserve">
-    <value>Microsoft är inte ansvariga för och tillhandahåller inte heller några licenser förnågra paket från tredje part.</value>
+    <value>Microsoft är inte ansvariga för och tillhandahåller inte heller några licenser för några paket från tredje part.</value>
   </data>
   <data name="InstallationDisclaimerMSStore" xml:space="preserve">
     <value>Det här paketet tillhandahålls via Microsoft Store. winget kan behöva hämta paketet från Microsoft Store för den aktuella användarens räkning.</value>
@@ -257,7 +257,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Det går inte att installera paketet eftersom en högre version av Windows krävs:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Installerar det markerade paketet, antingen genom att söka i en konfigurerad källa eller direkt från ett manifest. Som standard måste frågan matcha ID, namn eller länksökväg för paketet (inte skiftlägeskänsligt). Du kan använda andra fält genom att ange lämpliga alternativ.</value>
+    <value>Installerar det markerade paketet, antingen genom att söka i en konfigurerad källa eller direkt från ett manifest. Som standard måste sökningen matcha ID, namn eller länksökväg för paketet (inte skiftlägeskänsligt). Du kan använda andra fält genom att ange lämpliga alternativ.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
@@ -476,6 +476,9 @@ De kan konfigureras via inställnings filen "winget settings".</value>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Visar information om ett specifikt paket. Som standard måste frågan matcha ID, namn eller länksökväg för paketet. Andra fält kan användas genom att välja lämpliga alternativ.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Visar information om ett paket</value>
   </data>
@@ -682,7 +685,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Kontrollera att indatafilen är en giltig, signerad MSIX.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
-    <value>Använd den angivna versionen. standard är den senaste versionen</value>
+    <value>Använd den angivna versionen. Standard är den senaste versionen</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>Visa tillgängliga versioner av paketet</value>
@@ -718,5 +721,39 @@ De kan konfigureras via inställnings filen "winget settings".</value>
   <data name="Logs" xml:space="preserve">
     <value>Loggar</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Installationsprogrammet blockeras av en princip</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Säkerhetskontrollen för installationsprogrammet misslyckades</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>En antivirusprodukt rapporterar ett angrepp i installationsprogrammet</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Det gick inte att uppdatera källan:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Avinstallerar det valda paketet, som antingen hittas genom att söka i listan över installerade paket eller direkt från ett manifest. Som standard måste frågan skiftlägesokänsligt matcha paketets id, namn eller länksökväg. Andra fält kan användas genom att lämna lämpligt alternativ.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Avinstallerar angivet paket</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Startar avinstallationen av paketet...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Avinstallerad</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget kan inte hitta avinstallations kommandot för det här paketet. Kontakta paket utgivaren för support.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Avinstallation har avbrutits</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Avinstallationen misslyckades med slutkod:</value>
   </data>
 </root>

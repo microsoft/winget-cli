@@ -476,6 +476,9 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
   <data name="ShowChannel" xml:space="preserve">
     <value>Saluran</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Menampilkan informasi pada paket tertentu. Secara default, kueri harus huruf-insensitively cocok dengan id, nama, atau moniker paket. Bidang lain dapat digunakan dengan cara melewati opsi yang tepat.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Tampilkan info tentang paket</value>
   </data>
@@ -718,5 +721,39 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
   <data name="Logs" xml:space="preserve">
     <value>Log</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Penginstal diblokir oleh kebijakan</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Penginstal gagal dalam pemeriksaan keamanan</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Produk anti-virus melaporkan infeksi pada penginstal</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Gagal mencoba memperbarui sumber:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Menghapus paket yang dipilih, ditemukan dengan mencari daftar paket yang diinstal atau secara langsung dari manifes. Secara default, kueri harus huruf-insensitively cocok dengan id, nama, atau moniker paket. Bidang lain dapat digunakan dengan cara melewati opsi yang tepat.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Menghapus instalan paket tertentu</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Memulai penghapusan instalan paket...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Berhasil menghapus instalan</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget tidak dapat menemukan perintah penghapusan instalasi untuk paket ini. Silakan hubungi penerbit paket untuk dukungan.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Penghapusan instalan diabaikan</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Penghapusan instalan gagal dengan kode keluar:</value>
   </data>
 </root>

@@ -476,6 +476,9 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   <data name="ShowChannel" xml:space="preserve">
     <value>Csatorna</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Egy adott csomagra vonatkozó információt jelenít meg. Alapértelmezés szerint a lekérdezésnek kis- és nagybetűk megkülönböztetése nélkül kell egyezést keresnie a csomag azonosítójával, nevével vagy monikerével. Más mezők is használhatók a megfelelő opciók átadásával.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Csomagra vonatkozó adatok megjelenítése</value>
   </data>
@@ -718,5 +721,39 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   <data name="Logs" xml:space="preserve">
     <value>Naplók</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>A telepítőt a házirend letiltotta</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>A telepítő nem tudta a biztonsági ellenőrzést elvégezni</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>A víruskereső fertőzést észlelt a telepítőben</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>A forrás frissítése sikertelen:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>A kijelölt csomag eltávolításával a telepített csomagok listában vagy közvetlenül egy jegyzékből. Alapértelmezés szerint a lekérdezésnek meg kell insensitively, hogy megfeleljen a csomag azonosítója, neve vagy a moniker között. A megfelelő beállítás alapján más mezők is használhatók.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Az adott csomag eltávolítása</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>A csomag eltávolításának indítása...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Sikeresen eltávolítva</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>A winget nem találja a csomag eltávolítási parancsát. Kérjen segítséget a csomag közzétevőjával.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Eltávolítás megszakítva</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Az eltávolítás sikertelen a következő kilépési kóddal:</value>
   </data>
 </root>

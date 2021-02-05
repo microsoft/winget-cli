@@ -389,7 +389,7 @@
     <value>ບໍ່ມີຕົວຕິດຕັ້ງທີ່ສາມາດໃຊ້ໄດ້ກັບລະບົບປັດຈຸບັນ.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>ບໍ່ມີຄຸນສົມບັດແບບທົດລອງ.</value>
+    <value>ດຽວນີ້ບໍ່ມີຄຸນສົມບັດໃຊ້ງານທົດລອງທີ່ມີຢູ່. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>ບໍ່ພົບແພັກເກດຕິດຕັ້ງແລ້ວທີ່ກົງກັບເກນເງື່ອນໄຂການປ້ອນຂໍ້ມູນ.</value>
@@ -475,6 +475,9 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>ຊ່ອງ</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>ສະແດງຂໍ້ມູນກ່ຽວກັບແພັກເກດສະເພາະ. ຕາມຄ່າເລີ່ມຕົ້ນ, ຄຳຖາມຕ້ອງກົງກັບໄອດີ, ຊື່ ຫຼື ຊື່ຫຼິ້ນຂອງແພັກເກດຕາມຕົວອັກສອນນ້ອຍໃຫຍ່. ສາມາດໃຊ້ຊ່ອງຂໍ້ມູນອື່ນໂດຍການຜ່ານຕົວເລືອກທີ່ເໝາະສົມຂອງພວກມັນ.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>ສະແດງຂໍ້ມູນກ່ຽວກັບແພັກເກດ</value>
@@ -718,5 +721,39 @@
   <data name="Logs" xml:space="preserve">
     <value>ບັນທຶກ</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>ຕົວຕິດຕັ້ງຖືກປິດກັ້ນໂດຍນະໂຍບາຍ</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>ຕົວຕິດຕັ້ງບໍ່ຜ່ານການກວດກາຄວາມປອດໄພ</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>ຜະລິດຕະພັນປ້ອງກັນໄວຣັສລາຍງານການຕິດໄວຣັສໃນຕົວຕິດຕັ້ງ</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>ລົ້ມເຫລວໃນການພະຍາຍາມອັບເດດແຫຼ່ງຂໍ້ມູນ:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>ຖອນການຕິດຕັ້ງແພັກເກດທີ່ເລືອກ, ບໍ່ວ່າຈະພົບໂດຍການຊອກຫາລາຍການແພັກເກດທີ່ຕິດຕັ້ງແລ້ວ ຫຼື ໂດຍກົງຈາກລາຍການສະແດງ. ຕາມຄ່າເລີ່ມຕົ້ນ, ຄຳຖາມຕ້ອງກົງກັບໄອດີ, ຊື່ ຫຼື ຊື່ຫຼິ້ນຂອງແພັກເກດຕາມຕົວອັກສອນນ້ອຍໃຫຍ່. ສາມາດໃຊ້ຊ່ອງຂໍ້ມູນອື່ນໂດຍການຜ່ານຕົວເລືອກທີ່ເໝາະສົມຂອງພວກມັນ.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>ຖອນການຕິດຕັ້ງແພັກເກດທີ່ໃຫ້ມາ</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>ກຳລັງເລີ່ມການຖອນຕິດຕັ້ງແພັກເກດ...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>ຖອນການຕິດຕັ້ງສຳເລັດແລ້ວ</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget ບໍ່ສາມາດຊອກຫາຄຳສັ່ງທີ່ຖອນການຕິດຕັ້ງສຳລັບແພັກເກດນີ້. ກະລຸນາຕິດຕໍ່ຫາຜູ້​ເຜີຍ​ແຜ່ແພັກເກດສຳລັບການສະໜັບສະໜູນ.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>ຍົກເລີກການຖອນການຕິດຕັ້ງ</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>ການຖອນການຕິດຕັ້ງລົ້ມເຫລວດ້ວຍລະຫັດອອກ:</value>
   </data>
 </root>

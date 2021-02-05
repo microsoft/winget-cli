@@ -1,0 +1,556 @@
+[/
+ / Copyright (c) 2009-2013 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+ /
+ / Distributed under the Boost Software License, Version 1.0. (See accompanying
+ / file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+ /]
+
+[library Urdl
+    [quickbook 1.4]
+    [copyright 2009-2013 Christopher M. Kohlhoff]
+    [purpose Networking/HTTP library]
+    [license
+        Distributed under the Boost Software License, Version 1.0.
+        (See accompanying file LICENSE_1_0.txt or copy at
+        [@http://www.boost.org/LICENSE_1_0.txt])
+    ]
+    [category template]
+    [category generic]
+]
+
+[template indexterm1[term1] '''<indexterm><primary>'''[term1]'''</primary></indexterm>''']
+[template indexterm2[term1 term2] '''<indexterm><primary>'''[term1]'''</primary><secondary>'''[term2]'''</secondary></indexterm>''']
+[def SyncReadStream [@http://www.boost.org/doc/libs/1_39_0/doc/html/boost_asio/reference/SyncReadStream.html SyncReadStream]]
+[def AsyncReadStream [@http://www.boost.org/doc/libs/1_39_0/doc/html/boost_asio/reference/AsyncReadStream.html AsyncReadStream]]
+[def boost::asio::read [@http://www.boost.org/doc/libs/1_39_0/doc/html/boost_asio/reference/read.html boost::asio::read]]
+[def boost::asio::read_until [@http://www.boost.org/doc/libs/1_39_0/doc/html/boost_asio/reference/read_until.html boost::asio::read_until]]
+[def boost::asio::async_read [@http://www.boost.org/doc/libs/1_39_0/doc/html/boost_asio/reference/async_read.html boost::asio::async_read]]
+[def boost::asio::async_read_until [@http://www.boost.org/doc/libs/1_39_0/doc/html/boost_asio/reference/async_read_until.html boost::asio::async_read_until]]
+
+[/=============================================================================]
+
+[heading What is Urdl?]
+
+Urdl is a cross-platform C++ library for downloading web content using a URL.
+It provides an easy-to-use extension to standard C++ iostreams and an
+asynchronous interface for use with Boost.Asio.
+
+[heading What can Urdl be used for?]
+
+Possible uses for Urdl include:
+
+* Downloading application configuration or data files.
+
+* Downloading software updates.
+
+* Accessing RSS feeds.
+
+* Web service clients (e.g. SOAP, XML-RPC or REST).
+
+* Web scraping.
+
+[heading Obtaining Urdl]
+
+The latest release of Urdl can be downloaded from
+[@http://sourceforge.net/project/showfiles.php?group_id=262090 SourceForge.net].
+
+[/=============================================================================]
+
+[section:rationale Rationale]
+
+The primary goal of Urdl is:
+
+* To provide a simple abstraction for accessing and downloading internet
+  resources.
+
+Some secondary goals include:
+
+* To act as an example of using Boost.Asio to create client-side abstractions.
+
+* To act as an example of how to extend the Boost.System `error_code` facility.
+
+* To explore the use of coroutine for implementing protocols using Boost.Asio.
+
+[endsect]
+
+[/=============================================================================]
+
+[section:features Features]
+
+* [*Support for HTTP, HTTPS and local files.]
+
+[:Resources may be downloaded using HTTP 1.0 (using URLs of the form
+  `"http://..."`), HTTPS (`"https://..."`). Local files are also supported
+  (`"file://..."`). See [link urdl.planned_features Planned Features] for
+  limitations in the current protocol implementations.]
+
+* [*Extension to C++ IOStreams.]
+
+[:The [link urdl.reference.core.istream urdl::istream] class provides a way to
+  easily access content using standard C++ I/O facilities.]
+
+* [*Integration with Boost.Asio.]
+
+[:The [link urdl.reference.core.read_stream urdl::read_stream] class allows
+  Urdl functionality to be used with other Boost.Asio features such as sockets
+  and timers.]
+
+[endsect]
+
+[/=============================================================================]
+
+[section:planned_features Planned features]
+
+The following features are planned for a future release of Urdl:
+
+* [*Support for HTTP chunking.]
+
+[:Add the ability to handle HTTP responses where the [^Transfer-Encoding] is
+  [^chunked].]
+
+* [*Support for HTTP proxies.]
+
+[:Add support for making HTTP and HTTPS requests through a proxy.]
+
+* [*Support for FTP.]
+
+[:Add support for downloading files using FTP.]
+
+* [*SSL options to control peer verification.]
+
+[:Add new options for controlling the way Urdl uses SSL to implement HTTPS, e.g.
+  the ability to specify a certificate authority file or directory, whether
+  peers are verified, etc. The current implementation always verifies the
+  peer using OpenSSL's default certificate chains.]
+
+* [*Support for wildcard SSL certificates.]
+
+[:The current implementation of SSL peer verification supports only certificates
+  issued to a single hostname.]
+
+* [*Status function callback.]
+
+[:Allow the user to register a `boost::function<>` object using `set_option()`.
+  This will be called by the implementation to provide progress updates (e.g.
+  resolving, connection, reading, etc).]
+
+* [*Runtime polymorphism and user-supplied backends.]
+
+[:Change the underlying implementation to use runtime polymorphism (abstract
+  base classes) to invoke the appropriate protocol implementation. The user
+  will be able to register a factory object to provide custom support for
+  additional protocols.]
+
+[endsect]
+
+[/=============================================================================]
+
+[section:prerequisites Prerequisites]
+
+Urdl depends on the following libraries:
+
+* [@http://www.boost.org/ Boost] 1.38 or later.
+
+* [@http://www.openssl.org/ OpenSSL] (optional) for HTTPS support.
+
+[endsect]
+
+[/=============================================================================]
+
+[section:platforms Supported platforms]
+
+Urdl has been tested on the following platforms and compilers:
+
+* Debian Linux 5.0 using g++ 4.1.
+
+* Debian Linux 5.0 using g++ 4.3.
+
+* Mac OS X 10.4 using g++ 4.0.1
+
+* Windows using MinGW / g++ 3.4.5
+
+* Windows using Visual C++ 8.0
+
+* Windows using Visual C++ 9.0
+
+[endsect]
+
+[/=============================================================================]
+
+[section:getting_started Getting started]
+
+[section:building Building and using Urdl]
+
+There are three options for using Urdl in an application:
+
+* as a separately compiled library;
+
+* by compiling the source directly into the application; or
+
+* as a header-file-only library.
+
+[heading Using Urdl as a separately compiled library]
+
+Urdl uses [^bjam] and Boost.Build to build shared and static libraries. To
+build the libraries, perform the following steps:
+
+# Set a [^BOOST_ROOT] environment variable pointing to the location of Boost.
+
+# If building on Windows, set an [^OPENSSL_ROOT] environment variable pointing
+  to the location of OpenSSL. When building on UNIX, the build scripts assume
+  that the OpenSSL headers and libraries may be found in the system's include
+  and library paths, respectively. To disable Urdl's SSL support, define
+  [^URDL_DISABLE_SSL=1] as an environment variable.
+
+# Run [^bjam] in the top-level directory of the Urdl distribution. Libraries
+  should be built into the [^lib] subdirectory.
+
+Then, to use Urdl in an application:
+
+# Add the [^include] subdirectory to your compiler's include path.
+
+# Add the [^lib] subdirectory to your linker's library path.
+
+# Add the Boost directory to your compiler's include path.
+
+# Add the Boost library directory (e.g. [^stage/lib]) to your linker's library
+  path. Urdl needs the application to link against the Boost.System and
+  Boost.Date_Time libraries.
+
+# If disabling Urdl's SSL support, add [^URDL_DISABLE_SSL=1] to your compiler's
+  preprocessor definitions.
+
+# If using the DLL version of Urdl on Windows, add [^URDL_DYN_LINK=1] to your
+  compiler's preprocessor definitions.
+
+[heading Compiling Urdl directly into an application]
+
+To compile Urdl directly into an application, perform the following steps:
+
+# Add the [^include] subdirectory to your compiler's include path.
+
+# Add the file [^src/urdl.cpp] to your project or makefile.
+
+# Add the Boost directory to your compiler's include path.
+
+# Add the Boost library directory (e.g. [^stage/lib]) to your linker's library
+  path. Urdl needs the application to link against the Boost.System and
+  Boost.Date_Time libraries.
+
+# If disabling Urdl's SSL support, add [^URDL_DISABLE_SSL=1] to your compiler's
+  preprocessor definitions.
+
+# If building on Windows, add [^URDL_NO_LIB=1] to your compiler's preprocessor
+  definitions to disable autolinking.
+
+[heading Using Urdl as a header-only library]
+
+To use Urdl as a header-only library, perform the following steps:
+
+# Add the [^include] subdirectory to your compiler's include path.
+
+# Add the Boost directory to your compiler's include path.
+
+# Add the Boost library directory (e.g. [^stage/lib]) to your linker's library
+  path. Urdl needs the application to link against the Boost.System library and
+  possibly the Boost.Date_Time library.
+
+# If disabling Urdl's SSL support, add [^URDL_DISABLE_SSL=1] to your compiler's
+  preprocessor definitions.
+
+# Add [^URDL_HEADER_ONLY=1] to your compiler's preprocessor definitions.
+
+[endsect]
+
+[section Downloading a file using an istream]
+
+The simplest use of Urdl is to download a file or other resource using the
+[link urdl.reference.core.istream urdl::istream] class.
+
+  // For std::cout and std::cerr.
+  #include <iostream>
+  #include <ostream>
+
+  // For urdl::istream. Each of Urdl's core classes has its own header file.
+  #include <urdl/istream.hpp>
+
+  int main()
+  {
+    // Open the URL. The connection is established and the HTTP request is sent.
+    urdl::istream is("http://www.boost.org/LICENSE_1_0.txt");
+
+    // Check whether we opened the URL successfully.
+    if (!is)
+    {
+      std::cerr << "Unable to open URL" << std::endl;
+      return 1;
+    }
+
+    // From here on, we can use urdl::istream like any other std::istream
+    // object. Let's output the downloaded content one line at a time.
+    std::string line;
+    while (std::getline(is, line))
+    {
+      std::cout << line << std::endl;
+    }
+  }
+
+[endsect]
+
+[section Checking for errors]
+
+If we are unable to open a URL for any reason, we can find out the last error
+from the [link urdl.reference.core.istream urdl::istream] class:
+
+    urdl::istream is("http://somehost/path");
+    if (!is)
+    {
+      std::cerr << "Unable to open URL: ";
+      std::cerr << is.error().message() << std::endl;
+      return 1;
+    }
+
+Alternatively, we may test for a specific error:
+
+    // For the HTTP error codes.
+    #include <urdl/http.hpp>
+
+    ...
+
+    urdl::istream is("http://somehost/path");
+    if (!is)
+    {
+      if (is.error() == urdl::http::errc::not_found)
+      {
+        // Hmm, maybe we can try downloading the file from somewhere else...
+      }
+    }
+
+[endsect]
+
+[section Setting options to perform an HTTP POST]
+
+To upload over HTTP, we set the [link urdl.reference.opt.http__request_method
+http::request_method], [link urdl.reference.opt.http__request_content
+http::request_content] and [link urdl.reference.opt.http__request_content_type
+http::request_content_type] options on the stream prior to opening the URL:
+
+  // For the HTTP options.
+  #include <urdl/http.hpp>
+
+  ...
+
+  urdl::istream is;
+
+  // We're doing an HTTP POST ...
+  is.set_option(urdl::http::request_method("POST"));
+
+  // ... where the MIME type indicates plain text ...
+  is.set_option(urdl::http::request_content_type("text/plain"));
+
+  // ... and here's the content.
+  is.set_option(urdl::http::request_content("Hello, world!"));
+
+  // All options set, so now we can open the URL.
+  is.open("http://somehost/path");
+
+[endsect]
+
+[section Grouping and reusing options]
+
+Options may be grouped using an [link urdl.reference.core.option_set
+urdl::option_set] object. This allows the options to be reused across multiple
+requests.
+
+  // For urdl::option_set.
+  #include <urdl/option_set.hpp>
+
+  ...
+
+  urdl::option_set common_options;
+
+  // Prevent HTTP redirections.
+  common_options.set_option(urdl::http::max_redirects(0));
+
+  // Tell the web server about Urdl.
+  common_options.set_option(urdl::http::user_agent("Urdl"));
+
+  // Open a URL using only the common options.
+  urdl::istream is1("http://somehost/path1", common_options);
+
+  // Open a URL with additional options. In this case, the common options are
+  // applied to the stream as if we had called set_option invidiually for each
+  // option in the set.
+  urdl::istream is2;
+  is2.set_option(urdl::http::request_method("POST"));
+  is2.set_option(urdl::http::request_content_type("text/plain"));
+  is2.set_option(urdl::http::request_content("Hello, world!"));
+  is2.set_options(common_options);
+
+[endsect]
+
+[section Specifying timeouts]
+
+To prevent unresponsive servers from indefinitely hanging a program, the [link
+urdl.reference.core.istream urdl::istream] class uses a timeout when opening
+the stream and when reading content.
+
+  urdl::istream is;
+
+  // Fail if the URL cannot be opened within 60 seconds.
+  is.open_timeout(60000);
+  is.open("http://somehost/path");
+
+  if (!is)
+  {
+    // If the open operation timed out then:
+    //   is.error() == boost::system::errc::timed_out
+    // holds true.
+  }
+
+  ...
+
+  // Fail if an individual read does not complete within 30 seconds.
+  is.read_timeout(30000);
+
+  // From here on, use urdl::istream like any other std::istream object.
+  std::string line;
+  while (std::getline(is, line))
+  {
+    std::cout << line << std::endl;
+  }
+
+  // If a read operation timed out then:
+  //   is.error() == boost::system::errc::timed_out
+  // holds true.
+
+[endsect]
+
+[section Parsing URLs]
+
+The [link urdl.reference.core.url urdl::url] class gives us the ability to parse
+URLs and access their component parts. The default constructor:
+
+  // For urdl::url.
+  #include <urdl/url.hpp>
+
+  ...
+
+  urdl::url url("http://somehost/path");
+
+provides a conversion from `std::string` or `const char*` to URLs. If the URL
+does not parse correctly, the constructor throws an exception of type
+`boost::system::system_error`. It is this constructor that is used when we
+write:
+
+  urdl::istream is("http://somehost/path");
+
+We can also use the [link urdl.reference.core.url.from_string
+urdl::url::from_string] static member function to explicitly parse a URL, with
+the option of choosing a throwing overload:
+
+  urdl::url url = urdl::url::from_string("http://somehost/path");
+
+or an overload that does not throw an exception on failure:
+
+  boost::system::error_code ec;
+  urdl::url url = urdl::url::from_string("http://somehost/path", ec);
+
+[endsect]
+
+[section Integrating with Boost.Asio]
+
+The [link urdl.reference.core.read_stream urdl::read_stream] class allows
+applications to use Urdl's functionality in conjunction with Boost.Asio.
+
+To synchronously open a URL, we may use:
+
+  // For urdl::read_stream.
+  #include <urdl/read_stream.hpp>
+
+  ...
+
+  boost::asio::io_service io_service;
+
+  ...
+
+  // An urdl::read_stream must always have an associated io_service.
+  urdl::read_stream stream(io_service);
+
+  // Open the URL synchronously. Throws boost::system::system_error on failure.
+  stream.open("http://somehost/path");
+
+  ...
+
+  // Alternatively, open the URL synchronously without throwing on error.
+  boost::system::error_code ec;
+  stream.open("http://somehost/path", ec);
+
+To asynchronously open a URL, we can write:
+
+  void open_handler(const boost::system::error_code& ec)
+  {
+    if (ec)
+    {
+      // URL successfully opened.
+      ...
+    }
+    else
+    {
+      std::cerr << "Unable to open URL: ";
+      std::cerr << is.error().message() << std::endl;
+    }
+  }
+
+  ...
+
+  stream.async_open("http://somehost/path", open_handler);
+
+and the callback function `open_handler` will be invoked once the asynchronous
+operation completes.
+
+The [link urdl.reference.core.read_stream urdl::read_stream] class meets
+Boost.Asio's SyncReadStream and AsyncReadStream type requirements. This means
+we can use it with the synchronous functions boost::asio::read and
+boost::asio::read_until:
+
+  boost::array<char, 512> data;
+  boost::asio::read(stream, boost::asio::buffer(data));
+
+  ...
+
+  boost::asio::streambuf buffer;
+  boost::asio::read_until(stream, buffer, "\r\n");
+
+or with the asynchronous functions boost::asio::async_read and
+boost::asio::async_read_until:
+
+  void read_handler(const boost::system::error_code& ec, std::size_t length)
+  {
+    ...
+  }
+
+  ...
+
+  boost::array<char, 512> data;
+  boost::asio::async_read(stream, boost::asio::buffer(data), read_handler);
+
+  ...
+
+  boost::asio::streambuf buffer;
+  boost::asio::async_read_until(stream, buffer, "\r\n", read_handler);
+
+The asynchronous functions on the [link urdl.reference.core.read_stream
+urdl::read_stream] class allow concurrent access to multiple URLs without
+requiring additional threads. Furthermore, we can perform the operations
+concurrently with any of the other asynchronous facilities provided by
+Boost.Asio (sockets, timers and so on).
+
+[endsect]
+
+[endsect]
+
+[/=============================================================================]
+
+[include reference.qbk]
+[xinclude index.xml]
