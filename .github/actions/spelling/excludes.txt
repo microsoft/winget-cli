@@ -1,4 +1,5 @@
 (?:^|/)\.gitignore$
+(?:^|/)(?i)LICENSE
 /shared\.manifest$
 \.cer$
 \.msix$
