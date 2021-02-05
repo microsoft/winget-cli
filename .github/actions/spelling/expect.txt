@@ -238,6 +238,7 @@ unparsable
 UNSCOPED
 UParse
 UPSERT
+URIs
 URLZONE
 userfilesetting
 usersettingstest
