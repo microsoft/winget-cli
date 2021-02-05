@@ -303,7 +303,7 @@ namespace AppInstaller::Utility
                 &AcronymSeparators
             };
 
-            // Must be in sorted order so that search can be efficient; use Locales
+            // Add values here but use Locales in code.
             const std::vector<std::wstring_view> LocaleViews
             {
                 L"AF-ZA", L"AM-ET", L"AR-AE", L"AR-BH", L"AR-DZ", L"AR-EG", L"AR-IQ", L"AR-JO", L"AR-KW", L"AR-LB", L"AR-LY",
@@ -329,9 +329,10 @@ namespace AppInstaller::Utility
                 L"SR-LATN-CS", L"SR-LATN-ME", L"SR-LATN-RS", L"TG-CYRL-TJ", L"TZM-LATN-DZ", L"UZ-CYRL-UZ", L"UZ-LATN-UZ",
             };
 
+            // The folded and sorted version of LocaleViews.
             const std::vector<std::wstring> Locales;
 
-            // Must be in sorted order so that search can be efficient; use LegalEntitySuffixes
+            // Add values here but use LegalEntitySuffixes in code.
             const std::vector<std::wstring_view> LegalEntitySuffixViews
             {
                 // Acronyms
@@ -343,6 +344,7 @@ namespace AppInstaller::Utility
                 L"COMPANY", L"CORP", L"CORPORATION", L"HOLDING", L"HOLDINGS", L"INCORPORATED", L"LIMITED", L"SUBSIDIARY"
             };
 
+            // The folded and sorted version of LocaleViews.
             const std::vector<std::wstring> LegalEntitySuffixes;
 
             static std::vector<std::wstring> FoldAndSort(const std::vector<std::wstring_view>& input)
