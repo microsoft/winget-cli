@@ -23,7 +23,7 @@ jobs:
     displayName: Send resources to Touchdown Build
     inputs:
       teamId: 8343
-      authId: d3dd8113-65b3-4526-bdca-a00a7d1c37ba
+      authId: 2796a411-f030-46c1-ae3e-ab56f60ea523
       authKey: $(LocServiceKey)
       isPreview: false
       relativePathRoot: src\AppInstallerCLIPackage\Shared\Strings\en-us
