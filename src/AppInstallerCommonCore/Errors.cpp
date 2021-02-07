@@ -107,6 +107,12 @@ namespace AppInstaller
                 return "Installer failed security check";
             case APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH:
                 return "Download size does not match expected content length";
+            case APPINSTALLER_CLI_ERROR_ICU_BREAK_ITERATOR_ERROR:
+                return "ICU break iterator error";
+            case APPINSTALLER_CLI_ERROR_ICU_CASEMAP_ERROR:
+                return "ICU casemap error";
+            case APPINSTALLER_CLI_ERROR_ICU_REGEX_ERROR:
+                return "ICU regex error";
             default:
                 return "Unknown Error Code";
             }

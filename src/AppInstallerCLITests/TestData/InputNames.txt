@@ -1,0 +1,1137 @@
+0 A.D.
+010 Editor 11.0 (64-bit)
+360安全卫士
+360杀毒
+4K Slideshow Maker 1.8
+4K Stogram
+4K Video Downloader
+4K Video Downloader 4.12
+4K Video to MP3
+4K YouTube to MP3 3.12
+7-Zip 16.04 (x64 edition)
+7-Zip 19.00 (x64 edition)
+7-Zip 20.02 alpha (x64)
+7-Zip ZS 19.00 ZS v1.4.5 R2 (x64)
+AWS Command Line Interface
+AWS Command Line Interface v2
+AWS SAM Command Line Interface
+AXIS Camera Station 5.33
+AbaClient
+Accessibility Insights For Windows v1.1
+Active Directory Authentication Library for SQL Server
+Adobe Acrobat Reader DC - Czech
+Adobe Acrobat Reader DC
+Adobe Acrobat Reader DC MUI
+AdoptOpenJDK JDK with Hotspot 11.0.7.10 (x64)
+AdoptOpenJDK JDK with Hotspot 11.0.8.10 (x64)
+AdoptOpenJDK JDK with Hotspot 14.0.1.7 (x64)
+AdoptOpenJDK JDK with Hotspot 14.0.2.12 (x64)
+AdoptOpenJDK JDK with Hotspot 15.0.0.36 (x64)
+AdoptOpenJDK JDK with Hotspot 8.0.252.09 (x64)
+AdoptOpenJDK JDK with Hotspot 8.0.265.01 (x64)
+Advanced IP Scanner 2.5
+Advanced Log Viewer 8.1.0
+Advanced Port Scanner 2.5
+AdvancedRestClient 15.0.5
+Aegisub 8975-master-8d77da3
+Aegisub r8942
+AeroZoom 4.0 beta 2
+Alacritty
+Alchemy Beta x64
+Algodoo v2.1.0
+AltDrag
+Amazon Chime
+Amazon Corretto (x64)
+Amazon Corretto 8 (x64)
+Amazon WorkSpaces
+Anaconda3 2020.07 (Python 3.8.3 64-bit)
+Angry IP Scanner
+AntiMicro
+AppGet
+Appium 1.15.1
+Appium 1.18.3
+Arduino
+Armagetron Advanced 0.2.8.3.5
+Artha 1.0.3.0
+AssaultCube 1.2.0.2
+Audacity 2.4.2
+AuthPass version 1.7.9_1605
+Auto Dark Mode
+AutoHotkey 1.1.32.00
+AutoHotkey 1.1.33.02
+Autopsy
+AviSynth 2.6
+Avro Keyboard 5.6.0
+Aya
+Azure Cosmos DB Emulator
+Azure Data Studio (User)
+Azure Functions Core Tools - 3.0.2534 (x64)
+Azure IoT Explorer (preview)
+Azure IoT explorer
+BCUninstaller
+BITS Manager
+BKChem-0.13.0
+BOINC
+BPBible 0.5.3.1
+Backup and Sync from Google
+Barrier 2.3.2-snapshot
+Barrier 2.3.3-release
+Beaker Browser 0.8.10
+Beats winlogbeat 7.7.0 (x86_64)
+Beats winlogbeat 7.9.2 (x86_64)
+BeeBEEP 5.8.2
+Beeftext
+Betaflight Configurator
+Beyond Compare 4
+Beyond Compare 4.3.6
+Beyond Compare 4.3.7
+BiglyBT
+BitPay version 4.8.1
+Bitwarden
+BleachBit 4.0.0.1628 (current user)
+Blender
+BlueJeans
+Bob the Hamster VGA 2008-01-23
+Bonjour
+Borderless Gaming
+Bot Framework Composer 1.0.0
+Bot Framework Composer 1.0.1
+Bot Framework Composer 1.0.2
+Bot Framework Composer 1.1.1
+Bot Framework Emulator 4.10.0
+Bot Framework Emulator 4.8.1
+Bot Framework Emulator 4.9.0
+Brackets
+Brave
+Brave Nightly
+Bulk Rename Utility 3.3.1.0 (64-bit)
+Buttercup 1.19.0
+Buttercup 1.20.0
+C-Dogs SDL
+CCEnhancer version 4.5.6
+CCleaner
+CDBurnerXP (64 bit)
+CMake
+CORSAIR iCUE Software
+CPUID CPU-Z 1.92
+CPUID CPU-Z 1.93
+CPUID CPU-Z 1.94
+CPUID HWMonitor 1.41
+CPUID HWMonitor 1.42
+Cacher
+CaesiumPH 0.9.5
+Camtasia 2019
+Camtasia 2020
+Caprine 2.47.0
+Caprine 2.48.0
+Caption 2.0.1 (only current user)
+Captura v8.0.0
+CemUI 2.3.3 (only current user)
+Cerebro 0.3.2
+CertAid for Windows
+CertDump
+Certify The Web version 5.1.5
+ChMac 2.0
+ChefDK v4.11.0
+ChemAxon ChemCurator
+ChemAxon Markush Editor
+ChemAxon Marvin Suite 20.13.0
+ChemAxon Marvin Suite 20.19.0
+Chromium
+Circuit Diagram version 3.0
+Circuit Diagram version 3.1
+Cisco Webex Meetings
+Citycraft Launcher 1.9.9
+ClamWin Free Antivirus 0.99.4
+Clash for Windows 0.11.1
+Clash for Windows 0.11.6
+Clash for Windows 0.11.8
+Clash for Windows 0.9.11
+ClassIn
+Clementine
+Clink v0.4.9
+Cloudflare WARP
+CodeBlocks
+CodeLite
+Coffee
+Colobot: Gold Edition alpha-0.1.12
+Color Cop 5.4.3
+Colorpicker 2.0.3
+ConEmu 201011.x64
+Concept2 Utility
+ConfigMgr 2012 Toolkit R2
+Contasimple Desktop 3.1.0
+Core Temp 1.16
+Couchbase Server 6.5.1-6299 Community Edition
+Couchbase Server 6.5.1-6299 Enterprise Edition
+Cozy Drive 3.20.0
+Cppcheck x64 2.0
+Crypter 4.0.0
+Cryptomator
+CrystalDiskInfo 8.6.1
+CrystalDiskInfo 8.6.2
+CrystalDiskInfo 8.6.2 Kurei Kei Edition
+CrystalDiskInfo 8.6.2 Shizuku Edition
+CrystalDiskInfo 8.7.0
+CrystalDiskInfo 8.8.1
+CrystalDiskInfo 8.8.1 Kurei Kei Edition
+CrystalDiskInfo 8.8.1 Shizuku Edition
+CrystalDiskInfo 8.8.5
+CrystalDiskInfo 8.8.9
+CrystalDiskInfo 8.8.9 Kurei Kei Edition
+CrystalDiskInfo 8.8.9 Shizuku Edition
+CrystalDiskInfo 8_8_2
+CrystalDiskInfo 8_8_2 Kurei Kei Edition
+CrystalDiskInfo 8_8_2 Shizuku Edition
+CrystalDiskMark 7.0.0h
+CrystalDiskMark 7.0.0h Shizuku Edition
+CubicSDR 0.2.5 Installer
+CutePDF Writer
+Cyberduck
+DB Browser for SQLite
+DBeaver 7.0.5 (current user)
+DBeaver 7.1.0 (current user)
+DBeaver 7.1.2 (current user)
+DBeaver 7.1.3 (current user)
+DBeaver 7.1.4 (current user)
+DBeaver 7.2.0 (current user)
+DBeaver 7.2.1 (current user)
+DBeaver 7.2.2 (current user)
+DBeaver 7.2.3 (current user)
+DJI Assistant 2 (DJI FPV series) version V2.0.2.11
+DJI Assistant 2 For Aeroscope version V2.0.1.3
+DJI Assistant 2 For Autopilot version V2.0.3.7
+DJI Assistant 2 For Battery Station version V2.0.1.9
+DJI Assistant 2 For MG version V2.0.18.1
+DJI Assistant 2 For Matrice version V2.0.13.2
+DJI Assistant 2 For Mavic version V2.0.14.1
+DJI Assistant 2 For Phantom version V2.0.10.4
+Dave Gnukem
+DeepVocalToolBox_beta_1.1.6 version beta_1.1.6
+DeepVocal_beta_1.1.6 version beta_1.1.6
+Deezer 4.19.20
+DefaultAudio
+Defraggler
+Dell Command | Update
+Dell Update
+Dev-C++
+Dimension 4 v5.31
+Discord Media Loader version 1.3.0.0
+Discord Media Loader version 1.4.0.0
+Ditto
+Dixa
+DjVuLibre DjView  3.5.27+4.11
+DockStation 1.5.1
+Docker Desktop
+Dokan Library 1.3.0.1000 (x64)
+Dokan Library 1.4.0.1000 (x64)
+Dolphin
+Doomsday 2.2.2.3313
+Dopamine
+Doxie 2.12.2
+Dropbox
+EGR-SafenetActivation
+EGR-ShellExtension
+EagleGet version 2.1.5.10
+EagleGet version 2.1.6.70
+EasyConnect
+EditPlus (64 bit)
+EduMIPS64
+Elasticsearch 7.9.2
+Elgato Stream Deck
+Empoche 0.4.0
+Empoche 0.4.3
+Encrypto version 1.0.1
+EnglishizeCmd 2.0
+Enpass
+Eraser 6.2.0.2986
+Eraser 6.2.0.2988
+Eraser 6.2.0.2989
+Eraser 6.2.0.2990
+Esteem 2.2.7
+Ethereum - Geth - Official Go implementation of the Ethereum protocol
+Evernote v. 6.21.2
+Evernote v. 6.24.2
+Everything 1.4.1.969 (x64)
+Everything 1.4.1.986 (x64)
+Everything 1.4.1.988 (x64)
+Everything 1.4.1.988 Lite (x64)
+Everything 1.4.1.992 (x64)
+ExpressVPN
+Expresso
+Extreme TuxRacer 0.8 (x64)
+Far Manager 3 x64
+FastCopy
+FastStone Capture 9.3
+FastStone Image Viewer 7.5
+Fedora Media Writer
+Ferdi 5.5.0
+Fiddler Everywhere 1.0.2
+Fiddler Everywhere 1.1.0
+Fiddler Everywhere 1.1.0-insiders
+Fiddler Everywhere 1.1.0-internal
+Fiddler Everywhere 1.1.1
+Fiddler Everywhere 1.1.1-insiders
+Fiddler Everywhere 1.1.1-internal
+File Converter (64 bit)
+FileSeek 6.4
+FileZilla Client 3.47.0
+FileZilla Client 3.48.1
+FileZilla Client 3.49.1
+FileZilla Client 3.50.0
+FileZilla Client 3.51.0
+Firefox Developer Edition 77.0 (x64 en-US)
+Firefox Developer Edition 78.0 (x64 en-US)
+Firefox Developer Edition 80.0 (x64 en-US)
+Firefox Developer Edition 82.0 (x64 en-US)
+FlashFXP 5
+FlightGear v2018.3.5
+FontBase 2.11.3
+FontForge version 14-03-2020
+FormatFactory 5.3.0.1
+FormatFactory 5.4.5.0
+Foxit PhantomPDF
+Foxit Reader
+Franz 5.5.0
+FreeCommander XE
+FreeMat
+GIMP 2.10.0
+GIMP 2.10.10
+GIMP 2.10.14
+GIMP 2.10.16
+GIMP 2.10.18
+GIMP 2.10.20
+GIMP 2.10.6
+GIMP 2.10.8
+GNU Arm Embedded Toolchain 9-2020-q2-update 9 2020 (remove only)
+GNU Midnight Commander version 4.8.24 (build: 20200521-217)
+GNU Privacy Guard
+GNURadio-3.7
+GOG GALAXY
+GPL Ghostscript
+GSview 5.0
+Garmin Express
+Gauge 1.0.6
+Gauge 1.1.1
+Geany 1.36
+Geekbench 5
+Gephi 0.9.2
+GetDiz
+Git Extensions 3.3.1.7897
+Git Extensions 3.4.1.9675
+Git Extensions 3.4.3.9999
+Git LFS version 2.11.0
+Git version 2.24.1.2
+Git version 2.25.1
+Git version 2.26.2
+Git version 2.27.0
+Git version 2.28.0
+Git version 2.29.0
+GitHub CLI
+GitHub Desktop Machine-Wide Installer
+GitHubReleaseNotes
+Gitter
+Glimpse 0.1.2
+Glimpse 0.2.0 (64-bit)
+Glimpse 0.2.0
+GnuCash 3.9
+GnuCash 4.1
+GnuWin32: Grep-2.5.4
+GnuWin32: Make-3.81
+GnuWin32: Wget-1.11.4-1
+GnuWin32: Zip-3.0
+Go Programming Language amd64 go1.13.12
+Go Programming Language amd64 go1.13.13
+Go Programming Language amd64 go1.13.14
+Go Programming Language amd64 go1.13.15
+Go Programming Language amd64 go1.14.10
+Go Programming Language amd64 go1.14.3
+Go Programming Language amd64 go1.14.4
+Go Programming Language amd64 go1.14.5
+Go Programming Language amd64 go1.14.6
+Go Programming Language amd64 go1.14.7
+Go Programming Language amd64 go1.14.8
+Go Programming Language amd64 go1.14.9
+Go Programming Language amd64 go1.15
+Go Programming Language amd64 go1.15.1
+Go Programming Language amd64 go1.15.2
+Go Programming Language amd64 go1.15.3
+Go Programming Language amd64 go1.15beta1
+GoldWave v6.52
+Google Chrome
+Google Cloud SDK
+Google Earth Pro
+Gpg4win (3.1.11)
+Gpg4win (3.1.13)
+GrafanaEnterprise
+GrafanaOSS
+Grammarly for Microsoft® Office Suite
+GrampsAIO64
+GraphQL Playground 1.8.10
+GraphiQL 0.7.2
+Graphviz
+Greenshot 1.2.10.6
+Grid 1.6.2
+Grindstone 4
+HHD Software Free Hex Editor Neo 6.44
+HM NIS Edit 2.0.3
+HP Cloud Recovery Tool
+HUAWEI Cloud
+HWiNFO64 Version 6.26
+HWiNFO64 Version 6.28
+HWiNFO64 Version 6.30
+HWiNFO64 Version 6.32
+HandyWinGet
+Harmony 0.9.1 (only current user)
+HashTab 5.2.0.14
+HashTab 6.0.0.34
+HeavyLoad V3.6 (64 bit)
+Hedgewars
+HeidiSQL 11.0.0.5919
+HeidiSQL 11.0.0.5995
+HeidiSQL 11.0.0.5997
+HeidiSQL 11.0.0.6000
+HeidiSQL 11.0.0.6057
+Helix Core Apps
+HelpNDoc 6.9.0.577 Personal Edition
+HexChat
+Hosts File Editor
+Hover
+HttpMaster Express Edition 4.7.0
+HttpMaster Express Edition 4.7.1
+HttpMaster Express Edition 4.7.2
+HttpMaster Express Edition 4.7.3
+HttpMaster Professional Edition 4.7.1
+HttpMaster Professional Edition 4.7.2
+HttpMaster Professional Edition 4.7.3
+Huawei QuickApp IDE
+Hyne Timber Design 7.5.14.0
+Hyperspace Desktop 1.1.3
+IAP Desktop
+IDA Freeware 7.0
+IO Ninja 3
+IPFilter 3.0.2.9-beta
+IRCCloud 0.15.0
+IZArc 4.4
+ImageGlass
+Inkscape
+Inno Setup version 6.0.4
+Inno Setup version 6.0.5
+InternetOff 3.0, 32\64 bit edition
+Intuiter 0.5.0
+IrfanView 4.54 (64-bit)
+IronPython 2.7.10
+IronPython 2.7.9
+IsWiX
+IsoBuster 4.6
+JChem .NET API 20.19.0.482
+JabRef
+Jackett
+Jami
+Java 8 Update 251 (64-bit)
+Java 8 Update 261 (64-bit)
+JetBrains Toolbox
+Jitsi Meet 2.3.1
+Jitsi Meet 2.4.1
+Joplin 1.0.201
+Joplin 1.0.216
+Joplin 1.0.233
+Julia 1.4.1
+Julia 1.4.2
+Julia 1.5.1
+K-Lite Codec Pack 15.7.0 Standard
+K-Lite Mega Codec Pack 15.7.0
+KKBOX
+Kaku 2.0.2
+KeePass Password Safe 2.44
+KeePass Password Safe 2.45
+KeePass Password Safe 2.46
+KeePassXC
+KeeWeb
+Keybase
+KiCad 5.1.5_1
+KiCad 5.1.6_1
+KiCad 5.1.7_1
+Krisp
+Krita (x64) 4.3.0
+L'Math version r1.6
+LBRY 0.45.1
+LBRY 0.45.2
+LBRY 0.46.2
+LBRY 0.47.0
+LBRY 0.47.1
+LINE
+LINQPad 6
+LLVM
+LMMS 1.2.1
+LMMS 1.2.2
+LOVE 11.3
+Laragon 4.0.15
+LastPass (uninstall only)
+Lazarus 2.0.8
+League of Legends
+Lenovo Migration Assistant
+Lenovo System Update
+Lens 3.5.1
+Leonflix 0.7.0
+Liberica JDK 11 (64-bit)
+Liberica JDK 11 Full (64-bit)
+Liberica JDK 14 (64-bit)
+Liberica JDK 14 Full (64-bit)
+Liberica JDK 15 (64-bit)
+Liberica JDK 15 Full (64-bit)
+Liberica JDK 8 (64-bit)
+Liberica JDK 8 Full (64-bit)
+LibreCAD
+LibreOffice 7.0.1.2
+LibreOffice 7.0.2.2
+Lidarr version 0.7.1
+LightBulb 2.0
+LightBulb 2.2
+Lightscreen version 2.4
+Linrad-04.14a version 04.14a
+Lisk Hub 1.22.0
+Listen1 2.13.0
+Listen1 2.5.2
+Local 5.5.3
+LockHunter 3.3, 32/64 bit
+LogFusion 6.4
+LogFusion 6.4.1
+Logitech Gaming Software 9.02
+Loom 0.37.2
+LyX 2.3.4.4
+LyX 2.3.5.2
+MCX Studio version nightlybuild
+MCX Studio version v2020
+MKVToolNix 46.0.0 (64-bit)
+MKVToolNix 47.0.0 (64-bit)
+MKVToolNix 48.0.0 (64-bit)
+MKVToolNix 49.0.0 (64-bit)
+MKVToolNix 50.0.0 (64-bit)
+MPC-HC 1.7.13 (64-bit)
+MPC-HC 1.9.5 (64-bit)
+MPC-HC 1.9.6 (64-bit)
+MQTT Explorer 0.3.5
+MSIX Core
+MX5
+MY.GAMES GameCenter
+MacType
+MailWasher
+MailWasherPro
+Majsoul Plus 2.0.0
+MakeMKV v1.15.3
+Malwarebytes version 4.2.1.89
+Marble version 2.2.0
+MariaDB 10.5 (x64)
+Mark Text 0.16.2
+Markdown Monster 1.22.8.0
+Markdown Monster 1.23.0.0
+Markdown Monster 1.23.12.0
+Markdown Monster 1.23.14.0
+Markdown Monster 1.24.12.0
+Markdown Outlook
+Master Packager
+Mattermost
+MediaInfo 20.09
+MediaInfo-CLI 20.09
+MediaMonkey 4.1
+Meld
+Memurai Developer
+Microsoft .NET Core SDK 3.1.202 (x64)
+Microsoft .NET Core SDK 3.1.300 (x64)
+Microsoft .NET Core SDK 3.1.301 (x64)
+Microsoft .NET Core SDK 3.1.302 (x64)
+Microsoft .NET Core SDK 3.1.401 (x64)
+Microsoft .NET Core SDK 3.1.402 (x64)
+Microsoft .NET Framework 4.5 Multi-Targeting Pack
+Microsoft .NET Framework 4.5.1 Multi-Targeting Pack (ENU)
+Microsoft .NET Framework 4.5.1 Multi-Targeting Pack
+Microsoft .NET Framework 4.5.1 SDK
+Microsoft .NET Framework 4.5.2 Multi-Targeting Pack (ENU)
+Microsoft .NET Framework 4.5.2 Multi-Targeting Pack
+Microsoft .NET Framework 4.7.2 SDK
+Microsoft .NET Framework 4.7.2 Targeting Pack
+Microsoft .NET Framework 4.8 SDK
+Microsoft .NET Framework 4.8 Targeting Pack
+Microsoft .NET SDK 5.0.100-preview.5.20279.10 (x64)
+Microsoft .NET SDK 5.0.100-preview.8.20417.9 (x64)
+Microsoft .NET SDK 5.0.100-rc.1.20452.10 (x64)
+Microsoft .NET SDK 5.0.100-rc.2.20479.15 (x64)
+Microsoft Azure CLI
+Microsoft Azure Storage Emulator - v5.10
+Microsoft Azure Storage Explorer version 1.14.0
+Microsoft Azure Storage Explorer version 1.15.1
+Microsoft Deployment Toolkit (6.3.8456.1000)
+Microsoft Edge
+Microsoft Edge Beta
+Microsoft Edge Dev
+Microsoft Garage Mouse without Borders
+Microsoft Help Viewer 2.2
+Microsoft Help Viewer 2.3
+Microsoft MPI (10.1.12498.16)
+Microsoft MPI (10.1.12498.18)
+Microsoft MPI SDK (10.1.12498.18)
+Microsoft ODBC Driver 13 for SQL Server
+Microsoft ODBC Driver 17 for SQL Server
+Microsoft OLE DB Driver for SQL Server
+Microsoft R Open 3.5.3
+Microsoft R Open 4.0.2
+Microsoft SQL Server 2012 Native Client 
+Microsoft SQL Server 2014 Management Objects 
+Microsoft SQL Server 2016
+Microsoft SQL Server 2016 Policies 
+Microsoft SQL Server 2016 T-SQL Language Service 
+Microsoft SQL Server 2016 T-SQL ScriptDom 
+Microsoft SQL Server 2017
+Microsoft SQL Server 2017 Policies 
+Microsoft SQL Server 2017 T-SQL Language Service 
+Microsoft SQL Server Data-Tier Application Framework (x86)
+Microsoft SQL Server Management Studio - 16.5.3
+Microsoft SQL Server Management Studio - 17.9.1
+Microsoft SQL Server Management Studio - 18.5
+Microsoft SQL Server Management Studio - 18.5.1
+Microsoft SQL Server Management Studio - 18.6
+Microsoft Small Basic v1.2
+Microsoft System CLR Types for SQL Server 2014
+Microsoft System CLR Types for SQL Server 2016
+Microsoft System CLR Types for SQL Server 2017
+Microsoft Visio Viewer 2016
+Microsoft Visual Studio 2010 Tools for Office Runtime (x64)
+Microsoft Visual Studio 2015 Shell (Isolated)
+Microsoft Visual Studio Code (User)
+Microsoft Visual Studio Code Insiders (User)
+Microsoft Visual Studio Tools for Applications 2015
+Microsoft Visual Studio Tools for Applications 2015 Language Support
+Microsoft Visual Studio Tools for Applications 2017
+Microsoft Web Platform Installer 5.1
+Miniconda3 4.7.12 (Python 3.7.4 64-bit)
+Miniconda3 py37_4.8.3 (Python 3.7.7 64-bit)
+MongoDB 4.2.8 2008R2Plus SSL (64 bit)
+Mono for Windows (x64)
+MonoGame SDK
+Moonlight Game Streaming Client
+Motrix 1.5.10
+Motrix 1.5.15
+Mozilla Firefox 68.8.0 ESR (x64 en-US)
+Mozilla Firefox 68.9.0 ESR (x64 en-US)
+Mozilla Firefox 76.0.1 (x86 en-US)
+Mozilla Firefox 77.0 (x64 en-US)
+Mozilla Firefox 77.0.1 (x64 en-US)
+Mozilla Firefox 78.0 ESR (x64 en-US)
+Mozilla Firefox 78.0.1 (x64 en-US)
+Mozilla Firefox 78.0.2 (x64 cs)
+Mozilla Firefox 78.0.2 (x64 en-US)
+Mozilla Firefox 78.1.0 ESR (x64 en-US)
+Mozilla Firefox 78.4.0 ESR (x64 en-US)
+Mozilla Firefox 79.0 (x64 en-US)
+Mozilla Firefox 80.0 (x64 en-US)
+Mozilla Firefox 80.0.1 (x64 en-US)
+Mozilla Firefox 81.0 (x64 en-US)
+Mozilla Firefox 81.0.1 (x64 en-US)
+Mozilla Firefox 81.0.2 (x64 en-US)
+Mozilla Firefox 82.0 (x64 en-US)
+Mozilla Firefox 82.0.1 (x64 en-US)
+Mozilla Firefox 82.0.1 (x64 es-MX)
+Mozilla Firefox 82.0.2 (x64 en-US)
+Mozilla Maintenance Service
+Mozilla Thunderbird 68.10.0 (x64 en-US)
+Mozilla Thunderbird 68.8.0 (x86 en-US)
+Mozilla Thunderbird 68.9.0 (x64 en-US)
+Mozilla Thunderbird 77.0 (x64 en-US)
+Mozilla Thunderbird 78.0 (x64 cs)
+Mozilla Thunderbird 78.0 (x64 en-US)
+Mozilla Thunderbird 78.0.1 (x64 en-US)
+Mozilla Thunderbird 78.1.0 (x64 en-US)
+Mozilla Thunderbird 78.1.1 (x64 en-US)
+Mozilla Thunderbird 78.3.2 (x64 en-US)
+Mu
+Mullvad VPN 2020.5.0
+Mullvad VPN 2020.6.0
+Multilingual App Toolkit 4.0
+Multipass
+Mumble 1.3.1
+Mumble 1.3.2
+Mumble 1.3.3
+MuseScore 3
+Muta 2.1.02
+MyHarmony
+MyPaint
+MySQL Installer - Community
+Mypal 28.14.2 (x64 en-US)
+NBTExplorer
+NSwagStudio
+NVDA
+NVIDIA NVIDIA RTX Voice Driver 1.0.0.2
+NVIDIA RTX Voice Application
+NZXT CAM 4.10.1
+NZXT CAM 4.11.0
+NZXT CAM 4.12.0
+NZXT CAM 4.13.0
+NZXT CAM 4.8.0
+NZXT CAM 4.9.2
+Nelson-0.4.8.2662 (64 bits)
+NeoLoad 7.3.0
+Netron 4.5.9
+Nitro Pro
+Nmap 7.80
+NoSQLBooster for MongoDB 4.7.5 (only current user)
+NoSQLBooster for MongoDB 5.2.12
+NoSQLBooster for MongoDB 6.1.8
+Node.js
+Nodist
+NordVPN
+NordVPN
+NordVPN network TAP
+NordVPN network TUN
+NoteHighlight2016
+Notepad2-mod 4.2.25.998
+Notion 2.0.8
+Notion 2.0.9
+Npcap 0.9982
+NullpoMino version 7.5
+Nullsoft Install System
+OBS Studio
+OHRRPGCE gorgonzola 20200502
+ONLYOFFICE Desktop Editors 5.6 (x64)
+Octave 5.2.0
+OneNote Tagging Kit
+Open Shop Channel Downloader version 1.2.9
+Open-Shell
+OpenHashTab version 2.2.0
+OpenHashTab version 2.3.0
+OpenJDK 1.8.0_252-2-ojdkbuild
+OpenJDK 11.0.7-1-ojdkbuild
+OpenJDK 13.0.3-1-ojdkbuild
+OpenJDK 14.0.1-1-ojdkbuild
+OpenMPT 1.29 (64-Bit)
+OpenOffice 4.1.7
+OpenRA
+OpenSCAD (remove only)
+OpenSSL (64-bit)
+OpenShot Video Editor version 2.5.1
+OpenTTD 1.10.1
+OpenTTD 1.10.3
+OpenVPN 2.4.9-I601-Win10 
+OpenVPN Configuration Generator x64
+OpenVPN Connect
+Opera GX Stable 68.0.3618.142
+Opera GX Stable 68.0.3618.197
+Opera Stable 68.0.3618.63
+Opera Stable 69.0.3686.36
+Opera Stable 69.0.3686.77
+Opera Stable 70.0.3728.144
+Opera Stable 70.0.3728.95
+Opera Stable 71.0.3770.198
+Oracle VM VirtualBox 6.1.10
+Oracle VM VirtualBox 6.1.12
+Oracle VM VirtualBox 6.1.14
+Oracle VM VirtualBox 6.1.16
+OutSystems Development Environment 11
+PDF reDirect (remove only)
+PDFsam Basic
+PKU_Gateway 0.9.8
+PSPad editor
+Packet Sender x64
+Pale Moon 28.10.0 (x64 en-US)
+Pale Moon 28.9.3 (x64 en-US)
+Pandoc 2.10.1
+Pandoc 2.11.0.2
+Pandoc 2.9.2.1
+Paradox Launcher
+Paragon Backup & RecoveryÃ¢â€žÂ¢ 17 CE
+Parsec
+PasteIntoFile version 2.0
+PeaZip 7.2.1 (WIN64)
+PeaZip 7.3.1 (WIN64)
+Persepolis Download Manager version 3.2.0.0
+PhonerLite 2.84
+PhotoSync
+PicPick
+PicoTorrent
+Planet Blupi
+PlayStationÃ¢â€žÂ¢Now
+Playnite
+Plex
+Plex Media Player
+Plex Media Server
+Plexamp 3.0.3
+Plexamp 3.1.0
+Plexamp 3.1.1
+PokerTH
+Postbox 7.0.18 (x86 en-US)
+PostgreSQL 12 
+PostgreSQL 13 
+PowerShell 7-preview-x64
+PowerShell 7-x64
+PowerShell Universal
+PowerToys (Preview)
+Primesieve version 7.5
+Private Internet Access
+Progress Telerik Fiddler
+Project My Screen App
+ProtonVPN
+ProtonVPNTap
+PuTTY release 0.74 (64-bit)
+Puppet
+Puppet Agent (64-bit)
+Puppet Bolt
+Puppet Development Kit
+Pure Data (64-bit) 0.50-2
+PyMODA version 1.1.0
+Python 2.7.18
+Python 3.7 PyAudio-0.2.11
+Python 3.7.7 (64-bit)
+Python 3.8.1 (64-bit)
+Python 3.8.3 (64-bit)
+Python 3.8.4 (64-bit)
+Python 3.8.5 (64-bit)
+Python 3.8.6 (64-bit)
+Python 3.9.0 (64-bit)
+Python Launcher
+QGIS 3.10.6 'A Coru
+QGIS 3.12.3 'Bucuresti'
+QGIS 3.14.0 'Pi'
+QTextPad version 1.4
+Qalculate!
+QtSpim
+Quick Picture Viewer
+QuickLook
+Quicken
+R for Windows 4.0.0
+R for Windows 4.0.2
+R for Windows 4.0.3
+RStudio
+Rambox 0.7.5
+Rapid Environment Editor version 9.2.0.937
+Raspberry Pi Imager
+RawTherapee version 5.8
+Reddit Wallpaper Changer
+Reko decompiler for x86-64
+Remote Desktop Manager
+Remote Desktop Manager Free
+Remote Mouse version 3.015
+RenderDoc
+Renode
+ResponsivelyApp 0.1.5
+RetroShare
+Revo Uninstaller 2.1.7
+Revo Uninstaller Pro 4.3.3
+Robo 3T 1.3.1
+Robo 3T 1.4.1
+Robo 3T 1.4.2
+Rocket.Chat 2.17.9
+RocketDock 1.3.5
+Rocks'n'Diamonds 4.1.4.1
+Rosi
+Royal TS 5.02.60420.0
+Royal TS 5.03.60925.0
+Rtools 4.0 (4.0.0.28)
+Ruby 2.7.1-1-x64
+Ruby 2.7.1-1-x64 with MSYS2
+Ruby 2.7.2-1-x64
+RunJS 1.10.1
+RunJS 1.11.0
+Rust 1.43 (MSVC 64-bit)
+Rust 1.44 (GNU 64-bit)
+Rust 1.44 (GNU)
+Rust 1.44 (MSVC 64-bit)
+Rust 1.44 (MSVC)
+Rust 1.45 (GNU 64-bit)
+Rust 1.45 (GNU)
+Rust 1.45 (MSVC 64-bit)
+Rust 1.45 (MSVC)
+SIW 2020 v10.6.0915a Trial
+SMPlayer 20.4.2 (x64)
+SSHFS-Win 2020 (x64)
+SVG Explorer Extension 0.1.1
+Samsung DeX
+Satisfactory Mod Launcher 1.0.17
+Scratch Desktop 3.11.1
+ScreenToGif
+Scribus 1.4.8 (64bit)
+ScummVM 2.2.0
+Search Deflector
+Sejda PDF Desktop
+Seq
+SharePoint Online Management Shell
+ShareX
+SharpKeys
+Shotcut
+Sigil 1.3.0
+Signal 1.34.1
+Signal 1.34.3
+Signal 1.34.4
+Signal 1.34.5
+Signal 1.36.1
+Signal 1.36.3
+Signal 1.37.2
+Simply Fortran 3
+SitdownMW
+Skype version 8.60
+Skype version 8.64
+Skype version 8.65
+Slack Machine-Wide
+Snagit 2020
+SnakeTail 64-bit v1.9.6.0
+Snoop
+SoapUI 5.5.0
+Sonic Pi
+Sonos
+Sonos Controller
+SoundSwitch 5.0.4.31153
+Sourcetree
+SpeedCrunch
+Spek
+Standard Notes 3.4.1
+Steam
+Steel Bank Common Lisp 2.0.0 (X86-64)
+SteelSeries Engine 3.17.9
+Stellarium 0.20.1
+Stellarium 0.20.2
+Stellarium 0.20.3
+Strawberry Perl
+Streamlabs OBS
+Streamlabs OBS 0.23.2
+Streamlabs OBS 0.24.0
+Streamlink
+Streamlink Twitch GUI
+Stretchly 1.0.0
+Stretchly 1.1.0
+Stretchly 1.2.0
+Stride
+Studio 2.0 version 2.0
+Sublime Merge
+Sublime Text 3
+SumatraPDF
+SuperCollider Version 3.11.0
+SuperTuxKart 1.1.0 - 3D open-source arcade racer with a variety characters, tracks, and modes to play
+Surface Duo Emulator version 2020.806.2
+SyncTrayzor (x64) version 1.1.24.0
+System Explorer 7.0.0
+TAP-Windows 9.24.2
+Taiga
+Tailscale
+Tailscale IPN
+Taisei Project
+Taskade 3.1.1
+Taskade 3.2.0
+Td-agent v3.8.0
+Td-agent v4.0.1
+TeXstudio - TeXstudio is a fully featured LaTeX editor.
+TeXworks 0.6.5
+TeamSpeak 3 Client
+TechPowerUp GPU-Z
+Telegram Desktop version 2.1.13
+Telegram Desktop version 2.1.20
+Telegram Desktop version 2.1.6
+Telegram Desktop version 2.2
+Telegram Desktop version 2.3
+Telegram Desktop version 2.3.1
+Telegram Desktop version 2.4.1
+Telegram Desktop version 2.4.3
+Telegram Desktop version 2.4.4
+Tera Term 4.105
+Terminus 1.0.117
+Terminus 1.0.119
+Terminus 1.0.120
+Termite
+Tesseract-OCR - open source OCR engine
+Texmaker 5.0.4 (64-bit)
+Texnomic SecureDNS Terminal
+Textify v1.8.2
+TickTick version 3.7.1.1
+TightVNC
+TikzEdt 0.2.3
+Tiled
+TmNationsForever
+Toggl Desktop
+Toggl Track
+TortoiseGit 2.10.0.2 (64 bit)
+TortoiseSVN 1.13.1.28686 (64 bit)
+TortoiseSVN 1.14.0.28885 (64 bit)
+TranslucentTB
+Transmission 3.00 (bb6b5a062e) (x64)
+Transmission Remote GUI 5.18
+TrayStatus 4.3
+TrayStatus 4.4
+TreeSize Free V4.4.2
+TreeSize V8.0.2 (64 bit)
+Trelby
+Trillian
+TunnelBear
+Tux Paint 0.9.23
+Tweeten
+Twinkle Tray 1.12.2
+Twitch
+TypeRefHasher
+USB Safely Remove 6.3
+UXL Launcher Version 3.3.1.0
+UXL Launcher Version 4.0.0.0
+Ultimaker Cura 
+Ultimaker Cura 4.5
+Ultimaker Cura 4.6
+UltraVnc
+Unchecky v1.2
+Unified Remote
+Unity Hub 2.4.2
+Update for  (KB2504637)
+Update for Microsoft Visual Studio 2015 (KB3095681)
+Uplay
+Ut Video Codec Suite
+VCV Rack
+VLC media player 3.0.10 (64-bit)
+VLC media player 3.0.11 (64-bit)
+VLC media player 4.0.0 (64-bit)
+VMware Horizon Client
+VMware Player
+VMware Workstation
+VNC Server 6.0.0
+VNC Viewer 6.0.0
+VSCodium (User)
+VSCodium
+VcXsrv
+Vim 8.2 (x64)
+VirtViewer 9.0-256 (64-bit)
+Vivaldi
+Vortex
+Vrew 0.4.18
+VulkanSDK 1.2.135.0
+Warzone 2100-3.4.0
+Waterfox Current 2020.05 (x64 en-US)
+Waterfox Current 2020.09 (x64 en-US)
+Waterfox Current 2020.10 (x64 en-US)
+Wayk Now
+WeakAuras Companion 3.0.1
+WeakAuras Companion 3.0.2
+WeakAuras Companion 3.0.3
+WeakAuras Companion 3.0.6
+Weka 3.8.4
+Win32DiskImager version 1.0.0
+WinCompose version 0.9.4
+WinDynamicDesktop version 3.4.1.0
+WinDynamicDesktop version 4.2.0.0
+WinDynamicDesktop version 4.3.1.0
+WinFsp 2020
+WinHTTrack Website Copier 3.49-2 (x64)
+WinMerge 2.16.6.0
+WinRAR 5.90 (64-bit)
+WinRAR 5.91 (64-bit)
+WinSCP 5.17.7
+WinZip 24.0
+Winamp
+Windows 10 Update Assistant
+Windows Admin Center
+Windows Assessment and Deployment Kit - Windows 10
+Windows Assessment and Deployment Kit Windows Preinstallation Environment Add-ons - Windows 10
+Windows Driver Kit - Windows 10.0.19041.1
+Windows Driver Package - Dynastream Innovations, Inc. ANT LibUSB Drivers (04/11/2012 1.2.40.201)
+Windows Driver Package - Silicon Labs Software (DSI_SiUSBXp_3_1) USB  (02/06/2007 3.1)
+Windows SDK AddOn
+Windows Software Development Kit - Windows 10.0.17763.132
+Windows Software Development Kit - Windows 10.0.18362.1
+Windows Software Development Kit - Windows 10.0.19041.1
+WireGuard
+Wireshark 3.2.2 32-bit
+Wireshark 3.2.4 64-bit
+Wireshark 3.2.5 64-bit
+Wireshark 3.2.7 64-bit
+WizFile v2.06
+WizKey v1.5.0.8
+WizMouse v1.7.0.3
+WizTree v3.33
+WizTree v3.35
+WordPress.com 5.2.0
+WordPress.com 6.0.0
+WordPress.com 6.0.1
+WordPress.com 6.0.2
+Workrave 1.10.44
+Writage
+X2Go Client for Windows
+XAMPP
+XCA
+XMake build utility
+XMind 10.2.1
+XnView 2.49.4
+XnViewMP 0.97.1
+Yarn
+Yinxiang Biji v. 6.20.16
+Yinxiang Biji v. 6.21.10
+Yinxiang Biji v. 6.21.3
+Yinxiang Biji v. 6.21.4
+Yinxiang Biji v. 6.21.9
+YouTube Music Desktop App 1.11.0
+YubiKey Manager
+Zentimo PRO 2.3
+ZeroTier One
+Zettlr
+Zint
+Zoom
+Zoom Outlook Plugin
+Zotero
+Zulip
+Zulu 3.5.1
+Zygor Client Uninstaller
+balenaEtcher 1.5.100
+balenaEtcher 1.5.101
+balenaEtcher 1.5.102
+balenaEtcher 1.5.106
+balenaEtcher 1.5.107
+balenaEtcher 1.5.109
+balenaEtcher 1.5.88
+balenaEtcher 1.5.95
+beatdrop 2.6.2
+bottom
+butterflow-ui
+calibre 64bit
+copytranslator 9.1.0
+darktable
+dnGREP 2.9.270 (x64)
+draw.io 13.0.3
+dupeGuru 4.0.4
+eM Client
+ebbflow
+f.lux
+ffftp
+ghostwriter version 1.7.1
+gnuplot 5.2 patchlevel 8
+grepWin x64
+guinget version 0.1.0.1
+guinget version 0.1.1
+guinget version 0.1.2
+hide.me VPN 3.4.0
+hide.me VPN 3.4.1
+i2pd
+iSEEK AnswerWorks English Runtime
+iTunes
+kdenlive
+kdiff3
+mRemoteNG
+maxima-5.43.2
+mpv.net version 5.4.8.0
+ndm 1.2.0 (only current user)
+nexusfont 2.6 (ver 2.6.2.1870)
+ownCloud
+pCon.planner PRO
+pandoc-plot 0.7.1.0
+pgAdmin 4 version 4.22
+pgAdmin 4 version 4.23
+pgAdmin 4 version 4.26
+pgAdmin 4 version 4.27
+qBittorrent 4.2.5
+qBittorrent 4.3.0
+qBittorrent 4.3.0.1
+remoteit 2.5.32
+remoteit 2.6.2
+sbt 1.3.8
+scilab-6.1.0 (64-bit)
+sqlectron 1.31.0
+stretchly 0.21.1
+ueli 8.7.0
+ueli 8.8.1
+ueli 8.9.0
+xmoto 0.6.0
+xmoto 0.6.1
+微软设备健康助手
+支付宝安全控件 5.3.0.3807
+百度网盘
+腾讯QQ

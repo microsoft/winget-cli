@@ -1,4 +1,5 @@
 (?:^|/)\.gitignore$
+(?:^|/)(?i)LICENSE
 /shared\.manifest$
 \.cer$
 \.msix$
@@ -17,3 +18,6 @@
 ^src/Valijson/
 ^src/YamlCppLib/
 ^\.github/
+^src/AppInstallerCLITests/TestData/InputNames.txt$
+^src/AppInstallerCLITests/TestData/InputPublishers.txt$
+^src/AppInstallerCLITests/TestData/NormalizationInitialIds.txt$
