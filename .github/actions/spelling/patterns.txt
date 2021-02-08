@@ -20,11 +20,13 @@ El proyecto .* diferentes
 \b[-.A-Za-z0-9]+_[a-z0-9]{13}\b
 # Locales for name normalization
 \b\p{Lu}{2,3}(?:-(?:CANS|CYRL|LATN|MONG))?-\p{Lu}{2}(?![A-Z])(?:-VALENCIA)?\b
-# URLs
-(?:(?:(?:ht|f)tp(?:s?))\://)?(?:www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(?:com|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk)(?:\:[0-9]+)*(?:/(?:$|[a-zA-Z0-9\.\,\;\?\'\\\+&%\$#\=~_\-]+))*
 # Azure pipeline tasks
 - task: .*
+
 # Slash-prefixed patterns
 \\native(?![a-z])
-/NPH 
-/td 
+/NPH(?![a-z])
+/td(?![a-z])
+
+# URLs -- Added here instead of allow.txt to facilitate wildcarding them as more are added
+http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer
