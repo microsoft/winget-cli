@@ -476,6 +476,9 @@ Mogu se konfigurirati u datoteci postavki „winget settings“.</value>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Prikazuje informacije o određenom paketu. Prema zadanim postavkama, upit se mora podudarati s ID-jem, imenom ili nadimkom paketa, bez razlikovanja velikih i malih slova. Druga se polja mogu upotrebljavati prosljeđivanjem odgovarajuće mogućnosti.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Pokazuje informacije o paketu</value>
   </data>
@@ -718,5 +721,39 @@ Mogu se konfigurirati u datoteci postavki „winget settings“.</value>
   <data name="Logs" xml:space="preserve">
     <value>Zapisnici</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Pravilnik blokira igru</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Instalacijski program nije prošao sigurnosnu provjeru</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Antivirusni proizvod prijavljuje zarazu u instalacijskom programu</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Pokušaj ažuriranja izvora nije uspio:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Deinstalira odabrani paket koji se pronalazi pretraživanjem popisa instaliranih paketa ili izravno iz manifesta. Prema zadanim postavkama, upit se mora podudarati s ID-om, nazivom ili nadimkom paketa, bez razlikovanja velikih i malih slova. Druga se polja mogu koristiti prosljeđivanjem odgovarajuće mogućnosti.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Deinstalira se zadani paket</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Pokretanje instalacije paketa...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Uspješno deinstalirano</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget ne može pronaći naredbu deinstalacije za ovaj paket. Za podršku se obratite izdavaču paketa.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Deinstalacija je odbačena</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Deinstalacija nije uspjela uz izlazni kod:</value>
   </data>
 </root>

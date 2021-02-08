@@ -476,6 +476,9 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Belirli bir paketteki bilgileri gösterir. Varsayılan olarak, sorgunun büyük/küçük harf insensitively 'i paketin kimliği, adı veya adıyla eşleşmesi gerekir. Diğer alanlar, uygun seçenekleri geçirerek kullanılabilir.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Bir paketle ilgili bilgileri gösterir</value>
   </data>
@@ -718,5 +721,39 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   <data name="Logs" xml:space="preserve">
     <value>Günlükler</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Yükleyici ilke tarafından engellendi</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Yükleyici güvenlik kontrolünden geçemedi</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Bir virüsten koruma ürünü yükleyicide bulaşma olduğunu bildiriyor</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Kaynağı güncelleştirme denemesi başarısız oldu:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Yüklü paketler listesi aranarak bulunan veya doğrudan bir bildirimdeki seçili paketi kaldırır. Varsayılan olarak, sorgu, paketin kimliğiyle, adıyla veya bilinen adıyla büyük/küçük harfe duyarlı olmadan eşleşmelidir. Diğer alanlar uygun seçenekleri aktarılarak kullanılabilir.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Belirtilen paketi kaldırır</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Paket kaldırma başlatılıyor...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Başarıyla kaldırıldı</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget bu paket için kaldırma komutunu bulamıyor. Lütfen destek için paket yayımcısı ile iletişim kurun.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Kaldırma yarıda bırakıldı</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Kaldırma şu çıkış koduyla başarısız oldu:</value>
   </data>
 </root>

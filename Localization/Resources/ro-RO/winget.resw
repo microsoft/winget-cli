@@ -476,6 +476,9 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   <data name="ShowChannel" xml:space="preserve">
     <value>Canal</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Afișează informații despre un anumit pachet. În mod implicit, interogarea trebuie să insensitively cu ID-ul, numele sau moniker pachetului. Alte câmpuri pot fi utilizate prin transmiterea opțiunii corespunzătoare.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Afișează informații despre un pachet</value>
   </data>
@@ -650,7 +653,7 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
     <value>Comandă nerecunoscută</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Se actualizează toate pachetele instalate la cea mai recentă dacă sunt disponibile</value>
+    <value>Se actualizează toate pachetele instalate la cea mai recentă versiune, dacă sunt disponibile</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Nu s-au găsit actualizări aplicabile.</value>
@@ -718,5 +721,39 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   <data name="Logs" xml:space="preserve">
     <value>Jurnale</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Programul de instalare este blocat de politică</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Programul de instalare nu a trecut de verificarea de securitate</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Un produs anti-virus raportează o infectare în programul de instalare</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Încercarea de actualizare a sursei nu a reușit:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Dezinstalează pachetul selectat, fie s-a găsit prin căutarea în lista de pachete instalate sau direct dintr-un manifest. În mod implicit, interogarea trebuie să insensitively cu ID-ul, numele sau moniker pachetului. Alte câmpuri pot fi utilizate prin transmiterea opțiunii corespunzătoare.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Dezinstalează pachetul dat</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Se începe dezinstalarea pachetului...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Dezinstalare reușită</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget nu poate găsi comanda de dezinstalare pentru acest pachet. Luați legătura cu editorul pachetului pentru asistență.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Dezinstalare abandonată</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Dezinstalarea nu a reușit, cu codul de ieșire:</value>
   </data>
 </root>

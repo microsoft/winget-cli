@@ -111,6 +111,12 @@ namespace AppInstaller
                 return "Uninstall command not found";
             case APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED:
                 return "Running uninstall command failed";
+            case APPINSTALLER_CLI_ERROR_ICU_BREAK_ITERATOR_ERROR:
+                return "ICU break iterator error";
+            case APPINSTALLER_CLI_ERROR_ICU_CASEMAP_ERROR:
+                return "ICU casemap error";
+            case APPINSTALLER_CLI_ERROR_ICU_REGEX_ERROR:
+                return "ICU regex error";
             case APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED:
                 return "Failed to install one or more imported packages";
             case APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND:

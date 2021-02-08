@@ -270,6 +270,8 @@
     <ClInclude Include="Public\winget\ManifestLocalization.h" />
     <ClInclude Include="Public\winget\ManifestValidation.h" />
     <ClInclude Include="Public\winget\ManifestYamlParser.h" />
+    <ClInclude Include="Public\winget\NameNormalization.h" />
+    <ClInclude Include="Public\winget\Regex.h" />
     <ClInclude Include="Public\winget\Registry.h" />
     <ClInclude Include="Public\winget\Settings.h" />
     <ClInclude Include="Public\winget\UserSettings.h" />
@@ -310,6 +312,8 @@
     <ClCompile Include="MsixInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="NameNormalization.cpp" />
+    <ClCompile Include="Regex.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="pch.cpp">

@@ -476,6 +476,9 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>சேனல்</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>ஒரு குறிப்பிட்ட தொகுப்பைப் பற்றிய தகவலை காண்பிக்கும். இயல்புநிலையில், ID, பெயர் அல்லது தொகுப்பின் மோனிக்கர் ஆகியவற்றுடன் வினவலின் எழுத்துமாறுபாடு உணர்திறன் அற்றது பொருந்த வேண்டும். மற்ற புலங்களை அவற்றின் பொருத்தமான விருப்பத்தைக் கடப்பதன் மூலம் பயன்படுத்தலாம்.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>தொகுப்பைப் பற்றிய தகவலைக் காட்டுகிறது</value>
   </data>
@@ -719,5 +722,39 @@
   <data name="Logs" xml:space="preserve">
     <value>பதிவுகள்</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>கொள்கையால் நிறுவி தடுக்கப்பட்டது</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>நிறுவி பாதுகாப்புச் சரிபார்ப்பில் தோல்வியுற்றது</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>நிறுவியில் தொற்று உள்ளதாக ஒரு வைரஸ் எதிர்ப்புத் தயாரிப்பு அறிக்கையிடுகிறது</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>மூலத்தைப் புதுப்பிக்க முயலும் செயல்பாட்டில் தோல்வியடைந்தது:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>நிறுவிய தொகுப்புகளின் பட்டியல் அல்லது வெளியிலிருந்து நேரடியாகத் தேடுவதன் மூலம் கண்டுபிடிக்கப்பட்ட, தேர்ந்தெடுத்த தொகுப்பை நிறுவல்நீக்குகிறது. இயல்புநிலையில், ID, பெயர் அல்லது தொகுப்பின் இணைப்புப் பாதை ஆகியவற்றுடன் வினவலின் எழுத்துமாறுபாடு உணர்திறன் அற்றதாகப் பொருந்த வேண்டும். மற்ற புலங்களை அவற்றின் பொருத்தமான விருப்பத்தைக் கடப்பதன் மூலம் பயன்படுத்தலாம்.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>வழங்கப்பட்ட தொகுப்பை நிறுவல்நீக்கவும்</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>தொகுப்பை நிறுவல்நீக்கத் தொடங்குகிறது...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>வெற்றிகரமாக நிறுவல்நீக்கம் செய்யப்பட்டது</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget இந்தத் தொகுப்புக்கான நிறுவல்நீக்குக் கட்டளையை கண்டுபிடிக்க இயலவில்லை. ஆதரவு பெற தொகுப்பு வெளியீட்டாளரை தொடர்பு கொள்ளவும்.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>நிறுவல்நீக்கம் கைவிடப்பட்டது</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>அழி குறியீட்டுடன் நிறுவல்நீக்குதல் தோல்வியடைந்தது:</value>
   </data>
 </root>

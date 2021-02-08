@@ -476,6 +476,9 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>แชนเนล</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>แสดงข้อมูลเกี่ยวกับแพคเกจเฉพาะ ตามค่าเริ่มต้น คิวรีต้องมีตัวอักษรใหญ่-เล็กตรงกับรหัส ชื่อ หรือเส้นทางการเชื่อมโยงของแพคเกจ เขตข้อมูลอื่นๆ สามารถใช้ได้โดยการส่งผ่านตัวเลือกที่เหมาะสม</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>แสดงข้อมูลเกี่ยวกับแพคเกจ</value>
   </data>
@@ -718,5 +721,39 @@
   <data name="Logs" xml:space="preserve">
     <value>รายการบันทึก</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>ตัวติดตั้งถูกบล็อคโดยนโยบาย</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>ตัวติดตั้งล้มเหลวในการตรวจสอบความปลอดภัย</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>ผลิตภัณฑ์ป้องกันไวรัสรายงานการติดไวรัสในตัวติดตั้ง</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>ล้มเหลวในการพยายามอัปเดตแหล่งข้อมูล:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>ถอนการติดตั้งแพคเกจที่เลือก ซึ่งจะพบได้ทั้งจากรายการแพคเกจที่ติดตั้งหรือจากรายการโดยตรง โดยคิวรีจะต้องมีตัวอักษรใหญ่เล็กที่ตรงกับ ID ชื่อ หรือเส้นทางการเชื่อมโยงของแพคเกจตามค่าเริ่มต้น สำหรับเขตข้อมูลอื่นสามารถใช้ได้ผ่านตัวเลือกที่เหมาะสม</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>ถอนการติดตั้งแพคเกจที่ระบุ</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>กำลังเริ่มการถอนการติดตั้งแพคเกจ...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>ถอนการติดตั้งเรียบร้อยแล้ว</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget ไม่สามารถค้นหาคำสั่งถอนการติดตั้งสำหรับแพคเกจนี้ได้ โปรดติดต่อกับผู้เผยแพร่แพคเกจเพื่อรับการสนับสนุน</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>การถอนการติดตั้งถูกยกเลิก</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>การถอนการติดตั้งล้มเหลวด้วยโค้ดสั่งให้ออก:</value>
   </data>
 </root>

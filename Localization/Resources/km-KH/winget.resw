@@ -389,7 +389,7 @@
     <value>គ្មាន​កម្មវិធី​ដំឡើង​ដែល​អាច​អនុវត្ត​បាន​ចំពោះ​ប្រព័ន្ធ​បច្ចុប្បន្ន​ទេ។</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>បច្ចុប្បន្ននេះមិនមានលក្ខណៈពិសោធន៍សាកល្បងទេ។ </value>
+    <value>បច្ចុប្បន្ននេះ មិនមាន​​មុខងារ​​ពិសោធន៍​ទេ។ </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>រកមិនឃើញកញ្ចប់ដែលបានដំឡើងត្រូវនឹងលក្ខខណ្ឌបញ្ចូលដែលត្រូវគ្នា។</value>
@@ -475,6 +475,9 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>កាណាល់</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>បង្ហាញ​ព័ត៌មាន​អំពី​កញ្ចប់​ជាក់លាក់។ តាម​លំនាំដើម សំណួរ​ត្រូវ​តែ​ប្រកាន់អក្សរ​តូ​ចធំ លេខ​សម្គាល់ ឈ្មោះ ឬ​ឈ្មោះ​ក្រៅ​របស់​កញ្ចប់។ កន្លែង​បញ្ចូល​ផ្សេង​ទៀត​អាច​ត្រូវ​បានប្រើ​ដោយ​បញ្ជូន​ជម្រើស​សមស្រប​របស់​ពួកវា។</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>បង្ហាញ​ព័ត៌មាន​អំពីកញ្ចប់</value>
@@ -650,7 +653,7 @@
     <value>ពាក្យបញ្ជាដែលមិនស្គាល់</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>ធ្វើបច្ចុប្បន្នភាពកញ្ចប់ដែលបានដំឡើងទាំងអស់ទៅថ្មីបំផុតប្រសិនបើមាន</value>
+    <value>អាប់ដេតកញ្ចប់ដែលបានដំឡើងទាំងអស់ទៅកំណែចុងក្រោយបំផុត ប្រសិនបើមាន</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>រកមិនឃើញបច្ចុប្បន្នភាពដែលអាចអនុវត្តបានទេ។</value>
@@ -718,5 +721,39 @@
   <data name="Logs" xml:space="preserve">
     <value>កំណត់ហេតុ</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>កម្មវិធីដំឡើង​ត្រូវបាន​ប្លុក​ដោយគោលការណ៍</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>កម្មវិធី​ដំឡើង​មិន​អាច​ត្រួតពិនិត្យសន្តិសុខ​បាន​ទេ</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>ផលិតផល​ប្រឆាំងមេរោគ​រាយការណ៍អំពី​ការឆ្លងមេរោគ​នៅក្នុងកម្មវិធីដំឡើង</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>បានបរាជ័យ​ក្នុងការព្យាយាម​អាប់ដេត​ប្រភព៖</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>លុបកញ្ចប់ដែលបានជ្រើសរើស ទោះបីជារកឃើញតាមការស្វែងរកបញ្ជីកញ្ចប់ដែលបានដំឡើង ឬដោយផ្ទាល់ពីមេនីហ្វេសថ៍ក៏ដោយ។ តាមលំនាំដើម សំណួរត្រូវតែត្រូវគ្នានឹងលេខសម្គាល់ ឈ្មោះ ឬឈ្មោះហៅក្រៅរបស់​កញ្ចប់​ដោយមិនបែងចែកអក្សរធំតូច។ កន្លែងបញ្ចូល​ផ្សេងទៀតអាចត្រូវបានប្រើដោយឆ្លងកាត់ជម្រើសដែលសមស្របរបស់កន្លែងបញ្ចូលទាំងនោះ។</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>លុបកញ្ចប់ដែលបានផ្ដល់</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>កំពុងចាប់ផ្ដើម​លុបកញ្ចប់...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>បានលុប​​ដោយជោគជ័យ</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget មិនអាចកំណត់ទីតាំង​ការបញ្ជាដែលលុបសម្រាប់​កញ្ចប់នេះបានទេ។ សូមទាក់ទងទៅ​អ្នកបោះពុម្ពផ្សាយ​កញ្ចប់​ ដើម្បីទទួលបានជំនួយ។</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>បានបោះបង់​ការលុប</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>មិនអាចលុបបានទេ ហើយកូដចេញគឺ៖</value>
   </data>
 </root>

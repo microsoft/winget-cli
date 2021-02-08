@@ -10,6 +10,7 @@
 #include <Shlobj.h>
 #include <Shlwapi.h>
 #include <wow64apiset.h>
+#include <icu.h>
 
 #include "TraceLogging.h"
 

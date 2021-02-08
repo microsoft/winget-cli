@@ -476,6 +476,9 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   <data name="ShowChannel" xml:space="preserve">
     <value>Saluran</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Menunjukkan maklumat tentang pakej tertentu. Secara lalai, pertanyaan mesti sepadan dengan ID, nama atau moniker pakej. Medan lain boleh digunakan dengan memberikan pilihan yang sesuai.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Menunjukkan maklumat tentang pakej</value>
   </data>
@@ -650,7 +653,7 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
     <value>Perintah tidak dikenali</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Kemas kini semua pakej yang dipasang ke yang terkini jika tersedia</value>
+    <value>Kemas kini semua pakej yang dipasang kepada versi yang terkini jika tersedia</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Tiada kemas kini yang berkaitan ditemui.</value>
@@ -718,5 +721,39 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   <data name="Logs" xml:space="preserve">
     <value>Log</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Pemasang ini disekat oleh dasar</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Pemasang gagal melepasi semakan keselamatan</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Produk anti virus melaporkan jangkitan dalam pemasang</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Gagal mengemas kini sumber:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Memadam pakej yang dipilih, sama ada ditemui dengan mencari di senarai pakej yang dipasang atau terus daripada manifes. Secara lalai, pertanyaan mesti menepati ID, nama atau moniker pakej tanpa sensitif huruf. Medan lain boleh digunakan dengan lulus pilihan yang sesuai.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Memasang pakej yang diberikan</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Memulakan nyahpasang pakej...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Berjaya dinyahpasang</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget tidak dapat mencari perintah nyahpasang untuk pakej ini. Sila hubungi penerbit pakej untuk sokongan.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Nyahpasang dibatalkan</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Nyahpasang gagal dengan kod keluar:</value>
   </data>
 </root>

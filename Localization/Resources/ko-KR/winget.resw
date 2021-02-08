@@ -389,7 +389,7 @@
     <value>현재 시스템에 적용할 수 있는 설치 관리자가 없습니다.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>현재 사용 가능한 추가 기능이 없습니다.</value>
+    <value>현재 사용 가능한 실험적 기능이 없습니다. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>입력 조건과 일치하는 설치된 패키지를 찾을 수 없습니다.</value>
@@ -475,6 +475,9 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>채널</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>특정 패키지에 대한 정보를 표시합니다. 기본적으로 쿼리는 패키지의 ID, 이름 또는 모양과 대/소문자를 구분하지 않는 다섯 번이 어려져야 합니다. 적절한 옵션을 전달하여 다른 필드를 사용할 수 있습니다.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>패키지에 대한 정보 표시</value>
@@ -718,5 +721,39 @@
   <data name="Logs" xml:space="preserve">
     <value>로그</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>설치 프로그램이 정책에 의해 차단됨</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>설치 관리자가 보안 검사를 하지 못했습니다</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>바이러스 백신 제품이 설치 관리자의 감염을 보고합니다.</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>원본을 업데이트하지 못함:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>설치된 패키지 목록을 검색하거나 매니페스트에서 직접 찾은 선택한 패키지를 제거합니다. 기본적으로 쿼리는 패키지의 ID, 이름 또는 모양과 대/소문자를 구분하지 않는 것이 어떻게 되아야 합니다. 적절한 옵션을 전달하여 다른 필드를 사용할 수 있습니다.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>지정된 패키지를 제거</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>패키지 제거를 시작하는 중...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>성공적으로 제거됨</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget 이 패키지에 대한 제거 명령을 찾을 수 없습니다. 지원을 위해 패키지 게시자에게 문의하세요.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>제거가 중단됨</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>설치 종료 코드로 인해 제거하지 못함:</value>
   </data>
 </root>

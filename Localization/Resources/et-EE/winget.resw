@@ -389,7 +389,7 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
     <value>Praeguse süsteemi jaoks asjakohaseid installereid ei ole.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Hetkel pole saadaval ühtegi katsetatavat funktsiooni. </value>
+    <value>Praegu pole saadaval ühtegi katsetatavat funktsiooni. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Ühtegi sisestuskriteeriumitele vastavat installitud paketti ei leitud.</value>
@@ -475,6 +475,9 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Kuvab kindlas paketis sisalduva teabe. Vaikimisi peab päring ilma tõstutundlikkuseta ühtima ID, nime või paketi hüüdnimega. Teisi välju saab kasutada nende vastava valiku edastamisel.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Kuvab paketi kohta teavet</value>
@@ -718,5 +721,39 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
   <data name="Logs" xml:space="preserve">
     <value>Logid</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Poliitika on installeri blokeerinud</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Installeri turbekontroll nurjus</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Viirusetõrjetoode annab teada, et installeris on viirus</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Allika värskendamise katse nurjus:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Desinstallib valitud paketi, mis leitakse kas installitud pakettide loendist või otse manifestist otsides. Vaikimisi peab päring ilma tõstutundlikkuseta ühtima ID, nime või paketi hüüdnimega. Teisi välju saab kasutada nende vastava valiku edastamisel.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Antud pakett desinstallitakse</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Paketi deinstallimise käivitamine...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Desinstallitud</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget ei leia selle paketi koha desinstallimise käsku. Pöörduge abi saamiseks paketi väljaandja poole.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Desinstallimine on hüljatud</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Desinstallimine nurjus, väljumiskood:</value>
   </data>
 </root>

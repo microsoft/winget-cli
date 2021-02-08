@@ -476,6 +476,9 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   <data name="ShowChannel" xml:space="preserve">
     <value>Canal</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Mostra informació d'un paquet específic. Per defecte, la consulta ha de coincidir amb l'identificador, el nom o el sobrenom del paquet. Es poden utilitzar altres camps passant la seva opció apropiada.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Mostra informació sobre un paquet</value>
   </data>
@@ -718,5 +721,39 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   <data name="Logs" xml:space="preserve">
     <value>Registres</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>L'instal·lador està bloquejat per la norma</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>L'instal·lador ha tingut un error en la revisió de seguretat</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Un producte antivirus informa d'una infecció a l'instal·lador</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>S'ha produït un error en intentar actualitzar l'origen:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Desinstal·la el paquet seleccionat, ja es troba cercant la llista de paquets instal·lats o directament des d'un manifest. Per defecte, la consulta ha de coincidir amb l'identificador, el nom o el sobrenom del paquet. Es poden utilitzar altres camps passant la seva opció apropiada.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Desinstal·la el paquet especificat</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>S'està iniciant la desinstal·lació del paquet...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>S'ha desinstal·lat correctament</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>El winget no pot localitzar l'ordre desinstal·la per a aquest paquet. Poseu-vos en contacte amb l'editor de paquets per obtenir assistència tècnica.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>S'ha abandonat la desinstal·lació</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>No s'ha pogut desinstal·lar amb el codi de sortida:</value>
   </data>
 </root>

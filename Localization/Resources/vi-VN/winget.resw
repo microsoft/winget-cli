@@ -389,7 +389,7 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
     <value>Không có trình cài đặt nào được áp dụng cho hệ thống hiện tại.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Hiện tại không có các tính năng thử nghiệm có sẵn. </value>
+    <value>Hiện tại không có tính năng thử nghiệm nào sẵn có. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Không tìm thấy gói đã cài đặt nào phù hợp với tiêu chí đầu vào.</value>
@@ -475,6 +475,9 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kênh</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Hiển thị thông tin trên một gói cụ thể. Theo mặc định, truy vấn phải là chữ hoa-insensitively khớp với ID, tên hoặc moniker của gói. Các trường khác có thể được sử dụng bằng cách chuyển tùy chọn phù hợp của chúng.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Hiển thị thông tin về gói</value>
@@ -650,7 +653,7 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
     <value>Lệnh không nhận dạng được:</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Cập nhật tất cả các gói đã cài đặt lên mới nhất nếu có</value>
+    <value>Cập nhật tất cả các gói đã cài đặt thành phiên bản mới nhất nếu có</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Không tìm thấy bản cập nhật thích hợp.</value>
@@ -718,5 +721,39 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   <data name="Logs" xml:space="preserve">
     <value>Nhật ký</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Trình cài đặt bị chặn bởi chính sách</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Trình cài đặt không kiểm tra được bảo mật</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Sản phẩm chống vi-rút báo cáo sự lây nhiễm trong trình cài đặt</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Không cập nhật được nguồn:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Uninstalls gói đã chọn, được tìm thấy bằng cách tìm kiếm danh sách gói đã cài đặt hoặc trực tiếp từ một tệp kê khai. Theo mặc định, truy vấn phải là chữ hoa-insensitively khớp với ID, tên hoặc moniker của gói. Các trường khác có thể được sử dụng bằng cách chuyển tùy chọn phù hợp của chúng.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Gỡ cài đặt gói đã cho</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Đang bắt đầu gỡ cài đặt gói...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Đã gỡ cài đặt thành công</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget không thể định vị lệnh gỡ cài đặt cho gói này. Vui lòng liên hệ với nhà xuất bản gói để được hỗ trợ.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Gỡ cài đặt đã hủy bỏ</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Gỡ cài đặt không thành công với mã thoát:</value>
   </data>
 </root>

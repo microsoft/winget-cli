@@ -389,7 +389,7 @@
     <value>لا توجد أي مثبتات قابلة للتطبيق على النظام الحالي.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>لا تتوفر حالياً أي ميزات تجريبية. </value>
+    <value>لا توجد حاليا أي ميزات تجريبية متاحة. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>لم يتم العثور على حزمة مثبتة متطابقة مع معايير الإدخال.</value>
@@ -475,6 +475,9 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>القناة</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>إظهار معلومات حول حزمه معينه. بشكل افتراضي ، يجب ان يطابق الاستعلام إينسينسيتيفيلي المعرف أو الاسم أو لقب الحزمة. يمكن استخدام الحقول الأخرى بواسطة تمرير الخيار المناسب.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>عرض معلومات حول إحدى الحزم</value>
@@ -650,7 +653,7 @@
     <value>الأمر غير معروف</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>تحديث جميع الحزم المثبتة إلى الأحدث في حالة توفره</value>
+    <value>قم بتحديث كافة الحزم المثبتة إلى الأحدث إذا كانت متوفرة</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>لم يتم العثور علي تحديث قابل للتطبيق.</value>
@@ -718,5 +721,39 @@
   <data name="Logs" xml:space="preserve">
     <value>السجلات</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>تم حظر المثبت بواسطة السياسة</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>فشل المثبت في اختبار الأمان</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>أبلغ منتج مضاد للفيروسات عن إصابة في المثبت</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>فشلت محاولة تحديث المصدر:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>إلغاء تثبيت الحزمة المحددة ، اما ان يتم العثور عليها من خلال البحث في قائمه الحزم المثبتة أو مباشره من بيان. بشكل افتراضي ، يجب ان يطابق الاستعلام إينسينسيتيفيلي المعرف أو الاسم أو لقب الحزمة. يمكن استخدام الحقول الأخرى بواسطة تمرير الخيار المناسب.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>يلغي تثبيت الحزمة المحددة</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>جارٍ بدء إلغاء تثبيت الحزمة...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>تم الإزالة بنجاح</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>يتعذر على winget تحديد موقع أمر إلغاء التثبيت لهذه الحزمة. يرجى التواصل مع ناشر الحزمة للحصول على الدعم.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>تم التخلي عن إلغاء التثبيت</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>فشل إلغاء التثبيت مع رمز الخروج:</value>
   </data>
 </root>

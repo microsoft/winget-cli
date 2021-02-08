@@ -389,7 +389,7 @@
     <value>ಪ್ರಸ್ತುತ ವ್ಯವಸ್ಥೆಗೆ ಯಾವುದೇ ಸ್ಥಾಪಕಗಳು ಅನ್ವಯಿಸುವುದಿಲ್ಲ.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>ಯಾವುದೇ ಪ್ರಾಯೋಗಿಕ ವೈಶಿಷ್ಟ್ಯಗಳು ಪ್ರಸ್ತುತ ಲಭ್ಯವಿಲ್ಲ.</value>
+    <value>ಪ್ರಸ್ತುತ ಯಾವುದೇ ಪ್ರಾಯೋಗಿಕ ವೈಶಿಷ್ಟ್ಯಗಳು ಲಭ್ಯವಿಲ್ಲ. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>ಇನ್‍ಪುಟ್ ಮಾನದಂಡಗಳಿಗೆ ಯಾವುದೇ ಸ್ಥಾಪಿತ ಪ್ಯಾಕೇಜ್ ಕಂಡುಬಂದಿಲ್ಲ.</value>
@@ -475,6 +475,9 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>ಚಾನಲ್</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>ನಿರ್ದಿಷ್ಟ ಪ್ಯಾಕೇಜ್‍ನಲ್ಲಿ ಮಾಹಿತಿಯನ್ನು ತೋರಿಸುತ್ತದೆ. ಡೀಫಾಲ್ಟ್ ಆಗಿ, ಪ್ರಶ್ನಾವಳಿಯು ಪ್ಯಾಕೇಜ್‍ನ ಐಡಿ, ಹೆಸರು ಅಥವಾ ಮೊನಿಕರ್‌‍ಗೆ ಹೋಲಿಕೆಯಾಗಬೇಕು. ಇತರ ಕ್ಷೇತ್ರಗಳನ್ನ ಅವುಗಳ ಸೂಕ್ತ ಆಯ್ಕೆಯನ್ನು ಪಾಸ್ ಮಾಡುವ ಮೂಲಕ ಬಳಸಬಹುದು.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>ಒಂದು ಪ್ಯಾಕೇಜ್ ಬಗ್ಗೆ ಮಾಹಿತಿಯನ್ನು ತೋರಿಸುತ್ತದೆ</value>
@@ -650,7 +653,7 @@
     <value>ಗುರುತಿಸಲಾಗದ ಕಮಾಂಡ್</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>ಲಭ್ಯವಿದ್ದರೆ ಎಲ್ಲಾ ಸ್ಥಾಪಿತ ಪ್ಯಾಕೇಜುಗಳನ್ನು ಇತ್ತೀಚಿನ ವರೆಗೆ ನವೀಕರಿಸಿ</value>
+    <value>ಲಭ್ಯವಿದ್ದರೆ ಎಲ್ಲಾ ಸ್ಥಾಪಿತ ಪ್ಯಾಕೇಜ್‌ಗಳನ್ನು ಇತ್ತೀಚಿನವರೆಗೆ ನವೀಕರಿಸಿ</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>ಯಾವುದೇ ಅನ್ವಯವಾಗುವ ನವೀಕರಣ ವು ಕಂಡುಬಂದಿಲ್ಲ.</value>
@@ -718,5 +721,39 @@
   <data name="Logs" xml:space="preserve">
     <value>ಲಾಗ್‌ಗಳು</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>ಸ್ಥಾಪಕವನ್ನು ನೀತಿಯ ಮೂಲಕ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>ಭದ್ರತಾ ಪರಿಶೀಲನೆಯಲ್ಲಿ ಸ್ಥಾಪಕವು ವಿಫಲವಾಗಿದೆ</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>ಸ್ಥಾಪಕದಲ್ಲಿ ಸೋಂಕು ಇರುವುದನ್ನು ಒಂದು ಆ್ಯಂಟಿ-ವೈರಸ್ ಉತ್ಪನ್ನವು ವರದಿ ಮಾಡಿದೆ</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>ಮೂಲವನ್ನು ನವೀಕರಿಸುವ ಪ್ರಯತ್ನದಲ್ಲಿ ವಿಫಲವಾಗಿದೆ:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>ಸ್ಥಾಪಿತ ಪ್ಯಾಕೇಜ್‍ಗಳ ಪಟ್ಟಿಯಿಂದ ಅಥವಾ ನೇರವಾಗಿ ಮ್ಯಾನಿಫೆಸ್ಟ್‌ನಿಂದ ಶೋಧಿಸುವ ಮೂಲಕ ಆಯ್ಕೆ ಮಾಡಿದ ಪ್ಯಾಕೇಜ್ ಅನ್ನು ಅಸ್ಥಾಪನೆಗೊಳಿಸುತ್ತದೆ. ಡೀಫಾಲ್ಟ್ ಆಗಿ, ಪ್ರಶ್ನಾವಳಿಯು ಪ್ಯಾಕೇಜ್‍ನ ID, ಹೆಸರು ಅಥವಾ ಮೋನಿಕರ್‌ನೊಂದಿಗೆ ಕೇಸ್-ಸೆನ್ಸೆಟಿವ್ ಆಗಿ ಹೋಲಿಕೆಯಾಗಬೇಕು. ಇತರ ಕ್ಷೇತ್ರಗಳನ್ನು ಅವುಗಳ ಸೂಕ್ತ ಆಯ್ಕೆಯನ್ನು ಪಾಸ್ ಮಾಡುವ ಮೂಲಕ ಬಳಸಬಹುದು.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>ನೀಡಲಾದ ಪ್ಯಾಕೇಜ್ ಅನ್ನು ಅಸ್ಥಾಪನೆಗೊಳಿಸುತ್ತದೆ</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>ಪ್ಯಾಕೇಜ್ ಅಸ್ಥಾಪನೆಯನ್ನು ಪ್ರಾರಂಭಿಸಲಾಗುತ್ತಿದೆ...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>ಯಶಸ್ವಿಯಾಗಿ ಅಸ್ಥಾಪನೆಗೊಳಿಸಲಾಗಿದೆ</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>ಈ ಪ್ಯಾಕೇಜ್‌ಗಾಗಿ ಅಸ್ಥಾಪನೆ ಆದೇಶವನ್ನು ಕಂಡುಹಿಡಿಯಲು winget ಗೆ ಸಾಧ್ಯವಿಲ್ಲ. ಬೆಂಬಲಕ್ಕಾಗಿ ದಯವಿಟ್ಟು ಪ್ಯಾಕೇಜ್ ಪ್ರಕಾಶಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>ಅಸ್ಥಾಪನೆಯನ್ನು ಕೈಬಿಡಲಾಗಿದೆ</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>ಅಸ್ಥಾಪಿಸುವುದು ಈ ನಿರ್ಗಮನದ ಕೋಡ್‌ನೊಂದಿಗೆ ವಿಫಲವಾಗಿದೆ:</value>
   </data>
 </root>

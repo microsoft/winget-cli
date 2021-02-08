@@ -389,7 +389,7 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
     <value>Intet installationsprogram er relevant for det aktuelle system.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Der er i øjeblikket ingen tilgængelige eksperimentale-funktioner. </value>
+    <value>Der er i øjeblikket ingen tilgængelige eksperimentale funktioner. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Ingen installeret pakke blev fundet, der matcher inputkriterierne.</value>
@@ -475,6 +475,9 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Viser oplysninger om en bestemt pakke. Som standard skal forespørgslen have en forskel på store og små bogstaver, der svarer til id'et, navnet eller moniker for pakken. Andre felter kan bruges ved at videregive deres relevante indstilling.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Viser oplysninger om en pakke</value>
@@ -718,5 +721,39 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   <data name="Logs" xml:space="preserve">
     <value>Logfiler</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Installationsprogrammet er blokeret af politik</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Sikkerhedskontrollen for installationsprogrammet mislykkedes</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Et antivirusprogram rapporterer en infektion i installationsprogrammet</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Der opstod fejl under forsøg på at opdatere kilden:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Fjerner den valgte pakke, enten ved at søge på listen over installerede pakker eller direkte fra et manifest. Forespørgslen skal som standard skelne mellem store og små bogstaver i pakkens id, navn eller moniker. Andre felter kan bruges ved at videregive de ønskede indstillinger.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Fjerner den pågældende pakke</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Starter fjernelse af pakke...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Pakken er fjernet</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget kan ikke finde fjernelses kommandoen til denne pakke. Kontakt pakke udgiveren for at få support.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Fjernelse blev afbrudt</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Fjernelsen mislykkedes med returkoden:</value>
   </data>
 </root>

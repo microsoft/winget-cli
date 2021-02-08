@@ -389,7 +389,7 @@
     <value>Ағымдағы жүйе үшін жарамды орнату құралдары жоқ.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Қазіргі уақытта қолжетімді эксперименттік мүмкіндіктер жоқ.</value>
+    <value>Қазіргі уақытта қолжетімді эксперименттік мүмкіндіктер жоқ. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Енгізілген шарттарға сәйкес келетін ешқандай орнатылған бума табылмады.</value>
@@ -475,6 +475,9 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Арна</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Белгілі бір бума туралы мәліметтерді көрсетеді. Әдепкі бойынша сұрау буманың идентификаторын, атын немесе моникерін (регистрді ескермей) салыстыруы қажет. Тиісті параметрді көрсету арқылы басқа өрістерді пайдалануға болады.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Бума туралы ақпаратты көрсетеді</value>
@@ -650,7 +653,7 @@
     <value>Пәрмен анықталмады</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Қолжетімді болса, барлық орнатылған бумаларды жаңарту</value>
+    <value>Қолжетімді болса, барлық орнатылған бумаларды соңғы нұсқасына жаңарту</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Қолжетімді жаңарту табылмады.</value>
@@ -718,5 +721,39 @@
   <data name="Logs" xml:space="preserve">
     <value>Журналдар</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Орнатушы саясат бойынша блокталған</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Орнату құралы қауіпсіздік тексерісінен өте алмады</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Антивирус орнату құралында зиянды бағдарлама бар болғанын анықтады</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Дереккөзді жаңарту әрекеті орындалмады:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Орнатылған бумалар тізімінен іздеу арқылы немесе манифесттен тікелей табылған, таңдалған буманы жояды. Әдепкі бойынша сұрау буманың идентификаторын, атын немесе моникерін (регистрді ескермей) салыстыруы қажет. Тиісті параметрді көрсету арқылы басқа өрістерді пайдалануға болады.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Берілген буманы жояды</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Буманы жою басталды...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Жойылды</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget осы бумаға арналған жою пәрменінің орналасқан жерін таба алмады. Бума жариялаушысына хабарласып, көмек сұраңыз.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Жою әрекеті қараусыз қалды</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Жою әрекеті сәтсіз аяқталды, шығу коды:</value>
   </data>
 </root>
