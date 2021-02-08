@@ -473,6 +473,7 @@ wpfn
 wrl
 WStr
 wstring
+wstringstream
 www
 xamarin
 xlang
