@@ -22,8 +22,9 @@ El proyecto .* diferentes
 \b\p{Lu}{2,3}(?:-(?:CANS|CYRL|LATN|MONG))?-\p{Lu}{2}(?![A-Z])(?:-VALENCIA)?\b
 # URLs
 (?:(?:(?:ht|f)tp(?:s?))\://)?(?:www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(?:com|edu|gov|mil|net|org|biz|info|name|museum|us|ca|uk)(?:\:[0-9]+)*(?:/(?:$|[a-zA-Z0-9\.\,\;\?\'\\\+&%\$#\=~_\-]+))*
-# All tokens bounded by a slash, as these will be switches or parts of a file path for example
-(\\|/)\S+
-\S+(\\|/)
 # Azure pipeline tasks
 - task: .*
+# Slash-prefixed patterns
+\\native(?![a-z])
+/NPH 
+/td 
