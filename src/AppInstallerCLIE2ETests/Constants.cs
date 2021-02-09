@@ -114,9 +114,12 @@ namespace AppInstallerCLIE2ETests
             public const int APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH = unchecked((int)0x8A15002E);
             public const int APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND = unchecked((int)0x8a15002F);
             public const int APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED = unchecked((int)0x8a150030);
-            public const int APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED = unchecked((int)0x8a150031);
-            public const int APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND = unchecked((int)0x8a150032);
-            public const int APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE = unchecked((int)0x8a150033);
+            public const int APPINSTALLER_CLI_ERROR_ICU_BREAK_ITERATOR_ERROR = unchecked((int)0x8A150031);
+            public const int APPINSTALLER_CLI_ERROR_ICU_CASEMAP_ERROR = unchecked((int)0x8A150032);
+            public const int APPINSTALLER_CLI_ERROR_ICU_REGEX_ERROR = unchecked((int)0x8A150033);
+            public const int APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED = unchecked((int)0x8a150034);
+            public const int APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND = unchecked((int)0x8a150035);
+            public const int APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE = unchecked((int)0x8a150036);
         }
     }
 }
