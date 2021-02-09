@@ -26,6 +26,7 @@ namespace AppInstaller::Utility
 
         const std::string& Name() const { return m_name; }
         void Name(std::string&& name) { m_name = std::move(name); }
+        void Name(std::string_view name) { m_name = name; }
 
         Utility::Architecture Architecture() const { return m_arch; }
         void Architecture(Utility::Architecture arch) { m_arch = arch; }
@@ -35,6 +36,7 @@ namespace AppInstaller::Utility
 
         const std::string& Publisher() const { return m_publisher; }
         void Publisher(std::string&& publisher) { m_publisher = std::move(publisher); }
+        void Publisher(std::string_view publisher) { m_publisher = publisher; }
 
     private:
         std::string m_name;

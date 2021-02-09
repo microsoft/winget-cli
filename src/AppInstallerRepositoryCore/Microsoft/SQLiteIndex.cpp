@@ -256,6 +256,11 @@ namespace AppInstaller::Repository::Microsoft
         m_interface->SetMetadataByManifestId(m_dbconn, manifestId, metadata, value);
     }
 
+    Utility::NormalizedName SQLiteIndex::NormalizeName(std::string_view name, std::string_view publisher) const
+    {
+        return m_interface->NormalizeName(name, publisher);
+    }
+
     // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus
     // should be consistent across systems.
     void SQLiteIndex::SetLastWriteTime()

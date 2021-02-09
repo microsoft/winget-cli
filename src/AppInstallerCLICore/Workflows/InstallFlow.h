@@ -82,4 +82,16 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: InstallerPath
     // Outputs: None
     void RemoveInstaller(Execution::Context& context);
+
+    // Stores the existing set of packages in ARP.
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: ARPSnapshot
+    void SnapshotARPEntries(Execution::Context& context);
+
+    // Reports on the changes between the stored ARPSnapshot and the current values.
+    // Required Args: None
+    // Inputs: ARPSnapshot?
+    // Outputs: None
+    void ReportARPChanges(Execution::Context& context);
 }

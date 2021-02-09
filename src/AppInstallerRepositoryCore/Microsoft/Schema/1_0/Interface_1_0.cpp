@@ -546,6 +546,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
     }
 
+    Utility::NormalizedName Interface::NormalizeName(std::string_view name, std::string_view publisher) const
+    {
+        // TODO: When the other code is moved, return this default normalization
+        //Utility::NormalizedName result;
+        //result.Name(name);
+        //result.Publisher(publisher);
+        //return result;
+
+        // TODO: Move me to the new schema version when that comes around
+        return m_nameNormalizer.Normalize(name, publisher);
+    }
+
     std::unique_ptr<SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
     {
         return std::make_unique<SearchResultsTable>(connection);

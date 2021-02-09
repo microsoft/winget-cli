@@ -30,6 +30,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Version 1.1
         MetadataResult GetMetadataByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId) const override;
         void SetMetadataByManifestId(SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMetadata metadata, std::string_view value) override;
+        Utility::NormalizedName NormalizeName(std::string_view name, std::string_view publisher) const override;
 
     protected:
         // Creates the search results table.
@@ -40,5 +41,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Executes all relevant searches for the query.
         virtual void PerformQuerySearch(SearchResultsTable& resultsTable, const RequestMatch& query) const;
+
+    private:
+        // TODO: Move me to the new schema version when that comes around
+        Utility::NameNormalizer m_nameNormalizer = Utility::NameNormalizer(Utility::NormalizationVersion::Initial);
     };
 }

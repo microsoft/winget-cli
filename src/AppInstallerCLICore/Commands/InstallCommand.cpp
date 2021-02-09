@@ -105,9 +105,12 @@ namespace AppInstaller::CLI
             Workflow::ShowInstallationDisclaimer <<
             Workflow::ReportExecutionStage(ExecutionStage::Download) <<
             Workflow::DownloadInstaller <<
+            Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<
+            Workflow::SnapshotARPEntries <<
             Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
             Workflow::ExecuteInstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
+            Workflow::ReportARPChanges <<
             Workflow::RemoveInstaller;
     }
 }

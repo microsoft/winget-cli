@@ -60,6 +60,7 @@ namespace AppInstaller::CLI::Execution
         UninstallString,
         PackageFamilyNames,
         ProductCodes,
+        ARPSnapshot,
         Max
     };
 
@@ -182,6 +183,13 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::ProductCodes>
         {
             using value_t = std::vector<Utility::LocIndString>;
+        };
+
+        template <>
+        struct DataMapping<Data::ARPSnapshot>
+        {
+            // Contains the { Id, Version, Channel }
+            using value_t = std::vector<std::tuple<Utility::LocIndString, Utility::LocIndString, Utility::LocIndString>>;
         };
 
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.

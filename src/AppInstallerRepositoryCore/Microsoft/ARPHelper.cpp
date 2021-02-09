@@ -245,6 +245,10 @@ namespace AppInstaller::Repository::Microsoft
             if (publisher && publisher->GetType() == Registry::Value::Type::String)
             {
                 manifest.Publisher = publisher->GetValue<Registry::Value::Type::String>();
+
+                // If Publisher is set, change the Id using name normalization
+                auto normalizedName = index.NormalizeName(manifest.Name, manifest.Publisher);
+                manifest.Id = normalizedName.Publisher() + '.' + normalizedName.Name();
             }
 
             // TODO: If we want to keep the constructed manifest around to allow for `show` type commands

@@ -8,6 +8,8 @@
 #include "MSStoreInstallerHandler.h"
 #include "WorkflowBase.h"
 
+#include <winget/NameNormalization.h>
+
 namespace AppInstaller::CLI::Workflow
 {
     using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
@@ -17,6 +19,25 @@ namespace AppInstaller::CLI::Workflow
     using namespace AppInstaller::Utility;
     using namespace AppInstaller::Manifest;
     using namespace AppInstaller::Repository;
+
+    namespace
+    {
+        bool MightWriteToARP(ManifestInstaller::InstallerTypeEnum type)
+        {
+            switch (type)
+            {
+            case ManifestInstaller::InstallerTypeEnum::Exe:
+            case ManifestInstaller::InstallerTypeEnum::Burn:
+            case ManifestInstaller::InstallerTypeEnum::Inno:
+            case ManifestInstaller::InstallerTypeEnum::Msi:
+            case ManifestInstaller::InstallerTypeEnum::Nullsoft:
+            case ManifestInstaller::InstallerTypeEnum::Wix:
+                return true;
+            default:
+                return false;
+            }
+        }
+    }
 
     void EnsureMinOSVersion(Execution::Context& context)
     {
@@ -368,4 +389,93 @@ namespace AppInstaller::CLI::Workflow
             }
         }
     }
+
+    void SnapshotARPEntries(Execution::Context& context) try
+    {
+        // Ensure that installer type might actually write to ARP, otherwise this is a waste of time
+        auto installer = context.Get<Execution::Data::Installer>();
+
+        if (installer && MightWriteToARP(installer->InstallerType))
+        {
+            std::shared_ptr<ISource> arpSource = context.Reporter.ExecuteWithProgress(
+                [](IProgressCallback& progress)
+                {
+                    return Repository::OpenPredefinedSource(PredefinedSource::ARP, progress);
+                }, true);
+
+            std::vector<std::tuple<Utility::LocIndString, Utility::LocIndString, Utility::LocIndString>> entries;
+
+            for (const auto& entry : arpSource->Search({}).Matches)
+            {
+                auto installed = entry.Package->GetInstalledVersion();
+                entries.emplace_back(std::make_tuple(
+                    entry.Package->GetProperty(PackageProperty::Id),
+                    installed->GetProperty(PackageVersionProperty::Version),
+                    installed->GetProperty(PackageVersionProperty::Channel)));
+            }
+
+            std::sort(entries.begin(), entries.end());
+
+            context.Add<Execution::Data::ARPSnapshot>(std::move(entries));
+        }
+    }
+    CATCH_LOG()
+
+    void ReportARPChanges(Execution::Context& context) try
+    {
+        if (context.Contains(Execution::Data::ARPSnapshot))
+        {
+            const auto& entries = context.Get<Execution::Data::ARPSnapshot>();
+
+            // Open it again to get the (potentially) changed ARP entries
+            std::shared_ptr<ISource> arpSource = context.Reporter.ExecuteWithProgress(
+                [](IProgressCallback& progress)
+                {
+                    return Repository::OpenPredefinedSource(PredefinedSource::ARP, progress);
+                }, true);
+
+            std::vector<ResultMatch> changes;
+
+            for (auto& entry : arpSource->Search({}).Matches)
+            {
+                auto installed = entry.Package->GetInstalledVersion();
+                auto entryKey = std::make_tuple(
+                    entry.Package->GetProperty(PackageProperty::Id),
+                    installed->GetProperty(PackageVersionProperty::Version),
+                    installed->GetProperty(PackageVersionProperty::Channel));
+
+                auto itr = std::lower_bound(entries.begin(), entries.end(), entryKey);
+                if (itr == entries.end() || *itr != entryKey)
+                {
+                    changes.emplace_back(std::move(entry));
+                }
+            }
+
+            // We now have all of the package changes; time to report them.
+            // The set of cases we could have:
+            //  0 packages  ::  No changes were detected to ARP, which could mean that the installer
+            //                  did not write an entry. It could also be a forced reinstall.
+            //  1 package   ::  Golden path; this should be what we installed.
+            //  2+ packages ::  We need to determine which package actually matches the one that we
+            //                  were installing.
+            if (changes.empty())
+            {
+                //Logging::Telemetry().LogARPCorrelationEmpty();
+            }
+            else
+            {
+                Utility::NameNormalizer normalizer(Utility::NormalizationVersion::Initial);
+
+                if (changes.size() == 1)
+                {
+                    // While there is only one entry, we still want to check if it matches our manifest.
+                }
+                else
+                {
+                    // Find the entry that best matches our manifest. First, by 
+                }
+            }
+        }
+    }
+    CATCH_LOG()
 }

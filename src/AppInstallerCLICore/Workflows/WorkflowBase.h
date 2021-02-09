@@ -22,6 +22,7 @@ namespace AppInstaller::CLI::Workflow
         ParseArgs = 1000,
         Discovery = 2000,
         Download = 3000,
+        PreExecution = 3500,
         Execution = 4000,
         PostExecution = 5000,
     };
