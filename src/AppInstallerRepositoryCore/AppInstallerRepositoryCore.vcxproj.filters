@@ -31,6 +31,9 @@
     <Filter Include="Microsoft\Schema\1_1">
       <UniqueIdentifier>{aef8989c-44fd-4848-ae2c-c81d3f2e2c72}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rest">
+      <UniqueIdentifier>{7f16f6e0-12c6-4bb9-885e-3f8b666d5f74}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -138,6 +141,15 @@
     <ClInclude Include="Microsoft\ARPHelper.h">
       <Filter>Microsoft</Filter>
     </ClInclude>
+    <ClInclude Include="RestClient.h">
+      <Filter>Rest</Filter>
+    </ClInclude>
+    <ClInclude Include="RestSource.h">
+      <Filter>Rest</Filter>
+    </ClInclude>
+    <ClInclude Include="RestSourceFactory.h">
+      <Filter>Rest</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -208,6 +220,12 @@
     </ClCompile>
     <ClCompile Include="Microsoft\ARPHelper.cpp">
       <Filter>Microsoft</Filter>
+    </ClCompile>
+    <ClCompile Include="RestSource.cpp">
+      <Filter>Rest</Filter>
+    </ClCompile>
+    <ClCompile Include="RestSourceFactory.cpp">
+      <Filter>Rest</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
