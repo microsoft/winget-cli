@@ -16,6 +16,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument{ "import-file", 'i', Execution::Args::Type::ImportFile, Resource::String::ImportFileArgumentDescription, ArgumentType::Positional, true },
+            Argument{ "force", 'f', Execution::Args::Type::Force, Resource::String::ImportForceArgumentDescription, ArgumentType::Flag },
         };
     }
 

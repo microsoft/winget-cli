@@ -260,7 +260,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        if (!foundAll)
+        if (!foundAll && !context.Args.Contains(Execution::Args::Type::Force))
         {
             AICLI_LOG(CLI, Info, << "Could not find one or more packages for import");
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
