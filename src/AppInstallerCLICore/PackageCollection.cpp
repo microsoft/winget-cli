@@ -164,9 +164,9 @@ namespace AppInstaller::CLI
             return root;
         }
 
-        std::optional<PackageCollection> ParseJson(const Json::Value& root)
+        std::optional<PackageCollection> TryParseJson(const Json::Value& root)
         {
-            // TODO: Embed schema in binaries & validate file
+            // TODO: Embed schema in binaries & validate file. This will return nullopt on failure.
 
             PackageCollection packages;
             packages.ClientVersion = root[s_PackagesJson_WinGetVersion].asString();

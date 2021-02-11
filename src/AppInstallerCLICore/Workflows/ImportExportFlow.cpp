@@ -138,7 +138,7 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
         }
 
-        auto packages = PackagesJson::ParseJson(jsonRoot);
+        auto packages = PackagesJson::TryParseJson(jsonRoot);
         if (!packages.has_value())
         {
             context.Reporter.Error() << Resource::String::InvalidJsonFile << std::endl;

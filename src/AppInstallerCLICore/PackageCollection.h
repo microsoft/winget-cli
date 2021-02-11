@@ -54,6 +54,6 @@ namespace AppInstaller::CLI
         // Converts a collection of packages to its JSON representation for exporting.
         Json::Value CreateJson(const PackageCollection& packages);
 
-        std::optional<PackageCollection> ParseJson(const Json::Value& root);
+        std::optional<PackageCollection> TryParseJson(const Json::Value& root);
     }
 }

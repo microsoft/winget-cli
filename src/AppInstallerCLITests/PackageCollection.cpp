@@ -195,7 +195,7 @@ TEST_CASE("PackageCollection_Read_SingleSource", "[PackageCollection]")
       "WinGetVersion": "1.0.0"
     })");
 
-    auto parsed = PackagesJson::ParseJson(json);
+    auto parsed = PackagesJson::TryParseJson(json);
     REQUIRE(parsed.has_value());
 
     PackageCollection::Source source;
@@ -254,7 +254,7 @@ TEST_CASE("PackageCollection_Read_MultipleSources", "[PackageCollection]")
       ]
     })");
 
-    auto parsed = PackagesJson::ParseJson(json);
+    auto parsed = PackagesJson::TryParseJson(json);
     REQUIRE(parsed.has_value());
 
     PackageCollection::Source source1;
@@ -332,7 +332,7 @@ TEST_CASE("PackageCollection_Read_RepeatedSource", "[PackageCollection]")
       ]
     })");
 
-    auto parsed = PackagesJson::ParseJson(json);
+    auto parsed = PackagesJson::TryParseJson(json);
     REQUIRE(parsed.has_value());
 
     PackageCollection::Source source1;
