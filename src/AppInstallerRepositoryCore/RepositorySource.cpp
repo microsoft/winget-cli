@@ -381,7 +381,7 @@ namespace AppInstaller::Repository
             constexpr static auto s_ZeroMins = 0min;
             auto autoUpdateTime = User().Get<Setting::AutoUpdateTimeInMinutes>();
 
-            // A value of zero means no auto update, to get update the source run `winget update` 
+            // A value of zero means no auto update, to get update the source run `winget update`
             if (autoUpdateTime != s_ZeroMins)
             {
                 auto autoUpdateTimeMins = std::chrono::minutes(autoUpdateTime);
@@ -732,7 +732,7 @@ namespace AppInstaller::Repository
         THROW_HR(E_UNEXPECTED);
     }
 
-    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource, bool installedOnly)
+    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource, CompositeSearchBehavior searchBehavior)
     {
         std::shared_ptr<CompositeSource> result = std::dynamic_pointer_cast<CompositeSource>(availableSource);
 
@@ -742,7 +742,7 @@ namespace AppInstaller::Repository
             result->AddAvailableSource(availableSource);
         }
 
-        result->SetInstalledSource(installedSource, installedOnly);
+        result->SetInstalledSource(installedSource, searchBehavior);
 
         return result;
     }

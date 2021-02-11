@@ -127,9 +127,23 @@ namespace AppInstaller::Repository
     // These sources are not under the direct control of the user, such as packages installed on the system.
     std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress);
 
+    // Search behavior for composite sources.
+    // Only relevant for composite sources with an installed source, not for aggregates of multiple available sources.
+    // Installed and available packages in the result are always correlated when possible.
+    enum class CompositeSearchBehavior
+    {
+        // Search only installed packages.
+        Installed,
+        // Search both installed and available packages.
+        AllPackages,
+    };
+
     // Creates a source that merges the installed packages with the given available packages.
     // The source can search for installed packages only, or also include non-installed available packages.
-    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource, bool installedOnly = true);
+    std::shared_ptr<ISource> CreateCompositeSource(
+        const std::shared_ptr<ISource>& installedSource,
+        const std::shared_ptr<ISource>& availableSource,
+        CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
 
     // Updates an existing source.
     // Return value indicates whether the named source was found.

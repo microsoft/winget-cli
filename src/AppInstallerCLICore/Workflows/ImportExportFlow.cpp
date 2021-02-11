@@ -207,7 +207,7 @@ namespace AppInstaller::CLI::Workflow
 
             // Search for all the packages in the source.
             // Each search is done in a sub context to search everything regardless of previous failures.
-            auto source = Repository::CreateCompositeSource(context.Get<Execution::Data::Source>(), *sourceItr, false);
+            auto source = Repository::CreateCompositeSource(context.Get<Execution::Data::Source>(), *sourceItr, CompositeSearchBehavior::AllPackages);
             AICLI_LOG(CLI, Info, << "Searching for packages requested from source [" << requiredSource.Details.Identifier << "]");
             for (const auto& packageRequest : requiredSource.Packages)
             {
