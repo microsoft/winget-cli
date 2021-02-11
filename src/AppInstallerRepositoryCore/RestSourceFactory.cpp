@@ -40,7 +40,7 @@ namespace AppInstaller::Repository::Rest
 					THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
 				}
 
-				// Check if URL is remtoe and secure
+				// Check if URL is remote and secure
 				THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, Utility::IsUrlRemote(details.Arg) && !Utility::IsUrlSecure(details.Arg));
 
 				AICLI_LOG(Repo, Info, << "Initializing source from: " << details.Name << " => " << details.Arg);
