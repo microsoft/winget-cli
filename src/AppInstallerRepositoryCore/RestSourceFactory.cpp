@@ -69,7 +69,7 @@ namespace AppInstaller::Repository::Rest
 			{
 				UNREFERENCED_PARAMETER(progress);
 
-				RestClient restClient = RestClient::RestClient();
+				RestClient restClient = RestClient::RestClient(details.Arg);
 				// TODO: Change identifier if required.
 				return std::make_shared<RestSource>(details, details.Arg, std::move(restClient));
 			}

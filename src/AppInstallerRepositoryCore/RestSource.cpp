@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "RestSource.h"
 #include "RestSourceFactory.h"
+#include "cpprest/http_client.h"
 
 namespace AppInstaller::Repository::Rest
 {
@@ -23,7 +24,10 @@ namespace AppInstaller::Repository::Rest
 
     SearchResult RestSource::Search(const SearchRequest& request) const
     {
-        UNREFERENCED_PARAMETER(request);
-        THROW_HR(E_NOTIMPL);
+        // Make search for everything work
+        RestClient::SearchResult results = m_restClient.Search(request);
+        SearchResult returnVal;
+
+        return returnVal;
     }
 }
