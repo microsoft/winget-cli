@@ -771,9 +771,6 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="ImportFileArgumentDescription" xml:space="preserve">
     <value>File describing the packages to install</value>
   </data>
-  <data name="ExactVersionsArgumentDescription" xml:space="preserve">
-    <value>Install the exact versions listed in the import file</value>
-  </data>
   <data name="ExportSourceArgumentDescription" xml:space="preserve">
     <value>Export packages from the specified source</value>
   </data>

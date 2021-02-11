@@ -189,16 +189,10 @@ namespace AppInstaller::CLI::Workflow
                 searchContext.Add<Execution::Data::Source>(source);
                 searchContext.Add<Execution::Data::SearchResult>(source->Search(searchRequest));
 
-                Utility::VersionAndChannel versionAndChannel = {};
-                if (context.Args.Contains(Execution::Args::Type::ExactVersions))
-                {
-                    versionAndChannel = packageRequest.VersionAndChannel;
-                }
-
                 // Find the single version we want is available
                 searchContext <<
                     Workflow::EnsureOneMatchFromSearchResult(false) <<
-                    Workflow::GetManifestWithVersionFromPackage(versionAndChannel) <<
+                    Workflow::GetManifestWithVersionFromPackage(packageRequest.VersionAndChannel) <<
                     Workflow::GetInstalledPackageVersion;
 
                 if (searchContext.Contains(Execution::Data::InstalledPackageVersion) && searchContext.Get<Execution::Data::InstalledPackageVersion>())
@@ -216,7 +210,7 @@ namespace AppInstaller::CLI::Workflow
                     }
                     else
                     {
-                        AICLI_LOG(CLI, Info, << "Package not found for import: [" << packageRequest.Id << "], Version " << versionAndChannel.ToString());
+                        AICLI_LOG(CLI, Info, << "Package not found for import: [" << packageRequest.Id << "], Version " << packageRequest.VersionAndChannel.ToString());
                         context.Reporter.Info() << Resource::String::ImportSearchFailed << ' ' << packageRequest.Id << std::endl;
 
                         // Keep searching for the remaining packages and only fail at the end.

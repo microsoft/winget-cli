@@ -1152,7 +1152,6 @@ TEST_CASE("ImportFlow_PackageAlreadyInstalled", "[ImportFlow][workflow]")
     TestContext context{ importOutput, std::cin };
     OverrideForImportSource(context);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good.json").GetPath().string());
-    context.Args.AddArg(Execution::Args::Type::ExactVersions);
 
     ImportCommand importCommand({});
     importCommand.Execute(context);
@@ -1208,7 +1207,6 @@ TEST_CASE("ImportFlow_MissingVersion", "[ImportFlow][workflow]")
     TestContext context{ importOutput, std::cin };
     OverrideForImportSource(context);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Bad-UnknownPackageVersion.json").GetPath().string());
-    context.Args.AddArg(Execution::Args::Type::ExactVersions);
 
     ImportCommand importCommand({});
     importCommand.Execute(context);

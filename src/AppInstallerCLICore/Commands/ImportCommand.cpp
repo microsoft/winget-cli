@@ -16,7 +16,6 @@ namespace AppInstaller::CLI
     {
         return {
             Argument{ "import-file", 'i', Execution::Args::Type::ImportFile, Resource::String::ImportFileArgumentDescription, ArgumentType::Positional, true },
-            Argument{ "exact-versions", Argument::NoAlias, Execution::Args::Type::ExactVersions, Resource::String::ExactVersionsArgumentDescription, ArgumentType::Flag },
         };
     }
 

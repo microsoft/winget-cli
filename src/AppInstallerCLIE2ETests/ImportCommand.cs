@@ -63,7 +63,7 @@ namespace AppInstallerCLIE2ETests
         public void ImportUnavailableVersion()
         {
             // Verify failure when trying to import an unavailable package
-            var result = TestCommon.RunAICLICommand("import", $"{GetTestImportFile("ImportFile-Bad-UnknownPackageVersion.json")} --exact-versions");
+            var result = TestCommon.RunAICLICommand("import", GetTestImportFile("ImportFile-Bad-UnknownPackageVersion.json"));
             Assert.AreEqual(Constants.ErrorCode.APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("Package not found for import"));
         }
