@@ -102,6 +102,12 @@ namespace AppInstaller::CLI::Workflow
         Repository::PredefinedSource m_predefinedSource;
     };
 
+    // Adds the current open source to a list of open sources.
+    // Required Args: None
+    // Inputs: Source
+    // Outputs: Sources
+    void AddToSources(Execution::Context& context);
+
     // Performs a search on the source.
     // Required Args: None
     // Inputs: Source

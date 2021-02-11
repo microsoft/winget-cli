@@ -188,6 +188,18 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::Source>(std::move(compositeSource));
     }
 
+    void AddToSources(Execution::Context& context)
+    {
+        if (!context.Contains(Execution::Data::Sources))
+        {
+            context.Add<Execution::Data::Sources>({ context.Get<Execution::Data::Source>() });
+        }
+        else
+        {
+            context.Get<Execution::Data::Sources>().emplace_back(context.Get<Execution::Data::Source>());
+        }
+    }
+
     void SearchSourceForMany(Execution::Context& context)
     {
         const auto& args = context.Args;

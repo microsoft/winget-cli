@@ -85,9 +85,13 @@ namespace AppInstaller::CLI::Workflow
                     AICLI_LOG(
                         CLI,
                         Info,
-                        << "Installed package version not available. Package Id [" << availablePackageVersion->GetProperty(PackageVersionProperty::Id) << "]"
-                        << ", Version [" << version << "], Channel [" << channel << "]");
-                    context.Reporter.Warn() << Resource::String::InstalledPackageVersionNotAvailable << ' ' << availablePackageVersion->GetProperty(PackageVersionProperty::Id) << std::endl;
+                        << "Installed package version is not available."
+                        << " Package Id [" << availablePackageVersion->GetProperty(PackageVersionProperty::Id) << "], Version [" << version << "], Channel [" << channel << "]"
+                        << ". Found Version [" << availablePackageVersion->GetProperty(PackageVersionProperty::Version) << "], Channel [" << availablePackageVersion->GetProperty(PackageVersionProperty::Version) << "]");
+                    context.Reporter.Warn()
+                        << Resource::String::InstalledPackageVersionNotAvailable
+                        << ' ' << availablePackageVersion->GetProperty(PackageVersionProperty::Id)
+                        << ' ' << version << ' ' << channel << std::endl;
                 }
             }
 
@@ -158,11 +162,6 @@ namespace AppInstaller::CLI::Workflow
     void OpenSourcesForImport(Execution::Context& context)
     {
         auto availableSources = Repository::GetSources();
-
-        // List of all the sources used for import.
-        // Needed to keep all the source objects alive for install.
-        std::vector<std::shared_ptr<ISource>> sources = {};
-
         for (auto& requiredSource : context.Get<Execution::Data::PackageCollection>().Sources)
         {
             // Find the installed source matching the one described in the collection.
@@ -179,16 +178,14 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
             }
 
-            context << Workflow::OpenNamedSource(requiredSource.Details.Name);
+            context <<
+                Workflow::OpenNamedSource(requiredSource.Details.Name) <<
+                Workflow::AddToSources;
             if (context.IsTerminated())
             {
                 return;
             }
-
-            sources.push_back(context.Get<Execution::Data::Source>());
         }
-
-        context.Add<Execution::Data::Sources>(std::move(sources));
     }
 
     void SearchPackagesForImport(Execution::Context& context)
