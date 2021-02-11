@@ -1151,7 +1151,7 @@ TEST_CASE("ImportFlow_PackageAlreadyInstalled", "[ImportFlow][workflow]")
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
     OverrideForImportSource(context);
-    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good.json").GetPath().string());
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-AlreadyInstalled.json").GetPath().string());
 
     ImportCommand importCommand({});
     importCommand.Execute(context);
