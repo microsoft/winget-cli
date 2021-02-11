@@ -38,6 +38,7 @@ namespace AppInstaller::CLI
     void ImportCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
+            Workflow::ReportExecutionStage(Workflow::ExecutionStage::Discovery) <<
             Workflow::VerifyFile(Execution::Args::Type::ImportFile) <<
             Workflow::ReadImportFile <<
             Workflow::OpenSourcesForImport <<

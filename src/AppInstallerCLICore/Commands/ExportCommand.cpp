@@ -53,11 +53,13 @@ namespace AppInstaller::CLI
     void ExportCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
+            Workflow::ReportExecutionStage(Workflow::ExecutionStage::Discovery) <<
             Workflow::OpenSource <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForMany <<
             Workflow::EnsureMatchesFromSearchResult(true) <<
             Workflow::SelectVersionsToExport <<
+            Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
             Workflow::WriteImportFile;
     }
 }
