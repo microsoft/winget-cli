@@ -1,0 +1,18 @@
+[
+    {
+        "description": "validation of an internationalized e-mail addresses",
+        "schema": {"format": "idn-email"},
+        "tests": [
+            {
+                "description": "a valid idn e-mail (example@example.test in Hangul)",
+                "data": "실례@실례.테스트",
+                "valid": true
+            },
+            {
+                "description": "an invalid idn e-mail address",
+                "data": "2962",
+                "valid": false
+            }
+        ]
+    }
+]

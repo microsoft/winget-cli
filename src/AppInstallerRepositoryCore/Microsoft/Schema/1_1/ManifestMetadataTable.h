@@ -12,7 +12,7 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 {
-    // A table for storing arbitrary metadata on idividual manifests.
+    // A table for storing arbitrary metadata on individual manifests.
     // The table and all metadata are optional.
     struct ManifestMetadataTable
     {

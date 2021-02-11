@@ -148,23 +148,47 @@ namespace AppInstaller::CLI::Workflow
         bool m_onlyShowUpgrades;
     };
 
-    // Ensures that there is at least one result in the search.
+    // Outputs the search results when multiple packages found but only one expected.
     // Required Args: None
     // Inputs: SearchResult
     // Outputs: None
-    void EnsureMatchesFromSearchResult(Execution::Context& context);
+    void ReportMultiplePackageFoundResult(Execution::Context& context);
+
+    // Ensures that there is at least one result in the search.
+    // Required Args: bool indicating if the search result is from installed source
+    // Inputs: SearchResult
+    // Outputs: None
+    struct EnsureMatchesFromSearchResult : public WorkflowTask
+    {
+        EnsureMatchesFromSearchResult(bool isFromInstalledSource) :
+            WorkflowTask("EnsureMatchesFromSearchResult"), m_isFromInstalledSource(isFromInstalledSource) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        bool m_isFromInstalledSource;
+    };
 
     // Ensures that there is only one result in the search.
-    // Required Args: None
+    // Required Args: bool indicating if the search result is from installed source
     // Inputs: SearchResult
     // Outputs: None
-    void EnsureOneMatchFromSearchResult(Execution::Context& context);
+    struct EnsureOneMatchFromSearchResult : public WorkflowTask
+    {
+        EnsureOneMatchFromSearchResult(bool isFromInstalledSource) :
+            WorkflowTask("EnsureOneMatchFromSearchResult"), m_isFromInstalledSource(isFromInstalledSource) {}
 
-    // Gets the manifest from a search result.
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        bool m_isFromInstalledSource;
+    };
+
+    // Gets the manifest from package.
     // Required Args: None
-    // Inputs: SearchResult
-    // Outputs: Manifest
-    void GetManifestFromSearchResult(Execution::Context& context);
+    // Inputs: Package
+    // Outputs: Manifest, PackageVersion
+    void GetManifestFromPackage(Execution::Context& context);
 
     // Ensures the the file exists and is not a directory.
     // Required Args: the one given
@@ -186,11 +210,11 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Manifest
     void GetManifestFromArg(Execution::Context& context);
 
-    // Reports the search result's identity.
+    // Reports the search result's package identity.
     // Required Args: None
-    // Inputs: SearchResult (only 1)
+    // Inputs: Package
     // Outputs: None
-    void ReportSearchResultIdentity(Execution::Context& context);
+    void ReportPackageIdentity(Execution::Context& context);
 
     // Reports the manifest's identity.
     // Required Args: None
@@ -238,7 +262,7 @@ namespace AppInstaller::CLI::Workflow
 
     // Gets the installed package version
     // Required Args: None
-    // Inputs: SearchResult
+    // Inputs: Package
     // Outputs: InstalledPackageVersion
     void GetInstalledPackageVersion(Execution::Context& context);
 

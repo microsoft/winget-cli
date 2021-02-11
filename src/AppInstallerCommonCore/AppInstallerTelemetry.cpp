@@ -189,7 +189,7 @@ namespace AppInstaller::Logging
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
-        AICLI_LOG(CLI, Error, << "Terminating context: 0x" << std::hex << std::setw(8) << std::setfill('0') << hr << " at " << file << ":" << line);
+        AICLI_LOG(CLI, Error, << "Terminating context: 0x" << SetHRFormat << hr << " at " << file << ":" << line);
     }
 
     void TelemetryTraceLogger::LogException(std::string_view commandName, std::string_view type, std::string_view message) noexcept
@@ -421,6 +421,47 @@ namespace AppInstaller::Logging
         }
 
         AICLI_LOG(CLI, Error, << type << " installer failed: " << errorCode);
+    }
+
+    void TelemetryTraceLogger::LogUninstallerFailure(std::string_view id, std::string_view version, std::string_view type, uint32_t errorCode)
+    {
+        if (IsTelemetryEnabled())
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "UninstallerFailure",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                AICLI_TraceLoggingStringView(id, "Id"),
+                AICLI_TraceLoggingStringView(version, "Version"),
+                AICLI_TraceLoggingStringView(type, "Type"),
+                TraceLoggingUInt32(errorCode, "ErrorCode"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+
+        AICLI_LOG(CLI, Error, << type << " uninstaller failed: " << errorCode);
+    }
+
+    void TelemetryTraceLogger::LogDuplicateARPEntry(HRESULT hr, std::string_view scope, std::string_view architecture, std::string_view productCode, std::string_view name)
+    {
+        if (IsTelemetryEnabled())
+        {
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "DuplicateARPEntry",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                TraceLoggingHResult(hr, "HResult"),
+                AICLI_TraceLoggingStringView(scope, "Scope"),
+                AICLI_TraceLoggingStringView(architecture, "Architecture"),
+                AICLI_TraceLoggingStringView(productCode, "ProductCode"),
+                AICLI_TraceLoggingStringView(name, "Name"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+
+        AICLI_LOG(CLI, Error, << "Ignoring duplicate ARP entry " << scope << '|' << architecture << '|' << productCode << " [" << name << "]");
     }
 
     void EnableWilFailureTelemetry()

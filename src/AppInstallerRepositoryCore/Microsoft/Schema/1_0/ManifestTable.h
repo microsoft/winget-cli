@@ -83,7 +83,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Get the table name.
         static std::string_view TableName();
 
-        // Creates the table with named indeces.
+        // Creates the table with named indices.
         static void Create(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values);
 
         // Creates the table with standard primary keys.

@@ -105,7 +105,7 @@ else
 
 Where valid means that syntax and semantic checks pass. For now, semantics checks will be part of the validation. If one settings is semantically incorrect and we fallback to backup proves to be annoying to users, checks can be relaxed into only syntax failures are fatal and semantic warnings. We could also in the future add a `winget settings validate` to improve the experience. 
 
-We cannot force the user to upgrade, so it is possible for someone to add a setting for a future version that is not supported. There is not an easy way to detect it which mean loading the settings will warn of an unknow property. The user will need to verify the documentation and the version of winget that is running via `winget --info`. 
+We cannot force the user to upgrade, so it is possible for someone to add a setting for a future version that is not supported. There is not an easy way to detect it which mean loading the settings will warn of an unknown property. The user will need to verify the documentation and the version of winget that is running via `winget --info`. 
 
 #### Errors and Warnings
 
@@ -120,7 +120,7 @@ All setting must be documented in the winget-cli repository in doc\Settings.md. 
 
 ### Version property
 
-A version property can be added to the settings, such as the manifest has, to have a more structured validation. I am currently opposed at the idea because for future settings, we will need to always bump up the version and force the users to modify two pieces: the settings they want to use and the version property. I can also see settings growth more dynamic and bumpting the version per addition/removal seems like an overkill.
+A version property can be added to the settings, such as the manifest has, to have a more structured validation. I am currently opposed at the idea because for future settings, we will need to always bump up the version and force the users to modify two pieces: the settings they want to use and the version property. I can also see settings growth more dynamic and bumping the version per addition/removal seems like an overkill.
 
 ### Settings
 

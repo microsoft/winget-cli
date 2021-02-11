@@ -84,7 +84,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ShowAppVersions(Execution::Context& context)
     {
-        auto versions = context.Get<Execution::Data::SearchResult>().Matches.at(0).Package->GetAvailableVersionKeys();
+        auto versions = context.Get<Execution::Data::Package>()->GetAvailableVersionKeys();
 
         Execution::TableOutput<2> table(context.Reporter, { Resource::String::ShowVersion, Resource::String::ShowChannel });
         for (const auto& version : versions)

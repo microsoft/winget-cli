@@ -12,7 +12,7 @@ For [#292](https://github.com/microsoft/winget-cli/issues/292)
 ## Abstract
 
 The winget.exe client attempts to be generous with the `search` command, but is a bit too generous with `install`. The *id*
-should be the unique key to identifying a package (other than the package version). It should also be case insensitve from the perspective of command execution, but it should be case sensitive in terms of the displayed value. 
+should be the unique key to identifying a package (other than the package version). It should also be case insensitive from the perspective of command execution, but it should be case sensitive in terms of the displayed value. 
 
 If a manifest was created with the *id* "Git.Git" then that is what would be displayed in the client output.
 Any combination of case in the `install` command should match.
@@ -29,7 +29,7 @@ The latest version of a package is also the version that should be displayed dur
 ## Solution Design
 
 Installing a package by using the *Id* as the package name should not require disambiguation.
-The package *Id* should perform a case insensitve match. If the given *Id* is exact, it should not
+The package *Id* should perform a case insensitive match. If the given *Id* is exact, it should not
 be confused with a longer *Id*
 `winget install git.git` should install that package
 The `git.gitLFS` should not cause ambiguity
@@ -39,7 +39,7 @@ If the value passed as a package *Id* is a substring, or there is still ambiguit
 ## UI/UX Design
 
 Executing `winget install git.git` will install the Git package.
-Executing `winget install git.g` will provode additional guidance:
+Executing `winget install git.g` will provide additional guidance:
 Multiple apps found matching input criteria. Please refine the input.
 Try providing the Id: winget install git.git
 

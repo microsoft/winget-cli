@@ -53,12 +53,12 @@ namespace AppInstaller::Utility
 
         bool operator<(const LocIndString& other) const { return m_value < other.m_value; }
 
+        friend std::ostream& operator<<(std::ostream& out, const AppInstaller::Utility::LocIndString& lis)
+        {
+            return (out << lis.get());
+        }
+
     private:
         std::string m_value;
     };
-}
-
-inline std::ostream& operator<<(std::ostream& out, const AppInstaller::Utility::LocIndString& lis)
-{
-    return (out << lis.get());
 }

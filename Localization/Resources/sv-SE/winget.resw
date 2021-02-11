@@ -130,6 +130,10 @@
     <value>Följande kommandon är tillgängliga:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Tillgängligt</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Följande alternativ är tillgängliga:</value>
   </data>
@@ -138,7 +142,7 @@
     <comment>Nested commands that can be run in context of the selected command</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
-    <value>Använd den angivna kanalen. standard är allmän målgrupp</value>
+    <value>Använd den angivna kanalen. Standard är allmän målgrupp</value>
   </data>
   <data name="Command" xml:space="preserve">
     <value>kommando</value>
@@ -206,7 +210,7 @@
   </data>
   <data name="FeaturesMessage" xml:space="preserve">
     <value>Följande experimentella funktioner är under utveckling.
-De kan konfigureras via inställnings filen "winget settings".</value>
+De kan konfigureras via inställningsfilen "winget settings".</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesProperty" xml:space="preserve">
@@ -243,7 +247,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Detta program är licensierat till dig av ägaren.</value>
   </data>
   <data name="InstallationDisclaimer2" xml:space="preserve">
-    <value>Microsoft är inte ansvariga för och tillhandahåller inte heller några licenser förnågra paket från tredje part.</value>
+    <value>Microsoft är inte ansvariga för och tillhandahåller inte heller några licenser för några paket från tredje part.</value>
   </data>
   <data name="InstallationDisclaimerMSStore" xml:space="preserve">
     <value>Det här paketet tillhandahålls via Microsoft Store. winget kan behöva hämta paketet från Microsoft Store för den aktuella användarens räkning.</value>
@@ -253,7 +257,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Det går inte att installera paketet eftersom en högre version av Windows krävs:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Installerar det markerade paketet, antingen genom att söka i en konfigurerad källa eller direkt från ett manifest. Som standard måste frågan matcha ID, namn eller länksökväg för paketet (inte skiftlägeskänsligt). Du kan använda andra fält genom att ange lämpliga alternativ.</value>
+    <value>Installerar det markerade paketet, antingen genom att söka i en konfigurerad källa eller direkt från ett manifest. Som standard måste sökningen matcha ID, namn eller länksökväg för paketet (inte skiftlägeskänsligt). Du kan använda andra fält genom att ange lämpliga alternativ.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
@@ -304,6 +308,13 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Länkar</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>The list-kommandot visar de paket som är installerade på systemet, samt om en uppdatering är tillgänglig. Ytterligare alternativ kan tillhandahållas för att filtrera utdata, ungefär som search-kommandot.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Visa installerade paket</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Plats att installera på (om det stöds)</value>
   </data>
@@ -341,11 +352,11 @@ De kan konfigureras via inställnings filen "winget settings".</value>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Kunde inte beräkna MSIX-signaturhash.</value>
   </data>
-  <data name="MSStoreInstallAppBlocked" xml:space="preserve">
-    <value>Det gick inte att installera Microsoft Store-paketet eftersom appen blockeras av en princip</value>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Det gick inte att installera eller uppdatera Microsoft Store-paketet eftersom appen blockeras av en princip</value>
   </data>
-  <data name="MSStoreInstallFailed" xml:space="preserve">
-    <value>Det gick inte att installera Microsoft Store-paketet. Felkod:</value>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Det gick inte att installera eller uppdatera Microsoft Store-paketet. Felkod:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Verifiera/begär pakethämtning misslyckades: nätverksfel</value>
@@ -359,11 +370,14 @@ De kan konfigureras via inställnings filen "winget settings".</value>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Verifiera/begär pakethämtning lyckades</value>
   </data>
-  <data name="MSStoreInstallStoreClientBlocked" xml:space="preserve">
-    <value>Det gick inte att installera Microsoft Store-paketet eftersom Microsoft Store-klienten blockeras av en princip</value>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Det gick inte att installera eller uppdatera Microsoft Store-paketet eftersom Microsoft Store-klienten blockeras av en princip</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Verifierar/begär pakethämtning...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Flera installerade paket hittade för matchande indatavillkoren. Förfina indata.</value>
   </data>
   <data name="MultiplePackagesFound" xml:space="preserve">
     <value>Flera paket hittades som matchar indatavillkoren. Förfina dina indata.</value>
@@ -376,6 +390,9 @@ De kan konfigureras via inställnings filen "winget settings".</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Det finns för närvarande inga experimentella funktioner. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Inget installerat paket hittades som matchade ingångskriterier.</value>
   </data>
   <data name="NoPackageFound" xml:space="preserve">
     <value>Inget paket hittades som uppfyller indatavillkoren.</value>
@@ -460,7 +477,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Kanal</value>
   </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Visar information om ett specifikt paket. Som standard måste frågan matcha ID, namn eller länksökväg för paketet (inte skiftlägeskänsligt). Du kan använda andra fält genom att välja lämpliga alternativ.</value>
+    <value>Visar information om ett specifikt paket. Som standard måste frågan matcha ID, namn eller länksökväg för paketet. Andra fält kan användas genom att välja lämpliga alternativ.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Visar information om ett paket</value>
@@ -520,7 +537,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
   </data>
   <data name="SourceListField" xml:space="preserve">
     <value>Fält</value>
-    <comment>The name of a peice of information about a source.</comment>
+    <comment>The name of a piece of information about a source.</comment>
   </data>
   <data name="SourceListName" xml:space="preserve">
     <value>Namn</value>
@@ -542,7 +559,7 @@ De kan konfigureras via inställnings filen "winget settings".</value>
   </data>
   <data name="SourceListUpdatedNever" xml:space="preserve">
     <value>aldrig</value>
-    <comment>The soure has never been updated.</comment>
+    <comment>The source has never been updated.</comment>
   </data>
   <data name="SourceListValue" xml:space="preserve">
     <value>Värde</value>
@@ -550,6 +567,14 @@ De kan konfigureras via inställnings filen "winget settings".</value>
   </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Källnamn</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Det gick inte att öppna källan; prova kommandot 'source reset' om problemet kvarstår.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Det gick inte att öppna den fördefinierade källan. vänligen rapportera till winget-underhållare.</value>
+    <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
     <value>Tar bort alla källor...</value>
@@ -619,13 +644,26 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Argumentet tillhandahölls fler gånger än tillåtet</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Fler än en installations beteendeargument tillhandahålls</value>
+    <value>Mer än en körbeteende argument tillhandahålls</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Ett oväntat fel inträffade när kommandot kördes:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Okänt kommando</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Uppdatera alla installerade paket till senaste om tillgängliga</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Ingen tillämplig uppdatering hittades.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Uppdaterar det valda paketet, antingen hittat genom att söka i listan över installerade paket eller direkt från ett manifest. Som standard måste frågan skiftlägeskänsligt matcha paketets id, namn eller moniker. Andra fält kan användas genom att lämna lämpligt alternativ.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Uppdaterar det givna paketet</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>användning</value>
@@ -647,12 +685,75 @@ De kan konfigureras via inställnings filen "winget settings".</value>
     <value>Kontrollera att indatafilen är en giltig, signerad MSIX.</value>
   </data>
   <data name="VersionArgumentDescription" xml:space="preserve">
-    <value>Använd den angivna versionen. standard är den senaste versionen</value>
+    <value>Använd den angivna versionen. Standard är den senaste versionen</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
     <value>Visa tillgängliga versioner av paketet</value>
   </data>
   <data name="WordArgumentDescription" xml:space="preserve">
     <value>Värdet som angavs före slutförandet begärs</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Ingen version hittades som matchade:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Inga källor matchar det angivna värdet:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>De konfigurerade källorna är:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Inga källor definierade; lägg till en med 'source add' eller återställ till standard med 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Hittades</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Sökväg är en katalog:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Filen finns inte:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Både lokala manifest och sökfråga-argument tillhandahålls</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Loggar</value>
+    <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Installationsprogrammet blockeras av en princip</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Säkerhetskontrollen för installationsprogrammet misslyckades</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>En antivirusprodukt rapporterar ett angrepp i installationsprogrammet</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Det gick inte att uppdatera källan:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Avinstallerar det valda paketet, som antingen hittas genom att söka i listan över installerade paket eller direkt från ett manifest. Som standard måste frågan skiftlägesokänsligt matcha paketets id, namn eller länksökväg. Andra fält kan användas genom att lämna lämpligt alternativ.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Avinstallerar angivet paket</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Startar avinstallationen av paketet...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Avinstallerad</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget kan inte hitta avinstallations kommandot för det här paketet. Kontakta paket utgivaren för support.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Avinstallation har avbrutits</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Avinstallationen misslyckades med slutkod:</value>
   </data>
 </root>

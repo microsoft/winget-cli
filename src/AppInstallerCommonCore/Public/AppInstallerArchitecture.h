@@ -21,6 +21,9 @@ namespace AppInstaller::Utility
     // Converts a string to corresponding enum
     Architecture ConvertToArchitectureEnum(const std::string& archStr);
 
+    // Converts an Architecture to a string_view
+    std::string_view ToString(Architecture architecture);
+
     // Gets the system's architecture as Architecture enum
     AppInstaller::Utility::Architecture GetSystemArchitecture();
 

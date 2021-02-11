@@ -74,6 +74,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationRequiresHigherWindows);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerBlockedByPolicy);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedSecurityCheck);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedVirusScan);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashMismatchAdminBlock);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashMismatchOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashMismatchOverrideRequired);
@@ -104,13 +107,13 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MsixArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(MsixSignatureHashFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreAppBlocked);
-        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallOrUpdateFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallGetEntitlementNetworkError);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallGetEntitlementNoStoreAccount);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallGetEntitlementServerError);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallGetEntitlementSuccess);
-        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreStoreClientBlocked);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallOrUpdateFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallTryGetEntitlement);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreStoreClientBlocked);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleInstalledPackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiplePackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NameArgumentDescription);
@@ -118,6 +121,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NoExperimentalFeaturesMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(NoInstalledPackageFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(NoUninstallInfoFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoVTArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatch);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatchHelp);
@@ -177,6 +181,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceNameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenFailedSuggestion);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenPredefinedFailedSuggestion);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceOpenWithFailedUpdate);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveAll);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandShortDescription);
@@ -201,6 +206,12 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyArgError);
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyBehaviorsError);
         WINGET_DEFINE_RESOURCE_STRINGID(UnexpectedErrorExecutingCommand);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallAbandoned);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallFailedWithCode);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowUninstallSuccess);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowStartingPackageUninstall);
         WINGET_DEFINE_RESOURCE_STRINGID(UnrecognizedCommand);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateAllArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateNotApplicable);

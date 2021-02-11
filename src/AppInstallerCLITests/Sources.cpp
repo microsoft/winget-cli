@@ -510,7 +510,7 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
     SetSetting(Streams::UserSources, s_SingleSource);
 
     ProgressCallback progress;
-    auto source = OpenSource(name, progress);
+    auto source = OpenSource(name, progress).Source;
 
     REQUIRE(updateCalledOnFactory);
 
@@ -535,7 +535,7 @@ TEST_CASE("RepoSources_DropSourceByName", "[sources]")
     DropSource("testName");
 
     sources = GetSources();
-    REQUIRE(sources.size() == 3);
+    REQUIRE(sources.size() == 2);
 
     const char* suffix[2] = { "2", "3" };
 
@@ -549,8 +549,6 @@ TEST_CASE("RepoSources_DropSourceByName", "[sources]")
         REQUIRE(sources[i].LastUpdateTime == ConvertUnixEpochToSystemClock(i + 1));
         REQUIRE(sources[i].Origin == SourceOrigin::User);
     }
-
-    REQUIRE(sources[2].Origin == SourceOrigin::Default);
 }
 
 TEST_CASE("RepoSources_DropAllSources", "[sources]")
@@ -576,7 +574,7 @@ TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
     SetSetting(Streams::UserSources, s_TwoSource_AggregateSourceTest);
 
     ProgressCallback progress;
-    auto source = OpenSource("", progress);
+    auto source = OpenSource("", progress).Source;
 
     SearchRequest request;
     auto result = source->Search(request);

@@ -7,18 +7,18 @@
 namespace AppInstaller::CLI::Workflow
 {
     // Iterates through all available versions from a package and find latest applicable update
-    // Required Args: the package
-    // Inputs: InstalledPackageVersion
+    // Required Args: bool indicating whether to report update not found
+    // Inputs: InstalledPackageVersion, Package
     // Outputs: Manifest?, Installer?
     struct SelectLatestApplicableUpdate : public WorkflowTask
     {
-        SelectLatestApplicableUpdate(const AppInstaller::Repository::IPackage& package) :
-            WorkflowTask("SelectLatestApplicableUpdate"), m_package(package) {}
+        SelectLatestApplicableUpdate(bool reportUpdateNotFound) :
+            WorkflowTask("SelectLatestApplicableUpdate"), m_reportUpdateNotFound(reportUpdateNotFound) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        const AppInstaller::Repository::IPackage& m_package;
+        bool m_reportUpdateNotFound;
     };
 
     // Ensures the update package has higher version than installed

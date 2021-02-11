@@ -183,7 +183,7 @@ namespace AppInstaller::Repository
 
             bool IsUpdateAvailable() const override
             {
-                // Lie here so that list and upgrade will carry on to be able to output the diagnositic information.
+                // Lie here so that list and upgrade will carry on to be able to output the diagnostic information.
                 return true;
             }
         };
@@ -220,9 +220,9 @@ namespace AppInstaller::Repository
 
                 bool operator<(const SystemReferenceString& other) const
                 {
-                    if (Field < other.Field)
+                    if (Field != other.Field)
                     {
-                        return true;
+                        return Field < other.Field;
                     }
 
                     return String < other.String;
@@ -486,7 +486,7 @@ namespace AppInstaller::Repository
                         // We did not find an exact match on Id in the results
                         if (!availablePackage)
                         {
-                            AICLI_LOG(Repo, Warning, << "  Appropriate available package could not be determined, setting availablility state to unknown");
+                            AICLI_LOG(Repo, Warning, << "  Appropriate available package could not be determined, setting availability state to unknown");
                             availablePackage = std::make_shared<UnknownAvailablePackage>();
                         }
                     }

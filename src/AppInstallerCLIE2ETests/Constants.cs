@@ -45,6 +45,14 @@ namespace AppInstallerCLIE2ETests
         public const string WinGetUtil = "WinGetUtil";
         public const string E2ETestLogsPath = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir";
 
+        // Test installers' package IDs
+        public const string ExeInstallerPackageId = "AppInstallerTest.TestExeInstaller";
+        public const string MsiInstallerPackageId = "AppInstallerTest.TestMsiInstaller";
+        public const string MsixInstallerPackageId = "AppInstallerTest.TestMsixInstaller";
+
+        public const string MsiInstallerProductCode = "{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
+        public const string MsixInstallerPackageFamilyName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e_8wekyb3d8bbwe";
+
         public class ErrorCode
         {
             public const int S_OK = 0;
@@ -52,8 +60,9 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_NO_RANGES_PROCESSED = unchecked((int)0x80070138);
             public const int OPC_E_ZIP_MISSING_END_OF_CENTRAL_DIRECTORY = unchecked((int)0x8051100f);
             public const int ERROR_OLD_WIN_VERSION = unchecked((int)0x8007047e);
+            public const int HTTP_E_STATUS_NOT_FOUND = unchecked((int)0x80190194);
 
-            // AICLI custom HResults
+            // AICLI custom HRESULTs
             public const int ERROR_INTERNAL_ERROR = unchecked((int)0x8A150001);
             public const int ERROR_INVALID_CL_ARGUMENTS = unchecked((int)0x8A150002);
             public const int ERROR_COMMAND_FAILED = unchecked((int)0x8A150003);

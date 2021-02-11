@@ -26,7 +26,7 @@
         return; \
     } while(0,0)
 
-// Terminates the Context namd 'context' with some logging to indicate the location.
+// Terminates the Context named 'context' with some logging to indicate the location.
 // Also returns from the current function.
 #define AICLI_TERMINATE_CONTEXT(_hr_)   AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_)
 
@@ -46,6 +46,7 @@ namespace AppInstaller::CLI::Execution
         Source,
         SearchResult,
         SourceList,
+        Package,
         Manifest,
         PackageVersion,
         Installer,
@@ -56,6 +57,9 @@ namespace AppInstaller::CLI::Execution
         CompletionData,
         InstalledPackageVersion,
         ExecutionStage,
+        UninstallString,
+        PackageFamilyNames,
+        ProductCodes,
         Max
     };
 
@@ -94,6 +98,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::SourceList>
         {
             using value_t = std::vector<Repository::SourceDetails>;
+        };
+
+        template <>
+        struct DataMapping<Data::Package>
+        {
+            using value_t = std::shared_ptr<Repository::IPackage>;
         };
 
         template <>
@@ -154,6 +164,24 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::ExecutionStage>
         {
             using value_t = Workflow::ExecutionStage;
+        };
+
+        template <>
+        struct DataMapping<Data::UninstallString>
+        {
+            using value_t = std::string;
+        };
+
+        template <>
+        struct DataMapping<Data::PackageFamilyNames>
+        {
+            using value_t = std::vector<Utility::LocIndString>;
+        };
+
+        template <>
+        struct DataMapping<Data::ProductCodes>
+        {
+            using value_t = std::vector<Utility::LocIndString>;
         };
 
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.

@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <AppInstallerStrings.h>
+#include <ExecutionReporter.h>
 
 using namespace std::string_view_literals;
 using namespace AppInstaller::Utility;
@@ -132,4 +133,34 @@ TEST_CASE("FoldCase", "[strings]")
     REQUIRE(FoldCase("foldcase"sv) == FoldCase("FOLDCASE"sv));
     REQUIRE(FoldCase(u8"f\xF6ldcase"sv) == FoldCase(u8"F\xD6LDCASE"sv));
     REQUIRE(FoldCase(u8"foldc\x430se"sv) == FoldCase(u8"FOLDC\x410SE"sv));
+}
+
+TEST_CASE("ExpandEnvironmentVariables", "[strings]")
+{
+    wchar_t buffer[MAX_PATH];
+    GetTempPathW(ARRAYSIZE(buffer), buffer);
+
+    std::wstring tempPath = buffer;
+    if (!tempPath.empty() && tempPath.back() == '\\')
+    {
+        tempPath.resize(tempPath.size() - 1);
+    }
+
+    REQUIRE(ExpandEnvironmentVariables(L"%TEMP%") == tempPath);
+}
+
+TEST_CASE("PathOutput", "[strings]")
+{
+    std::string original = "\xe6\xb5\x8b\xe8\xaf\x95";
+    std::filesystem::path path = ConvertToUTF16(original);
+    AICLI_LOG(Test, Info, << path);
+
+    std::istringstream in;
+    std::ostringstream out;
+    AppInstaller::CLI::Execution::Reporter reporter{ out, in };
+
+    reporter.Info() << path;
+
+    std::string output = out.str();
+    REQUIRE(output.substr(output.size() - original.size()) == original);
 }

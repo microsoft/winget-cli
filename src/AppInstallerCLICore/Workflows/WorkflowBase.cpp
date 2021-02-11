@@ -105,7 +105,14 @@ namespace AppInstaller::CLI::Workflow
         std::shared_ptr<Repository::ISource> source;
         try
         {
-            source = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1), true);
+            auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1), true);
+            source = result.Source;
+
+            // We'll only report the source update failure as warning and continue
+            for (const auto& s : result.SourcesWithUpdateFailure)
+            {
+                context.Reporter.Warn() << Resource::String::SourceOpenWithFailedUpdate << ' ' << s.Name << std::endl;
+            }
         }
         catch (...)
         {
@@ -325,6 +332,34 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void ReportMultiplePackageFoundResult(Execution::Context& context)
+    {
+        auto& searchResult = context.Get<Execution::Data::SearchResult>();
+
+        Execution::TableOutput<5> table(context.Reporter,
+            {
+                Resource::String::SearchName,
+                Resource::String::SearchId
+            });
+
+        for (size_t i = 0; i < searchResult.Matches.size(); ++i)
+        {
+            auto package = searchResult.Matches[i].Package;
+
+            table.OutputLine({
+                package->GetProperty(PackageProperty::Name),
+                package->GetProperty(PackageProperty::Id)
+                });
+        }
+
+        table.Complete();
+
+        if (searchResult.Truncated)
+        {
+            context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
+        }
+    }
+
     void ReportListResult::operator()(Execution::Context& context) const
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
@@ -371,13 +406,18 @@ namespace AppInstaller::CLI::Workflow
 
         table.Complete();
 
+        if (table.IsEmpty())
+        {
+            context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
+        }
+
         if (searchResult.Truncated)
         {
             context.Reporter.Info() << '<' << Resource::String::SearchTruncated << '>' << std::endl;
         }
     }
 
-    void EnsureMatchesFromSearchResult(Execution::Context& context)
+    void EnsureMatchesFromSearchResult::operator()(Execution::Context& context) const
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
 
@@ -385,7 +425,7 @@ namespace AppInstaller::CLI::Workflow
         {
             Logging::Telemetry().LogNoAppMatch();
 
-            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate))
+            if (m_isFromInstalledSource)
             {
                 context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
             }
@@ -398,11 +438,12 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void EnsureOneMatchFromSearchResult(Execution::Context& context)
+    void EnsureOneMatchFromSearchResult::operator()(Execution::Context& context) const
     {
         context <<
-            EnsureMatchesFromSearchResult <<
-            [](Execution::Context& context)
+            EnsureMatchesFromSearchResult(m_isFromInstalledSource);
+
+        if (!context.IsTerminated())
         {
             auto& searchResult = context.Get<Execution::Data::SearchResult>();
 
@@ -410,7 +451,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate))
+                if (m_isFromInstalledSource)
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
                 }
@@ -419,22 +460,25 @@ namespace AppInstaller::CLI::Workflow
                     context.Reporter.Warn() << Resource::String::MultiplePackagesFound << std::endl;
                 }
 
-                context << ReportSearchResult;
+                context << ReportMultiplePackageFoundResult;
+
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
             }
 
-            auto latestVersion = searchResult.Matches.at(0).Package->GetLatestAvailableVersion();
-            Logging::Telemetry().LogAppFound(latestVersion->GetProperty(PackageVersionProperty::Name), latestVersion->GetProperty(PackageVersionProperty::Id));
+            std::shared_ptr<IPackage> package = searchResult.Matches.at(0).Package;
+            Logging::Telemetry().LogAppFound(package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
+
+            context.Add<Execution::Data::Package>(std::move(package));
         };
     }
 
-    void GetManifestFromSearchResult(Execution::Context& context)
+    void GetManifestFromPackage(Execution::Context& context)
     {
         std::string_view version = context.Args.GetArg(Execution::Args::Type::Version);
         std::string_view channel = context.Args.GetArg(Execution::Args::Type::Channel);
 
         PackageVersionKey key("", version, channel);
-        auto requestedVersion = context.Get<Execution::Data::SearchResult>().Matches.at(0).Package->GetAvailableVersion(key);
+        auto requestedVersion = context.Get<Execution::Data::Package>()->GetAvailableVersion(key);
 
         std::optional<Manifest::Manifest> manifest;
         if (requestedVersion)
@@ -494,10 +538,10 @@ namespace AppInstaller::CLI::Workflow
         };
     }
 
-    void ReportSearchResultIdentity(Execution::Context& context)
+    void ReportPackageIdentity(Execution::Context& context)
     {
-        auto latestVersion = context.Get<Execution::Data::SearchResult>().Matches.at(0).Package->GetLatestAvailableVersion();
-        ReportIdentity(context, latestVersion->GetProperty(PackageVersionProperty::Name), latestVersion->GetProperty(PackageVersionProperty::Id));
+        auto package = context.Get<Execution::Data::Package>();
+        ReportIdentity(context, package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
     }
 
     void ReportManifestIdentity(Execution::Context& context)
@@ -519,9 +563,9 @@ namespace AppInstaller::CLI::Workflow
             context <<
                 OpenSource <<
                 SearchSourceForSingle <<
-                EnsureOneMatchFromSearchResult <<
-                ReportSearchResultIdentity <<
-                GetManifestFromSearchResult;
+                EnsureOneMatchFromSearchResult(false) <<
+                ReportPackageIdentity <<
+                GetManifestFromPackage;
         }
     }
 
@@ -600,8 +644,7 @@ namespace AppInstaller::CLI::Workflow
 
     void GetInstalledPackageVersion(Execution::Context& context)
     {
-        const auto& searchResult = context.Get<Execution::Data::SearchResult>();
-        context.Add<Execution::Data::InstalledPackageVersion>(searchResult.Matches.at(0).Package->GetInstalledVersion());
+        context.Add<Execution::Data::InstalledPackageVersion>(context.Get<Execution::Data::Package>()->GetInstalledVersion());
     }
 
     void ReportExecutionStage::operator()(Execution::Context& context) const

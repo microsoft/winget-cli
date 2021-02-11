@@ -6,7 +6,7 @@
 namespace AppInstaller::Utility
 {
     // If moved to C++20, this can be replaced with standard library implementations.
-    void OutputTimepoint(std::ostream& stream, const std::chrono::system_clock::time_point& time)
+    void OutputTimePoint(std::ostream& stream, const std::chrono::system_clock::time_point& time)
     {
         using namespace std::chrono;
 
@@ -30,7 +30,7 @@ namespace AppInstaller::Utility
     std::string GetCurrentTimeForFilename()
     {
         std::stringstream stream;
-        OutputTimepoint(stream, std::chrono::system_clock::now());
+        OutputTimePoint(stream, std::chrono::system_clock::now());
 
         auto result = stream.str();
         std::replace(result.begin(), result.end(), ':', '-');

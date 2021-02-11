@@ -185,8 +185,11 @@
     <ClCompile Include="ExperimentalFeature.cpp" />
     <ClCompile Include="HashCommand.cpp" />
     <ClCompile Include="MsixInfo.cpp" />
+    <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="PredefinedInstalledSource.cpp" />
     <ClCompile Include="PreIndexedPackageSource.cpp" />
+    <ClCompile Include="Regex.cpp" />
+    <ClCompile Include="Registry.cpp" />
     <ClCompile Include="SQLiteIndexSource.cpp" />
     <ClCompile Include="Strings.cpp" />
     <ClCompile Include="TestSource.cpp" />
@@ -429,6 +432,15 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Msix.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InputNames.txt">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InputPublishers.txt">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\NormalizationInitialIds.txt">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
   </ItemGroup>

@@ -72,7 +72,7 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(installer1.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
     REQUIRE(installer1.Language == "en-US");
     REQUIRE(installer1.InstallerType == ManifestInstaller::InstallerTypeEnum::Zip);
-    REQUIRE(installer1.Scope == "user");
+    REQUIRE(installer1.Scope == ManifestInstaller::ScopeEnum::User);
     REQUIRE(installer1.PackageFamilyName == "");
     REQUIRE(installer1.ProductCode == "");
     REQUIRE(installer1.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::Install);
@@ -93,7 +93,7 @@ TEST_CASE("ReadGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(installer2.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF0000"));
     REQUIRE(installer2.Language == "en-US");
     REQUIRE(installer2.InstallerType == ManifestInstaller::InstallerTypeEnum::Zip);
-    REQUIRE(installer2.Scope == "user");
+    REQUIRE(installer2.Scope == ManifestInstaller::ScopeEnum::User);
     REQUIRE(installer2.PackageFamilyName == "");
     REQUIRE(installer2.ProductCode == "");
     REQUIRE(installer2.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::UninstallPrevious);

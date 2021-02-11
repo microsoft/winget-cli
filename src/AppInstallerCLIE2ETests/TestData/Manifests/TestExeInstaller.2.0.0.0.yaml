@@ -1,0 +1,20 @@
+Id: AppInstallerTest.TestExeInstaller
+Name: TestExeInstaller
+Version: 2.0.0.0
+Publisher: AppInstallerTest
+License: Test
+Installers:
+  - Arch: x86
+    Url: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    Sha256: <EXEHASH>
+    InstallerType: exe
+    ProductCode: '{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}'
+    Switches:
+      Custom: /execustom
+      SilentWithProgress: /exeswp
+      Silent: /exesilent
+      Interactive: /exeinteractive
+      Language: /exeenus
+      Log: /exelog <LOGPATH>
+      InstallLocation: /InstallDir <INSTALLPATH>
+ManifestVersion: 0.1.0

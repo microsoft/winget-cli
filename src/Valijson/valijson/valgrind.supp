@@ -1,0 +1,31 @@
+{
+   Ignore __cxa_get_globals one-time leak
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:__cxa_get_globals
+}
+{
+   Ignore __cxa_decrement_exception_refcount one-time leak
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:__cxa_decrement_exception_refcount
+   ...
+}
+{
+   Ignore __svfscanf_l one-time leak
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:__svfscanf_l
+   ...
+}
+{
+   Ignore __v2printf leaks
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:__v2printf
+   ...
+}

@@ -17,7 +17,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // The id type
         using id_t = SQLite::rowid_t;
 
-        // Creates the table with named indeces.
+        // Creates the table with named indices.
         static void Create(SQLite::Connection& connection);
 
         // Creates the table with standard primary keys.
