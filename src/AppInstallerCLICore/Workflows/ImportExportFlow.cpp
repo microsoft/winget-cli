@@ -102,7 +102,7 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
         }
 
-        if (packages.value().Sources.empty())
+        if (packages->Sources.empty())
         {
             AICLI_LOG(CLI, Warning, << "No packages to install");
             context.Reporter.Info() << Resource::String::NoPackagesFoundInImportFile << std::endl;
@@ -182,7 +182,7 @@ namespace AppInstaller::CLI::Workflow
 
                 // Search for the current package
                 SearchRequest searchRequest;
-                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, packageRequest.Id));
+                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, packageRequest.Id));
 
                 auto searchContextPtr = context.Clone();
                 Execution::Context& searchContext = *searchContextPtr;
