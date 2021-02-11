@@ -12,6 +12,49 @@ namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::Repository;
 
+    namespace
+    {
+        SourceDetails GetSourceDetails(const SourceDetails& source)
+        {
+            return source;
+        }
+
+        SourceDetails GetSourceDetails(const PackageCollection::Source& source)
+        {
+            return source.Details;
+        }
+
+        SourceDetails GetSourceDetails(const std::shared_ptr<ISource>& source)
+        {
+            return source->GetDetails();
+        }
+
+        // Creates a predicate that determines whether a source matches a description in a SourceDetails.
+        template<class T>
+        std::function<bool(const T&)> GetSourceDetailsEquivalencePredicate(const SourceDetails& details)
+        {
+            return [&](const T& source)
+            {
+                SourceDetails sourceDetails = GetSourceDetails(source);
+                return sourceDetails.Type == details.Type && sourceDetails.Identifier == details.Identifier;
+            };
+        }
+
+        // Finds a source equivalent to the one specified.
+        template<class T>
+        typename std::vector<T>::const_iterator FindSource(const std::vector<T>& sources, const SourceDetails& details)
+        {
+            return std::find_if(sources.begin(), sources.end(), GetSourceDetailsEquivalencePredicate<T>(details));
+        }
+
+        // Finds a source equivalent to the one specified.
+        template<class T>
+        typename std::vector<T>::iterator FindSource(std::vector<T>& sources, const SourceDetails& details)
+        {
+            return std::find_if(sources.begin(), sources.end(), GetSourceDetailsEquivalencePredicate<T>(details));
+        }
+    }
+
     void SelectVersionsToExport(Execution::Context& context)
     {
         const auto& searchResult = context.Get<Execution::Data::SearchResult>();
@@ -48,15 +91,15 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            const auto& sourceIdentifier = availablePackageVersion->GetSource()->GetIdentifier();
+            const auto& sourceDetails = availablePackageVersion->GetSource()->GetDetails();
             AICLI_LOG(CLI, Info,
-                << "Installed package is available. Package Id [" << availablePackageVersion->GetProperty(PackageVersionProperty::Id) << "], Source [" << sourceIdentifier << "]");
+                << "Installed package is available. Package Id [" << availablePackageVersion->GetProperty(PackageVersionProperty::Id) << "], Source [" << sourceDetails.Identifier << "]");
 
             // Find the exported source for this package
-            auto sourceItr = std::find_if(exportedSources.begin(), exportedSources.end(), [&](const PackageCollection::Source& s) { return s.Details.Identifier == sourceIdentifier; });
+            auto sourceItr = FindSource(exportedSources, sourceDetails);
             if (sourceItr == exportedSources.end())
             {
-                exportedSources.emplace_back(availablePackageVersion->GetSource()->GetDetails());
+                exportedSources.emplace_back(sourceDetails);
                 sourceItr = std::prev(exportedSources.end());
             }
 
@@ -124,10 +167,7 @@ namespace AppInstaller::CLI::Workflow
         {
             // Find the installed source matching the one described in the collection.
             AICLI_LOG(CLI, Info, << "Looking for source [" << requiredSource.Details.Identifier << "]");
-            auto matchingSource = std::find_if(
-                availableSources.begin(),
-                availableSources.end(),
-                [&](const SourceDetails& s) { return s.Identifier == requiredSource.Details.Identifier; });
+            auto matchingSource = FindSource(availableSources, requiredSource.Details);
             if (matchingSource != availableSources.end())
             {
                 requiredSource.Details.Name = matchingSource->Name;
@@ -162,10 +202,7 @@ namespace AppInstaller::CLI::Workflow
         for (auto& requiredSource : context.Get<Execution::Data::PackageCollection>().Sources)
         {
             // Find the required source among the open sources. This must exist as we already found them.
-            auto sourceItr = std::find_if(
-                sources.begin(),
-                sources.end(),
-                [&](const std::shared_ptr<ISource>& s) { return s->GetIdentifier() == requiredSource.Details.Identifier; });
+            auto sourceItr = FindSource(sources, requiredSource.Details);
             if (sourceItr == sources.end())
             {
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);

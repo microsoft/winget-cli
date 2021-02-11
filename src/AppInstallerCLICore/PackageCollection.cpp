@@ -40,8 +40,11 @@ namespace AppInstaller::CLI
             {
                 node[propertyName] = Json::Value{ valueType };
             }
+            else
+            {
+                THROW_HR_IF(E_NOT_VALID_STATE, node[propertyName].type() != valueType);
+            }
 
-            THROW_HR_IF(E_NOT_VALID_STATE, node[propertyName].type() != valueType);
             return node[propertyName];
         }
 
@@ -70,7 +73,7 @@ namespace AppInstaller::CLI
             PackageCollection::Source source{ std::move(sourceDetails) };
             for (const auto& packageNode : sourceNode[s_PackagesJson_Packages])
             {
-                source.Packages.push_back(ParsePackageNode(packageNode));
+                source.Packages.emplace_back(ParsePackageNode(packageNode));
             }
 
             return source;
