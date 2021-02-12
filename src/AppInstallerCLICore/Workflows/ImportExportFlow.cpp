@@ -178,9 +178,7 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
             }
 
-            context <<
-                Workflow::OpenNamedSource(requiredSource.Details.Name) <<
-                Workflow::AddToSources;
+            context << Workflow::OpenNamedSourceForSources(requiredSource.Details.Name);
             if (context.IsTerminated())
             {
                 return;
@@ -257,10 +255,17 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        if (!foundAll && !context.Args.Contains(Execution::Args::Type::Force))
+        if (!foundAll)
         {
             AICLI_LOG(CLI, Info, << "Could not find one or more packages for import");
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
+            if (context.Args.Contains(Execution::Args::Type::IgnoreUnavailable))
+            {
+                AICLI_LOG(CLI, Info, << "Ignoring unavailable packages due to command line argument");
+            }
+            else
+            {
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
+            }
         }
 
         context.Add<Execution::Data::PackagesToInstall>(std::move(packagesToInstall));

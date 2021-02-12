@@ -60,6 +60,7 @@ namespace AppInstaller::CLI::Execution
 
             // Import Command
             ImportFile,
+            IgnoreUnavailable,
 
             // Other
             All, // Used in Update command to update all installed packages to latest

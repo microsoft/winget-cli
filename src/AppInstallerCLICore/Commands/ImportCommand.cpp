@@ -16,7 +16,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument{ "import-file", 'i', Execution::Args::Type::ImportFile, Resource::String::ImportFileArgumentDescription, ArgumentType::Positional, true },
-            Argument{ "force", 'f', Execution::Args::Type::Force, Resource::String::ImportForceArgumentDescription, ArgumentType::Flag },
+            Argument{ "ignore-unavailable", Argument::NoAlias, Execution::Args::Type::IgnoreUnavailable, Resource::String::ImportIgnoreUnavailableArgumentDescription, ArgumentType::Flag },
         };
     }
 
@@ -45,6 +45,7 @@ namespace AppInstaller::CLI
             Workflow::OpenSourcesForImport <<
             Workflow::OpenPredefinedSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchPackagesForImport <<
+            Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
             Workflow::InstallMultiple;
     }
 }

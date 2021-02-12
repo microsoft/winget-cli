@@ -74,7 +74,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportFileArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(ImportForceArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ImportIgnoreUnavailableArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportInstallFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportPackageAlreadyInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportSearchFailed);

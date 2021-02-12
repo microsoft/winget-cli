@@ -802,7 +802,7 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
     <value>Package is already installed:</value>
   </data>
-  <data name="ImportForceArgumentDescription" xml:space="preserve">
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Ignore unavailable packages</value>
   </data>
 </root>

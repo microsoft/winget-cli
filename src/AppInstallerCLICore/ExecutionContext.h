@@ -20,16 +20,20 @@
 
 // Terminates the Context with some logging to indicate the location.
 // Also returns from the current function.
-#define AICLI_TERMINATE_CONTEXT_ARGS(_context_,_hr_) \
+#define AICLI_TERMINATE_CONTEXT_ARGS(_context_,_hr_,_ret_) \
     do { \
         HRESULT AICLI_TERMINATE_CONTEXT_ARGS_hr = _hr_; \
         _context_.Terminate(AICLI_TERMINATE_CONTEXT_ARGS_hr, __FILE__, __LINE__); \
-        return; \
+        return _ret_; \
     } while(0,0)
 
 // Terminates the Context named 'context' with some logging to indicate the location.
 // Also returns from the current function.
-#define AICLI_TERMINATE_CONTEXT(_hr_)   AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_)
+#define AICLI_TERMINATE_CONTEXT(_hr_)   AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_,)
+
+// Terminates the Context named 'context' with some logging to indicate the location.
+// Also returns the specified value from the current function.
+#define AICLI_TERMINATE_CONTEXT_RETURN(_hr_,_ret_) AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_,_ret_)
 
 namespace AppInstaller::CLI::Workflow
 {
