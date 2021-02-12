@@ -7,6 +7,7 @@
 #include "SourceFactory.h"
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
+#include "RestSourceFactory.h"
 
 namespace AppInstaller::Repository
 {
@@ -326,6 +327,10 @@ namespace AppInstaller::Repository
             else if (Microsoft::PredefinedInstalledSourceFactory::Type() == type)
             {
                 return Microsoft::PredefinedInstalledSourceFactory::Create();
+            }
+            else if (Rest::RestSourceFactory::Type() == type)
+            {
+                return Rest::RestSourceFactory::Create();
             }
 
             THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);

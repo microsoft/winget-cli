@@ -17,9 +17,10 @@ namespace AppInstaller::Repository::Rest
 		SearchResult result = SearchResult();
 
 		// Call the ManifestSearch API and return a sample set of results.
-		utility::string_t api = utility::conversions::to_string_t(m_restApiUri);
+		std::string searchEndPoint = m_restApiUri + "api/manifestSearch?";
+		// utility::string_t api = utility::conversions::to_string_t(searchEndPoint);
 
-		web::http::client::http_client client(api);
+	/*	web::http::client::http_client client(L"https://winget3prfunctions.azurewebsites.net/");
 		client.request(web::http::methods::GET, U("/"))
 			.then([](const web::http::http_response& response) {
 			try {
@@ -28,7 +29,7 @@ namespace AppInstaller::Repository::Rest
 			catch (const web::http::http_exception& e) {
 				std::cout << "error " << e.what() << std::endl;
 			}
-				}).wait();
+				}).wait();*/
 
 		return result;
 	}
