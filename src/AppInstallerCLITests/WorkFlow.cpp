@@ -1271,7 +1271,6 @@ TEST_CASE("ImportFlow_IgnoreMissingPackage", "[ImportFlow][workflow]")
     // Verify installer was called for the package that was available.
     REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
     REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed).get()) != std::string::npos);
-    REQUIRE_TERMINATED_WITH(context, S_OK);
 }
 
 TEST_CASE("ImportFlow_MissingVersion", "[ImportFlow][workflow]")
