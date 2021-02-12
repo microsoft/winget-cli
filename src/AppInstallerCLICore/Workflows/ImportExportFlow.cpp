@@ -108,11 +108,18 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // Take the Id from the available package because that is the one used in the source,
-            // but take the exported version from the installed package.
-            sourceItr->Packages.emplace_back(
-                availablePackageVersion->GetProperty(PackageVersionProperty::Id),
-                version.get(),
-                channel.get());
+            // but take the exported version from the installed package if needed.
+            if (context.Args.Contains(Execution::Args::Type::IncludeVersions))
+            {
+                sourceItr->Packages.emplace_back(
+                    availablePackageVersion->GetProperty(PackageVersionProperty::Id),
+                    version.get(),
+                    channel.get());
+            }
+            else
+            {
+                sourceItr->Packages.emplace_back(availablePackageVersion->GetProperty(PackageVersionProperty::Id));
+            }
         }
 
         context.Add<Execution::Data::PackageCollection>(std::move(exportedPackages));
@@ -154,6 +161,18 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Warning, << "No packages to install");
             context.Reporter.Info() << Resource::String::NoPackagesFoundInImportFile << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
+        }
+
+        if (context.Args.Contains(Execution::Args::Type::IgnoreVersions))
+        {
+            // Strip out all the version information as we don't need it.
+            for (auto& source : packages->Sources)
+            {
+                for (auto& package : source.Packages)
+                {
+                    package.VersionAndChannel = {};
+                }
+            }
         }
 
         context.Add<Execution::Data::PackageCollection>(packages.value());

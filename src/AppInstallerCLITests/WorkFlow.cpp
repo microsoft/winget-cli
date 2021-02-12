@@ -1111,6 +1111,41 @@ TEST_CASE("ExportFlow_ExportAll", "[ExportFlow][workflow]")
     REQUIRE(exportedPackages.size() == 3);
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {
+            return p.Id == "AppInstallerCliTest.TestExeInstaller" && p.VersionAndChannel.GetVersion().ToString().empty();
+        }));
+    REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
+        {
+            return p.Id == "AppInstallerCliTest.TestMsixInstaller" && p.VersionAndChannel.GetVersion().ToString().empty();
+        }));
+    REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
+        {
+            return p.Id == "AppInstallerCliTest.TestMSStoreInstaller" && p.VersionAndChannel.GetVersion().ToString().empty();
+        }));
+}
+
+TEST_CASE("ExportFlow_ExportAll_WithVersions", "[ExportFlow][workflow]")
+{
+    TestCommon::TempFile exportResultPath("TestExport.json");
+
+    std::ostringstream exportOutput;
+    TestContext context{ exportOutput, std::cin };
+    OverrideForCompositeInstalledSource(context);
+    context.Args.AddArg(Execution::Args::Type::OutputFile, exportResultPath);
+    context.Args.AddArg(Execution::Args::Type::IncludeVersions);
+
+    ExportCommand exportCommand({});
+    exportCommand.Execute(context);
+    INFO(exportOutput.str());
+
+    // Verify contents of exported collection
+    const auto& exportedCollection = context.Get<Execution::Data::PackageCollection>();
+    REQUIRE(exportedCollection.Sources.size() == 1);
+    REQUIRE(exportedCollection.Sources[0].Details.Identifier == "*TestSource");
+
+    const auto& exportedPackages = exportedCollection.Sources[0].Packages;
+    REQUIRE(exportedPackages.size() == 3);
+    REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
+        {
             return p.Id == "AppInstallerCliTest.TestExeInstaller" && p.VersionAndChannel.GetVersion().ToString() == "1.0.0.0";
         }));
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
@@ -1162,6 +1197,25 @@ TEST_CASE("ImportFlow_PackageAlreadyInstalled", "[ImportFlow][workflow]")
     REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportPackageAlreadyInstalled).get()) != std::string::npos);
 }
 
+TEST_CASE("ImportFlow_IgnoreVersions", "[ImportFlow][workflow]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    OverrideForImportSource(context);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-AlreadyInstalled.json").GetPath().string());
+    context.Args.AddArg(Execution::Args::Type::IgnoreVersions);
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+    INFO(importOutput.str());
+
+    // Specified version is already installed. It should have been updated since we ignored the version.
+    REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
+}
+
 TEST_CASE("ImportFlow_MissingSource", "[ImportFlow][workflow]")
 {
     TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
@@ -1197,6 +1251,27 @@ TEST_CASE("ImportFlow_MissingPackage", "[ImportFlow][workflow]")
     REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
     REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed).get()) != std::string::npos);
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
+}
+
+TEST_CASE("ImportFlow_IgnoreMissingPackage", "[ImportFlow][workflow]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    OverrideForImportSource(context);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Bad-UnknownPackage.json").GetPath().string());
+    context.Args.AddArg(Execution::Args::Type::IgnoreUnavailable);
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+    INFO(importOutput.str());
+
+    // Verify installer was called for the package that was available.
+    REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed).get()) != std::string::npos);
+    REQUIRE_TERMINATED_WITH(context, S_OK);
 }
 
 TEST_CASE("ImportFlow_MissingVersion", "[ImportFlow][workflow]")

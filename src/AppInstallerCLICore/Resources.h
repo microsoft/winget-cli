@@ -50,6 +50,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExportCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExportIncludeVersionsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExportSourceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExtraPositionalError);
         WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledMessage);
@@ -74,6 +75,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportFileArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ImportIgnorePackageVersionsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportIgnoreUnavailableArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportInstallFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportPackageAlreadyInstalled);

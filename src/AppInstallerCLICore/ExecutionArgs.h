@@ -57,10 +57,12 @@ namespace AppInstaller::CLI::Execution
 
             // Export Command
             OutputFile,
+            IncludeVersions,
 
             // Import Command
             ImportFile,
             IgnoreUnavailable,
+            IgnoreVersions,
 
             // Other
             All, // Used in Update command to update all installed packages to latest

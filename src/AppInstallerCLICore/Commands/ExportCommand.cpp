@@ -16,6 +16,7 @@ namespace AppInstaller::CLI
         return {
             Argument{ "output", 'o', Execution::Args::Type::OutputFile, Resource::String::OutputFileArgumentDescription, ArgumentType::Positional, true },
             Argument{ "source", 's', Execution::Args::Type::Source, Resource::String::ExportSourceArgumentDescription, ArgumentType::Standard },
+            Argument{ "include-versions", Argument::NoAlias, Execution::Args::Type::IncludeVersions, Resource::String::ExportIncludeVersionsArgumentDescription, ArgumentType::Flag },
         };
     }
 

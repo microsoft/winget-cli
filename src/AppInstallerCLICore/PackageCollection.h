@@ -22,6 +22,8 @@ namespace AppInstaller::CLI
         struct Package
         {
             Package() = default;
+            Package(Utility::LocIndString&& id) :
+                Id(std::move(id)) {}
             Package(Utility::LocIndString&& id, Utility::Version&& version, Utility::Channel&& channel) :
                 Id(std::move(id)), VersionAndChannel(std::move(version), std::move(channel)) {}
             Package(Utility::LocIndString&& id, Utility::VersionAndChannel&& versionAndChannel) :

@@ -79,21 +79,6 @@ namespace AppInstaller::CLI
             return source;
         }
 
-        // Gets the available PackageVersion that has the same version as the installed version.
-        // The package must have an installed version.
-        // Returns null if not available.
-        std::shared_ptr<IPackageVersion> GetAvailableVersionMatchingInstalled(const IPackage& package)
-        {
-            auto installedVersion = package.GetInstalledVersion();
-            PackageVersionKey installedVersionKey
-            {
-                "",
-                installedVersion->GetProperty(PackageVersionProperty::Version).get(),
-                installedVersion->GetProperty(PackageVersionProperty::Channel).get(),
-            };
-            return package.GetAvailableVersion(installedVersionKey);
-        }
-
         // Creates a minimal root object of a Packages JSON file.
         Json::Value CreateRoot(const std::string& wingetVersion)
         {
@@ -114,9 +99,15 @@ namespace AppInstaller::CLI
         {
             Json::Value packageNode{ Json::ValueType::objectValue };
             packageNode[s_PackagesJson_Package_Id] = package.Id.get();
-            packageNode[s_PackagesJson_Package_Version] = package.VersionAndChannel.GetVersion().ToString();
 
-            // Only add channel if present
+            // Only add version and channel if present.
+            // Packages may not have a channel, or versions may not have been requested.
+            const std::string& version = package.VersionAndChannel.GetVersion().ToString();
+            if (!version.empty())
+            {
+                packageNode[s_PackagesJson_Package_Version] = version;
+            }
+
             const std::string& channel = package.VersionAndChannel.GetChannel().ToString();
             if (!channel.empty())
             {
