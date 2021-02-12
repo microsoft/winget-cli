@@ -27,18 +27,6 @@ namespace AppInstaller::Repository::Rest
         // Make search for everything work
         RestClient::SearchResult results = m_restClient.Search(request);
         SearchResult returnVal;
-
-        /*web::http::client::http_client client(L"https://jsonplaceholder.typicode.com/posts");
-        client.request(web::http::methods::GET, U("/"))
-            .then([](const web::http::http_response& response) {
-            try {
-                std::cout << response.status_code();
-            }
-            catch (const web::http::http_exception& e) {
-                std::cout << "error " << e.what() << std::endl;
-            }
-                }).wait();*/
-
         return returnVal;
     }
 }
