@@ -11,10 +11,11 @@
 
 using namespace std::filesystem;
 
-std::string_view registrySubkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
-std::string_view defaultProductID = "{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}";
+std::wstring_view registrySubkey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
+std::wstring_view defaultProductID = L"{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}";
+std::wstring_view defaultVersion = L"1.0.0.0";
 
-path GenerateUninstaller(std::ostream& out, const path& installDirectory, const std::string& productID)
+path GenerateUninstaller(std::wostream& out, const path& installDirectory, const std::wstring& productID)
 {
     path uninstallerPath = installDirectory;
     uninstallerPath /= "UninstallTestExe.bat";
@@ -24,7 +25,7 @@ path GenerateUninstaller(std::ostream& out, const path& installDirectory, const 
     path uninstallerOutputTextFilePath = installDirectory;
     uninstallerOutputTextFilePath /= "TestExeUninstalled.txt";
 
-    std::string registryKey{ "HKEY_CURRENT_USER\\" };
+    std::wstring registryKey{ L"HKEY_CURRENT_USER\\" };
     registryKey += registrySubkey;
     if (!productID.empty())
     {
@@ -35,7 +36,7 @@ path GenerateUninstaller(std::ostream& out, const path& installDirectory, const 
         registryKey += defaultProductID;
     }
 
-    std::ofstream uninstallerScript(uninstallerPath);
+    std::wofstream uninstallerScript(uninstallerPath);
     uninstallerScript << "@echo off\n";
     uninstallerScript << "ECHO. >" << uninstallerOutputTextFilePath << "\n";
     uninstallerScript << "ECHO AppInstallerTestExeInstaller.exe uninstalled successfully.\n";
@@ -45,19 +46,18 @@ path GenerateUninstaller(std::ostream& out, const path& installDirectory, const 
     return uninstallerPath;
 }
 
-void WriteToUninstallRegistry(std::ostream& out, const std::string& productID, const path& uninstallerPath)
+void WriteToUninstallRegistry(std::wostream& out, const std::wstring& productID, const path& uninstallerPath, const std::wstring& displayVersion)
 {
     HKEY hkey;
     LONG lReg;
 
     // String inputs to registry must be of wide char type
     const wchar_t* displayName = L"AppInstallerTestExeInstaller";
-    const wchar_t* displayVersion = L"1.0.0.0";
     const wchar_t* publisher = L"Microsoft Corporation";
     const wchar_t* uninstallString = uninstallerPath.c_str();
     DWORD version = 1;
 
-    std::string registryKey{ registrySubkey };
+    std::wstring registryKey{ registrySubkey };
 
     if (!productID.empty()) 
     {
@@ -70,7 +70,7 @@ void WriteToUninstallRegistry(std::ostream& out, const std::string& productID, c
         out << "Default Product Code used: " << registryKey << "\n";
     }
 
-    lReg = RegCreateKeyExA(
+    lReg = RegCreateKeyEx(
         HKEY_CURRENT_USER,
         registryKey.c_str(),
         0,
@@ -92,7 +92,7 @@ void WriteToUninstallRegistry(std::ostream& out, const std::string& productID, c
         }
 
         // Set Display Version Property Value
-        if (LONG res = RegSetValueEx(hkey, L"DisplayVersion", NULL, REG_SZ, (LPBYTE)displayVersion, (DWORD)(wcslen(displayVersion) + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
+        if (LONG res = RegSetValueEx(hkey, L"DisplayVersion", NULL, REG_SZ, (LPBYTE)displayVersion.c_str(), (DWORD)(displayVersion.length() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
         {
             out << "Failed to write DisplayVersion value. Error Code: " << res << "\n";
         }
@@ -125,44 +125,56 @@ void WriteToUninstallRegistry(std::ostream& out, const std::string& productID, c
 }
 
 // The installer prints all args to an output file and writes to the Uninstall registry key
-int main(int argc, const char** argv)
+int wmain(int argc, const wchar_t** argv)
 {
     path installDirectory = temp_directory_path();
-    std::stringstream outContent;
-    std::string productCode;
+    std::wstringstream outContent;
+    std::wstring productCode;
+    std::wstring version;
 
     // Output to cout by default, but swap to a file if requested
-    std::ostream* out = &std::cout;
-    std::ofstream logFile;
+    std::wostream* out = &std::wcout;
+    std::wofstream logFile;
 
     for (int i = 1; i < argc; i++)
     {
         outContent << argv[i] << ' ';
 
         // Supports custom install path.
-        if (_stricmp(argv[i], "/InstallDir") == 0 && ++i < argc)
+        if (_wcsicmp(argv[i], L"/InstallDir") == 0 && ++i < argc)
         {
             installDirectory = argv[i];
             outContent << argv[i] << ' ';
         }
         
         // Supports custom product code ID
-        if (_stricmp(argv[i], "/ProductID") == 0 && ++i < argc)
+        if (_wcsicmp(argv[i], L"/ProductID") == 0 && ++i < argc)
         {
             productCode = argv[i];
         }
 
-        // Supports log file
-        if (_stricmp(argv[i], "/LogFile") == 0 && ++i < argc)
+        // Supports custom version
+        if (_wcsicmp(argv[i], L"/Version") == 0 && ++i < argc)
         {
-            logFile = std::ofstream(argv[i], std::ofstream::out | std::ofstream::trunc);
+            version = argv[i];
+        }
+
+        // Supports log file
+        if (_wcsicmp(argv[i], L"/LogFile") == 0 && ++i < argc)
+        {
+            logFile = std::wofstream(argv[i], std::wofstream::out | std::wofstream::trunc);
             out = &logFile;
         }
     }
 
+    if (version.empty())
+    {
+        version = defaultVersion;
+    }
+
     path outFilePath = installDirectory;
     outFilePath /= "TestExeInstalled.txt";
-    std::ofstream file(outFilePath, std::ofstream::out);
+    std::wofstream file(outFilePath, std::ofstream::out);
 
     file << outContent.str();
 
@@ -170,7 +182,7 @@ int main(int argc, const char** argv)
 
     path uninstallerPath = GenerateUninstaller(*out, installDirectory, productCode);
 
-    WriteToUninstallRegistry(*out, productCode, uninstallerPath);
+    WriteToUninstallRegistry(*out, productCode, uninstallerPath, version);
    
     return 0;
 }

@@ -450,6 +450,7 @@ VOS
 vso
 wapproj
 wchar
+wcout
 wcsicmp
 webpage
 wekyb
@@ -465,11 +466,14 @@ winsqlite
 wix
 wmain
 woah
+wofstream
 workflow
+wostream
 wpfn
 wrl
 WStr
 wstring
+wstringstream
 www
 xamarin
 xlang

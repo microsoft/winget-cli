@@ -20,6 +20,7 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_SourcesYaml_Source_Type = "Type"sv;
     constexpr std::string_view s_SourcesYaml_Source_Arg = "Arg"sv;
     constexpr std::string_view s_SourcesYaml_Source_Data = "Data"sv;
+    constexpr std::string_view s_SourcesYaml_Source_Identifier = "Identifier"sv;
     constexpr std::string_view s_SourcesYaml_Source_IsTombstone = "IsTombstone"sv;
 
     constexpr std::string_view s_MetadataYaml_Sources = "Sources"sv;
@@ -29,10 +30,12 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_Source_WingetCommunityDefault_Name = "winget"sv;
     constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://winget.azureedge.net/cache"sv;
     constexpr std::string_view s_Source_WingetCommunityDefault_Data = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
+    constexpr std::string_view s_Source_WingetCommunityDefault_Identifier = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
 
     constexpr std::string_view s_Source_WingetMSStoreDefault_Name = "msstore"sv;
     constexpr std::string_view s_Source_WingetMSStoreDefault_Arg = "https://winget.azureedge.net/msstore"sv;
     constexpr std::string_view s_Source_WingetMSStoreDefault_Data = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
+    constexpr std::string_view s_Source_WingetMSStoreDefault_Identifier = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
 
     namespace
     {
@@ -187,6 +190,7 @@ namespace AppInstaller::Repository
                 details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
                 details.Arg = s_Source_WingetCommunityDefault_Arg;
                 details.Data = s_Source_WingetCommunityDefault_Data;
+                details.Identifier = s_Source_WingetCommunityDefault_Identifier;
                 details.TrustLevel = SourceTrustLevel::Trusted;
                 result.emplace_back(std::move(details));
 
@@ -197,6 +201,7 @@ namespace AppInstaller::Repository
                     storeDetails.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
                     storeDetails.Arg = s_Source_WingetMSStoreDefault_Arg;
                     storeDetails.Data = s_Source_WingetMSStoreDefault_Data;
+                    storeDetails.Identifier = s_Source_WingetMSStoreDefault_Identifier;
                     storeDetails.TrustLevel = SourceTrustLevel::Trusted;
                     result.emplace_back(std::move(storeDetails));
                 }
@@ -214,6 +219,7 @@ namespace AppInstaller::Repository
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Arg, details.Arg)) { return false; }
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Data, details.Data)) { return false; }
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, details.IsTombstone)) { return false; }
+                        TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier);
                         return true;
                     });
                 break;
@@ -246,6 +252,7 @@ namespace AppInstaller::Repository
                     out << YAML::Key << s_SourcesYaml_Source_Type << YAML::Value << details.Type;
                     out << YAML::Key << s_SourcesYaml_Source_Arg << YAML::Value << details.Arg;
                     out << YAML::Key << s_SourcesYaml_Source_Data << YAML::Value << details.Data;
+                    out << YAML::Key << s_SourcesYaml_Source_Identifier << YAML::Value << details.Identifier;
                     out << YAML::Key << s_SourcesYaml_Source_IsTombstone << YAML::Value << details.IsTombstone;
                     out << YAML::EndMap;
                 }
@@ -374,7 +381,7 @@ namespace AppInstaller::Repository
             constexpr static auto s_ZeroMins = 0min;
             auto autoUpdateTime = User().Get<Setting::AutoUpdateTimeInMinutes>();
 
-            // A value of zero means no auto update, to get update the source run `winget update` 
+            // A value of zero means no auto update, to get update the source run `winget update`
             if (autoUpdateTime != s_ZeroMins)
             {
                 auto autoUpdateTimeMins = std::chrono::minutes(autoUpdateTime);
@@ -603,6 +610,7 @@ namespace AppInstaller::Repository
         AddSourceFromDetails(details, progress);
 
         AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
+        AICLI_LOG(Repo, Info, << "Source created with identifier: " << details.Identifier);
 
         sourceList.AddSource(details);
     }
@@ -724,7 +732,7 @@ namespace AppInstaller::Repository
         THROW_HR(E_UNEXPECTED);
     }
 
-    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource)
+    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource, CompositeSearchBehavior searchBehavior)
     {
         std::shared_ptr<CompositeSource> result = std::dynamic_pointer_cast<CompositeSource>(availableSource);
 
@@ -734,7 +742,7 @@ namespace AppInstaller::Repository
             result->AddAvailableSource(availableSource);
         }
 
-        result->SetInstalledSource(installedSource);
+        result->SetInstalledSource(installedSource, searchBehavior);
 
         return result;
     }

@@ -17,7 +17,8 @@ namespace TestCommon
         using LocIndString = AppInstaller::Utility::LocIndString;
         using MetadataMap = AppInstaller::Repository::IPackageVersion::Metadata;
 
-        TestPackageVersion(const Manifest& manifest, MetadataMap installationMetadata = {});
+        TestPackageVersion(const Manifest& manifest, std::weak_ptr<const ISource> source = {});
+        TestPackageVersion(const Manifest& manifest, MetadataMap installationMetadata);
 
         template <typename... Args>
         static std::shared_ptr<TestPackageVersion> Make(Args&&... args)
@@ -33,7 +34,7 @@ namespace TestCommon
 
         Manifest VersionManifest;
         MetadataMap Metadata;
-        std::shared_ptr<const ISource> Source;
+        std::weak_ptr<const ISource> Source;
 
     protected:
         static void AddFoldedIfHasValueAndNotPresent(const AppInstaller::Utility::NormalizedString& value, std::vector<LocIndString>& target);
@@ -43,14 +44,15 @@ namespace TestCommon
     struct TestPackage : public AppInstaller::Repository::IPackage
     {
         using Manifest = AppInstaller::Manifest::Manifest;
+        using ISource = AppInstaller::Repository::ISource;
         using LocIndString = AppInstaller::Utility::LocIndString;
         using MetadataMap = TestPackageVersion::MetadataMap;
 
         // Create a package with only available versions using these manifests.
-        TestPackage(const std::vector<Manifest>& available);
+        TestPackage(const std::vector<Manifest>& available, std::weak_ptr<const ISource> source = {});
 
         // Create a package with an installed version, metadata, and optionally available versions.
-        TestPackage(const Manifest& installed, MetadataMap installationMetadata, const std::vector<Manifest>& available = {});
+        TestPackage(const Manifest& installed, MetadataMap installationMetadata, const std::vector<Manifest>& available = {}, std::weak_ptr<const ISource> source = {});
 
         template <typename... Args>
         static std::shared_ptr<TestPackage> Make(Args&&... args)
@@ -70,15 +72,14 @@ namespace TestCommon
     };
 
     // An ISource implementation for use across the test code.
-    struct TestSource : public AppInstaller::Repository::ISource
+    struct TestSource : public AppInstaller::Repository::ISource, public std::enable_shared_from_this<TestSource>
     {
         const AppInstaller::Repository::SourceDetails& GetDetails() const override;
         const std::string& GetIdentifier() const override;
         AppInstaller::Repository::SearchResult Search(const AppInstaller::Repository::SearchRequest& request) const override;
         bool IsComposite() const override;
 
-        AppInstaller::Repository::SourceDetails Details;
-        std::string Identifier = "*TestSource";
+        AppInstaller::Repository::SourceDetails Details = { "TestSource", "Microsoft.TestSource", "//arg", "", "*TestSource" };
         std::function<AppInstaller::Repository::SearchResult(const AppInstaller::Repository::SearchRequest& request)> SearchFunction;
         bool Composite = false;
     };

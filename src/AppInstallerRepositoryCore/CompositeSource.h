@@ -41,7 +41,7 @@ namespace AppInstaller::Repository
         void AddAvailableSource(std::shared_ptr<ISource> source);
 
         // Sets the installed source to be composited.
-        void SetInstalledSource(std::shared_ptr<ISource> source);
+        void SetInstalledSource(std::shared_ptr<ISource> source, CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
 
     private:
         // Performs a search when an installed source is present.
@@ -57,7 +57,7 @@ namespace AppInstaller::Repository
         std::shared_ptr<ISource> m_installedSource;
         std::vector<std::shared_ptr<ISource>> m_availableSources;
         SourceDetails m_details;
-        std::string m_identifier;
+        CompositeSearchBehavior m_searchBehavior;
     };
 }
 

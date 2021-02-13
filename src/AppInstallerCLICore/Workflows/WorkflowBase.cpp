@@ -36,6 +36,53 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << Resource::String::ReportIdentityFound << ' ' << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << ']' << std::endl;
         }
 
+        std::shared_ptr<ISource> OpenNamedSource(Execution::Context& context, std::string_view sourceName)
+        {
+            std::shared_ptr<Repository::ISource> source;
+            try
+            {
+                auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1), true);
+                source = result.Source;
+
+                // We'll only report the source update failure as warning and continue
+                for (const auto& s : result.SourcesWithUpdateFailure)
+                {
+                    context.Reporter.Warn() << Resource::String::SourceOpenWithFailedUpdate << ' ' << s.Name << std::endl;
+                }
+            }
+            catch (...)
+            {
+                context.Reporter.Error() << Resource::String::SourceOpenFailedSuggestion << std::endl;
+                throw;
+            }
+
+            if (!source)
+            {
+                std::vector<SourceDetails> sources = GetSources();
+
+                if (!sourceName.empty() && !sources.empty())
+                {
+                    // A bad name was given, try to help.
+                    context.Reporter.Error() << Resource::String::OpenSourceFailedNoMatch << ' ' << sourceName << std::endl;
+                    context.Reporter.Info() << Resource::String::OpenSourceFailedNoMatchHelp << std::endl;
+                    for (const auto& details : sources)
+                    {
+                        context.Reporter.Info() << "  "_liv << details.Name << std::endl;
+                    }
+
+                    AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST, {});
+                }
+                else
+                {
+                    // Even if a name was given, there are no sources
+                    context.Reporter.Error() << Resource::String::OpenSourceFailedNoSourceDefined << std::endl;
+                    AICLI_TERMINATE_CONTEXT_RETURN(APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED, {});
+                }
+            }
+
+            return source;
+        }
+
         void SearchSourceApplyFilters(Execution::Context& context, SearchRequest& searchRequest, MatchType matchType)
         {
             const auto& args = context.Args;
@@ -102,50 +149,30 @@ namespace AppInstaller::CLI::Workflow
             sourceName = context.Args.GetArg(Execution::Args::Type::Source);
         }
 
-        std::shared_ptr<Repository::ISource> source;
-        try
+        auto source = OpenNamedSource(context, sourceName);
+        if (context.IsTerminated())
         {
-            auto result = context.Reporter.ExecuteWithProgress(std::bind(Repository::OpenSource, sourceName, std::placeholders::_1), true);
-            source = result.Source;
-
-            // We'll only report the source update failure as warning and continue
-            for (const auto& s : result.SourcesWithUpdateFailure)
-            {
-                context.Reporter.Warn() << Resource::String::SourceOpenWithFailedUpdate << ' ' << s.Name << std::endl;
-            }
-        }
-        catch (...)
-        {
-            context.Reporter.Error() << Resource::String::SourceOpenFailedSuggestion << std::endl;
-            throw;
+            return;
         }
 
-        if (!source)
+        context.Add<Execution::Data::Source>(std::move(source));
+    }
+
+    void OpenNamedSourceForSources::operator()(Execution::Context& context) const
+    {
+        auto source = OpenNamedSource(context, m_sourceName);
+        if (context.IsTerminated())
         {
-            std::vector<SourceDetails> sources = GetSources();
+            return;
+        }
 
-            if (context.Args.Contains(Execution::Args::Type::Source) && !sources.empty())
-            {
-                // A bad name was given, try to help.
-                context.Reporter.Error() << Resource::String::OpenSourceFailedNoMatch << ' ' << context.Args.GetArg(Execution::Args::Type::Source) << std::endl;
-                context.Reporter.Info() << Resource::String::OpenSourceFailedNoMatchHelp << std::endl;
-                for (const auto& details : sources)
-                {
-                    context.Reporter.Info() << "  "_liv << details.Name << std::endl;
-                }
-
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
-            }
-            else
-            {
-                // Even if a name was given, there are no sources
-                context.Reporter.Error() << Resource::String::OpenSourceFailedNoSourceDefined << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED);
-            }
+        if (!context.Contains(Execution::Data::Sources))
+        {
+            context.Add<Execution::Data::Sources>({ std::move(source) });
         }
         else
         {
-            context.Add<Execution::Data::Source>(std::move(source));
+            context.Get<Execution::Data::Sources>().emplace_back(std::move(source));
         }
     }
 
@@ -472,12 +499,9 @@ namespace AppInstaller::CLI::Workflow
         };
     }
 
-    void GetManifestFromPackage(Execution::Context& context)
+    void GetManifestWithVersionFromPackage::operator()(Execution::Context& context) const
     {
-        std::string_view version = context.Args.GetArg(Execution::Args::Type::Version);
-        std::string_view channel = context.Args.GetArg(Execution::Args::Type::Channel);
-
-        PackageVersionKey key("", version, channel);
+        PackageVersionKey key("", m_version, m_channel);
         auto requestedVersion = context.Get<Execution::Data::Package>()->GetAvailableVersion(key);
 
         std::optional<Manifest::Manifest> manifest;
@@ -488,23 +512,29 @@ namespace AppInstaller::CLI::Workflow
 
         if (!manifest)
         {
-            context.Reporter.Error() << Resource::String::GetManifestResultVersionNotFound << ' ';
-            if (!version.empty())
+            auto errorStream = context.Reporter.Error();
+            errorStream << Resource::String::GetManifestResultVersionNotFound << ' ';
+            if (!m_version.empty())
             {
-                context.Reporter.Error() << version;
+                errorStream << m_version;
             }
-            if (!channel.empty())
+            if (!m_channel.empty())
             {
-                context.Reporter.Error() << '[' << channel << ']';
+                errorStream << '[' << m_channel << ']';
             }
 
-            context.Reporter.Error() << std::endl;
+            errorStream << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
         }
 
         Logging::Telemetry().LogManifestFields(manifest->Id, manifest->Name, manifest->Version);
         context.Add<Execution::Data::Manifest>(std::move(manifest.value()));
         context.Add<Execution::Data::PackageVersion>(std::move(requestedVersion));
+    }
+
+    void GetManifestFromPackage(Execution::Context& context)
+    {
+        context << GetManifestWithVersionFromPackage(context.Args.GetArg(Execution::Args::Type::Version), context.Args.GetArg(Execution::Args::Type::Channel));
     }
 
     void VerifyFile::operator()(Execution::Context& context) const
