@@ -53,33 +53,26 @@ namespace AppInstaller::CLI::Workflow
         {
             return std::find_if(sources.begin(), sources.end(), GetSourceDetailsEquivalencePredicate<T>(details));
         }
-    }
 
-    void SelectVersionsToExport(Execution::Context& context)
-    {
-        const auto& searchResult = context.Get<Execution::Data::SearchResult>();
-        PackageCollection exportedPackages;
-        exportedPackages.ClientVersion = Runtime::GetClientVersion().get();
-        auto& exportedSources = exportedPackages.Sources;
-        for (const auto& packageMatch : searchResult.Matches)
+        // Gets the available version of an installed package.
+        // If requested, checks that the installed version is available and reports a warning if it is not.
+        std::shared_ptr<IPackageVersion> GetAvailableVersionForInstalledPackage(
+            Execution::Context& context,
+            std::shared_ptr<IPackage> package,
+            std::string_view version,
+            std::string_view channel,
+            bool checkVersion)
         {
-            auto installedPackageVersion = packageMatch.Package->GetInstalledVersion();
-            auto version = installedPackageVersion->GetProperty(PackageVersionProperty::Version);
-            auto channel = installedPackageVersion->GetProperty(PackageVersionProperty::Channel);
+            if (!checkVersion)
+            {
+                return package->GetLatestAvailableVersion();
+            }
 
-            // Find an available version of this package to determine its source.
-            auto availablePackageVersion = packageMatch.Package->GetAvailableVersion({ "", version.get(), channel.get() });
+            auto availablePackageVersion = package->GetAvailableVersion({ "", version, channel });
             if (!availablePackageVersion)
             {
-                availablePackageVersion = packageMatch.Package->GetLatestAvailableVersion();
-                if (!availablePackageVersion)
-                {
-                    // Report package not found and move to next package.
-                    AICLI_LOG(CLI, Warning, << "No available version of package [" << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << "] was found to export");
-                    context.Reporter.Warn() << Resource::String::InstalledPackageNotAvailable << ' ' << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << std::endl;
-                    continue;
-                }
-                else
+                availablePackageVersion = package->GetLatestAvailableVersion();
+                if (availablePackageVersion)
                 {
                     // Warn installed version is not available.
                     AICLI_LOG(
@@ -93,6 +86,33 @@ namespace AppInstaller::CLI::Workflow
                         << ' ' << availablePackageVersion->GetProperty(PackageVersionProperty::Id)
                         << ' ' << version << ' ' << channel << std::endl;
                 }
+            }
+
+            return availablePackageVersion;
+        }
+    }
+
+    void SelectVersionsToExport(Execution::Context& context)
+    {
+        const auto& searchResult = context.Get<Execution::Data::SearchResult>();
+        const bool includeVersions = context.Args.Contains(Execution::Args::Type::IncludeVersions);
+        PackageCollection exportedPackages;
+        exportedPackages.ClientVersion = Runtime::GetClientVersion().get();
+        auto& exportedSources = exportedPackages.Sources;
+        for (const auto& packageMatch : searchResult.Matches)
+        {
+            auto installedPackageVersion = packageMatch.Package->GetInstalledVersion();
+            auto version = installedPackageVersion->GetProperty(PackageVersionProperty::Version);
+            auto channel = installedPackageVersion->GetProperty(PackageVersionProperty::Channel);
+
+            // Find an available version of this package to determine its source.
+            auto availablePackageVersion = GetAvailableVersionForInstalledPackage(context, packageMatch.Package, version, channel, includeVersions);
+            if (!availablePackageVersion)
+            {
+                // Report package not found and move to next package.
+                AICLI_LOG(CLI, Warning, << "No available version of package [" << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << "] was found to export");
+                context.Reporter.Warn() << Resource::String::InstalledPackageNotAvailable << ' ' << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << std::endl;
+                continue;
             }
 
             const auto& sourceDetails = availablePackageVersion->GetSource()->GetDetails();
@@ -109,7 +129,7 @@ namespace AppInstaller::CLI::Workflow
 
             // Take the Id from the available package because that is the one used in the source,
             // but take the exported version from the installed package if needed.
-            if (context.Args.Contains(Execution::Args::Type::IncludeVersions))
+            if (includeVersions)
             {
                 sourceItr->Packages.emplace_back(
                     availablePackageVersion->GetProperty(PackageVersionProperty::Id),
