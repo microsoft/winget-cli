@@ -18,6 +18,8 @@ namespace AppInstaller::Manifest
 
         string_t Version;
 
+        string_t Channel;
+
         string_t Moniker;
 
         ManifestVer ManifestVersion;

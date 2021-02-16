@@ -12,6 +12,7 @@ namespace AppInstaller::CLI::Workflow
     namespace
     {
         // Determine if the installer is applicable.
+        // TODO: Implement a mechanism for better error messaging for no applicable installer scenario
         bool IsInstallerApplicable(const Manifest::ManifestInstaller& installer, Manifest::InstallerTypeEnum installedType)
         {
             // Check MinOSVersion
@@ -42,24 +43,6 @@ namespace AppInstaller::CLI::Workflow
             const Manifest::ManifestInstaller& installer2,
             Manifest::InstallerTypeEnum installedType)
         {
-            bool isOSVersionSatisfied1 = installer1.MinOSVersion.empty() || Runtime::IsCurrentOSVersionGreaterThanOrEqual(Utility::Version(installer1.MinOSVersion));
-            bool isOSVersionSatisfied2 = installer2.MinOSVersion.empty() || Runtime::IsCurrentOSVersionGreaterThanOrEqual(Utility::Version(installer2.MinOSVersion));
-
-            if (isOSVersionSatisfied1 && !isOSVersionSatisfied2)
-            {
-                return true;
-            }
-
-            auto arch1 = Utility::IsApplicableArchitecture(installer1.Arch);
-            auto arch2 = Utility::IsApplicableArchitecture(installer2.Arch);
-
-            // Applicable architecture should always come before inapplicable architecture
-            if (arch1 != Utility::InapplicableArchitecture &&
-                arch2 == Utility::InapplicableArchitecture)
-            {
-                return true;
-            }
-
             // If there's installation metadata, pick the preferred one or compatible one
             if (installedType != Manifest::InstallerTypeEnum::Unknown)
             {
@@ -67,14 +50,12 @@ namespace AppInstaller::CLI::Workflow
                 {
                     return true;
                 }
-                if (Manifest::IsInstallerTypeCompatible(installer1.InstallerType, installedType) &&
-                    !Manifest::IsInstallerTypeCompatible(installer2.InstallerType, installedType))
-                {
-                    return true;
-                }
             }
 
             // Todo: Compare only architecture for now. Need more work and spec.
+            auto arch1 = Utility::IsApplicableArchitecture(installer1.Arch);
+            auto arch2 = Utility::IsApplicableArchitecture(installer2.Arch);
+
             if (arch1 > arch2)
             {
                 return true;
@@ -107,7 +88,7 @@ namespace AppInstaller::CLI::Workflow
                     result = &installer;
                 }
             }
-            else if (IsInstallerBetterMatch(installer, *result, installedType))
+            else if (IsInstallerApplicable(installer, installedType) && IsInstallerBetterMatch(installer, *result, installedType))
             {
                 result = &installer;
             }

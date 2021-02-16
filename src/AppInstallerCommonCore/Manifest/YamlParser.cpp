@@ -20,8 +20,8 @@ namespace AppInstaller::Manifest::YamlParser
         //   - DefaultLocale matches in version manifest and defaultLocale manifest
         // - Validate manifest type correctness
         //   - Allowed file type in multi file manifest: version, installer, defaultLocale, locale
-        //   - Allowed file type in multi file manifest: preview manifest, merged and singleton
-        ManifestVer ValidateInput(std::vector<YamlManifestInfo>& input, bool fullValidation, bool isPartialManifest)
+        //   - Allowed file type in single file manifest: preview manifest, merged and singleton
+        ManifestVer ValidateInput(std::vector<YamlManifestInfo>& input, bool fullValidation, bool schemaValidationOnly)
         {
             std::vector<ValidationError> errors;
 
@@ -178,7 +178,7 @@ namespace AppInstaller::Manifest::YamlParser
                     errors.emplace_back(ManifestError::InconsistentMultiFileManifestDefaultLocale);
                 }
 
-                if (!isPartialManifest && !(isVersionManifestFound && isInstallerManifestFound && isDefaultLocaleManifestFound))
+                if (!schemaValidationOnly && !(isVersionManifestFound && isInstallerManifestFound && isDefaultLocaleManifestFound))
                 {
                     errors.emplace_back(ManifestError::IncompleteMultiFileManifest);
                 }
@@ -196,7 +196,7 @@ namespace AppInstaller::Manifest::YamlParser
                         errors.emplace_back(ValidationError::MessageFieldValueWithFile(ManifestError::FieldValueNotSupported, "ManifestType", manifestTypeStr, firstYamlManifest.FileName));
                     }
 
-                    if (!isPartialManifest && manifestType != ManifestTypeEnum::Merged && manifestType != ManifestTypeEnum::Singleton)
+                    if (!schemaValidationOnly && manifestType != ManifestTypeEnum::Merged && manifestType != ManifestTypeEnum::Singleton)
                     {
                         errors.emplace_back(ValidationError::MessageWithFile(ManifestError::IncompleteMultiFileManifest, firstYamlManifest.FileName));
                     }
@@ -337,26 +337,23 @@ namespace AppInstaller::Manifest::YamlParser
             std::vector<YamlManifestInfo>& input,
             Manifest& manifest,
             bool fullValidation,
-            PCWSTR resourceDll,
             const std::filesystem::path& mergedManifestPath,
-            bool isPartialManifest)
+            bool schemaValidationOnly)
         {
             THROW_HR_IF_MSG(E_INVALIDARG, input.size() == 0, "No manifest file found");
-            THROW_HR_IF_MSG(E_INVALIDARG, isPartialManifest && !mergedManifestPath.empty(), "Manifest cannot be merged from partial manifest");
+            THROW_HR_IF_MSG(E_INVALIDARG, schemaValidationOnly && !mergedManifestPath.empty(), "Manifest cannot be merged if only schema validation is performed");
             THROW_HR_IF_MSG(E_INVALIDARG, input.size() == 1 && !mergedManifestPath.empty(), "Manifest cannot be merged from a single manifest");
-            THROW_HR_IF_MSG(E_INVALIDARG, !fullValidation && isPartialManifest, "For partial manifest, only schema validations are performed");
 
-            auto manifestVersion = ValidateInput(input, fullValidation, isPartialManifest);
+            auto manifestVersion = ValidateInput(input, fullValidation, schemaValidationOnly);
 
             std::vector<ValidationError> resultErrors;
 
-            if (fullValidation)
+            if (fullValidation || schemaValidationOnly)
             {
-                resultErrors = ValidateAgainstSchema(input, manifestVersion, resourceDll);
+                resultErrors = ValidateAgainstSchema(input, manifestVersion);
             }
 
-            // For partial manifest, only schema validations are performed
-            if (isPartialManifest)
+            if (schemaValidationOnly)
             {
                 return resultErrors;
             }
@@ -388,9 +385,8 @@ namespace AppInstaller::Manifest::YamlParser
         const std::filesystem::path& inputPath,
         bool fullValidation,
         bool throwOnWarning,
-        PCWSTR resourceDll,
         const std::filesystem::path& mergedManifestPath,
-        bool isPartialManifest)
+        bool schemaValidationOnly)
     {
         std::vector<YamlManifestInfo> docList;
 
@@ -421,16 +417,15 @@ namespace AppInstaller::Manifest::YamlParser
             THROW_EXCEPTION_MSG(ManifestException(), e.what());
         }
 
-        return ParseManifest(docList, fullValidation, throwOnWarning, resourceDll, mergedManifestPath, isPartialManifest);
+        return ParseManifest(docList, fullValidation, throwOnWarning, mergedManifestPath, schemaValidationOnly);
     }
 
     Manifest Create(
         const std::string& input,
         bool fullValidation,
         bool throwOnWarning,
-        PCWSTR resourceDll,
         const std::filesystem::path& mergedManifestPath,
-        bool isPartialManifest)
+        bool schemaValidationOnly)
     {
         std::vector<YamlManifestInfo> docList;
 
@@ -445,23 +440,22 @@ namespace AppInstaller::Manifest::YamlParser
             THROW_EXCEPTION_MSG(ManifestException(), e.what());
         }
 
-        return ParseManifest(docList, fullValidation, throwOnWarning, resourceDll, mergedManifestPath, isPartialManifest);
+        return ParseManifest(docList, fullValidation, throwOnWarning, mergedManifestPath, schemaValidationOnly);
     }
 
     Manifest ParseManifest(
         std::vector<YamlManifestInfo>& input,
         bool fullValidation,
         bool throwOnWarning,
-        PCWSTR resourceDll,
         const std::filesystem::path& mergedManifestPath,
-        bool isPartialManifest)
+        bool schemaValidationOnly)
     {
         Manifest manifest;
         std::vector<ValidationError> errors;
 
         try
         {
-            errors = ParseManifestImpl(input, manifest, fullValidation, resourceDll, mergedManifestPath, isPartialManifest);
+            errors = ParseManifestImpl(input, manifest, fullValidation, mergedManifestPath, schemaValidationOnly);
         }
         catch (const ManifestException&)
         {

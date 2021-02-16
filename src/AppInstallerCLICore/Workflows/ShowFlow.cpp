@@ -79,35 +79,8 @@ namespace AppInstaller::CLI::Workflow
     void ShowManifestVersion(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
-
-        // Channel is moved to installer level, get all channels from all installers
-        std::set<std::string> channels;
-        for (const auto& installer : manifest.Installers)
-        {
-            if (!installer.Channel.empty())
-            {
-                channels.insert(installer.Channel);
-            }
-        }
-
-        std::string channelsStr;
-        bool firstEntry = true;
-        for (const auto& c : channels)
-        {
-            if (firstEntry)
-            {
-                firstEntry = false;
-            }
-            else
-            {
-                channelsStr += ", ";
-            }
-
-            channelsStr += c;
-        }
-
         Execution::TableOutput<2> table(context.Reporter, { Resource::String::ShowVersion, Resource::String::ShowChannel });
-        table.OutputLine({ manifest.Version, channelsStr });
+        table.OutputLine({ manifest.Version, manifest.Channel });
         table.Complete();
     }
 

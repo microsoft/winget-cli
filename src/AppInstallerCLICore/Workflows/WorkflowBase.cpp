@@ -531,7 +531,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!std::filesystem::exists(path))
         {
-            context.Reporter.Error() << Resource::String::VerifyFileFailedNotExist << ' ' << path.u8string() << std::endl;
+            context.Reporter.Error() << Resource::String::VerifyPathFailedNotExist << ' ' << path.u8string() << std::endl;
             AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND));
         }
     }

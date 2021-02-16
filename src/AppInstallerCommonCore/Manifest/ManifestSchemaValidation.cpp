@@ -86,9 +86,13 @@ namespace AppInstaller::Manifest::YamlParser
         }
     }
 
-    std::string LoadResourceAsString(PCWSTR resourceModuleName, PCWSTR resourceName, PCWSTR resourceType)
+    std::string LoadResourceAsString(PCWSTR resourceName, PCWSTR resourceType)
     {
-        HMODULE resourceModule = GetModuleHandle(resourceModuleName);
+        HMODULE resourceModule = NULL;
+        GetModuleHandleEx(
+            GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
+            (PCWSTR)LoadResourceAsString,
+            &resourceModule);
         THROW_LAST_ERROR_IF_NULL(resourceModule);
 
         HRSRC resourceInfoHandle = FindResource(resourceModule, resourceName, resourceType);
@@ -111,7 +115,7 @@ namespace AppInstaller::Manifest::YamlParser
         return resourceStr;
     }
 
-    Json::Value LoadSchemaDoc(const ManifestVer& manifestVersion, ManifestTypeEnum manifestType, PCWSTR resourceModuleName)
+    Json::Value LoadSchemaDoc(const ManifestVer& manifestVersion, ManifestTypeEnum manifestType)
     {
         std::string schemaStr;
 
@@ -120,19 +124,19 @@ namespace AppInstaller::Manifest::YamlParser
             switch (manifestType)
             {
             case AppInstaller::Manifest::ManifestTypeEnum::Singleton:
-                schemaStr = LoadResourceAsString(resourceModuleName, MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_SINGLETON), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                schemaStr = LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_SINGLETON), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
                 break;
             case AppInstaller::Manifest::ManifestTypeEnum::Version:
-                schemaStr = LoadResourceAsString(resourceModuleName, MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_VERSION), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                schemaStr = LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_VERSION), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
                 break;
             case AppInstaller::Manifest::ManifestTypeEnum::Installer:
-                schemaStr = LoadResourceAsString(resourceModuleName, MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_INSTALLER), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                schemaStr = LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_INSTALLER), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
                 break;
             case AppInstaller::Manifest::ManifestTypeEnum::DefaultLocale:
-                schemaStr = LoadResourceAsString(resourceModuleName, MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_DEFAULTLOCALE), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                schemaStr = LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_DEFAULTLOCALE), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
                 break;
             case AppInstaller::Manifest::ManifestTypeEnum::Locale:
-                schemaStr = LoadResourceAsString(resourceModuleName, MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_LOCALE), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+                schemaStr = LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_V1_LOCALE), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
                 break;
             default:
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
@@ -140,7 +144,7 @@ namespace AppInstaller::Manifest::YamlParser
         }
         else
         {
-            schemaStr = LoadResourceAsString(resourceModuleName, MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_PREVIEW), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+            schemaStr = LoadResourceAsString(MAKEINTRESOURCE(IDX_MANIFEST_SCHEMA_PREVIEW), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
         }
 
         Json::Value schemaJson;
@@ -155,7 +159,7 @@ namespace AppInstaller::Manifest::YamlParser
         return schemaJson;
     }
 
-    std::vector<ValidationError> ValidateAgainstSchema(const std::vector<YamlManifestInfo>& manifestList, const ManifestVer& manifestVersion, PCWSTR resourceModuleName)
+    std::vector<ValidationError> ValidateAgainstSchema(const std::vector<YamlManifestInfo>& manifestList, const ManifestVer& manifestVersion)
     {
         std::vector<ValidationError> errors;
         // A list of schema validators to avoid multiple loadings of same schema
@@ -170,7 +174,7 @@ namespace AppInstaller::Manifest::YamlParser
                 valijson::Schema& newSchema = schemaList.emplace(
                     std::piecewise_construct, std::make_tuple(entry.ManifestType), std::make_tuple()).first->second;
                 valijson::SchemaParser schemaParser;
-                Json::Value schemaJson = LoadSchemaDoc(manifestVersion, entry.ManifestType, resourceModuleName);
+                Json::Value schemaJson = LoadSchemaDoc(manifestVersion, entry.ManifestType);
                 valijson::adapters::JsonCppAdapter jsonSchemaAdapter(schemaJson);
                 schemaParser.populateSchema(jsonSchemaAdapter, newSchema);
             }

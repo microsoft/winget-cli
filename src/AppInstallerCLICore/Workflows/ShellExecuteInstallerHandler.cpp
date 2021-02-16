@@ -208,8 +208,7 @@ namespace AppInstaller::CLI::Workflow
         else if (installResult.value() != 0)
         {
             const auto& manifest = context.Get<Execution::Data::Manifest>();
-            const auto& installer = context.Get<Execution::Data::Installer>();
-            Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, installer->Channel, "ShellExecute", installResult.value());
+            Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, "ShellExecute", installResult.value());
 
             context.Reporter.Error() << "Installer failed with exit code: " << installResult.value() << std::endl;
             // Show installer log path if exists

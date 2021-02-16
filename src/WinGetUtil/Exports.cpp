@@ -173,18 +173,44 @@ extern "C"
     CATCH_RETURN()
 
     WINGET_UTIL_API WinGetValidateManifest(
+        WINGET_STRING manifestPath,
+        BOOL* succeeded,
+        WINGET_STRING_OUT* message) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !manifestPath);
+        THROW_HR_IF(E_INVALIDARG, !succeeded);
+
+        try
+        {
+            (void)YamlParser::CreateFromPath(manifestPath, true, true);
+            *succeeded = TRUE;
+        }
+        catch (const ManifestException& e)
+        {
+            *succeeded = e.IsWarningOnly();
+            if (message)
+            {
+                *message = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorMessage()).c_str());
+            }
+        }
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
+    WINGET_UTIL_API WinGetValidateManifestV2(
         WINGET_STRING inputPath,
         BOOL* succeeded,
         WINGET_STRING_OUT* message,
         WINGET_STRING mergedManifestPath,
-        BOOL isPartialManifest) try
+        WinGetValidateManifestOption option) try
     {
         THROW_HR_IF(E_INVALIDARG, !inputPath);
         THROW_HR_IF(E_INVALIDARG, !succeeded);
 
         try
         {
-            (void)YamlParser::CreateFromPath(inputPath, true, true, L"WinGetUtil.dll", mergedManifestPath, isPartialManifest);
+            (void)YamlParser::CreateFromPath(inputPath, true, true, mergedManifestPath, option == WinGetValidateManifestOption::SchemaValidationOnly);
             *succeeded = TRUE;
         }
         catch (const ManifestException& e)

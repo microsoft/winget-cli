@@ -111,6 +111,7 @@ namespace AppInstaller::Manifest
             { "ManifestVersion", [](const YAML::Node&)->ValidationErrors { /* ManifestVersion already populated. Field listed here for duplicate and PascalCase check */ return {}; } },
             { "Installers", [this](const YAML::Node& value)->ValidationErrors { m_p_installersNode = &value; return {}; } },
             { "Localization", [this](const YAML::Node& value)->ValidationErrors { m_p_localizationsNode = &value; return {}; } },
+            { "Channel", [this](const YAML::Node& value)->ValidationErrors { m_p_manifest->Channel = Utility::Trim(value.as<std::string>()); return {}; } },
         };
 
         // Additional version specific fields
@@ -199,7 +200,6 @@ namespace AppInstaller::Manifest
                 // Root node only
                 std::vector<FieldProcessInfo> rootOnlyFields =
                 {
-                    { "Channel", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->Channel = Utility::Trim(value.as<std::string>()); return {}; } },
                     { "MinOSVersion", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->MinOSVersion = value.as<std::string>(); return {}; } },
                     { "Commands", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->Commands = SplitMultiValueField(value.as<std::string>()); return {}; } },
                     { "Protocols", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->Protocols = SplitMultiValueField(value.as<std::string>()); return {}; } },
@@ -217,7 +217,6 @@ namespace AppInstaller::Manifest
                 // Root level and Localization node level
                 std::vector<FieldProcessInfo> v1CommonFields =
                 {
-                    { "Channel", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->Channel = Utility::Trim(value.as<std::string>()); return {}; } },
                     { "InstallerLocale", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->Locale = value.as<std::string>(); return {}; } },
                     { "Platform", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->Platform = ProcessPlatformSequenceNode(value); return {}; } },
                     { "MinimumOSVersion", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->MinOSVersion = value.as<std::string>(); return {}; } },

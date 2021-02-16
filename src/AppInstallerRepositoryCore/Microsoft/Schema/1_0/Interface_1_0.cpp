@@ -40,10 +40,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 return {};
             }
 
-            std::optional<SQLite::rowid_t> channelId = ChannelTable::SelectIdByValue(connection, manifest.Installers[0].Channel, true);
+            std::optional<SQLite::rowid_t> channelId = ChannelTable::SelectIdByValue(connection, manifest.Channel, true);
             if (!channelId)
             {
-                AICLI_LOG(Repo, Info, << "Did not find a Channel { " << manifest.Installers[0].Channel << " }");
+                AICLI_LOG(Repo, Info, << "Did not find a Channel { " << manifest.Channel << " }");
                 return {};
             }
 
@@ -51,7 +51,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             if (!result)
             {
-                AICLI_LOG(Repo, Info, << "Did not find a manifest row for { " << manifest.Id << ", " << manifest.Version << ", " << manifest.Installers[0].Channel << " }");
+                AICLI_LOG(Repo, Info, << "Did not find a manifest row for { " << manifest.Id << ", " << manifest.Version << ", " << manifest.Channel << " }");
             }
 
             return result;
@@ -188,7 +188,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::rowid_t nameId = NameTable::EnsureExists(connection, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>());
         SQLite::rowid_t monikerId = MonikerTable::EnsureExists(connection, manifest.Moniker);
         SQLite::rowid_t versionId = VersionTable::EnsureExists(connection, manifest.Version);
-        SQLite::rowid_t channelId = ChannelTable::EnsureExists(connection, manifest.Installers[0].Channel);
+        SQLite::rowid_t channelId = ChannelTable::EnsureExists(connection, manifest.Channel);
 
         // Insert the manifest entry.
         SQLite::rowid_t manifestId = ManifestTable::Insert(connection, {
@@ -237,9 +237,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             indexModified = true;
         }
 
-        if (channelInIndex != manifest.Installers[0].Channel)
+        if (channelInIndex != manifest.Channel)
         {
-            UpdateManifestValueById<ChannelTable>(connection, manifest.Installers[0].Channel, manifestId);
+            UpdateManifestValueById<ChannelTable>(connection, manifest.Channel, manifestId);
             indexModified = true;
         }
 

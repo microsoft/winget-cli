@@ -131,7 +131,7 @@ TEST_CASE("SQLiteIndexSource_Versions", "[sqliteindexsource]")
     auto result = results.Matches[0].Package->GetAvailableVersionKeys();
     REQUIRE(result.size() == 1);
     REQUIRE(result[0].Version == manifest.Version);
-    REQUIRE(result[0].Channel == manifest.Installers[0].Channel);
+    REQUIRE(result[0].Channel == manifest.Channel);
 }
 
 TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
@@ -152,21 +152,21 @@ TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
     REQUIRE(results.Matches[0].Package);
     auto package = results.Matches[0].Package.get();
 
-    auto specificResultVersion = package->GetAvailableVersion(PackageVersionKey("", manifest.Version, manifest.Installers[0].Channel));
+    auto specificResultVersion = package->GetAvailableVersion(PackageVersionKey("", manifest.Version, manifest.Channel));
     REQUIRE(specificResultVersion);
     auto specificResult = specificResultVersion->GetManifest();
     REQUIRE(specificResult.Id == manifest.Id);
     REQUIRE(specificResult.DefaultLocalization.Get<Localization::PackageName>() == manifest.DefaultLocalization.Get<Localization::PackageName>());
     REQUIRE(specificResult.Version == manifest.Version);
-    REQUIRE(specificResult.Installers[0].Channel == manifest.Installers[0].Channel);
+    REQUIRE(specificResult.Channel == manifest.Channel);
 
-    auto latestResultVersion = package->GetAvailableVersion(PackageVersionKey("", "", manifest.Installers[0].Channel));
+    auto latestResultVersion = package->GetAvailableVersion(PackageVersionKey("", "", manifest.Channel));
     REQUIRE(latestResultVersion);
     auto latestResult = latestResultVersion->GetManifest();
     REQUIRE(latestResult.Id == manifest.Id);
     REQUIRE(latestResult.DefaultLocalization.Get<Localization::PackageName>() == manifest.DefaultLocalization.Get<Localization::PackageName>());
     REQUIRE(latestResult.Version == manifest.Version);
-    REQUIRE(latestResult.Installers[0].Channel == manifest.Installers[0].Channel);
+    REQUIRE(latestResult.Channel == manifest.Channel);
 
     auto noResultVersion = package->GetAvailableVersion(PackageVersionKey("", "blargle", "flargle"));
     REQUIRE(!noResultVersion);

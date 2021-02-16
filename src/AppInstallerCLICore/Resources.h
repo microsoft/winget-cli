@@ -225,6 +225,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(VerifyFileFailedIsDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(VerifyFileFailedNotExist);
         WINGET_DEFINE_RESOURCE_STRINGID(VerifyFileSignedMsix);
+        WINGET_DEFINE_RESOURCE_STRINGID(VerifyPathFailedNotExist);
         WINGET_DEFINE_RESOURCE_STRINGID(VersionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(VersionsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(WordArgumentDescription);

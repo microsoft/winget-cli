@@ -183,8 +183,7 @@ namespace AppInstaller::CLI::Workflow
             bool overrideHashMismatch = context.Args.Contains(Execution::Args::Type::Force);
 
             const auto& manifest = context.Get<Execution::Data::Manifest>();
-            const auto& installer = context.Get<Execution::Data::Installer>().value();
-            Logging::Telemetry().LogInstallerHashMismatch(manifest.Id, manifest.Version, installer.Channel, hashPair.first, hashPair.second, overrideHashMismatch);
+            Logging::Telemetry().LogInstallerHashMismatch(manifest.Id, manifest.Version, manifest.Channel, hashPair.first, hashPair.second, overrideHashMismatch);
 
             // If running as admin, do not allow the user to override the hash failure.
             if (Runtime::IsRunningAsAdmin())
@@ -325,8 +324,7 @@ namespace AppInstaller::CLI::Workflow
         catch (const wil::ResultException& re)
         {
             const auto& manifest = context.Get<Execution::Data::Manifest>();
-            const auto& installer = context.Get<Execution::Data::Installer>().value();
-            Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, installer.Channel, "MSIX", re.GetErrorCode());
+            Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, "MSIX", re.GetErrorCode());
 
             context.Reporter.Error() << GetUserPresentableMessage(re) << std::endl;
             AICLI_TERMINATE_CONTEXT(re.GetErrorCode());

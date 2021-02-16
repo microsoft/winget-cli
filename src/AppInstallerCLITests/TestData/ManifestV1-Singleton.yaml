@@ -71,7 +71,6 @@ ProductCode: "{Foo}"
 
 Installers:
   - Architecture: x86
-    Channel: preview
     InstallerLocale: en-GB
     Platform:
       - Windows.Desktop

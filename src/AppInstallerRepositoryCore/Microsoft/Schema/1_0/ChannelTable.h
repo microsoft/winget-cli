@@ -18,6 +18,5 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     }
 
     // The table for Channel.
-    // TODO: Currently only indexing channel from first installer, might need to be OneToMany table
     using ChannelTable = OneToOneTable<details::ChannelTableInfo>;
 }

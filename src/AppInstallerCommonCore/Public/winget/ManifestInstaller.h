@@ -33,8 +33,6 @@ namespace AppInstaller::Manifest
         // Store Product Id
         string_t ProductId;
 
-        string_t Channel;
-
         string_t Locale;
 
         std::vector<PlatformEnum> Platform;

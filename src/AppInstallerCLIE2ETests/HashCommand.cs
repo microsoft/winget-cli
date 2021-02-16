@@ -39,7 +39,7 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("hash", TestCommon.GetTestDataFile("DoesNot.Exist"));
             Assert.AreEqual(Constants.ErrorCode.ERROR_FILE_NOT_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Path does not exist"));
+            Assert.True(result.StdOut.Contains("File does not exist"));
         }
     }
 }

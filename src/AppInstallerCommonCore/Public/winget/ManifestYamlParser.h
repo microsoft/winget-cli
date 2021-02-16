@@ -23,31 +23,26 @@ namespace AppInstaller::Manifest::YamlParser
     // fullValidation: Bool to set if manifest creation should perform extra validation that client does not need.
     //                 e.g. Channel should be null. Client code does not need this check to work properly.
     // throwOnWarning: Bool to indicate if an exception should be thrown with only warnings detected in the manifest.
-    // resourceDll:    Binary where schemas are embedded, or nullptr if they are embedded in the binary that created the process
     // mergedManifestPath: Output file for merged manifest after processing a multi file manifest
-    // isPartialManifest:  Bool to indicate if the input only consists of partial of a multi file manifest. In this
-    //                     case, only schema validation will be performed..
+    // schemaValidationOnly: Bool to indicate if only schema validation should be performed
     Manifest CreateFromPath(
         const std::filesystem::path& inputPath,
         bool fullValidation = false,
         bool throwOnWarning = false,
-        PCWSTR resourceDll = nullptr,
         const std::filesystem::path& mergedManifestPath = {},
-        bool isPartialManifest = false);
+        bool schemaValidationOnly = false);
 
     Manifest Create(
         const std::string& input,
         bool fullValidation = false,
         bool throwOnWarning = false,
-        PCWSTR resourceDll = nullptr,
         const std::filesystem::path& mergedManifestPath = {},
-        bool isPartialManifest = false);
+        bool schemaValidationOnly = false);
 
     Manifest ParseManifest(
         std::vector<YamlManifestInfo>& input,
         bool fullValidation = false,
         bool throwOnWarning = false,
-        PCWSTR resourceDll = nullptr,
         const std::filesystem::path& mergedManifestPath = {},
-        bool isPartialManifest = false);
+        bool schemaValidationOnly = false);
 }

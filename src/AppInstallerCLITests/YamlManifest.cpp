@@ -40,7 +40,7 @@ TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(manifest.Moniker == "msixsdk");
     REQUIRE(manifest.Version == "1.7.32");
     REQUIRE(manifest.DefaultLocalization.Get<Localization::Publisher>() == "Microsoft");
-    REQUIRE(manifest.DefaultInstallerInfo.Channel == "release");
+    REQUIRE(manifest.Channel == "release");
     REQUIRE(manifest.DefaultLocalization.Get<Localization::Author>() == "Microsoft");
     REQUIRE(manifest.DefaultLocalization.Get<Localization::License>() == "MIT License");
     REQUIRE(manifest.DefaultLocalization.Get<Localization::LicenseUrl>() == "https://github.com/microsoft/msix-packaging/blob/master/LICENSE");
@@ -129,7 +129,7 @@ TEST_CASE("ReadGoodManifestWithSpaces", "[ManifestValidation]")
     REQUIRE(manifest.DefaultLocalization.Get<Localization::PackageName>() == "MSIX SDK");
     REQUIRE(manifest.Moniker == "msixsdk");
     REQUIRE(manifest.Version == "1.7.32");
-    REQUIRE(manifest.DefaultInstallerInfo.Channel == "release");
+    REQUIRE(manifest.Channel == "release");
     REQUIRE(manifest.DefaultInstallerInfo.MinOSVersion == "0.0.0.0");
     REQUIRE(manifest.DefaultLocalization.Get<Localization::Tags>() == MultiValue{ "msix", "appx" });
     REQUIRE(manifest.DefaultInstallerInfo.Commands == MultiValue{ "makemsix", "makeappx" });
@@ -349,7 +349,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
     REQUIRE(manifest.DefaultLocalization.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers");
     REQUIRE(manifest.Moniker == "msixsdk");
     REQUIRE(manifest.DefaultLocalization.Get<Localization::Tags>() == MultiValue{ "appxsdk", "msixsdk" });
-    REQUIRE(manifest.DefaultInstallerInfo.Channel == "release");
+    REQUIRE(manifest.Channel == "release");
     REQUIRE(manifest.DefaultInstallerInfo.Locale == "en-US");
     REQUIRE(manifest.DefaultInstallerInfo.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop, PlatformEnum::Universal });
     REQUIRE(manifest.DefaultInstallerInfo.MinOSVersion == "10.0.0.0");
@@ -396,7 +396,6 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
 
     ManifestInstaller installer1 = manifest.Installers.at(0);
     REQUIRE(installer1.Arch == Architecture::X86);
-    REQUIRE(installer1.Channel == "preview");
     REQUIRE(installer1.Locale == "en-GB");
     REQUIRE(installer1.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop });
     REQUIRE(installer1.MinOSVersion == "10.0.1.0");
@@ -477,7 +476,7 @@ TEST_CASE("ValidateV1GoodManifestAndVerifyContents", "[ManifestValidation]")
         "ManifestV1-MultiFile-Locale.yaml" }, multiFileDirectory);
 
     TempFile mergedManifestFile{ "merged.yaml" };
-    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, true, true, nullptr, mergedManifestFile);
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, true, true, mergedManifestFile);
     VerifyV1ManifestContent(multiFileManifest, false);
 
     // Read from merged manifest should have the same content as multi file manifest

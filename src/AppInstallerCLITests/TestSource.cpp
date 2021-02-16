@@ -23,7 +23,7 @@ namespace TestCommon
         case PackageVersionProperty::Version:
             return LocIndString{ VersionManifest.Version };
         case PackageVersionProperty::Channel:
-            return LocIndString{ VersionManifest.Installers[0].Channel };
+            return LocIndString{ VersionManifest.Channel };
         default:
             return {};
         }
