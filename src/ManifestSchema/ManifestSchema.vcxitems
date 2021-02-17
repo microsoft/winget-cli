@@ -21,11 +21,11 @@
     <ResourceCompile Include="$(MSBuildThisFileDirectory)ManifestSchema.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)schema\schema_v0.1.0.json" />
-    <None Include="$(MSBuildThisFileDirectory)schema\schema_v1.0.0_defaultLocale.json" />
-    <None Include="$(MSBuildThisFileDirectory)schema\schema_v1.0.0_installer.json" />
-    <None Include="$(MSBuildThisFileDirectory)schema\schema_v1.0.0_locale.json" />
-    <None Include="$(MSBuildThisFileDirectory)schema\schema_v1.0.0_singleton.json" />
-    <None Include="$(MSBuildThisFileDirectory)schema\schema_v1.0.0_version.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\preview\manifest.0.1.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.defaultLocale.1.0.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.installer.1.0.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.locale.1.0.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.singleton.1.0.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.version.1.0.0.json" />
   </ItemGroup>
 </Project>

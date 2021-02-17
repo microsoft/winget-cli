@@ -271,9 +271,6 @@
     "Installer": {
       "type": "object",
       "properties": {
-        "Channel": {
-          "$ref": "#/definitions/Channel"
-        },
         "InstallerLocale": {
           "$ref": "#/definitions/Locale"
         },

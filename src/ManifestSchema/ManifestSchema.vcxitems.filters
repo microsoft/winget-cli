@@ -6,30 +6,30 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)schema\schema_v0.1.0.json">
-      <Filter>schema</Filter>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)schema\schema_v1.0.0_defaultLocale.json">
-      <Filter>schema</Filter>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)schema\schema_v1.0.0_installer.json">
-      <Filter>schema</Filter>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)schema\schema_v1.0.0_locale.json">
-      <Filter>schema</Filter>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)schema\schema_v1.0.0_singleton.json">
-      <Filter>schema</Filter>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)schema\schema_v1.0.0_version.json">
-      <Filter>schema</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)ManifestSchema.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(MSBuildThisFileDirectory)ManifestSchema.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\preview\manifest.0.1.0.json">
+      <Filter>schema</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.defaultLocale.1.0.0.json">
+      <Filter>schema</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.installer.1.0.0.json">
+      <Filter>schema</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.locale.1.0.0.json">
+      <Filter>schema</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.singleton.1.0.0.json">
+      <Filter>schema</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.version.1.0.0.json">
+      <Filter>schema</Filter>
+    </None>
   </ItemGroup>
 </Project>
