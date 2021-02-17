@@ -22,7 +22,7 @@ namespace TestCommon
         case PackageVersionProperty::Id:
             return LocIndString{ VersionManifest.Id };
         case PackageVersionProperty::Name:
-            return LocIndString{ VersionManifest.Name };
+            return LocIndString{ VersionManifest.DefaultLocalization.Get<AppInstaller::Manifest::Localization::PackageName>() };
         case PackageVersionProperty::Version:
             return LocIndString{ VersionManifest.Version };
         case PackageVersionProperty::Channel:

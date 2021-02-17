@@ -811,4 +811,7 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
     <value>Ignore package versions from import file</value>
   </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Path does not exist:</value>
+  </data>
 </root>

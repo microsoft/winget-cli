@@ -155,7 +155,6 @@ namespace AppInstaller::CLI
                 EnsureOneMatchFromSearchResult(true) <<
                 GetInstalledPackageVersion <<
                 EnsureUpdateVersionApplicable <<
-                EnsureMinOSVersion <<
                 SelectInstaller <<
                 EnsureApplicableInstaller <<
                 ShowInstallationDisclaimer <<
@@ -181,7 +180,6 @@ namespace AppInstaller::CLI
                 context <<
                     GetManifestFromPackage <<
                     EnsureUpdateVersionApplicable <<
-                    EnsureMinOSVersion <<
                     SelectInstaller <<
                     EnsureApplicableInstaller;
             }

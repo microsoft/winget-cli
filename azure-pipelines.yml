@@ -203,13 +203,13 @@ jobs:
     name: AppInstallerTest
     displayName: 'Download Source Package Certificate'
     inputs:
-        secureFile: 'AppInstallerTest.pfx'
+      secureFile: 'AppInstallerTest.pfx'
 
   - task: DownloadSecureFile@1
     name: HTTPSDevCert
     displayName: 'Download Kestrel Certificate'
     inputs:
-        secureFile: 'HTTPSDevCert.pfx'
+      secureFile: 'HTTPSDevCert.pfx'
 
   - task: MSBuild@1
     displayName: Build MSIX Test Installer File

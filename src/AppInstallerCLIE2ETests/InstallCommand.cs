@@ -43,8 +43,8 @@ namespace AppInstallerCLIE2ETests
         {
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"InapplicableOsVersion --silent -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_OLD_WIN_VERSION, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Cannot install package, as it requires a higher version of Windows"));
+            // MinOSVersion is moved to installer level, the check is performed during installer selection
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICABLE_INSTALLER, result.ExitCode);
             Assert.False(VerifyTestExeInstalled(installDir));
         }
 

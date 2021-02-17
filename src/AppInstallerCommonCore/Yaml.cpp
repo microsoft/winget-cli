@@ -244,6 +244,12 @@ namespace AppInstaller::YAML
         return std::stoll(m_scalar);
     }
 
+    int Node::as_dispatch(int*) const
+    {
+        // To allow HResult representation
+        return static_cast<int>(std::stoll(m_scalar, 0, 0));
+    }
+
     bool Node::as_dispatch(bool*) const
     {
         if (Utility::CaseInsensitiveEquals(m_scalar, "true"))
@@ -416,6 +422,14 @@ namespace AppInstaller::YAML
         emitter.Flush();
 
         return stream.str();
+    }
+
+    void Emitter::Emit(std::ostream& out)
+    {
+        Wrapper::Emitter emitter(out);
+
+        emitter.Dump(*m_document);
+        emitter.Flush();
     }
 
     void Emitter::AppendNode(int id)

@@ -527,7 +527,8 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
         }
 
-        Logging::Telemetry().LogManifestFields(manifest->Id, manifest->Name, manifest->Version);
+        Logging::Telemetry().LogManifestFields(manifest->Id, manifest->DefaultLocalization.Get<Manifest::Localization::PackageName>(), manifest->Version);
+        manifest->ApplyLocale();
         context.Add<Execution::Data::Manifest>(std::move(manifest.value()));
         context.Add<Execution::Data::PackageVersion>(std::move(requestedVersion));
     }
@@ -554,16 +555,28 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void VerifyPath::operator()(Execution::Context& context) const
+    {
+        std::filesystem::path path = Utility::ConvertToUTF16(context.Args.GetArg(m_arg));
+
+        if (!std::filesystem::exists(path))
+        {
+            context.Reporter.Error() << Resource::String::VerifyPathFailedNotExist << ' ' << path.u8string() << std::endl;
+            AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND));
+        }
+    }
+
     void GetManifestFromArg(Execution::Context& context)
     {
         Logging::Telemetry().LogIsManifestLocal(true);
 
         context <<
-            VerifyFile(Execution::Args::Type::Manifest) <<
+            VerifyPath(Execution::Args::Type::Manifest) <<
             [](Execution::Context& context)
         {
             Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::Manifest)));
-            Logging::Telemetry().LogManifestFields(manifest.Id, manifest.Name, manifest.Version);
+            Logging::Telemetry().LogManifestFields(manifest.Id, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(), manifest.Version);
+            manifest.ApplyLocale();
             context.Add<Execution::Data::Manifest>(std::move(manifest));
         };
     }
@@ -577,7 +590,7 @@ namespace AppInstaller::CLI::Workflow
     void ReportManifestIdentity(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
-        ReportIdentity(context, manifest.Name, manifest.Id);
+        ReportIdentity(context, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id);
     }
 
     void GetManifest(Execution::Context& context)
@@ -667,7 +680,7 @@ namespace AppInstaller::CLI::Workflow
         SearchRequest searchRequest;
         searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, manifest.Id));
         // In case there're same Ids from different sources, filter the result using package name
-        searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Name, MatchType::CaseInsensitive, manifest.Name));
+        searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Name, MatchType::CaseInsensitive, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>()));
 
         context.Add<Execution::Data::SearchResult>(source->Search(searchRequest));
     }

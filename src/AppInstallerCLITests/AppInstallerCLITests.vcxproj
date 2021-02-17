@@ -54,6 +54,7 @@
   </ImportGroup>
   <ImportGroup Label="Shared">
     <Import Project="..\catch2\catch2.vcxitems" Label="Shared" />
+    <Import Project="..\ManifestSchema\ManifestSchema.vcxitems" Label="Shared" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -285,9 +286,6 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-ArchMissing.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Bad-Channel-NotSupported.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-DifferentCase-camelCase.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -463,6 +461,21 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\NormalizationInitialIds.txt">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1-Singleton.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-DefaultLocale.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-Installer.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-Locale.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-Version.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
   </ItemGroup>
