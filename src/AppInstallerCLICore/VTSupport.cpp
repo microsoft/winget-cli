@@ -150,7 +150,7 @@ namespace AppInstaller::CLI::VirtualTerminal
 
         }
 
-        ConstructedSequence Hyperlink(const std::string& text, const std::string& ref)
+        ConstructedSequence Hyperlink(const std::string& ref, const std::string& text)
         {
             std::ostringstream result;
             result << AICLI_VT_OSC "8;;" << ref << AICLI_VT_ESCAPE << "\\" << text << AICLI_VT_OSC << "8;;" << AICLI_VT_ESCAPE << "\\";

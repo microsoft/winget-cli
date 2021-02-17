@@ -5,10 +5,8 @@
 #include "ShowFlow.h"
 #include "ManifestComparator.h"
 #include "TableOutput.h"
-#include "VTSupport.h"
 
 using namespace AppInstaller::Repository;
-using namespace AppInstaller::CLI::VirtualTerminal;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -22,7 +20,7 @@ namespace AppInstaller::CLI::Workflow
 
         // TODO: Come up with a prettier format
         context.Reporter.Info() << "Version: " << manifest.Version << std::endl;
-        context.Reporter.Info() << "Publisher: " << manifest.Publisher << " " << TextFormat::Hyperlink("(marstr blog)", "https://marstr.dev") << std::endl;
+        context.Reporter.Info() << "Publisher: " << manifest.Publisher << std::endl;
         if (!manifest.Author.empty())
         {
             context.Reporter.Info() << "Author: " << manifest.Author << std::endl;
