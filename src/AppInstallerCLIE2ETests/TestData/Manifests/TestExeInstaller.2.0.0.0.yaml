@@ -10,7 +10,7 @@ Installers:
     InstallerType: exe
     ProductCode: '{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}'
     Switches:
-      Custom: /execustom
+      Custom: /execustom /Version 2.0.0.0
       SilentWithProgress: /exeswp
       Silent: /exesilent
       Interactive: /exeinteractive

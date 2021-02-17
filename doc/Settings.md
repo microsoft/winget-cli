@@ -97,3 +97,13 @@ While work is in progress on uninstall, the command is hidden behind a feature t
        "uninstall": true
    },
 ```
+
+### importExport
+
+While work is in progress for import and export, the command is hidden behind a feature toggle. One can enable it as below:
+
+```
+   "experimentalFeatures": {
+       "importExport": true
+   },
+```
