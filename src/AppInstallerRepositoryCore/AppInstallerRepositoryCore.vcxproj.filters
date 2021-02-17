@@ -37,6 +37,9 @@
     <Filter Include="Rest\Schema">
       <UniqueIdentifier>{15a1ee83-4118-40fe-ba43-c54d7185d505}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rest\Schema\1_0">
+      <UniqueIdentifier>{8a93b62f-d065-4048-b43a-a2b14b70c330}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -156,6 +159,9 @@
     <ClInclude Include="IRestClient.h">
       <Filter>Rest\Schema</Filter>
     </ClInclude>
+    <ClInclude Include="Interface.h">
+      <Filter>Rest\Schema\1_0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -235,6 +241,9 @@
     </ClCompile>
     <ClCompile Include="RestClient.cpp">
       <Filter>Rest</Filter>
+    </ClCompile>
+    <ClCompile Include="Interface.cpp">
+      <Filter>Rest\Schema\1_0</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

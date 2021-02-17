@@ -7,21 +7,29 @@ namespace AppInstaller::Repository::Rest
 {
 	struct RestClient
 	{
-        RestClient(const std::string restApi);
+		RestClient(const std::string restApi);
 
-        // The return type of Search
+		// The return type of Search
 		using SearchResult = Rest::Schema::IRestClient::SearchResult;
 
-        RestClient(const RestClient&) = delete;
-        RestClient& operator=(const RestClient&) = delete;
+		RestClient(const RestClient&) = delete;
+		RestClient& operator=(const RestClient&) = delete;
 
-        RestClient(RestClient&&) = default;
-        RestClient& operator=(RestClient&&) = default;
+		RestClient(RestClient&&) = default;
+		RestClient& operator=(RestClient&&) = default;
 
 		// Performs a search based on the given criteria.
-        SearchResult Search(const SearchRequest& request) const;
+		Schema::IRestClient::SearchResult Search(const SearchRequest& request) const;
 
-    private:
-        std::string m_restApiUri;
+		// Gets all versions and channels for the given id.
+		std::vector<Utility::VersionAndChannel> GetVersionKeysFromPackage(const Manifest::Manifest& manifest) const;
+
+		std::optional<std::string> GetVersionFromPackage(const Manifest::Manifest& manifest, std::string_view version, std::string_view channel) const;
+
+		std::optional<std::string> GetPropertyFromVersion(const std::string& manifest, PackageVersionProperty property) const;
+
+	private:
+		std::string m_restApiUri;
+		std::unique_ptr<Schema::IRestClient> m_interface;
 	};
 }

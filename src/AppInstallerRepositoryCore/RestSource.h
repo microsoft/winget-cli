@@ -3,8 +3,8 @@
 #pragma once
 #include "Public/AppInstallerRepositorySource.h"
 #include "RestClient.h"
-
 #include <memory>
+
 namespace AppInstaller::Repository::Rest
 {
     // A source that holds a RestSource.
@@ -28,11 +28,11 @@ namespace AppInstaller::Repository::Rest
         // Must be suitable for filesystem names.
         const std::string& GetIdentifier() const override;
 
+        // Gets the rest client.
+        const RestClient& GetRestClient() const;
+
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
-
-        // Gets the rest client.
-        const RestClient& GetRestClient() const { return m_restClient; }
 
     private:
         SourceDetails m_details;
