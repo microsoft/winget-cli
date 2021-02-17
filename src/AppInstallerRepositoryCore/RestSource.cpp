@@ -15,7 +15,7 @@ namespace AppInstaller::Repository::Rest
 	{
 		using namespace AppInstaller::Repository::Rest::Schema;
 
-		// The base for the package objects.
+		// The source reference used by package objects.
 		struct SourceReference
 		{
 			SourceReference(const std::shared_ptr<const RestSource>& source) :
@@ -42,32 +42,26 @@ namespace AppInstaller::Repository::Rest
 			// Inherited via IPackageVersion
 			Utility::LocIndString GetProperty(PackageVersionProperty property) const override
 			{
-				UNREFERENCED_PARAMETER(property);
-				// TODO: Call manifest helper to get property details
-				//switch (property)
-				//{
-				//case PackageVersionProperty::SourceIdentifier:
-				//	return Utility::LocIndString{ GetReferenceSource()->GetIdentifier() };
-				//case PackageVersionProperty::SourceName:
-				//	return Utility::LocIndString { GetReferenceSource()->GetDetails().Name };
-				//default:
-				//	// Values coming from the index will always be localized/independent.
-				//	return Utility::LocIndString{ GetReferenceSource()->GetRestClient().GetPropertyFromVersion(m_manifest, property).value() };
-				//}
-
-				return {};
+				switch (property)
+				{
+				case PackageVersionProperty::SourceIdentifier:
+					return Utility::LocIndString{ GetReferenceSource()->GetIdentifier() };
+				case PackageVersionProperty::SourceName:
+					return Utility::LocIndString { GetReferenceSource()->GetDetails().Name };
+				default:
+					return Utility::LocIndString{ GetReferenceSource()->GetRestClient().GetPropertyFromVersion(m_manifest, property).value() };
+				}
 			}
 
-			// TODO
 			std::vector<Utility::LocIndString> GetMultiProperty(PackageVersionMultiProperty property) const override
 			{
-				UNREFERENCED_PARAMETER(property);
-
-				// TODO: Call manifest helper to get property details
 				std::vector<Utility::LocIndString> result;
 
-				std::string value = "Foo";
-				result.emplace_back(Utility::LocIndString{ value });
+				for (auto&& value : GetReferenceSource()->GetRestClient().GetMultiPropertyFromVersion(m_manifest, property))
+				{
+					// Values coming from the index will always be localized/independent.
+					result.emplace_back(std::move(value));
+				}
 
 				return result;
 			}
@@ -76,11 +70,6 @@ namespace AppInstaller::Repository::Rest
 			Manifest::Manifest GetManifest() const override
 			{
 				// TODO: Get manifest with this package version.
-
-				/* std::shared_ptr<const SQLiteIndexSource> source = GetReferenceSource();
-				std::optional<std::string> relativePathOpt = source->GetIndex().GetPropertyByManifestId(m_manifestId, PackageVersionProperty::RelativePath);
-				THROW_HR_IF(E_NOT_SET, !relativePathOpt);
-				return GetManifestFromArgAndRelativePath(source->GetDetails().Arg, relativePathOpt.value()); */
 				return Manifest::YamlParser::Create(m_manifest);
 			}
 
@@ -92,7 +81,8 @@ namespace AppInstaller::Repository::Rest
 			// TODO
 			IPackageVersion::Metadata GetMetadata() const override
 			{
-				return {};
+				IPackageVersion::Metadata result;
+				return result;
 			}
 
 		private:
@@ -142,7 +132,7 @@ namespace AppInstaller::Repository::Rest
 			IRestClient::Package m_package;
 		};
 
-		// The IPackage impl for RestSource of Available packages.
+		// The IPackage impl for Available packages from RestSource.
 		struct AvailablePackage : public PackageBase, public IPackage
 		{
 			using PackageBase::PackageBase;
@@ -160,7 +150,6 @@ namespace AppInstaller::Repository::Rest
 
 			std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
 			{
-				// TODO: Call Manifest helper to get available version keys
 				std::shared_ptr<const RestSource> source = GetReferenceSource();
 				std::vector<Utility::VersionAndChannel> versions = source->GetRestClient().GetVersionKeysFromPackage(m_package.manifest);
 
@@ -170,7 +159,7 @@ namespace AppInstaller::Repository::Rest
 					result.emplace_back(source->GetIdentifier(), vac.GetVersion().ToString(), vac.GetChannel().ToString());
 				}
 
-				return {};
+				return result;
 			}
 
 			std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
@@ -230,15 +219,18 @@ namespace AppInstaller::Repository::Rest
 	{
 		// Note: Basic search functionality to fetch everything.
 		RestClient::SearchResult results = m_restClient.Search(request);
-		SearchResult returnVal;
+		SearchResult searchResult;
 
 		std::shared_ptr<const RestSource> sharedThis = shared_from_this();
 		for (auto& result : results.Matches)
 		{
 			// TODO: Check if package is available or installed.
-			auto package = AvailablePackage(sharedThis, result);
+			// TODO: Pass package match filter.
+			std::unique_ptr<IPackage> package = std::make_unique<AvailablePackage>(sharedThis, result);
+			PackageMatchFilter packageFilter(PackageMatchField::Id, MatchType::Substring, "");
+			searchResult.Matches.emplace_back(std::move(package), std::move(packageFilter));
 		}
 
-		return returnVal;
+		return searchResult;
 	}
 }

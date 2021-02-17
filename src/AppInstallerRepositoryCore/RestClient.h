@@ -28,6 +28,8 @@ namespace AppInstaller::Repository::Rest
 
 		std::optional<std::string> GetPropertyFromVersion(const std::string& manifest, PackageVersionProperty property) const;
 
+		std::vector<std::string> GetMultiPropertyFromVersion(const std::string& manifest, PackageVersionMultiProperty packageVersionProperty) const;
+
 	private:
 		std::string m_restApiUri;
 		std::unique_ptr<Schema::IRestClient> m_interface;

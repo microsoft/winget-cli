@@ -13,7 +13,7 @@ using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::Repository::Rest::Schema
 {
-	// The common interface used to interact with RestClient responses.
+	// The common interface used to interact with RestAPI responses.
 	struct IRestClient
 	{
 		virtual ~IRestClient() = default;
@@ -21,6 +21,8 @@ namespace AppInstaller::Repository::Rest::Schema
 		struct Package
 		{
 			Manifest::Manifest manifest;
+
+			Package(Manifest::Manifest manifest) : manifest(manifest) {}
 		};
 
 		struct SearchResult
@@ -42,5 +44,7 @@ namespace AppInstaller::Repository::Rest::Schema
 		// Gets the string for the given property and manifest id, if present.
 		virtual std::optional<std::string> GetPropertyFromVersion(const std::string& manifest, PackageVersionProperty property) const = 0;
 
+		// Gets the string values for the given property and manifest id, if present.
+		virtual std::vector<std::string> GetMultiPropertyFromVersion(const std::string& manifest, PackageVersionMultiProperty property) const = 0;
 	};
 }

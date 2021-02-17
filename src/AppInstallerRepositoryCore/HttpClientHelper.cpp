@@ -1,0 +1,48 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+#pragma once
+#include "pch.h"
+#include "Interface.h"
+#include "IRestClient.h"
+#include "cpprest/http_client.h"
+#include "cpprest/json.h"
+#include "HttpClientHelper.h"
+
+using namespace web;
+using namespace web::json;
+using namespace web::http;
+using namespace web::http::client;
+using namespace AppInstaller::Repository::Rest::Schema;
+
+namespace AppInstaller::Repository::Rest
+{
+	HttpClientHelper::HttpClientHelper(utility::string_t url) : m_client(url), m_url(url) {}
+
+	pplx::task<web::http::http_response> HttpClientHelper::Post(const json::value& body)
+	{
+		http_request request(methods::POST);
+		request.headers().set_content_type(web::http::details::mime_types::application_json);
+		request.set_body(body.serialize());
+		return Make_Request(request);
+	}
+
+	json::value HttpClientHelper::Handle_Post(const json::value& body)
+	{
+		json::value result = Post(body).then([](const http_response& response)
+			{
+				if (response.status_code() == status_codes::OK)
+				{
+					return response.extract_json();
+				}
+
+				return pplx::task_from_result(json::value());
+			}).wait();
+
+		return result;
+	}
+
+	pplx::task<web::http::http_response> HttpClientHelper::Make_Request(web::http::http_request req)
+	{
+		return m_client.request(req);
+	}
+}

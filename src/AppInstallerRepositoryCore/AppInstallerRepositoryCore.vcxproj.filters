@@ -162,6 +162,9 @@
     <ClInclude Include="Interface.h">
       <Filter>Rest\Schema\1_0</Filter>
     </ClInclude>
+    <ClInclude Include="HttpClientHelper.h">
+      <Filter>Rest</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -244,6 +247,9 @@
     </ClCompile>
     <ClCompile Include="Interface.cpp">
       <Filter>Rest\Schema\1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="HttpClientHelper.cpp">
+      <Filter>Rest</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

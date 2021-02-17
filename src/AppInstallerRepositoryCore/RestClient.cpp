@@ -16,6 +16,11 @@ using namespace AppInstaller::Repository::Rest::Schema;
 
 namespace AppInstaller::Repository::Rest
 {
+	using namespace std::chrono_literals;
+	using namespace std::string_view_literals;
+
+	const std::string searchAPI = "api/manifestSearch?";
+
 	RestClient::RestClient(const std::string restApi) : m_restApiUri(restApi)
 	{
 		// TODO: Ask for supported version from server
@@ -38,9 +43,15 @@ namespace AppInstaller::Repository::Rest
 		return m_interface->GetPropertyFromVersion(manifest, packageVersionProperty);
 	}
 
+	std::vector<std::string> RestClient::GetMultiPropertyFromVersion(const std::string& manifest, PackageVersionMultiProperty packageVersionProperty) const
+	{
+		return m_interface->GetMultiPropertyFromVersion(manifest, packageVersionProperty);
+	}
+
 	RestClient::SearchResult RestClient::Search(const SearchRequest& request) const
 	{
-		// Step 3: Call search from version specific interface.
-		return m_interface->Search(m_restApiUri, request);
+		// Call search from version specific interface.
+		std::string fullSearchAPI = m_restApiUri + searchAPI;
+		return m_interface->Search(fullSearchAPI, request);
 	}
 }
