@@ -18,12 +18,15 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 {
 	namespace
 	{
+		const std::basic_string FetchAllManifests = L"fetchAllManifests";
+
 		json::value GetSearchBody(const SearchRequest& searchRequest)
 		{
+			// TODO: Use search request to construct search body.
 			UNREFERENCED_PARAMETER(searchRequest);
 
 			json::value json_body;
-			json_body[L"fetchAllManifests"] = web::json::value::string(L"true");
+			json_body[FetchAllManifests] = web::json::value::string(L"true");
 
 			return json_body;
 		}
