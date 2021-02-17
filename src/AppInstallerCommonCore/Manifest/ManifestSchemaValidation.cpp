@@ -162,7 +162,7 @@ namespace AppInstaller::Manifest::YamlParser
     std::vector<ValidationError> ValidateAgainstSchema(const std::vector<YamlManifestInfo>& manifestList, const ManifestVer& manifestVersion)
     {
         std::vector<ValidationError> errors;
-        // A list of schema validators to avoid multiple loadings of same schema
+        // A list of schema validator to avoid multiple loadings of same schema
         std::map<ManifestTypeEnum, valijson::Schema> schemaList;
         valijson::Validator schemaValidator;
 

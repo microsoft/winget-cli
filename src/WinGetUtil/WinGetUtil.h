@@ -19,7 +19,7 @@ extern "C"
 
     enum WinGetValidateManifestOption
     {
-        Defaut,
+        Default,
         SchemaValidationOnly
     };
 
