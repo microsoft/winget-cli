@@ -41,6 +41,28 @@ namespace AppInstaller::Repository::Rest
 		return result;
 	}
 
+	pplx::task<web::http::http_response> HttpClientHelper::Get()
+	{
+		http_request request(methods::GET);
+		request.headers().set_content_type(web::http::details::mime_types::application_json);
+		return Make_Request(request);
+	}
+
+	json::value HttpClientHelper::Handle_Get()
+	{
+		json::value result;
+		Get().then([&result](const http_response& response)
+			{
+				if (response.status_code() == status_codes::OK)
+				{
+					result = response.extract_json().get();
+				}
+
+			}).wait();
+
+		return result;
+	}
+
 	pplx::task<web::http::http_response> HttpClientHelper::Make_Request(web::http::http_request req)
 	{
 		return m_client.request(req);

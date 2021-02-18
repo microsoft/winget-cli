@@ -28,7 +28,12 @@ namespace AppInstaller::Repository::Rest
 		return m_interface->GetVersionKeysFromPackage(manifest);
 	}
 
-	std::optional<std::string> RestClient::GetVersionFromPackage(const Manifest::Manifest& manifest, std::string_view version, std::string_view channel) const
+	std::optional<std::string> RestClient::GetManifestByVersion(std::string packageId, std::string version) const
+	{
+		return m_interface->GetManifestByVersion(m_restApiUri, packageId, version);
+	}
+
+	std::optional<std::string> RestClient::GetVersionFromPackage(const Manifest::Manifest& manifest, std::string version, std::string channel) const
 	{
 		return m_interface->GetVersionFromPackage(manifest, version, channel);
 	}

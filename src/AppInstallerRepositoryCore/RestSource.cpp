@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "RestSource.h"
+#include "IRestClient.h"
 #include "RestSourceFactory.h"
 #include "cpprest/http_client.h"
 #include <winget/ManifestYamlParser.h>
 
+using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository::Rest::Schema;
 
@@ -37,42 +39,52 @@ namespace AppInstaller::Repository::Rest
 		struct PackageVersion : public SourceReference, public IPackageVersion
 		{
 			// TODO: Use Manifest class instead of string.
-			PackageVersion(const std::shared_ptr<const RestSource>& source, std::string manifest) : SourceReference(source), m_manifest(manifest) {}
+			PackageVersion(
+				const std::shared_ptr<const RestSource>& source, IRestClient::PackageInfo packageInfo, VersionAndChannel versionInfo)
+				: SourceReference(source), m_packageInfo(packageInfo), m_versionInfo(versionInfo) {}
 
 			// Inherited via IPackageVersion
 			Utility::LocIndString GetProperty(PackageVersionProperty property) const override
 			{
-				// TODO: Change based on new format
 				switch (property)
 				{
 				case PackageVersionProperty::SourceIdentifier:
 					return Utility::LocIndString{ GetReferenceSource()->GetIdentifier() };
 				case PackageVersionProperty::SourceName:
-					return Utility::LocIndString { GetReferenceSource()->GetDetails().Name };
+					return Utility::LocIndString{ GetReferenceSource()->GetDetails().Name };
+				case PackageVersionProperty::Id:
+					return Utility::LocIndString{ m_packageInfo.packageIdentifier };
+				case PackageVersionProperty::Name:
+					return Utility::LocIndString{ m_packageInfo.packageName };
+				case PackageVersionProperty::Version:
+					return Utility::LocIndString{ m_versionInfo.GetVersion().ToString() };
+				case PackageVersionProperty::Channel:
+					return Utility::LocIndString{ m_versionInfo.GetChannel().ToString() };
 				default:
-					return Utility::LocIndString{ GetReferenceSource()->GetRestClient().GetPropertyFromVersion(m_manifest, property).value() };
+					return Utility::LocIndString{};
 				}
 			}
 
 			std::vector<Utility::LocIndString> GetMultiProperty(PackageVersionMultiProperty property) const override
 			{
 				// TODO: Change based on new format
+				UNREFERENCED_PARAMETER(property);
 				std::vector<Utility::LocIndString> result;
 
-				for (auto&& value : GetReferenceSource()->GetRestClient().GetMultiPropertyFromVersion(m_manifest, property))
-				{
-					// Values coming from the index will always be localized/independent.
-					result.emplace_back(std::move(value));
-				}
+				//for (auto&& value : GetReferenceSource()->GetRestClient().GetMultiPropertyFromVersion(m_manifest, property))
+				//{
+				//	// Values coming from the index will always be localized/independent.
+				//	result.emplace_back(std::move(value));
+				//}
 
 				return result;
 			}
 
-			// TODO
 			Manifest::Manifest GetManifest() const override
 			{
-				// TODO: Get manifest corresponding to this package version.
-				return Manifest::YamlParser::Create(m_manifest);
+				std::string manifest = GetReferenceSource()->GetRestClient().GetManifestByVersion(
+					m_packageInfo.packageIdentifier, m_versionInfo.GetVersion().ToString()).value();
+				return Manifest::YamlParser::Create(manifest);
 			}
 
 			std::shared_ptr<const ISource> GetSource() const override
@@ -88,50 +100,37 @@ namespace AppInstaller::Repository::Rest
 			}
 
 		private:
-			std::string m_manifest;
+			IRestClient::PackageInfo m_packageInfo;
+			Utility::VersionAndChannel m_versionInfo;
 		};
 
 		// The base for IPackage implementations here.
 		struct PackageBase : public SourceReference
 		{
-			PackageBase(const std::shared_ptr<const RestSource>& source, const IRestClient::Package package) :
+			PackageBase(const std::shared_ptr<const RestSource>& source, const IRestClient::Package& package) :
 				SourceReference(source), m_package(package) {}
 
 			Utility::LocIndString GetProperty(PackageProperty property) const
 			{
-				// TODO: Change based on new format
-				Utility::LocIndString result;
-
-				std::shared_ptr<IPackageVersion> truth = GetLatestVersionInternal();
-				if (truth)
+				switch (property)
 				{
-					switch (property)
-					{
-					case PackageProperty::Id:
-						return truth->GetProperty(PackageVersionProperty::Id);
-					case PackageProperty::Name:
-						return truth->GetProperty(PackageVersionProperty::Name);
-					default:
-						THROW_HR(E_UNEXPECTED);
-					}
+				case PackageProperty::Id:
+					return Utility::LocIndString{ m_package.packageInfo.packageIdentifier };
+				case PackageProperty::Name:
+					return Utility::LocIndString{ m_package.packageInfo.packageName };
+				default:
+					THROW_HR(E_UNEXPECTED);
 				}
-
-				return result;
 			}
 
 		protected:
 			std::shared_ptr<IPackageVersion> GetLatestVersionInternal() const
 			{
-				// TODO: Change based on new format
-				// Sort and store or sort everytime?
-				std::shared_ptr<const RestSource> source = GetReferenceSource();
-				std::optional<std::string> manifest = source->GetRestClient().GetVersionFromPackage(m_package.manifest, {}, {});
-				if (manifest)
-				{
-					return std::make_shared<PackageVersion>(source, manifest.value());
-				}
+				// TODO: Sort
+				// std::sort(m_package.versions.begin(), m_package.versions.end());
 
-				return {};
+				VersionAndChannel latestVersion = m_package.versions.front();
+				return std::make_shared<PackageVersion>(GetReferenceSource(), m_package.packageInfo, latestVersion);
 			}
 
 			IRestClient::Package m_package;
@@ -156,12 +155,12 @@ namespace AppInstaller::Repository::Rest
 			std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
 			{
 				std::shared_ptr<const RestSource> source = GetReferenceSource();
-				std::vector<Utility::VersionAndChannel> versions = source->GetRestClient().GetVersionKeysFromPackage(m_package.manifest);
 
 				std::vector<PackageVersionKey> result;
-				for (const auto& vac : versions)
+				for (const auto& versionInfo : m_package.versions)
 				{
-					result.emplace_back(source->GetIdentifier(), vac.GetVersion().ToString(), vac.GetChannel().ToString());
+					result.emplace_back(
+						source->GetIdentifier(), versionInfo.GetVersion().ToString(), versionInfo.GetChannel().ToString());
 				}
 
 				return result;
@@ -182,12 +181,13 @@ namespace AppInstaller::Repository::Rest
 					return {};
 				}
 
-				std::optional<std::string> manifestId = source->GetRestClient().GetVersionFromPackage(
-					m_package.manifest, versionKey.Version, versionKey.Channel);
-
-				if (manifestId)
+				for (const auto& versionInfo : m_package.versions)
 				{
-					return std::make_shared<PackageVersion>(source, manifestId.value());
+					if (CaseInsensitiveEquals(versionInfo.GetVersion().ToString(), versionKey.Version)
+						&& CaseInsensitiveEquals(versionInfo.GetChannel().ToString(), versionKey.Channel))
+					{
+						return std::make_shared<PackageVersion>(source, m_package.packageInfo, versionInfo);
+					}
 				}
 
 				return {};

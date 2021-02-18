@@ -26,6 +26,10 @@ namespace AppInstaller::Repository::Rest
 
 		json::value Handle_Post(const json::value& body);
 
+		pplx::task<web::http::http_response> Get();
+
+		json::value Handle_Get();
+
 	protected:
 		pplx::task<web::http::http_response> Make_Request(web::http::http_request req);
 

@@ -61,8 +61,28 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 		return result;
 	}
 
+	std::optional<std::string> Interface::GetManifestByVersion(std::string m_restApiUri, std::string packageId, std::string version) const
+	{
+		// Call the Version API and get the manifest corresponding to package id and version.
+		std::string versionAPI = m_restApiUri + "api/packages/" + packageId + "/versions/" + version;
+		utility::string_t versionApi = utility::conversions::to_string_t(versionAPI);
+
+		HttpClientHelper clientHelper(versionApi);
+		json::value jsonObject = clientHelper.Handle_Get();
+
+		// Parse json and add results to SearchResult
+		auto& dataArray = jsonObject.at(U("data")).as_array();
+		std::string manifest;
+		for (auto& manifestItem : dataArray)
+		{
+			manifest = utility::conversions::to_utf8string(manifestItem.serialize());
+		}
+
+		return manifest;
+	}
+
 	// TODO: Pass version
-	std::optional<std::string> Interface::GetVersionFromPackage(const Manifest::Manifest& manifest, std::string_view version, std::string_view channel) const
+	std::optional<std::string> Interface::GetVersionFromPackage(const Manifest::Manifest& manifest, std::string version, std::string channel) const
 	{
 		UNREFERENCED_PARAMETER(manifest);
 		UNREFERENCED_PARAMETER(version);

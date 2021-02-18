@@ -23,8 +23,10 @@ namespace AppInstaller::Repository::Rest
 
 		// Gets all versions and channels for the given id.
 		std::vector<Utility::VersionAndChannel> GetVersionKeysFromPackage(const Manifest::Manifest& manifest) const;
+				
+		std::optional<std::string> GetManifestByVersion(std::string packageId, std::string version) const;
 
-		std::optional<std::string> GetVersionFromPackage(const Manifest::Manifest& manifest, std::string_view version, std::string_view channel) const;
+		std::optional<std::string> GetVersionFromPackage(const Manifest::Manifest& manifest, std::string version, std::string channel) const;
 
 		std::optional<std::string> GetPropertyFromVersion(const std::string& manifest, PackageVersionProperty property) const;
 
