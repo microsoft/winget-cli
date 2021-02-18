@@ -39,7 +39,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 		SearchResult result;
 
 		// Call the ManifestSearch API and return a sample set of results.
-		utility::string_t searchAPI = utility::conversions::to_string_t(m_restApiUri);
+		std::string fullSearchAPI = m_restApiUri + "api/manifestSearch?";;
+		utility::string_t searchAPI = utility::conversions::to_string_t(fullSearchAPI);
 		
 		HttpClientHelper clientHelper(searchAPI);
 		json::value requestBody = GetSearchBody(request);

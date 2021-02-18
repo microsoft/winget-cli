@@ -42,6 +42,7 @@ namespace AppInstaller::Repository::Rest
 			// Inherited via IPackageVersion
 			Utility::LocIndString GetProperty(PackageVersionProperty property) const override
 			{
+				// TODO: Change based on new format
 				switch (property)
 				{
 				case PackageVersionProperty::SourceIdentifier:
@@ -55,6 +56,7 @@ namespace AppInstaller::Repository::Rest
 
 			std::vector<Utility::LocIndString> GetMultiProperty(PackageVersionMultiProperty property) const override
 			{
+				// TODO: Change based on new format
 				std::vector<Utility::LocIndString> result;
 
 				for (auto&& value : GetReferenceSource()->GetRestClient().GetMultiPropertyFromVersion(m_manifest, property))
@@ -97,6 +99,7 @@ namespace AppInstaller::Repository::Rest
 
 			Utility::LocIndString GetProperty(PackageProperty property) const
 			{
+				// TODO: Change based on new format
 				Utility::LocIndString result;
 
 				std::shared_ptr<IPackageVersion> truth = GetLatestVersionInternal();
@@ -119,6 +122,8 @@ namespace AppInstaller::Repository::Rest
 		protected:
 			std::shared_ptr<IPackageVersion> GetLatestVersionInternal() const
 			{
+				// TODO: Change based on new format
+				// Sort and store or sort everytime?
 				std::shared_ptr<const RestSource> source = GetReferenceSource();
 				std::optional<std::string> manifest = source->GetRestClient().GetVersionFromPackage(m_package.manifest, {}, {});
 				if (manifest)
