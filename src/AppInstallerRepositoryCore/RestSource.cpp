@@ -69,7 +69,7 @@ namespace AppInstaller::Repository::Rest
 			// TODO
 			Manifest::Manifest GetManifest() const override
 			{
-				// TODO: Get manifest with this package version.
+				// TODO: Get manifest corresponding to this package version.
 				return Manifest::YamlParser::Create(m_manifest);
 			}
 
@@ -225,9 +225,8 @@ namespace AppInstaller::Repository::Rest
 		for (auto& result : results.Matches)
 		{
 			// TODO: Check if package is available or installed.
-			// TODO: Pass package match filter.
 			std::unique_ptr<IPackage> package = std::make_unique<AvailablePackage>(sharedThis, result);
-			PackageMatchFilter packageFilter(PackageMatchField::Id, MatchType::Substring, "");
+			PackageMatchFilter packageFilter({}, {}, {});
 			searchResult.Matches.emplace_back(std::move(package), std::move(packageFilter));
 		}
 

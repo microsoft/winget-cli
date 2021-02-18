@@ -20,6 +20,7 @@ namespace AppInstaller::Repository::Rest::Schema
 
 		struct Package
 		{
+			// TODO: Change type based on discussion.
 			Manifest::Manifest manifest;
 
 			Package(Manifest::Manifest manifest) : manifest(manifest) {}

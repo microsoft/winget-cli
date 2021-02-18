@@ -46,14 +46,15 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 		json::value jsonObject = clientHelper.Handle_Post(requestBody);
 
 		// Parse json and add results to SearchResult
-		auto& dataArray = jsonObject.at(U("data")).as_array();
+		auto dataArray = jsonObject.at(U("data")).as_array();
 
-		for (auto& manifestItem : dataArray)
+		for (auto manifestItem : dataArray)
 		{
 			// Deserialize to manifest object. 
-			Manifest::Manifest manifest = Manifest::YamlParser::Create(utility::conversions::to_utf8string(manifestItem.serialize()));
+			std::wcout << manifestItem.serialize();
+			/*Manifest::Manifest manifest = Manifest::YamlParser::Create(utility::conversions::to_utf8string(manifestItem.serialize()));
 			Package package = Package(std::move(manifest));
-			result.Matches.emplace_back(std::move(package));
+			result.Matches.emplace_back(std::move(package));*/
 		}
 
 		return result;

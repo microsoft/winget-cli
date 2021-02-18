@@ -28,14 +28,14 @@ namespace AppInstaller::Repository::Rest
 
 	json::value HttpClientHelper::Handle_Post(const json::value& body)
 	{
-		json::value result = Post(body).then([](const http_response& response)
+		json::value result;
+		Post(body).then([&result](const http_response& response)
 			{
 				if (response.status_code() == status_codes::OK)
 				{
-					return response.extract_json();
+					result = response.extract_json().get();
 				}
 
-				return pplx::task_from_result(json::value());
 			}).wait();
 
 		return result;
