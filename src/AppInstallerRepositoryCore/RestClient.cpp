@@ -23,29 +23,9 @@ namespace AppInstaller::Repository::Rest
 		m_interface = std::make_unique<Schema::V1_0::Interface>();
 	}
 
-	std::vector<Utility::VersionAndChannel> RestClient::GetVersionKeysFromPackage(const Manifest::Manifest& manifest) const
-	{
-		return m_interface->GetVersionKeysFromPackage(manifest);
-	}
-
-	std::optional<std::string> RestClient::GetManifestByVersion(std::string packageId, std::string version) const
+	std::optional<std::string> RestClient::GetManifestByVersion(const std::string& packageId, const std::string& version) const
 	{
 		return m_interface->GetManifestByVersion(m_restApiUri, packageId, version);
-	}
-
-	std::optional<std::string> RestClient::GetVersionFromPackage(const Manifest::Manifest& manifest, std::string version, std::string channel) const
-	{
-		return m_interface->GetVersionFromPackage(manifest, version, channel);
-	}
-
-	std::optional<std::string> RestClient::GetPropertyFromVersion(const std::string& manifest, PackageVersionProperty packageVersionProperty) const
-	{
-		return m_interface->GetPropertyFromVersion(manifest, packageVersionProperty);
-	}
-
-	std::vector<std::string> RestClient::GetMultiPropertyFromVersion(const std::string& manifest, PackageVersionMultiProperty packageVersionProperty) const
-	{
-		return m_interface->GetMultiPropertyFromVersion(manifest, packageVersionProperty);
 	}
 
 	RestClient::SearchResult RestClient::Search(const SearchRequest& request) const

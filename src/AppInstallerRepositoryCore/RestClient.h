@@ -21,16 +21,7 @@ namespace AppInstaller::Repository::Rest
 		// Performs a search based on the given criteria.
 		Schema::IRestClient::SearchResult Search(const SearchRequest& request) const;
 
-		// Gets all versions and channels for the given id.
-		std::vector<Utility::VersionAndChannel> GetVersionKeysFromPackage(const Manifest::Manifest& manifest) const;
-				
-		std::optional<std::string> GetManifestByVersion(std::string packageId, std::string version) const;
-
-		std::optional<std::string> GetVersionFromPackage(const Manifest::Manifest& manifest, std::string version, std::string channel) const;
-
-		std::optional<std::string> GetPropertyFromVersion(const std::string& manifest, PackageVersionProperty property) const;
-
-		std::vector<std::string> GetMultiPropertyFromVersion(const std::string& manifest, PackageVersionMultiProperty packageVersionProperty) const;
+		std::optional<std::string> GetManifestByVersion(const std::string& packageId, const std::string& version) const;
 
 	private:
 		std::string m_restApiUri;

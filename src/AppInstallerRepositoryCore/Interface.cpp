@@ -32,19 +32,19 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 		}
 	}
 
-	IRestClient::SearchResult Interface::Search(std::string m_restApiUri, const SearchRequest& request) const
+	IRestClient::SearchResult Interface::Search(const std::string& restApiUri, const SearchRequest& request) const
 	{
 		UNREFERENCED_PARAMETER(request);
 
 		SearchResult result;
 
 		// Call the ManifestSearch API and return a sample set of results.
-		std::string fullSearchAPI = m_restApiUri + "api/manifestSearch?";;
+		std::string fullSearchAPI = restApiUri + "api/manifestSearch?";
 		utility::string_t searchAPI = utility::conversions::to_string_t(fullSearchAPI);
 		
 		HttpClientHelper clientHelper(searchAPI);
 		json::value requestBody = GetSearchBody(request);
-		json::value jsonObject = clientHelper.Handle_Post(requestBody);
+		json::value jsonObject = clientHelper.HandlePost(requestBody);
 
 		// Parse json and add results to SearchResult
 		auto& dataArray = jsonObject.at(U("data")).as_array();
@@ -61,14 +61,14 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 		return result;
 	}
 
-	std::optional<std::string> Interface::GetManifestByVersion(std::string m_restApiUri, std::string packageId, std::string version) const
+	std::optional<std::string> Interface::GetManifestByVersion(const std::string& restApiUri, const std::string& packageId, const std::string& version) const
 	{
 		// Call the Version API and get the manifest corresponding to package id and version.
-		std::string versionAPI = m_restApiUri + "api/packages/" + packageId + "/versions/" + version;
+		std::string versionAPI = restApiUri + "api/packages/" + packageId + "/versions/" + version;
 		utility::string_t versionApi = utility::conversions::to_string_t(versionAPI);
 
 		HttpClientHelper clientHelper(versionApi);
-		json::value jsonObject = clientHelper.Handle_Get();
+		json::value jsonObject = clientHelper.HandleGet();
 
 		// Parse json and add results to SearchResult
 		auto& dataArray = jsonObject.at(U("data")).as_array();
@@ -79,38 +79,5 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 		}
 
 		return manifest;
-	}
-
-	// TODO: Pass version
-	std::optional<std::string> Interface::GetVersionFromPackage(const Manifest::Manifest& manifest, std::string version, std::string channel) const
-	{
-		UNREFERENCED_PARAMETER(manifest);
-		UNREFERENCED_PARAMETER(version);
-		UNREFERENCED_PARAMETER(channel);
-		return {};
-	}
-
-	std::vector<Utility::VersionAndChannel> Interface::GetVersionKeysFromPackage(const Manifest::Manifest& manifest) const
-	{
-		UNREFERENCED_PARAMETER(manifest);
-		std::vector<Utility::VersionAndChannel> result;
-		return result;
-	}
-
-	// TODO: Pass version
-	std::optional<std::string> Interface::GetPropertyFromVersion(const std::string& manifest, PackageVersionProperty property) const
-	{
-		UNREFERENCED_PARAMETER(manifest);
-		UNREFERENCED_PARAMETER(property);
-		return {};
-	}
-
-	// TODO: Pass version
-	std::vector<std::string> Interface::GetMultiPropertyFromVersion(const std::string& manifest, PackageVersionMultiProperty property) const
-	{
-		UNREFERENCED_PARAMETER(manifest);
-		UNREFERENCED_PARAMETER(property);
-		std::vector<std::string> result;
-		return result;
 	}
 }
