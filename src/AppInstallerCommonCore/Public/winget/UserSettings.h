@@ -53,6 +53,7 @@ namespace AppInstaller::Settings
         EFExperimentalUpgrade,
         EFUninstall,
         EFImportExport,
+        EFRestSource,
         Max
     };
 
@@ -89,6 +90,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalUpgrade, bool, bool, false, ".experimentalFeatures.upgrade"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFUninstall, bool, bool, false, ".experimentalFeatures.uninstall"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFImportExport, bool, bool, false, ".experimentalFeatures.importExport"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFRestSource, bool, bool, false, ".experimentalFeatures.restSource"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>

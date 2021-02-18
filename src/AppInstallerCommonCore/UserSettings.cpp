@@ -222,6 +222,12 @@ namespace AppInstaller::Settings
         {
             return value;
         }
+
+        std::optional<SettingMapping<Setting::EFRestSource>::value_t>
+            SettingMapping<Setting::EFRestSource>::Validate(const SettingMapping<Setting::EFRestSource>::json_t& value)
+        {
+            return value;
+        }
     }
 
     UserSettings::UserSettings() : m_type(UserSettingsType::Default)

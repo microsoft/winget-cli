@@ -46,9 +46,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 		json::value jsonObject = clientHelper.Handle_Post(requestBody);
 
 		// Parse json and add results to SearchResult
-		auto dataArray = jsonObject.at(U("data")).as_array();
+		auto& dataArray = jsonObject.at(U("data")).as_array();
 
-		for (auto manifestItem : dataArray)
+		for (auto& manifestItem : dataArray)
 		{
 			// Deserialize to manifest object. 
 			std::wcout << manifestItem.serialize();

@@ -328,7 +328,8 @@ namespace AppInstaller::Repository
             {
                 return Microsoft::PredefinedInstalledSourceFactory::Create();
             }
-            else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type))
+            else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type)
+                && Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
             {
                 return Rest::RestSourceFactory::Create();
             }
