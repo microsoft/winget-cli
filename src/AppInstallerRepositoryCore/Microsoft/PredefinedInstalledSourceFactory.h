@@ -25,8 +25,7 @@ namespace AppInstaller::Repository::Microsoft
         enum class Filter
         {
             None,
-            ARP_System,
-            ARP_User,
+            ARP,
             MSIX,
         };
 

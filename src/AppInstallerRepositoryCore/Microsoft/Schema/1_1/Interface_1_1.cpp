@@ -150,34 +150,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 
     void Interface::PrepareForPackaging(SQLite::Connection& connection)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_1");
-
-        V1_0::IdTable::PrepareForPackaging(connection);
-        V1_0::NameTable::PrepareForPackaging(connection);
-        V1_0::MonikerTable::PrepareForPackaging(connection);
-        V1_0::VersionTable::PrepareForPackaging(connection);
-        V1_0::ChannelTable::PrepareForPackaging(connection);
-
-        V1_0::PathPartTable::PrepareForPackaging(connection);
-
-        V1_0::ManifestTable::PrepareForPackaging(connection, {
-            V1_0::VersionTable::ValueName(),
-            V1_0::ChannelTable::ValueName(),
-            V1_0::PathPartTable::ValueName(),
-            });
-
-        V1_0::TagsTable::PrepareForPackaging(connection, false);
-        V1_0::CommandsTable::PrepareForPackaging(connection, false);
-        PackageFamilyNameTable::PrepareForPackaging(connection, true, true);
-        ProductCodeTable::PrepareForPackaging(connection, true, true);
-
-        savepoint.Commit();
-
-        // Force the database to actually shrink the file size.
-        // This *must* be done outside of an active transaction.
-        SQLite::Builder::StatementBuilder builder;
-        builder.Vacuum();
-        builder.Execute(connection);
+        PrepareForPackaging(connection, true);
     }
 
     bool Interface::CheckConsistency(const SQLite::Connection& connection, bool log) const
@@ -200,29 +173,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 
     ISQLiteIndex::SearchResult Interface::Search(const SQLite::Connection& connection, const SearchRequest& request) const
     {
-        // Update any system reference strings to be folded
-        SearchRequest foldedRequest = request;
-
-        auto foldIfNeeded = [](PackageMatchFilter& filter)
-        {
-            if ((filter.Field == PackageMatchField::PackageFamilyName || filter.Field == PackageMatchField::ProductCode) &&
-                filter.Type == MatchType::Exact)
-            {
-                filter.Value = Utility::FoldCase(filter.Value);
-            }
-        };
-
-        for (auto& inclusion : foldedRequest.Inclusions)
-        {
-            foldIfNeeded(inclusion);
-        }
-
-        for (auto& filter : foldedRequest.Filters)
-        {
-            foldIfNeeded(filter);
-        }
-
-        return V1_0::Interface::Search(connection, foldedRequest);
+        SearchRequest updatedRequest = request;
+        return SearchInternal(connection, updatedRequest);
     }
 
     std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const
@@ -273,11 +225,73 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
     {
         // First, do an exact match search for the folded system reference strings
         // We do this first because it is exact, and likely won't match anything else if it matches this.
-        std::string foldedQuery = Utility::FoldCase(query.Value);
-        resultsTable.SearchOnField(PackageMatchField::PackageFamilyName, MatchType::Exact, foldedQuery);
-        resultsTable.SearchOnField(PackageMatchField::ProductCode, MatchType::Exact, foldedQuery);
+        PackageMatchFilter filter(PackageMatchField::PackageFamilyName, MatchType::Exact, Utility::FoldCase(query.Value));
+        resultsTable.SearchOnField(filter);
+
+        filter.Field = PackageMatchField::ProductCode;
+        resultsTable.SearchOnField(filter);
 
         // Then do the 1.0 search
         V1_0::Interface::PerformQuerySearch(resultsTable, query);
+    }
+
+    ISQLiteIndex::SearchResult Interface::SearchInternal(const SQLite::Connection& connection, SearchRequest& request) const
+    {
+        // Update any system reference strings to be folded
+        auto foldIfNeeded = [](PackageMatchFilter& filter)
+        {
+            if ((filter.Field == PackageMatchField::PackageFamilyName || filter.Field == PackageMatchField::ProductCode) &&
+                filter.Type == MatchType::Exact)
+            {
+                filter.Value = Utility::FoldCase(filter.Value);
+            }
+        };
+
+        for (auto& inclusion : request.Inclusions)
+        {
+            foldIfNeeded(inclusion);
+        }
+
+        for (auto& filter : request.Filters)
+        {
+            foldIfNeeded(filter);
+        }
+
+        return V1_0::Interface::Search(connection, request);
+    }
+
+    void Interface::PrepareForPackaging(SQLite::Connection& connection, bool vacuum)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_1");
+
+        V1_0::IdTable::PrepareForPackaging(connection);
+        V1_0::NameTable::PrepareForPackaging(connection);
+        V1_0::MonikerTable::PrepareForPackaging(connection);
+        V1_0::VersionTable::PrepareForPackaging(connection);
+        V1_0::ChannelTable::PrepareForPackaging(connection);
+
+        V1_0::PathPartTable::PrepareForPackaging(connection);
+
+        V1_0::ManifestTable::PrepareForPackaging(connection, {
+            V1_0::VersionTable::ValueName(),
+            V1_0::ChannelTable::ValueName(),
+            V1_0::PathPartTable::ValueName(),
+            });
+
+        V1_0::TagsTable::PrepareForPackaging(connection, false);
+        V1_0::CommandsTable::PrepareForPackaging(connection, false);
+        PackageFamilyNameTable::PrepareForPackaging(connection, true, true);
+        ProductCodeTable::PrepareForPackaging(connection, true, true);
+
+        savepoint.Commit();
+
+        if (vacuum)
+        {
+            // Force the database to actually shrink the file size.
+            // This *must* be done outside of an active transaction.
+            SQLite::Builder::StatementBuilder builder;
+            builder.Vacuum();
+            builder.Execute(connection);
+        }
     }
 }

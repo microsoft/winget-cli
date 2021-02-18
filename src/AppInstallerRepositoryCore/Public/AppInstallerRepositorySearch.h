@@ -42,6 +42,7 @@ namespace AppInstaller::Repository
         Tag,
         PackageFamilyName,
         ProductCode,
+        NormalizedNameAndPublisher,
     };
 
     // A single match to be performed during a search.
@@ -49,8 +50,13 @@ namespace AppInstaller::Repository
     {
         MatchType Type;
         Utility::NormalizedString Value;
+        std::optional<Utility::NormalizedString> Second;
 
-        RequestMatch(MatchType t, std::string_view v) : Type(t), Value(v) {}
+        RequestMatch(MatchType t) : Type(t) {}
+        RequestMatch(MatchType t, Utility::NormalizedString& v) : Type(t), Value(v) {}
+        RequestMatch(MatchType t, const Utility::NormalizedString& v) : Type(t), Value(v) {}
+        RequestMatch(MatchType t, Utility::NormalizedString&& v) : Type(t), Value(std::move(v)) {}
+        RequestMatch(MatchType t, std::string_view v1, std::string_view v2) : Type(t), Value(v1), Second(Utility::NormalizedString{ v2 }) {}
     };
 
     // A match on a specific field to be performed during a search.
@@ -58,7 +64,17 @@ namespace AppInstaller::Repository
     {
         PackageMatchField Field;
 
-        PackageMatchFilter(PackageMatchField f, MatchType t, std::string_view v) : RequestMatch(t, v), Field(f) {}
+        PackageMatchFilter(PackageMatchField f, MatchType t) : RequestMatch(t), Field(f) { CheckValuesCount(); }
+        PackageMatchFilter(PackageMatchField f, MatchType t, Utility::NormalizedString& v) : RequestMatch(t, v), Field(f) { CheckValuesCount(); }
+        PackageMatchFilter(PackageMatchField f, MatchType t, const Utility::NormalizedString& v) : RequestMatch(t, v), Field(f) { CheckValuesCount(); }
+        PackageMatchFilter(PackageMatchField f, MatchType t, Utility::NormalizedString&& v) : RequestMatch(t, std::move(v)), Field(f) { CheckValuesCount(); }
+        PackageMatchFilter(PackageMatchField f, MatchType t, std::string_view v1, std::string_view v2) : RequestMatch(t, v1, v2), Field(f) { CheckValuesCount(); }
+
+    protected:
+        void CheckValuesCount() const
+        {
+            THROW_HR_IF(E_INVALIDARG, (Field == PackageMatchField::NormalizedNameAndPublisher) != static_cast<bool>(Second));
+        }
     };
 
     // Container for data used to filter the available manifests in a source.

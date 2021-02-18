@@ -412,7 +412,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             SearchResult result;
             for (SQLite::rowid_t id : ids)
             {
-                result.Matches.emplace_back(std::make_pair(id, PackageMatchFilter(PackageMatchField::Id, MatchType::Wildcard, {})));
+                result.Matches.emplace_back(std::make_pair(id, PackageMatchFilter(PackageMatchField::Id, MatchType::Wildcard)));
             }
 
             result.Truncated = (request.MaximumResults && IdTable::GetCount(connection) > request.MaximumResults);
@@ -437,11 +437,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         if (!request.Inclusions.empty())
         {
-            for (const auto& include : request.Inclusions)
+            for (auto include : request.Inclusions)
             {
                 for (MatchType match : GetMatchTypeOrder(include.Type))
                 {
-                    resultsTable->SearchOnField(include.Field, match, include.Value);
+                    include.Type = match;
+                    resultsTable->SearchOnField(include);
                 }
             }
 
@@ -454,11 +455,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             THROW_HR_IF(E_UNEXPECTED, request.Filters.empty());
 
             // Perform search for just the field matching the first filter
-            const PackageMatchFilter& filter = request.Filters[0];
+            PackageMatchFilter filter = request.Filters[0];
 
             for (MatchType match : GetMatchTypeOrder(filter.Type))
             {
-                resultsTable->SearchOnField(filter.Field, match, filter.Value);
+                filter.Type = match;
+                resultsTable->SearchOnField(filter);
             }
 
             // Skip the filter as we already know everything matches
@@ -471,13 +473,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Second phase, for remaining filters, flag matching search results, then remove unflagged values.
         for (size_t i = filterIndex; i < request.Filters.size(); ++i)
         {
-            const PackageMatchFilter& filter = request.Filters[i];
+            PackageMatchFilter filter = request.Filters[i];
 
             resultsTable->PrepareToFilter();
 
             for (MatchType match : GetMatchTypeOrder(filter.Type))
             {
-                resultsTable->FilterOnField(filter.Field, match, filter.Value);
+                filter.Type = match;
+                resultsTable->FilterOnField(filter);
             }
 
             resultsTable->CompleteFilter();
@@ -548,14 +551,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     Utility::NormalizedName Interface::NormalizeName(std::string_view name, std::string_view publisher) const
     {
-        // TODO: When the other code is moved, return this default normalization
-        //Utility::NormalizedName result;
-        //result.Name(name);
-        //result.Publisher(publisher);
-        //return result;
-
-        // TODO: Move me to the new schema version when that comes around
-        return m_nameNormalizer.Normalize(name, publisher);
+        Utility::NormalizedName result;
+        result.Name(name);
+        result.Publisher(publisher);
+        return result;
     }
 
     std::unique_ptr<SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
@@ -588,13 +587,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     void Interface::PerformQuerySearch(SearchResultsTable& resultsTable, const RequestMatch& query) const
     {
+        // Arbitrary values to create a reusable filter with the given value.
+        PackageMatchFilter filter(PackageMatchField::Id, MatchType::Exact, query.Value);
+
         for (MatchType match : GetMatchTypeOrder(query.Type))
         {
-            resultsTable.SearchOnField(PackageMatchField::Id, match, query.Value);
-            resultsTable.SearchOnField(PackageMatchField::Name, match, query.Value);
-            resultsTable.SearchOnField(PackageMatchField::Moniker, match, query.Value);
-            resultsTable.SearchOnField(PackageMatchField::Command, match, query.Value);
-            resultsTable.SearchOnField(PackageMatchField::Tag, match, query.Value);
+            filter.Type = match;
+
+            for (auto field : { PackageMatchField::Id, PackageMatchField::Name, PackageMatchField::Moniker, PackageMatchField::Command, PackageMatchField::Tag })
+            {
+                filter.Field = field;
+                resultsTable.SearchOnField(filter);
+            }
         }
     }
 }

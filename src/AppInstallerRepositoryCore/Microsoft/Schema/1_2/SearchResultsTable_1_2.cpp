@@ -5,13 +5,13 @@
 #include "SearchResultsTable.h"
 
 #include "Microsoft/Schema/1_0/ManifestTable.h"
-#include "Microsoft/Schema/1_1/PackageFamilyNameTable.h"
-#include "Microsoft/Schema/1_1/ProductCodeTable.h"
+#include "Microsoft/Schema/1_2/NormalizedPackageNameTable.h"
+#include "Microsoft/Schema/1_2/NormalizedPackagePublisherTable.h"
 
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 {
-    std::optional<int> SearchResultsTable::BuildSearchStatement(
+    std::vector<int> SearchResultsTable::BuildSearchStatement(
         SQLite::Builder::StatementBuilder& builder,
         PackageMatchField field,
         std::string_view manifestAlias,
@@ -20,12 +20,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
     {
         switch (field)
         {
-        case PackageMatchField::PackageFamilyName:
-            return V1_0::ManifestTable::BuildSearchStatement<PackageFamilyNameTable>(builder, manifestAlias, valueAlias, useLike);
-        case PackageMatchField::ProductCode:
-            return V1_0::ManifestTable::BuildSearchStatement<ProductCodeTable>(builder, manifestAlias, valueAlias, useLike);
+        case PackageMatchField::NormalizedNameAndPublisher:
+            return V1_0::ManifestTable::BuildSearchStatement<NormalizedPackageNameTable, NormalizedPackagePublisherTable>(builder, manifestAlias, valueAlias, useLike);
         default:
-            return V1_0::SearchResultsTable::BuildSearchStatement(builder, field, manifestAlias, valueAlias, useLike);
+            return V1_1::SearchResultsTable::BuildSearchStatement(builder, field, manifestAlias, valueAlias, useLike);
+        }
+    }
+
+    void SearchResultsTable::BindStatementForMatchType(SQLite::Statement& statement, const PackageMatchFilter& filter, const std::vector<int>& bindIndex)
+    {
+        V1_0::SearchResultsTable::BindStatementForMatchType(statement, filter, bindIndex);
+
+        if (filter.Field == PackageMatchField::NormalizedNameAndPublisher)
+        {
+            BindStatementForMatchType(statement, filter.Type, bindIndex[1], filter.Second.value());
         }
     }
 }

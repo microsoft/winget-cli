@@ -41,9 +41,5 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Executes all relevant searches for the query.
         virtual void PerformQuerySearch(SearchResultsTable& resultsTable, const RequestMatch& query) const;
-
-    private:
-        // TODO: Move me to the new schema version when that comes around
-        Utility::NameNormalizer m_nameNormalizer = Utility::NameNormalizer(Utility::NormalizationVersion::Initial);
     };
 }

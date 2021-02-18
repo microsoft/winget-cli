@@ -436,7 +436,7 @@ namespace AppInstaller::Repository
             {
                 for (const auto& srs : installedPackageData.SystemReferenceStrings)
                 {
-                    systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(srs.Field, MatchType::Exact, srs.String));
+                    systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(srs.Field, MatchType::Exact, srs.String.get()));
                 }
 
                 std::shared_ptr<IPackage> availablePackage;
@@ -521,7 +521,7 @@ namespace AppInstaller::Repository
                 SearchRequest systemReferenceSearch;
                 for (const auto& srs : packageData->SystemReferenceStrings)
                 {
-                    systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(srs.Field, MatchType::Exact, srs.String));
+                    systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(srs.Field, MatchType::Exact, srs.String.get()));
                 }
 
                 SearchResult installedCrossRef = m_installedSource->Search(systemReferenceSearch);

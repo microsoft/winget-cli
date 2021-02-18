@@ -32,6 +32,7 @@ namespace AppInstaller::Utility
 
         NormalizedUTF8(std::string_view sv) : std::string(Normalize(sv, Form)) {}
 
+        NormalizedUTF8(std::string& s) : std::string(Normalize(s, Form)) {}
         NormalizedUTF8(const std::string& s) : std::string(Normalize(s, Form)) {}
         NormalizedUTF8(std::string&& s) : std::string(Normalize(s, Form)) {}
 

@@ -110,26 +110,11 @@ namespace AppInstaller::Repository::Microsoft
                 SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
 
                 // Put installed packages into the index
-                std::optional<ARPHelper> arpHelper;
-
-                if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP_System)
+                if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP)
                 {
-                    if (!arpHelper)
-                    {
-                        arpHelper = ARPHelper();
-                    }
-
-                    arpHelper->PopulateIndexFromARP(index, Manifest::ManifestInstaller::ScopeEnum::Machine);
-                }
-
-                if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP_User)
-                {
-                    if (!arpHelper)
-                    {
-                        arpHelper = ARPHelper();
-                    }
-
-                    arpHelper->PopulateIndexFromARP(index, Manifest::ManifestInstaller::ScopeEnum::User);
+                    ARPHelper arpHelper;
+                    arpHelper.PopulateIndexFromARP(index, Manifest::ManifestInstaller::ScopeEnum::Machine);
+                    arpHelper.PopulateIndexFromARP(index, Manifest::ManifestInstaller::ScopeEnum::User);
                 }
 
                 if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::MSIX)
@@ -166,10 +151,8 @@ namespace AppInstaller::Repository::Microsoft
         {
         case AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::None:
             return "None"sv;
-        case AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::ARP_System:
-            return "ARP_System"sv;
-        case AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::ARP_User:
-            return "ARP_User"sv;
+        case AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::ARP:
+            return "ARP"sv;
         case AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::MSIX:
             return "MSIX"sv;
         default:
@@ -179,13 +162,9 @@ namespace AppInstaller::Repository::Microsoft
 
     PredefinedInstalledSourceFactory::Filter PredefinedInstalledSourceFactory::StringToFilter(std::string_view filter)
     {
-        if (filter == FilterToString(Filter::ARP_System))
+        if (filter == FilterToString(Filter::ARP))
         {
-            return Filter::ARP_System;
-        }
-        else if (filter == FilterToString(Filter::ARP_User))
-        {
-            return Filter::ARP_User;
+            return Filter::ARP;
         }
         else if (filter == FilterToString(Filter::MSIX))
         {

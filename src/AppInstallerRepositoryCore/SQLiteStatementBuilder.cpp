@@ -323,6 +323,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::Literal(std::string_view value)
+    {
+        AddBindFunctor(AppendOpAndBinder(Op::Literal), value);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::Escape(std::string_view escapeChar)
     {
         THROW_HR_IF(E_INVALIDARG, escapeChar.length() != 1);
@@ -772,6 +778,9 @@ namespace AppInstaller::Repository::SQLite::Builder
             break;
         case Op::Escape:
             m_stream << " ESCAPE ?";
+            break;
+        case Op::Literal:
+            m_stream << " ?";
             break;
         default:
             THROW_HR(E_UNEXPECTED);

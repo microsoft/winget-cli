@@ -52,7 +52,14 @@ namespace AppInstaller::Utility
         {
             virtual ~INameNormalizer() = default;
 
+            // Normalize both the name and publisher at the same time.
             virtual NormalizedName Normalize(std::string_view name, std::string_view publisher) const = 0;
+
+            // Normalize only the name.
+            virtual NormalizedName NormalizeName(std::string_view name) const = 0;
+
+            // Normalize only the publisher.
+            virtual std::string NormalizePublisher(std::string_view publisher) const = 0;
         };
     }
 
@@ -63,6 +70,8 @@ namespace AppInstaller::Utility
         NameNormalizer(NormalizationVersion version);
 
         NormalizedName Normalize(std::string_view name, std::string_view publisher) const;
+        NormalizedName NormalizeName(std::string_view name) const;
+        std::string NormalizePublisher(std::string_view publisher) const;
 
     private:
         std::unique_ptr<details::INameNormalizer> m_normalizer;

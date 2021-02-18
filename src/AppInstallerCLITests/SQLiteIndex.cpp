@@ -1199,11 +1199,16 @@ TEST_CASE("SQLiteIndex_SearchResultsTableSearches", "[sqliteindex][V1_0]")
     std::string value = "test";
 
     // Perform every type of field and match search
+    PackageMatchFilter filter(PackageMatchField::Id, MatchType::Exact, value);
+
     for (auto field : { PackageMatchField::Id, PackageMatchField::Name, PackageMatchField::Moniker, PackageMatchField::Tag, PackageMatchField::Command })
     {
+        filter.Field = field;
+
         for (auto match : { MatchType::Exact, MatchType::Fuzzy, MatchType::FuzzySubstring, MatchType::Substring, MatchType::Wildcard })
         {
-            search.SearchOnField(field, match, value);
+            filter.Type = match;
+            search.SearchOnField(filter);
         }
     }
 }

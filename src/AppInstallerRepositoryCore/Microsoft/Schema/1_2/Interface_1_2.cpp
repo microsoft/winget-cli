@@ -3,6 +3,9 @@
 #include "pch.h"
 #include "Microsoft/Schema/1_2/Interface.h"
 
+#include "Microsoft/Schema/1_2/NormalizedPackageNameTable.h"
+#include "Microsoft/Schema/1_2/NormalizedPackagePublisherTable.h"
+
 #include "Microsoft/Schema/1_2/SearchResultsTable.h"
 
 
@@ -10,40 +13,21 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 {
     namespace
     {
-        // TODO: Adapt algorithm to get name and publisher from all localizations
-        std::vector<Utility::NormalizedString> GetSystemReferenceStrings(
-            const Manifest::Manifest& manifest,
-            std::function<const Utility::NormalizedString&(const Manifest::ManifestInstaller&)> func)
+        // TODO: Adapt algorithm from 1_1 to get name and publisher from all localizations
+        //       when the new manifest change comes in.
+        std::vector<Utility::NormalizedString> GetNormalizedNames(const Utility::NameNormalizer& normalizer, const Manifest::Manifest& manifest)
         {
-            std::set<Utility::NormalizedString> set;
-
-            for (const auto& installer : manifest.Installers)
-            {
-                const Utility::NormalizedString& string = func(installer);
-                if (!string.empty())
-                {
-                    set.emplace(Utility::FoldCase(string));
-                }
-            }
-
-            std::vector<Utility::NormalizedString> result;
-            for (auto&& string : set)
-            {
-                result.emplace_back(string);
-            }
-
-            return result;
+            return { normalizer.NormalizeName(Utility::FoldCase(manifest.Name)).Name() };
         }
 
-        std::vector<Utility::NormalizedString> GetPackageFamilyNames(const Manifest::Manifest& manifest)
+        std::vector<Utility::NormalizedString> GetNormalizedPublishers(const Utility::NameNormalizer& normalizer, const Manifest::Manifest& manifest)
         {
-            return GetSystemReferenceStrings(manifest, [](const Manifest::ManifestInstaller& i) -> const Utility::NormalizedString& { return i.PackageFamilyName; });
+            return { normalizer.NormalizePublisher(Utility::FoldCase(manifest.Publisher)) };
         }
+    }
 
-        std::vector<Utility::NormalizedString> GetProductCodes(const Manifest::Manifest& manifest)
-        {
-            return GetSystemReferenceStrings(manifest, [](const Manifest::ManifestInstaller& i) -> const Utility::NormalizedString& { return i.ProductCode; });
-        }
+    Interface::Interface(Utility::NormalizationVersion normVersion) : m_normalizer(normVersion)
+    {
     }
 
     Schema::Version Interface::GetVersion() const
@@ -57,7 +41,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 
         V1_1::Interface::CreateTables(connection);
 
-        // TODO: Create normalized name and publisher table
+        // While the name and publisher should be linked per-locale, we are not implementing that here.
+        // This will mean that one can match cross locale name and publisher, but the chance that this
+        // leads to a confusion between packages is very small. More likely would be intentional attempts
+        // to confuse the correlation, which could be fairly easily carried out even with linked values.
+        NormalizedPackageNameTable::Create(connection);
+        NormalizedPackagePublisherTable::Create(connection);
 
         savepoint.Commit();
     }
@@ -69,7 +58,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         SQLite::rowid_t manifestId = V1_1::Interface::AddManifest(connection, manifest, relativePath);
 
         // Add the new 1.2 data
-        // TODO: This
+        // These normalized strings are all stored with their cases folded so that they can be
+        // looked up ordinally; enabling the index to provide efficient searches.
+        NormalizedPackageNameTable::EnsureExistsAndInsert(connection, GetNormalizedNames(m_normalizer, manifest), manifestId);
+        NormalizedPackagePublisherTable::EnsureExistsAndInsert(connection, GetNormalizedPublishers(m_normalizer, manifest), manifestId);
 
         savepoint.Commit();
 
@@ -83,8 +75,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         auto [indexModified, manifestId] = V1_1::Interface::UpdateManifest(connection, manifest, relativePath);
 
         // Update new 1.2 tables as necessary
-        indexModified = PackageFamilyNameTable::UpdateIfNeededByManifestId(connection, GetPackageFamilyNames(manifest), manifestId) || indexModified;
-        indexModified = ProductCodeTable::UpdateIfNeededByManifestId(connection, GetProductCodes(manifest), manifestId) || indexModified;
+        indexModified = NormalizedPackageNameTable::UpdateIfNeededByManifestId(connection, GetNormalizedNames(m_normalizer, manifest), manifestId) || indexModified;
+        indexModified = NormalizedPackagePublisherTable::UpdateIfNeededByManifestId(connection, GetNormalizedPublishers(m_normalizer, manifest), manifestId) || indexModified;
 
         savepoint.Commit();
 
@@ -98,35 +90,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         SQLite::rowid_t manifestId = V1_1::Interface::RemoveManifest(connection, manifest, relativePath);
 
         // Remove all of the new 1.2 data that is no longer referenced.
-        PackageFamilyNameTable::DeleteIfNotNeededByManifestId(connection, manifestId);
-        ProductCodeTable::DeleteIfNotNeededByManifestId(connection, manifestId);
-
-        if (ManifestMetadataTable::Exists(connection))
-        {
-            ManifestMetadataTable::DeleteByManifestId(connection, manifestId);
-        }
+        NormalizedPackageNameTable::DeleteIfNotNeededByManifestId(connection, manifestId);
+        NormalizedPackagePublisherTable::DeleteIfNotNeededByManifestId(connection, manifestId);
 
         savepoint.Commit();
 
         return manifestId;
-    }
-
-    void Interface::PrepareForPackaging(SQLite::Connection& connection)
-    {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_2");
-
-        // TODO: allow passing this bool to disable the vacuum
-        V1_1::Interface::PrepareForPackaging(connection, false);
-
-        // TODO: Prepare the new table
-
-        savepoint.Commit();
-
-        // Force the database to actually shrink the file size.
-        // This *must* be done outside of an active transaction.
-        SQLite::Builder::StatementBuilder builder;
-        builder.Vacuum();
-        builder.Execute(connection);
     }
 
     bool Interface::CheckConsistency(const SQLite::Connection& connection, bool log) const
@@ -136,43 +105,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         // If the v1.1 index was consistent, or if full logging of inconsistency was requested, check the v1.2 data.
         if (result || log)
         {
-            result = PackageFamilyNameTable::CheckConsistency(connection, log) && result;
+            result = NormalizedPackageNameTable::CheckConsistency(connection, log) && result;
         }
 
         if (result || log)
         {
-            result = ProductCodeTable::CheckConsistency(connection, log) && result;
+            result = NormalizedPackagePublisherTable::CheckConsistency(connection, log) && result;
         }
 
         return result;
     }
 
-    ISQLiteIndex::SearchResult Interface::Search(const SQLite::Connection& connection, const SearchRequest& request) const
+    Utility::NormalizedName Interface::NormalizeName(std::string_view name, std::string_view publisher) const
     {
-        // TODO: Update for 1.2 data
-        // Update any system reference strings to be folded
-        SearchRequest foldedRequest = request;
-
-        auto foldIfNeeded = [](PackageMatchFilter& filter)
-        {
-            if ((filter.Field == PackageMatchField::PackageFamilyName || filter.Field == PackageMatchField::ProductCode) &&
-                filter.Type == MatchType::Exact)
-            {
-                filter.Value = Utility::FoldCase(filter.Value);
-            }
-        };
-
-        for (auto& inclusion : foldedRequest.Inclusions)
-        {
-            foldIfNeeded(inclusion);
-        }
-
-        for (auto& filter : foldedRequest.Filters)
-        {
-            foldIfNeeded(filter);
-        }
-
-        return V1_1::Interface::Search(connection, foldedRequest);
+        return m_normalizer.Normalize(name, publisher);
     }
 
     std::unique_ptr<V1_0::SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
@@ -180,15 +126,50 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         return std::make_unique<SearchResultsTable>(connection);
     }
 
-    void Interface::PerformQuerySearch(V1_0::SearchResultsTable& resultsTable, const RequestMatch& query) const
+    ISQLiteIndex::SearchResult Interface::SearchInternal(const SQLite::Connection& connection, SearchRequest& request) const
     {
-        // First, do an exact match search for the folded system reference strings
-        // We do this first because it is exact, and likely won't match anything else if it matches this.
-        std::string foldedQuery = Utility::FoldCase(query.Value);
-        resultsTable.SearchOnField(PackageMatchField::PackageFamilyName, MatchType::Exact, foldedQuery);
-        resultsTable.SearchOnField(PackageMatchField::ProductCode, MatchType::Exact, foldedQuery);
+        // Update NormalizedNameAndPublisher with normalization and folding
+        auto updateIfNeeded = [&](PackageMatchFilter& filter)
+        {
+            if (filter.Field == PackageMatchField::NormalizedNameAndPublisher && filter.Type == MatchType::Exact)
+            {
+                Utility::NormalizedName normalized = m_normalizer.Normalize(Utility::FoldCase(filter.Value), Utility::FoldCase(filter.Second.value()));
+                filter.Value = normalized.Name();
+                filter.Second = normalized.Publisher();
+            }
+        };
 
-        // Then do the 1.0 search
-        V1_0::Interface::PerformQuerySearch(resultsTable, query);
+        for (auto& inclusion : request.Inclusions)
+        {
+            updateIfNeeded(inclusion);
+        }
+
+        for (auto& filter : request.Filters)
+        {
+            updateIfNeeded(filter);
+        }
+
+        return V1_1::Interface::SearchInternal(connection, request);
+    }
+
+    void Interface::PrepareForPackaging(SQLite::Connection& connection, bool vacuum)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_2");
+
+        V1_1::Interface::PrepareForPackaging(connection, false);
+
+        NormalizedPackageNameTable::PrepareForPackaging(connection, true, true);
+        NormalizedPackagePublisherTable::PrepareForPackaging(connection, true, true);
+
+        savepoint.Commit();
+
+        if (vacuum)
+        {
+            // Force the database to actually shrink the file size.
+            // This *must* be done outside of an active transaction.
+            SQLite::Builder::StatementBuilder builder;
+            builder.Vacuum();
+            builder.Execute(connection);
+        }
     }
 }

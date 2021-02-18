@@ -147,6 +147,12 @@
     <ClInclude Include="Microsoft\Schema\1_2\SearchResultsTable.h">
       <Filter>Microsoft\Schema\1_2</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_2\NormalizedPackageNameTable.h">
+      <Filter>Microsoft\Schema\1_2</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_2\NormalizedPackagePublisherTable.h">
+      <Filter>Microsoft\Schema\1_2</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

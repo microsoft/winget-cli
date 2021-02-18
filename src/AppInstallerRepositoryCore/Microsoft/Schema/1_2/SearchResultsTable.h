@@ -18,11 +18,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         SearchResultsTable& operator=(SearchResultsTable&&) = default;
 
     protected:
-        std::optional<int> BuildSearchStatement(
+        std::vector<int> BuildSearchStatement(
             SQLite::Builder::StatementBuilder& builder,
             PackageMatchField field,
             std::string_view manifestAlias,
             std::string_view valueAlias,
             bool useLike) const override;
+
+        // Import all overrides of this function
+        using V1_0::SearchResultsTable::BindStatementForMatchType;
+
+        void BindStatementForMatchType(SQLite::Statement& statement, const PackageMatchFilter& filter, const std::vector<int>& bindIndex) override;
     };
 }
