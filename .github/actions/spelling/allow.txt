@@ -146,6 +146,7 @@ hstring
 html
 http
 https
+Hyperlink
 IApplication
 IAppx
 IAsync
