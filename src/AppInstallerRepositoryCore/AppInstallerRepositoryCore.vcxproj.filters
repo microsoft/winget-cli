@@ -147,22 +147,22 @@
     <ClInclude Include="Microsoft\ARPHelper.h">
       <Filter>Microsoft</Filter>
     </ClInclude>
-    <ClInclude Include="RestClient.h">
-      <Filter>Rest</Filter>
-    </ClInclude>
-    <ClInclude Include="RestSource.h">
-      <Filter>Rest</Filter>
-    </ClInclude>
-    <ClInclude Include="RestSourceFactory.h">
-      <Filter>Rest</Filter>
-    </ClInclude>
-    <ClInclude Include="IRestClient.h">
-      <Filter>Rest\Schema</Filter>
-    </ClInclude>
-    <ClInclude Include="Interface.h">
+    <ClInclude Include="Rest\Schema\1_0\Interface.h">
       <Filter>Rest\Schema\1_0</Filter>
     </ClInclude>
-    <ClInclude Include="HttpClientHelper.h">
+    <ClInclude Include="Rest\Schema\IRestClient.h">
+      <Filter>Rest\Schema</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\HttpClientHelper.h">
+      <Filter>Rest</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\RestClient.h">
+      <Filter>Rest</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\RestSource.h">
+      <Filter>Rest</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\RestSourceFactory.h">
       <Filter>Rest</Filter>
     </ClInclude>
   </ItemGroup>
@@ -236,19 +236,19 @@
     <ClCompile Include="Microsoft\ARPHelper.cpp">
       <Filter>Microsoft</Filter>
     </ClCompile>
-    <ClCompile Include="RestSource.cpp">
-      <Filter>Rest</Filter>
-    </ClCompile>
-    <ClCompile Include="RestSourceFactory.cpp">
-      <Filter>Rest</Filter>
-    </ClCompile>
-    <ClCompile Include="RestClient.cpp">
-      <Filter>Rest</Filter>
-    </ClCompile>
-    <ClCompile Include="Interface.cpp">
+    <ClCompile Include="Rest\Schema\1_0\Interface.cpp">
       <Filter>Rest\Schema\1_0</Filter>
     </ClCompile>
-    <ClCompile Include="HttpClientHelper.cpp">
+    <ClCompile Include="Rest\HttpClientHelper.cpp">
+      <Filter>Rest</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\RestClient.cpp">
+      <Filter>Rest</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\RestSource.cpp">
+      <Filter>Rest</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\RestSourceFactory.cpp">
       <Filter>Rest</Filter>
     </ClCompile>
   </ItemGroup>

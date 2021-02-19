@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Interface.h"
-#include "IRestClient.h"
+#include "Rest/Schema/1_0/Interface.h"
+#include "Rest/Schema/IRestClient.h"
+#include "Rest/HttpClientHelper.h"
 #include "cpprest/http_client.h"
 #include "cpprest/json.h"
-#include "HttpClientHelper.h"
 
 using namespace web;
 using namespace web::json;

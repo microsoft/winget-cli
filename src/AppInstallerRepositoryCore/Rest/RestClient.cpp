@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "RestClient.h"
-#include "Interface.h"
+#include "Rest/Schema/1_0/Interface.h"
 
 using namespace AppInstaller::Repository::Rest::Schema;
 

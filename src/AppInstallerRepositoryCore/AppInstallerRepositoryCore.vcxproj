@@ -183,10 +183,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CompositeSource.h" />
-    <ClInclude Include="HttpClientHelper.h" />
     <ClInclude Include="ICU\SQLiteICU.h" />
-    <ClInclude Include="Interface.h" />
-    <ClInclude Include="IRestClient.h" />
     <ClInclude Include="Microsoft\ARPHelper.h" />
     <ClInclude Include="Microsoft\PredefinedInstalledSourceFactory.h" />
     <ClInclude Include="Microsoft\PreIndexedPackageSourceFactory.h" />
@@ -214,9 +211,12 @@
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
     <ClInclude Include="Microsoft\SQLiteIndexSource.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="RestClient.h" />
-    <ClInclude Include="RestSource.h" />
-    <ClInclude Include="RestSourceFactory.h" />
+    <ClInclude Include="Rest\HttpClientHelper.h" />
+    <ClInclude Include="Rest\RestClient.h" />
+    <ClInclude Include="Rest\RestSource.h" />
+    <ClInclude Include="Rest\RestSourceFactory.h" />
+    <ClInclude Include="Rest\Schema\1_0\Interface.h" />
+    <ClInclude Include="Rest\Schema\IRestClient.h" />
     <ClInclude Include="SourceFactory.h" />
     <ClInclude Include="SQLiteStatementBuilder.h" />
     <ClInclude Include="Public\AppInstallerRepositorySearch.h" />
@@ -226,7 +226,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CompositeSource.cpp" />
-    <ClCompile Include="HttpClientHelper.cpp" />
     <ClCompile Include="ICU\SQLiteICU.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -237,7 +236,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Interface.cpp" />
     <ClCompile Include="Microsoft\ARPHelper.cpp" />
     <ClCompile Include="Microsoft\PredefinedInstalledSourceFactory.cpp" />
     <ClCompile Include="Microsoft\PreIndexedPackageSourceFactory.cpp" />
@@ -258,9 +256,11 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="RepositorySource.cpp" />
-    <ClCompile Include="RestClient.cpp" />
-    <ClCompile Include="RestSource.cpp" />
-    <ClCompile Include="RestSourceFactory.cpp" />
+    <ClCompile Include="Rest\HttpClientHelper.cpp" />
+    <ClCompile Include="Rest\RestClient.cpp" />
+    <ClCompile Include="Rest\RestSource.cpp" />
+    <ClCompile Include="Rest\RestSourceFactory.cpp" />
+    <ClCompile Include="Rest\Schema\1_0\Interface.cpp" />
     <ClCompile Include="SQLiteStatementBuilder.cpp" />
     <ClCompile Include="SQLiteTempTable.cpp" />
     <ClCompile Include="SQLiteWrapper.cpp" />

@@ -7,7 +7,7 @@
 #include "SourceFactory.h"
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
-#include "RestSourceFactory.h"
+#include "Rest/RestSourceFactory.h"
 
 namespace AppInstaller::Repository
 {
