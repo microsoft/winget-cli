@@ -13,8 +13,7 @@
     "Tag": {
       "type": [ "string", "null" ],
       "minLength": 1,
-      "maxLength": 32,
-      "pattern": "^\\S+$",
+      "maxLength": 40,
       "description": "Package moniker or tag"
     }
   },
@@ -41,7 +40,7 @@
     "Publisher": {
       "type": "string",
       "minLength": 2,
-      "maxLength": 64,
+      "maxLength": 256,
       "description": "The publisher name"
     },
     "PublisherUrl": {
@@ -65,7 +64,7 @@
     "PackageName": {
       "type": "string",
       "minLength": 2,
-      "maxLength": 64,
+      "maxLength": 256,
       "description": "The package name"
     },
     "PackageUrl": {
