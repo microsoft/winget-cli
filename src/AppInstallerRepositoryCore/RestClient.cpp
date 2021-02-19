@@ -2,24 +2,15 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "RestClient.h"
-#include <winget/ManifestYamlParser.h>
-#include "cpprest/http_client.h"
-#include "cpprest/json.h"
-#include <Interface.h>
-#include "IRestClient.h"
+#include "Interface.h"
 
-using namespace web;
-using namespace web::json;
-using namespace web::http;
-using namespace web::http::client;
 using namespace AppInstaller::Repository::Rest::Schema;
 
 namespace AppInstaller::Repository::Rest
 {
 	RestClient::RestClient(const std::string restApi) : m_restApiUri(restApi)
 	{
-		// TODO: Ask for supported version from server
-		// Get version specific interface. Ex: V1
+		// TODO: Ask for supported version from Rest API and Get version specific interface.
 		m_interface = std::make_unique<Schema::V1_0::Interface>();
 	}
 

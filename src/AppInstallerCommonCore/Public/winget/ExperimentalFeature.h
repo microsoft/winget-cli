@@ -26,7 +26,7 @@ namespace AppInstaller::Settings
             ExperimentalUpgrade = 0x10,
             ExperimentalUninstall = 0x20,
             ExperimentalImportExport = 0x40,
-            ExperimentalRestSource = 0x60,
+            ExperimentalRestSource = 0x80,
             Max, // This MUST always be last
         };
 

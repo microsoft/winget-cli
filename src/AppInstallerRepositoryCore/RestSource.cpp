@@ -2,14 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "RestSource.h"
-#include "IRestClient.h"
-#include "RestSourceFactory.h"
-#include "cpprest/http_client.h"
-#include <winget/ManifestYamlParser.h>
 
 using namespace AppInstaller::Utility;
-using namespace AppInstaller::Manifest;
-using namespace AppInstaller::Repository::Rest::Schema;
 
 namespace AppInstaller::Repository::Rest
 {
@@ -65,26 +59,23 @@ namespace AppInstaller::Repository::Rest
 				}
 			}
 
+			// TODO
 			std::vector<Utility::LocIndString> GetMultiProperty(PackageVersionMultiProperty property) const override
 			{
-				// TODO: Change based on new format
 				UNREFERENCED_PARAMETER(property);
 				std::vector<Utility::LocIndString> result;
-
-				//for (auto&& value : GetReferenceSource()->GetRestClient().GetMultiPropertyFromVersion(m_manifest, property))
-				//{
-				//	// Values coming from the index will always be localized/independent.
-				//	result.emplace_back(std::move(value));
-				//}
-
 				return result;
 			}
 
+			// TODO
 			Manifest::Manifest GetManifest() const override
 			{
+				AICLI_LOG(Repo, Info, << "Downloading manifest");
 				std::string manifest = GetReferenceSource()->GetRestClient().GetManifestByVersion(
 					m_packageInfo.packageIdentifier, m_versionInfo.GetVersion().ToString()).value();
-				return Manifest::YamlParser::Create(manifest);
+
+				// TODO: Create Manifest object from result using JSON parser.
+				THROW_HR(ERROR_CALL_NOT_IMPLEMENTED);
 			}
 
 			std::shared_ptr<const ISource> GetSource() const override
@@ -126,10 +117,7 @@ namespace AppInstaller::Repository::Rest
 		protected:
 			std::shared_ptr<IPackageVersion> GetLatestVersionInternal() const
 			{
-				// TODO: Sort
-				// std::sort(m_package.versions.begin(), m_package.versions.end());
-
-				VersionAndChannel latestVersion = m_package.versions.front();
+				VersionAndChannel latestVersion = m_package.versions.back();
 				return std::make_shared<PackageVersion>(GetReferenceSource(), m_package.packageInfo, latestVersion);
 			}
 
@@ -176,11 +164,14 @@ namespace AppInstaller::Repository::Rest
 				std::shared_ptr<const RestSource> source = GetReferenceSource();
 
 				// Ensure that this key targets this (or any) source
-				if (!versionKey.SourceId.empty() && versionKey.SourceId != source->GetIdentifier())
+				if ((!versionKey.SourceId.empty() && versionKey.SourceId != source->GetIdentifier())
+					|| versionKey.Version.empty() && versionKey.Channel.empty())
 				{
 					return {};
 				}
 
+				// TODO: Change filtering logic.
+				std::shared_ptr<PackageVersion> packageVersion;
 				for (const auto& versionInfo : m_package.versions)
 				{
 					if (CaseInsensitiveEquals(versionInfo.GetVersion().ToString(), versionKey.Version)
@@ -232,6 +223,14 @@ namespace AppInstaller::Repository::Rest
 			// TODO: Check if package is available or installed.
 			std::unique_ptr<IPackage> package = std::make_unique<AvailablePackage>(sharedThis, result);
 			PackageMatchFilter packageFilter({}, {}, {});
+
+			// Sort the versions
+			std::sort(result.versions.begin(), result.versions.end(),
+				[](const VersionAndChannel& a, const VersionAndChannel& b)
+				{
+					return a.GetVersion() < b.GetVersion();
+				});
+
 			searchResult.Matches.emplace_back(std::move(package), std::move(packageFilter));
 		}
 

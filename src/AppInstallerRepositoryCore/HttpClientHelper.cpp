@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 #pragma once
 #include "pch.h"
-#include "Interface.h"
-#include "IRestClient.h"
 #include "cpprest/http_client.h"
 #include "cpprest/json.h"
 #include "HttpClientHelper.h"
@@ -12,7 +10,6 @@ using namespace web;
 using namespace web::json;
 using namespace web::http;
 using namespace web::http::client;
-using namespace AppInstaller::Repository::Rest::Schema;
 
 namespace AppInstaller::Repository::Rest
 {

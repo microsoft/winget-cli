@@ -3,14 +3,10 @@
 #pragma once
 #include "pch.h"
 #include "Microsoft/Schema/Version.h"
-#include "Public/AppInstallerRepositorySearch.h"
 #include <AppInstallerVersions.h>
-#include <winget/Manifest.h>
-#include <filesystem>
 #include <vector>
 
 using namespace AppInstaller::Utility;
-using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::Repository::Rest::Schema
 {

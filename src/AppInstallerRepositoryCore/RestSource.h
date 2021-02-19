@@ -3,7 +3,6 @@
 #pragma once
 #include "Public/AppInstallerRepositorySource.h"
 #include "RestClient.h"
-#include <memory>
 
 namespace AppInstaller::Repository::Rest
 {

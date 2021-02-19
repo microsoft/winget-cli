@@ -19,7 +19,6 @@ namespace AppInstaller::Repository::Rest
 			std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback& progress) override final
 			{
 				THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
-
 				return CreateInternal(details, progress);
 			}
 
@@ -42,7 +41,6 @@ namespace AppInstaller::Repository::Rest
 
 				// Check if URL is remote and secure
 				THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, Utility::IsUrlRemote(details.Arg) && !Utility::IsUrlSecure(details.Arg));
-
 				AICLI_LOG(Repo, Info, << "Initializing source from: " << details.Name << " => " << details.Arg);
 			}
 
@@ -50,14 +48,12 @@ namespace AppInstaller::Repository::Rest
 			{
 				UNREFERENCED_PARAMETER(progress);
 				THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
-				THROW_HR(E_NOTIMPL);
 			}
 
 			void Remove(const SourceDetails& details, IProgressCallback& progress) override final
 			{
 				UNREFERENCED_PARAMETER(progress);
 				THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
-				THROW_HR(E_NOTIMPL);
 			}
 		};
 

@@ -55,7 +55,7 @@ namespace AppInstaller::Settings
         case Feature::ExperimentalImportExport:
             return ExperimentalFeature{ "Import & Export Commands", "importExport", "https://aka.ms/winget-settings", Feature::ExperimentalImportExport };
         case Feature::ExperimentalRestSource:
-            return ExperimentalFeature{ "Rest Source Addition", "restSource", "https://aka.ms/winget-settings", Feature::ExperimentalRestSource };
+            return ExperimentalFeature{ "Rest Source Support", "restSource", "https://aka.ms/winget-settings", Feature::ExperimentalRestSource };
         default:
             THROW_HR(E_UNEXPECTED);
         }

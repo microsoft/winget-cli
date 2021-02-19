@@ -3,7 +3,6 @@
 #pragma once
 #include "Public/AppInstallerRepositorySource.h"
 #include "SourceFactory.h"
-
 #include <string_view>
 
 namespace AppInstaller::Repository::Rest
@@ -11,7 +10,7 @@ namespace AppInstaller::Repository::Rest
     using namespace std::string_view_literals;
 
     // A source where the information is stored on a REST based server.
-    // In addition, the manifest files are also individually available on the server.
+    // In addition, the manifest information is also available on the server.
     // Arg  ::  Expected to be a API which supports querying functionality.
     struct RestSourceFactory
     {

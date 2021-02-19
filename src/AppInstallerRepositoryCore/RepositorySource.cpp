@@ -613,6 +613,15 @@ namespace AppInstaller::Repository
 		details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
 		details.Origin = SourceOrigin::User;
 
+		// Check feature flag enablement for rest source.
+		if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type)
+			&& !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
+		{
+			AICLI_LOG(CLI, Error, << Settings::ExperimentalFeature::GetFeature(Settings::ExperimentalFeature::Feature::ExperimentalRestSource).Name()
+				<< " feature is disabled. Execution cancelled.");
+			THROW_HR(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
+		}
+
 		AddSourceFromDetails(details, progress);
 
 		AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);

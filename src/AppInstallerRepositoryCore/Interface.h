@@ -3,7 +3,6 @@
 #pragma once
 #include "IRestClient.h"
 #include "cpprest/json.h"
-#include <memory>
 #include <vector>
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0
