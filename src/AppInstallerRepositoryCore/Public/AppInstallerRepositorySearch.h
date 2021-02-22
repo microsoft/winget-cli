@@ -138,6 +138,10 @@ namespace AppInstaller::Repository
         StandardUninstallCommand,
         // An uninstall command that should be non-interactive
         SilentUninstallCommand,
+        // The publisher of the package
+        Publisher,
+        // The language of the package
+        Language,
     };
 
     // Convert a PackageVersionMetadata to a string.
@@ -223,6 +227,9 @@ namespace AppInstaller::Repository
 
         // Gets a value indicating whether an available version is newer than the installed version.
         virtual bool IsUpdateAvailable() const = 0;
+
+        // Determines if the given IPackage refers to the same package as this one.
+        virtual bool IsSame(const IPackage*) const = 0;
     };
 
     // A single result from the search.

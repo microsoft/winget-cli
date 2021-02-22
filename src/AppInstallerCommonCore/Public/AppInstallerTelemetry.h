@@ -96,6 +96,24 @@ namespace AppInstaller::Logging
         // The most likely reason is due to the same key name being used under multiple ARP scope/architecture locations.
         void LogDuplicateARPEntry(HRESULT hr, std::string_view scope, std::string_view architecture, std::string_view productCode, std::string_view name);
 
+        // Logs data about the changes that ocurred in the ARP entries based on an install.
+        // First 4 arguments are well known values for the package that we installed.
+        // The next 3 are counts of the number of packages in each category.
+        // The last 4 are the fields directly from the ARP entry that has been determined to be related to the package that
+        // was installed, or they will be empty if there is no data or ambiguity about which entry should be logged.
+        void LogSuccessfulInstallARPChange(
+            std::string_view sourceIdentifier,
+            std::string_view packageIdentifier,
+            std::string_view packageVersion,
+            std::string_view packageChannel,
+            size_t changesToARP,
+            size_t matchesInARP,
+            size_t countOfIntersectionOfChangesAndMatches,
+            std::string_view arpName,
+            std::string_view arpVersion,
+            std::string_view arpPublisher,
+            std::string_view arpLanguage);
+
     private:
         TelemetryTraceLogger();
     };

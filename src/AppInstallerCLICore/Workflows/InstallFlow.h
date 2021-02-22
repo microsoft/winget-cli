@@ -91,7 +91,7 @@ namespace AppInstaller::CLI::Workflow
 
     // Reports on the changes between the stored ARPSnapshot and the current values.
     // Required Args: None
-    // Inputs: ARPSnapshot?
+    // Inputs: ARPSnapshot?, Manifest, PackageVersion
     // Outputs: None
     void ReportARPChanges(Execution::Context& context);
 }

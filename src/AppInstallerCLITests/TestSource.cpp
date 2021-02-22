@@ -178,6 +178,36 @@ namespace TestCommon
         return false;
     }
 
+    bool TestPackage::IsSame(const IPackage* other) const
+    {
+        const TestPackage* otherAvailable = dynamic_cast<const TestPackage*>(other);
+
+        if (otherAvailable)
+        {
+            if (InstalledVersion.get() != otherAvailable->InstalledVersion.get())
+            {
+                return false;
+            }
+
+            if (AvailableVersions.size() != otherAvailable->AvailableVersions.size())
+            {
+                return false;
+            }
+
+            for (size_t i = 0; i < AvailableVersions.size(); ++i)
+            {
+                if (AvailableVersions[i].get() != otherAvailable->AvailableVersions[i].get())
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     const SourceDetails& TestSource::GetDetails() const
     {
         return Details;

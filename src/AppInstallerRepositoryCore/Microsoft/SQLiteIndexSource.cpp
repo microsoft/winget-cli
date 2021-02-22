@@ -177,6 +177,11 @@ namespace AppInstaller::Repository::Microsoft
                 return result;
             }
 
+            bool IsSame(const PackageBase& other) const
+            {
+                return m_idId == other.m_idId;
+            }
+
         protected:
             std::shared_ptr<IPackageVersion> GetLatestVersionInternal() const
             {
@@ -252,6 +257,18 @@ namespace AppInstaller::Repository::Microsoft
             {
                 return false;
             }
+
+            bool IsSame(const IPackage* other) const override
+            {
+                const AvailablePackage* otherAvailable = dynamic_cast<const AvailablePackage*>(other);
+
+                if (otherAvailable)
+                {
+                    return PackageBase::IsSame(*otherAvailable);
+                }
+
+                return false;
+            }
         };
 
         // The IPackage impl for SQLiteIndexSource of Installed packages.
@@ -287,6 +304,18 @@ namespace AppInstaller::Repository::Microsoft
 
             bool IsUpdateAvailable() const override
             {
+                return false;
+            }
+
+            bool IsSame(const IPackage* other) const override
+            {
+                const InstalledPackage* otherInstalled = dynamic_cast<const InstalledPackage*>(other);
+
+                if (otherInstalled)
+                {
+                    return PackageBase::IsSame(*otherInstalled);
+                }
+
                 return false;
             }
         };

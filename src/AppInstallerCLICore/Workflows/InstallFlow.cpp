@@ -451,30 +451,115 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
+            // Also attempt to find the entry based on the manifest data
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+
+            SearchRequest nameAndPublisherRequest;
+            nameAndPublisherRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, manifest.Name, manifest.Publisher));
+
+            std::vector<std::string> productCodes;
+            for (const auto& installer : manifest.Installers)
+            {
+                if (!installer.ProductCode.empty())
+                {
+                    if (std::find(productCodes.begin(), productCodes.end(), installer.ProductCode) == productCodes.end())
+                    {
+                        nameAndPublisherRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, installer.ProductCode));
+                        productCodes.emplace_back(installer.ProductCode);
+                    }
+                }
+            }
+
+            SearchResult findByManifest = arpSource->Search(nameAndPublisherRequest);
+
+            // Cross reference the changes with the search results
+            std::vector<std::shared_ptr<IPackage>> packagesInBoth;
+
+            for (const auto& change : changes)
+            {
+                for (const auto& byManifest : findByManifest.Matches)
+                {
+                    if (change.Package->IsSame(byManifest.Package.get()))
+                    {
+                        packagesInBoth.emplace_back(change.Package);
+                        break;
+                    }
+                }
+            }
+
             // We now have all of the package changes; time to report them.
-            // The set of cases we could have:
+            // The set of cases we could have for changes to ARP:
             //  0 packages  ::  No changes were detected to ARP, which could mean that the installer
             //                  did not write an entry. It could also be a forced reinstall.
             //  1 package   ::  Golden path; this should be what we installed.
             //  2+ packages ::  We need to determine which package actually matches the one that we
             //                  were installing.
-            if (changes.empty())
-            {
-                //Logging::Telemetry().LogARPCorrelationEmpty();
-            }
-            else
-            {
-                Utility::NameNormalizer normalizer(Utility::NormalizationVersion::Initial);
+            //
+            // The set of cases we could have for finding packages based on the manifest:
+            //  0 packages  ::  The manifest data does not match the ARP information.
+            //  1 package   ::  Golden path; this should be what we installed.
+            //  2+ packages ::  The data in the manifest is either too broad or we have
+            //                  a problem with our name normalization.
+            //
+            //                           ARP Package changes
+            //                0                  1                     N
+            //      +------------------+--------------------+--------------------+
+            // M    |                  |                    |                    |
+            // a    | Package does not | Manifest data does | Manifest data does |
+            // n  0 |   write to ARP   |   not match ARP    |   not match ARP    |
+            // i    |  Log this fact   |   Log for fixup    |   Log for fixup    |
+            // f    |                  |                    |                    |
+            // e    +------------------+--------------------+--------------------+
+            // s    |                  |                    |                    |
+            // t    |   Reinstall of   |    Golden Path!    | Treat manifest as  |
+            //    1 | existing version |  (assuming match)  |   main if common   |
+            // r    |                  |                    |                    |
+            // e    +------------------+--------------------+--------------------+
+            // s    |                  |                    |                    |
+            // u    |   Not expected   | Treat ARP as main  |    Not expected    |
+            // l  N |   Log this for   |                    |    Log this for    |
+            // t    |   investigation  |                    |    investigation   |
+            // s    |                  |                    |                    |
+            //      +------------------+--------------------+--------------------+
 
-                if (changes.size() == 1)
-                {
-                    // While there is only one entry, we still want to check if it matches our manifest.
-                }
-                else
-                {
-                    // Find the entry that best matches our manifest. First, by 
-                }
+            // Find the package that we are going to log
+            std::shared_ptr<IPackageVersion> toLog;
+
+            // If no changes found, only log if a single matching package was found by the manifest
+            if (changes.empty() && findByManifest.Matches.size() == 1)
+            {
+                toLog = findByManifest.Matches[0].Package->GetInstalledVersion();
             }
+            // If only a single ARP entry was changed, always log that
+            else if (changes.size() == 1)
+            {
+                toLog = changes[0].Package->GetInstalledVersion();
+            }
+            // Finally, if there is only a single common package, log that one
+            else if (packagesInBoth.size() == 1)
+            {
+                toLog = packagesInBoth[0]->GetInstalledVersion();
+            }
+
+            IPackageVersion::Metadata toLogMetadata;
+            if (toLog)
+            {
+                toLogMetadata = toLog->GetMetadata();
+            }
+
+            Logging::Telemetry().LogSuccessfulInstallARPChange(
+                context.Get<Execution::Data::PackageVersion>()->GetProperty(PackageVersionProperty::SourceIdentifier),
+                manifest.Id,
+                manifest.Version,
+                manifest.Channel,
+                changes.size(),
+                findByManifest.Matches.size(),
+                packagesInBoth.size(),
+                toLog ? static_cast<std::string_view>(toLog->GetProperty(PackageVersionProperty::Name)) : "",
+                toLog ? static_cast<std::string_view>(toLog->GetProperty(PackageVersionProperty::Version)) : "",
+                toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Publisher]) : "",
+                toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Language]) : ""
+            );
         }
     }
     CATCH_LOG()

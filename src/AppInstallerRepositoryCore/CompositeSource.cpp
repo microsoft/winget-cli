@@ -106,6 +106,38 @@ namespace AppInstaller::Repository
                 return (latest && (GetVACFromVersion(installed.get()).IsUpdatedBy(GetVACFromVersion(latest.get()))));
             }
 
+            bool IsSame(const IPackage* other) const override
+            {
+                const CompositePackage* otherComposite = dynamic_cast<const CompositePackage*>(other);
+
+                if (otherComposite)
+                {
+                    if (static_cast<bool>(m_installedPackage) != static_cast<bool>(otherComposite->m_installedPackage))
+                    {
+                        return false;
+                    }
+
+                    if (m_installedPackage && !m_installedPackage->IsSame(otherComposite->m_installedPackage.get()))
+                    {
+                        return false;
+                    }
+
+                    if (static_cast<bool>(m_availablePackage) != static_cast<bool>(otherComposite->m_availablePackage))
+                    {
+                        return false;
+                    }
+
+                    if (m_availablePackage && !m_availablePackage->IsSame(otherComposite->m_availablePackage.get()))
+                    {
+                        return false;
+                    }
+
+                    return true;
+                }
+
+                return false;
+            }
+
             void SetAvailablePackage(std::shared_ptr<IPackage> availablePackage)
             {
                 m_availablePackage = std::move(availablePackage);
@@ -185,6 +217,18 @@ namespace AppInstaller::Repository
             {
                 // Lie here so that list and upgrade will carry on to be able to output the diagnostic information.
                 return true;
+            }
+
+            bool IsSame(const IPackage* other) const override
+            {
+                const UnknownAvailablePackage* otherAvailable = dynamic_cast<const UnknownAvailablePackage*>(other);
+
+                if (otherAvailable)
+                {
+                    return true;
+                }
+
+                return false;
             }
         };
 

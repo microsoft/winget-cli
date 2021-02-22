@@ -127,7 +127,7 @@ namespace AppInstaller::Logging
                 nullptr,
                 TraceLoggingCountedString(version->c_str(), static_cast<ULONG>(version->size()), "Version"),
                 TraceLoggingCountedString(packageVersion->c_str(), static_cast<ULONG>(packageVersion->size()), "PackageVersion"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance|PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
@@ -149,7 +149,7 @@ namespace AppInstaller::Logging
                 GetActivityId(),
                 nullptr,
                 AICLI_TraceLoggingStringView(commandName, "Command"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
@@ -239,7 +239,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(id, "Id"),
                 AICLI_TraceLoggingStringView(name,"Name"),
                 AICLI_TraceLoggingStringView(version, "Version"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance|PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
@@ -255,7 +255,7 @@ namespace AppInstaller::Logging
                 GetActivityId(),
                 nullptr,
                 TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
@@ -271,7 +271,7 @@ namespace AppInstaller::Logging
                 GetActivityId(),
                 nullptr,
                 TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
@@ -310,7 +310,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(installerType, "InstallerType"),
                 AICLI_TraceLoggingStringView(scope, "Scope"),
                 AICLI_TraceLoggingStringView(language, "Language"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
@@ -364,7 +364,7 @@ namespace AppInstaller::Logging
                 nullptr,
                 TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
                 TraceLoggingUInt64(resultCount, "ResultCount"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
     }
@@ -390,7 +390,7 @@ namespace AppInstaller::Logging
                 TraceLoggingBinary(expected.data(), static_cast<ULONG>(expected.size()), "Expected"),
                 TraceLoggingBinary(actual.data(), static_cast<ULONG>(actual.size()), "Actual"),
                 TraceLoggingValue(overrideHashMismatch, "Override"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
@@ -416,7 +416,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(channel, "Channel"),
                 AICLI_TraceLoggingStringView(type, "Type"),
                 TraceLoggingUInt32(errorCode, "ErrorCode"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
@@ -436,7 +436,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(version, "Version"),
                 AICLI_TraceLoggingStringView(type, "Type"),
                 TraceLoggingUInt32(errorCode, "ErrorCode"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
@@ -457,11 +457,68 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(architecture, "Architecture"),
                 AICLI_TraceLoggingStringView(productCode, "ProductCode"),
                 AICLI_TraceLoggingStringView(name, "Name"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
         AICLI_LOG(CLI, Error, << "Ignoring duplicate ARP entry " << scope << '|' << architecture << '|' << productCode << " [" << name << "]");
+    }
+
+    void TelemetryTraceLogger::LogSuccessfulInstallARPChange(
+        std::string_view sourceIdentifier,
+        std::string_view packageIdentifier,
+        std::string_view packageVersion,
+        std::string_view packageChannel,
+        size_t changesToARP,
+        size_t matchesInARP,
+        size_t countOfIntersectionOfChangesAndMatches,
+        std::string_view arpName,
+        std::string_view arpVersion,
+        std::string_view arpPublisher,
+        std::string_view arpLanguage)
+    {
+        if (IsTelemetryEnabled())
+        {
+            size_t languageNumber = 0xFFFF;
+
+            try
+            {
+                std::istringstream languageConversion{ std::string{ arpLanguage } };
+                languageConversion >> languageNumber;
+            }
+            catch (...) {}
+
+            TraceLoggingWriteActivity(g_hTelemetryProvider,
+                "InstallARPChange",
+                GetActivityId(),
+                nullptr,
+                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
+                AICLI_TraceLoggingStringView(sourceIdentifier, "SourceIdentifier"),
+                AICLI_TraceLoggingStringView(packageIdentifier, "PackageIdentifier"),
+                AICLI_TraceLoggingStringView(packageVersion, "PackageVersion"),
+                AICLI_TraceLoggingStringView(packageChannel, "PackageChannel"),
+                TraceLoggingUInt64(static_cast<UINT64>(changesToARP), "ChangesToARP"),
+                TraceLoggingUInt64(static_cast<UINT64>(matchesInARP), "MatchesInARP"),
+                TraceLoggingUInt64(static_cast<UINT64>(countOfIntersectionOfChangesAndMatches), "ChangesThatMatch"),
+                AICLI_TraceLoggingStringView(arpName, "ARPName"),
+                AICLI_TraceLoggingStringView(arpVersion, "ARPVersion"),
+                AICLI_TraceLoggingStringView(arpPublisher, "ARPPublisher"),
+                TraceLoggingUInt64(static_cast<UINT64>(languageNumber), "ARPLanguage"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+        }
+
+        AICLI_LOG(CLI, Verbose, << "During package install, " << changesToARP << " changes to ARP were observed, "
+            << matchesInARP << " matches were found for the package, and " << countOfIntersectionOfChangesAndMatches << " packages were in both");
+
+        if (arpName.empty())
+        {
+            AICLI_LOG(CLI, Verbose, << "No single entry was determined to be associated with the package");
+        }
+        else
+        {
+            AICLI_LOG(CLI, Verbose, << "The entry determined to be associated with the package is '" << arpName << "', with publisher '" << arpPublisher << "'");
+        }
     }
 
     void EnableWilFailureTelemetry()
