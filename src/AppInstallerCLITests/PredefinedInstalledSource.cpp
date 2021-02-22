@@ -115,7 +115,6 @@ void VerifyMetadataString(const SQLiteIndex::MetadataResult& metadata, PackageVe
 
 void VerifyEntryAgainstIndex(const SQLiteIndex& index, SQLiteIndex::IdType manifestId, const ARPEntry& entry)
 {
-    REQUIRE(index.GetPropertyByManifestId(manifestId, PackageVersionProperty::Id) == entry.EntryName);
     REQUIRE(index.GetPropertyByManifestId(manifestId, PackageVersionProperty::Name) == entry.DisplayName);
     REQUIRE(index.GetPropertyByManifestId(manifestId, PackageVersionProperty::Version) == entry.DisplayVersion);
 
@@ -246,7 +245,7 @@ TEST_CASE("ARPHelper_DetermineVersion_Version", "[arphelper][list]")
     SetRegistryValue(root.get(), helper.VersionMinor, 14);
 
     auto result = helper.DetermineVersion(key);
-    REQUIRE(result == "2.7.42");
+    REQUIRE(result == "3.14");
 }
 
 TEST_CASE("ARPHelper_DetermineVersion_VersionMajorMinor", "[arphelper][list]")
