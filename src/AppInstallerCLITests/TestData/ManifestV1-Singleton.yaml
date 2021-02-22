@@ -18,7 +18,6 @@ Moniker: msixsdk
 Tags:
   - "appxsdk"
   - "msixsdk"
-Channel: release
 InstallerLocale: en-US
 Platform:
   - Windows.Desktop
