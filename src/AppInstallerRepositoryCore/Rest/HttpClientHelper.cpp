@@ -17,6 +17,7 @@ namespace AppInstaller::Repository::Rest
 
 	pplx::task<web::http::http_response> HttpClientHelper::Post(const json::value& body)
 	{
+		AICLI_LOG(Repo, Info, << "Sending http POST request to: " << utility::conversions::to_utf8string(m_url));
 		http_request request(methods::POST);
 		request.headers().set_content_type(web::http::details::mime_types::application_json);
 		request.set_body(body.serialize());
@@ -28,11 +29,12 @@ namespace AppInstaller::Repository::Rest
 		json::value result;
 		Post(body).then([&result](const http_response& response)
 			{
+				AICLI_LOG(Repo, Info, << "Response status: " << response.status_code());
+
 				if (response.status_code() == status_codes::OK)
 				{
 					result = response.extract_json().get();
 				}
-
 			}).wait();
 
 		return result;
@@ -40,6 +42,7 @@ namespace AppInstaller::Repository::Rest
 
 	pplx::task<web::http::http_response> HttpClientHelper::Get()
 	{
+		AICLI_LOG(Repo, Info, << "Sending http GET request to: " << utility::conversions::to_utf8string(m_url));
 		http_request request(methods::GET);
 		request.headers().set_content_type(web::http::details::mime_types::application_json);
 		return MakeRequest(request);
@@ -50,6 +53,8 @@ namespace AppInstaller::Repository::Rest
 		json::value result;
 		Get().then([&result](const http_response& response)
 			{
+				AICLI_LOG(Repo, Info, << "Response status: " << response.status_code());
+
 				if (response.status_code() == status_codes::OK)
 				{
 					result = response.extract_json().get();

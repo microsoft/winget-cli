@@ -17,7 +17,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 {
     // Endpoint constants
     const std::string ManifestSearchPostEndpoint = "/api/manifestSearch?";
-    const std::string ManifestByVersionGetEndpoint = "api/manifest/{}/versions/{}?";
 
     // General API response constants
     const std::basic_string Data = L"data";
@@ -48,9 +47,20 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             return json_body;
         }
 
+        std::string GetRestAPIBaseUri(const std::string& restApiUri)
+        {
+            std::string formattedUri = restApiUri;
+            if (formattedUri.back() == '/')
+            {
+                formattedUri.pop_back();
+            }
+
+            return formattedUri;
+        }
+
         utility::string_t GetSearchEndpoint(const std::string& restApiUri)
         {
-            std::string fullSearchAPI = restApiUri + ManifestSearchPostEndpoint;
+            std::string fullSearchAPI = GetRestAPIBaseUri(restApiUri) + ManifestSearchPostEndpoint;
             utility::string_t searchAPI = utility::conversions::to_string_t(fullSearchAPI);
             return searchAPI;
         }
@@ -58,7 +68,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         utility::string_t GetManifestByVersionEndpoint(const std::string& restApiUri, const std::string& packageId, const std::string& version)
         {
             // TODO: Replace with manifest version endpoint 
-            std::string versionEndpoint = restApiUri + "api/packages/" + packageId + "/versions/" + version;
+            std::string versionEndpoint = GetRestAPIBaseUri(restApiUri) + "/api/packages/" + packageId + "/versions/" + version;
             utility::string_t versionApi = utility::conversions::to_string_t(versionEndpoint);
             return versionApi;
         }
@@ -127,7 +137,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         }
 
         // Parse json and add results to SearchResult
-        auto& manifestObject = jsonObject.at(Data).at(0);
+        auto& manifestObject = jsonObject.at(Data);
         return manifestObject.is_null() ? std::string() : utility::conversions::to_utf8string(manifestObject.serialize());
     }
 }

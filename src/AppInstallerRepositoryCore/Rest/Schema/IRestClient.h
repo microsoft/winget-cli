@@ -25,6 +25,7 @@ namespace AppInstaller::Repository::Rest::Schema
 				: packageIdentifier(packageIdentifier), packageName(packageName), publisher(publisher) {}
 		};
 
+		// Minimal information retrieved for any search request.
 		struct Package
 		{
 			PackageInfo packageInfo;
