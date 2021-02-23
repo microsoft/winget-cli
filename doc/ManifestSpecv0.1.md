@@ -108,7 +108,8 @@ Protocols: "ms-winget"
 # Restrictions: [min: 1, max:40] 
 Commands: "code"
 
-# InstallerType is a required field.  Supported types are inno, wix, msi, nullsoft, zip, appx, msix and exe.
+# InstallerType is a required field in the root or for each installer entry.
+# Supported types are inno, wix, msi, nullsoft, zip, appx, msix and exe.
 # The winget command tool uses this value to assist in installing this application.
 # If the value is an exe, you will need to provide the quiet switches.
 # zip is not supported in this preview (5/24/2020)  
@@ -239,9 +240,8 @@ Localization:
     Homepage: https://github.com/microsoft/msix-packaging/es-MX
     LicenseUrl: https://github.com/microsoft/msix-packaging/blob/master/LICENSE-es-MX
 
-# ManifestVersion: 0.1.0
 # ManifestVersion is a required field. ManifestVersion will allow the client to detect updated manifests and treat it differently.   
-
+ManifestVersion: 0.1.0
 
 ```
 ## Minimal YAML file example
@@ -252,11 +252,13 @@ Id: Microsoft.VisualStudioCode
 Version: 1.41.1
 Name: Visual Studio Code
 Publisher: Microsoft Corporation
+License: MIT License
 Installers:
     - Arch: x64
       Url: https://aka.ms/win32-x64-user-stable
       Installertype: Inno
       Sha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+ManifestVersion: 0.1.0
 ```
 ## Best Practices
 The Id must be unique.  You cannot have multiple submissions with the same Id.
@@ -282,3 +284,4 @@ History:
 | .05      | 4/1/2020 | Added restrictions.  Added SystemAppId |
 | .06      | 4/23/2020 | Renamed client.  Updated License to required. |
 | .07      | 5/15/2020 | Add ManifestVersion. |
+| .08      | 2/17/2021 | Fixed minimal example based on required fields documentation |

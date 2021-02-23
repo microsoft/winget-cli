@@ -11,12 +11,6 @@ namespace AppInstaller::CLI::Workflow
     static constexpr std::string_view ARG_TOKEN_LOGPATH = "<LOGPATH>"sv;
     static constexpr std::string_view ARG_TOKEN_INSTALLPATH = "<INSTALLPATH>"sv;
 
-    // Ensures that the current OS version is greater than or equal to the one in the manifest.
-    // Required Args: None
-    // Inputs: Manifest
-    // Outputs: None
-    void EnsureMinOSVersion(Execution::Context& context);
-
     // Ensures that there is an applicable installer.
     // Required Args: None
     // Inputs: Installer
@@ -82,6 +76,18 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: InstallerPath
     // Outputs: None
     void RemoveInstaller(Execution::Context& context);
+
+    // Installs a single package from its manifest
+    // Required Args: None
+    // Inputs: Manifest, PackageVersion, Source
+    // Outputs: Manifest
+    void InstallPackageVersion(Execution::Context& context);
+
+    // Installs multiple packages.
+    // Required Args: None
+    // Inputs: Manifests
+    // Outputs: None
+    void InstallMultiple(Execution::Context& context);
 
     // Stores the existing set of packages in ARP.
     // Required Args: None

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://aka.ms/winget-packages.schema.1.0.json",
+  "CreationDate": "2021-01-01T12:00:00.000",
+  "Sources": [
+    {
+      "Packages": [
+        {
+          "Id": "MissingPackage",
+          "Version": "1.0.0.0"
+        }
+      ],
+      "SourceDetails": {
+        "Name": "TestSource",
+        "Argument": "https://localhost:5001/TestKit",
+        "Identifier": "WingetE2E.Tests_8wekyb3d8bbwe",
+        "Type": "Microsoft.PreIndexed.Package"
+      }
+    }
+  ],
+  "WinGetVersion": "1.0.0"
+}

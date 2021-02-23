@@ -126,8 +126,8 @@ namespace AppInstaller::CLI
 
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-            OpenSource <<
-            OpenCompositeSource(Repository::PredefinedSource::Installed);
+            Workflow::OpenSource <<
+            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
 
         if (ShouldListUpgrade(context))
         {
@@ -155,7 +155,6 @@ namespace AppInstaller::CLI
                 EnsureOneMatchFromSearchResult(true) <<
                 GetInstalledPackageVersion <<
                 EnsureUpdateVersionApplicable <<
-                EnsureMinOSVersion <<
                 SelectInstaller <<
                 EnsureApplicableInstaller <<
                 ShowInstallationDisclaimer <<
@@ -181,7 +180,6 @@ namespace AppInstaller::CLI
                 context <<
                     GetManifestFromPackage <<
                     EnsureUpdateVersionApplicable <<
-                    EnsureMinOSVersion <<
                     SelectInstaller <<
                     EnsureApplicableInstaller;
             }

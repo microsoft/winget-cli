@@ -47,11 +47,13 @@ jobs:
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
   
+  # Restores all projects, including native (vcxproj) projects
   - task: NuGetCommand@2
     displayName: Restore Packages
     inputs:
       restoreSolution: '$(solution)'
   
+  # Restores only .NET core projects, but is still necessary, as without this the IndexCreationTool and LocalhostWebServer projects fail to build
   - task: DotNetCoreCLI@2
     displayName: DotNet Restore
     inputs:
@@ -201,13 +203,13 @@ jobs:
     name: AppInstallerTest
     displayName: 'Download Source Package Certificate'
     inputs:
-        secureFile: 'AppInstallerTest.pfx'
+      secureFile: 'AppInstallerTest.pfx'
 
   - task: DownloadSecureFile@1
     name: HTTPSDevCert
     displayName: 'Download Kestrel Certificate'
     inputs:
-        secureFile: 'HTTPSDevCert.pfx'
+      secureFile: 'HTTPSDevCert.pfx'
 
   - task: MSBuild@1
     displayName: Build MSIX Test Installer File

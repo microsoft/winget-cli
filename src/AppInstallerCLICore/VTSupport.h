@@ -123,6 +123,8 @@ namespace AppInstaller::CLI::VirtualTerminal
         {
 
         }
+
+        ConstructedSequence Hyperlink(const std::string& text, const std::string& ref);
     }
 
     namespace TextModification

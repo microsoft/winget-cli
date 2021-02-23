@@ -8,6 +8,7 @@
 #include "ExecutionReporter.h"
 #include "ExecutionArgs.h"
 #include "CompletionData.h"
+#include "PackageCollection.h"
 
 #include <filesystem>
 #include <map>
@@ -19,16 +20,20 @@
 
 // Terminates the Context with some logging to indicate the location.
 // Also returns from the current function.
-#define AICLI_TERMINATE_CONTEXT_ARGS(_context_,_hr_) \
+#define AICLI_TERMINATE_CONTEXT_ARGS(_context_,_hr_,_ret_) \
     do { \
         HRESULT AICLI_TERMINATE_CONTEXT_ARGS_hr = _hr_; \
         _context_.Terminate(AICLI_TERMINATE_CONTEXT_ARGS_hr, __FILE__, __LINE__); \
-        return; \
+        return _ret_; \
     } while(0,0)
 
 // Terminates the Context named 'context' with some logging to indicate the location.
 // Also returns from the current function.
-#define AICLI_TERMINATE_CONTEXT(_hr_)   AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_)
+#define AICLI_TERMINATE_CONTEXT(_hr_)   AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_,)
+
+// Terminates the Context named 'context' with some logging to indicate the location.
+// Also returns the specified value from the current function.
+#define AICLI_TERMINATE_CONTEXT_RETURN(_hr_,_ret_) AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_,_ret_)
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -60,6 +65,13 @@ namespace AppInstaller::CLI::Execution
         UninstallString,
         PackageFamilyNames,
         ProductCodes,
+        // On export: A collection of packages to be exported to a file
+        // On import: A collection of packages read from a file
+        PackageCollection,
+        // On import: A collection of specific package versions to install
+        PackagesToInstall,
+        // On import: Sources for the imported packages
+        Sources,
         ARPSnapshot,
         Max
     };
@@ -183,6 +195,23 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::ProductCodes>
         {
             using value_t = std::vector<Utility::LocIndString>;
+        };
+
+        struct DataMapping<Data::PackageCollection>
+        {
+            using value_t = CLI::PackageCollection;
+        };
+
+        template <>
+        struct DataMapping<Data::PackagesToInstall>
+        {
+            using value_t = std::vector<std::shared_ptr<Repository::IPackageVersion>>;
+        };
+
+        template <>
+        struct DataMapping<Data::Sources>
+        {
+            using value_t = std::vector<std::shared_ptr<Repository::ISource>>;
         };
 
         template <>

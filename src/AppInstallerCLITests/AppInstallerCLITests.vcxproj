@@ -54,6 +54,7 @@
   </ImportGroup>
   <ImportGroup Label="Shared">
     <Import Project="..\catch2\catch2.vcxitems" Label="Shared" />
+    <Import Project="..\ManifestSchema\ManifestSchema.vcxitems" Label="Shared" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -186,6 +187,7 @@
     <ClCompile Include="HashCommand.cpp" />
     <ClCompile Include="MsixInfo.cpp" />
     <ClCompile Include="NameNormalization.cpp" />
+    <ClCompile Include="PackageCollection.cpp" />
     <ClCompile Include="PredefinedInstalledSource.cpp" />
     <ClCompile Include="PreIndexedPackageSource.cpp" />
     <ClCompile Include="Regex.cpp" />
@@ -233,6 +235,27 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_NoApplicableArchitecture.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Bad-Invalid.json">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Bad-Malformed.json">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Bad-UnknownPackage.json">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Bad-UnknownPackageVersion.json">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Bad-UnknownSource.json">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Good.json">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Good-AlreadyInstalled.json">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
     <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_NoSwitches.yaml">
@@ -261,9 +284,6 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-ArchMissing.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Bad-Channel-NotSupported.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-DifferentCase-camelCase.yaml">
@@ -441,6 +461,21 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\NormalizationInitialIds.txt">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1-Singleton.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-DefaultLocale.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-Installer.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-Locale.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-Version.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
   </ItemGroup>

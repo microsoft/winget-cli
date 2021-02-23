@@ -1,0 +1,21 @@
+{
+  "$schema": "https://aka.ms/winget-packages.schema.1.0.json",
+  "CreationDate": "2021-01-01T12:00:00.000",
+  "Sources": [
+    {
+      "Packages": [
+        {
+          "Id": "AppInstallerCliTest.TestExeInstaller",
+          "Version": "4.3.2.1"
+        }
+      ],
+      "SourceDetails": {
+        "Argument": "//arg",
+        "Identifier": "*TestSource",
+        "Name": "TestSource",
+        "Type": "Microsoft.TestSource"
+      }
+    }
+  ],
+  "WinGetVersion": "1.0.0"
+}

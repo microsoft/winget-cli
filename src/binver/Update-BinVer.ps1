@@ -18,25 +18,36 @@ param(
     [Parameter(Mandatory=$false)]
     [int]$BuildVersion = 0,
 
+    [Parameter(Mandatory=$false)]
+    [string]$MajorMinorOverride,
+
     [switch]$OutVar
 )
-
-$ErrorActionPreference = 'SilentlyContinue'
-$Local:GitDescribeText = git describe --tags;
-$ErrorActionPreference = 'Continue'
-Write-Host "Git describe: $Local:GitDescribeText"
 
 $Local:Major = 0;
 $Local:Minor = 0;
 
-if ($Local:GitDescribeText -match "v([0-9]+)\.([0-9]+)")
+if ($MajorMinorOverride -match "([0-9]+)\.([0-9]+)")
 {
     $Local:Major = $Matches[1]
     $Local:Minor = $Matches[2]
 }
-else
-{
-    Write-Host "Describe did not match regex; using zeros"
+else {
+    $ErrorActionPreference = 'SilentlyContinue'
+    $Local:GitDescribeText = git describe --tags;
+    $ErrorActionPreference = 'Continue'
+
+    Write-Host "Git describe: $Local:GitDescribeText"
+    
+    if ($Local:GitDescribeText -match "v([0-9]+)\.([0-9]+)")
+    {
+        $Local:Major = $Matches[1]
+        $Local:Minor = $Matches[2]
+    }
+    else
+    {
+        Write-Host "Describe did not match regex and major/minor weren't explicitly provided; using zeros"
+    }
 }
 
 Write-Host "Using version: $Local:Major.$Local:Minor.$BuildVersion"

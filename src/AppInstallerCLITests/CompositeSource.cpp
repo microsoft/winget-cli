@@ -74,8 +74,8 @@ Manifest::Manifest MakeDefaultManifest()
     Manifest::Manifest result;
 
     result.Id = "Id";
-    result.Name = "Name";
-    result.Publisher = "Publisher";
+    result.DefaultLocalization.Add<Manifest::Localization::PackageName>("Name");
+    result.DefaultLocalization.Add<Manifest::Localization::Publisher>("Publisher");
     result.Version = "1.0";
     result.Installers.push_back({});
 
@@ -191,7 +191,7 @@ TEST_CASE("CompositeSource_MultiMatch_FindsId", "[CompositeSource]")
     {
         SearchResult result;
         result.Matches.emplace_back(MakeAvailable([](Manifest::Manifest& m) { m.Id = "A different ID"; }), Criteria());
-        result.Matches.emplace_back(MakeAvailable([&](Manifest::Manifest& m) { m.Name = name; }), Criteria());
+        result.Matches.emplace_back(MakeAvailable([&](Manifest::Manifest& m) { m.DefaultLocalization.Add<Manifest::Localization::PackageName>(name); }), Criteria());
         return result;
     };
 
@@ -482,7 +482,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchFirst", "[CompositeSour
         REQUIRE(request.Inclusions[0].Value == pfn);
 
         SearchResult result;
-        result.Matches.emplace_back(MakeAvailable([&](Manifest::Manifest& m) { m.Name = firstName; }), Criteria());
+        result.Matches.emplace_back(MakeAvailable([&](Manifest::Manifest& m) { m.DefaultLocalization.Add<Manifest::Localization::PackageName>(firstName); }), Criteria());
         return result;
     };
 
@@ -492,7 +492,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchFirst", "[CompositeSour
         REQUIRE(request.Inclusions[0].Value == pfn);
 
         SearchResult result;
-        result.Matches.emplace_back(MakeAvailable([&](Manifest::Manifest& m) { m.Name = secondName; }), Criteria());
+        result.Matches.emplace_back(MakeAvailable([&](Manifest::Manifest& m) { m.DefaultLocalization.Add<Manifest::Localization::PackageName>(secondName); }), Criteria());
         return result;
     };
 
@@ -522,7 +522,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchSecond", "[CompositeSou
         REQUIRE(request.Inclusions[0].Value == pfn);
 
         SearchResult result;
-        result.Matches.emplace_back(MakeAvailable([&](Manifest::Manifest& m) { m.Name = secondName; }), Criteria());
+        result.Matches.emplace_back(MakeAvailable([&](Manifest::Manifest& m) { m.DefaultLocalization.Add<Manifest::Localization::PackageName>(secondName); }), Criteria());
         return result;
     };
 

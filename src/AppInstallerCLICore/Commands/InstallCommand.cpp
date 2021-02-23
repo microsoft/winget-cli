@@ -99,18 +99,6 @@ namespace AppInstaller::CLI
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::GetManifest <<
-            Workflow::EnsureMinOSVersion <<
-            Workflow::SelectInstaller <<
-            Workflow::EnsureApplicableInstaller <<
-            Workflow::ShowInstallationDisclaimer <<
-            Workflow::ReportExecutionStage(ExecutionStage::Download) <<
-            Workflow::DownloadInstaller <<
-            Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<
-            Workflow::SnapshotARPEntries <<
-            Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
-            Workflow::ExecuteInstaller <<
-            Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
-            Workflow::ReportARPChanges <<
-            Workflow::RemoveInstaller;
+            Workflow::InstallPackageVersion;
     }
 }

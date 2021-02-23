@@ -126,7 +126,7 @@ namespace AppInstaller::Settings
             }
             else
             {
-                AICLI_LOG(Core, Info, << "Setting " << path <<" not found. Using default");
+                AICLI_LOG(Core, Info, << "Setting " << path << " not found. Using default");
             }
         }
 
@@ -213,6 +213,12 @@ namespace AppInstaller::Settings
 
         std::optional<SettingMapping<Setting::EFUninstall>::value_t>
             SettingMapping<Setting::EFUninstall>::Validate(const SettingMapping<Setting::EFUninstall>::json_t& value)
+        {
+            return value;
+        }
+
+        std::optional<SettingMapping<Setting::EFImportExport>::value_t>
+            SettingMapping<Setting::EFImportExport>::Validate(const SettingMapping<Setting::EFImportExport>::json_t& value)
         {
             return value;
         }

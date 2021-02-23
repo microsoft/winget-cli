@@ -16,6 +16,8 @@
 #include "FeaturesCommand.h"
 #include "ExperimentalCommand.h"
 #include "CompleteCommand.h"
+#include "ExportCommand.h"
+#include "ImportCommand.h"
 
 #include "Resources.h"
 #include "TableOutput.h"
@@ -40,6 +42,8 @@ namespace AppInstaller::CLI
             std::make_unique<FeaturesCommand>(FullName()),
             std::make_unique<ExperimentalCommand>(FullName()),
             std::make_unique<CompleteCommand>(FullName()),
+            std::make_unique<ExportCommand>(FullName()),
+            std::make_unique<ImportCommand>(FullName()),
         });
     }
 

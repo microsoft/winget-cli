@@ -39,18 +39,6 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void EnsureMinOSVersion(Execution::Context& context)
-    {
-        const auto& manifest = context.Get<Execution::Data::Manifest>();
-
-        if (!manifest.MinOSVersion.empty() &&
-            !Runtime::IsCurrentOSVersionGreaterThanOrEqual(Version(manifest.MinOSVersion)))
-        {
-            context.Reporter.Error() << Resource::String::InstallationRequiresHigherWindows << ' ' << manifest.MinOSVersion << std::endl;
-            AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_OLD_WIN_VERSION));
-        }
-    }
-
     void EnsureApplicableInstaller(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>();
@@ -66,7 +54,7 @@ namespace AppInstaller::CLI::Workflow
     {
         auto installerType = context.Get<Execution::Data::Installer>().value().InstallerType;
 
-        if (installerType == ManifestInstaller::InstallerTypeEnum::MSStore)
+        if (installerType == InstallerTypeEnum::MSStore)
         {
             context.Reporter.Info() << Resource::String::InstallationDisclaimerMSStore << std::endl;
         }
@@ -84,15 +72,15 @@ namespace AppInstaller::CLI::Workflow
 
         switch (installer.InstallerType)
         {
-        case ManifestInstaller::InstallerTypeEnum::Exe:
-        case ManifestInstaller::InstallerTypeEnum::Burn:
-        case ManifestInstaller::InstallerTypeEnum::Inno:
-        case ManifestInstaller::InstallerTypeEnum::Msi:
-        case ManifestInstaller::InstallerTypeEnum::Nullsoft:
-        case ManifestInstaller::InstallerTypeEnum::Wix:
+        case InstallerTypeEnum::Exe:
+        case InstallerTypeEnum::Burn:
+        case InstallerTypeEnum::Inno:
+        case InstallerTypeEnum::Msi:
+        case InstallerTypeEnum::Nullsoft:
+        case InstallerTypeEnum::Wix:
             context << DownloadInstallerFile << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
             break;
-        case ManifestInstaller::InstallerTypeEnum::Msix:
+        case InstallerTypeEnum::Msix:
             if (installer.SignatureSha256.empty())
             {
                 context << DownloadInstallerFile << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
@@ -103,7 +91,7 @@ namespace AppInstaller::CLI::Workflow
                 context << GetMsixSignatureHash << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
             }
             break;
-        case ManifestInstaller::InstallerTypeEnum::MSStore:
+        case InstallerTypeEnum::MSStore:
             // Nothing to do here
             break;
         default:
@@ -294,13 +282,13 @@ namespace AppInstaller::CLI::Workflow
 
         switch (installer.InstallerType)
         {
-        case ManifestInstaller::InstallerTypeEnum::Exe:
-        case ManifestInstaller::InstallerTypeEnum::Burn:
-        case ManifestInstaller::InstallerTypeEnum::Inno:
-        case ManifestInstaller::InstallerTypeEnum::Msi:
-        case ManifestInstaller::InstallerTypeEnum::Nullsoft:
-        case ManifestInstaller::InstallerTypeEnum::Wix:
-            if (isUpdate && installer.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::UninstallPrevious)
+        case InstallerTypeEnum::Exe:
+        case InstallerTypeEnum::Burn:
+        case InstallerTypeEnum::Inno:
+        case InstallerTypeEnum::Msi:
+        case InstallerTypeEnum::Nullsoft:
+        case InstallerTypeEnum::Wix:
+            if (isUpdate && installer.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious)
             {
                 context <<
                     GetUninstallInfo <<
@@ -309,10 +297,10 @@ namespace AppInstaller::CLI::Workflow
             }
             context << ShellExecuteInstall;
             break;
-        case ManifestInstaller::InstallerTypeEnum::Msix:
+        case InstallerTypeEnum::Msix:
             context << MsixInstall;
             break;
-        case ManifestInstaller::InstallerTypeEnum::MSStore:
+        case InstallerTypeEnum::MSStore:
             context <<
                 EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore) <<
                 EnsureStorePolicySatisfied <<
@@ -387,6 +375,52 @@ namespace AppInstaller::CLI::Workflow
             {
                 AICLI_LOG(CLI, Warning, << "Failed to remove installer file after execution. Reason unknown.");
             }
+        }
+    }
+
+    void InstallPackageVersion(Execution::Context & context)
+    {
+        context <<
+            Workflow::SelectInstaller <<
+            Workflow::EnsureApplicableInstaller <<
+            Workflow::ShowInstallationDisclaimer <<
+            Workflow::ReportExecutionStage(ExecutionStage::Download) <<
+            Workflow::DownloadInstaller <<
+            Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<
+            Workflow::SnapshotARPEntries <<
+            Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
+            Workflow::ExecuteInstaller <<
+            Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
+            Workflow::ReportARPChanges <<
+            Workflow::RemoveInstaller;
+    }
+
+    void InstallMultiple(Execution::Context& context)
+    {
+        bool allSucceeded = true;
+        for (auto package : context.Get<Execution::Data::PackagesToInstall>())
+        {
+            Logging::SubExecutionTelemetryScope subExecution;
+
+            // We want to do best effort to install all packages regardless of previous failures
+            auto installContextPtr = context.Clone();
+            Execution::Context& installContext = *installContextPtr;
+
+            // Extract the data needed for installing
+            installContext.Add<Execution::Data::PackageVersion>(package);
+            installContext.Add<Execution::Data::Manifest>(package->GetManifest());
+
+            installContext << InstallPackageVersion;
+            if (installContext.IsTerminated())
+            {
+                allSucceeded = false;
+            }
+        }
+
+        if (!allSucceeded)
+        {
+            context.Reporter.Error() << Resource::String::ImportInstallFailed << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED);
         }
     }
 

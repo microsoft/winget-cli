@@ -5,16 +5,16 @@
 
 namespace AppInstaller::Repository::Microsoft
 {
-    Registry::Key ARPHelper::GetARPKey(Manifest::ManifestInstaller::ScopeEnum scope, Utility::Architecture architecture) const
+    Registry::Key ARPHelper::GetARPKey(Manifest::ScopeEnum scope, Utility::Architecture architecture) const
     {
         HKEY rootKey = NULL;
 
         switch (scope)
         {
-        case Manifest::ManifestInstaller::ScopeEnum::User:
+        case Manifest::ScopeEnum::User:
             rootKey = HKEY_CURRENT_USER;
             break;
-        case Manifest::ManifestInstaller::ScopeEnum::Machine:
+        case Manifest::ScopeEnum::Machine:
             rootKey = HKEY_LOCAL_MACHINE;
             break;
         default:
@@ -38,7 +38,7 @@ namespace AppInstaller::Repository::Microsoft
             switch (architecture)
             {
             case Utility::Architecture::X86:
-                if (scope == Manifest::ManifestInstaller::ScopeEnum::Machine)
+                if (scope == Manifest::ScopeEnum::Machine)
                 {
                     access |= KEY_WOW64_32KEY;
                     isValid = true;
@@ -62,7 +62,7 @@ namespace AppInstaller::Repository::Microsoft
             switch (architecture)
             {
             case Utility::Architecture::X86:
-                if (scope == Manifest::ManifestInstaller::ScopeEnum::Machine)
+                if (scope == Manifest::ScopeEnum::Machine)
                 {
 #ifdef _ARM_
                     // Not accessible if this is an ARM process
@@ -184,7 +184,7 @@ namespace AppInstaller::Repository::Microsoft
         }
     }
 
-    void ARPHelper::PopulateIndexFromARP(SQLiteIndex& index, Manifest::ManifestInstaller::ScopeEnum scope) const
+    void ARPHelper::PopulateIndexFromARP(SQLiteIndex& index, Manifest::ScopeEnum scope) const
     {
         for (auto architecture : Utility::GetApplicableArchitectures())
         {
@@ -192,7 +192,7 @@ namespace AppInstaller::Repository::Microsoft
 
             if (arpRootKey)
             {
-                PopulateIndexFromKey(index, arpRootKey, Manifest::ManifestInstaller::ScopeToString(scope), Utility::ToString(architecture));
+                PopulateIndexFromKey(index, arpRootKey, Manifest::ScopeToString(scope), Utility::ToString(architecture));
             }
         }
     }
@@ -206,7 +206,7 @@ namespace AppInstaller::Repository::Microsoft
             std::string productCode = arpEntry.Name();
 
             Manifest::Manifest manifest;
-            manifest.Tags = { "ARP" };
+            manifest.DefaultLocalization.Add<Manifest::Localization::Tags>({ "ARP" });
 
             // Use the key name as the Id, as it is supposed to be unique.
             // TODO: We probably want something better here, like constructing the value as
@@ -238,8 +238,9 @@ namespace AppInstaller::Repository::Microsoft
                 AICLI_LOG(Repo, Verbose, << "Skipping " << productCode << " because DisplayName is not a REG_SZ value");
                 continue;
             }
-            manifest.Name = displayName->GetValue<Registry::Value::Type::String>();
-            if (manifest.Name.empty())
+            auto displayNameValue = displayName->GetValue<Registry::Value::Type::String>();
+            manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(displayNameValue);
+            if (displayNameValue.empty())
             {
                 AICLI_LOG(Repo, Verbose, << "Skipping " << productCode << " because DisplayName is empty");
                 continue;
@@ -256,10 +257,12 @@ namespace AppInstaller::Repository::Microsoft
             auto publisher = arpKey[Publisher];
             if (publisher && publisher->GetType() == Registry::Value::Type::String)
             {
-                manifest.Publisher = publisher->GetValue<Registry::Value::Type::String>();
+                manifest.DefaultLocalization.Add<Manifest::Localization::Publisher>(publisher->GetValue<Registry::Value::Type::String>());
 
                 // If Publisher is set, change the Id using name normalization
-                auto normalizedName = index.NormalizeName(manifest.Name, manifest.Publisher);
+                auto normalizedName = index.NormalizeName(
+                    manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(),
+                    manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>());
                 manifest.Id = normalizedName.Publisher() + '.' + normalizedName.Name();
             }
 
@@ -288,7 +291,7 @@ namespace AppInstaller::Repository::Microsoft
 
             if (!manifestIdOpt)
             {
-                Logging::Telemetry().LogDuplicateARPEntry(addHr, scope, architecture, productCode, manifest.Name);
+                Logging::Telemetry().LogDuplicateARPEntry(addHr, scope, architecture, productCode, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>());
                 continue;
             }
 
@@ -302,7 +305,12 @@ namespace AppInstaller::Repository::Microsoft
             //       scope does not have separate ARP locations, so every architecture would appear as native.
 
             // Publisher is needed for certain scenarios but we don't store it from the manifest
-            index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::Publisher, manifest.Publisher);
+            if (manifest.DefaultLocalization.Contains(Manifest::Localization::Publisher))
+            {
+                index.SetMetadataByManifestId(
+                    manifestId, PackageVersionMetadata::Publisher,
+                    manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>());
+            }
 
             // Pick up InstallLocation when upgrade supports remove/install to enable this location
             // to survive across the removal.
@@ -318,14 +326,14 @@ namespace AppInstaller::Repository::Microsoft
 
             // Pick up WindowsInstaller to determine if this is an MSI install.
             // TODO: Could also determine Inno (and maybe other types) through detecting other keys here.
-            auto installedType = Manifest::ManifestInstaller::InstallerTypeEnum::Exe;
+            auto installedType = Manifest::InstallerTypeEnum::Exe;
 
             if (GetBoolValue(arpKey, WindowsInstaller))
             {
-                installedType = Manifest::ManifestInstaller::InstallerTypeEnum::Msi;
+                installedType = Manifest::InstallerTypeEnum::Msi;
             }
 
-            index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType, Manifest::ManifestInstaller::InstallerTypeToString(installedType));
+            index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType, Manifest::InstallerTypeToString(installedType));
         }
     }
 }

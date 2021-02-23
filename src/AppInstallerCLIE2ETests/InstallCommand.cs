@@ -8,7 +8,6 @@ namespace AppInstallerCLIE2ETests
 
     public class InstallCommand : BaseCommand
     {
-        private const string InstallTestExeInstalledFile = @"TestExeInstalled.txt";
         private const string InstallTestMsiInstalledFile = @"AppInstallerTestExeInstaller.exe";
         private const string InstallTestMsiProductId = @"{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
         private const string InstallTestMsixName = @"6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
@@ -44,8 +43,8 @@ namespace AppInstallerCLIE2ETests
         {
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"InapplicableOsVersion --silent -l {installDir}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_OLD_WIN_VERSION, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Cannot install package, as it requires a higher version of Windows"));
+            // MinOSVersion is moved to installer level, the check is performed during installer selection
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICABLE_INSTALLER, result.ExitCode);
             Assert.False(VerifyTestExeInstalled(installDir));
         }
 
@@ -137,17 +136,18 @@ namespace AppInstallerCLIE2ETests
 
         private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
         {
-            if (!File.Exists(Path.Combine(installDir, InstallTestExeInstalledFile)))
+            if (!File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))
             {
                 return false;
             }
 
             if (!string.IsNullOrEmpty(expectedContent))
             {
-                string content = File.ReadAllText(Path.Combine(installDir, InstallTestExeInstalledFile));
+                string content = File.ReadAllText(Path.Combine(installDir, Constants.TestExeInstalledFileName));
                 return content.Contains(expectedContent);
             }
 
+            TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
             return true;
         }
 

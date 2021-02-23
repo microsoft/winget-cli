@@ -86,6 +86,7 @@ namespace AppInstaller::Repository::Microsoft
                 AICLI_LOG(Repo, Info, << "Found package full name: " << details.Name << " => " << fullName);
 
                 details.Data = Msix::GetPackageFamilyNameFromFullName(fullName);
+                details.Identifier = Msix::GetPackageFamilyNameFromFullName(fullName);
 
                 auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
 
@@ -146,6 +147,8 @@ namespace AppInstaller::Repository::Microsoft
 
                 SQLiteIndex index = SQLiteIndex::Open(indexLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
 
+                // We didn't use to store the source identifier, so we compute it here in case it's
+                // missing from the details.
                 return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(index), std::move(lock));
             }
 
@@ -252,6 +255,8 @@ namespace AppInstaller::Repository::Microsoft
 
                 SQLiteIndex index = SQLiteIndex::Open(packageLocation.u8string(), SQLiteIndex::OpenDisposition::Read);
 
+                // We didn't use to store the source identifier, so we compute it here in case it's
+                // missing from the details.
                 return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(index), std::move(lock));
             }
 

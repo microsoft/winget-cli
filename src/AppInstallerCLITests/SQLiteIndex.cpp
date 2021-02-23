@@ -64,13 +64,14 @@ SQLiteIndex SimpleTestSetup(const std::string& filePath, Manifest& manifest, std
 {
     SQLiteIndex index = CreateTestIndex(filePath, version);
 
+    manifest.Installers.push_back({});
     manifest.Id = "Test.Id";
-    manifest.Name = "Test Name";
-    manifest.AppMoniker = "testmoniker";
+    manifest.DefaultLocalization.Add<Localization::PackageName>("Test Name");
+    manifest.Moniker = "testmoniker";
     manifest.Version = "1.0.0";
     manifest.Channel = "test";
-    manifest.Tags = { "t1", "t2" };
-    manifest.Commands = { "test1", "test2" };
+    manifest.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2" });
+    manifest.Installers[0].Commands = { "test1", "test2" };
 
     relativePath = "test/id/1.0.0.yaml";
 
@@ -143,16 +144,23 @@ SQLiteIndex SearchTestSetup(const std::string& filePath, std::initializer_list<I
 
     Manifest manifest;
 
-    auto addFunc = [&](const IndexFields& d) {
+    auto addFunc = [&](const IndexFields& d)
+    {
         manifest.Id = d.Id;
-        manifest.Name = d.Name;
-        manifest.AppMoniker = d.Moniker;
+        manifest.DefaultLocalization.Add<Localization::PackageName>(d.Name);
+        manifest.Moniker = d.Moniker;
         manifest.Version = d.Version;
-        manifest.Channel = d.Channel;
-        manifest.Tags = d.Tags;
-        manifest.Commands = d.Commands;
+        manifest.DefaultLocalization.Add<Localization::Tags>(d.Tags);
 
         manifest.Installers.resize(std::max(d.PackageFamilyNames.size(), d.ProductCodes.size()));
+
+        if (manifest.Installers.size() == 0)
+        {
+            manifest.Installers.push_back({});
+        }
+
+        manifest.Channel = d.Channel;
+        manifest.Installers[0].Commands = d.Commands;
 
         for (size_t i = 0; i < d.PackageFamilyNames.size(); ++i)
         {
@@ -319,24 +327,26 @@ TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex][V1_0]")
 
     std::string manifest1Path = "test/id/test.id-1.0.0.yaml";
     Manifest manifest1;
+    manifest1.Installers.push_back({});
     manifest1.Id = "test.id";
-    manifest1.Name = "Test Name";
-    manifest1.AppMoniker = "testmoniker";
+    manifest1.DefaultLocalization.Add<Localization::PackageName>("Test Name");
+    manifest1.Moniker = "testmoniker";
     manifest1.Version = "1.0.0";
     manifest1.Channel = "test";
-    manifest1.Tags = { "t1", "t2" };
-    manifest1.Commands = { "test1", "test2" };
+    manifest1.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2" });
+    manifest1.Installers[0].Commands = { "test1", "test2" };
 
     std::string manifest2Path = "test/woah/test.id-1.0.0.yaml";
     Manifest manifest2;
+    manifest2.Installers.push_back({});
     manifest2.Id = "test.woah";
-    manifest2.Name = "Test Name WOAH";
-    manifest2.AppMoniker = "testmoniker";
+    manifest2.DefaultLocalization.Add<Localization::PackageName>("Test Name WOAH");
+    manifest2.Moniker = "testmoniker";
     manifest2.Version = "1.0.0";
     manifest2.Channel = "test";
-    manifest2.Tags = {};
-    manifest2.Commands = { "test1", "test2", "test3" };
-    
+    manifest2.DefaultLocalization.Add<Localization::Tags>({});
+    manifest2.Installers[0].Commands = { "test1", "test2", "test3" };
+
     {
         SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
 
@@ -391,23 +401,25 @@ TEST_CASE("SQLiteIndex_RemoveManifest_EnsureConsistentRowId", "[sqliteindex]")
 
     std::string manifest1Path = "test/id/test.id-1.0.0.yaml";
     Manifest manifest1;
+    manifest1.Installers.push_back({});
     manifest1.Id = "test.id";
-    manifest1.Name = "Test Name";
-    manifest1.AppMoniker = "testmoniker";
+    manifest1.DefaultLocalization.Add<Localization::PackageName>("Test Name");
+    manifest1.Moniker = "testmoniker";
     manifest1.Version = "1.0.0";
     manifest1.Channel = "test";
-    manifest1.Tags = { "t1", "t2" };
-    manifest1.Commands = { "test1", "test2" };
+    manifest1.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2" });
+    manifest1.Installers[0].Commands = { "test1", "test2" };
 
     std::string manifest2Path = "test/woah/test.id-1.0.0.yaml";
     Manifest manifest2;
+    manifest2.Installers.push_back({});
     manifest2.Id = "test.woah";
-    manifest2.Name = "Test Name WOAH";
-    manifest2.AppMoniker = "testmoniker";
+    manifest2.DefaultLocalization.Add<Localization::PackageName>("Test Name WOAH");
+    manifest2.Moniker = "testmoniker";
     manifest2.Version = "1.0.0";
     manifest2.Channel = "test";
-    manifest2.Tags = {};
-    manifest2.Commands = { "test1", "test2", "test3" };
+    manifest2.DefaultLocalization.Add<Localization::Tags>({});
+    manifest2.Installers[0].Commands = { "test1", "test2", "test3" };
 
     SQLiteIndex index = CreateTestIndex(tempFile);
 
@@ -442,7 +454,7 @@ TEST_CASE("SQLiteIndex_RemoveManifest_EnsureConsistentRowId", "[sqliteindex]")
     REQUIRE(rowId.value() == manifest2RowId);
 
     REQUIRE(manifest2.Id == index.GetPropertyByManifestId(manifest2RowId, PackageVersionProperty::Id));
-    REQUIRE(manifest2.Name == index.GetPropertyByManifestId(manifest2RowId, PackageVersionProperty::Name));
+    REQUIRE(manifest2.DefaultLocalization.Get<Localization::PackageName>() == index.GetPropertyByManifestId(manifest2RowId, PackageVersionProperty::Name));
     REQUIRE(manifest2.Version == index.GetPropertyByManifestId(manifest2RowId, PackageVersionProperty::Version));
     REQUIRE(manifest2.Channel == index.GetPropertyByManifestId(manifest2RowId, PackageVersionProperty::Channel));
     REQUIRE(manifest2Path == index.GetPropertyByManifestId(manifest2RowId, PackageVersionProperty::RelativePath));
@@ -486,13 +498,14 @@ TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex][V1_0]")
 
     std::string manifestPath = "test/id/test.id-1.0.0.yaml";
     Manifest manifest;
+    manifest.Installers.push_back({});
     manifest.Id = "test.id";
-    manifest.Name = "Test Name";
-    manifest.AppMoniker = "testmoniker";
+    manifest.DefaultLocalization.Add < Localization::PackageName>("Test Name");
+    manifest.Moniker = "testmoniker";
     manifest.Version = "1.0.0";
     manifest.Channel = "test";
-    manifest.Tags = { "t1", "t2" };
-    manifest.Commands = { "test1", "test2" };
+    manifest.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2" });
+    manifest.Installers[0].Commands = { "test1", "test2" };
 
     {
         SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
@@ -521,16 +534,16 @@ TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex][V1_0]")
         // Update with no updates should return false
         REQUIRE(!index.UpdateManifest(manifest, manifestPath));
 
-        manifest.Description = "description2";
+        manifest.DefaultLocalization.Add<Localization::Description>("description2");
 
         // Update with no indexed updates should return false
         REQUIRE(!index.UpdateManifest(manifest, manifestPath));
 
         // Update with indexed changes
-        manifest.Name = "Test Name2";
-        manifest.AppMoniker = "testmoniker2";
-        manifest.Tags = { "t1", "t2", "t3" };
-        manifest.Commands = {};
+        manifest.DefaultLocalization.Add<Localization::PackageName>("Test Name2");
+        manifest.Moniker = "testmoniker2";
+        manifest.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2", "t3" });
+        manifest.Installers[0].Commands = {};
 
         REQUIRE(index.UpdateManifest(manifest, manifestPath));
     }
@@ -579,13 +592,14 @@ TEST_CASE("SQLiteIndex_UpdateManifestChangePath", "[sqliteindex][V1_0]")
 
     std::string manifestPath = "test/id/test.id-1.0.0.yaml";
     Manifest manifest;
+    manifest.Installers.push_back({});
     manifest.Id = "test.id";
-    manifest.Name = "Test Name";
-    manifest.AppMoniker = "testmoniker";
+    manifest.DefaultLocalization.Add<Localization::PackageName>("Test Name");
+    manifest.Moniker = "testmoniker";
     manifest.Version = "1.0.0";
     manifest.Channel = "test";
-    manifest.Tags = { "t1", "t2" };
-    manifest.Commands = { "test1", "test2" };
+    manifest.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2" });
+    manifest.Installers[0].Commands = { "test1", "test2" };
 
     {
         SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
@@ -660,13 +674,14 @@ TEST_CASE("SQLiteIndex_UpdateManifestChangeCase", "[sqliteindex][V1_0]")
 
     std::string manifestPath = "test/id/test.id-1.0.0.yaml";
     Manifest manifest;
+    manifest.Installers.push_back({});
     manifest.Id = "test.id";
-    manifest.Name = "Test Name";
-    manifest.AppMoniker = "testmoniker";
+    manifest.DefaultLocalization.Add<Localization::PackageName>("Test Name");
+    manifest.Moniker = "testmoniker";
     manifest.Version = "1.0.0-test";
     manifest.Channel = "test";
-    manifest.Tags = { "t1", "t2" };
-    manifest.Commands = { "test1", "test2" };
+    manifest.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2" });
+    manifest.Installers[0].Commands = { "test1", "test2" };
 
     {
         SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, { 1, 0 });
@@ -704,7 +719,7 @@ TEST_CASE("SQLiteIndex_UpdateManifestChangeCase", "[sqliteindex][V1_0]")
     {
         SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
 
-        manifest.Name = "test name";
+        manifest.DefaultLocalization.Add<Localization::PackageName>("test name");
 
         // Update with path update should indicate change
         REQUIRE(index.UpdateManifest(manifest, manifestPath));
@@ -738,12 +753,13 @@ TEST_CASE("SQLiteIndex_IdCaseInsensitivity", "[sqliteindex][V1_0]")
 
     std::string manifest1Path = "test/id/test.id-1.0.0.yaml";
     Manifest manifest1;
+    manifest1.Installers.push_back({});
     manifest1.Id = "test.id";
-    manifest1.Name = "Test Name";
-    manifest1.AppMoniker = "testmoniker";
+    manifest1.DefaultLocalization.Add<Localization::PackageName>("Test Name");
+    manifest1.Moniker = "testmoniker";
     manifest1.Version = "1.0.0";
-    manifest1.Tags = { "t1", "t2" };
-    manifest1.Commands = { "test1", "test2" };
+    manifest1.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2" });
+    manifest1.Installers[0].Commands = { "test1", "test2" };
 
     std::string manifest2Path = "test/id/test.id-2.0.0.yaml";
     Manifest manifest2 = manifest1;
@@ -999,7 +1015,7 @@ TEST_CASE("SQLiteIndex_NameString", "[sqliteindex]")
     REQUIRE(results.Matches.size() == 1);
 
     auto result = GetNameStringById(index, results.Matches[0].first);
-    REQUIRE(result == manifest.Name);
+    REQUIRE(result == manifest.DefaultLocalization.Get<Localization::PackageName>());
 }
 
 TEST_CASE("SQLiteIndex_PathString", "[sqliteindex]")
@@ -1826,23 +1842,25 @@ TEST_CASE("SQLiteIndex_CheckConsistency_Failure", "[sqliteindex][V1_1]")
 
     std::string manifest1Path = "test/id/test.id-1.0.0.yaml";
     Manifest manifest1;
+    manifest1.Installers.push_back({});
     manifest1.Id = "test.id";
-    manifest1.Name = "Test Name";
-    manifest1.AppMoniker = "testmoniker";
+    manifest1.DefaultLocalization.Add<Localization::PackageName>("Test Name");
+    manifest1.Moniker = "testmoniker";
     manifest1.Version = "1.0.0";
     manifest1.Channel = "test";
-    manifest1.Tags = { "t1", "t2" };
-    manifest1.Commands = { "test1", "test2" };
+    manifest1.DefaultLocalization.Add<Localization::Tags>({ "t1", "t2" });
+    manifest1.Installers[0].Commands = { "test1", "test2" };
 
     std::string manifest2Path = "test/woah/test.id-1.0.0.yaml";
     Manifest manifest2;
+    manifest2.Installers.push_back({});
     manifest2.Id = "test.woah";
-    manifest2.Name = "Test Name WOAH";
-    manifest2.AppMoniker = "testmoniker";
+    manifest2.DefaultLocalization.Add<Localization::PackageName>("Test Name WOAH");
+    manifest2.Moniker = "testmoniker";
     manifest2.Version = "1.0.0";
     manifest2.Channel = "test";
-    manifest2.Tags = {};
-    manifest2.Commands = { "test1", "test2", "test3" };
+    manifest2.DefaultLocalization.Add<Localization::Tags>({});
+    manifest2.Installers[0].Commands = { "test1", "test2", "test3" };
 
     SQLite::rowid_t manifestRowId = 0;
 

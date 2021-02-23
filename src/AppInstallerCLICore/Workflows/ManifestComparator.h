@@ -15,7 +15,6 @@ namespace AppInstaller::CLI::Workflow
             m_installationMetadata(std::move(installationMetadata)) {}
 
         std::optional<Manifest::ManifestInstaller> GetPreferredInstaller(const Manifest::Manifest& manifest);
-        Manifest::ManifestLocalization GetPreferredLocalization(const Manifest::Manifest& manifest);
 
     private:
         // TODO: Handle args to change how we select.

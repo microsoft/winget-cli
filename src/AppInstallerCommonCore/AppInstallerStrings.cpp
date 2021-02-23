@@ -427,6 +427,13 @@ namespace AppInstaller::Utility
         return str;
     }
 
+    std::string Trim(std::string&& str)
+    {
+        std::string result = std::move(str);
+        Utility::Trim(result);
+        return result;
+    }
+
     std::string ReadEntireStream(std::istream& stream)
     {
         std::streampos currentPos = stream.tellg();

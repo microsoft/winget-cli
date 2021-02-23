@@ -85,11 +85,11 @@ SQLiteIndex::MetadataResult::const_iterator Find(const SQLiteIndex::MetadataResu
     return std::find_if(metadata.begin(), metadata.end(), [value](const auto& m) { return m.first == value; });
 }
 
-void VerifyInstalledType(const SQLiteIndex::MetadataResult& metadata, ManifestInstaller::InstallerTypeEnum type)
+void VerifyInstalledType(const SQLiteIndex::MetadataResult& metadata, InstallerTypeEnum type)
 {
     auto itr = Find(metadata, PackageVersionMetadata::InstalledType);
     REQUIRE(itr != metadata.end());
-    REQUIRE(ManifestInstaller::ConvertToInstallerTypeEnum(itr->second) == type);
+    REQUIRE(ConvertToInstallerTypeEnum(itr->second) == type);
 }
 
 void VerifyTestScope(const SQLiteIndex::MetadataResult& metadata)
@@ -125,7 +125,7 @@ void VerifyEntryAgainstIndex(const SQLiteIndex& index, SQLiteIndex::IdType manif
 
     auto metadata = index.GetMetadataByManifestId(manifestId);
 
-    VerifyInstalledType(metadata, entry.WindowsInstaller.value_or(false) ? ManifestInstaller::InstallerTypeEnum::Msi : ManifestInstaller::InstallerTypeEnum::Exe);
+    VerifyInstalledType(metadata, entry.WindowsInstaller.value_or(false) ? InstallerTypeEnum::Msi : InstallerTypeEnum::Exe);
     VerifyTestScope(metadata);
     VerifyMetadataString(metadata, PackageVersionMetadata::InstalledLocation, entry.InstallLocation);
     VerifyMetadataString(metadata, PackageVersionMetadata::StandardUninstallCommand, entry.UninstallString);
@@ -150,7 +150,7 @@ TEST_CASE("ARPHelper_GetARPForArchitecture", "[arphelper][list]")
 
     ARPHelper helper;
 
-    auto nativeMachineKey = helper.GetARPKey(ManifestInstaller::ScopeEnum::Machine, systemArch);
+    auto nativeMachineKey = helper.GetARPKey(ScopeEnum::Machine, systemArch);
     REQUIRE(nativeMachineKey);
 }
 
