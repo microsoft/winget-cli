@@ -9,6 +9,7 @@
 #include "WorkflowBase.h"
 
 #include <winget/NameNormalization.h>
+#include <winget/Manifest.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -22,16 +23,16 @@ namespace AppInstaller::CLI::Workflow
 
     namespace
     {
-        bool MightWriteToARP(ManifestInstaller::InstallerTypeEnum type)
+        bool MightWriteToARP(InstallerTypeEnum type)
         {
             switch (type)
             {
-            case ManifestInstaller::InstallerTypeEnum::Exe:
-            case ManifestInstaller::InstallerTypeEnum::Burn:
-            case ManifestInstaller::InstallerTypeEnum::Inno:
-            case ManifestInstaller::InstallerTypeEnum::Msi:
-            case ManifestInstaller::InstallerTypeEnum::Nullsoft:
-            case ManifestInstaller::InstallerTypeEnum::Wix:
+            case InstallerTypeEnum::Exe:
+            case InstallerTypeEnum::Burn:
+            case InstallerTypeEnum::Inno:
+            case InstallerTypeEnum::Msi:
+            case InstallerTypeEnum::Nullsoft:
+            case InstallerTypeEnum::Wix:
                 return true;
             default:
                 return false;
@@ -489,7 +490,29 @@ namespace AppInstaller::CLI::Workflow
             const auto& manifest = context.Get<Execution::Data::Manifest>();
 
             SearchRequest nameAndPublisherRequest;
-            nameAndPublisherRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, manifest.Name, manifest.Publisher));
+
+            // The default localization must contain the name or we cannot do this lookup
+            if (manifest.DefaultLocalization.Contains(Localization::PackageName))
+            {
+                AppInstaller::Manifest::Manifest::string_t defaultName = manifest.DefaultLocalization.Get<Localization::PackageName>();
+                AppInstaller::Manifest::Manifest::string_t defaultPublisher;
+                if (manifest.DefaultLocalization.Contains(Localization::Publisher))
+                {
+                    defaultPublisher = manifest.DefaultLocalization.Get<Localization::Publisher>();
+                }
+
+                nameAndPublisherRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, defaultName, defaultPublisher));
+
+                for (const auto& loc : manifest.Localizations)
+                {
+                    if (loc.Contains(Localization::PackageName) || loc.Contains(Localization::Publisher))
+                    {
+                        nameAndPublisherRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact,
+                            loc.Contains(Localization::PackageName) ? loc.Get<Localization::PackageName>() : defaultName,
+                            loc.Contains(Localization::Publisher) ? loc.Get<Localization::Publisher>() : defaultPublisher));
+                    }
+                }
+            }
 
             std::vector<std::string> productCodes;
             for (const auto& installer : manifest.Installers)

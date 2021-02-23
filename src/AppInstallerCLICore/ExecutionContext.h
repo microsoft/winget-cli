@@ -197,6 +197,7 @@ namespace AppInstaller::CLI::Execution
             using value_t = std::vector<Utility::LocIndString>;
         };
 
+        template <>
         struct DataMapping<Data::PackageCollection>
         {
             using value_t = CLI::PackageCollection;

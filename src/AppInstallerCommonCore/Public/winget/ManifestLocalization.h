@@ -70,7 +70,7 @@ namespace AppInstaller::Manifest
         }
 
         // Return a value indicating whether the given localization type exists.
-        bool Contains(Localization l) { return (m_data.find(l) != m_data.end()); }
+        bool Contains(Localization l) const { return (m_data.find(l) != m_data.end()); }
 
         // Gets the localization value if exists, otherwise empty for easier access
         template <Localization L>

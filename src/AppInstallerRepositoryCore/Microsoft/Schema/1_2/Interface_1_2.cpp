@@ -13,16 +13,46 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 {
     namespace
     {
-        // TODO: Adapt algorithm from 1_1 to get name and publisher from all localizations
-        //       when the new manifest change comes in.
+        void AddLocalizationNormalizedName(const Utility::NameNormalizer& normalizer, const Manifest::ManifestLocalization& localization, std::vector<Utility::NormalizedString>& out)
+        {
+            if (localization.Contains(Manifest::Localization::PackageName))
+            {
+                out.emplace_back(normalizer.NormalizeName(Utility::FoldCase(localization.Get<Manifest::Localization::PackageName>())).Name());
+            }
+        }
+
+        void AddLocalizationNormalizedPublisher(const Utility::NameNormalizer& normalizer, const Manifest::ManifestLocalization& localization, std::vector<Utility::NormalizedString>& out)
+        {
+            if (localization.Contains(Manifest::Localization::Publisher))
+            {
+                out.emplace_back(normalizer.NormalizePublisher(Utility::FoldCase(localization.Get<Manifest::Localization::Publisher>())));
+            }
+        }
+
         std::vector<Utility::NormalizedString> GetNormalizedNames(const Utility::NameNormalizer& normalizer, const Manifest::Manifest& manifest)
         {
-            return { normalizer.NormalizeName(Utility::FoldCase(manifest.Name)).Name() };
+            std::vector<Utility::NormalizedString> result;
+
+            AddLocalizationNormalizedName(normalizer, manifest.DefaultLocalization, result);
+            for (const auto& loc : manifest.Localizations)
+            {
+                AddLocalizationNormalizedName(normalizer, loc, result);
+            }
+
+            return result;
         }
 
         std::vector<Utility::NormalizedString> GetNormalizedPublishers(const Utility::NameNormalizer& normalizer, const Manifest::Manifest& manifest)
         {
-            return { normalizer.NormalizePublisher(Utility::FoldCase(manifest.Publisher)) };
+            std::vector<Utility::NormalizedString> result;
+
+            AddLocalizationNormalizedPublisher(normalizer, manifest.DefaultLocalization, result);
+            for (const auto& loc : manifest.Localizations)
+            {
+                AddLocalizationNormalizedPublisher(normalizer, loc, result);
+            }
+
+            return result;
         }
     }
 
