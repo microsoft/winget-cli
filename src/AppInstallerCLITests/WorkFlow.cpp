@@ -722,7 +722,7 @@ TEST_CASE("ShowFlow_SearchAndShowAppInfo", "[ShowFlow][workflow]")
 
     // Verify AppInfo is printed
     REQUIRE(showOutput.str().find("AppInstallerCliTest.TestExeInstaller") != std::string::npos);
-    REQUIRE(showOutput.str().find("AppInstaller Test Installer") != std::string::npos);
+    REQUIRE(showOutput.str().find("AppInstaller Test Exe Installer") != std::string::npos);
     REQUIRE(showOutput.str().find("1.0.0.0") != std::string::npos);
     REQUIRE(showOutput.str().find("https://ThisIsNotUsed") != std::string::npos);
 }

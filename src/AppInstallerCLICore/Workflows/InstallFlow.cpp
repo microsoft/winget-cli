@@ -610,8 +610,15 @@ namespace AppInstaller::CLI::Workflow
                 toLogMetadata = toLog->GetMetadata();
             }
 
+            // We can only get the source identifier from an active source
+            std::string sourceIdentifier;
+            if (context.Contains(Execution::Data::PackageVersion))
+            {
+                sourceIdentifier = context.Get<Execution::Data::PackageVersion>()->GetProperty(PackageVersionProperty::SourceIdentifier);
+            }
+
             Logging::Telemetry().LogSuccessfulInstallARPChange(
-                context.Get<Execution::Data::PackageVersion>()->GetProperty(PackageVersionProperty::SourceIdentifier),
+                sourceIdentifier,
                 manifest.Id,
                 manifest.Version,
                 manifest.Channel,

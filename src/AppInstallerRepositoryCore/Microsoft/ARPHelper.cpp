@@ -269,29 +269,25 @@ namespace AppInstaller::Repository::Microsoft
             // TODO: If we want to keep the constructed manifest around to allow for `show` type commands
             //       against installed packages, we should use URLInfoAbout/HelpLink for the Homepage.
 
-            // TODO: Determine the best way to handle duplicates, which may very well happen.
-            //       For now, we will attempt to insert and catch, then send failure telemetry.
-            //       In a future where we cache these entries
+            // TODO: Determine the best way to handle duplicates; sometimes the same package will be listed under
+            //       both x64 and x86 locations for ARP.
+            //       For now, we will attempt to insert and catch.
             std::optional<SQLiteIndex::IdType> manifestIdOpt;
-            HRESULT addHr = S_OK;
 
             try
             {
                 // Use the ProductCode as a unique key for the path
                 manifestIdOpt = index.AddManifest(manifest, Utility::ConvertToUTF16(manifest.Installers[0].ProductCode));
             }
-            catch (wil::ResultException& re)
-            {
-                addHr = re.GetErrorCode();
-            }
             catch (...)
             {
-                addHr = E_FAIL;
+                // Ignore errors if they occur, they are most likely a duplicate value
             }
 
             if (!manifestIdOpt)
             {
-                Logging::Telemetry().LogDuplicateARPEntry(addHr, scope, architecture, productCode, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>());
+                AICLI_LOG(Repo, Warning,
+                    << "Ignoring duplicate ARP entry " << scope << '|' << architecture << '|' << productCode << " [" << manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>() << "]");
                 continue;
             }
 

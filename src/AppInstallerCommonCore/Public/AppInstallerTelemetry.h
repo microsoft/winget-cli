@@ -92,10 +92,6 @@ namespace AppInstaller::Logging
         // Logs a failed uninstallation attempt.
         void LogUninstallerFailure(std::string_view id, std::string_view version, std::string_view type, uint32_t errorCode) const noexcept;
 
-        // Logs a failure to insert a value into the in-memory cache of installed system packages.
-        // The most likely reason is due to the same key name being used under multiple ARP scope/architecture locations.
-        void LogDuplicateARPEntry(HRESULT hr, std::string_view scope, std::string_view architecture, std::string_view productCode, std::string_view name) const noexcept;
-
         // Logs data about the changes that ocurred in the ARP entries based on an install.
         // First 4 arguments are well known values for the package that we installed.
         // The next 3 are counts of the number of packages in each category.

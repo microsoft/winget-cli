@@ -443,27 +443,6 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Error, << type << " uninstaller failed: " << errorCode);
     }
 
-    void TelemetryTraceLogger::LogDuplicateARPEntry(HRESULT hr, std::string_view scope, std::string_view architecture, std::string_view productCode, std::string_view name) const noexcept
-    {
-        if (IsTelemetryEnabled())
-        {
-            TraceLoggingWriteActivity(g_hTelemetryProvider,
-                "DuplicateARPEntry",
-                GetActivityId(),
-                nullptr,
-                TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
-                TraceLoggingHResult(hr, "HResult"),
-                AICLI_TraceLoggingStringView(scope, "Scope"),
-                AICLI_TraceLoggingStringView(architecture, "Architecture"),
-                AICLI_TraceLoggingStringView(productCode, "ProductCode"),
-                AICLI_TraceLoggingStringView(name, "Name"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
-        }
-
-        AICLI_LOG(CLI, Error, << "Ignoring duplicate ARP entry " << scope << '|' << architecture << '|' << productCode << " [" << name << "]");
-    }
-
     void TelemetryTraceLogger::LogSuccessfulInstallARPChange(
         std::string_view sourceIdentifier,
         std::string_view packageIdentifier,
@@ -508,16 +487,16 @@ namespace AppInstaller::Logging
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
-        AICLI_LOG(CLI, Verbose, << "During package install, " << changesToARP << " changes to ARP were observed, "
+        AICLI_LOG(CLI, Info, << "During package install, " << changesToARP << " changes to ARP were observed, "
             << matchesInARP << " matches were found for the package, and " << countOfIntersectionOfChangesAndMatches << " packages were in both");
 
         if (arpName.empty())
         {
-            AICLI_LOG(CLI, Verbose, << "No single entry was determined to be associated with the package");
+            AICLI_LOG(CLI, Info, << "No single entry was determined to be associated with the package");
         }
         else
         {
-            AICLI_LOG(CLI, Verbose, << "The entry determined to be associated with the package is '" << arpName << "', with publisher '" << arpPublisher << "'");
+            AICLI_LOG(CLI, Info, << "The entry determined to be associated with the package is '" << arpName << "', with publisher '" << arpPublisher << "'");
         }
     }
 
