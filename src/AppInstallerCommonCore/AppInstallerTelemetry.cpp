@@ -81,7 +81,7 @@ namespace AppInstaller::Logging
         return instance;
     }
 
-    void TelemetryTraceLogger::LogFailure(const wil::FailureInfo& failure) noexcept
+    void TelemetryTraceLogger::LogFailure(const wil::FailureInfo& failure) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -110,7 +110,7 @@ namespace AppInstaller::Logging
             }());
     }
 
-    void TelemetryTraceLogger::LogStartup() noexcept
+    void TelemetryTraceLogger::LogStartup() const noexcept
     {
         LocIndString version = Runtime::GetClientVersion();
         LocIndString packageVersion;
@@ -140,7 +140,7 @@ namespace AppInstaller::Logging
         }
     }
  
-    void TelemetryTraceLogger::LogCommand(std::string_view commandName) noexcept
+    void TelemetryTraceLogger::LogCommand(std::string_view commandName) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -156,7 +156,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Info, << "Leaf command to execute: " << commandName);
     }
 
-    void TelemetryTraceLogger::LogCommandSuccess(std::string_view commandName) noexcept
+    void TelemetryTraceLogger::LogCommandSuccess(std::string_view commandName) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -172,7 +172,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Info, << "Leaf command succeeded: " << commandName);
     }
 
-    void TelemetryTraceLogger::LogCommandTermination(HRESULT hr, std::string_view file, size_t line) noexcept
+    void TelemetryTraceLogger::LogCommandTermination(HRESULT hr, std::string_view file, size_t line) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -192,7 +192,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Error, << "Terminating context: 0x" << SetHRFormat << hr << " at " << file << ":" << line);
     }
 
-    void TelemetryTraceLogger::LogException(std::string_view commandName, std::string_view type, std::string_view message) noexcept
+    void TelemetryTraceLogger::LogException(std::string_view commandName, std::string_view type, std::string_view message) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -212,7 +212,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Error, << "Caught " << type << ": " << message);
     }
 
-    void TelemetryTraceLogger::LogIsManifestLocal(bool isLocalManifest) noexcept
+    void TelemetryTraceLogger::LogIsManifestLocal(bool isLocalManifest) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -227,7 +227,7 @@ namespace AppInstaller::Logging
         }
     }
 
-    void TelemetryTraceLogger::LogManifestFields(std::string_view id, std::string_view name, std::string_view version) noexcept
+    void TelemetryTraceLogger::LogManifestFields(std::string_view id, std::string_view name, std::string_view version) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -246,7 +246,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Info, << "Manifest fields: Name [" << name << "], Version [" << version << ']');
     }
 
-    void TelemetryTraceLogger::LogNoAppMatch() noexcept
+    void TelemetryTraceLogger::LogNoAppMatch() const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -262,7 +262,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Info, << "No app found matching input criteria");
     }
 
-    void TelemetryTraceLogger::LogMultiAppMatch() noexcept
+    void TelemetryTraceLogger::LogMultiAppMatch() const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -278,7 +278,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Info, << "Multiple apps found matching input criteria");
     }
 
-    void TelemetryTraceLogger::LogAppFound(std::string_view name, std::string_view id) noexcept
+    void TelemetryTraceLogger::LogAppFound(std::string_view name, std::string_view id) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -296,7 +296,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Info, << "Found one app. App id: " << id << " App name: " << name);
     }
 
-    void TelemetryTraceLogger::LogSelectedInstaller(int arch, std::string_view url, std::string_view installerType, std::string_view scope, std::string_view language) noexcept
+    void TelemetryTraceLogger::LogSelectedInstaller(int arch, std::string_view url, std::string_view installerType, std::string_view scope, std::string_view language) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -331,7 +331,7 @@ namespace AppInstaller::Logging
         std::string_view tag,
         std::string_view command,
         size_t maximum,
-        std::string_view request)
+        std::string_view request) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -354,7 +354,7 @@ namespace AppInstaller::Logging
         }
     }
 
-    void TelemetryTraceLogger::LogSearchResultCount(uint64_t resultCount) noexcept
+    void TelemetryTraceLogger::LogSearchResultCount(uint64_t resultCount) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -375,7 +375,7 @@ namespace AppInstaller::Logging
         std::string_view channel,
         const std::vector<uint8_t>& expected,
         const std::vector<uint8_t>& actual,
-        bool overrideHashMismatch)
+        bool overrideHashMismatch) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -402,7 +402,7 @@ namespace AppInstaller::Logging
             << ']');
     }
 
-    void TelemetryTraceLogger::LogInstallerFailure(std::string_view id, std::string_view version, std::string_view channel, std::string_view type, uint32_t errorCode)
+    void TelemetryTraceLogger::LogInstallerFailure(std::string_view id, std::string_view version, std::string_view channel, std::string_view type, uint32_t errorCode) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -423,7 +423,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Error, << type << " installer failed: " << errorCode);
     }
 
-    void TelemetryTraceLogger::LogUninstallerFailure(std::string_view id, std::string_view version, std::string_view type, uint32_t errorCode)
+    void TelemetryTraceLogger::LogUninstallerFailure(std::string_view id, std::string_view version, std::string_view type, uint32_t errorCode) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -443,7 +443,7 @@ namespace AppInstaller::Logging
         AICLI_LOG(CLI, Error, << type << " uninstaller failed: " << errorCode);
     }
 
-    void TelemetryTraceLogger::LogDuplicateARPEntry(HRESULT hr, std::string_view scope, std::string_view architecture, std::string_view productCode, std::string_view name)
+    void TelemetryTraceLogger::LogDuplicateARPEntry(HRESULT hr, std::string_view scope, std::string_view architecture, std::string_view productCode, std::string_view name) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -475,7 +475,7 @@ namespace AppInstaller::Logging
         std::string_view arpName,
         std::string_view arpVersion,
         std::string_view arpPublisher,
-        std::string_view arpLanguage)
+        std::string_view arpLanguage) const noexcept
     {
         if (IsTelemetryEnabled())
         {
@@ -521,6 +521,22 @@ namespace AppInstaller::Logging
         }
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static std::shared_ptr<TelemetryTraceLogger> s_TelemetryTraceLogger_TestOverride;
+#endif
+
+    TelemetryTraceLogger& Telemetry()
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_TelemetryTraceLogger_TestOverride)
+        {
+            return *s_TelemetryTraceLogger_TestOverride.get();
+        }
+#endif
+
+        return TelemetryTraceLogger::GetInstance();
+    }
+
     void EnableWilFailureTelemetry()
     {
         wil::SetResultLoggingCallback(wilResultLoggingCallback);
@@ -557,4 +573,12 @@ namespace AppInstaller::Logging
     {
         s_subExecutionId = s_RootExecutionId;
     }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    // Replace this test hook with context telemetry when it gets moved over
+    void TestHook_SetTelemetryOverride(std::shared_ptr<TelemetryTraceLogger> ttl)
+    {
+        s_TelemetryTraceLogger_TestOverride = std::move(ttl);
+    }
+#endif
 }

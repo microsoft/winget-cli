@@ -52,6 +52,7 @@ int main(int argc, char** argv)
 
     bool hasSetTestDataBasePath = false;
     bool waitBeforeReturn = false;
+    bool keepSQLLogging = false;
 
     std::vector<char*> args;
     for (int i = 0; i < argc; ++i)
@@ -86,6 +87,10 @@ int main(int argc, char** argv)
         {
             waitBeforeReturn = true;
         }
+        else if ("-logsql"s == argv[i])
+        {
+            keepSQLLogging = true;
+        }
         else
         {
             args.push_back(argv[i]);
@@ -105,9 +110,15 @@ int main(int argc, char** argv)
         }
     }
 
-    // Enable all logging, to force log string building to run.
+    // Enable logging, to force log string building to run.
+    // Disable SQL by default, as it generates 10s of MBs of log file and
+    // increases the the full test run time by 60% or more.
     // By not creating a log target, it will all be thrown away.
     Logging::Log().EnableChannel(Logging::Channel::All);
+    if (!keepSQLLogging)
+    {
+        Logging::Log().DisableChannel(Logging::Channel::SQL);
+    }
     Logging::Log().SetLevel(Logging::Level::Verbose);
     Logging::EnableWilFailureTelemetry();
 

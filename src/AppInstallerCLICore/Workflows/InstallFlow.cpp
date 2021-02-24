@@ -379,7 +379,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void InstallPackageVersion(Execution::Context & context)
+    void InstallPackageVersion(Execution::Context& context)
     {
         context <<
             Workflow::SelectInstaller <<
@@ -527,7 +527,13 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            SearchResult findByManifest = arpSource->Search(nameAndPublisherRequest);
+            SearchResult findByManifest;
+
+            // Don't execute this search if it would just find everything
+            if (!nameAndPublisherRequest.IsForEverything())
+            {
+                findByManifest = arpSource->Search(nameAndPublisherRequest);
+            }
 
             // Cross reference the changes with the search results
             std::vector<std::shared_ptr<IPackage>> packagesInBoth;

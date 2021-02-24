@@ -323,9 +323,14 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
-    StatementBuilder& StatementBuilder::Literal(std::string_view value)
+    StatementBuilder& StatementBuilder::LiteralColumn(std::string_view value)
     {
+        if (m_needsComma)
+        {
+            m_stream << ", ";
+        }
         AddBindFunctor(AppendOpAndBinder(Op::Literal), value);
+        m_needsComma = true;
         return *this;
     }
 

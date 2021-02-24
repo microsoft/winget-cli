@@ -277,6 +277,7 @@ namespace AppInstaller::CLI::Execution
         {
             m_data[D].emplace<details::DataIndex(D)>(std::forward<typename details::DataMapping<D>::value_t>(v));
         }
+
         template <Data D>
         void Add(const typename details::DataMapping<D>::value_t& v)
         {

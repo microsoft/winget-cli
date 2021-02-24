@@ -239,7 +239,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& LikeWithEscape(std::string_view value);
         StatementBuilder& Like(details::unbound_t);
 
-        StatementBuilder& Literal(std::string_view value);
+        StatementBuilder& LiteralColumn(std::string_view value);
 
         StatementBuilder& Escape(std::string_view escapeChar);
 

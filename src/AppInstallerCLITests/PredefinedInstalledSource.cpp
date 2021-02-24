@@ -127,6 +127,7 @@ void VerifyEntryAgainstIndex(const SQLiteIndex& index, SQLiteIndex::IdType manif
 
     VerifyInstalledType(metadata, entry.WindowsInstaller.value_or(false) ? InstallerTypeEnum::Msi : InstallerTypeEnum::Exe);
     VerifyTestScope(metadata);
+    VerifyMetadataString(metadata, PackageVersionMetadata::Publisher, entry.Publisher);
     VerifyMetadataString(metadata, PackageVersionMetadata::InstalledLocation, entry.InstallLocation);
     VerifyMetadataString(metadata, PackageVersionMetadata::StandardUninstallCommand, entry.UninstallString);
     VerifyMetadataString(metadata, PackageVersionMetadata::SilentUninstallCommand, entry.QuietUninstallString);

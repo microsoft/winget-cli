@@ -29,21 +29,21 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             std::optional<SQLite::rowid_t> idId = IdTable::SelectIdByValue(connection, manifest.Id, true);
             if (!idId)
             {
-                AICLI_LOG(Repo, Info, << "Did not find an Id { " << manifest.Id << " }");
+                AICLI_LOG(Repo, Verbose, << "Did not find an Id { " << manifest.Id << " }");
                 return {};
             }
 
             std::optional<SQLite::rowid_t> versionId = VersionTable::SelectIdByValue(connection, manifest.Version, true);
             if (!versionId)
             {
-                AICLI_LOG(Repo, Info, << "Did not find a Version { " << manifest.Version << " }");
+                AICLI_LOG(Repo, Verbose, << "Did not find a Version { " << manifest.Version << " }");
                 return {};
             }
 
             std::optional<SQLite::rowid_t> channelId = ChannelTable::SelectIdByValue(connection, manifest.Channel, true);
             if (!channelId)
             {
-                AICLI_LOG(Repo, Info, << "Did not find a Channel { " << manifest.Channel << " }");
+                AICLI_LOG(Repo, Verbose, << "Did not find a Channel { " << manifest.Channel << " }");
                 return {};
             }
 
@@ -51,7 +51,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             if (!result)
             {
-                AICLI_LOG(Repo, Info, << "Did not find a manifest row for { " << manifest.Id << ", " << manifest.Version << ", " << manifest.Channel << " }");
+                AICLI_LOG(Repo, Verbose, << "Did not find a manifest row for { " << manifest.Id << ", " << manifest.Version << ", " << manifest.Channel << " }");
             }
 
             return result;

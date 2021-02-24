@@ -71,9 +71,13 @@ namespace AppInstaller::Repository
         PackageMatchFilter(PackageMatchField f, MatchType t, std::string_view v1, std::string_view v2) : RequestMatch(t, v1, v2), Field(f) { CheckValuesCount(); }
 
     protected:
-        void CheckValuesCount() const
+        void CheckValuesCount()
         {
-            THROW_HR_IF(E_INVALIDARG, (Field == PackageMatchField::NormalizedNameAndPublisher) != static_cast<bool>(Second));
+            // Ensure that the second value always exists when it should
+            if (Field == PackageMatchField::NormalizedNameAndPublisher && !Second)
+            {
+                Second = Utility::NormalizedString{};
+            }
         }
     };
 
@@ -299,6 +303,8 @@ namespace AppInstaller::Repository
             return "PackageFamilyName"sv;
         case PackageMatchField::ProductCode:
             return "ProductCode"sv;
+        case PackageMatchField::NormalizedNameAndPublisher:
+            return "NormalizedNameAndPublisher"sv;
         }
 
         return "UnknownMatchField"sv;

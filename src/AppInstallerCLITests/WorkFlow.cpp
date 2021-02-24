@@ -709,7 +709,7 @@ TEST_CASE("InstallFlow_SearchFoundMultipleApp", "[InstallFlow][workflow]")
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::MultiplePackagesFound).get()) != std::string::npos);
 }
 
-TEST_CASE("InstallFlow_SearchAndShowAppInfo", "[ShowFlow][workflow]")
+TEST_CASE("ShowFlow_SearchAndShowAppInfo", "[ShowFlow][workflow]")
 {
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };
@@ -727,7 +727,7 @@ TEST_CASE("InstallFlow_SearchAndShowAppInfo", "[ShowFlow][workflow]")
     REQUIRE(showOutput.str().find("https://ThisIsNotUsed") != std::string::npos);
 }
 
-TEST_CASE("InstallFlow_SearchAndShowAppVersion", "[ShowFlow][workflow]")
+TEST_CASE("ShowFlow_SearchAndShowAppVersion", "[ShowFlow][workflow]")
 {
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };

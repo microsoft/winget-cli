@@ -195,7 +195,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
             else
             {
-                builder.Literal("");
+                builder.LiteralColumn("");
             }
 
             builder.As(valueAlias).From(s_ManifestTable_Table_Name);
