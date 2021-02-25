@@ -54,7 +54,7 @@ void WriteToUninstallRegistry(std::wostream& out, const std::wstring& productID,
     // String inputs to registry must be of wide char type
     const wchar_t* displayName = L"AppInstallerTestExeInstaller";
     const wchar_t* publisher = L"Microsoft Corporation";
-    const wchar_t* uninstallString = uninstallerPath.c_str();
+    std::wstring uninstallString = uninstallerPath.wstring();
     DWORD version = 1;
 
     std::wstring registryKey{ registrySubkey };
@@ -104,7 +104,7 @@ void WriteToUninstallRegistry(std::wostream& out, const std::wstring& productID,
         }
 
         // Set UninstallString Property Value
-        if (LONG res = RegSetValueEx(hkey, L"UninstallString", NULL, REG_EXPAND_SZ, (LPBYTE)uninstallString, (DWORD)wcslen(uninstallString + 1) * sizeof(wchar_t*)) != ERROR_SUCCESS)
+        if (LONG res = RegSetValueEx(hkey, L"UninstallString", NULL, REG_EXPAND_SZ, (LPBYTE)uninstallString.c_str(), (DWORD)(uninstallString.length() + 1) * sizeof(wchar_t*)) != ERROR_SUCCESS)
         {
             out << "Failed to write UninstallString value. Error Code: " << res << std::endl;
         }
