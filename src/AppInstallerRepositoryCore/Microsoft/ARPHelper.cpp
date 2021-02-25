@@ -260,10 +260,12 @@ namespace AppInstaller::Repository::Microsoft
                 manifest.DefaultLocalization.Add<Manifest::Localization::Publisher>(publisher->GetValue<Registry::Value::Type::String>());
 
                 // If Publisher is set, change the Id using name normalization
-                auto normalizedName = index.NormalizeName(
-                    manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(),
-                    manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>());
-                manifest.Id = normalizedName.Publisher() + '.' + normalizedName.Name();
+                // TODO: Figure out how to actually make this work since there are often instances of the same
+                // data in x64 and x86 entries that will collide.
+                //auto normalizedName = index.NormalizeName(
+                //    manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(),
+                //    manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>());
+                //manifest.Id = normalizedName.Publisher() + '.' + normalizedName.Name();
             }
 
             // TODO: If we want to keep the constructed manifest around to allow for `show` type commands
