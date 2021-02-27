@@ -240,6 +240,7 @@ jobs:
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x64
     inputs:
+      testRunTitle: 'E2EPackaged_X64'
       testSelector: 'testAssemblies'
       testAssemblyVer2: 'src\x64\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
       runSettingsFile: 'src\x64\Release\AppInstallerCLIE2ETests\Test.runsettings'
@@ -265,6 +266,7 @@ jobs:
   - task: VSTest@2
     displayName: Run E2E Tests Packaged x86
     inputs:
+      testRunTitle: 'E2EPackaged_X86'
       testSelector: 'testAssemblies'
       testAssemblyVer2: 'src\x86\Release\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
       runSettingsFile: 'src\x86\Release\AppInstallerCLIE2ETests\Test.runsettings'

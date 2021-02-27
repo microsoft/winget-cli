@@ -104,7 +104,7 @@ void WriteToUninstallRegistry(std::wostream& out, const std::wstring& productID,
         }
 
         // Set UninstallString Property Value
-        if (LONG res = RegSetValueEx(hkey, L"UninstallString", NULL, REG_EXPAND_SZ, (LPBYTE)uninstallString.c_str(), (DWORD)(uninstallString.length() + 1) * sizeof(wchar_t*)) != ERROR_SUCCESS)
+        if (LONG res = RegSetValueEx(hkey, L"UninstallString", NULL, REG_EXPAND_SZ, (LPBYTE)uninstallString.c_str(), (DWORD)(uninstallString.length() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
         {
             out << "Failed to write UninstallString value. Error Code: " << res << std::endl;
         }
