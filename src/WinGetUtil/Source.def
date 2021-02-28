@@ -13,3 +13,4 @@ EXPORTS
     WinGetValidateManifest
     WinGetDownload
     WinGetCompareVersions
+    WinGetValidateManifestV2
