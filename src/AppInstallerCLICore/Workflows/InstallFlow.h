@@ -77,10 +77,16 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void RemoveInstaller(Execution::Context& context);
 
-    // Installs a single package from its manifest
+    // Installs a specific package installer.
+    // Required Args: None
+    // Inputs: Manifest, Installer
+    // Outputs: None
+    void InstallPackageInstaller(Execution::Context& context);
+
+    // Installs a specific package version.
     // Required Args: None
     // Inputs: Manifest, PackageVersion, Source
-    // Outputs: Manifest
+    // Outputs: None
     void InstallPackageVersion(Execution::Context& context);
 
     // Installs multiple packages.

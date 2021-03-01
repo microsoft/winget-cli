@@ -187,30 +187,22 @@ namespace TestCommon
     {
         const TestPackage* otherAvailable = dynamic_cast<const TestPackage*>(other);
 
-        if (otherAvailable)
+        if (!otherAvailable ||
+            InstalledVersion.get() != otherAvailable->InstalledVersion.get() ||
+            AvailableVersions.size() != otherAvailable->AvailableVersions.size())
         {
-            if (InstalledVersion.get() != otherAvailable->InstalledVersion.get())
-            {
-                return false;
-            }
-
-            if (AvailableVersions.size() != otherAvailable->AvailableVersions.size())
-            {
-                return false;
-            }
-
-            for (size_t i = 0; i < AvailableVersions.size(); ++i)
-            {
-                if (AvailableVersions[i].get() != otherAvailable->AvailableVersions[i].get())
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return false;
         }
 
-        return false;
+        for (size_t i = 0; i < AvailableVersions.size(); ++i)
+        {
+            if (AvailableVersions[i].get() != otherAvailable->AvailableVersions[i].get())
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     const SourceDetails& TestSource::GetDetails() const

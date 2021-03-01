@@ -8,9 +8,6 @@
 #include "MSStoreInstallerHandler.h"
 #include "WorkflowBase.h"
 
-#include <winget/NameNormalization.h>
-#include <winget/Manifest.h>
-
 namespace AppInstaller::CLI::Workflow
 {
     using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
@@ -379,11 +376,10 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void InstallPackageVersion(Execution::Context& context)
+    void InstallPackageInstaller(Execution::Context& context)
     {
         context <<
-            Workflow::SelectInstaller <<
-            Workflow::EnsureApplicableInstaller <<
+            Workflow::ReportManifestIdentity <<
             Workflow::ShowInstallationDisclaimer <<
             Workflow::ReportExecutionStage(ExecutionStage::Download) <<
             Workflow::DownloadInstaller <<
@@ -394,6 +390,14 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
             Workflow::ReportARPChanges <<
             Workflow::RemoveInstaller;
+    }
+
+    void InstallPackageVersion(Execution::Context& context)
+    {
+        context <<
+            Workflow::SelectInstaller <<
+            Workflow::EnsureApplicableInstaller <<
+            Workflow::InstallPackageInstaller;
     }
 
     void InstallMultiple(Execution::Context& context)
@@ -628,7 +632,7 @@ namespace AppInstaller::CLI::Workflow
                 toLog ? static_cast<std::string_view>(toLog->GetProperty(PackageVersionProperty::Name)) : "",
                 toLog ? static_cast<std::string_view>(toLog->GetProperty(PackageVersionProperty::Version)) : "",
                 toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Publisher]) : "",
-                toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Language]) : ""
+                toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Locale]) : ""
             );
         }
     }

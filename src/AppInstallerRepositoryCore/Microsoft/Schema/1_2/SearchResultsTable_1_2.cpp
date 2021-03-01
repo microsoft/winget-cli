@@ -33,7 +33,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 
         if (filter.Field == PackageMatchField::NormalizedNameAndPublisher)
         {
-            BindStatementForMatchType(statement, filter.Type, bindIndex[1], filter.Second.value());
+            BindStatementForMatchType(statement, filter.Type, bindIndex[1], filter.Additional.value());
         }
     }
 }

@@ -20,7 +20,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         SQLite::rowid_t RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) override;
         bool CheckConsistency(const SQLite::Connection& connection, bool log) const override;
 
-        // Version 1.1
+        // Version 1.2
         Utility::NormalizedName NormalizeName(std::string_view name, std::string_view publisher) const override;
 
     protected:

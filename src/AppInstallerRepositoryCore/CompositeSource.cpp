@@ -110,32 +110,16 @@ namespace AppInstaller::Repository
             {
                 const CompositePackage* otherComposite = dynamic_cast<const CompositePackage*>(other);
 
-                if (otherComposite)
+                if (!otherComposite ||
+                    static_cast<bool>(m_installedPackage) != static_cast<bool>(otherComposite->m_installedPackage) ||
+                    m_installedPackage && !m_installedPackage->IsSame(otherComposite->m_installedPackage.get()) ||
+                    static_cast<bool>(m_availablePackage) != static_cast<bool>(otherComposite->m_availablePackage) ||
+                    m_availablePackage && !m_availablePackage->IsSame(otherComposite->m_availablePackage.get()))
                 {
-                    if (static_cast<bool>(m_installedPackage) != static_cast<bool>(otherComposite->m_installedPackage))
-                    {
-                        return false;
-                    }
-
-                    if (m_installedPackage && !m_installedPackage->IsSame(otherComposite->m_installedPackage.get()))
-                    {
-                        return false;
-                    }
-
-                    if (static_cast<bool>(m_availablePackage) != static_cast<bool>(otherComposite->m_availablePackage))
-                    {
-                        return false;
-                    }
-
-                    if (m_availablePackage && !m_availablePackage->IsSame(otherComposite->m_availablePackage.get()))
-                    {
-                        return false;
-                    }
-
-                    return true;
+                    return false;
                 }
 
-                return false;
+                return true;
             }
 
             void SetAvailablePackage(std::shared_ptr<IPackage> availablePackage)
@@ -221,9 +205,9 @@ namespace AppInstaller::Repository
 
             bool IsSame(const IPackage* other) const override
             {
-                const UnknownAvailablePackage* otherAvailable = dynamic_cast<const UnknownAvailablePackage*>(other);
+                const UnknownAvailablePackage* otherUnknown = dynamic_cast<const UnknownAvailablePackage*>(other);
 
-                if (otherAvailable)
+                if (otherUnknown)
                 {
                     return true;
                 }

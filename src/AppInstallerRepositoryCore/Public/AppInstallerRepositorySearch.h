@@ -50,13 +50,13 @@ namespace AppInstaller::Repository
     {
         MatchType Type;
         Utility::NormalizedString Value;
-        std::optional<Utility::NormalizedString> Second;
+        std::optional<Utility::NormalizedString> Additional;
 
         RequestMatch(MatchType t) : Type(t) {}
         RequestMatch(MatchType t, Utility::NormalizedString& v) : Type(t), Value(v) {}
         RequestMatch(MatchType t, const Utility::NormalizedString& v) : Type(t), Value(v) {}
         RequestMatch(MatchType t, Utility::NormalizedString&& v) : Type(t), Value(std::move(v)) {}
-        RequestMatch(MatchType t, std::string_view v1, std::string_view v2) : Type(t), Value(v1), Second(Utility::NormalizedString{ v2 }) {}
+        RequestMatch(MatchType t, std::string_view v1, std::string_view v2) : Type(t), Value(v1), Additional(Utility::NormalizedString{ v2 }) {}
     };
 
     // A match on a specific field to be performed during a search.
@@ -64,19 +64,19 @@ namespace AppInstaller::Repository
     {
         PackageMatchField Field;
 
-        PackageMatchFilter(PackageMatchField f, MatchType t) : RequestMatch(t), Field(f) { CheckValuesCount(); }
-        PackageMatchFilter(PackageMatchField f, MatchType t, Utility::NormalizedString& v) : RequestMatch(t, v), Field(f) { CheckValuesCount(); }
-        PackageMatchFilter(PackageMatchField f, MatchType t, const Utility::NormalizedString& v) : RequestMatch(t, v), Field(f) { CheckValuesCount(); }
-        PackageMatchFilter(PackageMatchField f, MatchType t, Utility::NormalizedString&& v) : RequestMatch(t, std::move(v)), Field(f) { CheckValuesCount(); }
-        PackageMatchFilter(PackageMatchField f, MatchType t, std::string_view v1, std::string_view v2) : RequestMatch(t, v1, v2), Field(f) { CheckValuesCount(); }
+        PackageMatchFilter(PackageMatchField f, MatchType t) : RequestMatch(t), Field(f) { EnsureRequiredValues(); }
+        PackageMatchFilter(PackageMatchField f, MatchType t, Utility::NormalizedString& v) : RequestMatch(t, v), Field(f) { EnsureRequiredValues(); }
+        PackageMatchFilter(PackageMatchField f, MatchType t, const Utility::NormalizedString& v) : RequestMatch(t, v), Field(f) { EnsureRequiredValues(); }
+        PackageMatchFilter(PackageMatchField f, MatchType t, Utility::NormalizedString&& v) : RequestMatch(t, std::move(v)), Field(f) { EnsureRequiredValues(); }
+        PackageMatchFilter(PackageMatchField f, MatchType t, std::string_view v1, std::string_view v2) : RequestMatch(t, v1, v2), Field(f) { EnsureRequiredValues(); }
 
     protected:
-        void CheckValuesCount()
+        void EnsureRequiredValues()
         {
             // Ensure that the second value always exists when it should
-            if (Field == PackageMatchField::NormalizedNameAndPublisher && !Second)
+            if (Field == PackageMatchField::NormalizedNameAndPublisher && !Additional)
             {
-                Second = Utility::NormalizedString{};
+                Additional = Utility::NormalizedString{};
             }
         }
     };
@@ -144,8 +144,8 @@ namespace AppInstaller::Repository
         SilentUninstallCommand,
         // The publisher of the package
         Publisher,
-        // The language of the package
-        Language,
+        // The locale of the package
+        Locale,
     };
 
     // Convert a PackageVersionMetadata to a string.

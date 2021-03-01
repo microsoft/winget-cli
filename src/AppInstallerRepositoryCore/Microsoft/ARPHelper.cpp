@@ -320,7 +320,7 @@ namespace AppInstaller::Repository::Microsoft
 
             // Pick up Language to enable proper selection of language for upgrade.
             // TODO: Determine if InnoSetupLanguage represents the same concept and pick it up if language is not present.
-            AddMetadataIfPresent(arpKey, Language, index, manifestId, PackageVersionMetadata::Language);
+            AddMetadataIfPresent(arpKey, Language, index, manifestId, PackageVersionMetadata::Locale);
 
             // Pick up WindowsInstaller to determine if this is an MSI install.
             // TODO: Could also determine Inno (and maybe other types) through detecting other keys here.
