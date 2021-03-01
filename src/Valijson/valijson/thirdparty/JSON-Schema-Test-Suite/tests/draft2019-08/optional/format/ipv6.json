@@ -1,0 +1,28 @@
+[
+    {
+        "description": "validation of IPv6 addresses",
+        "schema": {"format": "ipv6"},
+        "tests": [
+            {
+                "description": "a valid IPv6 address",
+                "data": "::1",
+                "valid": true
+            },
+            {
+                "description": "an IPv6 address with out-of-range values",
+                "data": "12345::",
+                "valid": false
+            },
+            {
+                "description": "an IPv6 address with too many components",
+                "data": "1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1",
+                "valid": false
+            },
+            {
+                "description": "an IPv6 address containing illegal characters",
+                "data": "::laptop",
+                "valid": false
+            }
+        ]
+    }
+]

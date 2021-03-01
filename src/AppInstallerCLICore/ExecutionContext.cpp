@@ -70,6 +70,13 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
+    std::unique_ptr<Context> Context::Clone()
+    {
+        auto clone = std::make_unique<Context>(Reporter);
+        clone->m_flags = m_flags;
+        return clone;
+    }
+
     void Context::EnableCtrlHandler(bool enabled)
     {
         SetCtrlHandlerContext(enabled ? this : nullptr);
@@ -96,7 +103,7 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    void Context::Terminate(HRESULT hr)
+    void Context::Terminate(HRESULT hr, std::string_view file, size_t line)
     {
         if (hr == APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED)
         {
@@ -109,9 +116,12 @@ namespace AppInstaller::CLI::Execution
             // Unless we want to spin a separate thread for all work, we have to just exit here.
             if (m_CtrlSignalCount >= 2)
             {
+                Logging::Telemetry().LogCommandTermination(hr, file, line);
                 std::exit(hr);
             }
         }
+
+        Logging::Telemetry().LogCommandTermination(hr, file, line);
 
         m_isTerminated = true;
         m_terminationHR = hr;

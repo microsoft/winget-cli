@@ -23,8 +23,8 @@ namespace AppInstaller::CLI
             iterator operator--() { return { --m_arg, m_args }; }
             iterator operator--(int) { return { m_arg--, m_args }; }
 
-            bool operator==(const iterator& other) { return m_arg == other.m_arg; }
-            bool operator!=(const iterator& other) { return m_arg != other.m_arg; }
+            bool operator==(const iterator& other) const { return m_arg == other.m_arg; }
+            bool operator!=(const iterator& other) const { return m_arg != other.m_arg; }
 
             const std::string& operator*() const { return m_args[m_arg]; }
             const std::string* operator->() const { return &(m_args[m_arg]); }
@@ -36,6 +36,7 @@ namespace AppInstaller::CLI
             std::vector<std::string>& m_args;
         };
 
+        size_t size() const { return m_args.size(); }
         iterator begin() { return { m_currentFirstArg, m_args }; }
         iterator end() { return { m_args.size(), m_args }; }
         void consume(const iterator& i) { m_currentFirstArg = i.index() + 1; }

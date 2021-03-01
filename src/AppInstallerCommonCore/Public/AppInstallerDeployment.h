@@ -7,10 +7,12 @@
 
 namespace AppInstaller::Deployment
 {
-    // Calls winrt::Windows::Management::Deployment::PackageManager::RequestAddPackageAsync
-    void RequestAddPackage(
-        const winrt::Windows::Foundation::Uri& uri, 
+    // Calls winrt::Windows::Management::Deployment::PackageManager::AddPackageAsync if skipSmartScreen is true,
+    // Otherwise, calls winrt::Windows::Management::Deployment::PackageManager::RequestAddPackageAsync
+    void AddPackage(
+        const winrt::Windows::Foundation::Uri& uri,
         winrt::Windows::Management::Deployment::DeploymentOptions options,
+        bool skipSmartScreen,
         IProgressCallback& callback);
 
     // Calls winrt::Windows::Management::Deployment::PackageManager::RemovePackageAsync

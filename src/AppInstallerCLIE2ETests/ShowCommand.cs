@@ -4,61 +4,96 @@
 namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
-    using System.Threading;
 
-    public class ShowCommand
+    public class ShowCommand : BaseCommand
     {
-        // Todo: use created test source when available
-        private const string ShowTestSourceUrl = @"https://winget-int.azureedge.net/cache";
-        private const string ShowTestSourceName = @"ShowTestSource";
-
-        [SetUp]
-        public void Setup()
+        [Test]
+        public void ShowWithNoArgs()
         {
-            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{ShowTestSourceName} {ShowTestSourceUrl}").ExitCode);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            TestCommon.RunAICLICommand("source remove", ShowTestSourceName);
-
-            TestCommon.WaitForDeploymentFinish();
+            // Show with no arg lists every app and a warning message
+            var result = TestCommon.RunAICLICommand("show", "");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Multiple packages found matching input criteria. Please refine the input."));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestBurnInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
         [Test]
-        public void ShowCommands()
+        public void ShowWithNoMatches()
         {
-            // Show with no arg lists every app and a warning message
-            var result = TestCommon.RunAICLICommand("show", $"-s {ShowTestSourceName}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Multiple apps found matching input criteria. Please refine the input."));
-            Assert.True(result.StdOut.Contains("Microsoft.PowerToys"));
-            Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
-
-            // Show with multiple search matches shows a "please refine input"
-            result = TestCommon.RunAICLICommand("show", $"Microsoft -s {ShowTestSourceName}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_MULTIPLE_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Multiple apps found matching input criteria. Please refine the input."));
-            Assert.True(result.StdOut.Contains("Microsoft.PowerToys"));
-            Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
-
             // Show with 0 search match shows a "please refine input"
-            result = TestCommon.RunAICLICommand("show", $"DoesNotExist -s {ShowTestSourceName}");
+            var result = TestCommon.RunAICLICommand("show", $"DoesNotExist");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("No app found matching input criteria."));
+            Assert.True(result.StdOut.Contains("No package found matching input criteria."));
+        }
 
-            // Show with 1 search match shows detailed manifest info
-            result = TestCommon.RunAICLICommand("show", $"VisualStudioCode -s {ShowTestSourceName}");
+        [Test]
+        public void ShowWithSubstringMatch()
+        {
+            // Show with a substring match still returns 0 results
+            var result = TestCommon.RunAICLICommand("show", $"AppInstallerTest");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
+            Assert.True(result.StdOut.Contains("No package found matching input criteria."));
+        }
+
+        [Test]
+        public void ShowWithNameMatch()
+        {
+            var result = TestCommon.RunAICLICommand("show", $"--name testexampleinstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
-            Assert.True(result.StdOut.Contains("Visual Studio Code"));
+            Assert.True(result.StdOut.Contains("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
+            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+        }
 
+        [Test]
+        public void ShowWithIDMatch()
+        { 
+            var result = TestCommon.RunAICLICommand("show", $"--id appinstallertest.testexampleinstaller");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
+            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+        }
+
+        [Test]
+        public void ShowWithVersions()
+        {
             // Show with --versions list the versions
-            result = TestCommon.RunAICLICommand("show", $"VisualStudioCode --versions -s {ShowTestSourceName}");
+            var result = TestCommon.RunAICLICommand("show", $"TestExampleInstaller --versions");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
-            Assert.True(result.StdOut.Contains("1.41.1"));
+            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("1.2.3.4"));
+        }
+
+        [Test]
+        public void ShowWithExactName()
+        {
+            var result = TestCommon.RunAICLICommand("show", $"--exact TestExampleInstaller");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
+            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+        }
+
+        [Test]
+        public void ShowWithExactID()
+        {
+            var result = TestCommon.RunAICLICommand("show", $"--exact AppInstallerTest.TestExampleInstaller");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
+            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+        }
+
+        [Test]
+        public void ShowWithExactArgCaseSensitivity()
+        {
+            var result = TestCommon.RunAICLICommand("show", $"--exact testexampleinstaller");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
+            Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }
     }
 }

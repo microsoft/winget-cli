@@ -8,8 +8,8 @@
 #include <AppInstallerLogging.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerTelemetry.h>
-#include <Manifest/Manifest.h>
 #include <Microsoft/SQLiteIndex.h>
+#include <winget/ManifestYamlParser.h>
 
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
@@ -157,6 +157,21 @@ extern "C"
     }
     CATCH_RETURN()
 
+    WINGET_UTIL_API WinGetSQLiteIndexCheckConsistency(
+        WINGET_SQLITE_INDEX_HANDLE index,
+        BOOL* succeeded) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !index);
+        THROW_HR_IF(E_INVALIDARG, !succeeded);
+
+        bool result = reinterpret_cast<SQLiteIndex*>(index)->CheckConsistency(true);
+
+        *succeeded = (result ? TRUE : FALSE);
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
     WINGET_UTIL_API WinGetValidateManifest(
         WINGET_STRING manifestPath,
         BOOL* succeeded,
@@ -167,7 +182,35 @@ extern "C"
 
         try
         {
-            (void)Manifest::CreateFromPath(manifestPath, true, true);
+            (void)YamlParser::CreateFromPath(manifestPath, true, true);
+            *succeeded = TRUE;
+        }
+        catch (const ManifestException& e)
+        {
+            *succeeded = e.IsWarningOnly();
+            if (message)
+            {
+                *message = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorMessage()).c_str());
+            }
+        }
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
+    WINGET_UTIL_API WinGetValidateManifestV2(
+        WINGET_STRING inputPath,
+        BOOL* succeeded,
+        WINGET_STRING_OUT* message,
+        WINGET_STRING mergedManifestPath,
+        WinGetValidateManifestOption option) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !inputPath);
+        THROW_HR_IF(E_INVALIDARG, !succeeded);
+
+        try
+        {
+            (void)YamlParser::CreateFromPath(inputPath, true, true, mergedManifestPath, option == WinGetValidateManifestOption::SchemaValidationOnly);
             *succeeded = TRUE;
         }
         catch (const ManifestException& e)
@@ -208,6 +251,23 @@ extern "C"
             THROW_HR_IF(E_UNEXPECTED, hash.size() != sha256HashLength);
             std::copy(hash.begin(), hash.end(), sha256Hash);
         }
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
+    WINGET_UTIL_API WinGetCompareVersions(
+        WINGET_STRING versionA,
+        WINGET_STRING versionB,
+        INT* comparisonResult) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !versionA);
+        THROW_HR_IF(E_INVALIDARG, !versionB);
+
+        Version vA{ ConvertToUTF8(versionA) };
+        Version vB{ ConvertToUTF8(versionB) };
+
+        *comparisonResult = vA < vB ? -1 : (vA == vB ? 0 : 1);
 
         return S_OK;
     }

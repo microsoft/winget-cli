@@ -130,6 +130,10 @@
     <value>Perintah berikut tersedia:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Tersedia</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Opsi berikut tersedia:</value>
   </data>
@@ -147,26 +151,79 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filter hasil menurut perintah</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>Baris perintah lengkap untuk penyelesaian</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>Perintah ini memerlukan hak istimewa administrator untuk dapat dijalankan.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>Perintah ini dapat digunakan untuk meminta penyelesaian baris perintah sensitif konteks. Baris perintah, posisi kursor, dan kata yang akan dilengkapi dimasukkan. Output-nya adalah seperangkat nilai potensial yang didasarkan pada input, satu nilai yang mungkin per baris.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>Memungkinkan penyelesaian baris perintah sensitif konteks</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Tampilkan tidak lebih dari jumlah hasil yang ditentukan</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Selesai</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Temukan aplikasi menggunakan pencocokan yang sama persis</value>
+    <value>Menemukan paket menggunakan pencocokan persis</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Argumen eksperimental untuk tujuan demonstrasi</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Perintah ini adalah contoh cara menerapkan fitur eksperimental. Untuk mengaktifkan, buka ' winget settings ' dan aktifkan fitur experimentalCmd atau experimentalArg.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Contoh fitur eksperimental</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Menemukan argumen posisi ketika tidak ada yang diharapkan</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Fitur ini sedang berlangsung, dan mungkin diubah Dramatically atau dihapus kumpulkan di masa mendatang. Untuk mengaktifkannya, Edit pengaturan (' winget settings ') untuk menyertakan fitur eksperimental</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Menampilkan status fitur eksperimental. Fitur eksperimental dapat diaktifkan melalui ' winget settings '.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Menampilkan status fitur eksperimental</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Dinonaktifkan</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Diaktifkan</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Fitur</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Tautan</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Fitur eksperimental berikut sedang berlangsung.
+Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Properti</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Status</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>File yang akan di-hash</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Argumen bendera tidak dapat berisi nilai bergabungan</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Jalankan perintah tanpa wantian</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Menghitung hash file lokal, yang sesuai untuk entri ke dalam manifes.  Ini juga dapat menghitung hash file tandatangan paket MSIX untuk mengaktifkan penginstalan streaming.</value>
@@ -192,14 +249,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft tidak bertanggung jawab atas, atau memberikan lisensi apa pun untuk, paket pihak ketiga.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Paket ini disediakan melalui Microsoft Store. winget mungkin perlu mendapatkan paket dari Microsoft Store atas nama pengguna saat ini.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Tidak dapat menginstal aplikasi karena memerlukan versi Windows yang lebih tinggi:</value>
+    <value>Tidak dapat menginstal paket karena memerlukan versi Windows yang lebih tinggi:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Instal aplikasi yang dipilih, yang ditemukan dengan mencari sumber terkonfigurasi atau langsung dari manifes.</value>
+    <value>Menginstall paket yang dipilih, baik yang ditemukan dengan mencari sumber yang dikonfigurasi atau langsung dari manifest. Secara default, kueri harus tidak peka huruf besar/kecil sesuai dengan id, nama, atau moniker paket. Bidang lain dapat digunakan dengan melewati opsi yang sesuai.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Instal aplikasi yang diberikan</value>
+    <value>Instal paket yang diberikan</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Hash penginstal tidak cocok; ini tidak dapat ditimpa saat dijalankan sebagai admin</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Hash penginstal tidak cocok; melanjutkan karena --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Hash penginstal tidak cocok; untuk menimpa pemeriksaan ini gunakan --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Berhasil memverifikasi hash penginstal</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Berhasil diinstal</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Memulai penginstalan paket...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Timpa pemeriksaan hash penginstal</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Meminta penginstalan interaktif; input pengguna mungkin diperlukan</value>
@@ -223,6 +308,13 @@
     <value>Tautan</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Perintah list menampilkan paket yang terinstal di sistem, serta apakah pembaruan tersedia. Opsi lainnya dapat disediakan untuk memfilter output, mirip dengan perintah search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Tampilkan paket terinstal</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Lokasi untuk diinstal (jika didukung)</value>
   </data>
@@ -237,7 +329,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Jalur ke manifes aplikasi</value>
+    <value>Jalur ke manifes paket</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Validasi manifes gagal.</value>
@@ -252,7 +344,7 @@
     <value>Nilai argumen diperlukan, tetapi tidak ditemukan</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Filter hasil menurut moniker aplikasi</value>
+    <value>Filter hasil menurut moniker</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>File input akan diperlakukan sebagai msix; hash tanda tangan akan disediakan jika ditandatangani</value>
@@ -260,11 +352,50 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Gagal menghitung hash tandatangan MSIX.</value>
   </data>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Gagal menginstal atau memperbarui paket Microsoft Store karena aplikasi tertentu diblokir oleh kebijakan</value>
+  </data>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Gagal menginstal atau memperbarui paket Microsoft Store. Kode galat:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Memverifikasi/Meminta akuisisi paket gagal: kesalahan jaringan</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Memverifikasi/Meminta akuisisi paket gagal: akun toko tidak ditemukan</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Memverifikasi/Meminta akuisisi paket gagal: kesalahan jaringan</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Memverifikasi/Meminta akuisisi paket berhasil</value>
+  </data>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Gagal menginstal atau memperbarui paket Microsoft Store karena klien Microsoft Store diblokir oleh kebijakan</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Memverifikasi/Meminta akuisisi paket...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Banyak paket terinstal ditemukan cocok dengan kriteria input. Persempit input.</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Beberapa paket menemukan kriteria input yang cocok. Silakan Perbaiki input.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filter hasil menurut nama</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Tidak ada installer yang berlaku untuk sistem saat ini.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Saat ini tidak ada fitur eksperimental yang tersedia. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Tidak ditemukan paket terinstal yang cocok dengan kriteria input.</value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Tidak ditemukan paket yang cocok dengan kriteria input.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Nonaktifkan tampilan VirtualTerminal</value>
@@ -284,6 +415,9 @@
   <data name="PendingWorkError" xml:space="preserve">
     <value>Ups, kami lupa melakukan ini...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>Posisi kursor dalam baris perintah</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Pratinjau</value>
   </data>
@@ -291,7 +425,7 @@
     <value>Pernyataan Privasi</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Kueri yang digunakan untuk mencari aplikasi</value>
+    <value>Kueri yang digunakan untuk mencari paket</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Kemajuan menampilkan warna pelangi</value>
@@ -303,10 +437,29 @@
     <value>Tampilan kemajuan sebagai warna default</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Mencari aplikasi dari sumber terkonfigurasi.</value>
+    <value>Mencari paket dari sumber yang terkonfigurasi.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Temukan dan tampilkan info dasar aplikasi</value>
+    <value>Temukan dan tampilkan info dasar paket</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>Id</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Kecocokan</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Nama</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>Sumber</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>entri tambahan terpotong karena batas hasil</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Versi</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Kegagalan berikut ditemukan saat memvalidasi pengaturan:</value>
@@ -320,11 +473,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Kesalahan tak terduga saat memuat pengaturan. Silakan verifikasi pengaturan Anda dengan menjalankan perintah pengaturan.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Saluran</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Perlihatkan informasi tentang aplikasi tertentu.</value>
+    <value>Menampilkan informasi pada paket tertentu. Secara default, kueri harus huruf-insensitively cocok dengan id, nama, atau moniker paket. Bidang lain dapat digunakan dengan cara melewati opsi yang tepat.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Tampilkan info tentang aplikasi</value>
+    <value>Tampilkan info tentang paket</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Versi</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Minta instalasi senyap</value>
@@ -332,8 +491,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Hanya alias karakter tunggal yang dapat terjadi setelah satu -</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Sumber dengan nama yang diberikan sudah ada dan merujuk ke lokasi yang berbeda:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Sumber dengan nama yang berbeda sudah merujuk ke lokasi ini:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Sumber dengan nama yang diberikan sudah ada dan merujuk ke lokasi yang sama:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Menambahkan sumber:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Tambahkan sumber baru. Sumber menyediakan data agar Anda dapat menemukan dan menginstal aplikasi. Cukup tambahkan sumber baru jika Anda mempercayainya sebagai lokasi yang aman.</value>
+    <value>Tambahkan sumber baru. Sumber menyediakan data agar Anda dapat menemukan dan menginstal paket. Cukup tambahkan sumber baru jika Anda mempercayainya sebagai lokasi yang aman.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Tambah sumber baru</value>
@@ -342,13 +513,17 @@
     <value>Argumen yang diberikan kepada sumber</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Temukan aplikasi menggunakan sumber yang ditentukan</value>
+    <value>Temukan paket menggunakan sumber yang ditentukan</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Kelola sumber dengan sub-perintah. Sumber menyediakan data agar Anda dapat menemukan dan menginstal aplikasi. Hanya tambahkan sumber baru jika Anda mempercayainya sebagai lokasi yang aman.</value>
+    <value>Kelola sumber dengan sub-perintah. Sumber menyediakan data agar Anda dapat menemukan dan menginstal paket. Hanya tambahkan sumber baru jika Anda mempercayainya sebagai lokasi yang aman.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Kelola sumber aplikasi</value>
+    <value>Mengelola sumber paket</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Argumen</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Cantumkan semua sumber saat ini, atau detail lengkap dari sumber tertentu.</value>
@@ -356,8 +531,53 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Daftar sumber saat ini</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Data</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Bidang</value>
+    <comment>The name of a piece of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Nama</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Tidak menemukan sumber yang bernama:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Tidak ada sumber yang dikonfigurasi.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Jenis</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Diperbarui</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>tidak pernah</value>
+    <comment>The source has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Nilai</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Nama sumber</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Gagal membuka sumber; coba perintah 'source reset' jika masalah berlanjut.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Gagal membuka sumber yang ditentukan sebelumnya; laporkan ke pengelola winget.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Menghapus semua sumber...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Hapus sumber tertentu.</value>
@@ -365,14 +585,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Hapus sumber saat ini</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Menghapus sumber:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Mereset semua sumber...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Perintah ini membuang sumber yang sudah ada, berpotensi meninggalkan semua data lokal. Tanpa ada argumen, perintah ini akan membuang semua sumber dan menambahkan default. Jika sumber bernama disediakan, hanya sumber itu saja yang akan dibuang.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Mengatur ulang sumber</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Memaksa reset sumber</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Sumber berikut akan diatur ulang jika opsi --force diberikan:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Mereset sumber:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Tipe sumber</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Memperbarui semua sumber...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Perbarui semua sumber, atau hanya sumber tertentu.</value>
@@ -380,11 +619,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Perbarui sumber saat ini</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Memperbarui sumber:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filter hasil menurut tag</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Terima kasih telah menggunakan winget</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Pemberitahuan Pihak Ketiga</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Utilitas baris perintah winget memungkinkan penginstalan aplikasi dan paket lainnya dari baris perintah.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Tampilkan info umum alat</value>
@@ -396,13 +644,26 @@
     <value>Argumen yang diberikan lebih banyak dari yang diizinkan</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Ada lebih dari satu argumen perilaku penginstalan yang disediakan</value>
+    <value>Lebih dari satu argumen perilaku eksekusi disediakan</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Terjadi kesalahan tak terduga saat mengeksekusi perintah:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Perintah tidak dikenal</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Perbarui semua paket terinstal ke versi terbaru jika tersedia</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Tidak ditemukan pembaruan yang dapat diterapkan.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Memperbarui paket yang dipilih, ditemukan dengan mencari daftar paket yang diinstal atau secara langsung dari manifes. Secara default, kueri harus huruf-insensitively cocok dengan id, nama, atau moniker paket. Bidang lain dapat digunakan dengan cara melewati opsi yang tepat.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Memperbarui paket yang diberikan</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>penggunaan</value>
@@ -427,6 +688,72 @@
     <value>Gunakan versi yang ditentukan; default adalah versi terbaru</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Perlihatkan versi yang tersedia dari aplikasi</value>
+    <value>Tampilkan versi paket yang tersedia</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>Nilai yang diberikan sebelum penyelesaian diminta</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Tidak ditemukan versi yang cocok:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Tidak ada sumber yang cocok dengan nilai yang diberikan:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Sumber terkonfigurasi adalah:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Tidak ada sumber yang ditentukan; tambahkan sumber dengan 'source add' atau atur ulang ke default dengan 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Ditemukan</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Jalur adalah direktori:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>File tidak ada:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Argumen manifes lokal dan kueri pencarian disediakan</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Log</value>
+    <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Penginstal diblokir oleh kebijakan</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Penginstal gagal dalam pemeriksaan keamanan</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Produk anti-virus melaporkan infeksi pada penginstal</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Gagal mencoba memperbarui sumber:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Menghapus paket yang dipilih, ditemukan dengan mencari daftar paket yang diinstal atau secara langsung dari manifes. Secara default, kueri harus huruf-insensitively cocok dengan id, nama, atau moniker paket. Bidang lain dapat digunakan dengan cara melewati opsi yang tepat.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Menghapus instalan paket tertentu</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Memulai penghapusan instalan paket...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Berhasil menghapus instalan</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget tidak dapat menemukan perintah penghapusan instalasi untuk paket ini. Silakan hubungi penerbit paket untuk dukungan.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Penghapusan instalan diabaikan</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Penghapusan instalan gagal dengan kode keluar:</value>
   </data>
 </root>

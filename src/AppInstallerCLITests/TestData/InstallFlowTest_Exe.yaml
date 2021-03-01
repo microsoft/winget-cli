@@ -1,4 +1,4 @@
-Id: AppInstallerCliTest.TestInstaller
+Id: AppInstallerCliTest.TestExeInstaller
 Version: 1.0.0.0
 Name: AppInstaller Test Installer
 Publisher: Microsoft Corporation
@@ -8,6 +8,7 @@ Switches:
   Custom: /custom
   SilentWithProgress: /silentwithprogress
   Silent: /silence
+  Update: /update
 Installers: 
     - Arch: x64
       Url: https://ThisIsNotUsed

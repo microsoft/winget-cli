@@ -1,0 +1,19 @@
+Id: AppInstallerTest.TestExampleInstaller
+Name: TestExampleInstaller
+Version: 1.2.3.4
+Publisher: AppInstallerTest
+License: Test
+Installers:
+  - Arch: x86
+    Url: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    Sha256: <EXEHASH>
+    InstallerType: exe
+    Switches:
+      Custom: /execustom
+      SilentWithProgress: /exeswp
+      Silent: /exesilent
+      Interactive: /exeinteractive
+      Language: /exeenus
+      Log: /exelog <LOGPATH>
+      InstallLocation: /InstallDir <INSTALLPATH>
+ManifestVersion: 0.1.0

@@ -46,7 +46,8 @@ namespace AppInstaller::Synchronization
 
         DWORD status = 0;
         auto lock = result.m_mutex.acquire(&status);
-        THROW_HR_IF(E_UNEXPECTED, status != WAIT_OBJECT_0);
+        THROW_HR_IF_NULL(E_UNEXPECTED, lock);
+        result.m_wasAbandoned = (status == WAIT_ABANDONED);
 
         for (LONG i = 0; i < s_CrossProcessReaderWriteLock_MaxReaders; ++i)
         {

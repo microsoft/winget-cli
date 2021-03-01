@@ -25,6 +25,9 @@
     <Filter Include="Public\winget">
       <UniqueIdentifier>{41035fd6-dc74-4464-b9b1-4ffe95d6789c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Manifest">
+      <UniqueIdentifier>{9b8e2682-3eb7-4530-bc9a-a57fafc44177}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -108,11 +111,50 @@
     <ClInclude Include="Public\winget\UserSettings.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="winget\settings\Setting.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="JsonUtil.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\ExperimentalFeature.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="YamlWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Yaml.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\ManifestInstaller.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\ManifestLocalization.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\ManifestValidation.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\ManifestYamlParser.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Registry.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\NameNormalization.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Regex.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\ManifestSchemaValidation.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Manifest.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\ManifestYamlPopulator.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\ManifestCommon.h">
+      <Filter>Public\winget</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -184,6 +226,42 @@
     </ClCompile>
     <ClCompile Include="UserSettings.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExperimentalFeature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="YamlWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Yaml.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\ManifestValidation.cpp">
+      <Filter>Manifest</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\YamlParser.cpp">
+      <Filter>Manifest</Filter>
+    </ClCompile>
+    <ClCompile Include="Registry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NameNormalization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Regex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\ManifestSchemaValidation.cpp">
+      <Filter>Manifest</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\ManifestCommon.cpp">
+      <Filter>Manifest</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\ManifestYamlPopulator.cpp">
+      <Filter>Manifest</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\Manifest.cpp">
+      <Filter>Manifest</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

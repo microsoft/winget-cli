@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+	<OutDir>$(SolutionDir)$(Platform)\$(Configuration)\LocalhostWebServer\</OutDir>
+	<Platforms>x64;x86</Platforms>
+  </PropertyGroup>
+
+</Project>

@@ -19,8 +19,10 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_AppDataDir_State = "State"sv;
         constexpr std::string_view s_SecureSettings_Base = "Microsoft/WinGet"sv;
         constexpr std::string_view s_SecureSettings_UserRelative = "settings"sv;
-        constexpr std::string_view s_SecureSettings_Relative_Packaged = "pkg"sv;
         constexpr std::string_view s_SecureSettings_Relative_Unpackaged = "win"sv;
+#ifndef WINGET_DISABLE_FOR_FUZZING
+        constexpr std::string_view s_SecureSettings_Relative_Packaged = "pkg"sv;
+#endif
 
         // Gets a boolean indicating whether the current process has identity.
         bool DoesCurrentProcessHaveIdentity()
@@ -145,7 +147,7 @@ namespace AppInstaller::Runtime
                 // In the extremely unlikely event of a failure, this is merely a sentinel value
                 // to indicated such.  The only other option is to completely prevent execution,
                 // which seems unnecessary.
-                return LocIndString{ "error" };
+                return LocIndString{ "error"sv };
             }
 
             strstr << version->Build;
@@ -171,7 +173,7 @@ namespace AppInstaller::Runtime
                 // In the extremely unlikely event of a failure, this is merely a sentinel value
                 // to indicated such.  The only other option is to completely prevent execution,
                 // which seems unnecessary.
-                return LocIndString{ "error" };
+                return LocIndString{ "error"sv };
             }
 
             std::ostringstream strstr;
@@ -182,10 +184,11 @@ namespace AppInstaller::Runtime
         else
         {
             // Calling code should avoid calling in when this is the case.
-            return LocIndString{ "none" };
+            return LocIndString{ "none"sv };
         }
     }
 
+#ifndef WINGET_DISABLE_FOR_FUZZING
     LocIndString GetOSVersion()
     {
         winrt::Windows::System::Profile::AnalyticsInfo analyticsInfo{};
@@ -205,12 +208,14 @@ namespace AppInstaller::Runtime
 
         return LocIndString{ strstr.str() };
     }
+#endif
 
     std::filesystem::path GetPathTo(PathName path)
     {
         std::filesystem::path result;
         bool create = true;
 
+#ifndef WINGET_DISABLE_FOR_FUZZING
         if (IsRunningInPackagedContext())
         {
             auto appStorage = winrt::Windows::Storage::ApplicationData::Current();
@@ -226,9 +231,41 @@ namespace AppInstaller::Runtime
                 result.assign(appStorage.LocalFolder().Path().c_str());
                 break;
             case PathName::DefaultLogLocation:
+            case PathName::DefaultLogLocationForDisplay:
                 // To enable UIF collection through Feedback hub, we must put our logs here.
                 result.assign(appStorage.LocalFolder().Path().c_str());
                 result /= WINGET_DEFAULT_LOG_DIRECTORY;
+
+                if (path == PathName::DefaultLogLocationForDisplay)
+                {
+                    std::filesystem::path localAppData = GetKnownFolderPath(FOLDERID_LocalAppData);
+
+                    auto ladItr = localAppData.begin();
+                    auto resultItr = result.begin();
+
+                    while (ladItr != localAppData.end() && resultItr != result.end())
+                    {
+                        if (*ladItr != *resultItr)
+                        {
+                            break;
+                        }
+
+                        ++ladItr;
+                        ++resultItr;
+                    }
+
+                    if (ladItr == localAppData.end())
+                    {
+                        localAppData.assign("%LOCALAPPDATA%");
+                        
+                        for (;resultItr != result.end(); ++resultItr)
+                        {
+                            localAppData /= *resultItr;
+                        }
+
+                        result = std::move(localAppData);
+                    }
+                }
                 break;
             case PathName::StandardSettings:
                 create = false;
@@ -247,6 +284,7 @@ namespace AppInstaller::Runtime
             }
         }
         else
+#endif
         {
             switch (path)
             {
@@ -259,7 +297,11 @@ namespace AppInstaller::Runtime
 
                 result /= s_DefaultTempDirectory;
             }
-            break;
+                break;
+            case PathName::DefaultLogLocationForDisplay:
+                result.assign("%TEMP%");
+                result /= s_DefaultTempDirectory;
+                break;
             case PathName::LocalState:
                 result = GetPathToAppDataDir(s_AppDataDir_State);
                 break;
@@ -345,6 +387,33 @@ namespace AppInstaller::Runtime
     bool IsRunningAsAdmin()
     {
         return wil::test_token_membership(nullptr, SECURITY_NT_AUTHORITY, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
+    }
+
+    bool IsNTFS(const std::filesystem::path& filePath)
+    {
+        wil::unique_hfile fileHandle{ CreateFileW(
+            filePath.c_str(), /*lpFileName*/
+            FILE_READ_ATTRIBUTES, /*dwDesiredAccess*/
+            0, /*dwShareMode*/
+            NULL, /*lpSecurityAttributes*/
+            OPEN_EXISTING, /*dwCreationDisposition*/
+            FILE_ATTRIBUTE_NORMAL, /*dwFlagsAndAttributes*/
+            NULL /*hTemplateFile*/) };
+
+        THROW_LAST_ERROR_IF(fileHandle.get() == INVALID_HANDLE_VALUE);
+
+        wchar_t fileSystemName[MAX_PATH];
+        THROW_LAST_ERROR_IF(!GetVolumeInformationByHandleW(
+            fileHandle.get(), /*hFile*/
+            NULL, /*lpVolumeNameBuffer*/
+            0, /*nVolumeNameSize*/
+            NULL, /*lpVolumeSerialNumber*/
+            NULL, /*lpMaximumComponentLength*/
+            NULL, /*lpFileSystemFlags*/
+            fileSystemName, /*lpFileSystemNameBuffer*/
+            MAX_PATH /*nFileSystemNameSize*/));
+
+        return _wcsicmp(fileSystemName, L"NTFS") == 0;
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

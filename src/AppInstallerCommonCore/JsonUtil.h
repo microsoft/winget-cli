@@ -18,4 +18,7 @@ namespace AppInstaller::Utility
     template<>
     std::optional<uint32_t> GetValue<uint32_t>(const Json::Value& node);
 
+    template<>
+    std::optional<bool> GetValue<bool>(const Json::Value& node);
+
 }

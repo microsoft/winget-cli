@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerLanguageUtilities.h>
 #include <wil/result_macros.h>
 
 #include <string_view>
@@ -43,9 +44,12 @@ namespace AppInstaller::Logging
         // Logs the invoked command termination.
         void LogException(std::string_view commandName, std::string_view type, std::string_view message) noexcept;
 
+        // Logs whether the manifest used in workflow is local
+        void LogIsManifestLocal(bool isLocalManifest) noexcept;
+
         // Logs the Manifest fields.
-        void LogManifestFields(std::string_view id, std::string_view name, std::string_view version, bool localManifest) noexcept;
-         
+        void LogManifestFields(std::string_view id, std::string_view name, std::string_view version) noexcept;
+
         // Logs when there is no matching App found for search
         void LogNoAppMatch() noexcept;
 
@@ -60,6 +64,7 @@ namespace AppInstaller::Logging
 
         // Logs details of a search request.
         void LogSearchRequest(
+            std::string_view type,
             std::string_view query,
             std::string_view id,
             std::string_view name,
@@ -73,10 +78,23 @@ namespace AppInstaller::Logging
         void LogSearchResultCount(uint64_t resultCount) noexcept;
 
         // Logs a mismatch between the expected and actual hash values.
-        void LogInstallerHashMismatch(std::string_view id, std::string_view version, std::string_view channel, const std::vector<uint8_t>& expected, const std::vector<uint8_t>& actual);
+        void LogInstallerHashMismatch(
+            std::string_view id,
+            std::string_view version,
+            std::string_view channel,
+            const std::vector<uint8_t>& expected,
+            const std::vector<uint8_t>& actual,
+            bool overrideHashMismatch);
 
-        // Logs a faild installation attempt.
+        // Logs a failed installation attempt.
         void LogInstallerFailure(std::string_view id, std::string_view version, std::string_view channel, std::string_view type, uint32_t errorCode);
+
+        // Logs a failed uninstallation attempt.
+        void LogUninstallerFailure(std::string_view id, std::string_view version, std::string_view type, uint32_t errorCode);
+
+        // Logs a failure to insert a value into the in-memory cache of installed system packages.
+        // The most likely reason is due to the same key name being used under multiple ARP scope/architecture locations.
+        void LogDuplicateARPEntry(HRESULT hr, std::string_view scope, std::string_view architecture, std::string_view productCode, std::string_view name);
 
     private:
         TelemetryTraceLogger();
@@ -90,4 +108,43 @@ namespace AppInstaller::Logging
 
     // Turns on wil failure telemetry and logging.
     void EnableWilFailureTelemetry();
+
+    // An RAII object to disable telemetry during its lifetime.
+    // Primarily used by the complete command to prevent messy input from spamming us.
+    struct DisableTelemetryScope
+    {
+        DisableTelemetryScope();
+
+        DisableTelemetryScope(const DisableTelemetryScope&) = delete;
+        DisableTelemetryScope& operator=(const DisableTelemetryScope&) = delete;
+
+        DisableTelemetryScope(DisableTelemetryScope&&) = default;
+        DisableTelemetryScope& operator=(DisableTelemetryScope&&) = default;
+
+        ~DisableTelemetryScope();
+
+    private:
+        DestructionToken m_token;
+    };
+
+    // Sets an execution stage to be reported when failures occur.
+    void SetExecutionStage(uint32_t stage);
+
+    // An RAII object to log telemetry as sub execution.
+    // Does not support nested sub execution.
+    struct SubExecutionTelemetryScope
+    {
+        SubExecutionTelemetryScope();
+
+        SubExecutionTelemetryScope(const SubExecutionTelemetryScope&) = delete;
+        SubExecutionTelemetryScope& operator=(const SubExecutionTelemetryScope&) = delete;
+
+        SubExecutionTelemetryScope(SubExecutionTelemetryScope&&) = default;
+        SubExecutionTelemetryScope& operator=(SubExecutionTelemetryScope&&) = default;
+
+        ~SubExecutionTelemetryScope();
+
+    private:
+        static std::atomic_uint32_t m_sessionId;
+    };
 }

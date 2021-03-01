@@ -7,6 +7,7 @@ namespace AppInstallerCLIE2ETests
     using System;
     using System.Diagnostics;
     using System.IO;
+    using System.Text;
     using System.Threading;
 
     public class TestCommon
@@ -22,6 +23,16 @@ namespace AppInstallerCLIE2ETests
         public static bool LooseFileRegistration { get; set; }
 
         public static bool InvokeCommandInDesktopPackage { get; set; }
+
+        public static string StaticFileRootPath { get; set; }
+
+        public static string ExeInstallerPath { get; set; }
+
+        public static string MsiInstallerPath { get; set; }
+
+        public static string MsixInstallerPath { get; set; }
+        
+        public static string PackageCertificatePath { get; set; }
 
         public struct RunCommandResult
         {
@@ -115,13 +126,16 @@ namespace AppInstallerCLIE2ETests
             }
 
             string workDirectory = GetRandomTestDir();
+            string tempBatchFile = Path.Combine(workDirectory, "Batch.cmd");
             string exitCodeFile = Path.Combine(workDirectory, "ExitCode.txt");
             string stdOutFile = Path.Combine(workDirectory, "StdOut.txt");
             string stdErrFile = Path.Combine(workDirectory, "StdErr.txt");
 
-            cmdCommandPiped += $"{AICLIPath} {command} {parameters} > {stdOutFile} 2> {stdErrFile} & call echo %^ERRORLEVEL% > {exitCodeFile}";
+            // First change the codepage so that the rest of the batch file works
+            cmdCommandPiped += $"chcp 65001\n{AICLIPath} {command} {parameters} > {stdOutFile} 2> {stdErrFile}\necho %ERRORLEVEL% > {exitCodeFile}";
+            File.WriteAllText(tempBatchFile, cmdCommandPiped, new System.Text.UTF8Encoding(false));
 
-            string psCommand = $"Invoke-CommandInDesktopPackage -PackageFamilyName {Constants.AICLIPackageFamilyName} -AppId {Constants.AICLIAppId} -PreventBreakaway -Command cmd.exe -Args '/c \"{cmdCommandPiped}\"'";
+            string psCommand = $"Invoke-CommandInDesktopPackage -PackageFamilyName {Constants.AICLIPackageFamilyName} -AppId {Constants.AICLIAppId} -PreventBreakaway -Command cmd.exe -Args '/c \"{tempBatchFile}\"'";
 
             var psInvokeResult = RunCommandWithResult("powershell", psCommand);
 
@@ -146,14 +160,37 @@ namespace AppInstallerCLIE2ETests
 
             RunCommandResult result = new RunCommandResult();
 
-            result.ExitCode = File.Exists(exitCodeFile) ? int.Parse(File.ReadAllText(exitCodeFile).Trim()) : unchecked((int)0x80004005);
-            result.StdOut = File.Exists(stdOutFile) ? File.ReadAllText(stdOutFile) : "";
-            result.StdErr = File.Exists(stdErrFile) ? File.ReadAllText(stdErrFile) : "";
+            // Sometimes the files are still in use; allow for this with a wait and retry loop.
+            for (int retryCount = 0; retryCount < 4; ++retryCount)
+            {
+                bool success = false;
+
+                try
+                {
+                    result.ExitCode = File.Exists(exitCodeFile) ? int.Parse(File.ReadAllText(exitCodeFile).Trim()) : unchecked((int)0x80004005);
+                    result.StdOut = File.Exists(stdOutFile) ? File.ReadAllText(stdOutFile) : "";
+                    result.StdErr = File.Exists(stdErrFile) ? File.ReadAllText(stdErrFile) : "";
+                    success = true;
+                }
+                catch (Exception e)
+                {
+                    TestContext.Out.WriteLine("Failed to access files: " + e.Message);
+                }
+
+                if (success)
+                {
+                    break;
+                }
+                else
+                {
+                    Thread.Sleep(250);
+                }
+            }
 
             return result;
         }
 
-        public static bool RunCommand(string fileName, string args, int timeOut = 60000)
+        public static bool RunCommand(string fileName, string args = "", int timeOut = 60000)
         {
             return RunCommandWithResult(fileName, args, timeOut).ExitCode == 0;
         }
@@ -196,11 +233,23 @@ namespace AppInstallerCLIE2ETests
             return GetTestFile(Path.Combine("TestData", fileName));
         }
 
+        public static string GetTestWorkDir()
+        {
+            string workDir = Path.Combine(TestContext.CurrentContext.TestDirectory, "WorkDirectory");
+            Directory.CreateDirectory(workDir);
+            return workDir;
+        }
+
         public static string GetRandomTestDir()
         {
-            string randDir = Path.Combine(TestContext.CurrentContext.TestDirectory, Path.Combine("WorkDirectory", Path.GetRandomFileName()));
+            string randDir = Path.Combine(GetTestWorkDir(), Path.GetRandomFileName());
             Directory.CreateDirectory(randDir);
             return randDir;
+        }
+
+        public static string GetRandomTestFile(string extension)
+        {
+            return Path.Combine(GetTestWorkDir(), Path.GetRandomFileName() + extension);
         }
 
         public static bool InstallMsix(string file)
@@ -219,14 +268,25 @@ namespace AppInstallerCLIE2ETests
             return RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage");
         }
 
-        public static void WaitForDeploymentFinish()
+        /// <summary>
+        /// Copies log files to the path %TEMP%\E2ETestLogs
+        /// </summary>
+        public static void PublishE2ETestLogs()
         {
-            if (PackagedContext)
+            string tempPath = Path.GetTempPath();
+            string localAppDataPath = Environment.GetEnvironmentVariable("LocalAppData");
+            string testLogsSourcePath = Path.Combine(localAppDataPath, Constants.E2ETestLogsPath);
+            string testLogsDestPath = Path.Combine(tempPath, "E2ETestLogs");
+
+            if (Directory.Exists(testLogsDestPath))
             {
-                // Since we are doing a lot index add/remove, and some of the methods are fire and forget.
-                // Sometimes process start will fail because app is updating.
-                // Or index package is not completely added, removed.
-                Thread.Sleep(5000);
+                TestIndexSetup.DeleteDirectoryContents(new DirectoryInfo(testLogsDestPath));
+                Directory.Delete(testLogsDestPath);
+            }
+
+            if (Directory.Exists(testLogsSourcePath))
+            {
+                TestIndexSetup.CopyDirectory(testLogsSourcePath, testLogsDestPath);
             }
         }
     }

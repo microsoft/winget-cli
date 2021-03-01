@@ -1,0 +1,143 @@
+trigger: none
+
+parameters:
+  - name: version
+    displayName: Version to stamp on binaries and nuget package. Should be in form of "major.minor", for example "1.0"
+    type: string
+
+pool:
+  vmImage: "windows-latest"
+
+variables:
+  solution: "src/AppInstallerCLI.sln"
+  buildConfiguration: "Release"
+  packageName: Microsoft.WindowsPackageManager.Utils
+
+jobs:
+  - job: "Build"
+    variables:
+      BuildVer: $[counter(${{ parameters.version }}, 1)]
+      version: ${{ parameters.version }}.$(BuildVer)
+    steps:
+      - script: echo $(version)
+
+      - task: NuGetToolInstaller@1
+        displayName: Install Nuget
+
+      # Restores all projects, including native (vcxproj) projects
+      - task: NuGetCommand@2
+        displayName: Restore Packages
+        inputs:
+          restoreSolution: "$(solution)"
+
+      # Restores only .NET core projects, but is still necessary, as without this the IndexCreationTool and LocalhostWebServer projects fail to build
+      - task: DotNetCoreCLI@2
+        displayName: DotNet Restore
+        inputs:
+          command: "restore"
+          projects: "**/*.csproj"
+
+      - task: PowerShell@2
+        displayName: Update Binary Version
+        condition: not(eq(variables['Build.Reason'], 'PullRequest'))
+        inputs:
+          filePath: 'src\binver\Update-BinVer.ps1'
+          arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer) -MajorMinorOverride ${{ parameters.version }}'
+          workingDirectory: "src"
+
+      - task: VSBuild@1
+        displayName: Build Solution x86
+        inputs:
+          platform: "x86"
+          solution: "$(solution)"
+          configuration: "$(buildConfiguration)"
+
+      - task: VSBuild@1
+        displayName: Build Solution x64
+        inputs:
+          platform: "x64"
+          solution: "$(solution)"
+          configuration: "$(buildConfiguration)"
+
+      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+        displayName: "ESRP CodeSigning - Package contents"
+        inputs:
+          ConnectedServiceName: "WindowsPackageManager ESRP CodeSigning"
+          FolderPath: src
+          Pattern: |
+            *\$(buildConfiguration)\WinGetUtil\WinGetUtil.dll
+          UseMinimatch: true
+          signConfigType: inlineSignParams
+          inlineOperation: |
+            [
+              {
+                  "KeyCode" : "CP-230012",
+                  "OperationCode" : "SigntoolSign",
+                  "Parameters" : {
+                      "OpusName" : "Microsoft",
+                      "OpusInfo" : "http://www.microsoft.com",
+                      "FileDigest" : "/fd \"SHA256\"",
+                      "PageHash" : "/NPH",
+                      "TimeStamp" : "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+                  },
+                  "ToolName" : "sign",
+                  "ToolVersion" : "1.0"
+              },
+              {
+                  "KeyCode" : "CP-230012",
+                  "OperationCode" : "SigntoolVerify",
+                  "Parameters" : {},
+                  "ToolName" : "sign",
+                  "ToolVersion" : "1.0"
+              }
+            ]
+
+      - task: NuGetCommand@2
+        displayName: Pack WingetUtil nuget package
+        inputs:
+          command: pack
+          packagesToPack: WinGetUtil.nuspec
+          versioningScheme: byEnvVar
+          versionEnvVar: version
+          packDestination: "$(Build.ArtifactStagingDirectory)"
+
+      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+        displayName: "ESRP CodeSigning - NuGet package"
+        inputs:
+          ConnectedServiceName: "WindowsPackageManager ESRP CodeSigning"
+          FolderPath: "$(Build.ArtifactStagingDirectory)"
+          Pattern: "Microsoft.Packaging.WinGetUtil.$(version).nupkg"
+          signConfigType: inlineSignParams
+          inlineOperation: |
+            [
+              {
+                  "KeyCode" : "CP-401405",
+                  "OperationCode" : "NuGetSign",
+                  "Parameters" : {},
+                  "ToolName" : "sign",
+                  "ToolVersion" : "1.0"
+              },
+              {
+                  "KeyCode" : "CP-401405",
+                  "OperationCode" : "NuGetVerify",
+                  "Parameters" : {},
+                  "ToolName" : "sign",
+                  "ToolVersion" : "1.0"
+              }
+            ]
+
+      - task: PublishBuildArtifacts@1
+        displayName: Publish nuget package to artifacts
+        inputs:
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(packageName).$(version).nupkg'
+          ArtifactName: $(packageName)
+          publishLocation: Container
+
+      - task: NuGetCommand@2
+        displayName: Push WingetUtil nuget package to nuget.org
+        inputs:
+          command: push
+          nuGetFeedType: external
+          includeNugetOrg: true
+          packagesToPush: '$(Build.ArtifactStagingDirectory)\$(packageName).$(version).nupkg'
+          publishFeedCredentials: "WindowsPackageManagerAzurePipelineNuget - NuGet.org"

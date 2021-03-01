@@ -4,6 +4,7 @@
 #include "Public/AppInstallerCLICore.h"
 #include "Commands/RootCommand.h"
 #include "ExecutionContext.h"
+#include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
 
 using namespace winrt;
@@ -44,19 +45,24 @@ namespace AppInstaller::CLI
     {
         init_apartment();
 
-        // Set output to UTF8
-        ConsoleOutputCPRestore utf8CP(CP_UTF8);
-
         // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Logging::Level::Verbose);
         Logging::AddFileLogger();
         Logging::EnableWilFailureTelemetry();
 
+        // Set output to UTF8
+        ConsoleOutputCPRestore utf8CP(CP_UTF8);
+
         Logging::Telemetry().LogStartup();
+
+        // Initiate the background cleanup of the log file location.
+        Logging::BeginLogFileCleanup();
 
         Execution::Context context{ std::cout, std::cin };
         context.EnableCtrlHandler();
+
+        context << Workflow::ReportExecutionStage(Workflow::ExecutionStage::ParseArgs);
 
         // Convert incoming wide char args to UTF8
         std::vector<std::string> utf8Args;

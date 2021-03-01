@@ -5,7 +5,8 @@ Publisher: AppInstallerTest
 License: Test
 Installers:
   - Arch: x86
-    Url: https://github.com/microsoft/appinstaller-cli/raw/master/src/AppInstallerCLIE2ETests/TestData/AppInstallerTestMsiInstaller.msi
-    Sha256: 18a07fadd84fd66fce094e323a51afba648fd8c2a826573d61b60960d7e35e63
+    Url: https://localhost:5001/TestKit/AppInstallerTestMsiInstaller/AppInstallerTestMsiInstaller.msi
+    Sha256: <MSIHASH>
     InstallerType: msi
+    ProductCode: '{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}'
 ManifestVersion: 0.1.0

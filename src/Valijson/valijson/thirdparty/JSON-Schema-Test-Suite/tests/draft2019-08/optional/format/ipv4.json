@@ -1,0 +1,33 @@
+[
+    {
+        "description": "validation of IP addresses",
+        "schema": {"format": "ipv4"},
+        "tests": [
+            {
+                "description": "a valid IP address",
+                "data": "192.168.0.1",
+                "valid": true
+            },
+            {
+                "description": "an IP address with too many components",
+                "data": "127.0.0.0.1",
+                "valid": false
+            },
+            {
+                "description": "an IP address with out-of-range values",
+                "data": "256.256.256.256",
+                "valid": false
+            },
+            {
+                "description": "an IP address without 4 components",
+                "data": "127.0",
+                "valid": false
+            },
+            {
+                "description": "an IP address as an integer",
+                "data": "0x7f000001",
+                "valid": false
+            }
+        ]
+    }
+]

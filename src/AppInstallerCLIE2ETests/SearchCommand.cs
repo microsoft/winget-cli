@@ -4,62 +4,89 @@
 namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
-    using System.Threading;
 
-    public class SearchCommand
+    public class SearchCommand : BaseCommand
     {
-        // Todo: use created test source when available
-        private const string SearchTestSourceUrl = @"https://winget-int.azureedge.net/cache";
-        private const string SearchTestSourceName = @"SearchTestSource";
-
-        [SetUp]
-        public void Setup()
+        [Test]
+        public void SearchWithoutArgs()
         {
-            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("source add", $"{SearchTestSourceName} {SearchTestSourceUrl}").ExitCode);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            TestCommon.RunAICLICommand("source remove", SearchTestSourceName);
-
-            TestCommon.WaitForDeploymentFinish();
+            var result = TestCommon.RunAICLICommand("search", "");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestBurnInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
         [Test]
-        public void SearchCommands()
+        public void SearchQuery()
         {
-            // Search without args list every app
-            var result = TestCommon.RunAICLICommand("search", "");
+            var result = TestCommon.RunAICLICommand("search", "TestExampleInstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Microsoft.PowerToys"));
-            Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
+            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+        }
 
-            // Search query
-            result = TestCommon.RunAICLICommand("search", "VisualStudioCode");
+        [Test]
+        public void SearchWithName()
+        {
+            var result = TestCommon.RunAICLICommand("search", "--name testexampleinstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
+            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+        }
 
-            // Search through id found the app
-            result = TestCommon.RunAICLICommand("search", "--id VisualStudioCode");
+        [Test]
+        public void SearchWithID()
+        {
+            var result = TestCommon.RunAICLICommand("search", "--id appinstallertest.testexampleinstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
+            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+        }
 
-            // Search through name. No app found because name is "Visual Studio Code"
-            result = TestCommon.RunAICLICommand("search", "--name VisualStudioCode");
+        [Test]
+        public void SearchWithInvalidName()
+        {
+            var result = TestCommon.RunAICLICommand("search", "--name InvalidName");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("No app found matching input criteria."));
+            Assert.True(result.StdOut.Contains("No package found matching input criteria."));
+        }
 
+        [Test]
+        public void SearchReturnsMultiple()
+        {
             // Search Microsoft should return multiple
-            result = TestCommon.RunAICLICommand("search", "Microsoft");
+            var result = TestCommon.RunAICLICommand("search", "AppInstallerTest");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Microsoft.PowerToys"));
-            Assert.True(result.StdOut.Contains("Microsoft.VisualStudioCode"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestBurnInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+        }
 
-            // Search Microsoft with exact arg should return none
-            result = TestCommon.RunAICLICommand("search", "Microsoft -e");
+        [Test]
+        public void SearchWithExactName()
+        {
+            var result = TestCommon.RunAICLICommand("search", "--exact TestExampleInstaller");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+        }
+
+        [Test]
+        public void SearchWithExactID()
+        {
+            var result = TestCommon.RunAICLICommand("search", "--exact AppInstallerTest.TestExampleInstaller");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+        }
+
+        [Test]
+        public void SearchWithExactArgCaseSensitivity()
+        {
+            var result = TestCommon.RunAICLICommand("search", "--exact testexampleinstaller");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("No app found matching input criteria."));
+            Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }
     }
 }

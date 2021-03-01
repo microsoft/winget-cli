@@ -18,7 +18,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         std::string_view OneToManyTableGetManifestColumnName();
 
         // Create the tables.
-        void CreateOneToManyTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName);
+        void CreateOneToManyTable(SQLite::Connection& connection, bool useNamedIndices, std::string_view tableName, std::string_view valueName);
+
+        // Gets all values associated with the given manifest id.
+        std::vector<std::string> OneToManyTableGetValuesByManifestId(
+            const SQLite::Connection& connection,
+            std::string_view tableName,
+            std::string_view valueName,
+            SQLite::rowid_t manifestId);
 
         // Ensures that the value exists and inserts mapping entries.
         void OneToManyTableEnsureExistsAndInsert(SQLite::Connection& connection,
@@ -34,7 +41,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         void OneToManyTableDeleteIfNotNeededByManifestId(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t manifestId);
 
         // Removes data that is no longer needed for an index that is to be published.
-        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName);
+        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndices, bool preserveManifestIndex, bool preserveValuesIndex);
+
+        // Checks the consistency of the index to ensure that every referenced row exists.
+        // Returns true if index is consistent; false if it is not.
+         bool OneToManyTableCheckConsistency(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool log);
 
         // Determines if the table is empty.
         bool OneToManyTableIsEmpty(SQLite::Connection& connection, std::string_view tableName);
@@ -62,10 +73,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return false;
         }
 
-        // Creates the table.
+        // Creates the table with named indices.
         static void Create(SQLite::Connection& connection)
         {
-            details::CreateOneToManyTable(connection, TableInfo::TableName(), TableInfo::ValueName());
+            details::CreateOneToManyTable(connection, true, TableInfo::TableName(), TableInfo::ValueName());
+        }
+
+        // Creates the table with standard primary keys.
+        static void Create_deprecated(SQLite::Connection& connection)
+        {
+            details::CreateOneToManyTable(connection, false, TableInfo::TableName(), TableInfo::ValueName());
+        }
+
+        // Gets all values associated with the given manifest id.
+        static std::vector<std::string> GetValuesByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId)
+        {
+            return details::OneToManyTableGetValuesByManifestId(connection, TableInfo::TableName(), TableInfo::ValueName(), manifestId);
         }
 
         // Ensures that all values exist in the data table, and inserts into the mapping table for the given manifest id.
@@ -87,9 +110,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Removes data that is no longer needed for an index that is to be published.
-        static void PrepareForPackaging(SQLite::Connection& connection)
+        static void PrepareForPackaging(SQLite::Connection& connection, bool preserveManifestIndex, bool preserveValuesIndex = false)
         {
-            details::OneToManyTablePrepareForPackaging(connection, TableInfo::TableName());
+            details::OneToManyTablePrepareForPackaging(connection, TableInfo::TableName(), true, preserveManifestIndex, preserveValuesIndex);
+        }
+
+        // Removes data that is no longer needed for an index that is to be published.
+        static void PrepareForPackaging_deprecated(SQLite::Connection& connection)
+        {
+            details::OneToManyTablePrepareForPackaging(connection, TableInfo::TableName(), false, false, false);
+        }
+
+        // Checks the consistency of the index to ensure that every referenced row exists.
+        // Returns true if index is consistent; false if it is not.
+        static bool CheckConsistency(const SQLite::Connection& connection, bool log)
+        {
+            return details::OneToManyTableCheckConsistency(connection, TableInfo::TableName(), TableInfo::ValueName(), log);
         }
 
         // Determines if the table is empty.

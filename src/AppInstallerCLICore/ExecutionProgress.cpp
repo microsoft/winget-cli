@@ -133,11 +133,13 @@ namespace AppInstaller::CLI::Execution
     {
         void ProgressVisualizerBase::ApplyStyle(size_t i, size_t max, bool enabled)
         {
+            if (!UseVT())
+            {
+                // Either no style set or VT disabled
+                return;
+            }
             switch (m_style)
             {
-            case VisualStyle::NoVT:
-                // No VT means no style set
-                break;
             case VisualStyle::Retro:
                 if (enabled)
                 {

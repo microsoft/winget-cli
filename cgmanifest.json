@@ -13,8 +13,8 @@
     "component": {
       "type": "git",
       "git": {
-        "repositoryUrl": "https://github.com/jbeder/yaml-cpp.git",
-        "commitHash": "9a3624205e8774953ef18f57067b3426c1c5ada6"
+        "repositoryUrl": "https://github.com/yaml/libyaml.git",
+        "commitHash": "2c891fc7a770e8ba2fec34fc6b545c672beb37e6"
       }
     }
   },
@@ -24,6 +24,15 @@
       "git": {
         "repositoryUrl": "https://github.com/open-source-parsers/jsoncpp.git",
         "commitHash": "9be589598595963f94ba264d7b416d0533421106"
+      }
+    }
+  },
+  {
+    "component": {
+      "type": "git",
+      "git": {
+        "repositoryUrl": "https://github.com/tristanpenman/valijson.git",
+        "commitHash": "7a52fc88cdffd6678c009ca2fad700151f7363c6"
       }
     }
   }

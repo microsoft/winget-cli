@@ -6,6 +6,7 @@
 #include "Public/AppInstallerFileLogger.h"
 #include "Public/AppInstallerTelemetry.h"
 #include "Public/AppInstallerDateTime.h"
+#include "Public/AppInstallerRuntime.h"
 
 namespace AppInstaller::Logging
 {
@@ -30,7 +31,7 @@ namespace AppInstaller::Logging
         }
     }
 
-    char const* const GetChannelName(Channel channel)
+    char const* GetChannelName(Channel channel)
     {
         switch(channel)
         {
@@ -132,10 +133,20 @@ namespace AppInstaller::Logging
     {
         Log().AddLogger(std::make_unique<FileLogger>(filePath));
     }
+
+    void BeginLogFileCleanup()
+    {
+        FileLogger::BeginCleanup(Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation));
+    }
+
+    std::ostream& SetHRFormat(std::ostream& out)
+    {
+        return out << std::hex << std::setw(8) << std::setfill('0');
+    }
 }
 
 std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time)
 {
-    AppInstaller::Utility::OutputTimepoint(out, time);
+    AppInstaller::Utility::OutputTimePoint(out, time);
     return out;
 }

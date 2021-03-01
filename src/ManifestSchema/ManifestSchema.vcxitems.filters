@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="schema">
+      <UniqueIdentifier>{d6998b42-8ce1-440a-ad12-8b505a284d7b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ManifestSchema.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="$(MSBuildThisFileDirectory)ManifestSchema.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\preview\manifest.0.1.0.json">
+      <Filter>schema</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.defaultLocale.1.0.0.json">
+      <Filter>schema</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.installer.1.0.0.json">
+      <Filter>schema</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.locale.1.0.0.json">
+      <Filter>schema</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.singleton.1.0.0.json">
+      <Filter>schema</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.version.1.0.0.json">
+      <Filter>schema</Filter>
+    </None>
+  </ItemGroup>
+</Project>

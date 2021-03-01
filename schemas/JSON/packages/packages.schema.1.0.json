@@ -1,0 +1,97 @@
+{
+  "$id": "https://aka.ms/winget-packages.schema.json",
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+
+  "title": "winget Packages List Schema",
+  "description": "Describes a list of packages for batch installs",
+
+  "type": "object",
+  "required": [ "WinGetVersion", "Sources" ],
+  "additionalProperties": true,
+
+  "properties": {
+    "WinGetVersion": {
+      "description": "Version of winget that generated this file",
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]\\.[0-9]$"
+    },
+
+    "CreationDate": {
+      "description": "Date when this list was generated",
+      "type": "string",
+      "format": "date-time"
+    },
+
+    "Sources": {
+      "description": "Sources from which each package comes from",
+      "type": "array",
+
+      "items": {
+        "description": "A source and the list of packages to install from it",
+        "type": "object",
+        "required": [ "SourceDetails", "Packages" ],
+        "additionalProperties": true,
+
+        "properties": {
+          "SourceDetails": {
+            "description": "Details about this source",
+            "type": "object",
+            "required": [ "Name", "Identifier", "Argument", "Type" ],
+            "additionalProperties": true,
+
+            "properties": {
+              "Name": {
+                "description": "Name of the source",
+                "type": "string"
+              },
+
+              "Identifier": {
+                "description": "Identifier for the source",
+                "type": "string"
+              },
+
+              "Argument": {
+                "description": "Argument used to install the source",
+                "type": "string"
+              },
+
+              "Type": {
+                "description": "Type of the source",
+                "type": "string"
+              }
+            }
+          },
+
+          "Packages": {
+            "description": "Packages installed from this source",
+            "type": "array",
+            "required": [ "Id" ],
+            "minItems": 1,
+
+            "items": {
+              "description": "A package to be installed from this source",
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "Id": {
+                  "description": "Package ID",
+                  "type": "string"
+                },
+
+                "Version": {
+                  "description": "Package version",
+                  "type": "string"
+                },
+
+                "Channel": {
+                  "description": "Package channel",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

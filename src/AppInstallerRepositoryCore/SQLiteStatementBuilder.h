@@ -12,6 +12,8 @@
 #include <string_view>
 #include <vector>
 
+using namespace std::string_view_literals;
+
 namespace AppInstaller::Repository::SQLite::Builder
 {
     namespace details
@@ -67,9 +69,25 @@ namespace AppInstaller::Repository::SQLite::Builder
         std::string_view Schema;
         std::string_view Table;
 
-        explicit QualifiedTable(std::string_view table) : Table(table) {}
-        explicit QualifiedTable(std::string_view schema, std::string_view table) : Schema(schema), Table(table) {}
+        explicit constexpr QualifiedTable(std::string_view table) : Table(table) {}
+        explicit constexpr QualifiedTable(std::string_view schema, std::string_view table) : Schema(schema), Table(table) {}
     };
+
+    namespace Schema
+    {
+        // The main database's schema table.
+        // More info can be found at: https://www.sqlite.org/schematab.html
+        constexpr QualifiedTable MainTable{ "main"sv, "sqlite_master"sv };
+
+        // The sqlite_schema column name for the type of the object.
+        constexpr std::string_view TypeColumn = "type"sv;
+
+        // The sqlite_schema type value for a table.
+        constexpr std::string_view Type_Table = "table"sv;
+
+        // The sqlite_schema column name for the name of the object.
+        constexpr std::string_view NameColumn = "name"sv;
+    }
 
     // A qualified column reference.
     struct QualifiedColumn
@@ -95,6 +113,22 @@ namespace AppInstaller::Repository::SQLite::Builder
     enum class Aggregate
     {
         Min
+    };
+
+    // Helper to mark create an integer primary key for rowid, making it stable across vacuum.
+    struct IntegerPrimaryKey : public details::SubBuilderBase
+    {
+        IntegerPrimaryKey();
+
+        IntegerPrimaryKey(const IntegerPrimaryKey&) = default;
+        IntegerPrimaryKey& operator=(const IntegerPrimaryKey&) = default;
+
+        IntegerPrimaryKey(IntegerPrimaryKey&&) noexcept = default;
+        IntegerPrimaryKey& operator=(IntegerPrimaryKey&&) noexcept = default;
+
+        // Set the column to autoincrement. SQLite recommends against using this value unless
+        // you need to ensure that rowids are not ever reused.
+        IntegerPrimaryKey& AutoIncrement(bool isTrue = true);
     };
 
     // Helper used when creating a table.
@@ -210,7 +244,9 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& Not();
         StatementBuilder& In();
 
-        StatementBuilder& IsNull();
+        // IsNull(true) means the value is null; IsNull(false) means the value is not null.
+        StatementBuilder& IsNull(bool isNull = true);
+        StatementBuilder& IsNotNull() { return IsNull(false); }
 
         // Operators for combining filter clauses.
         StatementBuilder& And(std::string_view column);
@@ -221,6 +257,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& Join(std::string_view table);
         StatementBuilder& Join(QualifiedTable table);
         StatementBuilder& Join(std::initializer_list<std::string_view> table);
+
+        // Begin a left outer join clause.
+        // The initializer_list form enables the table name to be constructed from multiple parts.
+        StatementBuilder& LeftOuterJoin(std::string_view table);
+        StatementBuilder& LeftOuterJoin(QualifiedTable table);
+        StatementBuilder& LeftOuterJoin(std::initializer_list<std::string_view> table);
 
         // Set the join constraint.
         StatementBuilder& On(const QualifiedColumn& column1, const QualifiedColumn& column2);
@@ -291,10 +333,16 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& DropTable(std::initializer_list<std::string_view> table);
 
         // Begin an index creation statement.
-        // The initializer_list form enables the table name to be constructed from multiple parts.
+        // The initializer_list form enables the index name to be constructed from multiple parts.
         StatementBuilder& CreateIndex(std::string_view table);
         StatementBuilder& CreateIndex(QualifiedTable table);
         StatementBuilder& CreateIndex(std::initializer_list<std::string_view> table);
+
+        // Begin an unique index creation statement.
+        // The initializer_list form enables the index name to be constructed from multiple parts.
+        StatementBuilder& CreateUniqueIndex(std::string_view table);
+        StatementBuilder& CreateUniqueIndex(QualifiedTable table);
+        StatementBuilder& CreateUniqueIndex(std::initializer_list<std::string_view> table);
 
         // Begin an index deletion statement.
         // The initializer_list form enables the table name to be constructed from multiple parts.
@@ -336,10 +384,10 @@ namespace AppInstaller::Repository::SQLite::Builder
         int GetLastBindIndex() const { return m_bindIndex - 1; }
 
         // Prepares and returns the statement, applying any bindings that were requested.
-        Statement Prepare(Connection& connection);
+        Statement Prepare(const Connection& connection);
 
         // A convenience function that prepares, binds, and then executes a statement that does not return rows.
-        void Execute(Connection& connection);
+        void Execute(const Connection& connection);
 
     private:
         enum class Op

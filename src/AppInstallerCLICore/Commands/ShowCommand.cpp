@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ShowCommand.h"
 #include "Workflows/ShowFlow.h"
+#include "Workflows/CompletionFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
@@ -34,6 +35,12 @@ namespace AppInstaller::CLI
         return { Resource::String::ShowCommandLongDescription };
     }
 
+    void ShowCommand::Complete(Execution::Context& context, Execution::Args::Type valueType) const
+    {
+        context <<
+            Workflow::CompleteWithSingleSemanticsForValue(valueType);
+    }
+
     std::string ShowCommand::HelpLink() const
     {
         return "https://aka.ms/winget-command-show";
@@ -54,9 +61,9 @@ namespace AppInstaller::CLI
             {
                 context <<
                     Workflow::OpenSource <<
-                    Workflow::SearchSource <<
-                    Workflow::EnsureOneMatchFromSearchResult <<
-                    Workflow::ReportSearchResultIdentity <<
+                    Workflow::SearchSourceForSingle <<
+                    Workflow::EnsureOneMatchFromSearchResult(false) <<
+                    Workflow::ReportPackageIdentity <<
                     Workflow::ShowAppVersions;
             }
         }

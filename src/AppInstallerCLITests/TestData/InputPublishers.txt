@@ -1,0 +1,1137 @@
+Wildfire Games
+SweetScape Software
+360安全中心
+360安全中心
+Open Media LLC
+Open Media LLC
+Open Media LLC
+Open Media LLC
+Open Media LLC
+Open Media LLC
+Igor Pavlov
+Igor Pavlov
+Igor Pavlov
+Igor Pavlov, Tino Reichardt
+Amazon Web Services Developer Relations
+Amazon Web Services
+AWS Serverless Applications
+Axis Communications AB
+Abacus Research AG
+Microsoft
+Microsoft Corporation
+Adobe Systems Incorporated
+Adobe Systems Incorporated
+Adobe Systems Incorporated
+AdoptOpenJDK
+AdoptOpenJDK
+AdoptOpenJDK
+AdoptOpenJDK
+AdoptOpenJDK
+AdoptOpenJDK
+AdoptOpenJDK
+Famatech
+Ondrej Salplachta
+Famatech
+Pawel Psztyc
+Aegisub Team
+Aegisub Team
+a wandersick
+Alacritty
+Alchemy Development Group
+Algoryx
+Stefan Sundin
+Amazon.com, Inc.
+Amazon
+Amazon
+Amazon Web Services, Inc
+Anaconda, Inc.
+Angry IP Scanner
+AntiMicro
+AppGet
+Appium Developers
+Appium Developers
+Arduino LLC
+Armagetron Advanced Team
+Sundaram Ramaswamy
+Rabid Viper Productions
+Audacity Team
+CodeUX.design e.U.
+Armin Osaj
+Lexikos
+Lexikos
+The Sleuth Kit
+GPL Public release.
+OmicronLab
+7room
+Microsoft® Corporation
+Microsoft Corporation
+Microsoft
+Microsoft
+Microsoft
+Marcin Szeniak
+Contoso.com
+Beda Kosata
+Space Sciences Laboratory, U.C. Berkeley
+BPBible Development Team
+Google, Inc.
+Debauchee Open Source Group
+Debauchee Open Source Group
+Paul Frazee
+Elastic
+Elastic
+Marco Mastroddi Software
+beeftext.org
+The Betaflight open source project.
+Scooter Software, Inc.
+Scooter Software
+Scooter Software
+Bigly Software
+BitPay
+Bitwarden Inc.
+BleachBit
+Blender Foundation
+BlueJeans Network, Inc.
+Hamster Republic Productions
+Apple Inc.
+Andrew Sampson
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+brackets.io
+Brave Software Inc
+Brave Software Inc
+TGRMN Software
+Buttercup
+Buttercup
+C-Dogs SDL Team
+SingularLabs
+Piriform
+Canneverbe Limited
+Kitware
+Corsair
+CPUID, Inc.
+CPUID, Inc.
+CPUID, Inc.
+CPUID, Inc.
+CPUID, Inc.
+Penguin Labs, LLC
+SaeraSoft
+TechSmith Corporation
+TechSmith Corporation
+Sindre Sorhus
+Sindre Sorhus
+Giel Cobben
+Mathew Sachin
+RedDucks
+Alexandr Subbotin
+MIT IS&T
+secana
+Webprofusion Pty Ltd
+a wandersick
+Chef Software, Inc.
+ChemAxon
+ChemAxon
+ChemAxon
+ChemAxon
+The Chromium Authors
+Circuit Diagram
+Circuit Diagram
+Cisco Webex LLC
+Daniel Scalzi
+alch
+Fndroid
+Fndroid
+Fndroid
+Fndroid
+Beijing EEO Education Technology Co., Ltd.
+Clementine
+Martin Ridgers
+Cloudflare, Inc.
+The Code::Blocks Team
+Eran Ifrah
+Steven Cole
+TerranovaTeam
+Jay Prall
+Toinane
+ConEmu-Maximus5
+Concept2 Inc.
+Microsoft Corporation
+Contasimple S.L.
+ALCPU
+Couchbase Inc.
+Couchbase Inc.
+Cozy Cloud
+The Cppcheck team
+Habib Rehman
+cryptomator.org
+Crystal Dew World
+Crystal Dew World
+Crystal Dew World
+Crystal Dew World
+Crystal Dew World
+Crystal Dew World
+Crystal Dew World
+Crystal Dew World
+Crystal Dew World
+Crystal Dew World
+Crystal Dew World
+Crystal Dew World
+Crystal Dew World
+Crystal Dew World
+Crystal Dew World
+Crystal Dew World
+Crystal Dew World
+cubicsdr.com
+Acro Software Inc.
+iterate GmbH
+DB Browser for SQLite Team
+DBeaver Corp
+DBeaver Corp
+DBeaver Corp
+DBeaver Corp
+DBeaver Corp
+DBeaver Corp
+DBeaver Corp
+DBeaver Corp
+DBeaver Corp
+DJI
+DJI
+DJI
+DJI
+DJI
+DJI
+DJI
+DJI
+TshwaneDJe
+Boxstar
+Boxstar
+Deezer
+Ashley Stone
+Piriform
+Dell, Inc.
+Dell Inc.
+Bloodshed Software
+Thinking Man Software
+Serraniel
+Serraniel
+Scott Brogden
+Dixa
+DjVuZone
+DockStation
+Docker Inc.
+Dokany Project
+Dokany Project
+Dolphin Team
+dengine.net
+Digimezzo
+Doxie & Co. LLC
+Dropbox, Inc.
+EasternGraphics
+EasternGraphics
+EagleGet
+EagleGet
+Luke Stratman
+ES-Computing
+EduMIPS64 Development Team
+Elastic
+Elgato Systems GmbH
+Empoche.com
+Empoche.com
+MacPaw, Inc.
+a wandersick
+Sinew Software Systems Private Limited
+The Eraser Project
+The Eraser Project
+The Eraser Project
+The Eraser Project
+Esteem
+Ethereum
+Evernote Corp.
+Evernote Corp.
+David Carpenter
+David Carpenter
+David Carpenter
+David Carpenter
+voidtools
+ExpressVPN
+Ultrapico
+The ExtremeTuxRacer team
+Eugene Roshal & Far Group
+H.Shirouzu
+FastStone Soft
+FastStone Soft
+Fedora Project
+Amine Mouafik
+Progress Software Corporation
+Progress Software Corporation
+Progress Software Corporation
+Progress Software Corporation
+Progress Software Corporation
+Progress Software Corporation
+Progress Software Corporation
+Adrien Allard
+Binary Fortress Software
+Tim Kosse
+Tim Kosse
+Tim Kosse
+Tim Kosse
+Tim Kosse
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+OpenSight Software LLC
+The FlightGear Team
+Dominik Levitsky Studio, LLC
+FontForgeBuilds
+Free Time
+Free Time
+Foxit Software Inc.
+Foxit Software Inc.
+Stefan Malzner
+Marek Jasinski - www.FreeCommander.com
+Humanity
+The GIMP Team
+The GIMP Team
+The GIMP Team
+The GIMP Team
+The GIMP Team
+The GIMP Team
+The GIMP Team
+The GIMP Team
+ARM Holdings
+The Free Software Foundation, Inc.
+The GnuPG Project
+GCN Development
+GOG.com
+Artifex Software Inc.
+Ghostgum Software Pty Ltd
+Garmin Ltd or its subsidiaries
+ThoughtWorks Inc.
+ThoughtWorks Inc.
+The Geany developer team
+Primate Labs Inc.
+Gephi
+Outertech
+Git Extensions Team
+Git Extensions Team
+Git Extensions Team
+GitHub, Inc.
+The Git Development Community
+The Git Development Community
+The Git Development Community
+The Git Development Community
+The Git Development Community
+The Git Development Community
+GitHub, Inc.
+GitHub, Inc.
+Stef Heyenrath
+Troupe Technology Limited
+Glimpse Project
+Glimpse Project
+Glimpse Project
+GnuCash Development Team
+GnuCash Development Team
+GnuWin32
+GnuWin32
+GnuWin32
+GnuWin32
+https://golang.org
+https://golang.org
+https://golang.org
+https://golang.org
+https://golang.org
+https://golang.org
+https://golang.org
+https://golang.org
+https://golang.org
+https://golang.org
+https://golang.org
+https://golang.org
+https://golang.org
+https://golang.org
+https://golang.org
+https://golang.org
+https://golang.org
+GoldWave Inc.
+Google LLC
+Google Inc.
+Google
+The Gpg4win Project
+The Gpg4win Project
+Grafana Labs
+Grafana Labs
+Grammarly
+The Gramps project
+Graphcool
+Adam Miskiewicz
+AT&T Research Labs.
+Greenshot
+Grid Team
+Epiforge Software, LLC
+HHD Software, Ltd.
+Hector Maurcio Rodriguez Segura
+HP Inc.
+Huawei Software Technologies Co., Ltd.
+Martin Malik - REALiX
+Martin Malik - REALiX
+Martin Malik - REALiX
+Martin Malik - REALiX
+HandyOrg
+Vincent L
+Implbits Software
+Implbits Software
+JAM Software
+Hedgewars Project
+Ansgar Becker
+Ansgar Becker
+Ansgar Becker
+Ansgar Becker
+Ansgar Becker
+Perforce Software, Inc.
+IBE Software
+HexChat
+Scott Lerch
+Caphyon
+Borvid
+Borvid
+Borvid
+Borvid
+Borvid
+Borvid
+Borvid
+Huawei Corporation
+Hyne & Son Pty Ltd
+Marquis Kurt
+Google Inc
+Hex-Rays SA
+Tibbo Technology Inc
+David Moore
+IRCCloud Ltd.
+Ivan Zahariev
+Duong Dieu Phap
+Inkscape
+jrsoftware.org
+jrsoftware.org
+Crystal Rich, Ltd
+seonglae
+Irfan Skiljan
+IronPython Team
+IronPython Team
+ISWIX LLC
+Smart Projects
+ChemAxon
+JabRef
+Jackett
+Savoir-Faire Linux
+Oracle Corporation
+Oracle Corporation
+JetBrains
+Jitsi Team
+Jitsi Team
+Laurent Cozic
+Laurent Cozic
+Laurent Cozic
+Julia Language
+Julia Language
+Julia Language
+KLCP
+KLCP
+KKBOX Taiwan Co., Ltd.
+Chia-Lung, Chen
+Dominik Reichl
+Dominik Reichl
+Dominik Reichl
+KeePassXC Team
+KeeWeb
+Keybase, Inc.
+KiCad
+KiCad
+KiCad
+Krisp Technologies, Inc
+Krita Foundation
+Roni Lehto
+LBRY Inc.
+LBRY Inc.
+LBRY Inc.
+LBRY Inc.
+LBRY Inc.
+LINE Corporation
+Joseph Albahari
+LLVM
+LMMS Developers
+LMMS Developers
+love2d.org
+leokhoa
+LastPass
+Lazarus Team
+Riot Games, Inc
+Lenovo
+Lenovo
+Lakend Labs, Inc.
+Leonflix
+BellSoft
+BellSoft
+BellSoft
+BellSoft
+BellSoft
+BellSoft
+BellSoft
+BellSoft
+LibreCAD Team
+The Document Foundation
+The Document Foundation
+Team Lidarr
+Alexey 'Tyrrrz' Golub
+Alexey 'Tyrrrz' Golub
+Christian Kaiser
+Leif Asbrink SM5BSZ
+Lisk Foundation
+Listen 1
+Listen 1
+Flywheel
+Crystal Rich Ltd
+Binary Fortress Software
+Binary Fortress Software
+Logitech Inc.
+Loom, Inc.
+LyX Team
+LyX Team
+COTILab
+COTILab
+Moritz Bunkus
+Moritz Bunkus
+Moritz Bunkus
+Moritz Bunkus
+Moritz Bunkus
+MPC-HC Team
+MPC-HC Team
+MPC-HC Team
+Thomas Nordquist
+Microsoft
+Maxthon International Limited
+MY.COM B.V.
+FlyingSnow, Samantha Glocker
+Firetrust
+Firetrust
+Majsoul Plus Team
+GuinpinSoft inc
+Malwarebytes
+KDE
+MariaDB Corporation Ab
+Jocs
+West Wind Technologies
+West Wind Technologies
+West Wind Technologies
+West Wind Technologies
+West Wind Technologies
+Markdown Outlook
+Master Packager Ltd.
+Mattermost, Inc.
+MediaArea.net
+MediaArea.net
+Ventis Media Inc.
+The Meld project
+Janea Systems
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Garage
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft
+Microsoft
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Anaconda, Inc.
+Anaconda, Inc.
+MongoDB Inc.
+Xamarin, Inc.
+The MonoGame Team
+Moonlight Game Streaming Project
+AGALWOOD
+AGALWOOD
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Mozilla
+Nicholas H.Tollervey
+Mullvad VPN
+Mullvad VPN
+Microsoft Corporation
+canonical
+The Mumble Developers
+The Mumble Developers
+The Mumble Developers
+Werner Schweer and Others
+Youta Tec
+Logitech
+Martin Renold and the MyPaint Development Team
+Oracle Corporation
+Feodor2
+Justin Aquadro
+Rico Suter
+NV Access
+NVIDIA Corporation
+NVIDIA Corporation
+NZXT, Inc.
+NZXT, Inc.
+NZXT, Inc.
+NZXT, Inc.
+NZXT, Inc.
+NZXT, Inc.
+Allan CORNET
+Neotys
+Lutz Roeder
+Nitro
+Nmap Project
+qinghai
+qinghai
+qinghai
+Node.js Foundation
+Nodist
+NordVPN
+TEFINCOM S.A.
+NordVPN
+NordVPN
+CodingRoad
+XhmikosR
+Notion Labs, Incorporated
+Notion Labs, Incorporated
+Nmap Project
+NullNoname
+Nullsoft and Contributors
+OBS Project
+Hamster Republic Productions
+Ascensio System SIA
+GNU Octave
+WetHat Lab
+Open Shop Channel
+The Open-Shell Team
+namazso
+namazso
+ojdkbuild open-source project
+ojdkbuild open-source project
+ojdkbuild open-source project
+ojdkbuild open-source project
+OpenMPT Devs
+Apache Software Foundation
+OpenRA developers
+The OpenSCAD Developers
+Shining Light Productions
+OpenShot Studios, LLC
+OpenTTD
+OpenTTD
+OpenVPN Technologies, Inc.
+SparkLabs Pty Ltd
+OpenVPN Technologies
+Opera Software
+Opera Software
+Opera Software
+Opera Software
+Opera Software
+Opera Software
+Opera Software
+Opera Software
+Oracle Corporation
+Oracle Corporation
+Oracle Corporation
+Oracle Corporation
+OutSystems
+EXP Systems LLC
+Sober Lemur S.a.s. di Vacondio Andrea
+CCPKU
+Jan Fiala
+NagleCode, LLC
+Moonchild Productions
+Moonchild Productions
+John MacFarlane
+John MacFarlane
+John MacFarlane
+Paradox Interactive
+Paragon Software GmbH
+Parsec Cloud Inc.
+Francesco Sorge
+Giorgio Tani
+Giorgio Tani
+Persepolis Team
+Heiko Sommerfeldt
+touchbyte GmbH
+NGWIN
+PicoTorrent contributors.
+blupi.org
+Sony Interactive Entertainment Network America LLC
+Josef Nemec
+Plex, Inc.
+Plex
+Plex, Inc.
+Plex, Inc.
+Plex, Inc.
+Plex, Inc.
+www.pokerth.net
+Postbox, Inc.
+PostgreSQL Global Development Group
+PostgreSQL Global Development Group
+Microsoft Corporation
+Microsoft Corporation
+Ironman Software, LLC
+Microsoft
+Kim Walisch
+Private Internet Access, Inc.
+Progress Software Corporation
+Microsoft Corporation
+Proton Technologies AG
+Proton Technologies AG
+Simon Tatham
+Puppet Labs
+Puppet Inc
+Puppet, Inc.
+Puppet Inc
+Miller Puckette
+Lancaster University Physics
+Python Software Foundation
+Hubert Pham
+Python Software Foundation
+Python Software Foundation
+Python Software Foundation
+Python Software Foundation
+Python Software Foundation
+Python Software Foundation
+Python Software Foundation
+Python Software Foundation
+QGIS Development Team
+QGIS Development Team
+QGIS Development Team
+Michael Hansen
+Hanna Knutsson
+LarusStone
+Module Art
+Paddy Xu
+Quicken
+R Core Team
+R Core Team
+R Core Team
+RStudio
+Rambox
+Oleg Danilov
+Raspberry Pi
+rawtherapee.com
+Paul Rawnsley
+jklSoft
+Devolutions inc.
+Devolutions inc.
+Remote Mouse
+Baldur Karlsson
+Antmicro
+Responsively
+RetroShare Team
+VS Revo Group, Ltd.
+VS Revo Group, Ltd.
+3T Software Labs Ltd
+3T Software Labs Ltd
+3T Software Labs Ltd
+Rocket.Chat Support
+Punk Software
+Artsoft Entertainment
+MarkoBL
+code4ward GmbH
+Royal Apps GmbH
+The R Foundation
+RubyInstaller Team
+RubyInstaller Team
+RubyInstaller Team
+Luke Haas
+Luke Haas
+The Rust Project Developers
+The Rust Project Developers
+The Rust Project Developers
+The Rust Project Developers
+The Rust Project Developers
+The Rust Project Developers
+The Rust Project Developers
+The Rust Project Developers
+The Rust Project Developers
+Topala Software Solutions
+Ricardo Villalba
+Navimatics LLC
+Dotz Softwares
+Samsung Electronics Co., Ltd.
+mircearoata
+Scratch Foundation
+Nicke Manarin
+The Scribus Team
+The ScummVM Team
+spikespaz
+Sejda BV
+Datalust Pty Ltd
+Microsoft Corporation
+ShareX Team
+RandyRants.com
+Meltytech, LLC
+Sigil-Ebook
+Open Whisper Systems
+Open Whisper Systems
+Open Whisper Systems
+Open Whisper Systems
+Open Whisper Systems
+Open Whisper Systems
+Open Whisper Systems
+Approximatrix, LLC
+Ashley Stone
+Skype Technologies S.A.
+Skype Technologies S.A.
+Skype Technologies S.A.
+Slack Technologies
+TechSmith Corporation
+SnakeNest.com
+Cory Plotts
+SmartBear Software
+Sonic Pi
+Sonos, Inc.
+Sonos, Inc.
+Antoine Aflalo
+Atlassian
+SpeedCrunch
+Spek Project
+Standard Notes
+Valve Corporation
+http://www.sbcl.org
+SteelSeries ApS
+Stellarium team
+Stellarium team
+Stellarium team
+strawberryperl.com project
+General Workings, Inc.
+General Workings, Inc.
+General Workings, Inc.
+Streamlink
+Sebastian Meyer
+Jan Hovancik
+Jan Hovancik
+Jan Hovancik
+Stride
+BrickLink Corporation
+Sublime HQ Pty Ltd
+Sublime HQ Pty Ltd
+Krzysztof Kowalczyk
+SuperCollider Community
+SuperTuxKart
+Microsoft
+SyncTrayzor
+Mister Group
+OpenVPN Technologies, Inc.
+erengy
+Tailscale Inc.
+Tailscale Inc.
+Taisei Project
+Taskcade Inc.
+Taskcade Inc.
+"Treasure Data, Inc"
+Treasure Data, Inc
+Benito van der Zander
+TeX Users Group
+TeamSpeak Systems GmbH
+TechPowerUp
+Telegram FZ-LLC
+Telegram FZ-LLC
+Telegram FZ-LLC
+Telegram FZ-LLC
+Telegram FZ-LLC
+Telegram FZ-LLC
+Telegram FZ-LLC
+Telegram FZ-LLC
+Telegram FZ-LLC
+TeraTerm Project
+Eugene Pankov
+Eugene Pankov
+Eugene Pankov
+CompuPhase
+Tesseract-OCR community
+Texmaker
+Texnomic
+RaMMicHaeL
+Appest.com
+GlavSoft LLC.
+TikzEdt
+mapeditor.org
+Nadeo
+Toggl
+Toggl
+TortoiseGit
+TortoiseSVN
+TortoiseSVN
+TranslucentTB Open Source Developers
+Transmission Project
+Yury Sidorov & Transmission Remote GUI working group
+Binary Fortress Software
+Binary Fortress Software
+JAM Software
+JAM Software
+Trelby.org
+Cerulean Studios, LLC
+TunnelBear
+New Breed Software
+Inspect Element Inc.
+Xander Frangos
+Twitch Interactive, Inc.
+G DATA CyberDefense AG
+SafelyRemove.com
+Drew Naylor
+Drew Naylor
+Ultimaker B.V.
+Ultimaker B.V.
+Ultimaker B.V.
+uvnc bvba
+Reason Software Company Inc.
+Unified Intents AB
+Unity Technologies Inc.
+Microsoft Corporation
+Microsoft Corporation
+Ubisoft
+UMEZAWA Takeshi
+VCV
+VideoLAN
+VideoLAN
+VideoLAN
+VMware, Inc.
+VMware, Inc.
+VMware, Inc.
+RealVNC Ltd
+RealVNC Ltd
+Microsoft Corporation
+Microsoft Corporation
+marha@users.sourceforge.net
+Bram Moolenaar et al.
+Virt Manager Project
+Vivaldi Technologies AS.
+Black Tree Gaming Ltd.
+VoyagerX, Inc.
+LunarG, Inc.
+Warzone 2100 Project
+Waterfox
+Waterfox
+Waterfox
+Devolutions Inc.
+Buds
+Buds
+Buds
+Buds
+Machine Learning Group, University of Waikato, Hamilton, NZ
+ImageWriter Developers
+Sam Hocevar
+Timothy Johnson
+Timothy Johnson
+Timothy Johnson
+Navimatics LLC
+HTTrack
+Thingamahoochie Software
+win.rar GmbH
+win.rar GmbH
+Martin Prikryl
+Corel Corporation
+Winamp SA
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Dynastream Innovations, Inc.
+Silicon Labs Software
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+Microsoft Corporation
+WireGuard LLC
+The Wireshark developer community, https://www.wireshark.org
+The Wireshark developer community, https://www.wireshark.org
+The Wireshark developer community, https://www.wireshark.org
+The Wireshark developer community, https://www.wireshark.org
+Antibody Software
+Antibody Software
+Antibody Software
+Antibody Software
+Antibody Software
+Automattic Inc.
+Automattic Inc.
+Automattic Inc.
+Automattic Inc.
+Rob Caelers & Raymond Penners
+Writage
+X2Go Project
+Bitnami
+Christian Hohnstaedt
+The TBOOX Open Source Group
+XMind Ltd.
+Gougelet Pierre-e
+Gougelet Pierre-e
+Yarn Contributors
+Beijing Yinxiang Biji Technologies Co., Ltd.
+Beijing Yinxiang Biji Technologies Co., Ltd.
+Beijing Yinxiang Biji Technologies Co., Ltd.
+Beijing Yinxiang Biji Technologies Co., Ltd.
+Beijing Yinxiang Biji Technologies Co., Ltd.
+Adler Luiz
+Yubico AB
+Zentimo.com
+ZeroTier, Inc.
+Hendrik Erz
+Robin Stuart & BogDan Vatra
+Zoom
+Zoom
+Corporation for Digital Scholarship
+Kandra Labs, Inc.
+Sangoma Technologies Corp.
+Zygor Guides
+Balena Inc.
+Balena Inc.
+Balena Inc.
+Balena Inc.
+Balena Inc.
+Balena Inc.
+Balena Inc.
+Balena Inc.
+Nathaniel Johns
+Clement Tsang
+butterflow-ui @ github
+Kovid Goyal
+Elliott Zheng
+the darktable project
+dnGrep Community Contributors
+JGraph
+Hardcoded Software
+eM Client Inc.
+Ebbflow.io
+f.lux Software LLC
+Kurata Sayuri
+wereturtle
+gnuplot development team
+Stefans Tools
+Drew Naylor
+Drew Naylor
+Drew Naylor
+eVenture Limited
+eVenture Limited
+PurpleI2P
+Vantage Linguistics
+Apple Inc.
+KDE e.V.
+KDE e.V.
+Next Generation Software
+Maxima Team
+Frank Skare (stax76)
+720kb
+xiles
+ownCloud GmbH
+EasternGraphics
+Laurent P. Ren© de Cotret
+The pgAdmin Development Team
+The pgAdmin Development Team
+The pgAdmin Development Team
+The pgAdmin Development Team
+The qBittorrent project
+The qBittorrent project
+The qBittorrent project
+remote.it
+remote.it
+Lightbend, Inc.
+Scilab Enterprises
+The Sqlectron Team
+Jan Hovancik
+Oliver Schwendener
+Oliver Schwendener
+Oliver Schwendener
+Humanity
+Humanity
+Microsoft Corporation
+Alipay.com Co., Ltd.
+百度在线网络技术（北京）有限公司
+腾讯科技(深圳)有限公司

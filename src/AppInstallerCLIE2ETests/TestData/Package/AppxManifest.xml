@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+         xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+         xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+         IgnorableNamespaces="uap uap3">
+
+  <Identity Name="WingetE2E.Tests"
+            ProcessorArchitecture="neutral"
+            Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+            Version="2020.805.713.335" />
+
+  <!-- Commit in which this package was based on 0563b4dd28f58985a8e60762ede9824f1b7ea310-->
+
+  <Properties>
+    <DisplayName>WinGet Source</DisplayName>
+    <PublisherDisplayName>Microsoft Corporation</PublisherDisplayName>
+    <Logo>Assets\AppPackageStoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.16299.0" MaxVersionTested="10.0.18287.0" />
+  </Dependencies>
+
+  <Applications>
+    <Application Id="SourceData">
+      <uap:VisualElements DisplayName="WinGet Source"
+                          Square150x150Logo="Assets\AppPackageStoreLogo.scale-150.png"
+                          Square44x44Logo="Assets\AppPackageStoreLogo.scale-100.png"
+                          Description="WinGet Source"
+                          BackgroundColor="#0078d7"
+                          AppListEntry="none" />
+      <Extensions>
+        <uap3:Extension Category="windows.appExtension">
+          <uap3:AppExtension Name="com.microsoft.winget.source"
+                             Id="IndexDB"
+                             DisplayName="WinGet Source"
+                             Description="WinGet Source"
+                             PublicFolder="Public">
+          </uap3:AppExtension>
+        </uap3:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Resources>
+    <Resource Language="und" />
+  </Resources>
+
+</Package>

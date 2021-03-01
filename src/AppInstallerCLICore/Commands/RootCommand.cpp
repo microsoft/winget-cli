@@ -7,9 +7,17 @@
 #include "ShowCommand.h"
 #include "SourceCommand.h"
 #include "SearchCommand.h"
+#include "ListCommand.h"
+#include "UpgradeCommand.h"
+#include "UninstallCommand.h"
 #include "HashCommand.h"
 #include "ValidateCommand.h"
 #include "SettingsCommand.h"
+#include "FeaturesCommand.h"
+#include "ExperimentalCommand.h"
+#include "CompleteCommand.h"
+#include "ExportCommand.h"
+#include "ImportCommand.h"
 
 #include "Resources.h"
 #include "TableOutput.h"
@@ -25,9 +33,17 @@ namespace AppInstaller::CLI
             std::make_unique<ShowCommand>(FullName()),
             std::make_unique<SourceCommand>(FullName()),
             std::make_unique<SearchCommand>(FullName()),
+            std::make_unique<ListCommand>(FullName()),
+            std::make_unique<UpgradeCommand>(FullName()),
+            std::make_unique<UninstallCommand>(FullName()),
             std::make_unique<HashCommand>(FullName()),
             std::make_unique<ValidateCommand>(FullName()),
             std::make_unique<SettingsCommand>(FullName()),
+            std::make_unique<FeaturesCommand>(FullName()),
+            std::make_unique<ExperimentalCommand>(FullName()),
+            std::make_unique<CompleteCommand>(FullName()),
+            std::make_unique<ExportCommand>(FullName()),
+            std::make_unique<ImportCommand>(FullName()),
         });
     }
 
@@ -35,8 +51,8 @@ namespace AppInstaller::CLI
     {
         return
         {
-            Argument{ "version", 'v', Execution::Args::Type::ListVersions, Resource::String::ToolVersionArgumentDescription, ArgumentType::Flag, Visibility::Help },
-            Argument{ "info", APPINSTALLER_CLI_ARGUMENT_NO_SHORT_VER, Execution::Args::Type::Info, Resource::String::ToolInfoArgumentDescription, ArgumentType::Flag, Visibility::Help },
+            Argument{ "version", 'v', Execution::Args::Type::ListVersions, Resource::String::ToolVersionArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument{ "info", Argument::NoAlias, Execution::Args::Type::Info, Resource::String::ToolInfoArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
         };
     }
 
@@ -66,9 +82,11 @@ namespace AppInstaller::CLI
                 info << Resource::String::Package << ": "_liv << Runtime::GetPackageVersion() << std::endl;
             };
 
+            info << std::endl << Resource::String::Logs << ": "_liv << Runtime::GetPathTo(Runtime::PathName::DefaultLogLocationForDisplay).u8string() << std::endl;
+
             info << std::endl;
 
-            Execution::TableOutput<2> links{ context.Reporter, { Resource::LocString(Resource::String::Links).get(), "" } };
+            Execution::TableOutput<2> links{ context.Reporter, { Resource::String::Links, {} } };
 
             links.OutputLine({ Resource::LocString(Resource::String::PrivacyStatement).get(), "https://aka.ms/winget-privacy" });
             links.OutputLine({ Resource::LocString(Resource::String::LicenseAgreement).get(), "https://aka.ms/winget-license" });

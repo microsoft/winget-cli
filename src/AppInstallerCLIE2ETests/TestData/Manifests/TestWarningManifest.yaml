@@ -1,0 +1,12 @@
+Id: TestWarning.Manifest
+Name: TestWarningManifest
+Version: 1.0.0.0
+Publisher: AppInstallerTest
+License: Test
+Installers:
+  - Arch: x86
+    Url: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    Sha256: <EXEHASH>
+    InstallerType: exe
+    Switches:
+ManifestVersion: 0.1.0

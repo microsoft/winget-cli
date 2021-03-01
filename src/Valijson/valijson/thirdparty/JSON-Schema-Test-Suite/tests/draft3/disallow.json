@@ -1,0 +1,80 @@
+[
+    {
+        "description": "disallow",
+        "schema": {
+            "disallow": "integer"
+        },
+        "tests": [
+            {
+                "description": "allowed",
+                "data": "foo",
+                "valid": true
+            },
+            {
+                "description": "disallowed",
+                "data": 1,
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "multiple disallow",
+        "schema": {
+            "disallow": ["integer", "boolean"]
+        },
+        "tests": [
+            {
+                "description": "valid",
+                "data": "foo",
+                "valid": true
+            },
+            {
+                "description": "mismatch",
+                "data": 1,
+                "valid": false
+            },
+            {
+                "description": "other mismatch",
+                "data": true,
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "multiple disallow subschema",
+        "schema": {
+            "disallow":
+                ["string",
+                 {
+                    "type": "object",
+                    "properties": {
+                        "foo": {
+                            "type": "string"
+                        }
+                    }
+                 }]
+        },
+        "tests": [
+            {
+                "description": "match",
+                "data": 1,
+                "valid": true
+            },
+            {
+                "description": "other match",
+                "data": {"foo": 1},
+                "valid": true
+            },
+            {
+                "description": "mismatch",
+                "data": "foo",
+                "valid": false
+            },
+            {
+                "description": "other mismatch",
+                "data": {"foo": "bar"},
+                "valid": false
+            }
+        ]
+    }
+]

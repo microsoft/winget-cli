@@ -1,13 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCLIE2ETests\</OutDir>
     <IsPackable>false</IsPackable>
     <Platforms>x64;x86</Platforms>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Msix.Utils" Version="1.0.200812001" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
     <PackageReference Include="nunit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
@@ -15,13 +17,21 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="TestData\Manifests\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="TestData\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="TestData\ImportFiles\ImportFile-Bad-Invalid.json" />
+    <None Remove="TestData\ImportFiles\ImportFile-Bad-UnknownPackage.json" />
+    <None Remove="TestData\ImportFiles\ImportFile-Bad-UnknownPackageVersion.json" />
+    <None Remove="TestData\ImportFiles\ImportFile-Bad-UnknownSource.json" />
+    <None Remove="TestData\ImportFiles\ImportFile-Good.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IndexCreationTool\IndexCreationTool.csproj" />
   </ItemGroup>
 
   <ItemGroup>

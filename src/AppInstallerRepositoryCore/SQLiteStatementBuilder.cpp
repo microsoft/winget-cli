@@ -143,6 +143,20 @@ namespace AppInstaller::Repository::SQLite::Builder
         }
     }
 
+    IntegerPrimaryKey::IntegerPrimaryKey()
+    {
+        m_stream << SQLite::RowIDName << " INTEGER PRIMARY KEY";
+    }
+
+    IntegerPrimaryKey& IntegerPrimaryKey::AutoIncrement(bool isTrue)
+    {
+        if (isTrue)
+        {
+            m_stream << " AUTOINCREMENT";
+        }
+        return *this;
+    }
+
     ColumnBuilder::ColumnBuilder(std::string_view column, Type type)
     {
         OutputColumns(m_stream, "", column);
@@ -336,9 +350,9 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
-    StatementBuilder& StatementBuilder::IsNull()
+    StatementBuilder& StatementBuilder::IsNull(bool isNull)
     {
-        m_stream << " IS NULL";
+        m_stream << " IS " << (isNull ? "" : "NOT ") << "NULL";
         return *this;
     }
 
@@ -369,6 +383,24 @@ namespace AppInstaller::Repository::SQLite::Builder
     StatementBuilder& StatementBuilder::Join(std::initializer_list<std::string_view> table)
     {
         OutputOperationAndTable(m_stream, " JOIN", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::LeftOuterJoin(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, " LEFT OUTER JOIN", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::LeftOuterJoin(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, " LEFT OUTER JOIN", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::LeftOuterJoin(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, " LEFT OUTER JOIN", table);
         return *this;
     }
 
@@ -598,6 +630,24 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::CreateUniqueIndex(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE UNIQUE INDEX", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::CreateUniqueIndex(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE UNIQUE INDEX", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::CreateUniqueIndex(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, "CREATE UNIQUE INDEX", table);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::DropIndex(std::string_view table)
     {
         OutputOperationAndTable(m_stream, "DROP INDEX", table);
@@ -695,7 +745,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
-    Statement StatementBuilder::Prepare(Connection& connection)
+    Statement StatementBuilder::Prepare(const Connection& connection)
     {
         Statement result = Statement::Create(connection, m_stream.str());
         for (const auto& f : m_binders)
@@ -705,7 +755,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         return result;
     }
 
-    void StatementBuilder::Execute(Connection& connection)
+    void StatementBuilder::Execute(const Connection& connection)
     {
         Prepare(connection).Execute();
     }

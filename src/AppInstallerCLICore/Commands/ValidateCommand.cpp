@@ -34,28 +34,32 @@ namespace AppInstaller::CLI
     void ValidateCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
-            Workflow::VerifyFile(Execution::Args::Type::ValidateManifest) <<
+            Workflow::VerifyPath(Execution::Args::Type::ValidateManifest) <<
             [](Execution::Context& context)
         {
             auto inputFile = Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::ValidateManifest));
 
             try
             {
-                (void)Manifest::Manifest::CreateFromPath(inputFile, true, true);
+                (void)Manifest::YamlParser::CreateFromPath(inputFile, true, true);
                 context.Reporter.Info() << Resource::String::ManifestValidationSuccess << std::endl;
             }
             catch (const Manifest::ManifestException& e)
             {
+                HRESULT hr = S_OK;
                 if (e.IsWarningOnly())
                 {
                     context.Reporter.Warn() << Resource::String::ManifestValidationWarning << std::endl;
+                    hr = APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_WARNING;
                 }
                 else
                 {
                     context.Reporter.Error() << Resource::String::ManifestValidationFail << std::endl;
+                    hr = APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_FAILURE;
                 }
 
                 context.Reporter.Info() << e.GetManifestErrorMessage() << std::endl;
+                AICLI_TERMINATE_CONTEXT(hr);
             }
         };
     }

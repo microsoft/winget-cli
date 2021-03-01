@@ -1,11 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <Manifest/Manifest.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
 #include <winget/LocIndependent.h>
+#include <winget/Manifest.h>
 
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -15,24 +16,32 @@
 
 namespace AppInstaller::Repository
 {
+    struct ISource;
+
     // The type of matching to perform during a search.
+    // The values must be declared in order of preference in search results.
     enum class MatchType
     {
-        Exact,
-        Substring,
-        Wildcard,
+        Exact = 0,
+        CaseInsensitive,
+        StartsWith,
         Fuzzy,
+        Substring,
         FuzzySubstring,
+        Wildcard,
     };
 
     // The field to match on.
-    enum class ApplicationMatchField
+    // The values must be declared in order of preference in search results.
+    enum class PackageMatchField
     {
-        Id,
+        Id = 0,
         Name,
         Moniker,
-        Tag,
         Command,
+        Tag,
+        PackageFamilyName,
+        ProductCode,
     };
 
     // A single match to be performed during a search.
@@ -45,63 +54,171 @@ namespace AppInstaller::Repository
     };
 
     // A match on a specific field to be performed during a search.
-    struct ApplicationMatchFilter : public RequestMatch
+    struct PackageMatchFilter : public RequestMatch
     {
-        ApplicationMatchField Field;
+        PackageMatchField Field;
 
-        ApplicationMatchFilter(ApplicationMatchField f, MatchType t, std::string_view v) : RequestMatch(t, v), Field(f) {}
+        PackageMatchFilter(PackageMatchField f, MatchType t, std::string_view v) : RequestMatch(t, v), Field(f) {}
     };
 
     // Container for data used to filter the available manifests in a source.
+    // It can be thought of as:
+    //  (Query || Inclusions...) && Filters...
+    // If Query and Inclusions are both empty, the starting data set will be the entire database.
+    //  Everything && Filters...
     struct SearchRequest
     {
         // The generic query matches against a source defined set of fields.
-        // If not provided, the filters should be used against the entire dataset.
         std::optional<RequestMatch> Query;
 
+        // Specific fields used to include more data.
+        // If Query is defined, this can add more rows afterward.
+        // If Query is not defined, this is the only set of data included.
+        std::vector<PackageMatchFilter> Inclusions;
+
         // Specific fields used to filter the data further.
-        std::vector<ApplicationMatchFilter> Filters;
+        std::vector<PackageMatchFilter> Filters;
 
         // The maximum number of results to return.
         // The default of 0 will place no limit.
         size_t MaximumResults{};
 
+        // Returns a value indicating whether this request is for all available data.
+        bool IsForEverything() const;
+
         // Returns a string summarizing the search request.
         std::string ToString() const;
     };
 
-    // A single application result from a search.
-    struct IApplication
+    // A property of a package version.
+    enum class PackageVersionProperty
     {
-        virtual ~IApplication() = default;
+        Id,
+        Name,
+        SourceIdentifier,
+        SourceName,
+        Version,
+        Channel,
+        RelativePath,
+    };
 
-        // Gets the id of the application.
-        virtual Utility::LocIndString GetId() = 0;
+    // A property of a package version that can have multiple values.
+    enum class PackageVersionMultiProperty
+    {
+        PackageFamilyName,
+        ProductCode,
+    };
 
-        // Gets the name of the application (the latest name).
-        virtual Utility::LocIndString GetName() = 0;
+    // A metadata item of a package version.
+    enum class PackageVersionMetadata : int32_t
+    {
+        // The InstallerType of an installed package
+        InstalledType,
+        // The Scope of an installed package
+        InstalledScope,
+        // The system path where the package is installed
+        InstalledLocation,
+        // The standard uninstall command; which may be interactive
+        StandardUninstallCommand,
+        // An uninstall command that should be non-interactive
+        SilentUninstallCommand,
+    };
 
-        // Gets a manifest for this application.
-        // An empty version implies 'latest'.
-        // An empty channel is the 'general audience'.
-        virtual std::optional<Manifest::Manifest> GetManifest(const Utility::NormalizedString& version, const Utility::NormalizedString& channel) = 0;
+    // Convert a PackageVersionMetadata to a string.
+    std::string_view ToString(PackageVersionMetadata pvm);
 
-        // Gets all versions of this application.
+    // A single package version.
+    struct IPackageVersion
+    {
+        using Metadata = std::map<PackageVersionMetadata, std::string>;
+
+        virtual ~IPackageVersion() = default;
+
+        // Gets a property of this package version.
+        virtual Utility::LocIndString GetProperty(PackageVersionProperty property) const = 0;
+
+        // Gets a property of this package version that can have multiple values.
+        virtual std::vector<Utility::LocIndString> GetMultiProperty(PackageVersionMultiProperty property) const = 0;
+
+        // Gets the manifest of this package version.
+        virtual Manifest::Manifest GetManifest() const = 0;
+
+        // Gets the source where this package version is from.
+        virtual std::shared_ptr<const ISource> GetSource() const = 0;
+
+        // Gets any metadata associated with this package version.
+        // Primarily stores data on installed packages.
+        virtual Metadata GetMetadata() const = 0;
+    };
+
+    // An installed package version.
+    struct IInstalledPackageVersion : public IPackageVersion
+    {
+        // Sets metadata on the installed version.
+        virtual void SetMetadata(PackageVersionMetadata metadata, std::string_view value) = 0;
+    };
+
+    // A key to identify a package version within a package.
+    struct PackageVersionKey
+    {
+        PackageVersionKey() = default;
+
+        PackageVersionKey(Utility::NormalizedString sourceId, Utility::NormalizedString version, Utility::NormalizedString channel) :
+            SourceId(std::move(sourceId)), Version(std::move(version)), Channel(std::move(channel)) {}
+
+        // The source id that this version came from.
+        std::string SourceId;
+
+        // The version.
+        Utility::NormalizedString Version;
+
+        // The channel.
+        Utility::NormalizedString Channel;
+    };
+
+    // A property of a package.
+    enum class PackageProperty
+    {
+        Id,
+        Name,
+    };
+
+    // A package, potentially containing information about it's local state and the available versions.
+    struct IPackage
+    {
+        virtual ~IPackage() = default;
+
+        // Gets a property of this package.
+        virtual Utility::LocIndString GetProperty(PackageProperty property) const = 0;
+
+        // Gets the installed package information.
+        virtual std::shared_ptr<IPackageVersion> GetInstalledVersion() const = 0;
+
+        // Gets all available versions of this package.
         // The versions will be returned in sorted, descending order.
         //  Ex. { 4, 3, 2, 1 }
-        virtual std::vector<Utility::VersionAndChannel> GetVersions() = 0;
+        virtual std::vector<PackageVersionKey> GetAvailableVersionKeys() const = 0;
+
+        // Gets a specific version of this package.
+        virtual std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const = 0;
+
+        // Gets a specific version of this package.
+        virtual std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const = 0;
+
+        // Gets a value indicating whether an available version is newer than the installed version.
+        virtual bool IsUpdateAvailable() const = 0;
     };
 
     // A single result from the search.
     struct ResultMatch
     {
-        // The application found by the search request.
-        std::unique_ptr<IApplication> Application;
+        // The package found by the search request.
+        std::shared_ptr<IPackage> Package;
 
-        // The highest order field on which the application matched the search.
-        ApplicationMatchFilter MatchCriteria;
+        // The highest order field on which the package matched the search.
+        PackageMatchFilter MatchCriteria;
 
-        ResultMatch(std::unique_ptr<IApplication>&& a, ApplicationMatchFilter f) : Application(std::move(a)), MatchCriteria(std::move(f)) {}
+        ResultMatch(std::shared_ptr<IPackage> p, PackageMatchFilter f) : Package(std::move(p)), MatchCriteria(std::move(f)) {}
     };
 
     // Search result data.
@@ -122,6 +239,10 @@ namespace AppInstaller::Repository
         {
         case MatchType::Exact:
             return "Exact"sv;
+        case MatchType::CaseInsensitive:
+            return "CaseInsensitive"sv;
+        case MatchType::StartsWith:
+            return "StartsWith"sv;
         case MatchType::Substring:
             return "Substring"sv;
         case MatchType::Wildcard:
@@ -135,22 +256,26 @@ namespace AppInstaller::Repository
         return "UnknownMatchType"sv;
     }
 
-    inline std::string_view ApplicationMatchFieldToString(ApplicationMatchField matchField)
+    inline std::string_view PackageMatchFieldToString(PackageMatchField matchField)
     {
         using namespace std::string_view_literals;
 
         switch (matchField)
         {
-        case ApplicationMatchField::Command:
+        case PackageMatchField::Command:
             return "Command"sv;
-        case ApplicationMatchField::Id:
+        case PackageMatchField::Id:
             return "Id"sv;
-        case ApplicationMatchField::Moniker:
+        case PackageMatchField::Moniker:
             return "Moniker"sv;
-        case ApplicationMatchField::Name:
+        case PackageMatchField::Name:
             return "Name"sv;
-        case ApplicationMatchField::Tag:
+        case PackageMatchField::Tag:
             return "Tag"sv;
+        case PackageMatchField::PackageFamilyName:
+            return "PackageFamilyName"sv;
+        case PackageMatchField::ProductCode:
+            return "ProductCode"sv;
         }
 
         return "UnknownMatchField"sv;

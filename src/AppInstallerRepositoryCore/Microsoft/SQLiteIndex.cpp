@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SQLiteIndex.h"
-
 #include "Schema/MetadataTable.h"
+#include <winget/ManifestYamlParser.h>
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -124,32 +124,41 @@ namespace AppInstaller::Repository::Microsoft
         m_version = m_interface->GetVersion();
     }
 
-    void SQLiteIndex::AddManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    void SQLiteIndex::ForceVersion(const Schema::Version& version)
+    {
+        m_interface = version.CreateISQLiteIndex();
+    }
+#endif
+
+    SQLiteIndex::IdType SQLiteIndex::AddManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
     {
         AICLI_LOG(Repo, Info, << "Adding manifest from file [" << manifestPath << "]");
 
-        Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(manifestPath);
-        AddManifest(manifest, relativePath);
+        Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(manifestPath);
+        return AddManifest(manifest, relativePath);
     }
 
-    void SQLiteIndex::AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
+    SQLiteIndex::IdType SQLiteIndex::AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
         AICLI_LOG(Repo, Info, << "Adding manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath << "]");
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_addmanifest");
 
-        m_interface->AddManifest(m_dbconn, manifest, relativePath);
+        IdType result = m_interface->AddManifest(m_dbconn, manifest, relativePath);
 
         SetLastWriteTime();
 
         savepoint.Commit();
+
+        return result;
     }
 
     bool SQLiteIndex::UpdateManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
     {
         AICLI_LOG(Repo, Info, << "Updating manifest from file [" << manifestPath << "]");
 
-        Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(manifestPath);
+        Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(manifestPath);
         return UpdateManifest(manifest, relativePath);
     }
 
@@ -159,7 +168,7 @@ namespace AppInstaller::Repository::Microsoft
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_updatemanifest");
 
-        bool result = m_interface->UpdateManifest(m_dbconn, manifest, relativePath);
+        bool result = m_interface->UpdateManifest(m_dbconn, manifest, relativePath).first;
 
         if (result)
         {
@@ -175,7 +184,7 @@ namespace AppInstaller::Repository::Microsoft
     {
         AICLI_LOG(Repo, Info, << "Removing manifest from file [" << manifestPath << "]");
 
-        Manifest::Manifest manifest = Manifest::Manifest::CreateFromPath(manifestPath);
+        Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(manifestPath);
         RemoveManifest(manifest, relativePath);
     }
 
@@ -199,31 +208,52 @@ namespace AppInstaller::Repository::Microsoft
         m_interface->PrepareForPackaging(m_dbconn);
     }
 
-    Schema::ISQLiteIndex::SearchResult SQLiteIndex::Search(const SearchRequest& request)
+    bool SQLiteIndex::CheckConsistency(bool log) const
+    {
+        AICLI_LOG(Repo, Info, << "Checking index consistency...");
+
+        bool result = m_interface->CheckConsistency(m_dbconn, log);
+
+        AICLI_LOG(Repo, Info, << "...index *WAS" << (result ? "*" : " NOT*") << " consistent.");
+
+        return result;
+    }
+
+    Schema::ISQLiteIndex::SearchResult SQLiteIndex::Search(const SearchRequest& request) const
     {
         AICLI_LOG(Repo, Info, << "Performing search: " << request.ToString());
 
         return m_interface->Search(m_dbconn, request);
     }
 
-    std::optional<std::string> SQLiteIndex::GetIdStringById(IdType id)
+    std::optional<std::string> SQLiteIndex::GetPropertyByManifestId(IdType manifestId, PackageVersionProperty property) const
     {
-        return m_interface->GetIdStringById(m_dbconn, id);
+        return m_interface->GetPropertyByManifestId(m_dbconn, manifestId, property);
     }
 
-    std::optional<std::string> SQLiteIndex::GetNameStringById(IdType id)
+    std::vector<std::string> SQLiteIndex::GetMultiPropertyByManifestId(IdType manifestId, PackageVersionMultiProperty property) const
     {
-        return m_interface->GetNameStringById(m_dbconn, id);
+        return m_interface->GetMultiPropertyByManifestId(m_dbconn, manifestId, property);
     }
 
-    std::optional<std::string> SQLiteIndex::GetPathStringByKey(IdType id, std::string_view version, std::string_view channel)
+    std::optional<SQLiteIndex::IdType> SQLiteIndex::GetManifestIdByKey(IdType id, std::string_view version, std::string_view channel) const
     {
-        return m_interface->GetPathStringByKey(m_dbconn, id, version, channel);
+        return m_interface->GetManifestIdByKey(m_dbconn, id, version, channel);
     }
 
-    std::vector<Utility::VersionAndChannel> SQLiteIndex::GetVersionsById(IdType id)
+    std::vector<Utility::VersionAndChannel> SQLiteIndex::GetVersionKeysById(IdType id) const
     {
-        return m_interface->GetVersionsById(m_dbconn, id);
+        return m_interface->GetVersionKeysById(m_dbconn, id);
+    }
+
+    SQLiteIndex::MetadataResult SQLiteIndex::GetMetadataByManifestId(SQLite::rowid_t manifestId) const
+    {
+        return m_interface->GetMetadataByManifestId(m_dbconn, manifestId);
+    }
+
+    void SQLiteIndex::SetMetadataByManifestId(IdType manifestId, PackageVersionMetadata metadata, std::string_view value)
+    {
+        m_interface->SetMetadataByManifestId(m_dbconn, manifestId, metadata, value);
     }
 
     // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus

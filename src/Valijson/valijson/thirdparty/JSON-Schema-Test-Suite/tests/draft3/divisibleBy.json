@@ -1,0 +1,60 @@
+[
+    {
+        "description": "by int",
+        "schema": {"divisibleBy": 2},
+        "tests": [
+            {
+                "description": "int by int",
+                "data": 10,
+                "valid": true
+            },
+            {
+                "description": "int by int fail",
+                "data": 7,
+                "valid": false
+            },
+            {
+                "description": "ignores non-numbers",
+                "data": "foo",
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "by number",
+        "schema": {"divisibleBy": 1.5},
+        "tests": [
+            {
+                "description": "zero is divisible by anything (except 0)",
+                "data": 0,
+                "valid": true
+            },
+            {
+                "description": "4.5 is divisible by 1.5",
+                "data": 4.5,
+                "valid": true
+            },
+            {
+                "description": "35 is not divisible by 1.5",
+                "data": 35,
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "by small number",
+        "schema": {"divisibleBy": 0.0001},
+        "tests": [
+            {
+                "description": "0.0075 is divisible by 0.0001",
+                "data": 0.0075,
+                "valid": true
+            },
+            {
+                "description": "0.00751 is not divisible by 0.0001",
+                "data": 0.00751,
+                "valid": false
+            }
+        ]
+    }
+]

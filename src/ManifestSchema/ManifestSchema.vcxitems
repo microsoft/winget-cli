@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{7d05f64d-ce5a-42aa-a2c1-e91458f061cf}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ManifestSchema.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="$(MSBuildThisFileDirectory)ManifestSchema.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\preview\manifest.0.1.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.defaultLocale.1.0.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.installer.1.0.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.locale.1.0.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.singleton.1.0.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.version.1.0.0.json" />
+  </ItemGroup>
+</Project>

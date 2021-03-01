@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "pch.h"
+#include "Resources.h"
 #include "SourceFlow.h"
 #include "TableOutput.h"
 #include "WorkflowBase.h"
@@ -9,6 +10,7 @@
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::Utility::literals;
 
     void GetSourceList(Execution::Context& context)
     {
@@ -24,7 +26,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (!source)
             {
-                context.Reporter.Error() << "Did not find a source named: " << name << std::endl;
+                context.Reporter.Error() << Resource::String::SourceListNoneFound << ' ' << name << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
             }
 
@@ -50,14 +52,14 @@ namespace AppInstaller::CLI::Workflow
             if (source->Arg == arg)
             {
                 // Name and arg match, indicate this to the user and bail.
-                context.Reporter.Info() << "A source with the given name already exists and refers to the same location: " << std::endl <<
-                    "  " << source->Name << " -> " << source->Arg << std::endl;
+                context.Reporter.Info() << Resource::String::SourceAddAlreadyExistsMatch << std::endl <<
+                    "  "_liv << source->Name << " -> "_liv << source->Arg << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS);
             }
             else
             {
-                context.Reporter.Error() << "A source with the given name already exists and refers to a different location: " << std::endl <<
-                    "  " << source->Name << " -> " << source->Arg << std::endl;
+                context.Reporter.Error() << Resource::String::SourceAddAlreadyExistsDifferentArg << std::endl <<
+                    "  "_liv << source->Name << " -> "_liv << source->Arg << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS);
             }
         }
@@ -70,8 +72,8 @@ namespace AppInstaller::CLI::Workflow
         {
             if (!details.Arg.empty() && details.Arg == arg && details.Type == type)
             {
-                context.Reporter.Error() << "A source with a different name already refers to this location: " << std::endl <<
-                    "  " << details.Name << " -> " << details.Arg << std::endl;
+                context.Reporter.Error() << Resource::String::SourceAddAlreadyExistsDifferentName << std::endl <<
+                    "  "_liv << details.Name << " -> "_liv << details.Arg << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS);
             }
         }
@@ -88,12 +90,12 @@ namespace AppInstaller::CLI::Workflow
         }
 
         context.Reporter.Info() <<
-            "Adding source:" << std::endl <<
-            "  " << name << " -> " << arg << std::endl;
+            Resource::String::SourceAddBegin << std::endl <<
+            "  "_liv << name << " -> "_liv << arg << std::endl;
 
         context.Reporter.ExecuteWithProgress(std::bind(Repository::AddSource, std::move(name), std::move(type), std::move(arg), std::placeholders::_1));
 
-        context.Reporter.Info() << "Done";
+        context.Reporter.Info() << Resource::String::Done;
     }
 
     void ListSources(Execution::Context& context)
@@ -105,32 +107,38 @@ namespace AppInstaller::CLI::Workflow
             // If a source name was specified, list full details of the one and only source.
             const Repository::SourceDetails& source = sources[0];
 
-            context.Reporter.Info() <<
-                "Name   : " + source.Name << std::endl <<
-                "Type   : " + source.Type << std::endl <<
-                "Arg    : " + source.Arg << std::endl <<
-                "Data   : " + source.Data << std::endl <<
-                "Updated: ";
+            Execution::TableOutput<2> table(context.Reporter, { Resource::String::SourceListField, Resource::String::SourceListValue });
+
+            table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListName), source.Name });
+            table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListType), source.Type });
+            table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListArg), source.Arg });
+            table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListData), source.Data });
 
             if (source.LastUpdateTime == Utility::ConvertUnixEpochToSystemClock(0))
             {
-                context.Reporter.Info() << "<never>" << std::endl;
+                table.OutputLine({
+                    Resource::Loader::Instance().ResolveString(Resource::String::SourceListUpdated),
+                    Resource::Loader::Instance().ResolveString(Resource::String::SourceListUpdatedNever)
+                    });
             }
             else
             {
-                context.Reporter.Info() << source.LastUpdateTime << std::endl;
+                std::ostringstream strstr;
+                strstr << source.LastUpdateTime;
+                table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListUpdated), strstr.str() });
             }
+
+            table.Complete();
         }
         else
         {
-
             if (sources.empty())
             {
-                context.Reporter.Info() << "There are no sources configured." << std::endl;
+                context.Reporter.Info() << Resource::String::SourceListNoSources << std::endl;
             }
             else
             {
-                Execution::TableOutput<2> table(context.Reporter, { "Name", "Arg" });
+                Execution::TableOutput<2> table(context.Reporter, { Resource::String::SourceListName, Resource::String::SourceListArg });
                 for (const auto& source : sources)
                 {
                     table.OutputLine({ source.Name, source.Arg });
@@ -144,15 +152,15 @@ namespace AppInstaller::CLI::Workflow
     {
         if (!context.Args.Contains(Args::Type::SourceName))
         {
-            context.Reporter.Info() << "Updating all sources..." << std::endl;
+            context.Reporter.Info() << Resource::String::SourceUpdateAll << std::endl;
         }
 
         const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
         for (const auto& sd : sources)
         {
-            context.Reporter.Info() << "Updating source: " << sd.Name << "..." << std::endl;
+            context.Reporter.Info() << Resource::String::SourceUpdateOne << ' ' << sd.Name << "..."_liv << std::endl;
             context.Reporter.ExecuteWithProgress(std::bind(Repository::UpdateSource, sd.Name, std::placeholders::_1));
-            context.Reporter.Info() << "Done." << std::endl;
+            context.Reporter.Info() << Resource::String::Done << std::endl;
         }
     }
 
@@ -160,15 +168,15 @@ namespace AppInstaller::CLI::Workflow
     {
         if (!context.Args.Contains(Args::Type::SourceName))
         {
-            context.Reporter.Info() << "Removing all sources..." << std::endl;
+            context.Reporter.Info() << Resource::String::SourceRemoveAll << std::endl;
         }
 
         const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
         for (const auto& sd : sources)
         {
-            context.Reporter.Info() << "Removing source: " << sd.Name << "..." << std::endl;
+            context.Reporter.Info() << Resource::String::SourceRemoveOne << ' ' << sd.Name << "..."_liv << std::endl;
             context.Reporter.ExecuteWithProgress(std::bind(Repository::RemoveSource, sd.Name, std::placeholders::_1));
-            context.Reporter.Info() << "Done." << std::endl;
+            context.Reporter.Info() << Resource::String::Done << std::endl;
         }
     }
 
@@ -181,14 +189,10 @@ namespace AppInstaller::CLI::Workflow
 
             if (!sources.empty())
             {
-                context.Reporter.Info() << "The following sources will be reset:" << std::endl;
+                context.Reporter.Info() << Resource::String::SourceResetListAndOverridePreamble << std::endl;
 
                 context << ListSources;
-
-                if (!context.Reporter.PromptForBoolResponse("Do you wish to continue?"))
-                {
-                    AICLI_TERMINATE_CONTEXT(E_ABORT);
-                }
+                AICLI_TERMINATE_CONTEXT(E_ABORT);
             }
         }
     }
@@ -199,16 +203,16 @@ namespace AppInstaller::CLI::Workflow
 
         for (const auto& source : sources)
         {
-            context.Reporter.Info() << "Resetting source: " << source.Name << " ...";
+            context.Reporter.Info() << Resource::String::SourceResetOne << ' ' << source.Name << "..."_liv;
             Repository::DropSource(source.Name);
-            context.Reporter.Info() << " Done." << std::endl;
+            context.Reporter.Info() << Resource::String::Done << std::endl;
         }
     }
 
     void ResetAllSources(Execution::Context& context)
     {
-        context.Reporter.Info() << "Resetting all sources ...";
+        context.Reporter.Info() << Resource::String::SourceResetAll;
         Repository::DropSource({});
-        context.Reporter.Info() << " Done." << std::endl;
+        context.Reporter.Info() << Resource::String::Done << std::endl;
     }
 }

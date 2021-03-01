@@ -32,6 +32,8 @@ namespace AppInstaller::Runtime
         LocalState,
         // The default location where log files are located.
         DefaultLogLocation,
+        // The default location, anonymized using environment variables.
+        DefaultLogLocationForDisplay,
         // The location that standard type settings are stored.
         // In a packaged context, this returns a prepend value for the container name.
         StandardSettings,
@@ -50,4 +52,7 @@ namespace AppInstaller::Runtime
 
     // Determines whether the process is running with administrator privileges.
     bool IsRunningAsAdmin();
+
+    // Checks if the file system is NTFS
+    bool IsNTFS(const std::filesystem::path& filePath);
 }

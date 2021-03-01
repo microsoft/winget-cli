@@ -1,0 +1,13 @@
+Id: AppInstallerCliTest.TestMSStoreInstaller
+Version: Latest
+Name: AppInstaller Test Installer
+Publisher: Microsoft Corporation
+AppMoniker: AICLITestMSStore
+License: Test
+Installers: 
+    - Arch: neutral
+      Url: https://ThisIsNotUsed
+      InstallerType: MSStore
+      ProductId: 9WZDNCRFJ364
+      PackageFamilyName: Microsoft.SkypeApp_kzf8qxf38zg5c
+ManifestVersion: 0.2.0-msstore

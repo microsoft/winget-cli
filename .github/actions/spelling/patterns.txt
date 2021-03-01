@@ -1,0 +1,35 @@
+WinGetDevCLI_8wekyb3d8bbwe
+_tisf_sqliteReturnValue
+microsoft\.com/[^])">]*
+Sha256: [0-9A-Fa-f]{64}
+SHA256::ConvertToBytes\("[0-9A-Fa-f]{64}"
+# data urls
+data:[a-zA-Z=;,/0-9+-]+
+# uuid:
+\b[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}\b
+# hex digits including css/html color classes:
+(?:[\\0][xX]|\\u|[uU]\+|#|\%23)[0-9a-fA-FgGrR]{2,}[uU]?[lL]{0,2}\b
+"[0-9a-f]{32}"
+"[0-9a-f]{64}"
+# sha-1
+\b[0-9a-f]{40}\b
+# ignore long runs of a single character:
+\b([A-Za-z])\g{-1}{3,}\b
+El proyecto .* diferentes
+# Package family names
+\b[-.A-Za-z0-9]+_[a-z0-9]{13}\b
+# Locales for name normalization
+\b\p{Lu}{2,3}(?:-(?:CANS|CYRL|LATN|MONG))?-\p{Lu}{2}(?![A-Z])(?:-VALENCIA)?\b
+# Azure pipeline tasks
+- task: .*
+
+# Slash-prefixed patterns
+\\native(?![a-z])
+/NPH(?![a-z])
+/td(?![a-z])
+
+# URLs -- Added here instead of allow.txt to facilitate wildcarding them as more are added
+http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer
+
+# schema regex
+"pattern": .*$

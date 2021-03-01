@@ -16,10 +16,12 @@ namespace AppInstaller::Settings
 
     static constexpr std::string_view s_SettingEmpty =
         R"({
+    "$schema": "https://aka.ms/winget-settings.schema.json",
+
     // For documentation on these settings, see: https://aka.ms/winget-settings
     // "source": {
     //    "autoUpdateIntervalInMinutes": 5
-    // }
+    // },
 })"sv;
 
     namespace SettingsMessage
@@ -45,7 +47,6 @@ namespace AppInstaller::Settings
         {
             std::string convertedValue;
 
-            // This won't work when there's a json_t with bool. Change when this happens.
             if constexpr (std::is_arithmetic_v<T>)
             {
                 convertedValue = std::to_string(value);
@@ -96,7 +97,7 @@ namespace AppInstaller::Settings
             Json::Value result = jsonPath.resolve(root);
             if (!result.isNull())
             {
-                auto jsonValue = GetValue<details::SettingMapping<S>::json_t>(result);
+                auto jsonValue = GetValue<typename details::SettingMapping<S>::json_t>(result);
 
                 if (jsonValue.has_value())
                 {
@@ -125,7 +126,7 @@ namespace AppInstaller::Settings
             }
             else
             {
-                AICLI_LOG(Core, Info, << "Setting " << path <<" not found. Using default");
+                AICLI_LOG(Core, Info, << "Setting " << path << " not found. Using default");
             }
         }
 
@@ -136,8 +137,15 @@ namespace AppInstaller::Settings
             std::vector<std::string>& warnings,
             std::index_sequence<S...>)
         {
+#ifdef WINGET_DISABLE_FOR_FUZZING
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-value"
+#endif
             // Use folding to call each setting validate function.
             (FoldHelper{}, ..., Validate<static_cast<Setting>(S)>(root, settings, warnings));
+#ifdef WINGET_DISABLE_FOR_FUZZING
+#pragma clang diagnostic pop
+#endif
         }
     }
 
@@ -171,6 +179,48 @@ namespace AppInstaller::Settings
             }
 
             return {};
+        }
+
+        std::optional<SettingMapping<Setting::EFExperimentalCmd>::value_t>
+            SettingMapping<Setting::EFExperimentalCmd>::Validate(const SettingMapping<Setting::EFExperimentalCmd>::json_t& value)
+        {
+            return value;
+        }
+
+        std::optional<SettingMapping<Setting::EFExperimentalArg>::value_t>
+            SettingMapping<Setting::EFExperimentalArg>::Validate(const SettingMapping<Setting::EFExperimentalArg>::json_t& value)
+        {
+            return value;
+        }
+
+        std::optional<SettingMapping<Setting::EFExperimentalMSStore>::value_t>
+            SettingMapping<Setting::EFExperimentalMSStore>::Validate(const SettingMapping<Setting::EFExperimentalMSStore>::json_t& value)
+        {
+            return value;
+        }
+
+        std::optional<SettingMapping<Setting::EFList>::value_t>
+            SettingMapping<Setting::EFList>::Validate(const SettingMapping<Setting::EFList>::json_t& value)
+        {
+            return value;
+        }
+
+        std::optional<SettingMapping<Setting::EFExperimentalUpgrade>::value_t>
+            SettingMapping<Setting::EFExperimentalUpgrade>::Validate(const SettingMapping<Setting::EFExperimentalUpgrade>::json_t& value)
+        {
+            return value;
+        }
+
+        std::optional<SettingMapping<Setting::EFUninstall>::value_t>
+            SettingMapping<Setting::EFUninstall>::Validate(const SettingMapping<Setting::EFUninstall>::json_t& value)
+        {
+            return value;
+        }
+
+        std::optional<SettingMapping<Setting::EFImportExport>::value_t>
+            SettingMapping<Setting::EFImportExport>::Validate(const SettingMapping<Setting::EFImportExport>::json_t& value)
+        {
+            return value;
         }
     }
 

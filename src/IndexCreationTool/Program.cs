@@ -48,7 +48,7 @@ namespace IndexCreationTool
                     File.Delete(IndexName);
                 }
 
-                using (var indexHelper = AppInstallerSQLiteIndexUtilWrapper.Create(IndexName))
+                using (var indexHelper = WinGetUtilWrapper.Create(IndexName))
                 {
                     foreach (string file in Directory.EnumerateFiles(rootDir, "*.yaml", SearchOption.AllDirectories))
                     {
@@ -65,7 +65,6 @@ namespace IndexCreationTool
                         outputFile.WriteLine($"\"{IndexName}\" \"{IndexPathInPackage}\"");
                         outputFile.WriteLine($"\"{appxManifestPath}\" \"AppxManifest.xml\"");
                     }
-
                     RunCommand("makeappx.exe", $"pack /f MappingFile.txt /o /nv /p {IndexPackageName}");
 
                     if (!string.IsNullOrEmpty(certPath))

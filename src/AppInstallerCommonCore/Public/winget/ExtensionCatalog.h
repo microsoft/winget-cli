@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerProgress.h>
+
 #include <winrt/Windows.ApplicationModel.h>
 #include <winrt/Windows.ApplicationModel.AppExtensions.h>
 
@@ -28,6 +30,9 @@ namespace AppInstaller::Deployment
 
         // Get the version of the package.
         winrt::Windows::ApplicationModel::PackageVersion GetPackageVersion() const;
+
+        // Verifies the integrity of the extension.
+        bool VerifyContentIntegrity(IProgressCallback& progress);
 
     private:
         winrt::Windows::ApplicationModel::AppExtensions::AppExtension m_extension;

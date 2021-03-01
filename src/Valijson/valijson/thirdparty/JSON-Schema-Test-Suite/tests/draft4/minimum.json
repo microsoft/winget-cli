@@ -1,0 +1,104 @@
+[
+    {
+        "description": "minimum validation",
+        "schema": {"minimum": 1.1},
+        "tests": [
+            {
+                "description": "above the minimum is valid",
+                "data": 2.6,
+                "valid": true
+            },
+            {
+                "description": "boundary point is valid",
+                "data": 1.1,
+                "valid": true
+            },
+            {
+                "description": "below the minimum is invalid",
+                "data": 0.6,
+                "valid": false
+            },
+            {
+                "description": "ignores non-numbers",
+                "data": "x",
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "minimum validation (explicit false exclusivity)",
+        "schema": {"minimum": 1.1, "exclusiveMinimum": false},
+        "tests": [
+            {
+                "description": "above the minimum is valid",
+                "data": 2.6,
+                "valid": true
+            },
+            {
+                "description": "boundary point is valid",
+                "data": 1.1,
+                "valid": true
+            },
+            {
+                "description": "below the minimum is invalid",
+                "data": 0.6,
+                "valid": false
+            },
+            {
+                "description": "ignores non-numbers",
+                "data": "x",
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "exclusiveMinimum validation",
+        "schema": {
+            "minimum": 1.1,
+            "exclusiveMinimum": true
+        },
+        "tests": [
+            {
+                "description": "above the minimum is still valid",
+                "data": 1.2,
+                "valid": true
+            },
+            {
+                "description": "boundary point is invalid",
+                "data": 1.1,
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "minimum validation with signed integer",
+        "schema": {"minimum": -2},
+        "tests": [
+            {
+                "description": "negative above the minimum is valid",
+                "data": -1,
+                "valid": true
+            },
+            {
+                "description": "positive above the minimum is valid",
+                "data": 0,
+                "valid": true
+            },
+            {
+                "description": "boundary point is valid",
+                "data": -2,
+                "valid": true
+            },
+            {
+                "description": "below the minimum is invalid",
+                "data": -3,
+                "valid": false
+            },
+            {
+                "description": "ignores non-numbers",
+                "data": "x",
+                "valid": true
+            }
+        ]
+    }
+]

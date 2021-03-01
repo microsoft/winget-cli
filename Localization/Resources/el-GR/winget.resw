@@ -130,6 +130,10 @@
     <value>Οι ακόλουθες εντολές είναι διαθέσιμες:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Διαθέσιμα</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Οι ακόλουθες επιλογές είναι διαθέσιμες:</value>
   </data>
@@ -147,26 +151,79 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Φιλτράρισμα αποτελεσμάτων κατά εντολή</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>Ολόκληρη η γραμμή εντολών για ολοκλήρωση</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>Αυτή η εντολή απαιτεί δικαιώματα διαχειριστή για την εκτέλεσή της.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>Αυτή η εντολή μπορεί να χρησιμοποιηθεί για την αίτηση της σχετικής ολοκλήρωσης της γραμμής εντολών. Η γραμμή εντολών, η θέση του δρομέα και η λέξη που συμπληρώνεται, διαβιβάζονται. Το αποτέλεσμα είναι ένα σύνολο πιθανών τιμών που βασίζονται στα δεδομένα εισόδου, μία πιθανή τιμή ανά γραμμή.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>Ενεργοποιεί τη σχετική ολοκλήρωση της γραμμής εντολών</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Εμφανίζει μόνο τον συγκεκριμένο αριθμό αποτελεσμάτων</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Τέλος</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Εύρεση εφαρμογής με τη χρήση ταιριάσματος ακριβείας</value>
+    <value>Βρείτε το πακέτο χρησιμοποιώντας την ακριβή αντιστοίχιση</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Πειραματικό όρισμα για λόγους επίδειξης</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Αυτή η εντολή είναι ένα παράδειγμα σχετικά με το πώς μπορείτε να εφαρμόσετε μια πειραματική δυνατότητα. Για να ενεργοποιήσετε την επιλογή, μεταβείτε στις "winget settings" και ενεργοποιήστε τις δυνατότητες experimentalCmd ή experimentalArg.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Παράδειγμα πειραματικών δυνατοτήτων</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Βρέθηκε ένα όρισμα θέσης, ενώ δεν αναμενόταν</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Αυτή η δυνατότητα είναι μια εργασία σε εξέλιξη και μπορεί να αλλάξει Dramatically ή να καταργηθεί όλοι μαζί στο μέλλον. Για να την ενεργοποιήσετε, επεξεργαστείτε τις ρυθμίσεις (' winget settings '), για να συμπεριλάβετε τη δυνατότητα πειραματικών</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Εμφανίζει την κατάσταση των πειραματικών δυνατοτήτων. Οι πειραματικές δυνατότητες μπορούν να ενεργοποιηθούν μέσω των "winget settings".</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Εμφανίζει την κατάσταση των πειραματικών δυνατοτήτων</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Απενεργοποιημένο</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Ενεργοποιημένο</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Δυνατότητα</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Σύνδεση</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Οι παρακάτω πειραματικές δυνατότητες βρίσκονται σε εξέλιξη.
+Μπορούν να ρυθμιστούν μέσω του αρχείου ρυθμίσεων ' winget settings '.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Ιδιότητα</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Κατάσταση</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Αρχείο προς κατακερματισμό</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Το όρισμα σημαία δεν μπορεί να περιέχει γειτνιάζουσα τιμή</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Εκτέλεση εντολής χωρίς μηνύματα</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Υπολογίζει τον κωδικό κατακερματισμό ενός τοπικού αρχείου, ο οποίος κατάλληλος για εισαγωγή σε μια διακήρυξη.  Μπορεί επίσης να υπολογίσει τον κατακερματισμό του αρχείου υπογραφής ενός πακέτου MSIX για την ενεργοποίηση εγκαταστάσεων ροής.</value>
@@ -192,14 +249,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Η Microsoft δεν είναι υπεύθυνη για πακέτα τρίτων κατασκευαστών και δεν χορηγεί άδειες χρήσης για αυτά.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Αυτό το πακέτο παρέχεται μέσω του Microsoft Store. Το winget μπορεί να χρειαστεί να αποκτήσει το πακέτο από το Microsoft Store για λογαριασμό του τρέχοντος χρήστη.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Δεν είναι δυνατή η εγκατάσταση της εφαρμογής, επειδή απαιτεί μια νεότερη έκδοση των Windows:</value>
+    <value>Δεν είναι δυνατή η εγκατάσταση του πακέτου, επειδή απαιτεί μια νεότερη έκδοση των Windows:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Εγκαθιστά την επιλεγμένη εφαρμογή, η οποία βρίσκεται είτε μέσω αναζήτησης μιας ρυθμισμένης προέλευσης είτε απευθείας από μια διακήρυξη εφαρμογής.</value>
+    <value>Εγκαθιστά το επιλεγμένο πακέτο, το οποίο βρέθηκε είτε πραγματοποιώντας αναζήτηση σε μια ρυθμισμένη προέλευση είτε απευθείας από μια διακήρυξη. Από προεπιλογή, το ερώτημα πρέπει να συμφωνεί χωρίς διάκριση πεζών-κεφαλαίων με την ταυτότητα, το όνομα ή το αναγνωριστικό του πακέτου. Άλλα πεδία μπορούν να χρησιμοποιηθούν με την κατάλληλη επιλογή.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Εγκαθιστά τη συγκεκριμένη εφαρμογή</value>
+    <value>Εγκαθιστά το συγκεκριμένο πακέτο</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Ο κατακερματισμός του προγράμματος εγκατάστασης δεν συμφωνεί. Αυτό δεν είναι δυνατό να παρακαμφθεί κατά την εκτέλεση ως διαχειριστής</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Ο κατακερματισμός του προγράμματος εγκατάστασης δεν συμφωνεί. Συνέχεια λόγω --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Ο κατακερματισμός του προγράμματος εγκατάστασης δεν συμφωνεί. Για να παρακάμψετε αυτόν τον έλεγχο χρησιμοποιήστε το --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Επιτυχία επαλήθευσης κατακερματισμού προγράμματος εγκατάστασης</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Εγκαταστάθηκε με επιτυχία</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Έναρξη εγκατάστασης πακέτου...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Παράκαμψη του ελέγχου κατακερματισμού του προγράμματος εγκατάστασης</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Αίτημα για αλληλεπιδραστική εγκατάσταση. ενδέχεται να απαιτείται εισαγωγή δεδομένων από το χρήστη</value>
@@ -223,6 +308,13 @@
     <value>Συνδέσεις</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Η εντολή list εμφανίζει τα πακέτα που είναι εγκατεστημένα στο σύστημα, καθώς και αν υπάρχει διαθέσιμη ενημέρωση. Μπορούν να δοθούν επιπλέον επιλογές για το φιλτράρισμα της εξόδου, όπως είναι η εντολή search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Εμφάνιση εγκατεστημένων πακέτων</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Τοποθεσία εγκατάστασης στο (εάν υποστηρίζεται)</value>
   </data>
@@ -237,7 +329,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Η διαδρομή για τη διακήρυξη της εφαρμογής</value>
+    <value>Η διαδρομή για τη διακήρυξη του πακέτου</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Η επικύρωση της διακήρυξης εφαρμογής απέτυχε.</value>
@@ -252,7 +344,7 @@
     <value>Απαιτείται τιμή ορίσματος, αλλά δεν βρέθηκε καμία</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Αποτελέσματα φίλτρου κατά αναγνωριστικό εφαρμογής</value>
+    <value>Αποτελέσματα φίλτρου κατά αναγνωριστικό</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Το αρχείο εισόδου θα αντιμετωπίζεται ως msix. Θα παρέχεται κατακερματισμός υπογραφής εάν έχει υπογραφεί</value>
@@ -260,11 +352,50 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Δεν ήταν δυνατός ο υπολογισμός του κατακερματισμού υπογραφής MSIX.</value>
   </data>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η εγκατάσταση ή η ενημέρωση του πακέτου Microsoft Store επειδή η συγκεκριμένη εφαρμογή έχει αποκλειστεί από την πολιτική</value>
+  </data>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η εγκατάσταση ή η ενημέρωση του πακέτου Microsoft Store. Κωδικός σφάλματος:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Η επαλήθευση/υποβολή αιτήματος για λήψη πακέτου απέτυχε: σφάλμα δικτύου</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Η επαλήθευση/υποβολή αιτήματος για λήψη πακέτου απέτυχε: Δεν βρέθηκε λογαριασμός στο Store</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Η επαλήθευση/υποβολή αιτήματος για λήψη πακέτου απέτυχε: σφάλμα διακομιστή</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Επιτυχία επαλήθευσης/υποβολής αιτήματος για λήψη πακέτου</value>
+  </data>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η εγκατάσταση ή η ενημέρωση του πακέτου Microsoft Store επειδή το πρόγραμμα-πελάτης του Microsoft Store έχει αποκλειστεί από την πολιτική</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Επαλήθευση/υποβολή αιτήματος για λήψη πακέτου...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Βρέθηκαν πολλά εγκατεστημένα πακέτα που ταιριάζουν με τα κριτήρια εισόδου. Περιορίστε τα δεδομένα εισόδου.</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Βρέθηκαν πολλά πακέτα που ταιριάζουν με τα κριτήρια εισόδου. Περιορίστε τα δεδομένα εισόδου.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Φιλτράρισμα αποτελεσμάτων κατά όνομα</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Δεν υπάρχουν προγράμματα εγκατάστασης που να ισχύουν για το τρέχον σύστημα.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Αυτή τη στιγμή δεν υπάρχουν διαθέσιμες πειραματικές δυνατότητες. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Δεν βρέθηκαν εγκατεστημένα πακέτα που να πληρούν τα κριτήρια εισαγωγής.</value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Δεν βρέθηκαν πακέτα που να πληρούν τα κριτήρια εισαγωγής.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Απενεργοποιεί την οθόνη VirtualTerminal</value>
@@ -284,6 +415,9 @@
   <data name="PendingWorkError" xml:space="preserve">
     <value>Ουπς, ξεχάσαμε να το κάνουμε αυτό...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>Η θέση του δρομέα μέσα στη γραμμή εντολών</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Προεπισκόπηση</value>
   </data>
@@ -291,7 +425,7 @@
     <value>Δήλωση προστασίας προσωπικών δεδομένων</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Το ερώτημα που χρησιμοποιήθηκε για την αναζήτηση μιας εφαρμογής</value>
+    <value>Το ερώτημα που χρησιμοποιήθηκε για την αναζήτηση ενός πακέτου</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Η οθόνη προόδου εμφανίζει ένα ουράνιο τόξο με χρώματα</value>
@@ -303,10 +437,29 @@
     <value>Η οθόνη προόδου εμφανίζει το προεπιλεγμένο χρώμα</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Πραγματοποιεί αναζήτηση για εφαρμογές από ρυθμισμένες προελεύσεις.</value>
+    <value>Πραγματοποιεί αναζήτηση για πακέτα από ρυθμισμένες προελεύσεις.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Εύρεση και εμφάνιση βασικών πληροφοριών εφαρμογών</value>
+    <value>Εύρεση και εμφάνιση βασικών πληροφοριών πακέτων</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>Αναγνωριστικό</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Αντιστοίχιση</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Όνομα</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>Προέλευση</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>πρόσθετες καταχωρίσεις που έχουν περικοπεί εξαιτίας του ορίου αποτελεσμάτων</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Έκδοση</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Εντοπίστηκαν οι παρακάτω αποτυχίες κατά την επικύρωση των ρυθμίσεων:</value>
@@ -320,11 +473,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Μη αναμενόμενο σφάλμα κατά τη φόρτωση των ρυθμίσεων. Επαληθεύστε τις ρυθμίσεις σας εκτελώντας την εντολή "Ρυθμίσεις".</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Κανάλι</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Εμφανίζει πληροφορίες σχετικά με μια συγκεκριμένη εφαρμογή.</value>
+    <value>Εμφανίζει πληροφορίες για ένα συγκεκριμένο πακέτο. Από προεπιλογή, το ερώτημα πρέπει να insensitively να συμφωνεί με το Αναγνωριστικό, το όνομα ή το αναγνωριστικό του πακέτου. Τα άλλα πεδία μπορούν να χρησιμοποιηθούν μέσω της κατάλληλης επιλογής τους.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Εμφανίζει πληροφορίες σχετικά με μια εφαρμογή</value>
+    <value>Εμφανίζει πληροφορίες σχετικά με ένα πακέτο</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Έκδοση</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Αίτηση για αθόρυβη εγκατάσταση</value>
@@ -332,8 +491,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Μόνο το ψευδώνυμο ενός χαρακτήρα μπορεί να συμβεί μετά από μεμονωμένη -</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Υπάρχει ήδη μια προέλευση με το δεδομένο όνομα και αναφέρεται σε διαφορετική θέση:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Μια προέλευση με διαφορετικό όνομα αναφέρεται ήδη σε αυτήν τη θέση:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Υπάρχει ήδη μια προέλευση με το δεδομένο όνομα και αναφέρεται στην ίδια θέση:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Προσθήκη προέλευσης:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Προσθήκη νέας προέλευσης. Μια προέλευση παρέχει τα δεδομένα για να ανακαλύψετε και να εγκαταστήσετε εφαρμογές. Εισαγάγετε μια νέα προέλευση αν τη θεωρείτε ασφαλή τοποθεσία.</value>
+    <value>Προσθήκη νέας προέλευσης. Μια προέλευση παρέχει τα δεδομένα για να ανακαλύψετε και να εγκαταστήσετε πακέτα. Εισαγάγετε μια νέα προέλευση αν τη θεωρείτε ασφαλή τοποθεσία.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Προσθέστε μια νέα προέλευση</value>
@@ -342,13 +513,17 @@
     <value>Όρισμα που δόθηκε στην προέλευση</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Εύρεση εφαρμογής με τη χρήση καθορισμένης προέλευσης</value>
+    <value>Εύρεση πακέτου με τη χρήση καθορισμένης προέλευσης</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Διαχείριση προελεύσεων με υπο-εντολές. Μια προέλευση παρέχει τα δεδομένα για να ανακαλύψετε και να εγκαταστήσετε εφαρμογές. Εισαγάγετε μια νέα προέλευση αν τη θεωρείτε ασφαλή τοποθεσία.</value>
+    <value>Διαχείριση προελεύσεων με υπο-εντολές. Μια προέλευση παρέχει τα δεδομένα για να ανακαλύψετε και να εγκαταστήσετε πακέτα. Εισαγάγετε μια νέα προέλευση αν τη θεωρείτε ασφαλή τοποθεσία.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Διαχείριση πηγών εφαρμογών</value>
+    <value>Διαχείριση προελεύσεων πακέτων</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Όρισμα</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Λίστα με όλες τις τρέχουσες πηγές ή πλήρεις λεπτομέρειες μιας συγκεκριμένης προέλευσης.</value>
@@ -356,8 +531,53 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Λίστα με τις τρέχουσες προελεύσεις</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Δεδομένα</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Λιβάδι</value>
+    <comment>The name of a piece of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Όνομα</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Δεν βρέθηκε προέλευση με όνομα:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Δεν έχουν ρυθμιστεί προελεύσεις.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Τύπος</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Ενημερώθηκε</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>ποτέ</value>
+    <comment>The source has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Τιμή</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Όνομα της προέλευσης</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Το άνοιγμα της προέλευσης απέτυχε. Δοκιμάστε την εντολή "επαναφορά προέλευσης" (source reset) αν το πρόβλημα δεν επιλυθεί.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Απέτυχε το άνοιγμα της προκαθορισμένη προέλευσης. Αναφέρετέ το στα προγράμματα διατήρησης winget.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Κατάργηση όλων των προελεύσεων...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Κατάργηση μια συγκεκριμένης προέλευσης.</value>
@@ -365,14 +585,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Κατάργηση τρεχούσων πηγών</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Κατάργηση προέλευσης:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Επαναφορά όλων των προελεύσεων...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Αυτή η εντολή καταργεί υπάρχουσες προελεύσεις, αφήνοντας ενδεχομένως πίσω τοπικά δεδομένα. Χωρίς κανένα όρισμα, θα καταργηθούν όλες οι προελεύσεις και θα προστεθούν οι προεπιλογές. Εάν παρέχεται μια επώνυμη προέλευση, μόνο εκείνη θα καταργηθεί.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Επαναφορά προελεύσεων</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Επιβάλλει την επαναφορά των πηγών</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Θα γίνει επαναφορά των ακόλουθων προελεύσεων, αν δοθεί η επιλογή --force:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Επαναφορά προέλευσης:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Τύπος της προέλευσης</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Ενημέρωση όλων των προελεύσεων...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Ενημέρωση όλων των πηγών ή μόνο μιας συγκεκριμένης προέλευσης.</value>
@@ -380,11 +619,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Ενημέρωση τρεχουσών προελεύσεων</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Ενημέρωση προέλευσης:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Αποτελέσματα φίλτρου κατά ετικέτα</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Σας ευχαριστούμε για τη χρήση του winget</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Γνωστοποιήσεις τρίτων</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Η βοηθητική γραμμή εντολών winget επιτρέπει την εγκατάσταση εφαρμογών και άλλων πακέτων από τη γραμμή εντολών.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Εμφανίζει γενικές πληροφορίες για το εργαλείο</value>
@@ -396,13 +644,26 @@
     <value>Το όρισμα παρέχεται περισσότερες φορές από όσες επιτρέπονται</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Παρέχεται παραπάνω από ένα όρισμα συμπεριφοράς εγκατάστασης</value>
+    <value>Παρέχεται παραπάνω από ένα όρισμα συμπεριφοράς εκτέλεσης</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Παρουσιάστηκε μη αναμενόμενο σφάλμα κατά την εκτέλεση της εντολής:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Η εντολή δεν αναγνωρίστηκε</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Ενημέρωση όλων των εγκατεστημένων πακέτων στην πιο πρόσφατη έκδοση, εάν είναι διαθέσιμη</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Δεν βρέθηκαν ισχύουσες ενημερώσεις.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Ενημερώνει το επιλεγμένο πακέτο, που βρέθηκε με αναζήτηση στη λίστα εγκατεστημένων πακέτων ή απευθείας από μια διακήρυξη. Από προεπιλογή, το ερώτημα πρέπει να insensitively να συμφωνεί με το Αναγνωριστικό, το όνομα ή το αναγνωριστικό του πακέτου. Τα άλλα πεδία μπορούν να χρησιμοποιηθούν μέσω της κατάλληλης επιλογής τους.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Ενημερώνει το συγκεκριμένο πακέτο</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>χρήση</value>
@@ -427,6 +688,72 @@
     <value>Χρήση της καθορισμένης έκδοσης. Η προεπιλεγμένη έκδοση είναι η πιο πρόσφατη</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Εμφανίζει τις διαθέσιμες εκδόσεις της εφαρμογής</value>
+    <value>Εμφανίζει τις διαθέσιμες εκδόσεις του πακέτου</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>Ζητείται η τιμή που παρέχεται πριν από την ολοκλήρωση</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Δεν βρέθηκε έκδοση που να ταιριάζει:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Δεν υπάρχουν προελεύσεις που να ταιριάζουν με τη δεδομένη τιμή:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Οι ρυθμισμένες προελεύσεις είναι:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Δεν έχουν οριστεί προελεύσεις. Προσθέστε μία με την εντολή "προσθήκη προέλευσης" (source add) ή επαναφέρετε τις προεπιλογές με την εντολή "επαναφορά προέλευσης" (source reset)</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Εντοπίστηκαν</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Η διαδρομή είναι ένας κατάλογος:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Το αρχείο δεν υπάρχει:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Παρέχονται τόσο τα ορίσματα τοπικής διακήρυξης όσο και ερωτήματος αναζήτησης</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Αρχεία καταγραφής</value>
+    <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Το πρόγραμμα εγκατάστασης αποκλείστηκε από την πολιτική</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Το πρόγραμμα εγκατάστασης δεν πραγματοποίησε έλεγχο ασφαλείας</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Προϊόν προστασίας από ιούς αναφέρει προσβολή από ιό στο πρόγραμμα εγκατάστασης</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Η απόπειρα ενημέρωσης της προέλευσης απέτυχε:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Καταργεί την εγκατάσταση το επιλεγμένο πακέτο, που εντοπίζεται με αναζήτηση στη λίστα εγκατεστημένων πακέτων ή απευθείας από μια διακήρυξη. Από προεπιλογή, το ερώτημα πρέπει να insensitively να συμφωνεί με το Αναγνωριστικό, το όνομα ή το αναγνωριστικό του πακέτου. Τα άλλα πεδία μπορούν να χρησιμοποιηθούν μέσω της κατάλληλης επιλογής τους.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Κατάργηση εγκατάστασης του συγκεκριμένου πακέτου</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Έναρξη κατάργησης εγκατάστασης πακέτου...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Η εγκατάσταση καταργήθηκε επιτυχώς</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget δεν είναι δυνατό να εντοπίσει την εντολή κατάργησης εγκατάστασης για αυτό το πακέτο. Επικοινωνήστε με τον εκδότη του πακέτου για υποστήριξη.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Η κατάργηση εγκατάστασης ματαιώθηκε</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Η κατάργηση εγκατάστασης με κωδικό εξόδου απέτυχε:</value>
   </data>
 </root>

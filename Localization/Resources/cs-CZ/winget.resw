@@ -130,6 +130,10 @@
     <value>K dispozici jsou následující příkazy:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Dostupné</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>K dispozici jsou následující možnosti:</value>
   </data>
@@ -147,26 +151,79 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtrovat výsledky podle příkazu</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>Úplný příkazový řádek k dokončení</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>K provedení tohoto příkazu je třeba mít oprávnění správce.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>Pomocí tohoto příkazu si lze vyžádat dokončování příkazového řádku podle kontextu. Předává se příkazový řádek, pozice kurzoru a slovo, které se má dokončit. Výstup je sada potenciálních hodnot na základě vstupu – na každém řádku je jedna možná hodnota.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>Povolí dokončování příkazového řádku podle kontextu.</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Nezobrazovat víc než zadaný počet výsledků</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>Hotovo</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Najít aplikace podle přesné shody</value>
+    <value>Vyhledat balíček pomocí přesné shody</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Experimentální argument pro demonstrační účely</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Tento příkaz je příkladem způsobu implementace experimentální funkce. Pokud ho chcete zapnout, přejděte do „winget settings“ a povolte funkce experimentalCmd nebo experimentalArg.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Příklad experimentální funkce</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Našel se poziční argument, i když nebyl očekáván.</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Tato funkce je rozpracovaná a může být v budoucnu výrazně změněna nebo zcela odstraněna. Pokud ji chcete povolit, upravte si nastavení (winget settings), aby zahrnovalo experimentální funkci.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Zobrazuje stav experimentálních funkcí. Experimentální funkce se dají zapnout prostřednictvím nastavení „winget settings“.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Zobrazí stav experimentálních funkcí.</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Zakázáno</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Povoleno</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Funkce</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Odkaz</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Probíhají následující experimentální funkce.
+Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Vlastnost</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Stav</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Soubor připravený na hash</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Argument příznaku nemůže obsahovat sousedící hodnotu.</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Provést příkaz bez vyzvání</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Vypočítá hodnotu hash místního souboru vhodnou pro zadání do manifestu. Může také vypočítat hodnotu hash souboru s podpisem balíčku MSIX, aby bylo možné provádět streamingové instalace.</value>
@@ -192,14 +249,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft nenese odpovědnost za balíčky třetích stran ani k nim neuděluje licence.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Tento balíček je poskytován prostřednictvím Microsoft Storu. winget možná bude potřebovat získat balíček z Microsoft Storu jménem aktuálního uživatele.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Nelze nainstalovat aplikaci, protože vyžaduje vyšší verzi systému Windows:</value>
+    <value>Balíček nelze nainstalovat, protože vyžaduje vyšší verzi systému Windows:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Nainstaluje vybranou aplikaci, a to buď jejím vyhledáním v nakonfigurovaném zdroji, nebo přímo z manifestu.</value>
+    <value>Nainstaluje vybraný balíček, který najdete buď vyhledáním z konfigurovaného zdroje, nebo přímo z cesty odkazu. Ve výchozím nastavení se dotaz musí shodovat s ID balíčku, jeho názvem a cestou odkazu (nerozlišují se malá a velká písmena). Zadáním vhodných možností se dají použít i další pole.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Nainstaluje danou aplikaci</value>
+    <value>Nainstaluje daný balíček</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Hodnota hash instalačního programu se neshoduje. Toto nelze přepsat při spuštění pomocí účtu správce.</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Hodnota hash instalačního programu se neshoduje z důvodu --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Hodnota hash instalačního programu se neshoduje. Chcete-li to přepsat, použijte --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Hodnota hash instalačního programu byla úspěšně ověřena.</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>Instalace byla úspěšná.</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Spouští se instalace balíčků...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Přepsat kontrolu hodnoty hash instalačního programu</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Vyžádat interaktivní instalaci (možná bude potřeba zásah uživatele)</value>
@@ -223,6 +308,13 @@
     <value>Odkazy</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Příkaz list zobrazí balíčky nainstalované v systému a také to, zda je k dispozici aktualizace. K filtrování výstupu lze zadat další možnosti, podobně jako u příkazu search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Zobrazit nainstalované balíčky</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Umístění k instalaci (pokud se podporuje)</value>
   </data>
@@ -237,7 +329,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Cesta k manifestu aplikace</value>
+    <value>Cesta k manifestu balíčku</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Manifest se nepodařilo ověřit.</value>
@@ -252,7 +344,7 @@
     <value>Byla požadována hodnota argumentu, ale žádná se nenašla.</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Filtrovat výsledky podle cesty odkazu aplikace</value>
+    <value>Filtrovat výsledky podle cesty odkazu</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Se vstupním souborem se bude zacházet jako se souborem msix a pokud bude podepsaný, poskytne se hodnota hash</value>
@@ -260,11 +352,50 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Hodnotu hash podpisu MSIX se nepodařilo vypočítat.</value>
   </data>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Balíček Microsoft Storu se nepodařilo nainstalovat nebo aktualizovat, protože konkrétní aplikaci blokuje zásada.</value>
+  </data>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Nepovedlo se nainstalovat nebo aktualizovat balíček Microsoft Storu. Kód chyby:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Ověřování získání balíčku nebo požádání o získání balíčku se nepovedlo: chyba sítě</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Ověřování získání balíčku nebo požádání o získání balíčku se nepovedlo: nebyl nalezen žádný účet Store.</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Ověřování získání balíčku nebo požádání o získání balíčku se nepovedlo: chyba serveru</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Ověřování získání balíčku nebo požádání o získání balíčku se povedlo.</value>
+  </data>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Balíček Microsoft Storu se nepodařilo nainstalovat nebo aktualizovat, protože klienta Microsoft Storu blokuje zásada.</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Ověřování získání balíčku nebo požádání o získání balíčku…</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>Bylo nalezeno více nainstalovaných balíčků odpovídajících vstupním kritériím. Upřesněte prosím vstup.</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>Bylo nalezeno více balíčků odpovídajících vstupním kritériím. Upřesněte prosím vstup.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtrovat výsledky podle názvu</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>U aktuálního systému se nedají použít žádné instalační programy.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Nyní nejsou k dispozici žádné experimentální funkce. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Nebyl nalezen žádný nainstalovaný balíček odpovídající vstupním kritériím.</value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Nebyl nalezen žádný balíček odpovídající vstupním kritériím.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Zakáže zobrazení VirtualTerminal</value>
@@ -284,6 +415,9 @@
   <data name="PendingWorkError" xml:space="preserve">
     <value>Jejda, zapomněli jsme to udělat...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>Pozice kurzoru na příkazovém řádku</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Preview</value>
   </data>
@@ -291,7 +425,7 @@
     <value>Prohlášení o zásadách ochrany osobních údajů</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Dotaz na vyhledání aplikace</value>
+    <value>Dotaz na vyhledání balíčku</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Průběh znázorněný barvami duhy</value>
@@ -303,10 +437,29 @@
     <value>Zobrazí průběh ve výchozí barvě</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Vyhledává aplikace z konfigurovaných zdrojů.</value>
+    <value>Vyhledává balíčky z konfigurovaných zdrojů.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Najít a zobrazit základní informace o aplikacích</value>
+    <value>Najít a zobrazit základní informace o balíčcích</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>ID</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Shoda</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Název</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>Zdroj</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>další položky se zkrátily kvůli limitu výsledků</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Verze</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Byly nalezeny následující chyby ověření nastavení:</value>
@@ -320,11 +473,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Při načítání nastavení došlo k neočekávané chybě. Zkontrolujte nastavení spuštěním příkazu nastavení.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Kanál</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Zobrazí informace o konkrétní aplikaci.</value>
+    <value>Zobrazí informace o konkrétním balíčku. Ve výchozím nastavení se musí dotaz bez rozlišování malých a velkých písmen shodovat s ID, názvem nebo monikerem balíčku. Další pole lze použít předáním příslušné možnosti.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Zobrazuje podrobnosti o aplikaci</value>
+    <value>Zobrazuje podrobnosti o balíčku</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Verze</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Vyžádat tichou instalaci</value>
@@ -332,8 +491,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Po jednom znaku - se může objevit jen jeden alias znaku.</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Zdroj se zadaným názvem již existuje a odkazuje na jiné umístění:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Na toto umístění už odkazuje zdroj s jiným názvem:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Zdroj se zadaným názvem již existuje a odkazuje na stejné umístění:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Přidávání zdroje:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Přidat nový zdroj. Zdroj vám poskytne data, se kterými budete moct objevovat a instalovat aplikace. Přidávejte jenom zdroje v zabezpečeném umístění, kterým důvěřujete.</value>
+    <value>Přidat nový zdroj. Zdroj vám poskytne data, se kterými budete moct objevovat a instalovat balíčky. Přidávejte jenom zdroje v zabezpečeném umístění, kterým důvěřujete.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Přidat nový zdroj</value>
@@ -342,13 +513,17 @@
     <value>Argument odeslaný zdroji</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Najít aplikaci podle konkrétního zdroje</value>
+    <value>Najít balíček podle konkrétního zdroje</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Spravujte zdroje prostřednictvím příkazů. Zdroj vám poskytne data, se kterými budete moct objevovat a instalovat aplikace. Přidávejte jenom zdroje v zabezpečeném umístění, kterým důvěřujete.</value>
+    <value>Spravujte zdroje prostřednictvím příkazů. Zdroj vám poskytne data, se kterými budete moct objevovat a instalovat balíčky. Přidávejte jenom zdroje v zabezpečeném umístění, kterým důvěřujete.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Spravovat zdroje aplikací</value>
+    <value>Spravovat zdroje balíčků</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Argument</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Zobrazit seznam všech aktuálních zdrojů nebo úplné podrobnosti o konkrétním zdroji.</value>
@@ -356,8 +531,53 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Zobrazit seznam aktuálních zdrojů</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Data</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Pole</value>
+    <comment>The name of a piece of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Název</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Nenašel se zdroj s názvem:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Nejsou nakonfigurovány žádné zdroje.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Typ</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Aktualizováno</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>nikdy</value>
+    <comment>The source has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Hodnota</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Název zdroje</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Nepovedlo se otevřít zdroj. Pokud potíže přetrvávají, zkuste příkaz „source reset“.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Nepodařilo se otevřít předdefinovaný zdroj. Nahlaste to prosím správcům winget.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Probíhá odebírání všech zdrojů…</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Odebrat konkrétní zdroj.</value>
@@ -365,14 +585,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Odebrat aktuální zdroje</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Odebírání zdroje:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Probíhá resetování všech zdrojů…</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Tento příkaz uvolní existující zdroje a potenciálně opustí místní data. Bez jakéhokoli argumentu uvolní všechny zdroje a přidá ty výchozí. Pokud je k dispozici pojmenovaný zdroj, uvolní se pouze ten.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Obnovit zdroje</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Vynutí resetování zdrojů</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Následující zdroje se resetují, pokud je zadána možnost --force:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Resetování zdroje:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Typ zdroje</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Probíhá aktualizace všech zdrojů…</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Aktualizovat všechny zdroje nebo jen konkrétní zdroj.</value>
@@ -380,11 +619,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Aktualizovat aktuální zdroje</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Aktualizování zdroje:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtrovat výsledky podle štítku</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Děkujeme vám, že používáte WinGet.</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Oznámení třetích stran</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Nástroj příkazového řádku WinGet umožní instalovat aplikace a další balíčky přímo z příkazového řádku.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Zobrazuje obecné informace o nástroji</value>
@@ -396,13 +644,26 @@
     <value>Argument byl zadán víckrát, než je povoleno.</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>Je zadán více než jeden argument chování při instalaci.</value>
+    <value>Je zadáno více argumentů chování při spuštění.</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Při provádění příkazu došlo k neočekávané chybě:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Nerozpoznaný příkaz</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Aktualizovat všechny nainstalované balíčky na nejnovější, pokud jsou k dispozici</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Žádná vhodná aktualizace nebyla nalezena.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Aktualizuje vybraný balíček, který byl nalezen prohledáním seznamu nainstalovaných balíčků nebo přímo z manifestu. Ve výchozím nastavení se musí dotaz bez rozlišování malých a velkých písmen shodovat s ID, názvem nebo monikerem balíčku. Další pole lze použít předáním příslušné možnosti.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Aktualizuje daný balíček</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>použití</value>
@@ -427,6 +688,72 @@
     <value>Použít konkrétní verzi (ve výchozím nastavení se použije nejnovější verze)</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Zobrazit dostupné verze aplikace</value>
+    <value>Zobrazit dostupné verze balíčku</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>Požaduje se zadání hodnoty, která se má dokončit.</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Nebyla nalezena žádná odpovídající verze:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Dané hodnotě neodpovídají žádné zdroje:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Nakonfigurované zdroje jsou:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Nejsou definovány žádné zdroje. Přidejte nějaký pomocí „source add“ nebo obnovte výchozí pomocí „source reset“.</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>Nalezeno</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Cesta je adresář:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Soubor neexistuje:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Místní manifest i argumenty dotazu vyhledávání jsou zadány.</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Protokoly</value>
+    <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Instalační program je blokován zásadami</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Instalační program nedokázal provést kontrolu zabezpečení.</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Antivirový produkt hlásí napadený instalační program</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Pokus o aktualizaci zdroje selhal:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Odinstaluje vybraný balíček, který najdete buď vyhledáním v seznamu nainstalovaných balíčků, nebo přímo z manifestu aplikace. Ve výchozím nastavení se dotaz musí shodovat s ID balíčku, jeho názvem a cestou odkazu (nerozlišují se malá a velká písmena). Zadáním vhodných možností se dají použít i další pole.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Odinstaluje daný balíček</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Spouští se odinstalace balíčku...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Odinstalace byla úspěšně dokončena</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget nemůže najít příkaz k odinstalaci pro tento balíček. Pokud potřebujete pomoc, obraťte se na vydavatele balíčku.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Odinstalace se neprovedla</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Odinstalace selhala s ukončovacím kódem:</value>
   </data>
 </root>

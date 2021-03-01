@@ -5,6 +5,8 @@
 #include <Windows.h>
 #include <WinInet.h>
 #include <shellapi.h>
+#include <objbase.h>
+#include <urlmon.h>
 
 #include <catch.hpp>
 
@@ -28,5 +30,3 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
-
-#include <yaml-cpp/yaml.h>

@@ -9,6 +9,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 {
     using namespace std::string_view_literals;
     static constexpr std::string_view s_PathPartTable_Table_Name = "pathparts"sv;
+    static constexpr std::string_view s_PathPartTable_PrimaryKeyIndex_Name = "pathparts_pkindex"sv;
     static constexpr std::string_view s_PathPartTable_ParentIndex_Name = "pathparts_parentidx"sv;
     static constexpr std::string_view s_PathPartTable_ParentValue_Name = "parent"sv;
     static constexpr std::string_view s_PathPartTable_PartValue_Name = "pathpart"sv;
@@ -93,7 +94,35 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
     }
 
+    // Starting in V1.1, all code should be going this route of creating named indices rather than using primary or unique keys on columns.
+    // The resulting database will function the same, but give us control to drop the indices to reduce space.
     void PathPartTable::Create(SQLite::Connection& connection)
+    {
+        using namespace SQLite::Builder;
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createPathParts_v1_1");
+
+        StatementBuilder createTableBuilder;
+        createTableBuilder.CreateTable(s_PathPartTable_Table_Name).Columns({
+            IntegerPrimaryKey(),
+            ColumnBuilder(s_PathPartTable_ParentValue_Name, Type::Int64),
+            ColumnBuilder(s_PathPartTable_PartValue_Name, Type::Text).NotNull()
+            });
+
+        createTableBuilder.Execute(connection);
+
+        StatementBuilder createPKIndexBuilder;
+        createPKIndexBuilder.CreateUniqueIndex(s_PathPartTable_PrimaryKeyIndex_Name).On(s_PathPartTable_Table_Name).Columns({ s_PathPartTable_PartValue_Name, s_PathPartTable_ParentValue_Name });
+        createPKIndexBuilder.Execute(connection);
+
+        StatementBuilder createIndexBuilder;
+        createIndexBuilder.CreateIndex(s_PathPartTable_ParentIndex_Name).On(s_PathPartTable_Table_Name).Columns(s_PathPartTable_ParentValue_Name);
+        createIndexBuilder.Execute(connection);
+
+        savepoint.Commit();
+    }
+
+    void PathPartTable::Create_deprecated(SQLite::Connection& connection)
     {
         using namespace SQLite::Builder;
 
@@ -114,6 +143,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         createIndexBuilder.Execute(connection);
 
         savepoint.Commit();
+    }
+
+    std::string_view PathPartTable::TableName()
+    {
+        return s_PathPartTable_Table_Name;
     }
 
     std::string_view PathPartTable::ValueName()
@@ -170,7 +204,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return { (createIfNotFound ? partsAdded : true), parent.value() };
     }
 
-    std::optional<std::string> PathPartTable::GetPathById(SQLite::Connection& connection, SQLite::rowid_t id)
+    std::optional<std::string> PathPartTable::GetPathById(const SQLite::Connection& connection, SQLite::rowid_t id)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.Select({ s_PathPartTable_ParentValue_Name, s_PathPartTable_PartValue_Name }).
@@ -249,10 +283,57 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     void PathPartTable::PrepareForPackaging(SQLite::Connection& connection)
     {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "pfpPathParts_v1_1");
+
+        PrepareForPackaging_deprecated(connection);
+
+        SQLite::Builder::StatementBuilder dropPKIndexBuilder;
+        dropPKIndexBuilder.DropIndex(s_PathPartTable_PrimaryKeyIndex_Name);
+        dropPKIndexBuilder.Execute(connection);
+
+        savepoint.Commit();
+    }
+
+    void PathPartTable::PrepareForPackaging_deprecated(SQLite::Connection& connection)
+    {
         SQLite::Builder::StatementBuilder dropIndexBuilder;
         dropIndexBuilder.DropIndex(s_PathPartTable_ParentIndex_Name);
-
         dropIndexBuilder.Execute(connection);
+    }
+
+    bool PathPartTable::CheckConsistency(const SQLite::Connection& connection, bool log)
+    {
+        using QCol = SQLite::Builder::QualifiedColumn;
+
+        // Build a select statement to find pathpart rows containing references to parents with non-existent rowids
+        // Such as:
+        // Select l.rowid, l.parent from pathparts as l left outer join pathparts as r on l.parent = r.rowid where l.parent is not null and r.pathpart is null
+        constexpr std::string_view s_left = "left"sv;
+        constexpr std::string_view s_right = "right"sv;
+
+        SQLite::Builder::StatementBuilder builder;
+        builder.
+            Select({ QCol(s_left, SQLite::RowIDName), QCol(s_left, s_PathPartTable_ParentValue_Name) }).
+            From(s_PathPartTable_Table_Name).As(s_left).
+            LeftOuterJoin(s_PathPartTable_Table_Name).As(s_right).On(QCol(s_left, s_PathPartTable_ParentValue_Name), QCol(s_right, SQLite::RowIDName)).
+            Where(QCol(s_left, s_PathPartTable_ParentValue_Name)).IsNotNull().And(QCol(s_right, s_PathPartTable_PartValue_Name)).IsNull();
+
+        SQLite::Statement select = builder.Prepare(connection);
+        bool result = true;
+
+        while (select.Step())
+        {
+            result = false;
+
+            if (!log)
+            {
+                break;
+            }
+
+            AICLI_LOG(Repo, Info, << "  [INVALID] pathparts [" << select.GetColumn<SQLite::rowid_t>(0) << "] refers to " << s_PathPartTable_ParentValue_Name << " [" << select.GetColumn<SQLite::rowid_t>(1) << "]");
+        }
+
+        return result;
     }
 
     bool PathPartTable::IsEmpty(SQLite::Connection& connection)

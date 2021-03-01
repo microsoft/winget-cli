@@ -1,0 +1,24 @@
+[
+    {
+        "description": "valid definition",
+        "schema": {"$ref": "http://json-schema.org/draft/2019-06/schema#"},
+        "tests": [
+            {
+                "description": "valid definition schema",
+                "data": {"$defs": {"foo": {"type": "integer"}}},
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "invalid definition",
+        "schema": {"$ref": "http://json-schema.org/draft/2019-06/schema#"},
+        "tests": [
+            {
+                "description": "invalid definition schema",
+                "data": {"$defs": {"foo": {"type": 1}}},
+                "valid": false
+            }
+        ]
+    }
+]

@@ -130,6 +130,10 @@
     <value>Komandat në vijim janë në dispozicion:</value>
     <comment>Commands the tool supports</comment>
   </data>
+  <data name="AvailableHeader" xml:space="preserve">
+    <value>Në dispozicion</value>
+    <comment>As in "a new version is available to update to".</comment>
+  </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Opsionet në vijim janë në dispozicion:</value>
   </data>
@@ -147,26 +151,79 @@
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtro rezultate sipas komandës</value>
   </data>
+  <data name="CommandLineArgumentDescription" xml:space="preserve">
+    <value>Rreshti i plotë i komandës për përfundim</value>
+  </data>
   <data name="CommandRequiresAdmin" xml:space="preserve">
     <value>Kjo komandë kërkon privilegjet e administratorit për t’u ekzekutuar.</value>
+  </data>
+  <data name="CompleteCommandLongDescription" xml:space="preserve">
+    <value>Kjo komandë mund të përdoret për të kërkuar përfundimin e rreshtit të komandës të ndjeshëm ndaj kontekstit. Rreshti i komandës, pozicioni i kursorit dhe fjala që duhet të përfundohet kalohen. Dalja është një bashkësi e vlerave të mundshme bazuar në hyrjet, një vlerë e mundshme për rresht.</value>
+  </data>
+  <data name="CompleteCommandShortDescription" xml:space="preserve">
+    <value>Aktivizon përfundimin e rreshtit të komandës të ndjeshëm ndaj kontekstit</value>
   </data>
   <data name="CountArgumentDescription" xml:space="preserve">
     <value>Mos shfaq më shumë sesa numri i specifikuar i rezultateve</value>
   </data>
+  <data name="Done" xml:space="preserve">
+    <value>U krye</value>
+  </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
-    <value>Gjej aplikacionin duke përdorur përputhjen e saktë</value>
+    <value>Gjej paketa duke përdorur përputhje të saktë</value>
+  </data>
+  <data name="ExperimentalArgumentDescription" xml:space="preserve">
+    <value>Argument eksperimental për qëllime demonstrimi</value>
+  </data>
+  <data name="ExperimentalCommandLongDescription" xml:space="preserve">
+    <value>Kjo komandë nuk është një shembull se si të zbatohet një tipar eksperimental. Për ta aktivizuar, shko te ‘winget settings’ dhe aktivizo tiparet experimentalCmd ose experimentalArg.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="ExperimentalCommandShortDescription" xml:space="preserve">
+    <value>Shembull i tiparit eksperimental</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>U gjet një argument pozicional kur nuk pritej asnjë</value>
+  </data>
+  <data name="FeatureDisabledMessage" xml:space="preserve">
+    <value>Ky tipar është në zhvillim e sipër dhe mund të ndryshohet rrënjësisht ose të largohet krejtësisht në të ardhmen. Për ta aktivizuar atë, redakto parametrat e tu (''winget settings'') për të përfshirë tiparin eksperimental</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandLongDescription" xml:space="preserve">
+    <value>Shfaq statusin e tipareve eksperimentale. Tiparet eksperimentale mund të aktivizohen nëpërmjet ‘winget settings’.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesCommandShortDescription" xml:space="preserve">
+    <value>Shfaq statusin e tipareve eksperimentale</value>
+  </data>
+  <data name="FeaturesDisabled" xml:space="preserve">
+    <value>Çaktivizuar</value>
+  </data>
+  <data name="FeaturesEnabled" xml:space="preserve">
+    <value>Aktivizuar</value>
+  </data>
+  <data name="FeaturesFeature" xml:space="preserve">
+    <value>Tipar</value>
+  </data>
+  <data name="FeaturesLink" xml:space="preserve">
+    <value>Lidhje</value>
+  </data>
+  <data name="FeaturesMessage" xml:space="preserve">
+    <value>Tiparet eksperimentale në vijim janë duke u zhvilluar.
+Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.</value>
+    <comment>{Locked="winget settings"}</comment>
+  </data>
+  <data name="FeaturesProperty" xml:space="preserve">
+    <value>Veti</value>
+  </data>
+  <data name="FeaturesStatus" xml:space="preserve">
+    <value>Statusi</value>
   </data>
   <data name="FileArgumentDescription" xml:space="preserve">
     <value>Skedari që do të lokalizohet</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Argumenti i flamurit nuk mund të përmbajë vlerë të ngjitur</value>
-  </data>
-  <data name="ForceArgumentDescription" xml:space="preserve">
-    <value>Ekzekuto komandën pa kërkesa</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Llogarit hashtin e një skedari lokal, të përshtatshme për hyrjen në një manifest. Mund të llogarisë gjithashtu hash-un e skedarit të nënshkrimit të një pakete MSIX për të mundësuar instalimet e transmetimit.</value>
@@ -192,14 +249,42 @@
   <data name="InstallationDisclaimer2" xml:space="preserve">
     <value>Microsoft nuk është përgjegjës dhe as nuk jep licencë për paketat e palëve të treta.</value>
   </data>
+  <data name="InstallationDisclaimerMSStore" xml:space="preserve">
+    <value>Kjo paketë ofrohet nëpërmjet Microsoft Store. winget mund të duhet ta blejë paketën nga Microsoft Store në emër të përdoruesit aktual.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Aplikacioni nuk mund të instalohet, sepse kërkon një version më të ri të Windows:</value>
+    <value>Paketa nuk mund të instalohet, sepse kërkon një version më të ri të Windows:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Instalon aplikacionin e përzgjedhur, ose duke kërkuar një burim të konfiguruar ose direkt nga një manifest.</value>
+    <value>Instalon paketën e përzgjedhur, që është gjetur, ose duke kërkuar një burim të konfiguruar, ose drejtpërdrejt nga manifesti. Sipas parazgjedhjes, pyetja duhet të përputhet me ID-në edhe në madhësinë e shkronjave, emrin ose pseudonimin e paketës. Fushat e tjera mund të përdoren duke kaluar opsionin e tyre të përshtatshëm.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
-    <value>Instalon aplikacionin e dhënë</value>
+    <value>Instalon paketën e dhënë</value>
+  </data>
+  <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Hashi i instaluesit nuk përputhet; kjo s'mund të shpërfillet kur ekzekutohet si administrator</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Hashi i instaluesit nuk përputhet; duke vazhduar për shkak të --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Hashi i instaluesit nuk përputhet; për të shpërfillur këtë, zgjidh përdorimin e --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="InstallerHashVerified" xml:space="preserve">
+    <value>Hashi i instaluesit u verifikua me sukses</value>
+  </data>
+  <data name="InstallFlowInstallSuccess" xml:space="preserve">
+    <value>U instalua me sukses</value>
+  </data>
+  <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
+    <value>Duke nisur instalimin e paketës...</value>
+  </data>
+  <data name="InstallForceArgumentDescription" xml:space="preserve">
+    <value>Anashkalo kontrollin e hash të instaluesit</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Kërko instalim interaktiv; mund të nevojitet hyrje nga përdoruesi</value>
@@ -223,6 +308,13 @@
     <value>Lidhjet</value>
     <comment>Links to different webpages</comment>
   </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Komanda e listës afishon paketat e instaluara në sistem, si dhe nëse ka një përditësim në dispozicion. Mund të jepen opsione shtesë për të filtruar daljen, si edhe komandën e search.</value>
+    <comment>{Locked="list","search"}</comment>
+  </data>
+  <data name="ListCommandShortDescription" xml:space="preserve">
+    <value>Afisho paketat e instaluara</value>
+  </data>
   <data name="LocationArgumentDescription" xml:space="preserve">
     <value>Vendndodhja ku do të instalohet (nëse mbështetet)</value>
   </data>
@@ -237,7 +329,7 @@
     <comment>The primary webpage for the software</comment>
   </data>
   <data name="ManifestArgumentDescription" xml:space="preserve">
-    <value>Shtegu te manifesti i aplikacionit</value>
+    <value>Shtegu te manifesti i paketës</value>
   </data>
   <data name="ManifestValidationFail" xml:space="preserve">
     <value>Vërtetimi i manifestit dështoi.</value>
@@ -252,7 +344,7 @@
     <value>Kërkohet vlera e argumentit, por nuk u gjet asnjë</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
-    <value>Filtro rezultatet sipas aplikacionit moniker</value>
+    <value>Filtro rezultatet sipas pseudonimit</value>
   </data>
   <data name="MsixArgumentDescription" xml:space="preserve">
     <value>Skedari i hyrjes do të trajtohet si msix; nëse nënshkruhet, do të ofrohet një grup nënshkrimi</value>
@@ -260,11 +352,50 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Llogaritja e hash-it të nënshkrimit MSIX dështoi.</value>
   </data>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Instalimi ose përditësimi i paketës së Microsoft Store dështoi, sepse aplikacioni specifik është bllokuar nga rregullorja</value>
+  </data>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Instalimi ose përditësimi i paketës së Microsoft Store dështoi. Kodi i gabimit:</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
+    <value>Verifikimi/kërkimi i blerjes së paketës dështoi: gabim i rrjetit</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
+    <value>Verifikimi/kërkimi i blerjes së paketës dështoi: nuk u gjet llogari në dyqan</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
+    <value>Verifikimi/kërkimi i blerjes së paketës dështoi: gabim i serverit</value>
+  </data>
+  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
+    <value>Verifikimi/kërkimi i blerjes së paketës i suksesshëm</value>
+  </data>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Instalimi ose përditësimi i paketës së Microsoft Store dështoi, sepse klienti i Microsoft Store është bllokuar nga rregullorja</value>
+  </data>
+  <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
+    <value>Verifikimi/kërkimi i blerjes së paketës...</value>
+  </data>
+  <data name="MultipleInstalledPackagesFound" xml:space="preserve">
+    <value>U gjetën më shumë paketa të instaluara që përputhen me kriterin e hyrjes. Përsos hyrjen.</value>
+  </data>
+  <data name="MultiplePackagesFound" xml:space="preserve">
+    <value>U gjetën më shumë paketa që përputhen me kriterin e hyrjes. Përsos hyrjen.</value>
+  </data>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filtro rezultate sipas emrit</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>Asnjë instalues nuk është i aplikueshëm për sistemin aktual.</value>
+  </data>
+  <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
+    <value>Nuk ka aktualisht asnjë tipar eksperimental në dispozicion. </value>
+  </data>
+  <data name="NoInstalledPackageFound" xml:space="preserve">
+    <value>Nuk u gjet asnjë paketë e instaluar që përputhet me kriterin e hyrjes.</value>
+  </data>
+  <data name="NoPackageFound" xml:space="preserve">
+    <value>Nuk u gjet asnjë paketë që përputhet me kriterin e hyrjes.</value>
   </data>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Çaktivizon afishimin e VirtualTerminal</value>
@@ -284,6 +415,9 @@
   <data name="PendingWorkError" xml:space="preserve">
     <value>Mos, harruam ta bëjmë këtë...</value>
   </data>
+  <data name="PositionArgumentDescription" xml:space="preserve">
+    <value>Pozicioni i kursorit brenda rreshtit të komandës</value>
+  </data>
   <data name="PreviewVersion" xml:space="preserve">
     <value>Paraafishim</value>
   </data>
@@ -291,7 +425,7 @@
     <value>Deklarata e privatësisë</value>
   </data>
   <data name="QueryArgumentDescription" xml:space="preserve">
-    <value>Pyetja që përdoret për të kërkuar një aplikacion</value>
+    <value>Pyetja që përdoret për të kërkuar një paketë</value>
   </data>
   <data name="RainbowArgumentDescription" xml:space="preserve">
     <value>Afishimi i ecurisë si një ylber me ngjyra</value>
@@ -303,10 +437,29 @@
     <value>Afishimi i ecurisë si ngjyra e parazgjedhur</value>
   </data>
   <data name="SearchCommandLongDescription" xml:space="preserve">
-    <value>Kërkon për aplikacione nga burime të konfiguruara.</value>
+    <value>Kërkon për paketa nga burime të konfiguruara.</value>
   </data>
   <data name="SearchCommandShortDescription" xml:space="preserve">
-    <value>Gjej dhe shfaq informacion bazë për aplikacionet</value>
+    <value>Gjej dhe shfaq informacione bazë për paketat</value>
+  </data>
+  <data name="SearchId" xml:space="preserve">
+    <value>Id</value>
+    <comment>Abbreviation of Identifier.</comment>
+  </data>
+  <data name="SearchMatch" xml:space="preserve">
+    <value>Përputhje</value>
+  </data>
+  <data name="SearchName" xml:space="preserve">
+    <value>Emri</value>
+  </data>
+  <data name="SearchSource" xml:space="preserve">
+    <value>Burimi</value>
+  </data>
+  <data name="SearchTruncated" xml:space="preserve">
+    <value>futjet shtesë janë shkurtuar për shkak të kufirit të rezultateve</value>
+  </data>
+  <data name="SearchVersion" xml:space="preserve">
+    <value>Versioni</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
     <value>Gjatë vërtetimit të parametrave u gjetën dështimet në vijim:</value>
@@ -320,11 +473,17 @@
   <data name="SettingsWarnings" xml:space="preserve">
     <value>Gabim i papritur gjatë ngarkimit të parametrave. Verifiko parametrat e tu duke ekzekutuar komandën e parametrave.</value>
   </data>
+  <data name="ShowChannel" xml:space="preserve">
+    <value>Kanal</value>
+  </data>
   <data name="ShowCommandLongDescription" xml:space="preserve">
-    <value>Shfaq informacionin në një aplikacion specifik.</value>
+    <value>Shfaq informacionin për një paketë specifike. Sipas parazgjedhjes, pyetja duhet të përputhet me ID-në edhe në madhësinë e shkronjave, emrin ose pseudonimin e paketës. Fushat e tjera mund të përdoren duke kaluar opsionin e tyre të përshtatshëm.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Shfaq informacione rreth aplikacionit</value>
+    <value>Shfaq informacione rreth një pakete</value>
+  </data>
+  <data name="ShowVersion" xml:space="preserve">
+    <value>Versioni</value>
   </data>
   <data name="SilentArgumentDescription" xml:space="preserve">
     <value>Kërko instalim të heshtur</value>
@@ -332,8 +491,20 @@
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Vetëm pseudonimi i karakterit të vetëm mund të ndodhë pas një - të vetme</value>
   </data>
+  <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
+    <value>Një burim me emrin e dhënë tashmë ekziston dhe i referohet një vendndodhjeje tjetër:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsDifferentName" xml:space="preserve">
+    <value>Një burim me një emër tjetër tashmë i referohet kësaj vendndodhjeje:</value>
+  </data>
+  <data name="SourceAddAlreadyExistsMatch" xml:space="preserve">
+    <value>Një burim me emrin e dhënë tashmë ekziston dhe i referohet të njëjtës vendndodhje:</value>
+  </data>
+  <data name="SourceAddBegin" xml:space="preserve">
+    <value>Shtimi i burimit:</value>
+  </data>
   <data name="SourceAddCommandLongDescription" xml:space="preserve">
-    <value>Shto një burim të ri. Burimi ofron të dhëna që të zbulosh dhe të instalosh aplikacione. Shto burim të ri vetëm nëse e beson atë si vendndodhje të sigurt.</value>
+    <value>Shto një burim të ri. Burimi ofron të dhëna që të zbulosh dhe të instalosh paketa. Shto burim të ri vetëm nëse e beson atë si vendndodhje të sigurt.</value>
   </data>
   <data name="SourceAddCommandShortDescription" xml:space="preserve">
     <value>Shto një burim të ri</value>
@@ -342,13 +513,17 @@
     <value>Argumenti që i jepet burimit</value>
   </data>
   <data name="SourceArgumentDescription" xml:space="preserve">
-    <value>Gjej aplikacionin që përdor burimin e specifikuar</value>
+    <value>Gjej paketën duke përdorur burimin e specifikuar</value>
   </data>
   <data name="SourceCommandLongDescription" xml:space="preserve">
-    <value>Menaxho burimet me nënkomanda. Burimi ofron të dhëna që të zbulosh dhe të instalosh aplikacione. Shto burim të ri vetëm nëse e beson atë si vendndodhje të sigurt.</value>
+    <value>Menaxho burimet me nënkomanda. Burimi ofron të dhëna që të zbulosh dhe të instalosh paketa. Shto burim të ri vetëm nëse e beson atë si vendndodhje të sigurt.</value>
   </data>
   <data name="SourceCommandShortDescription" xml:space="preserve">
-    <value>Menaxho burimet e aplikacioneve</value>
+    <value>Menaxho burimet e paketave</value>
+  </data>
+  <data name="SourceListArg" xml:space="preserve">
+    <value>Argumenti</value>
+    <comment>Value given to source.</comment>
   </data>
   <data name="SourceListCommandLongDescription" xml:space="preserve">
     <value>Rendit të gjitha burimet aktuale ose detajet e plota të një burimi specifik.</value>
@@ -356,8 +531,53 @@
   <data name="SourceListCommandShortDescription" xml:space="preserve">
     <value>Rendit burimet aktuale</value>
   </data>
+  <data name="SourceListData" xml:space="preserve">
+    <value>Të dhënat</value>
+    <comment>Data stored by the source.</comment>
+  </data>
+  <data name="SourceListField" xml:space="preserve">
+    <value>Fushë</value>
+    <comment>The name of a piece of information about a source.</comment>
+  </data>
+  <data name="SourceListName" xml:space="preserve">
+    <value>Emri</value>
+    <comment>The name of the source.</comment>
+  </data>
+  <data name="SourceListNoneFound" xml:space="preserve">
+    <value>Nuk e gjeti asnjë burim me emrin:</value>
+  </data>
+  <data name="SourceListNoSources" xml:space="preserve">
+    <value>Nuk ka asnjë burim të konfiguruar.</value>
+  </data>
+  <data name="SourceListType" xml:space="preserve">
+    <value>Lloji</value>
+    <comment>The kind of source.</comment>
+  </data>
+  <data name="SourceListUpdated" xml:space="preserve">
+    <value>Përditësuar</value>
+    <comment>The last time the source was updated.</comment>
+  </data>
+  <data name="SourceListUpdatedNever" xml:space="preserve">
+    <value>asnjëherë</value>
+    <comment>The source has never been updated.</comment>
+  </data>
+  <data name="SourceListValue" xml:space="preserve">
+    <value>Vlerë</value>
+    <comment>The value of information about a source.</comment>
+  </data>
   <data name="SourceNameArgumentDescription" xml:space="preserve">
     <value>Emri i burimit</value>
+  </data>
+  <data name="SourceOpenFailedSuggestion" xml:space="preserve">
+    <value>Hapja e burimit dështoi; provo komandën 'source reset' nëse problemi vazhdon.</value>
+    <comment>{Locked="source reset"}</comment>
+  </data>
+  <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
+    <value>Hapja e burimit të paracaktuar dështoi; raportoje te mirëmbajtësit e winget.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="SourceRemoveAll" xml:space="preserve">
+    <value>Duke larguar të gjitha burimet...</value>
   </data>
   <data name="SourceRemoveCommandLongDescription" xml:space="preserve">
     <value>Hiq një burim specifik.</value>
@@ -365,14 +585,33 @@
   <data name="SourceRemoveCommandShortDescription" xml:space="preserve">
     <value>Hiq burimet aktuale</value>
   </data>
+  <data name="SourceRemoveOne" xml:space="preserve">
+    <value>Largimi i burimit:</value>
+  </data>
+  <data name="SourceResetAll" xml:space="preserve">
+    <value>Duke rivendosur të gjitha burimet...</value>
+  </data>
   <data name="SourceResetCommandLongDescription" xml:space="preserve">
     <value>Kjo komandë lëshon burimet ekzistuese, duke lënë pas mundësisht çdo të dhënë lokale. Pa ndonjë argument, ajo do t’i lëshojë të gjitha burimet dhe do të shtojë parazgjedhjet. Nëse ofrohet një burim me emër, do të lëshohet vetëm ai burim.</value>
   </data>
   <data name="SourceResetCommandShortDescription" xml:space="preserve">
     <value>Rivendos burimet</value>
   </data>
+  <data name="SourceResetForceArgumentDescription" xml:space="preserve">
+    <value>Detyron rivendosjen e burimeve</value>
+  </data>
+  <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
+    <value>Burimet në vijim do të rivendosen nëse është dhënë opsioni --force:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="SourceResetOne" xml:space="preserve">
+    <value>Rivendosja e burimit:</value>
+  </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Lloji i burimit</value>
+  </data>
+  <data name="SourceUpdateAll" xml:space="preserve">
+    <value>Duke përditësuar të gjitha burimet...</value>
   </data>
   <data name="SourceUpdateCommandLongDescription" xml:space="preserve">
     <value>Përditëso të gjitha burimet ose vetëm një burim specifik.</value>
@@ -380,11 +619,20 @@
   <data name="SourceUpdateCommandShortDescription" xml:space="preserve">
     <value>Përditëso burimet aktuale</value>
   </data>
+  <data name="SourceUpdateOne" xml:space="preserve">
+    <value>Përditësimi i burimit:</value>
+  </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtro rezultatet sipas etiketës</value>
   </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Faleminderit që përdor winget</value>
+  </data>
   <data name="ThirdPartSoftwareNotices" xml:space="preserve">
     <value>Njoftimet e palëve të treta</value>
+  </data>
+  <data name="ToolDescription" xml:space="preserve">
+    <value>Shërbimi i rreshtit të komandës së winget mundëson instalimin e aplikacioneve dhe paketave të tjera nga rreshti i komandës.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Afisho informacionin e përgjithshëm të veglës</value>
@@ -396,13 +644,26 @@
     <value>Argumenti u dha më shumë herë se sa lejohet</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>U dha më shumë se një argument i sjelljes së instalimit</value>
+    <value>U dha më shumë se një argument i sjelljes së ekzekutimit</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Ndodhi një gabim i papritur gjatë ekzekutimit të komandës:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Komandë e panjohur</value>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Përditëso të gjitha paketat e instaluara në më të fundit nëse janë në dispozicion</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Nuk u gjet asnjë përditësim i aplikueshëm.</value>
+  </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>Përditëson paketën e përzgjedhur, që është gjetur duke kërkuar listën e paketave të instaluara ose drejtpërdrejt nga manifesti. Sipas parazgjedhjes, pyetja duhet të përputhet me ID-në, emrin ose pseudonimin e paketës pa ndjeshmëri ndaj kapitaleve. Fushat e tjera mund të përdoren duke kaluar opsionin e tyre përkatës.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>Përditëson paketën e dhënë</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>përdorimi</value>
@@ -427,6 +688,72 @@
     <value>Përdor versionin e specifikuar; parazgjedhja është versioni më i fundit</value>
   </data>
   <data name="VersionsArgumentDescription" xml:space="preserve">
-    <value>Shfaq versionet në dispozicion të aplikacionit</value>
+    <value>Shfaq versionet në dispozicion të paketës</value>
+  </data>
+  <data name="WordArgumentDescription" xml:space="preserve">
+    <value>Kërkohet vlera e dhënë para përfundimit</value>
+  </data>
+  <data name="GetManifestResultVersionNotFound" xml:space="preserve">
+    <value>Nuk u gjet asnjë version që përputhet me:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatch" xml:space="preserve">
+    <value>Asnjë burim nuk përputhet me vlerën e dhënë:</value>
+  </data>
+  <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
+    <value>Burimet e konfiguruara janë:</value>
+  </data>
+  <data name="OpenSourceFailedNoSourceDefined" xml:space="preserve">
+    <value>Nuk ka burime të përcaktuara; shto një me 'source add' ose rivendos te parazgjedhjet me 'source reset'</value>
+    <comment>{Locked="source add","source reset"}</comment>
+  </data>
+  <data name="ReportIdentityFound" xml:space="preserve">
+    <value>U gjet</value>
+  </data>
+  <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
+    <value>Shtegu është një direktori:</value>
+  </data>
+  <data name="VerifyFileFailedNotExist" xml:space="preserve">
+    <value>Skedari nuk ekziston:</value>
+  </data>
+  <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
+    <value>Është dhënë edhe argumenti i manifestit lokal edhe ai i pyetjes së kërkimit</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Evidencat</value>
+    <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Instaluesi është bllokuar nga politika</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Instaluesi dështoi gjatë kontrollit të sigurisë</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Një produkt antivirus raporton për një infeksion në instaluesin</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Dështoi në përpjekjen për të përditësuar burimin:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Çinstalon paketën e përzgjedhur, që është gjetur qoftë duke kërkuar listën e paketave të instaluara ose drejtpërdrejt nga një manifest. Sipas parazgjedhjes, pyetja duhet të përputhet pa ndjeshmëri ndaj kapitaleve me ID-në, emrin ose pseudonimin e paketës. Fushat e tjera mund të përdoren duke kaluar opsionin e tyre përkatës.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Çinstalon paketën e dhënë</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Duke nisur çinstalimin e paketës...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>U çinstalua me sukses</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget nuk mund të gjejë komandën e çinstalimit për këtë paketë. Kontakto me publikuesin e paketës për mbështetje.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Çinstalimi u braktis</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Çinstalimi dështoi me kodin e daljes:</value>
   </data>
 </root>

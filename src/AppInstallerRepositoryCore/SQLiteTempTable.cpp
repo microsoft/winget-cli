@@ -33,7 +33,7 @@ namespace AppInstaller::Repository::SQLite
         return Builder::QualifiedTable("temp"sv, m_name);
     }
 
-    void TempTable::InitDropStatement(Connection& connection)
+    void TempTable::InitDropStatement(const Connection& connection)
     {
         Builder::StatementBuilder builder;
         builder.DropTable(m_name);

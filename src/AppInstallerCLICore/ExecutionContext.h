@@ -4,9 +4,11 @@
 #include <AppInstallerLogging.h>
 #include <AppInstallerRepositorySearch.h>
 #include <AppInstallerRepositorySource.h>
-#include <Manifest/Manifest.h>
+#include <winget/Manifest.h>
 #include "ExecutionReporter.h"
 #include "ExecutionArgs.h"
+#include "CompletionData.h"
+#include "PackageCollection.h"
 
 #include <filesystem>
 #include <map>
@@ -18,21 +20,25 @@
 
 // Terminates the Context with some logging to indicate the location.
 // Also returns from the current function.
-#define AICLI_TERMINATE_CONTEXT_ARGS(_context_,_hr_) \
+#define AICLI_TERMINATE_CONTEXT_ARGS(_context_,_hr_,_ret_) \
     do { \
         HRESULT AICLI_TERMINATE_CONTEXT_ARGS_hr = _hr_; \
-        ::AppInstaller::Logging::Telemetry().LogCommandTermination(AICLI_TERMINATE_CONTEXT_ARGS_hr, __FILE__, __LINE__); \
-        _context_.Terminate(AICLI_TERMINATE_CONTEXT_ARGS_hr); \
-        return; \
+        _context_.Terminate(AICLI_TERMINATE_CONTEXT_ARGS_hr, __FILE__, __LINE__); \
+        return _ret_; \
     } while(0,0)
 
-// Terminates the Context namd 'context' with some logging to indicate the location.
+// Terminates the Context named 'context' with some logging to indicate the location.
 // Also returns from the current function.
-#define AICLI_TERMINATE_CONTEXT(_hr_)   AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_)
+#define AICLI_TERMINATE_CONTEXT(_hr_)   AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_,)
+
+// Terminates the Context named 'context' with some logging to indicate the location.
+// Also returns the specified value from the current function.
+#define AICLI_TERMINATE_CONTEXT_RETURN(_hr_,_ret_) AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_,_ret_)
 
 namespace AppInstaller::CLI::Workflow
 {
     struct WorkflowTask;
+    enum class ExecutionStage : uint32_t;
 }
 
 namespace AppInstaller::CLI::Execution
@@ -45,14 +51,40 @@ namespace AppInstaller::CLI::Execution
         Source,
         SearchResult,
         SourceList,
+        Package,
         Manifest,
+        PackageVersion,
         Installer,
         HashPair,
         InstallerPath,
         LogPath,
         InstallerArgs,
+        CompletionData,
+        InstalledPackageVersion,
+        ExecutionStage,
+        UninstallString,
+        PackageFamilyNames,
+        ProductCodes,
+        // On export: A collection of packages to be exported to a file
+        // On import: A collection of packages read from a file
+        PackageCollection,
+        // On import: A collection of specific package versions to install
+        PackagesToInstall,
+        // On import: Sources for the imported packages
+        Sources,
         Max
     };
+
+    // bit masks used as Context flags
+    enum class ContextFlag : int
+    {
+        None = 0x0,
+        InstallerExecutionUseUpdate = 0x1,
+        InstallerHashMatched = 0x2,
+        InstallerTrusted = 0x4,
+    };
+
+    DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
 
     namespace details
     {
@@ -81,9 +113,21 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
+        struct DataMapping<Data::Package>
+        {
+            using value_t = std::shared_ptr<Repository::IPackage>;
+        };
+
+        template <>
         struct DataMapping<Data::Manifest>
         {
             using value_t = Manifest::Manifest;
+        };
+
+        template <>
+        struct DataMapping<Data::PackageVersion>
+        {
+            using value_t = std::shared_ptr<Repository::IPackageVersion>;
         };
 
         template <>
@@ -116,6 +160,60 @@ namespace AppInstaller::CLI::Execution
             using value_t = std::string;
         };
 
+        template <>
+        struct DataMapping<Data::CompletionData>
+        {
+            using value_t = CLI::CompletionData;
+        };
+
+        template <>
+        struct DataMapping<Data::InstalledPackageVersion>
+        {
+            using value_t = std::shared_ptr<Repository::IPackageVersion>;
+        };
+
+        template <>
+        struct DataMapping<Data::ExecutionStage>
+        {
+            using value_t = Workflow::ExecutionStage;
+        };
+
+        template <>
+        struct DataMapping<Data::UninstallString>
+        {
+            using value_t = std::string;
+        };
+
+        template <>
+        struct DataMapping<Data::PackageFamilyNames>
+        {
+            using value_t = std::vector<Utility::LocIndString>;
+        };
+
+        template <>
+        struct DataMapping<Data::ProductCodes>
+        {
+            using value_t = std::vector<Utility::LocIndString>;
+        };
+
+        template <>
+        struct DataMapping<Data::PackageCollection>
+        {
+            using value_t = CLI::PackageCollection;
+        };
+
+        template <>
+        struct DataMapping<Data::PackagesToInstall>
+        {
+            using value_t = std::vector<std::shared_ptr<Repository::IPackageVersion>>;
+        };
+
+        template <>
+        struct DataMapping<Data::Sources>
+        {
+            using value_t = std::vector<std::shared_ptr<Repository::ISource>>;
+        };
+
         // Used to deduce the DataVariant type; making a variant that includes std::monostate and all DataMapping types.
         template <size_t... I>
         inline auto Deduce(std::index_sequence<I...>) { return std::variant<std::monostate, DataMapping<static_cast<Data>(I)>::value_t...>{}; }
@@ -134,6 +232,9 @@ namespace AppInstaller::CLI::Execution
     {
         Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
 
+        // Clone the reporter for this constructor.
+        Context(Execution::Reporter& reporter) : Reporter(reporter, Execution::Reporter::clone_t{}) {}
+
         virtual ~Context();
 
         // The path for console input/output for all functionality.
@@ -141,6 +242,9 @@ namespace AppInstaller::CLI::Execution
 
         // The arguments given to execute with.
         Args Args;
+
+        // Creates a copy of this context as it was at construction.
+        virtual std::unique_ptr<Context> Clone();
 
         // Enables reception of CTRL signals.
         // Only one context can be enabled to handle CTRL signals at a time.
@@ -156,7 +260,7 @@ namespace AppInstaller::CLI::Execution
         HRESULT GetTerminationHR() const { return m_terminationHR; }
 
         // Set the context to the terminated state.
-        void Terminate(HRESULT hr);
+        void Terminate(HRESULT hr, std::string_view file = {}, size_t line = {});
 
         // Adds a value to the context data, or overwrites an existing entry.
         // This must be used to create the initial data entry, but Get can be used to modify.
@@ -164,6 +268,11 @@ namespace AppInstaller::CLI::Execution
         void Add(typename details::DataMapping<D>::value_t&& v)
         {
             m_data[D].emplace<details::DataIndex(D)>(std::forward<typename details::DataMapping<D>::value_t>(v));
+        }
+        template <Data D>
+        void Add(const typename details::DataMapping<D>::value_t& v)
+        {
+            m_data[D].emplace<details::DataIndex(D)>(v);
         }
 
         // Return a value indicating whether the given data type is stored in the context.
@@ -178,6 +287,24 @@ namespace AppInstaller::CLI::Execution
             return std::get<details::DataIndex(D)>(itr->second);
         }
 
+        // Gets context flags
+        ContextFlag GetFlags() const
+        {
+            return m_flags;
+        }
+
+        // Set context flags
+        void SetFlags(ContextFlag flags)
+        {
+            WI_SetAllFlags(m_flags, flags);
+        }
+
+        // Clear context flags
+        void ClearFlags(ContextFlag flags)
+        {
+            WI_ClearAllFlags(m_flags, flags);
+        }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
         virtual bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask&) { return true; }
@@ -189,5 +316,6 @@ namespace AppInstaller::CLI::Execution
         HRESULT m_terminationHR = S_OK;
         std::map<Data, details::DataVariant> m_data;
         size_t m_CtrlSignalCount = 0;
+        ContextFlag m_flags = ContextFlag::None;
     };
 }

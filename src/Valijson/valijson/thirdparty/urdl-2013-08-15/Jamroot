@@ -1,0 +1,55 @@
+import modules ;
+import package ;
+
+path-constant URDL_ROOT : . ;
+
+BOOST_ROOT = [ modules.peek : BOOST_ROOT ] ;
+if $(BOOST_ROOT)
+{
+  use-project /boost : $(BOOST_ROOT) ;
+}
+
+rule handle-static-runtime ( properties * )
+{
+    if <link>shared in $(properties) && <runtime-link>static in $(properties)
+    {
+        return <build>no ;
+    }
+}
+
+project
+    :
+      build-dir build/bin
+    :
+      requirements
+      <threading>multi
+      <conditional>@handle-static-runtime
+    :
+      default-build
+      debug release
+      <threading>multi
+      <link>shared <link>static
+      <runtime-link>shared <runtime-link>static
+    ;
+
+install lib
+    :
+      build
+    :
+      <location>lib
+      <install-type>LIB
+    ;
+
+local patterns = *.hpp *.ipp ;
+
+local dirs = include/urdl include/urdl/* ;
+
+package.install install
+    :
+      <install-source-root>include
+    :
+    :
+      build
+    :
+      [ glob $(dirs)/$(patterns) ]
+    ;

@@ -50,15 +50,15 @@ namespace AppInstaller::Repository::Microsoft
         // The base class for a package that comes from a preindexed packaged source.
         struct PreIndexedFactoryBase : public ISourceFactory
         {
-            std::shared_ptr<ISource> Create(const SourceDetails& details) override final
+            std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback& progress) override final
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
 
                 auto lock = Synchronization::CrossProcessReaderWriteLock::LockForRead(CreateNameForCPRWL(details));
-                return CreateInternal(details, std::move(lock));
+                return CreateInternal(details, std::move(lock), progress);
             }
 
-            virtual std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) = 0;
+            virtual std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock, IProgressCallback& progress) = 0;
 
             void Add(SourceDetails& details, IProgressCallback& progress) override final
             {
@@ -75,6 +75,8 @@ namespace AppInstaller::Repository::Microsoft
 
                 std::string packageLocation = GetPackageLocation(details);
 
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, Utility::IsUrlRemote(packageLocation) && !Utility::IsUrlSecure(packageLocation));
+
                 AICLI_LOG(Repo, Info, << "Initializing source from: " << details.Name << " => " << packageLocation);
 
                 Msix::MsixInfo packageInfo(packageLocation);
@@ -84,6 +86,7 @@ namespace AppInstaller::Repository::Microsoft
                 AICLI_LOG(Repo, Info, << "Found package full name: " << details.Name << " => " << fullName);
 
                 details.Data = Msix::GetPackageFamilyNameFromFullName(fullName);
+                details.Identifier = Msix::GetPackageFamilyNameFromFullName(fullName);
 
                 auto lock = Synchronization::CrossProcessReaderWriteLock::LockForWrite(CreateNameForCPRWL(details));
 
@@ -124,7 +127,7 @@ namespace AppInstaller::Repository::Microsoft
                 return catalog.FindByPackageFamilyAndId(GetPackageFamilyNameFromDetails(details), Deployment::IndexDBId);
             }
 
-            std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) override
+            std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock, IProgressCallback& progress) override
             {
                 auto extension = GetExtensionFromDetails(details);
                 if (!extension)
@@ -132,6 +135,8 @@ namespace AppInstaller::Repository::Microsoft
                     AICLI_LOG(Repo, Info, << "Package not found " << details.Data);
                     THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING);
                 }
+
+                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NEEDS_REMEDIATION), !extension->VerifyContentIntegrity(progress));
 
                 // To work around an issue with accessing the public folder, we are temporarily
                 // constructing the location ourself.  This was already the case for the non-packaged
@@ -142,7 +147,9 @@ namespace AppInstaller::Repository::Microsoft
 
                 SQLiteIndex index = SQLiteIndex::Open(indexLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
 
-                return std::make_shared<SQLiteIndexSource>(details, std::move(index), std::move(lock));
+                // We didn't use to store the source identifier, so we compute it here in case it's
+                // missing from the details.
+                return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(index), std::move(lock));
             }
 
             void UpdateInternal(std::string packageLocation, const SourceDetails& details, IProgressCallback& progress) override
@@ -194,9 +201,10 @@ namespace AppInstaller::Repository::Microsoft
                     uri = winrt::Windows::Foundation::Uri(Utility::ConvertToUTF16(packageLocation));
                 }
 
-                Deployment::RequestAddPackage(
+                Deployment::AddPackage(
                     uri,
                     winrt::Windows::Management::Deployment::DeploymentOptions::None,
+                    SourceTrustLevel::Trusted == details.TrustLevel,
                     progress);
 
                 if (download)
@@ -234,7 +242,7 @@ namespace AppInstaller::Repository::Microsoft
                 return result;
             }
 
-            std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock) override
+            std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, Synchronization::CrossProcessReaderWriteLock&& lock, IProgressCallback&) override
             {
                 std::filesystem::path packageLocation = GetStatePathFromDetails(details);
                 packageLocation /= s_PreIndexedPackageSourceFactory_IndexFileName;
@@ -247,7 +255,9 @@ namespace AppInstaller::Repository::Microsoft
 
                 SQLiteIndex index = SQLiteIndex::Open(packageLocation.u8string(), SQLiteIndex::OpenDisposition::Read);
 
-                return std::make_shared<SQLiteIndexSource>(details, std::move(index), std::move(lock));
+                // We didn't use to store the source identifier, so we compute it here in case it's
+                // missing from the details.
+                return std::make_shared<SQLiteIndexSource>(details, GetPackageFamilyNameFromDetails(details), std::move(index), std::move(lock));
             }
 
             void UpdateInternal(std::string packageLocation, const SourceDetails& details, IProgressCallback& progress) override

@@ -1,0 +1,6 @@
+build
+bin
+xcode/valijson.xcodeproj/project.xcworkspace
+xcode/valijson.xcodeproj/project.xcworkspace/xcuserdata
+xcode/valijson.xcodeproj/xcuserdata
+doc/html

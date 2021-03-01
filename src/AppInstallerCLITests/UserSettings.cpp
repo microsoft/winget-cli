@@ -271,3 +271,44 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
 }
+
+// Test one experimental feature in usersettingstest context because there's no good way to test ExperimentalFeature
+TEST_CASE("SettingsExperimentalCmd", "[settings]")
+{
+    DeleteUserSettingsFiles();
+
+    SECTION("Feature off default")
+    {
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(!userSettingTest.Get<Setting::EFExperimentalCmd>());
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Feature on")
+    {
+        std::string_view json = R"({ "experimentalFeatures": { "experimentalCmd": true } })";
+        SetSetting(Streams::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::EFExperimentalCmd>());
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Feature off")
+    {
+        std::string_view json = R"({ "experimentalFeatures": { "experimentalCmd": false } })";
+        SetSetting(Streams::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(!userSettingTest.Get<Setting::EFExperimentalCmd>());
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Invalid value")
+    {
+        std::string_view json = R"({ "experimentalFeatures": { "experimentalCmd": "string" } })";
+        SetSetting(Streams::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(!userSettingTest.Get<Setting::EFExperimentalCmd>());
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+}

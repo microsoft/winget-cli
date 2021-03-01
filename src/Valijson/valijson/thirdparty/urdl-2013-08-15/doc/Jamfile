@@ -1,0 +1,62 @@
+#
+# Copyright (c) 2003-2013 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+#
+# Distributed under the Boost Software License, Version 1.0. (See accompanying
+# file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+#
+
+using quickbook ;
+
+project
+  :
+    default-build
+    debug
+    <threading>multi
+    <link>shared
+    <runtime-link>shared
+  ;
+
+xml standalone_doc
+  :
+    urdl.qbk
+  ;
+
+boostbook standalone
+  :
+    standalone_doc
+  :
+    <xsl:param>boost.image.src=urdl.png
+    <xsl:param>boost.image.alt="Urdl C++ Library"
+    <xsl:param>boost.image.w=160
+    <xsl:param>boost.image.h=60
+    <xsl:param>nav.layout=none
+    <xsl:param>navig.graphics.path=""
+    <xsl:param>admon.graphics.path=""
+    <xsl:param>chapter.autolabel=0
+    <xsl:param>chunk.section.depth=8
+    <xsl:param>chunk.first.sections=1
+    <xsl:param>toc.section.depth=3
+    <xsl:param>toc.max.depth=3
+    <xsl:param>generate.section.toc.level=2
+    <xsl:param>generate.toc="chapter toc section toc"
+  ;
+
+install html
+  :
+    /boost//doc/src/boostbook.css
+    /boost//doc/src/images/blank.png
+    /boost//doc/src/images/caution.png
+    /boost//doc/src/images/draft.png
+    /boost//doc/src/images/home.png
+    /boost//doc/src/images/important.png
+    /boost//doc/src/images/next_disabled.png
+    /boost//doc/src/images/next.png
+    /boost//doc/src/images/note.png
+    /boost//doc/src/images/prev_disabled.png
+    /boost//doc/src/images/prev.png
+    /boost//doc/src/images/tip.png
+    /boost//doc/src/images/up_disabled.png
+    /boost//doc/src/images/up.png
+    /boost//doc/src/images/warning.png
+    urdl.png
+  ;

@@ -5,8 +5,6 @@
 #define NOMINMAX
 #include <Windows.h>
 
-#include <yaml-cpp/yaml.h>
-
 #include <wil/result_macros.h>
 
 #include <algorithm>

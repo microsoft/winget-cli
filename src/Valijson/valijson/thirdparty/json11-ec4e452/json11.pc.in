@@ -1,0 +1,9 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+libdir=${prefix}/lib/@CMAKE_LIBRARY_ARCHITECTURE@
+includedir=${prefix}/include/@CMAKE_LIBRARY_ARCHITECTURE@
+
+Name: @PROJECT_NAME@
+Description: json11 is a tiny JSON library for C++11, providing JSON parsing and serialization.
+Version: @PROJECT_VERSION@
+Libs: -L${libdir} -ljson11
+Cflags: -I${includedir}

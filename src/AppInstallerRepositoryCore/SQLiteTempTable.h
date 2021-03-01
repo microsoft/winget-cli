@@ -26,7 +26,7 @@ namespace AppInstaller::Repository::SQLite
 
         // Prepares the drop table statement for use in destructor.
         // It needs to be run by the derived class after the table is actually created.
-        void InitDropStatement(Connection& connection);
+        void InitDropStatement(const Connection& connection);
 
     private:
         std::string m_name;

@@ -1,0 +1,74 @@
+language: cpp
+sudo: required
+dist: trusty
+
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-5', 'qtbase5-dev', 'libboost1.55-dev', 'libssl-dev', 'libcurl4-openssl-dev']
+      env:
+        - CXX_COMPILER=g++-5
+        - C_COMPILER=gcc-5
+
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.6']
+          packages: ['clang-3.6', 'qtbase5-dev', 'libboost1.55-dev', 'libssl-dev', 'libcurl4-openssl-dev']
+      env:
+        - CXX_COMPILER=clang++-3.6
+        - C_COMPILER=clang-3.6
+
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.7']
+          packages: ['clang-3.7', 'qtbase5-dev', 'libboost1.55-dev', 'libssl-dev', 'libcurl4-openssl-dev']
+      env:
+        - CXX_COMPILER=clang++-3.7
+        - C_COMPILER=clang-3.7
+
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.8']
+          packages: ['clang-3.8', 'libc++-dev', 'libc++abi-dev', 'qtbase5-dev', 'libboost1.55-dev', 'libssl-dev', 'libcurl4-openssl-dev']
+      env:
+        - CXX_COMPILER=clang++-3.8
+        - C_COMPILER=clang-3.8
+        - CMAKE_CXX_FLAGS="-stdlib=libc++"
+        - CMAKE_EXE_LINKER_FLAGS="-lc++"
+
+before_install:
+  - pushd ~
+  - wget https://github.com/pocoproject/poco/archive/poco-1.7.8p2-release.tar.gz
+  - tar -xf poco-1.7.8p2-release.tar.gz
+  - cd poco-poco-1.7.8p2-release
+  - mkdir cmake_build
+  - cd cmake_build
+  - export POCO_OPTS="-DENABLE_CRYPTO=off -DENABLE_DATA=off -DENABLE_DATA_MYSQL=off -DENABLE_DATA_ODBC=off -DENABLE_DATA_SQLITE=off"
+  - export POCO_OPTS="$POCO_OPTS -DENABLE_MONGODB=off -DENABLE_NET=off -DENABLE_NETSSL=off -DENABLE_PAGECOMPILER=off"
+  - export POCO_OPTS="$POCO_OPTS -DENABLE_PAGECOMPILER_FILE2PAGE=off -DENABLE_PDF=off -DENABLE_UTIL=off -DENABLE_XML=off -DENABLE_ZIP=off"
+  - cmake -D CMAKE_CXX_COMPILER=`which ${CXX_COMPILER}` -DCMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS" -DCMAKE_EXE_LINKER_FLAGS="$CMAKE_EXE_LINKER_FLAGS" $POCO_OPTS  ..
+  - sudo make install
+  - wget -O curlpp-0.8.1.tar.gz https://github.com/jpbarrette/curlpp/archive/v0.8.1.tar.gz
+  - tar -xf curlpp-0.8.1.tar.gz
+  - cd curlpp-0.8.1
+  - mkdir cmake_build
+  - cd cmake_build
+  - cmake -D CMAKE_CXX_COMPILER=`which ${CXX_COMPILER}` -DCMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS" -DCMAKE_EXE_LINKER_FLAGS="$CMAKE_EXE_LINKER_FLAGS" ..
+  - sudo make install
+  - popd
+
+script:
+  - mkdir build && cd build
+  - cmake -D CMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS" -D CMAKE_EXE_LINKER_FLAGS="$CMAKE_EXE_LINKER_FLAGS" -D CMAKE_CXX_COMPILER="$CXX_COMPILER" -D CMAKE_C_COMPILER="$C_COMPILER" ..
+  - VERBOSE=1 make
+  - ./test_suite

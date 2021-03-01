@@ -1,0 +1,188 @@
+[
+    {
+        "description": "ignore if without then or else",
+        "schema": {
+            "if": {
+                "const": 0
+            }
+        },
+        "tests": [
+            {
+                "description": "valid when valid against lone if",
+                "data": 0,
+                "valid": true
+            },
+            {
+                "description": "valid when invalid against lone if",
+                "data": "hello",
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "ignore then without if",
+        "schema": {
+            "then": {
+                "const": 0
+            }
+        },
+        "tests": [
+            {
+                "description": "valid when valid against lone then",
+                "data": 0,
+                "valid": true
+            },
+            {
+                "description": "valid when invalid against lone then",
+                "data": "hello",
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "ignore else without if",
+        "schema": {
+            "else": {
+                "const": 0
+            }
+        },
+        "tests": [
+            {
+                "description": "valid when valid against lone else",
+                "data": 0,
+                "valid": true
+            },
+            {
+                "description": "valid when invalid against lone else",
+                "data": "hello",
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "if and then without else",
+        "schema": {
+            "if": {
+                "exclusiveMaximum": 0
+            },
+            "then": {
+                "minimum": -10
+            }
+        },
+        "tests": [
+            {
+                "description": "valid through then",
+                "data": -1,
+                "valid": true
+            },
+            {
+                "description": "invalid through then",
+                "data": -100,
+                "valid": false
+            },
+            {
+                "description": "valid when if test fails",
+                "data": 3,
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "if and else without then",
+        "schema": {
+            "if": {
+                "exclusiveMaximum": 0
+            },
+            "else": {
+                "multipleOf": 2
+            }
+        },
+        "tests": [
+            {
+                "description": "valid when if test passes",
+                "data": -1,
+                "valid": true
+            },
+            {
+                "description": "valid through else",
+                "data": 4,
+                "valid": true
+            },
+            {
+                "description": "invalid through else",
+                "data": 3,
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "validate against correct branch, then vs else",
+        "schema": {
+            "if": {
+                "exclusiveMaximum": 0
+            },
+            "then": {
+                "minimum": -10
+            },
+            "else": {
+                "multipleOf": 2
+            }
+        },
+        "tests": [
+            {
+                "description": "valid through then",
+                "data": -1,
+                "valid": true
+            },
+            {
+                "description": "invalid through then",
+                "data": -100,
+                "valid": false
+            },
+            {
+                "description": "valid through else",
+                "data": 4,
+                "valid": true
+            },
+            {
+                "description": "invalid through else",
+                "data": 3,
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "non-interference across combined schemas",
+        "schema": {
+            "allOf": [
+                {
+                    "if": {
+                        "exclusiveMaximum": 0
+                    }
+                },
+                {
+                    "then": {
+                        "minimum": -10
+                    }
+                },
+                {
+                    "else": {
+                        "multipleOf": 2
+                    }
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "valid, but would have been invalid through then",
+                "data": -100,
+                "valid": true
+            },
+            {
+                "description": "valid, but would have been invalid through else",
+                "data": 3,
+                "valid": true
+            }
+        ]
+    }
+]

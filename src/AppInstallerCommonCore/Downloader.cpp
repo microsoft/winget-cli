@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerDownloader.h"
 #include "Public/AppInstallerSHA256.h"
@@ -109,6 +110,12 @@ namespace AppInstaller::Utility
 
         dest.flush();
 
+        // Check download size matches if content length is provided in response header
+        if (contentLength > 0)
+        {
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH, bytesDownloaded != contentLength);
+        }
+
         std::vector<BYTE> result;
         if (computeHash)
         {
@@ -136,7 +143,7 @@ namespace AppInstaller::Utility
 
         std::ofstream emptyDestFile(dest);
         emptyDestFile.close();
-        ApplyMotwIfApplicable(dest);
+        ApplyMotwIfApplicable(dest, URLZONE_INTERNET);
 
         // Use std::ofstream::app to append to previous empty file so that it will not
         // create a new file and clear motw.
@@ -144,15 +151,15 @@ namespace AppInstaller::Utility
         return DownloadToStream(url, outfile, progress, computeHash);
     }
 
+    using namespace std::string_view_literals;
+    constexpr std::string_view s_http_start = "http://"sv;
+    constexpr std::string_view s_https_start = "https://"sv;
+
     bool IsUrlRemote(std::string_view url)
     {
-        using namespace std::string_view_literals;
-        constexpr std::string_view s_http_start = "http://"sv;
-        constexpr std::string_view s_https_start = "https://"sv;
-
         // Very simple choice right now: "does it start with http:// or https://"?
-        if (CaseInsensitiveEquals(url.substr(0, s_http_start.length()), s_http_start) ||
-            CaseInsensitiveEquals(url.substr(0, s_https_start.length()), s_https_start))
+        if (CaseInsensitiveStartsWith(url, s_http_start) ||
+            CaseInsensitiveStartsWith(url, s_https_start))
         {
             return true;
         }
@@ -160,51 +167,79 @@ namespace AppInstaller::Utility
         return false;
     }
 
-    void ApplyMotwIfApplicable(const std::filesystem::path& filePath)
+    bool IsUrlSecure(std::string_view url)
     {
-        AICLI_LOG(Core, Info, << "Started applying motw to " << filePath);
-
+        // Very simple choice right now: "does it start with https://"?
+        if (CaseInsensitiveStartsWith(url, s_https_start))
         {
-            // Check the file system the input file is on.
-            wil::unique_hfile fileHandle{ CreateFileW(
-                filePath.c_str(), /*lpFileName*/
-                GENERIC_READ, /*dwDesiredAccess*/
-                0, /*dwShareMode*/
-                NULL, /*lpSecurityAttributes*/
-                OPEN_EXISTING, /*dwCreationDisposition*/
-                FILE_ATTRIBUTE_NORMAL, /*dwFlagsAndAttributes*/
-                NULL /*hTemplateFile*/) };
-
-            THROW_LAST_ERROR_IF(fileHandle.get() == INVALID_HANDLE_VALUE);
-
-            wchar_t fileSystemName[MAX_PATH];
-            THROW_LAST_ERROR_IF(!GetVolumeInformationByHandleW(
-                fileHandle.get(), /*hFile*/
-                NULL, /*lpVolumeNameBuffer*/
-                0, /*nVolumeNameSize*/
-                NULL, /*lpVolumeSerialNumber*/
-                NULL, /*lpMaximumComponentLength*/
-                NULL, /*lpFileSystemFlags*/
-                fileSystemName, /*lpFileSystemNameBuffer*/
-                MAX_PATH /*nFileSystemNameSize*/));
-
-            if (_wcsicmp(fileSystemName, L"NTFS") != 0)
-            {
-                AICLI_LOG(Core, Info, << "File system is not NTFS. Skipped applying motw");
-                return;
-            }
+            return true;
         }
 
-        // Zone Identifier stream name
-        // https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/6e3f7352-d11c-4d76-8c39-2516a9df36e8
-        std::filesystem::path motwPath(filePath);
-        motwPath += L":Zone.Identifier:$DATA";
+        return false;
+    }
 
-        // Apply mark of the web. ZoneId 3 means downloaded from internet.
-        std::ofstream motwStream(motwPath);
-        motwStream << "[ZoneTransfer]" << std::endl;
-        motwStream << "ZoneId=3" << std::endl;
+    void ApplyMotwIfApplicable(const std::filesystem::path& filePath, URLZONE zone)
+    {
+        AICLI_LOG(Core, Info, << "Started applying motw to " << filePath << " with zone: " << zone);
+
+        if (!IsNTFS(filePath))
+        {
+            AICLI_LOG(Core, Info, << "File system is not NTFS. Skipped applying motw");
+            return;
+        }
+
+        Microsoft::WRL::ComPtr<IZoneIdentifier> zoneIdentifier;
+        THROW_IF_FAILED(CoCreateInstance(CLSID_PersistentZoneIdentifier, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&zoneIdentifier)));
+        THROW_IF_FAILED(zoneIdentifier->SetId(zone));
+
+        Microsoft::WRL::ComPtr<IPersistFile> persistFile;
+        THROW_IF_FAILED(zoneIdentifier.As(&persistFile));
+        THROW_IF_FAILED(persistFile->Save(filePath.c_str(), TRUE));
 
         AICLI_LOG(Core, Info, << "Finished applying motw");
+    }
+
+    HRESULT ApplyMotwUsingIAttachmentExecuteIfApplicable(const std::filesystem::path& filePath, const std::string& source)
+    {
+        AICLI_LOG(Core, Info, << "Started applying motw using IAttachmentExecute to " << filePath);
+
+        if (!IsNTFS(filePath))
+        {
+            AICLI_LOG(Core, Info, << "File system is not NTFS. Skipped applying motw");
+            return S_OK;
+        }
+
+        // Attachment execution service needs STA to succeed, so we'll create a new thread and CoInitialize with STA.
+        HRESULT aesSaveResult = S_OK;
+        auto updateMotw = [&]() -> HRESULT
+        {
+            Microsoft::WRL::ComPtr<IAttachmentExecute> attachmentExecute;
+            RETURN_IF_FAILED(CoCreateInstance(CLSID_AttachmentServices, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&attachmentExecute)));
+            RETURN_IF_FAILED(attachmentExecute->SetLocalPath(filePath.c_str()));
+            RETURN_IF_FAILED(attachmentExecute->SetSource(Utility::ConvertToUTF16(source).c_str()));
+            aesSaveResult = attachmentExecute->Save();
+            RETURN_IF_FAILED(aesSaveResult);
+            return S_OK;
+        };
+
+        HRESULT hr = S_OK;
+
+        std::thread aesThread([&]()
+            {
+                hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+                if (FAILED(hr))
+                {
+                    return;
+                }
+
+                hr = updateMotw();
+                CoUninitialize();
+            });
+
+        aesThread.join();
+
+        AICLI_LOG(Core, Info, << "Finished applying motw using IAttachmentExecute. Result: " << hr << " IAttachmentExecute::Save() result: " << aesSaveResult);
+
+        return aesSaveResult;
     }
 }

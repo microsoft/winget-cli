@@ -4,13 +4,17 @@
 #include "Public/AppInstallerFileLogger.h"
 
 #include "Public/AppInstallerRuntime.h"
+#include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerDateTime.h"
 
-#define AICLI_FILELOGGER_DEFAULT_FILE_PREFIX "WinGet-"
-#define AICLI_FILELOGGER_DEFAULT_FILE_EXT ".log"
 
 namespace AppInstaller::Logging
 {
+    using namespace std::string_view_literals;
+    using namespace std::chrono_literals;
+
+    static constexpr std::string_view s_fileLoggerDefaultFilePrefix = "WinGet-"sv;
+    static constexpr std::string_view s_fileLoggerDefaultFileExt = ".log"sv;
 
     FileLogger::FileLogger(const std::filesystem::path& filePath)
     {
@@ -18,7 +22,7 @@ namespace AppInstaller::Logging
         {
             m_name = "file";
             m_filePath = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
-            m_filePath /= AICLI_FILELOGGER_DEFAULT_FILE_PREFIX + Utility::GetCurrentTimeForFilename() + AICLI_FILELOGGER_DEFAULT_FILE_EXT;
+            m_filePath /= s_fileLoggerDefaultFilePrefix.data() + Utility::GetCurrentTimeForFilename() + s_fileLoggerDefaultFileExt.data();
         }
         else
         {
@@ -40,6 +44,16 @@ namespace AppInstaller::Logging
         return "file :: "s + filePath.u8string();
     }
 
+    std::string_view FileLogger::DefaultPrefix()
+    {
+        return s_fileLoggerDefaultFilePrefix;
+    }
+
+    std::string_view FileLogger::DefaultExt()
+    {
+        return s_fileLoggerDefaultFileExt;
+    }
+
     std::string FileLogger::GetName() const
     {
         return m_name;
@@ -55,5 +69,29 @@ namespace AppInstaller::Logging
     catch (...)
     {
         // Just eat any exceptions here; better than losing logs
+    }
+
+    void FileLogger::BeginCleanup(const std::filesystem::path& filePath)
+    {
+        std::thread([filePath]()
+            {
+                try
+                {
+                    auto now = std::filesystem::file_time_type::clock::now();
+
+                    // Remove all files that are older than 7 days from the standard log location.
+                    for (auto& file : std::filesystem::directory_iterator{ filePath })
+                    {
+                        if (file.is_regular_file() &&
+                            now - file.last_write_time() > (7 * 24h) &&
+                            Utility::CaseInsensitiveStartsWith(file.path().filename().string(), s_fileLoggerDefaultFilePrefix))
+                        {
+                            std::filesystem::remove(file.path());
+                        }
+                    }
+                }
+                // Just throw out everything
+                catch (...) {}
+            }).detach();
     }
 }

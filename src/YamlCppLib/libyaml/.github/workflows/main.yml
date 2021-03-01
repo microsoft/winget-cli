@@ -1,0 +1,59 @@
+name: linux/mac
+
+on:
+  push:
+    branches: [ '*' ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        compiler:
+        - gcc
+        - clang
+        os:
+        - ubuntu-latest
+        - macOS-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - run: env | sort
+    - name: Install software
+      run: |
+        if [[ '${{ matrix.os }}' == macOS-latest ]]; then
+          brew install automake bash coreutils make
+          echo ::add-path::/usr/local/opt/coreutils/libexec/gnubin
+          echo ::add-path::/usr/local/opt/make/libexec/gnubin
+        fi
+    - name: Fetch branches
+      run: |
+        git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+        git fetch --unshallow
+
+    - run: ./bootstrap
+    - run: ./configure
+    - run: make
+    - run: make test-all
+
+    - run: |
+        git clean -d -x -f
+        rm -fr tests/run-test-suite
+        git worktree prune
+
+    - name: Compiler version
+      run: ${{ matrix.compiler }} --version
+      env:
+        CC: ${{ matrix.compiler }}
+    - run: cmake .
+      env:
+        CC: ${{ matrix.compiler }}
+    - run: make
+      env:
+        CC: ${{ matrix.compiler }}
+    - run: make test

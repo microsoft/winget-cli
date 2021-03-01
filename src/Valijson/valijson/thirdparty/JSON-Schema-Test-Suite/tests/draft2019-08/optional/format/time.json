@@ -1,0 +1,23 @@
+[
+    {
+        "description": "validation of time strings",
+        "schema": {"format": "time"},
+        "tests": [
+            {
+                "description": "a valid time string",
+                "data": "08:30:06.283185Z",
+                "valid": true
+            },
+            {
+                "description": "an invalid time string",
+                "data": "08:30:06 PST",
+                "valid": false
+            },
+            {
+                "description": "only RFC3339 not all of ISO 8601 are valid",
+                "data": "01:01:01,1111",
+                "valid": false
+            }
+        ]
+    }
+]
