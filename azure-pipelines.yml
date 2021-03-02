@@ -312,6 +312,7 @@ jobs:
   
   - task: ComponentGovernanceComponentDetection@0
     displayName: Component Governance
+    continueOnError: true
     inputs:
       scanType: 'Register'
       verbosity: 'Verbose'
