@@ -253,7 +253,7 @@ namespace AppInstaller::CLI::Workflow
 
                 // Search for the current package
                 SearchRequest searchRequest;
-                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, packageRequest.Id));
+                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, packageRequest.Id.get()));
 
                 auto searchContextPtr = context.Clone();
                 Execution::Context& searchContext = *searchContextPtr;

@@ -29,6 +29,10 @@ namespace AppInstaller::Repository::Microsoft
         std::wstring VersionMajor{ L"VersionMajor" };
         // REG_DWORD
         std::wstring VersionMinor{ L"VersionMinor" };
+        // REG_DWORD
+        std::wstring MajorVersion{ L"MajorVersion" };
+        // REG_DWORD
+        std::wstring MinorVersion{ L"MinorVersion" };
         // REG_SZ
         std::wstring URLInfoAbout{ L"URLInfoAbout" };
         // REG_SZ

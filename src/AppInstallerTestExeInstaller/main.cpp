@@ -20,7 +20,7 @@ path GenerateUninstaller(std::wostream& out, const path& installDirectory, const
     path uninstallerPath = installDirectory;
     uninstallerPath /= "UninstallTestExe.bat";
 
-    out << "Uninstaller located at path: " << uninstallerPath << '\n';
+    out << "Uninstaller located at path: " << uninstallerPath << std::endl;
 
     path uninstallerOutputTextFilePath = installDirectory;
     uninstallerOutputTextFilePath /= "TestExeUninstalled.txt";
@@ -54,7 +54,7 @@ void WriteToUninstallRegistry(std::wostream& out, const std::wstring& productID,
     // String inputs to registry must be of wide char type
     const wchar_t* displayName = L"AppInstallerTestExeInstaller";
     const wchar_t* publisher = L"Microsoft Corporation";
-    const wchar_t* uninstallString = uninstallerPath.c_str();
+    std::wstring uninstallString = uninstallerPath.wstring();
     DWORD version = 1;
 
     std::wstring registryKey{ registrySubkey };
@@ -62,12 +62,12 @@ void WriteToUninstallRegistry(std::wostream& out, const std::wstring& productID,
     if (!productID.empty()) 
     {
         registryKey += productID;
-        out << "Product Code overridden to: " << registryKey << "\n";
+        out << "Product Code overridden to: " << registryKey << std::endl;
     }
     else 
     {
         registryKey += defaultProductID;
-        out << "Default Product Code used: " << registryKey << "\n";
+        out << "Default Product Code used: " << registryKey << std::endl;
     }
 
     lReg = RegCreateKeyEx(
@@ -83,42 +83,42 @@ void WriteToUninstallRegistry(std::wostream& out, const std::wstring& productID,
 
     if (lReg == ERROR_SUCCESS)
     {
-        out << "Successfully opened registry key \n";
+        out << "Successfully opened registry key" << std::endl;
 
         // Set Display Name Property Value
         if (LONG res = RegSetValueEx(hkey, L"DisplayName", NULL, REG_SZ, (LPBYTE)displayName, (DWORD)(wcslen(displayName) + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
         {
-            out << "Failed to write DisplayName value. Error Code: " << res << "\n";
+            out << "Failed to write DisplayName value. Error Code: " << res << std::endl;
         }
 
         // Set Display Version Property Value
         if (LONG res = RegSetValueEx(hkey, L"DisplayVersion", NULL, REG_SZ, (LPBYTE)displayVersion.c_str(), (DWORD)(displayVersion.length() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
         {
-            out << "Failed to write DisplayVersion value. Error Code: " << res << "\n";
+            out << "Failed to write DisplayVersion value. Error Code: " << res << std::endl;
         }
 
         // Set Publisher Property Value
         if (LONG res = RegSetValueEx(hkey, L"Publisher", NULL, REG_SZ, (LPBYTE)publisher, (DWORD)(wcslen(publisher) + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
         {
-            out << "Failed to write Publisher value. Error Code: " << res << "\n";
+            out << "Failed to write Publisher value. Error Code: " << res << std::endl;
         }
 
         // Set UninstallString Property Value
-        if (LONG res = RegSetValueEx(hkey, L"UninstallString", NULL, REG_EXPAND_SZ, (LPBYTE)uninstallString, (DWORD)wcslen(uninstallString + 1) * sizeof(wchar_t*)) != ERROR_SUCCESS)
+        if (LONG res = RegSetValueEx(hkey, L"UninstallString", NULL, REG_EXPAND_SZ, (LPBYTE)uninstallString.c_str(), (DWORD)(uninstallString.length() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
         {
-            out << "Failed to write UninstallString value. Error Code: " << res << "\n";
+            out << "Failed to write UninstallString value. Error Code: " << res << std::endl;
         }
 
         // Set Version Property Value
         if (LONG res = RegSetValueEx(hkey, L"Version", NULL, REG_DWORD, (LPBYTE)&version, sizeof(version)) != ERROR_SUCCESS)
         {
-            out << "Failed to write Version value. Error Code: " << res << "\n";
+            out << "Failed to write Version value. Error Code: " << res << std::endl;
         }
 
-        out << "Write to registry key completed \n";
+        out << "Write to registry key completed" << std::endl;
     }
     else {
-        out << "Key Creation Failed\n";
+        out << "Key Creation Failed" << std::endl;
     }
 
     RegCloseKey(hkey);
@@ -141,29 +141,41 @@ int wmain(int argc, const wchar_t** argv)
         outContent << argv[i] << ' ';
 
         // Supports custom install path.
-        if (_wcsicmp(argv[i], L"/InstallDir") == 0 && ++i < argc)
+        if (_wcsicmp(argv[i], L"/InstallDir") == 0)
         {
-            installDirectory = argv[i];
-            outContent << argv[i] << ' ';
+            if (++i < argc)
+            {
+                installDirectory = argv[i];
+                outContent << argv[i] << ' ';
+            }
         }
         
         // Supports custom product code ID
-        if (_wcsicmp(argv[i], L"/ProductID") == 0 && ++i < argc)
+        else if (_wcsicmp(argv[i], L"/ProductID") == 0)
         {
-            productCode = argv[i];
+            if (++i < argc)
+            {
+                productCode = argv[i];
+            }
         }
 
         // Supports custom version
-        if (_wcsicmp(argv[i], L"/Version") == 0 && ++i < argc)
+        else if (_wcsicmp(argv[i], L"/Version") == 0)
         {
-            version = argv[i];
+            if (++i < argc)
+            {
+                version = argv[i];
+            }
         }
 
         // Supports log file
-        if (_wcsicmp(argv[i], L"/LogFile") == 0 && ++i < argc)
+        else if (_wcsicmp(argv[i], L"/LogFile") == 0)
         {
-            logFile = std::wofstream(argv[i], std::wofstream::out | std::wofstream::trunc);
-            out = &logFile;
+            if (++i < argc)
+            {
+                logFile = std::wofstream(argv[i], std::wofstream::out | std::wofstream::trunc);
+                out = &logFile;
+            }
         }
     }
 

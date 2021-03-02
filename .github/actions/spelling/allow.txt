@@ -190,6 +190,7 @@ Linux
 LOCALAPPDATA
 localtime
 LOGPATH
+logsql
 logto
 LONGLONG
 LPCGUID
@@ -201,6 +202,7 @@ MAKEINTRESOURCE
 makemsix
 MANIFESTSCHEMA
 MANIFESTVERSION
+MBs
 mday
 metadata
 microsoft
@@ -414,6 +416,7 @@ triaged
 trunc
 TRUSTEDPEOPLE
 tt
+ttl
 typedef
 typename
 uap

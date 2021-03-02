@@ -150,20 +150,13 @@ namespace AppInstaller::CLI
             // --manifest case where new manifest is provided
             context <<
                 GetManifestFromArg <<
-                ReportManifestIdentity <<
                 SearchSourceUsingManifest <<
                 EnsureOneMatchFromSearchResult(true) <<
                 GetInstalledPackageVersion <<
                 EnsureUpdateVersionApplicable <<
                 SelectInstaller <<
                 EnsureApplicableInstaller <<
-                ShowInstallationDisclaimer <<
-                Workflow::ReportExecutionStage(ExecutionStage::Download) <<
-                DownloadInstaller <<
-                Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
-                ExecuteInstaller <<
-                Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
-                RemoveInstaller;
+                InstallPackageInstaller;
         }
         else
         {
@@ -171,7 +164,6 @@ namespace AppInstaller::CLI
             context <<
                 SearchSourceForSingle <<
                 EnsureOneMatchFromSearchResult(true) <<
-                ReportPackageIdentity <<
                 GetInstalledPackageVersion;
 
             if (context.Args.Contains(Execution::Args::Type::Version))
@@ -190,14 +182,7 @@ namespace AppInstaller::CLI
                 context << SelectLatestApplicableUpdate(true);
             }
 
-            context <<
-                ShowInstallationDisclaimer <<
-                Workflow::ReportExecutionStage(ExecutionStage::Download) <<
-                DownloadInstaller <<
-                Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
-                ExecuteInstaller <<
-                Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
-                RemoveInstaller;
+            context << InstallPackageInstaller;
         }
     }
 }

@@ -11,7 +11,7 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 {
-    std::optional<int> SearchResultsTable::BuildSearchStatement(
+    std::vector<int> SearchResultsTable::BuildSearchStatement(
         SQLite::Builder::StatementBuilder& builder,
         PackageMatchField field,
         std::string_view manifestAlias,

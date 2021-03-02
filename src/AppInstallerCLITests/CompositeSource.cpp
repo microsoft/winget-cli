@@ -27,13 +27,9 @@ struct ComponentTestSource : public TestSource
         {
             return Everything;
         }
-        else if (SearchFunction)
-        {
-            return SearchFunction(request);
-        }
         else
         {
-            return {};
+            return TestSource::Search(request);
         }
     }
 
@@ -560,4 +556,19 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_ReverseMatchBoth", "[Composi
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
     REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 1);
+}
+
+TEST_CASE("CompositeSource_IsSame", "[CompositeSource]")
+{
+    CompositeTestSetup setup;
+    setup.Installed->Everything.Matches.emplace_back(MakeInstalled(WithPFN("sortof_apfn")), Criteria());
+    setup.Available->Everything.Matches.emplace_back(MakeAvailable(WithPFN("sortof_apfn")), Criteria());
+
+    SearchResult result1 = setup.Search();
+    REQUIRE(result1.Matches.size() == 1);
+
+    SearchResult result2 = setup.Search();
+    REQUIRE(result2.Matches.size() == 1);
+
+    REQUIRE(result1.Matches[0].Package->IsSame(result2.Matches[0].Package.get()));
 }

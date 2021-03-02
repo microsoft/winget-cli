@@ -32,7 +32,7 @@ SQLiteIndex CreateTestIndex(const std::string& filePath, std::optional<Schema::V
     // If no specific version requested, then use generator to run against all versions.
     if (!version)
     {
-        version = GENERATE(Schema::Version{ 1, 0 }, Schema::Version::Latest());
+        version = GENERATE(Schema::Version{ 1, 0 }, Schema::Version{ 1, 1 }, Schema::Version::Latest());
     }
 
     return SQLiteIndex::CreateNew(filePath, version.value());
@@ -54,6 +54,16 @@ Schema::Version TestPrepareForRead(SQLiteIndex& index)
         {
             index.ForceVersion(Schema::Version{ 1, 0 });
             return { 1, 0 };
+        }
+    }
+    else if (index.GetVersion() == Schema::Version{ 1, 2 })
+    {
+        Schema::Version version = GENERATE(Schema::Version{ 1, 0 }, Schema::Version{ 1, 1 }, Schema::Version{ 1, 2 });
+
+        if (version != Schema::Version{ 1, 2 })
+        {
+            index.ForceVersion(version);
+            return version;
         }
     }
 
@@ -126,8 +136,35 @@ struct IndexFields
         ProductCodes(std::move(productCodes))
     {}
 
+    IndexFields(
+        std::string id,
+        std::string name,
+        std::string publisher,
+        std::string moniker,
+        std::string version,
+        std::string channel,
+        std::vector<NormalizedString> tags,
+        std::vector<NormalizedString> commands,
+        std::string path,
+        std::vector<NormalizedString> packageFamilyNames,
+        std::vector<NormalizedString> productCodes
+    ) :
+        Id(std::move(id)),
+        Name(std::move(name)),
+        Publisher(std::move(publisher)),
+        Moniker(std::move(moniker)),
+        Version(std::move(version)),
+        Channel(std::move(channel)),
+        Tags(std::move(tags)),
+        Commands(std::move(commands)),
+        Path(std::move(path)),
+        PackageFamilyNames(std::move(packageFamilyNames)),
+        ProductCodes(std::move(productCodes))
+    {}
+
     std::string Id;
     std::string Name;
+    std::string Publisher;
     std::string Moniker;
     std::string Version;
     std::string Channel;
@@ -148,6 +185,7 @@ SQLiteIndex SearchTestSetup(const std::string& filePath, std::initializer_list<I
     {
         manifest.Id = d.Id;
         manifest.DefaultLocalization.Add<Localization::PackageName>(d.Name);
+        manifest.DefaultLocalization.Add<Localization::Publisher>(d.Publisher);
         manifest.Moniker = d.Moniker;
         manifest.Version = d.Version;
         manifest.DefaultLocalization.Add<Localization::Tags>(d.Tags);
@@ -187,6 +225,12 @@ bool ArePackageFamilyNameAndProductCodeSupported(const SQLiteIndex& index, const
 {
     UNSCOPED_INFO("Index " << index.GetVersion() << " | Test " << testVersion);
     return (index.GetVersion() >= Schema::Version{ 1, 1 } && testVersion >= Schema::Version{ 1, 1 });
+}
+
+bool AreNormalizedNameAndPublisherSupported(const SQLiteIndex& index, const Schema::Version& testVersion)
+{
+    UNSCOPED_INFO("Index " << index.GetVersion() << " | Test " << testVersion);
+    return (index.GetVersion() >= Schema::Version{ 1, 2 } && testVersion >= Schema::Version{ 1, 2 });
 }
 
 bool IsManifestMetadataSupported(const SQLiteIndex& index, const Schema::Version& testVersion)
@@ -1215,11 +1259,16 @@ TEST_CASE("SQLiteIndex_SearchResultsTableSearches", "[sqliteindex][V1_0]")
     std::string value = "test";
 
     // Perform every type of field and match search
+    PackageMatchFilter filter(PackageMatchField::Id, MatchType::Exact, value);
+
     for (auto field : { PackageMatchField::Id, PackageMatchField::Name, PackageMatchField::Moniker, PackageMatchField::Tag, PackageMatchField::Command })
     {
+        filter.Field = field;
+
         for (auto match : { MatchType::Exact, MatchType::Fuzzy, MatchType::FuzzySubstring, MatchType::Substring, MatchType::Wildcard })
         {
-            search.SearchOnField(field, match, value);
+            filter.Type = match;
+            search.SearchOnField(filter);
         }
     }
 }
@@ -1992,4 +2041,92 @@ TEST_CASE("SQLiteIndex_ManifestMetadata", "[sqliteindex]")
     }
 
     REQUIRE(index.GetMetadataByManifestId(manifestId2).empty());
+}
+
+TEST_CASE("SQLiteIndex_NormNameAndPublisher_Exact", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string testName = "Name";
+    std::string testPublisher = "Publisher";
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", testName, testPublisher, "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", {}, { "PC1", "PC2" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, testName, testPublisher));
+
+    auto results = index.Search(request);
+
+    if (AreNormalizedNameAndPublisherSupported(index, testVersion))
+    {
+        REQUIRE(results.Matches.size() == 1);
+    }
+    else
+    {
+        REQUIRE(results.Matches.empty());
+    }
+}
+
+TEST_CASE("SQLiteIndex_NormNameAndPublisher_Simple", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string testName = "Name";
+    std::string testPublisher = "Publisher";
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", testName, testPublisher, "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", {}, { "PC1", "PC2" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, testName + " 1.0", testPublisher + " Corporation"));
+
+    auto results = index.Search(request);
+
+    if (AreNormalizedNameAndPublisherSupported(index, testVersion))
+    {
+        REQUIRE(results.Matches.size() == 1);
+    }
+    else
+    {
+        REQUIRE(results.Matches.empty());
+    }
+}
+
+TEST_CASE("SQLiteIndex_NormNameAndPublisher_Complex", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string testName = "Name";
+    std::string testPublisher = "Publisher";
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", testName, testPublisher, "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", {}, { "PC1", "PC2" } },
+        { "Id2", testName, "Different Publisher", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2", {}, { "PC1", "PC2" } },
+        });
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+    request.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, testName + " 1.0", testPublisher));
+
+    auto results = index.Search(request);
+
+    if (AreNormalizedNameAndPublisherSupported(index, testVersion))
+    {
+        REQUIRE(results.Matches.size() == 1);
+    }
+    else
+    {
+        REQUIRE(results.Matches.empty());
+    }
 }

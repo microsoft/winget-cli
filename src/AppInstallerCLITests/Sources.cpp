@@ -12,6 +12,7 @@
 #include <AppInstallerErrors.h>
 #include <winget/Settings.h>
 
+using namespace TestCommon;
 using namespace AppInstaller;
 using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Repository;
@@ -110,7 +111,7 @@ Sources:
 namespace
 {
     // Helper to create a simple source.
-    struct SourcesTestSource : public TestCommon::TestSource
+    struct SourcesTestSource : public TestSource
     {
         SourcesTestSource() = default;
         SourcesTestSource(const SourceDetails& details)
@@ -135,50 +136,6 @@ namespace
             result.Matches.emplace_back(std::shared_ptr<IPackage>(), testMatchFilter3);
             return result;
         }
-    };
-
-    // Helper that allows some lambdas to be wrapped into a source factory.
-    struct TestSourceFactory : public ISourceFactory
-    {
-        using CreateFunctor = std::function<std::shared_ptr<ISource>(const SourceDetails&)>;
-        using AddFunctor = std::function<void(SourceDetails&)>;
-        using UpdateFunctor = std::function<void(const SourceDetails&)>;
-        using RemoveFunctor = std::function<void(const SourceDetails&)>;
-
-        TestSourceFactory() :
-            m_Create(SourcesTestSource::Create), m_Add([](SourceDetails&) {}), m_Update([](const SourceDetails&) {}), m_Remove([](const SourceDetails&) {}) {}
-
-        // ISourceFactory
-        std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback&) override
-        {
-            return m_Create(details);
-        }
-
-        void Add(SourceDetails& details, IProgressCallback&) override
-        {
-            m_Add(details);
-        }
-
-        void Update(const SourceDetails& details, IProgressCallback&) override
-        {
-            m_Update(details);
-        }
-
-        void Remove(const SourceDetails& details, IProgressCallback&) override
-        {
-            m_Remove(details);
-        }
-
-        // Make copies of self when requested.
-        operator std::function<std::unique_ptr<ISourceFactory>()>()
-        {
-            return [this]() { return std::make_unique<TestSourceFactory>(*this); };
-        }
-
-        CreateFunctor m_Create;
-        AddFunctor m_Add;
-        UpdateFunctor m_Update;
-        RemoveFunctor m_Remove;
     };
 }
 
@@ -273,8 +230,8 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
     std::string data = "thisIsTheData";
 
     bool addCalledOnFactory = false;
-    TestSourceFactory factory;
-    factory.m_Add = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = data; };
+    TestSourceFactory factory{ SourcesTestSource::Create };
+    factory.OnAdd = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = data; };
     TestHook_SetSourceFactoryOverride(type, factory);
 
     ProgressCallback progress;
@@ -306,8 +263,8 @@ TEST_CASE("RepoSources_AddMultipleSources", "[sources]")
 
     const char* suffix[2] = { "", "2" };
 
-    TestSourceFactory factory1;
-    factory1.m_Add = [&](SourceDetails& sd) { sd.Data = data; };
+    TestSourceFactory factory1{ SourcesTestSource::Create };
+    factory1.OnAdd = [&](SourceDetails& sd) { sd.Data = data; };
     TestHook_SetSourceFactoryOverride(type, factory1);
 
     ProgressCallback progress;
@@ -325,8 +282,8 @@ TEST_CASE("RepoSources_AddMultipleSources", "[sources]")
 
     REQUIRE(sources[1].Origin == SourceOrigin::Default);
 
-    TestSourceFactory factory2;
-    factory2.m_Add = [&](SourceDetails& sd) { sd.Data = data + suffix[1]; };
+    TestSourceFactory factory2{ SourcesTestSource::Create };
+    factory2.OnAdd = [&](SourceDetails& sd) { sd.Data = data + suffix[1]; };
     TestHook_SetSourceFactoryOverride(type + suffix[1], factory2);
 
     AddSource(name + suffix[1], type + suffix[1], arg + suffix[1], progress);
@@ -361,8 +318,8 @@ TEST_CASE("RepoSources_UpdateSource", "[sources]")
     std::string data = "thisIsTheData";
 
     bool addCalledOnFactory = false;
-    TestSourceFactory factory;
-    factory.m_Add = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = data; };
+    TestSourceFactory factory{ SourcesTestSource::Create };
+    factory.OnAdd = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = data; };
     TestHook_SetSourceFactoryOverride(type, factory);
 
     ProgressCallback progress;
@@ -385,7 +342,7 @@ TEST_CASE("RepoSources_UpdateSource", "[sources]")
     // Reset for a call to update
     bool updateCalledOnFactory = false;
     auto now = std::chrono::system_clock::now();
-    factory.m_Update = [&](const SourceDetails&) { updateCalledOnFactory = true; };
+    factory.OnUpdate = [&](const SourceDetails&) { updateCalledOnFactory = true; };
 
     UpdateSource(name, progress);
 
@@ -413,8 +370,8 @@ TEST_CASE("RepoSources_UpdateSourceRetries", "[sources]")
     std::string arg = "thisIsTheArg";
     std::string data = "thisIsTheData";
 
-    TestSourceFactory factory;
-    factory.m_Add = [&](SourceDetails& sd) { sd.Data = data; };
+    TestSourceFactory factory{ SourcesTestSource::Create };
+    factory.OnAdd = [&](SourceDetails& sd) { sd.Data = data; };
     TestHook_SetSourceFactoryOverride(type, factory);
 
     ProgressCallback progress;
@@ -423,7 +380,7 @@ TEST_CASE("RepoSources_UpdateSourceRetries", "[sources]")
     // Reset for a call to update
     bool updateShouldThrow = false;
     bool updateCalledOnFactoryAgain = false;
-    factory.m_Update = [&](const SourceDetails&)
+    factory.OnUpdate = [&](const SourceDetails&)
     {
         if (updateShouldThrow)
         {
@@ -449,8 +406,8 @@ TEST_CASE("RepoSources_RemoveSource", "[sources]")
     std::string data = "thisIsTheData";
 
     bool removeCalledOnFactory = false;
-    TestSourceFactory factory;
-    factory.m_Remove = [&](const SourceDetails&) { removeCalledOnFactory = true; };
+    TestSourceFactory factory{ SourcesTestSource::Create };
+    factory.OnRemove = [&](const SourceDetails&) { removeCalledOnFactory = true; };
     TestHook_SetSourceFactoryOverride(type, factory);
 
     ProgressCallback progress;
@@ -477,8 +434,8 @@ TEST_CASE("RepoSources_RemoveDefaultSource", "[sources]")
     REQUIRE(sources[0].Origin == SourceOrigin::Default);
 
     bool removeCalledOnFactory = false;
-    TestSourceFactory factory;
-    factory.m_Remove = [&](const SourceDetails&) { removeCalledOnFactory = true; };
+    TestSourceFactory factory{ SourcesTestSource::Create };
+    factory.OnRemove = [&](const SourceDetails&) { removeCalledOnFactory = true; };
     TestHook_SetSourceFactoryOverride(sources[0].Type, factory);
 
     ProgressCallback progress;
@@ -503,8 +460,8 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
     std::string data = "testData";
 
     bool updateCalledOnFactory = false;
-    TestSourceFactory factory;
-    factory.m_Update = [&](const SourceDetails&) { updateCalledOnFactory = true; };
+    TestSourceFactory factory{ SourcesTestSource::Create };
+    factory.OnUpdate = [&](const SourceDetails&) { updateCalledOnFactory = true; };
     TestHook_SetSourceFactoryOverride(type, factory);
 
     SetSetting(Streams::UserSources, s_SingleSource);
@@ -568,7 +525,7 @@ TEST_CASE("RepoSources_DropAllSources", "[sources]")
 TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
 {
     TestHook_ClearSourceFactoryOverrides();
-    TestSourceFactory factory;
+    TestSourceFactory factory{ SourcesTestSource::Create };
     TestHook_SetSourceFactoryOverride("testType", factory);
 
     SetSetting(Streams::UserSources, s_TwoSource_AggregateSourceTest);

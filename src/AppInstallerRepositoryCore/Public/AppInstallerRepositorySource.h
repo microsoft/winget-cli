@@ -118,8 +118,7 @@ namespace AppInstaller::Repository
     enum class PredefinedSource
     {
         Installed,
-        ARP_System,
-        ARP_User,
+        ARP,
         MSIX,
     };
 

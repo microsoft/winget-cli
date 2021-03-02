@@ -31,6 +31,9 @@
     <Filter Include="Microsoft\Schema\1_1">
       <UniqueIdentifier>{aef8989c-44fd-4848-ae2c-c81d3f2e2c72}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Microsoft\Schema\1_2">
+      <UniqueIdentifier>{dc8b6163-e9b5-4d05-87bc-d6098afe0f92}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -138,6 +141,18 @@
     <ClInclude Include="Microsoft\ARPHelper.h">
       <Filter>Microsoft</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_2\Interface.h">
+      <Filter>Microsoft\Schema\1_2</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_2\SearchResultsTable.h">
+      <Filter>Microsoft\Schema\1_2</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_2\NormalizedPackageNameTable.h">
+      <Filter>Microsoft\Schema\1_2</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_2\NormalizedPackagePublisherTable.h">
+      <Filter>Microsoft\Schema\1_2</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -208,6 +223,12 @@
     </ClCompile>
     <ClCompile Include="Microsoft\ARPHelper.cpp">
       <Filter>Microsoft</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_2\Interface_1_2.cpp">
+      <Filter>Microsoft\Schema\1_2</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_2\SearchResultsTable_1_2.cpp">
+      <Filter>Microsoft\Schema\1_2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

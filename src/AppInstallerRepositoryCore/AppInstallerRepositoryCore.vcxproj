@@ -195,6 +195,10 @@
     <ClInclude Include="Microsoft\Schema\1_1\PackageFamilyNameTable.h" />
     <ClInclude Include="Microsoft\Schema\1_1\ProductCodeTable.h" />
     <ClInclude Include="Microsoft\Schema\1_1\SearchResultsTable.h" />
+    <ClInclude Include="Microsoft\Schema\1_2\Interface.h" />
+    <ClInclude Include="Microsoft\Schema\1_2\NormalizedPackageNameTable.h" />
+    <ClInclude Include="Microsoft\Schema\1_2\NormalizedPackagePublisherTable.h" />
+    <ClInclude Include="Microsoft\Schema\1_2\SearchResultsTable.h" />
     <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h" />
     <ClInclude Include="Microsoft\Schema\MetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\Version.h" />
@@ -232,6 +236,8 @@
     <ClCompile Include="Microsoft\Schema\1_1\Interface_1_1.cpp" />
     <ClCompile Include="Microsoft\Schema\1_1\ManifestMetadataTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_1\SearchResultsTable_1_1.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_2\Interface_1_2.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_2\SearchResultsTable_1_2.cpp" />
     <ClCompile Include="Microsoft\Schema\MetadataTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />

@@ -110,15 +110,7 @@ namespace AppInstaller::CLI::Workflow
 
             updateAllFoundUpdate = true;
 
-            updateContext <<
-                ReportManifestIdentity <<
-                ShowInstallationDisclaimer <<
-                Workflow::ReportExecutionStage(ExecutionStage::Download) <<
-                DownloadInstaller <<
-                Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
-                ExecuteInstaller <<
-                Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
-                RemoveInstaller;
+            updateContext << InstallPackageInstaller;
 
             updateContext.Reporter.Info() << std::endl;
 
