@@ -1,0 +1,85 @@
+{
+  "$id": "https://aka.ms/winget-settings.schema.json",
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "title": "Microsoft's Windows Package Manager Settings Profile Schema",
+  "definitions": {
+    "Source": {
+      "description": "Source repository settings",
+      "type": "object",
+      "properties": {
+        "autoUpdateIntervalInMinutes": {
+          "description": "Number of minutes before source update",
+          "type": "integer",
+          "default": 5,
+          "minimum": 0,
+          "maximum": 43200
+        }
+      }
+    },
+    "Visual": {
+      "description": "Visual settings",
+      "type": "object",
+      "properties": {
+        "progressBar": {
+          "description": "Progress bar display style",
+          "type": "string",
+          "enum": [
+              "accent", "rainbow", "plain", "retro"
+          ]
+        }
+      }
+    },
+    "Experimental": {
+      "description": "Experimental Features",
+      "type": "object",
+      "properties": {
+        "experimentalCMD": {
+          "description": "Reference implementation for an experimental command",
+          "type": "boolean",
+          "default": "false"
+        },
+        "experimentalARG": {
+          "description": "Reference implementation for an experimental argument",
+          "type": "boolean",
+          "default": "false"
+        },
+        "experimentalMSStore": {
+          "description": "Experimental support for Microsoft Store source",
+          "type": "boolean",
+          "default": "false"
+        },
+        "list": {
+          "description": "Enable the list command while it is in development",
+          "type": "boolean",
+          "default": "false"
+        },
+        "upgrade": {
+          "description": "Enable the upgrade command while it is in development",
+          "type": "boolean",
+          "default": "false"
+        }
+      }
+    }
+  },
+  "allOf": [ 
+    {
+      "properties": {
+        "visual": { "$ref": "#/definitions/Visual" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "source": { "$ref": "#/definitions/Source"}
+      },
+      "additionalItems": true
+    },
+    {
+        "properties": {
+          "experimentalFeatures": { "$ref": "#/definitions/Experimental"}
+        },
+        "additionalItems": true
+      }
+  ],
+  "additionalProperties": true
+}

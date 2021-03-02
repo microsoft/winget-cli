@@ -1,0 +1,32 @@
+Id: microsoft.sysrefcomp
+Name: Complex System Reference
+Version: 1.7.32
+Publisher: Microsoft
+License: MIT License
+Description: A complex system reference test file.
+InstallerType: Zip
+PackageFamilyName: Microsoft.DesktopAppInstaller_8wekyb3d8bbwe
+ProductCode: "{Foo}"
+Installers:
+  - InstallerType: Zip
+    Arch: x86
+    Url: https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx86.zip
+    Sha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+  - InstallerType: MSIX
+    Arch: x86
+    Url: https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx86.zip
+    Sha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+  - InstallerType: MSI
+    Arch: x86
+    Url: https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx86.zip
+    Sha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+  - InstallerType: MSIX
+    Arch: x64
+    Url: https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx86.zip
+    Sha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+    PackageFamilyName: Override_8wekyb3d8bbwe
+  - InstallerType: MSI
+    Arch: x64
+    Url: https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx86.zip
+    Sha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+    ProductCode: "Override"

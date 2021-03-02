@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="adapters">
+      <UniqueIdentifier>{7a0239af-b4b5-48ba-a16c-4759e2fe7b43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="constraints">
+      <UniqueIdentifier>{f503d3b0-5fd9-4ef4-9db9-5e48fe68db82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal">
+      <UniqueIdentifier>{bce3512d-8612-4a2e-a2ad-7156b0d2f607}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{e6b3c438-739c-4dbc-bfd0-f0dd8ff97467}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\adapters\adapter.hpp">
+      <Filter>adapters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\adapters\basic_adapter.hpp">
+      <Filter>adapters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\adapters\frozen_value.hpp">
+      <Filter>adapters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\adapters\json11_adapter.hpp">
+      <Filter>adapters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\adapters\jsoncpp_adapter.hpp">
+      <Filter>adapters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\adapters\nlohmann_json_adapter.hpp">
+      <Filter>adapters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\adapters\picojson_adapter.hpp">
+      <Filter>adapters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\adapters\poco_json_adapter.hpp">
+      <Filter>adapters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\adapters\property_tree_adapter.hpp">
+      <Filter>adapters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\adapters\qtjson_adapter.hpp">
+      <Filter>adapters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\adapters\rapidjson_adapter.hpp">
+      <Filter>adapters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\adapters\std_string_adapter.hpp">
+      <Filter>adapters</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\constraints\basic_constraint.hpp">
+      <Filter>constraints</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\constraints\concrete_constraints.hpp">
+      <Filter>constraints</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\constraints\constraint.hpp">
+      <Filter>constraints</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\constraints\constraint_visitor.hpp">
+      <Filter>constraints</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\internal\custom_allocator.hpp">
+      <Filter>internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\internal\debug.hpp">
+      <Filter>internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\internal\json_pointer.hpp">
+      <Filter>internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\internal\json_reference.hpp">
+      <Filter>internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\internal\optional.hpp">
+      <Filter>internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\internal\uri.hpp">
+      <Filter>internal</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\utils\file_utils.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\utils\json11_utils.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\utils\jsoncpp_utils.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\utils\nlohmann_json_utils.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\utils\picojson_utils.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\utils\poco_json_utils.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\utils\property_tree_utils.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\utils\qtjson_utils.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\utils\rapidjson_utils.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\utils\utf8_utils.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\constraint_builder.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\schema.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\schema_parser.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\subschema.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\validation_results.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\validation_visitor.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)valijson\include\valijson\validator.hpp" />
+  </ItemGroup>
+</Project>

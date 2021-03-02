@@ -1,0 +1,315 @@
+{
+  "$id": "https://aka.ms/winget-manifest.0.1.0.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "A single-file manifest representing a package in winget community repo. v0.1.0 Preview",
+  "definitions": {
+    "InstallerType": {
+      "type": [ "string", "null" ],
+      "pattern": "^(([Ee][Xx][Ee])|([Mm][Ss][Ii])|([Mm][Ss][Ii][Xx])|([Ii][Nn][Nn][Oo])|([Ww][Ii][Xx])|([Nn][Uu][Ll][Ll][Ss][Oo][Ff][Tt])|([Aa][Pp][Pp][Xx])|([Zz][Ii][Pp])|([Bb][Uu][Rr][Nn]))$",
+      "description": "InstallerType is required under Installer node if it's not defined in root"
+    },
+    "UpdateBehavior": {
+      "type": [ "string", "null" ],
+      "pattern": "^(([Ii][Nn][Ss][Tt][Aa][Ll][Ll])|([Uu][Nn][Ii][Nn][Ss][Tt][Aa][Ll][Ll][Pp][Rr][Ee][Vv][Ii][Oo][Uu][Ss]))$",
+      "description": "UpdateBehavior is used to specify desired action during package upgrade"
+    },
+    "PackageFamilyName": {
+      "type": [ "string", "null" ],
+      "pattern": "^[A-Za-z0-9][-\\.A-Za-z0-9]+_[A-Za-z0-9]{13}$",
+      "maxLength": 255,
+      "description": "PackageFamilyName for appx or msix installer. Could be used for correlation of packages across sources"
+    },
+    "ProductCode": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 255,
+      "description": "ProductCode could be used for correlation of packages across sources"
+    },
+    "Description": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 10000,
+      "description": "Description of the package"
+    },
+    "Url": {
+      "type": [ "string", "null" ],
+      "format": "uri",
+      "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://",
+      "maxLength": 2000
+    },
+    "Homepage": {
+      "$ref": "#/definitions/Url",
+      "description": "Homepage is a Url where the user can find more information about the package"
+    },
+    "LicenseUrl": {
+      "$ref": "#/definitions/Url",
+      "description": "LicenseUrl provides a link to the license for the user to read"
+    },
+    "InstallerSwitches": {
+      "type": [ "object", "null" ],
+      "properties": {
+        "Custom": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 1000,
+          "description": "Custom switches will be passed directly to the installer by winget"
+        },
+        "Silent": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Silent is the value that should be passed to the installer when user chooses a silent or quiet install"
+        },
+        "SilentWithProgress": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "SilentWithProgress is the value that should be passed to the installer when user chooses a non-interactive install"
+        },
+        "Interactive": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Interactive is the value that should be passed to the installer when user chooses an interactive install"
+        },
+        "Language": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Some installers include all localized resources. By specifying a Language switch, winget will pass the value of Language to the installer. This is not yet supported in Preview releases"
+        },
+        "Log": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Log is the value passed to the installer for custom log file path. <LOGPATH> token can be included in the switch value so that winget will replace the token with user provided path"
+        },
+        "InstallLocation": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "InstallLocation is the value passed to the installer for custom install location. <INSTALLPATH> token can be included in the switch value so that winget will replace the token with user provided path"
+        },
+        "Update": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Update is the value that should be passed to the installer when user chooses an upgrade"
+        }
+      }
+    },
+    "Installer": {
+      "type": "object",
+      "properties": {
+        "Arch": {
+          "type": "string",
+          "pattern": "^(([Aa][Rr][Mm])|([Xx]86)|([Xx]64)|([Aa][Rr][Mm]64)|([Nn][Ee][Uu][Tt][Rr][Aa][Ll]))$",
+          "description": "Arch is required. The installer architecture"
+        },
+        "Url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://",
+          "maxLength": 2000,
+          "description": "Url is required. The path to the installer."
+        },
+        "Sha256": {
+          "type": "string",
+          "pattern": "^[A-Fa-f0-9]{64}$",
+          "description": "Sha256 is required. Sha256 of the installer"
+        },
+        "SignatureSha256": {
+          "type": [ "string", "null" ],
+          "pattern": "^[A-Fa-f0-9]{64}$",
+          "description": "SignatureSha256 is recommended for appx or msix. It is the sha256 of signature file inside appx or msix. Could be used during streaming install if applicable"
+        },
+        "Language": {
+          "type": [ "string", "null" ],
+          "minLength": 2,
+          "maxLength": 20,
+          "description": "Language is the specific language of the installer. Language must follow IETF language tag guidelines"
+        },
+        "Scope": {
+          "type": [ "string", "null" ],
+          "pattern": "^(([Uu][Ss][Ee][Rr])|([Mm][Aa][Cc][Hh][Ii][Nn][Ee]))$",
+          "description": "Scope indicates if the installer is per user or per machine. Scope is not yet supported in Preview releases"
+        },
+        "InstallerType": {
+          "$ref": "#/definitions/InstallerType"
+        },
+        "UpdateBehavior": {
+          "$ref": "#/definitions/UpdateBehavior"
+        },
+        "PackageFamilyName": {
+          "$ref": "#/definitions/PackageFamilyName"
+        },
+        "ProductCode": {
+          "$ref": "#/definitions/ProductCode"
+        },
+        "Switches": {
+          "$ref": "#/definitions/InstallerSwitches"
+        }
+      },
+      "required": [
+        "Arch",
+        "Url",
+        "Sha256"
+      ]
+    },
+    "ManifestLocalization": {
+      "type": "object",
+      "properties": {
+        "Language": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 20,
+          "description": "Language is the specific language of the localization. Language must follow IETF language tag guidelines"
+        },
+        "Description": {
+          "$ref": "#/definitions/Description"
+        },
+        "Homepage": {
+          "$ref": "#/definitions/Homepage"
+        },
+        "LicenseUrl": {
+          "$ref": "#/definitions/LicenseUrl"
+        }
+      },
+      "required": [
+        "Language"
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "ManifestVersion": {
+      "type": "string",
+      "default": "0.1.0",
+      "pattern": "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){2}$",
+      "description": "The manifest syntax version"
+    },
+    "Id": {
+      "type": "string",
+      "pattern": "^[^\\s\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]+\\.[^\\s\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]+$",
+      "maxLength": 255,
+      "description": "Id is a required field. It MUST include the publisher name and package name separated by a period. For example: Publisher.Package"
+    },
+    "Name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Name is a required field. The name of the package"
+    },
+    "Version": {
+      "type": "string",
+      "pattern": "^[^\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]+$",
+      "minLength": 1,
+      "description": "Version is a required field. The version of the package"
+    },
+    "Publisher": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Publisher is a required field. The legal publisher name"
+    },
+    "AppMoniker": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "AppMoniker is the common name someone may use to search for the package"
+    },
+    "Channel": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 40,
+      "description": "Channel a string representing the flight ring. For example: stable, beta, canary"
+    },
+    "Author": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "The person or company responsible for authoring the package"
+    },
+    "License": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "description": "License is a required field. License provides the type of license the package is provided under"
+    },
+    "MinOSVersion": {
+      "type": [ "string", "null" ],
+      "pattern": "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){0,3}$",
+      "description": "MinOSVersion uses the Windows version to limit installations on unsupported platforms"
+    },
+    "Tags": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 1000,
+      "description": "Tags is a comma separated list. They represent strings that user may use to search for the package"
+    },
+    "Commands": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 1000,
+      "description": "Commands is a comma separated list. They are the common executable or alias that user might type trying to run the package"
+    },
+    "Protocols": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 1000,
+      "description": "Protocols is a comma separated list. Protocols provides the list of protocols the package provides a handler for"
+    },
+    "FileExtensions": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 1000,
+      "description": "FileExtensions is a comma separated list. FileExtensions provides the list of extensions the package can support"
+    },
+    "InstallerType": {
+      "$ref": "#/definitions/InstallerType"
+    },
+    "UpdateBehavior": {
+      "$ref": "#/definitions/UpdateBehavior"
+    },
+    "PackageFamilyName": {
+      "$ref": "#/definitions/PackageFamilyName"
+    },
+    "ProductCode": {
+      "$ref": "#/definitions/ProductCode"
+    },
+    "Description": {
+      "$ref": "#/definitions/Description"
+    },
+    "Homepage": {
+      "$ref": "#/definitions/Homepage"
+    },
+    "LicenseUrl": {
+      "$ref": "#/definitions/LicenseUrl"
+    },
+    "Switches": {
+      "$ref": "#/definitions/InstallerSwitches"
+    },
+    "Installers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Installer"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "Localization": {
+      "type": [ "array", "null" ],
+      "items": {
+        "$ref": "#/definitions/ManifestLocalization"
+      }
+    }
+  },
+  "required": [
+    "Id",
+    "Name",
+    "Version",
+    "Publisher",
+    "License",
+    "Installers"
+  ]
+}
