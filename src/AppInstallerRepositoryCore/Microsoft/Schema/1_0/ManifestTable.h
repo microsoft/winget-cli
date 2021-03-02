@@ -46,10 +46,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             std::initializer_list<SQLite::rowid_t> ids);
 
         // Builds the search select statement base on the given values.
-        int ManifestTableBuildSearchStatement(
+        std::vector<int> ManifestTableBuildSearchStatement(
             SQLite::Builder::StatementBuilder& builder,
-            const SQLite::Builder::QualifiedColumn& column,
-            bool isOneToOne,
+            std::initializer_list<SQLite::Builder::QualifiedColumn> columns,
+            std::initializer_list<bool> isOneToOnes,
             std::string_view manifestAlias,
             std::string_view valueAlias,
             bool useLike);
@@ -138,10 +138,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Builds the search select statement base on the given values.
-        template <typename Table>
-        static int BuildSearchStatement(SQLite::Builder::StatementBuilder& builder, std::string_view manifestAlias, std::string_view valueAlias, bool useLike)
+        // If more than one table is provided, no value will be captured.
+        // The return value is the bind indices of the values to match against.
+        template <typename... Table>
+        static std::vector<int> BuildSearchStatement(SQLite::Builder::StatementBuilder& builder, std::string_view manifestAlias, std::string_view valueAlias, bool useLike)
         {
-            return details::ManifestTableBuildSearchStatement(builder, SQLite::Builder::QualifiedColumn{ Table::TableName(), Table::ValueName() }, Table::IsOneToOne(), manifestAlias, valueAlias, useLike);
+            return details::ManifestTableBuildSearchStatement(builder, { SQLite::Builder::QualifiedColumn{ Table::TableName(), Table::ValueName() }... }, { Table::IsOneToOne()... }, manifestAlias, valueAlias, useLike);
         }
 
         // Update the value of a single column for the manifest with the given rowid.

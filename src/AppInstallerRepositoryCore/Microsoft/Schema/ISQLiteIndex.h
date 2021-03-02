@@ -6,6 +6,7 @@
 #include "Public/AppInstallerRepositorySearch.h"
 #include <AppInstallerVersions.h>
 #include <winget/Manifest.h>
+#include <winget/NameNormalization.h>
 
 #include <filesystem>
 
@@ -80,5 +81,9 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         // Sets the string for the given metadata and manifest id.
         virtual void SetMetadataByManifestId(SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMetadata metadata, std::string_view value) = 0;
+
+        // Normalizes a name using the internal rules used by the index.
+        // Largely a utility function; should not be used to do work on behalf of the index by the caller.
+        virtual Utility::NormalizedName NormalizeName(std::string_view name, std::string_view publisher) const = 0;
     };
 }

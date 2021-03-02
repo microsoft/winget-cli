@@ -1,6 +1,6 @@
 Id: AppInstallerCliTest.TestExeInstaller
 Version: 1.0.0.0
-Name: AppInstaller Test Installer
+Name: AppInstaller Test Exe Installer
 Publisher: Microsoft Corporation
 AppMoniker: AICLITestExe
 License: Test

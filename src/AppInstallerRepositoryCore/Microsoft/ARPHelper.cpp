@@ -99,6 +99,7 @@ namespace AppInstaller::Repository::Microsoft
 
     std::string ARPHelper::DetermineVersion(const Registry::Key& arpKey) const
     {
+        // First check DisplayVersion for a complete version string
         auto displayVersion = arpKey[DisplayVersion];
         if (displayVersion && displayVersion->GetType() == Registry::Value::Type::String)
         {
@@ -109,6 +110,36 @@ namespace AppInstaller::Repository::Microsoft
             }
         }
 
+        // Next attempt VersionMajor.VersionMinor, then MajorVersion.MinorVersion
+        for (const auto& names : { std::make_pair(std::ref(VersionMajor), std::ref(VersionMinor)), std::make_pair(std::ref(MajorVersion), std::ref(MinorVersion)) })
+        {
+            auto majorVersion = arpKey[names.first];
+            auto minorVersion = arpKey[names.second];
+            if (majorVersion || minorVersion)
+            {
+                uint32_t majorVersionInt = 0;
+                uint32_t minorVersionInt = 0;
+
+                if (majorVersion && majorVersion->GetType() == Registry::Value::Type::DWord)
+                {
+                    majorVersionInt = majorVersion->GetValue<Registry::Value::Type::DWord>();
+                }
+
+                if (minorVersion && minorVersion->GetType() == Registry::Value::Type::DWord)
+                {
+                    minorVersionInt = minorVersion->GetValue<Registry::Value::Type::DWord>();
+                }
+
+                if (majorVersionInt || minorVersionInt)
+                {
+                    std::ostringstream strstr;
+                    strstr << majorVersionInt << '.' << minorVersionInt;
+                    return strstr.str();
+                }
+            }
+        }
+
+        // Finally attempt to turn the Version DWORD into a version string
         auto version = arpKey[Version];
         if (version && version->GetType() == Registry::Value::Type::DWord)
         {
@@ -117,31 +148,6 @@ namespace AppInstaller::Repository::Microsoft
             {
                 std::ostringstream strstr;
                 strstr << ((versionInt & 0xFF000000) >> 24) << '.' << ((versionInt & 0x00FF0000) >> 16) << '.' << (versionInt & 0x0000FFFF);
-                return strstr.str();
-            }
-        }
-
-        auto majorVersion = arpKey[VersionMajor];
-        auto minorVersion = arpKey[VersionMinor];
-        if (majorVersion || minorVersion)
-        {
-            uint32_t majorVersionInt = 0;
-            uint32_t minorVersionInt = 0;
-
-            if (majorVersion && majorVersion->GetType() == Registry::Value::Type::DWord)
-            {
-                majorVersionInt = majorVersion->GetValue<Registry::Value::Type::DWord>();
-            }
-
-            if (minorVersion && minorVersion->GetType() == Registry::Value::Type::DWord)
-            {
-                minorVersionInt = minorVersion->GetValue<Registry::Value::Type::DWord>();
-            }
-
-            if (majorVersionInt || minorVersionInt)
-            {
-                std::ostringstream strstr;
-                strstr << majorVersionInt << '.' << minorVersionInt;
                 return strstr.str();
             }
         }
@@ -163,6 +169,12 @@ namespace AppInstaller::Repository::Microsoft
             else if (value->GetType() == Registry::Value::Type::ExpandString)
             {
                 valueString = value->GetValue<Registry::Value::Type::ExpandString>();
+            }
+            else if (value->GetType() == Registry::Value::Type::DWord)
+            {
+                std::ostringstream strstr;
+                strstr << value->GetValue<Registry::Value::Type::DWord>();
+                valueString = strstr.str();
             }
 
             if (!valueString.empty())
@@ -246,36 +258,38 @@ namespace AppInstaller::Repository::Microsoft
             if (publisher && publisher->GetType() == Registry::Value::Type::String)
             {
                 manifest.DefaultLocalization.Add<Manifest::Localization::Publisher>(publisher->GetValue<Registry::Value::Type::String>());
+
+                // If Publisher is set, change the Id using name normalization
+                // TODO: Figure out how to actually make this work since there are often instances of the same
+                // data in x64 and x86 entries that will collide.
+                //auto normalizedName = index.NormalizeName(
+                //    manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(),
+                //    manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>());
+                //manifest.Id = normalizedName.Publisher() + '.' + normalizedName.Name();
             }
 
             // TODO: If we want to keep the constructed manifest around to allow for `show` type commands
             //       against installed packages, we should use URLInfoAbout/HelpLink for the Homepage.
 
-            // TODO: Pick up Language/InnoSetupLanguage to enable proper selection of language for upgrade.
-
-            // TODO: Determine the best way to handle duplicates, which may very well happen.
-            //       For now, we will attempt to insert and catch, then send failure telemetry.
-            //       In a future where we cache these entries
+            // TODO: Determine the best way to handle duplicates; sometimes the same package will be listed under
+            //       both x64 and x86 locations for ARP.
+            //       For now, we will attempt to insert and catch.
             std::optional<SQLiteIndex::IdType> manifestIdOpt;
-            HRESULT addHr = S_OK;
 
             try
             {
                 // Use the ProductCode as a unique key for the path
                 manifestIdOpt = index.AddManifest(manifest, Utility::ConvertToUTF16(manifest.Installers[0].ProductCode));
             }
-            catch (wil::ResultException& re)
-            {
-                addHr = re.GetErrorCode();
-            }
             catch (...)
             {
-                addHr = E_FAIL;
+                // Ignore errors if they occur, they are most likely a duplicate value
             }
 
             if (!manifestIdOpt)
             {
-                Logging::Telemetry().LogDuplicateARPEntry(addHr, scope, architecture, productCode, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>());
+                AICLI_LOG(Repo, Warning,
+                    << "Ignoring duplicate ARP entry " << scope << '|' << architecture << '|' << productCode << " [" << manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>() << "]");
                 continue;
             }
 
@@ -288,6 +302,14 @@ namespace AppInstaller::Repository::Microsoft
             //       is from it's ARP location, despite it very clearly being a specific architecture. And note that user
             //       scope does not have separate ARP locations, so every architecture would appear as native.
 
+            // Publisher is needed for certain scenarios but we don't store it from the manifest
+            if (manifest.DefaultLocalization.Contains(Manifest::Localization::Publisher))
+            {
+                index.SetMetadataByManifestId(
+                    manifestId, PackageVersionMetadata::Publisher,
+                    manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>());
+            }
+
             // Pick up InstallLocation when upgrade supports remove/install to enable this location
             // to survive across the removal.
             AddMetadataIfPresent(arpKey, InstallLocation, index, manifestId, PackageVersionMetadata::InstalledLocation);
@@ -295,6 +317,10 @@ namespace AppInstaller::Repository::Microsoft
             // Pick up UninstallString and QuietUninstallString for uninstall.
             AddMetadataIfPresent(arpKey, UninstallString, index, manifestId, PackageVersionMetadata::StandardUninstallCommand);
             AddMetadataIfPresent(arpKey, QuietUninstallString, index, manifestId, PackageVersionMetadata::SilentUninstallCommand);
+
+            // Pick up Language to enable proper selection of language for upgrade.
+            // TODO: Determine if InnoSetupLanguage represents the same concept and pick it up if language is not present.
+            AddMetadataIfPresent(arpKey, Language, index, manifestId, PackageVersionMetadata::Locale);
 
             // Pick up WindowsInstaller to determine if this is an MSI install.
             // TODO: Could also determine Inno (and maybe other types) through detecting other keys here.

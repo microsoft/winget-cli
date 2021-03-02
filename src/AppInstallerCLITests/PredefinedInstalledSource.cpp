@@ -115,7 +115,6 @@ void VerifyMetadataString(const SQLiteIndex::MetadataResult& metadata, PackageVe
 
 void VerifyEntryAgainstIndex(const SQLiteIndex& index, SQLiteIndex::IdType manifestId, const ARPEntry& entry)
 {
-    REQUIRE(index.GetPropertyByManifestId(manifestId, PackageVersionProperty::Id) == entry.EntryName);
     REQUIRE(index.GetPropertyByManifestId(manifestId, PackageVersionProperty::Name) == entry.DisplayName);
     REQUIRE(index.GetPropertyByManifestId(manifestId, PackageVersionProperty::Version) == entry.DisplayVersion);
 
@@ -128,6 +127,7 @@ void VerifyEntryAgainstIndex(const SQLiteIndex& index, SQLiteIndex::IdType manif
 
     VerifyInstalledType(metadata, entry.WindowsInstaller.value_or(false) ? InstallerTypeEnum::Msi : InstallerTypeEnum::Exe);
     VerifyTestScope(metadata);
+    VerifyMetadataString(metadata, PackageVersionMetadata::Publisher, entry.Publisher);
     VerifyMetadataString(metadata, PackageVersionMetadata::InstalledLocation, entry.InstallLocation);
     VerifyMetadataString(metadata, PackageVersionMetadata::StandardUninstallCommand, entry.UninstallString);
     VerifyMetadataString(metadata, PackageVersionMetadata::SilentUninstallCommand, entry.QuietUninstallString);
@@ -246,7 +246,7 @@ TEST_CASE("ARPHelper_DetermineVersion_Version", "[arphelper][list]")
     SetRegistryValue(root.get(), helper.VersionMinor, 14);
 
     auto result = helper.DetermineVersion(key);
-    REQUIRE(result == "2.7.42");
+    REQUIRE(result == "3.14");
 }
 
 TEST_CASE("ARPHelper_DetermineVersion_VersionMajorMinor", "[arphelper][list]")

@@ -355,12 +355,7 @@ namespace AppInstaller::Utility
                 return result;
             }
 
-        public:
-            NormalizationInitial() : Locales(FoldAndSort(LocaleViews)), LegalEntitySuffixes(FoldAndSort(LegalEntitySuffixViews))
-            {
-            }
-
-            InterimNameNormalizationResult NormalizeName(std::string_view name) const
+            InterimNameNormalizationResult NormalizeNameInternal(std::string_view name) const
             {
                 InterimNameNormalizationResult result;
                 result.Name = PrepareForValidation(name);
@@ -390,7 +385,7 @@ namespace AppInstaller::Utility
                 return result;
             }
 
-            InterimPublisherNormalizationResult NormalizePublisher(std::string_view publisher) const
+            InterimPublisherNormalizationResult NormalizePublisherInternal(std::string_view publisher) const
             {
                 InterimPublisherNormalizationResult result;
 
@@ -408,10 +403,15 @@ namespace AppInstaller::Utility
                 return result;
             }
 
+        public:
+            NormalizationInitial() : Locales(FoldAndSort(LocaleViews)), LegalEntitySuffixes(FoldAndSort(LegalEntitySuffixViews))
+            {
+            }
+
             NormalizedName Normalize(std::string_view name, std::string_view publisher) const override
             {
-                InterimNameNormalizationResult nameResult = NormalizeName(name);
-                InterimPublisherNormalizationResult pubResult = NormalizePublisher(publisher);
+                InterimNameNormalizationResult nameResult = NormalizeNameInternal(name);
+                InterimPublisherNormalizationResult pubResult = NormalizePublisherInternal(publisher);
 
                 NormalizedName result;
                 result.Name(ConvertToUTF8(nameResult.Name));
@@ -420,6 +420,25 @@ namespace AppInstaller::Utility
                 result.Publisher(ConvertToUTF8(pubResult.Publisher));
 
                 return result;
+            }
+
+            NormalizedName NormalizeName(std::string_view name) const override
+            {
+                InterimNameNormalizationResult nameResult = NormalizeNameInternal(name);
+
+                NormalizedName result;
+                result.Name(ConvertToUTF8(nameResult.Name));
+                result.Architecture(nameResult.Architecture);
+                result.Locale(ConvertToUTF8(nameResult.Locale));
+
+                return result;
+            }
+
+            std::string NormalizePublisher(std::string_view publisher) const override
+            {
+                InterimPublisherNormalizationResult pubResult = NormalizePublisherInternal(publisher);
+
+                return ConvertToUTF8(pubResult.Publisher);
             }
         };
     }
@@ -439,5 +458,15 @@ namespace AppInstaller::Utility
     NormalizedName NameNormalizer::Normalize(std::string_view name, std::string_view publisher) const
     {
         return m_normalizer->Normalize(name, publisher);
+    }
+
+    NormalizedName NameNormalizer::NormalizeName(std::string_view name) const
+    {
+        return m_normalizer->NormalizeName(name);
+    }
+
+    std::string NameNormalizer::NormalizePublisher(std::string_view publisher) const
+    {
+        return m_normalizer->NormalizePublisher(publisher);
     }
 }

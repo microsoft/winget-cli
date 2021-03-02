@@ -179,6 +179,7 @@
     <ClInclude Include="TestSource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ARPChanges.cpp" />
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Completion.cpp" />
     <ClCompile Include="CompositeSource.cpp" />

@@ -31,6 +31,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         MetadataResult GetMetadataByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId) const override;
         void SetMetadataByManifestId(SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMetadata metadata, std::string_view value) override;
 
+        // Version 1.2
+        Utility::NormalizedName NormalizeName(std::string_view name, std::string_view publisher) const override;
+
     protected:
         // Creates the search results table.
         virtual std::unique_ptr<SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const;

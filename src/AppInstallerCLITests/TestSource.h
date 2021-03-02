@@ -3,6 +3,7 @@
 #pragma once
 #include <Public/AppInstallerRepositorySource.h>
 #include <winget/Manifest.h>
+#include <SourceFactory.h>
 
 #include <functional>
 #include <utility>
@@ -18,7 +19,7 @@ namespace TestCommon
         using MetadataMap = AppInstaller::Repository::IPackageVersion::Metadata;
 
         TestPackageVersion(const Manifest& manifest, std::weak_ptr<const ISource> source = {});
-        TestPackageVersion(const Manifest& manifest, MetadataMap installationMetadata);
+        TestPackageVersion(const Manifest& manifest, MetadataMap installationMetadata, std::weak_ptr<const ISource> source = {});
 
         template <typename... Args>
         static std::shared_ptr<TestPackageVersion> Make(Args&&... args)
@@ -66,6 +67,7 @@ namespace TestCommon
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetLatestAvailableVersion() const override;
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetAvailableVersion(const AppInstaller::Repository::PackageVersionKey& versionKey) const override;
         bool IsUpdateAvailable() const override;
+        bool IsSame(const IPackage* other) const override;
 
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> InstalledVersion;
         std::vector<std::shared_ptr<AppInstaller::Repository::IPackageVersion>> AvailableVersions;
@@ -82,5 +84,30 @@ namespace TestCommon
         AppInstaller::Repository::SourceDetails Details = { "TestSource", "Microsoft.TestSource", "//arg", "", "*TestSource" };
         std::function<AppInstaller::Repository::SearchResult(const AppInstaller::Repository::SearchRequest& request)> SearchFunction;
         bool Composite = false;
+    };
+
+    // An ISourceFactory implementation for use across the test code.
+    struct TestSourceFactory : public AppInstaller::Repository::ISourceFactory
+    {
+        using CreateFunctor = std::function<std::shared_ptr<AppInstaller::Repository::ISource>(const AppInstaller::Repository::SourceDetails&)>;
+        using AddFunctor = std::function<void(AppInstaller::Repository::SourceDetails&)>;
+        using UpdateFunctor = std::function<void(const AppInstaller::Repository::SourceDetails&)>;
+        using RemoveFunctor = std::function<void(const AppInstaller::Repository::SourceDetails&)>;
+
+        TestSourceFactory(CreateFunctor create) : OnCreate(std::move(create)) {}
+
+        // ISourceFactory
+        std::shared_ptr<AppInstaller::Repository::ISource> Create(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
+        void Add(AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
+        void Update(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
+        void Remove(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
+
+        // Make copies of self when requested.
+        operator std::function<std::unique_ptr<AppInstaller::Repository::ISourceFactory>()>();
+
+        CreateFunctor OnCreate;
+        AddFunctor OnAdd;
+        UpdateFunctor OnUpdate;
+        RemoveFunctor OnRemove;
     };
 }
