@@ -378,7 +378,9 @@
       "$ref": "#/definitions/PackageVersion"
     },
     "PackageLocale": {
-      "$ref": "#/definitions/Locale",
+      "type": "string",
+      "pattern": "^([a-zA-Z]{2}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$",
+      "maxLength": 20,
       "description": "The package meta-data locale"
     },
     "Publisher": {
@@ -538,6 +540,7 @@
   "required": [
     "PackageIdentifier",
     "PackageVersion",
+    "PackageLocale",
     "Publisher",
     "PackageName",
     "License",

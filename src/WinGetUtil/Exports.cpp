@@ -210,7 +210,9 @@ extern "C"
 
         try
         {
-            (void)YamlParser::CreateFromPath(inputPath, true, true, mergedManifestPath, option == WinGetValidateManifestOption::SchemaValidationOnly);
+            (void)YamlParser::CreateFromPath(inputPath, true, true,
+                mergedManifestPath ? mergedManifestPath : L"",
+                option == WinGetValidateManifestOption::SchemaValidationOnly);
             *succeeded = TRUE;
         }
         catch (const ManifestException& e)
