@@ -312,6 +312,7 @@ jobs:
   
   - task: ComponentGovernanceComponentDetection@0
     displayName: Component Governance
+    condition: not(eq(variables['Build.Reason'], 'PullRequest'))
     inputs:
       scanType: 'Register'
       verbosity: 'Verbose'
