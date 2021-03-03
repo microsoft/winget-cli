@@ -11,6 +11,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     struct Interface : public IRestClient
     {
         IRestClient::SearchResult Search(const std::string& restApiUri, const SearchRequest& request) const override;
-        std::optional<std::string> GetManifestByVersion(const std::string& restApiUri, const std::string& packageId, const std::string& version) const override;
+        std::optional<Manifest::Manifest> GetManifestByVersion(const std::string& restApiUri, const std::string& packageId, const std::string& version, const std::string& channel) const override;
     };
 }

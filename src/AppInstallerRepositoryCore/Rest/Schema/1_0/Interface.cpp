@@ -7,42 +7,44 @@
 #include "cpprest/http_client.h"
 #include "cpprest/json.h"
 
-using namespace web;
-using namespace web::json;
-using namespace web::http;
-using namespace web::http::client;
-using namespace AppInstaller::Repository::Rest::Schema;
+using namespace std::string_view_literals;
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0
 {
     // Endpoint constants
-    const std::string ManifestSearchPostEndpoint = "/api/manifestSearch?";
+    constexpr std::string_view ManifestSearchPostEndpoint = "/api/manifestSearch?"sv;
+    constexpr std::string_view ManifestByVersionAndChannelGetEndpoint = "/api/packageManifests/"sv;
 
     // General API response constants
-    const std::basic_string Data = L"data";
+    constexpr std::string_view Data = "data"sv;
 
     // Search body constants
-    const std::basic_string FetchAllManifests = L"fetchAllManifests";
+    constexpr std::string_view FetchAllManifests = "fetchAllManifests"sv;
 
     // Search response constants
-    const std::basic_string PackageIdentifier = L"PackageIdentifier";
-    const std::basic_string PackageName = L"PackageName";
-    const std::basic_string Publisher = L"Publisher";
-    const std::basic_string PackageFamilyName = L"PackageFamilyName";
-    const std::basic_string ProductCode = L"ProductCode";
-    const std::basic_string Versions = L"Versions";
-    const std::basic_string Version = L"version";
-    const std::basic_string Channel = L"Channel";
+    constexpr std::string_view PackageIdentifier = "PackageIdentifier"sv;
+    constexpr std::string_view PackageName = "PackageName"sv;
+    constexpr std::string_view Publisher = "Publisher"sv;
+    constexpr std::string_view PackageFamilName = "PackageFamilyName"sv;
+    constexpr std::string_view ProductCode = "ProductCode"sv;
+    constexpr std::string_view Versions = "Versions"sv;
+    constexpr std::string_view Version = "version"sv;
+    constexpr std::string_view Channel = "Channel"sv;
 
     namespace
     {
-        json::value GetSearchBody(const SearchRequest& searchRequest)
+        utility::string_t GetJsonKeyNameString(std::string_view nodeName)
+        {
+            return utility::conversions::to_string_t(nodeName.data());
+        }
+
+        web::json::value GetSearchBody(const SearchRequest& searchRequest)
         {
             // TODO: Use search request to construct search body.
             UNREFERENCED_PARAMETER(searchRequest);
 
-            json::value json_body;
-            json_body[FetchAllManifests] = web::json::value::string(L"true");
+            web::json::value json_body;
+            json_body[GetJsonKeyNameString(FetchAllManifests)] = web::json::value::string(L"true");
 
             return json_body;
         }
@@ -60,22 +62,27 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
         utility::string_t GetSearchEndpoint(const std::string& restApiUri)
         {
-            std::string fullSearchAPI = GetRestAPIBaseUri(restApiUri) + ManifestSearchPostEndpoint;
+            std::string fullSearchAPI = GetRestAPIBaseUri(restApiUri) + ManifestSearchPostEndpoint.data();
             utility::string_t searchAPI = utility::conversions::to_string_t(fullSearchAPI);
             return searchAPI;
         }
 
-        utility::string_t GetManifestByVersionEndpoint(const std::string& restApiUri, const std::string& packageId, const std::string& version)
+        utility::string_t GetManifestByVersionEndpoint(
+            const std::string& restApiUri, const std::string& packageId, const std::string& version, const std::string& channel)
         {
-            // TODO: Replace with manifest version endpoint 
-            std::string versionEndpoint = GetRestAPIBaseUri(restApiUri) + "/api/packages/" + packageId + "/versions/" + version;
+            std::string versionEndpoint = GetRestAPIBaseUri(restApiUri) + ManifestByVersionAndChannelGetEndpoint.data() + packageId + "?version=" + version + "&channel=" + channel;
             utility::string_t versionApi = utility::conversions::to_string_t(versionEndpoint);
             return versionApi;
         }
 
-        std::string GetStringFromJsonStringValue(const json::value& value)
+        std::optional<std::string> GetStringFromJsonStringValue(const web::json::value& value)
         {
-            return value.is_null() ? "" : utility::conversions::to_utf8string(value.as_string());
+            if (value.is_null())
+            {
+                return {};
+            }
+
+            return utility::conversions::to_utf8string(value.as_string());
         }
     }
 
@@ -86,7 +93,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
         // TODO: Handle continuation token.
         HttpClientHelper clientHelper(GetSearchEndpoint(restApiUri));
-        json::value jsonObject = clientHelper.HandlePost(GetSearchBody(request));
+        web::json::value jsonObject = clientHelper.HandlePost(GetSearchBody(request));
 
         // Parse json and add results to SearchResult.
         if (jsonObject.is_null())
@@ -94,31 +101,32 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             return result;
         }
 
-        auto& dataArray = jsonObject.at(Data).as_array();
+        auto& dataArray = jsonObject.at(GetJsonKeyNameString(Data)).as_array();
 
         for (auto& manifestItem : dataArray)
         {
-            std::string packageId = GetStringFromJsonStringValue(manifestItem.at(PackageIdentifier));
-            std::string packageName = GetStringFromJsonStringValue(manifestItem.at(PackageName));
-            std::string publisher = GetStringFromJsonStringValue(manifestItem.at(Publisher));
-            std::string packageFamilyName = GetStringFromJsonStringValue(manifestItem.at(PackageFamilyName));
-            std::string productCode = GetStringFromJsonStringValue(manifestItem.at(ProductCode));
-            json::value versionValue = manifestItem.at(Versions);
+            std::optional<std::string> packageId = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(PackageIdentifier)));
+            std::optional<std::string> packageName = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(PackageName)));
+            std::optional<std::string> publisher = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(Publisher)));
+            std::optional<std::string> packageFamilyName = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(PackageFamilName)));
+            std::optional<std::string> productCode = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(ProductCode)));
+            web::json::value versionValue = manifestItem.at(GetJsonKeyNameString(Versions));
 
-            if (packageId.empty() || packageName.empty() || publisher.empty() || versionValue.is_null() || versionValue.as_array().size() == 0)
+            if (!packageId.has_value() || !packageName.has_value() || !publisher.has_value() || versionValue.is_null() || versionValue.as_array().size() == 0)
             {
                 continue;
             }
 
-            std::vector<VersionAndChannel> versionList;
+            std::vector<AppInstaller::Utility::VersionAndChannel> versionList;
             for (auto& versionItem : versionValue.as_array())
             {
-                std::string version = GetStringFromJsonStringValue(versionItem.at(Version));
-                std::string channel = GetStringFromJsonStringValue(versionItem.at(Channel));
-                versionList.emplace_back(VersionAndChannel(version, channel));
+                std::optional<std::string> version = GetStringFromJsonStringValue(versionItem.at(GetJsonKeyNameString(Version)));
+                std::optional<std::string> channel = GetStringFromJsonStringValue(versionItem.at(GetJsonKeyNameString(Channel)));
+
+                versionList.emplace_back(AppInstaller::Utility::VersionAndChannel(std::move(version.value()), std::move(channel.value())));
             }
 
-            PackageInfo packageInfo = PackageInfo(packageId, packageName, publisher);
+            PackageInfo packageInfo = PackageInfo(std::move(packageId.value()), std::move(packageName.value()), std::move(publisher.value()));
             Package package = Package(std::move(packageInfo), std::move(versionList));
             result.Matches.emplace_back(std::move(package));
         }
@@ -126,18 +134,20 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         return result;
     }
 
-    std::optional<std::string> Interface::GetManifestByVersion(const std::string& restApiUri, const std::string& packageId, const std::string& version) const
+    std::optional<Manifest::Manifest> Interface::GetManifestByVersion(
+        const std::string& restApiUri, const std::string& packageId, const std::string& version, const std::string& channel) const
     {
-        HttpClientHelper clientHelper(GetManifestByVersionEndpoint(restApiUri, packageId, version));
-        json::value jsonObject = clientHelper.HandleGet();
+        HttpClientHelper clientHelper(GetManifestByVersionEndpoint(restApiUri, packageId, version, channel));
+        web::json::value jsonObject = clientHelper.HandleGet();
 
         if (jsonObject.is_null())
         {
-            return std::string();
+            return {};
         }
 
-        // Parse json and add results to SearchResult
-        auto& manifestObject = jsonObject.at(Data);
-        return manifestObject.is_null() ? std::string() : utility::conversions::to_utf8string(manifestObject.serialize());
+        // Parse json and return Manifest
+        auto& manifestObject = jsonObject.at(GetJsonKeyNameString(Data));
+        UNREFERENCED_PARAMETER(manifestObject);
+        return {};
     }
 }

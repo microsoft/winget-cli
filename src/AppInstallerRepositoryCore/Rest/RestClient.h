@@ -21,7 +21,7 @@ namespace AppInstaller::Repository::Rest
 		// Performs a search based on the given criteria.
 		Schema::IRestClient::SearchResult Search(const SearchRequest& request) const;
 
-		std::optional<std::string> GetManifestByVersion(const std::string& packageId, const std::string& version) const;
+		std::optional<Manifest::Manifest> GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const;
 
 	private:
 		std::string m_restApiUri;

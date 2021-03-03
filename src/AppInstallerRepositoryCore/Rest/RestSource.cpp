@@ -69,11 +69,10 @@ namespace AppInstaller::Repository::Rest
             // TODO
             Manifest::Manifest GetManifest() const override
             {
-                AICLI_LOG(Repo, Info, << "Downloading manifest");
-                std::string manifest = GetReferenceSource()->GetRestClient().GetManifestByVersion(
-                    m_packageInfo.packageIdentifier, m_versionInfo.GetVersion().ToString()).value();
+                AICLI_LOG(Repo, Verbose, << "Downloading manifest");
+                Manifest::Manifest manifest = GetReferenceSource()->GetRestClient().GetManifestByVersion(
+                    m_packageInfo.packageIdentifier, m_versionInfo.GetVersion().ToString(), m_versionInfo.GetChannel().ToString()).value();
 
-                // TODO: Create Manifest object from result using JSON parser.
                 THROW_HR(ERROR_CALL_NOT_IMPLEMENTED);
             }
 
@@ -82,7 +81,6 @@ namespace AppInstaller::Repository::Rest
                 return GetReferenceSource();
             }
 
-            // TODO
             IPackageVersion::Metadata GetMetadata() const override
             {
                 IPackageVersion::Metadata result;
@@ -97,8 +95,12 @@ namespace AppInstaller::Repository::Rest
         // The base for IPackage implementations here.
         struct PackageBase : public SourceReference
         {
-            PackageBase(const std::shared_ptr<const RestSource>& source, const IRestClient::Package& package) :
-                SourceReference(source), m_package(package) {}
+            PackageBase(const std::shared_ptr<const RestSource>& source, IRestClient::Package&& package) :
+                SourceReference(source), m_package(std::move(package))
+            {
+                 // Sort the versions
+                 std::sort(m_package.versions.begin(), m_package.versions.end());
+            }
 
             Utility::LocIndString GetProperty(PackageProperty property) const
             {
@@ -116,7 +118,7 @@ namespace AppInstaller::Repository::Rest
         protected:
             std::shared_ptr<IPackageVersion> GetLatestVersionInternal() const
             {
-                VersionAndChannel latestVersion = m_package.versions.back();
+                VersionAndChannel latestVersion = m_package.versions.front();
                 return std::make_shared<PackageVersion>(GetReferenceSource(), m_package.packageInfo, latestVersion);
             }
 
@@ -177,6 +179,7 @@ namespace AppInstaller::Repository::Rest
                             && CaseInsensitiveEquals(versionInfo.GetChannel().ToString(), versionKey.Channel))
                         {
                             packageVersion = std::make_shared<PackageVersion>(source, m_package.packageInfo, versionInfo);
+                            break;
                         }
                     }
                 }
@@ -191,6 +194,7 @@ namespace AppInstaller::Repository::Rest
                         if (CaseInsensitiveEquals(versionInfo.GetChannel().ToString(), versionKey.Channel))
                         {
                             packageVersion = std::make_shared<PackageVersion>(source, m_package.packageInfo, versionInfo);
+                            break;
                         }
                     }
                 }
@@ -201,6 +205,7 @@ namespace AppInstaller::Repository::Rest
                         if (CaseInsensitiveEquals(versionInfo.GetVersion().ToString(), versionKey.Version))
                         {
                             packageVersion = std::make_shared<PackageVersion>(source, m_package.packageInfo, versionInfo);
+                            break;
                         }
                     }
                 }
@@ -244,15 +249,8 @@ namespace AppInstaller::Repository::Rest
         std::shared_ptr<const RestSource> sharedThis = shared_from_this();
         for (auto& result : results.Matches)
         {
-            std::unique_ptr<IPackage> package = std::make_unique<AvailablePackage>(sharedThis, result);
+            std::unique_ptr<IPackage> package = std::make_unique<AvailablePackage>(sharedThis, std::move(result));
             PackageMatchFilter packageFilter({}, {}, {});
-
-            // Sort the versions
-            std::sort(result.versions.begin(), result.versions.end(),
-                [](const VersionAndChannel& a, const VersionAndChannel& b)
-                {
-                    return a.GetVersion() < b.GetVersion();
-                });
 
             searchResult.Matches.emplace_back(std::move(package), std::move(packageFilter));
         }

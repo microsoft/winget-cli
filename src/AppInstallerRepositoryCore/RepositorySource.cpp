@@ -617,7 +617,7 @@ namespace AppInstaller::Repository
         if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type)
             && !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
         {
-            AICLI_LOG(CLI, Error, << Settings::ExperimentalFeature::GetFeature(Settings::ExperimentalFeature::Feature::ExperimentalRestSource).Name()
+            AICLI_LOG(Repo, Error, << Settings::ExperimentalFeature::GetFeature(Settings::ExperimentalFeature::Feature::ExperimentalRestSource).Name()
                 << " feature is disabled. Execution cancelled.");
             THROW_HR(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
         }

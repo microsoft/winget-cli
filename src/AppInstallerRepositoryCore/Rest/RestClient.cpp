@@ -14,9 +14,9 @@ namespace AppInstaller::Repository::Rest
 		m_interface = std::make_unique<Schema::V1_0::Interface>();
 	}
 
-	std::optional<std::string> RestClient::GetManifestByVersion(const std::string& packageId, const std::string& version) const
+	std::optional<Manifest::Manifest> RestClient::GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const
 	{
-		return m_interface->GetManifestByVersion(m_restApiUri, packageId, version);
+		return m_interface->GetManifestByVersion(m_restApiUri, packageId, version, channel);
 	}
 
 	RestClient::SearchResult RestClient::Search(const SearchRequest& request) const

@@ -18,11 +18,15 @@ namespace AppInstaller::Repository::Rest
 		{
 			std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback& progress) override final
 			{
-				THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
-				return CreateInternal(details, progress);
-			}
+				UNREFERENCED_PARAMETER(progress);
 
-			virtual std::shared_ptr<ISource> CreateInternal(const SourceDetails& details, IProgressCallback& progress) = 0;
+				THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
+
+				RestClient restClient = RestClient::RestClient(details.Arg);
+
+				// TODO: Change identifier if required.
+				return std::make_shared<RestSource>(details, details.Arg, std::move(restClient));
+			}
 
 			void Add(SourceDetails& details, IProgressCallback& progress) override final
 			{
@@ -32,7 +36,6 @@ namespace AppInstaller::Repository::Rest
 				{
 					// With more than one source implementation, we will probably need to probe first
 					details.Type = RestSourceFactory::Type();
-					AICLI_LOG(Repo, Info, << "Initializing source type: " << details.Name << " => " << details.Type);
 				}
 				else
 				{
@@ -40,8 +43,8 @@ namespace AppInstaller::Repository::Rest
 				}
 
 				// Check if URL is remote and secure
-				THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, Utility::IsUrlRemote(details.Arg) && !Utility::IsUrlSecure(details.Arg));
-				AICLI_LOG(Repo, Info, << "Initializing source from: " << details.Name << " => " << details.Arg);
+				THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE, !Utility::IsUrlRemote(details.Arg));
+				THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, !Utility::IsUrlSecure(details.Arg));
 			}
 
 			void Update(const SourceDetails& details, IProgressCallback& progress) override final
@@ -56,25 +59,10 @@ namespace AppInstaller::Repository::Rest
 				THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
 			}
 		};
-
-		// Source factory
-		struct RestSourcePackageFactory : public RestSourceFactoryBase
-		{
-			std::shared_ptr<ISource> CreateInternal(
-				const SourceDetails& details, IProgressCallback& progress) override
-			{
-				UNREFERENCED_PARAMETER(progress);
-
-				RestClient restClient = RestClient::RestClient(details.Arg);
-
-				// TODO: Change identifier if required.
-				return std::make_shared<RestSource>(details, details.Arg, std::move(restClient));
-			}
-		};
 	}
 
 	std::unique_ptr<ISourceFactory> RestSourceFactory::Create()
 	{
-		return std::make_unique<RestSourcePackageFactory>();
+		return std::make_unique<RestSourceFactoryBase>();
 	}
 }

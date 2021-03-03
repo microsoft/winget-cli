@@ -18,7 +18,7 @@ namespace AppInstaller::Repository::Rest
         static constexpr std::string_view Type()
         {
             using namespace std::string_view_literals;
-            return "ThirdParty.RestSource"sv;
+            return "Microsoft.Rest"sv;
         }
 
         // Creates a source factory for this type.

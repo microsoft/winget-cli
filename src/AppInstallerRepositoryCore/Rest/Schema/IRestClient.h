@@ -6,8 +6,6 @@
 #include <AppInstallerVersions.h>
 #include <vector>
 
-using namespace AppInstaller::Utility;
-
 namespace AppInstaller::Repository::Rest::Schema
 {
 	// The common interface used to interact with RestAPI responses.
@@ -29,9 +27,9 @@ namespace AppInstaller::Repository::Rest::Schema
 		struct Package
 		{
 			PackageInfo packageInfo;
-			std::vector<VersionAndChannel> versions;
+			std::vector<AppInstaller::Utility::VersionAndChannel> versions;
 
-			Package(PackageInfo packageInfo, std::vector<VersionAndChannel> versions)
+			Package(PackageInfo packageInfo, std::vector<AppInstaller::Utility::VersionAndChannel> versions)
 				: packageInfo(packageInfo), versions(versions) {}
 		};
 
@@ -45,6 +43,6 @@ namespace AppInstaller::Repository::Rest::Schema
 		virtual SearchResult Search(const std::string& restApiUri, const SearchRequest& request) const = 0;
 
 		// Gets the manifest for given version
-		virtual std::optional<std::string> GetManifestByVersion(const std::string& restApiUri, const std::string& packageId, const std::string& version) const = 0;
+		virtual std::optional<Manifest::Manifest> GetManifestByVersion(const std::string& restApiUri, const std::string& packageId, const std::string& version, const std::string& channel) const = 0;
 	};
 }
