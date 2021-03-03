@@ -25,7 +25,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     constexpr std::string_view PackageIdentifier = "PackageIdentifier"sv;
     constexpr std::string_view PackageName = "PackageName"sv;
     constexpr std::string_view Publisher = "Publisher"sv;
-    constexpr std::string_view PackageFamilName = "PackageFamilyName"sv;
+    constexpr std::string_view PackageFamilyName = "PackageFamilyName"sv;
     constexpr std::string_view ProductCode = "ProductCode"sv;
     constexpr std::string_view Versions = "Versions"sv;
     constexpr std::string_view Version = "version"sv;
@@ -108,7 +108,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             std::optional<std::string> packageId = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(PackageIdentifier)));
             std::optional<std::string> packageName = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(PackageName)));
             std::optional<std::string> publisher = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(Publisher)));
-            std::optional<std::string> packageFamilyName = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(PackageFamilName)));
+            std::optional<std::string> packageFamilyName = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(PackageFamilyName)));
             std::optional<std::string> productCode = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(ProductCode)));
             web::json::value versionValue = manifestItem.at(GetJsonKeyNameString(Versions));
 
