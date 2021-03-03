@@ -209,7 +209,8 @@ namespace AppInstaller::Repository
             }
             break;
             case SourceOrigin::User:
-                result = GetSourcesFromSetting(
+            {
+                std::vector<SourceDetailsInternal> userSources = GetSourcesFromSetting(
                     Settings::Streams::UserSources,
                     s_SourcesYaml_Sources,
                     [&](SourceDetailsInternal& details, const std::string& settingValue, const YAML::Node& source)
@@ -223,7 +224,19 @@ namespace AppInstaller::Repository
                         TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier);
                         return true;
                     });
-                break;
+
+                for (auto& source : userSources)
+                {
+                    if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), source.Type)
+                        && !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
+                    {
+                        continue;
+                    }
+
+                    result.emplace_back(std::move(source));
+                }
+            }
+            break;
             default:
                 THROW_HR(E_UNEXPECTED);
             }
