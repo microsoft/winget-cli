@@ -4,6 +4,7 @@
 
 #include "PackageCollection.h"
 #include "AppInstallerRuntime.h"
+#include "winget/JsonSchemaValidation.h"
 
 #include <algorithm>
 #include <ostream>
@@ -122,7 +123,6 @@ namespace AppInstaller::CLI
         {
             Json::Value sourceNode{ Json::ValueType::objectValue };
 
-
             Json::Value sourceDetailsNode{ Json::ValueType::objectValue };
             sourceDetailsNode[s_PackagesJson_Source_Name] = source.Details.Name;
             sourceDetailsNode[s_PackagesJson_Source_Argument] = source.Details.Arg;
@@ -157,8 +157,19 @@ namespace AppInstaller::CLI
 
         std::optional<PackageCollection> TryParseJson(const Json::Value& root)
         {
-            // TODO: Embed schema in binaries & validate file. This will return nullopt on failure.
+            // Validate the JSON against the schema.
+            Json::Value schemaJson = JsonSchema::LoadResourceAsSchemaDoc(MAKEINTRESOURCE(IDX_PACKAGES_SCHEMA_V1), MAKEINTRESOURCE(PACKAGESSCHEMA_RESOURCE_TYPE));
+            valijson::Schema schema;
+            JsonSchema::PopulateSchema(schemaJson, schema);
 
+            valijson::ValidationResults results;
+            if (!JsonSchema::Validate(schema, root, results))
+            {
+                AICLI_LOG(CLI, Error, << JsonSchema::GetErrorStringFromResults(results));
+                return std::nullopt;
+            }
+
+            // Extract the data from the JSON.
             PackageCollection packages;
             packages.ClientVersion = root[s_PackagesJson_WinGetVersion].asString();
             for (const auto& sourceNode : root[s_PackagesJson_Sources])

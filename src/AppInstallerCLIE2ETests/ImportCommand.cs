@@ -32,7 +32,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         // Ignore while we don't have schema validation
-        // [Test]
+        [Test]
         public void ImportInvalidFile()
         {
             // Verify failure when trying to import with an invalid file

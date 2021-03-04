@@ -15,10 +15,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)ManifestSchema.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)PackagesSchema.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(MSBuildThisFileDirectory)ManifestSchema.rc" />
+    <ResourceCompile Include="$(MSBuildThisFileDirectory)Schemas.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\preview\manifest.0.1.0.json" />
@@ -27,5 +28,6 @@
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.locale.1.0.0.json" />
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.singleton.1.0.0.json" />
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.0.0\manifest.version.1.0.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\packages\packages.schema.1.0.json" />
   </ItemGroup>
 </Project>
