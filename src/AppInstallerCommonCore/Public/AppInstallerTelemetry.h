@@ -26,6 +26,10 @@ namespace AppInstaller::Logging
         // Gets the singleton instance of this type.
         static TelemetryTraceLogger& GetInstance();
 
+        // Control whether this trace logger is enabled at runtime.
+        bool DisableRuntime();
+        void EnableRuntime();
+
         // Logs the failure info.
         void LogFailure(const wil::FailureInfo& failure) const noexcept;
 
@@ -112,6 +116,11 @@ namespace AppInstaller::Logging
 
     protected:
         TelemetryTraceLogger();
+
+        bool IsTelemetryEnabled() const noexcept;
+
+        bool m_isSettingEnabled = true;
+        std::atomic_bool m_isRuntimeEnabled{ true };
     };
 
     // Helper to make the call sites look clean.

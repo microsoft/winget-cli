@@ -10,11 +10,11 @@
 #include <variant>
 #include <vector>
 
+using namespace std::chrono_literals;
+using namespace std::string_view_literals;
+
 namespace AppInstaller::Settings
 {
-    using namespace std::chrono_literals;
-    using namespace std::string_view_literals;
-
     // The type of argument.
     enum class UserSettingsType
     {
@@ -53,6 +53,7 @@ namespace AppInstaller::Settings
         EFExperimentalUpgrade,
         EFUninstall,
         EFImportExport,
+        TelemetryDisable,
         Max
     };
 
@@ -89,6 +90,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalUpgrade, bool, bool, false, ".experimentalFeatures.upgrade"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFUninstall, bool, bool, false, ".experimentalFeatures.uninstall"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFImportExport, bool, bool, false, ".experimentalFeatures.importExport"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>

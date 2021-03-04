@@ -6,6 +6,7 @@
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
+#include "winget/UserSettings.h"
 
 #define AICLI_TraceLoggingStringView(_sv_,_name_) TraceLoggingCountedUtf8String(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
 
@@ -34,17 +35,9 @@ namespace AppInstaller::Logging
     {
         static const uint32_t s_RootExecutionId = 0;
 
-        // Used to disable telemetry on the fly.
-        std::atomic_bool s_isTelemetryEnabled{ true };
-
         std::atomic_uint32_t s_executionStage{ 0 };
 
         std::atomic_uint32_t s_subExecutionId{ s_RootExecutionId };
-
-        bool IsTelemetryEnabled()
-        {
-            return g_IsTelemetryProviderEnabled && s_isTelemetryEnabled;
-        }
 
         void __stdcall wilResultLoggingCallback(const wil::FailureInfo& info) noexcept
         {
@@ -67,7 +60,10 @@ namespace AppInstaller::Logging
 
     TelemetryTraceLogger::TelemetryTraceLogger()
     {
+        // TODO: Needs to be made a singleton registration/removal in the future
         RegisterTraceLogging();
+
+        m_isSettingEnabled = !Settings::User().Get<Settings::Setting::TelemetryDisable>();
     }
 
     TelemetryTraceLogger::~TelemetryTraceLogger()
@@ -79,6 +75,16 @@ namespace AppInstaller::Logging
     {
         static TelemetryTraceLogger instance;
         return instance;
+    }
+
+    bool TelemetryTraceLogger::DisableRuntime()
+    {
+        return m_isRuntimeEnabled.exchange(false);
+    }
+
+    void TelemetryTraceLogger::EnableRuntime()
+    {
+        m_isRuntimeEnabled = true;
     }
 
     void TelemetryTraceLogger::LogFailure(const wil::FailureInfo& failure) const noexcept
@@ -500,6 +506,11 @@ namespace AppInstaller::Logging
         }
     }
 
+    bool TelemetryTraceLogger::IsTelemetryEnabled() const noexcept
+    {
+        return g_IsTelemetryProviderEnabled && m_isSettingEnabled && m_isRuntimeEnabled;
+    }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
     static std::shared_ptr<TelemetryTraceLogger> s_TelemetryTraceLogger_TestOverride;
 #endif
@@ -523,14 +534,14 @@ namespace AppInstaller::Logging
 
     DisableTelemetryScope::DisableTelemetryScope()
     {
-        m_token = s_isTelemetryEnabled.exchange(false);
+        m_token = Telemetry().DisableRuntime();
     }
 
     DisableTelemetryScope::~DisableTelemetryScope()
     {
         if (m_token)
         {
-            s_isTelemetryEnabled = true;
+            Telemetry().EnableRuntime();
         }
     }
 

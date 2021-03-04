@@ -151,6 +151,14 @@ namespace AppInstaller::Settings
 
     namespace details
     {
+        // Stamps out a validate function that simply returns the input value.
+#define WINGET_VALIDATE_PASSTHRU(_setting_) \
+        std::optional<SettingMapping<Setting::_setting_>::value_t> \
+        SettingMapping<Setting::_setting_>::Validate(const SettingMapping<Setting::_setting_>::json_t& value) \
+        { \
+            return value; \
+        }
+
         std::optional<SettingMapping<Setting::AutoUpdateTimeInMinutes>::value_t>
         SettingMapping<Setting::AutoUpdateTimeInMinutes>::Validate(const SettingMapping<Setting::AutoUpdateTimeInMinutes>::json_t& value)
         {
@@ -181,47 +189,14 @@ namespace AppInstaller::Settings
             return {};
         }
 
-        std::optional<SettingMapping<Setting::EFExperimentalCmd>::value_t>
-            SettingMapping<Setting::EFExperimentalCmd>::Validate(const SettingMapping<Setting::EFExperimentalCmd>::json_t& value)
-        {
-            return value;
-        }
-
-        std::optional<SettingMapping<Setting::EFExperimentalArg>::value_t>
-            SettingMapping<Setting::EFExperimentalArg>::Validate(const SettingMapping<Setting::EFExperimentalArg>::json_t& value)
-        {
-            return value;
-        }
-
-        std::optional<SettingMapping<Setting::EFExperimentalMSStore>::value_t>
-            SettingMapping<Setting::EFExperimentalMSStore>::Validate(const SettingMapping<Setting::EFExperimentalMSStore>::json_t& value)
-        {
-            return value;
-        }
-
-        std::optional<SettingMapping<Setting::EFList>::value_t>
-            SettingMapping<Setting::EFList>::Validate(const SettingMapping<Setting::EFList>::json_t& value)
-        {
-            return value;
-        }
-
-        std::optional<SettingMapping<Setting::EFExperimentalUpgrade>::value_t>
-            SettingMapping<Setting::EFExperimentalUpgrade>::Validate(const SettingMapping<Setting::EFExperimentalUpgrade>::json_t& value)
-        {
-            return value;
-        }
-
-        std::optional<SettingMapping<Setting::EFUninstall>::value_t>
-            SettingMapping<Setting::EFUninstall>::Validate(const SettingMapping<Setting::EFUninstall>::json_t& value)
-        {
-            return value;
-        }
-
-        std::optional<SettingMapping<Setting::EFImportExport>::value_t>
-            SettingMapping<Setting::EFImportExport>::Validate(const SettingMapping<Setting::EFImportExport>::json_t& value)
-        {
-            return value;
-        }
+        WINGET_VALIDATE_PASSTHRU(EFExperimentalCmd)
+        WINGET_VALIDATE_PASSTHRU(EFExperimentalArg)
+        WINGET_VALIDATE_PASSTHRU(EFExperimentalMSStore)
+        WINGET_VALIDATE_PASSTHRU(EFList)
+        WINGET_VALIDATE_PASSTHRU(EFExperimentalUpgrade)
+        WINGET_VALIDATE_PASSTHRU(EFUninstall)
+        WINGET_VALIDATE_PASSTHRU(EFImportExport)
+        WINGET_VALIDATE_PASSTHRU(TelemetryDisable)
     }
 
     UserSettings::UserSettings() : m_type(UserSettingsType::Default)
