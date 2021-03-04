@@ -11,58 +11,52 @@ using namespace std::string_view_literals;
 
 namespace AppInstaller::Repository::Rest
 {
-	namespace
-	{
-		// The base class for data that comes from a rest based source.
-		struct RestSourceFactoryBase : public ISourceFactory
-		{
-			std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback& progress) override final
-			{
-				UNREFERENCED_PARAMETER(progress);
+    namespace
+    {
+        // The base class for data that comes from a rest based source.
+        struct RestSourceFactoryBase : public ISourceFactory
+        {
+            std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback&) override final
+            {
+                THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
 
-				THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
+                RestClient restClient = RestClient::RestClient(details.Arg);
 
-				RestClient restClient = RestClient::RestClient(details.Arg);
+                // TODO: Change identifier if required.
+                return std::make_shared<RestSource>(details, details.Arg, std::move(restClient));
+            }
 
-				// TODO: Change identifier if required.
-				return std::make_shared<RestSource>(details, details.Arg, std::move(restClient));
-			}
+            void Add(SourceDetails& details, IProgressCallback&) override final
+            {
+                if (details.Type.empty())
+                {
+                    // With more than one source implementation, we will probably need to probe first
+                    details.Type = RestSourceFactory::Type();
+                }
+                else
+                {
+                    THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
+                }
 
-			void Add(SourceDetails& details, IProgressCallback& progress) override final
-			{
-				UNREFERENCED_PARAMETER(progress);
+                // Check if URL is remote and secure
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE, !Utility::IsUrlRemote(details.Arg));
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, !Utility::IsUrlSecure(details.Arg));
+            }
 
-				if (details.Type.empty())
-				{
-					// With more than one source implementation, we will probably need to probe first
-					details.Type = RestSourceFactory::Type();
-				}
-				else
-				{
-					THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
-				}
+            void Update(const SourceDetails& details, IProgressCallback&) override final
+            {
+                THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
+            }
 
-				// Check if URL is remote and secure
-				THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE, !Utility::IsUrlRemote(details.Arg));
-				THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, !Utility::IsUrlSecure(details.Arg));
-			}
+            void Remove(const SourceDetails& details, IProgressCallback&) override final
+            {
+                THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
+            }
+        };
+    }
 
-			void Update(const SourceDetails& details, IProgressCallback& progress) override final
-			{
-				UNREFERENCED_PARAMETER(progress);
-				THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
-			}
-
-			void Remove(const SourceDetails& details, IProgressCallback& progress) override final
-			{
-				UNREFERENCED_PARAMETER(progress);
-				THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
-			}
-		};
-	}
-
-	std::unique_ptr<ISourceFactory> RestSourceFactory::Create()
-	{
-		return std::make_unique<RestSourceFactoryBase>();
-	}
+    std::unique_ptr<ISourceFactory> RestSourceFactory::Create()
+    {
+        return std::make_unique<RestSourceFactoryBase>();
+    }
 }

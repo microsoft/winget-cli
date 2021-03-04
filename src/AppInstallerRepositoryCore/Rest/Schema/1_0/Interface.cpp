@@ -49,30 +49,48 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             return json_body;
         }
 
-        std::string GetRestAPIBaseUri(const std::string& restApiUri)
+        std::string GetRestAPIBaseUri(std::string restApiUri)
         {
-            std::string formattedUri = restApiUri;
-            if (formattedUri.back() == '/')
+            if (restApiUri.back() == '/')
             {
-                formattedUri.pop_back();
+                restApiUri.pop_back();
             }
 
-            return formattedUri;
+            return restApiUri;
         }
 
         utility::string_t GetSearchEndpoint(const std::string& restApiUri)
         {
-            std::string fullSearchAPI = GetRestAPIBaseUri(restApiUri) + ManifestSearchPostEndpoint.data();
-            utility::string_t searchAPI = utility::conversions::to_string_t(fullSearchAPI);
-            return searchAPI;
+            std::string fullSearchAPI = restApiUri;
+            return utility::conversions::to_string_t(fullSearchAPI.append(ManifestSearchPostEndpoint));
         }
 
         utility::string_t GetManifestByVersionEndpoint(
             const std::string& restApiUri, const std::string& packageId, const std::string& version, const std::string& channel)
         {
-            std::string versionEndpoint = GetRestAPIBaseUri(restApiUri) + ManifestByVersionAndChannelGetEndpoint.data() + packageId + "?version=" + version + "&channel=" + channel;
-            utility::string_t versionApi = utility::conversions::to_string_t(versionEndpoint);
-            return versionApi;
+            std::string versionEndpoint = restApiUri;
+            versionEndpoint.append(ManifestByVersionAndChannelGetEndpoint).append(packageId);
+
+            // Add Version Query param
+            versionEndpoint.append("?version=").append(version);
+
+            // Add Channel Query param
+            versionEndpoint.append("&channel=").append(channel);
+
+            return utility::conversions::to_string_t(versionEndpoint);
+        }
+
+        bool IsStringWhitespace(const std::string& value)
+        {
+            for (int i = 0; i < value.length(); i++)
+            {
+                if (!std::isspace(value[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         std::optional<std::string> GetStringFromJsonStringValue(const web::json::value& value)
@@ -82,17 +100,30 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                 return {};
             }
 
+            std::string result = utility::conversions::to_utf8string(value.as_string());
+
+            if (result.empty() || IsStringWhitespace(result))
+            {
+                return {};
+            }
+
             return utility::conversions::to_utf8string(value.as_string());
         }
     }
 
-    IRestClient::SearchResult Interface::Search(const std::string& restApiUri, const SearchRequest& request) const
+    Interface::Interface(std::string restApi)
+    {
+        m_restApiUri = GetRestAPIBaseUri(std::move(restApi));
+        m_searchEndpoint = GetSearchEndpoint(m_restApiUri);
+    }
+
+    IRestClient::SearchResult Interface::Search(const SearchRequest& request) const
     {
         UNREFERENCED_PARAMETER(request);
         SearchResult result;
 
         // TODO: Handle continuation token.
-        HttpClientHelper clientHelper(GetSearchEndpoint(restApiUri));
+        HttpClientHelper clientHelper(m_searchEndpoint);
         web::json::value jsonObject = clientHelper.HandlePost(GetSearchBody(request));
 
         // Parse json and add results to SearchResult.
@@ -114,6 +145,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
             if (!packageId.has_value() || !packageName.has_value() || !publisher.has_value() || versionValue.is_null() || versionValue.as_array().size() == 0)
             {
+                AICLI_LOG(Repo, Verbose, << "Received incomplete package. Skipping package: " << packageId.value_or(""));
                 continue;
             }
 
@@ -123,7 +155,19 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                 std::optional<std::string> version = GetStringFromJsonStringValue(versionItem.at(GetJsonKeyNameString(Version)));
                 std::optional<std::string> channel = GetStringFromJsonStringValue(versionItem.at(GetJsonKeyNameString(Channel)));
 
-                versionList.emplace_back(AppInstaller::Utility::VersionAndChannel(std::move(version.value()), std::move(channel.value())));
+                if (!version.has_value())
+                {
+                    AICLI_LOG(Repo, Verbose, << "Received incomplete package version. Skipping version from package: " << packageId.value());
+                    continue;
+                }
+
+                versionList.emplace_back(AppInstaller::Utility::VersionAndChannel(std::move(version.value()), std::move(channel.value_or(""))));
+            }
+
+            if (versionList.size() == 0)
+            {
+                AICLI_LOG(Repo, Verbose, << "Received no valid versions. Skipping package: " << packageId.value());
+                continue;
             }
 
             PackageInfo packageInfo = PackageInfo(std::move(packageId.value()), std::move(packageName.value()), std::move(publisher.value()));
@@ -134,10 +178,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         return result;
     }
 
-    std::optional<Manifest::Manifest> Interface::GetManifestByVersion(
-        const std::string& restApiUri, const std::string& packageId, const std::string& version, const std::string& channel) const
+    std::optional<Manifest::Manifest> Interface::GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const
     {
-        HttpClientHelper clientHelper(GetManifestByVersionEndpoint(restApiUri, packageId, version, channel));
+        HttpClientHelper clientHelper(GetManifestByVersionEndpoint(m_restApiUri, packageId, version, channel));
         web::json::value jsonObject = clientHelper.HandleGet();
 
         if (jsonObject.is_null())
