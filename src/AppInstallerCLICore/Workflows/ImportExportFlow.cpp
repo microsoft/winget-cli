@@ -169,16 +169,24 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
         }
 
-        PackageCollection packages;
-        std::string parsingErrors;
-        if (!PackagesJson::TryParseJson(jsonRoot, packages, parsingErrors))
+        PackagesJson::ParseResult parseResult = PackagesJson::TryParseJson(jsonRoot);
+        if (parseResult.Result != PackagesJson::ParseResult::Type::Success)
         {
-            context.Reporter.Error()
-                << Resource::String::InvalidJsonFile << std::endl
-                << parsingErrors << std::endl;
+            context.Reporter.Error() << Resource::String::InvalidJsonFile << std::endl;
+            if (parseResult.Result == PackagesJson::ParseResult::Type::MissingSchema ||
+                parseResult.Result == PackagesJson::ParseResult::Type::UnrecognizedSchema)
+            {
+                context.Reporter.Error() << Resource::String::ImportFileHasInvalidSchema << std::endl;
+            }
+            else if (parseResult.Result == PackagesJson::ParseResult::Type::SchemaValidationFailed)
+            {
+                context.Reporter.Error() << parseResult.Errors << std::endl;
+            }
+
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
         }
 
+        PackageCollection& packages = parseResult.Packages;
         if (packages.Sources.empty())
         {
             AICLI_LOG(CLI, Warning, << "No packages to install");

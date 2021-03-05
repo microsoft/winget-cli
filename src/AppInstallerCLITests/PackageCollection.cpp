@@ -195,10 +195,9 @@ TEST_CASE("PackageCollection_Read_SingleSource", "[PackageCollection]")
       "WinGetVersion": "1.0.0"
     })");
 
-    PackageCollection parsed;
-    std::string errors;
-    REQUIRE(PackagesJson::TryParseJson(json, parsed, errors));
-    REQUIRE(errors.empty());
+    auto parseResult = PackagesJson::TryParseJson(json);
+    REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::Success);
+    REQUIRE(parseResult.Errors.empty());
 
     PackageCollection::Source source;
     source.Details.Name = "TestSource";
@@ -215,7 +214,7 @@ TEST_CASE("PackageCollection_Read_SingleSource", "[PackageCollection]")
         std::vector<PackageCollection::Source>{ source }
     };
 
-    ValidateEqualCollections(parsed, expected);
+    ValidateEqualCollections(parseResult.Packages, expected);
 }
 
 TEST_CASE("PackageCollection_Read_MultipleSources", "[PackageCollection]")
@@ -256,10 +255,10 @@ TEST_CASE("PackageCollection_Read_MultipleSources", "[PackageCollection]")
       ]
     })");
 
-    PackageCollection parsed;
-    std::string errors;
-    REQUIRE(PackagesJson::TryParseJson(json, parsed, errors));
-    REQUIRE(errors.empty());
+
+    auto parseResult = PackagesJson::TryParseJson(json);
+    REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::Success);
+    REQUIRE(parseResult.Errors.empty());
 
     PackageCollection::Source source1;
     source1.Details.Name = "First";
@@ -281,7 +280,7 @@ TEST_CASE("PackageCollection_Read_MultipleSources", "[PackageCollection]")
         std::vector<PackageCollection::Source>{ source1, source2 }
     };
 
-    ValidateEqualCollections(parsed, expected);
+    ValidateEqualCollections(parseResult.Packages, expected);
 }
 
 TEST_CASE("PackageCollection_Read_RepeatedSource", "[PackageCollection]")
@@ -336,10 +335,10 @@ TEST_CASE("PackageCollection_Read_RepeatedSource", "[PackageCollection]")
       ]
     })");
 
-    PackageCollection parsed;
-    std::string errors;
-    REQUIRE(PackagesJson::TryParseJson(json, parsed, errors));
-    REQUIRE(errors.empty());
+
+    auto parseResult = PackagesJson::TryParseJson(json);
+    REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::Success);
+    REQUIRE(parseResult.Errors.empty());
 
     PackageCollection::Source source1;
     source1.Details.Name = "First";
@@ -362,5 +361,96 @@ TEST_CASE("PackageCollection_Read_RepeatedSource", "[PackageCollection]")
         std::vector<PackageCollection::Source>{ source1, source2 }
     };
 
-    ValidateEqualCollections(parsed, expected);
+    ValidateEqualCollections(parseResult.Packages, expected);
+}
+
+TEST_CASE("PackageCollection_Read_MissingSchema", "[PackageCollection]")
+{
+    auto json = ParseJsonString(R"(
+    {
+      "CreationDate": "2021-01-01T12:00:00.000",
+      "Sources": [
+        {
+          "Packages": [
+            {
+              "Id": "test.test"
+            }
+          ],
+          "SourceDetails": {
+            "Argument": "https://aka.ms/winget",
+            "Identifier": "TestSourceId",
+            "Name": "TestSource",
+            "Type": "Microsoft.PreIndexed.Package"
+          }
+        }
+      ],
+      "WinGetVersion": "1.0.0"
+    })");
+
+    auto parseResult = PackagesJson::TryParseJson(json);
+    REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::MissingSchema);
+
+    json = ParseJsonString("\"Not even a JSON object\"");
+
+    parseResult = PackagesJson::TryParseJson(json);
+    REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::MissingSchema);
+}
+
+TEST_CASE("PackageCollection_Read_WrongSchema", "[PackageCollection]")
+{
+    auto json = ParseJsonString(R"(
+    {
+      "$schema": "https://aka.ms/winget-settings.schema.json",
+      "CreationDate": "2021-01-01T12:00:00.000",
+      "Sources": [
+        {
+          "Packages": [
+            {
+              "Id": "test.test"
+            }
+          ],
+          "SourceDetails": {
+            "Argument": "https://aka.ms/winget",
+            "Identifier": "TestSourceId",
+            "Name": "TestSource",
+            "Type": "Microsoft.PreIndexed.Package"
+          }
+        }
+      ],
+      "WinGetVersion": "1.0.0"
+    })");
+
+    auto parseResult = PackagesJson::TryParseJson(json);
+    REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::UnrecognizedSchema);
+}
+
+TEST_CASE("PackageCollection_Read_SchemaValidationFail", "[PackageCollection]")
+{
+    auto json = ParseJsonString(R"(
+    {
+      "$schema": "https://aka.ms/winget-packages.schema.1.0.json",
+      "CreationDate": "2021-01-01T12:00:00.000",
+      "NotSources": [
+        {
+          "Packages": [
+            {
+              "Id": "test.test"
+            }
+          ],
+          "SourceDetails": {
+            "Argument": "https://aka.ms/winget",
+            "Identifier": "TestSourceId",
+            "Name": "TestSource",
+            "Type": "Microsoft.PreIndexed.Package"
+          }
+        }
+      ],
+      "WinGetVersion": "1.0.0"
+    })");
+
+    auto parseResult = PackagesJson::TryParseJson(json);
+    INFO(parseResult.Errors);
+
+    REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::SchemaValidationFailed);
+    REQUIRE(parseResult.Errors.find("Missing required property 'Sources'.") != std::string::npos);
 }

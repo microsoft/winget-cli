@@ -158,22 +158,39 @@ namespace AppInstaller::CLI
             return root;
         }
 
-        bool TryParseJson(const Json::Value& root, PackageCollection& packages, std::string& errors)
+        ParseResult TryParseJson(const Json::Value& root)
         {
+            // Find the schema used for the JSON
+            if (!(root.isObject() && root.isMember(s_PackagesJson_Schema) && root[s_PackagesJson_Schema].isString()))
+            {
+                AICLI_LOG(CLI, Error, << "Import file is missing \"" << s_PackagesJson_Schema << "\" property");
+                return ParseResult{ ParseResult::Type::MissingSchema };
+            }
+
+            const auto& schemaUri = root[s_PackagesJson_Schema].asString();
+            Json::Value schemaJson;
+            if (schemaUri == s_PackagesJson_SchemaUri_v1_0)
+            {
+                schemaJson = JsonSchema::LoadResourceAsSchemaDoc(MAKEINTRESOURCE(IDX_PACKAGES_SCHEMA_V1), MAKEINTRESOURCE(PACKAGESSCHEMA_RESOURCE_TYPE));
+            }
+            else
+            {
+                AICLI_LOG(CLI, Error, << "Unrecognized schema for import file: " << schemaUri);
+                return ParseResult{ ParseResult::Type::UnrecognizedSchema };
+            }
+
             // Validate the JSON against the schema.
-            Json::Value schemaJson = JsonSchema::LoadResourceAsSchemaDoc(MAKEINTRESOURCE(IDX_PACKAGES_SCHEMA_V1), MAKEINTRESOURCE(PACKAGESSCHEMA_RESOURCE_TYPE));
             valijson::Schema schema;
             JsonSchema::PopulateSchema(schemaJson, schema);
 
             valijson::ValidationResults results;
             if (!JsonSchema::Validate(schema, root, results))
             {
-                errors = JsonSchema::GetErrorStringFromResults(results);
-                AICLI_LOG(CLI, Error, << errors);
-                return false;
+                return ParseResult{ ParseResult::Type::SchemaValidationFailed, JsonSchema::GetErrorStringFromResults(results) };
             }
 
             // Extract the data from the JSON.
+            PackageCollection packages;
             packages.ClientVersion = root[s_PackagesJson_WinGetVersion].asString();
             for (const auto& sourceNode : root[s_PackagesJson_Sources])
             {
@@ -189,7 +206,7 @@ namespace AppInstaller::CLI
                 }
             }
 
-            return true;
+            return ParseResult{ std::move(packages) };
         }
     }
 }
