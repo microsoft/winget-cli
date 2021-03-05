@@ -756,4 +756,62 @@ Podem ser configurados através do ficheiro de definições ' winget settings '.
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Ocorreu uma falha na desinstalação com o código de saída:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Exporta uma lista dos pacotes instalados</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Instala todos os pacotes listados num ficheiro.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Instala todos os pacotes num ficheiro</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Ficheiro onde o resultado deve ser escrito</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Ficheiro que descreve os pacotes a instalar</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Pacotes de exportação a partir da fonte especificada</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Escreve uma lista dos pacotes instalados para um ficheiro. Os pacotes podem então ser instalados com o comando de importação.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Falha ao instalar um ou mais pacotes importados</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Embalagem não encontrada para importação:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>A fonte necessária para a importação não está instalada:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>O pacote instalado não está disponível a partir de qualquer fonte:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>A versão instalada do pacote não está disponível a partir de qualquer fonte:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Nenhum pacote encontrado no ficheiro de importação</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>O ficheiro JSON não é válido</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>O pacote já está instalado:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignorar pacotes indisponíveis</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Incluir versões de pacotes em ficheiro produzido</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignorar as versões dos pacotes do ficheiro de importação</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>O caminho não existe:</value>
+  </data>
 </root>

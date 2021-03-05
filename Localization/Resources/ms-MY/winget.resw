@@ -756,4 +756,62 @@ Ia boleh dikonfigurasikan menerusi fail seting 'winget settings'.</value>
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Nyahpasang gagal dengan kod keluar:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Eksport senarai pakej yang dipasang</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Pasang semua pakej yang disenaraikan dalam fail.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Pasang semua pakej dalam fail.</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Fail yang mana keputusan akan ditulis</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Fail menerangkan pakej untuk dipasang</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Pakej eksport daripada sumber yang ditentukan</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Menulis senarai pakej yang dipasang kepada fail. Kemudian, pakej boleh dipasang dengan perintah import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Satu atau lebih banyak pakej yang diimport gagal dipasang</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Pakej tidak ditemui untuk Import:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Sumber yang diperlukan untuk import tidak dipasang:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Versi pakej yang dipasang tidak tersedia daripada mana-mana sumber:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Versi pakej yang dipasang tidak tersedia daripada mana-mana sumber:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Tiada pakej ditemui dalam fail import</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Fail JSON tidak sah</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Pakej telah dipasang:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Abaikan pakej yang tidak tersedia</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Sertakan versi pakej dalam fail yang dihasilkan</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Abaikan versi pakej daripada fail import</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Laluan tidak wujud:</value>
+  </data>
 </root>

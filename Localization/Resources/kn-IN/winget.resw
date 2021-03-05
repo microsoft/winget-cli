@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>ಅಸ್ಥಾಪಿಸುವುದು ಈ ನಿರ್ಗಮನದ ಕೋಡ್‌ನೊಂದಿಗೆ ವಿಫಲವಾಗಿದೆ:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>ಸ್ಥಾಪನೆಗೊಳಿಸಿದ ಪ್ಯಾಕೇಜ್‍ಗಳ ಪಟ್ಟಿಯನ್ನು ರಫ್ತು ಮಾಡುತ್ತದೆ</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>ಫೈಲ್‍ನಲ್ಲಿ ಪಟ್ಟಿ ಮಾಡಲಾಗಿರುವ ಎಲ್ಲ ಪ್ಯಾಕೇಜ್‍ಗಳನ್ನು ಸ್ಥಾಪಿಸುತ್ತದೆ.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>ಫೈಲ್‍ನಲ್ಲಿ ಎಲ್ಲ ಪ್ಯಾಕೇಜ್‍ಗಳನ್ನು ಸ್ಥಾಪಿಸುತ್ತದೆ.</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>ಫಲಿತಾಂಶವನ್ನು ಎಲ್ಲಿ ಬರೆಯಬೇಕೊ ಆ ಫೈಲ್</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>ಸ್ಥಾಪನೆಗೊಳಿಸುವ ಪ್ಯಾಕೇಜ್‍ಗಳನ್ನು ವಿವರಿಸುವ ಫೈಲ್</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಮೂಲದಿಂದ ರಫ್ತು ಪ್ಯಾಕೇಜ್‍ಗಳು</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>ಫೈಲ್‍ಗೆ ಸ್ಥಾಪನೆಗೊಳಿಸಿದ ಪ್ಯಾಕೇಜ್‍ಗಳ ಪಟ್ಟಿಯನ್ನು ಬರೆಯುತ್ತದೆ. ಪ್ಯಾಕೇಜ್‍ಗಳನ್ನು ಆಗಲೂ import ಆದೇಶದೊಂದಿಗೆ ಸ್ಥಾಪನೆಗೊಳಿಸಬಹುದು.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>ಆಮದು ಮಾಡಿದ ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಪ್ಯಾಕೇಜ್ ಸ್ಥಾಪನೆಗೊಳಿಸಲು ವಿಫಲವಾಗಿದೆ</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>ಆಮದಿಗೆ ಪ್ಯಾಕೇಜ್ ಕಂಡುಬಂದಿಲ್ಲ:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>ಆಮದಿಗೆ ಅಗತ್ಯವಿರುವ ಮೂಲವನ್ನು ಸ್ಥಾಪಿಸಲಾಗಿಲ್ಲ:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>ಯಾವುದೇ ಮೂಲದಿಂದ ಸ್ಥಾಪನೆಗೊಳಿಸಿದ ಪ್ಯಾಕೇಜ್ ಲಭ್ಯವಿಲ್ಲ:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>ಯಾವುದೇ ಮೂಲದಿಂದ ಪ್ಯಾಕೇಜ್‍ನ ಸ್ಥಾಪಿತ ಆವೃತ್ತಿ ಲಭ್ಯವಿಲ್ಲ:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>ಆಮದು ಫೈಲ್‍ನಲ್ಲಿ ಯಾವುದೇ ಪ್ಯಾಕೇಜ್‍ಗಳು ಕಂಡುಬಂದಿಲ್ಲ</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON ಫೈಲ್ ಮಾನ್ಯವಾಗಿಲ್ಲ</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>ಪ್ಯಾಕೇಜ್ ಅನ್ನು ಈಗಾಗಲೇ ಸ್ಥಾಪಿಸಲಾಗಿದೆ:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>ಅಲಭ್ಯ ಪ್ಯಾಕೇಜ್‍ಗಳನ್ನು ಕಡೆಗಣಿಸು</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>ಪ್ಯಾಕೇಜ್ ಆವೃತ್ತಿಗಳನ್ನು ಉತ್ಪಾದಿಸಿದ ಫೈಲ್‍ನಲ್ಲಿ ಸೇರಿಸಿ</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>ಆಮದು ಫೈಲ್‍ನಿಂದ ಪ್ಯಾಕೇಜ್ ಆವೃತ್ತಿಗಳನ್ನು ಕಡೆಗಣಿಸು</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>ಹಾದಿ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ:</value>
+  </data>
 </root>

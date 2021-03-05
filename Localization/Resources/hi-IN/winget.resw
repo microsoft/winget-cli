@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>निकास कोड के साथ स्थापना रद्द करना विफल रहा:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>स्थापित पैकेज की सूची निर्यात करता है</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>किसी फ़ाइल में सूचीबद्ध सभी पैकेज स्थापित करता है.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>किसी फ़ाइल में सभी पैकेज स्थापित करता है</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>फ़ाइल जहाँ परिणाम लिखा जाना है</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>स्थापित करने के लिए पैकेज का वर्णन करने वाली फ़ाइल</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>निर्दिष्ट स्रोत से पैकेज का निर्यात करें</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>किसी फ़ाइल में स्थापित पैकेज की सूची लिखता है. इसके बाद import आदेश के साथ पैकेज स्थापित किए जा सकते हैं.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>एक या अधिक आयातित पैकेज स्थापित करने में विफल</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>आयात के लिए पैकेज नहीं मिला:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>आयात के लिए आवश्यक स्रोत स्थापित नहीं है:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>स्थापित पैकेज किसी भी स्रोत से उपलब्ध नहीं है:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>पैकेज का स्थापित संस्करण किसी भी स्रोत से उपलब्ध नहीं है:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>आयात फ़ाइल में कोई पैकेज नहीं मिला</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON फ़ाइल मान्य नहीं है</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>पैकेज पहले से ही स्थापित है:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>अनुपलब्ध पैकेज पर ध्यान न दें</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>उत्पादित फ़ाइल में पैकेज संस्करण को शामिल करें</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>आयात फ़ाइल से मिले पैकेज संस्करणों पर ध्यान न दें</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>पथ मौजूद नहीं है:</value>
+  </data>
 </root>

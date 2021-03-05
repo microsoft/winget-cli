@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Помилка видалення з кодом виходу:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Експортує список інстальованих пакетів</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Інсталює всі пакети, перелічені у файлі.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Інсталює всі пакети у файлі</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Файл, у якому має бути записаний результат</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Файл з описом пакетів, які потрібно інсталювати</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Експортувати пакети із вказаного джерела</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Записує список інстальованих пакетів у файл. Пакети можна інсталювати за допомогою команди import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Не вдалося інсталювати один або кілька імпортованих пакетів</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Пакет не знайдено для імпорту:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Джерело, необхідне для імпорту, не інстальовано:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Інстальований пакет недоступний з будь-якого джерела:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Інстальована версія пакета недоступна з будь-якого джерела:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>У файлі імпорту не знайдено жодного пакета</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Неприпустимий файл JSON</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Пакет вже інстальовано:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ігнорувати недоступні пакети</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Включення версій пакетів до отриманого файлу</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ігнорувати версії пакета з файлу імпорту</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Шлях не існує:</value>
+  </data>
 </root>

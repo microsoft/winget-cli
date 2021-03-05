@@ -756,4 +756,62 @@ Ze kunnen worden geconfigureerd via het instellingenbestand ' winget settings '.
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Installatie ongedaan maken is mislukt met afsluitcode:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Exporteert een lijst met geïnstalleerde pakketten</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Installeert alle pakketten die in een bestand worden vermeld.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Installeert alle pakketten in een bestand</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Bestand waarin het resultaat moet worden geschreven</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Bestand met een beschrijving van de pakketten die moeten worden geïnstalleerd</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Pakketten exporteren uit de opgegeven bron</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Schrijft een lijst met de geïnstalleerde pakketten naar een bestand. De pakketten kunnen vervolgens worden geïnstalleerd met de importopdracht.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>De installatie van een of meer geïmporteerde pakketten is mislukt</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Pakket niet gevonden voor importeren:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>De bron die nodig is voor het importeren is niet geïnstalleerd:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Geïnstalleerde pakket is vanuit geen enkele bron beschikbaar:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Geïnstalleerde versie van het pakket is vanuit geen enkele bron beschikbaar:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Er zijn geen pakketten gevonden in het importbestand</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON-bestand is niet geldig</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Pakket is al geïnstalleerd:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Niet-beschikbare pakketten negeren</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Pakketversies opnemen in een geproduceerd bestand</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Pakketversies negeren vanuit importbestand</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Pad bestaat niet:</value>
+  </data>
 </root>

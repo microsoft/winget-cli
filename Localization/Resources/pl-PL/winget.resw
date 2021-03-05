@@ -756,4 +756,62 @@ Można je skonfigurować za pomocą pliku ustawień "winget settings".</value>
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Dezinstalacja nie powiodła się. Kod zakończenia:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Eksportuje listę zainstalowanych pakietów</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Instaluje wszystkie pakiety wymienione w pliku.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Instaluje wszystkie pakiety w pliku</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Plik, w którym ma zostać zapisany wynik</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Plik opisujący pakiety do zainstalowania</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Eksportuj pakiety z określonego źródła</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Zapisuje listę zainstalowanych pakietów w pliku. Pakiety można następnie zainstalować za pomocą polecenia import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Nie można zainstalować co najmniej jednego zaimportowanego pakietu</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Nie znaleziono pakietu do importu:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Nie zainstalowano źródła wymaganego do importu:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Zainstalowany pakiet nie jest dostępny z żadnego źródła:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Zainstalowana wersja pakietu nie jest dostępna z żadnego źródła:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Nie znaleziono żadnych pakietów w pliku importu</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Plik JSON jest nieprawidłowy</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Pakiet jest już zainstalowany:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignoruj niedostępne pakiety</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Uwzględnij wersje pakietu w wytworzonym pliku</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignoruj wersje pakietu z pliku importu</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Ścieżka nie istnieje:</value>
+  </data>
 </root>

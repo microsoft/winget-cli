@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>הסרת ההתקנה נכשלה עם קוד יציאה:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>מייצא רשימה של החבילות המותקנות</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>מתקין את כל החבילות המפורטות בקובץ.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>מתקין את כל החבילות בקובץ</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>הקובץ שבו יש לכתוב את התוצאה</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>קובץ המתאר את החבילות שיש להתקין</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>יצא חבילות מהמקור שצוין</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>כותב רשימה של החבילות המותקנות לקובץ. ניתן להתקין את החבילות באמצעות הפקודה import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>התקנת חבילות מיובאת אחת או יותר נכשלה</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>לא נמצאה חבילה לייבוא:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>המקור הנדרש לצורך ייבוא אינו מותקן:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>החבילה המותקנת אינה זמינה בשום מקור:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>הגירסה המותקנת של החבילה אינה זמינה בשום מקור:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>לא נמצאו חבילות בקובץ הייבוא</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>קובץ JSON אינו חוקי</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>החבילה כבר מותקנת:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>התעלם מחבילות לא זמינות</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>כלול גירסאות חבילות בקובץ המופק</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>התעלם מגירסאות החבילות בקובץ הייבוא</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>‏‏הנתיב אינו קיים:</value>
+  </data>
 </root>

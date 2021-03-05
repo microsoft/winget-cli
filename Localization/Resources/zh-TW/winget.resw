@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>解除安裝失敗，結束代碼:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>匯出已安裝套件的清單</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>安裝檔案中列出的所有套件。</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>安裝檔案中的所有套件。</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>欲寫入結果的檔案</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>描述要安裝之套件的檔案</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>從指定來源匯出套件</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>將已安裝套件的清單寫入檔案。然後可以使用 import 命令來安裝封裝。</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>無法安裝一或多個匯入的套件</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>找不到要匯入的套件：</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>尚未安裝匯入所需的來源：</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>已安裝套件無法從任何來源取得：</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>已安裝的套件版本無法從任一來源取得：</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>在匯入檔案中找不到套件</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON 檔案無效。</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>已安裝的套件：</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>略過無法使用的套件</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>在製作的檔案中包含套件版本</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>略過匯入檔案的套件版本</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>路徑不存在：</value>
+  </data>
 </root>

@@ -756,4 +756,62 @@ De kan konfigureres via innstillings filen 'winget settings'.</value>
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Avinstallasjon mislyktes med avslutningskode:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Eksporterer en liste over installerte pakker</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Installerer alle pakkene som er oppført i en fil.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Installerer alle pakkene i en fil</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Fil der resultatet skal skrives</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Fil som beskriver pakkene som skal installeres</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Eksporter pakker fra den angitte kilden</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Skriver en liste over de installerte pakkene til en fil. Pakkene kan installeres med kommandoen import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Kan ikke installere en eller flere av de importerte pakkene</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Finner ikke pakken for import:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Kilden som kreves for import er ikke installert:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Installert pakke er ikke tilgjengelig fra noen kilde:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Installert versjon av pakken er ikke tilgjengelig fra noen kilde:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Finner ingen pakker i importfilen</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON-filen er ikke gyldig</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Pakken er allerede installert:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignorer utilgjengelige pakker</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Inkluder pakkeversjoner i produsert fil</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignorerer pakkeversjoner fra importfil</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Banen finnes ikke:</value>
+  </data>
 </root>
