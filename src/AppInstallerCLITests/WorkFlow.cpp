@@ -459,6 +459,7 @@ TEST_CASE("InstallFlowNonZeroExitCode", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     // Verify Installer is called and parameters are passed in.
+    REQUIRE(context.GetTerminationHR() == S_OK);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     std::ifstream installResultFile(installResultPath.GetPath());
     REQUIRE(installResultFile.is_open());

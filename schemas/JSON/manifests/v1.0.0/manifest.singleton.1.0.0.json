@@ -148,7 +148,7 @@
       },
       "maxItems": 16,
       "uniqueItems": true,
-      "description": "List of non-zero installer success exit codes"
+      "description": "List of additional non-zero installer success exit codes other than known default values by winget"
     },
     "UpgradeBehavior": {
       "type": [ "string", "null" ],
