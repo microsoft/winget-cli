@@ -27,8 +27,10 @@ namespace AppInstaller::Settings
             return User().Get<Setting::EFExperimentalUpgrade>();
         case Feature::ExperimentalUninstall:
             return User().Get<Setting::EFUninstall>();
-        case Feature::ExperimentalImportExport:
-            return User().Get<Setting::EFImportExport>();
+        case Feature::ExperimentalImport:
+            return User().Get<Setting::EFImport>();
+        case Feature::ExperimentalExport:
+            return User().Get<Setting::EFExport>();
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -50,8 +52,10 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Upgrade Command", "upgrade", "https://aka.ms/winget-settings", Feature::ExperimentalUpgrade };
         case Feature::ExperimentalUninstall:
             return ExperimentalFeature{ "Uninstall Command", "uninstall", "https://aka.ms/winget-settings", Feature::ExperimentalUninstall };
-        case Feature::ExperimentalImportExport:
-            return ExperimentalFeature{ "Import & Export Commands", "importExport", "https://aka.ms/winget-settings", Feature::ExperimentalImportExport };
+        case Feature::ExperimentalImport:
+            return ExperimentalFeature{ "Import Command", "import", "https://aka.ms/winget-settings", Feature::ExperimentalImport };
+        case Feature::ExperimentalExport:
+            return ExperimentalFeature{ "Export Command", "export", "https://aka.ms/winget-settings", Feature::ExperimentalExport };
         default:
             THROW_HR(E_UNEXPECTED);
         }
