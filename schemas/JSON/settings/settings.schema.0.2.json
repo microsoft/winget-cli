@@ -34,7 +34,7 @@
       "type": "object",
       "properties": {
         "disable": {
-          "description": "Controls whether telemetry event are written",
+          "description": "Controls whether telemetry events are written",
           "type": "boolean",
           "default": false
         }
