@@ -158,7 +158,7 @@ namespace AppInstaller::CLI
             return root;
         }
 
-        std::optional<PackageCollection> TryParseJson(const Json::Value& root)
+        bool TryParseJson(const Json::Value& root, PackageCollection& packages, std::string& errors)
         {
             // Validate the JSON against the schema.
             Json::Value schemaJson = JsonSchema::LoadResourceAsSchemaDoc(MAKEINTRESOURCE(IDX_PACKAGES_SCHEMA_V1), MAKEINTRESOURCE(PACKAGESSCHEMA_RESOURCE_TYPE));
@@ -168,12 +168,12 @@ namespace AppInstaller::CLI
             valijson::ValidationResults results;
             if (!JsonSchema::Validate(schema, root, results))
             {
-                AICLI_LOG(CLI, Error, << JsonSchema::GetErrorStringFromResults(results));
-                return std::nullopt;
+                errors = JsonSchema::GetErrorStringFromResults(results);
+                AICLI_LOG(CLI, Error, << errors);
+                return false;
             }
 
             // Extract the data from the JSON.
-            PackageCollection packages;
             packages.ClientVersion = root[s_PackagesJson_WinGetVersion].asString();
             for (const auto& sourceNode : root[s_PackagesJson_Sources])
             {
@@ -189,7 +189,7 @@ namespace AppInstaller::CLI
                 }
             }
 
-            return packages;
+            return true;
         }
     }
 }

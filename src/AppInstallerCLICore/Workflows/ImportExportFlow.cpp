@@ -169,14 +169,17 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
         }
 
-        auto packages = PackagesJson::TryParseJson(jsonRoot);
-        if (!packages.has_value())
+        PackageCollection packages;
+        std::string parsingErrors;
+        if (!PackagesJson::TryParseJson(jsonRoot, packages, parsingErrors))
         {
-            context.Reporter.Error() << Resource::String::InvalidJsonFile << std::endl;
+            context.Reporter.Error()
+                << Resource::String::InvalidJsonFile << std::endl
+                << parsingErrors << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
         }
 
-        if (packages->Sources.empty())
+        if (packages.Sources.empty())
         {
             AICLI_LOG(CLI, Warning, << "No packages to install");
             context.Reporter.Info() << Resource::String::NoPackagesFoundInImportFile << std::endl;
@@ -186,7 +189,7 @@ namespace AppInstaller::CLI::Workflow
         if (context.Args.Contains(Execution::Args::Type::IgnoreVersions))
         {
             // Strip out all the version information as we don't need it.
-            for (auto& source : packages->Sources)
+            for (auto& source : packages.Sources)
             {
                 for (auto& package : source.Packages)
                 {
@@ -195,7 +198,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        context.Add<Execution::Data::PackageCollection>(packages.value());
+        context.Add<Execution::Data::PackageCollection>(std::move(packages));
     }
 
     void OpenSourcesForImport(Execution::Context& context)

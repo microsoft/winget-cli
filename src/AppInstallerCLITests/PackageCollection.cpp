@@ -195,8 +195,10 @@ TEST_CASE("PackageCollection_Read_SingleSource", "[PackageCollection]")
       "WinGetVersion": "1.0.0"
     })");
 
-    auto parsed = PackagesJson::TryParseJson(json);
-    REQUIRE(parsed.has_value());
+    PackageCollection parsed;
+    std::string errors;
+    REQUIRE(PackagesJson::TryParseJson(json, parsed, errors));
+    REQUIRE(errors.empty());
 
     PackageCollection::Source source;
     source.Details.Name = "TestSource";
@@ -213,7 +215,7 @@ TEST_CASE("PackageCollection_Read_SingleSource", "[PackageCollection]")
         std::vector<PackageCollection::Source>{ source }
     };
 
-    ValidateEqualCollections(parsed.value(), expected);
+    ValidateEqualCollections(parsed, expected);
 }
 
 TEST_CASE("PackageCollection_Read_MultipleSources", "[PackageCollection]")
@@ -254,8 +256,10 @@ TEST_CASE("PackageCollection_Read_MultipleSources", "[PackageCollection]")
       ]
     })");
 
-    auto parsed = PackagesJson::TryParseJson(json);
-    REQUIRE(parsed.has_value());
+    PackageCollection parsed;
+    std::string errors;
+    REQUIRE(PackagesJson::TryParseJson(json, parsed, errors));
+    REQUIRE(errors.empty());
 
     PackageCollection::Source source1;
     source1.Details.Name = "First";
@@ -277,7 +281,7 @@ TEST_CASE("PackageCollection_Read_MultipleSources", "[PackageCollection]")
         std::vector<PackageCollection::Source>{ source1, source2 }
     };
 
-    ValidateEqualCollections(parsed.value(), expected);
+    ValidateEqualCollections(parsed, expected);
 }
 
 TEST_CASE("PackageCollection_Read_RepeatedSource", "[PackageCollection]")
@@ -332,8 +336,10 @@ TEST_CASE("PackageCollection_Read_RepeatedSource", "[PackageCollection]")
       ]
     })");
 
-    auto parsed = PackagesJson::TryParseJson(json);
-    REQUIRE(parsed.has_value());
+    PackageCollection parsed;
+    std::string errors;
+    REQUIRE(PackagesJson::TryParseJson(json, parsed, errors));
+    REQUIRE(errors.empty());
 
     PackageCollection::Source source1;
     source1.Details.Name = "First";
@@ -356,5 +362,5 @@ TEST_CASE("PackageCollection_Read_RepeatedSource", "[PackageCollection]")
         std::vector<PackageCollection::Source>{ source1, source2 }
     };
 
-    ValidateEqualCollections(parsed.value(), expected);
+    ValidateEqualCollections(parsed, expected);
 }
