@@ -45,22 +45,6 @@ Color of the progress bar that WinGet displays when not specified by arguments.
 - retro
 - rainbow
 
-## Telemetry
-
-The `telemetry` settings control whether winget writes ETW events that may be sent to Microsoft on a default installation of Windows.
-
-See [details on telemetry](/README.md#datatelemetry), and our [primary privacy statement](/privacy.md).
-
-### disable
-
-```
-    "telemetry": {
-        "disable": true
-    },
-```
-
-If set to true, the `telemetry.disable` setting will prevent any event from being written by the program.
-
 ## Experimental Features
 
 To allow work to be done and distributed to early adopters for feedback, settings can be used to enable "experimental" features. 

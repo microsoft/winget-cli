@@ -29,17 +29,6 @@
         }
       }
     },
-    "Telemetry": {
-      "description": "Telemetry settings",
-      "type": "object",
-      "properties": {
-        "disable": {
-          "description": "Controls whether telemetry event are written",
-          "type": "boolean",
-          "default": false
-        }
-      }
-    },
     "Experimental": {
       "description": "Experimental Features",
       "type": "object",
@@ -92,12 +81,6 @@
     {
       "properties": {
         "source": { "$ref": "#/definitions/Source"}
-      },
-      "additionalItems": true
-    },
-    {
-      "properties": {
-        "telemetry": { "$ref": "#/definitions/Telemetry"}
       },
       "additionalItems": true
     },
