@@ -22,6 +22,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(MSBuildThisFileDirectory)AppInstallerCLISchemas.rc" />
+    <ResourceCompile Include="$(MSBuildThisFileDirectory)WinGetSchemas.rc" />
   </ItemGroup>
 </Project>

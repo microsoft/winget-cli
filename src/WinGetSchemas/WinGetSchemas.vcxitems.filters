@@ -21,6 +21,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)PackagesSchema.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(MSBuildThisFileDirectory)AppInstallerCLISchemas.rc" />
+    <ResourceCompile Include="$(MSBuildThisFileDirectory)WinGetSchemas.rc" />
   </ItemGroup>
 </Project>

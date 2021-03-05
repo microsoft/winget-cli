@@ -55,7 +55,7 @@
   <ImportGroup Label="Shared">
     <Import Project="..\catch2\catch2.vcxitems" Label="Shared" />
     <Import Project="..\ManifestSchema\ManifestSchema.vcxitems" Label="Shared" />
-    <Import Project="..\AppInstallerCLISchemas\AppInstallerCLISchemas.vcxitems" Label="Shared" />
+    <Import Project="..\WinGetSchemas\WinGetSchemas.vcxitems" Label="Shared" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
