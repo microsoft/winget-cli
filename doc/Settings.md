@@ -49,7 +49,7 @@ Color of the progress bar that WinGet displays when not specified by arguments.
 
 The `telemetry` settings control whether winget writes ETW events that may be sent to Microsoft on a default installation of Windows.
 
-Details on telemetry can be found [here](/README.md#datatelemetry), and our primary privacy statement can be found [here](/privacy.md).
+See [details on telemetry](/README.md#datatelemetry), and our [primary privacy statement](/privacy.md).
 
 ### disable
 

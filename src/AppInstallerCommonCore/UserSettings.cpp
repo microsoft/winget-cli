@@ -152,7 +152,7 @@ namespace AppInstaller::Settings
     namespace details
     {
         // Stamps out a validate function that simply returns the input value.
-#define WINGET_VALIDATE_PASSTHRU(_setting_) \
+#define WINGET_VALIDATE_PASS_THROUGH(_setting_) \
         std::optional<SettingMapping<Setting::_setting_>::value_t> \
         SettingMapping<Setting::_setting_>::Validate(const SettingMapping<Setting::_setting_>::json_t& value) \
         { \
@@ -189,14 +189,14 @@ namespace AppInstaller::Settings
             return {};
         }
 
-        WINGET_VALIDATE_PASSTHRU(EFExperimentalCmd)
-        WINGET_VALIDATE_PASSTHRU(EFExperimentalArg)
-        WINGET_VALIDATE_PASSTHRU(EFExperimentalMSStore)
-        WINGET_VALIDATE_PASSTHRU(EFList)
-        WINGET_VALIDATE_PASSTHRU(EFExperimentalUpgrade)
-        WINGET_VALIDATE_PASSTHRU(EFUninstall)
-        WINGET_VALIDATE_PASSTHRU(EFImportExport)
-        WINGET_VALIDATE_PASSTHRU(TelemetryDisable)
+        WINGET_VALIDATE_PASS_THROUGH(EFExperimentalCmd)
+        WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
+        WINGET_VALIDATE_PASS_THROUGH(EFExperimentalMSStore)
+        WINGET_VALIDATE_PASS_THROUGH(EFList)
+        WINGET_VALIDATE_PASS_THROUGH(EFExperimentalUpgrade)
+        WINGET_VALIDATE_PASS_THROUGH(EFUninstall)
+        WINGET_VALIDATE_PASS_THROUGH(EFImportExport)
+        WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
     }
 
     UserSettings::UserSettings() : m_type(UserSettingsType::Default)
