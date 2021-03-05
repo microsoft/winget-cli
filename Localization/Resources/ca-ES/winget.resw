@@ -756,4 +756,62 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>No s'ha pogut desinstal·lar amb el codi de sortida:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Exporta una llista dels paquets instal·lats</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Instal·la tots els paquets que es mostren en un fitxer.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Instal·la tots els paquets d'un fitxer</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Fitxer on s'escriurà el resultat</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Fitxer que descriu els paquets que s'han d'instal·lar</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Exporta els paquets de l'origen especificat</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Escriu una llista dels paquets instal·lats a un fitxer. Els paquets es poden instal·lar amb l'ordre import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>No s'han pogut instal·lar un o més paquets importats</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>No s'ha trobat el paquet per a la importació:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>L'origen necessari per a la importació no està instal·lat:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>El paquet instal·lat no està disponible de cap origen:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>La versió instal·lada del paquet no està disponible de cap origen:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>No s'ha trobat cap paquet al fitxer d'importació</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>El fitxer JSON no és vàlid</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>El paquet ja està instal·lat:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignora els paquets no disponibles</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Inclou les versions del paquet en un fitxer produït</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignora les versions del paquet del fitxer d'importació</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>El camí no existeix:</value>
+  </data>
 </root>

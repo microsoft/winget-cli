@@ -756,4 +756,62 @@ Chúng có thể được cấu hình thông qua tệp cài đặt 'winget set
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Gỡ cài đặt không thành công với mã thoát:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Xuất danh sách các gói đã cài đặt</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Cài đặt tất cả các gói được liệt kê trong một tệp.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Cài đặt tất cả gói trong một tệp</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Tệp ghi kết quả</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Tệp mô tả các gói để cài đặt</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Xuất gói từ nguồn được chỉ định</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Ghi danh sách các gói đã cài đặt thành tệp. Gói này có thể được cài đặt với lệnh import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Một hoặc nhiều gói đã nhập không thể cài đặt</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Không tìm thấy gói để nhập:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Nguồn cần thiết để nhập chưa được cài đặt:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Phiên bản đã cài đặt không sẵn dùng từ mọi nguồn:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Phiên bản gói đã cài đặt không sẵn dùng từ mọi nguồn:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Không tìm thấy gói trong tệp đã nhập</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Tệp JSON không hợp lệ</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Gói đã được cài đặt:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Bỏ qua các gói không sẵn dùng</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Bao gồm phiên bản gói trong tệp được tạo</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Bỏ qua phiên bản gói từ tệp đã nhập</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Đường dẫn không tồn tại:</value>
+  </data>
 </root>

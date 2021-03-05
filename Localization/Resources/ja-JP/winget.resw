@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>終了コードでアンインストールに失敗しました:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>インストールされているパッケージのリストをエクスポートする</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>ファイルに一覧表示されているすべてのパッケージをインストールします。</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>すべてのパッケージをファイルにインストールします</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>結果が書き込まれるファイル</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>インストールするパッケージを説明するファイル</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>指定したソースからパッケージをエクスポートする</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>インストールされているパッケージの一覧をファイルに書き込みます。その後、パッケージを import コマンドを使用してインストールできます。</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>1つまたは複数のインポートされたパッケージをインストールできませんでした</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>インポートするパッケージが見つかりません:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>インポートに必要なソースがインストールされていません:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>インストールされているパッケージのバージョンは、どのソースからも利用できません:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>インストールされているパッケージのバージョンは、どのソースからも利用できません:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>インポート ファイルにパッケージが見つかりません</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON ファイルが無効です</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>パッケージは既にインストールされています:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>使用できないパッケージを無視する</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>作成されたファイルにパッケージ バージョンを含める</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>インポート ファイルからパッケージ バージョンを無視する</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>パスが存在しません:</value>
+  </data>
 </root>

@@ -756,4 +756,62 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Fjarlæging mistókst með lokunarkóða:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Flytur út lista yfir uppsetta pakka</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Setur upp alla pakka sem gefnir eru upp í skrá.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Setur upp alla pakkana í skrá.</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Skrá þar sem skrifa á niðurstöðuna</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Skrá sem lýsir pökkunum til að setja upp</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Flytja út pakka frá tilgreindum uppruna</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Skrifar lista yfir uppsetta pakka í skrá. Hægt er að setja pakkana upp með import skipuninni.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Ekki tókst að setja upp einn eða fleiri innflutta pakka</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Pakkinn fannst ekki fyrir innflutning:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Uppruni sem þarf fyrir að flytja inn er ekki uppsettur:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Uppsettur pakki er ekki tiltækur úr neinum uppruna:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Uppsett útgáfa af pakka er ekki tiltæk úr neinum uppruna:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Engir pakkar fundust í innfluttu skránni</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON-skrá er ekki gild</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Pakki er þegar uppsettur:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Hunsa ótiltæka pakka</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Taka útgáfur pakka með í framleidda skrá</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Hunsa útgáfur pakka úr innfluttri skrá</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Slóð er ekki til:</value>
+  </data>
 </root>

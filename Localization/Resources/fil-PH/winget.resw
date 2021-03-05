@@ -756,4 +756,62 @@ Maaari silang i-configure sa pamamagitan ng settings file na 'winget settings'.<
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Pumalya ang pag-uninstall na may exit code na:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Nag-eexport ng listahan ng naka-install na mga pakete</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Ini-install ang lahat ng pakete na nakalista sa file.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Ini-install ang lahat ng pakete sa file.</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>File kung saan maisusulat ang resulta</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>File na naglalarawan ng mga pakete para i-install</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>I-export ang mga pakete mula sa tinukoy na pinagmulan</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Nagsusulat ng listahan ng mga naka-install na mga pakete sa file. Pagkatapos ay maaaring mag-install ng mga pakete gamit ang import command.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Nabigong ma-install ang isa o higit pang na-import na mga pakete</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Hindi natagpuan ang pakete para sa pag-import:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Hindi naka-install ang pinagmulan na kailangan para sa pag-import:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Hindi available ang naka-install na pakete mula sa anumang pinagmulan:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Hindi available ang naka-install na bersiyon ng pakete sa anumang pinagmulan:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Walang natagpuang mga pakete sa file ng import</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Hindi tama ang file na JSON</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Naka-install na ang pakete:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Balewalain ang mga hindi available na mga pakete</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Magsama ng mga bersiyon ng pakete sa ginawang file</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Balewalain ang mga bersyon ng pakete mula sa pag-import ng file</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Hindi umiiral ang landas:</value>
+  </data>
 </root>

@@ -756,4 +756,62 @@ Sätteid saab konfigureerida sätete faili winget settings kaudu.</value>
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Desinstallimine nurjus, väljumiskood:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Installitud pakettide loendi installimine</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Kõikide failis loetletud pakettide installimine.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Kõikide faili pakettide installimine</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Fail, kuhu tuleb kirjutada tulem</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Fail, mis kirjeldab installimiseks valitud pakette</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Pakettide eksportimine määratud allikast</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Kirjutab faili installitud pakettide loendi. Seejärel saab pakette installida käsuga import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Ühe või mitme imporditud paketi installimine nurjus</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Ei leitud paketti importimiseks:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Importimiseks vajalik allikas on installimata:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Installitud pakett pole ühestki allikast saadaval:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Installitud paketi versioon pole saadaval ühestki allikast:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Impordifailist ei leitud ühtegi paketti</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON-i fail on sobimatu</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Keel on juba installitud:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignoreeri mittekättesaadavaid pakette</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Paketiversioonide kaasamine loodud failile</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignoreeri imporditava faili paketi versioone</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Rada puudub:</value>
+  </data>
 </root>

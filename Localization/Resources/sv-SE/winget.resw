@@ -756,4 +756,62 @@ De kan konfigureras via inställningsfilen "winget settings".</value>
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Avinstallationen misslyckades med slutkod:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Exporterar en lista över installerade paket</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Installerar alla paket som finns i en fil.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Installerar alla paket i en fil</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Fil där resultatet ska skrivas</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Fil som beskriver paketen som ska installeras</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Exportera paket från den angivna källan</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Skriver en lista över installerade paket till en fil. Paketen kan installeras med kommandot import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Det gick inte att installera ett eller flera importerade paket</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Det var inte möjligt att hitta paketet för importering:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Den källa som krävs för import är inte installerad:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Det installerade paketet är inte tillgängligt från någon källa:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Den installerade versionen av paketet är inte tillgänglig från någon källa:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Inga paket hittades i importfilen</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON-filen är ogiltig.</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Packet är redan installerat:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignorera inaktiverade paket</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Inkludera paketversioner i genererad fil</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignorera paketversioner från importfilen</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Sökvägen finns inte:</value>
+  </data>
 </root>

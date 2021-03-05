@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>അൺഇൻസ്റ്റാൾ പരാജയപെട്ടു, ഈ പുറത്തുകടക്കൽ കോഡോടെ:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>പാക്കേജുകളുടെ ഒരു ലിസ്റ്റ് എക്സ്‌പോർട്ട് ചെയ്യുന്നു</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>ഒരു ഫയലിൽ ലിസ്റ്റുചെയ്തിരിക്കുന്ന എല്ലാ പാക്കേജുകളും ഇൻസ്റ്റാൾ ചെയ്യുന്നു.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>എല്ലാ പാക്കേജുകളും ഒരു ഫയലിൽ ഇൻസ്റ്റാൾ ചെയ്യുന്നു</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>ഫലം എഴുതേണ്ട ഫയൽ</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾ ചെയ്യുന്നതിനുള്ള പാക്കേജുകൾ വിവരിക്കുന്ന ഫയൽ</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>നിർദ്ദിഷ്ട ഉറവിടത്തിൽ നിന്ന് പാക്കേജുകൾ എക്സ്പോർട്ട് ചെയ്യുക</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾ ചെയ്ത പാക്കേജുകളുടെ ഒരു ലിസ്റ്റ് ഒരു ഫയലിൽ എഴുതുന്നു. import കമാൻഡ് ഉപയോഗിച്ച് പാക്കേജുകൾ ഇൻസ്റ്റാൾ ചെയ്യാൻ കഴിയും.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>ഒന്നോ അതിലധികമോ ഇംപോർട്ട് ചെയ്ത പാക്കേജുകൾ ഇൻസ്റ്റാൾ ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>ഇംപോർട്ട് ചെയ്യുന്നതിനായി പാക്കേജ് കണ്ടെത്തിയില്ല:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>ഇംപോർട്ട് ചെയ്യുന്നതിന് ആവശ്യമായ ഉറവിടം ഇൻസ്റ്റാൾ ചെയ്തിട്ടില്ല:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾ ചെയ്ത പാക്കേജ് ഒരു ഉറവിടത്തിൽ നിന്നും ലഭ്യമാകില്ല:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>പാക്കേജിന്റെ ഇൻസ്റ്റാൾ ചെയ്ത പതിപ്പ് ഒരു ഉറവിടത്തിൽ നിന്നും ലഭ്യമല്ല:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>ഇംപോർട്ട് ചെയ്ത ഫയലിൽ പാക്കേജുകളൊന്നും കണ്ടെത്തിയില്ല</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON ഫയൽ അസാധുവാണ്</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>പാക്കേജ് ഇതിനകം ഇൻസ്റ്റാൾ ചെയ്തിട്ടുണ്ട്:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>ലഭ്യമല്ലാത്ത പാക്കേജുകൾ അവഗണിക്കുക</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>നിർമ്മിച്ച ഫയലിൽ പാക്കേജ് പതിപ്പുകൾ ഉൾപ്പെടുത്തുക</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>ഇംപോർട്ട് ചെയ്ത ഫയലിൽ നിന്ന് പാക്കേജ് പതിപ്പുകൾ അവഗണിക്കുക</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>പാത്ത് നിലവിലില്ല:</value>
+  </data>
 </root>

@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Деинсталирањето не успеа со излезниот код:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Извезува список на инсталирани пакети</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Ги инсталира сите пакети наведени во датотеката.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Ги инсталира сите пакети во датотеката</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Датотека каде што ќе се запише резултатот</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Датотека што ги опишува пакетите за инсталирање</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Извези ги пакетите од одредениот извор</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Пишува список на инсталираните пакети во датотека. Потоа пакетите може да се инсталираат со наредбата import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Еден или повеќе увезени пакети не успеаја да се инсталираат</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Пакетот не е најден за увоз:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Не е инсталиран изворот потребен за увоз:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Инсталираниот пакет не е достапен од кој било извор:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Инсталираната верзија на пакетот не е достапна од кој било извор:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Не се најдени пакети во увезената датотека</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON-датотеката не е важечка</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Пакетот е веќе инсталиран:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Игнорирај ги недостапните пакети</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Вклучи ги верзиите на пакетот во произведената датотека</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Игнорирај ги верзиите на пакетот од увезената датотека</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Патеката не постои:</value>
+  </data>
 </root>

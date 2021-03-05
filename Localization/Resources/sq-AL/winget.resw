@@ -756,4 +756,62 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Çinstalimi dështoi me kodin e daljes:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Eksporton një listë të paketave të instaluara</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Instalon të gjitha paketat e listuara në një skedar.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Instalon të gjitha paketat në një skedar</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Skedari ku do të shkruhet rezultati</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Skedari që përshkruan paketat për t’u instaluar</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Eksporto paketat nga burimi i specifikuar</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Shkruan një listë të paketave të instaluara në një skedar. Paketat më pas mund të instalohen me komandën e importimit.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Instalimi i një ose më shumë paketave të importuara dështoi</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Paketa nuk u gjet për importim:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Burimi që kërkohet për importim nuk është instaluar:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Paketa e instaluar nuk është në dispozicion nga asnjë burim:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Versioni i instaluar i paketës nuk është në dispozicion nga asnjë burim:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Nuk u gjet asnjë paketë në skedarin për importim</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Skedari JSON nuk është i vlefshëm</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Paketa është instaluar tashmë:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Injoro paketat që nuk janë në dispozicion</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Përfshi versionet e paketës në skedarin e prodhuar</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Injoro versionet e paketës nga skedari për importim</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Shtegu nuk ekziston:</value>
+  </data>
 </root>

@@ -756,4 +756,62 @@ Ne voidaan määrittää asetus tiedoston 'winget settings'.</value>
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Asennuksen poistaminen epäonnistui, lopetuskoodi:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Vie asennettujen pakettien luettelon</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Asentaa kaikki tiedostossa olevat paketit.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Asentaa kaikki tiedoston paketit</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Tiedosto, johon tulos kirjoitetaan</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Asennettavia paketteja kuvaava tiedosto</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Vie paketit määritetystä lähteestä</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Kirjoittaa asennettujen pakettien luettelon tiedostoon. Paketit voidaan asentaa import komennolla.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Yhden tai useamman tuodun paketin asentaminen epäonnistui</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Tuotavaa pakettia ei löydy:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Tuontia varten tarvittavaa lähdettä ei ole asennettu:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Asennettua pakettia ei ole käytettävissä mistään lähteestä:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Asennettua paketin versiota ei ole käytettävissä mistään lähteestä:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Tuontitiedostosta ei löydy paketteja</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON-tiedosto ei kelpaa</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Paketti on jo asennettu:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ohita ei käytettävissä olevat paketit</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Sisällytä pakettiversiot tuotettuun tiedostoon</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ohita tuontitiedoston pakettiversiot</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Polkua ei ole:</value>
+  </data>
 </root>

@@ -756,4 +756,62 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Fjernelsen mislykkedes med returkoden:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Eksporterer en liste med installerede pakker</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Installerer alle pakker, der er angivet i en fil.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Installerer alle pakkerne i en fil</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Fil, som resultatet skal skrives til</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Fil, der beskriver de pakker, der skal installeres</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Eksportér pakker fra den angivne kilde</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Skriver en liste over de installerede pakker til en fil. Pakkerne kan derefter installeres sammen med kommandoen import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>En eller flere importerede pakker blev ikke installeret</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Pakken blev ikke fundet til import:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Kilde, der kræves til import, er ikke installeret:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Den installerede version af pakken er ikke tilgængelig fra nogen kilde:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Den installerede version af pakken er ikke tilgængelig fra nogen kilde:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Der blev ikke fundet nogen pakker i importfilen</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON-filen er ugyldig</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Pakken er allerede installeret:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignorer utilgængelige pakker</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Medtag pakkeversioner i den producerede fil</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignorer pakkeversioner fra importfilen</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Stien findes ikke:</value>
+  </data>
 </root>
