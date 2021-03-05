@@ -3,9 +3,6 @@
 #pragma once
 #include <json.h>
 
-#include "ManifestSchema.h"
-#include "PackagesSchema.h"
-
 namespace AppInstaller::JsonSchema
 {
     // Load an embedded resource from binary and return as std::string

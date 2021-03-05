@@ -3,8 +3,11 @@
 #include "pch.h"
 
 #include "PackageCollection.h"
+
 #include "AppInstallerRuntime.h"
 #include "winget/JsonSchemaValidation.h"
+
+#include "PackagesSchema.h"
 
 #include <algorithm>
 #include <ostream>
