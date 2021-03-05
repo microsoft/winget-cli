@@ -11,9 +11,6 @@ namespace AppInstaller::Manifest::YamlParser
     // Forward declarations
     struct YamlManifestInfo;
 
-    // Load an embedded resource from binary and return as std::string
-    std::string LoadResourceAsString(PCWSTR resourceName, PCWSTR resourceType);
-
     // Load manifest schema as parsed json doc
     Json::Value LoadSchemaDoc(const ManifestVer& manifestVersion, ManifestTypeEnum manifestType);
 

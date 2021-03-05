@@ -261,6 +261,7 @@ OSVERSIONINFOEXW
 outfile
 OUTOFMEMORY
 OWC
+PACKAGESSCHEMA
 Params
 parentidx
 pathpart

@@ -1313,14 +1313,11 @@ TEST_CASE("ImportFlow_InvalidJsonFile", "[ImportFlow][workflow]")
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Bad-Invalid.json").GetPath().string());
 
     ImportCommand importCommand({});
-    // TODO: Enable when we have schema validation
-    /*
     importCommand.Execute(context);
     INFO(importOutput.str());
 
     // Command should have failed
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
-    */
 }
 
 void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)

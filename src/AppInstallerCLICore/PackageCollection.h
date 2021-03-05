@@ -53,9 +53,29 @@ namespace AppInstaller::CLI
 
     namespace PackagesJson
     {
+        struct ParseResult
+        {
+            enum class Type
+            {
+                MissingSchema,
+                UnrecognizedSchema,
+                SchemaValidationFailed,
+                Success,
+            };
+
+            ParseResult(Type result) : Result(result) {}
+            ParseResult(Type result, std::string_view errors) : Result(result), Errors(errors) {}
+            ParseResult(PackageCollection&& packages) : Result(Type::Success), Packages(std::move(packages)) {}
+
+            Type Result;
+            PackageCollection Packages;
+            std::string Errors;
+        };
+
         // Converts a collection of packages to its JSON representation for exporting.
         Json::Value CreateJson(const PackageCollection& packages);
 
-        std::optional<PackageCollection> TryParseJson(const Json::Value& root);
+        // Tries to parse a JSON into a collection of packages.
+        ParseResult TryParseJson(const Json::Value& root);
     }
 }

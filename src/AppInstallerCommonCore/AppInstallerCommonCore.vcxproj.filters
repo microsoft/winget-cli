@@ -156,6 +156,9 @@
     <ClInclude Include="Public\winget\ManifestCommon.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\JsonSchemaValidation.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -262,6 +265,9 @@
     </ClCompile>
     <ClCompile Include="Manifest\Manifest.cpp">
       <Filter>Manifest</Filter>
+    </ClCompile>
+    <ClCompile Include="JsonSchemaValidation.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
