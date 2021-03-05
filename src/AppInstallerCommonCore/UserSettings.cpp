@@ -217,8 +217,14 @@ namespace AppInstaller::Settings
             return value;
         }
 
-        std::optional<SettingMapping<Setting::EFImportExport>::value_t>
-            SettingMapping<Setting::EFImportExport>::Validate(const SettingMapping<Setting::EFImportExport>::json_t& value)
+        std::optional<SettingMapping<Setting::EFImport>::value_t>
+            SettingMapping<Setting::EFImport>::Validate(const SettingMapping<Setting::EFImport>::json_t& value)
+        {
+            return value;
+        }
+
+        std::optional<SettingMapping<Setting::EFExport>::value_t>
+            SettingMapping<Setting::EFExport>::Validate(const SettingMapping<Setting::EFExport>::json_t& value)
         {
             return value;
         }

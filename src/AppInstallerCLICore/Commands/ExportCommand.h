@@ -8,7 +8,7 @@ namespace AppInstaller::CLI
     // Command to get the set of installed packages on the system.
     struct ExportCommand final : public Command
     {
-        ExportCommand(std::string_view parent) : Command("export", parent, Settings::ExperimentalFeature::Feature::ExperimentalImportExport) {}
+        ExportCommand(std::string_view parent) : Command("export", parent, Settings::ExperimentalFeature::Feature::ExperimentalExport) {}
 
         std::vector<Argument> GetArguments() const override;
 

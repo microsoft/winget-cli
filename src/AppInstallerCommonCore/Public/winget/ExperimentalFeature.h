@@ -25,8 +25,12 @@ namespace AppInstaller::Settings
             ExperimentalList = 0x8,
             ExperimentalUpgrade = 0x10,
             ExperimentalUninstall = 0x20,
-            ExperimentalImportExport = 0x40,
-            Max, // This MUST always be last
+            ExperimentalImport = 0x40,
+            Max, // This MUST always be after all experimental features
+
+            // Features listed after Max will not be shown with the features command
+            // This can be used to hide highly experimental features
+            ExperimentalExport = 0x80
         };
 
         using Feature_t = std::underlying_type_t<ExperimentalFeature::Feature>;
