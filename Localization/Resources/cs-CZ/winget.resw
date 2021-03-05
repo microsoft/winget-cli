@@ -756,4 +756,62 @@ Lze je nakonfigurovat pomocí souboru nastavení „winget settings“.</value>
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Odinstalace selhala s ukončovacím kódem:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Exportuje seznam nainstalovaných balíčků</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Nainstaluje všechny balíčky uvedené v souboru.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Nainstaluje všechny balíčky do souboru</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Soubor, do kterého se má výsledek zapsat</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Soubor popisující balíčky k instalaci</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Exportuje balíčky ze zadaného zdroje</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Zapíše seznam nainstalovaných balíčků do souboru. Balíčky pak lze nainstalovat příkazem import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Nepodařilo se nainstalovat minimálně jeden importovaný balíček.</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Balíček pro import nebyl nalezen:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Není nainstalován zdroj vyžadovaný pro import:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Nainstalovaný balíček není k dispozici z žádného zdroje:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Nainstalovaná verze balíčku není k dispozici z žádného zdroje:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>V souboru importu nebyly nalezeny žádné balíčky</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Soubor JSON je neplatný</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Balíček je již nainstalován:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignorovat nedostupné balíčky</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Zahrnout verze balíčků do vytvořeného souboru</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignorovat verze balíčků z importovaného souboru</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Cesta neexistuje:</value>
+  </data>
 </root>

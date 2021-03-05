@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>설치 종료 코드로 인해 제거하지 못함:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>설치된 패키지 목록 내보내기</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>파일에 나열된 모든 패키지를 설치합니다.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>파일에 있는 모든 패키지를 설치합니다.</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>결과를 기록할 파일</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>설치할 패키지를 설명하는 파일</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>지정한 원본에서 패키지 내보내기</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>설치된 패키지 목록을 파일에 기록합니다. 그런 다음 패키지를 import 명령과 함께 설치할 수 있습니다.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>가져온 패키지를 하나 이상 설치하지 못했습니다.</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>가져올 패키지를 찾을 수 없습니다.</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>가져오기에 필요한 원본이 설치되지 않았습니다.</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>어떤 원본에서도 설치된 패키지를 사용할 수 없습니다.</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>어떤 원본에서도 설치된 패키지 버전을 사용할 수 없습니다.</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>가져오기 파일에 패키지가 없습니다.</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON 파일이 잘못되었습니다.</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>패키지가 이미 설치되어 있습니다.</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>사용할 수 없는 패키지 무시</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>생성된 파일에 패키지 버전 포함</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>가져오기 파일에서 패키지 버전 무시</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>경로가 존재하지 않습니다.</value>
+  </data>
 </root>

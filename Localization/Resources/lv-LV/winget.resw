@@ -756,4 +756,62 @@ Tos var konfigurēt, izmantojot iestatījumu failu 'winget settings'.</value>
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Atinstalēšana neizdevās ar izejas kodu:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Eksportē instalēto pakotņu sarakstu</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Instalē visas failā norādītās pakotnes.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Instalē visas pakotnes failā</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Fails, kurā jāraksta rezultāts</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Fails, kas apraksta instalējamās pakotnes</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Eksportēt pakotnes no norādītā avota</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Uzskaita instalēto pakotņu sarakstu failā. Pēc tam pakotnes var instalēt ar importēšanas komandu.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Neizdevās instalēt vienu vai vairākas importētās pakotnes</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Importējama pakotne nav atrasta:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Importēšanai nepieciešamais avots nav instalēts:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Instalētā pakotne nav pieejama ne no neviena avota:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Instalētā pakotnes versija nav pieejama ne no neviena avota:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Importēšanas failā nav atrasta neviena pakotne</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON fails nav derīgs</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Pakotne jau ir instalēta:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignorēt nepieejamas pakotnes</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Iekļaut pakotņu versijas izveidotajā failā</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignorēt pakotnes versijas no importēšanas faila</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Ceļš nepastāv:</value>
+  </data>
 </root>

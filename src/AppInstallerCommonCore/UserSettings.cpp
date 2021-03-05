@@ -195,7 +195,8 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFList)
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalUpgrade)
         WINGET_VALIDATE_PASS_THROUGH(EFUninstall)
-        WINGET_VALIDATE_PASS_THROUGH(EFImportExport)
+        WINGET_VALIDATE_PASS_THROUGH(EFImport)
+        WINGET_VALIDATE_PASS_THROUGH(EFExport)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
     }
 

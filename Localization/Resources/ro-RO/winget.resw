@@ -756,4 +756,62 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Dezinstalarea nu a reușit, cu codul de ieșire:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Exportă o listă cu pachetele instalate</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Instalează toate pachetele listate într-un fișier.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Instalează toate pachetele dintr-un fișier</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Fișier unde se va scrie rezultatul</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Fișierul care descrie pachetele de instalat</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Export pachete din sursa specificată</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Scrie o listă a pachetelor instalate într-un fișier. Pachetele pot fi instalate apoi cu comanda import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Unul sau mai multe pachete importate nu s-au instalat</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Pachetul nu a fost găsit pentru import:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Sursa necesară pentru import nu este instalată:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Versiunea de pachet nu este disponibilă din nicio sursă:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Versiunea de pachet instalată nu este disponibilă din nicio sursă:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Nu s-a găsit niciun pachet în fișierul de import</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Fișierul JSON nu este valid</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Pachetul este deja instalat:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignorare pachete indisponibile</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Se includ versiunile de pachet în fișierul generat</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignorare versiuni pachet din fișierul de import</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Calea nu există:</value>
+  </data>
 </root>

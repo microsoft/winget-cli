@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Η κατάργηση εγκατάστασης με κωδικό εξόδου απέτυχε:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Εξαγάγει λίστα με τα εγκατεστημένα πακέτα</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Εγκαθιστά όλα τα πακέτα που αναφέρονται σε ένα αρχείο.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Εγκαθιστά όλα τα πακέτα σε ένα αρχείο</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Αρχείο όπου θα καταχωρηθεί το αποτέλεσμα</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Αρχείο που περιγράφει τα πακέτα προς εγκατάσταση</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Εξαγωγή πακέτων από την καθορισμένη προέλευση</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Εγγράφει μια λίστα με τα εγκατεστημένα πακέτα σε ένα αρχείο. Τα πακέτα μπορούν να εγκατασταθούν στη συνέχεια με την εντολή import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Απέτυχε η εγκατάσταση ενός ή περισσότερων πακέτων που έχουν εισαχθεί</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Το πακέτο δεν βρέθηκε για εισαγωγή:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Η προέλευση που απαιτείται για την εισαγωγή δεν έχει εγκατασταθεί:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Το εγκατεστημένο πακέτο δεν είναι διαθέσιμο από καμία προέλευση:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Η εγκατεστημένη έκδοση του πακέτου δεν είναι διαθέσιμη από καμία προέλευση:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Δεν βρέθηκαν πακέτα στο αρχείο εισαγωγής</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Το αρχείο JSON δεν είναι έγκυρο</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Το πακέτο είναι ήδη εγκαταστημένο:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Παράβλεψη μη διαθέσιμων πακέτων</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Συμπερίληψη εκδόσεων πακέτου στο παραγόμενο αρχείο</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Παράβλεψη εκδόσεων πακέτου από αρχείο εισαγωγής</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Η διαδρομή δεν υπάρχει:</value>
+  </data>
 </root>

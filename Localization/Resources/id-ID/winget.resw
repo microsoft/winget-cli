@@ -756,4 +756,62 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Penghapusan instalan gagal dengan kode keluar:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Mengekspor daftar paket yang diinstal</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Menginstal semua paket yang tercantum dalam file.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Menginstal semua paket dalam file</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>File tempat hasil akan ditulis</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>File yang menjelaskan paket yang akan diinstal</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Ekspor paket dari sumber yang ditentukan</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Menulis daftar paket yang diinstal ke file. Paket kemudian dapat diinstal dengan perintah import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Satu atau beberapa paket yang diimpor gagal diinstal</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Paket tidak ditemukan untuk diimpor:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Sumber yang diperlukan untuk impor tidak diinstal:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Paket yang diinstal tidak tersedia dari sumber mana pun:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Versi paket yang diinstal tidak tersedia dari sumber mana pun:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Tidak ada paket yang ditemukan dalam file impor</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>File JSON tidak valid</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Paket sudah diinstal:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Abaikan paket yang tidak tersedia</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Sertakan versi paket dalam file yang dihasilkan</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Abaikan versi paket dari file impor</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Jalur tidak ada:</value>
+  </data>
 </root>

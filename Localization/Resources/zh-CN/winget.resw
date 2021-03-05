@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>卸载失败，退出代码为：</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>导出已安装程序包的列表</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>安装文件中列出的所有程序包。</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>安装文件中的所有程序包</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>将在其中写入结果的文件</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>描述要安装的程序包的文件</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>从指定源导出程序包</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>将已安装程序包的列表写入文件。然后可以通过 import 命令安装这些包。</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>无法安装一个或多个导入的程序包</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>找不到要导入的程序包:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>未安装导入所需的源:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>无法从任何源获得已安装的程序包:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>无法从任何源获得已安装的程序包版本:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>在导入文件中找不到程序包</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON 文件无效</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>已安装程序包:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>忽略不可用的程序包</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>在生成的文件中包括程序包版本</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>忽略导入文件中的程序包版本</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>路径不存在:</value>
+  </data>
 </root>

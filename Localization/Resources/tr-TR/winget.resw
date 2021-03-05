@@ -756,4 +756,62 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Kaldırma şu çıkış koduyla başarısız oldu:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Yüklü paketlerin listesini dışarı aktarır</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Bir dosyada listelenen tüm paketleri yükler.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Bir dosyadaki tüm paketleri yükler</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Sonucun yazılacağı dosya</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Yüklenecek paketleri açıklayan dosya</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Paketleri belirtilen kaynaktan dışarı aktarın</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Yüklü paketlerin listesini bir dosyaya yazar. Bunun üzerine paketler import komutuyla yüklenebilir.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Bir veya daha fazla içeri aktarılan paket yüklenemedi</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>İçeri aktarılacak paket bulunamadı:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>İçeri aktarma için gerekli kaynak yüklü değil:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Yüklü paket hiçbir kaynaktan alınamıyor:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Yüklü paket sürümü hiçbir kaynaktan alınamıyor:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>İçeri aktarma dosyasında paket bulunamadı</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON dosyası geçerli değil</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Paket zaten yüklü:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Kullanılamayan paketleri yoksayın</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Paket sürümlerini oluşturulan dosyaya ekleyin</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>İçeri aktarma dosyasındaki paket sürümlerini yoksayın</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Yol yok:</value>
+  </data>
 </root>

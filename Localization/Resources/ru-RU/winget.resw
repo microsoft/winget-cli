@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Сбой удаления с кодом выхода:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Экспортирует список установленных пакетов</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Установка всех пакетов, перечисленных в файле.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Устанавливает все пакеты в файле</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Файл, в который будет записан результат</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Файл с описанием устанавливаемых пакетов</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Экспорт пакетов из указанного источника</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Записывает список установленных пакетов в файл. После этого пакеты можно установить командой import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Не удалось установить один или несколько импортированных пакетов</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Не найден пакет для импорта:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Источник, необходимый для импорта, не установлен:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Установленный пакет недоступен из любого источника:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Установленная версия пакета недоступна из любого источника:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Пакеты в файле импорта не найдены</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Файл JSON не является допустимым</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Пакет уже установлен:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Игнорировать недоступные пакеты</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Включить версии пакетов в созданный файл</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Игнорировать версии пакета из файла импорта</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Путь не существует:</value>
+  </data>
 </root>

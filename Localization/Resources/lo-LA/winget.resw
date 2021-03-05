@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>ການຖອນການຕິດຕັ້ງລົ້ມເຫລວດ້ວຍລະຫັດອອກ:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>ສົ່ງອອກລາຍການແພັກແກັດທີ່ຕິດຕັ້ງແລ້ວ</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>ຕິດຕັ້ງແພັກແກັດທັງໝົດທີ່ສະແດງຢູ່ໃນໄຟລ໌.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>ຕິດຕັ້ງແພັກແກັດທັງໝົດໃນໄຟລ໌</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>ໄຟລ໌ທີ່ຈະຂຽນຜົນ​ໄດ້​ຮັບ</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>ໄຟລ໌ອະທິບາຍແພັກແກັດທີ່ຕ້ອງຕິດຕັ້ງ</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>ສົ່ງອອກແພັກແກັດຈາກແຫຼ່ງທີ່ລະບຸ</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>ຂຽນລາຍການຂອງແພັກເກດທີ່ຕິດຕັ້ງໃສ່ໃນໄຟລ໌. ຫຼັງຈາກນັ້ນສາມາດຕິດຕັ້ງແພັກແກັດດ້ວຍຄຳສັ່ງນຳ import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>ບໍ່ສາມາດຕິດຕັ້ງແພັກແກັດທີ່ນຳເຂົ້າຢ່າງໜ້ອຍໜຶ່ງ ຫຼື ຫຼາຍແພັກແກັດ</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>ບໍ່ພົບແພັກແກັດສຳລັບການນຳເຂົ້າ:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>ບໍ່ໄດ້ຕິດຕັ້ງແຫຼ່ງຂໍ້ມູນທີ່ຕ້ອງການສຳລັບການນຳເຂົ້າ:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>ແພັກເກດທີ່ຕິດຕັ້ງບໍ່ສາມາດໃຊ້ໄດ້ຈາກແຫຼ່ງຂໍ້ມູນໃດໆ:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>ເວີຊັນທີ່ຕິດຕັ້ງແລ້ວຂອງແພັກແກັດບໍ່ສາມາດໃຊ້ໄດ້ຈາກແຫຼ່ງຂໍ້ມູນໃດໆ:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>ບໍ່ພົບແພັກເກດໃນການນຳເຂົ້າໄຟລ໌</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>ໄຟລ໌ JSON ແມ່ນບໍ່ຖືກຕ້ອງ</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>ແພັກເກດທີ່ຖຶກຕິດຕັ້ງແລ້ວ:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>ເພີກເສີຍແພັກແກັດທີ່ບໍ່ສາມາດໃຊ້ໄດ້</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>ຮວມເອົາເວີຊັນແພັກເກດໃນໄຟລ໌ທີ່ຜະລິດ</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>ເພີກເສີຍເວີຊັນແພັກແກັດຈາກໄຟລ໌ນຳເຂົ້າ</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>ບໍ່ມີເສັ້ນທາງຢູ່:</value>
+  </data>
 </root>

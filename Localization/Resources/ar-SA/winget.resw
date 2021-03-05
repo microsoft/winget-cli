@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>فشل إلغاء التثبيت مع رمز الخروج:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>تصدير قائمة بالحزم المثبتة</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>تثبيت كافة الحزم المدرجة في ملف.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>تثبيت كافة الحزم الموجودة في ملف</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>الملف الذي تتم كتابه النتيجة فيه</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>ملف يصف الحزم المطلوب تثبيتها</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>تصدير الحزم من المصدر المحدد</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>كتابة قائمة الحزم المثبتة إلى ملف. يمكن بعد ذلك تثبيت الحزم باستخدام الأمر import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>فشل تثبيت واحدة أو أكثر من الحزم المستوردة</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>لم يتم العثور على حزمة لاستيرادها:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>المصدر المطلوب للاستيراد غير مثبت:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>لا تتوفر حزمة مثبتة من أي مصدر:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>لا يتوفر إصدار حزمة مثبت من أي مصدر:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>لم يتم العثور على أي حزم في ملف الاستيراد</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>ملف JSON غير صالح</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>‏‏اللغة مثبتة بالفعل:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>تجاهل الحزم غير المتوفرة</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>تضمين إصدارات الحزمة في الملف المنتج</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>تجاهل إصدارات الحزمة من ملف الاستيراد</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>‏‏المسار غير موجود:</value>
+  </data>
 </root>

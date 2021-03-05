@@ -756,4 +756,62 @@ Se pueden configurar con el archivo de configuración "winget settings".</value>
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Error de desinstalación con el código de salida:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Exporta una lista de los paquetes instalados</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Instala todos los paquetes enumerados en un archivo.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Instala todos los paquetes en un archivo</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Archivo en donde se escribirá el resultado</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Archivo que describe los paquetes a instalar</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Exportar paquetes desde el origen especificado</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Escribe una lista de los paquetes instalados en un archivo. Después, los paquetes se pueden instalar con el comando de importación.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Error en la instalación de uno o más paquetes importados</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>No se encontró el paquete para la importación:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>El origen necesario para la importación no está instalado:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>El paquete instalado no está disponible desde ningún origen:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>La versión instalada del paquete no está disponible desde ningún origen:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>No se encontraron paquetes en el archivo de importación</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>El archivo JSON no es válido</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>El paquete ya está instalado:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignorar paquetes no disponibles</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Incluir las versiones del paquete en el archivo generado</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignorar las versiones del paquete desde el archivo de importación</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>La ruta de acceso no existe:</value>
+  </data>
 </root>
