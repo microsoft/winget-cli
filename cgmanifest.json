@@ -35,6 +35,15 @@
         "commitHash": "7a52fc88cdffd6678c009ca2fad700151f7363c6"
       }
     }
+  },
+  {
+    "component": {
+      "type": "git",
+      "git": {
+        "repositoryUrl": "https://github.com/microsoft/cpprestsdk.git",
+        "commitHash": "122d09549201da5383321d870bed45ecb9e168c5"
+      }
+    }
   }
  ],
  "Version": 1
