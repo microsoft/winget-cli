@@ -1,0 +1,77 @@
+# Visual Studio files
+*.o
+*.d
+*.so
+*.[Oo]bj
+*.user
+*.aps
+*.pch
+*.vspscc
+*.vssscc
+*_i.c
+*_p.c
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.[Cc]ache
+*.ilk
+*.log
+*.lib
+*.sbr
+*.sdf
+*.sdf
+*.opensdf
+*.pdb
+*.idb
+*.res
+*.unsuccessfulbuild
+*.lastbuildstate
+*.tlog
+*.intermediate
+*.dll
+*.exp
+*.exe
+*.manifest
+*.rc
+*~
+ipch/
+obj/
+# OSX files
+*.xccheckout
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspective3
+!default.pbxuser
+!default.mode1v3
+!default.mode2v3
+!default.perspective3
+xcuserdata
+*.xcuserstate
+.DS_Store
+.Trashes
+*.swp
+*.lock
+*~.nib
+*.resfiles
+[Bb]in
+Binaries/
+Intermediate/
+# The packages folder can be ignored because of Package Restore
+**/packages/*
+# except build/, which is used as an MSBuild target.
+!**/packages/build/
+.vs/
+# Ignore cmake building directories
+build.*/
+docs/
+# Ignore NuGet artifacts
+.nuget/
+Build_android/build/
+Generated Files/
+# Ignore iOS temp build directories
+Build_iOS/Apple-Boost-BuildScript
+
+/out/
