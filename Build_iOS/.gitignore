@@ -1,0 +1,7 @@
+# iOS folders that dependencies get stored in
+boostoniphone/
+boost
+boost.framework/
+ios-cmake/
+openssl/
+OpenSSL-for-iPhone/

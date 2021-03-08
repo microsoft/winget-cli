@@ -1,0 +1,21 @@
+﻿<Page
+    x:Class="WindowsLiveAuth.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WindowsLiveAuth"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+        <Button Name="LogInButton" Content="Log In" HorizontalAlignment="Left" Margin="249,76,0,0" VerticalAlignment="Top" Click="Button_Click_1"/>
+        <Button Name="GetInfoButton" Content="Get Info" HorizontalAlignment="Left" Margin="249,149,0,0" VerticalAlignment="Top" Click="Button_Click_2" Visibility="Visible"/>
+        <TextBox Name="Box1" HorizontalAlignment="Left" Height="9" Margin="360,155,0,0" TextWrapping="Wrap" Text="me" FontSize="18" VerticalAlignment="Top" Width="442" Visibility="Visible"/>
+
+        <TextBlock Name="Block1" FontSize="20" HorizontalAlignment="Left" Height="455" Margin="32,234,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="1312" IsTextSelectionEnabled="True"/>
+        <Button Name="LogOutButton" Content="Log Out" HorizontalAlignment="Left" Margin="249,76,0,0" VerticalAlignment="Top" Visibility="Collapsed" Click="LogOutButton_Click"/>
+        <Button Name="UploadButton" Content="Upload" HorizontalAlignment="Left" Margin="1016,149,0,0" VerticalAlignment="Top" Click="UploadButton_Click" Visibility="Visible"/>
+        <Button Name="DownloadButton" Content="Download" HorizontalAlignment="Left" Margin="1146,149,0,0" VerticalAlignment="Top" Visibility="Visible" Click="DownloadButton_Click"/>
+
+    </Grid>
+</Page>
