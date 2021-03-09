@@ -1,0 +1,45 @@
+parameters:
+  name: 'Ubuntu_1604_Vcpkg'
+  image: 'Ubuntu 16.04'
+
+jobs:
+- job: ${{ parameters.name }}
+  pool:
+    vmImage: ${{ parameters.image }}
+  steps:
+  - script: |
+      sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+      sudo apt -y update
+      sudo apt install g++-9 ninja-build -y
+      git submodule update --init vcpkg
+      ./vcpkg/bootstrap-vcpkg.sh
+      ./vcpkg/vcpkg install zlib openssl boost-locale boost-system boost-date-time boost-regex websocketpp boost-thread boost-filesystem boost-random boost-chrono boost-interprocess brotli --vcpkg-root ./vcpkg
+    displayName: Vcpkg install dependencies
+  - script: |
+      mkdir build.debug
+      mkdir build.release
+    displayName: Make Build Directories
+  - task: CMake@1
+    inputs:
+      workingDirectory: 'build.debug'
+      cmakeArgs: '-G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake ..'
+  - task: CMake@1
+    inputs:
+      workingDirectory: 'build.release'
+      cmakeArgs: '-G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake ..'
+  - script: |
+      cd build.debug
+      ninja
+    displayName: 'Run ninja debug'
+  - script: |
+      cd build.debug/Release/Binaries
+      ./test_runner *test.so
+    displayName: 'Run Tests debug'
+  - script: |
+      cd build.release
+      ninja
+    displayName: 'Run ninja, release'
+  - script: |
+      cd build.release/Release/Binaries
+      ./test_runner *test.so
+    displayName: 'Run tests, release'

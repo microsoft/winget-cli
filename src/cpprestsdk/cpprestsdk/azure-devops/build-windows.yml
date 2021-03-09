@@ -1,0 +1,47 @@
+parameters:
+  name: 'Windows_VS2019_x86'
+  targetPlatform: 'x86'
+  image: 'windows-latest'
+
+jobs:
+- job: ${{ parameters.name }}
+  pool:
+    vmImage: ${{ parameters.image }}
+  variables:
+    vcpkgLocation: '$(Build.SourcesDirectory)/vcpkg'
+    vcpkgResponseFile: $(Build.SourcesDirectory)/azure-devops/vcpkg-windows.txt
+  steps:
+    - script: git submodule update --init vcpkg
+      displayName: Checkout vcpkg submodule
+    - task: run-vcpkg@0
+      displayName: 'Run vcpkg'
+      inputs:
+        vcpkgArguments: '@$(vcpkgResponseFile)'
+        vcpkgDirectory: '$(vcpkgLocation)'
+        vcpkgTriplet: ${{ parameters.targetPlatform }}-windows
+    - task: run-cmake@0
+      displayName: 'Run CMake with Ninja (Debug)'
+      enabled: true
+      inputs:
+        cmakeListsOrSettingsJson: 'CMakeListsTxtBasic'
+        cmakeBuildType: 'Debug'
+        useVcpkgToolchainFile: true
+        buildDirectory: $(Build.ArtifactStagingDirectory)/${{ parameters.targetPlatform }}_Debug
+        cmakeAppendedArgs: '-DCPPREST_EXCLUDE_BROTLI=OFF'
+    - script: |
+        cd $(Build.ArtifactStagingDirectory)\${{ parameters.targetPlatform }}_Debug\Release\Binaries
+        .\test_runner.exe *testd.dll
+      displayName: 'Run tests, debug'
+    - task: run-cmake@0
+      displayName: 'Run CMake with Ninja (Release)'
+      enabled: true
+      inputs:
+        cmakeListsOrSettingsJson: 'CMakeListsTxtBasic'
+        cmakeBuildType: 'Release'
+        useVcpkgToolchainFile: true
+        buildDirectory: $(Build.ArtifactStagingDirectory)/${{ parameters.targetPlatform }}_Release
+        cmakeAppendedArgs: '-DCPPREST_EXCLUDE_BROTLI=OFF'
+    - script: |
+        cd $(Build.ArtifactStagingDirectory)\${{ parameters.targetPlatform }}_Release\Release\Binaries
+        .\test_runner.exe *test.dll
+      displayName: 'Run tests, release'

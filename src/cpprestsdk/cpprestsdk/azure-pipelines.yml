@@ -1,0 +1,205 @@
+# CppRestSdk Azure Pipelines Configuration
+
+jobs:
+  - template: azure-devops/build-windows.yml
+    parameters:
+      name: 'Windows_VS2019_x86'
+      targetPlatform: x86
+      image: 'windows-latest'
+  - template: azure-devops/build-windows.yml
+    parameters:
+      name: 'Windows_VS2019_x64'
+      targetPlatform: x64
+      image: 'windows-latest'
+  - template: azure-devops/build-windows.yml
+    parameters:
+      name: 'Windows_VS2017_x86'
+      targetPlatform: x86
+      image: 'vs2017-win2016'
+  - template: azure-devops/build-windows.yml
+    parameters:
+      name: 'Windows_VS2017_x64'
+      targetPlatform: x64
+      image: 'vs2017-win2016'
+  - job: Windows_VS2019_UWP
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+    - script: git submodule update --init vcpkg
+      displayName: Checkout vcpkg submodule
+    - script: .\vcpkg\bootstrap-vcpkg.bat
+      displayName: Bootstrap vcpkg
+    - script: .\vcpkg\vcpkg.exe install zlib --triplet x64-uwp --vcpkg-root .\vcpkg
+      displayName: vcpkg install dependencies
+    - script: mkdir build.common
+      displayName: Make Build Directory
+    - task: CMake@1
+      inputs:
+        workingDirectory: 'build.common'
+        cmakeArgs: '-A x64 -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0 ..'
+    - task: MSBuild@1
+      inputs:
+        solution: 'build.common/ALL_BUILD.vcxproj'
+        maximumCpuCount: true
+        platform: 'x64'
+  - template: azure-devops/build-ubuntu-apt.yml
+    parameters:
+      name: 'Ubuntu_1604_Apt'
+      image: 'Ubuntu 16.04'
+  - template: azure-devops/build-ubuntu-apt.yml
+    parameters:
+      name: 'Ubuntu_1804_Apt'
+      image: 'Ubuntu 18.04'
+  - template: azure-devops/build-ubuntu-vcpkg.yml
+    parameters:
+      name: 'Ubuntu_1604_Vcpkg'
+      image: 'Ubuntu 16.04'
+  - template: azure-devops/build-ubuntu-vcpkg.yml
+    parameters:
+      name: 'Ubuntu_1804_Vcpkg'
+      image: 'Ubuntu 18.04'
+  - job: Android
+    pool:
+      vmImage: 'Ubuntu 16.04'
+    steps:
+    - script: |
+        mkdir Build_android/build
+        cd Build_android/build
+        export NCPU=2
+        ../configure.sh --ndk /usr/local/lib/android/sdk/ndk-bundle
+      displayName: 'Build for Android'
+  - job: MacOS_Homebrew
+    pool:
+      vmImage: 'macOS-latest'
+    steps:
+    - script: brew install boost openssl ninja
+      displayName: Brew install dependencies
+    - script: git submodule update --init Release/libs/websocketpp
+      displayName: Checkout websocketpp submodule
+    - script: |
+        mkdir build.debug
+        mkdir build.release
+        mkdir build.release.static
+      displayName: Make Build Directories
+    - task: CMake@1
+      inputs:
+        workingDirectory: 'build.debug'
+        cmakeArgs: '-G Ninja -DCMAKE_BUILD_TYPE=Debug ..'
+    - task: CMake@1
+      inputs:
+        workingDirectory: 'build.release'
+        cmakeArgs: '-G Ninja -DCMAKE_BUILD_TYPE=Release ..'
+    - task: CMake@1
+      inputs:
+        workingDirectory: 'build.release.static'
+        cmakeArgs: '-G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF ..'
+    - script: |
+        cd build.debug
+        ninja
+      displayName: 'Run ninja, debug'
+    - script: |
+        cd build.debug/Release/Binaries
+        ./test_runner *test.dylib
+      displayName: 'Run tests, debug'
+    - script: |
+        cd build.release
+        ninja
+      displayName: 'Run ninja, release'
+    - script: |
+        cd build.release/Release/Binaries
+        ./test_runner *test.dylib
+      displayName: 'Run tests, release'
+    - script: |
+        cd build.release.static
+        ninja
+      displayName: 'Run ninja, release static'
+  - job: MacOS_Vcpkg
+    pool:
+      vmImage: 'macOS-latest'
+    steps:
+    - script: git submodule update --init vcpkg
+      displayName: Checkout vcpkg submodule
+    - script: |
+        ./vcpkg/bootstrap-vcpkg.sh
+        ./vcpkg/vcpkg install zlib openssl boost-locale boost-system boost-date-time boost-regex websocketpp boost-thread boost-filesystem boost-random boost-chrono boost-interprocess brotli --vcpkg-root ./vcpkg
+      displayName: Vcpkg install dependencies
+    - script: |
+        mkdir build.debug
+        mkdir build.release
+      displayName: Make Build Directories
+    - task: CMake@1
+      inputs:
+        workingDirectory: 'build.debug'
+        cmakeArgs: '-G Ninja -DCMAKE_MAKE_PROGRAM=$(Build.SourcesDirectory)/vcpkg/downloads/tools/ninja-1.10.1-osx/ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake ..'
+    - task: CMake@1
+      inputs:
+        workingDirectory: 'build.release'
+        cmakeArgs: '-G Ninja -DCMAKE_MAKE_PROGRAM=$(Build.SourcesDirectory)/vcpkg/downloads/tools/ninja-1.10.1-osx/ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake ..'
+    - script: |
+        cd build.debug
+        $(Build.SourcesDirectory)/vcpkg/downloads/tools/ninja-1.10.1-osx/ninja
+      displayName: 'Run ninja debug'
+    - script: |
+        cd build.debug/Release/Binaries
+        ./test_runner *test.dylib
+      displayName: 'Run Tests debug'
+    - script: |
+        cd build.release
+        $(Build.SourcesDirectory)/vcpkg/downloads/tools/ninja-1.10.1-osx/ninja
+      displayName: 'Run ninja, release'
+    - script: |
+        cd build.release/Release/Binaries
+        ./test_runner *test.dylib
+      displayName: 'Run tests, release'
+  # - job: MacOS_iOS
+  #   pool:
+  #     vmImage: 'macOS-latest'
+  #   steps:
+  #   - script: |
+  #       cd Build_iOS
+  #       ./configure.sh
+  #     displayName: 'Build for iOS'
+  - job: Ubuntu_1604_Apt_winhttppal
+    pool:
+      vmImage: 'Ubuntu 16.04'
+    steps:
+    - script: |
+        set -e
+        sudo apt -y remove php*
+        sudo apt install -y ppa-purge
+        sudo ppa-purge -y ppa:ondrej/php
+        unset BOOST_ROOT
+        sudo apt install -y libboost-atomic-dev libboost-thread-dev libboost-system-dev libboost-date-time-dev libboost-regex-dev libboost-filesystem-dev libboost-random-dev libboost-chrono-dev libboost-serialization-dev libwebsocketpp-dev openssl libssl-dev ninja-build wget
+        wget http://curl.haxx.se/download/curl-7.57.0.tar.gz
+        sudo apt install -y libtool
+        sudo apt install -y make
+        tar -xvf curl-7.57.0.tar.gz
+        cd curl-7.57.0
+        ./buildconf
+        ./configure --with-ssl --prefix=/usr
+        make
+        sudo make install
+        cd ..
+        git clone https://github.com/microsoft/WinHttpPAL.git
+        cd WinHttpPAL
+        mkdir build
+        cd build
+        cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
+        make
+        sudo make install
+        cd ../..
+        mkdir build.debug
+        cd build.debug
+        /usr/local/bin/cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCPPREST_HTTP_CLIENT_IMPL=winhttppal ..
+        cd ..
+        mkdir build.release
+        cd build.release
+        /usr/local/bin/cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCPPREST_HTTP_CLIENT_IMPL=winhttppal ..
+        cd ..
+        ninja -C build.debug
+        ninja -C build.release
+        cd build.debug/Release/Binaries
+        #./test_runner *test.so
+        cd ../../../build.release/Release/Binaries
+        #./test_runner *test.so
+      displayName: Run build

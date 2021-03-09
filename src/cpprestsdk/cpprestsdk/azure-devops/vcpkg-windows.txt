@@ -1,0 +1,7 @@
+openssl
+boost-system
+boost-date-time
+boost-regex
+boost-interprocess
+websocketpp
+brotli

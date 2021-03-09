@@ -1,0 +1,20 @@
+{
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/*/**": true,
+        "**/vcpkg/**": true,
+        "build.x86.debug": true,
+        "build.x86.release": true,
+        "build.x64.debug": true,
+        "build.x64.release": true,
+        "out": true,
+    },
+    "cSpell.words": [
+        "XPLATSTR",
+        "blittable",
+        "pplx",
+        "rdpos",
+        "rgpsz"
+    ]
+}
