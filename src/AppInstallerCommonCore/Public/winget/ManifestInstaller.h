@@ -49,7 +49,7 @@ namespace AppInstaller::Manifest
         // If present, has more precedence than root
         std::map<InstallerSwitchType, string_t> Switches;
 
-        std::vector<int> InstallerSuccessCodes;
+        std::vector<DWORD> InstallerSuccessCodes;
 
         UpdateBehaviorEnum UpdateBehavior = UpdateBehaviorEnum::Install;
 

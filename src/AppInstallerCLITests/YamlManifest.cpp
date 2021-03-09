@@ -366,7 +366,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
     REQUIRE(defaultSwitches.at(InstallerSwitchType::InstallLocation) == "/dir=<INSTALLPATH>");
     REQUIRE(defaultSwitches.at(InstallerSwitchType::Update) == "/upgrade");
 
-    REQUIRE(manifest.DefaultInstallerInfo.InstallerSuccessCodes == std::vector<int>{ 1, static_cast<int>(0x80070005) });
+    REQUIRE(manifest.DefaultInstallerInfo.InstallerSuccessCodes == std::vector<DWORD>{ 1, static_cast<DWORD>(0x80070005) });
     REQUIRE(manifest.DefaultInstallerInfo.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious);
     REQUIRE(manifest.DefaultInstallerInfo.Commands == MultiValue{ "makemsix", "makeappx" });
     REQUIRE(manifest.DefaultInstallerInfo.Protocols == MultiValue{ "protocol1", "protocol2" });

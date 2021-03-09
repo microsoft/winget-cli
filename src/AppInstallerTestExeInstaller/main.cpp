@@ -131,6 +131,7 @@ int wmain(int argc, const wchar_t** argv)
     std::wstringstream outContent;
     std::wstring productCode;
     std::wstring version;
+    int exitCode = 0;
 
     // Output to cout by default, but swap to a file if requested
     std::wostream* out = &std::wcout;
@@ -149,7 +150,17 @@ int wmain(int argc, const wchar_t** argv)
                 outContent << argv[i] << ' ';
             }
         }
-        
+
+        // Supports custom exit code
+        else if (_wcsicmp(argv[i], L"/ExitCode") == 0)
+        {
+            if (++i < argc)
+            {
+                exitCode = static_cast<int>(std::stoll(argv[i], 0, 0));
+                outContent << argv[i] << ' ';
+            }
+        }
+
         // Supports custom product code ID
         else if (_wcsicmp(argv[i], L"/ProductID") == 0)
         {
@@ -195,6 +206,6 @@ int wmain(int argc, const wchar_t** argv)
     path uninstallerPath = GenerateUninstaller(*out, installDirectory, productCode);
 
     WriteToUninstallRegistry(*out, productCode, uninstallerPath, version);
-   
-    return 0;
+
+    return exitCode;
 }
