@@ -280,5 +280,11 @@
     <ClCompile Include="cpprestsdk\Release\src\streams\fileio_win32.cpp">
       <Filter>src\streams</Filter>
     </ClCompile>
+    <ClCompile Include="cpprestsdk\Release\src\http\client\http_client_winhttp.cpp">
+      <Filter>src\http\client</Filter>
+    </ClCompile>
+    <ClCompile Include="cpprestsdk\Release\src\pplx\threadpool.cpp">
+      <Filter>src\pplx</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -127,7 +127,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir);..\AppInstallerCLICore\Public\;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src\pch;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir);..\AppInstallerCLICore\Public\;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src\pch;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir);..\AppInstallerCLICore\Public\;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src\pch;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
