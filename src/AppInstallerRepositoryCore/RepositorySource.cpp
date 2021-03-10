@@ -9,6 +9,8 @@
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Rest/RestSourceFactory.h"
 
+#include <winget/GroupPolicy.h>
+
 namespace AppInstaller::Repository
 {
     using namespace Settings;
@@ -186,6 +188,12 @@ namespace AppInstaller::Repository
             {
             case SourceOrigin::Default:
             {
+                if (!GroupPolicy::IsAllowed(GroupPolicy::TogglePolicy::Policy::ExcludeDefaultSources))
+                {
+                    AICLI_LOG(Repo, Info, << "Default sources are disabled due to Group Policy");
+                    break;
+                }
+
                 SourceDetailsInternal details;
                 details.Name = s_Source_WingetCommunityDefault_Name;
                 details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
@@ -618,6 +626,16 @@ namespace AppInstaller::Repository
 
         auto source = sourceList.GetCurrentSource(name);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, source != nullptr);
+
+        if (!GroupPolicy::IsAllowed(GroupPolicy::TogglePolicy::Policy::ExcludeDefaultSources))
+        {
+            // Prevent adding the default sources with other names
+            if (arg == s_Source_WingetCommunityDefault_Arg || arg == s_Source_WingetMSStoreDefault_Arg)
+            {
+                AICLI_LOG(Repo, Error, << "Use of default sources is blocked by group policy");
+                THROW_HR(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY);
+            }
+        }
 
         SourceDetailsInternal details;
         details.Name = name;

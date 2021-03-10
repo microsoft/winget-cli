@@ -125,6 +125,8 @@ namespace AppInstaller
                 return "Json file is invalid";
             case APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE:
                 return "The source location is not remote";
+            case APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY:
+                return "Operation is blocked by Group Policy";
             default:
                 return "Unknown Error Code";
             }

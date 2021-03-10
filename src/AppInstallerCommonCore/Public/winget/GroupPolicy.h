@@ -66,7 +66,7 @@ namespace AppInstaller::GroupPolicy
             DisableSettingsCommand,
             DisableExperimentalFeatures,
             DisableLocalManifestFiles,
-            ExcludeDefaultSources, // TODO
+            ExcludeDefaultSources,
             DisableSourceConfiguration,
         };
 
