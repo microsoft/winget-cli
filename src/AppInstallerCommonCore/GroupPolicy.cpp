@@ -66,7 +66,7 @@ namespace AppInstaller::GroupPolicy
         case TogglePolicy::Policy::ExcludeDefaultSources:
             return TogglePolicy(L"ExcludeDefaultSources", regKey);
         case TogglePolicy::Policy::DisableSourceConfiguration:
-            return TogglePolicy(L"ExcludeDefaultSources", regKey);
+            return TogglePolicy(L"DisableSourceConfiguration", regKey);
         default:
             THROW_HR(E_UNEXPECTED);
         }

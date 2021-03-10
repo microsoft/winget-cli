@@ -65,9 +65,9 @@ namespace AppInstaller::GroupPolicy
             DisableWinGet, // TODO
             DisableSettingsCommand,
             DisableExperimentalFeatures,
-            DisableLocalManifestFiles, // TODO
+            DisableLocalManifestFiles,
             ExcludeDefaultSources, // TODO
-            DisableSourceConfiguration, // TODO
+            DisableSourceConfiguration,
         };
 
         TogglePolicy(std::wstring_view regName, std::optional<Registry::Key> regKey = std::nullopt, bool trueIsEnable = false) : ValuePolicy(regName, regKey), m_trueIsEnable(trueIsEnable) {}
