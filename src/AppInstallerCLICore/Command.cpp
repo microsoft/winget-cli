@@ -703,6 +703,16 @@ namespace AppInstaller::CLI
 
     void Command::Execute(Execution::Context& context) const
     {
+        // Block any execution if winget is disabled by policy.
+        // Override the function to bypass this.
+        if (!GroupPolicy::IsAllowed(GroupPolicy::TogglePolicy::Policy::DisableWinGet))
+        {
+            // TODO: Policy name
+            AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");
+            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY);
+        }
+
         AICLI_LOG(CLI, Info, << "Executing command: " << Name());
         if (context.Args.Contains(Execution::Args::Type::Help))
         {

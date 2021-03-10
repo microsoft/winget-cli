@@ -62,7 +62,7 @@ namespace AppInstaller::GroupPolicy
         enum class Policy
         {
             None = 0,
-            DisableWinGet, // TODO
+            DisableWinGet,
             DisableSettingsCommand,
             DisableExperimentalFeatures,
             DisableLocalManifestFiles,

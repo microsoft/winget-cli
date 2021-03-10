@@ -66,6 +66,19 @@ namespace AppInstaller::CLI
         return "https://aka.ms/winget-command-help";
     }
 
+    void RootCommand::Execute(Execution::Context& context) const
+    {
+        AICLI_LOG(CLI, Info, << "Executing command: " << Name());
+        if (context.Args.Contains(Execution::Args::Type::Help))
+        {
+            OutputHelp(context.Reporter);
+        }
+        else
+        {
+            ExecuteInternal(context);
+        }
+    }
+
     void RootCommand::ExecuteInternal(Execution::Context& context) const
     {
         if (context.Args.Contains(Execution::Args::Type::Info))
