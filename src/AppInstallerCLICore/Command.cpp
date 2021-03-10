@@ -13,8 +13,13 @@ namespace AppInstaller::CLI
 
     constexpr std::string_view s_Command_ArgName_SilentAndInteractive = "silent|interactive"sv;
 
-    Command::Command(std::string_view name, std::string_view parent, Command::Visibility visibility, ExperimentalFeature::Feature feature) :
-        m_name(name), m_visibility(visibility), m_feature(feature)
+    Command::Command(
+        std::string_view name,
+        std::string_view parent,
+        Command::Visibility visibility,
+        Settings::ExperimentalFeature::Feature feature,
+        GroupPolicy::TogglePolicy::Policy groupPolicy) :
+        m_name(name), m_visibility(visibility), m_feature(feature), m_groupPolicy(groupPolicy)
     {
         if (!parent.empty())
         {
@@ -269,6 +274,14 @@ namespace AppInstaller::CLI
                     auto feature = ExperimentalFeature::GetFeature(command->Feature());
                     AICLI_LOG(CLI, Error, << "Trying to use command: " << *itr << " without enabling feature " << feature.JsonName());
                     throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
+                }
+
+                if (!GroupPolicy::IsAllowed(command->GroupPolicy()))
+                {
+                    // TODO: Policy name
+                    auto policy = GroupPolicy::GetPolicy(command->GroupPolicy());
+                    AICLI_LOG(CLI, Error, << "Trying to use command: " << *itr << " disabled by group policy");
+                    throw CommandException(Resource::String::DisabledByGroupPolicy, "");
                 }
 
                 AICLI_LOG(CLI, Info, << "Found subcommand: " << *itr);
@@ -712,6 +725,14 @@ namespace AppInstaller::CLI
                 throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
             }
 
+            if (!GroupPolicy::IsAllowed(arg.GroupPolicy()) && execArgs.Contains(arg.ExecArgType()))
+            {
+                // TODO: Policy name
+                auto policy = GroupPolicy::GetPolicy(arg.GroupPolicy());
+                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by group policy");
+                throw CommandException(Resource::String::DisabledByGroupPolicy, "");
+            }
+
             if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
             {
                 throw CommandException(Resource::String::RequiredArgError, arg.Name());
@@ -738,6 +759,11 @@ namespace AppInstaller::CLI
     Command::Visibility Command::GetVisibility() const
     {
         if (!ExperimentalFeature::IsEnabled(m_feature))
+        {
+            return Command::Visibility::Hidden;
+        }
+
+        if (!GroupPolicy::IsAllowed(m_groupPolicy))
         {
             return Command::Visibility::Hidden;
         }

@@ -80,6 +80,7 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
+        Command::ValidateArgumentsInternal(execArgs);
         if (execArgs.Contains(Execution::Args::Type::Manifest) &&
             (execArgs.Contains(Execution::Args::Type::Query) ||
              execArgs.Contains(Execution::Args::Type::Id) ||

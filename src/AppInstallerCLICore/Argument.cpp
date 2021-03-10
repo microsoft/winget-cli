@@ -18,7 +18,7 @@ namespace AppInstaller::CLI
         case Args::Type::Query:
             return Argument{ "query", 'q', Args::Type::Query, Resource::String::QueryArgumentDescription, ArgumentType::Positional};
         case Args::Type::Manifest:
-            return Argument{ "manifest", 'm', Args::Type::Manifest, Resource::String::ManifestArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
+            return Argument{ "manifest", 'm', Args::Type::Manifest, Resource::String::ManifestArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, GroupPolicy::TogglePolicy::Policy::DisableLocalManifestFiles };
         case Args::Type::Id:
             return Argument{ "id", NoAlias, Args::Type::Id,Resource::String::IdArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Name:
@@ -94,6 +94,11 @@ namespace AppInstaller::CLI
     Argument::Visibility Argument::GetVisibility() const
     {
         if (!ExperimentalFeature::IsEnabled(m_feature))
+        {
+            return Argument::Visibility::Hidden;
+        }
+
+        if (!GroupPolicy::IsAllowed(m_groupPolicy))
         {
             return Argument::Visibility::Hidden;
         }

@@ -43,6 +43,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CountArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DisabledByGroupPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(Done);
         WINGET_DEFINE_RESOURCE_STRINGID(ExactArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalArgumentDescription);

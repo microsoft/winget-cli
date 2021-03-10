@@ -817,4 +817,7 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="ImportFileHasInvalidSchema" xml:space="preserve">
     <value>The JSON file does not specify a recognized schema.</value>
   </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>This operation is disabled by Group Policy.</value>
+  </data>
 </root>

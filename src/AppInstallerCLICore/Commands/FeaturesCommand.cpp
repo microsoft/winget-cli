@@ -27,10 +27,11 @@ namespace AppInstaller::CLI
 
     void FeaturesCommand::ExecuteInternal(Execution::Context& context) const
     {
+        // TODO: Update message when are blocked
         context.Reporter.Info() << Resource::String::FeaturesMessage << std::endl << std::endl;
 
         auto features = ExperimentalFeature::GetAllFeatures();
-        
+
         if (!features.empty())
         {
             Execution::TableOutput<4> table(context.Reporter, {

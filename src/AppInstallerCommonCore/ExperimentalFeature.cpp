@@ -3,16 +3,26 @@
 #pragma once
 #include "pch.h"
 #include "winget/ExperimentalFeature.h"
+#include "winget/GroupPolicy.h"
 #include "winget/UserSettings.h"
 
 namespace AppInstaller::Settings
 {
     bool ExperimentalFeature::IsEnabled(Feature feature)
     {
+        if (feature == Feature::None)
+        {
+            return true;
+        }
+
+        // TODO: How do we report that this was due to policy higher up?
+        if (!GroupPolicy::IsAllowed(GroupPolicy::TogglePolicy::Policy::DisableExperimentalFeatures))
+        {
+            return false;
+        }
+
         switch (feature)
         {
-        case Feature::None:
-            return true;
         case Feature::ExperimentalCmd:
             // ExperimentalArg depends on ExperimentalCmd, so instead of failing we could
             // assume that if ExperimentalArg is enabled then ExperimentalCmd is as well.

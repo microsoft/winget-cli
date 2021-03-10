@@ -12,8 +12,6 @@
 
 namespace AppInstaller::CLI
 {
-    using namespace AppInstaller::Repository;
-
     // Container for data to identify multiple packages to be installed from multiple sources.
     struct PackageCollection
     {
@@ -37,10 +35,10 @@ namespace AppInstaller::CLI
         struct Source
         {
             Source() = default;
-            Source(const SourceDetails& sourceDetails) : Details(sourceDetails) {}
-            Source(SourceDetails&& sourceDetails) : Details(std::move(sourceDetails)) {}
+            Source(const Repository::SourceDetails& sourceDetails) : Details(sourceDetails) {}
+            Source(Repository::SourceDetails&& sourceDetails) : Details(std::move(sourceDetails)) {}
 
-            SourceDetails Details;
+            Repository::SourceDetails Details;
             std::vector<Package> Packages;
         };
 

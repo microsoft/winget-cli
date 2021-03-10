@@ -85,6 +85,7 @@ namespace AppInstaller::CLI
             info << std::endl << Resource::String::Logs << ": "_liv << Runtime::GetPathTo(Runtime::PathName::DefaultLogLocationForDisplay).u8string() << std::endl;
 
             info << std::endl;
+            // TODO: output policy
 
             Execution::TableOutput<2> links{ context.Reporter, { Resource::String::Links, {} } };
 
