@@ -122,9 +122,9 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatWarningAsError>
@@ -135,11 +135,14 @@
       <SubSystem Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Windows</SubSystem>
       <SubSystem Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Windows</SubSystem>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(PlatformShortName)\$(Configuration)\cpprestsdk;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -152,10 +155,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</TreatWarningAsError>
@@ -170,6 +173,9 @@
       <SubSystem Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Windows</SubSystem>
       <SubSystem Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Windows</SubSystem>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(PlatformShortName)\$(Configuration)\cpprestsdk;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CompositeSource.h" />
@@ -254,6 +260,11 @@
     <None Include="Microsoft\README.md" />
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\cpprestsdk\cpprestsdk.vcxproj">
+      <Project>{866c3f06-636f-4be8-bc24-5f86ecc606a1}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

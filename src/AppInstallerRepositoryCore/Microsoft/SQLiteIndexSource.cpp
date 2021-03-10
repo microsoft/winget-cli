@@ -4,7 +4,11 @@
 #include "Microsoft/SQLiteIndexSource.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include <winget/ManifestYamlParser.h>
-
+#include "cpprest/http_client.h"
+ 
+using namespace web;
+using namespace web::http::client;
+using namespace web::http;
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -339,6 +343,8 @@ namespace AppInstaller::Repository::Microsoft
 
     SearchResult SQLiteIndexSource::Search(const SearchRequest& request) const
     {
+        http_client client(L"https://winget3prfunctions.azurewebsites.net/");
+
         auto indexResults = m_index.Search(request);
 
         SearchResult result;
