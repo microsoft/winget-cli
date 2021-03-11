@@ -7,7 +7,7 @@ namespace AppInstaller::CLI
 {
     struct SettingsCommand final : public Command
     {
-        SettingsCommand(std::string_view parent) : Command("settings", parent, GroupPolicy::TogglePolicy::Policy::DisableSettingsCommand) {}
+        SettingsCommand(std::string_view parent) : Command("settings", parent, Settings::TogglePolicy::DisableSettingsCommand) {}
 
         virtual Resource::LocString ShortDescription() const override;
         virtual Resource::LocString LongDescription() const override;

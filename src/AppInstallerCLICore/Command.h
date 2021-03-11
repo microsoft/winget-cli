@@ -51,11 +51,11 @@ namespace AppInstaller::CLI
             Command(name, parent, visibility, Settings::ExperimentalFeature::Feature::None) {}
         Command(std::string_view name, std::string_view parent, Settings::ExperimentalFeature::Feature feature) :
             Command(name, parent, Command::Visibility::Show, feature) {}
-        Command(std::string_view name, std::string_view parent, GroupPolicy::TogglePolicy::Policy groupPolicy) :
+        Command(std::string_view name, std::string_view parent, Settings::TogglePolicy groupPolicy) :
             Command(name, parent, Command::Visibility::Show, Settings::ExperimentalFeature::Feature::None, groupPolicy) {}
         Command(std::string_view name, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature) :
-            Command(name, parent, visibility, feature, GroupPolicy::TogglePolicy::Policy::None) {}
-        Command(std::string_view name, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature, GroupPolicy::TogglePolicy::Policy groupPolicy);
+            Command(name, parent, visibility, feature, Settings::TogglePolicy::None) {}
+        Command(std::string_view name, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature, Settings::TogglePolicy groupPolicy);
         virtual ~Command() = default;
 
         Command(const Command&) = default;
@@ -71,7 +71,7 @@ namespace AppInstaller::CLI
         const std::string& FullName() const { return m_fullName; }
         Command::Visibility GetVisibility() const;
         Settings::ExperimentalFeature::Feature Feature() const { return m_feature; }
-        GroupPolicy::TogglePolicy::Policy GroupPolicy() const { return m_groupPolicy; }
+        Settings::TogglePolicy GroupPolicy() const { return m_groupPolicy; }
 
         virtual std::vector<std::unique_ptr<Command>> GetCommands() const { return {}; }
         virtual std::vector<Argument> GetArguments() const { return {}; }
@@ -103,7 +103,7 @@ namespace AppInstaller::CLI
         std::string m_fullName;
         Command::Visibility m_visibility;
         Settings::ExperimentalFeature::Feature m_feature;
-        GroupPolicy::TogglePolicy::Policy m_groupPolicy;
+        Settings::TogglePolicy m_groupPolicy;
     };
 
     template <typename Container>

@@ -3,105 +3,139 @@
 #include "pch.h"
 #include "winget/GroupPolicy.h"
 
-namespace AppInstaller::GroupPolicy
+using namespace std::string_view_literals;
+
+namespace AppInstaller::Settings
 {
     namespace
     {
         // TODO: Use final path
         const HKEY PoliciesKey = HKEY_CURRENT_USER; // HKEY_LOCAL_MACHINE;
-        std::wstring PoliciesKeyPath = L"test\\policy"; // L"SOFTWARE\\Policies\\Microsoft\\Windows\\WinGet";
-    }
+        std::string_view PoliciesKeyPath = "test\\policy"; // "SOFTWARE\\Policies\\Microsoft\\Windows\\WinGet";
 
-    PolicyBase::PolicyBase(std::wstring_view regName, std::optional<Registry::Key> regKey)
-        : m_regKey(regKey.value_or(Registry::Key::OpenIfExists(PoliciesKey, PoliciesKeyPath))), m_regName(regName) {}
-
-    std::optional<bool> TogglePolicy::IsTrue() const
-    {
-        auto intValue = GetValue();
-        if (!intValue.has_value())
+        struct TogglePolicyInternal
         {
-            return std::nullopt;
+            TogglePolicyInternal(TogglePolicy policy, std::string_view regValueName, bool trueIsAllow = false) :
+                Policy(policy), RegValueName(regValueName), TrueIsAllow(trueIsAllow) {}
+
+            TogglePolicy Policy;
+            std::string_view RegValueName;
+
+            // Whether a true value means to enable or disable a feature.
+            bool TrueIsAllow;
+
+            static TogglePolicyInternal GetPolicy(TogglePolicy policy)
+            {
+                switch (policy)
+                {
+                case TogglePolicy::DisableWinGet:
+                    return TogglePolicyInternal(policy, "DisableWinGet"sv);
+                case TogglePolicy::DisableSettingsCommand: return
+                    TogglePolicyInternal(policy, "DisableSettings"sv);
+                case TogglePolicy::DisableExperimentalFeatures:
+                    return TogglePolicyInternal(policy, "DisableExperimentalFeatures"sv);
+                case TogglePolicy::DisableLocalManifestFiles:
+                    return TogglePolicyInternal(policy, "DisableLocalManifestFiles"sv);
+                case TogglePolicy::ExcludeDefaultSources:
+                    return TogglePolicyInternal(policy, "ExcludeDefaultSources"sv);
+                case TogglePolicy::DisableSourceConfiguration:
+                    return TogglePolicyInternal(policy, "DisableSourceConfiguration"sv);
+                default:
+                    THROW_HR(E_UNEXPECTED);
+                }
+            }
+        };
+
+        template<Registry::Value::Type T>
+        std::optional<decltype(std::declval<Registry::Value>().GetValue<T>())> GetRegistryValue(const Registry::Key& key, const std::string_view valueName)
+        {
+            auto value = key[valueName];
+            if (!value.has_value() || value->GetType() != T)
+            {
+                return std::nullopt;
+            }
+
+            return value->GetValue<T>();
         }
 
-        return *intValue;
+        std::optional<bool> RegistryValueIsTrue(const Registry::Key& key, std::string_view valueName)
+        {
+            auto intValue = GetRegistryValue<Registry::Value::Type::DWord>(key, valueName);
+            if (!intValue.has_value())
+            {
+                return std::nullopt;
+            }
+
+            return (bool)*intValue;
+        }
+
+        bool IsAllowedInternal(const Registry::Key& key, TogglePolicy policy)
+        {
+            // Default to allowed if there is no policy for this
+            if (policy == TogglePolicy::None)
+            {
+                return true;
+            }
+
+            auto togglePolicy = TogglePolicyInternal::GetPolicy(policy);
+
+            // Policies default to allow if not set
+            auto setting = RegistryValueIsTrue(key, togglePolicy.RegValueName);
+            if (!setting.has_value())
+            {
+                return true;
+            }
+
+            // Return flag as-is or invert depending on the policy
+            return togglePolicy.TrueIsAllow ? *setting : !(*setting);
+        }
+
+        /*
+        template <size_t... P>
+        void ValidateAllValuePolicies(
+            const Registry::Key& policiesKey,
+            GroupPolicy::ValuePoliciesMap& policies,
+            std::index_sequence<P...>)
+        {
+            // Use folding to call each policy validate function.
+            (FoldHelper{}, ..., Validate<static_cast<ValuePolicy>(P)>(root, policies));
+        }
+        */
     }
 
-    ValuePolicy<Registry::Value::Type::DWord> GetPolicy(PolicyD policy, std::optional<Registry::Key> regKey)
+    GroupPolicy::GroupPolicy(const Registry::Key& key)
     {
-        // TODO: Use final reg value names
-        switch (policy)
+        // ValidateAllValuePolicies(m_policiesKey, m_values, std::make_index_sequence<static_cast<size_t>(ValuePolicy::Max)>());
+
+        using Toggle_t = std::underlying_type_t<TogglePolicy>;
+        for (Toggle_t i = static_cast<Toggle_t>(TogglePolicy::None); i < static_cast<Toggle_t>(TogglePolicy::Max); ++i)
         {
-        case PolicyD::SourceAutoUpdateIntervalInMinutes:
-            return ValuePolicy<Registry::Value::Type::DWord>(L"SourceAutoUpdateIntervalInMinutes", regKey);
-        default:
-            THROW_HR(E_UNEXPECTED);
+            auto policy = static_cast<TogglePolicy>(i);
+            m_toggles[policy] = IsAllowedInternal(key, policy);
         }
     }
 
-    ValuePolicy<Registry::Value::Type::String> GetPolicy(PolicyS policy, std::optional<Registry::Key> regKey)
+    bool GroupPolicy::IsAllowed(TogglePolicy policy) const
     {
-        // TODO: Use final reg value names
-        switch (policy)
+        auto itr = m_toggles.find(policy);
+        if (itr == m_toggles.end())
         {
-        case PolicyS::ProgressBarStyle:
-            return ValuePolicy<Registry::Value::Type::String>(L"ProgressBarStyle", regKey);
-        default:
-            THROW_HR(E_UNEXPECTED);
-        }
-    }
-
-    TogglePolicy GetPolicy(TogglePolicy::Policy policy, std::optional<Registry::Key> regKey)
-    {
-        // TODO: Use final reg value names
-        switch (policy)
-        {
-        case TogglePolicy::Policy::DisableWinGet:
-            return TogglePolicy(L"DisableWinGet", regKey);
-        case TogglePolicy::Policy::DisableSettingsCommand:
-            return TogglePolicy(L"DisableSettings", regKey);
-        case TogglePolicy::Policy::DisableExperimentalFeatures:
-            return TogglePolicy(L"DisableExperimentalFeatures", regKey);
-        case TogglePolicy::Policy::DisableLocalManifestFiles:
-            return TogglePolicy(L"DisableLocalManifestFiles", regKey);
-        case TogglePolicy::Policy::ExcludeDefaultSources:
-            return TogglePolicy(L"ExcludeDefaultSources", regKey);
-        case TogglePolicy::Policy::DisableSourceConfiguration:
-            return TogglePolicy(L"DisableSourceConfiguration", regKey);
-        default:
-            THROW_HR(E_UNEXPECTED);
-        }
-    }
-
-    ListPolicy GetPolicy(ListPolicy::Policy, std::optional<Registry::Key>)
-    {
-        THROW_HR(E_UNEXPECTED);
-    }
-
-    bool IsAllowed(TogglePolicy::Policy policy)
-    {
-        // Default to allowed if there is no policy for this
-        if (policy == TogglePolicy::Policy::None)
-        {
+            // Default to allowing if there is no known policy.
             return true;
         }
 
-        auto togglePolicy = GetPolicy(policy);
+        return itr->second;
+    }
 
-        // Policies default to allow if not set
-        auto setting = togglePolicy.GetValue();
-        if (!setting.has_value())
+    std::unique_ptr<GroupPolicy> GroupPolicy::s_instance;
+
+    const GroupPolicy& GroupPolicy::Instance()
+    {
+        if (!s_instance)
         {
-            return true;
+            s_instance = std::make_unique<GroupPolicy>(Registry::Key::OpenIfExists(PoliciesKey, PoliciesKeyPath));
         }
 
-        // Return flag as-is or invert depending on the policy
-        if (togglePolicy.TrueIsEnable())
-        {
-            return *setting;
-        }
-        else
-        {
-            return !(*setting);
-        }
+        return *s_instance;
     }
 }

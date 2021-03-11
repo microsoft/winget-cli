@@ -5,103 +5,98 @@
 #include "winget/Registry.h"
 #include <string_view>
 
-namespace AppInstaller::GroupPolicy
+namespace AppInstaller::Settings
 {
-    // A registry-based policy.
-    struct PolicyBase
-    {
-        PolicyBase(std::wstring_view regName, std::optional<Registry::Key> regKey = std::nullopt);
-
-        virtual ~PolicyBase() = default;
-
-        const Registry::Key& RegKey() const { return m_regKey; }
-        const std::wstring& RegName() const { return m_regName; }
-
-    private:
-        // Registry key containing the policy.
-        Registry::Key m_regKey;
-
-        // Name of the registry value or key backing the policy.
-        std::wstring m_regName;
-    };
-
-    // A policy that sets a single value for some setting.
-    // The value of the policy is a value in the registry key.
-    template <Registry::Value::Type T>
-    struct ValuePolicy : public PolicyBase
-    {
-        ValuePolicy(std::wstring_view regName, std::optional<Registry::Key> regKey = std::nullopt) : PolicyBase(regName, regKey) {}
-
-        // Returns the value in the registry if it exists and has the correct type
-        std::optional<decltype(std::declval<Registry::Value>().GetValue<T>())> GetValue() const
-        {
-            auto value = RegKey()[RegName()];
-            if (!value.has_value() || value->GetType() != T)
-            {
-                return std::nullopt;
-            }
-
-            return value->GetValue<T>();
-        }
-    };
-
-    enum class PolicyD
+    // A policy that sets a value for some setting.
+    // The value of the policy is a value in the registry key, or is
+    // made up of sub-keys for settings that are lists.
+    enum class ValuePolicy
     {
         SourceAutoUpdateIntervalInMinutes, // TODO
-    };
-
-    enum class PolicyS
-    {
         ProgressBarStyle, // TODO
+        IncludeSources, // TODO
+        Max,
     };
 
-    // A policy that acts as a toggle, e.g. to enable or disable a feature.
+    // A policy that acts as a toggle to enable or disable a feature.
     // They are backed by a DWORD value with values zero and non-zero.
-    struct TogglePolicy : public ValuePolicy<Registry::Value::Type::DWord>
+    enum class TogglePolicy
     {
-        enum class Policy
+        None = 0,
+        DisableWinGet,
+        DisableSettingsCommand,
+        DisableExperimentalFeatures,
+        DisableLocalManifestFiles,
+        ExcludeDefaultSources,
+        DisableSourceConfiguration,
+        Max,
+    };
+
+    namespace details
+    {
+        template <ValuePolicy P>
+        struct ValuePolicyMapping
         {
-            None = 0,
-            DisableWinGet,
-            DisableSettingsCommand,
-            DisableExperimentalFeatures,
-            DisableLocalManifestFiles,
-            ExcludeDefaultSources,
-            DisableSourceConfiguration,
+            // value_t - type of the policy
+            // Validate - Function that reads the value and does semantic validation.
         };
 
-        TogglePolicy(std::wstring_view regName, std::optional<Registry::Key> regKey = std::nullopt, bool trueIsEnable = false) : ValuePolicy(regName, regKey), m_trueIsEnable(trueIsEnable) {}
+#define POLICYMAPPING_SPECIALIZATION(_policy_, _type_) \
+        template <> \
+        struct ValuePolicyMapping<_policy_> \
+        { \
+            using value_t = _type_; \
+            static std::optional<value_t> Validate(const Registry::Key& policiesKey); \
+        }
 
-        std::optional<bool> IsTrue() const;
-        bool TrueIsEnable() const { return m_trueIsEnable; }
+        POLICYMAPPING_SPECIALIZATION(ValuePolicy::SourceAutoUpdateIntervalInMinutes, std::chrono::minutes);
+        POLICYMAPPING_SPECIALIZATION(ValuePolicy::ProgressBarStyle, std::string);
+        POLICYMAPPING_SPECIALIZATION(ValuePolicy::IncludeSources, std::vector<std::string>);
+    }
+
+    // Representation of the policies read from the registry.
+    struct GroupPolicy
+    {
+        // using ValuePoliciesMap = EnumBasedVariantMap<ValuePolicy, details::ValuePolicyMapping>;
+
+        static GroupPolicy const& Instance();
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        inline static void SetPolicyRegistryKey(Registry::Key&& key)
+        {
+            s_instance = std::make_unique<GroupPolicy>(std::move(key));
+        }
+#endif
+
+        GroupPolicy() = delete;
+
+        GroupPolicy(const GroupPolicy&) = delete;
+        GroupPolicy& operator=(const GroupPolicy&) = delete;
+
+        GroupPolicy(GroupPolicy&&) = delete;
+        GroupPolicy& operator=(GroupPolicy&&) = delete;
+
+        GroupPolicy(const Registry::Key& key);
+        ~GroupPolicy() = default;
+
+        // Gets the policy value if it is present
+        template <ValuePolicy P>
+        typename std::optional<typename details::ValuePolicyMapping<P>::value_t> GetValue() const
+        {
+            return std::nullopt; // m_values.Get<P>(); // m_values.Contains<P>() ? m_values.Get<P>() : std::nullopt;
+        }
+
+        bool IsAllowed(TogglePolicy policy) const;
 
     private:
-        // Whether a true value means to enable or disable a feature.
-        bool m_trueIsEnable;
+        static std::unique_ptr<GroupPolicy> s_instance;
+
+        std::map<TogglePolicy, bool> m_toggles;
+        // ValuePoliciesMap m_values;
     };
 
-    // A policy that sets a list as a value for some setting.
-    // The value of the policy P is the list of sub-keys of the sub-key P of the
-    // root key for policies.
-    // [Root policies key]
-    //   [P sub-key]
-    //     [1st key]
-    //     [2nd key]
-    //     ...
-    struct ListPolicy : public PolicyBase
+    inline const GroupPolicy& GroupPolicies()
     {
-        enum class Policy
-        {
-            IncludeSources, // TODO
-        };
-
-        ListPolicy(std::wstring_view regName, std::optional<Registry::Key> regKey = std::nullopt) : PolicyBase(regName, regKey) {}
-    };
-
-    ValuePolicy<Registry::Value::Type::DWord> GetPolicy(PolicyD policy, std::optional<Registry::Key> regKey = std::nullopt);
-    ValuePolicy<Registry::Value::Type::String> GetPolicy(PolicyS policy, std::optional<Registry::Key> regKey = std::nullopt);
-    TogglePolicy GetPolicy(TogglePolicy::Policy policy, std::optional<Registry::Key> regKey = std::nullopt);
-    ListPolicy GetPolicy(ListPolicy::Policy policy, std::optional<Registry::Key> regKey = std::nullopt);
-
-    bool IsAllowed(TogglePolicy::Policy policy);
+        return GroupPolicy::Instance();
+    }
 }
