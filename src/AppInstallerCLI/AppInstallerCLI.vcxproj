@@ -83,42 +83,34 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-    <!--<LibraryPath>$(SolutionDir)$(PlatformShortName)\$(Configuration)\cpprestsdk\cpprestsdk.lib;$(LibraryPath)</LibraryPath>-->
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-      <!--<LibraryPath>$(SolutionDir)$(PlatformShortName)\$(Configuration)\cpprestsdk\cpprestsdk.lib;$(LibraryPath)</LibraryPath>-->
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-      <!--<LibraryPath>$(SolutionDir)$(PlatformShortName)\$(Configuration)\cpprestsdk\cpprestsdk.lib;$(LibraryPath)</LibraryPath>-->
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)x86\$(Configuration)\$(ProjectName)\</OutDir>
-      <!--<LibraryPath>$(SolutionDir)x86\$(Configuration)\cpprestsdk\cpprestsdk.lib;$(LibraryPath)</LibraryPath>-->
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)x86\$(Configuration)\$(ProjectName)\</OutDir>
-      <!--<LibraryPath>$(SolutionDir)x86\$(Configuration)\cpprestsdk\cpprestsdk.lib;$(LibraryPath)</LibraryPath>-->
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-    <!--<LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\cpprestsdk\cpprestsdk.lib;$(LibraryPath)</LibraryPath>-->
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-      <!--<LibraryPath>$(SolutionDir)$(PlatformShortName)\$(Configuration)\cpprestsdk\cpprestsdk.lib;$(LibraryPath)</LibraryPath>-->
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-      <!--<LibraryPath>$(SolutionDir)$(PlatformShortName)\$(Configuration)\cpprestsdk\cpprestsdk.lib;$(LibraryPath)</LibraryPath>-->
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -133,7 +125,6 @@
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <!--<PreprocessorDefinitions>_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>-->
       <PreprocessorDefinitions>_NO_ASYNCRTIMP;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir);..\AppInstallerCLICore\Public\;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src\pch;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir);..\AppInstallerCLICore\Public\;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src\pch;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -152,7 +143,6 @@
       <SubSystem>Console</SubSystem>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;bcrypt.lib;winhttp.lib;$(SolutionDir)$(PlatformShortname)\$(Configuration)\cpprestsdk\cpprestsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <!--<AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)x86\$(Configuration)\cpprestsdk\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>-->
       <AdditionalLibraryDirectories>$(SolutionDir)$(PlatformShortname)\$(Configuration)\cpprestsdk\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
@@ -173,12 +163,6 @@
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ControlFlowGuard>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdcpp17</LanguageStandard>
     </ClCompile>
-      <!--<Link>
-          <SubSystem>Console</SubSystem>
-          <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-          <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;bcrypt.lib;winhttp.lib;$(SolutionDir)x86\$(Configuration)\cpprestsdk\cpprestsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
-          <AdditionalLibraryDirectories>$(SolutionDir)x86\$(Configuration)\cpprestsdk\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      </Link>-->
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
@@ -189,8 +173,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
         <PreprocessorDefinitions>_NO_ASYNCRTIMP;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-        <!--<PreprocessorDefinitions>_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_CONSOLE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>-->
-        <!--<PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>-->
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir);..\AppInstallerCLICore\Public\;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src\pch;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir);..\AppInstallerCLICore\Public\;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src\pch;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir);..\AppInstallerCLICore\Public\;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src\pch;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -214,8 +196,6 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
         <AdditionalDependencies Condition="'$(Configuration)'=='Release'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;bcrypt.lib;winhttp.lib;$(SolutionDir)$(PlatformShortname)\$(Configuration)\cpprestsdk\cpprestsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
-        <!--<AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)x86\$(Configuration)\cpprestsdk\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(PlatformShortname)\$(Configuration)\cpprestsdk\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>-->
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
