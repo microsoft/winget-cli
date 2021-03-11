@@ -4,11 +4,6 @@
 #include "Microsoft/SQLiteIndexSource.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include <winget/ManifestYamlParser.h>
-#include "cpprest/http_client.h"
- 
-using namespace web;
-using namespace web::http::client;
-using namespace web::http;
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -343,49 +338,6 @@ namespace AppInstaller::Repository::Microsoft
 
     SearchResult SQLiteIndexSource::Search(const SearchRequest& request) const
     {
-        std::string m_restApiUri = "https://winget3prfunctions.azurewebsites.net/";
-        std::vector<std::string> results;
-
-        // Call the ManifestSearch API and return a sample set of results.
-        std::string searchEndPoint = m_restApiUri + "api/manifestSearch?";
-        utility::string_t api = utility::conversions::to_string_t(searchEndPoint);
-
-        json::value json_v;
-        json_v[L"fetchAllManifests"] = web::json::value::string(L"true");
-
-        json::value temp;
-        http_client client(api);
-        try
-        {
-            http_request req(methods::POST);
-            req.headers().set_content_type(web::http::details::mime_types::application_json);
-            req.set_body(json_v.serialize());
-
-            client.request(req)
-                .then([](const http_response& response)
-                    {
-                        try {
-                            std::cout << "Http response status returned: " << response.status_code() << "\n";
-                        }
-                        catch (const http_exception& e) {
-                            std::cout << "error " << e.what() << std::endl;
-                        }
-
-                        return response.extract_json().get();
-                    }).then([&results](json::value jsonObject)
-                        {
-                            // utility::string_t data = jsonObject.at(U("data")).as_string();
-                            // std::wcout << data;
-
-                            std::wcout << "Value: " << jsonObject.serialize() << std::endl;
-                        }).wait();
-        }
-        catch (web::json::json_exception& e)
-        {
-            std::cout << "Exception : ";
-            std::cout << e.what();
-        }
-
         auto indexResults = m_index.Search(request);
 
         SearchResult result;
