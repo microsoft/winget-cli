@@ -121,12 +121,6 @@
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-        <!--<PreprocessorDefinitions>
-            WIN32;_NO_ASYNCRTIMP;_ASYNCRT_EXPORT;_PPLX_EXPORT;_CONSOLE;_MBCS;_USRDLL;CPPREST_EXCLUDE_COMPRESSION;_DEBUG;
-            _WINDOWS;%(PreprocessorDefinitions);CPPREST_FORCE_PPLX;_NO_PPLXIMP;CPPREST_EXCLUDE_WEBSOCKETS;
-            PPL_TASK_CONTEXT_ERROR_CONTROL;CASABLANCA_USE_WINDOWS_NATIVE_SAFEINT;CASABLANCA_DISABLE_OAUTH1;_HAS_STD_BYTE=0;_DEBUG;_LIB;CPPREST_PPLX_IMPL;UNICODE;
-            _UNICODE;_SCL_SECURE_NO_WARNINGS;
-        </PreprocessorDefinitions>-->
         <PreprocessorDefinitions>_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
         <!--<PreprocessorDefinitions>_NO_ASYNCRTIMP;_DEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>-->
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -148,7 +142,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
+        <PreprocessorDefinitions>WIN32;CLICOREDLLBUILD;_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        <!--<PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>-->
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</TreatWarningAsError>
     </ClCompile>
