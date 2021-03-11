@@ -56,6 +56,7 @@ cotaskmem
 cout
 cpp
 cppreference
+cpprestsdk
 cppwinrt
 CPRWL
 createnew
