@@ -229,7 +229,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-        <PreprocessorDefinitions>_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_DEBUG;_LIB;CPPREST_EXCLUDE_COMPRESSION;CPPREST_EXCLUDE_WEBSOCKETS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        <PreprocessorDefinitions>WIN32;_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_DEBUG;_LIB;CPPREST_EXCLUDE_COMPRESSION;CPPREST_EXCLUDE_WEBSOCKETS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
         <!--<PreprocessorDefinitions>WIN32;_ASYNCRT_EXPORT;_PPLX_EXPORT;_MBCS;_USRDLL;CPPREST_EXCLUDE_COMPRESSION;_DEBUG;_WINDOWS;%(PreprocessorDefinitions);CPPREST_FORCE_PPLX;_NO_PPLXIMP;CPPREST_EXCLUDE_WEBSOCKETS;PPL_TASK_CONTEXT_ERROR_CONTROL;CASABLANCA_USE_WINDOWS_NATIVE_SAFEINT;CASABLANCA_DISABLE_OAUTH1;_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_DEBUG;_LIB</PreprocessorDefinitions>-->
       <!--<PreprocessorDefinitions>WIN32;_ASYNCRT_EXPORT;_PPLX_EXPORT;_MBCS;_USRDLL;CPPREST_EXCLUDE_COMPRESSION;_DEBUG;_WINDOWS;%(PreprocessorDefinitions);CPPREST_FORCE_PPLX;CPPREST_EXCLUDE_WEBSOCKETS;PPL_TASK_CONTEXT_ERROR_CONTROL;CASABLANCA_USE_WINDOWS_NATIVE_SAFEINT;CASABLANCA_DISABLE_OAUTH1;_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_DEBUG;_LIB</PreprocessorDefinitions>-->
       <!--<RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>-->
@@ -247,7 +247,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions);CPPREST_FORCE_PPLX;_NO_PPLXIMP;CPPREST_EXCLUDE_WEBSOCKETS;PPL_TASK_CONTEXT_ERROR_CONTROL;CASABLANCA_USE_WINDOWS_NATIVE_SAFEINT;CASABLANCA_DISABLE_OAUTH1;_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_DEBUG;_LIB</PreprocessorDefinitions>
+        <PreprocessorDefinitions>WIN32;_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;NDEBUG;_LIB;CPPREST_EXCLUDE_COMPRESSION;CPPREST_EXCLUDE_WEBSOCKETS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        <!--<PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions);CPPREST_FORCE_PPLX;_NO_PPLXIMP;CPPREST_EXCLUDE_WEBSOCKETS;PPL_TASK_CONTEXT_ERROR_CONTROL;CASABLANCA_USE_WINDOWS_NATIVE_SAFEINT;CASABLANCA_DISABLE_OAUTH1;_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_DEBUG;_LIB</PreprocessorDefinitions>-->
       <!--<RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>-->
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -266,7 +267,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-        <PreprocessorDefinitions>_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_DEBUG;_LIB;CPPREST_EXCLUDE_COMPRESSION;CPPREST_EXCLUDE_WEBSOCKETS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        <PreprocessorDefinitions>_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;NDEBUG;_LIB;CPPREST_EXCLUDE_COMPRESSION;CPPREST_EXCLUDE_WEBSOCKETS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
         <!--<PreprocessorDefinitions>_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_DEBUG;_LIB;CPPREST_FORCE_PPLX;_NO_PPLXIMP;CPPREST_EXCLUDE_WEBSOCKETS;PPL_TASK_CONTEXT_ERROR_CONTROL;CASABLANCA_USE_WINDOWS_NATIVE_SAFEINT;CASABLANCA_DISABLE_OAUTH1;%(PreprocessorDefinitions)</PreprocessorDefinitions>-->
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)cpprestsdk\Release\src\pch;$(ProjectDir)cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -279,7 +280,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-        <PreprocessorDefinitions>_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_DEBUG;_LIB;CPPREST_EXCLUDE_COMPRESSION;CPPREST_EXCLUDE_WEBSOCKETS;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        <PreprocessorDefinitions>_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;NDEBUG;_LIB;CPPREST_EXCLUDE_COMPRESSION;CPPREST_EXCLUDE_WEBSOCKETS;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
         <!--<PreprocessorDefinitions>_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_DEBUG;_LIB;CPPREST_FORCE_PPLX;_NO_PPLXIMP;CPPREST_EXCLUDE_WEBSOCKETS;PPL_TASK_CONTEXT_ERROR_CONTROL;CASABLANCA_USE_WINDOWS_NATIVE_SAFEINT;CASABLANCA_DISABLE_OAUTH1;%(PreprocessorDefinitions)</PreprocessorDefinitions>-->
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)cpprestsdk\Release\src\pch;$(ProjectDir)cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -289,7 +290,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-        <PreprocessorDefinitions>_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_DEBUG;_LIB;CPPREST_EXCLUDE_COMPRESSION;CPPREST_EXCLUDE_WEBSOCKETS;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        <PreprocessorDefinitions>_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;NDEBUG;_LIB;CPPREST_EXCLUDE_COMPRESSION;CPPREST_EXCLUDE_WEBSOCKETS;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
         <!--<PreprocessorDefinitions>_HAS_STD_BYTE=0;_NO_ASYNCRTIMP;_DEBUG;_LIB;CPPREST_FORCE_PPLX;_NO_PPLXIMP;CPPREST_EXCLUDE_WEBSOCKETS;PPL_TASK_CONTEXT_ERROR_CONTROL;CASABLANCA_USE_WINDOWS_NATIVE_SAFEINT;CASABLANCA_DISABLE_OAUTH1;%(PreprocessorDefinitions)</PreprocessorDefinitions>-->
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)cpprestsdk\Release\src\pch;$(ProjectDir)cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
