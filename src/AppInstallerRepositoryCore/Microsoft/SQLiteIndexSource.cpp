@@ -5,6 +5,7 @@
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include <winget/ManifestYamlParser.h>
 
+
 namespace AppInstaller::Repository::Microsoft
 {
     using namespace Utility;
