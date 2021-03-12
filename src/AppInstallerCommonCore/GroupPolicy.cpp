@@ -3,8 +3,6 @@
 #include "pch.h"
 #include "winget/GroupPolicy.h"
 
-using namespace std::string_view_literals;
-
 namespace AppInstaller::Settings
 {
     namespace
@@ -90,7 +88,18 @@ namespace AppInstaller::Settings
             return togglePolicy.TrueIsAllow ? *setting : !(*setting);
         }
 
-        /*
+        template <ValuePolicy P>
+        void Validate(
+            const Registry::Key& policiesKey,
+            GroupPolicy::ValuePoliciesMap& policies)
+        {
+            auto value = details::ValuePolicyMapping<P>::ReadAndValidate(policiesKey);
+            if (value.has_value())
+            {
+                policies.Add<P>(std::move(*value));
+            }
+        }
+
         template <size_t... P>
         void ValidateAllValuePolicies(
             const Registry::Key& policiesKey,
@@ -98,14 +107,34 @@ namespace AppInstaller::Settings
             std::index_sequence<P...>)
         {
             // Use folding to call each policy validate function.
-            (FoldHelper{}, ..., Validate<static_cast<ValuePolicy>(P)>(root, policies));
+            (FoldHelper{}, ..., Validate<static_cast<ValuePolicy>(P)>(policiesKey, policies));
         }
-        */
+    }
+
+    namespace details
+    {
+        std::optional<uint32_t> ValuePolicyMapping<ValuePolicy::SourceAutoUpdateIntervalInMinutes>::ReadAndValidate(const Registry::Key& policiesKey)
+        {
+            using Mapping = ValuePolicyMapping<ValuePolicy::SourceAutoUpdateIntervalInMinutes>;
+            return GetRegistryValue<Mapping::ValueType>(policiesKey , Mapping::ValueName);
+        }
+
+        std::optional<std::string> ValuePolicyMapping<ValuePolicy::ProgressBarStyle>::ReadAndValidate(const Registry::Key& policiesKey)
+        {
+            using Mapping = ValuePolicyMapping<ValuePolicy::ProgressBarStyle>;
+            return GetRegistryValue<Mapping::ValueType>(policiesKey, Mapping::ValueName);
+        }
+
+        std::optional<std::vector<std::string>> ValuePolicyMapping<ValuePolicy::IncludeSources>::ReadAndValidate(const Registry::Key&)
+        {
+            // TODO
+            return std::nullopt;
+        }
     }
 
     GroupPolicy::GroupPolicy(const Registry::Key& key)
     {
-        // ValidateAllValuePolicies(m_policiesKey, m_values, std::make_index_sequence<static_cast<size_t>(ValuePolicy::Max)>());
+        ValidateAllValuePolicies(key, m_values, std::make_index_sequence<static_cast<size_t>(ValuePolicy::Max)>());
 
         using Toggle_t = std::underlying_type_t<TogglePolicy>;
         for (Toggle_t i = static_cast<Toggle_t>(TogglePolicy::None); i < static_cast<Toggle_t>(TogglePolicy::Max); ++i)

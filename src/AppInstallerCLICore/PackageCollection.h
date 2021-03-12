@@ -3,7 +3,6 @@
 #pragma once
 
 #include "AppInstallerDateTime.h"
-#include "AppInstallerLanguageUtilities.h"
 #include "AppInstallerRepositorySource.h"
 
 #include <json.h>

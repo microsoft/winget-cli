@@ -2,11 +2,14 @@
 // Licensed under the MIT License.
 #pragma once
 
+#include "AppInstallerLanguageUtilities.h"
 #include "winget/Registry.h"
 #include <string_view>
 
 namespace AppInstaller::Settings
 {
+    using namespace std::string_view_literals;
+
     // A policy that sets a value for some setting.
     // The value of the policy is a value in the registry key, or is
     // made up of sub-keys for settings that are lists.
@@ -34,11 +37,17 @@ namespace AppInstaller::Settings
 
     namespace details
     {
+
         template <ValuePolicy P>
         struct ValuePolicyMapping
         {
             // value_t - type of the policy
-            // Validate - Function that reads the value and does semantic validation.
+            // ReadAndValidate() - Function that reads the value and does semantic validation.
+
+            // For simple values:
+            //  ValueName - Name of the registry value
+            //  ValueType - Type of the registry value
+            //  reg_value_t - Type returned by the registry when reading the value
         };
 
 #define POLICYMAPPING_SPECIALIZATION(_policy_, _type_) \
@@ -46,18 +55,30 @@ namespace AppInstaller::Settings
         struct ValuePolicyMapping<_policy_> \
         { \
             using value_t = _type_; \
-            static std::optional<value_t> Validate(const Registry::Key& policiesKey); \
+            static std::optional<value_t> ReadAndValidate(const Registry::Key& policiesKey); \
         }
 
-        POLICYMAPPING_SPECIALIZATION(ValuePolicy::SourceAutoUpdateIntervalInMinutes, std::chrono::minutes);
-        POLICYMAPPING_SPECIALIZATION(ValuePolicy::ProgressBarStyle, std::string);
+#define POLICYMAPPING_VALUE_SPECIALIZATION(_policy_, _type_, _valueName_, _valueType_) \
+        template<> \
+        struct ValuePolicyMapping<_policy_> \
+        { \
+            static constexpr std::string_view ValueName = _valueName_; \
+            static constexpr Registry::Value::Type ValueType = _valueType_; \
+            using value_t = _type_; \
+            using reg_value_t = decltype(std::declval<Registry::Value>().GetValue<ValueType>()); \
+            static std::optional<value_t> ReadAndValidate(const Registry::Key& policiesKey); \
+        }
+
+        POLICYMAPPING_VALUE_SPECIALIZATION(ValuePolicy::SourceAutoUpdateIntervalInMinutes, uint32_t, "SourceAutoUpdateIntervalInMinutes"sv, Registry::Value::Type::DWord);
+        POLICYMAPPING_VALUE_SPECIALIZATION(ValuePolicy::ProgressBarStyle, std::string, "ProgressBarStyle"sv, Registry::Value::Type::String);
+
         POLICYMAPPING_SPECIALIZATION(ValuePolicy::IncludeSources, std::vector<std::string>);
     }
 
     // Representation of the policies read from the registry.
     struct GroupPolicy
     {
-        // using ValuePoliciesMap = EnumBasedVariantMap<ValuePolicy, details::ValuePolicyMapping>;
+        using ValuePoliciesMap = EnumBasedVariantMap<ValuePolicy, details::ValuePolicyMapping>;
 
         static GroupPolicy const& Instance();
 
@@ -80,10 +101,17 @@ namespace AppInstaller::Settings
         ~GroupPolicy() = default;
 
         // Gets the policy value if it is present
-        template <ValuePolicy P>
-        typename std::optional<typename details::ValuePolicyMapping<P>::value_t> GetValue() const
+        template<ValuePolicy P>
+        std::optional<typename details::ValuePolicyMapping<P>::value_t> GetValue() const
         {
-            return std::nullopt; // m_values.Get<P>(); // m_values.Contains<P>() ? m_values.Get<P>() : std::nullopt;
+            if (m_values.Contains(P))
+            {
+                return m_values.Get<P>();
+            }
+            else
+            {
+                return std::nullopt;
+            }
         }
 
         bool IsAllowed(TogglePolicy policy) const;
@@ -92,7 +120,7 @@ namespace AppInstaller::Settings
         static std::unique_ptr<GroupPolicy> s_instance;
 
         std::map<TogglePolicy, bool> m_toggles;
-        // ValuePoliciesMap m_values;
+        ValuePoliciesMap m_values;
     };
 
     inline const GroupPolicy& GroupPolicies()

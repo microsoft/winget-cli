@@ -85,11 +85,55 @@ namespace AppInstaller::Settings
         }
 
         template <Setting S>
+        std::optional<typename details::SettingMapping<S>::policy_t> GetValueFromPolicy(int)
+        {
+            // return std::nullopt;
+            return GroupPolicies().GetValue<details::SettingMapping<S>::Policy>();
+        }
+
+        template <Setting S>
+        std::optional<typename details::SettingMapping<S>::json_t> GetValueFromPolicy(long)
+        {
+            using T = decltype(std::declval<details::SettingMapping<S>::json_t>());
+            return std::nullopt;
+        }
+
+        template <Setting S>
+        std::optional<typename details::SettingMapping<S>::json_t> GetValueFromPolicy()
+        {
+            return GetValueFromPolicy<S>(0);
+        }
+
+        template <Setting S>
         void Validate(
             Json::Value& root,
             std::map<Setting, details::SettingVariant>& settings,
             std::vector<std::string>& warnings)
         {
+            // Settings set by Group Policy override anything else. See if there is one.
+            auto policyValue = GetValueFromPolicy<S>();
+            if (policyValue.has_value())
+            {
+                // If the value is valid, use it.
+                // Otherwise, fall back to the settings.
+                // TODO: Log
+                auto validatedValue = details::SettingMapping<S>::Validate(policyValue.value());
+                if (validatedValue.has_value())
+                {
+                    // Finally add it to the map
+                    settings[S].emplace<details::SettingIndex(S)>(
+                        std::forward<typename details::SettingMapping<S>::value_t>(validatedValue.value()));
+                    // AICLI_LOG(Core, Info, << GetSettingsMessage(SettingsMessage::ValidMessage, path, jsonValue.value()));
+                    return;
+                }
+                else
+                {
+                    // auto invalidFieldMsg = GetSettingsMessage(SettingsMessage::InvalidFieldValue, path, jsonValue.value());
+                    // AICLI_LOG(Core, Error, << invalidFieldMsg << " Using default");
+                    // warnings.emplace_back(invalidFieldMsg);
+                }
+            }
+
             // jsoncpp doesn't support std::string_view yet.
             auto path = std::string(details::SettingMapping<S>::Path);
 

@@ -113,7 +113,7 @@ namespace AppInstaller
         }
 
         // Return a value indicating whether the given enum is stored in the map.
-        bool Contains(Enum e) { return (m_data.find(e) != m_data.end()); }
+        bool Contains(Enum e) const { return (m_data.find(e) != m_data.end()); }
 
         // Gets the value.
         template <Enum E>
