@@ -217,6 +217,18 @@ namespace AppInstaller::Repository::Rest
             {
                 return false;
             }
+
+            bool IsSame(const IPackage* other) const override
+            {
+                const AvailablePackage* otherAvailablePackage = dynamic_cast<const AvailablePackage*>(other);
+
+                if (otherAvailablePackage)
+                {
+                    return m_package.packageInfo.packageIdentifier == otherAvailablePackage->m_package.packageInfo.packageIdentifier;
+                }
+
+                return false;
+            }
         };
     }
 
