@@ -51,6 +51,7 @@ namespace AppInstaller::CLI::Workflow
                 context.Add<Execution::Data::Installer>(std::move(installer));
 
                 updateFound = true;
+                break;
             }
             else
             {
