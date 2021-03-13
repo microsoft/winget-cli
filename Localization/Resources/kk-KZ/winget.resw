@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Жою әрекеті сәтсіз аяқталды, шығу коды:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Орнатылған бумалар тізімін экспорттайды</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Файлдағы барлық бумаларды орнатады.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Файлдағы барлық бумаларды орнатады</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Нәтиже жазылатын файл</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Орнатылатын бумаларды сипаттайтын файл</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Көрсетілген дереккөзден бумаларды экспорттау</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Орнатылған бумалардың тізімін файлға жазады. Осыдан кейін бумаларды import пәрменімен орнатуға болады.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Бір немесе бірнеше импортталған буманы орнату мүмкін болмады</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Импортталатын бума табылмады:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Импорттау үшін қажетті дереккөз орнатылмаған:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Орнатылған бума кез келген дереккөзден қолжетімді емес:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Буманың орнатылған нұсқасы кез келген дереккөзден қолжетімді емес:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Импорттау файлында бумалар табылмады</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON файлы жарамсыз</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Бума орнатылып қойған:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Қол жеткізгісіз бумаларды елемеу</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Жасалған файлға бума нұсқаларын қосу</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Импорттау файлындағы бума нұсқаларын елемеу</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Мұндай жол жоқ:</value>
+  </data>
 </root>

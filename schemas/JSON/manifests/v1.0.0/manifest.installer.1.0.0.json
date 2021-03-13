@@ -23,7 +23,7 @@
     },
     "Channel": {
       "type": [ "string", "null" ],
-      "minLength": 2,
+      "minLength": 1,
       "maxLength": 16,
       "description": "The distribution channel"
     },
@@ -120,7 +120,7 @@
         "Custom": {
           "type": [ "string", "null" ],
           "minLength": 1,
-          "maxLength": 512,
+          "maxLength": 2048,
           "description": "Custom switches will be passed directly to the installer by winget"
         }
       }
@@ -135,7 +135,7 @@
       },
       "maxItems": 16,
       "uniqueItems": true,
-      "description": "List of non-zero installer success exit codes"
+      "description": "List of additional non-zero installer success exit codes other than known default values by winget"
     },
     "UpgradeBehavior": {
       "type": [ "string", "null" ],
@@ -161,7 +161,7 @@
       "items": {
         "type": "string",
         "pattern": "^[a-z][-a-z0-9\\.\\+]*$",
-        "maxLength": 39
+        "maxLength": 2048
       },
       "maxItems": 16,
       "uniqueItems": true,

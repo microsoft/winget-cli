@@ -9,6 +9,12 @@ namespace AppInstaller::Manifest
     {
         std::vector<ValidationError> resultErrors;
 
+        // Channel is not supported currently
+        if (!manifest.Channel.empty())
+        {
+            resultErrors.emplace_back(ManifestError::FieldNotSupported, "Channel", manifest.Channel);
+        }
+
         try
         {
             // Version value should be successfully parsed

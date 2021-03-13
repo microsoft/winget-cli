@@ -12,7 +12,8 @@ namespace AppInstallerCLIE2ETests
         public void Setup()
         {
             InitializeAllFeatures(false);
-            ConfigureFeature("importExport", true);
+            ConfigureFeature("import", true);
+            ConfigureFeature("export", true);
             CleanupTestExe();
         }
 
@@ -32,7 +33,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         // Ignore while we don't have schema validation
-        // [Test]
+        [Test]
         public void ImportInvalidFile()
         {
             // Verify failure when trying to import with an invalid file

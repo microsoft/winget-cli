@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>حذف نصب با کد خروج انجام نشد:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>فهرستی از بسته‌های نصب‌شده را صادر می‌کند</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>تمام بسته‌های فهرست‌شده در یک فایل را نصب می‌کند.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>تمام بسته‌های یک فایل را نصب می‌کند</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>فایلی که قرار است نتیجه در آن نوشته شود</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>فایل توصیح بسته‌هایی که قرار است نصب شوند</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>صدور بسته‌ها از منبع مشخص‌شده</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>فهرستی از بسته‌های نصب‌شده را در یک فایل می‌نویسد. سپس می‌توان بسته‌ها را با فرمان import نصب کرد.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>نصب یک یا چند بستۀ واردشده ناموفق بود</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>بسته برای وارد کردن پیدا نشد:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>منبع مورد نیاز برای وارد کردن نصب نشده است:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>بستۀ نصب‌شده از هیچ منبعی در دسترس نیست:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>نسخۀ نصب‌شدۀ بسته از هیچ منبعی در دسترس نیست:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>در فایل واردات هیچ بسته‌ای پیدا نشد</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>فایل JSON معتبر نیست</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>بسته پیش از این نصب شده است:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>نادیده گرفتن بسته‌های خارج از دسترس</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>گنجاندن نسخه‌های بسته در فایل ایجادشده</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>نادیده گرفتن نسخه‌های بسته از فایل واردات</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>مسیر وجود ندارد:</value>
+  </data>
 </root>

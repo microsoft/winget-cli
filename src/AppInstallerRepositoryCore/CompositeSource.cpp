@@ -106,6 +106,22 @@ namespace AppInstaller::Repository
                 return (latest && (GetVACFromVersion(installed.get()).IsUpdatedBy(GetVACFromVersion(latest.get()))));
             }
 
+            bool IsSame(const IPackage* other) const override
+            {
+                const CompositePackage* otherComposite = dynamic_cast<const CompositePackage*>(other);
+
+                if (!otherComposite ||
+                    static_cast<bool>(m_installedPackage) != static_cast<bool>(otherComposite->m_installedPackage) ||
+                    m_installedPackage && !m_installedPackage->IsSame(otherComposite->m_installedPackage.get()) ||
+                    static_cast<bool>(m_availablePackage) != static_cast<bool>(otherComposite->m_availablePackage) ||
+                    m_availablePackage && !m_availablePackage->IsSame(otherComposite->m_availablePackage.get()))
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
             void SetAvailablePackage(std::shared_ptr<IPackage> availablePackage)
             {
                 m_availablePackage = std::move(availablePackage);
@@ -185,6 +201,18 @@ namespace AppInstaller::Repository
             {
                 // Lie here so that list and upgrade will carry on to be able to output the diagnostic information.
                 return true;
+            }
+
+            bool IsSame(const IPackage* other) const override
+            {
+                const UnknownAvailablePackage* otherUnknown = dynamic_cast<const UnknownAvailablePackage*>(other);
+
+                if (otherUnknown)
+                {
+                    return true;
+                }
+
+                return false;
             }
         };
 
@@ -437,7 +465,7 @@ namespace AppInstaller::Repository
             {
                 for (const auto& srs : installedPackageData.SystemReferenceStrings)
                 {
-                    systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(srs.Field, MatchType::Exact, srs.String));
+                    systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(srs.Field, MatchType::Exact, srs.String.get()));
                 }
 
                 std::shared_ptr<IPackage> availablePackage;
@@ -523,7 +551,7 @@ namespace AppInstaller::Repository
                 SearchRequest systemReferenceSearch;
                 for (const auto& srs : packageData->SystemReferenceStrings)
                 {
-                    systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(srs.Field, MatchType::Exact, srs.String));
+                    systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(srs.Field, MatchType::Exact, srs.String.get()));
                 }
 
                 SearchResult installedCrossRef = m_installedSource->Search(systemReferenceSearch);

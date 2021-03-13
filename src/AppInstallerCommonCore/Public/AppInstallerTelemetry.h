@@ -15,52 +15,56 @@ namespace AppInstaller::Logging
     // this should not become a burden.
     struct TelemetryTraceLogger
     {
-        ~TelemetryTraceLogger();
+        virtual ~TelemetryTraceLogger();
 
-        TelemetryTraceLogger(const TelemetryTraceLogger&) = delete;
-        TelemetryTraceLogger& operator=(const TelemetryTraceLogger&) = delete;
+        TelemetryTraceLogger(const TelemetryTraceLogger&) = default;
+        TelemetryTraceLogger& operator=(const TelemetryTraceLogger&) = default;
 
-        TelemetryTraceLogger(TelemetryTraceLogger&&) = delete;
-        TelemetryTraceLogger& operator=(TelemetryTraceLogger&&) = delete;
+        TelemetryTraceLogger(TelemetryTraceLogger&&) = default;
+        TelemetryTraceLogger& operator=(TelemetryTraceLogger&&) = default;
 
         // Gets the singleton instance of this type.
         static TelemetryTraceLogger& GetInstance();
 
+        // Control whether this trace logger is enabled at runtime.
+        bool DisableRuntime();
+        void EnableRuntime();
+
         // Logs the failure info.
-        void LogFailure(const wil::FailureInfo& failure) noexcept;
+        void LogFailure(const wil::FailureInfo& failure) const noexcept;
 
         // Logs the initial process startup.
-        void LogStartup() noexcept;
+        void LogStartup() const noexcept;
 
         // Logs the invoked command.
-        void LogCommand(std::string_view commandName) noexcept;
+        void LogCommand(std::string_view commandName) const noexcept;
 
         // Logs the invoked command success.
-        void LogCommandSuccess(std::string_view commandName) noexcept;
+        void LogCommandSuccess(std::string_view commandName) const noexcept;
 
         // Logs the invoked command termination.
-        void LogCommandTermination(HRESULT hr, std::string_view file, size_t line) noexcept;
+        void LogCommandTermination(HRESULT hr, std::string_view file, size_t line) const noexcept;
 
         // Logs the invoked command termination.
-        void LogException(std::string_view commandName, std::string_view type, std::string_view message) noexcept;
+        void LogException(std::string_view commandName, std::string_view type, std::string_view message) const noexcept;
 
         // Logs whether the manifest used in workflow is local
-        void LogIsManifestLocal(bool isLocalManifest) noexcept;
+        void LogIsManifestLocal(bool isLocalManifest) const noexcept;
 
         // Logs the Manifest fields.
-        void LogManifestFields(std::string_view id, std::string_view name, std::string_view version) noexcept;
+        void LogManifestFields(std::string_view id, std::string_view name, std::string_view version) const noexcept;
 
         // Logs when there is no matching App found for search
-        void LogNoAppMatch() noexcept;
+        void LogNoAppMatch() const noexcept;
 
         // Logs when there is multiple matching Apps found for search
-        void LogMultiAppMatch() noexcept;
+        void LogMultiAppMatch() const noexcept;
 
         // Logs the name and Id of app found
-        void LogAppFound(std::string_view name, std::string_view id) noexcept;
+        void LogAppFound(std::string_view name, std::string_view id) const noexcept;
 
         // Logs the selected installer details
-        void LogSelectedInstaller(int arch, std::string_view url, std::string_view installerType, std::string_view scope, std::string_view language) noexcept;
+        void LogSelectedInstaller(int arch, std::string_view url, std::string_view installerType, std::string_view scope, std::string_view language) const noexcept;
 
         // Logs details of a search request.
         void LogSearchRequest(
@@ -72,10 +76,10 @@ namespace AppInstaller::Logging
             std::string_view tag,
             std::string_view command,
             size_t maximum,
-            std::string_view request);
+            std::string_view request) const noexcept;
 
         // Logs the Search Result
-        void LogSearchResultCount(uint64_t resultCount) noexcept;
+        void LogSearchResultCount(uint64_t resultCount) const noexcept;
 
         // Logs a mismatch between the expected and actual hash values.
         void LogInstallerHashMismatch(
@@ -84,27 +88,43 @@ namespace AppInstaller::Logging
             std::string_view channel,
             const std::vector<uint8_t>& expected,
             const std::vector<uint8_t>& actual,
-            bool overrideHashMismatch);
+            bool overrideHashMismatch) const noexcept;
 
         // Logs a failed installation attempt.
-        void LogInstallerFailure(std::string_view id, std::string_view version, std::string_view channel, std::string_view type, uint32_t errorCode);
+        void LogInstallerFailure(std::string_view id, std::string_view version, std::string_view channel, std::string_view type, uint32_t errorCode) const noexcept;
 
         // Logs a failed uninstallation attempt.
-        void LogUninstallerFailure(std::string_view id, std::string_view version, std::string_view type, uint32_t errorCode);
+        void LogUninstallerFailure(std::string_view id, std::string_view version, std::string_view type, uint32_t errorCode) const noexcept;
 
-        // Logs a failure to insert a value into the in-memory cache of installed system packages.
-        // The most likely reason is due to the same key name being used under multiple ARP scope/architecture locations.
-        void LogDuplicateARPEntry(HRESULT hr, std::string_view scope, std::string_view architecture, std::string_view productCode, std::string_view name);
+        // Logs data about the changes that ocurred in the ARP entries based on an install.
+        // First 4 arguments are well known values for the package that we installed.
+        // The next 3 are counts of the number of packages in each category.
+        // The last 4 are the fields directly from the ARP entry that has been determined to be related to the package that
+        // was installed, or they will be empty if there is no data or ambiguity about which entry should be logged.
+        virtual void LogSuccessfulInstallARPChange(
+            std::string_view sourceIdentifier,
+            std::string_view packageIdentifier,
+            std::string_view packageVersion,
+            std::string_view packageChannel,
+            size_t changesToARP,
+            size_t matchesInARP,
+            size_t countOfIntersectionOfChangesAndMatches,
+            std::string_view arpName,
+            std::string_view arpVersion,
+            std::string_view arpPublisher,
+            std::string_view arpLanguage) const noexcept;
 
-    private:
+    protected:
         TelemetryTraceLogger();
+
+        bool IsTelemetryEnabled() const noexcept;
+
+        bool m_isSettingEnabled = true;
+        std::atomic_bool m_isRuntimeEnabled{ true };
     };
 
     // Helper to make the call sites look clean.
-    inline TelemetryTraceLogger& Telemetry()
-    {
-        return TelemetryTraceLogger::GetInstance();
-    }
+    TelemetryTraceLogger& Telemetry();
 
     // Turns on wil failure telemetry and logging.
     void EnableWilFailureTelemetry();

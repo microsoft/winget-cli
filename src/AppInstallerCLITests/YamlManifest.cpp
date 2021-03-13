@@ -208,6 +208,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
     {
         { "Manifest-Bad-ArchInvalid.yaml", "Invalid field value. Field: Arch" },
         { "Manifest-Bad-ArchMissing.yaml", "Missing required property 'Arch'" },
+        { "Manifest-Bad-Channel-NotSupported.yaml", "Field is not supported. Field: Channel" },
         { "Manifest-Bad-DifferentCase-camelCase.yaml", "All field names should be PascalCased. Field: installerType" },
         { "Manifest-Bad-DifferentCase-lower.yaml", "All field names should be PascalCased. Field: installertype" },
         { "Manifest-Bad-DifferentCase-UPPER.yaml", "All field names should be PascalCased. Field: INSTALLERTYPE" },
@@ -349,7 +350,6 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
     REQUIRE(manifest.DefaultLocalization.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers");
     REQUIRE(manifest.Moniker == "msixsdk");
     REQUIRE(manifest.DefaultLocalization.Get<Localization::Tags>() == MultiValue{ "appxsdk", "msixsdk" });
-    REQUIRE(manifest.Channel == "release");
     REQUIRE(manifest.DefaultInstallerInfo.Locale == "en-US");
     REQUIRE(manifest.DefaultInstallerInfo.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop, PlatformEnum::Universal });
     REQUIRE(manifest.DefaultInstallerInfo.MinOSVersion == "10.0.0.0");
@@ -366,7 +366,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
     REQUIRE(defaultSwitches.at(InstallerSwitchType::InstallLocation) == "/dir=<INSTALLPATH>");
     REQUIRE(defaultSwitches.at(InstallerSwitchType::Update) == "/upgrade");
 
-    REQUIRE(manifest.DefaultInstallerInfo.InstallerSuccessCodes == std::vector<int>{ 1, static_cast<int>(0x80070005) });
+    REQUIRE(manifest.DefaultInstallerInfo.InstallerSuccessCodes == std::vector<DWORD>{ 1, static_cast<DWORD>(0x80070005) });
     REQUIRE(manifest.DefaultInstallerInfo.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious);
     REQUIRE(manifest.DefaultInstallerInfo.Commands == MultiValue{ "makemsix", "makeappx" });
     REQUIRE(manifest.DefaultInstallerInfo.Protocols == MultiValue{ "protocol1", "protocol2" });

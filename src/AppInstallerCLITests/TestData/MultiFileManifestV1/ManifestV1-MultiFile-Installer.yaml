@@ -1,6 +1,5 @@
 PackageIdentifier: microsoft.msixsdk
 PackageVersion: 1.7.32
-Channel: release
 InstallerLocale: en-US
 Platform:
   - Windows.Desktop

@@ -3,7 +3,11 @@
 #include "pch.h"
 
 #include "PackageCollection.h"
+
 #include "AppInstallerRuntime.h"
+#include "winget/JsonSchemaValidation.h"
+
+#include "PackagesSchema.h"
 
 #include <algorithm>
 #include <ostream>
@@ -122,7 +126,6 @@ namespace AppInstaller::CLI
         {
             Json::Value sourceNode{ Json::ValueType::objectValue };
 
-
             Json::Value sourceDetailsNode{ Json::ValueType::objectValue };
             sourceDetailsNode[s_PackagesJson_Source_Name] = source.Details.Name;
             sourceDetailsNode[s_PackagesJson_Source_Argument] = source.Details.Arg;
@@ -155,10 +158,38 @@ namespace AppInstaller::CLI
             return root;
         }
 
-        std::optional<PackageCollection> TryParseJson(const Json::Value& root)
+        ParseResult TryParseJson(const Json::Value& root)
         {
-            // TODO: Embed schema in binaries & validate file. This will return nullopt on failure.
+            // Find the schema used for the JSON
+            if (!(root.isObject() && root.isMember(s_PackagesJson_Schema) && root[s_PackagesJson_Schema].isString()))
+            {
+                AICLI_LOG(CLI, Error, << "Import file is missing \"" << s_PackagesJson_Schema << "\" property");
+                return ParseResult{ ParseResult::Type::MissingSchema };
+            }
 
+            const auto& schemaUri = root[s_PackagesJson_Schema].asString();
+            Json::Value schemaJson;
+            if (schemaUri == s_PackagesJson_SchemaUri_v1_0)
+            {
+                schemaJson = JsonSchema::LoadResourceAsSchemaDoc(MAKEINTRESOURCE(IDX_PACKAGES_SCHEMA_V1), MAKEINTRESOURCE(PACKAGESSCHEMA_RESOURCE_TYPE));
+            }
+            else
+            {
+                AICLI_LOG(CLI, Error, << "Unrecognized schema for import file: " << schemaUri);
+                return ParseResult{ ParseResult::Type::UnrecognizedSchema };
+            }
+
+            // Validate the JSON against the schema.
+            valijson::Schema schema;
+            JsonSchema::PopulateSchema(schemaJson, schema);
+
+            valijson::ValidationResults results;
+            if (!JsonSchema::Validate(schema, root, results))
+            {
+                return ParseResult{ ParseResult::Type::SchemaValidationFailed, JsonSchema::GetErrorStringFromResults(results) };
+            }
+
+            // Extract the data from the JSON.
             PackageCollection packages;
             packages.ClientVersion = root[s_PackagesJson_WinGetVersion].asString();
             for (const auto& sourceNode : root[s_PackagesJson_Sources])
@@ -175,7 +206,7 @@ namespace AppInstaller::CLI
                 }
             }
 
-            return packages;
+            return ParseResult{ std::move(packages) };
         }
     }
 }

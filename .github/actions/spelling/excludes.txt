@@ -17,6 +17,7 @@
 ^src/JsonCppLib/
 ^src/Valijson/
 ^src/YamlCppLib/
+^src/cpprestsdk/
 ^\.github/
 ^src/AppInstallerCLITests/TestData/InputNames.txt$
 ^src/AppInstallerCLITests/TestData/InputPublishers.txt$

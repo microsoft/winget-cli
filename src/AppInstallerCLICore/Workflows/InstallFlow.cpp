@@ -18,6 +18,25 @@ namespace AppInstaller::CLI::Workflow
     using namespace AppInstaller::Manifest;
     using namespace AppInstaller::Repository;
 
+    namespace
+    {
+        bool MightWriteToARP(InstallerTypeEnum type)
+        {
+            switch (type)
+            {
+            case InstallerTypeEnum::Exe:
+            case InstallerTypeEnum::Burn:
+            case InstallerTypeEnum::Inno:
+            case InstallerTypeEnum::Msi:
+            case InstallerTypeEnum::Nullsoft:
+            case InstallerTypeEnum::Wix:
+                return true;
+            default:
+                return false;
+            }
+        }
+    }
+
     void EnsureApplicableInstaller(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>();
@@ -357,18 +376,28 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void InstallPackageInstaller(Execution::Context& context)
+    {
+        context <<
+            Workflow::ReportManifestIdentity <<
+            Workflow::ShowInstallationDisclaimer <<
+            Workflow::ReportExecutionStage(ExecutionStage::Download) <<
+            Workflow::DownloadInstaller <<
+            Workflow::ReportExecutionStage(ExecutionStage::PreExecution) <<
+            Workflow::SnapshotARPEntries <<
+            Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
+            Workflow::ExecuteInstaller <<
+            Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
+            Workflow::ReportARPChanges <<
+            Workflow::RemoveInstaller;
+    }
+
     void InstallPackageVersion(Execution::Context& context)
     {
         context <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
-            Workflow::ShowInstallationDisclaimer <<
-            Workflow::ReportExecutionStage(ExecutionStage::Download) <<
-            Workflow::DownloadInstaller <<
-            Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
-            Workflow::ExecuteInstaller <<
-            Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
-            Workflow::RemoveInstaller;
+            Workflow::InstallPackageInstaller;
     }
 
     void InstallMultiple(Execution::Context& context)
@@ -399,4 +428,213 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED);
         }
     }
+
+    void SnapshotARPEntries(Execution::Context& context) try
+    {
+        // Ensure that installer type might actually write to ARP, otherwise this is a waste of time
+        auto installer = context.Get<Execution::Data::Installer>();
+
+        if (installer && MightWriteToARP(installer->InstallerType))
+        {
+            std::shared_ptr<ISource> arpSource = context.Reporter.ExecuteWithProgress(
+                [](IProgressCallback& progress)
+                {
+                    return Repository::OpenPredefinedSource(PredefinedSource::ARP, progress);
+                }, true);
+
+            std::vector<std::tuple<Utility::LocIndString, Utility::LocIndString, Utility::LocIndString>> entries;
+
+            for (const auto& entry : arpSource->Search({}).Matches)
+            {
+                auto installed = entry.Package->GetInstalledVersion();
+                entries.emplace_back(std::make_tuple(
+                    entry.Package->GetProperty(PackageProperty::Id),
+                    installed->GetProperty(PackageVersionProperty::Version),
+                    installed->GetProperty(PackageVersionProperty::Channel)));
+            }
+
+            std::sort(entries.begin(), entries.end());
+
+            context.Add<Execution::Data::ARPSnapshot>(std::move(entries));
+        }
+    }
+    CATCH_LOG()
+
+    void ReportARPChanges(Execution::Context& context) try
+    {
+        if (context.Contains(Execution::Data::ARPSnapshot))
+        {
+            const auto& entries = context.Get<Execution::Data::ARPSnapshot>();
+
+            // Open it again to get the (potentially) changed ARP entries
+            std::shared_ptr<ISource> arpSource = context.Reporter.ExecuteWithProgress(
+                [](IProgressCallback& progress)
+                {
+                    return Repository::OpenPredefinedSource(PredefinedSource::ARP, progress);
+                }, true);
+
+            std::vector<ResultMatch> changes;
+
+            for (auto& entry : arpSource->Search({}).Matches)
+            {
+                auto installed = entry.Package->GetInstalledVersion();
+                auto entryKey = std::make_tuple(
+                    entry.Package->GetProperty(PackageProperty::Id),
+                    installed->GetProperty(PackageVersionProperty::Version),
+                    installed->GetProperty(PackageVersionProperty::Channel));
+
+                auto itr = std::lower_bound(entries.begin(), entries.end(), entryKey);
+                if (itr == entries.end() || *itr != entryKey)
+                {
+                    changes.emplace_back(std::move(entry));
+                }
+            }
+
+            // Also attempt to find the entry based on the manifest data
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+
+            SearchRequest nameAndPublisherRequest;
+
+            // The default localization must contain the name or we cannot do this lookup
+            if (manifest.DefaultLocalization.Contains(Localization::PackageName))
+            {
+                AppInstaller::Manifest::Manifest::string_t defaultName = manifest.DefaultLocalization.Get<Localization::PackageName>();
+                AppInstaller::Manifest::Manifest::string_t defaultPublisher;
+                if (manifest.DefaultLocalization.Contains(Localization::Publisher))
+                {
+                    defaultPublisher = manifest.DefaultLocalization.Get<Localization::Publisher>();
+                }
+
+                nameAndPublisherRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact, defaultName, defaultPublisher));
+
+                for (const auto& loc : manifest.Localizations)
+                {
+                    if (loc.Contains(Localization::PackageName) || loc.Contains(Localization::Publisher))
+                    {
+                        nameAndPublisherRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact,
+                            loc.Contains(Localization::PackageName) ? loc.Get<Localization::PackageName>() : defaultName,
+                            loc.Contains(Localization::Publisher) ? loc.Get<Localization::Publisher>() : defaultPublisher));
+                    }
+                }
+            }
+
+            std::vector<std::string> productCodes;
+            for (const auto& installer : manifest.Installers)
+            {
+                if (!installer.ProductCode.empty())
+                {
+                    if (std::find(productCodes.begin(), productCodes.end(), installer.ProductCode) == productCodes.end())
+                    {
+                        nameAndPublisherRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, installer.ProductCode));
+                        productCodes.emplace_back(installer.ProductCode);
+                    }
+                }
+            }
+
+            SearchResult findByManifest;
+
+            // Don't execute this search if it would just find everything
+            if (!nameAndPublisherRequest.IsForEverything())
+            {
+                findByManifest = arpSource->Search(nameAndPublisherRequest);
+            }
+
+            // Cross reference the changes with the search results
+            std::vector<std::shared_ptr<IPackage>> packagesInBoth;
+
+            for (const auto& change : changes)
+            {
+                for (const auto& byManifest : findByManifest.Matches)
+                {
+                    if (change.Package->IsSame(byManifest.Package.get()))
+                    {
+                        packagesInBoth.emplace_back(change.Package);
+                        break;
+                    }
+                }
+            }
+
+            // We now have all of the package changes; time to report them.
+            // The set of cases we could have for changes to ARP:
+            //  0 packages  ::  No changes were detected to ARP, which could mean that the installer
+            //                  did not write an entry. It could also be a forced reinstall.
+            //  1 package   ::  Golden path; this should be what we installed.
+            //  2+ packages ::  We need to determine which package actually matches the one that we
+            //                  were installing.
+            //
+            // The set of cases we could have for finding packages based on the manifest:
+            //  0 packages  ::  The manifest data does not match the ARP information.
+            //  1 package   ::  Golden path; this should be what we installed.
+            //  2+ packages ::  The data in the manifest is either too broad or we have
+            //                  a problem with our name normalization.
+            //
+            //                           ARP Package changes
+            //                0                  1                     N
+            //      +------------------+--------------------+--------------------+
+            // M    |                  |                    |                    |
+            // a    | Package does not | Manifest data does | Manifest data does |
+            // n  0 |   write to ARP   |   not match ARP    |   not match ARP    |
+            // i    |  Log this fact   |   Log for fixup    |   Log for fixup    |
+            // f    |                  |                    |                    |
+            // e    +------------------+--------------------+--------------------+
+            // s    |                  |                    |                    |
+            // t    |   Reinstall of   |    Golden Path!    | Treat manifest as  |
+            //    1 | existing version |  (assuming match)  |   main if common   |
+            // r    |                  |                    |                    |
+            // e    +------------------+--------------------+--------------------+
+            // s    |                  |                    |                    |
+            // u    |   Not expected   | Treat ARP as main  |    Not expected    |
+            // l  N |   Log this for   |                    |    Log this for    |
+            // t    |   investigation  |                    |    investigation   |
+            // s    |                  |                    |                    |
+            //      +------------------+--------------------+--------------------+
+
+            // Find the package that we are going to log
+            std::shared_ptr<IPackageVersion> toLog;
+
+            // If no changes found, only log if a single matching package was found by the manifest
+            if (changes.empty() && findByManifest.Matches.size() == 1)
+            {
+                toLog = findByManifest.Matches[0].Package->GetInstalledVersion();
+            }
+            // If only a single ARP entry was changed, always log that
+            else if (changes.size() == 1)
+            {
+                toLog = changes[0].Package->GetInstalledVersion();
+            }
+            // Finally, if there is only a single common package, log that one
+            else if (packagesInBoth.size() == 1)
+            {
+                toLog = packagesInBoth[0]->GetInstalledVersion();
+            }
+
+            IPackageVersion::Metadata toLogMetadata;
+            if (toLog)
+            {
+                toLogMetadata = toLog->GetMetadata();
+            }
+
+            // We can only get the source identifier from an active source
+            std::string sourceIdentifier;
+            if (context.Contains(Execution::Data::PackageVersion))
+            {
+                sourceIdentifier = context.Get<Execution::Data::PackageVersion>()->GetProperty(PackageVersionProperty::SourceIdentifier);
+            }
+
+            Logging::Telemetry().LogSuccessfulInstallARPChange(
+                sourceIdentifier,
+                manifest.Id,
+                manifest.Version,
+                manifest.Channel,
+                changes.size(),
+                findByManifest.Matches.size(),
+                packagesInBoth.size(),
+                toLog ? static_cast<std::string_view>(toLog->GetProperty(PackageVersionProperty::Name)) : "",
+                toLog ? static_cast<std::string_view>(toLog->GetProperty(PackageVersionProperty::Version)) : "",
+                toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Publisher]) : "",
+                toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Locale]) : ""
+            );
+        }
+    }
+    CATCH_LOG()
 }

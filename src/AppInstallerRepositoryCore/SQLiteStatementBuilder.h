@@ -239,6 +239,8 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& LikeWithEscape(std::string_view value);
         StatementBuilder& Like(details::unbound_t);
 
+        StatementBuilder& LiteralColumn(std::string_view value);
+
         StatementBuilder& Escape(std::string_view escapeChar);
 
         StatementBuilder& Not();
@@ -394,7 +396,8 @@ namespace AppInstaller::Repository::SQLite::Builder
         {
             Equals,
             Like,
-            Escape
+            Escape,
+            Literal,
         };
 
         // Appends given the operation.

@@ -756,4 +756,62 @@ Pódense configurar mediante o ficheiro de configuración “winget settings”.
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Produciuse un erro na desinstalación co seguinte código de saída:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Exporta unha lista dos paquetes instalados</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Instala todos os paquetes incluídos nun ficheiro.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Instala todos os paquetes incluídos nun ficheiro</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Ficheiro no que se vai escribir o resultado</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Ficheiro no que se describen os paquetes que se van instalar</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Exporta os paquetes da orixe especificada</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Escribe unha lista dos paquetes instalados nun ficheiro. A continuación, os paquetes pódense instalar cun comando de importación.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Non se poden instalar un ou máis paquetes importados</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Non se atopou ningún paquete para importalo:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>A orixe necesaria para a importación non está instalada:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>O paquete instalado non está dispoñible desde ningunha orixe:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>A versión instalada do paquete non está dispoñible desde ningunha orixe:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Non se encontrou ningún paquete no ficheiro de importación</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>O ficheiro de JSON non é válido</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>O paquete xa está instalado:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignora os paquetes desactivados</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Inclúe as versións do paquete no ficheiro xerado</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignora as versións do paquete do ficheiro de importación</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>O camiño non existe:</value>
+  </data>
 </root>

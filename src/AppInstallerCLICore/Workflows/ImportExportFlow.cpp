@@ -169,14 +169,25 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
         }
 
-        auto packages = PackagesJson::TryParseJson(jsonRoot);
-        if (!packages.has_value())
+        PackagesJson::ParseResult parseResult = PackagesJson::TryParseJson(jsonRoot);
+        if (parseResult.Result != PackagesJson::ParseResult::Type::Success)
         {
             context.Reporter.Error() << Resource::String::InvalidJsonFile << std::endl;
+            if (parseResult.Result == PackagesJson::ParseResult::Type::MissingSchema ||
+                parseResult.Result == PackagesJson::ParseResult::Type::UnrecognizedSchema)
+            {
+                context.Reporter.Error() << Resource::String::ImportFileHasInvalidSchema << std::endl;
+            }
+            else if (parseResult.Result == PackagesJson::ParseResult::Type::SchemaValidationFailed)
+            {
+                context.Reporter.Error() << parseResult.Errors << std::endl;
+            }
+
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
         }
 
-        if (packages->Sources.empty())
+        PackageCollection& packages = parseResult.Packages;
+        if (packages.Sources.empty())
         {
             AICLI_LOG(CLI, Warning, << "No packages to install");
             context.Reporter.Info() << Resource::String::NoPackagesFoundInImportFile << std::endl;
@@ -186,7 +197,7 @@ namespace AppInstaller::CLI::Workflow
         if (context.Args.Contains(Execution::Args::Type::IgnoreVersions))
         {
             // Strip out all the version information as we don't need it.
-            for (auto& source : packages->Sources)
+            for (auto& source : packages.Sources)
             {
                 for (auto& package : source.Packages)
                 {
@@ -195,7 +206,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        context.Add<Execution::Data::PackageCollection>(packages.value());
+        context.Add<Execution::Data::PackageCollection>(std::move(packages));
     }
 
     void OpenSourcesForImport(Execution::Context& context)
@@ -253,7 +264,7 @@ namespace AppInstaller::CLI::Workflow
 
                 // Search for the current package
                 SearchRequest searchRequest;
-                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, packageRequest.Id));
+                searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, packageRequest.Id.get()));
 
                 auto searchContextPtr = context.Clone();
                 Execution::Context& searchContext = *searchContextPtr;

@@ -814,4 +814,7 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Path does not exist:</value>
   </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>The JSON file does not specify a recognized schema.</value>
+  </data>
 </root>

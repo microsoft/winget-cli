@@ -756,4 +756,62 @@ Onlar parametrlər faylı olan 'winget settings' vasitəsilə konfiqurasiya edil
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Quraşdırılmışın ləğvi verilən çıxış kodu ilə alınmadı:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Quraşdırılmış paketlərin siyahısını ixrac et</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Faylda sadalanan bütün paketləri quraşdırır.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Fayldakı bütün paketləri quraşdırır</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Nəticənin yazılacağı fayl</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Paketlərini quraşdırmaq üçün təsvir edilən fayl</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Göstərilən mənbədən paketləri ixrac et</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Qurulmuş paketlərin siyahısını bir fayla yazır. Paketlər daha sonra “import” əmri ilə quraşdırıla bilər.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Bir və ya daha çox idxal edilmiş paketi quraşdırmaq uğursuz oldu</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>İdxal üçün paket tapılmadı:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Idxal üçün lazım olan mənbə quraşdırılmayıb:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Qurulmuş paket heç bir mənbədən əlçatan deyil:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Paketin quraşdırılmış versiyası heç bir mənbədən əlçatan deyil:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>İdxal sənədində paket tapılmadı</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON faylı düzgün deyil</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Paket artıq quraşdırılıb:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Mövcud paketləri rədd et</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Paket versiyalarını istehsal edilmiş fayla daxil edin</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Paketin quraşdırılmış versiyası heç bir mənbədən əlcatan deyil:</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Yol mövcud deyil:</value>
+  </data>
 </root>

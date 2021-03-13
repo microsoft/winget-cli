@@ -756,4 +756,62 @@ jih je mogoče konfigurirati v datoteki z nastavitvami »winget settings«.</val
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Postopek odstranjevanja ni uspel s kodo izhoda:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Izvozi seznam nameščenih paketov</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Namesti vse pakete, navedene v datoteki.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Namesti vse pakete, navedene v datoteki</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Datoteka, v katero bo mogoče pisati rezultat</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Datoteka opisuje pakete za namestitev</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Izvozite pakete iz navedenega vira</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Zapiše seznam nameščenih paketov v datoteko. Pakete lahko nato namestite z ukazom za import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Enega ali več uvoženih paketov ni bilo mogoče namestiti</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Paketa za uvoz ni bilo mogoče najti:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Vir, potreben za uvoz, ni nameščen:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Nameščena različica paketa ni na voljo iz poljubnega vira:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Nameščena različica paketa ni na voljo iz poljubnega vira:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>V datoteki za uvoz ni bil najden noben paket</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Datoteka JSON ni veljavna</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Paket je že nameščen:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Prezrite pakete, ki niso na voljo</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Vključi različice paketa v ustvarjene datoteke</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Prezrite različice paketa iz datoteke za uvoz</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Pot ne obstaja:</value>
+  </data>
 </root>

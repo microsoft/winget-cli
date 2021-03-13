@@ -756,4 +756,62 @@ A „winget settings” nevű beállításfájl használatával konfigurálható
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Az eltávolítás sikertelen a következő kilépési kóddal:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>A telepített csomagok listájának exportálása</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>A fájlban felsorolt összes csomag telepítése.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Egy fájlban szereplő összes csomag telepítése</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Az eredmény kiírására használandó fájl</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>A telepítendő csomagokat leíró fájl</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Csomagok exportálása a megadott forrásból</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Egy fájlban felsorolja a telepített csomagokat. Ezt követően a csomagok az „import” paranccsal telepíthetők.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Egy vagy több importált csomag telepítése nem sikerült</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Nem található csomag az importáláshoz:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Az importáláshoz szükséges forrás nincs telepítve:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>A telepített csomag egyetlen forrásból sem érhető el:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>A csomag telepített verziója egyetlen forrásból sem érhető el:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Nem található csomag az importált fájlban</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>A JSON-fájl érvénytelen</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>A csomag már telepítve van:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Nem elérhető csomagok figyelmen kívül hagyása</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Csomagverziók belefoglalása a létrehozott fájlba</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Az importált fájlban szereplő csomagverziók figyelmen kívül hagyása</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Az elérési út nem létezik:</value>
+  </data>
 </root>

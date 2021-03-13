@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>నిష్క్రమణ కోడ్‌తో అన్‌ఇన్‌స్టాల్ చేయడం విఫలమైంది:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>వ్యవస్థాపించిన ప్యాకేజీల జాబితాను ఎగుమతి చేస్తుంది</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>ఫైల్‌లో జాబితా చేయబడిన అన్ని ప్యాకేజీలను వ్యవస్థాపిస్తుంది.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>ఫైల్‌లో అన్ని ప్యాకేజీలను వ్యవస్థాపిస్తుంది</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>ఫలితం రాయాల్సిన ఫైల్</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>వ్యవస్థాపించాల్సిన ప్యాకేజీలను ఫైల్ వివరిస్తోంది</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>నిర్ధిష్ట మూలం నుంచి ప్యాకేజీలను ఎగుమతి చేయండి</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>వ్యవస్థాపించబడిన ప్యాకేజీల జాబితాను ఫైల్‌కు రాస్తుంది. తర్వాత import ఆదేశంతో ప్యాకేజీలు వ్యవస్థాపించబడవచ్చు.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>ఒకటి లేదా అంతకంటే ఎక్కువ దిగుమతి చేసిన ప్యాకేజీలు వ్యవస్థాపించడంలో విఫలమయ్యాయి</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>దిగుమతి చేసుకునేందుకు ప్యాకేజీ కనుగొనబడలేదు:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>దిగుమతి కోసం అవసరమైన మూలం వ్యవస్థాపించబడలేదు:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>వ్యవస్థాపించిన ప్యాకేజీ ఏ మూలం నుంచి అందుబాటులో లేదు:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>ప్యాకేజీ యొక్క వ్యవస్థాపించిన వెర్షన్ ఏ మూలం నుంచి అందుబాటులో లేదు:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>దిగుమతి ఫైల్‌లో ఏ ప్యాకేజీ కనుగొనబడలేదు</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON ఫైల్ చెల్లదు</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>ప్యాకేజీ ఇప్పటికే వ్యవస్థాపించబడింది:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>అందుబాటులో లేని ప్యాకేజీలను విస్మరించండి</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>ప్యాకేజీ వెర్షన్‌లను ఉత్పత్తి చేసిన ఫైల్‌లో చేర్చండి</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>దిగుమతి ఫైల్ నుంచి ప్యాకేజీ వెర్షన్‌లను విస్మరించండి</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>పథం ఉనికిలో లేదు:</value>
+  </data>
 </root>

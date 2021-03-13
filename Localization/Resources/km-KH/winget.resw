@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>មិនអាចលុបបានទេ ហើយកូដចេញគឺ៖</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>នាំចេញបញ្ជីនៃកញ្ចប់ដែលបានដំឡើង</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>ដំឡើងកញ្ចប់ទាំងអស់ដែលបានដាក់ជាបញ្ជីនៅក្នុងឯកសារ។</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>ដំឡើងកញ្ចប់ទាំងអស់នៅក្នុងឯកសារ</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>ឯកសារដែលលទ្ធផលត្រូវបានកត់ត្រា</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>ឯកសារដែលពណ៌នាអំពីកញ្ចប់សម្រាប់ដំឡើង</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>នាំចេញកញ្ចប់ពីប្រភពដែលបានបញ្ជាក់</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>សរសេរបញ្ជីនៃកញ្ចប់ដែលបានដំឡើងទៅឯកសារ។ បន្ទាប់មក កញ្ចប់អាចត្រូវបានដំឡើងជាមួយការបញ្ជា import។</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>មិនអាចដំឡើងកញ្ចប់ដែលនាំចូលមួយ ឬច្រើនបានទេ</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>រកមិនឃើញកញ្ចប់សម្រាប់នាំចូលទេ៖</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>ប្រភពដែលតម្រូវឱ្យមានសម្រាប់ការនាំចូលមិនត្រូវបានដំឡើងទេ៖</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>មិនមានកំណែកញ្ចប់ដែលបានដំឡើងពីប្រភពណាមួយទេ៖</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>មិនមានកំណែកញ្ចប់ដែលបានដំឡើងពីប្រភពណាមួយទេ៖</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>រកមិនឃើញកញ្ចប់នៅក្នុងឯកសារនាំចូលទេ</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>ឯកសារ JSON មិនត្រឹមត្រូវទេ</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>កញ្ចប់ត្រូវបានដំឡើងរួចហើយ៖</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>មិនអើពើកញ្ចប់ដែលមិនអាចប្រើបាន</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>រួមបញ្ចូលកំណែកញ្ចប់នៅក្នុងឯកសារដែលបានផលិត</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>មិនអើពើកំណែកញ្ចប់ពីឯកសារនាំចូល</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>មិនមានផ្លូវទេ៖</value>
+  </data>
 </root>

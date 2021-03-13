@@ -35,6 +35,7 @@ casemap
 casemappings
 cch
 CDEF
+cend
 centralus
 certmgr
 certs

@@ -42,6 +42,7 @@ namespace AppInstaller::Repository
         Tag,
         PackageFamilyName,
         ProductCode,
+        NormalizedNameAndPublisher,
     };
 
     // A single match to be performed during a search.
@@ -49,8 +50,13 @@ namespace AppInstaller::Repository
     {
         MatchType Type;
         Utility::NormalizedString Value;
+        std::optional<Utility::NormalizedString> Additional;
 
-        RequestMatch(MatchType t, std::string_view v) : Type(t), Value(v) {}
+        RequestMatch(MatchType t) : Type(t) {}
+        RequestMatch(MatchType t, Utility::NormalizedString& v) : Type(t), Value(v) {}
+        RequestMatch(MatchType t, const Utility::NormalizedString& v) : Type(t), Value(v) {}
+        RequestMatch(MatchType t, Utility::NormalizedString&& v) : Type(t), Value(std::move(v)) {}
+        RequestMatch(MatchType t, std::string_view v1, std::string_view v2) : Type(t), Value(v1), Additional(Utility::NormalizedString{ v2 }) {}
     };
 
     // A match on a specific field to be performed during a search.
@@ -58,7 +64,21 @@ namespace AppInstaller::Repository
     {
         PackageMatchField Field;
 
-        PackageMatchFilter(PackageMatchField f, MatchType t, std::string_view v) : RequestMatch(t, v), Field(f) {}
+        PackageMatchFilter(PackageMatchField f, MatchType t) : RequestMatch(t), Field(f) { EnsureRequiredValues(); }
+        PackageMatchFilter(PackageMatchField f, MatchType t, Utility::NormalizedString& v) : RequestMatch(t, v), Field(f) { EnsureRequiredValues(); }
+        PackageMatchFilter(PackageMatchField f, MatchType t, const Utility::NormalizedString& v) : RequestMatch(t, v), Field(f) { EnsureRequiredValues(); }
+        PackageMatchFilter(PackageMatchField f, MatchType t, Utility::NormalizedString&& v) : RequestMatch(t, std::move(v)), Field(f) { EnsureRequiredValues(); }
+        PackageMatchFilter(PackageMatchField f, MatchType t, std::string_view v1, std::string_view v2) : RequestMatch(t, v1, v2), Field(f) { EnsureRequiredValues(); }
+
+    protected:
+        void EnsureRequiredValues()
+        {
+            // Ensure that the second value always exists when it should
+            if (Field == PackageMatchField::NormalizedNameAndPublisher && !Additional)
+            {
+                Additional = Utility::NormalizedString{};
+            }
+        }
     };
 
     // Container for data used to filter the available manifests in a source.
@@ -122,6 +142,10 @@ namespace AppInstaller::Repository
         StandardUninstallCommand,
         // An uninstall command that should be non-interactive
         SilentUninstallCommand,
+        // The publisher of the package
+        Publisher,
+        // The locale of the package
+        Locale,
     };
 
     // Convert a PackageVersionMetadata to a string.
@@ -207,6 +231,9 @@ namespace AppInstaller::Repository
 
         // Gets a value indicating whether an available version is newer than the installed version.
         virtual bool IsUpdateAvailable() const = 0;
+
+        // Determines if the given IPackage refers to the same package as this one.
+        virtual bool IsSame(const IPackage*) const = 0;
     };
 
     // A single result from the search.
@@ -276,6 +303,8 @@ namespace AppInstaller::Repository
             return "PackageFamilyName"sv;
         case PackageMatchField::ProductCode:
             return "ProductCode"sv;
+        case PackageMatchField::NormalizedNameAndPublisher:
+            return "NormalizedNameAndPublisher"sv;
         }
 
         return "UnknownMatchField"sv;

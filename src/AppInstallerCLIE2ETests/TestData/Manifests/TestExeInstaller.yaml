@@ -15,6 +15,6 @@ Installers:
       Silent: /exesilent
       Interactive: /exeinteractive
       Language: /exeenus
-      Log: /exelog <LOGPATH>
+      Log: /LogFile <LOGPATH>
       InstallLocation: /InstallDir <INSTALLPATH>
 ManifestVersion: 0.1.0

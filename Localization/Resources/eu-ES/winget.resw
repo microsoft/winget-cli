@@ -756,4 +756,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Desinstalazioak huts egin du irteera-kode honekin:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Instalatutako paketeen zerrenda esportatzen du</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Instalatu zerrendatutako pakete guztiak fitxategi batean.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Instalatu pakete guztiak fitxategi batean</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Emaitza idazteko fitxategia</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Instalatu beharreko paketeak deskribatzen dituen fitxategia</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Esportatu paketeak zehaztutako iturritik</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Fitxategi batean instalatutako paketeen zerrenda idazten du. Paketeak “import” komandoarekin instala daitezke.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Inportatutako pakete bat edo gehiago ezin izan dira instalatu</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Ez da aurkitu inportatzeko paketea:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Inportaziorako behar den iturria ez dago instalatuta:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Instalatutako paketea ez dago erabilgarri inolako iturritik:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Instalatutako paketearen bertsioa ez dago erabilgarri inolako iturritik:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Ez da paketerik aurkitu inportazio-fitxategian</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON fitxategia ez da baliozkoa</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Paketea lehendik dago instalatuta:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ez ikusi erabilgarri ez dauden paketeak</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Sartu paketeen bertsioak sortutako fitxategian</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ez ikusi inportazio-artxiboko paketeen bertsioak</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Bidea ez dago:</value>
+  </data>
 </root>

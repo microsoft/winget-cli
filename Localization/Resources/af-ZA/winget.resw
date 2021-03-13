@@ -756,4 +756,62 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Verwydering het misluk met verlaat kode:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Voer 'n lys van geïnstalleerde pakkette uit</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Installeer al die pakkette wat in 'n lêer gelys is.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Installeer al die pakkette in 'n lêer.</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Lêer waar die resultaat geskryf moet word</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Lêer wat die pakkette beskryf om te installeer</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Voer pakkette van die gespesifiseerde bron uit</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Skryf 'n lys van die geïnstalleerde pakkette na 'n lêer. Die pakkette kan dan geïnstalleer word met die import bevel.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Een of meer ingevoerde pakkette kon nie geïnstalleer word nie</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Pakket nie gevind vir invoer nie:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Bron word vereis vir invoer is nie geïnstalleer nie:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Geïnstalleerde pakket is nie beskikbaar nie van enige bron af nie:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Geïnstalleerde weergawe van die pakket is nie beskikbaar nie van enige bron af nie:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Geen pakkette in invoer lêer gevind nie</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON-lêer is ongeldig</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Pakket is reeds geïnstalleer:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignoreer onbeskikbare pakkette</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Sluit pakketweergawes in geproduseerde lêer in</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignoreer pakket weergawes van invoer lêer</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Pad bestaan nie:</value>
+  </data>
 </root>

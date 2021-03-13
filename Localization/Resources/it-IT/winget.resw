@@ -756,4 +756,62 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Disinstallazione non riuscita con codice di uscita:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Esporta un elenco dei pacchetti installati</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Installa tutti i pacchetti elencati in un file.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Installa tutti i pacchetti in un file</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>File in cui deve essere scritto il risultato</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>File che descrive i pacchetti da installare</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Esporta pacchetti dall'origine specificata</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Scrive un elenco dei pacchetti installati in un file. I pacchetti possono quindi essere installati con il comando import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Impossibile installare uno o più pacchetti importati</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Pacchetto non trovato per l'importazione:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>L'origine necessaria per l'importazione non è installata:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Il pacchetto installato non è disponibile in alcuna origine:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>La versione installata del pacchetto non è disponibile in alcuna origine:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Nessun pacchetto trovato nel file di importazione</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Il file JSON non è valido</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Il pacchetto è già installato:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignora pacchetti non disponibili</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Includi versioni del pacchetto nel file prodotto</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignora versioni del pacchetto dal file di importazione</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Il percorso non esiste:</value>
+  </data>
 </root>

@@ -10,11 +10,11 @@
 #include <variant>
 #include <vector>
 
+using namespace std::chrono_literals;
+using namespace std::string_view_literals;
+
 namespace AppInstaller::Settings
 {
-    using namespace std::chrono_literals;
-    using namespace std::string_view_literals;
-
     // The type of argument.
     enum class UserSettingsType
     {
@@ -52,7 +52,9 @@ namespace AppInstaller::Settings
         EFList,
         EFExperimentalUpgrade,
         EFUninstall,
-        EFImportExport,
+        EFImport,
+        EFExport,
+        TelemetryDisable,
         EFRestSource,
         Max
     };
@@ -89,7 +91,9 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFList, bool, bool, false, ".experimentalFeatures.list"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalUpgrade, bool, bool, false, ".experimentalFeatures.upgrade"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFUninstall, bool, bool, false, ".experimentalFeatures.uninstall"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFImportExport, bool, bool, false, ".experimentalFeatures.importExport"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFImport, bool, bool, false, ".experimentalFeatures.import"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFExport, bool, bool, false, ".experimentalFeatures.export"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFRestSource, bool, bool, false, ".experimentalFeatures.restSource"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.

@@ -63,15 +63,15 @@
           "type": "boolean",
           "default": false
         },
-        "importExport": {
-          "description": "Enable the import and export commands",
+        "import": {
+          "description": "Enable the import command while it is in development",
           "type": "boolean",
           "default":  false
         }
       }
     }
   },
-  "allOf": [ 
+  "allOf": [
     {
       "properties": {
         "visual": { "$ref": "#/definitions/Visual" }

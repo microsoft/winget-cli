@@ -757,4 +757,62 @@
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>அழி குறியீட்டுடன் நிறுவல்நீக்குதல் தோல்வியடைந்தது:</value>
   </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>நிறுவப்பட்ட தொகுப்புகளின் பட்டியலை ஏற்றுமதிச் செய்கிறது</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>ஒரு கோப்பில் பட்டியலிடப்பட்டுள்ள அனைத்துத் தொகுப்புகளையும் நிறுவுகிறது.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>கோப்பில் உள்ள அனைத்துத் தொகுப்புகளையும் நிறுவுகிறது</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>முடிவு எழுதப்பட வேண்டிய கோப்பு</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>நிறுவுவதற்கான தொகுப்புகளை விவரிக்கும் கோப்பு</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>குறிப்பிட்ட மூலத்திலிருந்து தொகுப்புகளை ஏற்றுமதிசெய்</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>நிறுவப்பட்ட தொகுப்புகளின் பட்டியலை ஒரு கோப்பிற்கு எழுதுகிறது. பிறகு தொகுப்புகளை import கட்டளையின் மூலம் நிறுவலாம்.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>நிறுவ முடியாத ஒன்று அல்லது அதற்கு மேற்பட்ட இறக்குமதிச் செய்யப்பட்ட தொகுப்புகள்</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>இறக்குமதிக்குத் தொகுப்பு கிடைக்கவில்லை:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>இறக்குமதிக்குத் தேவையான மூலம் நிறுவப்படவில்லை:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>நிறுவப்பட்ட தொகுப்பு எந்த மூலத்திலிருந்தும் கிடைக்கப்பெறவில்லை:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>தொகுப்பின் நிறுவப்பட்ட பதிப்பு எந்த மூலத்திலிருந்தும் கிடைக்கவில்லை:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>இறக்குமதிக் கோப்பில் தொகுப்புகள் எதுவும் இல்லை</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON கோப்பு செல்லுபடியாகாது</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>தொகுப்பு ஏற்கனவே நிறுவப்பட்டுள்ளது:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>கிடைக்கப்பெறாத தொகுப்புகளைப் புறக்கணி</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>தயாரிக்கப்பட்ட கோப்பில் தொகுப்புப் பதிப்புகளைச் சேர்</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>இறக்குமதிக் கோப்பிலிருந்து தொகுப்புப் பதிப்புகளைப் புறக்கணி</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>இல்லாத பாதை:</value>
+  </data>
 </root>
