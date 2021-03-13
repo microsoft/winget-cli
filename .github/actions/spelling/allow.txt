@@ -56,6 +56,7 @@ cotaskmem
 cout
 cpp
 cppreference
+cpprest
 cpprestsdk
 cppwinrt
 CPRWL
@@ -177,6 +178,7 @@ iostream
 IOutput
 IProgress
 IRandom
+IRest
 ISAPPROVEDFOROUTPUT
 ISource
 isspace
@@ -281,6 +283,7 @@ png
 posix
 powershell
 PPV
+pplx
 pragma
 PRECONFIG
 preindexed

@@ -224,7 +224,7 @@ namespace AppInstaller::Repository::Rest
 
                 if (otherAvailablePackage)
                 {
-                    return m_package.packageInfo.packageIdentifier == otherAvailablePackage->m_package.packageInfo.packageIdentifier;
+                    return Utility::CaseInsensitiveEquals(m_package.packageInfo.packageIdentifier, otherAvailablePackage->m_package.packageInfo.packageIdentifier);
                 }
 
                 return false;
