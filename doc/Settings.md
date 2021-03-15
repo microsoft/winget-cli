@@ -107,3 +107,13 @@ While work is in progress for import, the command is hidden behind a feature tog
        "import": true
    },
 ```
+
+### restSource
+
+While work is in progress for rest source support, the command is hidden behind a feature toggle. One can enable it as below:
+
+```
+   "experimentalFeatures": {
+       "restSource": true
+   },
+```

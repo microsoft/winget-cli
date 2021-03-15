@@ -67,8 +67,6 @@ namespace AppInstaller
                 return "Command requires administrator privileges to run";
             case APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE:
                 return "The source location is not secure";
-            case APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE:
-                return "The source location is not remote";
             case APPINSTALLER_CLI_ERROR_MSSTORE_BLOCKED_BY_POLICY:
                 return "The Microsoft Store client is blocked by policy";
             case APPINSTALLER_CLI_ERROR_MSSTORE_APP_BLOCKED_BY_POLICY:
@@ -123,6 +121,10 @@ namespace AppInstaller
                 return "Failed to install one or more imported packages";
             case APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND:
                 return "Could not find one or more requested packages";
+            case APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE:
+                return "Json file is invalid";
+            case APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE:
+                return "The source location is not remote";
             default:
                 return "Unknown Error Code";
             }
