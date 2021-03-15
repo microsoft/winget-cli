@@ -101,19 +101,19 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
         std::optional<std::string> GetStringFromJsonStringValue(const web::json::value& value)
         {
-            if (value.is_null())
+            if (value.is_null() || !value.is_string())
             {
                 return {};
             }
 
-            std::string result = utility::conversions::to_utf8string(value.as_string());
+            std::string result = Utility::Trim(utility::conversions::to_utf8string(value.as_string()));
 
-            if (result.empty() || IsStringWhitespace(result))
+            if (Utility::IsEmptyOrWhitespace(result))
             {
                 return {};
             }
 
-            return utility::conversions::to_utf8string(value.as_string());
+            return result;
         }
     }
 
