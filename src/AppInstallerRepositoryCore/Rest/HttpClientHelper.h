@@ -9,7 +9,7 @@ namespace AppInstaller::Repository::Rest
 {
     struct HttpClientHelper
     {
-        HttpClientHelper(utility::string_t url);
+        HttpClientHelper(const utility::string_t& url);
 
         pplx::task<web::http::http_response> Post(const web::json::value& body);
 

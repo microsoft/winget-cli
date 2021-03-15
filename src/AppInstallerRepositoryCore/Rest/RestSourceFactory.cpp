@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
 #include "pch.h"
 #include "RestSourceFactory.h"
 #include "RestClient.h"
@@ -18,7 +17,7 @@ namespace AppInstaller::Repository::Rest
         {
             std::shared_ptr<ISource> Create(const SourceDetails& details, IProgressCallback&) override final
             {
-                THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
+                THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, RestSourceFactory::Type()));
 
                 RestClient restClient = RestClient::RestClient(details.Arg);
 
@@ -30,12 +29,11 @@ namespace AppInstaller::Repository::Rest
             {
                 if (details.Type.empty())
                 {
-                    // With more than one source implementation, we will probably need to probe first
                     details.Type = RestSourceFactory::Type();
                 }
                 else
                 {
-                    THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
+                    THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, RestSourceFactory::Type()));
                 }
 
                 // Check if URL is remote and secure
@@ -45,12 +43,12 @@ namespace AppInstaller::Repository::Rest
 
             void Update(const SourceDetails& details, IProgressCallback&) override final
             {
-                THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
+                THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, RestSourceFactory::Type()));
             }
 
             void Remove(const SourceDetails& details, IProgressCallback&) override final
             {
-                THROW_HR_IF(E_INVALIDARG, details.Type != RestSourceFactory::Type());
+                THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, RestSourceFactory::Type()));
             }
         };
     }

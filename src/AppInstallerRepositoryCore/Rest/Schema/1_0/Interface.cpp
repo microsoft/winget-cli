@@ -86,19 +86,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             return utility::conversions::to_string_t(versionEndpoint);
         }
 
-        bool IsStringWhitespace(const std::string& value)
-        {
-            for (size_t i = 0; i < value.length(); i++)
-            {
-                if (!std::isspace(value[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         std::optional<std::string> GetStringFromJsonStringValue(const web::json::value& value)
         {
             if (value.is_null() || !value.is_string())
@@ -117,19 +104,18 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         }
     }
 
-    Interface::Interface(std::string restApi)
+    Interface::Interface(const std::string& restApi)
     {
-         m_restApiUri = GetRestAPIBaseUri(std::move(restApi));
+         m_restApiUri = GetRestAPIBaseUri(restApi);
          m_searchEndpoint = GetSearchEndpoint(m_restApiUri);
     }
 
     IRestClient::SearchResult Interface::Search(const SearchRequest& request) const
     {
-        UNREFERENCED_PARAMETER(request);
         SearchResult result;
 
         // TODO: Handle continuation token.
-        HttpClientHelper clientHelper(m_searchEndpoint);
+        HttpClientHelper clientHelper{ m_searchEndpoint };
         web::json::value jsonObject = clientHelper.HandlePost(GetSearchBody(request));
 
         // Parse json and add results to SearchResult.
@@ -167,7 +153,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                     continue;
                 }
 
-                versionList.emplace_back(AppInstaller::Utility::VersionAndChannel(std::move(version.value()), std::move(channel.value_or(""))));
+                versionList.emplace_back(AppInstaller::Utility::VersionAndChannel{ std::move(version.value()), std::move(channel.value_or("")) });
             }
 
             if (versionList.size() == 0)
@@ -176,8 +162,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                 continue;
             }
 
-            PackageInfo packageInfo = PackageInfo(std::move(packageId.value()), std::move(packageName.value()), std::move(publisher.value()));
-            Package package = Package(std::move(packageInfo), std::move(versionList));
+            PackageInfo packageInfo = PackageInfo{ std::move(packageId.value()), std::move(packageName.value()), std::move(publisher.value()) };
+            Package package = Package{ std::move(packageInfo), std::move(versionList) };
             result.Matches.emplace_back(std::move(package));
         }
 
@@ -186,7 +172,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
     std::optional<Manifest::Manifest> Interface::GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const
     {
-        HttpClientHelper clientHelper(GetManifestByVersionEndpoint(m_restApiUri, packageId, version, channel));
+        HttpClientHelper clientHelper{ GetManifestByVersionEndpoint(m_restApiUri, packageId, version, channel) };
         web::json::value jsonObject = clientHelper.HandleGet();
 
         if (jsonObject.is_null())
@@ -195,8 +181,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         }
 
         // Parse json and return Manifest
-        auto& manifestObject = jsonObject.at(GetJsonKeyNameString(Data));
-        UNREFERENCED_PARAMETER(manifestObject);
+        (void)jsonObject.at(GetJsonKeyNameString(Data));
         return {};
     }
 }

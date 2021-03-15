@@ -7,7 +7,7 @@ namespace AppInstaller::Repository::Rest
 {
     struct RestClient
     {
-        RestClient(std::string restApi);
+        RestClient(const std::string& restApi);
 
         // The return type of Search
         using SearchResult = Rest::Schema::IRestClient::SearchResult;

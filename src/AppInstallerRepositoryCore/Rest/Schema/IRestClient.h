@@ -15,22 +15,22 @@ namespace AppInstaller::Repository::Rest::Schema
 
     struct PackageInfo
     {
-        std::string packageIdentifier;
-        std::string packageName;
-        std::string publisher;
+        std::string PackageIdentifier;
+        std::string PackageName;
+        std::string Publisher;
 
         PackageInfo(std::string packageIdentifier, std::string packageName, std::string publisher) 
-        : packageIdentifier(packageIdentifier), packageName(packageName), publisher(publisher) {}
+        : PackageIdentifier(packageIdentifier), PackageName(packageName), Publisher(publisher) {}
     };
 
     // Minimal information retrieved for any search request.
     struct Package
     {
-        PackageInfo packageInfo;
-        std::vector<AppInstaller::Utility::VersionAndChannel> versions;
+        PackageInfo PackageInformation;
+        std::vector<AppInstaller::Utility::VersionAndChannel> Versions;
 
         Package(PackageInfo packageInfo, std::vector<AppInstaller::Utility::VersionAndChannel> versions)
-        : packageInfo(packageInfo), versions(versions) {}
+        : PackageInformation(packageInfo), Versions(versions) {}
     };
 
     struct SearchResult

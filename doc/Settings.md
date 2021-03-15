@@ -110,7 +110,7 @@ While work is in progress for import, the command is hidden behind a feature tog
 
 ### restSource
 
-While work is in progress for rest source support, the command is hidden behind a feature toggle. One can enable it as below:
+While work is in progress for rest source support, the feature is hidden behind a feature toggle. Enabling this will not change how client works currently and will allow testing any additional rest sources added. One can enable it as below:
 
 ```
    "experimentalFeatures": {

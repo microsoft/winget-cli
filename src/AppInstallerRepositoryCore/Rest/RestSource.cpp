@@ -46,9 +46,9 @@ namespace AppInstaller::Repository::Rest
                 case PackageVersionProperty::SourceName:
                     return Utility::LocIndString{ GetReferenceSource()->GetDetails().Name };
                 case PackageVersionProperty::Id:
-                    return Utility::LocIndString{ m_packageInfo.packageIdentifier };
+                    return Utility::LocIndString{ m_packageInfo.PackageIdentifier };
                 case PackageVersionProperty::Name:
-                    return Utility::LocIndString{ m_packageInfo.packageName };
+                    return Utility::LocIndString{ m_packageInfo.PackageName };
                 case PackageVersionProperty::Version:
                     return Utility::LocIndString{ m_versionInfo.GetVersion().ToString() };
                 case PackageVersionProperty::Channel:
@@ -70,8 +70,8 @@ namespace AppInstaller::Repository::Rest
             Manifest::Manifest GetManifest() const override
             {
                 AICLI_LOG(Repo, Verbose, << "Downloading manifest");
-                Manifest::Manifest manifest = GetReferenceSource()->GetRestClient().GetManifestByVersion(
-                    m_packageInfo.packageIdentifier, m_versionInfo.GetVersion().ToString(), m_versionInfo.GetChannel().ToString()).value();
+                std::optional<Manifest::Manifest> manifest = GetReferenceSource()->GetRestClient().GetManifestByVersion(
+                    m_packageInfo.PackageIdentifier, m_versionInfo.GetVersion().ToString(), m_versionInfo.GetChannel().ToString());
 
                 THROW_HR(ERROR_CALL_NOT_IMPLEMENTED);
             }
@@ -99,7 +99,7 @@ namespace AppInstaller::Repository::Rest
                 SourceReference(source), m_package(std::move(package))
             {
                  // Sort the versions
-                 std::sort(m_package.versions.begin(), m_package.versions.end());
+                 std::sort(m_package.Versions.begin(), m_package.Versions.end());
             }
 
             Utility::LocIndString GetProperty(PackageProperty property) const
@@ -107,9 +107,9 @@ namespace AppInstaller::Repository::Rest
                 switch (property)
                 {
                 case PackageProperty::Id:
-                    return Utility::LocIndString{ m_package.packageInfo.packageIdentifier };
+                    return Utility::LocIndString{ m_package.PackageInformation.PackageIdentifier };
                 case PackageProperty::Name:
-                    return Utility::LocIndString{ m_package.packageInfo.packageName };
+                    return Utility::LocIndString{ m_package.PackageInformation.PackageName };
                 default:
                     THROW_HR(E_UNEXPECTED);
                 }
@@ -118,8 +118,8 @@ namespace AppInstaller::Repository::Rest
         protected:
             std::shared_ptr<IPackageVersion> GetLatestVersionInternal() const
             {
-                VersionAndChannel latestVersion = m_package.versions.front();
-                return std::make_shared<PackageVersion>(GetReferenceSource(), m_package.packageInfo, latestVersion);
+                VersionAndChannel latestVersion = m_package.Versions.front();
+                return std::make_shared<PackageVersion>(GetReferenceSource(), m_package.PackageInformation, latestVersion);
             }
 
             IRestClient::Package m_package;
@@ -146,7 +146,7 @@ namespace AppInstaller::Repository::Rest
                 std::shared_ptr<const RestSource> source = GetReferenceSource();
 
                 std::vector<PackageVersionKey> result;
-                for (const auto& versionInfo : m_package.versions)
+                for (const auto& versionInfo : m_package.Versions)
                 {
                     result.emplace_back(
                         source->GetIdentifier(), versionInfo.GetVersion().ToString(), versionInfo.GetChannel().ToString());
@@ -170,41 +170,41 @@ namespace AppInstaller::Repository::Rest
                     return {};
                 }
 
-                std::shared_ptr<PackageVersion> packageVersion;
+                std::shared_ptr<IPackageVersion> packageVersion;
                 if (!versionKey.Version.empty() && !versionKey.Channel.empty())
                 {
-                    for (const auto& versionInfo : m_package.versions)
+                    for (const auto& versionInfo : m_package.Versions)
                     {
                         if (CaseInsensitiveEquals(versionInfo.GetVersion().ToString(), versionKey.Version)
                             && CaseInsensitiveEquals(versionInfo.GetChannel().ToString(), versionKey.Channel))
                         {
-                            packageVersion = std::make_shared<PackageVersion>(source, m_package.packageInfo, versionInfo);
+                            packageVersion = std::make_shared<PackageVersion>(source, m_package.PackageInformation, versionInfo);
                             break;
                         }
                     }
                 }
                 else if (versionKey.Version.empty() && versionKey.Channel.empty())
                 {
-                    return GetLatestAvailableVersion();
+                    packageVersion = GetLatestAvailableVersion();
                 }
                 else if (versionKey.Version.empty())
                 {
-                    for (const auto& versionInfo : m_package.versions)
+                    for (const auto& versionInfo : m_package.Versions)
                     {
                         if (CaseInsensitiveEquals(versionInfo.GetChannel().ToString(), versionKey.Channel))
                         {
-                            packageVersion = std::make_shared<PackageVersion>(source, m_package.packageInfo, versionInfo);
+                            packageVersion = std::make_shared<PackageVersion>(source, m_package.PackageInformation, versionInfo);
                             break;
                         }
                     }
                 }
                 else if (versionKey.Channel.empty())
                 {
-                    for (const auto& versionInfo : m_package.versions)
+                    for (const auto& versionInfo : m_package.Versions)
                     {
                         if (CaseInsensitiveEquals(versionInfo.GetVersion().ToString(), versionKey.Version))
                         {
-                            packageVersion = std::make_shared<PackageVersion>(source, m_package.packageInfo, versionInfo);
+                            packageVersion = std::make_shared<PackageVersion>(source, m_package.PackageInformation, versionInfo);
                             break;
                         }
                     }
@@ -224,7 +224,7 @@ namespace AppInstaller::Repository::Rest
 
                 if (otherAvailablePackage)
                 {
-                    return Utility::CaseInsensitiveEquals(m_package.packageInfo.packageIdentifier, otherAvailablePackage->m_package.packageInfo.packageIdentifier);
+                    return Utility::CaseInsensitiveEquals(m_package.PackageInformation.PackageIdentifier, otherAvailablePackage->m_package.PackageInformation.PackageIdentifier);
                 }
 
                 return false;
@@ -262,7 +262,7 @@ namespace AppInstaller::Repository::Rest
         for (auto& result : results.Matches)
         {
             std::unique_ptr<IPackage> package = std::make_unique<AvailablePackage>(sharedThis, std::move(result));
-            PackageMatchFilter packageFilter({}, {}, {});
+            PackageMatchFilter packageFilter{ {}, {}, {} };
 
             searchResult.Matches.emplace_back(std::move(package), std::move(packageFilter));
         }

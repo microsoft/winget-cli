@@ -8,10 +8,10 @@ using namespace AppInstaller::Repository::Rest::Schema;
 
 namespace AppInstaller::Repository::Rest
 {
-    RestClient::RestClient(std::string restApi)
+    RestClient::RestClient(const std::string& restApi)
     {
         // TODO: Ask for supported version from Rest API and Get version specific interface.
-        m_interface = std::make_unique<Schema::V1_0::Interface>(std::move(restApi));
+        m_interface = std::make_unique<Schema::V1_0::Interface>(restApi);
     }
 
     std::optional<Manifest::Manifest> RestClient::GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const
