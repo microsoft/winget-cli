@@ -2,15 +2,12 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/GroupPolicy.h"
+#include "AppInstallerLogging.h"
 
 namespace AppInstaller::Settings
 {
     namespace
     {
-        // TODO: Use final path
-        const HKEY PoliciesKey = HKEY_CURRENT_USER; // HKEY_LOCAL_MACHINE;
-        std::string_view PoliciesKeyPath = "test\\policy"; // "SOFTWARE\\Policies\\Microsoft\\Windows\\WinGet";
-
         struct TogglePolicyInternal
         {
             TogglePolicyInternal(TogglePolicy policy, std::string_view regValueName, bool trueIsAllow = false) :
@@ -48,8 +45,14 @@ namespace AppInstaller::Settings
         std::optional<decltype(std::declval<Registry::Value>().GetValue<T>())> GetRegistryValue(const Registry::Key& key, const std::string_view valueName)
         {
             auto value = key[valueName];
-            if (!value.has_value() || value->GetType() != T)
+            if (!value.has_value())
             {
+                return std::nullopt;
+            }
+
+            if (value->GetType() != T)
+            {
+                AICLI_LOG(Core, Warning, << "Value for policy '" << valueName << "' does not have expected type");
                 return std::nullopt;
             }
 
@@ -64,6 +67,7 @@ namespace AppInstaller::Settings
                 return std::nullopt;
             }
 
+            AICLI_LOG(Core, Info, << "Found policy '" << valueName << "', Value: " << *intValue);
             return (bool)*intValue;
         }
 
@@ -154,17 +158,5 @@ namespace AppInstaller::Settings
         }
 
         return itr->second;
-    }
-
-    std::unique_ptr<GroupPolicy> GroupPolicy::s_instance;
-
-    const GroupPolicy& GroupPolicy::Instance()
-    {
-        if (!s_instance)
-        {
-            s_instance = std::make_unique<GroupPolicy>(Registry::Key::OpenIfExists(PoliciesKey, PoliciesKeyPath));
-        }
-
-        return *s_instance;
     }
 }

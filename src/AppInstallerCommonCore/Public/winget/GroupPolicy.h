@@ -80,14 +80,13 @@ namespace AppInstaller::Settings
     {
         using ValuePoliciesMap = EnumBasedVariantMap<ValuePolicy, details::ValuePolicyMapping>;
 
-        static GroupPolicy const& Instance();
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        inline static void SetPolicyRegistryKey(Registry::Key&& key)
+        static GroupPolicy const& Instance()
         {
-            s_instance = std::make_unique<GroupPolicy>(std::move(key));
+            // TODO: Use final location
+            constexpr std::string_view PoliciesKeyPath = "test\\policy"; // "SOFTWARE\\Policies\\Microsoft\\Windows\\WinGet";
+            static GroupPolicy groupPolicy{ Registry::Key::OpenIfExists(HKEY_CURRENT_USER /* HKEY_LOCAL_MACHINE */, PoliciesKeyPath) };
+            return groupPolicy;
         }
-#endif
 
         GroupPolicy() = delete;
 
@@ -96,9 +95,6 @@ namespace AppInstaller::Settings
 
         GroupPolicy(GroupPolicy&&) = delete;
         GroupPolicy& operator=(GroupPolicy&&) = delete;
-
-        GroupPolicy(const Registry::Key& key);
-        ~GroupPolicy() = default;
 
         // Gets the policy value if it is present
         template<ValuePolicy P>
@@ -117,10 +113,14 @@ namespace AppInstaller::Settings
         bool IsAllowed(TogglePolicy policy) const;
 
     private:
-        static std::unique_ptr<GroupPolicy> s_instance;
-
         std::map<TogglePolicy, bool> m_toggles;
         ValuePoliciesMap m_values;
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    protected:
+#endif
+        GroupPolicy(const Registry::Key& key);
+        ~GroupPolicy() = default;
     };
 
     inline const GroupPolicy& GroupPolicies()
