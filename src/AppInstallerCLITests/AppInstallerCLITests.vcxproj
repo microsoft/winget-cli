@@ -456,6 +456,9 @@
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_2.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Msix.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

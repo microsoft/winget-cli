@@ -112,6 +112,7 @@ namespace
             {
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
                 auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
+                auto manifest3 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_2.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
                         TestPackage::Make(
@@ -122,7 +123,7 @@ namespace
                                 { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
                                 { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
                             },
-                            std::vector<Manifest>{ manifest2, manifest },
+                            std::vector<Manifest>{ manifest3, manifest2, manifest },
                             this->shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
@@ -877,6 +878,7 @@ TEST_CASE("UpdateFlow_UpdateExe", "[UpdateFlow][workflow]")
     std::getline(updateResultFile, updateResultStr);
     REQUIRE(updateResultStr.find("/update") != std::string::npos);
     REQUIRE(updateResultStr.find("/silence") != std::string::npos);
+    REQUIRE(updateResultStr.find("/ver3.0.0.0") != std::string::npos);
 }
 
 TEST_CASE("UpdateFlow_UpdateMsix", "[UpdateFlow][workflow]")
