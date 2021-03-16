@@ -20,7 +20,6 @@ namespace AppInstaller::Repository::Rest
 
     web::json::value HttpClientHelper::HandlePost(const web::json::value& body)
     {
-        web::json::value result;
         web::http::http_response httpResponse;
         HttpClientHelper::Post(body).then([&httpResponse](const web::http::http_response& response)
             {
@@ -28,16 +27,8 @@ namespace AppInstaller::Repository::Rest
                 httpResponse = response;
             }).wait();
 
-        if (httpResponse.status_code() == web::http::status_codes::OK)
-        {
-            result = httpResponse.extract_json().get();
-        }
-        else
-        {
-            THROW_HR_IF(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, httpResponse.status_code()), httpResponse.status_code() != web::http::status_codes::OK);
-        }
-
-        return result;
+        THROW_HR_IF(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, httpResponse.status_code()), httpResponse.status_code() != web::http::status_codes::OK);
+        return httpResponse.extract_json().get();
     }
 
     pplx::task<web::http::http_response> HttpClientHelper::Get()
@@ -50,7 +41,6 @@ namespace AppInstaller::Repository::Rest
 
     web::json::value HttpClientHelper::HandleGet()
     {
-        web::json::value result;
         web::http::http_response httpResponse;
         Get().then([&httpResponse](const web::http::http_response& response)
             {
@@ -58,16 +48,8 @@ namespace AppInstaller::Repository::Rest
                 httpResponse = response;
             }).wait();
 
-        if (httpResponse.status_code() == web::http::status_codes::OK)
-        {
-            result = httpResponse.extract_json().get();
-        }
-        else
-        {
-            THROW_HR_IF(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, httpResponse.status_code()), httpResponse.status_code() != web::http::status_codes::OK);
-        }
-
-        return result;
+        THROW_HR_IF(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, httpResponse.status_code()), httpResponse.status_code() != web::http::status_codes::OK);
+        return httpResponse.extract_json().get();
     }
 
     pplx::task<web::http::http_response> HttpClientHelper::MakeRequest(web::http::http_request req)
