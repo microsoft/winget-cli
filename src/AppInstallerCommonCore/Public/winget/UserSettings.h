@@ -55,6 +55,7 @@ namespace AppInstaller::Settings
         EFImport,
         EFExport,
         TelemetryDisable,
+        EFRestSource,
         Max
     };
 
@@ -93,6 +94,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFImport, bool, bool, false, ".experimentalFeatures.import"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExport, bool, bool, false, ".experimentalFeatures.export"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFRestSource, bool, bool, false, ".experimentalFeatures.restSource"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>

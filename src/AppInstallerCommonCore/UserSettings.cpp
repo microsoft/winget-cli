@@ -198,6 +198,7 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFImport)
         WINGET_VALIDATE_PASS_THROUGH(EFExport)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
+        WINGET_VALIDATE_PASS_THROUGH(EFRestSource)
     }
 
     UserSettings::UserSettings() : m_type(UserSettingsType::Default)

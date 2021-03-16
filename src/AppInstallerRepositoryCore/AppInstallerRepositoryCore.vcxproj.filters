@@ -34,6 +34,15 @@
     <Filter Include="Microsoft\Schema\1_2">
       <UniqueIdentifier>{dc8b6163-e9b5-4d05-87bc-d6098afe0f92}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rest">
+      <UniqueIdentifier>{7f16f6e0-12c6-4bb9-885e-3f8b666d5f74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rest\Schema">
+      <UniqueIdentifier>{15a1ee83-4118-40fe-ba43-c54d7185d505}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rest\Schema\1_0">
+      <UniqueIdentifier>{8a93b62f-d065-4048-b43a-a2b14b70c330}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -153,6 +162,24 @@
     <ClInclude Include="Microsoft\Schema\1_2\NormalizedPackagePublisherTable.h">
       <Filter>Microsoft\Schema\1_2</Filter>
     </ClInclude>
+    <ClInclude Include="Rest\Schema\1_0\Interface.h">
+      <Filter>Rest\Schema\1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\IRestClient.h">
+      <Filter>Rest\Schema</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\HttpClientHelper.h">
+      <Filter>Rest</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\RestClient.h">
+      <Filter>Rest</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\RestSource.h">
+      <Filter>Rest</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\RestSourceFactory.h">
+      <Filter>Rest</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -229,6 +256,21 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_2\SearchResultsTable_1_2.cpp">
       <Filter>Microsoft\Schema\1_2</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_0\Interface.cpp">
+      <Filter>Rest\Schema\1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\HttpClientHelper.cpp">
+      <Filter>Rest</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\RestClient.cpp">
+      <Filter>Rest</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\RestSource.cpp">
+      <Filter>Rest</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\RestSourceFactory.cpp">
+      <Filter>Rest</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
