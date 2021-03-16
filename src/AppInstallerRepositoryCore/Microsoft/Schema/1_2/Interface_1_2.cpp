@@ -17,7 +17,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         {
             if (localization.Contains(Manifest::Localization::PackageName))
             {
-                out.emplace_back(normalizer.NormalizeName(Utility::FoldCase(localization.Get<Manifest::Localization::PackageName>())).Name());
+                Utility::NormalizedString value = normalizer.NormalizeName(Utility::FoldCase(localization.Get<Manifest::Localization::PackageName>())).Name();
+                if (std::find(out.begin(), out.end(), value) == out.end())
+                {
+                    out.emplace_back(std::move(value));
+                }
             }
         }
 
@@ -25,7 +29,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         {
             if (localization.Contains(Manifest::Localization::Publisher))
             {
-                out.emplace_back(normalizer.NormalizePublisher(Utility::FoldCase(localization.Get<Manifest::Localization::Publisher>())));
+                Utility::NormalizedString value = normalizer.NormalizePublisher(Utility::FoldCase(localization.Get<Manifest::Localization::Publisher>()));
+                if (std::find(out.begin(), out.end(), value) == out.end())
+                {
+                    out.emplace_back(std::move(value));
+                }
             }
         }
 
