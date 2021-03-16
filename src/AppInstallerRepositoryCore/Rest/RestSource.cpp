@@ -262,6 +262,8 @@ namespace AppInstaller::Repository::Rest
         for (auto& result : results.Matches)
         {
             std::unique_ptr<IPackage> package = std::make_unique<AvailablePackage>(sharedThis, std::move(result));
+
+            // TODO: Improvise to use Package match filter to return relevant search results.
             PackageMatchFilter packageFilter{ {}, {}, {} };
 
             searchResult.Matches.emplace_back(std::move(package), std::move(packageFilter));
