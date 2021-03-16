@@ -25,7 +25,7 @@ namespace AppInstaller::Repository::Rest
         HttpClientHelper::Post(body).then([&httpResponse](const web::http::http_response& response)
             {
                 AICLI_LOG(Repo, Verbose, << "Response status: " << response.status_code());
-                httpResponse = std::move(response);
+                httpResponse = response;
             }).wait();
 
         if (httpResponse.status_code() == web::http::status_codes::OK)
@@ -34,7 +34,7 @@ namespace AppInstaller::Repository::Rest
         }
         else
         {
-            THROW_HR_MSG(E_UNEXPECTED, "Encountered an error while trying to reach server: %s", httpResponse.status_code());
+            THROW_HR_IF(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, httpResponse.status_code()), httpResponse.status_code() != web::http::status_codes::OK);
         }
 
         return result;
@@ -55,7 +55,7 @@ namespace AppInstaller::Repository::Rest
         Get().then([&httpResponse](const web::http::http_response& response)
             {
                 AICLI_LOG(Repo, Verbose, << "Response status: " << response.status_code());
-                httpResponse = std::move(response);
+                httpResponse = response;
             }).wait();
 
         if (httpResponse.status_code() == web::http::status_codes::OK)
@@ -64,7 +64,7 @@ namespace AppInstaller::Repository::Rest
         }
         else
         {
-            THROW_HR_MSG(E_UNEXPECTED, "Encountered an error while trying to reach server %s", httpResponse.status_code());
+            THROW_HR_IF(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, httpResponse.status_code()), httpResponse.status_code() != web::http::status_codes::OK);
         }
 
         return result;
