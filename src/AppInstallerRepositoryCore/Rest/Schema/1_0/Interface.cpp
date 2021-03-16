@@ -51,7 +51,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
         std::string GetRestAPIBaseUri(std::string restApiUri)
         {
-            if (restApiUri.back() == '/')
+            if (!restApiUri.empty() && restApiUri.back() == '/')
             {
                 restApiUri.pop_back();
             }
@@ -78,7 +78,11 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             }
 
             // Add Channel Query param
-            if (!version.empty())
+            if (version.empty() && !channel.empty())
+            {
+                versionEndpoint.append("?channel=").append(channel);
+            }
+            else if(!channel.empty())
             {
                 versionEndpoint.append("&channel=").append(channel);
             }
@@ -93,14 +97,19 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                 return {};
             }
 
-            std::string result = Utility::Trim(utility::conversions::to_utf8string(value.as_string()));
+            return utility::conversions::to_utf8string(value.as_string());
+        }
 
-            if (Utility::IsEmptyOrWhitespace(result))
+        std::string ValidateAndGetStringFromJsonStringValue(const web::json::value& value)
+        {
+            std::optional<std::string> result = GetStringFromJsonStringValue(value);
+
+            if (!result.has_value() && Utility::IsEmptyOrWhitespace(result.value()))
             {
-                return {};
+                THROW_HR_MSG(E_UNEXPECTED, "Missing required value");
             }
 
-            return result;
+            return result.value();
         }
     }
 
@@ -114,57 +123,72 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     {
         SearchResult result;
 
-        // TODO: Handle continuation token.
-        HttpClientHelper clientHelper{ m_searchEndpoint };
-        web::json::value jsonObject = clientHelper.HandlePost(GetSearchBody(request));
-
-        // Parse json and add results to SearchResult.
-        if (jsonObject.is_null())
+        try
         {
-            return result;
-        }
+            // TODO: Handle continuation token.
+            HttpClientHelper clientHelper{ m_searchEndpoint };
+            web::json::value jsonObject = clientHelper.HandlePost(GetSearchBody(request));
 
-        auto& dataArray = jsonObject.at(GetJsonKeyNameString(Data)).as_array();
-
-        for (auto& manifestItem : dataArray)
-        {
-            std::optional<std::string> packageId = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(PackageIdentifier)));
-            std::optional<std::string> packageName = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(PackageName)));
-            std::optional<std::string> publisher = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(Publisher)));
-            std::optional<std::string> packageFamilyName = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(PackageFamilyName)));
-            std::optional<std::string> productCode = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(ProductCode)));
-            web::json::value versionValue = manifestItem.at(GetJsonKeyNameString(Versions));
-
-            if (!packageId.has_value() || !packageName.has_value() || !publisher.has_value() || versionValue.is_null() || versionValue.as_array().size() == 0)
+            // Parse json and add results to SearchResult.
+            if (jsonObject.is_null())
             {
-                AICLI_LOG(Repo, Verbose, << "Received incomplete package. Skipping package: " << packageId.value_or(""));
-                continue;
+                return result;
             }
 
-            std::vector<AppInstaller::Utility::VersionAndChannel> versionList;
-            for (auto& versionItem : versionValue.as_array())
-            {
-                std::optional<std::string> version = GetStringFromJsonStringValue(versionItem.at(GetJsonKeyNameString(Version)));
-                std::optional<std::string> channel = GetStringFromJsonStringValue(versionItem.at(GetJsonKeyNameString(Channel)));
+            auto& dataArray = jsonObject.at(GetJsonKeyNameString(Data)).as_array();
 
-                if (!version.has_value())
+            for (auto& manifestItem : dataArray)
+            {
+                try
                 {
-                    AICLI_LOG(Repo, Verbose, << "Received incomplete package version. Skipping version from package: " << packageId.value());
-                    continue;
+                    std::string packageId = ValidateAndGetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(PackageIdentifier)));
+                    std::string packageName = ValidateAndGetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(PackageName)));
+                    std::string publisher = ValidateAndGetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(Publisher)));
+                    std::optional<std::string> packageFamilyName = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(PackageFamilyName)));
+                    std::optional<std::string> productCode = GetStringFromJsonStringValue(manifestItem.at(GetJsonKeyNameString(ProductCode)));
+                    web::json::value versionValue = manifestItem.at(GetJsonKeyNameString(Versions));
+
+                    if (versionValue.is_null() || versionValue.as_array().size() == 0)
+                    {
+                        AICLI_LOG(Repo, Verbose, << "Received incomplete package. Skipping package: " << packageId);
+                        continue;
+                    }
+
+                    std::vector<AppInstaller::Utility::VersionAndChannel> versionList;
+                    for (auto& versionItem : versionValue.as_array())
+                    {
+                        try
+                        {
+                            std::string version = ValidateAndGetStringFromJsonStringValue(versionItem.at(GetJsonKeyNameString(Version)));
+                            std::optional<std::string> channel = GetStringFromJsonStringValue(versionItem.at(GetJsonKeyNameString(Channel)));
+
+                            versionList.emplace_back(AppInstaller::Utility::VersionAndChannel{ std::move(version), std::move(channel.value_or("")) });
+                        }
+                        catch (...)
+                        {
+                            AICLI_LOG(Repo, Verbose, << "Received incomplete package version. Skipping version from package: " << packageId);
+                        }
+                    }
+
+                    if (versionList.size() == 0)
+                    {
+                        AICLI_LOG(Repo, Verbose, << "Received no valid versions. Skipping package: " << packageId);
+                        continue;
+                    }
+
+                    PackageInfo packageInfo = PackageInfo{ std::move(packageId), std::move(packageName), std::move(publisher) };
+                    Package package = Package{ std::move(packageInfo), std::move(versionList) };
+                    result.Matches.emplace_back(std::move(package));
                 }
-
-                versionList.emplace_back(AppInstaller::Utility::VersionAndChannel{ std::move(version.value()), std::move(channel.value_or("")) });
+                catch (...)
+                {
+                    AICLI_LOG(Repo, Verbose, << "Received invalid manifest item. Skipping.");
+                }
             }
-
-            if (versionList.size() == 0)
-            {
-                AICLI_LOG(Repo, Verbose, << "Received no valid versions. Skipping package: " << packageId.value());
-                continue;
-            }
-
-            PackageInfo packageInfo = PackageInfo{ std::move(packageId.value()), std::move(packageName.value()), std::move(publisher.value()) };
-            Package package = Package{ std::move(packageInfo), std::move(versionList) };
-            result.Matches.emplace_back(std::move(package));
+        }
+        catch (...)
+        {
+            AICLI_LOG(Repo, Verbose, << "Error occurred while attempting to search from Rest source.");
         }
 
         return result;
@@ -172,16 +196,24 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
     std::optional<Manifest::Manifest> Interface::GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const
     {
-        HttpClientHelper clientHelper{ GetManifestByVersionEndpoint(m_restApiUri, packageId, version, channel) };
-        web::json::value jsonObject = clientHelper.HandleGet();
-
-        if (jsonObject.is_null())
+        try
         {
-            return {};
+            HttpClientHelper clientHelper{ GetManifestByVersionEndpoint(m_restApiUri, packageId, version, channel) };
+            web::json::value jsonObject = clientHelper.HandleGet();
+
+            if (jsonObject.is_null())
+            {
+                return {};
+            }
+
+            // Parse json and return Manifest
+            (void)jsonObject.at(GetJsonKeyNameString(Data));
+        }
+        catch (...)
+        {
+            AICLI_LOG(Repo, Verbose, << "Error occurred while attempting to get manifest by version");
         }
 
-        // Parse json and return Manifest
-        (void)jsonObject.at(GetJsonKeyNameString(Data));
         return {};
     }
 }

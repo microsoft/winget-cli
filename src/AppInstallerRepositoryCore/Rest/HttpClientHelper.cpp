@@ -21,15 +21,21 @@ namespace AppInstaller::Repository::Rest
     web::json::value HttpClientHelper::HandlePost(const web::json::value& body)
     {
         web::json::value result;
-        HttpClientHelper::Post(body).then([&result](const web::http::http_response& response)
+        web::http::http_response httpResponse;
+        HttpClientHelper::Post(body).then([&httpResponse](const web::http::http_response& response)
             {
                 AICLI_LOG(Repo, Verbose, << "Response status: " << response.status_code());
-
-                if (response.status_code() == web::http::status_codes::OK)
-                {
-                    result = response.extract_json().get();
-                }
+                httpResponse = std::move(response);
             }).wait();
+
+        if (httpResponse.status_code() == web::http::status_codes::OK)
+        {
+            result = httpResponse.extract_json().get();
+        }
+        else
+        {
+            THROW_HR_MSG(E_UNEXPECTED, "Encountered an error while trying to reach server: %s", httpResponse.status_code());
+        }
 
         return result;
     }
@@ -45,16 +51,21 @@ namespace AppInstaller::Repository::Rest
     web::json::value HttpClientHelper::HandleGet()
     {
         web::json::value result;
-        Get().then([&result](const web::http::http_response& response)
+        web::http::http_response httpResponse;
+        Get().then([&httpResponse](const web::http::http_response& response)
             {
                 AICLI_LOG(Repo, Verbose, << "Response status: " << response.status_code());
-
-                if (response.status_code() == web::http::status_codes::OK)
-                {
-                    result = response.extract_json().get();
-                }
-
+                httpResponse = std::move(response);
             }).wait();
+
+        if (httpResponse.status_code() == web::http::status_codes::OK)
+        {
+            result = httpResponse.extract_json().get();
+        }
+        else
+        {
+            THROW_HR_MSG(E_UNEXPECTED, "Encountered an error while trying to reach server %s", httpResponse.status_code());
+        }
 
         return result;
     }
