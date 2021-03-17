@@ -80,6 +80,11 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
+    void Reporter::SetAppInstallerCaller(AppInstallerCaller caller)
+    {
+        m_caller = caller;
+    }
+
     void Reporter::SetStyle(VisualStyle style)
     {
         m_style = style;
@@ -121,10 +126,30 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
+    void Reporter::OnExecutionStageChange(uint32_t executionStage)
+    {
+        UNREFERENCED_PARAMETER(executionStage);
+    }
+
+    void Reporter::NotifyExecutionStageChange(uint32_t executionStage)
+    {
+        ProgressCallback* callback;
+        callback = m_progressCallback.load();
+        if (callback)
+        {
+            callback->OnExecutionStageChange(executionStage);
+        }
+    }
+
     void Reporter::SetProgressCallback(ProgressCallback* callback)
     {
-        auto lock = m_progressCallbackLock.lock_exclusive();
-        m_progressCallback = callback;
+        // Do not have to reset Callback when AppInstallerCaller is COM Interface
+        // When AppInstallerCaller is COM interface, a single progress callback is expected to handle progress of all ExecutionStages
+        if (!(m_caller == AppInstallerCaller::NoCLI && m_progressCallback.load()))
+        {
+            auto lock = m_progressCallbackLock.lock_exclusive();
+            m_progressCallback = callback;
+        }
     }
 
     void Reporter::CancelInProgressTask(bool force)
