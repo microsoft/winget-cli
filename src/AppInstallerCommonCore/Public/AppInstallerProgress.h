@@ -34,6 +34,9 @@ namespace AppInstaller
         // Called as progress is made.
         // If maximum is 0, the maximum is unknown.
         virtual void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) = 0;
+
+        // Called when ExecutionStage changes.
+        virtual void OnExecutionStageChange(uint32_t executionStage) = 0;
     };
 
     // Callback interface given to the worker to report to.
@@ -61,6 +64,15 @@ namespace AppInstaller
             if (sink)
             {
                 sink->OnProgress(current, maximum, type);
+            }
+        }
+
+        void OnExecutionStageChange(uint32_t executionStage) override 
+        {
+            IProgressSink* sink = GetSink();
+            if (sink)
+            {
+                sink->OnExecutionStageChange(executionStage);
             }
         }
 
