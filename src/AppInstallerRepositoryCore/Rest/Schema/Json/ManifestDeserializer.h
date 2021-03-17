@@ -17,7 +17,7 @@ namespace AppInstaller::Repository::Rest::Schema::Json
 
         std::optional<Manifest::ManifestLocalization> DeserializeLocale(const web::json::value& localeJsonObject) const;
 
-        std::optional<Manifest::ManifestInstaller> DeserializeInstaller(const web::json::value& intallerJsonObject) const;
+        std::optional<Manifest::ManifestInstaller> DeserializeInstaller(const web::json::value& installerJsonObject) const;
 
         std::optional<Manifest::Dependency> DeserializeDependency(const web::json::value& dependenciesJsonObject) const;
     };

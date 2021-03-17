@@ -306,10 +306,10 @@ namespace AppInstaller::Repository::Rest::Schema::Json
         {
             for (auto& mode : installModes.value().get())
             {
-                std::optional<std::string> modeOject = JsonHelper::GetRawStringValueFromJsonValue(mode);
-                if (modeOject.has_value())
+                std::optional<std::string> modeObject = JsonHelper::GetRawStringValueFromJsonValue(mode);
+                if (modeObject.has_value())
                 {
-                    installer.InstallModes.emplace_back(Manifest::ConvertToScopeEnum(modeOject.value()));
+                    installer.InstallModes.emplace_back(Manifest::ConvertToScopeEnum(modeObject.value()));
                 }
             }
         }

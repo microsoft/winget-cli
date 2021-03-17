@@ -89,7 +89,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
     IRestClient::SearchResult Interface::Search(const SearchRequest& request) const
     {
-        // Optimzation
+        // Optimization
         if (MeetsOptimizedSearchCriteria(request))
         {
             return OptimizedSearch(request);
@@ -144,7 +144,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
                 if (errors > 0)
                 {
-                    AICLI_LOG(Repo, Verbose, << "Recieved invalid manifest. Skipping");
+                    AICLI_LOG(Repo, Verbose, << "Received invalid manifest. Skipping");
                     return {};
                 }
             }

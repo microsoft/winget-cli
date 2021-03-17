@@ -76,6 +76,9 @@ delstore
 Demitrius
 denelon
 depersist
+Deserialize
+deserializer
+deserializing
 dest
 devblogs
 differentpath

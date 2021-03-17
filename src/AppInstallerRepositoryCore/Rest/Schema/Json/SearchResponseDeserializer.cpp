@@ -22,10 +22,10 @@ namespace AppInstaller::Repository::Rest::Schema::Json
         constexpr std::string_view Channel = "Channel"sv;
     }
 
-    std::optional<IRestClient::SearchResult> SearchResponseDeserializer::Deserialize(const web::json::value& serachResponseObject) const
+    std::optional<IRestClient::SearchResult> SearchResponseDeserializer::Deserialize(const web::json::value& searchResponseObject) const
     {
         // Make search result from json output.
-        if (serachResponseObject.is_null())
+        if (searchResponseObject.is_null())
         {
             return {};
         }
@@ -33,7 +33,7 @@ namespace AppInstaller::Repository::Rest::Schema::Json
         IRestClient::SearchResult result;
         try
         {
-            std::optional<std::reference_wrapper<const web::json::array>> dataArray = JsonHelper::GetRawJsonArrayFromJsonNode(serachResponseObject, JsonHelper::GetJsonKeyNameString(Data));
+            std::optional<std::reference_wrapper<const web::json::array>> dataArray = JsonHelper::GetRawJsonArrayFromJsonNode(searchResponseObject, JsonHelper::GetJsonKeyNameString(Data));
             if (!dataArray.has_value() || dataArray.value().get().size() == 0)
             {
                 AICLI_LOG(Repo, Verbose, << "No search results returned.");
