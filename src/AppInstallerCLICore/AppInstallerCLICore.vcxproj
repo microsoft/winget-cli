@@ -200,9 +200,11 @@
     <ClInclude Include="ExecutionContext.h" />
     <ClInclude Include="ExecutionProgress.h" />
     <ClInclude Include="ExecutionReporter.h" />
+    <ClInclude Include="Core.h" />
     <ClInclude Include="Invocation.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\AppInstallerCLICore.h" />
+    <ClInclude Include="Public\Caller.h" />
     <ClInclude Include="Resources.h" />
     <ClInclude Include="Search\Search.h" />
     <ClInclude Include="TableOutput.h" />
