@@ -93,10 +93,12 @@ namespace TestCommon
     {
         // Inherited via IProgressCallback
         void OnProgress(uint64_t current, uint64_t maximum, AppInstaller::ProgressType type) override;
+        void OnExecutionStageChange(uint32_t) override;
         bool IsCancelled() override;
         CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) override;
 
         std::function<void(uint64_t, uint64_t, AppInstaller::ProgressType)> m_OnProgress;
+        std::function<void(uint32_t)> m_OnExecutionStateChange;
     };
     // Creates a volatile key for testing.
     wil::unique_hkey RegCreateVolatileTestRoot();
