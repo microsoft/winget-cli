@@ -139,6 +139,11 @@ namespace TestCommon
         }
     }
 
+    void TestProgress::OnExecutionStageChange(uint32_t executionStage)
+    {
+        UNREFERENCED_PARAMETER(executionStage);
+    }
+
     bool TestProgress::IsCancelled()
     {
         return false;
