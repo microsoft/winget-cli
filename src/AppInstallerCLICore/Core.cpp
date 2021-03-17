@@ -1,9 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerCLICore.h"
 #include "Commands/RootCommand.h"
 #include "ExecutionContext.h"
+#include "Core.h"
+#include <AppInstallerProgress.h>
 #include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
 
@@ -41,44 +43,57 @@ namespace AppInstaller::CLI
         };
     }
 
-    int CoreMain(int argc, wchar_t const** argv) try
+    int Install(std::wstring_view appToInstall, AppInstallerCaller caller, IProgressSink& comPS) try
     {
-        init_apartment();
+        winrt::init_apartment();
 
-        // Enable all logging for this phase; we will update once we have the arguments
-        Logging::Log().EnableChannel(Logging::Channel::All);
-        Logging::Log().SetLevel(Logging::Level::Verbose);
-        Logging::AddFileLogger();
-        Logging::EnableWilFailureTelemetry();
+        class NullStreamBuf : public std::streambuf {};
+        NullStreamBuf nullStreamBuf;
+        std::ostream nullOut(&nullStreamBuf);
+        std::istream nullIn(&nullStreamBuf);
 
-        // Set output to UTF8
-        ConsoleOutputCPRestore utf8CP(CP_UTF8);
+        std::ostream* outStream = nullptr;
+        std::istream* inStream = nullptr;
 
-        Logging::Telemetry().LogStartup();
-
-        // Initiate the background cleanup of the log file location.
-        Logging::BeginLogFileCleanup();
-
-        Execution::Context context{ std::cout, std::cin };
-        context.EnableCtrlHandler();
-
-        context << Workflow::ReportExecutionStage(Workflow::ExecutionStage::ParseArgs);
-
-        // Convert incoming wide char args to UTF8
-        std::vector<std::string> utf8Args;
-        for (int i = 1; i < argc; ++i)
+        if (caller == AppInstallerCaller::NoCLI)
         {
-            utf8Args.emplace_back(Utility::ConvertToUTF8(argv[i]));
+            outStream = &nullOut;
+            inStream = &nullIn;
+        }
+        else
+        {
+            outStream = &std::cout;
+            inStream = &std::cin;
         }
 
+        Execution::Context context{ *outStream, *inStream };
+
+        context.Reporter.SetAppInstallerCaller(caller);
+        ProgressCallback callback(&comPS);
+        context.Reporter.SetProgressCallback(&callback);
+
+        std::vector<std::string> utf8Args;
+        std::wstring_view install{ L"install" };
+        utf8Args.emplace_back(Utility::ConvertToUTF8(install));
+        utf8Args.emplace_back(Utility::ConvertToUTF8(appToInstall));
+
+        return ExecuteCommand(utf8Args, caller, context);
+    }
+    catch (...)
+    {
+        return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
+    }
+
+    int ExecuteCommand(std::vector<std::string> utf8Args, AppInstallerCaller caller, Execution::Context& context)
+    {        
         AICLI_LOG(CLI, Info, << "WinGet invoked with arguments:" << [&]() {
-                std::stringstream strstr;
-                for (const auto& arg : utf8Args)
-                {
-                    strstr << " '" << arg << '\'';
-                }
-                return strstr.str();
-            }());
+            std::stringstream strstr;
+            for (const auto& arg : utf8Args)
+            {
+                strstr << " '" << arg << '\'';
+            }
+            return strstr.str();
+        }());
 
         Invocation invocation{ std::move(utf8Args) };
 
@@ -103,7 +118,10 @@ namespace AppInstaller::CLI
                 Logging::Log().SetLevel(Logging::Level::Info);
             }
 
-            context.UpdateForArgs();
+            if (caller == AppInstallerCaller::CLI)
+            {
+                context.UpdateForArgs();
+            }
 
             command->ValidateArguments(context.Args);
         }
@@ -166,6 +184,39 @@ namespace AppInstaller::CLI
         }
 
         return context.GetTerminationHR();
+    }
+
+    int CoreMain(int argc, wchar_t const** argv) try
+    {
+        init_apartment();
+
+        // Enable all logging for this phase; we will update once we have the arguments
+        Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().SetLevel(Logging::Level::Verbose);
+        Logging::AddFileLogger();
+        Logging::EnableWilFailureTelemetry();
+
+        // Set output to UTF8
+        ConsoleOutputCPRestore utf8CP(CP_UTF8);
+
+        Logging::Telemetry().LogStartup();
+
+        // Initiate the background cleanup of the log file location.
+        Logging::BeginLogFileCleanup();
+
+        Execution::Context context{ std::cout, std::cin };
+        context.EnableCtrlHandler();
+
+        context << Workflow::ReportExecutionStage(Workflow::ExecutionStage::ParseArgs);
+
+        // Convert incoming wide char args to UTF8
+        std::vector<std::string> utf8Args;
+        for (int i = 1; i < argc; ++i)
+        {
+            utf8Args.emplace_back(Utility::ConvertToUTF8(argv[i]));
+        }
+
+        return ExecuteCommand(utf8Args, AppInstallerCaller::CLI, context);
     }
     // End of the line exceptions that are not ever expected.
     // Telemetry cannot be reliable beyond this point, so don't let these happen.
