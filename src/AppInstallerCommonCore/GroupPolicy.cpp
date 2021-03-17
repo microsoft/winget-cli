@@ -23,17 +23,17 @@ namespace AppInstaller::Settings
             {
                 switch (policy)
                 {
-                case TogglePolicy::DisableWinGet:
+                case TogglePolicy::WinGet:
                     return TogglePolicyInternal(policy, "DisableWinGet"sv);
-                case TogglePolicy::DisableSettingsCommand: return
-                    TogglePolicyInternal(policy, "DisableSettings"sv);
-                case TogglePolicy::DisableExperimentalFeatures:
+                case TogglePolicy::SettingsCommand: return
+                    TogglePolicyInternal(policy, "DisableSettingsCommand"sv);
+                case TogglePolicy::ExperimentalFeatures:
                     return TogglePolicyInternal(policy, "DisableExperimentalFeatures"sv);
-                case TogglePolicy::DisableLocalManifestFiles:
+                case TogglePolicy::LocalManifestFiles:
                     return TogglePolicyInternal(policy, "DisableLocalManifestFiles"sv);
-                case TogglePolicy::ExcludeDefaultSources:
+                case TogglePolicy::DefaultSources:
                     return TogglePolicyInternal(policy, "ExcludeDefaultSources"sv);
-                case TogglePolicy::DisableSourceConfiguration:
+                case TogglePolicy::SourceConfiguration:
                     return TogglePolicyInternal(policy, "DisableSourceConfiguration"sv);
                 default:
                     THROW_HR(E_UNEXPECTED);
@@ -44,6 +44,12 @@ namespace AppInstaller::Settings
         template<Registry::Value::Type T>
         std::optional<decltype(std::declval<Registry::Value>().GetValue<T>())> GetRegistryValue(const Registry::Key& key, const std::string_view valueName)
         {
+            if (!key)
+            {
+                // Key does not exist; there's nothing to return
+                return std::nullopt;
+            }
+
             auto value = key[valueName];
             if (!value.has_value())
             {
@@ -159,4 +165,23 @@ namespace AppInstaller::Settings
 
         return itr->second;
     }
+
+    static std::unique_ptr<GroupPolicy> s_groupPolicy;
+    GroupPolicy const& GroupPolicy::Instance()
+    {
+        if (!s_groupPolicy)
+        {
+            // TODO: Use final location
+            constexpr std::string_view PoliciesKeyPath = "test\\policy"; // "SOFTWARE\\Policies\\Microsoft\\Windows\\WinGet";
+            s_groupPolicy = std::make_unique<GroupPolicy>(Registry::Key::OpenIfExists(HKEY_CURRENT_USER /* HKEY_LOCAL_MACHINE */, PoliciesKeyPath));
+        }
+
+        return *s_groupPolicy;
+    }
+
+    void GroupPolicy::ResetInstance()
+    {
+        s_groupPolicy = nullptr;
+    }
+
 }

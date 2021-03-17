@@ -188,7 +188,7 @@ namespace AppInstaller::Repository
             {
             case SourceOrigin::Default:
             {
-                if (!Settings::GroupPolicies().IsAllowed(Settings::TogglePolicy::ExcludeDefaultSources))
+                if (!Settings::GroupPolicies().IsAllowed(Settings::TogglePolicy::DefaultSources))
                 {
                     AICLI_LOG(Repo, Info, << "Default sources are disabled due to Group Policy");
                     break;
@@ -627,7 +627,7 @@ namespace AppInstaller::Repository
         auto source = sourceList.GetCurrentSource(name);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, source != nullptr);
 
-        if (!Settings::GroupPolicies().IsAllowed(Settings::TogglePolicy::ExcludeDefaultSources))
+        if (!Settings::GroupPolicies().IsAllowed(Settings::TogglePolicy::DefaultSources))
         {
             // Prevent adding the default sources with other names
             if (arg == s_Source_WingetCommunityDefault_Arg || arg == s_Source_WingetMSStoreDefault_Arg)

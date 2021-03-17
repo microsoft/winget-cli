@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
-#include <winget/GroupPolicy.h>
+#include "winget/GroupPolicy.h"
 
 using namespace TestCommon;
 using namespace AppInstaller::Settings;
@@ -14,23 +14,18 @@ namespace
     const std::wstring ProgressBarStyleValueName = L"ProgressBarStyle";
     const std::wstring IncludeSourcesKeyName = L"IncludeSources";
 
-    const std::wstring DisableWinGetValueName = L"DisableWinGet";
-    const std::wstring DisableSettingsCommandValueName = L"DisableSettingsCommand";
-    const std::wstring DisableExperimentalFeaturesValueName = L"DisableExperimentalFeatures";
-    const std::wstring DisableLocalManifestFilesValueName = L"DisableLocalManifestFiles";
-    const std::wstring DisableSourceConfigurationValueName = L"DisableSourceConfiguration";
-    const std::wstring ExcludeDefaultSourcesValueName = L"ExcludeDefaultSources";
-
-    struct GroupPolicyTest : GroupPolicy
-    {
-        GroupPolicyTest(HKEY key) : GroupPolicy(AppInstaller::Registry::Key(key)) {}
-    };
+    const std::wstring WinGetPolicyValueName = L"DisableWinGet";
+    const std::wstring SettingsCommandPolicyValueName = L"DisableSettingsCommand";
+    const std::wstring ExperimentalFeaturesPolicyValueName = L"DisableExperimentalFeatures";
+    const std::wstring LocalManifestFilesPolicyValueName = L"DisableLocalManifestFiles";
+    const std::wstring SourceConfigurationPolicyValueName = L"DisableSourceConfiguration";
+    const std::wstring DefaultSourcesPolicyValueName = L"ExcludeDefaultSources";
 }
 
 TEST_CASE("GroupPolicy_NoPolicies", "[groupPolicy]")
 {
     auto policiesKey = RegCreateVolatileTestRoot();
-    GroupPolicyTest groupPolicy{ policiesKey.get() };
+    GroupPolicy groupPolicy{ policiesKey.get() };
 
     // Policies setting a value should be empty
     REQUIRE(!groupPolicy.GetValue<ValuePolicy::SourceAutoUpdateIntervalInMinutes>().has_value());
@@ -39,12 +34,12 @@ TEST_CASE("GroupPolicy_NoPolicies", "[groupPolicy]")
 
     // Policies controlling behavior should allow everything
     REQUIRE(groupPolicy.IsAllowed(TogglePolicy::None));
-    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::DisableWinGet));
-    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::DisableSettingsCommand));
-    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::DisableExperimentalFeatures));
-    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::DisableLocalManifestFiles));
-    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::ExcludeDefaultSources));
-    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::DisableSourceConfiguration));
+    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::WinGet));
+    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::SettingsCommand));
+    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::ExperimentalFeatures));
+    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::LocalManifestFiles));
+    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::DefaultSources));
+    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::SourceConfiguration));
 }
 
 TEST_CASE("GroupPolicy_UpdateInterval", "[groupPolicy]")
@@ -54,7 +49,7 @@ TEST_CASE("GroupPolicy_UpdateInterval", "[groupPolicy]")
     SECTION("Good value")
     {
         SetRegistryValue(policiesKey.get(), AutoUpdateIntervalValueName, 5);
-        GroupPolicyTest groupPolicy{ policiesKey.get() };
+        GroupPolicy groupPolicy{ policiesKey.get() };
 
         auto policy = groupPolicy.GetValue<ValuePolicy::SourceAutoUpdateIntervalInMinutes>();
         REQUIRE(policy.has_value());
@@ -64,7 +59,7 @@ TEST_CASE("GroupPolicy_UpdateInterval", "[groupPolicy]")
     SECTION("Wrong type")
     {
         SetRegistryValue(policiesKey.get(), AutoUpdateIntervalValueName, L"Wrong");
-        GroupPolicyTest groupPolicy{ policiesKey.get() };
+        GroupPolicy groupPolicy{ policiesKey.get() };
 
         auto policy = groupPolicy.GetValue<ValuePolicy::SourceAutoUpdateIntervalInMinutes>();
         REQUIRE(!policy.has_value());
@@ -78,7 +73,7 @@ TEST_CASE("GroupPolicy_ProgressBar", "[groupPolicy]")
     SECTION("Good value")
     {
         SetRegistryValue(policiesKey.get(), ProgressBarStyleValueName, L"rainbow");
-        GroupPolicyTest groupPolicy{ policiesKey.get() };
+        GroupPolicy groupPolicy{ policiesKey.get() };
 
         auto policy = groupPolicy.GetValue<ValuePolicy::ProgressBarStyle>();
         REQUIRE(policy.has_value());
@@ -88,7 +83,7 @@ TEST_CASE("GroupPolicy_ProgressBar", "[groupPolicy]")
     SECTION("Wrong type")
     {
         SetRegistryValue(policiesKey.get(), ProgressBarStyleValueName, 0);
-        GroupPolicyTest groupPolicy{ policiesKey.get() };
+        GroupPolicy groupPolicy{ policiesKey.get() };
 
         auto policy = groupPolicy.GetValue<ValuePolicy::ProgressBarStyle>();
         REQUIRE(!policy.has_value());
@@ -103,28 +98,28 @@ TEST_CASE("GroupPolicy_Toggle", "[groupPolicy]")
 
     SECTION("'None' is enabled")
     {
-        GroupPolicyTest groupPolicy{ policiesKey.get() };
+        GroupPolicy groupPolicy{ policiesKey.get() };
         REQUIRE(groupPolicy.IsAllowed(TogglePolicy::None));
     }
 
     SECTION("Enabled")
     {
-        SetRegistryValue(policiesKey.get(), DisableWinGetValueName, 0);
-        GroupPolicyTest groupPolicy{ policiesKey.get() };
-        REQUIRE(groupPolicy.IsAllowed(TogglePolicy::DisableWinGet));
+        SetRegistryValue(policiesKey.get(), WinGetPolicyValueName, 0);
+        GroupPolicy groupPolicy{ policiesKey.get() };
+        REQUIRE(groupPolicy.IsAllowed(TogglePolicy::WinGet));
     }
 
     SECTION("Disabled")
     {
-        SetRegistryValue(policiesKey.get(), DisableLocalManifestFilesValueName, 1);
-        GroupPolicyTest groupPolicy{ policiesKey.get() };
-        REQUIRE(!groupPolicy.IsAllowed(TogglePolicy::DisableLocalManifestFiles));
+        SetRegistryValue(policiesKey.get(), LocalManifestFilesPolicyValueName, 1);
+        GroupPolicy groupPolicy{ policiesKey.get() };
+        REQUIRE(!groupPolicy.IsAllowed(TogglePolicy::LocalManifestFiles));
     }
 
     SECTION("Wrong type")
     {
-        SetRegistryValue(policiesKey.get(), ExcludeDefaultSourcesValueName, L"Wrong");
-        GroupPolicyTest groupPolicy{ policiesKey.get() };
-        REQUIRE(groupPolicy.IsAllowed(TogglePolicy::ExcludeDefaultSources));
+        SetRegistryValue(policiesKey.get(), DefaultSourcesPolicyValueName, L"Wrong");
+        GroupPolicy groupPolicy{ policiesKey.get() };
+        REQUIRE(groupPolicy.IsAllowed(TogglePolicy::DefaultSources));
     }
 }

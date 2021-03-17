@@ -15,8 +15,8 @@ namespace AppInstaller::Settings
     // made up of sub-keys for settings that are lists.
     enum class ValuePolicy
     {
-        SourceAutoUpdateIntervalInMinutes, // TODO
-        ProgressBarStyle, // TODO
+        SourceAutoUpdateIntervalInMinutes,
+        ProgressBarStyle,
         IncludeSources, // TODO
         Max,
     };
@@ -26,12 +26,12 @@ namespace AppInstaller::Settings
     enum class TogglePolicy
     {
         None = 0,
-        DisableWinGet,
-        DisableSettingsCommand,
-        DisableExperimentalFeatures,
-        DisableLocalManifestFiles,
-        ExcludeDefaultSources,
-        DisableSourceConfiguration,
+        WinGet,
+        SettingsCommand,
+        ExperimentalFeatures,
+        LocalManifestFiles,
+        DefaultSources,
+        SourceConfiguration,
         Max,
     };
 
@@ -80,13 +80,14 @@ namespace AppInstaller::Settings
     {
         using ValuePoliciesMap = EnumBasedVariantMap<ValuePolicy, details::ValuePolicyMapping>;
 
-        static GroupPolicy const& Instance()
-        {
-            // TODO: Use final location
-            constexpr std::string_view PoliciesKeyPath = "test\\policy"; // "SOFTWARE\\Policies\\Microsoft\\Windows\\WinGet";
-            static GroupPolicy groupPolicy{ Registry::Key::OpenIfExists(HKEY_CURRENT_USER /* HKEY_LOCAL_MACHINE */, PoliciesKeyPath) };
-            return groupPolicy;
-        }
+        static GroupPolicy const& Instance();
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        static void ResetInstance();
+#endif
+
+        GroupPolicy(const Registry::Key& key);
+        ~GroupPolicy() = default;
 
         GroupPolicy() = delete;
 
@@ -115,12 +116,6 @@ namespace AppInstaller::Settings
     private:
         std::map<TogglePolicy, bool> m_toggles;
         ValuePoliciesMap m_values;
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-    protected:
-#endif
-        GroupPolicy(const Registry::Key& key);
-        ~GroupPolicy() = default;
     };
 
     inline const GroupPolicy& GroupPolicies()

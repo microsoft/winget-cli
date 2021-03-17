@@ -10,13 +10,18 @@ namespace AppInstaller::Settings
 {
     bool ExperimentalFeature::IsEnabled(Feature feature)
     {
+        return IsEnabled(feature, User());
+    }
+
+    bool ExperimentalFeature::IsEnabled(Feature feature, const UserSettings& userSettings)
+    {
         if (feature == Feature::None)
         {
             return true;
         }
 
         // TODO: How do we report that this was due to policy higher up?
-        if (!GroupPolicies().IsAllowed(TogglePolicy::DisableExperimentalFeatures))
+        if (!GroupPolicies().IsAllowed(TogglePolicy::ExperimentalFeatures))
         {
             return false;
         }
@@ -26,23 +31,23 @@ namespace AppInstaller::Settings
         case Feature::ExperimentalCmd:
             // ExperimentalArg depends on ExperimentalCmd, so instead of failing we could
             // assume that if ExperimentalArg is enabled then ExperimentalCmd is as well.
-            return User().Get<Setting::EFExperimentalCmd>() || User().Get<Setting::EFExperimentalArg>();
+            return userSettings.Get<Setting::EFExperimentalCmd>() || userSettings.Get<Setting::EFExperimentalArg>();
         case Feature::ExperimentalArg:
-            return User().Get<Setting::EFExperimentalArg>();
+            return userSettings.Get<Setting::EFExperimentalArg>();
         case Feature::ExperimentalMSStore:
-            return User().Get<Setting::EFExperimentalMSStore>();
+            return userSettings.Get<Setting::EFExperimentalMSStore>();
         case Feature::ExperimentalList:
-            return User().Get<Setting::EFList>();
+            return userSettings.Get<Setting::EFList>();
         case Feature::ExperimentalUpgrade:
-            return User().Get<Setting::EFExperimentalUpgrade>();
+            return userSettings.Get<Setting::EFExperimentalUpgrade>();
         case Feature::ExperimentalUninstall:
-            return User().Get<Setting::EFUninstall>();
+            return userSettings.Get<Setting::EFUninstall>();
         case Feature::ExperimentalImport:
-            return User().Get<Setting::EFImport>();
+            return userSettings.Get<Setting::EFImport>();
         case Feature::ExperimentalExport:
-            return User().Get<Setting::EFExport>();
+            return userSettings.Get<Setting::EFExport>();
         case Feature::ExperimentalRestSource:
-            return User().Get<Setting::EFRestSource>();
+            return userSettings.Get<Setting::EFRestSource>();
         default:
             THROW_HR(E_UNEXPECTED);
         }

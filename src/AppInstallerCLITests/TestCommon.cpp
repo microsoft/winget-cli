@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "winget/GroupPolicy.h"
+#include "winget/UserSettings.h"
 
 namespace TestCommon
 {

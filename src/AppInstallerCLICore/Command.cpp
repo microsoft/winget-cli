@@ -704,7 +704,7 @@ namespace AppInstaller::CLI
     {
         // Block any execution if winget is disabled by policy.
         // Override the function to bypass this.
-        if (!Settings::GroupPolicies().IsAllowed(Settings::TogglePolicy::DisableWinGet))
+        if (!Settings::GroupPolicies().IsAllowed(Settings::TogglePolicy::WinGet))
         {
             // TODO: Policy name
             AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");

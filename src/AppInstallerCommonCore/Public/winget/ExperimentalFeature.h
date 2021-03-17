@@ -8,6 +8,7 @@
 namespace AppInstaller::Settings
 {
     using namespace std::string_view_literals;
+    struct UserSettings;
 
     struct ExperimentalFeature
     {
@@ -48,6 +49,9 @@ namespace AppInstaller::Settings
         ExperimentalFeature& operator=(ExperimentalFeature&&) = default;
 
         static bool IsEnabled(Feature feature);
+        // For unit testing
+        static bool IsEnabled(Feature feature, const UserSettings& userSettings);
+
         static ExperimentalFeature GetFeature(ExperimentalFeature::Feature feature);
         static std::vector<ExperimentalFeature> GetAllFeatures();
 
