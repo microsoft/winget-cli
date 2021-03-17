@@ -111,8 +111,12 @@ TEST_CASE("PIPS_UpdateSameVersion", "[pips]")
     bool progressCalled = false;
     callback.m_OnProgress = [&](uint64_t, uint64_t, ProgressType) { progressCalled = true; };
 
+    bool executionStageChangeCalled= false;
+    callback.m_OnExecutionStateChange = [&](uint32_t) { executionStageChangeCalled = true; };
+
     UpdateSource(name, callback);
     REQUIRE(!progressCalled);
+    REQUIRE(!executionStageChangeCalled);
 }
 
 TEST_CASE("PIPS_UpdateNewVersion", "[pips]")
