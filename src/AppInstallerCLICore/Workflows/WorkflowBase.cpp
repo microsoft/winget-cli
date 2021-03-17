@@ -710,6 +710,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         Logging::SetExecutionStage(static_cast<uint32_t>(context.Get<Execution::Data::ExecutionStage>()));
+        context.Reporter.NotifyExecutionStageChange(static_cast<uint32_t>(context.Get<Execution::Data::ExecutionStage>()));
     }
 }
 
