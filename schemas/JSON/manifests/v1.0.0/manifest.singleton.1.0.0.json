@@ -85,9 +85,14 @@
     "InstallModes": {
       "type": [ "array", "null" ],
       "items": {
-        "$ref": "#/definitions/Scope"
+        "type": "string",
+        "enum": [
+          "interactive",
+          "silent",
+          "silentWithProgress"
+        ]
       },
-      "maxItems": 2,
+      "maxItems": 3,
       "uniqueItems": true,
       "description": "List of supported installer modes"
     },
