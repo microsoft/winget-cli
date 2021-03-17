@@ -129,7 +129,7 @@ namespace AppInstaller::Repository::Rest::Schema::Json
         std::optional<std::string> packageVersion = JsonHelper::GetRawStringValueFromJsonNode(versionItem, JsonHelper::GetJsonKeyNameString(PackageVersion));
         if (!JsonHelper::IsValidNonEmptyStringValue(packageVersion))
         {
-            AICLI_LOG(Repo, Verbose, << "Missing package version.");
+            AICLI_LOG(Repo, Verbose, << "Missing package version in package: " << manifest.Id);
             return {};
         }
         manifest.Version = std::move(packageVersion.value());
@@ -141,7 +141,7 @@ namespace AppInstaller::Repository::Rest::Schema::Json
         std::optional<Manifest::ManifestLocalization> defaultLocaleObject = DeserializeLocale(defaultLocale);
         if (!defaultLocaleObject.has_value())
         {
-            AICLI_LOG(Repo, Verbose, << "Missing default locale.");
+            AICLI_LOG(Repo, Verbose, << "Missing default locale in package: " << manifest.Id);
             return {};
         }
         manifest.DefaultLocalization = std::move(defaultLocaleObject.value());
@@ -153,7 +153,7 @@ namespace AppInstaller::Repository::Rest::Schema::Json
         std::optional<std::reference_wrapper<const web::json::array>> installers = JsonHelper::GetRawJsonArrayFromJsonNode(versionItem, JsonHelper::GetJsonKeyNameString(Installers));
         if (!installers.has_value() || installers.value().get().size() == 0)
         {
-            AICLI_LOG(Repo, Verbose, << "Missing installers.");
+            AICLI_LOG(Repo, Verbose, << "Missing installers in package: " << manifest.Id);
             return {};
         }
 

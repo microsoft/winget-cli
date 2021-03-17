@@ -132,7 +132,17 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                 std::vector<AppInstaller::Manifest::ValidationError> validationErrors =
                     AppInstaller::Manifest::ValidateManifest(manifest.value());
 
-                if (validationErrors.size() > 0)
+                int errors = 0;
+                for (auto& error : validationErrors)
+                {
+                    if (error.ErrorLevel == Manifest::ValidationError::Level::Error)
+                    {
+                        AICLI_LOG(Repo, Verbose, << "Received manifest contains validation error: " << error.Message);
+                        errors++;
+                    }
+                }
+
+                if (errors > 0)
                 {
                     AICLI_LOG(Repo, Verbose, << "Recieved invalid manifest. Skipping");
                     return {};
