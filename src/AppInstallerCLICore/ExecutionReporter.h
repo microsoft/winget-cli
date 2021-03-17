@@ -17,11 +17,11 @@
 #include <ostream>
 #include <string>
 
+#include "Public/Caller.h"
 
 namespace AppInstaller::CLI::Execution
 {
 #define WINGET_OSTREAM_FORMAT_HRESULT(hr) "0x" << Logging::SetHRFormat << hr
-
     // Reporter should be the central place to show workflow status to user.
     struct Reporter : public IProgressSink
     {
@@ -79,6 +79,9 @@ namespace AppInstaller::CLI::Execution
         // Only do this once and as soon as the channel is determined.
         void SetChannel(Channel channel);
 
+        // Sets the Caller value which is requesting the current execution
+        void SetAppInstallerCaller(AppInstallerCaller channel);
+
         // Sets the visual style (mostly for progress currently)
         void SetStyle(AppInstaller::Settings::VisualStyle style);
 
@@ -90,17 +93,24 @@ namespace AppInstaller::CLI::Execution
         // IProgressSink
         void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
 
+        // IProgressSink
+        void OnExecutionStageChange(uint32_t executionStage) override;
+
         // Runs the given callable of type: auto(IProgressCallback&)
         template <typename F>
         auto ExecuteWithProgress(F&& f, bool hideProgressWhenDone = false)
         {
-            GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::DisableShow;
-
-            ProgressCallback callback(this);
-            SetProgressCallback(&callback);
-            ShowIndefiniteProgress(true);
+            if (m_caller == AppInstallerCaller::CLI)
+            {
+                GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::DisableShow;
+                ProgressCallback callback(this);
+                SetProgressCallback(&callback);
+                ShowIndefiniteProgress(true);
+            }
 
             auto hideProgress = wil::scope_exit([this, hideProgressWhenDone]()
+                {
+                if (m_caller == AppInstallerCaller::CLI)
                 {
                     SetProgressCallback(nullptr);
                     ShowIndefiniteProgress(false);
@@ -110,9 +120,12 @@ namespace AppInstaller::CLI::Execution
                     }
 
                     GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::EnableShow;
+                }
                 });
-            return f(callback);
+            return f(*(m_progressCallback.load()));
         }
+
+        void NotifyExecutionStageChange(uint32_t executionStage);
 
         // Sets the in progress callback.
         void SetProgressCallback(ProgressCallback* callback);
@@ -128,6 +141,7 @@ namespace AppInstaller::CLI::Execution
         OutputStream GetBasicOutputStream();
 
         Channel m_channel = Channel::Output;
+        AppInstallerCaller m_caller = AppInstallerCaller::CLI;
         std::ostream& m_out;
         std::istream& m_in;
         bool m_isVTEnabled = true;
