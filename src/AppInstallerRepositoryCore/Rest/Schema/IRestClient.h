@@ -23,13 +23,22 @@ namespace AppInstaller::Repository::Rest::Schema
         : PackageIdentifier(packageIdentifier), PackageName(packageName), Publisher(publisher) {}
     };
 
+    struct VersionInfo
+    {
+        AppInstaller::Utility::VersionAndChannel VersionAndChannel;
+        Manifest::Manifest Manifest;
+
+        VersionInfo(AppInstaller::Utility::VersionAndChannel versionAndChannel, Manifest::Manifest manifest = {})
+            : VersionAndChannel(versionAndChannel), Manifest(manifest) {}
+    };
+
     // Minimal information retrieved for any search request.
     struct Package
     {
         PackageInfo PackageInformation;
-        std::vector<AppInstaller::Utility::VersionAndChannel> Versions;
+        std::vector<VersionInfo> Versions;
 
-        Package(PackageInfo packageInfo, std::vector<AppInstaller::Utility::VersionAndChannel> versions)
+        Package(PackageInfo packageInfo, std::vector<VersionInfo> versions)
         : PackageInformation(packageInfo), Versions(versions) {}
     };
 
@@ -37,6 +46,25 @@ namespace AppInstaller::Repository::Rest::Schema
     {
         std::vector<Package> Matches;
         bool Truncated = false;
+    };
+
+    // Information endpoint models
+    struct SupportedVersion
+    {
+        std::string ApiVersion;
+        std::vector<std::string> ObjectVersions;
+
+        SupportedVersion(std::string apiVersion, std::vector<std::string> versions)
+            : ApiVersion(apiVersion), ObjectVersions(versions) {}
+    };
+
+    struct Information
+    {
+        std::string SourceIdentifier;
+        std::vector<SupportedVersion> ServerSupportedVersions;
+
+        Information(std::string sourceId, std::vector<SupportedVersion> versions)
+            : SourceIdentifier(sourceId), ServerSupportedVersions(versions) {}
     };
 
     // Performs a search based on the given criteria.
