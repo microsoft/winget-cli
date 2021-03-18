@@ -179,6 +179,34 @@ namespace AppInstaller::Repository
                 });
         }
 
+        // Checks whether a default source is enabled with the current settings
+        bool IsDefaultSourceEnabled(std::string_view sourceToLog, ExperimentalFeature::Feature feature, TogglePolicy policy)
+        {
+            if (!ExperimentalFeature::IsEnabled(feature))
+            {
+                // No need to log here
+                return false;
+            }
+
+            if (GroupPolicies().IsEnabledOrNotConfigured(policy))
+            {
+                AICLI_LOG(Repo, Info, << "The default source " << sourceToLog << " is disabled due to Group Policy");
+                return false;
+            }
+
+            return true;
+        }
+
+        bool IsWingetCommunityDefaultSourceEnabled()
+        {
+            return IsDefaultSourceEnabled(s_Source_WingetCommunityDefault_Name, ExperimentalFeature::Feature::None, TogglePolicy::DefaultSource);
+        }
+
+        bool IsWingetMSStoreDefaultSourceEnabled()
+        {
+            return IsDefaultSourceEnabled(s_Source_WingetMSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, TogglePolicy::MSStoreSource);
+        }
+
         // Gets the sources from a particular origin.
         std::vector<SourceDetailsInternal> GetSourcesByOrigin(SourceOrigin origin)
         {
@@ -188,22 +216,19 @@ namespace AppInstaller::Repository
             {
             case SourceOrigin::Default:
             {
-                if (!Settings::GroupPolicies().IsAllowed(Settings::TogglePolicy::DefaultSources))
+                if (IsWingetCommunityDefaultSourceEnabled())
                 {
-                    AICLI_LOG(Repo, Info, << "Default sources are disabled due to Group Policy");
-                    break;
+                    SourceDetailsInternal details;
+                    details.Name = s_Source_WingetCommunityDefault_Name;
+                    details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
+                    details.Arg = s_Source_WingetCommunityDefault_Arg;
+                    details.Data = s_Source_WingetCommunityDefault_Data;
+                    details.Identifier = s_Source_WingetCommunityDefault_Identifier;
+                    details.TrustLevel = SourceTrustLevel::Trusted;
+                    result.emplace_back(std::move(details));
                 }
 
-                SourceDetailsInternal details;
-                details.Name = s_Source_WingetCommunityDefault_Name;
-                details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
-                details.Arg = s_Source_WingetCommunityDefault_Arg;
-                details.Data = s_Source_WingetCommunityDefault_Data;
-                details.Identifier = s_Source_WingetCommunityDefault_Identifier;
-                details.TrustLevel = SourceTrustLevel::Trusted;
-                result.emplace_back(std::move(details));
-
-                if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalMSStore))
+                if (IsWingetMSStoreDefaultSourceEnabled())
                 {
                     SourceDetailsInternal storeDetails;
                     storeDetails.Name = s_Source_WingetMSStoreDefault_Name;
@@ -214,8 +239,9 @@ namespace AppInstaller::Repository
                     storeDetails.TrustLevel = SourceTrustLevel::Trusted;
                     result.emplace_back(std::move(storeDetails));
                 }
+
+                break;
             }
-            break;
             case SourceOrigin::User:
             {
                 std::vector<SourceDetailsInternal> userSources = GetSourcesFromSetting(
@@ -571,6 +597,39 @@ namespace AppInstaller::Repository
         {
             SetMetadata(m_sourceList);
         }
+
+        // Checks whether the group policy allows this source.
+        // Reasons for not allowing:
+        // - The source is a default source that is disabled
+        // - Allowed sources are disabled, blocking everything
+        // - There is an explicit list of allowed sources and this source is not in it
+        bool IsSourceAllowedByPolicy(std::string_view, std::string_view, std::string_view arg)
+        {
+            if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetCommunityDefault_Arg))
+            {
+                return IsWingetCommunityDefaultSourceEnabled();
+            }
+
+            if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetMSStoreDefault_Arg))
+            {
+                return IsWingetMSStoreDefaultSourceEnabled();
+            }
+
+            auto allowedSourcesPolicy = GroupPolicies().GetState(TogglePolicy::AllowedSources);
+            if (allowedSourcesPolicy == PolicyState::Disabled)
+            {
+                // We check here but this should already be blocked higher in the stack
+                AICLI_LOG(Repo, Warning, << "Additional sources are blocked by group policy");
+                return false;
+            }
+
+            if (allowedSourcesPolicy == PolicyState::Enabled)
+            {
+                // TODO: Allowed sources
+            }
+
+            return true;
+        }
     }
 
     std::string_view ToString(SourceOrigin origin)
@@ -627,15 +686,7 @@ namespace AppInstaller::Repository
         auto source = sourceList.GetCurrentSource(name);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS, source != nullptr);
 
-        if (!Settings::GroupPolicies().IsAllowed(Settings::TogglePolicy::DefaultSources))
-        {
-            // Prevent adding the default sources with other names
-            if (arg == s_Source_WingetCommunityDefault_Arg || arg == s_Source_WingetMSStoreDefault_Arg)
-            {
-                AICLI_LOG(Repo, Error, << "Use of default sources is blocked by group policy");
-                THROW_HR(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY);
-            }
-        }
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !IsSourceAllowedByPolicy(name, type, arg));
 
         SourceDetailsInternal details;
         details.Name = name;

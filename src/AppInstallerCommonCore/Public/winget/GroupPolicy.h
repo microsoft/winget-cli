@@ -16,13 +16,12 @@ namespace AppInstaller::Settings
     enum class ValuePolicy
     {
         SourceAutoUpdateIntervalInMinutes,
-        ProgressBarStyle,
         IncludeSources, // TODO
         Max,
     };
 
     // A policy that acts as a toggle to enable or disable a feature.
-    // They are backed by a DWORD value with values zero and non-zero.
+    // They are backed by a DWORD value with values 0 and 1.
     enum class TogglePolicy
     {
         None = 0,
@@ -30,9 +29,19 @@ namespace AppInstaller::Settings
         SettingsCommand,
         ExperimentalFeatures,
         LocalManifestFiles,
-        DefaultSources,
-        SourceConfiguration,
+        DefaultSource,
+        MSStoreSource,
+        AdditionalSources,
+        AllowedSources,
         Max,
+    };
+
+    // Possible configuration states for a policy.
+    enum class PolicyState
+    {
+        NotConfigured,
+        Disabled,
+        Enabled,
     };
 
     namespace details
@@ -70,7 +79,6 @@ namespace AppInstaller::Settings
         }
 
         POLICYMAPPING_VALUE_SPECIALIZATION(ValuePolicy::SourceAutoUpdateIntervalInMinutes, uint32_t, "SourceAutoUpdateIntervalInMinutes"sv, Registry::Value::Type::DWord);
-        POLICYMAPPING_VALUE_SPECIALIZATION(ValuePolicy::ProgressBarStyle, std::string, "ProgressBarStyle"sv, Registry::Value::Type::String);
 
         POLICYMAPPING_SPECIALIZATION(ValuePolicy::IncludeSources, std::vector<std::string>);
     }
@@ -111,10 +119,13 @@ namespace AppInstaller::Settings
             }
         }
 
-        bool IsAllowed(TogglePolicy policy) const;
+        PolicyState GetState(TogglePolicy policy) const;
+
+        // Helper for the common use.
+        bool IsEnabledOrNotConfigured(TogglePolicy policy) const;
 
     private:
-        std::map<TogglePolicy, bool> m_toggles;
+        std::map<TogglePolicy, PolicyState> m_toggles;
         ValuePoliciesMap m_values;
     };
 

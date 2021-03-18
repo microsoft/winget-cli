@@ -22,7 +22,7 @@ namespace AppInstaller::CLI
 
     struct SourceAddCommand final : public Command
     {
-        SourceAddCommand(std::string_view parent) : Command("add", parent, Settings::TogglePolicy::SourceConfiguration) {}
+        SourceAddCommand(std::string_view parent) : Command("add", parent) {}
 
         std::vector<Argument> GetArguments() const override;
 
@@ -71,7 +71,7 @@ namespace AppInstaller::CLI
 
     struct SourceRemoveCommand final : public Command
     {
-        SourceRemoveCommand(std::string_view parent) : Command("remove", parent, Settings::TogglePolicy::SourceConfiguration) {}
+        SourceRemoveCommand(std::string_view parent) : Command("remove", parent) {}
 
         std::vector<Argument> GetArguments() const override;
 
@@ -88,7 +88,7 @@ namespace AppInstaller::CLI
 
     struct SourceResetCommand final : public Command
     {
-        SourceResetCommand(std::string_view parent) : Command("reset", parent, Settings::TogglePolicy::SourceConfiguration) {}
+        SourceResetCommand(std::string_view parent) : Command("reset", parent) {}
 
         std::vector<Argument> GetArguments() const override;
 

@@ -150,6 +150,15 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(OverrideArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Package);
         WINGET_DEFINE_RESOURCE_STRINGID(PendingWorkError);
+        WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableWinGet);
+        WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableSettingsCommand);
+        WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableExperimentalFeatures);
+        WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableLocalManifests);
+        WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableDefaultSource);
+        WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableMSStoreSource);
+        WINGET_DEFINE_RESOURCE_STRINGID(PolicyAdditionalSources);
+        WINGET_DEFINE_RESOURCE_STRINGID(PolicyAllowedSources);
+        WINGET_DEFINE_RESOURCE_STRINGID(PolicySourceAutoUpdateInterval);
         WINGET_DEFINE_RESOURCE_STRINGID(PositionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PreviewVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(PrivacyStatement);

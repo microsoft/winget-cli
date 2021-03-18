@@ -29,17 +29,18 @@ TEST_CASE("GroupPolicy_NoPolicies", "[groupPolicy]")
 
     // Policies setting a value should be empty
     REQUIRE(!groupPolicy.GetValue<ValuePolicy::SourceAutoUpdateIntervalInMinutes>().has_value());
-    REQUIRE(!groupPolicy.GetValue<ValuePolicy::ProgressBarStyle>().has_value());
     REQUIRE(!groupPolicy.GetValue<ValuePolicy::IncludeSources>().has_value());
 
-    // Policies controlling behavior should allow everything
-    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::None));
-    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::WinGet));
-    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::SettingsCommand));
-    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::ExperimentalFeatures));
-    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::LocalManifestFiles));
-    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::DefaultSources));
-    REQUIRE(groupPolicy.IsAllowed(TogglePolicy::SourceConfiguration));
+    // Everything should be not configured
+    REQUIRE(groupPolicy.GetState(TogglePolicy::None) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::WinGet) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::SettingsCommand) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::ExperimentalFeatures) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::LocalManifestFiles) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::DefaultSource) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::MSStoreSource) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::AdditionalSources) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::AllowedSources) == PolicyState::NotConfigured);
 }
 
 TEST_CASE("GroupPolicy_UpdateInterval", "[groupPolicy]")
@@ -66,60 +67,40 @@ TEST_CASE("GroupPolicy_UpdateInterval", "[groupPolicy]")
     }
 }
 
-TEST_CASE("GroupPolicy_ProgressBar", "[groupPolicy]")
-{
-    auto policiesKey = RegCreateVolatileTestRoot();
-
-    SECTION("Good value")
-    {
-        SetRegistryValue(policiesKey.get(), ProgressBarStyleValueName, L"rainbow");
-        GroupPolicy groupPolicy{ policiesKey.get() };
-
-        auto policy = groupPolicy.GetValue<ValuePolicy::ProgressBarStyle>();
-        REQUIRE(policy.has_value());
-        REQUIRE(*policy == "rainbow");
-    }
-
-    SECTION("Wrong type")
-    {
-        SetRegistryValue(policiesKey.get(), ProgressBarStyleValueName, 0);
-        GroupPolicy groupPolicy{ policiesKey.get() };
-
-        auto policy = groupPolicy.GetValue<ValuePolicy::ProgressBarStyle>();
-        REQUIRE(!policy.has_value());
-    }
-}
-
-// TODO: included sources
+// TODO: additional/allowed sources
 
 TEST_CASE("GroupPolicy_Toggle", "[groupPolicy]")
 {
     auto policiesKey = RegCreateVolatileTestRoot();
 
-    SECTION("'None' is enabled")
+    SECTION("'None' is not configured")
     {
         GroupPolicy groupPolicy{ policiesKey.get() };
-        REQUIRE(groupPolicy.IsAllowed(TogglePolicy::None));
+        REQUIRE(groupPolicy.GetState(TogglePolicy::None) == PolicyState::NotConfigured);
+        REQUIRE(groupPolicy.IsEnabledOrNotConfigured(TogglePolicy::None));
     }
 
     SECTION("Enabled")
     {
-        SetRegistryValue(policiesKey.get(), WinGetPolicyValueName, 0);
+        SetRegistryValue(policiesKey.get(), WinGetPolicyValueName, 1);
         GroupPolicy groupPolicy{ policiesKey.get() };
-        REQUIRE(groupPolicy.IsAllowed(TogglePolicy::WinGet));
+        REQUIRE(groupPolicy.GetState(TogglePolicy::WinGet) == PolicyState::Enabled);
+        REQUIRE(groupPolicy.IsEnabledOrNotConfigured(TogglePolicy::WinGet));
     }
 
     SECTION("Disabled")
     {
-        SetRegistryValue(policiesKey.get(), LocalManifestFilesPolicyValueName, 1);
+        SetRegistryValue(policiesKey.get(), LocalManifestFilesPolicyValueName, 0);
         GroupPolicy groupPolicy{ policiesKey.get() };
-        REQUIRE(!groupPolicy.IsAllowed(TogglePolicy::LocalManifestFiles));
+        REQUIRE(groupPolicy.GetState(TogglePolicy::LocalManifestFiles) == PolicyState::Disabled);
+        REQUIRE_FALSE(groupPolicy.IsEnabledOrNotConfigured(TogglePolicy::LocalManifestFiles));
     }
 
     SECTION("Wrong type")
     {
         SetRegistryValue(policiesKey.get(), DefaultSourcesPolicyValueName, L"Wrong");
         GroupPolicy groupPolicy{ policiesKey.get() };
-        REQUIRE(groupPolicy.IsAllowed(TogglePolicy::DefaultSources));
+        REQUIRE(groupPolicy.GetState(TogglePolicy::DefaultSource) == PolicyState::NotConfigured);
+        REQUIRE(groupPolicy.IsEnabledOrNotConfigured(TogglePolicy::DefaultSource));
     }
 }

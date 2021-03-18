@@ -21,7 +21,7 @@ namespace AppInstaller::Settings
         }
 
         // TODO: How do we report that this was due to policy higher up?
-        if (!GroupPolicies().IsAllowed(TogglePolicy::ExperimentalFeatures))
+        if (!GroupPolicies().IsEnabledOrNotConfigured(TogglePolicy::ExperimentalFeatures))
         {
             return false;
         }

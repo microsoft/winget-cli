@@ -820,4 +820,31 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="DisabledByGroupPolicy" xml:space="preserve">
     <value>This operation is disabled by Group Policy.</value>
   </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Enable Additional Windows Package Manager Sources</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Enable Windows Package Manager Allowed Sources</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Enable Windows Package Manager Default Source</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Enable Windows Package Manager Experimental Features</value>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Enable Windows Package Manager Local Manifest Files</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Enable Windows Package Manager Microsoft Store Source</value>
+  </data>
+  <data name="PolicyEnableSettingsCommand" xml:space="preserve">
+    <value>Enable Windows Package Manager Settings Command</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Enable Windows Package Manager</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Set Windows Package Manager Source Auto Update Interval In Minutes</value>
+  </data>
 </root>

@@ -10,31 +10,32 @@ namespace AppInstaller::Settings
     {
         struct TogglePolicyInternal
         {
-            TogglePolicyInternal(TogglePolicy policy, std::string_view regValueName, bool trueIsAllow = false) :
-                Policy(policy), RegValueName(regValueName), TrueIsAllow(trueIsAllow) {}
+            TogglePolicyInternal(TogglePolicy policy, std::string_view regValueName) :
+                Policy(policy), RegValueName(regValueName) {}
 
             TogglePolicy Policy;
             std::string_view RegValueName;
-
-            // Whether a true value means to enable or disable a feature.
-            bool TrueIsAllow;
 
             static TogglePolicyInternal GetPolicy(TogglePolicy policy)
             {
                 switch (policy)
                 {
                 case TogglePolicy::WinGet:
-                    return TogglePolicyInternal(policy, "DisableWinGet"sv);
+                    return TogglePolicyInternal(policy, "EnableWindowsPackageManager"sv);
                 case TogglePolicy::SettingsCommand: return
-                    TogglePolicyInternal(policy, "DisableSettingsCommand"sv);
+                    TogglePolicyInternal(policy, "EnableSettingsCommand"sv);
                 case TogglePolicy::ExperimentalFeatures:
-                    return TogglePolicyInternal(policy, "DisableExperimentalFeatures"sv);
+                    return TogglePolicyInternal(policy, "EnableExperimentalFeatures"sv);
                 case TogglePolicy::LocalManifestFiles:
-                    return TogglePolicyInternal(policy, "DisableLocalManifestFiles"sv);
-                case TogglePolicy::DefaultSources:
-                    return TogglePolicyInternal(policy, "ExcludeDefaultSources"sv);
-                case TogglePolicy::SourceConfiguration:
-                    return TogglePolicyInternal(policy, "DisableSourceConfiguration"sv);
+                    return TogglePolicyInternal(policy, "EnableLocalManifestFiles"sv);
+                case TogglePolicy::DefaultSource:
+                    return TogglePolicyInternal(policy, "EnableDefaultSource"sv);
+                case TogglePolicy::MSStoreSource:
+                    return TogglePolicyInternal(policy, "EnableMSStoreSource"sv);
+                case TogglePolicy::AdditionalSources:
+                    return TogglePolicyInternal(policy, "EnableAdditionalSources"sv);
+                case TogglePolicy::AllowedSources:
+                    return TogglePolicyInternal(policy, "EnableAllowedSources"sv);
                 default:
                     THROW_HR(E_UNEXPECTED);
                 }
@@ -77,25 +78,25 @@ namespace AppInstaller::Settings
             return (bool)*intValue;
         }
 
-        bool IsAllowedInternal(const Registry::Key& key, TogglePolicy policy)
+        PolicyState GetStateInternal(const Registry::Key& key, TogglePolicy policy)
         {
-            // Default to allowed if there is no policy for this
+            // Default to not configured if there is no policy for this
             if (policy == TogglePolicy::None)
             {
-                return true;
+                return PolicyState::NotConfigured;
             }
 
             auto togglePolicy = TogglePolicyInternal::GetPolicy(policy);
 
-            // Policies default to allow if not set
+            // Policies are not configured if there is no registry value.
             auto setting = RegistryValueIsTrue(key, togglePolicy.RegValueName);
             if (!setting.has_value())
             {
-                return true;
+                return PolicyState::NotConfigured;
             }
 
             // Return flag as-is or invert depending on the policy
-            return togglePolicy.TrueIsAllow ? *setting : !(*setting);
+            return *setting ? PolicyState::Enabled : PolicyState::Disabled;
         }
 
         template <ValuePolicy P>
@@ -129,12 +130,6 @@ namespace AppInstaller::Settings
             return GetRegistryValue<Mapping::ValueType>(policiesKey , Mapping::ValueName);
         }
 
-        std::optional<std::string> ValuePolicyMapping<ValuePolicy::ProgressBarStyle>::ReadAndValidate(const Registry::Key& policiesKey)
-        {
-            using Mapping = ValuePolicyMapping<ValuePolicy::ProgressBarStyle>;
-            return GetRegistryValue<Mapping::ValueType>(policiesKey, Mapping::ValueName);
-        }
-
         std::optional<std::vector<std::string>> ValuePolicyMapping<ValuePolicy::IncludeSources>::ReadAndValidate(const Registry::Key&)
         {
             // TODO
@@ -150,20 +145,24 @@ namespace AppInstaller::Settings
         for (Toggle_t i = static_cast<Toggle_t>(TogglePolicy::None); i < static_cast<Toggle_t>(TogglePolicy::Max); ++i)
         {
             auto policy = static_cast<TogglePolicy>(i);
-            m_toggles[policy] = IsAllowedInternal(key, policy);
+            m_toggles[policy] = GetStateInternal(key, policy);
         }
     }
 
-    bool GroupPolicy::IsAllowed(TogglePolicy policy) const
+    PolicyState GroupPolicy::GetState(TogglePolicy policy) const
     {
         auto itr = m_toggles.find(policy);
         if (itr == m_toggles.end())
         {
-            // Default to allowing if there is no known policy.
-            return true;
+            return PolicyState::NotConfigured;
         }
 
         return itr->second;
+    }
+
+    bool GroupPolicy::IsEnabledOrNotConfigured(TogglePolicy policy) const
+    {
+        return GetState(policy) != PolicyState::Disabled;
     }
 
     static std::unique_ptr<GroupPolicy> s_groupPolicy;
