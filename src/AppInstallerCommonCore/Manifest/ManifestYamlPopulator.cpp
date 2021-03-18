@@ -88,15 +88,15 @@ namespace AppInstaller::Manifest
             return result;
         }
 
-        std::vector<ScopeEnum> ProcessScopeSequenceNode(const YAML::Node& node)
+        std::vector<InstallModeEnum> ProcessInstallModeSequenceNode(const YAML::Node& node)
         {
             THROW_HR_IF(E_INVALIDARG, !node.IsSequence());
 
-            std::vector<ScopeEnum> result;
+            std::vector<InstallModeEnum> result;
 
             for (auto const& entry : node.Sequence())
             {
-                result.emplace_back(ConvertToScopeEnum(entry.as<std::string>()));
+                result.emplace_back(ConvertToInstallModeEnum(entry.as<std::string>()));
             }
 
             return result;
@@ -221,7 +221,7 @@ namespace AppInstaller::Manifest
                     { "Platform", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->Platform = ProcessPlatformSequenceNode(value); return {}; } },
                     { "MinimumOSVersion", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->MinOSVersion = value.as<std::string>(); return {}; } },
                     { "Scope", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->Scope = ConvertToScopeEnum(value.as<std::string>()); return {}; } },
-                    { "InstallModes", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->InstallModes = ProcessScopeSequenceNode(value); return {}; } },
+                    { "InstallModes", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->InstallModes = ProcessInstallModeSequenceNode(value); return {}; } },
                     { "InstallerSwitches", [this](const YAML::Node& value)->ValidationErrors { m_p_switches = &(m_p_installer->Switches); return ValidateAndProcessFields(value, SwitchesFieldInfos); } },
                     { "InstallerSuccessCodes", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->InstallerSuccessCodes = ProcessInstallerSuccessCodeSequenceNode(value); return {}; } },
                     { "UpgradeBehavior", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->UpdateBehavior = ConvertToUpdateBehaviorEnum(value.as<std::string>()); return {}; } },
