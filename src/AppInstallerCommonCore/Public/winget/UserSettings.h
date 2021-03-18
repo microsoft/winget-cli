@@ -35,6 +35,13 @@ namespace AppInstaller::Settings
         Rainbow,
     };
 
+    // The preferred scope for installs.
+    enum class ScopePreference
+    {
+        User,
+        Machine,
+    };
+
     // Enum of settings.
     // Must start at 0 to enable direct access to variant in UserSettings.
     // Max must be last and unused.
@@ -56,6 +63,7 @@ namespace AppInstaller::Settings
         EFExport,
         TelemetryDisable,
         EFRestSource,
+        InstallScopePreference,
         Max
     };
 
@@ -95,6 +103,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExport, bool, bool, false, ".experimentalFeatures.export"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFRestSource, bool, bool, false, ".experimentalFeatures.restSource"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopePreference, std::string, ScopePreference, ScopePreference::User, ".install.scopePreference"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>
