@@ -52,8 +52,8 @@ If you disable this setting the Microsoft Store source for the Windows Package M
 If you disable or do not configure this setting, the default interval or the value specified in settings will be used by the Windows Package Manager.
 
 If you enable this setting, the number of minutes specified will be used by the Windows Package Manager.</string>
-      <string id="EnableAditionalSources">Enable Additional Windows Package Manager Sources</string>
-      <string id="EnableAditionalSourcesExplanation">This policy controls additional sources provided by the enterprise IT administrator.
+      <string id="EnableAdditionalSources">Enable Additional Windows Package Manager Sources</string>
+      <string id="EnableAdditionalSourcesExplanation">This policy controls additional sources provided by the enterprise IT administrator.
 
 If you do not configure this policy, no additional sources will be configured for the Windows Package Manager.
 

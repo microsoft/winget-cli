@@ -80,7 +80,7 @@
         <decimal id="SourceAutoUpdateIntervalInMinutes" valueName="SourceAutoUpdateIntervalInMinutes" maxValue="43200" />
       </elements>
     </policy>
-    <policy name="EnableAditionalSources" class="Machine" displayName="$(string.EnableAditionalSources)" explainText="$(string.EnableAditionalSourcesExplanation)" presentation="$(presentation.AdditionalSources)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableAditionalSources">
+    <policy name="EnableAdditionalSources" class="Machine" displayName="$(string.EnableAdditionalSources)" explainText="$(string.EnableAdditionalSourcesExplanation)" presentation="$(presentation.AdditionalSources)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableAdditionalSources">
       <parentCategory ref="WindowsPackageManager" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
