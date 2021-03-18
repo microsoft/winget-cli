@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <policyNamespaces>
+    <target prefix="winget" namespace="Microsoft.Policies.WindowsPackageManager" />
+    <using prefix="windows" namespace="Microsoft.Policies.Windows" />
+  </policyNamespaces>
+  <resources minRequiredRevision="1.0" />
+  <categories>
+    <category name="WindowsPackageManager" displayName="$(string.WindowsPackageManager)">
+      <parentCategory ref="windows:WindowsComponents" />
+    </category>
+  </categories>
+  <policies>
+    <policy name="EnableWindowsPackageManager" class="Machine" displayName="$(string.EnableWindowsPackageManager)" explainText="$(string.EnableWindowsPackageManagerExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableWindowsPackageManager">
+      <parentCategory ref="WindowsPackageManager" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableSettingsCommand" class="Machine" displayName="$(string.EnableSettingsCommand)" explainText="$(string.EnableSettingsCommandExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableSettingsCommand">
+      <parentCategory ref="WindowsPackageManager" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableExperimentalFeatures" class="Machine" displayName="$(string.EnableExperimentalFeatures)" explainText="$(string.EnableExperimentalFeaturesExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableExperimentalFeatures">
+      <parentCategory ref="WindowsPackageManager" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableLocalManifestFiles" class="Machine" displayName="$(string.EnableLocalManifestFiles)" explainText="$(string.EnableLocalManifestFilesExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableLocalManifestFiles">
+      <parentCategory ref="WindowsPackageManager" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableDefaultSorce" class="Machine" displayName="$(string.EnableDefaultSorce)" explainText="$(string.EnableDefaultSorceExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableDefaultSorce">
+      <parentCategory ref="WindowsPackageManager" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableMicrosoftStoreSource" class="Machine" displayName="$(string.EnableMicrosoftStoreSource)" explainText="$(string.EnableMicrosoftStoreSourceExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableMicrosoftStoreSource">
+      <parentCategory ref="WindowsPackageManager" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="SourceAutoUpdateIntervalInMinutes" class="Machine" displayName="$(string.SourceAutoUpdateIntervalInMinutes)" explainText="$(string.SourceAutoUpdateIntervalInMinutesExplanation)" presentation="$(presentation.SourceAutoUpdateIntervalInMinutes)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager">
+      <parentCategory ref="WindowsPackageManager" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <elements>
+        <decimal id="SourceAutoUpdateIntervalInMinutes" valueName="SourceAutoUpdateIntervalInMinutes" maxValue="43200" />
+      </elements>
+    </policy>
+    <policy name="EnableAditionalSources" class="Machine" displayName="$(string.EnableAditionalSources)" explainText="$(string.EnableAditionalSourcesExplanation)" presentation="$(presentation.AdditionalSources)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableAditionalSources">
+      <parentCategory ref="WindowsPackageManager" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+      <elements>
+        <list id="AdditionalSources" key="Software\Policies\Microsoft\Windows\WindowsPackageManager\AdditionalSources" explicitValue="true" />
+      </elements>
+    </policy>
+    <policy name="EnableAllowedSources" class="Machine" displayName="$(string.EnableAllowedSources)" explainText="$(string.EnableAllowedSourcesExplanation)" presentation="$(presentation.AllowedSources)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableAllowedSources">
+      <parentCategory ref="WindowsPackageManager" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+      <elements>
+        <list id="AllowedSources" key="Software\Policies\Microsoft\Windows\WindowsPackageManager\AllowedSources" explicitValue="true" />
+      </elements>
+    </policy>
+  </policies>
+</policyDefinitions>

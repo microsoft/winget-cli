@@ -78,6 +78,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "spelling", "spelling", "{2A
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cpprestsdk", "cpprestsdk\cpprestsdk.vcxproj", "{866C3F06-636F-4BE8-BC24-5F86ECC606A1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "group policy", "group policy", "{1A47951F-5C7A-4D6D-BB5F-D77484437940}"
+	ProjectSection(SolutionItems) = preProject
+		..\doc\admx\en-US\WindowsPackageManager.adml = ..\doc\admx\en-US\WindowsPackageManager.adml
+		..\doc\admx\WindowsPackageManager.admx = ..\doc\admx\WindowsPackageManager.admx
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		ManifestSchema\ManifestSchema.vcxitems*{1622da16-914f-4f57-a259-d5169003cc8c}*SharedItemsImports = 4
@@ -459,6 +465,7 @@ Global
 		{952B513F-8A00-4D74-9271-925AFB3C6252} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 		{2ACDE176-F13F-42FA-8159-C34FA3D37837} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 		{866C3F06-636F-4BE8-BC24-5F86ECC606A1} = {60618CAC-2995-4DF9-9914-45C6FC02C995}
+		{1A47951F-5C7A-4D6D-BB5F-D77484437940} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6FDB70C-A751-422C-ACD1-E35419495857}

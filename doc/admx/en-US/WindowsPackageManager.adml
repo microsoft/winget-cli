@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TODO: Copyright header -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Windows Package Manager</displayName>
+  <description>Windows Package Manager</description>
+  <resources>
+    <stringTable>
+      <string id="WindowsPackageManager">Windows Package Manager</string>
+      <string id="EnableWindowsPackageManager">Enable Windows Package Manager</string>
+      <string id="EnableWindowsPackageManagerExplanation">This policy controls whether the Windows Package Manager can be used by users.
+
+If you enable or do not configure this setting, users will be able to use the Windows Package Manager.
+
+If you disable this setting, users will not be able to use the Windows Package Manager.</string>
+      <string id="EnableSettingsCommand">Enable Windows Package Manager Settings Command</string>
+      <string id="EnableSettingsCommandExplanation">This policy controls whether users can change their settings.
+
+If you enable or do not configure this setting, users will be able to change settings for the Windows Package Manager.
+
+If you disable this setting, users will not be able to change settings for the Windows Package Manager.</string>
+      <string id="EnableExperimentalFeatures">Enable Windows Package Manager Experimental Features</string>
+      <string id="EnableExperimentalFeaturesExplanation">This policy controls whether users can enable experimental features in the Windows Package Manager.
+
+If you enable or do not configure this setting, users will be able to enable experimental features for the Windows Package Manager.
+
+If you disable this setting, users will not be able to enable experimental features for the Windows Package Manager.</string>
+      <string id="EnableLocalManifestFiles">Enable Windows Package Manager Local Manifest Files</string>
+      <string id="EnableLocalManifestFilesExplanation">This policy controls whether users can install packages with local manifest files.
+
+If you enable or do not configure this setting, users will be able to install packages with local manifests using the Windows Package Manager.
+
+If you disable this setting, users will not be able to install packages with local manifests using the Windows Package Manager.</string>
+      <string id="EnableDefaultSorce">Enable Windows Package Manager Default Source</string>
+      <string id="EnableDefaultSorceExplanation">This policy controls the default source included with the Windows Package Manager.
+
+If you do not configure this setting, the default source for the Windows Package Manager will be available and can be removed.
+
+If you enable this setting, the default source for the Windows Package Manager will be available and cannot be removed.
+
+If you disable this setting the default source for the Windows Package Manager will not be available.</string>
+      <string id="EnableMicrosoftStoreSource">Enable Windows Package Manager Microsoft Store Source</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">This policy controls the Microsoft Store source included with the Windows Package Manager.
+
+If you do not configure this setting, the Microsoft Store source for the Windows Package manager will be available and can be removed.
+
+If you enable this setting, the Microsoft Store source for the Windows Package Manager will be available and cannot be removed.
+
+If you disable this setting the Microsoft Store source for the Windows Package Manager will not be available.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Set Windows Package Manager Source Auto Update Interval In Minutes</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">This policy controls the auto update interval for package-based sources.
+
+If you disable or do not configure this setting, the default interval or the value specified in settings will be used by the Windows Package Manager.
+
+If you enable this setting, the number of minutes specified will be used by the Windows Package Manager.</string>
+      <string id="EnableAditionalSources">Enable Additional Windows Package Manager Sources</string>
+      <string id="EnableAditionalSourcesExplanation">This policy controls additional sources provided by the enterprise IT administrator.
+
+If you do not configure this policy, no additional sources will be configured for the Windows Package Manager.
+
+If you enable this policy, the additional sources will be added to the Windows Package Manager and cannot be removed. Each additional source requires a name, argument (URL), and type (Microsoft.Rest or Microsoft.PreIndexed.Package).
+
+If you disable this policy, no additional sources can be configured for the Windows Package Manager.</string>
+      <string id="EnableAllowedSources">Enable Windows Package Manager Allowed Sources</string>
+      <string id="EnableAllowedSourcesExplanation">This policy controls additional sources allowed by the enterprise IT administrator.
+
+If you do not configure this policy, users will be able to add or remove additional sources other than those configured by policy.
+
+If you enable this policy, only the sources specified can be added or removed from the Windows Package Manager. Each allowed source requires a name, argument (URL), and type (Microsoft.Rest or Microsoft.PreIndexed.Package).
+
+If you disable this policy, no additional sources can be configured for the Windows Package Manager.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Source Auto Update Interval In Minutes</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Additional Sources: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Allowed Sources: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>
