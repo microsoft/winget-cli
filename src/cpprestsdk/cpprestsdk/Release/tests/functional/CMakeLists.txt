@@ -1,7 +1,0 @@
-add_subdirectory(http)
-add_subdirectory(json)
-add_subdirectory(pplx)
-add_subdirectory(streams)
-add_subdirectory(uri)
-add_subdirectory(utils)
-add_subdirectory(websockets)
