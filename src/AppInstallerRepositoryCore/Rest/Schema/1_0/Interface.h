@@ -10,7 +10,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     // Interface to this schema version exposed through IRestClient.
     struct Interface : public IRestClient
     {
-        Interface(const std::string& restApi, const std::string& restApiVersion);
+        Interface(const std::string& restApi);
 
         Interface(const Interface&) = delete;
         Interface& operator=(const Interface&) = delete;
@@ -18,8 +18,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         Interface(Interface&&) = default;
         Interface& operator=(Interface&&) = default;
 
+        std::string GetVersion() const override;
         IRestClient::SearchResult Search(const SearchRequest& request) const override;
         std::optional<Manifest::Manifest> GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const override;
+        std::vector<Manifest::Manifest> GetManifests(const std::string& packageId, const std::string& version, const std::string& channel) const override;
    
     protected:
         bool MeetsOptimizedSearchCriteria(const SearchRequest& request) const;
@@ -27,7 +29,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
     private:
         std::string m_restApiUri;
-        std::string m_restApiUriVersion;
         utility::string_t m_searchEndpoint;
+        std::vector<std::pair<utility::string_t, utility::string_t>> m_requiredRestApiHeaders;
     };
 }

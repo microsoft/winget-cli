@@ -26,11 +26,11 @@ namespace AppInstaller::Repository::Rest
 
         static utility::string_t GetInformationEndpoint(const std::string& restApiUri);
 
-        static std::optional<std::string> GetSupportedRestClientVersion(const std::string& restApi);
+        static std::string GetSupportedVersion(const std::string& restApi);
 
-        static std::unique_ptr<Schema::IRestClient> GetSupportedRestClientInterface(const std::string& restApi, const std::optional<std::string>& version);
+        static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const std::string& version);
 
-        static RestClient CreateRestClient(const std::string& restApi);
+        static RestClient Create(const std::string& restApi);
 
     private:
         std::unique_ptr<Schema::IRestClient> m_interface;

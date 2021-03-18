@@ -34,36 +34,31 @@ namespace AppInstaller::Repository::Rest
         return utility::conversions::to_string_t(informationApi.append(InformationGetEndpoint));
     }
 
-    std::optional<std::string> RestClient::GetSupportedRestClientVersion(const std::string& restApi)
+    std::string RestClient::GetSupportedVersion(const std::string& restApi)
     {
         // Call information endpoint
         HttpClientHelper httpClientHelper{ GetInformationEndpoint(restApi) };
-        web::json::value response = httpClientHelper.HandleGet();
+        web::json::value response = httpClientHelper.HandleGet({});
 
         Json::InformationResponseDeserializer responseDeserializer;
-        std::optional<IRestClient::Information> info = responseDeserializer.Deserialize(response);
-
-        if (!info.has_value() || info.value().ServerSupportedVersions.size() == 0)
-        {
-            AICLI_LOG(Repo, Verbose, << "Incomplete information returned by rest source");
-            THROW_HR_MSG(E_UNEXPECTED, "Missing supported versions from rest source information");
-        }
+        IRestClient::Information info = responseDeserializer.Deserialize(response);
 
         // TODO: Get a version that winget client and rest source both support. Using first version given for now.
-        IRestClient::Information information{ std::move(info.value()) };
-        return information.ServerSupportedVersions[0].ApiVersion;
+        IRestClient::Information information{ std::move(info) };
+        return information.ServerSupportedVersions[0];
     }
 
-    std::unique_ptr<Schema::IRestClient> RestClient::GetSupportedRestClientInterface(const std::string& api, const std::optional<std::string>& version)
+    std::unique_ptr<Schema::IRestClient> RestClient::GetSupportedInterface(const std::string& api, const std::string& version)
     {
         // TODO: Add supported version logic. Use V1_0 for now.
-        return std::make_unique<Schema::V1_0::Interface>(api, version.value_or(""));
+        UNREFERENCED_PARAMETER(version);
+        return std::make_unique<Schema::V1_0::Interface>(api);
     }
 
-    RestClient RestClient::CreateRestClient(const std::string& restApi)
+    RestClient RestClient::Create(const std::string& restApi)
     {
-        std::optional<std::string> version = GetSupportedRestClientVersion(restApi);
-        std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedRestClientInterface(restApi, version);
+        std::string version = GetSupportedVersion(restApi);
+        std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedInterface(restApi, version);
         return RestClient{ std::move(supportedInterface) };
     }
 }

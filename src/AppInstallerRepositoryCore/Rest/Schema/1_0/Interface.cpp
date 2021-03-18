@@ -32,7 +32,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             UNREFERENCED_PARAMETER(searchRequest);
 
             web::json::value json_body;
-            json_body[JsonHelper::GetJsonKeyNameString(FetchAllManifests)] = web::json::value::string(L"true");
+            json_body[JsonHelper::GetUtilityString(FetchAllManifests)] = web::json::value::string(L"true");
 
             return json_body;
         }
@@ -80,11 +80,18 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         }
     }
 
-    Interface::Interface(const std::string& restApi, const std::string& restApiVersion)
+    Interface::Interface(const std::string& restApi)
     {
-        m_restApiUriVersion = restApiVersion;
         m_restApiUri = GetRestAPIBaseUri(restApi);
         m_searchEndpoint = GetSearchEndpoint(m_restApiUri);
+        m_requiredRestApiHeaders.emplace_back(
+            std::pair(JsonHelper::GetUtilityString(ContractVersion), JsonHelper::GetUtilityString(GetVersion())));
+    }
+
+    std::string Interface::GetVersion() const
+    {
+        // TODO: Change type to Version if necessary.
+        return "1.0.0";
     }
 
     IRestClient::SearchResult Interface::Search(const SearchRequest& request) const
@@ -94,68 +101,32 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         {
             return OptimizedSearch(request);
         }
-        
-        // TODO: Handle continuation token and Use APIVersion.
+
+        // TODO: Handle continuation token
         HttpClientHelper clientHelper{ m_searchEndpoint };
-        web::json::value jsonObject = clientHelper.HandlePost(GetSearchBody(request));
+        web::json::value jsonObject = clientHelper.HandlePost(GetSearchBody(request), m_requiredRestApiHeaders);
 
         SearchResponseDeserializer searchResponseDeserializer;
-        std::optional<IRestClient::SearchResult> searchResult = searchResponseDeserializer.Deserialize(jsonObject);
-
-        if (!searchResult.has_value())
-        {
-            return {};
-        }
-
-        return searchResult.value();
+        return searchResponseDeserializer.Deserialize(jsonObject);
     }
 
     std::optional<Manifest::Manifest> Interface::GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const
     {
-        // TODO: Use APIVersion.
-        std::optional<Manifest::Manifest> manifest;
-        HttpClientHelper clientHelper{ GetManifestByVersionEndpoint(m_restApiUri, packageId, version, channel) };
-        web::json::value jsonObject = clientHelper.HandleGet();
+        std::vector<Manifest::Manifest> manifests = GetManifests(packageId, version, channel);
 
-        // Parse json and return Manifest
-        std::optional<std::reference_wrapper<const web::json::value>> data =
-            JsonHelper::GetJsonValueFromNode(jsonObject, JsonHelper::GetJsonKeyNameString(Data));
-        
-        if (data.has_value())
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND, manifests.size() > 1);
+
+        if (manifests.size() > 0)
         {
-            ManifestDeserializer manifestDeserializer;
-            manifest = manifestDeserializer.Deserialize(data.value().get());
-
-            // Manifest validation
-            if (manifest.has_value())
-            {
-                std::vector<AppInstaller::Manifest::ValidationError> validationErrors =
-                    AppInstaller::Manifest::ValidateManifest(manifest.value());
-
-                int errors = 0;
-                for (auto& error : validationErrors)
-                {
-                    if (error.ErrorLevel == Manifest::ValidationError::Level::Error)
-                    {
-                        AICLI_LOG(Repo, Verbose, << "Received manifest contains validation error: " << error.Message);
-                        errors++;
-                    }
-                }
-
-                if (errors > 0)
-                {
-                    AICLI_LOG(Repo, Verbose, << "Received invalid manifest. Skipping");
-                    return {};
-                }
-            }
+            return manifests.at(0);
         }
 
-        return manifest;
+        return {};
     }
 
     bool Interface::MeetsOptimizedSearchCriteria(const SearchRequest& request) const
     {
-        if (!request.Query.has_value() && request.Inclusions.size() == 0 &&
+        if (!request.Query && request.Inclusions.size() == 0 &&
             request.Filters.size() == 1 && request.Filters[0].Field == PackageMatchField::Id &&
             request.Filters[0].Type == MatchType::Exact)
         {
@@ -168,12 +139,14 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
     IRestClient::SearchResult Interface::OptimizedSearch(const SearchRequest& request) const
     {
+        // TODO: Send in VersionLatest = true query param.
         SearchResult searchResult;
-        std::optional<Manifest::Manifest> manifestResult = GetManifestByVersion(request.Filters[0].Value, {}, {});
+        std::vector<Manifest::Manifest> manifests = GetManifests(request.Filters[0].Value, {}, {});
 
-        if (manifestResult.has_value())
+        if (manifests.size() > 0)
         {
-            Manifest::Manifest manifest = std::move(manifestResult.value());
+            // TODO: After adding the VersionLatest query param, we should be expecting one or no version. Using the first one until then.
+            Manifest::Manifest manifest = manifests.at(0);
             PackageInfo packageInfo = PackageInfo{
                 manifest.Id,
                 manifest.DefaultLocalization.Get<AppInstaller::Manifest::Localization::PackageName>(),
@@ -188,5 +161,41 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         }
 
         return searchResult;
+    }
+
+    std::vector<Manifest::Manifest> Interface::GetManifests(const std::string& packageId, const std::string& version, const std::string& channel) const
+    {
+        // TODO: Make a list of query params supported instead of using function parameters.
+        std::vector<Manifest::Manifest> results;
+        HttpClientHelper clientHelper{ GetManifestByVersionEndpoint(m_restApiUri, packageId, version, channel) };
+        web::json::value jsonObject = clientHelper.HandleGet(m_requiredRestApiHeaders);
+
+        // Parse json and return Manifests
+        ManifestDeserializer manifestDeserializer;
+        std::vector<Manifest::Manifest> manifests = manifestDeserializer.Deserialize(jsonObject);
+
+        // Manifest validation
+        for (auto& manifestItem : manifests)
+        {
+            Manifest::Manifest manifest = manifestItem;
+            std::vector<AppInstaller::Manifest::ValidationError> validationErrors =
+                AppInstaller::Manifest::ValidateManifest(manifest);
+
+            int errors = 0;
+            for (auto& error : validationErrors)
+            {
+                if (error.ErrorLevel == Manifest::ValidationError::Level::Error)
+                {
+                    AICLI_LOG(Repo, Error, << "Received manifest contains validation error: " << error.Message);
+                    errors++;
+                }
+            }
+
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA, errors > 0);
+
+            results.emplace_back(manifest);
+        }
+
+        return results;
     }
 }

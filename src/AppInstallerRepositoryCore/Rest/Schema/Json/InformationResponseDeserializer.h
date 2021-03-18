@@ -11,6 +11,9 @@ namespace AppInstaller::Repository::Rest::Schema::Json
     struct InformationResponseDeserializer
     {
         // Gets the information model for given response
-        std::optional<IRestClient::Information> Deserialize(const web::json::value& dataObject) const;
+        IRestClient::Information Deserialize(const web::json::value& dataObject) const;
+
+    protected:
+        std::optional<IRestClient::Information> DeserializeInformation(const web::json::value& dataObject) const;
     };
 }

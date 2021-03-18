@@ -14,77 +14,69 @@ namespace AppInstaller::Repository::Rest::Schema::Json
         // Information response constants
         constexpr std::string_view SourceIdentifier = "SourceIdentifier"sv;
         constexpr std::string_view ServerSupportedVersions = "ServerSupportedVersions"sv;
-        constexpr std::string_view APIVersion = "APIVersion"sv;
-        constexpr std::string_view ObjectVersions = "ObjectVersions"sv;
     }
 
-    std::optional<IRestClient::Information> InformationResponseDeserializer::Deserialize(const web::json::value& dataObject) const
+    IRestClient::Information InformationResponseDeserializer::Deserialize(const web::json::value& dataObject) const
     {
         // Get information result from json output.
-        std::optional<std::reference_wrapper<const web::json::value>> data = JsonHelper::GetJsonValueFromNode(dataObject, JsonHelper::GetJsonKeyNameString(Data));
-        if (!data.has_value())
-        {
-            AICLI_LOG(Repo, Verbose, << "Missing data");
-            return {};
-        }
+        std::optional<IRestClient::Information> information = DeserializeInformation(dataObject);
 
-        auto& dataValue = data.value().get();
-        std::optional<std::string> sourceId = JsonHelper::GetRawStringValueFromJsonNode(dataValue, JsonHelper::GetJsonKeyNameString(SourceIdentifier));
-        if (!JsonHelper::IsValidNonEmptyStringValue(sourceId))
-        {
-            AICLI_LOG(Repo, Verbose, << "Missing source identifier");
-            return {};
-        }
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !information);
 
-        std::optional<std::reference_wrapper<const web::json::array>> versions = JsonHelper::GetRawJsonArrayFromJsonNode(dataValue, JsonHelper::GetJsonKeyNameString(ServerSupportedVersions));
+        return information.value();
+    }
 
-        if (!versions.has_value() || versions.value().get().size() == 0)
+    std::optional<IRestClient::Information> InformationResponseDeserializer::DeserializeInformation(const web::json::value& dataObject) const
+    {
+        try
         {
-            AICLI_LOG(Repo, Verbose, << "Missing supported versions");
-            return {};
-        }
-
-        std::vector<IRestClient::SupportedVersion> allVersions;
-        for (auto& versionItem : versions.value().get())
-        {
-            std::optional<std::string> apiVersion = JsonHelper::GetRawStringValueFromJsonNode(versionItem, JsonHelper::GetJsonKeyNameString(APIVersion));
-            if (!JsonHelper::IsValidNonEmptyStringValue(apiVersion))
+            std::optional<std::reference_wrapper<const web::json::value>> data = JsonHelper::GetJsonValueFromNode(dataObject, JsonHelper::GetUtilityString(Data));
+            if (!data)
             {
-                AICLI_LOG(Repo, Verbose, << "Missing API Version. Skipping version item.");
-                continue;
+                AICLI_LOG(Repo, Error, << "Missing data");
+                return {};
             }
 
-            std::optional<std::reference_wrapper<const web::json::array>> wingetVersions = JsonHelper::GetRawJsonArrayFromJsonNode(versionItem, JsonHelper::GetJsonKeyNameString(ObjectVersions));
-            std::vector<std::string> supportedWingetVersions;
-            if (wingetVersions.has_value())
+            auto& dataValue = data.value().get();
+            std::optional<std::string> sourceId = JsonHelper::GetRawStringValueFromJsonNode(dataValue, JsonHelper::GetUtilityString(SourceIdentifier));
+            if (!JsonHelper::IsValidNonEmptyStringValue(sourceId))
             {
-                for (auto& version : wingetVersions.value().get())
+                AICLI_LOG(Repo, Error, << "Missing source identifier");
+                return {};
+            }
+
+            std::optional<std::reference_wrapper<const web::json::array>> versions = JsonHelper::GetRawJsonArrayFromJsonNode(dataValue, JsonHelper::GetUtilityString(ServerSupportedVersions));
+
+            if (!versions || versions.value().get().size() == 0)
+            {
+                AICLI_LOG(Repo, Error, << "Missing supported versions");
+                return {};
+            }
+
+            std::vector<std::string> allVersions;
+            for (auto& versionItem : versions.value().get())
+            {
+                std::optional<std::string> sp = JsonHelper::GetRawStringValueFromJsonValue(versionItem);
+                if (sp)
                 {
-                    std::optional<std::string> sp = JsonHelper::GetRawStringValueFromJsonValue(version);
-                    if (sp.has_value())
-                    {
-                        supportedWingetVersions.emplace_back(std::move(sp.value()));
-                    }
+                    allVersions.emplace_back(std::move(sp.value()));
                 }
             }
 
-            if (supportedWingetVersions.size() == 0)
+            if (allVersions.size() == 0)
             {
-                AICLI_LOG(Repo, Verbose, << "Missing supported winget versions. Skipping version item:" << apiVersion.value());
-                continue;
+                AICLI_LOG(Repo, Error, << "Received incomplete information.");
+                return {};
             }
 
-            IRestClient::SupportedVersion sv{ std::move(apiVersion.value()), std::move(supportedWingetVersions) };
-            allVersions.emplace_back(std::move(sv));
+            IRestClient::Information info{ std::move(sourceId.value()), std::move(allVersions) };
+            return info;
         }
-
-        if (allVersions.size() == 0)
+        catch (...)
         {
-            AICLI_LOG(Repo, Verbose, << "Received incomplete information.");
-            return {};
+            AICLI_LOG(Repo, Error, << "Received invalid information.");
         }
 
-        IRestClient::Information info{ std::move(sourceId.value()), std::move(allVersions) };
-        return info;
+        return {};
     }
 }

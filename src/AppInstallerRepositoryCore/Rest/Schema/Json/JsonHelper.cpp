@@ -5,7 +5,7 @@
 
 namespace AppInstaller::Repository::Rest::Schema::Json
 {
-    utility::string_t JsonHelper::GetJsonKeyNameString(std::string_view nodeName)
+    utility::string_t JsonHelper::GetUtilityString(std::string_view nodeName)
     {
         return utility::conversions::to_string_t(nodeName.data());
     }
@@ -34,7 +34,7 @@ namespace AppInstaller::Repository::Rest::Schema::Json
     {
         std::optional<std::reference_wrapper<const web::json::value>> jsonValue = GetJsonValueFromNode(node, keyName);
 
-        if (jsonValue.has_value())
+        if (jsonValue)
         {
             return GetRawStringValueFromJsonValue(jsonValue.value().get());
         }
@@ -56,7 +56,7 @@ namespace AppInstaller::Repository::Rest::Schema::Json
     {
         std::optional<std::reference_wrapper<const web::json::value>> jsonValue = GetJsonValueFromNode(node, keyName);
 
-        if (!jsonValue.has_value() || !jsonValue.value().get().is_array())
+        if (!jsonValue || !jsonValue.value().get().is_array())
         {
             return {};
         }
@@ -70,7 +70,7 @@ namespace AppInstaller::Repository::Rest::Schema::Json
         std::optional<std::reference_wrapper<const web::json::array>> arrayValue = GetRawJsonArrayFromJsonNode(node, keyName);
 
         std::vector<Manifest::string_t> result;
-        if (!arrayValue.has_value())
+        if (!arrayValue)
         {
             return result;
         }
@@ -78,7 +78,7 @@ namespace AppInstaller::Repository::Rest::Schema::Json
         for (auto& value : arrayValue.value().get())
         {
             std::optional<std::string> item = JsonHelper::GetRawStringValueFromJsonValue(value);
-            if (item.has_value())
+            if (item)
             {
                 result.emplace_back(std::move(item.value()));
             }

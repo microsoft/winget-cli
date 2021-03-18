@@ -11,6 +11,9 @@ namespace AppInstaller::Repository::Rest::Schema::Json
     struct SearchResponseDeserializer
     {
         // Gets the search result for given version
-        std::optional<IRestClient::SearchResult> Deserialize(const web::json::value& searchResultJsonObject) const;
+        IRestClient::SearchResult Deserialize(const web::json::value& searchResultJsonObject) const;
+
+    protected:
+        std::optional<IRestClient::SearchResult> DeserializeSearchResult(const web::json::value& searchResultJsonObject) const;
     };
 }

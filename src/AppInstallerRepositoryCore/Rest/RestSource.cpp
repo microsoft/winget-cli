@@ -70,15 +70,15 @@ namespace AppInstaller::Repository::Rest
             {
                 AICLI_LOG(Repo, Verbose, << "Getting manifest");
 
-                if (!m_versionInfo.Manifest.Id.empty())
+                if (m_versionInfo.Manifest)
                 {
-                    return m_versionInfo.Manifest;
+                    return m_versionInfo.Manifest.value();
                 }
 
                 std::optional<Manifest::Manifest> manifest = GetReferenceSource()->GetRestClient().GetManifestByVersion(
                     m_packageInfo.PackageIdentifier, m_versionInfo.VersionAndChannel.GetVersion().ToString(), m_versionInfo.VersionAndChannel.GetChannel().ToString());
 
-                if (!manifest.has_value())
+                if (!manifest)
                 {
                     AICLI_LOG(Repo, Verbose, << "Valid manifest not found for package: " << m_packageInfo.PackageIdentifier);
                     return {};

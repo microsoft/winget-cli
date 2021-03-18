@@ -10,10 +10,10 @@ namespace AppInstaller::Repository::Rest::Schema::Json
     struct ManifestDeserializer
     {
         // Gets the manifest from the given json object
-        std::optional<Manifest::Manifest> Deserialize(const web::json::value& manifestJsonObject) const;
+        std::vector<Manifest::Manifest> Deserialize(const web::json::value& dataJsonObject) const;
 
     protected:
-        std::optional<Manifest::Manifest> DeserializeVersion(const web::json::value& versionJsonObject) const;
+        std::optional<std::vector<Manifest::Manifest>> DeserializeVersion(const web::json::value& dataJsonObject) const;
 
         std::optional<Manifest::ManifestLocalization> DeserializeLocale(const web::json::value& localeJsonObject) const;
 

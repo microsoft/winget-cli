@@ -22,7 +22,16 @@ namespace AppInstaller::Repository::Rest::Schema::Json
         constexpr std::string_view Channel = "Channel"sv;
     }
 
-    std::optional<IRestClient::SearchResult> SearchResponseDeserializer::Deserialize(const web::json::value& searchResponseObject) const
+    IRestClient::SearchResult SearchResponseDeserializer::Deserialize(const web::json::value& searchResponseObject) const
+    {
+        std::optional<IRestClient::SearchResult> response = DeserializeSearchResult(searchResponseObject);
+
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA, !response);
+
+        return response.value();
+    }
+
+    std::optional<IRestClient::SearchResult> SearchResponseDeserializer::DeserializeSearchResult(const web::json::value& searchResponseObject) const
     {
         // Make search result from json output.
         if (searchResponseObject.is_null())
@@ -33,8 +42,8 @@ namespace AppInstaller::Repository::Rest::Schema::Json
         IRestClient::SearchResult result;
         try
         {
-            std::optional<std::reference_wrapper<const web::json::array>> dataArray = JsonHelper::GetRawJsonArrayFromJsonNode(searchResponseObject, JsonHelper::GetJsonKeyNameString(Data));
-            if (!dataArray.has_value() || dataArray.value().get().size() == 0)
+            std::optional<std::reference_wrapper<const web::json::array>> dataArray = JsonHelper::GetRawJsonArrayFromJsonNode(searchResponseObject, JsonHelper::GetUtilityString(Data));
+            if (!dataArray || dataArray.value().get().size() == 0)
             {
                 AICLI_LOG(Repo, Verbose, << "No search results returned.");
                 return result;
@@ -42,54 +51,54 @@ namespace AppInstaller::Repository::Rest::Schema::Json
 
             for (auto& manifestItem : dataArray.value().get())
             {
-                std::optional<std::string> packageId = JsonHelper::GetRawStringValueFromJsonNode(manifestItem, JsonHelper::GetJsonKeyNameString(PackageIdentifier));
-                std::optional<std::string> packageName = JsonHelper::GetRawStringValueFromJsonNode(manifestItem, JsonHelper::GetJsonKeyNameString(PackageName));
-                std::optional<std::string> publisher = JsonHelper::GetRawStringValueFromJsonNode(manifestItem, JsonHelper::GetJsonKeyNameString(Publisher));
+                std::optional<std::string> packageId = JsonHelper::GetRawStringValueFromJsonNode(manifestItem, JsonHelper::GetUtilityString(PackageIdentifier));
+                std::optional<std::string> packageName = JsonHelper::GetRawStringValueFromJsonNode(manifestItem, JsonHelper::GetUtilityString(PackageName));
+                std::optional<std::string> publisher = JsonHelper::GetRawStringValueFromJsonNode(manifestItem, JsonHelper::GetUtilityString(Publisher));
 
                 if (!JsonHelper::IsValidNonEmptyStringValue(packageId) || !JsonHelper::IsValidNonEmptyStringValue(packageName) || !JsonHelper::IsValidNonEmptyStringValue(packageName))
                 {
-                    AICLI_LOG(Repo, Verbose, << "Skipping manifest item because of missing required package fields.");
-                    continue;
+                    AICLI_LOG(Repo, Error, << "Missing required package fields in manifest search results.");
+                    return {};
                 }
 
-                std::string packageFamilyName = JsonHelper::GetRawStringValueFromJsonNode(manifestItem, JsonHelper::GetJsonKeyNameString(PackageFamilyName)).value_or("");
-                std::string productCode = JsonHelper::GetRawStringValueFromJsonNode(manifestItem, JsonHelper::GetJsonKeyNameString(ProductCode)).value_or("");
-                std::optional<std::reference_wrapper<const web::json::array>> versionValue = JsonHelper::GetRawJsonArrayFromJsonNode(manifestItem, JsonHelper::GetJsonKeyNameString(Versions));
+                std::string packageFamilyName = JsonHelper::GetRawStringValueFromJsonNode(manifestItem, JsonHelper::GetUtilityString(PackageFamilyName)).value_or("");
+                std::string productCode = JsonHelper::GetRawStringValueFromJsonNode(manifestItem, JsonHelper::GetUtilityString(ProductCode)).value_or("");
+                std::optional<std::reference_wrapper<const web::json::array>> versionValue = JsonHelper::GetRawJsonArrayFromJsonNode(manifestItem, JsonHelper::GetUtilityString(Versions));
                 std::vector<IRestClient::VersionInfo> versionList;
 
-                if (versionValue.has_value())
+                if (versionValue)
                 {
                     for (auto& versionItem : versionValue.value().get())
                     {
-                        std::optional<std::string> version = JsonHelper::GetRawStringValueFromJsonNode(versionItem, JsonHelper::GetJsonKeyNameString(PackageVersion));
+                        std::optional<std::string> version = JsonHelper::GetRawStringValueFromJsonNode(versionItem, JsonHelper::GetUtilityString(PackageVersion));
                         if (!JsonHelper::IsValidNonEmptyStringValue(version))
                         {
-                            AICLI_LOG(Repo, Verbose, << "Received incomplete package version. Skipping version from package: " << packageId.value());
-                            continue;
+                            AICLI_LOG(Repo, Error, << "Received incomplete package version in package: " << packageId.value());
+                            return {};
                         }
 
-                        std::string channel = JsonHelper::GetRawStringValueFromJsonNode(versionItem, JsonHelper::GetJsonKeyNameString(Channel)).value_or("");
-                        versionList.emplace_back(IRestClient::VersionInfo{ 
+                        std::string channel = JsonHelper::GetRawStringValueFromJsonNode(versionItem, JsonHelper::GetUtilityString(Channel)).value_or("");
+                        versionList.emplace_back(IRestClient::VersionInfo{
                                 AppInstaller::Utility::VersionAndChannel{std::move(version.value()), std::move(channel)}, {} });
                     }
                 }
 
-                if (versionList.size() > 0)
+                if (versionList.size() == 0)
                 {
-                    IRestClient::PackageInfo packageInfo {
+                    AICLI_LOG(Repo, Error, << "Received no versions in package: " << packageId.value());
+                    return {};
+                }
+
+                IRestClient::PackageInfo packageInfo{
                         std::move(packageId.value()), std::move(packageName.value()), std::move(publisher.value()) };
-                    IRestClient::Package package { std::move(packageInfo), std::move(versionList) };
-                    result.Matches.emplace_back(std::move(package));
-                }
-                else
-                {
-                    AICLI_LOG(Repo, Verbose, << "Received no versions. Skipping package: " << packageId.value());
-                }
+                IRestClient::Package package{ std::move(packageInfo), std::move(versionList) };
+                result.Matches.emplace_back(std::move(package));
             }
         }
         catch (...)
         {
-            AICLI_LOG(Repo, Verbose, << "Error encountered while deserializing search result...");
+            // TODO: Catch known types and log error information from them
+            AICLI_LOG(Repo, Error, << "Error encountered while deserializing search result...");
             return {};
         }
 

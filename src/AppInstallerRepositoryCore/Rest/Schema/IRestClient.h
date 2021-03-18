@@ -26,9 +26,9 @@ namespace AppInstaller::Repository::Rest::Schema
     struct VersionInfo
     {
         AppInstaller::Utility::VersionAndChannel VersionAndChannel;
-        Manifest::Manifest Manifest;
+        std::optional<Manifest::Manifest> Manifest;
 
-        VersionInfo(AppInstaller::Utility::VersionAndChannel versionAndChannel, Manifest::Manifest manifest = {})
+        VersionInfo(AppInstaller::Utility::VersionAndChannel versionAndChannel, std::optional<Manifest::Manifest> manifest)
             : VersionAndChannel(versionAndChannel), Manifest(manifest) {}
     };
 
@@ -49,28 +49,25 @@ namespace AppInstaller::Repository::Rest::Schema
     };
 
     // Information endpoint models
-    struct SupportedVersion
-    {
-        std::string ApiVersion;
-        std::vector<std::string> ObjectVersions;
-
-        SupportedVersion(std::string apiVersion, std::vector<std::string> versions)
-            : ApiVersion(apiVersion), ObjectVersions(versions) {}
-    };
-
     struct Information
     {
         std::string SourceIdentifier;
-        std::vector<SupportedVersion> ServerSupportedVersions;
+        std::vector<std::string> ServerSupportedVersions;
 
-        Information(std::string sourceId, std::vector<SupportedVersion> versions)
+        Information(std::string sourceId, std::vector<std::string> versions)
             : SourceIdentifier(sourceId), ServerSupportedVersions(versions) {}
     };
+
+    // Get interface version.
+    virtual std::string GetVersion() const = 0;
 
     // Performs a search based on the given criteria.
     virtual SearchResult Search(const SearchRequest& request) const = 0;
 
     // Gets the manifest for given version
     virtual std::optional<Manifest::Manifest> GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const = 0;
+    
+    // Gets the manifests for given query parameters
+    virtual std::vector<Manifest::Manifest> GetManifests(const std::string& packageId, const std::string& version, const std::string& channel) const = 0;
     };
 }

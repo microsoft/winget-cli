@@ -125,6 +125,10 @@ namespace AppInstaller
                 return "Json file is invalid";
             case APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE:
                 return "The source location is not remote";
+            case APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE:
+                return "The configured rest source is not supported";
+            case APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA:
+                return "Invalid data returned by rest source";
             default:
                 return "Unknown Error Code";
             }
