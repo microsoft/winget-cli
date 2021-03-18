@@ -15,7 +15,7 @@
   <policies>
     <policy name="EnableWindowsPackageManager" class="Machine" displayName="$(string.EnableWindowsPackageManager)" explainText="$(string.EnableWindowsPackageManagerExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableWindowsPackageManager">
       <parentCategory ref="WindowsPackageManager" />
-      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
       </enabledValue>
@@ -25,7 +25,7 @@
     </policy>
     <policy name="EnableSettingsCommand" class="Machine" displayName="$(string.EnableSettingsCommand)" explainText="$(string.EnableSettingsCommandExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableSettingsCommand">
       <parentCategory ref="WindowsPackageManager" />
-      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
       </enabledValue>
@@ -35,7 +35,7 @@
     </policy>
     <policy name="EnableExperimentalFeatures" class="Machine" displayName="$(string.EnableExperimentalFeatures)" explainText="$(string.EnableExperimentalFeaturesExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableExperimentalFeatures">
       <parentCategory ref="WindowsPackageManager" />
-      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
       </enabledValue>
@@ -45,7 +45,7 @@
     </policy>
     <policy name="EnableLocalManifestFiles" class="Machine" displayName="$(string.EnableLocalManifestFiles)" explainText="$(string.EnableLocalManifestFilesExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableLocalManifestFiles">
       <parentCategory ref="WindowsPackageManager" />
-      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
       </enabledValue>
@@ -55,7 +55,7 @@
     </policy>
     <policy name="EnableDefaultSorce" class="Machine" displayName="$(string.EnableDefaultSorce)" explainText="$(string.EnableDefaultSorceExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableDefaultSorce">
       <parentCategory ref="WindowsPackageManager" />
-      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
       </enabledValue>
@@ -65,7 +65,7 @@
     </policy>
     <policy name="EnableMicrosoftStoreSource" class="Machine" displayName="$(string.EnableMicrosoftStoreSource)" explainText="$(string.EnableMicrosoftStoreSourceExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableMicrosoftStoreSource">
       <parentCategory ref="WindowsPackageManager" />
-      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
       </enabledValue>
@@ -75,14 +75,14 @@
     </policy>
     <policy name="SourceAutoUpdateIntervalInMinutes" class="Machine" displayName="$(string.SourceAutoUpdateIntervalInMinutes)" explainText="$(string.SourceAutoUpdateIntervalInMinutesExplanation)" presentation="$(presentation.SourceAutoUpdateIntervalInMinutes)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager">
       <parentCategory ref="WindowsPackageManager" />
-      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <elements>
         <decimal id="SourceAutoUpdateIntervalInMinutes" valueName="SourceAutoUpdateIntervalInMinutes" maxValue="43200" />
       </elements>
     </policy>
     <policy name="EnableAditionalSources" class="Machine" displayName="$(string.EnableAditionalSources)" explainText="$(string.EnableAditionalSourcesExplanation)" presentation="$(presentation.AdditionalSources)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableAditionalSources">
       <parentCategory ref="WindowsPackageManager" />
-      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
       </enabledValue>
@@ -95,7 +95,7 @@
     </policy>
     <policy name="EnableAllowedSources" class="Machine" displayName="$(string.EnableAllowedSources)" explainText="$(string.EnableAllowedSourcesExplanation)" presentation="$(presentation.AllowedSources)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableAllowedSources">
       <parentCategory ref="WindowsPackageManager" />
-      <supportedOn ref="windows:SUPPORTED_Windows_10_0" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
       </enabledValue>
