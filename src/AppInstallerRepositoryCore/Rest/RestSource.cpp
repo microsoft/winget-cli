@@ -83,7 +83,8 @@ namespace AppInstaller::Repository::Rest
                     AICLI_LOG(Repo, Verbose, << "Valid manifest not found for package: " << m_packageInfo.PackageIdentifier);
                     return {};
                 }
-
+                
+                m_versionInfo.Manifest = manifest.value();
                 return manifest.value();
             }
 
@@ -100,7 +101,7 @@ namespace AppInstaller::Repository::Rest
 
         private:
             IRestClient::PackageInfo m_packageInfo;
-            IRestClient::VersionInfo m_versionInfo;
+            mutable IRestClient::VersionInfo m_versionInfo;
         };
 
         // The base for IPackage implementations here.

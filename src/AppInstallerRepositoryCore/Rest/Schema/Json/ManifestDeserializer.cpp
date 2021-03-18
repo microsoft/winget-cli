@@ -329,7 +329,7 @@ namespace AppInstaller::Repository::Rest::Schema::Json
                 std::optional<std::string> modeObject = JsonHelper::GetRawStringValueFromJsonValue(mode);
                 if (modeObject)
                 {
-                    installer.InstallModes.emplace_back(Manifest::ConvertToScopeEnum(modeObject.value()));
+                    installer.InstallModes.emplace_back(Manifest::ConvertToInstallModeEnum(modeObject.value()));
                 }
             }
         }
