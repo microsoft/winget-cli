@@ -106,7 +106,7 @@ namespace AppInstaller::Repository::Rest::Schema::Json
 
             if (!manifestObject || manifestObject.value().get().is_null())
             {
-                AICLI_LOG(Repo, Verbose, << "No manifest results retured.");
+                AICLI_LOG(Repo, Verbose, << "No manifest results returned.");
                 return manifests;
             }
 
