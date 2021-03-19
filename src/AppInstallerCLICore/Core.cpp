@@ -6,6 +6,7 @@
 #include "ExecutionContext.h"
 #include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
+#include "COMContext.h"
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -39,6 +40,63 @@ namespace AppInstaller::CLI
         private:
             UINT m_previousCP = 0;
         };
+    }
+
+    void  OnProgress(uint32_t reportType, uint64_t current, uint64_t maximum, uint32_t progressType, uint32_t executionPhase)
+    {
+        // Rest of this method is just Local Testing and Demo
+        std::cout << "Execution Stage:";
+        std::cout << executionPhase;
+        std::cout << "   reportType: ";
+        std::cout << reportType;
+        std::cout << "   current: ";
+        std::cout << current;
+        std::cout << "   maximum: ";
+        std::cout << maximum;
+        std::cout << "   ProgressType : ";
+        std::cout << (uint32_t)progressType;
+        std::cout << "\n";
+
+        if (current == maximum)
+        {
+            // Current Execution Phase is Complete
+            std::cout << "Current Execution Phase is now complete\n";
+        }
+    }
+
+    void TestCOMScenario()
+    {
+        init_apartment();
+
+        // proposal: BEGIN what COM Interface should do
+        // Eventually, COM Interface has to be aware whether the caller wants CLI ouptut or not. And appropriate set null streams or std::cout/cin streams
+        class NullStreamBuf : public std::streambuf {};
+        NullStreamBuf nullStreamBuf;
+        std::ostream nullOstream(&nullStreamBuf);
+        std::istream nullIstream(&nullStreamBuf);
+
+        AppInstaller::COMContext context(nullOstream, nullIstream);
+        context.SetProgressCallbackFunction(OnProgress);
+
+        std::vector<std::string> utf8Args;
+        utf8Args.emplace_back(Utility::ConvertToUTF8(L"install"));
+        utf8Args.emplace_back(Utility::ConvertToUTF8(L"mozilla.firefox"));
+        // proposal: END what COM Interface should do
+
+        // proposal: BEGIN what COMContext could do in it's own new method to not bother COMInterface with below
+        Invocation invocation{ std::move(utf8Args) };
+
+        std::unique_ptr<Command> command = std::make_unique<RootCommand>();
+        std::unique_ptr<Command> subCommand = command->FindSubCommand(invocation);
+        while (subCommand)
+        {
+            command = std::move(subCommand);
+            subCommand = command->FindSubCommand(invocation);
+        }
+
+        command->ParseArguments(invocation, context.Args);
+        command->Execute(context);
+        // proposal: END what COMContext could do in it's own new method to not bother COMInterface with all these details
     }
 
     int CoreMain(int argc, wchar_t const** argv) try

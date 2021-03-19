@@ -139,6 +139,14 @@ namespace TestCommon
         }
     }
 
+    void TestProgress::BeginProgress()
+    {
+    }
+
+    void TestProgress::EndProgress()
+    {
+    }
+
     bool TestProgress::IsCancelled()
     {
         return false;

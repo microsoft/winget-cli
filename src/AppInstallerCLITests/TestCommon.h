@@ -92,7 +92,12 @@ namespace TestCommon
     struct TestProgress : public AppInstaller::IProgressCallback
     {
         // Inherited via IProgressCallback
+        void BeginProgress() override;
+        
         void OnProgress(uint64_t current, uint64_t maximum, AppInstaller::ProgressType type) override;
+        
+        void EndProgress() override;
+
         bool IsCancelled() override;
         CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) override;
 

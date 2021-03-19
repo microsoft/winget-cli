@@ -88,28 +88,31 @@ namespace AppInstaller::CLI::Execution
         void ShowIndefiniteProgress(bool running);
 
         // IProgressSink
+        void BeginProgress() override;
+
+        // IProgressSink
         void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
+
+        // IProgressSink
+        void EndProgress() override;
 
         // Runs the given callable of type: auto(IProgressCallback&)
         template <typename F>
         auto ExecuteWithProgress(F&& f, bool hideProgressWhenDone = false)
         {
-            GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::DisableShow;
-
-            ProgressCallback callback(this);
+            IProgressSink* sink = m_progressSink.load();
+            sink->BeginProgress();
+            ProgressCallback callback(sink);
             SetProgressCallback(&callback);
-            ShowIndefiniteProgress(true);
 
-            auto hideProgress = wil::scope_exit([this, hideProgressWhenDone]()
+            auto hideProgress = wil::scope_exit([this, hideProgressWhenDone, sink]()
                 {
                     SetProgressCallback(nullptr);
-                    ShowIndefiniteProgress(false);
                     if (m_progressBar)
                     {
                         m_progressBar->EndProgress(hideProgressWhenDone);
                     }
-
-                    GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::EnableShow;
+                    sink->EndProgress();
                 });
             return f(callback);
         }
@@ -119,6 +122,11 @@ namespace AppInstaller::CLI::Execution
 
         // Cancels the in progress task.
         void CancelInProgressTask(bool force);
+
+        void SetProgressSink(IProgressSink* sink)
+        {
+            m_progressSink = sink;
+        }
 
     private:
         // Gets whether VT is enabled for this reporter.
@@ -136,6 +144,7 @@ namespace AppInstaller::CLI::Execution
         std::optional<ProgressBar> m_progressBar;
         wil::srwlock m_progressCallbackLock;
         std::atomic<ProgressCallback*> m_progressCallback;
+        std::atomic<IProgressSink*> m_progressSink;
     };
 
     // Indirection to enable change without tracking down every place

@@ -34,6 +34,10 @@ namespace AppInstaller
         // Called as progress is made.
         // If maximum is 0, the maximum is unknown.
         virtual void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) = 0;
+
+        virtual void BeginProgress() = 0;
+
+        virtual void EndProgress() = 0;
     };
 
     // Callback interface given to the worker to report to.
@@ -55,6 +59,15 @@ namespace AppInstaller
         ProgressCallback() = default;
         ProgressCallback(IProgressSink* sink) : m_sink(sink) {}
 
+        void BeginProgress() override 
+        {
+            IProgressSink* sink = GetSink();
+            if (sink)
+            {
+                sink->BeginProgress();
+            }
+        };
+
         void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override
         {
             IProgressSink* sink = GetSink();
@@ -63,6 +76,15 @@ namespace AppInstaller
                 sink->OnProgress(current, maximum, type);
             }
         }
+
+        void EndProgress() override 
+        {
+            IProgressSink* sink = GetSink();
+            if (sink)
+            {
+                sink->EndProgress();
+            }
+        };
 
         bool IsCancelled() override
         {

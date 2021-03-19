@@ -20,7 +20,9 @@ namespace AppInstaller::CLI::Execution
         m_in(inStream),
         m_progressBar(std::in_place, outStream, IsVTEnabled()),
         m_spinner(std::in_place, outStream, IsVTEnabled())
-    {}
+    {
+        SetProgressSink(this);
+    }
 
     Reporter::~Reporter()
     {
@@ -120,6 +122,18 @@ namespace AppInstaller::CLI::Execution
             m_progressBar->ShowProgress(current, maximum, type);
         }
     }
+    
+    void Reporter::BeginProgress()
+    {
+        GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::DisableShow;
+        ShowIndefiniteProgress(true);
+    };
+
+    void Reporter::EndProgress()
+    {
+        ShowIndefiniteProgress(false);
+        GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::EnableShow;
+    };
 
     void Reporter::SetProgressCallback(ProgressCallback* callback)
     {
