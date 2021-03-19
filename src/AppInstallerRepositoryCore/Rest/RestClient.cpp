@@ -38,7 +38,7 @@ namespace AppInstaller::Repository::Rest
     {
         // Call information endpoint
         HttpClientHelper httpClientHelper{ GetInformationEndpoint(restApi) };
-        web::json::value response = httpClientHelper.HandleGet({});
+        web::json::value response = httpClientHelper.HandleGet();
 
         Json::InformationResponseDeserializer responseDeserializer;
         IRestClient::Information info = responseDeserializer.Deserialize(response);

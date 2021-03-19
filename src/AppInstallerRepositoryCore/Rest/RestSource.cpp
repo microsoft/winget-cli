@@ -66,7 +66,7 @@ namespace AppInstaller::Repository::Rest
                 return result;
             }
 
-            Manifest::Manifest GetManifest() const override
+            Manifest::Manifest GetManifest() override
             {
                 AICLI_LOG(Repo, Verbose, << "Getting manifest");
 
@@ -84,8 +84,8 @@ namespace AppInstaller::Repository::Rest
                     return {};
                 }
                 
-                m_versionInfo.Manifest = manifest.value();
-                return manifest.value();
+                m_versionInfo.Manifest = std::move(manifest.value());
+                return m_versionInfo.Manifest.value();
             }
 
             std::shared_ptr<const ISource> GetSource() const override
@@ -101,7 +101,7 @@ namespace AppInstaller::Repository::Rest
 
         private:
             IRestClient::PackageInfo m_packageInfo;
-            mutable IRestClient::VersionInfo m_versionInfo;
+            IRestClient::VersionInfo m_versionInfo;
         };
 
         // The base for IPackage implementations here.

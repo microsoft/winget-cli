@@ -114,8 +114,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     {
         std::vector<Manifest::Manifest> manifests = GetManifests(packageId, version, channel);
 
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND, manifests.size() > 1);
-
+        // TODO: Handle multiple manifest selection.
         if (manifests.size() > 0)
         {
             return manifests.at(0);
