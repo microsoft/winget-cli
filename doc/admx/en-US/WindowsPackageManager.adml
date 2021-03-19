@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- TODO: Copyright header -->
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
 <policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
   <displayName>Windows Package Manager</displayName>
   <description>Windows Package Manager</description>
@@ -30,6 +31,12 @@ If you disable this setting, users will not be able to enable experimental featu
 If you enable or do not configure this setting, users will be able to install packages with local manifests using the Windows Package Manager.
 
 If you disable this setting, users will not be able to install packages with local manifests using the Windows Package Manager.</string>
+      <string id="EnableHashOverride">Enable Windows Package Manager Hash Override</string>
+      <string id="EnableHashOverrideExplanation">This policy controls whether or not the Windows Package Manager can be configured to enable the ability override the SHA256 security validation in settings.
+
+If you enable or do not configure this policy, users will be able to enable the ability override the SHA256 security validation in the Windows Package Manager settings.
+
+If you disable this policy, users will not be able to enable the ability override the SHA256 security validation in the Windows Package Manager settings.</string>
       <string id="EnableDefaultSorce">Enable Windows Package Manager Default Source</string>
       <string id="EnableDefaultSorceExplanation">This policy controls the default source included with the Windows Package Manager.
 
