@@ -29,7 +29,7 @@ namespace TestCommon
 
         LocIndString GetProperty(AppInstaller::Repository::PackageVersionProperty property) const override;
         std::vector<LocIndString> GetMultiProperty(AppInstaller::Repository::PackageVersionMultiProperty property) const override;
-        Manifest GetManifest() const override;
+        Manifest GetManifest() override;
         std::shared_ptr<const ISource> GetSource() const override;
         MetadataMap GetMetadata() const override;
 
