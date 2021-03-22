@@ -9,8 +9,6 @@ YAML Specification
    3) Minimal singleton YAML file example
    4) Multiple file YAML example
    5) Best Practices
-History
-
 
 # YAML Specification
 
