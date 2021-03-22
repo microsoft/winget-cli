@@ -1,0 +1,108 @@
+PackageIdentifier: microsoft.msixsdk
+PackageVersion: 1.7.32
+InstallerLocale: en-US
+Platform:
+  - Windows.Desktop
+  - Windows.Universal
+MinimumOSVersion: 10.0.0.0
+InstallerType: zip
+Scope: machine
+InstallModes:
+  - interactive
+  - silent
+  - silentWithProgress
+InstallerSwitches:
+  Custom: /custom
+  SilentWithProgress: /silentwithprogress
+  Silent: /silence
+  Interactive: /interactive
+  Log: /log=<LOGPATH>
+  InstallLocation: /dir=<INSTALLPATH>
+  Upgrade: /upgrade
+InstallerSuccessCodes:
+  - 1
+  - 0x80070005
+UpgradeBehavior: uninstallPrevious
+Commands:
+  - makemsix
+  - makeappx
+Protocols:
+  - protocol1
+  - protocol2
+FileExtensions:
+  - appx
+  - msix
+  - appxbundle
+  - msixbundle
+Dependencies:
+  WindowsFeatures:
+    - IIS
+  WindowsLibraries:
+    - VC Runtime
+  PackageDependencies:
+    - PackageIdentifier: Microsoft.MsixSdkDep
+      MinimumVersion: 1.0.0
+  ExternalDependencies:
+    - Outside dependencies
+Capabilities:
+  - internetClient
+RestrictedCapabilities:
+  - runFullTrust
+PackageFamilyName: Microsoft.DesktopAppInstaller_8wekyb3d8bbwe
+ProductCode: "{Foo}"
+
+Installers:
+  - Architecture: x86
+    InstallerLocale: en-GB
+    Platform:
+      - Windows.Desktop
+    MinimumOSVersion: 10.0.1.0
+    InstallerType: msix
+    InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx86.msix
+    InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+    SignatureSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+    Scope: user
+    InstallModes:
+      - interactive
+    InstallerSwitches:
+      Custom: /c
+      SilentWithProgress: /sp
+      Silent: /s
+      Interactive: /i
+      Log: /l=<LOGPATH>
+      InstallLocation: /d=<INSTALLPATH>
+      Upgrade: /u
+    UpgradeBehavior: install
+    Commands:
+      - makemsixPreview
+      - makeappxPreview
+    Protocols:
+      - protocol1preview
+      - protocol2preview
+    FileExtensions:
+      - appxbundle
+      - msixbundle
+      - appx
+      - msix
+    Dependencies:
+      WindowsFeatures:
+        - PreviewIIS
+      WindowsLibraries:
+        - Preview VC Runtime
+      PackageDependencies:
+        - PackageIdentifier: Microsoft.MsixSdkDepPreview
+      ExternalDependencies:
+        - Preview Outside dependencies
+    PackageFamilyName: Microsoft.DesktopAppInstallerPreview_8wekyb3d8bbwe
+    Capabilities:
+      - internetClientPreview
+    RestrictedCapabilities:
+      - runFullTrustPreview
+  - Architecture: x64
+    InstallerType: exe
+    InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
+    InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+    ProductCode: "{Bar}"
+
+ManifestType: installer
+ManifestVersion: 1.0.0

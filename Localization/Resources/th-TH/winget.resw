@@ -476,6 +476,9 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>แชนเนล</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>แสดงข้อมูลเกี่ยวกับแพคเกจเฉพาะ ตามค่าเริ่มต้น คิวรีต้องมีตัวอักษรใหญ่-เล็กตรงกับรหัส ชื่อ หรือเส้นทางการเชื่อมโยงของแพคเกจ เขตข้อมูลอื่นๆ สามารถใช้ได้โดยการส่งผ่านตัวเลือกที่เหมาะสม</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>แสดงข้อมูลเกี่ยวกับแพคเกจ</value>
   </data>
@@ -718,5 +721,97 @@
   <data name="Logs" xml:space="preserve">
     <value>รายการบันทึก</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>ตัวติดตั้งถูกบล็อคโดยนโยบาย</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>ตัวติดตั้งล้มเหลวในการตรวจสอบความปลอดภัย</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>ผลิตภัณฑ์ป้องกันไวรัสรายงานการติดไวรัสในตัวติดตั้ง</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>ล้มเหลวในการพยายามอัปเดตแหล่งข้อมูล:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>ถอนการติดตั้งแพคเกจที่เลือก ซึ่งจะพบได้ทั้งจากรายการแพคเกจที่ติดตั้งหรือจากรายการโดยตรง โดยคิวรีจะต้องมีตัวอักษรใหญ่เล็กที่ตรงกับ ID ชื่อ หรือเส้นทางการเชื่อมโยงของแพคเกจตามค่าเริ่มต้น สำหรับเขตข้อมูลอื่นสามารถใช้ได้ผ่านตัวเลือกที่เหมาะสม</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>ถอนการติดตั้งแพคเกจที่ระบุ</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>กำลังเริ่มการถอนการติดตั้งแพคเกจ...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>ถอนการติดตั้งเรียบร้อยแล้ว</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget ไม่สามารถค้นหาคำสั่งถอนการติดตั้งสำหรับแพคเกจนี้ได้ โปรดติดต่อกับผู้เผยแพร่แพคเกจเพื่อรับการสนับสนุน</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>การถอนการติดตั้งถูกยกเลิก</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>การถอนการติดตั้งล้มเหลวด้วยโค้ดสั่งให้ออก:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>ส่งออกรายการของแพคเกจที่ติดตั้งไว้</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>ติดตั้งแพคเกจทั้งหมดที่แสดงในไฟล์</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>ติดตั้งแพคเกจทั้งหมดในไฟล์</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>ไฟล์ที่มีการเขียนผลลัพธ์</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>ไฟล์ที่อธิบายแพคเกจที่จะติดตั้ง</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>ส่งออกแพคเกจจากแหล่งที่ระบุ</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>เขียนรายการของแพคเกจที่ติดตั้งไปยังไฟล์ แพคเกจสามารถติดตั้งได้โดยใช้คำสั่ง import</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>แพคเกจที่นำเข้าอย่างน้อยหนึ่งรายการไม่สามารถติดตั้งได้</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>ไม่พบแพคเกจสําหรับการนําเข้า:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>ไม่ได้ติดตั้งแหล่งข้อมูลที่ต้องการสําหรับการนําเข้า:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>แพคเกจที่ติดตั้งไว้ไม่พร้อมใช้งานจากแหล่งใดๆ:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>เวอร์ชันที่ติดตั้งของแพคเกจไม่พร้อมใช้งานจากแหล่งใดๆ:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>ไม่พบแพคเกจในไฟล์นำเข้า</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>ไฟล์ JSON ไม่ถูกต้อง</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>แพคเกจถูกติดตั้งไว้แล้ว:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>ละเว้นแพคเกจที่ไม่พร้อมใช้งาน</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>รวมเวอร์ชันแพคเกจไว้ในไฟล์ที่สร้างแล้ว</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>ละเว้นเวอร์ชันแพคเกจจากไฟล์นําเข้า</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>ไม่มีเส้นทางนี้อยู่:</value>
   </data>
 </root>

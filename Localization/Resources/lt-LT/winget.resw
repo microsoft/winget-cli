@@ -389,7 +389,7 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
     <value>Nėra diegimo programų, kurios taikomos esamai sistemai.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Šiuo metu pasiekiamų eksperimentinių funkcijų nėra.</value>
+    <value>Šiuo metu pasiekiamų eksperimentinių funkcijų nėra. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Įvesties kriterijus atitinkančių įdiegtų paketų nerasta.</value>
@@ -475,6 +475,9 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanalas</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Rodoma informacija apie konkretų paketą. Pagal numatytuosius nustatymus užklausa turi insensitively atitikti ID, pavadinimą arba iškvietimo komponentas paketą. Kiti laukai gali būti naudojami perduodant savo atitinkamą parinktį.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Rodoma informacija apie paketą</value>
@@ -650,7 +653,7 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
     <value>Neatpažinta komanda</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Atnaujinkite visus įdiegtus paketus į naujausius, jei yra</value>
+    <value>Atnaujinkite visus įdiegtus paketus į naujausius, jei yra pasiekiamų</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Taikomų naujinimų nerasta.</value>
@@ -718,5 +721,97 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
   <data name="Logs" xml:space="preserve">
     <value>Žurnalai</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Diegimo programą užblokavo strategija</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Diegimo programos saugos patikrinimas nepavyko</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Antivirusinis produktas praneša apie diegimo programos užkrėtimą</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Nepavyko atnaujinti šaltinio:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Pašalina pasirinktą paketą, rasti įdiegtus paketų sąrašą arba tiesiogiai iš deklaracijos. Pagal numatytuosius nustatymus užklausa turi insensitively atitikti ID, pavadinimą arba iškvietimo komponentas paketą. Kiti laukai gali būti naudojami perduodant savo atitinkamą parinktį.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Pašalina nurodytą paketą</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Pradedamas paketo pašalinimas...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Sėkmingai pašalinta</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>„winget“ nepavyksta rasti šio paketo šalinimo komandos. Kreipkitės į paketo leidėją, kad gautumėte pagalbos.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Šalinimas nutrauktas</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Pašalinti nepavyko, išėjimo kodas:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Eksportuojamas įdiegtų paketų sąrašas</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Įdiegia visus faile esančius paketus.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Įdiegia visus faile esančius paketus</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Failas, kuriame bus įrašytas rezultatas</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Failas, kuriame aprašomi įdiegiami paketai</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Eksportuoti paketus iš nurodyto šaltinio</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Į failą įrašo įdiegtų paketų sąrašą. Paketai gali būti įdiegti su importavimo komanda.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Nepavyko įdiegti vieno ar kelių importuotus paketų</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Paketas nerastas importuoti:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Importuoti reikalingas šaltinis nėra įdiegtas:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Įdiegtas paketas nepasiekiamas iš bet kurio šaltinio:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Įdiegta paketo versija nepasiekiama iš bet kurio šaltinio:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Importavimo faile nerasta paketų</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>„JSON“ failas neleistinas</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Paketas jau įdiegtas:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Nepaisyti nepasiekiamų paketų</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Įtraukti paketo versijas į sukurtą failą</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Nepaisyti paketo versijų importavimo faile</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Kelio nėra:</value>
   </data>
 </root>

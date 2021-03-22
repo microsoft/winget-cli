@@ -1,0 +1,59 @@
+Contributors should submit an update to this file with a commit in order to receive recognition. Thank you for your contributions.
+
+
+List of Contributors
+====================
+
+Microsoft Corporation
+Brian Wengert (bwengert79)
+Leslie Brody (Les1966)
+Michael M (M1xa)
+Matt Peterson (MattPeterson1)
+Dmitry Kolomiets (kolomiets)
+rdeterre
+DeCarabas
+luisfeliu
+intercommiura
+halex2005
+simonlep
+jracle
+gandziej
+adish
+LeonidCSIT
+kreuzerkrieg
+evanc
+Jesse Towner (jwtowner)
+
+Abinsula s.r.l.
+Gianfranco Costamagna (LocutusOfBorg)
+
+AutoDesk Inc.
+Cyrille Fauvel (cyrillef)
+
+Illumina Inc.
+Gery Vessere (gery@vessere.com)
+
+Cisco Systems
+Gergely Lukacsy (glukacsy)
+Chris Deering (deeringc)
+
+Ocedo GmbH
+Henning Pfeiffer (megaposer)
+
+thomasschaub
+
+Trimble
+Tim Boundy (gigaplex)
+
+Rami Abughazaleh (icnocop)
+
+TastenTrick
+Christian Deneke (chris0x44)
+
+leetal
+
+Benjamin Lee (mobileben)
+René Meusel (reneme)
+
+Sony Corporation
+Gareth Sylvester-Bradley (garethsb-sony)

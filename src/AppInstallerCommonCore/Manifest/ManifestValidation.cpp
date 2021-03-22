@@ -25,12 +25,6 @@ namespace AppInstaller::Manifest
             resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Version", manifest.Version);
         }
 
-        // License field is required
-        if (manifest.License.empty())
-        {
-            resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "License");
-        }
-
         // Comparison function to check duplicate installer entry. {installerType, arch, language and scope} combination is the key.
         // Todo: use the comparator from ManifestComparator when that one is fully implemented.
         auto installerCmp = [](const ManifestInstaller& in1, const ManifestInstaller& in2)
@@ -45,9 +39,9 @@ namespace AppInstaller::Manifest
                 return in1.Arch < in2.Arch;
             }
 
-            if (in1.Language != in2.Language)
+            if (in1.Locale != in2.Locale)
             {
-                return in1.Language < in2.Language;
+                return in1.Locale < in2.Locale;
             }
 
             if (in1.Scope != in2.Scope)
@@ -75,33 +69,33 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Arch");
             }
 
-            if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::Unknown)
+            if (installer.InstallerType == InstallerTypeEnum::Unknown)
             {
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "InstallerType");
             }
 
-            if (installer.UpdateBehavior == ManifestInstaller::UpdateBehaviorEnum::Unknown)
+            if (installer.UpdateBehavior == UpdateBehaviorEnum::Unknown)
             {
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "UpdateBehavior");
             }
 
             // Validate system reference strings if they are set at the installer level
-            if (!installer.PackageFamilyName.empty() && !ManifestInstaller::DoesInstallerTypeUsePackageFamilyName(installer.InstallerType))
+            if (!installer.PackageFamilyName.empty() && !DoesInstallerTypeUsePackageFamilyName(installer.InstallerType))
             {
-                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "InstallerType", ManifestInstaller::InstallerTypeToString(installer.InstallerType));
+                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "InstallerType", InstallerTypeToString(installer.InstallerType));
             }
 
-            if (!installer.ProductCode.empty() && !ManifestInstaller::DoesInstallerTypeUseProductCode(installer.InstallerType))
+            if (!installer.ProductCode.empty() && !DoesInstallerTypeUseProductCode(installer.InstallerType))
             {
-                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportProductCode, "InstallerType", ManifestInstaller::InstallerTypeToString(installer.InstallerType));
+                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportProductCode, "InstallerType", InstallerTypeToString(installer.InstallerType));
             }
 
-            if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::MSStore)
+            if (installer.InstallerType == InstallerTypeEnum::MSStore)
             {
                 // MSStore type is not supported in community repo
                 resultErrors.emplace_back(
                     ManifestError::FieldValueNotSupported, "InstallerType",
-                    ManifestInstaller::InstallerTypeToString(installer.InstallerType));
+                    InstallerTypeToString(installer.InstallerType));
 
                 if (installer.ProductId.empty())
                 {
@@ -126,9 +120,9 @@ namespace AppInstaller::Manifest
                 }
             }
 
-            if (installer.InstallerType == ManifestInstaller::InstallerTypeEnum::Exe &&
-                (installer.Switches.find(ManifestInstaller::InstallerSwitchType::SilentWithProgress) == installer.Switches.end() ||
-                 installer.Switches.find(ManifestInstaller::InstallerSwitchType::Silent) == installer.Switches.end()))
+            if (installer.InstallerType == InstallerTypeEnum::Exe &&
+                (installer.Switches.find(InstallerSwitchType::SilentWithProgress) == installer.Switches.end() ||
+                 installer.Switches.find(InstallerSwitchType::Silent) == installer.Switches.end()))
             {
                 resultErrors.emplace_back(ManifestError::ExeInstallerMissingSilentSwitches, ValidationError::Level::Warning);
             }

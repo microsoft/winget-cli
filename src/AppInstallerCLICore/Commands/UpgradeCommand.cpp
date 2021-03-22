@@ -126,8 +126,8 @@ namespace AppInstaller::CLI
 
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-            OpenSource <<
-            OpenCompositeSource(Repository::PredefinedSource::Installed);
+            Workflow::OpenSource <<
+            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
 
         if (ShouldListUpgrade(context))
         {
@@ -150,21 +150,13 @@ namespace AppInstaller::CLI
             // --manifest case where new manifest is provided
             context <<
                 GetManifestFromArg <<
-                ReportManifestIdentity <<
                 SearchSourceUsingManifest <<
                 EnsureOneMatchFromSearchResult(true) <<
                 GetInstalledPackageVersion <<
                 EnsureUpdateVersionApplicable <<
-                EnsureMinOSVersion <<
                 SelectInstaller <<
                 EnsureApplicableInstaller <<
-                ShowInstallationDisclaimer <<
-                Workflow::ReportExecutionStage(ExecutionStage::Download) <<
-                DownloadInstaller <<
-                Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
-                ExecuteInstaller <<
-                Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
-                RemoveInstaller;
+                InstallPackageInstaller;
         }
         else
         {
@@ -172,7 +164,6 @@ namespace AppInstaller::CLI
             context <<
                 SearchSourceForSingle <<
                 EnsureOneMatchFromSearchResult(true) <<
-                ReportPackageIdentity <<
                 GetInstalledPackageVersion;
 
             if (context.Args.Contains(Execution::Args::Type::Version))
@@ -181,7 +172,6 @@ namespace AppInstaller::CLI
                 context <<
                     GetManifestFromPackage <<
                     EnsureUpdateVersionApplicable <<
-                    EnsureMinOSVersion <<
                     SelectInstaller <<
                     EnsureApplicableInstaller;
             }
@@ -192,14 +182,7 @@ namespace AppInstaller::CLI
                 context << SelectLatestApplicableUpdate(true);
             }
 
-            context <<
-                ShowInstallationDisclaimer <<
-                Workflow::ReportExecutionStage(ExecutionStage::Download) <<
-                DownloadInstaller <<
-                Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
-                ExecuteInstaller <<
-                Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
-                RemoveInstaller;
+            context << InstallPackageInstaller;
         }
     }
 }

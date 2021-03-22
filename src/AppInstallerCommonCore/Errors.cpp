@@ -103,6 +103,32 @@ namespace AppInstaller
                 return "No applicable update found";
             case APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE:
                 return "winget upgrade --all completed with failures";
+            case APPINSTALLER_CLI_ERROR_INSTALLER_SECURITY_CHECK_FAILED:
+                return "Installer failed security check";
+            case APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH:
+                return "Download size does not match expected content length";
+            case APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND:
+                return "Uninstall command not found";
+            case APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED:
+                return "Running uninstall command failed";
+            case APPINSTALLER_CLI_ERROR_ICU_BREAK_ITERATOR_ERROR:
+                return "ICU break iterator error";
+            case APPINSTALLER_CLI_ERROR_ICU_CASEMAP_ERROR:
+                return "ICU casemap error";
+            case APPINSTALLER_CLI_ERROR_ICU_REGEX_ERROR:
+                return "ICU regex error";
+            case APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED:
+                return "Failed to install one or more imported packages";
+            case APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND:
+                return "Could not find one or more requested packages";
+            case APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE:
+                return "Json file is invalid";
+            case APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE:
+                return "The source location is not remote";
+            case APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE:
+                return "The configured rest source is not supported";
+            case APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA:
+                return "Invalid data returned by rest source";
             default:
                 return "Unknown Error Code";
             }

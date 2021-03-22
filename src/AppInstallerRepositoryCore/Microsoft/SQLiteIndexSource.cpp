@@ -64,7 +64,7 @@ namespace AppInstaller::Repository::Microsoft
                 return result;
             }
 
-            Manifest::Manifest GetManifest() const override
+            Manifest::Manifest GetManifest() override
             {
                 std::shared_ptr<const SQLiteIndexSource> source = GetReferenceSource();
                 std::optional<std::string> relativePathOpt = source->GetIndex().GetPropertyByManifestId(m_manifestId, PackageVersionProperty::RelativePath);
@@ -106,7 +106,34 @@ namespace AppInstaller::Repository::Microsoft
 
                     AICLI_LOG(Repo, Info, << "Downloading manifest");
                     ProgressCallback emptyCallback;
-                    (void)Utility::DownloadToStream(fullPath, manifestStream, emptyCallback);
+
+                    const int MaxRetryCount = 2;
+                    for (int retryCount = 0; retryCount < MaxRetryCount; ++retryCount)
+                    {
+                        bool success = false;
+                        try
+                        {
+                            (void)Utility::DownloadToStream(fullPath, manifestStream, emptyCallback);
+                            success = true;
+                        }
+                        catch (...)
+                        {
+                            if (retryCount < MaxRetryCount - 1)
+                            {
+                                AICLI_LOG(Repo, Info, << "Downloading manifest failed, waiting a bit and retrying: " << fullPath);
+                                Sleep(500);
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+
+                        if (success)
+                        {
+                            break;
+                        }
+                    }
 
                     std::string manifestContents = manifestStream.str();
                     AICLI_LOG(Repo, Verbose, << "Manifest contents: " << manifestContents);
@@ -148,6 +175,11 @@ namespace AppInstaller::Repository::Microsoft
                 }
 
                 return result;
+            }
+
+            bool IsSame(const PackageBase& other) const
+            {
+                return m_idId == other.m_idId;
             }
 
         protected:
@@ -225,6 +257,18 @@ namespace AppInstaller::Repository::Microsoft
             {
                 return false;
             }
+
+            bool IsSame(const IPackage* other) const override
+            {
+                const AvailablePackage* otherAvailable = dynamic_cast<const AvailablePackage*>(other);
+
+                if (otherAvailable)
+                {
+                    return PackageBase::IsSame(*otherAvailable);
+                }
+
+                return false;
+            }
         };
 
         // The IPackage impl for SQLiteIndexSource of Installed packages.
@@ -262,12 +306,25 @@ namespace AppInstaller::Repository::Microsoft
             {
                 return false;
             }
+
+            bool IsSame(const IPackage* other) const override
+            {
+                const InstalledPackage* otherInstalled = dynamic_cast<const InstalledPackage*>(other);
+
+                if (otherInstalled)
+                {
+                    return PackageBase::IsSame(*otherInstalled);
+                }
+
+                return false;
+            }
         };
     }
 
     SQLiteIndexSource::SQLiteIndexSource(const SourceDetails& details, std::string identifier, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
-        m_details(details), m_identifier(std::move(identifier)), m_lock(std::move(lock)), m_isInstalled(isInstalledSource), m_index(std::move(index))
+        m_details(details), m_lock(std::move(lock)), m_isInstalled(isInstalledSource), m_index(std::move(index))
     {
+        m_details.Identifier = std::move(identifier);
     }
 
     const SourceDetails& SQLiteIndexSource::GetDetails() const
@@ -277,7 +334,7 @@ namespace AppInstaller::Repository::Microsoft
 
     const std::string& SQLiteIndexSource::GetIdentifier() const
     {
-        return m_identifier;
+        return m_details.Identifier;
     }
 
     SearchResult SQLiteIndexSource::Search(const SearchRequest& request) const

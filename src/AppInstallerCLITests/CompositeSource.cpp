@@ -27,13 +27,9 @@ struct ComponentTestSource : public TestSource
         {
             return Everything;
         }
-        else if (SearchFunction)
-        {
-            return SearchFunction(request);
-        }
         else
         {
-            return {};
+            return TestSource::Search(request);
         }
     }
 
@@ -74,8 +70,8 @@ Manifest::Manifest MakeDefaultManifest()
     Manifest::Manifest result;
 
     result.Id = "Id";
-    result.Name = "Name";
-    result.Publisher = "Publisher";
+    result.DefaultLocalization.Add<Manifest::Localization::PackageName>("Name");
+    result.DefaultLocalization.Add<Manifest::Localization::Publisher>("Publisher");
     result.Version = "1.0";
     result.Installers.push_back({});
 
@@ -191,7 +187,7 @@ TEST_CASE("CompositeSource_MultiMatch_FindsId", "[CompositeSource]")
     {
         SearchResult result;
         result.Matches.emplace_back(MakeAvailable([](Manifest::Manifest& m) { m.Id = "A different ID"; }), Criteria());
-        result.Matches.emplace_back(MakeAvailable([&](Manifest::Manifest& m) { m.Name = name; }), Criteria());
+        result.Matches.emplace_back(MakeAvailable([&](Manifest::Manifest& m) { m.DefaultLocalization.Add<Manifest::Localization::PackageName>(name); }), Criteria());
         return result;
     };
 
@@ -482,7 +478,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchFirst", "[CompositeSour
         REQUIRE(request.Inclusions[0].Value == pfn);
 
         SearchResult result;
-        result.Matches.emplace_back(MakeAvailable([&](Manifest::Manifest& m) { m.Name = firstName; }), Criteria());
+        result.Matches.emplace_back(MakeAvailable([&](Manifest::Manifest& m) { m.DefaultLocalization.Add<Manifest::Localization::PackageName>(firstName); }), Criteria());
         return result;
     };
 
@@ -492,7 +488,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchFirst", "[CompositeSour
         REQUIRE(request.Inclusions[0].Value == pfn);
 
         SearchResult result;
-        result.Matches.emplace_back(MakeAvailable([&](Manifest::Manifest& m) { m.Name = secondName; }), Criteria());
+        result.Matches.emplace_back(MakeAvailable([&](Manifest::Manifest& m) { m.DefaultLocalization.Add<Manifest::Localization::PackageName>(secondName); }), Criteria());
         return result;
     };
 
@@ -522,7 +518,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchSecond", "[CompositeSou
         REQUIRE(request.Inclusions[0].Value == pfn);
 
         SearchResult result;
-        result.Matches.emplace_back(MakeAvailable([&](Manifest::Manifest& m) { m.Name = secondName; }), Criteria());
+        result.Matches.emplace_back(MakeAvailable([&](Manifest::Manifest& m) { m.DefaultLocalization.Add<Manifest::Localization::PackageName>(secondName); }), Criteria());
         return result;
     };
 
@@ -560,4 +556,19 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_ReverseMatchBoth", "[Composi
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
     REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 1);
+}
+
+TEST_CASE("CompositeSource_IsSame", "[CompositeSource]")
+{
+    CompositeTestSetup setup;
+    setup.Installed->Everything.Matches.emplace_back(MakeInstalled(WithPFN("sortof_apfn")), Criteria());
+    setup.Available->Everything.Matches.emplace_back(MakeAvailable(WithPFN("sortof_apfn")), Criteria());
+
+    SearchResult result1 = setup.Search();
+    REQUIRE(result1.Matches.size() == 1);
+
+    SearchResult result2 = setup.Search();
+    REQUIRE(result2.Matches.size() == 1);
+
+    REQUIRE(result1.Matches[0].Package->IsSame(result2.Matches[0].Package.get()));
 }

@@ -106,6 +106,22 @@ namespace AppInstaller::Repository
                 return (latest && (GetVACFromVersion(installed.get()).IsUpdatedBy(GetVACFromVersion(latest.get()))));
             }
 
+            bool IsSame(const IPackage* other) const override
+            {
+                const CompositePackage* otherComposite = dynamic_cast<const CompositePackage*>(other);
+
+                if (!otherComposite ||
+                    static_cast<bool>(m_installedPackage) != static_cast<bool>(otherComposite->m_installedPackage) ||
+                    m_installedPackage && !m_installedPackage->IsSame(otherComposite->m_installedPackage.get()) ||
+                    static_cast<bool>(m_availablePackage) != static_cast<bool>(otherComposite->m_availablePackage) ||
+                    m_availablePackage && !m_availablePackage->IsSame(otherComposite->m_availablePackage.get()))
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
             void SetAvailablePackage(std::shared_ptr<IPackage> availablePackage)
             {
                 m_availablePackage = std::move(availablePackage);
@@ -140,7 +156,7 @@ namespace AppInstaller::Repository
                     return {};
                 };
 
-                Manifest::Manifest GetManifest() const override
+                Manifest::Manifest GetManifest() override
                 {
                     return {};
                 }
@@ -185,6 +201,18 @@ namespace AppInstaller::Repository
             {
                 // Lie here so that list and upgrade will carry on to be able to output the diagnostic information.
                 return true;
+            }
+
+            bool IsSame(const IPackage* other) const override
+            {
+                const UnknownAvailablePackage* otherUnknown = dynamic_cast<const UnknownAvailablePackage*>(other);
+
+                if (otherUnknown)
+                {
+                    return true;
+                }
+
+                return false;
             }
         };
 
@@ -364,10 +392,10 @@ namespace AppInstaller::Repository
         };
     }
 
-    CompositeSource::CompositeSource(std::string identifier) :
-        m_identifier(identifier)
+    CompositeSource::CompositeSource(std::string identifier)
     {
         m_details.Name = "CompositeSource";
+        m_details.Identifier = std::move(identifier);
     }
 
     const SourceDetails& CompositeSource::GetDetails() const
@@ -377,7 +405,7 @@ namespace AppInstaller::Repository
 
     const std::string& CompositeSource::GetIdentifier() const
     {
-        return m_identifier;
+        return m_details.Identifier;
     }
 
     // The composite search needs to take several steps to get results, and due to the
@@ -404,9 +432,10 @@ namespace AppInstaller::Repository
         m_availableSources.emplace_back(std::move(source));
     }
 
-    void CompositeSource::SetInstalledSource(std::shared_ptr<ISource> source)
+    void CompositeSource::SetInstalledSource(std::shared_ptr<ISource> source, CompositeSearchBehavior searchBehavior)
     {
         m_installedSource = std::move(source);
+        m_searchBehavior = searchBehavior;
     }
 
     // An installed search first finds all installed packages that match the request, then correlates with available sources.
@@ -436,7 +465,7 @@ namespace AppInstaller::Repository
             {
                 for (const auto& srs : installedPackageData.SystemReferenceStrings)
                 {
-                    systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(srs.Field, MatchType::Exact, srs.String));
+                    systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(srs.Field, MatchType::Exact, srs.String.get()));
                 }
 
                 std::shared_ptr<IPackage> availablePackage;
@@ -466,7 +495,7 @@ namespace AppInstaller::Repository
                     {
                         auto id = installedVersion->GetProperty(PackageVersionProperty::Id);
 
-                        AICLI_LOG(Repo, Info, 
+                        AICLI_LOG(Repo, Info,
                             << "Found multiple matches for installed package [" << id << "] in source [" << source->GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
 
                         // More than one match found for the system reference; run some heuristics to check for a match
@@ -515,13 +544,14 @@ namespace AppInstaller::Repository
 
             // If no package was found that was already in the results, do a correlation lookup with the installed
             // source to create a new composite package entry if we find any packages there.
+            bool foundInstalledMatch = false;
             if (packageData && !packageData->SystemReferenceStrings.empty())
             {
                 // Create a search request to run against the installed source
                 SearchRequest systemReferenceSearch;
                 for (const auto& srs : packageData->SystemReferenceStrings)
                 {
-                    systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(srs.Field, MatchType::Exact, srs.String));
+                    systemReferenceSearch.Inclusions.emplace_back(PackageMatchFilter(srs.Field, MatchType::Exact, srs.String.get()));
                 }
 
                 SearchResult installedCrossRef = m_installedSource->Search(systemReferenceSearch);
@@ -532,8 +562,15 @@ namespace AppInstaller::Repository
                     auto installedVersion = crossRef.Package->GetInstalledVersion();
                     auto installedPackageData = result.ReserveInstalledPackageSlot(installedVersion.get());
 
+                    foundInstalledMatch = true;
                     result.Matches.emplace_back(std::make_shared<CompositePackage>(std::move(crossRef.Package), std::move(match.Package)), match.MatchCriteria);
                 }
+            }
+
+            // If there was no correlation for this package, add it without one.
+            if (m_searchBehavior == CompositeSearchBehavior::AllPackages && !foundInstalledMatch)
+            {
+                result.Matches.push_back(std::move(match));
             }
         }
 

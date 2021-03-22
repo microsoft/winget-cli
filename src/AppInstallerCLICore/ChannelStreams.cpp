@@ -85,6 +85,13 @@ namespace AppInstaller::CLI::Execution
         return *this;
     }
 
+    OutputStream& OutputStream::operator<<(const std::filesystem::path& path)
+    {
+        ApplyFormat();
+        m_out << path.u8string();
+        return *this;
+    }
+
     NoVTStream::NoVTStream(std::ostream& out, bool enabled) :
         m_out(out, enabled, false) {}
 

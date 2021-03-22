@@ -131,6 +131,7 @@ namespace AppInstaller::CLI::Execution
         std::ostream& m_out;
         std::istream& m_in;
         bool m_isVTEnabled = true;
+        std::optional<AppInstaller::Settings::VisualStyle> m_style;
         std::optional<IndefiniteSpinner> m_spinner;
         std::optional<ProgressBar> m_progressBar;
         wil::srwlock m_progressCallbackLock;

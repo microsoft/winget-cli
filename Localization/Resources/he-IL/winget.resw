@@ -476,6 +476,9 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>ערוץ</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>הצגת מידע על חבילה ספציפית. כברירת מחדל, השאילתה צריכה להתאים, ללא תלות באותיות רישיות, למזהה, לשם או לכינוי של החבילה. ניתן להשתמש בשדות אחרים על-ידי העברת האפשרות המתאימה להם.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>הצגת מידע אודות חבילה</value>
   </data>
@@ -718,5 +721,97 @@
   <data name="Logs" xml:space="preserve">
     <value>יומנים</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>המתקין חסום על-ידי מדיניות</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>המתקין נכשל בבדיקת אבטחה</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>מוצר למניעת וירוס מדווח על הידבקות במתקין</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>הניסיון לעדכן את המקור נכשל:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>הסרת ההתקנה של החבילה שנבחרה, נמצאה על-ידי חיפוש ברשימת החבילות המותקנות או ישירות ממניפסט. כברירת מחדל, השאילתה חייבת להיות מתאימה לרישיות בהתאם למזהה, לשם או לכינוי של החבילה. ניתן להשתמש בשדות אחרים על-ידי העברת האפשרות המתאימה שלהם.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>מסיר התקנה לחבילה נתונה</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>מתחיל הסרת התקנה של חבילה...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>ההתקנה הוסרה בהצלחה</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget אין אפשרות לאתר את פקודת הסרת ההתקנה עבור חבילה זו. פנה אל מפרסם החבילה לקבלת תמיכה.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>הסרת התקנה ננטשה</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>הסרת ההתקנה נכשלה עם קוד יציאה:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>מייצא רשימה של החבילות המותקנות</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>מתקין את כל החבילות המפורטות בקובץ.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>מתקין את כל החבילות בקובץ</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>הקובץ שבו יש לכתוב את התוצאה</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>קובץ המתאר את החבילות שיש להתקין</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>יצא חבילות מהמקור שצוין</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>כותב רשימה של החבילות המותקנות לקובץ. ניתן להתקין את החבילות באמצעות הפקודה import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>התקנת חבילות מיובאת אחת או יותר נכשלה</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>לא נמצאה חבילה לייבוא:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>המקור הנדרש לצורך ייבוא אינו מותקן:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>החבילה המותקנת אינה זמינה בשום מקור:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>הגירסה המותקנת של החבילה אינה זמינה בשום מקור:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>לא נמצאו חבילות בקובץ הייבוא</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>קובץ JSON אינו חוקי</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>החבילה כבר מותקנת:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>התעלם מחבילות לא זמינות</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>כלול גירסאות חבילות בקובץ המופק</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>התעלם מגירסאות החבילות בקובץ הייבוא</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>‏‏הנתיב אינו קיים:</value>
   </data>
 </root>

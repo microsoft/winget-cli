@@ -32,6 +32,7 @@ namespace AppInstaller::Utility
 
         NormalizedUTF8(std::string_view sv) : std::string(Normalize(sv, Form)) {}
 
+        NormalizedUTF8(std::string& s) : std::string(Normalize(s, Form)) {}
         NormalizedUTF8(const std::string& s) : std::string(Normalize(s, Form)) {}
         NormalizedUTF8(std::string&& s) : std::string(Normalize(s, Form)) {}
 
@@ -113,6 +114,7 @@ namespace AppInstaller::Utility
     NormalizedString FoldCase(const NormalizedString& input);
 
     // Checks if the input string is empty or whitespace
+    bool IsEmptyOrWhitespace(std::string_view str);
     bool IsEmptyOrWhitespace(std::wstring_view str);
 
     // Find token in the input string and replace with value.
@@ -121,6 +123,10 @@ namespace AppInstaller::Utility
 
     // Removes whitespace from the beginning and end of the string.
     std::string& Trim(std::string& str);
+    std::string Trim(std::string&& str);
+
+    // Removes whitespace from the beginning and end of the string.
+    std::wstring& Trim(std::wstring& str);
 
     // Reads the entire stream into a string.
     std::string ReadEntireStream(std::istream& stream);

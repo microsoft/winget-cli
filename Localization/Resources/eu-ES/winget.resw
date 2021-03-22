@@ -389,7 +389,7 @@
     <value>Uneko sisteman aplika daitekeen instalatzailerik ez dago.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Une honetan ez dago erabilgarri eginbide esperimentalik.</value>
+    <value>Une honetan ez dago erabilgarri eginbide esperimentalik. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Ez da aurkitu sartutako irizpideekin bat datorren paketerik instalatuta.</value>
@@ -475,6 +475,9 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanala</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Pakete espezifiko bati buruzko informazioa erakusten du. Lehenespenez, kontsultak bat etorri behar du paketearen IDarekin, izenarekin edo monikerrarekin (ez dira bereizten maiuskulak eta minuskulak). Beste eremu batzuk erabil daitezke dagokien aukera pasatuta.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Pakete bati buruzko informazioa erakusten du</value>
@@ -718,5 +721,97 @@
   <data name="Logs" xml:space="preserve">
     <value>Erregistroak</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Gidalerroek instalatzailea blokeatu dute</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Instalatzaileak huts egin du segurtasun-kontrolean</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Birusen kontrako produktu batek instalatzailearen infekzio baten berri ematen du</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Iturburua eguneratzeko saiakeran huts egin du:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Hautatutako paketea desinstalatzen du, dela instalatutako paketeen zerrenda bilatzean aurkitutakoa, dela zuzenean manifestuan aurkitutakoa. Modu lehenetsian, kontsultako maiuskulak eta minuskulak bat etorri behar dira paketearen ID, izen edo monikerreko maiuskulekin eta minuskulekin. Beste eremuak dagokion aukera pasatuta erabil daitezke.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Emandako paketea desinstalatzen du</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Desinstalazio paketea abiarazten...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Desinstalatu da</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>wingetek ezin du aurkitu pakete hau desinstalatzeko komandoa. Mesedez, jarri harremanetan paketearen editorearekin laguntza lortzeko.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Desinstalazioa bertan behera utzi da</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Desinstalazioak huts egin du irteera-kode honekin:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Instalatutako paketeen zerrenda esportatzen du</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Instalatu zerrendatutako pakete guztiak fitxategi batean.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Instalatu pakete guztiak fitxategi batean</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Emaitza idazteko fitxategia</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Instalatu beharreko paketeak deskribatzen dituen fitxategia</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Esportatu paketeak zehaztutako iturritik</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Fitxategi batean instalatutako paketeen zerrenda idazten du. Paketeak “import” komandoarekin instala daitezke.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Inportatutako pakete bat edo gehiago ezin izan dira instalatu</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Ez da aurkitu inportatzeko paketea:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Inportaziorako behar den iturria ez dago instalatuta:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Instalatutako paketea ez dago erabilgarri inolako iturritik:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Instalatutako paketearen bertsioa ez dago erabilgarri inolako iturritik:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Ez da paketerik aurkitu inportazio-fitxategian</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON fitxategia ez da baliozkoa</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Paketea lehendik dago instalatuta:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ez ikusi erabilgarri ez dauden paketeak</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Sartu paketeen bertsioak sortutako fitxategian</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ez ikusi inportazio-artxiboko paketeen bertsioak</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Bidea ez dago:</value>
   </data>
 </root>

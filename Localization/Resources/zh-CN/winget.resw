@@ -476,6 +476,9 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>频道</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>显示有关特定程序包的信息。默认情况下，查询必须以不区分大小写的方式匹配程序包的 ID、名称或名字对象。可通过传递相应的选项来使用其他字段。</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>显示有关程序包的信息</value>
   </data>
@@ -718,5 +721,97 @@
   <data name="Logs" xml:space="preserve">
     <value>日志</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>安装程序已被策略阻止</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>安装程序未通过安全性检查</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>防病毒产品报告安装程序受感染</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>尝试更新源时失败：</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>通过搜索已安装的程序包列表或直接从清单中卸载选择的程序包。默认情况下，查询必须 insensitively 匹配程序包的 id、名称或名字对象。可通过传递适当的选项来使用其他字段。</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>卸载给定的程序包</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>正在启动程序包卸载...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>已成功卸载</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget 找不到此程序包的卸载命令。请与程序包发布者联系以获取支持。</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>卸载已放弃</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>卸载失败，退出代码为：</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>导出已安装程序包的列表</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>安装文件中列出的所有程序包。</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>安装文件中的所有程序包</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>将在其中写入结果的文件</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>描述要安装的程序包的文件</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>从指定源导出程序包</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>将已安装程序包的列表写入文件。然后可以通过 import 命令安装这些包。</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>无法安装一个或多个导入的程序包</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>找不到要导入的程序包:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>未安装导入所需的源:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>无法从任何源获得已安装的程序包:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>无法从任何源获得已安装的程序包版本:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>在导入文件中找不到程序包</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON 文件无效</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>已安装程序包:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>忽略不可用的程序包</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>在生成的文件中包括程序包版本</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>忽略导入文件中的程序包版本</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>路径不存在:</value>
   </data>
 </root>

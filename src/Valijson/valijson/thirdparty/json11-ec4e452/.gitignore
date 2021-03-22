@@ -1,0 +1,12 @@
+# generated files
+test
+libjson11.a
+json11.pc
+
+# Cmake
+CMakeCache.txt
+CTestTestfile.cmake
+CMakeFiles
+CMakeScripts
+cmake_install.cmake
+install_manifest.txt

@@ -17,6 +17,12 @@ extern "C"
 
 #define WINGET_SQLITE_INDEX_VERSION_LATEST ((UINT32)-1)
 
+    enum WinGetValidateManifestOption
+    {
+        Default,
+        SchemaValidationOnly
+    };
+
     // Initializes the logging infrastructure.
     WINGET_UTIL_API WinGetLoggingInit(
         WINGET_STRING logPath);
@@ -80,10 +86,27 @@ extern "C"
         BOOL* succeeded,
         WINGET_STRING_OUT* message);
 
+    // Validates a given manifest. Returns a bool for validation result and
+    // a string representing validation errors if validation failed.
+    // If mergedManifestPath is provided, this method will write a merged manifest
+    // to the location specified by mergedManifestPath
+    WINGET_UTIL_API WinGetValidateManifestV2(
+        WINGET_STRING inputPath,
+        BOOL* succeeded,
+        WINGET_STRING_OUT* message,
+        WINGET_STRING mergedManifestPath,
+        WinGetValidateManifestOption option);
+
     // Downloads a file to the given path, returning the SHA 256 hash of the file.
     WINGET_UTIL_API WinGetDownload(
         WINGET_STRING url,
         WINGET_STRING filePath,
         BYTE* sha256Hash,
         UINT32 sha256HashLength);
+
+    // Compares two version strings, returning -1 if versionA is less than versionB, 0 if they're equal, or 1 if versionA is greater than versionB
+    WINGET_UTIL_API WinGetCompareVersions(
+        WINGET_STRING versionA,
+        WINGET_STRING versionB,
+        INT* comparisonResult);
 }

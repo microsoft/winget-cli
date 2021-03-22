@@ -25,6 +25,14 @@ namespace AppInstaller::Settings
             return User().Get<Setting::EFList>();
         case Feature::ExperimentalUpgrade:
             return User().Get<Setting::EFExperimentalUpgrade>();
+        case Feature::ExperimentalUninstall:
+            return User().Get<Setting::EFUninstall>();
+        case Feature::ExperimentalImport:
+            return User().Get<Setting::EFImport>();
+        case Feature::ExperimentalExport:
+            return User().Get<Setting::EFExport>();
+        case Feature::ExperimentalRestSource:
+            return User().Get<Setting::EFRestSource>();
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -44,6 +52,14 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "List Command", "list", "https://aka.ms/winget-settings", Feature::ExperimentalList };
         case Feature::ExperimentalUpgrade:
             return ExperimentalFeature{ "Upgrade Command", "upgrade", "https://aka.ms/winget-settings", Feature::ExperimentalUpgrade };
+        case Feature::ExperimentalUninstall:
+            return ExperimentalFeature{ "Uninstall Command", "uninstall", "https://aka.ms/winget-settings", Feature::ExperimentalUninstall };
+        case Feature::ExperimentalImport:
+            return ExperimentalFeature{ "Import Command", "import", "https://aka.ms/winget-settings", Feature::ExperimentalImport };
+        case Feature::ExperimentalExport:
+            return ExperimentalFeature{ "Export Command", "export", "https://aka.ms/winget-settings", Feature::ExperimentalExport };
+        case Feature::ExperimentalRestSource:
+            return ExperimentalFeature{ "Rest Source Support", "restSource", "https://aka.ms/winget-settings", Feature::ExperimentalRestSource };
         default:
             THROW_HR(E_UNEXPECTED);
         }

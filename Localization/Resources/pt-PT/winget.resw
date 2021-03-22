@@ -389,7 +389,7 @@ Podem ser configurados através do ficheiro de definições ' winget settings '.
     <value>Não existem instaladores aplicáveis ao sistema atual.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Não existem actualmente características exprimentares disponíveis. </value>
+    <value>Atualmente, não existem funcionalidades experimentais disponíveis. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Não foi encontrado nenhum pacote instalado que corresponda aos critérios de entrada.</value>
@@ -475,6 +475,9 @@ Podem ser configurados através do ficheiro de definições ' winget settings '.
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Canal</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Mostra informação sobre um pacote específico. Por predefinição, a consulta tem de corresponder, sem distinção de maiúsculas e minúsculas, ao id, nome, ou caminho de ligação do pacote. Outros campos podem ser utilizados, passando a sua opção apropriada.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Mostra informações acerca de um pacote</value>
@@ -718,5 +721,97 @@ Podem ser configurados através do ficheiro de definições ' winget settings '.
   <data name="Logs" xml:space="preserve">
     <value>Registos</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>O instalador está bloqueado por uma política</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>A verificação de segurança do instalador falhou</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Um produto antivírus relata um infeção no instalador</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Ocorreu uma falha ao tentar atualizar a origem:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Desinstala o pacote selecionado, quer seja encontrado através de pesquisa na lista de pacotes instalados ou diretamente a partir de um manifesto. Por defeito, a consulta tem de corresponder, sem distinção de maiúsculas e minúsculas, ao ID, nome, ou caminho da ligação do pacote. Outros campos podem ser utilizados, passando a opção apropriada.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Desinstala o pacote fornecido</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>A iniciar a desinstalação do pacote…</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Desinstalado com êxito</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>Não winget possível localizar o comando desinstalar para este pacote. Contacte o fabricante do pacote para obter suporte.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Desinstalação abandonada</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Ocorreu uma falha na desinstalação com o código de saída:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Exporta uma lista dos pacotes instalados</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Instala todos os pacotes listados num ficheiro.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Instala todos os pacotes num ficheiro</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Ficheiro onde o resultado deve ser escrito</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Ficheiro que descreve os pacotes a instalar</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Pacotes de exportação a partir da fonte especificada</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Escreve uma lista dos pacotes instalados para um ficheiro. Os pacotes podem então ser instalados com o comando de importação.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Falha ao instalar um ou mais pacotes importados</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Embalagem não encontrada para importação:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>A fonte necessária para a importação não está instalada:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>O pacote instalado não está disponível a partir de qualquer fonte:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>A versão instalada do pacote não está disponível a partir de qualquer fonte:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Nenhum pacote encontrado no ficheiro de importação</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>O ficheiro JSON não é válido</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>O pacote já está instalado:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignorar pacotes indisponíveis</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Incluir versões de pacotes em ficheiro produzido</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignorar as versões dos pacotes do ficheiro de importação</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>O caminho não existe:</value>
   </data>
 </root>

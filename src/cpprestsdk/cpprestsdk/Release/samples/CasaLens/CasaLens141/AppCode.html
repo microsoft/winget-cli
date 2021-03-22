@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Casa Lens | Casablana Test App</title>
+    <meta charset="utf-8" />
+    <link href="css/default.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="/js/default.js"></script>
+</head>
+<body style="width: 60%; margin: 0 auto;">
+    <table>
+        <tr>
+            <td>
+                <div>
+                    <img class="Logo" src="image/logo.png">
+                </div>
+            </td>
+            <td id="searchBar" style="width: 90%; vertical-align: middle; text-align: right; padding-right: 40px">
+                <input style="width: 80%; min-height: 30px; color: #444444;" id="location_ip" type="text"
+                    class="textclass" name="q" size="21" maxlength="120" value="Search Zip or City" onclick="ClearText()" />
+                <button style="width: 120px; min-height: 30px;" type="button" onclick="FetchData()" class="tftextbtn" name="q" size="21" maxlength="120">Search</button>
+            </td>
+        </tr>
+    </table>
+    <div id="defaultData">
+        <img style="height: 100%; width: 100%" src="/image/wall.jpg">
+    </div>
+    <div id="errorData" style="display: none;">
+        <p style="color: #950C0C; font-size: large;">Failed to fetch the data! Please try again later.</p>
+        <img style="height: 100%; width: 100%" src="/image/wall.jpg">
+    </div>
+    <div id="cityData" style="display: none;">
+        <table style="width: 100%;">
+            <tr>
+                <td style="width: 70%;">
+                    <h4 style="background-color: #006092; color: #fff;">Attractions</h4>
+                    <table>
+                        <tr>
+                            <td style="width: 80%">
+                                <center style="width: 100%; height: 100%;">
+						            <img class="mainPic" id="mainPic1" style="width: 95%;" 
+					            src="/image/wall.jpg">
+					            </center>
+                            </td>
+                            <td style="width: 20%">
+                                <img class="thumbnailPic" id="thumbnailPic1" src="/image/wall.jpg" style="width: 100%;">
+                                <img class="thumbnailPic" id="thumbnailPic2" src="/image/wall.jpg" style="width: 100%;">
+                                <img class="thumbnailPic" id="thumbnailPic3" src="/image/wall.jpg" style="width: 100%;">
+                            </td>
+                        </tr>
+                    </table>
+                    <div>
+                        <p>
+                            <a href="http://www.bing.com/">Image </a>results by
+                            <img src="image/bing-logo.jpg">
+                        </p>
+                    </div>
+
+                </td>
+                <td style="width: 45%; height: 100%;" id="weatherData">
+                    <h4 style="background-color: #006092; color: #fff;">Current Weather</h4>
+                    <table id="weatherTemplate" class="WeatherData" style="width: 100%; height: 100%; display: none">
+                        <tr style="height: 100%; width: 100%;">
+                            <td>
+                                <div class="CurrentTemperature">%wt%°F</div>
+                                <img id="weatherImg" src="%wimg%" style="float: left;">
+                                <p>%wdesc%</p>
+                                <hr>
+                            </td>
+                        </tr>
+                        <tr style="height: 100%; width: 100%;">
+                            <td style="vertical-align: middle; width: 100%">
+                                <table style="width: 100%">
+                                    <tr>
+                                        <td>Min. Temperature</td>
+                                        <td style="text-align: right">%wtmin%°F</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Max. Temperature</td>
+                                        <td style="text-align: right">%wtmax%°F</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Pressure</td>
+                                        <td style="text-align: right">%wp%mb</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div>
+                                    <p><a href="http://openweathermap.org/">Weather </a>by OpenWeatherMap</p>
+                                    <p><a href="https://developers.google.com/maps/">Postal code to location conversion </a>by Google Maps API</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 60%; padding-right: 20px; padding-left: 20px;">
+                    <div id="eventsData">
+                        <h4 style="background-color: #006092; color: #fff;">Events around you</h4>
+                        <table id="eventsTable" style="width: 100%">
+                            <tr id="eventTemplate" style="display: none">
+                                <td style="margin: 10px; padding-bottom: 20px">
+                                    <div class="EventTitle wrapWords"><a href="%eventlink1%">%eventtitle%</a></div>
+                                    <div class="EventDescription wrapWords" style="max-height: 200px">
+                                        %eventdescription%
+                                        <a class="read-more" href="%eventlink2%" data-omni-sm="gbl_river_readmore">...</a>
+                                    </div>
+                                </td>
+                                <td style="min-width: 100px">%eventvenue%</td>
+                                <td style="min-width: 100px">%eventstarttime% </td>
+                            </tr>
+                        </table>
+                        <div class="eventful-badge eventful-medium">
+                            <img src="http://api.eventful.com/images/powered/eventful_88x31.gif"
+                                alt="Local Events, Concerts, Tickets">
+                            <p><a href="http://eventful.com/">Events</a> by Eventful</p>
+                        </div>
+                    </div>
+                </td>
+                <td style="width: 40%; padding-left: 10px;">
+                    <div id="moviesData">
+                        <h4 style="background-color: #006092; color: #fff;">Now playing in Theaters</h4>
+                        <div id="movieTemplateToHide">
+                            <div id="movieTemplate" style="display: none">
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <h2 class="EventTitle">%mtitle%</h2>
+                                            <p>%mtheater%</p>
+                                        </td>
+                                        <td rowspan="2">
+                                            <img class="thumbnailPic" id="Img1" src="%mposter%" style="width: 100%;">
+                                        </td>
+                                    </tr>
+                                </table>
+                                <hr>
+                            </div>
+                        </div>
+                        <div>
+                            <p><a href="http://developer.tmsapi.com/">Movie data</a> by OnConnect TMS API services</p>
+                            <p>
+                                <a href="http://www.bing.com/">Movie poster </a>results by
+                                        <img src="/image/bing-logo.jpg" alt="Movie poster results by Bing">
+                            </p>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+</body>
+</html>

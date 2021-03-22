@@ -85,11 +85,11 @@ SQLiteIndex::MetadataResult::const_iterator Find(const SQLiteIndex::MetadataResu
     return std::find_if(metadata.begin(), metadata.end(), [value](const auto& m) { return m.first == value; });
 }
 
-void VerifyInstalledType(const SQLiteIndex::MetadataResult& metadata, ManifestInstaller::InstallerTypeEnum type)
+void VerifyInstalledType(const SQLiteIndex::MetadataResult& metadata, InstallerTypeEnum type)
 {
     auto itr = Find(metadata, PackageVersionMetadata::InstalledType);
     REQUIRE(itr != metadata.end());
-    REQUIRE(ManifestInstaller::ConvertToInstallerTypeEnum(itr->second) == type);
+    REQUIRE(ConvertToInstallerTypeEnum(itr->second) == type);
 }
 
 void VerifyTestScope(const SQLiteIndex::MetadataResult& metadata)
@@ -115,7 +115,6 @@ void VerifyMetadataString(const SQLiteIndex::MetadataResult& metadata, PackageVe
 
 void VerifyEntryAgainstIndex(const SQLiteIndex& index, SQLiteIndex::IdType manifestId, const ARPEntry& entry)
 {
-    REQUIRE(index.GetPropertyByManifestId(manifestId, PackageVersionProperty::Id) == entry.EntryName);
     REQUIRE(index.GetPropertyByManifestId(manifestId, PackageVersionProperty::Name) == entry.DisplayName);
     REQUIRE(index.GetPropertyByManifestId(manifestId, PackageVersionProperty::Version) == entry.DisplayVersion);
 
@@ -126,8 +125,9 @@ void VerifyEntryAgainstIndex(const SQLiteIndex& index, SQLiteIndex::IdType manif
 
     auto metadata = index.GetMetadataByManifestId(manifestId);
 
-    VerifyInstalledType(metadata, entry.WindowsInstaller.value_or(false) ? ManifestInstaller::InstallerTypeEnum::Msi : ManifestInstaller::InstallerTypeEnum::Exe);
+    VerifyInstalledType(metadata, entry.WindowsInstaller.value_or(false) ? InstallerTypeEnum::Msi : InstallerTypeEnum::Exe);
     VerifyTestScope(metadata);
+    VerifyMetadataString(metadata, PackageVersionMetadata::Publisher, entry.Publisher);
     VerifyMetadataString(metadata, PackageVersionMetadata::InstalledLocation, entry.InstallLocation);
     VerifyMetadataString(metadata, PackageVersionMetadata::StandardUninstallCommand, entry.UninstallString);
     VerifyMetadataString(metadata, PackageVersionMetadata::SilentUninstallCommand, entry.QuietUninstallString);
@@ -151,7 +151,7 @@ TEST_CASE("ARPHelper_GetARPForArchitecture", "[arphelper][list]")
 
     ARPHelper helper;
 
-    auto nativeMachineKey = helper.GetARPKey(ManifestInstaller::ScopeEnum::Machine, systemArch);
+    auto nativeMachineKey = helper.GetARPKey(ScopeEnum::Machine, systemArch);
     REQUIRE(nativeMachineKey);
 }
 
@@ -246,7 +246,7 @@ TEST_CASE("ARPHelper_DetermineVersion_Version", "[arphelper][list]")
     SetRegistryValue(root.get(), helper.VersionMinor, 14);
 
     auto result = helper.DetermineVersion(key);
-    REQUIRE(result == "2.7.42");
+    REQUIRE(result == "3.14");
 }
 
 TEST_CASE("ARPHelper_DetermineVersion_VersionMajorMinor", "[arphelper][list]")

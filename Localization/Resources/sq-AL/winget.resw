@@ -389,7 +389,7 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
     <value>Asnjë instalues nuk është i aplikueshëm për sistemin aktual.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Nuk ka aktualisht asnjë tipar eksperimental në dispozicion.</value>
+    <value>Nuk ka aktualisht asnjë tipar eksperimental në dispozicion. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Nuk u gjet asnjë paketë e instaluar që përputhet me kriterin e hyrjes.</value>
@@ -475,6 +475,9 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Shfaq informacionin për një paketë specifike. Sipas parazgjedhjes, pyetja duhet të përputhet me ID-në edhe në madhësinë e shkronjave, emrin ose pseudonimin e paketës. Fushat e tjera mund të përdoren duke kaluar opsionin e tyre të përshtatshëm.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Shfaq informacione rreth një pakete</value>
@@ -718,5 +721,97 @@ Ato mund të konfigurohen përmes skedarit të parametrave ''winget settings''.<
   <data name="Logs" xml:space="preserve">
     <value>Evidencat</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Instaluesi është bllokuar nga politika</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Instaluesi dështoi gjatë kontrollit të sigurisë</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Një produkt antivirus raporton për një infeksion në instaluesin</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Dështoi në përpjekjen për të përditësuar burimin:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Çinstalon paketën e përzgjedhur, që është gjetur qoftë duke kërkuar listën e paketave të instaluara ose drejtpërdrejt nga një manifest. Sipas parazgjedhjes, pyetja duhet të përputhet pa ndjeshmëri ndaj kapitaleve me ID-në, emrin ose pseudonimin e paketës. Fushat e tjera mund të përdoren duke kaluar opsionin e tyre përkatës.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Çinstalon paketën e dhënë</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Duke nisur çinstalimin e paketës...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>U çinstalua me sukses</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget nuk mund të gjejë komandën e çinstalimit për këtë paketë. Kontakto me publikuesin e paketës për mbështetje.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Çinstalimi u braktis</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Çinstalimi dështoi me kodin e daljes:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Eksporton një listë të paketave të instaluara</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Instalon të gjitha paketat e listuara në një skedar.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Instalon të gjitha paketat në një skedar</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Skedari ku do të shkruhet rezultati</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Skedari që përshkruan paketat për t’u instaluar</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Eksporto paketat nga burimi i specifikuar</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Shkruan një listë të paketave të instaluara në një skedar. Paketat më pas mund të instalohen me komandën e importimit.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Instalimi i një ose më shumë paketave të importuara dështoi</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Paketa nuk u gjet për importim:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Burimi që kërkohet për importim nuk është instaluar:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Paketa e instaluar nuk është në dispozicion nga asnjë burim:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Versioni i instaluar i paketës nuk është në dispozicion nga asnjë burim:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Nuk u gjet asnjë paketë në skedarin për importim</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Skedari JSON nuk është i vlefshëm</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Paketa është instaluar tashmë:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Injoro paketat që nuk janë në dispozicion</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Përfshi versionet e paketës në skedarin e prodhuar</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Injoro versionet e paketës nga skedari për importim</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Shtegu nuk ekziston:</value>
   </data>
 </root>

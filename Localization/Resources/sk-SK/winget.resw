@@ -389,7 +389,7 @@ Môžu byť nakonfigurované prostredníctvom súboru „winget settings“.</va
     <value>Na aktuálny systém nie sú použiteľné žiadne inštalačné súbory.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Momentálne nie sú k dispozícii žiadne exprimentálne funkcie. </value>
+    <value>Momentálne nie sú k dispozícii žiadne exprimentálne funkcie.</value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Nenašiel sa žiaden nainštalovaný balík zodpovedajúci zadaným kritériám.</value>
@@ -475,6 +475,9 @@ Môžu byť nakonfigurované prostredníctvom súboru „winget settings“.</va
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanál</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Zobrazuje informácie o konkrétnych balíkoch. V predvolenom nastavení sa dotaz musí zhodovať (bez ohľadu na veľké a malé písmená) s ID, menom alebo monikerom balíka. Iné polia je možné použiť zadaním vhodnej možnosti.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Zobrazuje informácie o balíku</value>
@@ -718,5 +721,97 @@ Môžu byť nakonfigurované prostredníctvom súboru „winget settings“.</va
   <data name="Logs" xml:space="preserve">
     <value>Denníky</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Inštalačný program je zablokovaný politikou</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Kontrola zabezpečenia inštalačného programu zlyhala</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Antivírus ohlásil infekciu v inštalačnom programe</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Nepodarilo sa vykonať aktualizáciu zdroja:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Odinštaluje vybratý balík, a to buď pomocou vyhľadávania v zozname nainštalovaných balíkov, alebo priamo z manifestu. Predvolene dotaz musí bez rozlišovania malých a veľkých písmen obsahovať ID, meno alebo moniker balíka. Iné polia je možné použiť zadaním vhodnej možnosti.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Odinštaluje daný balík</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Spúšťa sa odinštalovanie balíka...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Úspešne odinštalované</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>Nástroj winget nemôže nájsť príkaz na odinštalovanie pre tento balík. Ak chcete získať podporu, obráťte sa na vydavateľa balíka.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Odinštalovanie bolo zrušené</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Odinštalovanie zlyhalo s kódom ukončenia:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Exportuje zoznam nainštalovaných balíkov</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Nainštaluje všetky balíky uvedené v súbore.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Nainštaluje všetky balíky v súbore.</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Súbor, do ktorého sa výsledok zapíše</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Súbor popisujúci balíky na inštaláciu</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Exportovať balíky zo zadaného zdroja</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Zapisuje zoznam nainštalovaných balíkov do súboru. Balíky sa môžu nainštalovať pomocou príkazu import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Inštalácia jedného alebo viacerých importovaných balíkov zlyhala</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Na import sa nenašiel balík:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Zdroj vyžadovaný na import nie je nainštalovaný:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Nainštalovaný balík nie je k dispozícii zo žiadneho zdroja:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Nainštalovaná verzia balíka nie je k dispozícii zo žiadneho zdroja:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>V súbore na import sa nenašli žiadne balíky</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Súbor JSON je neplatný</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Balík je už nainštalovaný:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignorovať nedostupné balíky</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Zahrnúť verzie balíka do vytvoreného súboru</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignorovať verzie balíka zo súboru na import</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Cesta neexistuje:</value>
   </data>
 </root>

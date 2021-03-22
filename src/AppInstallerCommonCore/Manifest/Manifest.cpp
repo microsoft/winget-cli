@@ -2,87 +2,49 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/Manifest.h"
-#include "winget/ManifestValidation.h"
 
 namespace AppInstaller::Manifest
 {
-    ManifestVer::ManifestVer(std::string_view version)
+    void Manifest::ApplyLocale(const std::string&)
     {
-        bool validationSuccess = true;
+        // TODO: need more work in locale processing
+        CurrentLocalization = DefaultLocalization;
+    }
 
-        // Separate the extensions out
-        size_t hyphenPos = version.find_first_of('-');
-        if (hyphenPos != std::string_view::npos)
+    std::vector<string_t> Manifest::GetAggregatedTags() const
+    {
+        std::vector<string_t> resultTags = DefaultLocalization.Get<Localization::Tags>();
+
+        for (const auto& locale : Localizations)
         {
-            // The first part is the main version
-            Assign(std::string{ version.substr(0, hyphenPos) }, ".");
-
-            // The second part is the extensions
-            hyphenPos += 1;
-            while (hyphenPos < version.length())
+            auto tags = locale.Get<Localization::Tags>();
+            for (const auto& tag : tags)
             {
-                size_t newPos = version.find_first_of('-', hyphenPos);
-
-                size_t length = (newPos == std::string::npos ? version.length() : newPos) - hyphenPos;
-                m_extensions.emplace_back(std::string{ version.substr(hyphenPos, length) }, ".");
-
-                hyphenPos += length + 1;
-            }
-        }
-        else
-        {
-            Assign(std::string{ version }, ".");
-        }
-
-        if (m_parts.size() > 3)
-        {
-            validationSuccess = false;
-        }
-        else
-        {
-            for (size_t i = 0; i < m_parts.size(); i++)
-            {
-                if (!m_parts[i].Other.empty())
+                if (std::find(resultTags.begin(), resultTags.end(), tag) == resultTags.end())
                 {
-                    validationSuccess = false;
-                    break;
-                }
-            }
-
-            for (const Version& ext : m_extensions)
-            {
-                if (ext.GetParts().empty() || ext.GetParts()[0].Integer != 0)
-                {
-                    validationSuccess = false;
-                    break;
+                    resultTags.emplace_back(tag);
                 }
             }
         }
 
-        if (!validationSuccess)
-        {
-            std::vector<ValidationError> errors;
-            errors.emplace_back(ManifestError::InvalidFieldValue, "ManifestVersion", std::string{ version });
-            THROW_EXCEPTION(ManifestException(std::move(errors)));
-        }
+        return resultTags;
     }
 
-    bool ManifestVer::HasExtension() const
+    std::vector<string_t> Manifest::GetAggregatedCommands() const
     {
-        return !m_extensions.empty();
-    }
+        std::vector<string_t> resultCommands;
 
-    bool ManifestVer::HasExtension(std::string_view extension) const
-    {
-        for (const Version& ext : m_extensions)
+        for (const auto& installer : Installers)
         {
-            const auto& parts = ext.GetParts();
-            if (!parts.empty() && parts[0].Integer == 0 && parts[0].Other == extension)
+            for (const auto& command : installer.Commands)
             {
-                return true;
+                if (std::find(resultCommands.begin(), resultCommands.end(), command) == resultCommands.end())
+                {
+                    resultCommands.emplace_back(command);
+                }
             }
         }
 
-        return false;
+        return resultCommands;
     }
 }

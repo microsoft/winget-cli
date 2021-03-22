@@ -34,7 +34,7 @@ namespace AppInstaller::CLI
     void ValidateCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
-            Workflow::VerifyFile(Execution::Args::Type::ValidateManifest) <<
+            Workflow::VerifyPath(Execution::Args::Type::ValidateManifest) <<
             [](Execution::Context& context)
         {
             auto inputFile = Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::ValidateManifest));

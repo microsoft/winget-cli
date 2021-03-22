@@ -28,5 +28,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
     protected:
         std::unique_ptr<V1_0::SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const override;
         void PerformQuerySearch(V1_0::SearchResultsTable& resultsTable, const RequestMatch& query) const override;
+        virtual SearchResult SearchInternal(const SQLite::Connection& connection, SearchRequest& request) const;
+        virtual void PrepareForPackaging(SQLite::Connection& connection, bool vacuum);
     };
 }

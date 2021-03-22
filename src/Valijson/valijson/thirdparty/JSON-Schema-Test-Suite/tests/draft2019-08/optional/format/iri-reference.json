@@ -1,0 +1,43 @@
+[
+    {
+        "description": "validation of IRI References",
+        "schema": {"format": "iri-reference"},
+        "tests": [
+            {
+                "description": "a valid IRI",
+                "data": "http://ƒøø.ßår/?∂éœ=πîx#πîüx",
+                "valid": true
+            },
+            {
+                "description": "a valid protocol-relative IRI Reference",
+                "data": "//ƒøø.ßår/?∂éœ=πîx#πîüx",
+                "valid": true
+            },
+            {
+                "description": "a valid relative IRI Reference",
+                "data": "/âππ",
+                "valid": true
+            },
+            {
+                "description": "an invalid IRI Reference",
+                "data": "\\\\WINDOWS\\filëßåré",
+                "valid": false
+            },
+            {
+                "description": "a valid IRI Reference",
+                "data": "âππ",
+                "valid": true
+            },
+            {
+                "description": "a valid IRI fragment",
+                "data": "#ƒrägmênt",
+                "valid": true
+            },
+            {
+                "description": "an invalid IRI fragment",
+                "data": "#ƒräg\\mênt",
+                "valid": false
+            }
+        ]
+    }
+]

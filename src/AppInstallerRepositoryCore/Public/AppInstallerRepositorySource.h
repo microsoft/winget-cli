@@ -44,8 +44,11 @@ namespace AppInstaller::Repository
         // The argument used when adding the source.
         std::string Arg;
 
-        // The sources extra data string.
+        // The source's extra data string.
         std::string Data;
+
+        // The source's unique identifier.
+        std::string Identifier;
 
         // The last time that this source was updated.
         std::chrono::system_clock::time_point LastUpdateTime = {};
@@ -97,17 +100,25 @@ namespace AppInstaller::Repository
     // Adds a new source for the user.
     void AddSource(std::string_view name, std::string_view type, std::string_view arg, IProgressCallback& progress);
 
+    struct OpenSourceResult
+    {
+        // The ISource returned by OpenSource
+        std::shared_ptr<ISource> Source;
+
+        // List of SourceDetails that failed to update
+        std::vector<SourceDetails> SourcesWithUpdateFailure;
+    };
+
     // Opens an existing source.
     // Passing an empty string as the name of the source will return a source that aggregates all others.
-    std::shared_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress);
+    OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress);
 
     // A predefined source.
     // These sources are not under the direct control of the user, such as packages installed on the system.
     enum class PredefinedSource
     {
         Installed,
-        ARP_System,
-        ARP_User,
+        ARP,
         MSIX,
     };
 
@@ -115,8 +126,23 @@ namespace AppInstaller::Repository
     // These sources are not under the direct control of the user, such as packages installed on the system.
     std::shared_ptr<ISource> OpenPredefinedSource(PredefinedSource source, IProgressCallback& progress);
 
+    // Search behavior for composite sources.
+    // Only relevant for composite sources with an installed source, not for aggregates of multiple available sources.
+    // Installed and available packages in the result are always correlated when possible.
+    enum class CompositeSearchBehavior
+    {
+        // Search only installed packages.
+        Installed,
+        // Search both installed and available packages.
+        AllPackages,
+    };
+
     // Creates a source that merges the installed packages with the given available packages.
-    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource);
+    // The source can search for installed packages only, or also include non-installed available packages.
+    std::shared_ptr<ISource> CreateCompositeSource(
+        const std::shared_ptr<ISource>& installedSource,
+        const std::shared_ptr<ISource>& availableSource,
+        CompositeSearchBehavior searchBehavior = CompositeSearchBehavior::Installed);
 
     // Updates an existing source.
     // Return value indicates whether the named source was found.

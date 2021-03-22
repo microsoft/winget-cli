@@ -33,7 +33,7 @@ namespace AppInstaller::Repository::Microsoft
             // Add one installer for storing the package family name.
             manifest.Installers.emplace_back();
             // Every package will have the same tags currently.
-            manifest.Tags = { "msix" };
+            manifest.DefaultLocalization.Add<Manifest::Localization::Tags>({ "msix" });
 
             // Fields in the index but not populated:
             //  AppMoniker - Not sure what we would put.
@@ -55,11 +55,17 @@ namespace AppInstaller::Repository::Microsoft
 
                 manifest.Id = familyName;
 
+                bool isPackageNameSet = false;
                 // Attempt to get the DisplayName. Since this will retrieve the localized value, it has a chance to fail.
                 // Rather than completely skip this package in that case, we will simply fall back to using the package name below.
                 try
                 {
-                    manifest.Name = Utility::ConvertToUTF8(package.DisplayName());
+                    auto displayName = Utility::ConvertToUTF8(package.DisplayName());
+                    if (!displayName.empty())
+                    {
+                        manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(displayName);
+                        isPackageNameSet = true;
+                    }
                 }
                 catch (const winrt::hresult_error& hre)
                 {
@@ -71,9 +77,9 @@ namespace AppInstaller::Repository::Microsoft
                     AICLI_LOG(Repo, Info, << "Unknown exception thrown when getting DisplayName for " << familyName);
                 }
 
-                if (manifest.Name.empty())
+                if (!isPackageNameSet)
                 {
-                    manifest.Name = Utility::ConvertToUTF8(packageId.Name());
+                    manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(Utility::ConvertToUTF8(packageId.Name()));
                 }
 
                 std::ostringstream strstr;
@@ -88,7 +94,7 @@ namespace AppInstaller::Repository::Microsoft
                 auto manifestId = index.AddManifest(manifest, std::filesystem::path{ packageId.FamilyName().c_str() });
 
                 index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType, 
-                    Manifest::ManifestInstaller::InstallerTypeToString(Manifest::ManifestInstaller::InstallerTypeEnum::Msix));
+                    Manifest::InstallerTypeToString(Manifest::InstallerTypeEnum::Msix));
             }
         }
 
@@ -110,26 +116,11 @@ namespace AppInstaller::Repository::Microsoft
                 SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
 
                 // Put installed packages into the index
-                std::optional<ARPHelper> arpHelper;
-
-                if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP_System)
+                if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP)
                 {
-                    if (!arpHelper)
-                    {
-                        arpHelper = ARPHelper();
-                    }
-
-                    arpHelper->PopulateIndexFromARP(index, Manifest::ManifestInstaller::ScopeEnum::Machine);
-                }
-
-                if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP_User)
-                {
-                    if (!arpHelper)
-                    {
-                        arpHelper = ARPHelper();
-                    }
-
-                    arpHelper->PopulateIndexFromARP(index, Manifest::ManifestInstaller::ScopeEnum::User);
+                    ARPHelper arpHelper;
+                    arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::Machine);
+                    arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::User);
                 }
 
                 if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::MSIX)
@@ -166,10 +157,8 @@ namespace AppInstaller::Repository::Microsoft
         {
         case AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::None:
             return "None"sv;
-        case AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::ARP_System:
-            return "ARP_System"sv;
-        case AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::ARP_User:
-            return "ARP_User"sv;
+        case AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::ARP:
+            return "ARP"sv;
         case AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::MSIX:
             return "MSIX"sv;
         default:
@@ -179,13 +168,9 @@ namespace AppInstaller::Repository::Microsoft
 
     PredefinedInstalledSourceFactory::Filter PredefinedInstalledSourceFactory::StringToFilter(std::string_view filter)
     {
-        if (filter == FilterToString(Filter::ARP_System))
+        if (filter == FilterToString(Filter::ARP))
         {
-            return Filter::ARP_System;
-        }
-        else if (filter == FilterToString(Filter::ARP_User))
-        {
-            return Filter::ARP_User;
+            return Filter::ARP;
         }
         else if (filter == FilterToString(Filter::MSIX))
         {

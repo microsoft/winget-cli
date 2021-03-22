@@ -15,44 +15,47 @@ namespace AppInstaller::CLI::Workflow
         const auto& manifest = context.Get<Execution::Data::Manifest>();
         const auto& installer = context.Get<Execution::Data::Installer>();
 
-        ManifestComparator manifestComparator(context.Args);
-        auto selectedLocalization = manifestComparator.GetPreferredLocalization(manifest);
-
         // TODO: Come up with a prettier format
         context.Reporter.Info() << "Version: " << manifest.Version << std::endl;
-        context.Reporter.Info() << "Publisher: " << manifest.Publisher << std::endl;
-        if (!manifest.Author.empty())
+        context.Reporter.Info() << "Publisher: " << manifest.CurrentLocalization.Get<Manifest::Localization::Publisher>() << std::endl;
+        auto author = manifest.CurrentLocalization.Get<Manifest::Localization::Author>();
+        if (!author.empty())
         {
-            context.Reporter.Info() << "Author: " << manifest.Author << std::endl;
+            context.Reporter.Info() << "Author: " << author << std::endl;
         }
-        if (!manifest.AppMoniker.empty())
+        if (!manifest.Moniker.empty())
         {
-            context.Reporter.Info() << "AppMoniker: " << manifest.AppMoniker << std::endl;
+            context.Reporter.Info() << "Moniker: " << manifest.Moniker << std::endl;
         }
-        if (!selectedLocalization.Description.empty())
+        auto description = manifest.CurrentLocalization.Get<Manifest::Localization::Description>();
+        if (description.empty())
         {
-            context.Reporter.Info() << "Description: " << selectedLocalization.Description << std::endl;
+            // Fall back to short description
+            description = manifest.CurrentLocalization.Get<Manifest::Localization::ShortDescription>();
         }
-        if (!selectedLocalization.Homepage.empty())
+        if (!description.empty())
         {
-            context.Reporter.Info() << "Homepage: " << selectedLocalization.Homepage << std::endl;
+            context.Reporter.Info() << "Description: " << description << std::endl;
         }
-        if (!manifest.License.empty())
+        auto homepage = manifest.CurrentLocalization.Get<Manifest::Localization::PackageUrl>();
+        if (!homepage.empty())
         {
-            context.Reporter.Info() << "License: " << manifest.License << std::endl;
+            context.Reporter.Info() << "Homepage: " << homepage << std::endl;
         }
-        if (!selectedLocalization.LicenseUrl.empty())
+        context.Reporter.Info() << "License: " << manifest.CurrentLocalization.Get<Manifest::Localization::License>() << std::endl;
+        auto licenseUrl = manifest.CurrentLocalization.Get<Manifest::Localization::LicenseUrl>();
+        if (!licenseUrl.empty())
         {
-            context.Reporter.Info() << "License Url: " << selectedLocalization.LicenseUrl << std::endl;
+            context.Reporter.Info() << "License Url: " << licenseUrl << std::endl;
         }
 
         context.Reporter.Info() << "Installer:" << std::endl;
         if (installer)
         {
-            context.Reporter.Info() << "  Type: " << Manifest::ManifestInstaller::InstallerTypeToString(installer->InstallerType) << std::endl;
-            if (!installer->Language.empty())
+            context.Reporter.Info() << "  Type: " << Manifest::InstallerTypeToString(installer->InstallerType) << std::endl;
+            if (!installer->Locale.empty())
             {
-                context.Reporter.Info() << "  Language: " << installer->Language << std::endl;
+                context.Reporter.Info() << "  Locale: " << installer->Locale << std::endl;
             }
             if (!installer->Url.empty())
             {
@@ -76,7 +79,6 @@ namespace AppInstaller::CLI::Workflow
     void ShowManifestVersion(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
-
         Execution::TableOutput<2> table(context.Reporter, { Resource::String::ShowVersion, Resource::String::ShowChannel });
         table.OutputLine({ manifest.Version, manifest.Channel });
         table.Complete();

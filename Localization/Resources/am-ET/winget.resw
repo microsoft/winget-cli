@@ -476,6 +476,9 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>ጣቢያ</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>በአንድ የተወሰነ ጥቅል ላይ መረጃ ያሳዩ። በነባሪነት ፣መጠይቁ በጥልቀት ከጥቅሉ መታወቂያ ፣ ስም ወይም ሞኒከር ጋር መዛመድ አለበት። ሌሎች መስኮች ተገቢውን አማራጭ በማለፍ ሊያገለግሉ ይችላሉ።</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>ስለ አንድ ጥቅል መረጃ ያሳያል</value>
   </data>
@@ -650,7 +653,7 @@
     <value>ያልታወቀ ትእዛዝ</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>የሚገኙ ከሆነ ሁሉንም የተጫኑ ጥቅሎችን አዘምን</value>
+    <value>ሁሉንም የተጫኑ ጥቅሎችን ካሉ በቅርብ ጊዜ ያዘምኑ</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>አግባብ ዝመና አልተገኘም።</value>
@@ -718,5 +721,97 @@
   <data name="Logs" xml:space="preserve">
     <value>ምዝግቦች</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>ጫኝው በፖሊሲ ታግዷል</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>ጫኝው የደህንነት ፍተሻውን አልተሳካም</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>የፀረ-ቫይረስ ምርት በመጫኛው ውስጥ ስለ ኢንፌክሽን ሪፖርት ያደርጋል</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>ምንጩን ለማዘመን በመሞከር አልተሳካም:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>የተጫኑ የጥቅሎች ዝርዝር በመፈለግ ወይም በቀጥታ ከአንድ ዝርዝር መግለጫ ውስጥ የተገኘውን የተመረጠውን ጥቅል ማራገፍ። በነባሪነት መጠይቁ case-insensitive በሆነ መልኩ ከጥቅሉ መታወቂያ፣ ስም፣ ወይም ቅጽል ስም ጋር መዛመድ አለበት።፡ሌሎች መስኮች ተገቢውን አማራጭ በማለፍ ሊያገለግሉ ይችላሉ ።</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>የተሰጠውን ጥቅል አለመጫን</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>ጥቅል ማራገፍን በመጀመር ላይ...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>በተሳካ ሁኔታ ተራግፏል</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget ለዚህ ጥቅል የማራገፊያ ትእዛዝን ማግኘት አይችልም ። እባክዎን ከጥቅሉ አሳታሚ ጋር ድጋፍ ያድርጉ ።</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>የማራገፍ ስራ ቀርቷል</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>ማራገፍ በመውጫ ኮድ አልተሳካም:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>የተጫኑትን ፓኬጆች ዝርዝር ይላኩ</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>በአንድ ፋይል ውስጥ የተዘረዘሩትን ሁሉንም ጥቅሎች ይጫናል።</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>ሁሉንም ጥቅሎች በፋይል ውስጥ ይጫናል</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>ውጤቱ በሚጻፍበት ቦታ ፋይል ያድርጉ</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>ፋይል ለመጫን ጥቅሎች እየገለጸ ነው</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>ከተጠቀሰው ምንጭ ጥቅሎችን ይላኩ</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>የተጫኑትን ጥቅሎች ዝርዝር ወደ ፋይል ይጽፋሉ። ጥቅሎቹ ከዚያ import ትእዛዝ ሊጫኑ ይችላሉ።</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>አንድ ወይም ከዚያ በላይ ከውጭ የመጡ ፓኬጆች መጫን አልተሳካም</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>ጥቅል ከውጭ ለማስገባት አልተገኘም፦</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>ከውጭ ለማስገባት የሚያስፈልገው ምንጭ አልተጫነም፦</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>የተጫነ ጥቅል ከየትም ምንጭ አይገኝም፦</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>የተጫነ የጥቅል ስሪት ከማንኛውም ምንጭ አይገኝም፦</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>ከውጭ በሚመጣ ፋይል ውስጥ ምንም ፓኬጆች አልተገኙም</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON ፋይል ልክ ያልሆነ ነው</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>ጥቅል ቀድሞ ተጭኗል፦</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>ያልተገኙ ጥቅሎችን ችላ በሏቸው</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>በተመረተ ፋይል ውስጥ የጥቅል ስሪቶችን ያካትቱ</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>ከአስመጪ ፋይል የጥቅል ስሪቶችን ችላ በል</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>ዱካ የለም፦</value>
   </data>
 </root>

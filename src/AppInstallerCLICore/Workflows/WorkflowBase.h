@@ -22,6 +22,7 @@ namespace AppInstaller::CLI::Workflow
         ParseArgs = 1000,
         Discovery = 2000,
         Download = 3000,
+        PreExecution = 3500,
         Execution = 4000,
         PostExecution = 5000,
     };
@@ -59,6 +60,20 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: None
     // Outputs: Source
     void OpenSource(Execution::Context& context);
+
+    // Creates a source object for a source specified by name, and adds it to the list of open sources.
+    // Required Args: None
+    // Inputs: Sources?
+    // Outputs: Sources
+    struct OpenNamedSourceForSources : public WorkflowTask
+    {
+        OpenNamedSourceForSources(std::string_view sourceName) : WorkflowTask("OpenNamedSourceForSources"), m_sourceName(sourceName) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        std::string_view m_sourceName;
+    };
 
     // Creates a source object for a predefined source.
     // Required Args: None
@@ -155,7 +170,7 @@ namespace AppInstaller::CLI::Workflow
     void ReportMultiplePackageFoundResult(Execution::Context& context);
 
     // Ensures that there is at least one result in the search.
-    // Required Args: bool indicating id the search result is from installed source
+    // Required Args: bool indicating if the search result is from installed source
     // Inputs: SearchResult
     // Outputs: None
     struct EnsureMatchesFromSearchResult : public WorkflowTask
@@ -170,7 +185,7 @@ namespace AppInstaller::CLI::Workflow
     };
 
     // Ensures that there is only one result in the search.
-    // Required Args: bool indicating id the search result is from installed source
+    // Required Args: bool indicating if the search result is from installed source
     // Inputs: SearchResult
     // Outputs: None
     struct EnsureOneMatchFromSearchResult : public WorkflowTask
@@ -185,18 +200,51 @@ namespace AppInstaller::CLI::Workflow
     };
 
     // Gets the manifest from package.
+    // Required Args: Version and channel; can be empty
+    // Inputs: Package
+    // Outputs: Manifest, PackageVersion
+    struct GetManifestWithVersionFromPackage : public WorkflowTask
+    {
+        GetManifestWithVersionFromPackage(const Utility::VersionAndChannel& versionAndChannel) :
+            WorkflowTask("GetManifestWithVersionFromPackage"), m_version(versionAndChannel.GetVersion().ToString()), m_channel(versionAndChannel.GetChannel().ToString()) {}
+
+        GetManifestWithVersionFromPackage(std::string_view version, std::string_view channel) :
+            WorkflowTask("GetManifestWithVersionFromPackage"), m_version(version), m_channel(channel) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        std::string_view m_version;
+        std::string_view m_channel;
+    };
+
+    // Gets the manifest from package.
     // Required Args: None
     // Inputs: Package
     // Outputs: Manifest, PackageVersion
     void GetManifestFromPackage(Execution::Context& context);
 
-    // Ensures the the file exists and is not a directory.
+    // Ensures the file exists and is not a directory.
     // Required Args: the one given
     // Inputs: None
     // Outputs: None
     struct VerifyFile : public WorkflowTask
     {
         VerifyFile(Execution::Args::Type arg) : WorkflowTask("VerifyFile"), m_arg(arg) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Execution::Args::Type m_arg;
+    };
+
+    // Ensures the path exists.
+    // Required Args: the one given
+    // Inputs: None
+    // Outputs: None
+    struct VerifyPath : public WorkflowTask
+    {
+        VerifyPath(Execution::Args::Type arg) : WorkflowTask("VerifyPath"), m_arg(arg) {}
 
         void operator()(Execution::Context& context) const override;
 

@@ -476,6 +476,9 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>頻道</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>顯示特定封裝的資訊。根據預設，查詢必須 insensitively 符合封裝的識別碼、名稱或名字物件。您可以透過傳遞適當的選項來使用其他欄位。</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>顯示與套件的相關資訊</value>
   </data>
@@ -718,5 +721,97 @@
   <data name="Logs" xml:space="preserve">
     <value>記錄檔</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>安裝程式受到政策封鎖</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>安裝程式的安全性檢查失敗</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>防毒程式產品報告安裝程式中有感染</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>嘗試更新資料來源失敗:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>可透過搜尋已安裝的套件或直接從資訊清單中，解除安裝已選取的套件。根據預設，查詢必須不區分大小寫地符合該套件的識別碼、名稱或連結路徑。您可以透過傳遞適當的選項，來使用其他欄位。</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>解除安裝指定的套件</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>正在啟動套件解除安裝...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>已成功解除安裝</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget 找不到此套件的解除安裝命令。請向套件發行者尋求支援。</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>已放棄解除安裝</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>解除安裝失敗，結束代碼:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>匯出已安裝套件的清單</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>安裝檔案中列出的所有套件。</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>安裝檔案中的所有套件。</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>欲寫入結果的檔案</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>描述要安裝之套件的檔案</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>從指定來源匯出套件</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>將已安裝套件的清單寫入檔案。然後可以使用 import 命令來安裝封裝。</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>無法安裝一或多個匯入的套件</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>找不到要匯入的套件：</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>尚未安裝匯入所需的來源：</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>已安裝套件無法從任何來源取得：</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>已安裝的套件版本無法從任一來源取得：</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>在匯入檔案中找不到套件</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON 檔案無效。</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>已安裝的套件：</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>略過無法使用的套件</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>在製作的檔案中包含套件版本</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>略過匯入檔案的套件版本</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>路徑不存在：</value>
   </data>
 </root>

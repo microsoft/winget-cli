@@ -389,7 +389,7 @@
     <value>നിലവിലുള്ള സിസ്റ്റത്തിന് ഇൻസ്റ്റാളറുകൾ ഉചിതമായത് ഒന്നും ലഭ്യമല്ല.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>പരീക്ഷണ സവിശേഷതകളൊന്നും ഇപ്പോൾ നിലവിലില്ല.</value>
+    <value>പരീക്ഷണ സവിശേഷതകളൊന്നും ഇപ്പോൾ ലഭ്യമല്ല.</value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>ഇൻപുട്ട് മാനദണ്ഡങ്ങളുമായി പൊരുത്തപ്പെടുന്ന ഇൻസ്റ്റാൾ ചെയ്‌ത പാക്കേജുകളൊന്നും കണ്ടെത്തിയില്ല.</value>
@@ -475,6 +475,9 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>ചാനൽ</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>ഒരു നിർദ്ദിഷ്ട പാക്കേജിലെ വിവരങ്ങൾ കാണിക്കുന്നു. ഡിഫോൾട്ടായി, ചോദ്യ id, പേര് അല്ലെങ്കിൽ പാക്കേജിന്റെ മോണിക്കർ എന്നിവ കേസ്-നിർവ്വികാരമായി പൊരുത്തപ്പെട്ടിരിക്കണം. മറ്റ് ഫീൽഡുകൾക്ക് അവരുടെ ഉചിതമായ ഐച്ഛികം കൈമാറുന്നതിലൂടെ ഉപയോഗിക്കാവുന്നതാണ്.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>ഒരു പാക്കേജിനെക്കുറിച്ചുള്ള വിവരങ്ങൾ കാണിക്കുന്നു</value>
@@ -718,5 +721,97 @@
   <data name="Logs" xml:space="preserve">
     <value>ലോഗുകള്‍</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>നയം ഇൻസ്റ്റാളരെ തടഞ്ഞിരിക്കുന്നു</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>ഇന്‍സ്റ്റാളര്‍ സുരക്ഷാ പരിശോധനയിൽ പരാജയപ്പെട്ടു</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>ഒരു ആന്റി വൈറസ് ഉൽപ്പന്നം ഇൻസ്റ്റാളറിൽ അപകടസാധ്യത റിപ്പോർട്ടുചെയ്യുന്നു</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>ഉറവിടം കാലികമാക്കാൻ ശ്രമിക്കുമ്പോൾ പരാജയപ്പെട്ടു:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾചെയ്ത പാക്കേജുകളുടെ ലിസ്റ്റ് തിരയുന്നതിലൂടെ അല്ലെങ്കിൽ ഒരു മാനിഫെസ്റ്റിൽ നിന്ന് നേരിട്ട് കണ്ടെത്തുന്നത് വഴി തിരഞ്ഞെടുത്ത പാക്കേജ് അൺഇൻസ്റ്റാൾ ചെയ്യുന്നു. ഡിഫോൾട്ടായി, ചോദ്യം ചെറിയക്ഷര - വലിയക്ഷ വ്യത്യാസം ഇല്ലാതെ id, പേര് അല്ലെങ്കിൽ പാക്കേജിന്റെ മോണിക്കർ എന്നിവയുമായി പൊരുത്തപ്പെട്ടിരിക്കണം. മറ്റ് ഫീൽഡുകൾ ഉചിതമായ ഓപ്ഷൻ നിറവേറ്റുന്നതിലൂടെ ഉപയോഗിക്കാവുന്നതാണ്.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>നിർദിഷ്ട പാക്കേജ് അൺഇൻസ്റ്റാൾ ചെയ്യുന്നു</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>പാക്കേജ് അൺഇൻസ്റ്റാൾ ആരംഭിക്കുന്നു...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>വിജയകരമായി അൺഇൻസ്റ്റാൾ ചെയ്തു</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget-ന് ഈ പാക്കേജിന്റെ അൺഇൻസ്റ്റാൾ കമാൻഡ് കണ്ടെത്താനാകുന്നില്ല. ദയവായി പിന്തുണയ്ക്കായി പാക്കേജ് പ്രസാധകരേ സമീപിക്കുക.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>അൺഇൻസ്റ്റാൾ ചെയ്യൽ ഉപേക്ഷിച്ചു</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>അൺഇൻസ്റ്റാൾ പരാജയപെട്ടു, ഈ പുറത്തുകടക്കൽ കോഡോടെ:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>പാക്കേജുകളുടെ ഒരു ലിസ്റ്റ് എക്സ്‌പോർട്ട് ചെയ്യുന്നു</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>ഒരു ഫയലിൽ ലിസ്റ്റുചെയ്തിരിക്കുന്ന എല്ലാ പാക്കേജുകളും ഇൻസ്റ്റാൾ ചെയ്യുന്നു.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>എല്ലാ പാക്കേജുകളും ഒരു ഫയലിൽ ഇൻസ്റ്റാൾ ചെയ്യുന്നു</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>ഫലം എഴുതേണ്ട ഫയൽ</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾ ചെയ്യുന്നതിനുള്ള പാക്കേജുകൾ വിവരിക്കുന്ന ഫയൽ</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>നിർദ്ദിഷ്ട ഉറവിടത്തിൽ നിന്ന് പാക്കേജുകൾ എക്സ്പോർട്ട് ചെയ്യുക</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾ ചെയ്ത പാക്കേജുകളുടെ ഒരു ലിസ്റ്റ് ഒരു ഫയലിൽ എഴുതുന്നു. import കമാൻഡ് ഉപയോഗിച്ച് പാക്കേജുകൾ ഇൻസ്റ്റാൾ ചെയ്യാൻ കഴിയും.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>ഒന്നോ അതിലധികമോ ഇംപോർട്ട് ചെയ്ത പാക്കേജുകൾ ഇൻസ്റ്റാൾ ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>ഇംപോർട്ട് ചെയ്യുന്നതിനായി പാക്കേജ് കണ്ടെത്തിയില്ല:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>ഇംപോർട്ട് ചെയ്യുന്നതിന് ആവശ്യമായ ഉറവിടം ഇൻസ്റ്റാൾ ചെയ്തിട്ടില്ല:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾ ചെയ്ത പാക്കേജ് ഒരു ഉറവിടത്തിൽ നിന്നും ലഭ്യമാകില്ല:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>പാക്കേജിന്റെ ഇൻസ്റ്റാൾ ചെയ്ത പതിപ്പ് ഒരു ഉറവിടത്തിൽ നിന്നും ലഭ്യമല്ല:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>ഇംപോർട്ട് ചെയ്ത ഫയലിൽ പാക്കേജുകളൊന്നും കണ്ടെത്തിയില്ല</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON ഫയൽ അസാധുവാണ്</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>പാക്കേജ് ഇതിനകം ഇൻസ്റ്റാൾ ചെയ്തിട്ടുണ്ട്:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>ലഭ്യമല്ലാത്ത പാക്കേജുകൾ അവഗണിക്കുക</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>നിർമ്മിച്ച ഫയലിൽ പാക്കേജ് പതിപ്പുകൾ ഉൾപ്പെടുത്തുക</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>ഇംപോർട്ട് ചെയ്ത ഫയലിൽ നിന്ന് പാക്കേജ് പതിപ്പുകൾ അവഗണിക്കുക</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>പാത്ത് നിലവിലില്ല:</value>
   </data>
 </root>

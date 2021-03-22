@@ -8,4 +8,5 @@ Installers:
     Url: https://localhost:5001/TestKit/AppInstallerTestMsixInstaller/AppInstallerTestMsixInstaller.msix
     Sha256: <MSIXHASH>
     InstallerType: msix
+    PackageFamilyName: 6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e_8wekyb3d8bbwe
 ManifestVersion: 0.1.0

@@ -476,6 +476,9 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   <data name="ShowChannel" xml:space="preserve">
     <value>Canal</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Mostra informació d'un paquet específic. Per defecte, la consulta ha de coincidir amb l'identificador, el nom o el sobrenom del paquet. Es poden utilitzar altres camps passant la seva opció apropiada.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Mostra informació sobre un paquet</value>
   </data>
@@ -718,5 +721,97 @@ Es poden configurar mitjançant el fitxer de configuració "winget settings".</v
   <data name="Logs" xml:space="preserve">
     <value>Registres</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>L'instal·lador està bloquejat per la norma</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>L'instal·lador ha tingut un error en la revisió de seguretat</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Un producte antivirus informa d'una infecció a l'instal·lador</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>S'ha produït un error en intentar actualitzar l'origen:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Desinstal·la el paquet seleccionat, ja es troba cercant la llista de paquets instal·lats o directament des d'un manifest. Per defecte, la consulta ha de coincidir amb l'identificador, el nom o el sobrenom del paquet. Es poden utilitzar altres camps passant la seva opció apropiada.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Desinstal·la el paquet especificat</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>S'està iniciant la desinstal·lació del paquet...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>S'ha desinstal·lat correctament</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>El winget no pot localitzar l'ordre desinstal·la per a aquest paquet. Poseu-vos en contacte amb l'editor de paquets per obtenir assistència tècnica.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>S'ha abandonat la desinstal·lació</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>No s'ha pogut desinstal·lar amb el codi de sortida:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Exporta una llista dels paquets instal·lats</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Instal·la tots els paquets que es mostren en un fitxer.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Instal·la tots els paquets d'un fitxer</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Fitxer on s'escriurà el resultat</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Fitxer que descriu els paquets que s'han d'instal·lar</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Exporta els paquets de l'origen especificat</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Escriu una llista dels paquets instal·lats a un fitxer. Els paquets es poden instal·lar amb l'ordre import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>No s'han pogut instal·lar un o més paquets importats</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>No s'ha trobat el paquet per a la importació:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>L'origen necessari per a la importació no està instal·lat:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>El paquet instal·lat no està disponible de cap origen:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>La versió instal·lada del paquet no està disponible de cap origen:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>No s'ha trobat cap paquet al fitxer d'importació</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>El fitxer JSON no és vàlid</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>El paquet ja està instal·lat:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignora els paquets no disponibles</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Inclou les versions del paquet en un fitxer produït</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignora les versions del paquet del fitxer d'importació</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>El camí no existeix:</value>
   </data>
 </root>

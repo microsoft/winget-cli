@@ -18,5 +18,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     }
 
     // The table for Name.
+    // TODO: Currently only indexing name from default locale, might need to be OneToMany table
     using NameTable = OneToOneTable<details::NameTableInfo>;
 }

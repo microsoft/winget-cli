@@ -35,8 +35,8 @@ namespace AppInstallerCLIE2ETests
         public void ValidateManifestDoesNotExist()
         {
             var result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\DoesNotExist"));
-            Assert.AreEqual(Constants.ErrorCode.ERROR_FILE_NOT_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("File does not exist"));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_PATH_NOT_FOUND, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Path does not exist"));
         }
     }
 }

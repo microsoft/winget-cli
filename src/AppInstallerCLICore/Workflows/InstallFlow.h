@@ -11,12 +11,6 @@ namespace AppInstaller::CLI::Workflow
     static constexpr std::string_view ARG_TOKEN_LOGPATH = "<LOGPATH>"sv;
     static constexpr std::string_view ARG_TOKEN_INSTALLPATH = "<INSTALLPATH>"sv;
 
-    // Ensures that the current OS version is greater than or equal to the one in the manifest.
-    // Required Args: None
-    // Inputs: Manifest
-    // Outputs: None
-    void EnsureMinOSVersion(Execution::Context& context);
-
     // Ensures that there is an applicable installer.
     // Required Args: None
     // Inputs: Installer
@@ -82,4 +76,34 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: InstallerPath
     // Outputs: None
     void RemoveInstaller(Execution::Context& context);
+
+    // Installs a specific package installer.
+    // Required Args: None
+    // Inputs: Manifest, Installer
+    // Outputs: None
+    void InstallPackageInstaller(Execution::Context& context);
+
+    // Installs a specific package version.
+    // Required Args: None
+    // Inputs: Manifest, PackageVersion, Source
+    // Outputs: None
+    void InstallPackageVersion(Execution::Context& context);
+
+    // Installs multiple packages.
+    // Required Args: None
+    // Inputs: Manifests
+    // Outputs: None
+    void InstallMultiple(Execution::Context& context);
+
+    // Stores the existing set of packages in ARP.
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: ARPSnapshot
+    void SnapshotARPEntries(Execution::Context& context);
+
+    // Reports on the changes between the stored ARPSnapshot and the current values.
+    // Required Args: None
+    // Inputs: ARPSnapshot?, Manifest, PackageVersion
+    // Outputs: None
+    void ReportARPChanges(Execution::Context& context);
 }

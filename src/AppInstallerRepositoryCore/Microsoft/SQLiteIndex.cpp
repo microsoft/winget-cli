@@ -133,7 +133,7 @@ namespace AppInstaller::Repository::Microsoft
 
     SQLiteIndex::IdType SQLiteIndex::AddManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
     {
-        AICLI_LOG(Repo, Info, << "Adding manifest from file [" << manifestPath << "]");
+        AICLI_LOG(Repo, Verbose, << "Adding manifest from file [" << manifestPath << "]");
 
         Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(manifestPath);
         return AddManifest(manifest, relativePath);
@@ -141,7 +141,7 @@ namespace AppInstaller::Repository::Microsoft
 
     SQLiteIndex::IdType SQLiteIndex::AddManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
-        AICLI_LOG(Repo, Info, << "Adding manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath << "]");
+        AICLI_LOG(Repo, Verbose, << "Adding manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath << "]");
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_addmanifest");
 
@@ -156,7 +156,7 @@ namespace AppInstaller::Repository::Microsoft
 
     bool SQLiteIndex::UpdateManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
     {
-        AICLI_LOG(Repo, Info, << "Updating manifest from file [" << manifestPath << "]");
+        AICLI_LOG(Repo, Verbose, << "Updating manifest from file [" << manifestPath << "]");
 
         Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(manifestPath);
         return UpdateManifest(manifest, relativePath);
@@ -164,7 +164,7 @@ namespace AppInstaller::Repository::Microsoft
 
     bool SQLiteIndex::UpdateManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
-        AICLI_LOG(Repo, Info, << "Updating manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath << "]");
+        AICLI_LOG(Repo, Verbose, << "Updating manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath << "]");
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_updatemanifest");
 
@@ -182,7 +182,7 @@ namespace AppInstaller::Repository::Microsoft
 
     void SQLiteIndex::RemoveManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)
     {
-        AICLI_LOG(Repo, Info, << "Removing manifest from file [" << manifestPath << "]");
+        AICLI_LOG(Repo, Verbose, << "Removing manifest from file [" << manifestPath << "]");
 
         Manifest::Manifest manifest = Manifest::YamlParser::CreateFromPath(manifestPath);
         RemoveManifest(manifest, relativePath);
@@ -190,7 +190,7 @@ namespace AppInstaller::Repository::Microsoft
 
     void SQLiteIndex::RemoveManifest(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
-        AICLI_LOG(Repo, Info, << "Removing manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath << "]");
+        AICLI_LOG(Repo, Verbose, << "Removing manifest for [" << manifest.Id << ", " << manifest.Version << "] at relative path [" << relativePath << "]");
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_removemanifest");
 
@@ -221,7 +221,7 @@ namespace AppInstaller::Repository::Microsoft
 
     Schema::ISQLiteIndex::SearchResult SQLiteIndex::Search(const SearchRequest& request) const
     {
-        AICLI_LOG(Repo, Info, << "Performing search: " << request.ToString());
+        AICLI_LOG(Repo, Verbose, << "Performing search: " << request.ToString());
 
         return m_interface->Search(m_dbconn, request);
     }
@@ -254,6 +254,11 @@ namespace AppInstaller::Repository::Microsoft
     void SQLiteIndex::SetMetadataByManifestId(IdType manifestId, PackageVersionMetadata metadata, std::string_view value)
     {
         m_interface->SetMetadataByManifestId(m_dbconn, manifestId, metadata, value);
+    }
+
+    Utility::NormalizedName SQLiteIndex::NormalizeName(std::string_view name, std::string_view publisher) const
+    {
+        return m_interface->NormalizeName(name, publisher);
     }
 
     // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus

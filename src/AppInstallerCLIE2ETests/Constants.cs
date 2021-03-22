@@ -45,13 +45,26 @@ namespace AppInstallerCLIE2ETests
         public const string WinGetUtil = "WinGetUtil";
         public const string E2ETestLogsPath = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir";
 
+        // Test installers' package IDs
+        public const string ExeInstallerPackageId = "AppInstallerTest.TestExeInstaller";
+        public const string MsiInstallerPackageId = "AppInstallerTest.TestMsiInstaller";
+        public const string MsixInstallerPackageId = "AppInstallerTest.TestMsixInstaller";
+
+        public const string MsiInstallerProductCode = "{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
+        public const string MsixInstallerPackageFamilyName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e_8wekyb3d8bbwe";
+
+        public const string TestExeInstalledFileName = "TestExeInstalled.txt";
+        public const string TestExeUninstallerFileName = "UninstallTestExe.bat";
+
         public class ErrorCode
         {
             public const int S_OK = 0;
             public const int ERROR_FILE_NOT_FOUND = unchecked((int)0x80070002);
+            public const int ERROR_PATH_NOT_FOUND = unchecked((int)0x80070003);
             public const int ERROR_NO_RANGES_PROCESSED = unchecked((int)0x80070138);
             public const int OPC_E_ZIP_MISSING_END_OF_CENTRAL_DIRECTORY = unchecked((int)0x8051100f);
             public const int ERROR_OLD_WIN_VERSION = unchecked((int)0x8007047e);
+            public const int HTTP_E_STATUS_NOT_FOUND = unchecked((int)0x80190194);
 
             // AICLI custom HRESULTs
             public const int ERROR_INTERNAL_ERROR = unchecked((int)0x8A150001);
@@ -95,6 +108,19 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_LIBYAML_ERROR = unchecked((int)0x8A150027);
             public const int ERROR_MANIFEST_VALIDATION_WARNING = unchecked((int)0x8A150028);
             public const int ERROR_MANIFEST_VALIDATION_FAILURE = unchecked((int)0x8A150029);
+            public const int APPINSTALLER_CLI_ERROR_INVALID_MANIFEST = unchecked((int)0x8A15002A);
+            public const int APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE = unchecked((int)0x8A15002B);
+            public const int APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE = unchecked((int)0x8A15002C);
+            public const int APPINSTALLER_CLI_ERROR_INSTALLER_SECURITY_CHECK_FAILED = unchecked((int)0x8A15002D);
+            public const int APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH = unchecked((int)0x8A15002E);
+            public const int APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND = unchecked((int)0x8a15002F);
+            public const int APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED = unchecked((int)0x8a150030);
+            public const int APPINSTALLER_CLI_ERROR_ICU_BREAK_ITERATOR_ERROR = unchecked((int)0x8A150031);
+            public const int APPINSTALLER_CLI_ERROR_ICU_CASEMAP_ERROR = unchecked((int)0x8A150032);
+            public const int APPINSTALLER_CLI_ERROR_ICU_REGEX_ERROR = unchecked((int)0x8A150033);
+            public const int APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED = unchecked((int)0x8a150034);
+            public const int APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND = unchecked((int)0x8a150035);
+            public const int APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE = unchecked((int)0x8a150036);
         }
     }
 }

@@ -389,7 +389,7 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
     <value>Geen installeerders is van toepassing op die huidige stelsel nie.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Daar is tans geen eksperimentele kenmerke beskikbaar nie. </value>
+    <value>Daar is huidiglik geen eksperimentele kenmerke beskikbaar nie. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Geen geïnstalleerde pakket gevind wat by toevoerkriteria pas nie.</value>
@@ -475,6 +475,9 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanaal</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Wys inligting oor ’n spesifieke pakket. By verstek moet die navraag nie-kassensitief by die ID, naam of bynaam van die pakket pas. Ander velde kan gebruik word deur hulle geskikte opsie te slaag.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Wys inligting oor ’n pakket</value>
@@ -650,7 +653,7 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
     <value>Onerkende bevel</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Werk alle geïnstalleerde pakkette by na nuutste as beskikbaar</value>
+    <value>Dateer alle geïnstalleerde pakkette op na die nuutste indien beskikbaar</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Geen toepaslike bywerking gevind nie.</value>
@@ -718,5 +721,97 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   <data name="Logs" xml:space="preserve">
     <value>Logs</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Die installeerder word deur die beleid geblokkeer</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Die installeerder se sekuriteitskontrole het misluk</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>'n Anti-virus produk rapporteer 'n infeksie in die installeerder</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Poging om die bron op te dateer het misluk:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Verwyder die geselekteerde pakket, of gevind deur die geïnstalleerde pakket lys te soek, of direk vanaf 'n manifes. By verstek, moet die navraag onbeduidend pas by die id, naam of moniker van die pakket. Ander velde kan gebruik word deur hulle toepaslike opsie te slaag.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Verwyder die gegewe pakket</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Begin pakket verwydering...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Suksesvol verwyder</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget kan nie die verwyderingsopdrag vir hierdie pakket vind nie. Kontak die pakketuitgewer vir ondersteuning.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Verwydering is laat vaar</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Verwydering het misluk met verlaat kode:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Voer 'n lys van geïnstalleerde pakkette uit</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Installeer al die pakkette wat in 'n lêer gelys is.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Installeer al die pakkette in 'n lêer.</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Lêer waar die resultaat geskryf moet word</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Lêer wat die pakkette beskryf om te installeer</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Voer pakkette van die gespesifiseerde bron uit</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Skryf 'n lys van die geïnstalleerde pakkette na 'n lêer. Die pakkette kan dan geïnstalleer word met die import bevel.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Een of meer ingevoerde pakkette kon nie geïnstalleer word nie</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Pakket nie gevind vir invoer nie:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Bron word vereis vir invoer is nie geïnstalleer nie:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Geïnstalleerde pakket is nie beskikbaar nie van enige bron af nie:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Geïnstalleerde weergawe van die pakket is nie beskikbaar nie van enige bron af nie:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Geen pakkette in invoer lêer gevind nie</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON-lêer is ongeldig</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Pakket is reeds geïnstalleer:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignoreer onbeskikbare pakkette</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Sluit pakketweergawes in geproduseerde lêer in</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignoreer pakket weergawes van invoer lêer</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Pad bestaan nie:</value>
   </data>
 </root>

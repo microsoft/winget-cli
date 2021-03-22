@@ -389,7 +389,7 @@ Ze kunnen worden geconfigureerd via het instellingenbestand ' winget settings '.
     <value>Er zijn geen installatieprogramma's van toepassing op het huidige systeem.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Er zijn momenteel geen Exprimental-functies beschikbaar. </value>
+    <value>Er zijn momenteel geen experimentele functies beschikbaar.</value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Er is geen geïnstalleerd pakket gevonden dat overeenkomt met de invoercriteria.</value>
@@ -475,6 +475,9 @@ Ze kunnen worden geconfigureerd via het instellingenbestand ' winget settings '.
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanaal</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Informatie over een specifiek pakket weergeven. Standaard moet de query hoofdlettergevoelig overeenkomen met de id of naam van het pakket. Andere velden kunnen worden gebruikt door de juiste optie door te geven.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Toont informatie over een pakket</value>
@@ -718,5 +721,97 @@ Ze kunnen worden geconfigureerd via het instellingenbestand ' winget settings '.
   <data name="Logs" xml:space="preserve">
     <value>Logboeken</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Het installatieprogramma is geblokkeerd op basis van beleid</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>De beveiligingscontrole van het installatieprogramma is mislukt</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Een antivirusproduct meldt een besmetting in het installatieprogramma</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Er is een fout opgetreden tijdens het bijwerken van de bron:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Installatie van het geselecteerde pakket ongedaan maken door in de lijst met geïnstalleerde pakketten te zoeken of rechtstreeks vanuit een manifest te zoeken. De query moet standaard niet-hoofdlettergevoelig zijn voor de id, naam of moniker van het pakket. Andere velden kunnen worden gebruikt door de juiste optie door te geven.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Installatie van het opgegeven pakket ongedaan maken</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Installatie ongedaan maken van het pakket wordt gestart...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Installatie ongedaan gemaakt</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget kan de uninstall-opdracht voor dit pakket niet vinden. Neem contact op met de uitgever van het pakket voor ondersteuning.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Installatie ongedaan maken is afgebroken</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Installatie ongedaan maken is mislukt met afsluitcode:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Exporteert een lijst met geïnstalleerde pakketten</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Installeert alle pakketten die in een bestand worden vermeld.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Installeert alle pakketten in een bestand</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Bestand waarin het resultaat moet worden geschreven</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Bestand met een beschrijving van de pakketten die moeten worden geïnstalleerd</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Pakketten exporteren uit de opgegeven bron</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Schrijft een lijst met de geïnstalleerde pakketten naar een bestand. De pakketten kunnen vervolgens worden geïnstalleerd met de importopdracht.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>De installatie van een of meer geïmporteerde pakketten is mislukt</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Pakket niet gevonden voor importeren:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>De bron die nodig is voor het importeren is niet geïnstalleerd:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Geïnstalleerde pakket is vanuit geen enkele bron beschikbaar:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Geïnstalleerde versie van het pakket is vanuit geen enkele bron beschikbaar:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Er zijn geen pakketten gevonden in het importbestand</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON-bestand is niet geldig</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Pakket is al geïnstalleerd:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Niet-beschikbare pakketten negeren</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Pakketversies opnemen in een geproduceerd bestand</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Pakketversies negeren vanuit importbestand</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Pad bestaat niet:</value>
   </data>
 </root>

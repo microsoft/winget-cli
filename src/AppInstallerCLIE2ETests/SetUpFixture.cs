@@ -64,7 +64,7 @@ namespace AppInstallerCLIE2ETests
 
             ShouldDisableDevModeOnExit = EnableDevMode(true);
 
-            ShouldRevertDefaultFileTypeRiskOnExit = DecreaseFileTypeRisk(".exe", false);
+            ShouldRevertDefaultFileTypeRiskOnExit = DecreaseFileTypeRisk(".exe;.msi", false);
 
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)), "Add AppInstallerTestCert");
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"ROOT\" " + TestCommon.GetTestDataFile(Constants.IndexPackageRootCert)), "Add IndexPackageRootCert");

@@ -7,6 +7,7 @@
 #include "SourceFactory.h"
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
+#include "Rest/RestSourceFactory.h"
 
 namespace AppInstaller::Repository
 {
@@ -20,6 +21,7 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_SourcesYaml_Source_Type = "Type"sv;
     constexpr std::string_view s_SourcesYaml_Source_Arg = "Arg"sv;
     constexpr std::string_view s_SourcesYaml_Source_Data = "Data"sv;
+    constexpr std::string_view s_SourcesYaml_Source_Identifier = "Identifier"sv;
     constexpr std::string_view s_SourcesYaml_Source_IsTombstone = "IsTombstone"sv;
 
     constexpr std::string_view s_MetadataYaml_Sources = "Sources"sv;
@@ -29,10 +31,12 @@ namespace AppInstaller::Repository
     constexpr std::string_view s_Source_WingetCommunityDefault_Name = "winget"sv;
     constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://winget.azureedge.net/cache"sv;
     constexpr std::string_view s_Source_WingetCommunityDefault_Data = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
+    constexpr std::string_view s_Source_WingetCommunityDefault_Identifier = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
 
     constexpr std::string_view s_Source_WingetMSStoreDefault_Name = "msstore"sv;
     constexpr std::string_view s_Source_WingetMSStoreDefault_Arg = "https://winget.azureedge.net/msstore"sv;
     constexpr std::string_view s_Source_WingetMSStoreDefault_Data = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
+    constexpr std::string_view s_Source_WingetMSStoreDefault_Identifier = "Microsoft.Winget.MSStore.Source_8wekyb3d8bbwe"sv;
 
     namespace
     {
@@ -187,6 +191,7 @@ namespace AppInstaller::Repository
                 details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
                 details.Arg = s_Source_WingetCommunityDefault_Arg;
                 details.Data = s_Source_WingetCommunityDefault_Data;
+                details.Identifier = s_Source_WingetCommunityDefault_Identifier;
                 details.TrustLevel = SourceTrustLevel::Trusted;
                 result.emplace_back(std::move(details));
 
@@ -197,13 +202,15 @@ namespace AppInstaller::Repository
                     storeDetails.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
                     storeDetails.Arg = s_Source_WingetMSStoreDefault_Arg;
                     storeDetails.Data = s_Source_WingetMSStoreDefault_Data;
+                    storeDetails.Identifier = s_Source_WingetMSStoreDefault_Identifier;
                     storeDetails.TrustLevel = SourceTrustLevel::Trusted;
                     result.emplace_back(std::move(storeDetails));
                 }
             }
-                break;
+            break;
             case SourceOrigin::User:
-                result = GetSourcesFromSetting(
+            {
+                std::vector<SourceDetailsInternal> userSources = GetSourcesFromSetting(
                     Settings::Streams::UserSources,
                     s_SourcesYaml_Sources,
                     [&](SourceDetailsInternal& details, const std::string& settingValue, const YAML::Node& source)
@@ -214,9 +221,22 @@ namespace AppInstaller::Repository
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Arg, details.Arg)) { return false; }
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Data, details.Data)) { return false; }
                         if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, details.IsTombstone)) { return false; }
+                        TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier);
                         return true;
                     });
-                break;
+
+                for (auto& source : userSources)
+                {
+                    if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), source.Type)
+                        && !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
+                    {
+                        continue;
+                    }
+
+                    result.emplace_back(std::move(source));
+                }
+            }
+            break;
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -246,6 +266,7 @@ namespace AppInstaller::Repository
                     out << YAML::Key << s_SourcesYaml_Source_Type << YAML::Value << details.Type;
                     out << YAML::Key << s_SourcesYaml_Source_Arg << YAML::Value << details.Arg;
                     out << YAML::Key << s_SourcesYaml_Source_Data << YAML::Value << details.Data;
+                    out << YAML::Key << s_SourcesYaml_Source_Identifier << YAML::Value << details.Identifier;
                     out << YAML::Key << s_SourcesYaml_Source_IsTombstone << YAML::Value << details.IsTombstone;
                     out << YAML::EndMap;
                 }
@@ -320,6 +341,11 @@ namespace AppInstaller::Repository
             {
                 return Microsoft::PredefinedInstalledSourceFactory::Create();
             }
+            else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type)
+                && Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
+            {
+                return Rest::RestSourceFactory::Create();
+            }
 
             THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
         }
@@ -374,7 +400,7 @@ namespace AppInstaller::Repository
             constexpr static auto s_ZeroMins = 0min;
             auto autoUpdateTime = User().Get<Setting::AutoUpdateTimeInMinutes>();
 
-            // A value of zero means no auto update, to get update the source run `winget update` 
+            // A value of zero means no auto update, to get update the source run `winget update`
             if (autoUpdateTime != s_ZeroMins)
             {
                 auto autoUpdateTimeMins = std::chrono::minutes(autoUpdateTime);
@@ -600,14 +626,24 @@ namespace AppInstaller::Repository
         details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
         details.Origin = SourceOrigin::User;
 
+        // Check feature flag enablement for rest source.
+        if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type)
+            && !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
+        {
+            AICLI_LOG(Repo, Error, << Settings::ExperimentalFeature::GetFeature(Settings::ExperimentalFeature::Feature::ExperimentalRestSource).Name()
+                << " feature is disabled. Execution cancelled.");
+            THROW_HR(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
+        }
+
         AddSourceFromDetails(details, progress);
 
         AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
+        AICLI_LOG(Repo, Info, << "Source created with identifier: " << details.Identifier);
 
         sourceList.AddSource(details);
     }
 
-    std::shared_ptr<ISource> OpenSource(std::string_view name, IProgressCallback& progress)
+    OpenSourceResult OpenSource(std::string_view name, IProgressCallback& progress)
     {
         SourceListInternal sourceList;
         auto currentSources = sourceList.GetCurrentSourceRefs();
@@ -619,7 +655,7 @@ namespace AppInstaller::Repository
                 AICLI_LOG(Repo, Info, << "Default source requested, but no sources configured");
                 return {};
             }
-            else if(currentSources.size() == 1)
+            else if (currentSources.size() == 1)
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
                 return OpenSource(currentSources[0].get().Name, progress);
@@ -628,6 +664,7 @@ namespace AppInstaller::Repository
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, multiple sources available, creating aggregated source.");
                 auto aggregatedSource = std::make_shared<CompositeSource>("*DefaultSource");
+                OpenSourceResult result;
 
                 bool sourceUpdated = false;
                 for (auto& source : currentSources)
@@ -636,10 +673,18 @@ namespace AppInstaller::Repository
 
                     if (ShouldUpdateBeforeOpen(source))
                     {
-                        // TODO: Consider adding a context callback to indicate we are doing the same action
-                        // to avoid the progress bar fill up multiple times.
-                        UpdateSourceFromDetails(source, progress);
-                        sourceUpdated = true;
+                        try
+                        {
+                            // TODO: Consider adding a context callback to indicate we are doing the same action
+                            // to avoid the progress bar fill up multiple times.
+                            UpdateSourceFromDetails(source, progress);
+                            sourceUpdated = true;
+                        }
+                        catch (...)
+                        {
+                            AICLI_LOG(Repo, Warning, << "Failed to update source: " << source.get().Name);
+                            result.SourcesWithUpdateFailure.emplace_back(source);
+                        }
                     }
                     aggregatedSource->AddAvailableSource(CreateSourceFromDetails(source, progress));
                 }
@@ -649,7 +694,8 @@ namespace AppInstaller::Repository
                     sourceList.SaveMetadata();
                 }
 
-                return aggregatedSource;
+                result.Source = aggregatedSource;
+                return result;
             }
         }
         else
@@ -664,12 +710,24 @@ namespace AppInstaller::Repository
             {
                 AICLI_LOG(Repo, Info, << "Named source requested, found: " << source->Name);
 
+                OpenSourceResult result;
+
                 if (ShouldUpdateBeforeOpen(*source))
                 {
-                    UpdateSourceFromDetails(*source, progress);
-                    sourceList.SaveMetadata();
+                    try
+                    {
+                        UpdateSourceFromDetails(*source, progress);
+                        sourceList.SaveMetadata();
+                    }
+                    catch (...)
+                    {
+                        AICLI_LOG(Repo, Warning, << "Failed to update source: " << (*source).Name);
+                        result.SourcesWithUpdateFailure.emplace_back(*source);
+                    }
                 }
-                return CreateSourceFromDetails(*source, progress);
+
+                result.Source = CreateSourceFromDetails(*source, progress);
+                return result;
             }
         }
     }
@@ -685,13 +743,9 @@ namespace AppInstaller::Repository
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
             details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::None);
             return CreateSourceFromDetails(details, progress);
-        case PredefinedSource::ARP_System:
+        case PredefinedSource::ARP:
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
-            details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::ARP_System);
-            return CreateSourceFromDetails(details, progress);
-        case PredefinedSource::ARP_User:
-            details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
-            details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::ARP_User);
+            details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::ARP);
             return CreateSourceFromDetails(details, progress);
         case PredefinedSource::MSIX:
             details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
@@ -702,7 +756,7 @@ namespace AppInstaller::Repository
         THROW_HR(E_UNEXPECTED);
     }
 
-    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource)
+    std::shared_ptr<ISource> CreateCompositeSource(const std::shared_ptr<ISource>& installedSource, const std::shared_ptr<ISource>& availableSource, CompositeSearchBehavior searchBehavior)
     {
         std::shared_ptr<CompositeSource> result = std::dynamic_pointer_cast<CompositeSource>(availableSource);
 
@@ -712,7 +766,7 @@ namespace AppInstaller::Repository
             result->AddAvailableSource(availableSource);
         }
 
-        result->SetInstalledSource(installedSource);
+        result->SetInstalledSource(installedSource, searchBehavior);
 
         return result;
     }

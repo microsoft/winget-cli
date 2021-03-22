@@ -389,7 +389,7 @@ Można je skonfigurować za pomocą pliku ustawień "winget settings".</value>
     <value>Żadni instalatorzy nie mają zastosowania w bieżącym systemie.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Obecnie nie są dostępne żadne funkcje ekaperymentalne. </value>
+    <value>Obecnie nie są dostępne żadne funkcje eksperymentalne. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Nie znaleziono żadnego zainstalowanego pakietu pasującego do wprowadzonych kryteriów.</value>
@@ -475,6 +475,9 @@ Można je skonfigurować za pomocą pliku ustawień "winget settings".</value>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanał</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Pokaż informacje o określonym pakiecie. Domyślnie kwerenda musi być zgodna z wielkością liter, nazwą lub monikerem pakietu. Inne pola mogą być używane przez przekazanie odpowiedniej opcji.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Wyświetla informacje o pakiecie</value>
@@ -718,5 +721,97 @@ Można je skonfigurować za pomocą pliku ustawień "winget settings".</value>
   <data name="Logs" xml:space="preserve">
     <value>Dzienniki</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Instalator jest blokowany przez zasady</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Sprawdzanie zabezpieczeń w instalatorze nie powiodło się</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Oprogramowanie antywirusowe zgłasza infekcję w instalatorze</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Próba zaktualizowania źródła nie powiodła się:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Odinstalowuje wybrany pakiet, który został znaleziony przez przeszukiwanie listy zainstalowanych pakietów lub bezpośrednio z manifestu. Domyślnie kwerenda musi być zgodna z wielkością liter, nazwą lub monikerem pakietu. Inne pola mogą być używane przez przekazanie odpowiedniej opcji.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Odinstalowuje dany pakiet</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Rozpoczynanie dezinstalacji pakietu</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Pomyślnie odinstalowano</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget nie może zlokalizować polecenia Uninstall dla tego pakietu. Skontaktuj się z wydawcą pakietu, aby uzyskać pomoc techniczną.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Dezinstalacja została porzucona</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Dezinstalacja nie powiodła się. Kod zakończenia:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Eksportuje listę zainstalowanych pakietów</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Instaluje wszystkie pakiety wymienione w pliku.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Instaluje wszystkie pakiety w pliku</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Plik, w którym ma zostać zapisany wynik</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Plik opisujący pakiety do zainstalowania</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Eksportuj pakiety z określonego źródła</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Zapisuje listę zainstalowanych pakietów w pliku. Pakiety można następnie zainstalować za pomocą polecenia import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Nie można zainstalować co najmniej jednego zaimportowanego pakietu</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Nie znaleziono pakietu do importu:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Nie zainstalowano źródła wymaganego do importu:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Zainstalowany pakiet nie jest dostępny z żadnego źródła:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Zainstalowana wersja pakietu nie jest dostępna z żadnego źródła:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Nie znaleziono żadnych pakietów w pliku importu</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Plik JSON jest nieprawidłowy</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Pakiet jest już zainstalowany:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignoruj niedostępne pakiety</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Uwzględnij wersje pakietu w wytworzonym pliku</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignoruj wersje pakietu z pliku importu</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Ścieżka nie istnieje:</value>
   </data>
 </root>

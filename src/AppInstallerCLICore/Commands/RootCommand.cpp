@@ -9,12 +9,15 @@
 #include "SearchCommand.h"
 #include "ListCommand.h"
 #include "UpgradeCommand.h"
+#include "UninstallCommand.h"
 #include "HashCommand.h"
 #include "ValidateCommand.h"
 #include "SettingsCommand.h"
 #include "FeaturesCommand.h"
 #include "ExperimentalCommand.h"
 #include "CompleteCommand.h"
+#include "ExportCommand.h"
+#include "ImportCommand.h"
 
 #include "Resources.h"
 #include "TableOutput.h"
@@ -32,12 +35,15 @@ namespace AppInstaller::CLI
             std::make_unique<SearchCommand>(FullName()),
             std::make_unique<ListCommand>(FullName()),
             std::make_unique<UpgradeCommand>(FullName()),
+            std::make_unique<UninstallCommand>(FullName()),
             std::make_unique<HashCommand>(FullName()),
             std::make_unique<ValidateCommand>(FullName()),
             std::make_unique<SettingsCommand>(FullName()),
             std::make_unique<FeaturesCommand>(FullName()),
             std::make_unique<ExperimentalCommand>(FullName()),
             std::make_unique<CompleteCommand>(FullName()),
+            std::make_unique<ExportCommand>(FullName()),
+            std::make_unique<ImportCommand>(FullName()),
         });
     }
 
