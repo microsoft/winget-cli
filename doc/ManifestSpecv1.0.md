@@ -49,7 +49,7 @@ PackageIdentifier: "Microsoft.WindowsTerminal"
 PackageVersion: "1.6.10571.0"
 PackageLocale: "en-US"
 Publisher: "Microsoft"
-PackageName: "Windows Terminal
+PackageName: "Windows Terminal"
 License: "MIT"
 ShortDescription: "The new Windows Terminal, a tabbed command line experience for Windows."
 Installers: 
