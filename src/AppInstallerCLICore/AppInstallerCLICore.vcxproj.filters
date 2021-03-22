@@ -274,6 +274,9 @@
     <ClCompile Include="Commands\ImportCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
+    <ClCompile Include="COMContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

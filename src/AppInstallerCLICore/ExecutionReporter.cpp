@@ -129,10 +129,14 @@ namespace AppInstaller::CLI::Execution
         ShowIndefiniteProgress(true);
     };
 
-    void Reporter::EndProgress()
+    void Reporter::EndProgress(bool hideProgressWhenDone)
     {
         ShowIndefiniteProgress(false);
         GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::EnableShow;
+        if (m_progressBar)
+        {
+            m_progressBar->EndProgress(hideProgressWhenDone);
+        }
     };
 
     void Reporter::SetProgressCallback(ProgressCallback* callback)

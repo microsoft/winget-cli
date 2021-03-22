@@ -100,4 +100,16 @@ namespace AppInstaller::CLI::Execution
         m_out << f;
         return *this;
     }
+
+    NullStream::NullStream()
+    {
+        nOut = new std::ostream(&nullStreamBuf);
+        nIn = new std::istream(&nullStreamBuf);
+    }
+
+    NullStream::~NullStream()
+    {
+        delete nOut;
+        delete nIn;
+    }
 }

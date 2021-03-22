@@ -89,30 +89,22 @@ namespace AppInstaller::CLI::Execution
 
         // IProgressSink
         void BeginProgress() override;
-
-        // IProgressSink
         void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
-
-        // IProgressSink
-        void EndProgress() override;
+        void EndProgress(bool hideProgressWhenDone) override;
 
         // Runs the given callable of type: auto(IProgressCallback&)
         template <typename F>
         auto ExecuteWithProgress(F&& f, bool hideProgressWhenDone = false)
         {
             IProgressSink* sink = m_progressSink.load();
-            sink->BeginProgress();
             ProgressCallback callback(sink);
             SetProgressCallback(&callback);
+            sink->BeginProgress();
 
-            auto hideProgress = wil::scope_exit([this, hideProgressWhenDone, sink]()
+            auto hideProgress = wil::scope_exit([this, hideProgressWhenDone]()
                 {
                     SetProgressCallback(nullptr);
-                    if (m_progressBar)
-                    {
-                        m_progressBar->EndProgress(hideProgressWhenDone);
-                    }
-                    sink->EndProgress();
+                    m_progressSink.load()->EndProgress(hideProgressWhenDone);
                 });
             return f(callback);
         }

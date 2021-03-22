@@ -1,73 +1,62 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 #pragma once
 #include "pch.h"
 #include "..\AppInstallerCommonCore\Public\AppInstallerProgress.h"
 #include "ExecutionContext.h"
+#include "Workflows/WorkflowBase.h"
 
 namespace AppInstaller
 {
 	using namespace AppInstaller::CLI;
+    using namespace AppInstaller::CLI;
+    using namespace AppInstaller::Workflow;
 
-    enum ReportType
+    enum class ReportType: uint32_t
     {
+        ExecutionPhaseUpdate,
         BeginProgress,
         Progressing,
         EndProgress,
-        ExecutionPhaseUpdate,
     };
 
-	struct COMContext : IProgressSink, Execution::Context
+    // NullStream constructs the Stream parameters for Context constructor
+    // Hence, NullStream should always precede Context in base class order of COMContext's inheritance
+	struct COMContext : IProgressSink, Execution::NullStream, Execution::Context
 	{
+        // When no Console streams need involvement, construct NullStreams instead to pass to Context
+        COMContext() : Execution::NullStream(), Execution::Context(*nOut, *nIn)
+        {
+            Reporter.SetProgressSink(this);
+        }
+
 		COMContext(std::ostream& out, std::istream& in) : Execution::Context(out, in) 
         {
             Reporter.SetProgressSink(this);
         }
 
-		~COMContext() {}
+        ~COMContext() = default;
 
         // IProgressSink
-        void BeginProgress() override
-        {
-            m_comProgressCallback((uint32_t)ReportType::BeginProgress, m_current, m_maximum, (uint32_t)m_type, m_executionPhase);
-        };
+        void BeginProgress() override;
+        void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
+        void EndProgress(bool hideProgressWhenDone) override;
 
-        // IProgressSink
-        void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override
-        {
-            SetProgress(current, maximum, type);
-            m_comProgressCallback((uint32_t)ReportType::Progressing, m_current, m_maximum, (uint32_t)m_type, m_executionPhase);
-        }
+        //Execution::Context
+        void SetExecutionStage(ExecutionStage executionPhase);
 
-        // IProgressSink
-        void EndProgress() override
-        {
-            m_comProgressCallback((uint32_t)ReportType::EndProgress, m_current, m_maximum, (uint32_t)m_type, m_executionPhase);
-        };
-
-        // Execution::Context
-        void SetExecutionStage(uint32_t executionPhase) override
-        {
-            SetProgress(0,0,ProgressType::None);
-            m_executionPhase = executionPhase;
-            m_comProgressCallback((uint32_t)ReportType::ExecutionPhaseUpdate, m_current, m_maximum, (uint32_t)m_type, executionPhase);
-        }
-
-        void SetProgressCallbackFunction(std::function<void(uint32_t reportType, uint64_t current, uint64_t maximum, uint32_t progressType, uint32_t executionPhase)>&& f)
+        void SetProgressCallbackFunction(std::function<void(ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, ExecutionStage executionPhase)>&& f)
         {
             m_comProgressCallback = std::move(f);
         }
 
 	private:
-        void SetProgress(uint64_t current, uint64_t maximum, ProgressType type)
-        {
-            m_current = current;
-            m_maximum = maximum;
-            m_type = type;
-        }
+        void SetProgress(uint64_t current, uint64_t maximum, ProgressType type);
 
-		std::function<void(uint32_t reportType, uint64_t current, uint64_t maximum, uint32_t progressType, uint32_t executionPhase)> m_comProgressCallback;
         uint64_t m_current = 0;
         uint64_t m_maximum = 0;
         ProgressType m_type = ProgressType::None;
-        uint32_t m_executionPhase = 0; // Instead add Worfklow::ExecutionStage::None and set that as default here
+        ExecutionStage m_executionPhase = ExecutionStage::None;
+        std::function<void(ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, ExecutionStage executionPhase)> m_comProgressCallback;
 	};
 }

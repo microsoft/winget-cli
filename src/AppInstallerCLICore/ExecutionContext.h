@@ -101,15 +101,8 @@ namespace AppInstaller::CLI::Execution
             WI_ClearAllFlags(m_flags, flags);
         }
 
-        virtual void SetExecutionStage(uint32_t stage)
-        {
-            m_executionStage = stage;
-        }
-
-        uint32_t GetExecutionStage()
-        {
-            return m_executionStage;
-        }
+        void SetExecutionStage(Workflow::ExecutionStage stage, bool allowBackward);
+        virtual void SetExecutionStage(Workflow::ExecutionStage stage);
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
@@ -122,6 +115,6 @@ namespace AppInstaller::CLI::Execution
         HRESULT m_terminationHR = S_OK;
         size_t m_CtrlSignalCount = 0;
         ContextFlag m_flags = ContextFlag::None;
-        uint32_t m_executionStage;
+        Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::None;
     };
 }

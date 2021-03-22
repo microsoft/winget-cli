@@ -126,4 +126,35 @@ namespace AppInstaller::CLI::Execution
         m_isTerminated = true;
         m_terminationHR = hr;
     }
+
+    void Context::SetExecutionStage(Workflow::ExecutionStage stage, bool allowBackward)
+    {
+        m_executionStage = stage;
+
+        if (!Contains(Data::ExecutionStage))
+        {
+            Add<Data::ExecutionStage>(stage);
+        }
+        else if (Get<Data::ExecutionStage>() == stage)
+        {
+            return;
+        }
+        else if (Get<Data::ExecutionStage>() < stage || allowBackward)
+        {
+            Get<Data::ExecutionStage>() = stage;
+        }
+        else
+        {
+            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), "Reporting ExecutionStage to an earlier Stage without allowBackward as true");
+        }
+
+        // When Telemetry and Diagnostics will be moved to Execution::Context, the below immediate line will not be needed
+        Logging::SetExecutionStage(static_cast<uint32_t>(Get<Data::ExecutionStage>()));
+        SetExecutionStage(Get<Data::ExecutionStage>());
+    }
+
+    void Context::SetExecutionStage(Workflow::ExecutionStage stage)
+    {
+        UNREFERENCED_PARAMETER(stage);
+    }
 }

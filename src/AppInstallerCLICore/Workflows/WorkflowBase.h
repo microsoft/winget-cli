@@ -19,6 +19,7 @@ namespace AppInstaller::CLI::Workflow
     // Values are ordered in a typical workflow stages
     enum class ExecutionStage : uint32_t
     {
+        None = 0,
         ParseArgs = 1000,
         Discovery = 2000,
         Download = 3000,

@@ -130,4 +130,18 @@ namespace AppInstaller::CLI::Execution
     private:
         BaseStream m_out;
     };
+
+    class NullStreamBuf : public std::streambuf {};
+
+    struct NullStream
+    {
+        NullStream();
+
+        ~NullStream();
+
+    protected:
+        std::ostream* nOut;
+        std::istream* nIn;
+        NullStreamBuf nullStreamBuf;
+    };
 }
