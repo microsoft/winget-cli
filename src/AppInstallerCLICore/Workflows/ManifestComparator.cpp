@@ -12,15 +12,23 @@ namespace AppInstaller::CLI::Workflow
     namespace
     {
         // Determine if the installer is applicable.
-        bool IsInstallerApplicable(const Manifest::ManifestInstaller& installer, Manifest::ManifestInstaller::InstallerTypeEnum installedType)
+        // TODO: Implement a mechanism for better error messaging for no applicable installer scenario
+        bool IsInstallerApplicable(const Manifest::ManifestInstaller& installer, Manifest::InstallerTypeEnum installedType)
         {
+            // Check MinOSVersion
+            if (!installer.MinOSVersion.empty() &&
+                !Runtime::IsCurrentOSVersionGreaterThanOrEqual(Utility::Version(installer.MinOSVersion)))
+            {
+                return false;
+            }
+
             if (Utility::IsApplicableArchitecture(installer.Arch) == Utility::InapplicableArchitecture)
             {
                 return false;
             }
 
-            if (installedType != Manifest::ManifestInstaller::InstallerTypeEnum::Unknown &&
-                !Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer.InstallerType, installedType))
+            if (installedType != Manifest::InstallerTypeEnum::Unknown &&
+                !Manifest::IsInstallerTypeCompatible(installer.InstallerType, installedType))
             {
                 return false;
             }
@@ -33,33 +41,21 @@ namespace AppInstaller::CLI::Workflow
         bool IsInstallerBetterMatch(
             const Manifest::ManifestInstaller& installer1,
             const Manifest::ManifestInstaller& installer2,
-            Manifest::ManifestInstaller::InstallerTypeEnum installedType)
+            Manifest::InstallerTypeEnum installedType)
         {
-            auto arch1 = Utility::IsApplicableArchitecture(installer1.Arch);
-            auto arch2 = Utility::IsApplicableArchitecture(installer2.Arch);
-
-            // Applicable architecture should always come before inapplicable architecture
-            if (arch1 != Utility::InapplicableArchitecture &&
-                arch2 == Utility::InapplicableArchitecture)
-            {
-                return true;
-            }
-
             // If there's installation metadata, pick the preferred one or compatible one
-            if (installedType != Manifest::ManifestInstaller::InstallerTypeEnum::Unknown)
+            if (installedType != Manifest::InstallerTypeEnum::Unknown)
             {
                 if (installer1.InstallerType == installedType && installer2.InstallerType != installedType)
-                {
-                    return true;
-                }
-                if (Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer1.InstallerType, installedType) &&
-                    !Manifest::ManifestInstaller::IsInstallerTypeCompatible(installer2.InstallerType, installedType))
                 {
                     return true;
                 }
             }
 
             // Todo: Compare only architecture for now. Need more work and spec.
+            auto arch1 = Utility::IsApplicableArchitecture(installer1.Arch);
+            auto arch2 = Utility::IsApplicableArchitecture(installer2.Arch);
+
             if (arch1 > arch2)
             {
                 return true;
@@ -67,28 +63,6 @@ namespace AppInstaller::CLI::Workflow
 
             return false;
         }
-
-        // This is used in sorting the list of available localizations to get the best match.
-        struct LocalizationComparator
-        {
-            bool operator() (
-                const Manifest::ManifestLocalization& loc1,
-                const Manifest::ManifestLocalization& loc2)
-            {
-                // Todo: Compare simple language for now. Need more work and spec.
-                std::string userPreferredLocale = std::locale("").name();
-
-                auto foundLoc1 = userPreferredLocale.find(loc1.Language);
-                auto foundLoc2 = userPreferredLocale.find(loc2.Language);
-
-                if (foundLoc1 != std::string::npos && foundLoc2 == std::string::npos)
-                {
-                    return true;
-                }
-
-                return false;
-            }
-        };
     }
 
     std::optional<Manifest::ManifestInstaller> ManifestComparator::GetPreferredInstaller(const Manifest::Manifest& manifest)
@@ -96,11 +70,11 @@ namespace AppInstaller::CLI::Workflow
         AICLI_LOG(CLI, Info, << "Starting installer selection.");
 
         // Get the currently installed package's type (if present)
-        Manifest::ManifestInstaller::InstallerTypeEnum installedType = Manifest::ManifestInstaller::InstallerTypeEnum::Unknown;
+        Manifest::InstallerTypeEnum installedType = Manifest::InstallerTypeEnum::Unknown;
         auto installerTypeItr = m_installationMetadata.find(Repository::PackageVersionMetadata::InstalledType);
         if (installerTypeItr != m_installationMetadata.end())
         {
-            installedType = Manifest::ManifestInstaller::ConvertToInstallerTypeEnum(installerTypeItr->second);
+            installedType = Manifest::ConvertToInstallerTypeEnum(installerTypeItr->second);
         }
 
         const Manifest::ManifestInstaller* result = nullptr;
@@ -114,7 +88,7 @@ namespace AppInstaller::CLI::Workflow
                     result = &installer;
                 }
             }
-            else if (IsInstallerBetterMatch(installer, *result, installedType))
+            else if (IsInstallerApplicable(installer, installedType) && IsInstallerBetterMatch(installer, *result, installedType))
             {
                 result = &installer;
             }
@@ -128,39 +102,10 @@ namespace AppInstaller::CLI::Workflow
         Logging::Telemetry().LogSelectedInstaller(
             static_cast<int>(result->Arch),
             result->Url,
-            Manifest::ManifestInstaller::InstallerTypeToString(result->InstallerType),
-            Manifest::ManifestInstaller::ScopeToString(result->Scope),
-            result->Language);
+            Manifest::InstallerTypeToString(result->InstallerType),
+            Manifest::ScopeToString(result->Scope),
+            result->Locale);
 
         return *result;
-    }
-
-    Manifest::ManifestLocalization ManifestComparator::GetPreferredLocalization(const Manifest::Manifest& manifest)
-    {
-        AICLI_LOG(CLI, Info, << "Starting localization selection.");
-
-        ManifestLocalization selectedLocalization;
-
-        // Sorting the list of available localizations according to rules defined in LocalizationComparator.
-        if (!manifest.Localization.empty())
-        {
-            auto localization = manifest.Localization;
-            std::sort(localization.begin(), localization.end(), LocalizationComparator());
-
-            // TODO: needs to check language applicability here
-
-            selectedLocalization = localization[0];
-        }
-        else
-        {
-            // Populate default from package manifest
-            selectedLocalization.Description = manifest.Description;
-            selectedLocalization.Homepage = manifest.Homepage;
-            selectedLocalization.LicenseUrl = manifest.LicenseUrl;
-        }
-
-        AICLI_LOG(CLI, Info, << "Completed localization selection. Selected localization language: " << selectedLocalization.Language);
-
-        return selectedLocalization;
     }
 }

@@ -476,6 +476,9 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
   <data name="ShowChannel" xml:space="preserve">
     <value>Canal</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Muestra información sobre un paquete específico. De forma predeterminada, la consulta no debe distinguir entre mayúsculas y minúsculas y no distingue entre el identificador, el nombre o el moniker del paquete. Puede usar otros campos si pasa su opción adecuada.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Muestra información sobre un paquete</value>
   </data>
@@ -650,7 +653,7 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
     <value>Comando no reconocido</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Actualizar todos los paquetes instalados a la versión más reciente si está disponible</value>
+    <value>Actualiza todos los paquetes instalados a la versión más reciente si está disponible</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>No se encontraron actualizaciones aplicables.</value>
@@ -718,5 +721,97 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
   <data name="Logs" xml:space="preserve">
     <value>Registros</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>El instalador está bloqueado debido a una directiva</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>El instalador no pudo realizar la comprobación de seguridad</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Un producto antivirus informa de una infección en el instalador</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Error al intentar actualizar el origen:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Desinstala el paquete seleccionado, encontrado al buscar en una lista de paquetes instalados o bien, directamente desde un manifiesto. De forma predeterminada, la consulta debe coincidir con el id, el nombre o el moniker distinguiendo entre mayúsculas y minúsculas. Se pueden usar otros campos usando la opción apropiada.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Desinstala el paquete proporcionado</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Iniciando la desinstalación de paquete...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Desinstalación realizada con éxito</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget no encuentra el comando de desinstalación de este paquete. Póngase en contacto con el anunciante del paquete para obtener ayuda.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Desinstalación abandonada</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Error de desinstalación con el código de salida:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Exporta una lista de los paquetes instalados</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Instala todos los paquetes enumerados en un archivo.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Instala todos los paquetes en un archivo.</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Archivo en el que se va a escribir el resultado</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Archivo que describe los paquetes que se instalarán</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Exportar paquetes del origen especificado</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Escribe una lista de los paquetes instalados en un archivo. Los paquetes se pueden instalar con el comando import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>No se pudieron instalar uno o más paquetes importados</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Paquete no encontrado para la importación:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>El origen necesario para la importación no está instalado:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>El paquete instalado no está disponible desde ningún origen:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>La versión instalada del paquete no está disponible de ningún origen:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>No se encontraron paquetes en importar archivo</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>El archivo JSON no es válido.</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>El paquete ya está instalado:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Omitir los paquetes no disponibles</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Incluir versiones del paquete en un archivo producido</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Omitir las versiones del paquete de la importación del archivo</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Ruta de acceso no existe:</value>
   </data>
 </root>

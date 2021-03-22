@@ -476,6 +476,9 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>Канал</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Показва информация за конкретен пакет. По подразбиране заявката трябва да съвпада нечувствително с ИД, името или псевдонима на пакета. Други полета могат да се използват, като се премине съответната опция.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Показва информация за пакет</value>
   </data>
@@ -650,7 +653,7 @@
     <value>Неразпозната команда</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Актуализиране на всички инсталирани пакети до най-новите, ако са налични</value>
+    <value>Актуализирай всички инсталирани пакети до най-новите, ако има такива</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Не са намерени приложими актуализации.</value>
@@ -718,5 +721,97 @@
   <data name="Logs" xml:space="preserve">
     <value>Регистрационни файлове</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Инсталиращата програма е блокирана от правила</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Неуспешна проверка на защитата за инсталиращата програма</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Антивирусен продукт съобщава за инфекция в инсталиращата програма</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Неуспешен опит за актуализиране на източника:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Деинсталира избрания пакет или е открит чрез търсене в списъка с инсталирани пакети, или директно от манифест. По подразбиране заявката трябва да съвпада нечувствително с ИД, името или псевдонима на пакета. Други полета могат да се използват, като се премине съответната опция.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Деинсталира дадения пакет</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Стартиране на деинсталирането на пакета...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Успешно деинсталиран</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget не може да намери командата за деинсталиране за този пакет. Моля, свържете се с издателя на пакета за поддръжка.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Деинсталирането е прекратено</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Неуспешно деинсталиране с код за излизане:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Експортиране на списък с инсталираните пакети</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Инсталира всички пакети, изброени във файл.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Инсталира всички пакети във файл</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Файлът, където трябва да бъде записан резултатът</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Файл, описващ пакетите за инсталиране</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Експортиране на пакети от указания източник</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Записва списък на инсталираните пакети във файл. Пакетите могат да бъдат инсталирани с командата import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Неуспешно инсталиране на един или повече импортирани пакети</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Пакет, който не е намерен за импортиране:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Източникът, необходим за импортирането, не е инсталиран:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Инсталираният пакет не е достъпен от никой източник:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Инсталираната версия на пакета не е достъпна от никой източник:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Не са намерени пакети във файла за импортиране</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON файлът не е валиден</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Пакетът вече е инсталиран:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Игнориране на недостъпните пакети</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Включване на пакетни версии в произведени файлове</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Игнориране на версиите на пакета от файла за импортиране</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Пътят не съществува:</value>
   </data>
 </root>

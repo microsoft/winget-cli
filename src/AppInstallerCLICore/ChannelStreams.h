@@ -100,6 +100,7 @@ namespace AppInstaller::CLI::Execution
         OutputStream& operator<<(std::ostream& (__cdecl* f)(std::ostream&));
         OutputStream& operator<<(const VirtualTerminal::Sequence& sequence);
         OutputStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence);
+        OutputStream& operator<<(const std::filesystem::path& path);
 
     private:
         // Applies the format for the stream.

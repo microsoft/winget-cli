@@ -108,7 +108,7 @@ TEST_CASE("SQLiteIndexSource_Name", "[sqliteindexsource]")
     REQUIRE(results.Matches[0].Package);
     auto latestVersion = results.Matches[0].Package->GetLatestAvailableVersion();
 
-    REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Name).get() == manifest.Name);
+    REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Name).get() == manifest.DefaultLocalization.Get<Localization::PackageName>());
 }
 
 TEST_CASE("SQLiteIndexSource_Versions", "[sqliteindexsource]")
@@ -156,7 +156,7 @@ TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
     REQUIRE(specificResultVersion);
     auto specificResult = specificResultVersion->GetManifest();
     REQUIRE(specificResult.Id == manifest.Id);
-    REQUIRE(specificResult.Name == manifest.Name);
+    REQUIRE(specificResult.DefaultLocalization.Get<Localization::PackageName>() == manifest.DefaultLocalization.Get<Localization::PackageName>());
     REQUIRE(specificResult.Version == manifest.Version);
     REQUIRE(specificResult.Channel == manifest.Channel);
 
@@ -164,10 +164,32 @@ TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
     REQUIRE(latestResultVersion);
     auto latestResult = latestResultVersion->GetManifest();
     REQUIRE(latestResult.Id == manifest.Id);
-    REQUIRE(latestResult.Name == manifest.Name);
+    REQUIRE(latestResult.DefaultLocalization.Get<Localization::PackageName>() == manifest.DefaultLocalization.Get<Localization::PackageName>());
     REQUIRE(latestResult.Version == manifest.Version);
     REQUIRE(latestResult.Channel == manifest.Channel);
 
     auto noResultVersion = package->GetAvailableVersion(PackageVersionKey("", "blargle", "flargle"));
     REQUIRE(!noResultVersion);
+}
+
+TEST_CASE("SQLiteIndexSource_IsSame", "[sqliteindexsource]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SourceDetails details;
+    Manifest manifest;
+    std::string relativePath;
+    std::shared_ptr<SQLiteIndexSource> source = SimpleTestSetup(tempFile, details, manifest, relativePath);
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Exact, manifest.Id);
+
+    auto result1 = source->Search(request);
+    REQUIRE(result1.Matches.size() == 1);
+
+    auto result2 = source->Search(request);
+    REQUIRE(result2.Matches.size() == 1);
+
+    REQUIRE(result1.Matches[0].Package->IsSame(result2.Matches[0].Package.get()));
 }

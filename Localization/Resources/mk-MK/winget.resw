@@ -389,7 +389,7 @@
     <value>Нема програми за инсталирање што се применливи на тековниот систем.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Во моментов не се достапни пробни функции.</value>
+    <value>Во моментов нема достапни пробни функции. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Не е најден инсталиран пакет што се совпаѓа со внесените критериуми.</value>
@@ -475,6 +475,9 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Канал</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Прикажува информации за одреден пакет. Стандардно, прашалникот не мора да разликува големи и мали букви и мора да се совпаѓа со идентификаторот, името или моникерот на пакетот. Другите полиња може да се користат со пренесување на нивната соодветна опција.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Прикажува информации за пакетот</value>
@@ -650,7 +653,7 @@
     <value>Непрепознаена наредба</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Ажурирајте ги сите инсталирани пакети со најновите верзии ако се достапни</value>
+    <value>Ажурирајте ги сите инсталирани пакети со најновите верзии доколку се достапни</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Не е најдено применливо ажурирање.</value>
@@ -718,5 +721,97 @@
   <data name="Logs" xml:space="preserve">
     <value>Дневници</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Инсталаторот е блокиран од правилата</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Инсталаторот не успеа да ја помине безбедносната проверка</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Антивирусниот производ известува за инфекција во инсталаторот</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Не успеа обидот за ажурирање на изворот:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Го деинсталира избраниот пакет, кој е најден или со пребарување на списокот со инсталирани пакети или директно од манифестот. Стандардно, прашалникот не мора да разликува големи и мали букви, но мора да се совпаѓа со идентитетот, името или прекарот на пакетот. Другите полиња може да се користат со пренесување на нивната соодветна опција.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Го деинсталира дадениот пакет</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Се започнува деинсталацијата на пакетот...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Успешно се деинсталира</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget не може да ја лоцира наредбата за деинсталација за овој пакет. Стапете во контакт со издавачот на пакетот за поддршка.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Деинсталацијата е напуштена</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Деинсталирањето не успеа со излезниот код:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Извезува список на инсталирани пакети</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Ги инсталира сите пакети наведени во датотеката.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Ги инсталира сите пакети во датотеката</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Датотека каде што ќе се запише резултатот</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Датотека што ги опишува пакетите за инсталирање</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Извези ги пакетите од одредениот извор</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Пишува список на инсталираните пакети во датотека. Потоа пакетите може да се инсталираат со наредбата import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Еден или повеќе увезени пакети не успеаја да се инсталираат</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Пакетот не е најден за увоз:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Не е инсталиран изворот потребен за увоз:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Инсталираниот пакет не е достапен од кој било извор:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Инсталираната верзија на пакетот не е достапна од кој било извор:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Не се најдени пакети во увезената датотека</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON-датотеката не е важечка</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Пакетот е веќе инсталиран:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Игнорирај ги недостапните пакети</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Вклучи ги верзиите на пакетот во произведената датотека</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Игнорирај ги верзиите на пакетот од увезената датотека</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Патеката не постои:</value>
   </data>
 </root>

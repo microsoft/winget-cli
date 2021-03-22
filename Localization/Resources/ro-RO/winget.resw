@@ -476,6 +476,9 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   <data name="ShowChannel" xml:space="preserve">
     <value>Canal</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Afișează informații despre un anumit pachet. În mod implicit, interogarea trebuie să insensitively cu ID-ul, numele sau moniker pachetului. Alte câmpuri pot fi utilizate prin transmiterea opțiunii corespunzătoare.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Afișează informații despre un pachet</value>
   </data>
@@ -650,7 +653,7 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
     <value>Comandă nerecunoscută</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Se actualizează toate pachetele instalate la cea mai recentă dacă sunt disponibile</value>
+    <value>Se actualizează toate pachetele instalate la cea mai recentă versiune, dacă sunt disponibile</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Nu s-au găsit actualizări aplicabile.</value>
@@ -718,5 +721,97 @@ Ele pot fi configurate prin fișierul de setări „winget settings”.</value>
   <data name="Logs" xml:space="preserve">
     <value>Jurnale</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Programul de instalare este blocat de politică</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Programul de instalare nu a trecut de verificarea de securitate</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Un produs anti-virus raportează o infectare în programul de instalare</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Încercarea de actualizare a sursei nu a reușit:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Dezinstalează pachetul selectat, fie s-a găsit prin căutarea în lista de pachete instalate sau direct dintr-un manifest. În mod implicit, interogarea trebuie să insensitively cu ID-ul, numele sau moniker pachetului. Alte câmpuri pot fi utilizate prin transmiterea opțiunii corespunzătoare.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Dezinstalează pachetul dat</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Se începe dezinstalarea pachetului...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Dezinstalare reușită</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget nu poate găsi comanda de dezinstalare pentru acest pachet. Luați legătura cu editorul pachetului pentru asistență.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Dezinstalare abandonată</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Dezinstalarea nu a reușit, cu codul de ieșire:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Exportă o listă cu pachetele instalate</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Instalează toate pachetele listate într-un fișier.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Instalează toate pachetele dintr-un fișier</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Fișier unde se va scrie rezultatul</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Fișierul care descrie pachetele de instalat</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Export pachete din sursa specificată</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Scrie o listă a pachetelor instalate într-un fișier. Pachetele pot fi instalate apoi cu comanda import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Unul sau mai multe pachete importate nu s-au instalat</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Pachetul nu a fost găsit pentru import:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Sursa necesară pentru import nu este instalată:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Versiunea de pachet nu este disponibilă din nicio sursă:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Versiunea de pachet instalată nu este disponibilă din nicio sursă:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Nu s-a găsit niciun pachet în fișierul de import</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Fișierul JSON nu este valid</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Pachetul este deja instalat:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignorare pachete indisponibile</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Se includ versiunile de pachet în fișierul generat</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignorare versiuni pachet din fișierul de import</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Calea nu există:</value>
   </data>
 </root>

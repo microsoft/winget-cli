@@ -68,7 +68,10 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="Shared" />
+  <ImportGroup Label="Shared">
+    <Import Project="..\Valijson\Valijson.vcxitems" Label="Shared" />
+    <Import Project="..\WinGetSchemas\WinGetSchemas.vcxitems" Label="Shared" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -122,9 +125,9 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatWarningAsError>
@@ -139,7 +142,7 @@
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -152,10 +155,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</TreatWarningAsError>
@@ -177,6 +180,8 @@
     <ClInclude Include="Command.h" />
     <ClInclude Include="Commands\CompleteCommand.h" />
     <ClInclude Include="Commands\ExperimentalCommand.h" />
+    <ClInclude Include="Commands\ExportCommand.h" />
+    <ClInclude Include="Commands\ImportCommand.h" />
     <ClInclude Include="Commands\FeaturesCommand.h" />
     <ClInclude Include="Commands\HashCommand.h" />
     <ClInclude Include="Commands\ListCommand.h" />
@@ -185,11 +190,13 @@
     <ClInclude Include="Commands\InstallCommand.h" />
     <ClInclude Include="Commands\RootCommand.h" />
     <ClInclude Include="Commands\SourceCommand.h" />
+    <ClInclude Include="Commands\UninstallCommand.h" />
     <ClInclude Include="Commands\UpgradeCommand.h" />
     <ClInclude Include="Commands\ValidateCommand.h" />
     <ClInclude Include="Commands\SettingsCommand.h" />
     <ClInclude Include="CompletionData.h" />
     <ClInclude Include="ExecutionArgs.h" />
+    <ClInclude Include="ExecutionContextData.h" />
     <ClInclude Include="ExecutionContext.h" />
     <ClInclude Include="ExecutionProgress.h" />
     <ClInclude Include="ExecutionReporter.h" />
@@ -200,22 +207,28 @@
     <ClInclude Include="Search\Search.h" />
     <ClInclude Include="TableOutput.h" />
     <ClInclude Include="VTSupport.h" />
+    <ClInclude Include="PackageCollection.h" />
     <ClInclude Include="Workflows\CompletionFlow.h" />
+    <ClInclude Include="Workflows\ImportExportFlow.h" />
     <ClInclude Include="Workflows\MSStoreInstallerHandler.h" />
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
     <ClInclude Include="Workflows\InstallFlow.h" />
     <ClInclude Include="Workflows\ManifestComparator.h" />
     <ClInclude Include="Workflows\ShowFlow.h" />
     <ClInclude Include="Workflows\SourceFlow.h" />
+    <ClInclude Include="Workflows\UninstallFlow.h" />
     <ClInclude Include="Workflows\UpdateFlow.h" />
     <ClInclude Include="Workflows\WorkflowBase.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Commands\ImportCommand.cpp" />
+    <ClCompile Include="PackageCollection.cpp" />
     <ClCompile Include="Argument.cpp" />
     <ClCompile Include="ChannelStreams.cpp" />
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Commands\CompleteCommand.cpp" />
     <ClCompile Include="Commands\ExperimentalCommand.cpp" />
+    <ClCompile Include="Commands\ExportCommand.cpp" />
     <ClCompile Include="Commands\FeaturesCommand.cpp" />
     <ClCompile Include="Commands\HashCommand.cpp" />
     <ClCompile Include="Commands\ListCommand.cpp" />
@@ -224,6 +237,7 @@
     <ClCompile Include="Commands\InstallCommand.cpp" />
     <ClCompile Include="Commands\RootCommand.cpp" />
     <ClCompile Include="Commands\SourceCommand.cpp" />
+    <ClCompile Include="Commands\UninstallCommand.cpp" />
     <ClCompile Include="Commands\UpgradeCommand.cpp" />
     <ClCompile Include="Commands\ValidateCommand.cpp" />
     <ClCompile Include="Commands\SettingsCommand.cpp" />
@@ -238,12 +252,14 @@
     <ClCompile Include="Resources.cpp" />
     <ClCompile Include="VTSupport.cpp" />
     <ClCompile Include="Workflows\CompletionFlow.cpp" />
+    <ClCompile Include="Workflows\ImportExportFlow.cpp" />
     <ClCompile Include="Workflows\MSStoreInstallerHandler.cpp" />
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
     <ClCompile Include="Workflows\InstallFlow.cpp" />
     <ClCompile Include="Workflows\ManifestComparator.cpp" />
     <ClCompile Include="Workflows\ShowFlow.cpp" />
     <ClCompile Include="Workflows\SourceFlow.cpp" />
+    <ClCompile Include="Workflows\UninstallFlow.cpp" />
     <ClCompile Include="Workflows\UpdateFlow.cpp" />
     <ClCompile Include="Workflows\WorkflowBase.cpp" />
   </ItemGroup>

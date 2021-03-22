@@ -476,6 +476,9 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   <data name="ShowChannel" xml:space="preserve">
     <value>Rás</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Sýnir upplýsingar um tiltekinn pakka. Fyrirspurnin verður sjálfgefið að samsvara auðkenni, heiti eða viðurnefni pakkans. Hægt er að nota aðra reiti með því að senda viðeigandi valkosti þeirra.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Sýnir upplýsingar um pakka</value>
   </data>
@@ -718,5 +721,97 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   <data name="Logs" xml:space="preserve">
     <value>Annálar</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Regla útilokar uppsetningarforritið</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Uppsetningarforritið stóðst ekki öryggisathugun</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Vírusvarnarvara tilkynnir uppsetningarforritinu um sýkingu</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Mistókst að uppfæra upprunann:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Fjarlægir valinn pakka, sem annað hvort fannst með því að leita að uppsettum pakkalistum eða beint úr farmskrá. Fyrirspurnin verður sjálfgefið að samsvara auðkenni, heiti eða viðurnefni pakkans án þess að greina á milli há- og lágstafa. Hægt er að nota aðra reiti með því að senda viðeigandi valkosti.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Fjarlægir pakkann</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Byrjar fjarlægingu á pakka...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Fjarlægt</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget finnur ekki skipun um að fjarlægja þennan pakka. Hafðu samband við útgefanda pakkans til að fá aðstoð.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Hætt við fjarlægingu</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Fjarlæging mistókst með lokunarkóða:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Flytur út lista yfir uppsetta pakka</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Setur upp alla pakka sem gefnir eru upp í skrá.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Setur upp alla pakkana í skrá.</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Skrá þar sem skrifa á niðurstöðuna</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Skrá sem lýsir pökkunum til að setja upp</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Flytja út pakka frá tilgreindum uppruna</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Skrifar lista yfir uppsetta pakka í skrá. Hægt er að setja pakkana upp með import skipuninni.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Ekki tókst að setja upp einn eða fleiri innflutta pakka</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Pakkinn fannst ekki fyrir innflutning:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Uppruni sem þarf fyrir að flytja inn er ekki uppsettur:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Uppsettur pakki er ekki tiltækur úr neinum uppruna:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Uppsett útgáfa af pakka er ekki tiltæk úr neinum uppruna:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Engir pakkar fundust í innfluttu skránni</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON-skrá er ekki gild</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Pakki er þegar uppsettur:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Hunsa ótiltæka pakka</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Taka útgáfur pakka með í framleidda skrá</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Hunsa útgáfur pakka úr innfluttri skrá</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Slóð er ekki til:</value>
   </data>
 </root>

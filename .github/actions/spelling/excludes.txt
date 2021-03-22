@@ -1,4 +1,5 @@
 (?:^|/)\.gitignore$
+(?:^|/)(?i)LICENSE
 /shared\.manifest$
 \.cer$
 \.msix$
@@ -13,6 +14,11 @@
 ^NOTICE$
 ^src/AppInstallerCLICore/Commands/ExperimentalCommand\.cpp$
 ^src/catch2/
-^src/YamlCppLib/
 ^src/JsonCppLib/
+^src/Valijson/
+^src/YamlCppLib/
+^src/cpprestsdk/
 ^\.github/
+^src/AppInstallerCLITests/TestData/InputNames.txt$
+^src/AppInstallerCLITests/TestData/InputPublishers.txt$
+^src/AppInstallerCLITests/TestData/NormalizationInitialIds.txt$

@@ -29,21 +29,21 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             std::optional<SQLite::rowid_t> idId = IdTable::SelectIdByValue(connection, manifest.Id, true);
             if (!idId)
             {
-                AICLI_LOG(Repo, Info, << "Did not find an Id { " << manifest.Id << " }");
+                AICLI_LOG(Repo, Verbose, << "Did not find an Id { " << manifest.Id << " }");
                 return {};
             }
 
             std::optional<SQLite::rowid_t> versionId = VersionTable::SelectIdByValue(connection, manifest.Version, true);
             if (!versionId)
             {
-                AICLI_LOG(Repo, Info, << "Did not find a Version { " << manifest.Version << " }");
+                AICLI_LOG(Repo, Verbose, << "Did not find a Version { " << manifest.Version << " }");
                 return {};
             }
 
             std::optional<SQLite::rowid_t> channelId = ChannelTable::SelectIdByValue(connection, manifest.Channel, true);
             if (!channelId)
             {
-                AICLI_LOG(Repo, Info, << "Did not find a Channel { " << manifest.Channel << " }");
+                AICLI_LOG(Repo, Verbose, << "Did not find a Channel { " << manifest.Channel << " }");
                 return {};
             }
 
@@ -51,7 +51,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             if (!result)
             {
-                AICLI_LOG(Repo, Info, << "Did not find a manifest row for { " << manifest.Id << ", " << manifest.Version << ", " << manifest.Channel << " }");
+                AICLI_LOG(Repo, Verbose, << "Did not find a manifest row for { " << manifest.Id << ", " << manifest.Version << ", " << manifest.Channel << " }");
             }
 
             return result;
@@ -185,8 +185,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Ensure that all of the 1:1 data exists.
         SQLite::rowid_t idId = IdTable::EnsureExists(connection, manifest.Id, true);
-        SQLite::rowid_t nameId = NameTable::EnsureExists(connection, manifest.Name);
-        SQLite::rowid_t monikerId = MonikerTable::EnsureExists(connection, manifest.AppMoniker);
+        SQLite::rowid_t nameId = NameTable::EnsureExists(connection, manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>());
+        SQLite::rowid_t monikerId = MonikerTable::EnsureExists(connection, manifest.Moniker);
         SQLite::rowid_t versionId = VersionTable::EnsureExists(connection, manifest.Version);
         SQLite::rowid_t channelId = ChannelTable::EnsureExists(connection, manifest.Channel);
 
@@ -201,8 +201,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             });
 
         // Add all of the 1:N data.
-        TagsTable::EnsureExistsAndInsert(connection, manifest.Tags, manifestId);
-        CommandsTable::EnsureExistsAndInsert(connection, manifest.Commands, manifestId);
+        TagsTable::EnsureExistsAndInsert(connection, manifest.GetAggregatedTags(), manifestId);
+        CommandsTable::EnsureExistsAndInsert(connection, manifest.GetAggregatedCommands(), manifestId);
 
         savepoint.Commit();
 
@@ -243,15 +243,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             indexModified = true;
         }
 
-        if (nameInIndex != manifest.Name)
+        auto packageName = manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>();
+        if (nameInIndex != packageName)
         {
-            UpdateManifestValueById<NameTable>(connection, manifest.Name, manifestId);
+            UpdateManifestValueById<NameTable>(connection, packageName, manifestId);
             indexModified = true;
         }
 
-        if (monikerInIndex != manifest.AppMoniker)
+        if (monikerInIndex != manifest.Moniker)
         {
-            UpdateManifestValueById<MonikerTable>(connection, manifest.AppMoniker, manifestId);
+            UpdateManifestValueById<MonikerTable>(connection, manifest.Moniker, manifestId);
             indexModified = true;
         }
 
@@ -273,8 +274,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Update all 1:N tables as necessary
-        indexModified = TagsTable::UpdateIfNeededByManifestId(connection, manifest.Tags, manifestId) || indexModified;
-        indexModified = CommandsTable::UpdateIfNeededByManifestId(connection, manifest.Commands, manifestId) || indexModified;
+        indexModified = TagsTable::UpdateIfNeededByManifestId(connection, manifest.GetAggregatedTags(), manifestId) || indexModified;
+        indexModified = CommandsTable::UpdateIfNeededByManifestId(connection, manifest.GetAggregatedCommands(), manifestId) || indexModified;
 
         savepoint.Commit();
 
@@ -412,7 +413,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             SearchResult result;
             for (SQLite::rowid_t id : ids)
             {
-                result.Matches.emplace_back(std::make_pair(id, PackageMatchFilter(PackageMatchField::Id, MatchType::Wildcard, {})));
+                result.Matches.emplace_back(std::make_pair(id, PackageMatchFilter(PackageMatchField::Id, MatchType::Wildcard)));
             }
 
             result.Truncated = (request.MaximumResults && IdTable::GetCount(connection) > request.MaximumResults);
@@ -437,11 +438,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         if (!request.Inclusions.empty())
         {
-            for (const auto& include : request.Inclusions)
+            for (auto include : request.Inclusions)
             {
                 for (MatchType match : GetMatchTypeOrder(include.Type))
                 {
-                    resultsTable->SearchOnField(include.Field, match, include.Value);
+                    include.Type = match;
+                    resultsTable->SearchOnField(include);
                 }
             }
 
@@ -454,11 +456,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             THROW_HR_IF(E_UNEXPECTED, request.Filters.empty());
 
             // Perform search for just the field matching the first filter
-            const PackageMatchFilter& filter = request.Filters[0];
+            PackageMatchFilter filter = request.Filters[0];
 
             for (MatchType match : GetMatchTypeOrder(filter.Type))
             {
-                resultsTable->SearchOnField(filter.Field, match, filter.Value);
+                filter.Type = match;
+                resultsTable->SearchOnField(filter);
             }
 
             // Skip the filter as we already know everything matches
@@ -471,13 +474,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Second phase, for remaining filters, flag matching search results, then remove unflagged values.
         for (size_t i = filterIndex; i < request.Filters.size(); ++i)
         {
-            const PackageMatchFilter& filter = request.Filters[i];
+            PackageMatchFilter filter = request.Filters[i];
 
             resultsTable->PrepareToFilter();
 
             for (MatchType match : GetMatchTypeOrder(filter.Type))
             {
-                resultsTable->FilterOnField(filter.Field, match, filter.Value);
+                filter.Type = match;
+                resultsTable->FilterOnField(filter);
             }
 
             resultsTable->CompleteFilter();
@@ -546,6 +550,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
     }
 
+    Utility::NormalizedName Interface::NormalizeName(std::string_view name, std::string_view publisher) const
+    {
+        Utility::NormalizedName result;
+        result.Name(name);
+        result.Publisher(publisher);
+        return result;
+    }
+
     std::unique_ptr<SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
     {
         return std::make_unique<SearchResultsTable>(connection);
@@ -576,13 +588,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
     void Interface::PerformQuerySearch(SearchResultsTable& resultsTable, const RequestMatch& query) const
     {
+        // Arbitrary values to create a reusable filter with the given value.
+        PackageMatchFilter filter(PackageMatchField::Id, MatchType::Exact, query.Value);
+
         for (MatchType match : GetMatchTypeOrder(query.Type))
         {
-            resultsTable.SearchOnField(PackageMatchField::Id, match, query.Value);
-            resultsTable.SearchOnField(PackageMatchField::Name, match, query.Value);
-            resultsTable.SearchOnField(PackageMatchField::Moniker, match, query.Value);
-            resultsTable.SearchOnField(PackageMatchField::Command, match, query.Value);
-            resultsTable.SearchOnField(PackageMatchField::Tag, match, query.Value);
+            filter.Type = match;
+
+            for (auto field : { PackageMatchField::Id, PackageMatchField::Name, PackageMatchField::Moniker, PackageMatchField::Command, PackageMatchField::Tag })
+            {
+                filter.Field = field;
+                resultsTable.SearchOnField(filter);
+            }
         }
     }
 }

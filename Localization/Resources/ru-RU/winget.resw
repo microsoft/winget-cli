@@ -476,6 +476,9 @@
   <data name="ShowChannel" xml:space="preserve">
     <value>Канал</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Отображает сведения о конкретном пакете. По умолчанию запрос должен сравнить идентификатор, имя или моникер пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Отображение сведений о пакете</value>
   </data>
@@ -718,5 +721,97 @@
   <data name="Logs" xml:space="preserve">
     <value>Журналы</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Установщик заблокирован политикой</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Установщик не прошел проверку безопасности</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Антивирусная программа сообщает о заражении в установщике</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Не удалось обновить источник:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Удаление выбранного пакета, обнаруженного путем поиска в списке установленных пакетов либо непосредственно из манифеста. По умолчанию запрос должен соответствовать идентификатору, имени или моникеру пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Удаление указанного пакета</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Запуск удаления пакета...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Удалено</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget не может найти команду удаления для пакета. Обратитесь за помощью к издателю пакетов.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Удаление прекращено</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Сбой удаления с кодом выхода:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Экспортирует список установленных пакетов</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Установка всех пакетов, перечисленных в файле.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Устанавливает все пакеты в файле</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Файл, в который будет записан результат</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Файл с описанием устанавливаемых пакетов</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Экспорт пакетов из указанного источника</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Записывает список установленных пакетов в файл. После этого пакеты можно установить командой import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Не удалось установить один или несколько импортированных пакетов</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Не найден пакет для импорта:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Источник, необходимый для импорта, не установлен:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Установленный пакет недоступен из любого источника:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Установленная версия пакета недоступна из любого источника:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Пакеты в файле импорта не найдены</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Файл JSON не является допустимым</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Пакет уже установлен:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Игнорировать недоступные пакеты</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Включить версии пакетов в созданный файл</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Игнорировать версии пакета из файла импорта</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Путь не существует:</value>
   </data>
 </root>

@@ -165,10 +165,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return result;
         }
 
-        int ManifestTableBuildSearchStatement(
+        std::vector<int> ManifestTableBuildSearchStatement(
             SQLite::Builder::StatementBuilder& builder,
-            const SQLite::Builder::QualifiedColumn& column,
-            bool isOneToOne,
+            std::initializer_list<SQLite::Builder::QualifiedColumn> columns,
+            std::initializer_list<bool> isOneToOnes,
             std::string_view manifestAlias,
             std::string_view valueAlias,
             bool useLike)
@@ -176,40 +176,78 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             using QCol = SQLite::Builder::QualifiedColumn;
 
             // Build a statement like:
-            //      SELECT manifest.rowid as m, ids.id as v from manifest join ids on manifest.id = ids.rowid where ids.id = <value>
+            //      SELECT manifest.rowid as m, ids.id as v from manifest
+            //      join ids on manifest.id = ids.rowid
+            //      where ids.id = <value>
             // OR
-            //      SELECT manifest.rowid as m, tags.tag as v from manifest join tags_map on manifest.rowid = tags_map.manifest
-            //      join tags on tags_map.tag = tags.rowid where tags.tag = <value>
+            //      SELECT manifest.rowid as m, tags.tag as v from manifest
+            //      join tags_map on manifest.rowid = tags_map.manifest
+            //      join tags on tags_map.tag = tags.rowid
+            //      where tags.tag = <value>
+            // Where the joins and where portions are repeated for each table in question.
             builder.Select().
-                Column(QCol(s_ManifestTable_Table_Name, SQLite::RowIDName)).As(manifestAlias).
-                Column(column).As(valueAlias);
+                Column(QCol(s_ManifestTable_Table_Name, SQLite::RowIDName)).As(manifestAlias);
 
-            if (isOneToOne)
+            // Value will be captured for single tables references, and left empty for multi-tables
+            if (columns.size() == 1)
             {
-                builder.From(s_ManifestTable_Table_Name).
-                    Join(column.Table).On(QCol(s_ManifestTable_Table_Name, column.Column), QCol(column.Table, SQLite::RowIDName)).
-                    Where(column);
+                builder.Column(*columns.begin());
             }
             else
             {
-                std::string mapTableName = details::OneToManyTableGetMapTableName(column.Table);
-                builder.From(s_ManifestTable_Table_Name).
-                    Join(mapTableName).On(QCol(s_ManifestTable_Table_Name, SQLite::RowIDName), QCol(mapTableName, details::OneToManyTableGetManifestColumnName())).
-                    Join(column.Table).On(QCol(mapTableName, column.Column), QCol(column.Table, SQLite::RowIDName)).
-                    Where(column);
+                builder.LiteralColumn("");
             }
 
-            int result = 0;
-            if (useLike)
+            builder.As(valueAlias).From(s_ManifestTable_Table_Name);
+
+            // Create join clauses
+            THROW_HR_IF(E_INVALIDARG, columns.size() != isOneToOnes.size());
+            auto columnItr = columns.begin();
+            auto isOneToOneItr = isOneToOnes.begin();
+
+            for (; columnItr != columns.end(); ++columnItr, ++isOneToOneItr)
             {
-                builder.Like(SQLite::Builder::Unbound);
-                result = builder.GetLastBindIndex();
-                builder.Escape(SQLite::EscapeCharForLike);
+                const SQLite::Builder::QualifiedColumn& column = *columnItr;
+
+                if (*isOneToOneItr)
+                {
+                    builder.
+                        Join(column.Table).On(QCol(s_ManifestTable_Table_Name, column.Column), QCol(column.Table, SQLite::RowIDName));
+                }
+                else
+                {
+                    std::string mapTableName = details::OneToManyTableGetMapTableName(column.Table);
+                    builder.
+                        Join(mapTableName).On(QCol(s_ManifestTable_Table_Name, SQLite::RowIDName), QCol(mapTableName, details::OneToManyTableGetManifestColumnName())).
+                        Join(column.Table).On(QCol(mapTableName, column.Column), QCol(column.Table, SQLite::RowIDName));
+                }
             }
-            else
+
+            std::vector<int> result;
+
+            // Create where clause
+            for (const SQLite::Builder::QualifiedColumn& column : columns)
             {
-                builder.Equals(SQLite::Builder::Unbound);
-                result = builder.GetLastBindIndex();
+                if (result.empty())
+                {
+                    builder.Where(column);
+                }
+                else
+                {
+                    builder.And(column);
+                }
+
+                if (useLike)
+                {
+                    builder.Like(SQLite::Builder::Unbound);
+                    result.push_back(builder.GetLastBindIndex());
+                    builder.Escape(SQLite::EscapeCharForLike);
+                }
+                else
+                {
+                    builder.Equals(SQLite::Builder::Unbound);
+                    result.push_back(builder.GetLastBindIndex());
+                }
             }
 
             return result;

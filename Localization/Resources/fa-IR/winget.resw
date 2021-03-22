@@ -389,7 +389,7 @@
     <value>هیچ نصب‌کننده‌ای برای سیستم فعلی قابل اجرا نیست.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>در حال حاضر هیچ ویژگی تجربی در دسترس نیست. </value>
+    <value>در حال حاضر هیچ ویژگی آزمایشی در دسترس نیست. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>هیچ بسته نصب شده با معیارهای ورودی مطابقت ندارد.</value>
@@ -475,6 +475,9 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>کانال</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>اطلاعات مربوط به یک بسته خاص را نشان می‌دهد. به‌طور پیش‌فرض، جستار باید از لحاظ بزرگی یا کوچکی حروف با شناسه، نام یا اسم بسته مطابقت داشته باشد. فیلدهای دیگر را می‌توان با قبول کردن گزینه مناسب آنها استفاده کرد.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>اطلاعات مربوط به یک بسته را نشان می‌دهد</value>
@@ -650,7 +653,7 @@
     <value>فرمان تشخیص‌داده‌نشده</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>در صورت موجود بودن، همه بسته‌های نصب شده را به جدیدترین نسخه آن به‌روز کنید</value>
+    <value>در صورت موجود بودن، همه بسته‌های نصب شده را به جدیدترین نسخه خود به‌روز کنید</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>هیچ به روزرسانی کاربردی یافت نشد.</value>
@@ -718,5 +721,97 @@
   <data name="Logs" xml:space="preserve">
     <value>گزارش‌ها</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>نصب توسط خط‌ مشی مسدود شده است</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>نصب‌کننده نتوانست بررسی امنیتی را انجام دهد</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>یک محصول ضد ویروس، آلودگی در نصب را گزارش می کند</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>تلاش برای به‌روز‌رسانی منبع انجام نشد:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>بسته انتخاب شده را حذف نصب می کند، یا با جستجو در فهرست بسته‌های نصب شده یا مستقیم از یک بیانیه پیدا می شود. به طور پیش‌فرض، پرس‌و‌جو باید از نظر کوچک و بزرگ با شناسه، نام یا مانیتور بسته مطابقت داشته باشد. با عبور از گزینه مناسب می توان از سایر زمینه‌ها استفاده کرد.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>بسته داده شده را حذف نصب می کند</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>در حال شروع حذف نصب بسته...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>با موفقیت حذف نصب شد</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget نمی تواند دستور حذف نصب این بسته را پیدا کند. لطفاً برای پشتیبانی با ناشر بسته تماس بگیرید.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>حذف نصب متوقف شد</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>حذف نصب با کد خروج انجام نشد:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>فهرستی از بسته‌های نصب‌شده را صادر می‌کند</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>تمام بسته‌های فهرست‌شده در یک فایل را نصب می‌کند.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>تمام بسته‌های یک فایل را نصب می‌کند</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>فایلی که قرار است نتیجه در آن نوشته شود</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>فایل توصیح بسته‌هایی که قرار است نصب شوند</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>صدور بسته‌ها از منبع مشخص‌شده</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>فهرستی از بسته‌های نصب‌شده را در یک فایل می‌نویسد. سپس می‌توان بسته‌ها را با فرمان import نصب کرد.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>نصب یک یا چند بستۀ واردشده ناموفق بود</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>بسته برای وارد کردن پیدا نشد:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>منبع مورد نیاز برای وارد کردن نصب نشده است:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>بستۀ نصب‌شده از هیچ منبعی در دسترس نیست:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>نسخۀ نصب‌شدۀ بسته از هیچ منبعی در دسترس نیست:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>در فایل واردات هیچ بسته‌ای پیدا نشد</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>فایل JSON معتبر نیست</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>بسته پیش از این نصب شده است:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>نادیده گرفتن بسته‌های خارج از دسترس</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>گنجاندن نسخه‌های بسته در فایل ایجادشده</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>نادیده گرفتن نسخه‌های بسته از فایل واردات</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>مسیر وجود ندارد:</value>
   </data>
 </root>

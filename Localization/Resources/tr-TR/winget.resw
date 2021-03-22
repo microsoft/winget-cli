@@ -476,6 +476,9 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Belirli bir paketteki bilgileri gösterir. Varsayılan olarak, sorgunun büyük/küçük harf insensitively 'i paketin kimliği, adı veya adıyla eşleşmesi gerekir. Diğer alanlar, uygun seçenekleri geçirerek kullanılabilir.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Bir paketle ilgili bilgileri gösterir</value>
   </data>
@@ -718,5 +721,97 @@ Bunlar 'winget settings' ayarlar dosyası aracılığıyla yapılandırılabilir
   <data name="Logs" xml:space="preserve">
     <value>Günlükler</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Yükleyici ilke tarafından engellendi</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Yükleyici güvenlik kontrolünden geçemedi</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Bir virüsten koruma ürünü yükleyicide bulaşma olduğunu bildiriyor</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Kaynağı güncelleştirme denemesi başarısız oldu:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Yüklü paketler listesi aranarak bulunan veya doğrudan bir bildirimdeki seçili paketi kaldırır. Varsayılan olarak, sorgu, paketin kimliğiyle, adıyla veya bilinen adıyla büyük/küçük harfe duyarlı olmadan eşleşmelidir. Diğer alanlar uygun seçenekleri aktarılarak kullanılabilir.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Belirtilen paketi kaldırır</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Paket kaldırma başlatılıyor...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Başarıyla kaldırıldı</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget bu paket için kaldırma komutunu bulamıyor. Lütfen destek için paket yayımcısı ile iletişim kurun.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Kaldırma yarıda bırakıldı</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Kaldırma şu çıkış koduyla başarısız oldu:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Yüklü paketlerin listesini dışarı aktarır</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Bir dosyada listelenen tüm paketleri yükler.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Bir dosyadaki tüm paketleri yükler</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Sonucun yazılacağı dosya</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Yüklenecek paketleri açıklayan dosya</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Paketleri belirtilen kaynaktan dışarı aktarın</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Yüklü paketlerin listesini bir dosyaya yazar. Bunun üzerine paketler import komutuyla yüklenebilir.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Bir veya daha fazla içeri aktarılan paket yüklenemedi</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>İçeri aktarılacak paket bulunamadı:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>İçeri aktarma için gerekli kaynak yüklü değil:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Yüklü paket hiçbir kaynaktan alınamıyor:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Yüklü paket sürümü hiçbir kaynaktan alınamıyor:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>İçeri aktarma dosyasında paket bulunamadı</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON dosyası geçerli değil</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Paket zaten yüklü:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Kullanılamayan paketleri yoksayın</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Paket sürümlerini oluşturulan dosyaya ekleyin</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>İçeri aktarma dosyasındaki paket sürümlerini yoksayın</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Yol yok:</value>
   </data>
 </root>

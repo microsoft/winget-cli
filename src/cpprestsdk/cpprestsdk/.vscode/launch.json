@@ -1,0 +1,19 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(Windows) Launch Debug Tests",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build.debug/Release/Binaries/test_runner.exe",
+            "args": ["*testd.dll"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build.debug/Release/Binaries",
+            "environment": [],
+            "externalConsole": true
+        }
+    ]
+}

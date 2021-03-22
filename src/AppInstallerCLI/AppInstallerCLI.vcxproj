@@ -70,6 +70,8 @@
   </ImportGroup>
   <ImportGroup Label="Shared">
     <Import Project="..\binver\binver.vcxitems" Label="Shared" />
+    <Import Project="..\ManifestSchema\ManifestSchema.vcxitems" Label="Shared" />
+    <Import Project="..\WinGetSchemas\WinGetSchemas.vcxitems" Label="Shared" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -140,7 +142,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -192,7 +194,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies Condition="'$(Configuration)'=='Release'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)'=='Release'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -224,6 +226,9 @@
     </ProjectReference>
     <ProjectReference Include="..\AppInstallerRepositoryCore\AppInstallerRepositoryCore.vcxproj">
       <Project>{5eb88068-5fb9-4e69-89b2-72dbc5e068f9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\cpprestsdk\cpprestsdk.vcxproj">
+      <Project>{866c3f06-636f-4be8-bc24-5f86ecc606a1}</Project>
     </ProjectReference>
     <ProjectReference Include="..\JsonCppLib\JsonCppLib.vcxproj">
       <Project>{82b39fda-e86b-4713-a873-9d56de00247a}</Project>

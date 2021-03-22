@@ -90,7 +90,10 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="Shared" />
+  <ImportGroup Label="Shared">
+    <Import Project="..\Valijson\Valijson.vcxitems" Label="Shared" />
+    <Import Project="..\ManifestSchema\ManifestSchema.vcxitems" Label="Shared" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -160,9 +163,9 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatWarningAsError>
@@ -177,7 +180,7 @@
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -190,10 +193,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</TreatWarningAsError>
@@ -215,10 +218,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD;WINGET_DISABLE_FOR_FUZZING</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM64'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">true</TreatWarningAsError>
@@ -264,13 +267,19 @@
     <ClInclude Include="Public\AppInstallerVersions.h" />
     <ClInclude Include="Public\winget\ExperimentalFeature.h" />
     <ClInclude Include="Public\winget\ExtensionCatalog.h" />
+    <ClInclude Include="Public\winget\JsonSchemaValidation.h" />
     <ClInclude Include="Public\winget\LocIndependent.h" />
     <ClInclude Include="Public\winget\Manifest.h" />
     <ClInclude Include="Public\winget\ManifestInstaller.h" />
     <ClInclude Include="Public\winget\ManifestLocalization.h" />
+    <ClInclude Include="Public\winget\ManifestCommon.h" />
     <ClInclude Include="Public\winget\ManifestValidation.h" />
     <ClInclude Include="Public\winget\ManifestYamlParser.h" />
+    <ClInclude Include="Public\winget\ManifestYamlPopulator.h" />
+    <ClInclude Include="Public\winget\NameNormalization.h" />
+    <ClInclude Include="Public\winget\Regex.h" />
     <ClInclude Include="Public\winget\Registry.h" />
+    <ClInclude Include="Public\winget\ManifestSchemaValidation.h" />
     <ClInclude Include="Public\winget\Settings.h" />
     <ClInclude Include="Public\winget\UserSettings.h" />
     <ClInclude Include="Public\winget\Yaml.h" />
@@ -302,14 +311,19 @@
     <ClCompile Include="HttpStream\HttpRandomAccessStream.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="JsonSchemaValidation.cpp" />
     <ClCompile Include="JsonUtil.cpp" />
     <ClCompile Include="Manifest\Manifest.cpp" />
-    <ClCompile Include="Manifest\ManifestInstaller.cpp" />
+    <ClCompile Include="Manifest\ManifestCommon.cpp" />
     <ClCompile Include="Manifest\ManifestValidation.cpp" />
+    <ClCompile Include="Manifest\ManifestSchemaValidation.cpp" />
+    <ClCompile Include="Manifest\ManifestYamlPopulator.cpp" />
     <ClCompile Include="Manifest\YamlParser.cpp" />
     <ClCompile Include="MsixInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="NameNormalization.cpp" />
+    <ClCompile Include="Regex.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="pch.cpp">

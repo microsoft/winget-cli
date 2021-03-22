@@ -389,7 +389,7 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
     <value>Intet installationsprogram er relevant for det aktuelle system.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Der er i øjeblikket ingen tilgængelige eksperimentale-funktioner. </value>
+    <value>Der er i øjeblikket ingen tilgængelige eksperimentale funktioner. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Ingen installeret pakke blev fundet, der matcher inputkriterierne.</value>
@@ -475,6 +475,9 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Viser oplysninger om en bestemt pakke. Som standard skal forespørgslen have en forskel på store og små bogstaver, der svarer til id'et, navnet eller moniker for pakken. Andre felter kan bruges ved at videregive deres relevante indstilling.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Viser oplysninger om en pakke</value>
@@ -718,5 +721,97 @@ De kan konfigureres ved hjælp af indstillingsfilen ' winget settings '.</value>
   <data name="Logs" xml:space="preserve">
     <value>Logfiler</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Installationsprogrammet er blokeret af politik</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Sikkerhedskontrollen for installationsprogrammet mislykkedes</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Et antivirusprogram rapporterer en infektion i installationsprogrammet</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Der opstod fejl under forsøg på at opdatere kilden:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Fjerner den valgte pakke, enten ved at søge på listen over installerede pakker eller direkte fra et manifest. Forespørgslen skal som standard skelne mellem store og små bogstaver i pakkens id, navn eller moniker. Andre felter kan bruges ved at videregive de ønskede indstillinger.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Fjerner den pågældende pakke</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Starter fjernelse af pakke...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Pakken er fjernet</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget kan ikke finde fjernelses kommandoen til denne pakke. Kontakt pakke udgiveren for at få support.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Fjernelse blev afbrudt</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Fjernelsen mislykkedes med returkoden:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Eksporterer en liste med installerede pakker</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Installerer alle pakker, der er angivet i en fil.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Installerer alle pakkerne i en fil</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Fil, som resultatet skal skrives til</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Fil, der beskriver de pakker, der skal installeres</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Eksportér pakker fra den angivne kilde</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Skriver en liste over de installerede pakker til en fil. Pakkerne kan derefter installeres sammen med kommandoen import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>En eller flere importerede pakker blev ikke installeret</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Pakken blev ikke fundet til import:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Kilde, der kræves til import, er ikke installeret:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Den installerede version af pakken er ikke tilgængelig fra nogen kilde:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Den installerede version af pakken er ikke tilgængelig fra nogen kilde:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Der blev ikke fundet nogen pakker i importfilen</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON-filen er ugyldig</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Pakken er allerede installeret:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignorer utilgængelige pakker</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Medtag pakkeversioner i den producerede fil</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignorer pakkeversioner fra importfilen</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Stien findes ikke:</value>
   </data>
 </root>

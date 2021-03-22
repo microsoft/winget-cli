@@ -389,7 +389,7 @@
     <value>لا توجد أي مثبتات قابلة للتطبيق على النظام الحالي.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>لا تتوفر حالياً أي ميزات تجريبية. </value>
+    <value>لا توجد حاليا أي ميزات تجريبية متاحة. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>لم يتم العثور على حزمة مثبتة متطابقة مع معايير الإدخال.</value>
@@ -475,6 +475,9 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>القناة</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>إظهار معلومات حول حزمه معينه. بشكل افتراضي ، يجب ان يطابق الاستعلام إينسينسيتيفيلي المعرف أو الاسم أو لقب الحزمة. يمكن استخدام الحقول الأخرى بواسطة تمرير الخيار المناسب.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>عرض معلومات حول إحدى الحزم</value>
@@ -650,7 +653,7 @@
     <value>الأمر غير معروف</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>تحديث جميع الحزم المثبتة إلى الأحدث في حالة توفره</value>
+    <value>قم بتحديث كافة الحزم المثبتة إلى الأحدث إذا كانت متوفرة</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>لم يتم العثور علي تحديث قابل للتطبيق.</value>
@@ -718,5 +721,97 @@
   <data name="Logs" xml:space="preserve">
     <value>السجلات</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>تم حظر المثبت بواسطة السياسة</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>فشل المثبت في اختبار الأمان</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>أبلغ منتج مضاد للفيروسات عن إصابة في المثبت</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>فشلت محاولة تحديث المصدر:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>إلغاء تثبيت الحزمة المحددة ، اما ان يتم العثور عليها من خلال البحث في قائمه الحزم المثبتة أو مباشره من بيان. بشكل افتراضي ، يجب ان يطابق الاستعلام إينسينسيتيفيلي المعرف أو الاسم أو لقب الحزمة. يمكن استخدام الحقول الأخرى بواسطة تمرير الخيار المناسب.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>يلغي تثبيت الحزمة المحددة</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>جارٍ بدء إلغاء تثبيت الحزمة...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>تم الإزالة بنجاح</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>يتعذر على winget تحديد موقع أمر إلغاء التثبيت لهذه الحزمة. يرجى التواصل مع ناشر الحزمة للحصول على الدعم.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>تم التخلي عن إلغاء التثبيت</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>فشل إلغاء التثبيت مع رمز الخروج:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>تصدير قائمة بالحزم المثبتة</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>تثبيت كافة الحزم المدرجة في ملف.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>تثبيت كافة الحزم الموجودة في ملف</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>الملف الذي تتم كتابه النتيجة فيه</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>ملف يصف الحزم المطلوب تثبيتها</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>تصدير الحزم من المصدر المحدد</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>كتابة قائمة الحزم المثبتة إلى ملف. يمكن بعد ذلك تثبيت الحزم باستخدام الأمر import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>فشل تثبيت واحدة أو أكثر من الحزم المستوردة</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>لم يتم العثور على حزمة لاستيرادها:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>المصدر المطلوب للاستيراد غير مثبت:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>لا تتوفر حزمة مثبتة من أي مصدر:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>لا يتوفر إصدار حزمة مثبت من أي مصدر:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>لم يتم العثور على أي حزم في ملف الاستيراد</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>ملف JSON غير صالح</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>‏‏اللغة مثبتة بالفعل:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>تجاهل الحزم غير المتوفرة</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>تضمين إصدارات الحزمة في الملف المنتج</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>تجاهل إصدارات الحزمة من ملف الاستيراد</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>‏‏المسار غير موجود:</value>
   </data>
 </root>

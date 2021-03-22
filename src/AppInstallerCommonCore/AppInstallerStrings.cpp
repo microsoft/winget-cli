@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
+#include "Public/AppInstallerErrors.h"
+#include "Public/AppInstallerLogging.h"
 #include "icu.h"
 
 namespace AppInstaller::Utility
@@ -27,28 +28,28 @@ namespace AppInstaller::Utility
                 if (U_FAILURE(err))
                 {
                     AICLI_LOG(Core, Error, << "utext_openUTF8 returned " << err);
-                    THROW_HR(E_UNEXPECTED);
+                    THROW_HR(APPINSTALLER_CLI_ERROR_ICU_BREAK_ITERATOR_ERROR);
                 }
 
                 m_brk.reset(ubrk_open(type, nullptr, nullptr, 0, &err));
                 if (U_FAILURE(err))
                 {
                     AICLI_LOG(Core, Error, << "ubrk_open returned " << err);
-                    THROW_HR(E_UNEXPECTED);
+                    THROW_HR(APPINSTALLER_CLI_ERROR_ICU_BREAK_ITERATOR_ERROR);
                 }
 
                 ubrk_setUText(m_brk.get(), m_text.get(), &err);
                 if (U_FAILURE(err))
                 {
                     AICLI_LOG(Core, Error, << "ubrk_setUText returned " << err);
-                    THROW_HR(E_UNEXPECTED);
+                    THROW_HR(APPINSTALLER_CLI_ERROR_ICU_BREAK_ITERATOR_ERROR);
                 }
 
                 int32_t i = ubrk_first(m_brk.get());
                 if (i != 0)
                 {
                     AICLI_LOG(Core, Error, << "ubrk_first returned " << i);
-                    THROW_HR(E_UNEXPECTED);
+                    THROW_HR(APPINSTALLER_CLI_ERROR_ICU_BREAK_ITERATOR_ERROR);
                 }
             }
 
@@ -58,7 +59,7 @@ namespace AppInstaller::Utility
             // Gets the current byte offset, throwing if the value is UBRK_DONE or negative.
             size_t CurrentOffset() const
             {
-                THROW_HR_IF(E_UNEXPECTED, m_currentBrk < 0);
+                THROW_HR_IF(E_NOT_VALID_STATE, m_currentBrk < 0);
                 return static_cast<size_t>(m_currentBrk);
             }
 
@@ -318,14 +319,14 @@ namespace AppInstaller::Utility
         if (U_FAILURE(errorCode))
         {
             AICLI_LOG(Core, Error, << "ucasemap_open returned " << errorCode);
-            THROW_HR(E_UNEXPECTED);
+            THROW_HR(APPINSTALLER_CLI_ERROR_ICU_CASEMAP_ERROR);
         }
 
         int32_t cch = ucasemap_utf8FoldCase(caseMap.get(), nullptr, 0, input.data(), static_cast<int32_t>(input.size()), &errorCode);
         if (errorCode != U_BUFFER_OVERFLOW_ERROR)
         {
             AICLI_LOG(Core, Error, << "ucasemap_utf8FoldCase returned " << errorCode);
-            THROW_HR(E_UNEXPECTED);
+            THROW_HR(APPINSTALLER_CLI_ERROR_ICU_CASEMAP_ERROR);
         }
 
         errorCode = UErrorCode::U_ZERO_ERROR;
@@ -335,7 +336,7 @@ namespace AppInstaller::Utility
         if (U_FAILURE(errorCode))
         {
             AICLI_LOG(Core, Error, << "ucasemap_utf8FoldCase returned " << errorCode);
-            THROW_HR(E_UNEXPECTED);
+            THROW_HR(APPINSTALLER_CLI_ERROR_ICU_CASEMAP_ERROR);
         }
 
         while (result.back() == '\0')
@@ -353,6 +354,16 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    bool IsEmptyOrWhitespace(std::string_view str)
+    {
+        if (str.empty())
+        {
+            return true;
+        }
+
+        return str.find_last_not_of(s_SpaceChars) == std::string_view::npos;
+    }
+
     bool IsEmptyOrWhitespace(std::wstring_view str)
     {
         if (str.empty())
@@ -360,10 +371,7 @@ namespace AppInstaller::Utility
             return true;
         }
 
-        std::wstring inputAsWStr(str.data());
-        bool nonWhitespaceNotFound = inputAsWStr.find_last_not_of(s_WideSpaceChars) == std::wstring::npos;
-
-        return nonWhitespaceNotFound;
+        return str.find_last_not_of(s_WideSpaceChars) == std::wstring_view::npos;
     }
 
     bool FindAndReplace(std::string& inputStr, std::string_view token, std::string_view value)
@@ -381,19 +389,49 @@ namespace AppInstaller::Utility
 
     std::string& Trim(std::string& str)
     {
-        size_t begin = str.find_first_not_of(s_SpaceChars);
-        size_t end = str.find_last_not_of(s_SpaceChars);
+        if (!str.empty())
+        {
+            size_t begin = str.find_first_not_of(s_SpaceChars);
+            size_t end = str.find_last_not_of(s_SpaceChars);
 
-        if (begin == std::string_view::npos || end == std::string_view::npos)
-        {
-            str.clear();
-        }
-        else
-        {
-            str = str.substr(begin, (end - begin) + 1);
+            if (begin == std::string_view::npos || end == std::string_view::npos)
+            {
+                str.clear();
+            }
+            else if (begin != 0 || end != str.length() - 1)
+            {
+                str = str.substr(begin, (end - begin) + 1);
+            }
         }
 
         return str;
+    }
+
+    std::wstring& Trim(std::wstring& str)
+    {
+        if (!str.empty())
+        {
+            size_t begin = str.find_first_not_of(s_WideSpaceChars);
+            size_t end = str.find_last_not_of(s_WideSpaceChars);
+
+            if (begin == std::string_view::npos || end == std::string_view::npos)
+            {
+                str.clear();
+            }
+            else if (begin != 0 || end != str.length() - 1)
+            {
+                str = str.substr(begin, (end - begin) + 1);
+            }
+        }
+
+        return str;
+    }
+
+    std::string Trim(std::string&& str)
+    {
+        std::string result = std::move(str);
+        Utility::Trim(result);
+        return result;
     }
 
     std::string ReadEntireStream(std::istream& stream)

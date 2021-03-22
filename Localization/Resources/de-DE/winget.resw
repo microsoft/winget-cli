@@ -389,7 +389,7 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
     <value>Für das aktuelle System sind keine Installationsprogramme verfügbar.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>Zurzeit sind keine Exprimentalfunktionen verfügbar. </value>
+    <value>Derzeit sind keine experimentellen Funktionen verfügbar. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>Es wurde kein installiertes Paket gefunden, das den Eingabekriterien entspricht.</value>
@@ -475,6 +475,9 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>Kanal</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Zeigt Informationen zu einem bestimmten Paket an. Standard mäßig muss die Abfrage Groß-insensitively mit der ID, dem Namen oder dem Moniker des Pakets überein stimmen. Andere Felder können verwendet werden, indem Sie Ihre entsprechende Option übergeben.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Zeigt Informationen zu einem Paket an</value>
@@ -650,7 +653,7 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
     <value>Nicht erkannter Befehl</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Alle installierten Pakete in die neuesten Updates aktualisieren, wenn diese verfügbar sind</value>
+    <value>Aktualisieren aller installierten Pakete auf den neuesten Stand, falls verfügbar</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Es wurden keine anwendbaren Aktualisierungen gefunden.</value>
@@ -718,5 +721,97 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   <data name="Logs" xml:space="preserve">
     <value>Protokolle</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Der Installer wird von einer Richtlinie blockiert.</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Fehler bei der Sicherheitsprüfung des Installer</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Ein Antivirenprodukt meldet ein Infektion im Installer</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Fehler beim Versuch, die Quelle zu aktualisieren:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Deinstalliert das ausgewählte Paket, das entweder durch Suchen der Liste der installierten Pakete oder direkt aus einem Manifest gefunden wurde. Standard mäßig muss die Abfrage Groß-insensitively mit der ID, dem Namen oder dem Moniker des Pakets überein stimmen. Andere Felder können verwendet werden, indem Sie Ihre entsprechende Option übergeben.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Deinstalliert das angegebene Paket</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Paket-Deinstallation wird gestartet...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Erfolgreich deinstalliert</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>Das „winget“-Tool kann den Deinstallationsbefehl für dieses Paket nicht finden. Bitte wenden Sie sich an den Herausgeber des Pakets, um Unterstützung zu erhalten.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Deinstallation abgebrochen</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Deinstallation fehlgeschlagen mit Exitcode:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Exportiert eine Liste der installierten Pakete</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Installiert alle in einer Datei aufgeführten Pakete.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Installiert alle Pakete in einer Datei</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Datei, in der das Ergebnis geschrieben werden soll</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Datei, die die zu installierenden Pakete beschreibt</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Pakete aus der angegebenen Quelle exportieren</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Schreibt eine Liste der installierten Pakete in eine Datei. Die Pakete können dann mit dem Befehl "import" installiert werden.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>Eine oder mehrere importierte Pakete konnten nicht installiert werden</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Das Paket wurde für den Import nicht gefunden:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>Die für den Import erforderliche Quelle ist nicht installiert:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Das installierte Paket ist in keiner Quelle verfügbar:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>Die installierte Version des Pakets ist in keiner Quelle verfügbar:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>In der Importdatei wurden keine Pakete gefunden</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Die JSON-Datei ist nicht gültig</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Das Paket ist bereits installiert:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Nicht verfügbare Pakete ignorieren</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Paketversionen in die erstellte Datei einschließen</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Paketversionen aus Importdatei ignorieren</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Der Pfad ist nicht vorhanden:</value>
   </data>
 </root>

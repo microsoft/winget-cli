@@ -389,7 +389,7 @@
     <value>ప్రస్తుత వ్యవస్థకు ఇన్‌స్టాలర్లు వర్తించవు.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
-    <value>ప్రస్తుతం ఎటువంటి ప్రయోగాత్మక ఫీచర్‌లు అందుబాటులో లేవు. </value>
+    <value>ప్రస్తుతం ఎటువంటి ప్రయోగాత్మక ఫీచర్లు అందుబాటులో లేవు. </value>
   </data>
   <data name="NoInstalledPackageFound" xml:space="preserve">
     <value>ఇన్‌పుట్ ప్రమాణానికి సరిపోయే ఇన్‌స్టాల్ చేయబడిన ప్యాకేజీ కనుగొనబడలేదు.</value>
@@ -475,6 +475,9 @@
   </data>
   <data name="ShowChannel" xml:space="preserve">
     <value>ఛానెల్</value>
+  </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>నిర్దిష్ట ప్యాకేజీపై సమాచారాన్ని చూపుతుంది. అప్రమేయంగా, ప్రశ్న తప్పనిసరిగా ప్యాకేజీ యొక్క ఐడీ, పేరు లేదా మోనికేర్‌తో సరిపోలాలి. ఇతర ఫీల్డ్‌లు వాటి తగిన ఎంపికను దాటడం ద్వారా ఉపయోగించవచ్చు.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>ప్యాకేజి గురించి సమాచారాన్ని చూపుతుంది</value>
@@ -650,7 +653,7 @@
     <value>గుర్తించబడని ఆదేశం</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>వ్యవస్థాపించిన అన్ని ప్యాకేజీలు అందుబాటులో ఉంటే తాజా దానికి నవీకరించండి</value>
+    <value>అందుబాటులో ఉంటే వ్యవస్థాపించిన అన్ని ప్యాకేజీలను తాజా వాటికి నవీకరించండి</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>వర్తించే నవీకరణ కనుగొనబడలేదు.</value>
@@ -718,5 +721,97 @@
   <data name="Logs" xml:space="preserve">
     <value>లాగ్‌లు</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>విధానం ద్వారా ఇన్‌స్టాలర్ బ్లాక్ చేయబడింది</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>ఇన్‌స్టాలర్ భద్రతా తనిఖీలో విఫలమైంది</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>యాంటీ-వైరస్ ఉత్పత్తి ఇన్‌స్టాలర్ సంక్రమణను నివేదిస్తుంది</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>మూలాన్ని నవీకరించే ప్రయత్నంలో విఫలమైంది:</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>ఎంచుకున్న ప్యాకేజీని అన్‌ఇన్‌స్టాల్ చేస్తుంది, వ్యవస్థాపించిన ప్యాకేజీల జాబితాను శోధించడం ద్వారా లేదా మానిఫెస్ట్ నుండి నేరుగా కనుగొనబడుతుంది. డిఫాల్ట్‌గా, ప్రశ్న తప్పనిసరిగా ప్యాకేజీ యొక్క ఐడీ, పేరు లేదా మోనికేర్‌తో సరిపోలాలి. ఇతర ఫీల్డ్‌లు వాటి తగిన ఎంపికను దాటడం ద్వారా ఉపయోగించవచ్చు.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>ఇచ్చిన ప్యాకేజీని అన్‌ఇన్‌స్టాల్ చేస్తుంది</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>ప్యాకేజీని అన్‌ఇన్‌స్టాల్ చేయడం ప్రారంభిస్తోంది...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>విజయవంతంగా అన్ఇన్‌స్టాల్ చేయబడింది</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>ఈ ప్యాకేజీ కోసం అన్‌ఇన్‌స్టాల్ ఆదేశాన్ని winget గుర్తించలేదు. మద్దతు కోసం దయచేసి ప్యాకేజీ ప్రచురణకర్తను సంప్రదించండి.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>అన్‌ఇన్‌స్టాల్ చేయడం రద్దు చేయబడింది</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>నిష్క్రమణ కోడ్‌తో అన్‌ఇన్‌స్టాల్ చేయడం విఫలమైంది:</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>వ్యవస్థాపించిన ప్యాకేజీల జాబితాను ఎగుమతి చేస్తుంది</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>ఫైల్‌లో జాబితా చేయబడిన అన్ని ప్యాకేజీలను వ్యవస్థాపిస్తుంది.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>ఫైల్‌లో అన్ని ప్యాకేజీలను వ్యవస్థాపిస్తుంది</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>ఫలితం రాయాల్సిన ఫైల్</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>వ్యవస్థాపించాల్సిన ప్యాకేజీలను ఫైల్ వివరిస్తోంది</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>నిర్ధిష్ట మూలం నుంచి ప్యాకేజీలను ఎగుమతి చేయండి</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>వ్యవస్థాపించబడిన ప్యాకేజీల జాబితాను ఫైల్‌కు రాస్తుంది. తర్వాత import ఆదేశంతో ప్యాకేజీలు వ్యవస్థాపించబడవచ్చు.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>ఒకటి లేదా అంతకంటే ఎక్కువ దిగుమతి చేసిన ప్యాకేజీలు వ్యవస్థాపించడంలో విఫలమయ్యాయి</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>దిగుమతి చేసుకునేందుకు ప్యాకేజీ కనుగొనబడలేదు:</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>దిగుమతి కోసం అవసరమైన మూలం వ్యవస్థాపించబడలేదు:</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>వ్యవస్థాపించిన ప్యాకేజీ ఏ మూలం నుంచి అందుబాటులో లేదు:</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>ప్యాకేజీ యొక్క వ్యవస్థాపించిన వెర్షన్ ఏ మూలం నుంచి అందుబాటులో లేదు:</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>దిగుమతి ఫైల్‌లో ఏ ప్యాకేజీ కనుగొనబడలేదు</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>JSON ఫైల్ చెల్లదు</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>ప్యాకేజీ ఇప్పటికే వ్యవస్థాపించబడింది:</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>అందుబాటులో లేని ప్యాకేజీలను విస్మరించండి</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>ప్యాకేజీ వెర్షన్‌లను ఉత్పత్తి చేసిన ఫైల్‌లో చేర్చండి</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>దిగుమతి ఫైల్ నుంచి ప్యాకేజీ వెర్షన్‌లను విస్మరించండి</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>పథం ఉనికిలో లేదు:</value>
   </data>
 </root>

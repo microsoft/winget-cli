@@ -1,0 +1,555 @@
+{
+  "$id": "https://aka.ms/winget-manifest.singleton.1.0.0.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "A representation of a single-file manifest representing an app in the OWC. v1.0.0",
+  "definitions": {
+    "PackageIdentifier": {
+      "type": "string",
+      "pattern": "^[^\\.\\s\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]{1,32}(\\.[^\\.\\s\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]{1,32}){1,3}$",
+      "maxLength": 128,
+      "description": "The package unique identifier"
+    },
+    "PackageVersion": {
+      "type": "string",
+      "pattern": "^[^\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]+$",
+      "maxLength": 128,
+      "description": "The package version"
+    },
+    "Locale": {
+      "type": [ "string", "null" ],
+      "pattern": "^([a-zA-Z]{2}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$",
+      "maxLength": 20,
+      "description": "The package meta-data locale"
+    },
+    "Url": {
+      "type": [ "string", "null" ],
+      "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
+      "maxLength": 2000,
+      "description": "Optional Url type"
+    },
+    "Tag": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 40,
+      "description": "Package moniker or tag"
+    },
+    "Channel": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 16,
+      "description": "The distribution channel"
+    },
+    "Platform": {
+      "type": [ "array", "null" ],
+      "items": {
+        "type": "string",
+        "enum": [
+          "Windows.Desktop",
+          "Windows.Universal"
+        ]
+      },
+      "maxItems": 2,
+      "uniqueItems": true,
+      "description": "The installer supported operating system"
+    },
+    "MinimumOSVersion": {
+      "type": [ "string", "null" ],
+      "pattern": "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){0,3}$",
+      "description": "The installer minimum operating system version"
+    },
+    "InstallerType": {
+      "type": [ "string", "null" ],
+      "enum": [
+        "msix",
+        "msi",
+        "appx",
+        "exe",
+        "zip",
+        "inno",
+        "nullsoft",
+        "wix",
+        "burn",
+        "pwa"
+      ],
+      "description": "Enumeration of supported installer types"
+    },
+    "Scope": {
+      "type": [ "string", "null" ],
+      "enum": [
+        "user",
+        "machine"
+      ],
+      "description": "Scope indicates if the installer is per user or per machine"
+    },
+    "InstallModes": {
+      "type": [ "array", "null" ],
+      "items": {
+        "type": "string",
+        "enum": [
+          "interactive",
+          "silent",
+          "silentWithProgress"
+        ]
+      },
+      "maxItems": 3,
+      "uniqueItems": true,
+      "description": "List of supported installer modes"
+    },
+    "InstallerSwitches": {
+      "type": "object",
+      "properties": {
+        "Silent": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Silent is the value that should be passed to the installer when user chooses a silent or quiet install"
+        },
+        "SilentWithProgress": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "SilentWithProgress is the value that should be passed to the installer when user chooses a non-interactive install"
+        },
+        "Interactive": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Interactive is the value that should be passed to the installer when user chooses an interactive install"
+        },
+        "InstallLocation": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "InstallLocation is the value passed to the installer for custom install location. <INSTALLPATH> token can be included in the switch value so that winget will replace the token with user provided path"
+        },
+        "Log": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Log is the value passed to the installer for custom log file path. <LOGPATH> token can be included in the switch value so that winget will replace the token with user provided path"
+        },
+        "Upgrade": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Upgrade is the value that should be passed to the installer when user chooses an upgrade"
+        },
+        "Custom": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 2048,
+          "description": "Custom switches will be passed directly to the installer by winget"
+        }
+      }
+    },
+    "InstallerSuccessCodes": {
+      "type": [ "array", "null" ],
+      "items": {
+        "type": "integer",
+        "not": {
+          "enum": [ 0 ]
+        }
+      },
+      "maxItems": 16,
+      "uniqueItems": true,
+      "description": "List of additional non-zero installer success exit codes other than known default values by winget"
+    },
+    "UpgradeBehavior": {
+      "type": [ "string", "null" ],
+      "enum": [
+        "install",
+        "uninstallPrevious"
+      ],
+      "description": "The upgrade method"
+    },
+    "Commands": {
+      "type": [ "array", "null" ],
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40
+      },
+      "maxItems": 16,
+      "uniqueItems": true,
+      "description": "List of commands or aliases to run the package"
+    },
+    "Protocols": {
+      "type": [ "array", "null" ],
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][-a-z0-9\\.\\+]*$",
+        "maxLength": 2048
+      },
+      "maxItems": 16,
+      "uniqueItems": true,
+      "description": "List of protocols the package provides a handler for"
+    },
+    "FileExtensions": {
+      "type": [ "array", "null" ],
+      "items": {
+        "type": "string",
+        "pattern": "^[^\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]+$",
+        "maxLength": 40
+      },
+      "maxItems": 256,
+      "uniqueItems": true,
+      "description": "List of file extensions the package could support"
+    },
+    "Dependencies": {
+      "type": [ "object", "null" ],
+      "properties": {
+        "WindowsFeatures": {
+          "type": [ "array", "null" ],
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "maxItems": 16,
+          "uniqueItems": true,
+          "description": "List of Windows feature dependencies"
+        },
+        "WindowsLibraries": {
+          "type": [ "array", "null" ],
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "maxItems": 16,
+          "uniqueItems": true,
+          "description": "List of Windows library dependencies"
+        },
+        "PackageDependencies": {
+          "type": [ "array", "null" ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "PackageIdentifier": {
+                "$ref": "#/definitions/PackageIdentifier"
+              },
+              "MinimumVersion": {
+                "$ref": "#/definitions/PackageVersion"
+              }
+            },
+            "required": [ "PackageIdentifier" ]
+          },
+          "maxItems": 16,
+          "description": "List of package dependencies from current source"
+        },
+        "ExternalDependencies": {
+          "type": [ "array", "null" ],
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "maxItems": 16,
+          "uniqueItems": true,
+          "description": "List of external package dependencies"
+        }
+      }
+    },
+    "PackageFamilyName": {
+      "type": [ "string", "null" ],
+      "pattern": "^[A-Za-z0-9][-\\.A-Za-z0-9]+_[A-Za-z0-9]{13}$",
+      "maxLength": 255,
+      "description": "PackageFamilyName for appx or msix installer. Could be used for correlation of packages across sources"
+    },
+    "ProductCode": {
+      "type": [ "string", "null" ],
+      "minLength": 1,
+      "maxLength": 255,
+      "description": "ProductCode could be used for correlation of packages across sources"
+    },
+    "Capabilities": {
+      "type": [ "array", "null" ],
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40
+      },
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "description": "List of appx or msix installer capabilities"
+    },
+    "RestrictedCapabilities": {
+      "type": [ "array", "null" ],
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40
+      },
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "description": "List of appx or msix installer restricted capabilities"
+    },
+    "Installer": {
+      "type": "object",
+      "properties": {
+        "InstallerLocale": {
+          "$ref": "#/definitions/Locale"
+        },
+        "Platform": {
+          "$ref": "#/definitions/Platform"
+        },
+        "MinimumOSVersion": {
+          "$ref": "#/definitions/MinimumOSVersion"
+        },
+        "Architecture": {
+          "type": "string",
+          "enum": [
+            "x86",
+            "x64",
+            "arm",
+            "arm64",
+            "neutral"
+          ],
+          "description": "The installer target architecture"
+        },
+        "InstallerType": {
+          "$ref": "#/definitions/InstallerType"
+        },
+        "Scope": {
+          "$ref": "#/definitions/Scope"
+        },
+        "InstallerUrl": {
+          "type": "string",
+          "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
+          "description": "The installer Url"
+        },
+        "InstallerSha256": {
+          "type": "string",
+          "pattern": "^[A-Fa-f0-9]{64}$",
+          "description": "Sha256 is required. Sha256 of the installer"
+        },
+        "SignatureSha256": {
+          "type": [ "string", "null" ],
+          "pattern": "^[A-Fa-f0-9]{64}$",
+          "description": "SignatureSha256 is recommended for appx or msix. It is the sha256 of signature file inside appx or msix. Could be used during streaming install if applicable"
+        },
+        "InstallModes": {
+          "$ref": "#/definitions/InstallModes"
+        },
+        "InstallerSwitches": {
+          "$ref": "#/definitions/InstallerSwitches"
+        },
+        "InstallerSuccessCodes": {
+          "$ref": "#/definitions/InstallerSuccessCodes"
+        },
+        "UpgradeBehavior": {
+          "$ref": "#/definitions/UpgradeBehavior"
+        },
+        "Commands": {
+          "$ref": "#/definitions/Commands"
+        },
+        "Protocols": {
+          "$ref": "#/definitions/Protocols"
+        },
+        "FileExtensions": {
+          "$ref": "#/definitions/FileExtensions"
+        },
+        "Dependencies": {
+          "$ref": "#/definitions/Dependencies"
+        },
+        "PackageFamilyName": {
+          "$ref": "#/definitions/PackageFamilyName"
+        },
+        "ProductCode": {
+          "$ref": "#/definitions/ProductCode"
+        },
+        "Capabilities": {
+          "$ref": "#/definitions/Capabilities"
+        },
+        "RestrictedCapabilities": {
+          "$ref": "#/definitions/RestrictedCapabilities"
+        }
+      },
+      "required": [
+        "Architecture",
+        "InstallerUrl",
+        "InstallerSha256"
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "PackageIdentifier": {
+      "$ref": "#/definitions/PackageIdentifier"
+    },
+    "PackageVersion": {
+      "$ref": "#/definitions/PackageVersion"
+    },
+    "PackageLocale": {
+      "type": "string",
+      "pattern": "^([a-zA-Z]{2}|[iI]-[a-zA-Z]+|[xX]-[a-zA-Z]{1,8})(-[a-zA-Z]{1,8})*$",
+      "maxLength": 20,
+      "description": "The package meta-data locale"
+    },
+    "Publisher": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 256,
+      "description": "The publisher name"
+    },
+    "PublisherUrl": {
+      "$ref": "#/definitions/Url",
+      "description": "The publisher home page"
+    },
+    "PublisherSupportUrl": {
+      "$ref": "#/definitions/Url",
+      "description": "The publisher support page"
+    },
+    "PrivacyUrl": {
+      "$ref": "#/definitions/Url",
+      "description": "The publisher privacy page or the package privacy page"
+    },
+    "Author": {
+      "type": [ "string", "null" ],
+      "minLength": 2,
+      "maxLength": 256,
+      "description": "The package author"
+    },
+    "PackageName": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 256,
+      "description": "The package name"
+    },
+    "PackageUrl": {
+      "$ref": "#/definitions/Url",
+      "description": "The package home page"
+    },
+    "License": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 512,
+      "description": "The package license"
+    },
+    "LicenseUrl": {
+      "$ref": "#/definitions/Url",
+      "description": "The license page"
+    },
+    "Copyright": {
+      "type": [ "string", "null" ],
+      "minLength": 3,
+      "maxLength": 512,
+      "description": "The package copyright"
+    },
+    "CopyrightUrl": {
+      "$ref": "#/definitions/Url",
+      "description": "The package copyright page"
+    },
+    "ShortDescription": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 256,
+      "description": "The short package description"
+    },
+    "Description": {
+      "type": [ "string", "null" ],
+      "minLength": 3,
+      "maxLength": 10000,
+      "description": "The full package description"
+    },
+    "Moniker": {
+      "$ref": "#/definitions/Tag",
+      "description": "The most common package term"
+    },
+    "Tags": {
+      "type": [ "array", "null" ],
+      "items": {
+        "$ref": "#/definitions/Tag"
+      },
+      "maxItems": 16,
+      "uniqueItems": true,
+      "description": "List of additional package search terms"
+    },
+    "Channel": {
+      "$ref": "#/definitions/Channel"
+    },
+    "InstallerLocale": {
+      "$ref": "#/definitions/Locale"
+    },
+    "Platform": {
+      "$ref": "#/definitions/Platform"
+    },
+    "MinimumOSVersion": {
+      "$ref": "#/definitions/MinimumOSVersion"
+    },
+    "InstallerType": {
+      "$ref": "#/definitions/InstallerType"
+    },
+    "Scope": {
+      "$ref": "#/definitions/Scope"
+    },
+    "InstallModes": {
+      "$ref": "#/definitions/InstallModes"
+    },
+    "InstallerSwitches": {
+      "$ref": "#/definitions/InstallerSwitches"
+    },
+    "InstallerSuccessCodes": {
+      "$ref": "#/definitions/InstallerSuccessCodes"
+    },
+    "UpgradeBehavior": {
+      "$ref": "#/definitions/UpgradeBehavior"
+    },
+    "Commands": {
+      "$ref": "#/definitions/Commands"
+    },
+    "Protocols": {
+      "$ref": "#/definitions/Protocols"
+    },
+    "FileExtensions": {
+      "$ref": "#/definitions/FileExtensions"
+    },
+    "Dependencies": {
+      "$ref": "#/definitions/Dependencies"
+    },
+    "PackageFamilyName": {
+      "$ref": "#/definitions/PackageFamilyName"
+    },
+    "ProductCode": {
+      "$ref": "#/definitions/ProductCode"
+    },
+    "Capabilities": {
+      "$ref": "#/definitions/Capabilities"
+    },
+    "RestrictedCapabilities": {
+      "$ref": "#/definitions/RestrictedCapabilities"
+    },
+    "Installers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Installer"
+      },
+      "minItems": 1,
+      "maxItems": 1
+    },
+    "ManifestType": {
+      "type": "string",
+      "default": "singleton",
+      "const": "singleton",
+      "description": "The manifest type"
+    },
+    "ManifestVersion": {
+      "type": "string",
+      "default": "1.0.0",
+      "pattern": "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){2}$",
+      "description": "The manifest syntax version"
+    }
+  },
+  "required": [
+    "PackageIdentifier",
+    "PackageVersion",
+    "PackageLocale",
+    "Publisher",
+    "PackageName",
+    "License",
+    "ShortDescription",
+    "Installers",
+    "ManifestType",
+    "ManifestVersion"
+  ]
+}

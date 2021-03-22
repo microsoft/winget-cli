@@ -1,0 +1,30 @@
+parameters:
+  name: 'Ubuntu_1604_Apt'
+  image: 'Ubuntu 16.04'
+
+jobs:
+- job: ${{ parameters.name }}
+  pool:
+    vmImage: ${{ parameters.image }}
+  steps:  
+  - script: |
+      sudo apt -y remove php*
+      sudo apt install -y ppa-purge
+      sudo ppa-purge -y ppa:ondrej/php
+      unset BOOST_ROOT
+      sudo apt install -y libboost-atomic-dev libboost-thread-dev libboost-system-dev libboost-date-time-dev libboost-regex-dev libboost-filesystem-dev libboost-random-dev libboost-chrono-dev libboost-serialization-dev libwebsocketpp-dev openssl libssl-dev ninja-build
+      mkdir build.debug
+      cd build.debug
+      /usr/local/bin/cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug ..
+      cd ..
+      mkdir build.release
+      cd build.release
+      /usr/local/bin/cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
+      cd ..
+      ninja -C build.debug
+      ninja -C build.release
+      cd build.debug/Release/Binaries
+      ./test_runner *test.so
+      cd ../../../build.release/Release/Binaries
+      ./test_runner *test.so
+    displayName: Run build

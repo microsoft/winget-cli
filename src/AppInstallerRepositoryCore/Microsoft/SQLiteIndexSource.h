@@ -39,7 +39,6 @@ namespace AppInstaller::Repository::Microsoft
 
     private:
         SourceDetails m_details;
-        std::string m_identifier;
         Synchronization::CrossProcessReaderWriteLock m_lock;
         bool m_isInstalled;
         SQLiteIndex m_index;

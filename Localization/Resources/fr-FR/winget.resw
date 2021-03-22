@@ -476,6 +476,9 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   <data name="ShowChannel" xml:space="preserve">
     <value>Canal</value>
   </data>
+  <data name="ShowCommandLongDescription" xml:space="preserve">
+    <value>Affiche des informations sur un package spécifique. Par défaut, la requête doit correspondre de façon non sensible à la casse à l’ID, au nom ou au moniker du package. D’autres champs peuvent être utilisés en passant l’option appropriée.</value>
+  </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
     <value>Affiche des informations sur un package</value>
   </data>
@@ -650,7 +653,7 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
     <value>Commande non reconnue</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Mettre à jour tous les packages installés vers la dernière version si disponible</value>
+    <value>Mettre à jour tous les paquets installés vers la dernière version si disponible</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Aucune mise à jour applicable trouvée.</value>
@@ -718,5 +721,97 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   <data name="Logs" xml:space="preserve">
     <value>Journaux</value>
     <comment>Diagnostic files containing information about application use.</comment>
+  </data>
+  <data name="InstallerBlockedByPolicy" xml:space="preserve">
+    <value>Le programme d’installation est bloqué par une stratégie</value>
+  </data>
+  <data name="InstallerFailedSecurityCheck" xml:space="preserve">
+    <value>Le programme d’installation a échoué vérification de sécurité</value>
+  </data>
+  <data name="InstallerFailedVirusScan" xml:space="preserve">
+    <value>Un produit antivirus signale une infection dans le programme d’installation</value>
+  </data>
+  <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
+    <value>Désolé...Nous n’avons pas pu tenter la mise à jour de la source :</value>
+  </data>
+  <data name="UninstallCommandLongDescription" xml:space="preserve">
+    <value>Désinstalle le package sélectionné, que vous avez trouvé en effectuant une recherche dans la liste des packages installés ou directement à partir d’un manifeste. Par défaut, la requête doit correspondre de façon non sensible à la casse à l’ID, au nom ou au moniker du package. D’autres champs peuvent être utilisés en passant l’option appropriée.</value>
+  </data>
+  <data name="UninstallCommandShortDescription" xml:space="preserve">
+    <value>Désinstallation du paquet donné</value>
+  </data>
+  <data name="UninstallFlowStartingPackageUninstall" xml:space="preserve">
+    <value>Début de la désinstallation du paquet...</value>
+  </data>
+  <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
+    <value>Désinstallé avec succès</value>
+  </data>
+  <data name="NoUninstallInfoFound" xml:space="preserve">
+    <value>winget ne peut pas trouver la commande de désinstallation pour ce package. Veuillez contacter l’éditeur du package pour obtenir de l’aide.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="UninstallAbandoned" xml:space="preserve">
+    <value>Désinstallation abandonnée</value>
+  </data>
+  <data name="UninstallFailedWithCode" xml:space="preserve">
+    <value>Désolé... Nous n’avons pas pu effectuer la désinstallation avec le code de sortie :</value>
+  </data>
+  <data name="ExportCommandShortDescription" xml:space="preserve">
+    <value>Exporte une liste des packages installés</value>
+  </data>
+  <data name="ImportCommandLongDescription" xml:space="preserve">
+    <value>Installe tous les packages listés dans un fichier.</value>
+  </data>
+  <data name="ImportCommandShortDescription" xml:space="preserve">
+    <value>Installe tous les packages dans un fichier</value>
+  </data>
+  <data name="OutputFileArgumentDescription" xml:space="preserve">
+    <value>Fichier dans lequel le résultat doit être écrit</value>
+  </data>
+  <data name="ImportFileArgumentDescription" xml:space="preserve">
+    <value>Fichier décrivant les packages à installer</value>
+  </data>
+  <data name="ExportSourceArgumentDescription" xml:space="preserve">
+    <value>Exporter les packages à partir de la source spécifiée</value>
+  </data>
+  <data name="ExportCommandLongDescription" xml:space="preserve">
+    <value>Écrit une liste des packages installés dans un fichier. Les packages peuvent ensuite être installés à l’aide de la commande import.</value>
+    <comment>{Locked="import"}</comment>
+  </data>
+  <data name="ImportInstallFailed" xml:space="preserve">
+    <value>L’installation d’un ou plusieurs packages importés a échoué</value>
+  </data>
+  <data name="ImportSearchFailed" xml:space="preserve">
+    <value>Package introuvable pour l’importation :</value>
+  </data>
+  <data name="ImportSourceNotInstalled" xml:space="preserve">
+    <value>La source requise pour l’importation n’est pas installée :</value>
+  </data>
+  <data name="InstalledPackageNotAvailable" xml:space="preserve">
+    <value>Le package installé n’est pas disponible à partir d’une source :</value>
+  </data>
+  <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
+    <value>La version installée du package n’est pas disponible à partir d’une source :</value>
+  </data>
+  <data name="NoPackagesInImportFile" xml:space="preserve">
+    <value>Aucun package n’a été trouvé dans le fichier d’importation</value>
+  </data>
+  <data name="InvalidJsonFile" xml:space="preserve">
+    <value>Le fichier JSON n'est pas valide</value>
+  </data>
+  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+    <value>Le package est déjà installé :</value>
+  </data>
+  <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
+    <value>Ignorer les packages non disponibles</value>
+  </data>
+  <data name="ExportIncludeVersionsArgumentDescription" xml:space="preserve">
+    <value>Inclure les versions de package dans le fichier généré</value>
+  </data>
+  <data name="ImportIgnoreVersionsArgumentDescription" xml:space="preserve">
+    <value>Ignorer les versions de package du fichier d’importation</value>
+  </data>
+  <data name="VerifyPathFailedNotExist" xml:space="preserve">
+    <value>Le chemin d’accès n’existe pas :</value>
   </data>
 </root>

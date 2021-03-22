@@ -80,6 +80,30 @@ TEST_CASE("Values_String", "[registry]")
     REQUIRE(value->GetValue<Value::Type::String>() == ConvertToUTF8(valueValue));
 }
 
+TEST_CASE("Values_WideStringWithNarrowNull", "[registry]")
+{
+    std::wstring valueName = L"TestValueName";
+    std::wstring valueValue = L"TestValueValue";
+
+    wil::unique_hkey root = RegCreateVolatileTestRoot();
+
+    // Copy the bytes from the string value into a byte vector
+    std::vector<BYTE> valueBytes;
+    valueBytes.resize((valueValue.length() + 1) * sizeof(wchar_t));
+    memcpy_s(valueBytes.data(), valueBytes.size(), valueValue.c_str(), (valueValue.length() + 1) * sizeof(wchar_t));
+    // Remove the last byte to make a narrow null
+    valueBytes.resize(valueBytes.size() - 1);
+
+    SetRegistryValue(root.get(), valueName, valueBytes, REG_SZ);
+
+    Key key{ root.get(), L"" };
+
+    auto value = key[valueName];
+    REQUIRE(value);
+    REQUIRE(value->GetType() == Value::Type::String);
+    REQUIRE(value->GetValue<Value::Type::String>() == ConvertToUTF8(valueValue));
+}
+
 TEST_CASE("Values_ExpandString", "[registry]")
 {
     std::wstring valueName = L"TestValueName";
