@@ -47,13 +47,12 @@ Path: manifests / m / Microsoft / WindowsTerminal / 1.6.10571.0 / WindowsTermina
 ```YAML
 PackageIdentifier: "Microsoft.WindowsTerminal"
 PackageVersion: "1.6.10571.0"
-PackageLocale: "en-US"
-Publisher: "Microsoft"
-PackageName: "Windows Terminal"
+Locale: "en-US"
 License: "MIT"
 ShortDescription: "The new Windows Terminal, a tabbed command line experience for Windows."
 Installers: 
  - Architecture: "x64"
+   InstallerType: "msix"
    InstallerUrl: "https://github.com/microsoft/terminal/releases/download/v1.6.10571.0/Microsoft.WindowsTerminal_1.6.10571.0_8wekyb3d8bbwe.msixbundle"
    InstallerSha256: 092aa89b1881e058d31b1a8d88f31bb298b5810afbba25c5cb341cfa4904d843
    SignatureSha256: e53f48473621390c8243ada6345826af7c713cf1f4bbbf0d030599d1e4c175ee
