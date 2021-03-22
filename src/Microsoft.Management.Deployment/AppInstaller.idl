@@ -1,0 +1,82 @@
+namespace Microsoft.Management.Deployment
+{
+    [version(1)]
+    struct PackageUniqueId
+    {
+        // The source catalog that the package id is in
+        String Source;
+        // Publisher.package format.
+        String Id;
+        // Version numbering format for package version
+        String Version;
+        // A string representing the flight ring.
+        String Channel;
+   };
+
+    enum InstallScope
+    {
+        User = 0,
+        Machine = 1,
+    };
+
+    [constructor_name("Microsoft.Management.Deployment.IInstallOptionsFactory", 84BE57B2-5D87-4433-ABD3-19CCE03D8787)]
+    [interface_name("Microsoft.Management.Deployment.IInstallOptions", 034ADE66-2256-458E-B5C3-C88483CA4C82)]
+    runtimeclass InstallOptions
+    {
+        // NOTE: Either Id or Manifest must be set.
+        // If Version is not set, use latest, if Source is not set, use default from config.
+        PackageUniqueId Id;
+        // Path to download manifest file.
+        String Manifest;
+
+        // Specifies alternate location to install package.
+        String InstallLocation;
+        //Used by a caller to associate with a caller's data.
+        String SessionId;
+        // User or Machine.
+        InstallScope InstallScope;
+    }
+
+    enum InstallProgressState
+    {
+        Queued = 0,
+        Download = 1,
+        Install = 2,
+        PostInstall = 3,
+    };
+
+    [version(1)]
+    struct InstallProgress
+    {
+        InstallProgressState State;
+        UInt32 BytesDownloaded;
+        UInt32 BytesRequired;
+        UInt32 DownloadPercentage;
+        // OPEN: We've seen from MSIX that for bigger apps 1% is a large chunk for display to users (progress looks stuck). 
+        // If download is going through MSIX Staging operation, UINT32 is the only progress available publicly. There is no byte information available either.
+        // WinGet does not currently always use the MSIX stage operation to download remote files though, it does the download to a temp local file itself.
+    };
+
+    [constructor_name("Microsoft.Management.Deployment.IInstallResultFactory", 0AE2AF33-532E-48F8-A00E-537FB6F7A049)]
+    [interface_name("Microsoft.Management.Deployment.IInstallResult", 1453B697-3E4D-4973-9246-567B8F193D45)]
+    runtimeclass InstallResult
+    {
+        InstallResult(String errorText, String sessionId, Boolean rebootRequired);
+        // Localized error text.
+        String ErrorText{ get; };
+        // Telemetry id.
+        String SessionId{ get; };
+        // Whether a restart is required to complete the install.
+        Boolean RebootRequired{ get; };
+        // Note: AsyncStatus::Canceled is set as the value of the Status property of the IAsyncOperation itself if the operation has been canceled. 
+    }
+
+    [constructor_name("Microsoft.Management.Deployment.IAppInstallerFactory", E2EA9A2B-85B1-4D3A-98A2-66D939FDA61B)]
+    [interface_name("Microsoft.Management.Deployment.IAppInstaller", 28762819-00B1-4F6E-B7F4-5B2085C314B8)]
+    runtimeclass AppInstaller
+    {
+        // Note: This is where top level AppInstaller commands go.
+        AppInstaller();
+        Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> InstallPackageAsync(InstallOptions options);
+    }
+}
