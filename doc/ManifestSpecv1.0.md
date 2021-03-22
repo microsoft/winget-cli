@@ -1,15 +1,18 @@
-winget uses the YAML file to locate and install tools for Windows users.  This spec provides the supported tags and when introduced.  As well as best practices.
+The Windows Package Manager uses manifests (YAML files) to locate and install packages for Windows users.  This specification provides 
+references to JSON schemas as well as best practices.
 
 Table of Contents
 ----------------------------------
-YAML Spec
-   1) YAML Syntax
-   2) Minimal YAML file example
-   3) Best Practices
+YAML Specification
+   1) YAML file name and folder structure
+   2) YAML Syntax
+   3) Minimal singleton YAML file example
+   4) Multiple file YAML example
+   5) Best Practices
 History
 
 
-# YAML Spec
+# YAML Specification
 
 ## YAML file name and folder structure
 YAML files shall be added to the repository with the following folder structure:
@@ -38,6 +41,8 @@ Each field in the file must be PascalCased and cannot be duplicated.
 As specified in the [singleton JSON schema](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.0.0/manifest.singleton.1.0.0.json),
 only a number of fields are required.  The minimal supported YAML file would look like the example below. The singleton format is only valid for packages containing
 a single installer and a single locale. If more than one installer or locale is provided, the multiple YAML file format and schema must be used.
+
+The partitioning scheme was added to help with GitHub's UX. Folders with thousands of children do not render well in the browser.
 
 Path: manifests / m / Microsoft / WindowsTerminal / 1.6.10571.0 / WindowsTerminal.yaml
 
@@ -154,12 +159,12 @@ ManifestVersion: "1.0.0"
 
 
 ## Best Practices
-The Id must be unique.  You cannot have multiple submissions with the same Id.
+The package identifier must be unique.  You cannot have multiple submissions with the same package identifier. Only one pull request per package version is allowed.
 
 Avoid creating multiple publisher folders.  For example, do not create "Contoso Ltd." if there is already a "Contoso" folder.
 
 All tools must support a silent install.  If you have an executable that does not support a silent install, then we cannot provide that tool at this time.
 
-Provide as many fields as possible.  The more data you provide the better the user experience will be.
+Provide as many fields as possible.  The more meta-data you provide the better the user experience will be.
 
 The length of strings in this spec should be limited to 100 characters before a line break.
