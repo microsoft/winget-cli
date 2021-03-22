@@ -47,7 +47,9 @@ Path: manifests / m / Microsoft / WindowsTerminal / 1.6.10571.0 / WindowsTermina
 ```YAML
 PackageIdentifier: "Microsoft.WindowsTerminal"
 PackageVersion: "1.6.10571.0"
-Locale: "en-US"
+PackageLocale: "en-US"
+Publisher: "Microsoft"
+PackageName: "Windows Terminal
 License: "MIT"
 ShortDescription: "The new Windows Terminal, a tabbed command line experience for Windows."
 Installers: 
