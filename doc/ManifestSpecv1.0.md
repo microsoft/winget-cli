@@ -164,6 +164,7 @@ Avoid creating multiple publisher folders.  For example, do not create "Contoso 
 
 All tools must support a silent install.  If you have an executable that does not support a silent install, then we cannot provide that tool at this time.
 
-Provide as many fields as possible.  The more meta-data you provide the better the user experience will be.
+Provide as many fields as possible.  The more meta-data you provide the better the user experience will be. In some cases, the fields may not yet be supported
+by the Windows Package Manager client (winget.exe).
 
-The length of strings in this spec should be limited to 100 characters before a line break.
+The length of strings in this specification should be limited to 100 characters before a line break.
