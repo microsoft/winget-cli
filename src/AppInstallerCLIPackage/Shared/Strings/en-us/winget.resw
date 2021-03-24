@@ -817,4 +817,12 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="ImportFileHasInvalidSchema" xml:space="preserve">
     <value>The JSON file does not specify a recognized schema.</value>
   </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Select install scope (user or machine)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>The value provided for the `%1` argument is invalid; valid values are</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
 </root>

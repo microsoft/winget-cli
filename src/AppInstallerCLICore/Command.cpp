@@ -12,6 +12,31 @@ namespace AppInstaller::CLI
     using namespace Settings;
 
     constexpr std::string_view s_Command_ArgName_SilentAndInteractive = "silent|interactive"sv;
+    constexpr std::string_view s_CommandException_ReplacementToken = "%1"sv;
+
+    const Utility::LocIndString CommandException::Message() const
+    {
+        if (m_replace)
+        {
+            std::string result;
+
+            // Find the %1 in the message
+            std::string_view message = m_message.get();
+            size_t index = message.find(s_CommandException_ReplacementToken);
+
+            if (index != std::string::npos)
+            {
+                result = message.substr(0, index);
+                result += m_replace.value();
+                result += message.substr(index + s_CommandException_ReplacementToken.length());
+
+                return Utility::LocIndString{ std::move(result) };
+            }
+        }
+
+        // Fall back to just using the message.
+        return Utility::LocIndString{ m_message.get() };
+    }
 
     Command::Command(std::string_view name, std::string_view parent, Command::Visibility visibility, ExperimentalFeature::Feature feature) :
         m_name(name), m_visibility(visibility), m_feature(feature)

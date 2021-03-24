@@ -11,6 +11,7 @@ namespace AppInstaller::Utility
     // Used as a wrapper around strings that do not need localization.
     struct LocIndView : public std::string_view
     {
+        constexpr LocIndView() = default;
         explicit constexpr LocIndView(std::string_view sv) : std::string_view(sv) {}
     };
 
@@ -18,7 +19,7 @@ namespace AppInstaller::Utility
     {
         // "I solemnly swear that this string is indeed localization independent."
         // Enable easier use of a localization independent view through literals.
-        inline LocIndView operator ""_liv(const char* chars, size_t size)
+        inline constexpr LocIndView operator ""_liv(const char* chars, size_t size)
         {
             return LocIndView{ std::string_view{ chars, size } };
         }

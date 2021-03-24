@@ -38,6 +38,7 @@ namespace AppInstaller::Settings
     // The preferred scope for installs.
     enum class ScopePreference
     {
+        None,
         User,
         Machine,
     };
@@ -64,6 +65,7 @@ namespace AppInstaller::Settings
         TelemetryDisable,
         EFRestSource,
         InstallScopePreference,
+        InstallScopeRequirement,
         Max
     };
 
@@ -103,7 +105,8 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExport, bool, bool, false, ".experimentalFeatures.export"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFRestSource, bool, bool, false, ".experimentalFeatures.restSource"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopePreference, std::string, ScopePreference, ScopePreference::User, ".install.scopePreference"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopePreference, std::string, ScopePreference, ScopePreference::User, ".installBehavior.preferences.scope"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopeRequirement, std::string, ScopePreference, ScopePreference::None, ".installBehavior.requirements.scope"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>

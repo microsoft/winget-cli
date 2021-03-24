@@ -622,7 +622,7 @@ namespace AppInstaller::CLI::Workflow
             installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
         }
 
-        ManifestComparator manifestComparator(context.Args, std::move(installationMetadata));
+        ManifestComparator manifestComparator(context.Args, installationMetadata);
         context.Add<Execution::Data::Installer>(manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>()));
     }
 

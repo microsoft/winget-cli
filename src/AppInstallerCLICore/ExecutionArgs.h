@@ -37,6 +37,7 @@ namespace AppInstaller::CLI::Execution
             Log,
             Override, //Override args are (and the only args) directly passed to installer
             InstallLocation,
+            InstallScope,
 
             //Source Command
             SourceName,

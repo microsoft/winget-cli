@@ -320,12 +320,12 @@ namespace AppInstaller::Logging
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
-        AICLI_LOG(CLI, Info, << "Completed installer selection.");
-        AICLI_LOG(CLI, Verbose, << "Selected installer arch: " << arch);
-        AICLI_LOG(CLI, Verbose, << "Selected installer url: " << url);
+        AICLI_LOG(CLI, Verbose, << "Completed installer selection.");
+        AICLI_LOG(CLI, Verbose, << "Selected installer Architecture: " << arch);
+        AICLI_LOG(CLI, Verbose, << "Selected installer URL: " << url);
         AICLI_LOG(CLI, Verbose, << "Selected installer InstallerType: " << installerType);
-        AICLI_LOG(CLI, Verbose, << "Selected installer scope: " << scope);
-        AICLI_LOG(CLI, Verbose, << "Selected installer language: " << language);
+        AICLI_LOG(CLI, Verbose, << "Selected installer Scope: " << scope);
+        AICLI_LOG(CLI, Verbose, << "Selected installer Language: " << language);
     }
 
     void TelemetryTraceLogger::LogSearchRequest(

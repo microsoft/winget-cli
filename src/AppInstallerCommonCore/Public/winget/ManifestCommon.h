@@ -5,6 +5,7 @@
 #include <AppInstallerVersions.h>
 
 #include <map>
+#include <string_view>
 
 namespace AppInstaller::Manifest
 {
@@ -122,7 +123,7 @@ namespace AppInstaller::Manifest
 
     UpdateBehaviorEnum ConvertToUpdateBehaviorEnum(const std::string& in);
 
-    ScopeEnum ConvertToScopeEnum(const std::string& in);
+    ScopeEnum ConvertToScopeEnum(std::string_view in);
 
     PlatformEnum ConvertToPlatformEnum(const std::string& in);
 
