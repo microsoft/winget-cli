@@ -16,7 +16,8 @@ namespace AppInstaller::Settings
     enum class ValuePolicy
     {
         SourceAutoUpdateIntervalInMinutes,
-        IncludeSources, // TODO
+        AdditionalSources, // TODO
+        AllowedSources, // TODO
         Max,
     };
 
@@ -59,7 +60,7 @@ namespace AppInstaller::Settings
             //  reg_value_t - Type returned by the registry when reading the value
         };
 
-#define POLICYMAPPING_SPECIALIZATION(_policy_, _type_) \
+#define POLICY_MAPPING_SPECIALIZATION(_policy_, _type_) \
         template <> \
         struct ValuePolicyMapping<_policy_> \
         { \
@@ -67,7 +68,7 @@ namespace AppInstaller::Settings
             static std::optional<value_t> ReadAndValidate(const Registry::Key& policiesKey); \
         }
 
-#define POLICYMAPPING_VALUE_SPECIALIZATION(_policy_, _type_, _valueName_, _valueType_) \
+#define POLICY_MAPPING_VALUE_SPECIALIZATION(_policy_, _type_, _valueName_, _valueType_) \
         template<> \
         struct ValuePolicyMapping<_policy_> \
         { \
@@ -78,9 +79,11 @@ namespace AppInstaller::Settings
             static std::optional<value_t> ReadAndValidate(const Registry::Key& policiesKey); \
         }
 
-        POLICYMAPPING_VALUE_SPECIALIZATION(ValuePolicy::SourceAutoUpdateIntervalInMinutes, uint32_t, "SourceAutoUpdateIntervalInMinutes"sv, Registry::Value::Type::DWord);
+        POLICY_MAPPING_VALUE_SPECIALIZATION(ValuePolicy::SourceAutoUpdateIntervalInMinutes, uint32_t, "SourceAutoUpdateIntervalInMinutes"sv, Registry::Value::Type::DWord);
 
-        POLICYMAPPING_SPECIALIZATION(ValuePolicy::IncludeSources, std::vector<std::string>);
+        // TODO: Wire up policies for sources
+        POLICY_MAPPING_SPECIALIZATION(ValuePolicy::AdditionalSources, std::vector<std::string>);
+        POLICY_MAPPING_SPECIALIZATION(ValuePolicy::AllowedSources, std::vector<std::string>);
     }
 
     // Representation of the policies read from the registry.

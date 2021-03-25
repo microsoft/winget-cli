@@ -71,6 +71,7 @@ dbconn
 DBId
 declspec
 decltype
+declval
 defaultlocale
 delstore
 Demitrius
