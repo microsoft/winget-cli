@@ -115,7 +115,7 @@ namespace AppInstaller::Settings
             if (policyValue.has_value())
             {
                 // If the value is valid, use it.
-                // Otherwise, fall back to the settings.
+                // Otherwise, fall back to default.
                 // TODO: Log
                 auto validatedValue = details::SettingMapping<S>::Validate(policyValue.value());
                 if (validatedValue.has_value())
@@ -131,6 +131,7 @@ namespace AppInstaller::Settings
                     // auto invalidFieldMsg = GetSettingsMessage(SettingsMessage::InvalidFieldValue, path, jsonValue.value());
                     // AICLI_LOG(Core, Error, << invalidFieldMsg << " Using default");
                     // warnings.emplace_back(invalidFieldMsg);
+                    return;
                 }
             }
 
@@ -250,9 +251,16 @@ namespace AppInstaller::Settings
         Json::Value settingsRoot = Json::Value::nullSingleton();
 
         // Settings can be loaded from settings.json or settings.json.backup files.
+        // 0 - Use default (empty) settings if disabled by group policy.
         // 1 - Use settings.json if exists and passes parsing.
         // 2 - Use settings.backup.json if settings.json fails to parse.
         // 3 - Use default (empty) if both settings files fail to load.
+
+        if (!GroupPolicies().IsEnabled(TogglePolicy::SettingsCommand))
+        {
+            AICLI_LOG(Core, Info, << "Ignoring settings file due to group policy. Using default values.");
+            return;
+        }
 
         auto settingsJson = ParseFile(Streams::PrimaryUserSettings, m_warnings);
         if (settingsJson.has_value())
