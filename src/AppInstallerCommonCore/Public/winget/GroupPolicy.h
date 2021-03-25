@@ -6,9 +6,10 @@
 #include "winget/Registry.h"
 #include <string_view>
 
+using namespace std::string_view_literals;
+
 namespace AppInstaller::Settings
 {
-    using namespace std::string_view_literals;
 
     // A policy that sets a value for some setting.
     // The value of the policy is a value in the registry key, or is
@@ -124,8 +125,9 @@ namespace AppInstaller::Settings
 
         PolicyState GetState(TogglePolicy policy) const;
 
-        // Helper for the common use.
-        bool IsEnabledOrNotConfigured(TogglePolicy policy) const;
+        // Checks whether a policy is enabled, using an appropriate default when not configured.
+        // Should not be used when not configured means something different than enabled/disabled.
+        bool IsEnabled(TogglePolicy policy) const;
 
     private:
         std::map<TogglePolicy, PolicyState> m_toggles;

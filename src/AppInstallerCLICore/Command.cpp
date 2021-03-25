@@ -277,7 +277,7 @@ namespace AppInstaller::CLI
                 }
 
                 // Default to allowing unless policy is explicitly disabled.
-                if (!Settings::GroupPolicies().IsEnabledOrNotConfigured(command->GroupPolicy()))
+                if (!Settings::GroupPolicies().IsEnabled(command->GroupPolicy()))
                 {
                     // TODO: Policy name
                     AICLI_LOG(CLI, Error, << "Trying to use command: " << *itr << " disabled by group policy");
@@ -609,7 +609,7 @@ namespace AppInstaller::CLI
                 throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
             }
 
-            if (!Settings::GroupPolicies().IsEnabledOrNotConfigured(arg.GroupPolicy()) && execArgs.Contains(arg.ExecArgType()))
+            if (!Settings::GroupPolicies().IsEnabled(arg.GroupPolicy()) && execArgs.Contains(arg.ExecArgType()))
             {
                 // TODO: Policy name
                 AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by group policy");
@@ -737,7 +737,7 @@ namespace AppInstaller::CLI
     {
         // Block any execution if winget is disabled by policy.
         // Override the function to bypass this.
-        if (!Settings::GroupPolicies().IsEnabledOrNotConfigured(Settings::TogglePolicy::WinGet))
+        if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::WinGet))
         {
             // TODO: Policy name
             AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");
@@ -775,7 +775,7 @@ namespace AppInstaller::CLI
             return Command::Visibility::Hidden;
         }
 
-        if (!Settings::GroupPolicies().IsEnabledOrNotConfigured(m_groupPolicy))
+        if (!Settings::GroupPolicies().IsEnabled(m_groupPolicy))
         {
             return Command::Visibility::Hidden;
         }

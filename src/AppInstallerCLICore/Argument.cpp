@@ -98,7 +98,7 @@ namespace AppInstaller::CLI
             return Argument::Visibility::Hidden;
         }
 
-        if (!GroupPolicies().IsEnabledOrNotConfigured(m_groupPolicy))
+        if (!GroupPolicies().IsEnabled(m_groupPolicy))
         {
             return Argument::Visibility::Hidden;
         }

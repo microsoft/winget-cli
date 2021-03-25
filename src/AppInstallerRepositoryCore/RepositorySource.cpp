@@ -188,7 +188,7 @@ namespace AppInstaller::Repository
                 return false;
             }
 
-            if (GroupPolicies().IsEnabledOrNotConfigured(policy))
+            if (!GroupPolicies().IsEnabled(policy))
             {
                 AICLI_LOG(Repo, Info, << "The default source " << sourceToLog << " is disabled due to Group Policy");
                 return false;

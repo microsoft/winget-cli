@@ -78,7 +78,7 @@ TEST_CASE("GroupPolicy_Toggle", "[groupPolicy]")
     {
         GroupPolicy groupPolicy{ policiesKey.get() };
         REQUIRE(groupPolicy.GetState(TogglePolicy::None) == PolicyState::NotConfigured);
-        REQUIRE(groupPolicy.IsEnabledOrNotConfigured(TogglePolicy::None));
+        REQUIRE(groupPolicy.IsEnabled(TogglePolicy::None));
     }
 
     SECTION("Enabled")
@@ -86,7 +86,7 @@ TEST_CASE("GroupPolicy_Toggle", "[groupPolicy]")
         SetRegistryValue(policiesKey.get(), WinGetPolicyValueName, 1);
         GroupPolicy groupPolicy{ policiesKey.get() };
         REQUIRE(groupPolicy.GetState(TogglePolicy::WinGet) == PolicyState::Enabled);
-        REQUIRE(groupPolicy.IsEnabledOrNotConfigured(TogglePolicy::WinGet));
+        REQUIRE(groupPolicy.IsEnabled(TogglePolicy::WinGet));
     }
 
     SECTION("Disabled")
@@ -94,7 +94,7 @@ TEST_CASE("GroupPolicy_Toggle", "[groupPolicy]")
         SetRegistryValue(policiesKey.get(), LocalManifestFilesPolicyValueName, 0);
         GroupPolicy groupPolicy{ policiesKey.get() };
         REQUIRE(groupPolicy.GetState(TogglePolicy::LocalManifestFiles) == PolicyState::Disabled);
-        REQUIRE_FALSE(groupPolicy.IsEnabledOrNotConfigured(TogglePolicy::LocalManifestFiles));
+        REQUIRE_FALSE(groupPolicy.IsEnabled(TogglePolicy::LocalManifestFiles));
     }
 
     SECTION("Wrong type")
@@ -102,6 +102,6 @@ TEST_CASE("GroupPolicy_Toggle", "[groupPolicy]")
         SetRegistryValue(policiesKey.get(), DefaultSourcesPolicyValueName, L"Wrong");
         GroupPolicy groupPolicy{ policiesKey.get() };
         REQUIRE(groupPolicy.GetState(TogglePolicy::DefaultSource) == PolicyState::NotConfigured);
-        REQUIRE(groupPolicy.IsEnabledOrNotConfigured(TogglePolicy::DefaultSource));
+        REQUIRE(groupPolicy.IsEnabled(TogglePolicy::DefaultSource));
     }
 }

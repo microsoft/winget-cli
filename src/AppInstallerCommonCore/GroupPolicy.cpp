@@ -10,11 +10,12 @@ namespace AppInstaller::Settings
     {
         struct TogglePolicyInternal
         {
-            TogglePolicyInternal(TogglePolicy policy, std::string_view regValueName) :
-                Policy(policy), RegValueName(regValueName) {}
+            TogglePolicyInternal(TogglePolicy policy, std::string_view regValueName, bool defaultIsEnabled = true) :
+                Policy(policy), RegValueName(regValueName), DefaultIsEnabled(defaultIsEnabled) {}
 
             TogglePolicy Policy;
             std::string_view RegValueName;
+            bool DefaultIsEnabled;
 
             static TogglePolicyInternal GetPolicy(TogglePolicy policy)
             {
@@ -166,9 +167,15 @@ namespace AppInstaller::Settings
         return itr->second;
     }
 
-    bool GroupPolicy::IsEnabledOrNotConfigured(TogglePolicy policy) const
+    bool GroupPolicy::IsEnabled(TogglePolicy policy) const
     {
-        return GetState(policy) != PolicyState::Disabled;
+        PolicyState state = GetState(policy);
+        if (state == PolicyState::NotConfigured)
+        {
+            return TogglePolicyInternal::GetPolicy(policy).DefaultIsEnabled;
+        }
+
+        return state == PolicyState::Enabled;
     }
 
     static std::unique_ptr<GroupPolicy> s_groupPolicy;
