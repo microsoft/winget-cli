@@ -184,6 +184,11 @@ namespace AppInstaller::Settings
 
     bool GroupPolicy::IsEnabled(TogglePolicy policy) const
     {
+        if (policy == TogglePolicy::None)
+        {
+            return true;
+        }
+
         PolicyState state = GetState(policy);
         if (state == PolicyState::NotConfigured)
         {
@@ -205,7 +210,6 @@ namespace AppInstaller::Settings
 
     void GroupPolicy::ResetInstance()
     {
-        InstanceInternal(std::nullopt);
+        InstanceInternal(nullptr);
     }
-
 }
