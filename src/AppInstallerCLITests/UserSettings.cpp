@@ -201,7 +201,7 @@ TEST_CASE("SettingProgressBar", "[settings]")
         REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
-    SECTION("Overriden by Group Policy")
+    SECTION("Overridden by Group Policy")
     {
         SetGroupPolicy(L"ProgressBarStyle", L"retro"s);
         std::string_view json = R"({ "visual": { "progressBar": "rainbow" } })";
@@ -275,7 +275,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
         REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cinq);
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
-    SECTION("Overriden by Group Policy")
+    SECTION("Overridden by Group Policy")
     {
         SetGroupPolicy(L"SourceAutoUpdateIntervalInMinutes", (DWORD)threehundred.count());
         std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": 5 } })";
