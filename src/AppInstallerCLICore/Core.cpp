@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerCLICore.h"
+#include "Public/AppInstallerCLICoreExecute.h"
 #include "Commands/RootCommand.h"
 #include "ExecutionContext.h"
 #include "Workflows/WorkflowBase.h"
@@ -75,10 +76,9 @@ namespace AppInstaller::CLI
         std::string str = "mozilla.firefox";
         context.Args.AddArg(Execution::Args::Type::Query, str);
         RootCommand rootCommand;
-        InstallCommand command(rootCommand.Name());
-        command.Execute(context);
-        
-        int Hr = context.GetTerminationHR();
+        std::unique_ptr<Command> command = std::make_unique<InstallCommand>(rootCommand.Name());
+       
+        int Hr = Execute(context, command);
         if (SUCCEEDED(Hr))
         {
             // SUCCEEDED
@@ -163,6 +163,17 @@ namespace AppInstaller::CLI
             return APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS;
         }
 
+        return Execute(context, command);
+    }
+    // End of the line exceptions that are not ever expected.
+    // Telemetry cannot be reliable beyond this point, so don't let these happen.
+    catch (...)
+    {
+        return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
+    }
+
+    int Execute(Execution::Context& context, std::unique_ptr<Command>& command)
+    {
         try
         {
             if (!Settings::User().GetWarnings().empty())
@@ -214,12 +225,6 @@ namespace AppInstaller::CLI
         }
 
         return context.GetTerminationHR();
-    }
-    // End of the line exceptions that are not ever expected.
-    // Telemetry cannot be reliable beyond this point, so don't let these happen.
-    catch (...)
-    {
-        return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
     }
 
 }

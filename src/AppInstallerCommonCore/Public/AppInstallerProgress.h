@@ -31,15 +31,14 @@ namespace AppInstaller
     // of cancel state.
     struct IProgressSink
     {
-        // Called as progress is made within the current execution stage.
+        // Called as progress is made.
         // If maximum is 0, the maximum is unknown.
         virtual void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) = 0;
 
-        // Called as progress begins for the current execution stage.
+        // Called as progress begins.
         virtual void BeginProgress() = 0;
 
-        // Called whenever progress ends for the current execution stage,
-        // even if it ends before the completion of current execution stage due to any reason.
+        // Called as progress ends.
         virtual void EndProgress(bool hideProgressWhenDone) = 0;
     };
 

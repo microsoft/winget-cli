@@ -103,6 +103,7 @@ namespace AppInstaller::CLI::Execution
 
         void SetExecutionStage(Workflow::ExecutionStage stage, bool allowBackward);
         virtual void SetExecutionStage(Workflow::ExecutionStage stage);
+        Workflow::ExecutionStage GetExecutionStage();
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
@@ -115,6 +116,6 @@ namespace AppInstaller::CLI::Execution
         HRESULT m_terminationHR = S_OK;
         size_t m_CtrlSignalCount = 0;
         ContextFlag m_flags = ContextFlag::None;
-        Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::None;
+        Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
     };
 }

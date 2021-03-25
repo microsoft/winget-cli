@@ -5,6 +5,13 @@
 
 namespace AppInstaller
 {
+
+    NullStream::NullStream()
+    {
+        null_Out.reset(new std::ostream(&nullStreamBuf));
+        null_In.reset(new std::istream(&nullStreamBuf));
+    }
+
     void COMContext::BeginProgress()
     {
         m_comProgressCallback(ReportType::BeginProgress, m_current, m_maximum, m_type, m_executionPhase);

@@ -155,6 +155,9 @@
     <ClInclude Include="COMContext.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="AppInstallerCLICoreExecute.h">
+      <Filter>Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

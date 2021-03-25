@@ -8,7 +8,6 @@
 
 namespace AppInstaller
 {
-	using namespace AppInstaller::CLI;
     using namespace AppInstaller::CLI;
     using namespace AppInstaller::Workflow;
 
@@ -20,17 +19,31 @@ namespace AppInstaller
         EndProgress,
     };
 
+    class NullStreamBuf : public std::streambuf {};
+
+    struct NullStream
+    {
+        NullStream();
+
+        ~NullStream() = default;
+
+    protected:
+        NullStreamBuf nullStreamBuf;
+        std::unique_ptr<std::ostream> null_Out;
+        std::unique_ptr<std::istream> null_In;
+    };
+
     // NullStream constructs the Stream parameters for Context constructor
     // Hence, NullStream should always precede Context in base class order of COMContext's inheritance
-	struct COMContext : IProgressSink, Execution::NullStream, Execution::Context
-	{
+    struct COMContext : IProgressSink, NullStream, Execution::Context
+    {
         // When no Console streams need involvement, construct NullStreams instead to pass to Context
-        COMContext() : Execution::NullStream(), Execution::Context(*nOut, *nIn)
+        COMContext() : NullStream(), Execution::Context(*null_Out, *null_In)
         {
             Reporter.SetProgressSink(this);
         }
 
-		COMContext(std::ostream& out, std::istream& in) : Execution::Context(out, in) 
+        COMContext(std::ostream& out, std::istream& in) : Execution::Context(out, in) 
         {
             Reporter.SetProgressSink(this);
         }
@@ -50,13 +63,13 @@ namespace AppInstaller
             m_comProgressCallback = std::move(f);
         }
 
-	private:
+    private:
         void SetProgress(uint64_t current, uint64_t maximum, ProgressType type);
 
         uint64_t m_current = 0;
         uint64_t m_maximum = 0;
         ProgressType m_type = ProgressType::None;
-        ExecutionStage m_executionPhase = ExecutionStage::None;
+        ExecutionStage m_executionPhase = ExecutionStage::Initial;
         std::function<void(ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, ExecutionStage executionPhase)> m_comProgressCallback;
-	};
+    };
 }
