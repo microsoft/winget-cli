@@ -156,7 +156,7 @@ namespace AppInstaller::Repository
                     return {};
                 };
 
-                Manifest::Manifest GetManifest() const override
+                Manifest::Manifest GetManifest() override
                 {
                     return {};
                 }

@@ -23,13 +23,22 @@ namespace AppInstaller::Repository::Rest::Schema
         : PackageIdentifier(packageIdentifier), PackageName(packageName), Publisher(publisher) {}
     };
 
+    struct VersionInfo
+    {
+        AppInstaller::Utility::VersionAndChannel VersionAndChannel;
+        std::optional<Manifest::Manifest> Manifest;
+
+        VersionInfo(AppInstaller::Utility::VersionAndChannel versionAndChannel, std::optional<Manifest::Manifest> manifest)
+            : VersionAndChannel(versionAndChannel), Manifest(manifest) {}
+    };
+
     // Minimal information retrieved for any search request.
     struct Package
     {
         PackageInfo PackageInformation;
-        std::vector<AppInstaller::Utility::VersionAndChannel> Versions;
+        std::vector<VersionInfo> Versions;
 
-        Package(PackageInfo packageInfo, std::vector<AppInstaller::Utility::VersionAndChannel> versions)
+        Package(PackageInfo packageInfo, std::vector<VersionInfo> versions)
         : PackageInformation(packageInfo), Versions(versions) {}
     };
 
@@ -39,10 +48,26 @@ namespace AppInstaller::Repository::Rest::Schema
         bool Truncated = false;
     };
 
+    // Information endpoint models
+    struct Information
+    {
+        std::string SourceIdentifier;
+        std::vector<std::string> ServerSupportedVersions;
+
+        Information(std::string sourceId, std::vector<std::string> versions)
+            : SourceIdentifier(sourceId), ServerSupportedVersions(versions) {}
+    };
+
+    // Get interface version.
+    virtual std::string GetVersion() const = 0;
+
     // Performs a search based on the given criteria.
     virtual SearchResult Search(const SearchRequest& request) const = 0;
 
     // Gets the manifest for given version
     virtual std::optional<Manifest::Manifest> GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const = 0;
+    
+    // Gets the manifests for given query parameters
+    virtual std::vector<Manifest::Manifest> GetManifests(const std::string& packageId, const std::string& version, const std::string& channel) const = 0;
     };
 }

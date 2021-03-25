@@ -57,7 +57,7 @@ namespace TestCommon
         return result;
     }
 
-    TestPackageVersion::Manifest TestPackageVersion::GetManifest() const
+    TestPackageVersion::Manifest TestPackageVersion::GetManifest()
     {
         return VersionManifest;
     }

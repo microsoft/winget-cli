@@ -5,8 +5,7 @@
   "definitions": {
     "Url": {
       "type": [ "string", "null" ],
-      "format": "uri",
-      "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://",
+      "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
       "maxLength": 2000,
       "description": "Optional Url type"
     },

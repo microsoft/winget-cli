@@ -77,6 +77,9 @@ delstore
 Demitrius
 denelon
 depersist
+Deserialize
+deserializer
+deserializing
 dest
 devblogs
 differentpath
@@ -267,6 +270,7 @@ OUTOFMEMORY
 OWC
 PACKAGESSCHEMA
 Params
+params
 parentidx
 pathpart
 Pathto
@@ -315,6 +319,7 @@ repolibtest
 rescap
 resheader
 resmimetype
+RESTSOURCE
 resw
 resx
 roadmap
