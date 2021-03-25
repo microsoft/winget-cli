@@ -132,7 +132,7 @@ namespace AppInstaller::CLI::Workflow
 
             bool IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
-                // We have to assume the an unkown scope will match our required scope, or the entire catalog would stop working for upgrade.
+                // We have to assume the an unknown scope will match our required scope, or the entire catalog would stop working for upgrade.
                 return installer.Scope == Manifest::ScopeEnum::Unknown || installer.Scope == m_requirement;
             }
 

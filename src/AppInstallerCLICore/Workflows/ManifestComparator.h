@@ -65,7 +65,7 @@ namespace AppInstaller::CLI::Workflow
 
     private:
         void AddFilter(std::unique_ptr<details::FilterField>&& filter);
-        void AddComparator(std::unique_ptr<details::ComparisonField>&& comparitor);
+        void AddComparator(std::unique_ptr<details::ComparisonField>&& comparator);
 
         std::vector<std::unique_ptr<details::FilterField>> m_filters;
         // Non-owning pointers to values in m_filters.

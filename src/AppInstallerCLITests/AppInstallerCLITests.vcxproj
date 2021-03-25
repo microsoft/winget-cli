@@ -187,6 +187,7 @@
     <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="ExperimentalFeature.cpp" />
     <ClCompile Include="HashCommand.cpp" />
+    <ClCompile Include="ManifestComparator.cpp" />
     <ClCompile Include="MsixInfo.cpp" />
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
