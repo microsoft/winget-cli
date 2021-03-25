@@ -29,7 +29,8 @@ TEST_CASE("GroupPolicy_NoPolicies", "[groupPolicy]")
 
     // Policies setting a value should be empty
     REQUIRE(!groupPolicy.GetValue<ValuePolicy::SourceAutoUpdateIntervalInMinutes>().has_value());
-    REQUIRE(!groupPolicy.GetValue<ValuePolicy::IncludeSources>().has_value());
+    REQUIRE(!groupPolicy.GetValue<ValuePolicy::AdditionalSources>().has_value());
+    REQUIRE(!groupPolicy.GetValue<ValuePolicy::AllowedSources>().has_value());
 
     // Everything should be not configured
     REQUIRE(groupPolicy.GetState(TogglePolicy::None) == PolicyState::NotConfigured);

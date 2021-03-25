@@ -130,7 +130,13 @@ namespace AppInstaller::Settings
             return GetRegistryValue<Mapping::ValueType>(policiesKey , Mapping::ValueName);
         }
 
-        std::optional<std::vector<std::string>> ValuePolicyMapping<ValuePolicy::IncludeSources>::ReadAndValidate(const Registry::Key&)
+        std::optional<std::vector<std::string>> ValuePolicyMapping<ValuePolicy::AdditionalSources>::ReadAndValidate(const Registry::Key&)
+        {
+            // TODO
+            return std::nullopt;
+        }
+
+        std::optional<std::vector<std::string>> ValuePolicyMapping<ValuePolicy::AllowedSources>::ReadAndValidate(const Registry::Key&)
         {
             // TODO
             return std::nullopt;
