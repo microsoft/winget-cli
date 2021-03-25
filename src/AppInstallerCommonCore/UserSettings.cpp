@@ -224,6 +224,29 @@ namespace AppInstaller::Settings
         }
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static UserSettings* s_UserSettings_Override = nullptr;
+
+    void SetUserSettingsOverride(UserSettings* value)
+    {
+        s_UserSettings_Override = value;
+    }
+#endif
+
+    UserSettings const& UserSettings::Instance()
+    {
+        static UserSettings userSettings;
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_UserSettings_Override)
+        {
+            return *s_UserSettings_Override;
+        }
+#endif
+
+        return userSettings;
+    }
+
     UserSettings::UserSettings() : m_type(UserSettingsType::Default)
     {
         Json::Value settingsRoot = Json::Value::nullSingleton();

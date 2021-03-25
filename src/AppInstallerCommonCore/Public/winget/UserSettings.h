@@ -123,11 +123,7 @@ namespace AppInstaller::Settings
     // Representation of the parsed settings file.
     struct UserSettings
     {
-        static UserSettings const& Instance()
-        {
-            static UserSettings userSettings;
-            return userSettings;
-        }
+        static UserSettings const& Instance();
 
         static std::filesystem::path SettingsFilePath();
 
@@ -155,15 +151,13 @@ namespace AppInstaller::Settings
             return std::get<details::SettingIndex(S)>(itr->second);
         }
 
-    private:
+    protected:
         UserSettingsType m_type = UserSettingsType::Default;
         std::vector<std::string> m_warnings;
         std::map<Setting, details::SettingVariant> m_settings;
 
-    protected:
         UserSettings();
         ~UserSettings() = default;
-
     };
 
     inline UserSettings const& User()

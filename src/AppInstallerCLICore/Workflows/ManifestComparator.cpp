@@ -232,7 +232,7 @@ namespace AppInstaller::CLI::Workflow
 
     std::optional<Manifest::ManifestInstaller> ManifestComparator::GetPreferredInstaller(const Manifest::Manifest& manifest)
     {
-        AICLI_LOG(CLI, Verbose, << "Starting installer selection.");
+        AICLI_LOG(CLI, Info, << "Starting installer selection.");
 
         const Manifest::ManifestInstaller* result = nullptr;
 
@@ -267,7 +267,7 @@ namespace AppInstaller::CLI::Workflow
         {
             if (!filter->IsApplicable(installer))
             {
-                AICLI_LOG(CLI, Verbose, << "Installer " << installer << " not applicable: " << filter->ExplainInapplicable(installer));
+                AICLI_LOG(CLI, Info, << "Installer " << installer << " not applicable: " << filter->ExplainInapplicable(installer));
                 return false;
             }
         }
@@ -279,17 +279,17 @@ namespace AppInstaller::CLI::Workflow
         const Manifest::ManifestInstaller& first,
         const Manifest::ManifestInstaller& second)
     {
-        for (auto comparitor : m_comparators)
+        for (auto comparator : m_comparators)
         {
-            if (comparitor->IsFirstBetter(first, second))
+            if (comparator->IsFirstBetter(first, second))
             {
-                AICLI_LOG(CLI, Verbose, << "Installer " << first << " is better than " << second << " due to: " << comparitor->Name());
+                AICLI_LOG(CLI, Verbose, << "Installer " << first << " is better than " << second << " due to: " << comparator->Name());
                 return true;
             }
-            else if (comparitor->IsFirstBetter(second, first))
+            else if (comparator->IsFirstBetter(second, first))
             {
-                // Second is better by this comparitor, don't allow a lower priority one to override that.
-                AICLI_LOG(CLI, Verbose, << "Installer " << second << " is better than " << first << " due to: " << comparitor->Name());
+                // Second is better by this comparator, don't allow a lower priority one to override that.
+                AICLI_LOG(CLI, Verbose, << "Installer " << second << " is better than " << first << " due to: " << comparator->Name());
                 return false;
             }
         }

@@ -29,6 +29,28 @@
         }
       }
     },
+    "InstallPrefReq": {
+      "description": "Shared schema for preferences and requirements",
+      "type": "object",
+      "properties": {
+        "scope": {
+          "description": "The scope of a package install",
+          "type": "string",
+          "enum": [
+              "user", "machine"
+          ],
+          "default": "user"
+        }
+      }
+    },
+    "InstallBehavior": {
+      "description": "Install settings",
+      "type": "object",
+      "properties": {
+        "preferences": { "$ref": "#/definitions/InstallPrefReq"},
+        "requirements": { "$ref": "#/definitions/InstallPrefReq"}
+      }
+    },
     "Experimental": {
       "description": "Experimental Features",
       "type": "object",
@@ -90,11 +112,17 @@
       "additionalItems": true
     },
     {
-        "properties": {
-          "experimentalFeatures": { "$ref": "#/definitions/Experimental"}
-        },
-        "additionalItems": true
-      }
+      "properties": {
+        "installBehavior": { "$ref": "#/definitions/InstallBehavior"}
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "experimentalFeatures": { "$ref": "#/definitions/Experimental"}
+      },
+      "additionalItems": true
+    }
   ],
   "additionalProperties": true
 }
