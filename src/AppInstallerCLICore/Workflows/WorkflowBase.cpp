@@ -692,7 +692,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ReportExecutionStage::operator()(Execution::Context& context) const
     {
-        context.SetExecutionStage(m_stage);
+        context.SetExecutionStage(m_stage, m_allowBackward);
     }
 }
 
