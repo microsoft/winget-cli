@@ -8,6 +8,21 @@ namespace AppInstaller::Settings
 {
     namespace
     {
+        GroupPolicy& InstanceInternal(std::optional<GroupPolicy*> overridePolicy = {})
+        {
+            // TODO: Use final location
+            constexpr std::string_view PoliciesKeyPath = "test\\policy"; // "SOFTWARE\\Policies\\Microsoft\\Windows\\WinGet";
+            static GroupPolicy s_groupPolicy{ Registry::Key::OpenIfExists(HKEY_CURRENT_USER /* HKEY_LOCAL_MACHINE */, PoliciesKeyPath) };
+            static GroupPolicy* s_override = nullptr;
+
+            if (overridePolicy.has_value())
+            {
+                s_override = overridePolicy.value();
+            }
+
+            return (s_override ? *s_override : s_groupPolicy);
+        }
+
         struct TogglePolicyInternal
         {
             TogglePolicyInternal(TogglePolicy policy, std::string_view regValueName, bool defaultIsEnabled = true) :
@@ -178,22 +193,19 @@ namespace AppInstaller::Settings
         return state == PolicyState::Enabled;
     }
 
-    static std::unique_ptr<GroupPolicy> s_groupPolicy;
     GroupPolicy const& GroupPolicy::Instance()
     {
-        if (!s_groupPolicy)
-        {
-            // TODO: Use final location
-            constexpr std::string_view PoliciesKeyPath = "test\\policy"; // "SOFTWARE\\Policies\\Microsoft\\Windows\\WinGet";
-            s_groupPolicy = std::make_unique<GroupPolicy>(Registry::Key::OpenIfExists(HKEY_CURRENT_USER /* HKEY_LOCAL_MACHINE */, PoliciesKeyPath));
-        }
+        return InstanceInternal();
+    }
 
-        return *s_groupPolicy;
+    void GroupPolicy::OverrideInstance(GroupPolicy* overridePolicy)
+    {
+        InstanceInternal(overridePolicy);
     }
 
     void GroupPolicy::ResetInstance()
     {
-        s_groupPolicy = nullptr;
+        InstanceInternal(std::nullopt);
     }
 
 }

@@ -7,21 +7,22 @@
 
 namespace TestCommon
 {
+    const std::wstring WinGetPolicyValueName = L"EnableWinGet";
+    const std::wstring SettingsCommandPolicyValueName = L"EnableSettingsCommand";
+    const std::wstring ExperimentalFeaturesPolicyValueName = L"EnableExperimentalFeatures";
+    const std::wstring LocalManifestsPolicyValueName = L"EnableLocalManifestFiles";
+
+    const std::wstring SourceUpdateIntervalPolicyValueName = L"SourceAutoUpdateIntervalInMinutes";
+
     void DeleteUserSettingsFiles();
 
     struct UserSettingsTest : AppInstaller::Settings::UserSettings
     {
     };
 
-    void ResetGroupPolicy();
-    void SetGroupPolicy(const std::wstring& name, bool value);
-    void SetGroupPolicy(const std::wstring& name, DWORD value);
-    void SetGroupPolicy(const std::wstring& name, const std::wstring& value);
-
-    inline auto PrepareGroupPolicyForTest()
+    struct GroupPolicyTestOverride : AppInstaller::Settings::GroupPolicy
     {
-        ResetGroupPolicy();
-        return wil::scope_exit([]() { ResetGroupPolicy(); });
-    }
-
+        GroupPolicyTestOverride(const AppInstaller::Registry::Key& key);
+        ~GroupPolicyTestOverride();
+    };
 }

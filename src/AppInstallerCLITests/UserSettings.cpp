@@ -147,7 +147,6 @@ TEST_CASE("UserSettingsCreateFiles", "[settings]")
 TEST_CASE("SettingProgressBar", "[settings]")
 {
     DeleteUserSettingsFiles();
-    auto reset = PrepareGroupPolicyForTest();
 
     SECTION("Default value")
     {
@@ -201,32 +200,11 @@ TEST_CASE("SettingProgressBar", "[settings]")
         REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Accent);
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
-    SECTION("Overridden by Group Policy")
-    {
-        SetGroupPolicy(L"ProgressBarStyle", L"retro"s);
-        std::string_view json = R"({ "visual": { "progressBar": "rainbow" } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
-        UserSettingsTest userSettingTest;
-
-        REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Retro);
-        REQUIRE(userSettingTest.GetWarnings().size() == 0);
-    }
-    SECTION("Invalid Group Policy")
-    {
-        SetGroupPolicy(L"ProgressBarStyle", L"fake"s);
-        std::string_view json = R"({ "visual": { "progressBar": "rainbow" } })";
-        SetSetting(Streams::PrimaryUserSettings, json);
-        UserSettingsTest userSettingTest;
-
-        REQUIRE(userSettingTest.Get<Setting::ProgressBarVisualStyle>() == VisualStyle::Rainbow);
-        REQUIRE(userSettingTest.GetWarnings().size() == 0);
-    }
 }
 
 TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
 {
     DeleteUserSettingsFiles();
-    auto reset = PrepareGroupPolicyForTest();
 
     constexpr static auto cinq = 5min;
     constexpr static auto cero = 0min;
@@ -277,7 +255,10 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
     }
     SECTION("Overridden by Group Policy")
     {
-        SetGroupPolicy(L"SourceAutoUpdateIntervalInMinutes", (DWORD)threehundred.count());
+        auto policiesKey = RegCreateVolatileTestRoot();
+        SetRegistryValue(policiesKey.get(), SourceUpdateIntervalPolicyValueName, (DWORD)threehundred.count());
+        GroupPolicyTestOverride policies{ policiesKey.get() };
+
         std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": 5 } })";
         SetSetting(Streams::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
@@ -287,7 +268,10 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
     }
     SECTION("Invalid Group Policy")
     {
-        SetGroupPolicy(L"SourceAutoUpdateIntervalInMinutes", L"Invalid"s);
+        auto policiesKey = RegCreateVolatileTestRoot();
+        SetRegistryValue(policiesKey.get(), SourceUpdateIntervalPolicyValueName, L"Not a number"s);
+        GroupPolicyTestOverride policies{ policiesKey.get() };
+
         std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": 5 } })";
         SetSetting(Streams::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
@@ -300,7 +284,6 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
 TEST_CASE("SettingsExperimentalCmd", "[settings]")
 {
     DeleteUserSettingsFiles();
-    auto reset = PrepareGroupPolicyForTest();
 
     SECTION("Feature off default")
     {
@@ -338,7 +321,10 @@ TEST_CASE("SettingsExperimentalCmd", "[settings]")
     }
     SECTION("Disabled by group policy")
     {
-        SetGroupPolicy(L"DisableExperimentalFeatures", true);
+        auto policiesKey = RegCreateVolatileTestRoot();
+        SetRegistryValue(policiesKey.get(), SourceUpdateIntervalPolicyValueName, L"Not a number"s);
+        GroupPolicyTestOverride policies{ policiesKey.get() };
+
         std::string_view json = R"({ "experimentalFeatures": { "experimentalCmd": true } })";
         SetSetting(Streams::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;

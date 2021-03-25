@@ -15,16 +15,12 @@ using namespace AppInstaller::CLI;
 using namespace AppInstaller::Settings;
 using namespace std::string_view_literals;
 
-namespace
-{
-    const std::wstring SourceConfigurationPolicyValueName = L"DisableSourceConfiguration";
-    const std::wstring DefaultSourcesPolicyValueName = L"ExcludeDefaultSources";
-}
 
 TEST_CASE("GroupPolicy_WinGet", "[groupPolicy]")
 {
-    auto reset = PrepareGroupPolicyForTest();
-    SetGroupPolicy(L"DisableWinGet", true);
+    auto policiesKey = RegCreateVolatileTestRoot();
+    SetRegistryValue(policiesKey.get(), WinGetPolicyValueName, false);
+    GroupPolicyTestOverride policies{ policiesKey.get() };
 
     SECTION("Install is blocked")
     {
@@ -55,8 +51,9 @@ TEST_CASE("GroupPolicy_WinGet", "[groupPolicy]")
 
 TEST_CASE("GroupPolicy_SettingsCommand", "[groupPolicy]")
 {
-    auto reset = PrepareGroupPolicyForTest();
-    SetGroupPolicy(L"DisableSettingsCommand", true);
+    auto policiesKey = RegCreateVolatileTestRoot();
+    SetRegistryValue(policiesKey.get(), SettingsCommandPolicyValueName, false);
+    GroupPolicyTestOverride policies{ policiesKey.get() };
 
     Invocation inv{ std::vector<std::string>{ "settings" } };
     RootCommand rootCommand;
@@ -65,8 +62,9 @@ TEST_CASE("GroupPolicy_SettingsCommand", "[groupPolicy]")
 
 TEST_CASE("GroupPolicy_LocalManifests", "[groupPolicy]")
 {
-    auto reset = PrepareGroupPolicyForTest();
-    SetGroupPolicy(L"DisableLocalManifestFiles", true);
+    auto policiesKey = RegCreateVolatileTestRoot();
+    SetRegistryValue(policiesKey.get(), LocalManifestsPolicyValueName, false);
+    GroupPolicyTestOverride policies{ policiesKey.get() };
 
     SECTION("Blocked on install")
     {
@@ -97,39 +95,3 @@ TEST_CASE("GroupPolicy_LocalManifests", "[groupPolicy]")
         REQUIRE_NOTHROW(validateCommand.ValidateArguments(args));
     }
 }
-
-TEST_CASE("GroupPolicy_SourceConfiguration", "[groupPolicy]")
-{
-    auto reset = PrepareGroupPolicyForTest();
-    SetGroupPolicy(L"DisableSourceConfiguration", true);
-
-    SECTION("add is blocked")
-    {
-        Invocation inv{ std::vector<std::string>{ "source", "add" } };
-        RootCommand rootCommand;
-        REQUIRE_NOTHROW(rootCommand.FindSubCommand(inv));
-    }
-    SECTION("remove is blocked")
-    {
-        Invocation inv{ std::vector<std::string>{ "source", "remove" } };
-        RootCommand rootCommand;
-        REQUIRE_NOTHROW(rootCommand.FindSubCommand(inv));
-    }
-    SECTION("reset is blocked")
-    {
-        Invocation inv{ std::vector<std::string>{ "source", "reset" } };
-        RootCommand rootCommand;
-        REQUIRE_NOTHROW(rootCommand.FindSubCommand(inv));
-    }
-    SECTION("list is allowed")
-    {
-        Invocation inv{ std::vector<std::string>{ "source", "list" } };
-        RootCommand rootCommand;
-        REQUIRE_NOTHROW(rootCommand.FindSubCommand(inv));
-    }
-}
-
-/*
-const std::wstring SourceConfigurationPolicyValueName = L"DisableSourceConfiguration";
-const std::wstring DefaultSourcesPolicyValueName = L"ExcludeDefaultSources";
-*/

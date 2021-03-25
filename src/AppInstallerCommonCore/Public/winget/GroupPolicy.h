@@ -33,8 +33,8 @@ namespace AppInstaller::Settings
         LocalManifestFiles,
         DefaultSource,
         MSStoreSource,
-        AdditionalSources,
-        AllowedSources,
+        AdditionalSources, // TODO
+        AllowedSources, // TODO
         Max,
     };
 
@@ -94,10 +94,6 @@ namespace AppInstaller::Settings
 
         static GroupPolicy const& Instance();
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        static void ResetInstance();
-#endif
-
         GroupPolicy(const Registry::Key& key);
         ~GroupPolicy() = default;
 
@@ -132,6 +128,12 @@ namespace AppInstaller::Settings
     private:
         std::map<TogglePolicy, PolicyState> m_toggles;
         ValuePoliciesMap m_values;
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    protected:
+        static void OverrideInstance(GroupPolicy* gp);
+        static void ResetInstance();
+#endif
     };
 
     inline const GroupPolicy& GroupPolicies()

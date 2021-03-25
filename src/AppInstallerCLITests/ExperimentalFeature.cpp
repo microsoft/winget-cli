@@ -13,8 +13,6 @@ using namespace TestCommon;
 
 TEST_CASE("ExperimentalFeature None", "[experimentalFeature]")
 {
-    auto reset = PrepareGroupPolicyForTest();
-
     // Make sure Feature::None is always enabled.
     REQUIRE(ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::None));
 
@@ -22,14 +20,15 @@ TEST_CASE("ExperimentalFeature None", "[experimentalFeature]")
     REQUIRE_THROWS_HR(ExperimentalFeature::GetFeature(ExperimentalFeature::Feature::None), E_UNEXPECTED);
 
     // Make sure Feature::None is not disabled by Group Policy
-    SetGroupPolicy(L"DisableExperimentalFeatures", true);
+    auto policiesKey = RegCreateVolatileTestRoot();
+    SetRegistryValue(policiesKey.get(), ExperimentalFeaturesPolicyValueName, false);
+    GroupPolicyTestOverride policies{ policiesKey.get() };
     REQUIRE(ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::None));
 }
 
 TEST_CASE("ExperimentalFeature ExperimentalCmd", "[experimentalFeature]")
 {
     DeleteUserSettingsFiles();
-    auto reset = PrepareGroupPolicyForTest();
 
     SECTION("Feature off default")
     {
@@ -63,7 +62,10 @@ TEST_CASE("ExperimentalFeature ExperimentalCmd", "[experimentalFeature]")
     }
     SECTION("Disabled by group policy")
     {
-        SetGroupPolicy(L"DisableExperimentalFeatures", true);
+        auto policiesKey = RegCreateVolatileTestRoot();
+        SetRegistryValue(policiesKey.get(), ExperimentalFeaturesPolicyValueName, false);
+        GroupPolicyTestOverride policies{ policiesKey.get() };
+
         std::string_view json = R"({ "experimentalFeatures": { "experimentalCmd": true } })";
         SetSetting(Streams::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;

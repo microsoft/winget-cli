@@ -8,50 +8,60 @@
 
 namespace AppInstaller::Settings
 {
+    namespace
+    {
+        bool IsEnabledInternal(ExperimentalFeature::Feature feature, const UserSettings& userSettings)
+        {
+            if (feature == ExperimentalFeature::Feature::None)
+            {
+                return true;
+            }
+
+            // TODO: How do we report that this was due to policy higher up?
+            if (!GroupPolicies().IsEnabled(TogglePolicy::ExperimentalFeatures))
+            {
+                return false;
+            }
+
+            switch (feature)
+            {
+            case ExperimentalFeature::Feature::ExperimentalCmd:
+                // ExperimentalArg depends on ExperimentalCmd, so instead of failing we could
+                // assume that if ExperimentalArg is enabled then ExperimentalCmd is as well.
+                return userSettings.Get<Setting::EFExperimentalCmd>() || userSettings.Get<Setting::EFExperimentalArg>();
+            case ExperimentalFeature::Feature::ExperimentalArg:
+                return userSettings.Get<Setting::EFExperimentalArg>();
+            case ExperimentalFeature::Feature::ExperimentalMSStore:
+                return userSettings.Get<Setting::EFExperimentalMSStore>();
+            case ExperimentalFeature::Feature::ExperimentalList:
+                return userSettings.Get<Setting::EFList>();
+            case ExperimentalFeature::Feature::ExperimentalUpgrade:
+                return userSettings.Get<Setting::EFExperimentalUpgrade>();
+            case ExperimentalFeature::Feature::ExperimentalUninstall:
+                return userSettings.Get<Setting::EFUninstall>();
+            case ExperimentalFeature::Feature::ExperimentalImport:
+                return userSettings.Get<Setting::EFImport>();
+            case ExperimentalFeature::Feature::ExperimentalExport:
+                return userSettings.Get<Setting::EFExport>();
+            case ExperimentalFeature::Feature::ExperimentalRestSource:
+                return userSettings.Get<Setting::EFRestSource>();
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
+    }
+
     bool ExperimentalFeature::IsEnabled(Feature feature)
     {
-        return IsEnabled(feature, User());
+        return IsEnabledInternal(feature, User());
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
     bool ExperimentalFeature::IsEnabled(Feature feature, const UserSettings& userSettings)
     {
-        if (feature == Feature::None)
-        {
-            return true;
-        }
-
-        // TODO: How do we report that this was due to policy higher up?
-        if (!GroupPolicies().IsEnabledOrNotConfigured(TogglePolicy::ExperimentalFeatures))
-        {
-            return false;
-        }
-
-        switch (feature)
-        {
-        case Feature::ExperimentalCmd:
-            // ExperimentalArg depends on ExperimentalCmd, so instead of failing we could
-            // assume that if ExperimentalArg is enabled then ExperimentalCmd is as well.
-            return userSettings.Get<Setting::EFExperimentalCmd>() || userSettings.Get<Setting::EFExperimentalArg>();
-        case Feature::ExperimentalArg:
-            return userSettings.Get<Setting::EFExperimentalArg>();
-        case Feature::ExperimentalMSStore:
-            return userSettings.Get<Setting::EFExperimentalMSStore>();
-        case Feature::ExperimentalList:
-            return userSettings.Get<Setting::EFList>();
-        case Feature::ExperimentalUpgrade:
-            return userSettings.Get<Setting::EFExperimentalUpgrade>();
-        case Feature::ExperimentalUninstall:
-            return userSettings.Get<Setting::EFUninstall>();
-        case Feature::ExperimentalImport:
-            return userSettings.Get<Setting::EFImport>();
-        case Feature::ExperimentalExport:
-            return userSettings.Get<Setting::EFExport>();
-        case Feature::ExperimentalRestSource:
-            return userSettings.Get<Setting::EFRestSource>();
-        default:
-            THROW_HR(E_UNEXPECTED);
-        }
+        return IsEnabledInternal(feature, userSettings);
     }
+#endif
 
     ExperimentalFeature ExperimentalFeature::GetFeature(ExperimentalFeature::Feature feature)
     {

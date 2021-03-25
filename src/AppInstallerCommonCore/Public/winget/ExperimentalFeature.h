@@ -49,8 +49,10 @@ namespace AppInstaller::Settings
         ExperimentalFeature& operator=(ExperimentalFeature&&) = default;
 
         static bool IsEnabled(Feature feature);
-        // For unit testing
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
         static bool IsEnabled(Feature feature, const UserSettings& userSettings);
+#endif
 
         static ExperimentalFeature GetFeature(ExperimentalFeature::Feature feature);
         static std::vector<ExperimentalFeature> GetAllFeatures();
