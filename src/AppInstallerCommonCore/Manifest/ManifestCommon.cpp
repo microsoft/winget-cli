@@ -194,6 +194,26 @@ namespace AppInstaller::Manifest
         return result;
     }
 
+    InstallModeEnum ConvertToInstallModeEnum(const std::string& in)
+    {
+        InstallModeEnum result = InstallModeEnum::Unknown;
+
+        if (Utility::CaseInsensitiveEquals(in, "interactive"))
+        {
+            result = InstallModeEnum::Interactive;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "silent"))
+        {
+            result = InstallModeEnum::Silent;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "silentWithProgress"))
+        {
+            result = InstallModeEnum::SilentWithProgress;
+        }
+
+        return result;
+    }
+
     PlatformEnum ConvertToPlatformEnum(const std::string& in)
     {
         PlatformEnum result = PlatformEnum::Unknown;

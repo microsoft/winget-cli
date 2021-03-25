@@ -23,8 +23,7 @@
     },
     "Url": {
       "type": [ "string", "null" ],
-      "format": "uri",
-      "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://",
+      "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
       "maxLength": 2000,
       "description": "Optional Url type"
     },
@@ -85,9 +84,14 @@
     "InstallModes": {
       "type": [ "array", "null" ],
       "items": {
-        "$ref": "#/definitions/Scope"
+        "type": "string",
+        "enum": [
+          "interactive",
+          "silent",
+          "silentWithProgress"
+        ]
       },
-      "maxItems": 2,
+      "maxItems": 3,
       "uniqueItems": true,
       "description": "List of supported installer modes"
     },
@@ -311,8 +315,7 @@
         },
         "InstallerUrl": {
           "type": "string",
-          "format": "uri",
-          "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://",
+          "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
           "description": "The installer Url"
         },
         "InstallerSha256": {

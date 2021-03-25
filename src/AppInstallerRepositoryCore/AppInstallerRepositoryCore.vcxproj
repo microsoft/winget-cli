@@ -211,6 +211,11 @@
     <ClInclude Include="Rest\RestSourceFactory.h" />
     <ClInclude Include="Rest\Schema\1_0\Interface.h" />
     <ClInclude Include="Rest\Schema\IRestClient.h" />
+    <ClInclude Include="Rest\Schema\Json\CommonRestConstants.h" />
+    <ClInclude Include="Rest\Schema\Json\InformationResponseDeserializer.h" />
+    <ClInclude Include="Rest\Schema\Json\JsonHelper.h" />
+    <ClInclude Include="Rest\Schema\Json\ManifestDeserializer.h" />
+    <ClInclude Include="Rest\Schema\Json\SearchResponseDeserializer.h" />
     <ClInclude Include="SourceFactory.h" />
     <ClInclude Include="SQLiteStatementBuilder.h" />
     <ClInclude Include="Public\AppInstallerRepositorySearch.h" />
@@ -257,6 +262,10 @@
     <ClCompile Include="Rest\RestSource.cpp" />
     <ClCompile Include="Rest\RestSourceFactory.cpp" />
     <ClCompile Include="Rest\Schema\1_0\Interface.cpp" />
+    <ClCompile Include="Rest\Schema\Json\InformationResponseDeserializer.cpp" />
+    <ClCompile Include="Rest\Schema\Json\JsonHelper.cpp" />
+    <ClCompile Include="Rest\Schema\Json\ManifestDeserializer.cpp" />
+    <ClCompile Include="Rest\Schema\Json\SearchResponseDeserializer.cpp" />
     <ClCompile Include="SQLiteStatementBuilder.cpp" />
     <ClCompile Include="SQLiteTempTable.cpp" />
     <ClCompile Include="SQLiteWrapper.cpp" />

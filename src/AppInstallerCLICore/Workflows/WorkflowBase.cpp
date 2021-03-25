@@ -598,8 +598,7 @@ namespace AppInstaller::CLI::Workflow
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
             context <<
-                GetManifestFromArg <<
-                ReportManifestIdentity;
+                GetManifestFromArg;
         }
         else
         {
@@ -607,7 +606,6 @@ namespace AppInstaller::CLI::Workflow
                 OpenSource <<
                 SearchSourceForSingle <<
                 EnsureOneMatchFromSearchResult(false) <<
-                ReportPackageIdentity <<
                 GetManifestFromPackage;
         }
     }
