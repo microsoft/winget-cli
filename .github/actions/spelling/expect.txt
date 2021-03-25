@@ -210,6 +210,7 @@ SRL
 srs
 Standalone
 startswith
+StreamBuf
 strtoull
 subdir
 subkey
