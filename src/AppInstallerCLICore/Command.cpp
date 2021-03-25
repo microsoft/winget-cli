@@ -600,6 +600,38 @@ namespace AppInstaller::CLI
             return;
         }
 
+        for (const auto& arg : GetArguments())
+        {
+            if (!ExperimentalFeature::IsEnabled(arg.Feature()) && execArgs.Contains(arg.ExecArgType()))
+            {
+                auto feature = ExperimentalFeature::GetFeature(arg.Feature());
+                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " without enabling feature " << feature.JsonName());
+                throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
+            }
+
+            if (!Settings::GroupPolicies().IsEnabledOrNotConfigured(arg.GroupPolicy()) && execArgs.Contains(arg.ExecArgType()))
+            {
+                // TODO: Policy name
+                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by group policy");
+                throw CommandException(Resource::String::DisabledByGroupPolicy, "");
+            }
+
+            if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
+            {
+                throw CommandException(Resource::String::RequiredArgError, arg.Name());
+            }
+
+            if (arg.Limit() < execArgs.GetCount(arg.ExecArgType()))
+            {
+                throw CommandException(Resource::String::TooManyArgError, arg.Name());
+            }
+        }
+
+        if (execArgs.Contains(Execution::Args::Type::Silent) && execArgs.Contains(Execution::Args::Type::Interactive))
+        {
+            throw CommandException(Resource::String::TooManyBehaviorsError, s_Command_ArgName_SilentAndInteractive);
+        }
+
         ValidateArgumentsInternal(execArgs);
     }
 
@@ -724,39 +756,10 @@ namespace AppInstaller::CLI
         }
     }
 
-    void Command::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    void Command::ValidateArgumentsInternal(Execution::Args&) const
     {
-        for (const auto& arg : GetArguments())
-        {
-            if (!ExperimentalFeature::IsEnabled(arg.Feature()) && execArgs.Contains(arg.ExecArgType()))
-            {
-                auto feature = ExperimentalFeature::GetFeature(arg.Feature());
-                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " without enabling feature " << feature.JsonName());
-                throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
-            }
-
-            if (!Settings::GroupPolicies().IsEnabledOrNotConfigured(arg.GroupPolicy()) && execArgs.Contains(arg.ExecArgType()))
-            {
-                // TODO: Policy name
-                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by group policy");
-                throw CommandException(Resource::String::DisabledByGroupPolicy, "");
-            }
-
-            if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
-            {
-                throw CommandException(Resource::String::RequiredArgError, arg.Name());
-            }
-
-            if (arg.Limit() < execArgs.GetCount(arg.ExecArgType()))
-            {
-                throw CommandException(Resource::String::TooManyArgError, arg.Name());
-            }
-        }
-
-        if (execArgs.Contains(Execution::Args::Type::Silent) && execArgs.Contains(Execution::Args::Type::Interactive))
-        {
-            throw CommandException(Resource::String::TooManyBehaviorsError, s_Command_ArgName_SilentAndInteractive);
-        }
+        // Do nothing by default.
+        // Commands may not need any extra validation.
     }
 
     void Command::ExecuteInternal(Execution::Context& context) const
