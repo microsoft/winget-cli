@@ -7,7 +7,6 @@
 #include "ExecutionContext.h"
 #include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
-#include "COMContext.h"
 #include "Commands/InstallCommand.h"
 
 using namespace winrt;
@@ -42,51 +41,6 @@ namespace AppInstaller::CLI
         private:
             UINT m_previousCP = 0;
         };
-    }
-
-    void  OnProgress(ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, ExecutionStage executionPhase)
-    {
-        // Rest of this method is just Local Testing and Demo
-        std::cout << "Execution Stage:";
-        std::cout << executionPhase;
-        std::cout << "   reportType: ";
-        std::cout << reportType;
-        std::cout << "   current: ";
-        std::cout << current;
-        std::cout << "   maximum: ";
-        std::cout << maximum;
-        std::cout << "   ProgressType : ";
-        std::cout << (uint32_t)progressType;
-        std::cout << "\n";
-
-        if (current == maximum)
-        {
-            // Current Execution Phase is Complete
-            std::cout << "Current Execution Phase is now complete\n";
-        }
-    }
-
-    void TestCOMScenario()
-    {
-        init_apartment();
-
-        AppInstaller::COMContext context;
-        context.SetProgressCallbackFunction(OnProgress);
-
-        std::string str = "mozilla.firefox";
-        context.Args.AddArg(Execution::Args::Type::Query, str);
-        RootCommand rootCommand;
-        std::unique_ptr<Command> command = std::make_unique<InstallCommand>(rootCommand.Name());
-       
-        int Hr = Execute(context, command);
-        if (SUCCEEDED(Hr))
-        {
-            // SUCCEEDED
-        }      
-        else
-        {
-            std::cout << "Failure Hresult = " << Hr;
-        }
     }
 
     int CoreMain(int argc, wchar_t const** argv) try
