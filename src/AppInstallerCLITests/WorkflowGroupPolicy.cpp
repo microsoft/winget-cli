@@ -51,7 +51,7 @@ TEST_CASE("GroupPolicy_WinGet", "[groupPolicy]")
 TEST_CASE("GroupPolicy_SettingsCommand", "[groupPolicy]")
 {
     auto policiesKey = RegCreateVolatileTestRoot();
-    SetRegistryValue(policiesKey.get(), SettingsCommandPolicyValueName, false);
+    SetRegistryValue(policiesKey.get(), WinGetSettingsPolicyValueName, false);
     GroupPolicyTestOverride policies{ policiesKey.get() };
 
     Invocation inv{ std::vector<std::string>{ "settings" } };

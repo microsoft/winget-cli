@@ -133,7 +133,7 @@ namespace AppInstaller::Settings
         case TogglePolicy::Policy::WinGet:
             return TogglePolicy(policy, "EnableWindowsPackageManager"sv, String::PolicyEnableWinGet);
         case TogglePolicy::Policy::Settings: return
-            TogglePolicy(policy, "EnableSettingsCommand"sv, String::PolicyEnableSettings);
+            TogglePolicy(policy, "EnableWindowsPackageManagerSettings"sv, String::PolicyEnableWingetSettings);
         case TogglePolicy::Policy::ExperimentalFeatures:
             return TogglePolicy(policy, "EnableExperimentalFeatures"sv, String::PolicyEnableExperimentalFeatures);
         case TogglePolicy::Policy::LocalManifestFiles:

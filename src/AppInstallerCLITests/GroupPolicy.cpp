@@ -20,15 +20,10 @@ TEST_CASE("GroupPolicy_NoPolicies", "[groupPolicy]")
     REQUIRE(!groupPolicy.GetValue<ValuePolicy::AllowedSources>().has_value());
 
     // Everything should be not configured
-    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::None) == PolicyState::NotConfigured);
-    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::WinGet) == PolicyState::NotConfigured);
-    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::Settings) == PolicyState::NotConfigured);
-    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::ExperimentalFeatures) == PolicyState::NotConfigured);
-    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::LocalManifestFiles) == PolicyState::NotConfigured);
-    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::DefaultSource) == PolicyState::NotConfigured);
-    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::MSStoreSource) == PolicyState::NotConfigured);
-    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::AdditionalSources) == PolicyState::NotConfigured);
-    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::AllowedSources) == PolicyState::NotConfigured);
+    for (const auto& policy : TogglePolicy::GetAllPolicies())
+    {
+        REQUIRE(groupPolicy.GetState(policy.GetPolicy()) == PolicyState::NotConfigured);
+    }
 }
 
 TEST_CASE("GroupPolicy_UpdateInterval", "[groupPolicy]")
@@ -90,5 +85,24 @@ TEST_CASE("GroupPolicy_Toggle", "[groupPolicy]")
         GroupPolicy groupPolicy{ policiesKey.get() };
         REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::DefaultSource) == PolicyState::NotConfigured);
         REQUIRE(groupPolicy.IsEnabled(TogglePolicy::Policy::DefaultSource));
+    }
+}
+
+TEST_CASE("GroupPolicy_AllDisabled", "[groupPolicy]")
+{
+    auto policiesKey = RegCreateVolatileTestRoot();
+    SetRegistryValue(policiesKey.get(), WinGetPolicyValueName, 1);
+    SetRegistryValue(policiesKey.get(), WinGetSettingsPolicyValueName, 1);
+    SetRegistryValue(policiesKey.get(), ExperimentalFeaturesPolicyValueName, 1);
+    SetRegistryValue(policiesKey.get(), LocalManifestsPolicyValueName, 1);
+    SetRegistryValue(policiesKey.get(), DefaultSourcePolicyValueName, 1);
+    SetRegistryValue(policiesKey.get(), MSStoreSourcePolicyValueName, 1);;
+    SetRegistryValue(policiesKey.get(), AdditionalSourcesPolicyValueName, 1);
+    SetRegistryValue(policiesKey.get(), AllowedSourcesPolicyValueName, 1);
+
+    GroupPolicy groupPolicy{ policiesKey.get() };
+    for (const auto& policy : TogglePolicy::GetAllPolicies())
+    {
+        REQUIRE(groupPolicy.GetState(policy.GetPolicy()) == PolicyState::Enabled);
     }
 }

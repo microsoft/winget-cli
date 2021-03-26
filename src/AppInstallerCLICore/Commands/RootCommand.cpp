@@ -131,9 +131,8 @@ namespace AppInstaller::CLI
 
             info << std::endl << Resource::String::Logs << ": "_liv << Runtime::GetPathTo(Runtime::PathName::DefaultLogLocationForDisplay).u8string() << std::endl;
 
-            OutputGroupPolicies(context);
-
             info << std::endl;
+
             Execution::TableOutput<2> links{ context.Reporter, { Resource::String::Links, {} } };
 
             links.OutputLine({ Resource::LocString(Resource::String::PrivacyStatement).get(), "https://aka.ms/winget-privacy" });
@@ -142,6 +141,8 @@ namespace AppInstaller::CLI
             links.OutputLine({ Resource::LocString(Resource::String::MainHomepage).get(), "https://aka.ms/winget" });
 
             links.Complete();
+
+            OutputGroupPolicies(context);
         }
         else if (context.Args.Contains(Execution::Args::Type::ListVersions))
         {

@@ -8,9 +8,13 @@
 namespace TestCommon
 {
     const std::wstring WinGetPolicyValueName = L"EnableWindowsPackageManager";
-    const std::wstring SettingsCommandPolicyValueName = L"EnableSettingsCommand";
+    const std::wstring WinGetSettingsPolicyValueName = L"EnableWindowsPackageManagerSettings";
     const std::wstring ExperimentalFeaturesPolicyValueName = L"EnableExperimentalFeatures";
     const std::wstring LocalManifestsPolicyValueName = L"EnableLocalManifestFiles";
+    const std::wstring DefaultSourcePolicyValueName = L"EnableDefaultSource";
+    const std::wstring MSStoreSourcePolicyValueName = L"EnableMSStoreSource";
+    const std::wstring AdditionalSourcesPolicyValueName = L"EnableAdditionalSources";
+    const std::wstring AllowedSourcesPolicyValueName = L"EnableAllowedSources";
 
     const std::wstring SourceUpdateIntervalPolicyValueName = L"SourceAutoUpdateIntervalInMinutes";
 

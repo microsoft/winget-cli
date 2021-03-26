@@ -24,7 +24,7 @@ namespace AppInstaller::StringResource
     struct String
     {
         WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableWinGet);
-        WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableSettings);
+        WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableWingetSettings);
         WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableExperimentalFeatures);
         WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableLocalManifests);
         WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableDefaultSource);
