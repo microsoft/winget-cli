@@ -9,6 +9,7 @@
 #include "Rest/Schema/Json/JsonHelper.h"
 #include "Rest/Schema/Json/CommonRestConstants.h"
 #include "Rest/Schema/Json/ManifestDeserializer.h"
+#include "Rest/Schema/RestHelper.h"
 #include "Rest/Schema/Json/SearchResponseDeserializer.h"
 #include "winget/ManifestValidation.h"
 
@@ -35,16 +36,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             json_body[JsonHelper::GetUtilityString(FetchAllManifests)] = web::json::value::string(L"true");
 
             return json_body;
-        }
-
-        std::string GetRestAPIBaseUri(std::string restApiUri)
-        {
-            if (!restApiUri.empty() && restApiUri.back() == '/')
-            {
-                restApiUri.pop_back();
-            }
-
-            return restApiUri;
         }
 
         utility::string_t GetSearchEndpoint(const std::string& restApiUri)
@@ -82,7 +73,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
     Interface::Interface(const std::string& restApi)
     {
-        m_restApiUri = GetRestAPIBaseUri(restApi);
+        m_restApiUri = RestHelper::GetRestAPIBaseUri(restApi);
         m_searchEndpoint = GetSearchEndpoint(m_restApiUri);
         m_requiredRestApiHeaders.emplace_back(
             std::pair(JsonHelper::GetUtilityString(ContractVersion), JsonHelper::GetUtilityString(GetVersion())));

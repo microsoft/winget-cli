@@ -142,17 +142,26 @@ namespace AppInstaller::Repository::Rest::Schema::Json
                 manifest.Channel = JsonHelper::GetRawStringValueFromJsonNode(versionItem, JsonHelper::GetUtilityString(Channel)).value_or("");
 
                 // Default locale
-                auto& defaultLocale = versionItem.at(JsonHelper::GetUtilityString(DefaultLocale));
-                std::optional<Manifest::ManifestLocalization> defaultLocaleObject = DeserializeLocale(defaultLocale);
-                if (!defaultLocaleObject)
+                std::optional<std::reference_wrapper<const web::json::value>> defaultLocale =
+                    JsonHelper::GetJsonValueFromNode(versionItem, JsonHelper::GetUtilityString(DefaultLocale));
+                if (!defaultLocale)
                 {
                     AICLI_LOG(Repo, Error, << "Missing default locale in package: " << manifest.Id);
                     return {};
                 }
-                manifest.DefaultLocalization = std::move(defaultLocaleObject.value());
+                else
+                {
+                    std::optional<Manifest::ManifestLocalization> defaultLocaleObject = DeserializeLocale(defaultLocale.value().get());
+                    if (!defaultLocaleObject)
+                    {
+                        AICLI_LOG(Repo, Error, << "Missing default locale in package: " << manifest.Id);
+                        return {};
+                    }
+                    manifest.DefaultLocalization = std::move(defaultLocaleObject.value());
 
-                // Moniker is in Default locale
-                manifest.Moniker = JsonHelper::GetRawStringValueFromJsonNode(defaultLocale, JsonHelper::GetUtilityString(Moniker)).value_or("");
+                    // Moniker is in Default locale
+                    manifest.Moniker = JsonHelper::GetRawStringValueFromJsonNode(defaultLocale.value().get(), JsonHelper::GetUtilityString(Moniker)).value_or("");
+                }
 
                 // Installers
                 std::optional<std::reference_wrapper<const web::json::array>> installers = JsonHelper::GetRawJsonArrayFromJsonNode(versionItem, JsonHelper::GetUtilityString(Installers));
@@ -335,14 +344,19 @@ namespace AppInstaller::Repository::Rest::Schema::Json
         }
 
         // Installer Switches
-        auto& installerSwitches = installerJsonObject.at(JsonHelper::GetUtilityString(InstallerSwitches));
-        installer.Switches[InstallerSwitchType::Silent] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(Silent)).value_or("");
-        installer.Switches[InstallerSwitchType::SilentWithProgress] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(SilentWithProgress)).value_or("");
-        installer.Switches[InstallerSwitchType::Interactive] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(Interactive)).value_or("");
-        installer.Switches[InstallerSwitchType::InstallLocation] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(InstallLocation)).value_or("");
-        installer.Switches[InstallerSwitchType::Log] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(Log)).value_or("");
-        installer.Switches[InstallerSwitchType::Update] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(Upgrade)).value_or("");
-        installer.Switches[InstallerSwitchType::Custom] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(Custom)).value_or("");
+        std::optional<std::reference_wrapper<const web::json::value>> switches =
+            JsonHelper::GetJsonValueFromNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerSwitches));
+        if (switches)
+        {
+            auto& installerSwitches = switches.value().get();
+            installer.Switches[InstallerSwitchType::Silent] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(Silent)).value_or("");
+            installer.Switches[InstallerSwitchType::SilentWithProgress] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(SilentWithProgress)).value_or("");
+            installer.Switches[InstallerSwitchType::Interactive] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(Interactive)).value_or("");
+            installer.Switches[InstallerSwitchType::InstallLocation] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(InstallLocation)).value_or("");
+            installer.Switches[InstallerSwitchType::Log] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(Log)).value_or("");
+            installer.Switches[InstallerSwitchType::Update] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(Upgrade)).value_or("");
+            installer.Switches[InstallerSwitchType::Custom] = JsonHelper::GetRawStringValueFromJsonNode(installerSwitches, JsonHelper::GetUtilityString(Custom)).value_or("");
+        }
 
         // Installer SuccessCodes
         std::optional<std::reference_wrapper<const web::json::array>> installSuccessCodes = JsonHelper::GetRawJsonArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerSuccessCodes));
@@ -369,11 +383,15 @@ namespace AppInstaller::Repository::Rest::Schema::Json
         installer.FileExtensions = JsonHelper::GetRawStringArrayFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(FileExtensions));
 
         // Dependencies
-        auto& dependenciesObject = installerJsonObject.at(JsonHelper::GetUtilityString(Dependencies));
-        std::optional<Manifest::Dependency> dependency = DeserializeDependency(dependenciesObject);
-        if (dependency)
+        std::optional<std::reference_wrapper<const web::json::value>> dependenciesObject =
+            JsonHelper::GetJsonValueFromNode(installerJsonObject, JsonHelper::GetUtilityString(Dependencies));
+        if (dependenciesObject)
         {
-            installer.Dependencies = std::move(dependency.value());
+            std::optional<Manifest::Dependency> dependency = DeserializeDependency(dependenciesObject.value().get());
+            if (dependency)
+            {
+                installer.Dependencies = std::move(dependency.value());
+            }
         }
 
         installer.PackageFamilyName = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(PackageFamilyName)).value_or("");
