@@ -87,24 +87,34 @@
           "type": "boolean",
           "default": false
         }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "properties": {
+        "visual": { "$ref": "#/definitions/Visual" }
       },
-      "additionalProperties": true
-    }
-  },
-  "type": "object",
-  "properties": {
-    "visual": {
-      "$ref": "#/definitions/Visual"
+      "additionalItems": true
     },
-    "source": {
-      "$ref": "#/definitions/Source"
+    {
+      "properties": {
+        "source": { "$ref": "#/definitions/Source"}
+      },
+      "additionalItems": true
     },
-    "telemetry": {
-      "$ref": "#/definitions/Telemetry"
+    {
+      "properties": {
+        "telemetry": { "$ref": "#/definitions/Telemetry"}
+      },
+      "additionalItems": true
     },
-    "experimentalFeatures": {
-      "$ref": "#/definitions/Experimental"
-    }
-  },
+    {
+        "properties": {
+          "experimentalFeatures": { "$ref": "#/definitions/Experimental"}
+        },
+        "additionalItems": true
+      }
+  ],
   "additionalProperties": true
 }
