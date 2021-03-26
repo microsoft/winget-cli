@@ -3,18 +3,18 @@
      Licensed under the MIT License. -->
 <policyDefinitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
   <policyNamespaces>
-    <target prefix="winget" namespace="Microsoft.Policies.WindowsPackageManager" />
+    <target prefix="appinstaller" namespace="Microsoft.Policies.AppInstaller" />
     <using prefix="windows" namespace="Microsoft.Policies.Windows" />
   </policyNamespaces>
   <resources minRequiredRevision="1.0" />
   <categories>
-    <category name="WindowsPackageManager" displayName="$(string.WindowsPackageManager)">
+    <category name="WindowsAppInstaller" displayName="$(string.WindowsAppInstaller)">
       <parentCategory ref="windows:WindowsComponents" />
     </category>
   </categories>
   <policies>
     <policy name="EnableWindowsPackageManager" class="Machine" displayName="$(string.EnableWindowsPackageManager)" explainText="$(string.EnableWindowsPackageManagerExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableWindowsPackageManager">
-      <parentCategory ref="WindowsPackageManager" />
+      <parentCategory ref="WindowsAppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
@@ -23,8 +23,8 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
-    <policy name="EnableSettingsCommand" class="Machine" displayName="$(string.EnableSettingsCommand)" explainText="$(string.EnableSettingsCommandExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableSettingsCommand">
-      <parentCategory ref="WindowsPackageManager" />
+    <policy name="EnableWindowsPackageManagerSettings" class="Machine" displayName="$(string.EnableWindowsPackageManagerSettings)" explainText="$(string.EnableWindowsPackageManagerSettingsExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableWindowsPackageManagerSettings">
+      <parentCategory ref="WindowsAppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
@@ -34,7 +34,7 @@
       </disabledValue>
     </policy>
     <policy name="EnableExperimentalFeatures" class="Machine" displayName="$(string.EnableExperimentalFeatures)" explainText="$(string.EnableExperimentalFeaturesExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableExperimentalFeatures">
-      <parentCategory ref="WindowsPackageManager" />
+      <parentCategory ref="WindowsAppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
@@ -44,7 +44,7 @@
       </disabledValue>
     </policy>
     <policy name="EnableLocalManifestFiles" class="Machine" displayName="$(string.EnableLocalManifestFiles)" explainText="$(string.EnableLocalManifestFilesExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableLocalManifestFiles">
-      <parentCategory ref="WindowsPackageManager" />
+      <parentCategory ref="WindowsAppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
@@ -54,7 +54,7 @@
       </disabledValue>
     </policy>
     <policy name="EnableHashOverride" class="Machine" displayName="$(string.EnableHashOverride)" explainText="$(string.EnableHashOverrideExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableHashOverride">
-      <parentCategory ref="WindowsPackageManager" />
+      <parentCategory ref="WindowsAppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
@@ -64,7 +64,7 @@
       </disabledValue>
     </policy>
     <policy name="EnableDefaultSorce" class="Machine" displayName="$(string.EnableDefaultSorce)" explainText="$(string.EnableDefaultSorceExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableDefaultSorce">
-      <parentCategory ref="WindowsPackageManager" />
+      <parentCategory ref="WindowsAppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
@@ -74,7 +74,7 @@
       </disabledValue>
     </policy>
     <policy name="EnableMicrosoftStoreSource" class="Machine" displayName="$(string.EnableMicrosoftStoreSource)" explainText="$(string.EnableMicrosoftStoreSourceExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableMicrosoftStoreSource">
-      <parentCategory ref="WindowsPackageManager" />
+      <parentCategory ref="WindowsAppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
@@ -84,14 +84,14 @@
       </disabledValue>
     </policy>
     <policy name="SourceAutoUpdateIntervalInMinutes" class="Machine" displayName="$(string.SourceAutoUpdateIntervalInMinutes)" explainText="$(string.SourceAutoUpdateIntervalInMinutesExplanation)" presentation="$(presentation.SourceAutoUpdateIntervalInMinutes)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager">
-      <parentCategory ref="WindowsPackageManager" />
+      <parentCategory ref="WindowsAppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <elements>
         <decimal id="SourceAutoUpdateIntervalInMinutes" valueName="SourceAutoUpdateIntervalInMinutes" maxValue="43200" />
       </elements>
     </policy>
     <policy name="EnableAdditionalSources" class="Machine" displayName="$(string.EnableAdditionalSources)" explainText="$(string.EnableAdditionalSourcesExplanation)" presentation="$(presentation.AdditionalSources)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableAdditionalSources">
-      <parentCategory ref="WindowsPackageManager" />
+      <parentCategory ref="WindowsAppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
@@ -104,7 +104,7 @@
       </elements>
     </policy>
     <policy name="EnableAllowedSources" class="Machine" displayName="$(string.EnableAllowedSources)" explainText="$(string.EnableAllowedSourcesExplanation)" presentation="$(presentation.AllowedSources)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableAllowedSources">
-      <parentCategory ref="WindowsPackageManager" />
+      <parentCategory ref="WindowsAppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
         <decimal value="1" />
