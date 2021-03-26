@@ -44,12 +44,12 @@ namespace AppInstaller::Manifest
 
         ScopeEnum Scope = ScopeEnum::User;
 
-        std::vector<ScopeEnum> InstallModes;
+        std::vector<InstallModeEnum> InstallModes;
 
         // If present, has more precedence than root
         std::map<InstallerSwitchType, string_t> Switches;
 
-        std::vector<int> InstallerSuccessCodes;
+        std::vector<DWORD> InstallerSuccessCodes;
 
         UpdateBehaviorEnum UpdateBehavior = UpdateBehaviorEnum::Install;
 

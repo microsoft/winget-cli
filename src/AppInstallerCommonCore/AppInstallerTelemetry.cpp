@@ -6,6 +6,7 @@
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
+#include "winget/UserSettings.h"
 
 #define AICLI_TraceLoggingStringView(_sv_,_name_) TraceLoggingCountedUtf8String(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
 
@@ -34,17 +35,9 @@ namespace AppInstaller::Logging
     {
         static const uint32_t s_RootExecutionId = 0;
 
-        // Used to disable telemetry on the fly.
-        std::atomic_bool s_isTelemetryEnabled{ true };
-
         std::atomic_uint32_t s_executionStage{ 0 };
 
         std::atomic_uint32_t s_subExecutionId{ s_RootExecutionId };
-
-        bool IsTelemetryEnabled()
-        {
-            return g_IsTelemetryProviderEnabled && s_isTelemetryEnabled;
-        }
 
         void __stdcall wilResultLoggingCallback(const wil::FailureInfo& info) noexcept
         {
@@ -67,7 +60,10 @@ namespace AppInstaller::Logging
 
     TelemetryTraceLogger::TelemetryTraceLogger()
     {
+        // TODO: Needs to be made a singleton registration/removal in the future
         RegisterTraceLogging();
+
+        m_isSettingEnabled = !Settings::User().Get<Settings::Setting::TelemetryDisable>();
     }
 
     TelemetryTraceLogger::~TelemetryTraceLogger()
@@ -79,6 +75,16 @@ namespace AppInstaller::Logging
     {
         static TelemetryTraceLogger instance;
         return instance;
+    }
+
+    bool TelemetryTraceLogger::DisableRuntime()
+    {
+        return m_isRuntimeEnabled.exchange(false);
+    }
+
+    void TelemetryTraceLogger::EnableRuntime()
+    {
+        m_isRuntimeEnabled = true;
     }
 
     void TelemetryTraceLogger::LogFailure(const wil::FailureInfo& failure) const noexcept
@@ -222,7 +228,7 @@ namespace AppInstaller::Logging
                 nullptr,
                 TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
                 TraceLoggingBool(isLocalManifest, "IsManifestLocal"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
     }
@@ -239,7 +245,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(id, "Id"),
                 AICLI_TraceLoggingStringView(name,"Name"),
                 AICLI_TraceLoggingStringView(version, "Version"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
@@ -289,7 +295,7 @@ namespace AppInstaller::Logging
                 TraceLoggingUInt32(s_subExecutionId, "SubExecutionId"),
                 AICLI_TraceLoggingStringView(name, "Name"),
                 AICLI_TraceLoggingStringView(id, "Id"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
@@ -349,7 +355,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(command, "Command"),
                 TraceLoggingUInt64(static_cast<UINT64>(maximum), "Maximum"),
                 AICLI_TraceLoggingStringView(request, "Request"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
     }
@@ -483,7 +489,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(arpVersion, "ARPVersion"),
                 AICLI_TraceLoggingStringView(arpPublisher, "ARPPublisher"),
                 TraceLoggingUInt64(static_cast<UINT64>(languageNumber), "ARPLanguage"),
-                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage | PDT_SoftwareSetupAndInventory),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
@@ -498,6 +504,11 @@ namespace AppInstaller::Logging
         {
             AICLI_LOG(CLI, Info, << "The entry determined to be associated with the package is '" << arpName << "', with publisher '" << arpPublisher << "'");
         }
+    }
+
+    bool TelemetryTraceLogger::IsTelemetryEnabled() const noexcept
+    {
+        return g_IsTelemetryProviderEnabled && m_isSettingEnabled && m_isRuntimeEnabled;
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -523,14 +534,14 @@ namespace AppInstaller::Logging
 
     DisableTelemetryScope::DisableTelemetryScope()
     {
-        m_token = s_isTelemetryEnabled.exchange(false);
+        m_token = Telemetry().DisableRuntime();
     }
 
     DisableTelemetryScope::~DisableTelemetryScope()
     {
         if (m_token)
         {
-            s_isTelemetryEnabled = true;
+            Telemetry().EnableRuntime();
         }
     }
 

@@ -26,8 +26,9 @@ MinimumOSVersion: 10.0.0.0
 InstallerType: zip
 Scope: machine
 InstallModes:
-  - user
-  - machine
+  - interactive
+  - silent
+  - silentWithProgress
 InstallerSwitches:
   Custom: /custom
   SilentWithProgress: /silentwithprogress
@@ -80,7 +81,7 @@ Installers:
     SignatureSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
     Scope: user
     InstallModes:
-      - user
+      - interactive
     InstallerSwitches:
       Custom: /c
       SilentWithProgress: /sp

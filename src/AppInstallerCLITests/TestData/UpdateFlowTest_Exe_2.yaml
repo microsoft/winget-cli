@@ -1,0 +1,18 @@
+# Same content with UpdateFlowTest_Exe.yaml but with higher version
+Id: AppInstallerCliTest.TestExeInstaller
+Version: 3.0.0.0
+Name: AppInstaller Test Installer
+Publisher: Microsoft Corporation
+AppMoniker: AICLITestExe
+License: Test
+Switches:
+  Custom: /custom /ver3.0.0.0
+  SilentWithProgress: /silentwithprogress
+  Silent: /silence
+  Update: /update
+Installers: 
+    - Arch: x64
+      Url: https://ThisIsNotUsed
+      InstallerType: exe
+      Sha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+ManifestVersion: 0.1.0

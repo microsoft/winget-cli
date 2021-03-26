@@ -33,8 +33,7 @@
     },
     "Url": {
       "type": [ "string", "null" ],
-      "format": "uri",
-      "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://",
+      "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
       "maxLength": 2000
     },
     "Homepage": {
@@ -51,49 +50,49 @@
         "Custom": {
           "type": [ "string", "null" ],
           "minLength": 1,
-          "maxLength": 1000,
+          "maxLength": 2048,
           "description": "Custom switches will be passed directly to the installer by winget"
         },
         "Silent": {
           "type": [ "string", "null" ],
           "minLength": 1,
-          "maxLength": 100,
+          "maxLength": 512,
           "description": "Silent is the value that should be passed to the installer when user chooses a silent or quiet install"
         },
         "SilentWithProgress": {
           "type": [ "string", "null" ],
           "minLength": 1,
-          "maxLength": 100,
+          "maxLength": 512,
           "description": "SilentWithProgress is the value that should be passed to the installer when user chooses a non-interactive install"
         },
         "Interactive": {
           "type": [ "string", "null" ],
           "minLength": 1,
-          "maxLength": 100,
+          "maxLength": 512,
           "description": "Interactive is the value that should be passed to the installer when user chooses an interactive install"
         },
         "Language": {
           "type": [ "string", "null" ],
           "minLength": 1,
-          "maxLength": 100,
+          "maxLength": 512,
           "description": "Some installers include all localized resources. By specifying a Language switch, winget will pass the value of Language to the installer. This is not yet supported in Preview releases"
         },
         "Log": {
           "type": [ "string", "null" ],
           "minLength": 1,
-          "maxLength": 100,
+          "maxLength": 512,
           "description": "Log is the value passed to the installer for custom log file path. <LOGPATH> token can be included in the switch value so that winget will replace the token with user provided path"
         },
         "InstallLocation": {
           "type": [ "string", "null" ],
           "minLength": 1,
-          "maxLength": 100,
+          "maxLength": 512,
           "description": "InstallLocation is the value passed to the installer for custom install location. <INSTALLPATH> token can be included in the switch value so that winget will replace the token with user provided path"
         },
         "Update": {
           "type": [ "string", "null" ],
           "minLength": 1,
-          "maxLength": 100,
+          "maxLength": 512,
           "description": "Update is the value that should be passed to the installer when user chooses an upgrade"
         }
       }
@@ -108,8 +107,7 @@
         },
         "Url": {
           "type": "string",
-          "format": "uri",
-          "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://",
+          "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
           "maxLength": 2000,
           "description": "Url is required. The path to the installer."
         },

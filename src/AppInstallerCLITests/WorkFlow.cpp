@@ -112,6 +112,7 @@ namespace
             {
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
                 auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
+                auto manifest3 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_2.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
                         TestPackage::Make(
@@ -122,7 +123,7 @@ namespace
                                 { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
                                 { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
                             },
-                            std::vector<Manifest>{ manifest2, manifest },
+                            std::vector<Manifest>{ manifest3, manifest2, manifest },
                             this->shared_from_this()
                         ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
@@ -442,6 +443,30 @@ TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow][workflow]")
     std::string installResultStr;
     std::getline(installResultFile, installResultStr);
     REQUIRE(installResultStr.find("/custom") != std::string::npos);
+    REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
+}
+
+TEST_CASE("InstallFlowNonZeroExitCode", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_NonZeroExitCode.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(context.GetTerminationHR() == S_OK);
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/ExitCode 0x80070005") != std::string::npos);
     REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
 }
 
@@ -853,6 +878,7 @@ TEST_CASE("UpdateFlow_UpdateExe", "[UpdateFlow][workflow]")
     std::getline(updateResultFile, updateResultStr);
     REQUIRE(updateResultStr.find("/update") != std::string::npos);
     REQUIRE(updateResultStr.find("/silence") != std::string::npos);
+    REQUIRE(updateResultStr.find("/ver3.0.0.0") != std::string::npos);
 }
 
 TEST_CASE("UpdateFlow_UpdateMsix", "[UpdateFlow][workflow]")
@@ -1313,14 +1339,11 @@ TEST_CASE("ImportFlow_InvalidJsonFile", "[ImportFlow][workflow]")
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Bad-Invalid.json").GetPath().string());
 
     ImportCommand importCommand({});
-    // TODO: Enable when we have schema validation
-    /*
     importCommand.Execute(context);
     INFO(importOutput.str());
 
     // Command should have failed
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
-    */
 }
 
 void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)

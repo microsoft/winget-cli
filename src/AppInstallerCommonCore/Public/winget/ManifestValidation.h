@@ -31,7 +31,7 @@ namespace AppInstaller::Manifest
         const char* const DuplicateInstallerEntry = "Duplicate installer entry found.";
         const char* const InstallerTypeDoesNotSupportPackageFamilyName = "The specified installer type does not support PackageFamilyName.";
         const char* const InstallerTypeDoesNotSupportProductCode = "The specified installer type does not support ProductCode.";
-        const char* const IncompleteMultiFileManifest = "The multi file manifest is incomplete.";
+        const char* const IncompleteMultiFileManifest = "The multi file manifest is incomplete. A multi file manifest must contain at least version, installer and defaultLocale manifest.";
         const char* const InconsistentMultiFileManifestFieldValue = "The multi file manifest has inconsistent field values.";
         const char* const DuplicateMultiFileManifestType = "The multi file manifest should contain only one file with the particular ManifestType.";
         const char* const DuplicateMultiFileManifestLocale = "The multi file manifest contains duplicate PackageLocale.";
@@ -85,6 +85,13 @@ namespace AppInstaller::Manifest
             return error;
         }
 
+        static ValidationError MessageFieldWithFile(std::string message, std::string field, std::string file)
+        {
+            ValidationError error{ message, field };
+            error.FileName = file;
+            return error;
+        }
+
         static ValidationError MessageFieldValueWithFile(std::string message, std::string field, std::string value, std::string file)
         {
             ValidationError error{ message, field, value };
@@ -115,7 +122,10 @@ namespace AppInstaller::Manifest
                 if (m_errors.empty())
                 {
                     // Syntax error, yaml parser error is stored in FailureInfo
-                    m_manifestErrorMessage = Utility::ConvertToUTF8(GetFailureInfo().pszMessage);
+                    if (GetFailureInfo().pszMessage)
+                    {
+                        m_manifestErrorMessage = Utility::ConvertToUTF8(GetFailureInfo().pszMessage);
+                    }
                 }
                 else
                 {

@@ -56,6 +56,8 @@ cotaskmem
 cout
 cpp
 cppreference
+cpprest
+cpprestsdk
 cppwinrt
 CPRWL
 createnew
@@ -75,6 +77,9 @@ delstore
 Demitrius
 denelon
 depersist
+Deserialize
+deserializer
+deserializing
 dest
 devblogs
 differentpath
@@ -177,6 +182,7 @@ iostream
 IOutput
 IProgress
 IRandom
+IRest
 ISAPPROVEDFOROUTPUT
 ISource
 isspace
@@ -262,7 +268,9 @@ OSVERSIONINFOEXW
 outfile
 OUTOFMEMORY
 OWC
+PACKAGESSCHEMA
 Params
+params
 parentidx
 pathpart
 Pathto
@@ -280,6 +288,7 @@ png
 posix
 powershell
 PPV
+pplx
 pragma
 PRECONFIG
 preindexed
@@ -310,6 +319,7 @@ repolibtest
 rescap
 resheader
 resmimetype
+RESTSOURCE
 resw
 resx
 roadmap

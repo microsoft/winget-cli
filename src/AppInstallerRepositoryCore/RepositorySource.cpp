@@ -7,6 +7,7 @@
 #include "SourceFactory.h"
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
+#include "Rest/RestSourceFactory.h"
 
 namespace AppInstaller::Repository
 {
@@ -206,9 +207,10 @@ namespace AppInstaller::Repository
                     result.emplace_back(std::move(storeDetails));
                 }
             }
-                break;
+            break;
             case SourceOrigin::User:
-                result = GetSourcesFromSetting(
+            {
+                std::vector<SourceDetailsInternal> userSources = GetSourcesFromSetting(
                     Settings::Streams::UserSources,
                     s_SourcesYaml_Sources,
                     [&](SourceDetailsInternal& details, const std::string& settingValue, const YAML::Node& source)
@@ -222,7 +224,19 @@ namespace AppInstaller::Repository
                         TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier);
                         return true;
                     });
-                break;
+
+                for (auto& source : userSources)
+                {
+                    if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), source.Type)
+                        && !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
+                    {
+                        continue;
+                    }
+
+                    result.emplace_back(std::move(source));
+                }
+            }
+            break;
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -326,6 +340,11 @@ namespace AppInstaller::Repository
             else if (Microsoft::PredefinedInstalledSourceFactory::Type() == type)
             {
                 return Microsoft::PredefinedInstalledSourceFactory::Create();
+            }
+            else if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type)
+                && Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
+            {
+                return Rest::RestSourceFactory::Create();
             }
 
             THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
@@ -607,6 +626,15 @@ namespace AppInstaller::Repository
         details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(0);
         details.Origin = SourceOrigin::User;
 
+        // Check feature flag enablement for rest source.
+        if (Utility::CaseInsensitiveEquals(Rest::RestSourceFactory::Type(), type)
+            && !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ExperimentalRestSource))
+        {
+            AICLI_LOG(Repo, Error, << Settings::ExperimentalFeature::GetFeature(Settings::ExperimentalFeature::Feature::ExperimentalRestSource).Name()
+                << " feature is disabled. Execution cancelled.");
+            THROW_HR(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
+        }
+
         AddSourceFromDetails(details, progress);
 
         AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
@@ -627,7 +655,7 @@ namespace AppInstaller::Repository
                 AICLI_LOG(Repo, Info, << "Default source requested, but no sources configured");
                 return {};
             }
-            else if(currentSources.size() == 1)
+            else if (currentSources.size() == 1)
             {
                 AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
                 return OpenSource(currentSources[0].get().Name, progress);

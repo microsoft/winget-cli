@@ -32,6 +32,10 @@ namespace AppInstaller::CLI::Execution
     Reporter::Reporter(const Reporter& other, clone_t) :
         Reporter(other.m_out, other.m_in)
     {
+        if (other.m_style.has_value())
+        {
+            SetStyle(*other.m_style);
+        }
     }
 
     OutputStream Reporter::GetOutputStream(Level level)
@@ -78,6 +82,7 @@ namespace AppInstaller::CLI::Execution
 
     void Reporter::SetStyle(VisualStyle style)
     {
+        m_style = style;
         if (m_spinner)
         {
             m_spinner->SetStyle(style);

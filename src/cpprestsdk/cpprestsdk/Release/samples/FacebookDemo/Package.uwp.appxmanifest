@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  IgnorableNamespaces="uap mp">
+  <Identity Name="2b173277-f2a9-4af1-905b-0da25a731def" Publisher="CN=casaserv" Version="1.0.0.0" />
+  <Properties>
+    <DisplayName>FacebookDemo</DisplayName>
+    <PublisherDisplayName>Andy</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <mp:PhoneIdentity PhoneProductId="51cd24bd-4a31-4002-a587-b5ca8c380f24" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />
+  </Dependencies>
+  
+  <Resources>
+    <Resource Language="x-generate" />
+  </Resources>
+  <Applications>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="FacebookDemo.App">
+      <uap:VisualElements DisplayName="FacebookDemo" Description="FacebookDemo" BackgroundColor="#464646" Square150x150Logo="Assets\Logo.png" Square44x44Logo="Assets\SmallLogo.png">
+        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <Capability Name="internetClient" />
+  </Capabilities>
+</Package>

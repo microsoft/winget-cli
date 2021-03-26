@@ -75,7 +75,7 @@ namespace AppInstaller::Manifest
         Language,
         Log,
         InstallLocation,
-        Update
+        Update,
     };
 
     enum class ScopeEnum
@@ -83,6 +83,14 @@ namespace AppInstaller::Manifest
         Unknown,
         User,
         Machine,
+    };
+
+    enum class InstallModeEnum
+    {
+        Unknown,
+        Interactive,
+        Silent,
+        SilentWithProgress,
     };
 
     enum class PlatformEnum
@@ -100,7 +108,7 @@ namespace AppInstaller::Manifest
         DefaultLocale,
         Locale,
         Merged,
-        Preview
+        Preview,
     };
 
     struct PackageDependency
@@ -123,6 +131,8 @@ namespace AppInstaller::Manifest
     UpdateBehaviorEnum ConvertToUpdateBehaviorEnum(const std::string& in);
 
     ScopeEnum ConvertToScopeEnum(const std::string& in);
+
+    InstallModeEnum ConvertToInstallModeEnum(const std::string& in);
 
     PlatformEnum ConvertToPlatformEnum(const std::string& in);
 

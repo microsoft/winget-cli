@@ -60,15 +60,15 @@ namespace AppInstaller::Manifest
             return result;
         }
 
-        std::vector<int> ProcessIntSequenceNode(const YAML::Node& node)
+        std::vector<DWORD> ProcessInstallerSuccessCodeSequenceNode(const YAML::Node& node)
         {
             THROW_HR_IF(E_INVALIDARG, !node.IsSequence());
 
-            std::vector<int> result;
+            std::vector<DWORD> result;
 
             for (auto const& entry : node.Sequence())
             {
-                result.emplace_back(entry.as<int>());
+                result.emplace_back(static_cast<DWORD>(entry.as<int>()));
             }
 
             return result;
@@ -88,15 +88,15 @@ namespace AppInstaller::Manifest
             return result;
         }
 
-        std::vector<ScopeEnum> ProcessScopeSequenceNode(const YAML::Node& node)
+        std::vector<InstallModeEnum> ProcessInstallModeSequenceNode(const YAML::Node& node)
         {
             THROW_HR_IF(E_INVALIDARG, !node.IsSequence());
 
-            std::vector<ScopeEnum> result;
+            std::vector<InstallModeEnum> result;
 
             for (auto const& entry : node.Sequence())
             {
-                result.emplace_back(ConvertToScopeEnum(entry.as<std::string>()));
+                result.emplace_back(ConvertToInstallModeEnum(entry.as<std::string>()));
             }
 
             return result;
@@ -214,16 +214,16 @@ namespace AppInstaller::Manifest
             // Starting v1, we should be only adding new fields for each minor version increase
             if (manifestVersion >= ManifestVer{ s_ManifestVersionV1 })
             {
-                // Root level and Localization node level
+                // Root level and Installer node level
                 std::vector<FieldProcessInfo> v1CommonFields =
                 {
                     { "InstallerLocale", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->Locale = value.as<std::string>(); return {}; } },
                     { "Platform", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->Platform = ProcessPlatformSequenceNode(value); return {}; } },
                     { "MinimumOSVersion", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->MinOSVersion = value.as<std::string>(); return {}; } },
                     { "Scope", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->Scope = ConvertToScopeEnum(value.as<std::string>()); return {}; } },
-                    { "InstallModes", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->InstallModes = ProcessScopeSequenceNode(value); return {}; } },
+                    { "InstallModes", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->InstallModes = ProcessInstallModeSequenceNode(value); return {}; } },
                     { "InstallerSwitches", [this](const YAML::Node& value)->ValidationErrors { m_p_switches = &(m_p_installer->Switches); return ValidateAndProcessFields(value, SwitchesFieldInfos); } },
-                    { "InstallerSuccessCodes", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->InstallerSuccessCodes = ProcessIntSequenceNode(value); return {}; } },
+                    { "InstallerSuccessCodes", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->InstallerSuccessCodes = ProcessInstallerSuccessCodeSequenceNode(value); return {}; } },
                     { "UpgradeBehavior", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->UpdateBehavior = ConvertToUpdateBehaviorEnum(value.as<std::string>()); return {}; } },
                     { "Commands", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->Commands = ProcessStringSequenceNode(value); return {}; } },
                     { "Protocols", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->Protocols = ProcessStringSequenceNode(value); return {}; } },

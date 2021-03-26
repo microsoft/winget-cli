@@ -355,7 +355,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
     REQUIRE(manifest.DefaultInstallerInfo.MinOSVersion == "10.0.0.0");
     REQUIRE(manifest.DefaultInstallerInfo.InstallerType == InstallerTypeEnum::Zip);
     REQUIRE(manifest.DefaultInstallerInfo.Scope == ScopeEnum::Machine);
-    REQUIRE(manifest.DefaultInstallerInfo.InstallModes == std::vector<ScopeEnum>{ ScopeEnum::User ,ScopeEnum::Machine });
+    REQUIRE(manifest.DefaultInstallerInfo.InstallModes == std::vector<InstallModeEnum>{ InstallModeEnum::Interactive, InstallModeEnum::Silent, InstallModeEnum::SilentWithProgress });
 
     auto defaultSwitches = manifest.DefaultInstallerInfo.Switches;
     REQUIRE(defaultSwitches.at(InstallerSwitchType::Custom) == "/custom");
@@ -366,7 +366,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
     REQUIRE(defaultSwitches.at(InstallerSwitchType::InstallLocation) == "/dir=<INSTALLPATH>");
     REQUIRE(defaultSwitches.at(InstallerSwitchType::Update) == "/upgrade");
 
-    REQUIRE(manifest.DefaultInstallerInfo.InstallerSuccessCodes == std::vector<int>{ 1, static_cast<int>(0x80070005) });
+    REQUIRE(manifest.DefaultInstallerInfo.InstallerSuccessCodes == std::vector<DWORD>{ 1, static_cast<DWORD>(0x80070005) });
     REQUIRE(manifest.DefaultInstallerInfo.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious);
     REQUIRE(manifest.DefaultInstallerInfo.Commands == MultiValue{ "makemsix", "makeappx" });
     REQUIRE(manifest.DefaultInstallerInfo.Protocols == MultiValue{ "protocol1", "protocol2" });
@@ -404,7 +404,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton)
     REQUIRE(installer1.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
     REQUIRE(installer1.SignatureSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
     REQUIRE(installer1.Scope == ScopeEnum::User);
-    REQUIRE(installer1.InstallModes == std::vector<ScopeEnum>{ ScopeEnum::User });
+    REQUIRE(installer1.InstallModes == std::vector<InstallModeEnum>{ InstallModeEnum::Interactive });
 
     auto installer1Switches = installer1.Switches;
     REQUIRE(installer1Switches.at(InstallerSwitchType::Custom) == "/c");

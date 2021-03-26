@@ -1,0 +1,45 @@
+<!--
+ Copyright (C) Microsoft. All rights reserved.
+ Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
+
+ =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+ MainPage.xaml - Primary application page.  Contains two buttons for
+    logging into and fetching albums from Facebook, and a GridView
+    control for displaying the downloaded album data.
+ =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+-->
+
+<Page
+    x:Class="FacebookDemo.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FacebookDemo"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="150" />
+        </Grid.RowDefinitions>
+
+        <GridView Grid.Row="0" x:Name="AlbumGrid">
+            <GridView.ItemTemplate>
+                <DataTemplate>
+                    <Grid HorizontalAlignment="Left" Width="400" Height="250"  Margin="5">
+                        <Image Source="{Binding Preview}" Stretch="UniformToFill" />
+                        <StackPanel VerticalAlignment="Bottom">
+                            <TextBlock Text="{Binding Title}" FontSize="30" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Count}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Top" />
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </GridView.ItemTemplate>
+        </GridView>
+        <StackPanel Orientation="Horizontal" Grid.Row="1">
+            <Button x:Name="LoginButton" Click="LoginButton_Click_1">Login</Button>
+            <Button x:Name="AlbumButton" IsEnabled="False" Click="AlbumButton_Click_1">Fetch Albums</Button>
+        </StackPanel>
+    </Grid>
+</Page>

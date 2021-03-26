@@ -78,6 +78,11 @@
           "description": "Enable the import command while it is in development",
           "type": "boolean",
           "default":  false
+        },
+        "restSource": {
+          "description": "Enable the rest source support while it is in development",
+          "type": "boolean",
+          "default":  false
         }
       }
     }
