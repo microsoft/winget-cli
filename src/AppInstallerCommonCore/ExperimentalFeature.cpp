@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "pch.h"
+#include "AppInstallerLogging.h"
 #include "winget/ExperimentalFeature.h"
 #include "winget/GroupPolicy.h"
 #include "winget/UserSettings.h"
@@ -17,9 +18,11 @@ namespace AppInstaller::Settings
                 return true;
             }
 
-            // TODO: How do we report that this was due to policy higher up?
             if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::ExperimentalFeatures))
             {
+                AICLI_LOG(Core, Info, <<
+                    "Experimental feature " << ExperimentalFeature::GetFeature(feature).Name() <<
+                    " is disabled due to group policy" << TogglePolicy::GetPolicy(TogglePolicy::Policy::ExperimentalFeatures).RegValueName());
                 return false;
             }
 

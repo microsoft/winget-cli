@@ -3,6 +3,7 @@
 #pragma once
 #include "AppInstallerStrings.h"
 #include "winget/GroupPolicy.h"
+#include "winget/Resources.h"
 
 #include <filesystem>
 #include <map>
@@ -120,10 +121,23 @@ namespace AppInstaller::Settings
         constexpr inline size_t SettingIndex(Setting s) { return static_cast<size_t>(s) + 1; }
     }
 
-
     // Representation of the parsed settings file.
     struct UserSettings
     {
+        // Jsoncpp doesn't provide line number and column for an individual Json::Value node.
+        struct Warning
+        {
+            Warning(StringResource::StringId message) : Message(message) {}
+            Warning(StringResource::StringId message, std::string_view settingPath) : Message(message), Path(settingPath) {}
+            Warning(StringResource::StringId message, std::string_view settingPath, std::string_view settingValue, bool isField = true) :
+                Message(message), Path(settingPath), Data(settingValue), IsFieldWarning(isField) {}
+
+            StringResource::StringId Message;
+            std::string Path;
+            std::string Data;
+            bool IsFieldWarning = true;
+        };
+
         static UserSettings const& Instance()
         {
             static UserSettings userSettings;
@@ -139,7 +153,7 @@ namespace AppInstaller::Settings
         UserSettings& operator=(UserSettings&&) = delete;
 
         UserSettingsType GetType() const { return m_type; }
-        std::vector<std::string> const& GetWarnings() const { return m_warnings; }
+        std::vector<Warning> const& GetWarnings() const { return m_warnings; }
 
         void PrepareToShellExecuteFile() const;
 
@@ -158,7 +172,7 @@ namespace AppInstaller::Settings
 
     private:
         UserSettingsType m_type = UserSettingsType::Default;
-        std::vector<std::string> m_warnings;
+        std::vector<Warning> m_warnings;
         std::map<Setting, details::SettingVariant> m_settings;
 
     protected:

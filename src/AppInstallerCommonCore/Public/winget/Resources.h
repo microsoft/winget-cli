@@ -32,5 +32,11 @@ namespace AppInstaller::StringResource
         WINGET_DEFINE_RESOURCE_STRINGID(PolicyAdditionalSources);
         WINGET_DEFINE_RESOURCE_STRINGID(PolicyAllowedSources);
         WINGET_DEFINE_RESOURCE_STRINGID(PolicySourceAutoUpdateInterval);
+
+        WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidFieldFormat);
+        WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidFieldValue);
+        WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidValueFromPolicy);
+        WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningLoadedBackupSettings);
+        WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningParseError);
     };
 }

@@ -165,6 +165,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarnings);
+        WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningField);
+        WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningValue);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowChannel);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowCommandShortDescription);

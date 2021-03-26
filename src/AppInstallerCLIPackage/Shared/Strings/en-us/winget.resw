@@ -863,4 +863,25 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="PolicyEnableLocalManifests" xml:space="preserve">
     <value>Enable Windows App Installer Local Manifest Files</value>
   </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Field:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Invalid field format.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Invalid field value.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Invalid setting from Group Policy.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Loaded settings from backup file.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Error parsing file:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Value:</value>
+  </data>
 </root>
