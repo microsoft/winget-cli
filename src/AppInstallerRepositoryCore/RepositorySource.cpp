@@ -180,7 +180,7 @@ namespace AppInstaller::Repository
         }
 
         // Checks whether a default source is enabled with the current settings
-        bool IsDefaultSourceEnabled(std::string_view sourceToLog, ExperimentalFeature::Feature feature, TogglePolicy policy)
+        bool IsDefaultSourceEnabled(std::string_view sourceToLog, ExperimentalFeature::Feature feature, TogglePolicy::Policy policy)
         {
             if (!ExperimentalFeature::IsEnabled(feature))
             {
@@ -199,12 +199,12 @@ namespace AppInstaller::Repository
 
         bool IsWingetCommunityDefaultSourceEnabled()
         {
-            return IsDefaultSourceEnabled(s_Source_WingetCommunityDefault_Name, ExperimentalFeature::Feature::None, TogglePolicy::DefaultSource);
+            return IsDefaultSourceEnabled(s_Source_WingetCommunityDefault_Name, ExperimentalFeature::Feature::None, TogglePolicy::Policy::DefaultSource);
         }
 
         bool IsWingetMSStoreDefaultSourceEnabled()
         {
-            return IsDefaultSourceEnabled(s_Source_WingetMSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, TogglePolicy::MSStoreSource);
+            return IsDefaultSourceEnabled(s_Source_WingetMSStoreDefault_Name, ExperimentalFeature::Feature::ExperimentalMSStore, TogglePolicy::Policy::MSStoreSource);
         }
 
         // Gets the sources from a particular origin.
@@ -615,7 +615,7 @@ namespace AppInstaller::Repository
                 return IsWingetMSStoreDefaultSourceEnabled();
             }
 
-            auto allowedSourcesPolicy = GroupPolicies().GetState(TogglePolicy::AllowedSources);
+            auto allowedSourcesPolicy = GroupPolicies().GetState(TogglePolicy::Policy::AllowedSources);
             if (allowedSourcesPolicy == PolicyState::Disabled)
             {
                 // We check here but this should already be blocked higher in the stack

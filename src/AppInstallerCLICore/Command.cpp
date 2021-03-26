@@ -5,12 +5,12 @@
 #include "Resources.h"
 #include <winget/UserSettings.h>
 
+using namespace std::string_view_literals;
+using namespace AppInstaller::Utility::literals;
+using namespace AppInstaller::Settings;
+
 namespace AppInstaller::CLI
 {
-    using namespace std::string_view_literals;
-    using namespace Utility::literals;
-    using namespace Settings;
-
     constexpr std::string_view s_Command_ArgName_SilentAndInteractive = "silent|interactive"sv;
 
     Command::Command(
@@ -18,7 +18,7 @@ namespace AppInstaller::CLI
         std::string_view parent,
         Command::Visibility visibility,
         Settings::ExperimentalFeature::Feature feature,
-        Settings::TogglePolicy groupPolicy) :
+        Settings::TogglePolicy::Policy groupPolicy) :
         m_name(name), m_visibility(visibility), m_feature(feature), m_groupPolicy(groupPolicy)
     {
         if (!parent.empty())
@@ -50,8 +50,19 @@ namespace AppInstaller::CLI
         // Error if given
         if (exception)
         {
-            reporter.Error() <<
-                exception->Message() << " : '"_liv << exception->Param() << '\'' << std::endl <<
+            auto error = reporter.Error();
+            error <<
+                exception->Message() << " : '"_liv;
+            if (std::holds_alternative<Resource::LocString>(exception->Param()))
+            {
+                error << std::get<Resource::LocString>(exception->Param());
+            }
+            else
+            {
+                error << std::get<Utility::LocIndString>(exception->Param());
+            }
+
+            error << '\'' << std::endl <<
                 std::endl;
         }
 
@@ -276,12 +287,11 @@ namespace AppInstaller::CLI
                     throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
                 }
 
-                // Default to allowing unless policy is explicitly disabled.
                 if (!Settings::GroupPolicies().IsEnabled(command->GroupPolicy()))
                 {
-                    // TODO: Policy name
-                    AICLI_LOG(CLI, Error, << "Trying to use command: " << *itr << " disabled by group policy");
-                    throw CommandException(Resource::String::DisabledByGroupPolicy, "");
+                    auto policy = TogglePolicy::GetPolicy(command->GroupPolicy());
+                    AICLI_LOG(CLI, Error, << "Trying to use command: " << *itr << " disabled by group policy " << policy.RegValueName());
+                    throw CommandException(Resource::String::DisabledByGroupPolicy, policy.PolicyName());
                 }
 
                 AICLI_LOG(CLI, Info, << "Found subcommand: " << *itr);
@@ -611,9 +621,9 @@ namespace AppInstaller::CLI
 
             if (!Settings::GroupPolicies().IsEnabled(arg.GroupPolicy()) && execArgs.Contains(arg.ExecArgType()))
             {
-                // TODO: Policy name
-                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by group policy");
-                throw CommandException(Resource::String::DisabledByGroupPolicy, "");
+                auto policy = TogglePolicy::GetPolicy(arg.GroupPolicy());
+                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by group policy " << policy.RegValueName());
+                throw CommandException(Resource::String::DisabledByGroupPolicy, policy.PolicyName());
             }
 
             if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
@@ -737,11 +747,11 @@ namespace AppInstaller::CLI
     {
         // Block any execution if winget is disabled by policy.
         // Override the function to bypass this.
-        if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::WinGet))
+        if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGet))
         {
-            // TODO: Policy name
-            AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");
-            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << std::endl;
+            auto policy = TogglePolicy::GetPolicy(Settings::TogglePolicy::Policy::WinGet);
+            AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy " << policy.RegValueName());
+            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << ' ' << policy.PolicyName() << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY);
         }
 

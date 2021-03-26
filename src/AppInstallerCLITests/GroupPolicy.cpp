@@ -20,15 +20,15 @@ TEST_CASE("GroupPolicy_NoPolicies", "[groupPolicy]")
     REQUIRE(!groupPolicy.GetValue<ValuePolicy::AllowedSources>().has_value());
 
     // Everything should be not configured
-    REQUIRE(groupPolicy.GetState(TogglePolicy::None) == PolicyState::NotConfigured);
-    REQUIRE(groupPolicy.GetState(TogglePolicy::WinGet) == PolicyState::NotConfigured);
-    REQUIRE(groupPolicy.GetState(TogglePolicy::SettingsCommand) == PolicyState::NotConfigured);
-    REQUIRE(groupPolicy.GetState(TogglePolicy::ExperimentalFeatures) == PolicyState::NotConfigured);
-    REQUIRE(groupPolicy.GetState(TogglePolicy::LocalManifestFiles) == PolicyState::NotConfigured);
-    REQUIRE(groupPolicy.GetState(TogglePolicy::DefaultSource) == PolicyState::NotConfigured);
-    REQUIRE(groupPolicy.GetState(TogglePolicy::MSStoreSource) == PolicyState::NotConfigured);
-    REQUIRE(groupPolicy.GetState(TogglePolicy::AdditionalSources) == PolicyState::NotConfigured);
-    REQUIRE(groupPolicy.GetState(TogglePolicy::AllowedSources) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::None) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::WinGet) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::Settings) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::ExperimentalFeatures) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::LocalManifestFiles) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::DefaultSource) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::MSStoreSource) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::AdditionalSources) == PolicyState::NotConfigured);
+    REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::AllowedSources) == PolicyState::NotConfigured);
 }
 
 TEST_CASE("GroupPolicy_UpdateInterval", "[groupPolicy]")
@@ -64,31 +64,31 @@ TEST_CASE("GroupPolicy_Toggle", "[groupPolicy]")
     SECTION("'None' is not configured")
     {
         GroupPolicy groupPolicy{ policiesKey.get() };
-        REQUIRE(groupPolicy.GetState(TogglePolicy::None) == PolicyState::NotConfigured);
-        REQUIRE(groupPolicy.IsEnabled(TogglePolicy::None));
+        REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::None) == PolicyState::NotConfigured);
+        REQUIRE(groupPolicy.IsEnabled(TogglePolicy::Policy::None));
     }
 
     SECTION("Enabled")
     {
         SetRegistryValue(policiesKey.get(), WinGetPolicyValueName, 1);
         GroupPolicy groupPolicy{ policiesKey.get() };
-        REQUIRE(groupPolicy.GetState(TogglePolicy::WinGet) == PolicyState::Enabled);
-        REQUIRE(groupPolicy.IsEnabled(TogglePolicy::WinGet));
+        REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::WinGet) == PolicyState::Enabled);
+        REQUIRE(groupPolicy.IsEnabled(TogglePolicy::Policy::WinGet));
     }
 
     SECTION("Disabled")
     {
         SetRegistryValue(policiesKey.get(), LocalManifestsPolicyValueName, 0);
         GroupPolicy groupPolicy{ policiesKey.get() };
-        REQUIRE(groupPolicy.GetState(TogglePolicy::LocalManifestFiles) == PolicyState::Disabled);
-        REQUIRE_FALSE(groupPolicy.IsEnabled(TogglePolicy::LocalManifestFiles));
+        REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::LocalManifestFiles) == PolicyState::Disabled);
+        REQUIRE_FALSE(groupPolicy.IsEnabled(TogglePolicy::Policy::LocalManifestFiles));
     }
 
     SECTION("Wrong type")
     {
         SetRegistryValue(policiesKey.get(), ExperimentalFeaturesPolicyValueName, L"Wrong");
         GroupPolicy groupPolicy{ policiesKey.get() };
-        REQUIRE(groupPolicy.GetState(TogglePolicy::DefaultSource) == PolicyState::NotConfigured);
-        REQUIRE(groupPolicy.IsEnabled(TogglePolicy::DefaultSource));
+        REQUIRE(groupPolicy.GetState(TogglePolicy::Policy::DefaultSource) == PolicyState::NotConfigured);
+        REQUIRE(groupPolicy.IsEnabled(TogglePolicy::Policy::DefaultSource));
     }
 }

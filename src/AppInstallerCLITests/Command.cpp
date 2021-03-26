@@ -35,6 +35,18 @@ std::string GetArgumentAlias(const Argument& arg)
     }
 }
 
+std::string GetCommandExceptionParam(const CommandException& ce)
+{
+    if (std::holds_alternative<Resource::LocString>(ce.Param()))
+    {
+        return std::get<Resource::LocString>(ce.Param()).get();
+    }
+    else
+    {
+        return std::get<Utility::LocIndString>(ce.Param()).get();
+    }
+}
+
 template <typename Enumerable, typename Op>
 void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enumerable& e, Op& op, bool requireLower = true)
 {
@@ -141,7 +153,7 @@ struct CommandExceptionMatcher : public Catch::MatcherBase<CommandException>
 
     bool match(const CommandException& ce) const override
     {
-        return ce.Param().get() == m_expectedArg;
+        return GetCommandExceptionParam(ce) == m_expectedArg;
     }
 
     std::string describe() const override
@@ -159,7 +171,7 @@ namespace Catch {
     template<>
     struct StringMaker<CommandException> {
         static std::string convert(CommandException const& ce) {
-            return std::string{ "CommandException{ '" } + ce.Message().get() + "', '" + ce.Param().get() + "'}";
+            return std::string{ "CommandException{ '" } + ce.Message().get() + "', '" + GetCommandExceptionParam(ce) + "'}";
         }
     };
 }

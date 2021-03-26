@@ -4,6 +4,8 @@
 #include "winget/GroupPolicy.h"
 #include "AppInstallerLogging.h"
 
+using namespace AppInstaller::StringResource;
+
 namespace AppInstaller::Settings
 {
     namespace
@@ -22,41 +24,6 @@ namespace AppInstaller::Settings
 
             return (s_override ? *s_override : s_groupPolicy);
         }
-
-        struct TogglePolicyInternal
-        {
-            TogglePolicyInternal(TogglePolicy policy, std::string_view regValueName, bool defaultIsEnabled = true) :
-                Policy(policy), RegValueName(regValueName), DefaultIsEnabled(defaultIsEnabled) {}
-
-            TogglePolicy Policy;
-            std::string_view RegValueName;
-            bool DefaultIsEnabled;
-
-            static TogglePolicyInternal GetPolicy(TogglePolicy policy)
-            {
-                switch (policy)
-                {
-                case TogglePolicy::WinGet:
-                    return TogglePolicyInternal(policy, "EnableWindowsPackageManager"sv);
-                case TogglePolicy::SettingsCommand: return
-                    TogglePolicyInternal(policy, "EnableSettingsCommand"sv);
-                case TogglePolicy::ExperimentalFeatures:
-                    return TogglePolicyInternal(policy, "EnableExperimentalFeatures"sv);
-                case TogglePolicy::LocalManifestFiles:
-                    return TogglePolicyInternal(policy, "EnableLocalManifestFiles"sv);
-                case TogglePolicy::DefaultSource:
-                    return TogglePolicyInternal(policy, "EnableDefaultSource"sv);
-                case TogglePolicy::MSStoreSource:
-                    return TogglePolicyInternal(policy, "EnableMSStoreSource"sv);
-                case TogglePolicy::AdditionalSources:
-                    return TogglePolicyInternal(policy, "EnableAdditionalSources"sv);
-                case TogglePolicy::AllowedSources:
-                    return TogglePolicyInternal(policy, "EnableAllowedSources"sv);
-                default:
-                    THROW_HR(E_UNEXPECTED);
-                }
-            }
-        };
 
         template<Registry::Value::Type T>
         std::optional<decltype(std::declval<Registry::Value>().GetValue<T>())> GetRegistryValue(const Registry::Key& key, const std::string_view valueName)
@@ -94,18 +61,18 @@ namespace AppInstaller::Settings
             return (bool)*intValue;
         }
 
-        PolicyState GetStateInternal(const Registry::Key& key, TogglePolicy policy)
+        PolicyState GetStateInternal(const Registry::Key& key, TogglePolicy::Policy policy)
         {
             // Default to not configured if there is no policy for this
-            if (policy == TogglePolicy::None)
+            if (policy == TogglePolicy::Policy::None)
             {
                 return PolicyState::NotConfigured;
             }
 
-            auto togglePolicy = TogglePolicyInternal::GetPolicy(policy);
+            auto togglePolicy = TogglePolicy::GetPolicy(policy);
 
             // Policies are not configured if there is no registry value.
-            auto setting = RegistryValueIsTrue(key, togglePolicy.RegValueName);
+            auto setting = RegistryValueIsTrue(key, togglePolicy.RegValueName());
             if (!setting.has_value())
             {
                 return PolicyState::NotConfigured;
@@ -159,19 +126,44 @@ namespace AppInstaller::Settings
         }
     }
 
+    TogglePolicy TogglePolicy::GetPolicy(TogglePolicy::Policy policy)
+    {
+        switch (policy)
+        {
+        case TogglePolicy::Policy::WinGet:
+            return TogglePolicy(policy, "EnableWindowsPackageManager"sv, String::PolicyEnableWinGet);
+        case TogglePolicy::Policy::Settings: return
+            TogglePolicy(policy, "EnableSettingsCommand"sv, String::PolicyEnableSettings);
+        case TogglePolicy::Policy::ExperimentalFeatures:
+            return TogglePolicy(policy, "EnableExperimentalFeatures"sv, String::PolicyEnableExperimentalFeatures);
+        case TogglePolicy::Policy::LocalManifestFiles:
+            return TogglePolicy(policy, "EnableLocalManifestFiles"sv, String::PolicyEnableLocalManifests);
+        case TogglePolicy::Policy::DefaultSource:
+            return TogglePolicy(policy, "EnableDefaultSource"sv, String::PolicyEnableDefaultSource);
+        case TogglePolicy::Policy::MSStoreSource:
+            return TogglePolicy(policy, "EnableMSStoreSource"sv, String::PolicyEnableMSStoreSource);
+        case TogglePolicy::Policy::AdditionalSources:
+            return TogglePolicy(policy, "EnableAdditionalSources"sv, String::PolicyAdditionalSources);
+        case TogglePolicy::Policy::AllowedSources:
+            return TogglePolicy(policy, "EnableAllowedSources"sv, String::PolicyAllowedSources);
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
+    }
+
     GroupPolicy::GroupPolicy(const Registry::Key& key)
     {
         ValidateAllValuePolicies(key, m_values, std::make_index_sequence<static_cast<size_t>(ValuePolicy::Max)>());
 
-        using Toggle_t = std::underlying_type_t<TogglePolicy>;
-        for (Toggle_t i = static_cast<Toggle_t>(TogglePolicy::None); i < static_cast<Toggle_t>(TogglePolicy::Max); ++i)
+        using Toggle_t = std::underlying_type_t<TogglePolicy::Policy>;
+        for (Toggle_t i = static_cast<Toggle_t>(TogglePolicy::Policy::None); i < static_cast<Toggle_t>(TogglePolicy::Policy::Max); ++i)
         {
-            auto policy = static_cast<TogglePolicy>(i);
+            auto policy = static_cast<TogglePolicy::Policy>(i);
             m_toggles[policy] = GetStateInternal(key, policy);
         }
     }
 
-    PolicyState GroupPolicy::GetState(TogglePolicy policy) const
+    PolicyState GroupPolicy::GetState(TogglePolicy::Policy policy) const
     {
         auto itr = m_toggles.find(policy);
         if (itr == m_toggles.end())
@@ -182,9 +174,9 @@ namespace AppInstaller::Settings
         return itr->second;
     }
 
-    bool GroupPolicy::IsEnabled(TogglePolicy policy) const
+    bool GroupPolicy::IsEnabled(TogglePolicy::Policy policy) const
     {
-        if (policy == TogglePolicy::None)
+        if (policy == TogglePolicy::Policy::None)
         {
             return true;
         }
@@ -192,7 +184,7 @@ namespace AppInstaller::Settings
         PolicyState state = GetState(policy);
         if (state == PolicyState::NotConfigured)
         {
-            return TogglePolicyInternal::GetPolicy(policy).DefaultIsEnabled;
+            return TogglePolicy::GetPolicy(policy).DefaultIsEnabled();
         }
 
         return state == PolicyState::Enabled;

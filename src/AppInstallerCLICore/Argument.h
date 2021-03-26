@@ -90,7 +90,7 @@ namespace AppInstaller::CLI
         size_t Limit() const { return m_countLimit; }
         Argument::Visibility GetVisibility() const;
         Settings::ExperimentalFeature::Feature Feature() const { return m_feature; }
-        Settings::TogglePolicy GroupPolicy() const { return m_groupPolicy; }
+        Settings::TogglePolicy::Policy GroupPolicy() const { return m_groupPolicy; }
 
         Argument& SetRequired(bool required) { m_required = required; return *this; }
 
@@ -115,7 +115,7 @@ namespace AppInstaller::CLI
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, bool required, Settings::ExperimentalFeature::Feature feature) :
             m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_required(required), m_feature(feature) {}
 
-        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, Settings::TogglePolicy groupPolicy) :
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, Settings::TogglePolicy::Policy groupPolicy) :
             m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_groupPolicy(groupPolicy) {}
 
         std::string_view m_name;
@@ -127,6 +127,6 @@ namespace AppInstaller::CLI
         Argument::Visibility m_visibility = Argument::Visibility::Example;
         size_t m_countLimit = 1;
         Settings::ExperimentalFeature::Feature m_feature = Settings::ExperimentalFeature::Feature::None;
-        Settings::TogglePolicy m_groupPolicy = Settings::TogglePolicy::None;
+        Settings::TogglePolicy::Policy m_groupPolicy = Settings::TogglePolicy::Policy::None;
     };
 }

@@ -256,7 +256,7 @@ namespace AppInstaller::Settings
         // 2 - Use settings.backup.json if settings.json fails to parse.
         // 3 - Use default (empty) if both settings files fail to load.
 
-        if (!GroupPolicies().IsEnabled(TogglePolicy::SettingsCommand))
+        if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::Settings))
         {
             AICLI_LOG(Core, Info, << "Ignoring settings file due to group policy. Using default values.");
             return;

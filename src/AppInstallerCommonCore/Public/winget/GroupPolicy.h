@@ -4,6 +4,7 @@
 
 #include "AppInstallerLanguageUtilities.h"
 #include "winget/Registry.h"
+#include "winget/Resources.h"
 #include <string_view>
 
 using namespace std::string_view_literals;
@@ -24,18 +25,37 @@ namespace AppInstaller::Settings
 
     // A policy that acts as a toggle to enable or disable a feature.
     // They are backed by a DWORD value with values 0 and 1.
-    enum class TogglePolicy
+    struct TogglePolicy
     {
-        None = 0,
-        WinGet,
-        SettingsCommand,
-        ExperimentalFeatures,
-        LocalManifestFiles,
-        DefaultSource,
-        MSStoreSource,
-        AdditionalSources, // TODO
-        AllowedSources, // TODO
-        Max,
+        enum class Policy
+        {
+            None = 0,
+            WinGet,
+            Settings,
+            ExperimentalFeatures,
+            LocalManifestFiles,
+            DefaultSource,
+            MSStoreSource,
+            AdditionalSources, // TODO
+            AllowedSources, // TODO
+            Max,
+        };
+
+        TogglePolicy(Policy policy, std::string_view regValueName, StringResource::StringId policyName, bool defaultIsEnabled = true) :
+            m_policy(policy), m_regValueName(regValueName), m_policyName(policyName), m_defaultIsEnabled(defaultIsEnabled) {}
+
+        static TogglePolicy GetPolicy(Policy policy);
+
+        Policy GetPolicy() const { return m_policy; }
+        std::string_view RegValueName() const { return m_regValueName; }
+        StringResource::StringId PolicyName() const { return m_policyName; }
+        bool DefaultIsEnabled() const { return m_defaultIsEnabled; }
+
+    private:
+        Policy m_policy;
+        std::string_view m_regValueName;
+        StringResource::StringId m_policyName;
+        bool m_defaultIsEnabled;
     };
 
     // Possible configuration states for a policy.
@@ -119,14 +139,14 @@ namespace AppInstaller::Settings
             }
         }
 
-        PolicyState GetState(TogglePolicy policy) const;
+        PolicyState GetState(TogglePolicy::Policy policy) const;
 
         // Checks whether a policy is enabled, using an appropriate default when not configured.
         // Should not be used when not configured means something different than enabled/disabled.
-        bool IsEnabled(TogglePolicy policy) const;
+        bool IsEnabled(TogglePolicy::Policy policy) const;
 
     private:
-        std::map<TogglePolicy, PolicyState> m_toggles;
+        std::map<TogglePolicy::Policy, PolicyState> m_toggles;
         ValuePoliciesMap m_values;
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
