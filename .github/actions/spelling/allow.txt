@@ -67,6 +67,7 @@ csproj
 CStr
 CURSORPOSITON
 cwctype
+datatelemetry
 dbconn
 DBId
 declspec

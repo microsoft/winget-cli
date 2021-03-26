@@ -24,8 +24,22 @@
           "description": "Progress bar display style",
           "type": "string",
           "enum": [
-              "accent", "rainbow", "plain", "retro"
+            "accent",
+            "rainbow",
+            "plain",
+            "retro"
           ]
+        }
+      }
+    },
+    "Telemetry": {
+      "description": "Telemetry settings",
+      "type": "object",
+      "properties": {
+        "disable": {
+          "description": "Controls whether telemetry events are written",
+          "type": "boolean",
+          "default": false
         }
       }
     },
@@ -66,12 +80,12 @@
         "import": {
           "description": "Enable the import command while it is in development",
           "type": "boolean",
-          "default":  false
+          "default": false
         },
         "restSource": {
           "description": "Enable the rest source support while it is in development",
           "type": "boolean",
-          "default":  false
+          "default": false
         }
       }
     }
@@ -86,6 +100,12 @@
     {
       "properties": {
         "source": { "$ref": "#/definitions/Source"}
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "telemetry": { "$ref": "#/definitions/Telemetry"}
       },
       "additionalItems": true
     },
