@@ -7,6 +7,7 @@
 #include "Rest/Schema/Json/InformationResponseDeserializer.h"
 #include "Rest/Schema/Json/JsonHelper.h"
 #include "Rest/Schema/Json/CommonRestConstants.h"
+#include "Rest/Schema/RestHelper.h"
 
 using namespace AppInstaller::Repository::Rest::Schema;
 using namespace AppInstaller::Repository::Rest::Schema::Json;
@@ -30,7 +31,7 @@ namespace AppInstaller::Repository::Rest
 
     utility::string_t RestClient::GetInformationEndpoint(const std::string& restApiUri)
     {
-        std::string informationApi = restApiUri;
+        std::string informationApi = RestHelper::GetRestAPIBaseUri(restApiUri);
         return utility::conversions::to_string_t(informationApi.append(InformationGetEndpoint));
     }
 
