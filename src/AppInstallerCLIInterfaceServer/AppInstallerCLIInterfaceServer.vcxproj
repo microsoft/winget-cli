@@ -111,7 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Management.Deployment">
-      <HintPath>..\Debug\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd</HintPath>
+      <HintPath>..\$(Platform)\$(Configuration)\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd</HintPath>
       <IsWinMDFile>true</IsWinMDFile>
     </Reference>
   </ItemGroup>

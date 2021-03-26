@@ -130,7 +130,7 @@ void RegisterWinGetFactory()
         NULL,
         NULL,
         1,
-        1,
+        2,
         NULL,
         EOAC_DYNAMIC_CLOAKING,
         0
