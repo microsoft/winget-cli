@@ -24,7 +24,10 @@
           "description": "Progress bar display style",
           "type": "string",
           "enum": [
-              "accent", "rainbow", "plain", "retro"
+            "accent",
+            "rainbow",
+            "plain",
+            "retro"
           ]
         }
       }
@@ -34,7 +37,7 @@
       "type": "object",
       "properties": {
         "disable": {
-          "description": "Controls whether telemetry event are written",
+          "description": "Controls whether telemetry events are written",
           "type": "boolean",
           "default": false
         }
@@ -77,41 +80,31 @@
         "import": {
           "description": "Enable the import command while it is in development",
           "type": "boolean",
-          "default":  false
+          "default": false
         },
         "restSource": {
           "description": "Enable the rest source support while it is in development",
           "type": "boolean",
-          "default":  false
+          "default": false
         }
-      }
+      },
+      "additionalProperties": true
     }
   },
-  "allOf": [
-    {
-      "properties": {
-        "visual": { "$ref": "#/definitions/Visual" }
-      },
-      "additionalItems": true
+  "type": "object",
+  "properties": {
+    "visual": {
+      "$ref": "#/definitions/Visual"
     },
-    {
-      "properties": {
-        "source": { "$ref": "#/definitions/Source"}
-      },
-      "additionalItems": true
+    "source": {
+      "$ref": "#/definitions/Source"
     },
-    {
-      "properties": {
-        "telemetry": { "$ref": "#/definitions/Telemetry"}
-      },
-      "additionalItems": true
+    "telemetry": {
+      "$ref": "#/definitions/Telemetry"
     },
-    {
-        "properties": {
-          "experimentalFeatures": { "$ref": "#/definitions/Experimental"}
-        },
-        "additionalItems": true
-      }
-  ],
+    "experimentalFeatures": {
+      "$ref": "#/definitions/Experimental"
+    }
+  },
   "additionalProperties": true
 }
