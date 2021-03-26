@@ -50,19 +50,8 @@ namespace AppInstaller::CLI
         // Error if given
         if (exception)
         {
-            auto error = reporter.Error();
-            error <<
-                exception->Message() << " : '"_liv;
-            if (std::holds_alternative<Resource::LocString>(exception->Param()))
-            {
-                error << std::get<Resource::LocString>(exception->Param());
-            }
-            else
-            {
-                error << std::get<Utility::LocIndString>(exception->Param());
-            }
-
-            error << '\'' << std::endl <<
+            reporter.Error() <<
+                exception->Message() << " : '"_liv << exception->Param() << '\'' << std::endl <<
                 std::endl;
         }
 

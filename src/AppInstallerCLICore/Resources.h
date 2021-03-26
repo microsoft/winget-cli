@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <winget/LocIndependent.h>
 #include <winget/Resources.h>
 
 #include <winrt/Windows.ApplicationModel.Resources.h>
@@ -249,7 +250,7 @@ namespace AppInstaller::CLI::Resource
     };
 
     // A localized string
-    struct LocString
+    struct LocString : public Utility::LocIndString
     {
         LocString() = default;
 
@@ -260,11 +261,6 @@ namespace AppInstaller::CLI::Resource
 
         LocString(LocString&&) = default;
         LocString& operator=(LocString&&) = default;
-
-        const std::string& get() const { return m_value; }
-
-    private:
-        std::string m_value;
     };
 
     // Utility class to load resources
@@ -282,11 +278,6 @@ namespace AppInstaller::CLI::Resource
 
         Loader();
     };
-}
-
-inline std::ostream& operator<<(std::ostream& out, const AppInstaller::CLI::Resource::LocString& ls)
-{
-    return (out << ls.get());
 }
 
 inline std::ostream& operator<<(std::ostream& out, AppInstaller::CLI::Resource::StringId si)
