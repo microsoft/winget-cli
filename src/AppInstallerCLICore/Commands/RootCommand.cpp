@@ -22,9 +22,43 @@
 #include "Resources.h"
 #include "TableOutput.h"
 
+using namespace AppInstaller::Utility::literals;
+
 namespace AppInstaller::CLI
 {
-    using namespace Utility::literals;
+    namespace
+    {
+        void OutputGroupPolicies(Execution::Context& context)
+        {
+            const auto& groupPolicies = Settings::GroupPolicies();
+
+            std::map<Settings::TogglePolicy::Policy, Settings::PolicyState> activePolicies;
+            for (const auto& togglePolicy : Settings::TogglePolicy::GetAllPolicies())
+            {
+                auto state = groupPolicies.GetState(togglePolicy.GetPolicy());
+                if (state != Settings::PolicyState::NotConfigured)
+                {
+                    activePolicies[togglePolicy.GetPolicy()] = state;
+                }
+            }
+
+            if (!activePolicies.empty())
+            {
+                context.Reporter.Info() << std::endl;
+
+                Execution::TableOutput<2> policiesTable{ context.Reporter, { Resource::String::PoliciesPolicy, Resource::String::PoliciesState } };
+                for (const auto& activePolicy : activePolicies)
+                {
+                    auto policy = Settings::TogglePolicy::GetPolicy(activePolicy.first);
+                    policiesTable.OutputLine({
+                        Resource::LocString{ policy.PolicyName() }.get(),
+                        Resource::LocString{ activePolicy.second == Settings::PolicyState::Enabled ? Resource::String::PoliciesEnabled : Resource::String::PoliciesDisabled }.get() });
+                }
+
+                policiesTable.Complete();
+            }
+        }
+    }
 
     std::vector<std::unique_ptr<Command>> RootCommand::GetCommands() const
     {
@@ -97,9 +131,9 @@ namespace AppInstaller::CLI
 
             info << std::endl << Resource::String::Logs << ": "_liv << Runtime::GetPathTo(Runtime::PathName::DefaultLogLocationForDisplay).u8string() << std::endl;
 
-            info << std::endl;
-            // TODO: output policy
+            OutputGroupPolicies(context);
 
+            info << std::endl;
             Execution::TableOutput<2> links{ context.Reporter, { Resource::String::Links, {} } };
 
             links.OutputLine({ Resource::LocString(Resource::String::PrivacyStatement).get(), "https://aka.ms/winget-privacy" });

@@ -141,6 +141,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(OverrideArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Package);
         WINGET_DEFINE_RESOURCE_STRINGID(PendingWorkError);
+        WINGET_DEFINE_RESOURCE_STRINGID(PoliciesDisabled);
+        WINGET_DEFINE_RESOURCE_STRINGID(PoliciesEnabled);
+        WINGET_DEFINE_RESOURCE_STRINGID(PoliciesPolicy);
+        WINGET_DEFINE_RESOURCE_STRINGID(PoliciesState);
         WINGET_DEFINE_RESOURCE_STRINGID(PositionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PreviewVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(PrivacyStatement);

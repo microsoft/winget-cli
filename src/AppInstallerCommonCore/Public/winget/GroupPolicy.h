@@ -45,6 +45,7 @@ namespace AppInstaller::Settings
             m_policy(policy), m_regValueName(regValueName), m_policyName(policyName), m_defaultIsEnabled(defaultIsEnabled) {}
 
         static TogglePolicy GetPolicy(Policy policy);
+        static std::vector<TogglePolicy> GetAllPolicies();
 
         Policy GetPolicy() const { return m_policy; }
         std::string_view RegValueName() const { return m_regValueName; }

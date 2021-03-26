@@ -44,8 +44,7 @@ TEST_CASE("GroupPolicy_WinGet", "[groupPolicy]")
         rootCommand.Execute(context);
 
         REQUIRE_FALSE(context.IsTerminated());
-        // TODO: Find policy in output
-        REQUIRE(output.str().find("Disable") != std::string::npos);
+        REQUIRE(output.str().find("Enable Windows Package Manager") != std::string::npos);
     }
 }
 

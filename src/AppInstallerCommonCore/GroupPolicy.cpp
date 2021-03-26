@@ -151,6 +151,21 @@ namespace AppInstaller::Settings
         }
     }
 
+    std::vector<TogglePolicy> TogglePolicy::GetAllPolicies()
+    {
+        using Toggle_t = std::underlying_type_t<TogglePolicy::Policy>;
+
+        std::vector<TogglePolicy> result;
+
+        // Skip "None"
+        for (Toggle_t i = 1 + static_cast<Toggle_t>(TogglePolicy::Policy::None); i < static_cast<Toggle_t>(TogglePolicy::Policy::Max); ++i)
+        {
+            result.emplace_back(GetPolicy(static_cast<Policy>(i)));
+        }
+
+        return result;
+    }
+
     GroupPolicy::GroupPolicy(const Registry::Key& key)
     {
         ValidateAllValuePolicies(key, m_values, std::make_index_sequence<static_cast<size_t>(ValuePolicy::Max)>());

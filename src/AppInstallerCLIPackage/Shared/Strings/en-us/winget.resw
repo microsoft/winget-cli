@@ -838,7 +838,7 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="PolicyEnableMSStoreSource" xml:space="preserve">
     <value>Enable Windows Package Manager Microsoft Store Source</value>
   </data>
-  <data name="PolicyEnableSettingsCommand" xml:space="preserve">
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
     <value>Enable Windows Package Manager Settings Command</value>
   </data>
   <data name="PolicyEnableWinGet" xml:space="preserve">
@@ -846,5 +846,21 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
     <value>Set Windows Package Manager Source Auto Update Interval In Minutes</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Disabled</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Enabled</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Policy</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>State</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
   </data>
 </root>
