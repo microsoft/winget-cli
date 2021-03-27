@@ -818,7 +818,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>The JSON file does not specify a recognized schema.</value>
   </data>
   <data name="DisabledByGroupPolicy" xml:space="preserve">
-    <value>This operation is disabled by Group Policy.</value>
+    <value>This operation is disabled by Group Policy</value>
   </data>
   <data name="PolicyAdditionalSources" xml:space="preserve">
     <value>Enable Additional Windows App Installer Sources</value>
@@ -883,6 +883,10 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="SettingsWarningValue" xml:space="preserve">
     <value>Value:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>The following experimental features are in progress.
+Configuration is disabled due to Group Policy.</value>
   </data>
   <data name="InstallerHashMismatchError" xml:space="preserve">
     <value>Installer hash does not match.</value>

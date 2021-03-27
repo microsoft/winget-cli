@@ -27,8 +27,15 @@ namespace AppInstaller::CLI
 
     void FeaturesCommand::ExecuteInternal(Execution::Context& context) const
     {
-        // TODO: Update message when are blocked
-        context.Reporter.Info() << Resource::String::FeaturesMessage << std::endl << std::endl;
+        if (GroupPolicies().IsEnabled(TogglePolicy::Policy::ExperimentalFeatures) &&
+            GroupPolicies().IsEnabled(TogglePolicy::Policy::Settings))
+        {
+            context.Reporter.Info() << Resource::String::FeaturesMessage << std::endl << std::endl;
+        }
+        else
+        {
+            context.Reporter.Info() << Resource::String::FeaturesMessageDisabledByPolicy << std::endl << std::endl;
+        }
 
         auto features = ExperimentalFeature::GetAllFeatures();
 

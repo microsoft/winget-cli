@@ -740,7 +740,7 @@ namespace AppInstaller::CLI
         {
             auto policy = TogglePolicy::GetPolicy(Settings::TogglePolicy::Policy::WinGet);
             AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy " << policy.RegValueName());
-            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << ' ' << policy.PolicyName() << std::endl;
+            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << " : "_liv << policy.PolicyName() << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY);
         }
 
