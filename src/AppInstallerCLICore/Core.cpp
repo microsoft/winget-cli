@@ -6,6 +6,7 @@
 #include "ExecutionContext.h"
 #include "Workflows/WorkflowBase.h"
 #include <winget/UserSettings.h>
+#include "Commands/InstallCommand.h"
 
 using namespace winrt;
 using namespace winrt::Windows::Foundation;
@@ -115,57 +116,7 @@ namespace AppInstaller::CLI
             return APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS;
         }
 
-        try
-        {
-            if (!Settings::User().GetWarnings().empty())
-            {
-                context.Reporter.Warn() << Resource::String::SettingsWarnings << std::endl;
-            }
-
-            command->Execute(context);
-        }
-        // Exceptions that may occur in the process of executing an arbitrary command
-        catch (const wil::ResultException& re)
-        {
-            // Even though they are logged at their source, log again here for completeness.
-            Logging::Telemetry().LogException(command->FullName(), "wil::ResultException", re.what());
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                GetUserPresentableMessage(re) << std::endl;
-            return re.GetErrorCode();
-        }
-        catch (const winrt::hresult_error& hre)
-        {
-            std::string message = GetUserPresentableMessage(hre);
-            Logging::Telemetry().LogException(command->FullName(), "winrt::hresult_error", message);
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                message << std::endl;
-            return hre.code();
-        }
-        catch (const std::exception& e)
-        {
-            Logging::Telemetry().LogException(command->FullName(), "std::exception", e.what());
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
-                GetUserPresentableMessage(e) << std::endl;
-            return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
-        }
-        catch (...)
-        {
-            LOG_CAUGHT_EXCEPTION();
-            Logging::Telemetry().LogException(command->FullName(), "unknown", {});
-            context.Reporter.Error() <<
-                Resource::String::UnexpectedErrorExecutingCommand << " ???"_liv << std::endl;
-            return APPINSTALLER_CLI_ERROR_COMMAND_FAILED;
-        }
-
-        if (SUCCEEDED(context.GetTerminationHR()))
-        {
-            Logging::Telemetry().LogCommandSuccess(command->FullName());
-        }
-
-        return context.GetTerminationHR();
+        return Execute(context, command);
     }
     // End of the line exceptions that are not ever expected.
     // Telemetry cannot be reliable beyond this point, so don't let these happen.
@@ -173,5 +124,4 @@ namespace AppInstaller::CLI
     {
         return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
     }
-
 }

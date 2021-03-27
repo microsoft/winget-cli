@@ -177,6 +177,7 @@
   <ItemGroup>
     <ClInclude Include="Argument.h" />
     <ClInclude Include="ChannelStreams.h" />
+    <ClInclude Include="COMContext.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="Commands\CompleteCommand.h" />
     <ClInclude Include="Commands\ExperimentalCommand.h" />
@@ -221,6 +222,7 @@
     <ClInclude Include="Workflows\WorkflowBase.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="COMContext.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
     <ClCompile Include="Argument.cpp" />

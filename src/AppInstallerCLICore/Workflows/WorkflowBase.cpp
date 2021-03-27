@@ -690,24 +690,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ReportExecutionStage::operator()(Execution::Context& context) const
     {
-        if (!context.Contains(Execution::Data::ExecutionStage))
-        {
-            context.Add<Execution::Data::ExecutionStage>(m_stage);
-        }
-        else if (context.Get<Execution::Data::ExecutionStage>() == m_stage)
-        {
-            return;
-        }
-        else if (context.Get<Execution::Data::ExecutionStage>() < m_stage || m_allowBackward)
-        {
-            context.Get<Execution::Data::ExecutionStage>() = m_stage;
-        }
-        else
-        {
-            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), "Reporting ExecutionStage to an earlier Stage without allowBackward as true");
-        }
-
-        Logging::SetExecutionStage(static_cast<uint32_t>(context.Get<Execution::Data::ExecutionStage>()));
+        context.SetExecutionStage(m_stage, m_allowBackward);
     }
 }
 
