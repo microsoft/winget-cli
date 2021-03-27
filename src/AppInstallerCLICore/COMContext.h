@@ -8,9 +8,6 @@
 
 namespace AppInstaller
 {
-    using namespace AppInstaller::CLI;
-    using namespace AppInstaller::Workflow;
-
     enum class ReportType: uint32_t
     {
         ExecutionPhaseUpdate,
@@ -28,22 +25,24 @@ namespace AppInstaller
         ~NullStream() = default;
 
     protected:
-        NullStreamBuf nullStreamBuf;
-        std::unique_ptr<std::ostream> null_Out;
-        std::unique_ptr<std::istream> null_In;
+        NullStreamBuf m_nullStreamBuf;
+        std::unique_ptr<std::ostream> m_nullOut;
+        std::unique_ptr<std::istream> m_nullIn;
     };
+
+    typedef std::function<void(ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, CLI::Workflow::ExecutionStage executionPhase)> ProgressCallBackFunction;
 
     // NullStream constructs the Stream parameters for Context constructor
     // Hence, NullStream should always precede Context in base class order of COMContext's inheritance
-    struct COMContext : IProgressSink, NullStream, Execution::Context
+    struct COMContext : IProgressSink, NullStream, CLI::Execution::Context
     {
         // When no Console streams need involvement, construct NullStreams instead to pass to Context
-        COMContext() : NullStream(), Execution::Context(*null_Out, *null_In)
+        COMContext() : NullStream(), CLI::Execution::Context(*m_nullOut, *m_nullIn)
         {
             Reporter.SetProgressSink(this);
         }
 
-        COMContext(std::ostream& out, std::istream& in) : Execution::Context(out, in) 
+        COMContext(std::ostream& out, std::istream& in) : CLI::Execution::Context(out, in) 
         {
             Reporter.SetProgressSink(this);
         }
@@ -53,23 +52,18 @@ namespace AppInstaller
         // IProgressSink
         void BeginProgress() override;
         void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
-        void EndProgress(bool hideProgressWhenDone) override;
+        void EndProgress(bool) override;
 
         //Execution::Context
-        void SetExecutionStage(ExecutionStage executionPhase);
+        void SetExecutionStage(CLI::Workflow::ExecutionStage executionPhase, bool);
 
-        void SetProgressCallbackFunction(std::function<void(ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, ExecutionStage executionPhase)>&& f)
+        void SetProgressCallbackFunction(ProgressCallBackFunction&& f)
         {
             m_comProgressCallback = std::move(f);
         }
 
     private:
-        void SetProgress(uint64_t current, uint64_t maximum, ProgressType type);
-
-        uint64_t m_current = 0;
-        uint64_t m_maximum = 0;
-        ProgressType m_type = ProgressType::None;
-        ExecutionStage m_executionPhase = ExecutionStage::Initial;
-        std::function<void(ReportType reportType, uint64_t current, uint64_t maximum, ProgressType progressType, ExecutionStage executionPhase)> m_comProgressCallback;
+        CLI::Workflow::ExecutionStage m_executionStage = CLI::Workflow::ExecutionStage::Initial;
+        ProgressCallBackFunction m_comProgressCallback;
     };
 }

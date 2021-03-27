@@ -8,38 +8,28 @@ namespace AppInstaller
 
     NullStream::NullStream()
     {
-        null_Out.reset(new std::ostream(&nullStreamBuf));
-        null_In.reset(new std::istream(&nullStreamBuf));
+        m_nullOut.reset(new std::ostream(&m_nullStreamBuf));
+        m_nullIn.reset(new std::istream(&m_nullStreamBuf));
     }
 
     void COMContext::BeginProgress()
     {
-        m_comProgressCallback(ReportType::BeginProgress, m_current, m_maximum, m_type, m_executionPhase);
+        m_comProgressCallback(ReportType::BeginProgress, 0, 0, ProgressType::None, m_executionStage);
     };
 
-    void COMContext::OnProgress(uint64_t current, uint64_t maximum, ProgressType type)
+    void COMContext::OnProgress(uint64_t current, uint64_t maximum, ProgressType progressType)
     {
-        SetProgress(current, maximum, type);
-        m_comProgressCallback(ReportType::Progressing, m_current, m_maximum, m_type, m_executionPhase);
+        m_comProgressCallback(ReportType::Progressing, current, maximum, progressType, m_executionStage);
     }
 
-    void COMContext::EndProgress(bool hideProgressWhenDone)
+    void COMContext::EndProgress(bool)
     {
-        UNREFERENCED_PARAMETER(hideProgressWhenDone);
-        m_comProgressCallback(ReportType::EndProgress, m_current, m_maximum, m_type, m_executionPhase);
+        m_comProgressCallback(ReportType::EndProgress, 0, 0, ProgressType::None, m_executionStage);
     };
 
-    void COMContext::SetExecutionStage(ExecutionStage executionPhase)
+    void COMContext::SetExecutionStage(CLI::Workflow::ExecutionStage executionStage, bool)
     {
-        SetProgress(0, 0, ProgressType::None);
-        m_executionPhase = executionPhase;
-        m_comProgressCallback(ReportType::ExecutionPhaseUpdate, m_current, m_maximum, m_type, executionPhase);
-    }
-
-    void COMContext::SetProgress(uint64_t current, uint64_t maximum, ProgressType type)
-    {
-        m_current = current;
-        m_maximum = maximum;
-        m_type = type;
+        m_executionStage = executionStage;
+        m_comProgressCallback(ReportType::ExecutionPhaseUpdate, 0, 0, ProgressType::None, m_executionStage);
     }
 }

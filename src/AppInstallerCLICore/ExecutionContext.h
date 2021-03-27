@@ -101,9 +101,7 @@ namespace AppInstaller::CLI::Execution
             WI_ClearAllFlags(m_flags, flags);
         }
 
-        void SetExecutionStage(Workflow::ExecutionStage stage, bool allowBackward);
-        virtual void SetExecutionStage(Workflow::ExecutionStage stage);
-        Workflow::ExecutionStage GetExecutionStage();
+        virtual void SetExecutionStage(Workflow::ExecutionStage stage, bool);
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior

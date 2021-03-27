@@ -129,25 +129,15 @@ namespace AppInstaller::CLI::Execution
     
     void Context::SetExecutionStage(Workflow::ExecutionStage stage, bool allowBackward)
     {     
-        if (GetExecutionStage() == stage)
+        if (m_executionStage == stage)
         {
             return;
         }
-        else if (GetExecutionStage() > stage && !allowBackward)
+        else if (m_executionStage > stage && !allowBackward)
         {
             THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), "Reporting ExecutionStage to an earlier Stage without allowBackward as true");
         }
 
-        return SetExecutionStage(stage);
-    }
-
-    void Context::SetExecutionStage(Workflow::ExecutionStage stage)
-    {
         m_executionStage = stage;
-    }
-
-    Workflow::ExecutionStage Context::GetExecutionStage()
-    {
-        return m_executionStage;
     }
 }
