@@ -12,9 +12,8 @@ namespace AppInstaller::Settings
     {
         GroupPolicy& InstanceInternal(std::optional<GroupPolicy*> overridePolicy = {})
         {
-            // TODO: Use final location
-            constexpr std::string_view PoliciesKeyPath = "test\\policy"; // "SOFTWARE\\Policies\\Microsoft\\Windows\\WinGet";
-            static GroupPolicy s_groupPolicy{ Registry::Key::OpenIfExists(HKEY_CURRENT_USER /* HKEY_LOCAL_MACHINE */, PoliciesKeyPath) };
+            // TODO: Read from the actual registry key
+            static GroupPolicy s_groupPolicy{ Registry::Key{} };
             static GroupPolicy* s_override = nullptr;
 
             if (overridePolicy.has_value())
@@ -34,19 +33,21 @@ namespace AppInstaller::Settings
                 return std::nullopt;
             }
 
-            auto value = key[valueName];
-            if (!value.has_value())
+            auto regValue = key[valueName];
+            if (!regValue.has_value())
             {
+                // Value does not exist
                 return std::nullopt;
             }
 
-            if (value->GetType() != T)
+            auto value = regValue->TryGetValue<T>();
+            if (!value.has_value())
             {
                 AICLI_LOG(Core, Warning, << "Value for policy '" << valueName << "' does not have expected type");
                 return std::nullopt;
             }
 
-            return value->GetValue<T>();
+            return std::move(value.value());
         }
 
         std::optional<bool> RegistryValueIsTrue(const Registry::Key& key, std::string_view valueName)

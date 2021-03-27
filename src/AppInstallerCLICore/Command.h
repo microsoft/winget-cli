@@ -24,15 +24,15 @@ namespace AppInstaller::CLI
         // The message should be a localized string.
         // The parameters can be either localized or not.
         // We 'convert' the param to a localization independent view here if needed.
-        CommandException(Resource::LocString message, Resource::LocString param) : m_message(std::move(message)), m_param(std::make_shared<Resource::LocString>(param)) {}
-        CommandException(Resource::LocString message, std::string_view param) : m_message(std::move(message)), m_param(std::make_shared<Utility::LocIndString>(param)) {}
+        CommandException(Resource::LocString message, Resource::LocString param) : m_message(std::move(message)), m_param(param) {}
+        CommandException(Resource::LocString message, std::string_view param) : m_message(std::move(message)), m_param(param) {}
 
         const Resource::LocString& Message() const { return m_message; }
-        const Utility::LocIndString& Param() const { return *m_param; }
+        const Utility::LocIndString& Param() const { return m_param; }
 
     private:
         Resource::LocString m_message;
-        std::shared_ptr<Utility::LocIndString> m_param;
+        Utility::LocIndString m_param;
     };
 
     struct Command
