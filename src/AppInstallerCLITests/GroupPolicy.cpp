@@ -95,6 +95,7 @@ TEST_CASE("GroupPolicy_AllDisabled", "[groupPolicy]")
     SetRegistryValue(policiesKey.get(), WinGetSettingsPolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), ExperimentalFeaturesPolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), LocalManifestsPolicyValueName, 1);
+    SetRegistryValue(policiesKey.get(), EnableHashOverridePolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), DefaultSourcePolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), MSStoreSourcePolicyValueName, 1);;
     SetRegistryValue(policiesKey.get(), AdditionalSourcesPolicyValueName, 1);

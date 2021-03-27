@@ -884,4 +884,10 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="SettingsWarningValue" xml:space="preserve">
     <value>Value:</value>
   </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Installer hash does not match.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Enable Windows App Installer Hash Override</value>
+  </data>
 </root>

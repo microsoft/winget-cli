@@ -87,6 +87,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedSecurityCheck);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedVirusScan);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashMismatchAdminBlock);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashMismatchError);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashMismatchOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashMismatchOverrideRequired);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerHashVerified);

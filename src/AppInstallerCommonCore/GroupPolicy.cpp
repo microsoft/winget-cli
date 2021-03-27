@@ -139,6 +139,8 @@ namespace AppInstaller::Settings
             return TogglePolicy(policy, "EnableExperimentalFeatures"sv, String::PolicyEnableExperimentalFeatures);
         case TogglePolicy::Policy::LocalManifestFiles:
             return TogglePolicy(policy, "EnableLocalManifestFiles"sv, String::PolicyEnableLocalManifests);
+        case TogglePolicy::Policy::HashOverride:
+            return TogglePolicy(policy, "EnableHashOverride"sv, String::PolicyEnableHashOverride);
         case TogglePolicy::Policy::DefaultSource:
             return TogglePolicy(policy, "EnableDefaultSource"sv, String::PolicyEnableDefaultSource);
         case TogglePolicy::Policy::MSStoreSource:

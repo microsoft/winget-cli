@@ -34,6 +34,7 @@ namespace AppInstaller::Settings
             Settings,
             ExperimentalFeatures,
             LocalManifestFiles,
+            HashOverride,
             DefaultSource,
             MSStoreSource,
             AdditionalSources, // TODO
