@@ -129,6 +129,8 @@ namespace AppInstaller
                 return "The configured rest source is not supported";
             case APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA:
                 return "Invalid data returned by rest source";
+            case APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY:
+                return "Operation is blocked by Group Policy";
             default:
                 return "Unknown Error Code";
             }

@@ -182,7 +182,7 @@ namespace AppInstaller::CLI::Workflow
 
     void QueryUserForSourceReset(Execution::Context& context)
     {
-        if (!context.Args.Contains(Execution::Args::Type::Force))
+        if (!context.Args.Contains(Execution::Args::Type::ForceSourceReset))
         {
             context << GetSourceListWithFilter;
             const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();

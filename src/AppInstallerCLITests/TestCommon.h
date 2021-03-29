@@ -104,6 +104,7 @@ namespace TestCommon
 
         std::function<void(uint64_t, uint64_t, AppInstaller::ProgressType)> m_OnProgress;
     };
+
     // Creates a volatile key for testing.
     wil::unique_hkey RegCreateVolatileTestRoot();
 

@@ -15,6 +15,7 @@ using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Logging;
+using namespace AppInstaller::Repository;
 
 struct TestTelemetry : public TelemetryTraceLogger
 {

@@ -41,7 +41,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Log),
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation),
-            Argument{ "force", Argument::NoAlias, Args::Type::Force, Resource::String::InstallForceArgumentDescription, ArgumentType::Flag },
+            Argument::ForType(Args::Type::HashOverride),
             Argument{ "all", Argument::NoAlias, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
         };
     }
