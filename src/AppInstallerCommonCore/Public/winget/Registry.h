@@ -87,8 +87,13 @@ namespace AppInstaller::Registry
         template <Type T>
         typename details::ValueTypeSpecifics<static_cast<DWORD>(T)>::value_t GetValue() const
         {
-            THROW_HR_IF(E_INVALIDARG, !HasCompatibleType(T));
-            return details::ValueTypeSpecifics<static_cast<DWORD>(T)>::Convert(m_data);
+            auto value = TryGetValue<T>();
+            if (!value.has_value())
+            {
+                THROW_HR(E_INVALIDARG);
+            }
+
+            return std::move(value.value());
         }
 
         template <Type T>
