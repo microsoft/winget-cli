@@ -49,7 +49,7 @@ namespace AppInstaller::CLI::Workflow
 
             std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
             {
-                std::string result = "Machine is compatible with ";
+                std::string result = "Machine is not compatible with ";
                 result += Utility::ToString(installer.Arch);
                 return result;
             }
@@ -188,7 +188,7 @@ namespace AppInstaller::CLI::Workflow
 
             std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
             {
-                std::string result = "Installer scope does not matched required scope: ";
+                std::string result = "Installer scope does not match required scope: ";
                 result += Manifest::ScopeToString(installer.Scope);
                 result += " != ";
                 result += Manifest::ScopeToString(m_requirement);
