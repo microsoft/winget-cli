@@ -5,16 +5,21 @@
 #include "Resources.h"
 #include <winget/UserSettings.h>
 
+using namespace std::string_view_literals;
+using namespace AppInstaller::Utility::literals;
+using namespace AppInstaller::Settings;
+
 namespace AppInstaller::CLI
 {
-    using namespace std::string_view_literals;
-    using namespace Utility::literals;
-    using namespace Settings;
-
     constexpr std::string_view s_Command_ArgName_SilentAndInteractive = "silent|interactive"sv;
 
-    Command::Command(std::string_view name, std::string_view parent, Command::Visibility visibility, ExperimentalFeature::Feature feature) :
-        m_name(name), m_visibility(visibility), m_feature(feature)
+    Command::Command(
+        std::string_view name,
+        std::string_view parent,
+        Command::Visibility visibility,
+        Settings::ExperimentalFeature::Feature feature,
+        Settings::TogglePolicy::Policy groupPolicy) :
+        m_name(name), m_visibility(visibility), m_feature(feature), m_groupPolicy(groupPolicy)
     {
         if (!parent.empty())
         {
@@ -269,6 +274,13 @@ namespace AppInstaller::CLI
                     auto feature = ExperimentalFeature::GetFeature(command->Feature());
                     AICLI_LOG(CLI, Error, << "Trying to use command: " << *itr << " without enabling feature " << feature.JsonName());
                     throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
+                }
+
+                if (!Settings::GroupPolicies().IsEnabled(command->GroupPolicy()))
+                {
+                    auto policy = TogglePolicy::GetPolicy(command->GroupPolicy());
+                    AICLI_LOG(CLI, Error, << "Trying to use command: " << *itr << " disabled by group policy " << policy.RegValueName());
+                    throw CommandException(Resource::String::DisabledByGroupPolicy, policy.PolicyName());
                 }
 
                 AICLI_LOG(CLI, Info, << "Found subcommand: " << *itr);
@@ -587,6 +599,38 @@ namespace AppInstaller::CLI
             return;
         }
 
+        for (const auto& arg : GetArguments())
+        {
+            if (!ExperimentalFeature::IsEnabled(arg.Feature()) && execArgs.Contains(arg.ExecArgType()))
+            {
+                auto feature = ExperimentalFeature::GetFeature(arg.Feature());
+                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " without enabling feature " << feature.JsonName());
+                throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
+            }
+
+            if (!Settings::GroupPolicies().IsEnabled(arg.GroupPolicy()) && execArgs.Contains(arg.ExecArgType()))
+            {
+                auto policy = TogglePolicy::GetPolicy(arg.GroupPolicy());
+                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by group policy " << policy.RegValueName());
+                throw CommandException(Resource::String::DisabledByGroupPolicy, policy.PolicyName());
+            }
+
+            if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
+            {
+                throw CommandException(Resource::String::RequiredArgError, arg.Name());
+            }
+
+            if (arg.Limit() < execArgs.GetCount(arg.ExecArgType()))
+            {
+                throw CommandException(Resource::String::TooManyArgError, arg.Name());
+            }
+        }
+
+        if (execArgs.Contains(Execution::Args::Type::Silent) && execArgs.Contains(Execution::Args::Type::Interactive))
+        {
+            throw CommandException(Resource::String::TooManyBehaviorsError, s_Command_ArgName_SilentAndInteractive);
+        }
+
         ValidateArgumentsInternal(execArgs);
     }
 
@@ -690,6 +734,16 @@ namespace AppInstaller::CLI
 
     void Command::Execute(Execution::Context& context) const
     {
+        // Block any execution if winget is disabled by policy.
+        // Override the function to bypass this.
+        if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGet))
+        {
+            auto policy = TogglePolicy::GetPolicy(Settings::TogglePolicy::Policy::WinGet);
+            AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy " << policy.RegValueName());
+            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << " : "_liv << policy.PolicyName() << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY);
+        }
+
         AICLI_LOG(CLI, Info, << "Executing command: " << Name());
         if (context.Args.Contains(Execution::Args::Type::Help))
         {
@@ -701,32 +755,10 @@ namespace AppInstaller::CLI
         }
     }
 
-    void Command::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    void Command::ValidateArgumentsInternal(Execution::Args&) const
     {
-        for (const auto& arg : GetArguments())
-        {
-            if (!ExperimentalFeature::IsEnabled(arg.Feature()) && execArgs.Contains(arg.ExecArgType()))
-            {
-                auto feature = ExperimentalFeature::GetFeature(arg.Feature());
-                AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " without enabling feature " << feature.JsonName());
-                throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
-            }
-
-            if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
-            {
-                throw CommandException(Resource::String::RequiredArgError, arg.Name());
-            }
-
-            if (arg.Limit() < execArgs.GetCount(arg.ExecArgType()))
-            {
-                throw CommandException(Resource::String::TooManyArgError, arg.Name());
-            }
-        }
-
-        if (execArgs.Contains(Execution::Args::Type::Silent) && execArgs.Contains(Execution::Args::Type::Interactive))
-        {
-            throw CommandException(Resource::String::TooManyBehaviorsError, s_Command_ArgName_SilentAndInteractive);
-        }
+        // Do nothing by default.
+        // Commands may not need any extra validation.
     }
 
     void Command::ExecuteInternal(Execution::Context& context) const
@@ -738,6 +770,11 @@ namespace AppInstaller::CLI
     Command::Visibility Command::GetVisibility() const
     {
         if (!ExperimentalFeature::IsEnabled(m_feature))
+        {
+            return Command::Visibility::Hidden;
+        }
+
+        if (!Settings::GroupPolicies().IsEnabled(m_groupPolicy))
         {
             return Command::Visibility::Hidden;
         }

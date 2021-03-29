@@ -103,6 +103,7 @@ namespace TestCommon
 
         std::function<void(uint64_t, uint64_t, AppInstaller::ProgressType)> m_OnProgress;
     };
+
     // Creates a volatile key for testing.
     wil::unique_hkey RegCreateVolatileTestRoot();
 
@@ -113,5 +114,4 @@ namespace TestCommon
     void SetRegistryValue(HKEY key, const std::wstring& name, const std::wstring& value, DWORD type = REG_SZ);
     void SetRegistryValue(HKEY key, const std::wstring& name, const std::vector<BYTE>& value, DWORD type = REG_BINARY);
     void SetRegistryValue(HKEY key, const std::wstring& name, DWORD value);
-
 }

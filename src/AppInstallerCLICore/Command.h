@@ -7,6 +7,7 @@
 #include "Resources.h"
 #include <winget/UserSettings.h>
 #include <winget/ExperimentalFeature.h>
+#include <winget/GroupPolicy.h>
 
 #include <initializer_list>
 #include <memory>
@@ -16,17 +17,18 @@
 #include <type_traits>
 #include <vector>
 
-
 namespace AppInstaller::CLI
 {
     struct CommandException
     {
-        // The message should be a localized string, but the parameters are currently not localized.
-        // We 'convert' the param to a localization independent view here.
+        // The message should be a localized string.
+        // The parameters can be either localized or not.
+        // We 'convert' the param to a localization independent view here if needed.
+        CommandException(Resource::LocString message, Resource::LocString param) : m_message(std::move(message)), m_param(param) {}
         CommandException(Resource::LocString message, std::string_view param) : m_message(std::move(message)), m_param(param) {}
 
         const Resource::LocString& Message() const { return m_message; }
-        const Utility::LocIndString Param() const { return m_param; }
+        const Utility::LocIndString& Param() const { return m_param; }
 
     private:
         Resource::LocString m_message;
@@ -50,7 +52,11 @@ namespace AppInstaller::CLI
             Command(name, parent, visibility, Settings::ExperimentalFeature::Feature::None) {}
         Command(std::string_view name, std::string_view parent, Settings::ExperimentalFeature::Feature feature) :
             Command(name, parent, Command::Visibility::Show, feature) {}
-        Command(std::string_view name, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature);
+        Command(std::string_view name, std::string_view parent, Settings::TogglePolicy::Policy groupPolicy) :
+            Command(name, parent, Command::Visibility::Show, Settings::ExperimentalFeature::Feature::None, groupPolicy) {}
+        Command(std::string_view name, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature) :
+            Command(name, parent, visibility, feature, Settings::TogglePolicy::Policy::None) {}
+        Command(std::string_view name, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature, Settings::TogglePolicy::Policy groupPolicy);
         virtual ~Command() = default;
 
         Command(const Command&) = default;
@@ -66,6 +72,7 @@ namespace AppInstaller::CLI
         const std::string& FullName() const { return m_fullName; }
         Command::Visibility GetVisibility() const;
         Settings::ExperimentalFeature::Feature Feature() const { return m_feature; }
+        Settings::TogglePolicy::Policy GroupPolicy() const { return m_groupPolicy; }
 
         virtual std::vector<std::unique_ptr<Command>> GetCommands() const { return {}; }
         virtual std::vector<Argument> GetArguments() const { return {}; }
@@ -97,6 +104,7 @@ namespace AppInstaller::CLI
         std::string m_fullName;
         Command::Visibility m_visibility;
         Settings::ExperimentalFeature::Feature m_feature;
+        Settings::TogglePolicy::Policy m_groupPolicy;
     };
 
     template <typename Container>

@@ -2,11 +2,14 @@
 // Licensed under the MIT License.
 #pragma once
 #include "AppInstallerStrings.h"
+#include "winget/GroupPolicy.h"
+#include "winget/Resources.h"
 
 #include <filesystem>
 #include <map>
 #include <optional>
 #include <string>
+#include <type_traits>
 #include <variant>
 #include <vector>
 
@@ -72,7 +75,7 @@ namespace AppInstaller::Settings
             // Validate - Function that does semantic validation.
         };
 
-#define SETTINGMAPPING_SPECIALIZATION(_setting_, _json_, _value_, _default_, _path_) \
+#define SETTINGMAPPING_SPECIALIZATION_EXTEND(_setting_, _json_, _value_, _default_, _path_, _extension_) \
         template <> \
         struct SettingMapping<_setting_> \
         { \
@@ -81,10 +84,21 @@ namespace AppInstaller::Settings
             static constexpr value_t DefaultValue = _default_; \
             static constexpr std::string_view Path = _path_; \
             static std::optional<value_t> Validate(const json_t& value); \
+            _extension_ \
         }
 
+#define SETTINGMAPPING_SPECIALIZATION(_setting_, _json_, _value_, _default_, _path_) \
+        SETTINGMAPPING_SPECIALIZATION_EXTEND(_setting_, _json_, _value_, _default_, _path_, )
+
+#define SETTINGMAPPING_SPECIALIZATION_POLICY(_setting_, _json_, _value_, _default_, _path_, _valuePolicy_) \
+        SETTINGMAPPING_SPECIALIZATION_EXTEND(_setting_, _json_, _value_, _default_, _path_, \
+            static constexpr ValuePolicy Policy = _valuePolicy_; \
+            using policy_t = decltype(std::declval<GroupPolicy>().GetValue<Policy>())::value_type; \
+            static_assert(std::is_same<json_t, policy_t>::value); \
+        )
+
         SETTINGMAPPING_SPECIALIZATION(Setting::ProgressBarVisualStyle, std::string, VisualStyle, VisualStyle::Accent, ".visual.progressBar"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::AutoUpdateTimeInMinutes, uint32_t, std::chrono::minutes, 5min, ".source.autoUpdateIntervalInMinutes"sv);
+        SETTINGMAPPING_SPECIALIZATION_POLICY(Setting::AutoUpdateTimeInMinutes, uint32_t, std::chrono::minutes, 5min, ".source.autoUpdateIntervalInMinutes"sv, ValuePolicy::SourceAutoUpdateIntervalInMinutes);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalCmd, bool, bool, false, ".experimentalFeatures.experimentalCmd"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalArg, bool, bool, false, ".experimentalFeatures.experimentalArg"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalMSStore, bool, bool, false, ".experimentalFeatures.experimentalMSStore"sv);
@@ -107,10 +121,23 @@ namespace AppInstaller::Settings
         constexpr inline size_t SettingIndex(Setting s) { return static_cast<size_t>(s) + 1; }
     }
 
-
     // Representation of the parsed settings file.
     struct UserSettings
     {
+        // Jsoncpp doesn't provide line number and column for an individual Json::Value node.
+        struct Warning
+        {
+            Warning(StringResource::StringId message) : Message(message) {}
+            Warning(StringResource::StringId message, std::string_view settingPath) : Message(message), Path(settingPath) {}
+            Warning(StringResource::StringId message, std::string_view settingPath, std::string_view settingValue, bool isField = true) :
+                Message(message), Path(settingPath), Data(settingValue), IsFieldWarning(isField) {}
+
+            StringResource::StringId Message;
+            std::string Path;
+            std::string Data;
+            bool IsFieldWarning = true;
+        };
+
         static UserSettings const& Instance()
         {
             static UserSettings userSettings;
@@ -126,7 +153,7 @@ namespace AppInstaller::Settings
         UserSettings& operator=(UserSettings&&) = delete;
 
         UserSettingsType GetType() const { return m_type; }
-        std::vector<std::string> const& GetWarnings() const { return m_warnings; }
+        std::vector<Warning> const& GetWarnings() const { return m_warnings; }
 
         void PrepareToShellExecuteFile() const;
 
@@ -145,7 +172,7 @@ namespace AppInstaller::Settings
 
     private:
         UserSettingsType m_type = UserSettingsType::Default;
-        std::vector<std::string> m_warnings;
+        std::vector<Warning> m_warnings;
         std::map<Setting, details::SettingVariant> m_settings;
 
     protected:

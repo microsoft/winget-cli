@@ -82,15 +82,15 @@ namespace AppInstaller::Registry
     {
     }
 
-    void Value::EnsureType(Type type) const
+    bool Value::HasCompatibleType(Type type) const
     {
         // Allow interop between String and ExpandString
         if ((m_type == Type::String || m_type == Type::ExpandString) && (type == Type::String || type == Type::ExpandString))
         {
-            return;
+            return true;
         }
 
-        THROW_HR_IF(E_INVALIDARG, m_type != type);
+        return m_type == type;
     }
 
     Key::Key(HKEY key)

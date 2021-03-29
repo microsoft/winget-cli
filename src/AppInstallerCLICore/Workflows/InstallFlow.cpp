@@ -199,7 +199,7 @@ namespace AppInstaller::CLI::Workflow
             hashPair.first.end(),
             hashPair.second.begin()))
         {
-            bool overrideHashMismatch = context.Args.Contains(Execution::Args::Type::Force);
+            bool overrideHashMismatch = context.Args.Contains(Execution::Args::Type::HashOverride);
 
             const auto& manifest = context.Get<Execution::Data::Manifest>();
             Logging::Telemetry().LogInstallerHashMismatch(manifest.Id, manifest.Version, manifest.Channel, hashPair.first, hashPair.second, overrideHashMismatch);
@@ -214,9 +214,13 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Warn() << Resource::String::InstallerHashMismatchOverridden << std::endl;
                 return;
             }
-            else
+            else if (Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::HashOverride))
             {
                 context.Reporter.Error() << Resource::String::InstallerHashMismatchOverrideRequired << std::endl;
+            }
+            else
+            {
+                context.Reporter.Error() << Resource::String::InstallerHashMismatchError << std::endl;
             }
 
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);

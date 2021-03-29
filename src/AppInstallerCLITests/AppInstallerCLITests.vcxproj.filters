@@ -33,6 +33,9 @@
     <ClInclude Include="TestSource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TestSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -123,6 +126,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ARPChanges.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GroupPolicy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WorkflowGroupPolicy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

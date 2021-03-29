@@ -12,10 +12,10 @@
 #include <algorithm>
 #include <ostream>
 
+using namespace AppInstaller::Repository;
+
 namespace AppInstaller::CLI
 {
-    using namespace AppInstaller::Repository;
-
     namespace
     {
         // Strings used in the Packages JSON file.

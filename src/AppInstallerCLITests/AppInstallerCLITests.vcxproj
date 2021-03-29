@@ -177,6 +177,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="TestCommon.h" />
     <ClInclude Include="TestHooks.h" />
+    <ClInclude Include="TestSettings.h" />
     <ClInclude Include="TestSource.h" />
   </ItemGroup>
   <ItemGroup>
@@ -186,6 +187,7 @@
     <ClCompile Include="CompositeSource.cpp" />
     <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="ExperimentalFeature.cpp" />
+    <ClCompile Include="GroupPolicy.cpp" />
     <ClCompile Include="HashCommand.cpp" />
     <ClCompile Include="MsixInfo.cpp" />
     <ClCompile Include="NameNormalization.cpp" />
@@ -196,6 +198,7 @@
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="SQLiteIndexSource.cpp" />
     <ClCompile Include="Strings.cpp" />
+    <ClCompile Include="TestSettings.cpp" />
     <ClCompile Include="TestSource.cpp" />
     <ClCompile Include="UserSettings.cpp" />
     <ClCompile Include="Versions.cpp" />
@@ -216,6 +219,7 @@
     <ClCompile Include="SQLiteWrapper.cpp" />
     <ClCompile Include="Synchronization.cpp" />
     <ClCompile Include="TestCommon.cpp" />
+    <ClCompile Include="WorkflowGroupPolicy.cpp" />
     <ClCompile Include="YamlManifest.cpp" />
   </ItemGroup>
   <ItemGroup>
