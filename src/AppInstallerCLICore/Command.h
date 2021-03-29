@@ -117,4 +117,6 @@ namespace AppInstaller::CLI
 
         return result;
     }
+
+    int Execute(Execution::Context& context, std::unique_ptr<Command>& command);
 }

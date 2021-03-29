@@ -152,6 +152,9 @@
     <ClInclude Include="ExecutionContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="COMContext.h">
+      <Filter>Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -270,6 +273,9 @@
     </ClCompile>
     <ClCompile Include="Commands\ImportCommand.cpp">
       <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="COMContext.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
