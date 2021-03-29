@@ -63,7 +63,7 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
-    <policy name="EnableDefaultSorce" class="Machine" displayName="$(string.EnableDefaultSorce)" explainText="$(string.EnableDefaultSorceExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableDefaultSorce">
+    <policy name="EnableDefaultSource" class="Machine" displayName="$(string.EnableDefaultSource)" explainText="$(string.EnableDefaultSourceExplanation)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableDefaultSource">
       <parentCategory ref="WindowsAppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS3" />
       <enabledValue>
