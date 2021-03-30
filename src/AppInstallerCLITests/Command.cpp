@@ -141,7 +141,8 @@ struct CommandExceptionMatcher : public Catch::MatcherBase<CommandException>
 
     bool match(const CommandException& ce) const override
     {
-        return ce.Param().get() == m_expectedArg;
+        const auto& params = ce.Params();
+        return params.size() == 1 && params[0].get() == m_expectedArg;
     }
 
     std::string describe() const override
@@ -159,7 +160,32 @@ namespace Catch {
     template<>
     struct StringMaker<CommandException> {
         static std::string convert(CommandException const& ce) {
-            return std::string{ "CommandException{ '" } + ce.Message().get() + "', '" + ce.Param().get() + "'}";
+            std::string result{ "CommandException{ '" };
+            result += ce.Message().get();
+            result += '\'';
+
+            bool first = true;
+            for (const auto& param : ce.Params())
+            {
+                if (first)
+                {
+                    first = false;
+                    result += ", ['";
+                }
+                else
+                {
+                    result += "', '";
+                }
+                result += param.get();
+            }
+
+            if (!first)
+            {
+                result += "']";
+            }
+
+            result += " }";
+            return result;
         }
     };
 }
