@@ -10,6 +10,7 @@
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::Settings;
     using namespace AppInstaller::Utility::literals;
 
     void GetSourceList(Execution::Context& context)
@@ -166,6 +167,8 @@ namespace AppInstaller::CLI::Workflow
 
     void RemoveSources(Execution::Context& context)
     {
+        // TODO: We currently only allow removing a single source. If that changes,
+        //       we need to check all sources with the Group Policy before removing any of them.
         if (!context.Args.Contains(Args::Type::SourceName))
         {
             context.Reporter.Info() << Resource::String::SourceRemoveAll << std::endl;

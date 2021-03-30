@@ -21,6 +21,7 @@ namespace AppInstaller::Repository
         Default,
         User,
         Predefined,
+        GroupPolicy,
     };
 
     // Defines the trust level of the source.
@@ -80,15 +81,6 @@ namespace AppInstaller::Repository
 
         // Execute a search on the source.
         virtual SearchResult Search(const SearchRequest& request) const = 0;
-    };
-
-    // Interface extension to ISource for locally installed packages.
-    struct IInstalledPackageSource : public ISource
-    {
-        virtual ~IInstalledPackageSource() = default;
-
-        // Adds an installed package version to the source.
-        virtual std::shared_ptr<IInstalledPackageVersion> AddInstalledPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath) = 0;
     };
 
     // Gets the details for all sources.

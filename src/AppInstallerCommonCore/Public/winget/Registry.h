@@ -186,6 +186,9 @@ namespace AppInstaller::Registry
         std::optional<Value> operator[](std::string_view name) const;
         std::optional<Value> operator[](const std::wstring& name) const;
 
+        std::optional<Key> SubKey(std::string_view name, DWORD options = 0) const;
+        std::optional<Key> SubKey(const std::wstring& name, DWORD options = 0) const;
+
         operator bool() const { return m_key.operator bool(); }
 
         // Open a Key; will return an empty Key if the subkey does not exist.
@@ -193,7 +196,8 @@ namespace AppInstaller::Registry
         static Key OpenIfExists(HKEY key, const std::wstring& subKey = {}, DWORD options = 0, REGSAM access = KEY_READ);
 
     private:
-        void Initialize(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access, bool ignoreErrorIfDoesNotExist);
+        // When ignoring error, returns whether the key existed
+        bool Initialize(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access, bool ignoreErrorIfDoesNotExist);
 
         wil::shared_hkey m_key;
         REGSAM m_access = KEY_READ;

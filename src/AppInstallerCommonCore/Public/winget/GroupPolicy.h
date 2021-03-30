@@ -68,6 +68,16 @@ namespace AppInstaller::Settings
         Enabled,
     };
 
+    // A source defined by Group Policy to be added or allowed
+    struct SourceFromPolicy
+    {
+        std::string Name;
+        std::string Arg;
+        std::string Type;
+        std::string Data;
+        std::string Identifier;
+    };
+
     namespace details
     {
 
@@ -81,32 +91,40 @@ namespace AppInstaller::Settings
             //  ValueName - Name of the registry value
             //  ValueType - Type of the registry value
             //  reg_value_t - Type returned by the registry when reading the value
+
+            // For lists:
+            //  item_t - Type of each item
+            //  KeyName -- Name of the sub-key containing the list
+            //  ReadAndValidateItem() - Function that reads a single item from a subkey
         };
 
-#define POLICY_MAPPING_SPECIALIZATION(_policy_, _type_) \
+#define POLICY_MAPPING_SPECIALIZATION(_policy_, _type_, _extra_) \
         template <> \
         struct ValuePolicyMapping<_policy_> \
         { \
             using value_t = _type_; \
             static std::optional<value_t> ReadAndValidate(const Registry::Key& policiesKey); \
+            _extra_ \
         }
 
 #define POLICY_MAPPING_VALUE_SPECIALIZATION(_policy_, _type_, _valueName_, _valueType_) \
-        template<> \
-        struct ValuePolicyMapping<_policy_> \
-        { \
+        POLICY_MAPPING_SPECIALIZATION(_policy_, _type_, \
             static constexpr std::string_view ValueName = _valueName_; \
             static constexpr Registry::Value::Type ValueType = _valueType_; \
-            using value_t = _type_; \
             using reg_value_t = decltype(std::declval<Registry::Value>().GetValue<ValueType>()); \
-            static std::optional<value_t> ReadAndValidate(const Registry::Key& policiesKey); \
-        }
+        )
+
+#define POLICY_MAPPING_LIST_SPECIALIZATION(_policy_, _type_, _keyName_) \
+        POLICY_MAPPING_SPECIALIZATION(_policy_, std::vector<_type_>, \
+            static constexpr std::string_view KeyName = _keyName_; \
+            using item_t = _type_; \
+            static std::optional<item_t> ReadAndValidateItem(const Registry::Value& item); \
+        )
 
         POLICY_MAPPING_VALUE_SPECIALIZATION(ValuePolicy::SourceAutoUpdateIntervalInMinutes, uint32_t, "SourceAutoUpdateIntervalInMinutes"sv, Registry::Value::Type::DWord);
 
-        // TODO: Wire up policies for sources
-        POLICY_MAPPING_SPECIALIZATION(ValuePolicy::AdditionalSources, std::vector<std::string>);
-        POLICY_MAPPING_SPECIALIZATION(ValuePolicy::AllowedSources, std::vector<std::string>);
+        POLICY_MAPPING_LIST_SPECIALIZATION(ValuePolicy::AdditionalSources, SourceFromPolicy, "AdditionalSources"sv);
+        POLICY_MAPPING_LIST_SPECIALIZATION(ValuePolicy::AllowedSources, SourceFromPolicy, "AllowedSources"sv);
     }
 
     // Representation of the policies read from the registry.
@@ -162,4 +180,15 @@ namespace AppInstaller::Settings
     {
         return GroupPolicy::Instance();
     }
+
+    struct GroupPolicyException
+    {
+        GroupPolicyException(TogglePolicy::Policy policy) : m_policy(policy) {}
+
+        const TogglePolicy::Policy& Policy() const { return m_policy; }
+
+    private:
+        TogglePolicy::Policy m_policy;
+    };
+
 }

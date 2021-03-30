@@ -41,7 +41,8 @@ namespace AppInstaller::JsonSchema
         Json::CharReaderBuilder charReaderBuilder;
         const std::unique_ptr<Json::CharReader> jsonReader(charReaderBuilder.newCharReader());
         std::string errorMsg;
-        if (!jsonReader->parse(schemaStr.c_str(), schemaStr.c_str() + schemaLength, &schemaJson, &errorMsg)) {
+        if (!jsonReader->parse(schemaStr.c_str(), schemaStr.c_str() + schemaLength, &schemaJson, &errorMsg))
+        {
             THROW_HR_MSG(E_UNEXPECTED, "Jsoncpp parser failed to parse the schema doc. Reason: %s", errorMsg.c_str());
         }
 

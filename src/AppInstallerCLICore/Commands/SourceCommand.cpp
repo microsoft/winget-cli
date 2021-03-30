@@ -71,6 +71,8 @@ namespace AppInstaller::CLI
 
     void SourceAddCommand::ExecuteInternal(Context& context) const
     {
+        // Note: Group Policy for allowed sources is enforced at the RepositoryCore level
+        //       as we need to validate the source data and handle sources that were already added.
         context <<
             Workflow::EnsureRunningAsAdmin <<
             Workflow::GetSourceList <<
@@ -187,6 +189,7 @@ namespace AppInstaller::CLI
 
     void SourceRemoveCommand::ExecuteInternal(Context& context) const
     {
+        // Note: Group Policy for unremovable sources is enforced at the RepositoryCore.
         context <<
             Workflow::EnsureRunningAsAdmin <<
             Workflow::GetSourceListWithFilter <<

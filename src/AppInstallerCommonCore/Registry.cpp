@@ -256,6 +256,24 @@ namespace AppInstaller::Registry
         return Value{ type, std::move(data) };
     }
 
+    std::optional<Key> Key::SubKey(std::string_view subKey, DWORD options) const
+    {
+        return SubKey(Utility::ConvertToUTF16(subKey), options);
+    }
+
+    std::optional<Key> Key::SubKey(const std::wstring& subKey, DWORD options) const
+    {
+        Key result;
+        if (result.Initialize(m_key.get(), subKey, options, m_access, true))
+        {
+            return result;
+        }
+        else
+        {
+            return std::nullopt;
+        }
+    }
+
     Key Key::OpenIfExists(HKEY key, std::string_view subKey, DWORD options, REGSAM access)
     {
         return OpenIfExists(key, Utility::ConvertToUTF16(subKey), options, access);
@@ -268,16 +286,18 @@ namespace AppInstaller::Registry
         return result;
     }
 
-    void Key::Initialize(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access, bool ignoreErrorIfDoesNotExist)
+    bool Key::Initialize(HKEY key, const std::wstring& subKey, DWORD options, REGSAM access, bool ignoreErrorIfDoesNotExist)
     {
+        m_access = access;
         LSTATUS status = RegOpenKeyExW(key, subKey.c_str(), options, access, &m_key);
 
         if (ignoreErrorIfDoesNotExist && status == ERROR_FILE_NOT_FOUND)
         {
             AICLI_LOG(Core, Verbose, << "Subkey '" << Utility::ConvertToUTF8(subKey) << "' was not found");
-            return;
+            return false;
         }
 
         THROW_IF_WIN32_ERROR(status);
+        return true;
     }
 }

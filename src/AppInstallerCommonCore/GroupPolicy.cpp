@@ -104,26 +104,92 @@ namespace AppInstaller::Settings
             // Use folding to call each policy validate function.
             (FoldHelper{}, ..., Validate<static_cast<ValuePolicy>(P)>(policiesKey, policies));
         }
+
+        template<ValuePolicy P>
+        std::optional<typename details::ValuePolicyMapping<P>::value_t> ReadList(const Registry::Key& policiesKey)
+        {
+            using Mapping = details::ValuePolicyMapping<P>;
+
+            auto listKey = policiesKey.SubKey(Mapping::KeyName);
+            if (!listKey.has_value())
+            {
+                return std::nullopt;
+            }
+
+            // TODO
+            std::vector<Mapping::item_t> items;
+            return items;
+        }
+
+        std::optional<SourceFromPolicy> ReadSourceFromRegistryValue(const Registry::Value& item)
+        {
+            auto jsonString = item.TryGetValue<Registry::Value::Type::String>();
+            if (!jsonString.has_value())
+            {
+                // TODO: Log
+                return std::nullopt;
+            }
+
+            int stringLength = static_cast<int>(jsonString->length());
+            Json::Value sourceJson;
+            Json::CharReaderBuilder charReaderBuilder;
+            const std::unique_ptr<Json::CharReader> jsonReader(charReaderBuilder.newCharReader());
+            Json::String jsonErrors;
+            if (!jsonReader->parse(jsonString->c_str(), jsonString->c_str() + stringLength, &sourceJson, &jsonErrors))
+            {
+                // TODO: Log
+                return std::nullopt;
+            }
+
+            SourceFromPolicy source;
+
+#define READ_SOURCE_ATTRIBUTE(_attr_) \
+            if (sourceJson.isMember(#_attr_) && sourceJson[#_attr_].isString()) \
+            { \
+                source._attr_ = sourceJson[#_attr_].asString(); \
+            } \
+            else \
+            { \
+                /* TODO: Log */ \
+                return std::nullopt; \
+            }
+
+            READ_SOURCE_ATTRIBUTE(Name);
+            READ_SOURCE_ATTRIBUTE(Arg);
+            READ_SOURCE_ATTRIBUTE(Type);
+            READ_SOURCE_ATTRIBUTE(Data);
+            READ_SOURCE_ATTRIBUTE(Identifier);
+#undef READ_SOURCE_ATTRIBUTE
+
+            return source;
+        }
     }
 
     namespace details
     {
+#define POLICY_MAPPING_DEFAULT_LIST_READ(_policy_) \
+        std::optional<typename ValuePolicyMapping<_policy_>::value_t> ValuePolicyMapping<_policy_>::ReadAndValidate(const Registry::Key& policiesKey) \
+        { \
+            return ReadList<_policy_>(policiesKey); \
+        }
+
+        POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AdditionalSources);
+        POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AllowedSources);
+
         std::optional<uint32_t> ValuePolicyMapping<ValuePolicy::SourceAutoUpdateIntervalInMinutes>::ReadAndValidate(const Registry::Key& policiesKey)
         {
             using Mapping = ValuePolicyMapping<ValuePolicy::SourceAutoUpdateIntervalInMinutes>;
-            return GetRegistryValue<Mapping::ValueType>(policiesKey , Mapping::ValueName);
+            return GetRegistryValue<Mapping::ValueType>(policiesKey, Mapping::ValueName);
         }
 
-        std::optional<std::vector<std::string>> ValuePolicyMapping<ValuePolicy::AdditionalSources>::ReadAndValidate(const Registry::Key&)
+        std::optional<SourceFromPolicy> ValuePolicyMapping<ValuePolicy::AdditionalSources>::ReadAndValidateItem(const Registry::Value& item)
         {
-            // TODO
-            return std::nullopt;
+            return ReadSourceFromRegistryValue(item);
         }
 
-        std::optional<std::vector<std::string>> ValuePolicyMapping<ValuePolicy::AllowedSources>::ReadAndValidate(const Registry::Key&)
+        std::optional<SourceFromPolicy> ValuePolicyMapping<ValuePolicy::AllowedSources>::ReadAndValidateItem(const Registry::Value& item)
         {
-            // TODO
-            return std::nullopt;
+            return ReadSourceFromRegistryValue(item);
         }
     }
 
