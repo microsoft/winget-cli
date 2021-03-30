@@ -18,5 +18,6 @@
     <file src="src\x64\Release\WinGetUtil\WinGetUtil.pdb" target="runtimes\win-x64\native\WinGetUtil.pdb"/>
     <file src="src\x86\Release\WinGetUtil\WinGetUtil.dll" target="runtimes\win-x86\native\WinGetUtil.dll"/>
     <file src="src\x86\Release\WinGetUtil\WinGetUtil.pdb" target="runtimes\win-x86\native\WinGetUtil.pdb"/>
+    <file src="schemas\JSON\manifests\**" target="content\schemas\JSON\manifests" />
   </files>
 </package>
