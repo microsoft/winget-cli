@@ -86,6 +86,16 @@
                 "Channel": {
                   "description": "Package channel",
                   "type": "string"
+                },
+
+                "Scope": {
+                  "description": "Required package scope",
+                  "type": "string",
+                  "enum": [
+                    "user",
+                    "machine"
+                  ],
+                  "default": "user"
                 }
               }
             }

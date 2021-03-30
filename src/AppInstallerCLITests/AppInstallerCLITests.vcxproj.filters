@@ -414,6 +414,11 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-Channel-NotSupported.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_2.yaml" />
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe_2.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Good-MachineScope.json">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

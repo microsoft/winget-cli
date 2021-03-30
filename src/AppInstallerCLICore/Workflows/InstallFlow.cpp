@@ -416,8 +416,11 @@ namespace AppInstaller::CLI::Workflow
             Execution::Context& installContext = *installContextPtr;
 
             // Extract the data needed for installing
-            installContext.Add<Execution::Data::PackageVersion>(package);
-            installContext.Add<Execution::Data::Manifest>(package->GetManifest());
+            installContext.Add<Execution::Data::PackageVersion>(package.PackageVersion);
+            installContext.Add<Execution::Data::Manifest>(package.PackageVersion->GetManifest());
+
+            // TODO: In the future, it would be better to not have to convert back and forth from a string
+            installContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(package.PackageRequest.Scope));
 
             installContext << InstallPackageVersion;
             if (installContext.IsTerminated())
