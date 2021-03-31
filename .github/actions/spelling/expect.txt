@@ -20,6 +20,7 @@ Atest
 AType
 AUrl
 Aysnc
+azurewebsites
 Beigi
 bfd
 bght
@@ -31,6 +32,7 @@ bomgar
 BOMs
 brk
 Buf
+Bversion
 casemap
 casemappings
 cch
@@ -181,10 +183,12 @@ PWSTR
 pz
 qb
 qword
+rbegin
 readonly
 regexes
 REGSAM
 REINSTALLMODE
+restsource
 rhs
 roblox
 rosoft
@@ -192,6 +196,7 @@ rowids
 RRF
 rrr
 rzkzqaqjwj
+serializer
 SARL
 schematab
 sddl
@@ -203,6 +208,7 @@ sid
 SIGNATUREHASH
 Sku
 sortof
+sourc
 spamming
 SPAPI
 Srinivasan

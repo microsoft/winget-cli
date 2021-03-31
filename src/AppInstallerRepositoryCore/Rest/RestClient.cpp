@@ -16,7 +16,7 @@ using namespace AppInstaller::Utility;
 namespace AppInstaller::Repository::Rest
 {
     // Supported versions
-    std::set<AppInstaller::Utility::Version> WingetSupportedContracts = { Version_0_2_0, Version_1_0_0 };
+    std::set<Version> WingetSupportedContracts = { Version_0_2_0, Version_1_0_0 };
 
     RestClient::RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface)
         : m_interface(std::move(supportedInterface))
@@ -59,10 +59,10 @@ namespace AppInstaller::Repository::Rest
     std::optional<Version> RestClient::GetLatestCommonVersion(
         const IRestClient::Information& information, const std::set<Version>& wingetSupportedVersions)
     {
-        std::set<AppInstaller::Utility::Version> commonVersions;
+        std::set<Version> commonVersions;
         for (auto& version : information.ServerSupportedVersions)
         {
-            AppInstaller::Utility::Version versionInfo(version);
+            Version versionInfo(version);
             if (wingetSupportedVersions.find(versionInfo) != wingetSupportedVersions.end())
             {
                 commonVersions.insert(std::move(versionInfo));
