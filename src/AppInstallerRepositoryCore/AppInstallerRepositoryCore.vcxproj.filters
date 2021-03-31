@@ -201,6 +201,9 @@
     <ClInclude Include="Rest\Schema\RestHelper.h">
       <Filter>Rest\Schema</Filter>
     </ClInclude>
+    <ClInclude Include="Rest\Schema\Json\SearchRequestSerializer.h">
+      <Filter>Rest\Schema\Json</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -307,6 +310,9 @@
     </ClCompile>
     <ClCompile Include="Rest\Schema\RestHelper.cpp">
       <Filter>Rest\Schema</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\Json\SearchRequestSerializer.cpp">
+      <Filter>Rest\Schema\Json</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

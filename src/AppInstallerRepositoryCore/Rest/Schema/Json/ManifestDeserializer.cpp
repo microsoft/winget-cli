@@ -298,8 +298,13 @@ namespace AppInstaller::Repository::Rest::Schema::Json
         }
         installer.Arch = Utility::ConvertToArchitectureEnum(arch.value());
 
-        installer.InstallerType = Manifest::ConvertToInstallerTypeEnum(
-            JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerType)).value_or(""));
+        std::optional<std::string> installerType = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerType));
+        if (!JsonHelper::IsValidNonEmptyStringValue(installerType))
+        {
+            AICLI_LOG(Repo, Error, << "Missing installer type.");
+            return {};
+        }
+        installer.InstallerType = Manifest::ConvertToInstallerTypeEnum(installerType.value());
         installer.Locale = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerLocale)).value_or("");
 
         // platform

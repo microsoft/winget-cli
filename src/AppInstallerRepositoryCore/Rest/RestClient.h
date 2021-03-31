@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <set>
 #include "Rest/Schema/IRestClient.h"
 #include "cpprest/json.h"
 
@@ -24,11 +25,13 @@ namespace AppInstaller::Repository::Rest
 
         std::optional<Manifest::Manifest> GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const;
 
-        static utility::string_t GetInformationEndpoint(const std::string& restApiUri);
+        static std::optional<AppInstaller::Utility::Version> GetLatestCommonVersion(const AppInstaller::Repository::Rest::Schema::IRestClient::Information& information, const std::set<AppInstaller::Utility::Version>& wingetSupportedVersions);
 
-        static std::string GetSupportedVersion(const std::string& restApi);
+        static utility::string_t GetInformationEndpoint(const utility::string_t& restApiUri);
+        
+        static AppInstaller::Utility::Version GetSupportedVersion(const utility::string_t& restApi, const std::set<AppInstaller::Utility::Version>& wingetSupportedVersions);
 
-        static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const std::string& version);
+        static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const AppInstaller::Utility::Version& version);
 
         static RestClient Create(const std::string& restApi);
 

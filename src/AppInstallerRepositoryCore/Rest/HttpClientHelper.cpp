@@ -26,7 +26,7 @@ namespace AppInstaller::Repository::Rest
         return MakeRequest(request);
     }
 
-    web::json::value HttpClientHelper::HandlePost(
+    std::optional<web::json::value> HttpClientHelper::HandlePost(
         const web::json::value& body, const std::vector<std::pair<utility::string_t, utility::string_t>>& headers)
     {
         web::http::http_response httpResponse;
@@ -36,8 +36,7 @@ namespace AppInstaller::Repository::Rest
                 httpResponse = response;
             }).wait();
 
-            THROW_HR_IF(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, httpResponse.status_code()), httpResponse.status_code() != web::http::status_codes::OK);
-            return httpResponse.extract_json().get();
+            return ValidateAndExtractResponse(httpResponse);
     }
 
     pplx::task<web::http::http_response> HttpClientHelper::Get(const std::vector<std::pair<utility::string_t, utility::string_t>>& headers)
@@ -55,7 +54,7 @@ namespace AppInstaller::Repository::Rest
         return MakeRequest(request);
     }
 
-    web::json::value HttpClientHelper::HandleGet(const std::vector<std::pair<utility::string_t, utility::string_t>>& headers)
+    std::optional<web::json::value> HttpClientHelper::HandleGet(const std::vector<std::pair<utility::string_t, utility::string_t>>& headers)
     {
         web::http::http_response httpResponse;
         Get(headers).then([&httpResponse](const web::http::http_response& response)
@@ -64,8 +63,42 @@ namespace AppInstaller::Repository::Rest
                 httpResponse = response;
             }).wait();
 
-            THROW_HR_IF(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, httpResponse.status_code()), httpResponse.status_code() != web::http::status_codes::OK);
-            return httpResponse.extract_json().get();
+            return ValidateAndExtractResponse(httpResponse);
+    }
+
+    std::optional<web::json::value> HttpClientHelper::ValidateAndExtractResponse(const web::http::http_response& response)
+    {
+        std::optional<web::json::value> result;
+        switch (response.status_code())
+        {
+        case web::http::status_codes::OK:
+            result = ExtractJsonResponse(response);
+            break;
+
+        case web::http::status_codes::NotFound:
+            result = {};
+            break;
+
+        case web::http::status_codes::BadRequest:
+            THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR);
+            break;
+
+        default:
+            THROW_HR(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, response.status_code()));
+            break;
+        }
+
+        return result;
+    }
+
+    std::optional<web::json::value> HttpClientHelper::ExtractJsonResponse(const web::http::http_response& response)
+    {
+        utility::string_t contentType = response.headers().content_type();
+
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE,
+            !contentType._Starts_with(web::http::details::mime_types::application_json));
+
+        return response.extract_json().get();
     }
 
     pplx::task<web::http::http_response> HttpClientHelper::MakeRequest(web::http::http_request req)

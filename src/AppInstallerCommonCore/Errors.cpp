@@ -131,6 +131,14 @@ namespace AppInstaller
                 return "Invalid data returned by rest source";
             case APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY:
                 return "Operation is blocked by Group Policy";
+            case APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR:
+                return "Rest source internal error";
+            case APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL:
+                return "Invalid rest source url";
+            case APPINSTALLER_CLI_ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE:
+                return "Unsupported MIME type returned by rest source";
+            case APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION:
+                return "Invalid rest source contract version";
             default:
                 return "Unknown Error Code";
             }
