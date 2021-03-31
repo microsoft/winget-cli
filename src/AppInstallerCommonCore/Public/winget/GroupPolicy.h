@@ -145,13 +145,29 @@ namespace AppInstaller::Settings
         GroupPolicy(GroupPolicy&&) = delete;
         GroupPolicy& operator=(GroupPolicy&&) = delete;
 
+        template<ValuePolicy P>
+        using ValueType = typename details::ValuePolicyMapping<P>::value_t;
+
         // Gets the policy value if it is present
         template<ValuePolicy P>
-        std::optional<typename details::ValuePolicyMapping<P>::value_t> GetValue() const
+        std::optional<ValueType<P>> GetValue() const
         {
             if (m_values.Contains(P))
             {
                 return m_values.Get<P>();
+            }
+            else
+            {
+                return std::nullopt;
+            }
+        }
+
+        template<ValuePolicy P>
+        std::optional<std::reference_wrapper<const ValueType<P>>> GetValueRef() const
+        {
+            if (m_values.Contains(P))
+            {
+                return std::cref(m_values.Get<P>());
             }
             else
             {

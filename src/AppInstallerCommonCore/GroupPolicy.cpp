@@ -12,8 +12,7 @@ namespace AppInstaller::Settings
     {
         GroupPolicy& InstanceInternal(std::optional<GroupPolicy*> overridePolicy = {})
         {
-            // TODO: Read from the actual registry key
-            static GroupPolicy s_groupPolicy{ Registry::Key{} };
+            static GroupPolicy s_groupPolicy{ Registry::Key{ HKEY_LOCAL_MACHINE, L"Software\\Policies\\Microsoft\\Windows\\WindowsPackageManager" } };
             static GroupPolicy* s_override = nullptr;
 
             if (overridePolicy.has_value())
@@ -116,8 +115,20 @@ namespace AppInstaller::Settings
                 return std::nullopt;
             }
 
-            // TODO
             std::vector<Mapping::item_t> items;
+            for (const auto& value : listKey->Values())
+            {
+                auto item = Mapping::ReadAndValidateItem(value);
+                if (item.has_value())
+                {
+                    items.emplace_back(std::move(item.value()));
+                }
+                else
+                {
+                    // TODO: Log
+                }
+            }
+
             return items;
         }
 

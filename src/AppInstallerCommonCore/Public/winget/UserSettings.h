@@ -103,7 +103,7 @@ namespace AppInstaller::Settings
 #define SETTINGMAPPING_SPECIALIZATION_POLICY(_setting_, _json_, _value_, _default_, _path_, _valuePolicy_) \
         SETTINGMAPPING_SPECIALIZATION_EXTEND(_setting_, _json_, _value_, _default_, _path_, \
             static constexpr ValuePolicy Policy = _valuePolicy_; \
-            using policy_t = decltype(std::declval<GroupPolicy>().GetValue<Policy>())::value_type; \
+            using policy_t = GroupPolicy::ValueType<Policy>; \
             static_assert(std::is_same<json_t, policy_t>::value); \
         )
 

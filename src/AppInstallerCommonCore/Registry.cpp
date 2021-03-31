@@ -48,6 +48,90 @@ namespace AppInstaller::Registry
 
             return result;
         }
+
+        bool TryGetRegistryValueNameFromIndex(const wil::shared_hkey& key, DWORD index, std::wstring& valueName)
+        {
+            constexpr DWORD MaxNameLength = 32767;
+            LSTATUS status = ERROR_SUCCESS;
+            DWORD charCount = 0;
+            valueName = L'\0';
+
+            while (valueName.size() <= MaxNameLength)
+            {
+                charCount = wil::safe_cast<DWORD>(valueName.size());
+
+                // We could also get the type and data here, but we read only the name instead
+                // to prevent duplication with the code that gets the data from the name.
+                status = RegEnumValueW(key.get(), index, &valueName[0], &charCount, nullptr, nullptr, nullptr, nullptr);
+
+                if (status == ERROR_MORE_DATA)
+                {
+                    // See if we can get away with the current capacity
+                    if (valueName.size() < valueName.capacity())
+                    {
+                        valueName.resize(valueName.capacity());
+                    }
+                    else
+                    {
+                        valueName.resize(valueName.capacity() * 2);
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (status == ERROR_SUCCESS)
+            {
+                valueName.resize(wil::safe_cast<size_t>(charCount));
+                return true;
+            }
+            else if (status == ERROR_NO_MORE_ITEMS)
+            {
+                return false;
+            }
+            else
+            {
+                THROW_IF_WIN32_ERROR(status);
+                return false;
+            }
+        }
+
+        bool TryGetRegistryValueData(const wil::shared_hkey& key, const std::wstring& valueName, DWORD& type, std::vector<BYTE>& data)
+        {
+            data.resize(64);
+
+            LSTATUS status = ERROR_SUCCESS;
+            DWORD byteCount = 0;
+
+            while (data.size() < (64 << 20))
+            {
+                byteCount = wil::safe_cast<DWORD>(data.size());
+                status = RegGetValueW(key.get(), nullptr, valueName.c_str(), RRF_RT_ANY | RRF_NOEXPAND, &type, data.data(), &byteCount);
+
+                if (status == ERROR_MORE_DATA && byteCount > data.size())
+                {
+                    data.resize(byteCount);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (status == ERROR_FILE_NOT_FOUND)
+            {
+                return false;
+            }
+
+            THROW_IF_WIN32_ERROR(status);
+
+            // Resize to actual data size
+            data.resize(byteCount);
+
+            return true;
+        }
     }
 
     namespace details
@@ -92,6 +176,87 @@ namespace AppInstaller::Registry
 
         return m_type == type;
     }
+
+    ValueList::ValueRef::ValueRef(std::wstring&& valueName, DWORD type, std::vector<BYTE>&& data) : Value(type, std::move(data)), m_valueName(std::move(valueName)) {}
+
+    std::string ValueList::ValueRef::Name() const
+    {
+        return Utility::ConvertToUTF8(m_valueName);
+    }
+
+    ValueList::const_iterator& ValueList::const_iterator::operator++()
+    {
+        ++m_index;
+        GetValue();
+        return *this;
+    }
+
+    ValueList::const_iterator ValueList::const_iterator::operator++(int)
+    {
+        const_iterator result;
+        result.m_key = m_key;
+        result.m_index = m_index++;
+        result.m_value = std::nullopt;
+        std::swap(m_value, result.m_value);
+        GetValue();
+        return result;
+    }
+
+    bool ValueList::const_iterator::operator==(const const_iterator& other) const
+    {
+        return (!m_key && !other.m_key) || (m_key.get() == other.m_key.get() && m_index == other.m_index);
+    }
+
+    bool ValueList::const_iterator::operator!=(const const_iterator& other) const
+    {
+        return !operator==(other);
+    }
+
+    void ValueList::const_iterator::GetValue()
+    {
+        std::wstring valueName;
+        if (!TryGetRegistryValueNameFromIndex(m_key, m_index, valueName))
+        {
+            m_key.reset();
+            return;
+        }
+
+        DWORD type;
+        std::vector<BYTE> data;
+        if (!TryGetRegistryValueData(m_key, valueName, type, data))
+        {
+            THROW_HR(E_UNEXPECTED);
+        }
+
+        m_value = ValueRef{ std::move(valueName), type, std::move(data) };
+    }
+
+    const ValueList::ValueRef& ValueList::const_iterator::operator*() const
+    {
+        return m_value.value();
+    }
+
+    const ValueList::ValueRef* ValueList::const_iterator::operator->() const
+    {
+        return &m_value.value();
+    }
+
+    ValueList::const_iterator::const_iterator(const wil::shared_hkey& key, DWORD index) : m_key(key), m_index(index)
+    {
+        GetValue();
+    }
+
+    ValueList::const_iterator ValueList::begin() const
+    {
+        return { m_key };
+    }
+
+    ValueList::const_iterator ValueList::end() const
+    {
+        return {};
+    }
+
+    ValueList::ValueList(wil::shared_hkey key) : m_key(key) {}
 
     Key::Key(HKEY key)
     {
@@ -221,39 +386,17 @@ namespace AppInstaller::Registry
 
     std::optional<Value> Key::operator[](const std::wstring& name) const
     {
+        DWORD type;
         std::vector<BYTE> data;
-        data.resize(64);
 
-        LSTATUS status = ERROR_SUCCESS;
-        DWORD type = 0;
-        DWORD byteCount = 0;
-
-        while (data.size() < (64 << 20))
+        if (TryGetRegistryValueData(m_key, name, type, data))
         {
-            byteCount = wil::safe_cast<DWORD>(data.size());
-            status = RegGetValueW(m_key.get(), nullptr, name.c_str(), RRF_RT_ANY | RRF_NOEXPAND, &type, data.data(), &byteCount);
-
-            if (status == ERROR_MORE_DATA && byteCount > data.size())
-            {
-                data.resize(byteCount);
-            }
-            else
-            {
-                break;
-            }
+            return Value{ type, std::move(data) };
         }
-
-        if (status == ERROR_FILE_NOT_FOUND)
+        else
         {
             return {};
         }
-
-        THROW_IF_WIN32_ERROR(status);
-
-        // Resize to actual data size
-        data.resize(byteCount);
-
-        return Value{ type, std::move(data) };
     }
 
     std::optional<Key> Key::SubKey(std::string_view subKey, DWORD options) const
@@ -272,6 +415,11 @@ namespace AppInstaller::Registry
         {
             return std::nullopt;
         }
+    }
+
+    ValueList Key::Values() const
+    {
+        return { m_key };
     }
 
     Key Key::OpenIfExists(HKEY key, std::string_view subKey, DWORD options, REGSAM access)

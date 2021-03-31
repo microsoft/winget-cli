@@ -89,22 +89,22 @@ namespace AppInstaller::Repository
             template<ValuePolicy P>
             bool IsSourceInPolicy(std::string_view name, std::string_view type, std::string_view arg)
             {
-                // TODO: No need to copy this every time
-                auto sources = GroupPolicies().GetValue<P>();
-                if (!sources.has_value())
+                auto sourcesOpt = GroupPolicies().GetValueRef<P>();
+                if (!sourcesOpt.has_value())
                 {
                     return false;
                 }
 
+                const auto& sources = sourcesOpt->get();
                 auto source = std::find_if(
-                    sources->begin(),
-                    sources->end(),
+                    sources.begin(),
+                    sources.end(),
                     [&](const SourceFromPolicy& policySource)
                     {
                         return Utility::ICUCaseInsensitiveEquals(name, policySource.Name) && Utility::ICUCaseInsensitiveEquals(type, policySource.Type) && arg == policySource.Arg;
                     });
 
-                return source != sources->end();
+                return source != sources.end();
             }
 
             // Checks whether the Group Policy allows this user source.
@@ -441,11 +441,11 @@ namespace AppInstaller::Repository
             {
                 if (GroupPolicies().GetState(TogglePolicy::Policy::AdditionalSources) == PolicyState::Enabled)
                 {
-                    // TODO: No need to get a copy
-                    auto additionalSources = GroupPolicies().GetValue<ValuePolicy::AdditionalSources>();
-                    if (additionalSources.has_value())
+                    auto additionalSourcesOpt = GroupPolicies().GetValueRef<ValuePolicy::AdditionalSources>();
+                    if (additionalSourcesOpt.has_value())
                     {
-                        for (const auto& additionalSource : additionalSources.value())
+                        const auto& additionalSources = additionalSourcesOpt->get();
+                        for (const auto& additionalSource : additionalSources)
                         {
                             SourceDetailsInternal details;
                             details.Name = additionalSource.Name;
