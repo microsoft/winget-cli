@@ -28,6 +28,14 @@ The same Microsoft Store package will be made available via our [Releases](https
 > You may need to install the [VC++ v14 Desktop Framework Package](https://docs.microsoft.com/en-us/troubleshoot/cpp/c-runtime-packages-desktop-bridge#how-to-install-and-update-desktop-framework-packages).
 > This should only be necessary on older builds of Windows 10 and only if you get an error about missing framework packages.
 
+## Administrator considerations
+
+Installer behavior can be different depending on whether you are running **winget** with administrator privileges.
+
+* When running **winget** without administrator privileges, some applications may [require elevation](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/) to install. When the installer runs, Windows will prompt you to [elevate](https://docs.microsoft.com/windows/security/identity-protection/user-account-control). If you choose not to elevate, the application will fail to install.  
+
+* When running **winget** in an Administrator Command Prompt, you will not see [elevation prompts](/windows/security/identity-protection/user-account-control/how-user-account-control-works) if the application requires it. Always use caution when running your command prompt as an administrator, and only install applications you trust.
+
 ### Build your own
 
 You can also [build the client yourself](#building-the-client). While the client should be perfectly functional, we are not ready to provide full support for clients running outside of the official distribution mechanisms yet. Feel free to file an Issue, but know that it may get lower prioritization.
