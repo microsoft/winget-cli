@@ -65,4 +65,7 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: None
     // Outputs: None
     void ResetAllSources(Execution::Context& context);
+
+    // TODO: Could this be an option for list?
+    void ExportSourceList(Execution::Context& context);
 }

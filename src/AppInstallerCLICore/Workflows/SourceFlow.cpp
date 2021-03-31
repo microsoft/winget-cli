@@ -218,4 +218,8 @@ namespace AppInstaller::CLI::Workflow
         Repository::DropSource({});
         context.Reporter.Info() << Resource::String::Done << std::endl;
     }
+
+    void ExportSourceList(Execution::Context& )
+    {
+    }
 }
