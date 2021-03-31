@@ -107,7 +107,7 @@ void EnsureCommandConsistency(const Command& command)
     }
 }
 
-// This test ensure that the command tree we expose does not have any incosistencies.
+// This test ensure that the command tree we expose does not have any inconsistencies.
 //  1. No command name collisions
 //  2. All command names are lower cased
 //  3. No argument name collisions
