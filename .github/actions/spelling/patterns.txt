@@ -33,3 +33,6 @@ http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer
 
 # schema regex
 "pattern": .*$
+
+# doc/ManifestSpecv1.0.md
+^ShortDescription: "Le nouveau.*"$
