@@ -88,46 +88,43 @@ namespace AppInstaller::CLI
 
         try
         {
-            try
+            std::unique_ptr<Command> subCommand = command->FindSubCommand(invocation);
+            while (subCommand)
             {
-                std::unique_ptr<Command> subCommand = command->FindSubCommand(invocation);
-                while (subCommand)
-                {
-                    command = std::move(subCommand);
-                    subCommand = command->FindSubCommand(invocation);
-                }
-                Logging::Telemetry().LogCommand(command->FullName());
-
-                command->ParseArguments(invocation, context.Args);
-
-                // Change logging level to Info if Verbose not requested
-                if (!context.Args.Contains(Execution::Args::Type::VerboseLogs))
-                {
-                    Logging::Log().SetLevel(Logging::Level::Info);
-                }
-
-                context.UpdateForArgs();
-
-                command->ValidateArguments(context.Args);
+                command = std::move(subCommand);
+                subCommand = command->FindSubCommand(invocation);
             }
-            // Exceptions specific to parsing the arguments of a command
-            catch (const CommandException& ce)
+            Logging::Telemetry().LogCommand(command->FullName());
+
+            command->ParseArguments(invocation, context.Args);
+
+            // Change logging level to Info if Verbose not requested
+            if (!context.Args.Contains(Execution::Args::Type::VerboseLogs))
             {
-                command->OutputHelp(context.Reporter, &ce);
-                AICLI_LOG(CLI, Error, << "Error encountered parsing command line: " << ce.Message());
-                return APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS;
+                Logging::Log().SetLevel(Logging::Level::Info);
             }
 
-            return Execute(context, command);
+            context.UpdateForArgs();
+
+            command->ValidateArguments(context.Args);
+        }
+        // Exceptions specific to parsing the arguments of a command
+        catch (const CommandException& ce)
+        {
+            command->OutputHelp(context.Reporter, &ce);
+            AICLI_LOG(CLI, Error, << "Error encountered parsing command line: " << ce.Message());
+            return APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS;
         }
         catch (const Settings::GroupPolicyException& gpe)
         {
             // Report any action blocked by Group Policy.
             auto policy = Settings::TogglePolicy::GetPolicy(gpe.Policy());
-            AICLI_LOG(CLI, Error, << "Blocked by Group Policy: " << policy.RegValueName());
+            AICLI_LOG(CLI, Error, << "Operation blocked by Group Policy: " << policy.RegValueName());
             context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << " : "_liv << policy.PolicyName() << std::endl;
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
+
+        return Execute(context, command);
     }
     // End of the line exceptions that are not ever expected.
     // Telemetry cannot be reliable beyond this point, so don't let these happen.
