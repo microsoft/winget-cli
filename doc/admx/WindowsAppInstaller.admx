@@ -100,7 +100,7 @@
         <decimal value="0" />
       </disabledValue>
       <elements>
-        <list id="AdditionalSources" key="Software\Policies\Microsoft\Windows\WindowsPackageManager\AdditionalSources" explicitValue="true" />
+        <list id="AdditionalSources" key="Software\Policies\Microsoft\Windows\WindowsPackageManager\AdditionalSources" valuePrefix="" />
       </elements>
     </policy>
     <policy name="EnableAllowedSources" class="Machine" displayName="$(string.EnableAllowedSources)" explainText="$(string.EnableAllowedSourcesExplanation)" presentation="$(presentation.AllowedSources)" key="Software\Policies\Microsoft\Windows\WindowsPackageManager" valueName="EnableAllowedSources">
@@ -113,7 +113,7 @@
         <decimal value="0" />
       </disabledValue>
       <elements>
-        <list id="AllowedSources" key="Software\Policies\Microsoft\Windows\WindowsPackageManager\AllowedSources" explicitValue="true" />
+        <list id="AllowedSources" key="Software\Policies\Microsoft\Windows\WindowsPackageManager\AllowedSources" valuePrefix="" />
       </elements>
     </policy>
   </policies>
