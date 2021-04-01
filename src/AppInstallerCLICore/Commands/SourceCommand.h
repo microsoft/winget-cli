@@ -71,7 +71,8 @@ namespace AppInstaller::CLI
 
     struct SourceRemoveCommand final : public Command
     {
-        SourceRemoveCommand(std::string_view parent) : Command("remove", parent, Settings::TogglePolicy::Policy::AllowedSources) {}
+        // We can remove user or default sources, so this is not gated by any single policy.
+        SourceRemoveCommand(std::string_view parent) : Command("remove", parent) {}
 
         std::vector<Argument> GetArguments() const override;
 

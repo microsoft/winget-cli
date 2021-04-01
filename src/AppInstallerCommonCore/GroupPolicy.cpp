@@ -228,7 +228,7 @@ namespace AppInstaller::Settings
         case TogglePolicy::Policy::DefaultSource:
             return TogglePolicy(policy, "EnableDefaultSource"sv, String::PolicyEnableDefaultSource);
         case TogglePolicy::Policy::MSStoreSource:
-            return TogglePolicy(policy, "EnableMSStoreSource"sv, String::PolicyEnableMSStoreSource);
+            return TogglePolicy(policy, "EnableMicrosoftStoreSource"sv, String::PolicyEnableMSStoreSource);
         case TogglePolicy::Policy::AdditionalSources:
             return TogglePolicy(policy, "EnableAdditionalSources"sv, String::PolicyAdditionalSources);
         case TogglePolicy::Policy::AllowedSources:
