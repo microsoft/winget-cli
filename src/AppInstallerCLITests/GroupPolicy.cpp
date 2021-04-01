@@ -196,7 +196,26 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
     }
     SECTION("Exported JSON")
     {
+        // Policy should be able to use an exported JSON strings
+        SourceFromPolicy source;
+        source.Name = "json-name";
+        source.Type = "json-type";
+        source.Arg = "json-arg";
+        source.Data = "json-data";
+        source.Identifier = "json-id";
 
+        auto additionalSourcesKey = RegCreateVolatileSubKey(policiesKey.get(), AllowedSourcesPolicyKeyName);
+        SetRegistryValue(additionalSourcesKey.get(), L"0", AppInstaller::Utility::ConvertToUTF16(source.ToJsonString()));
+        GroupPolicy groupPolicy{ policiesKey.get() };
+
+        auto policy = groupPolicy.GetValue<ValuePolicy::AllowedSources>();
+        REQUIRE(policy.has_value());
+        REQUIRE(policy->size() == 1);
+        REQUIRE(policy.value()[0].Name == source.Name);
+        REQUIRE(policy.value()[0].Arg == source.Arg);
+        REQUIRE(policy.value()[0].Type == source.Type);
+        REQUIRE(policy.value()[0].Data == source.Data);
+        REQUIRE(policy.value()[0].Identifier == source.Identifier);
     }
 }
 
