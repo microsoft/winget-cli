@@ -406,6 +406,11 @@ namespace AppInstaller::Registry
 
     std::optional<Key> Key::SubKey(const std::wstring& subKey, DWORD options) const
     {
+        if (!m_key)
+        {
+            return std::nullopt;
+        }
+
         Key result;
         if (result.Initialize(m_key.get(), subKey, options, m_access, true))
         {

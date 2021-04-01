@@ -577,7 +577,7 @@ TEST_CASE("RepoSources_SearchAcrossMultipleSources", "[sources]")
 
 TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
 {
-    SECTION("Default source is disabled")
+    WHEN("Default source is disabled")
     {
         GroupPolicyTestOverride policies;
         policies.SetState(TogglePolicy::Policy::DefaultSource, PolicyState::Disabled);
@@ -657,7 +657,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
         }
     }
 
-    SECTION("Default source is enabled")
+    WHEN("Default source is enabled")
     {
         GroupPolicyTestOverride policies;
         policies.SetState(TogglePolicy::Policy::DefaultSource, PolicyState::Enabled);
@@ -699,7 +699,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
 
 TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
 {
-    SECTION("Additional sources are enabled")
+    WHEN("Additional sources are enabled")
     {
         GroupPolicyTestOverride policies;
         policies.SetState(TogglePolicy::Policy::AdditionalSources, PolicyState::Enabled);
@@ -811,7 +811,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
 
 TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
 {
-    SECTION("Allowed sources are enabled")
+    WHEN("Allowed sources are enabled")
     {
         GroupPolicyTestOverride policies;
         policies.SetState(TogglePolicy::Policy::AllowedSources, PolicyState::Enabled);
@@ -880,7 +880,7 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
                 TogglePolicy::Policy::AllowedSources);
             REQUIRE_FALSE(addCalledOnFactory);
         }
-        SECTION("Full match required")
+        SECTION("Full match required to add")
         {
             // When adding a source, the data and identifier need to match the policy.
             SourceFromPolicy policySource;
@@ -895,6 +895,7 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
             TestHook_ClearSourceFactoryOverrides();
 
             bool addCalledOnFactory = false;
+            bool removeCalledOnFactory = false;
             TestSourceFactory factory{ SourcesTestSource::Create };
             factory.OnAdd = [&](SourceDetails& sd)
             {
@@ -902,13 +903,16 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
                 sd.Data = "notPolicyData";
                 sd.Identifier = "notPolicyId";
             };
+            factory.OnRemove = [&](const SourceDetails&) { removeCalledOnFactory = true; };
             TestHook_SetSourceFactoryOverride(policySource.Type, factory);
 
             ProgressCallback progress;
             REQUIRE_POLICY_EXCEPTION(
                 AddSource(policySource.Name, policySource.Type, policySource.Arg, progress),
                 TogglePolicy::Policy::AllowedSources);
+
             REQUIRE(addCalledOnFactory);
+            REQUIRE(removeCalledOnFactory);
 
             auto sources = GetSources();
             REQUIRE(sources.size() == 1);
@@ -917,7 +921,7 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
         }
     }
 
-    SECTION("Allowed sources are disabled")
+    WHEN("Allowed sources are disabled")
     {
         GroupPolicyTestOverride policies;
         policies.SetState(TogglePolicy::Policy::AllowedSources, PolicyState::Disabled);
