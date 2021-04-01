@@ -28,10 +28,9 @@ TEST_CASE("GroupPolicy_WinGet", "[groupPolicy]")
         context.Args.AddArg(Execution::Args::Type::Query, "Fake.Package"sv);
         InstallCommand installCommand({});
 
-        installCommand.Execute(context);
-
-        REQUIRE(context.IsTerminated());
-        REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY);
+        REQUIRE_POLICY_EXCEPTION(
+            installCommand.Execute(context),
+            TogglePolicy::Policy::WinGet);
     }
     SECTION("Info is not blocked")
     {

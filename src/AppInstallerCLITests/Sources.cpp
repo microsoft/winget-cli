@@ -617,7 +617,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
 
             std::string name = "winget";
             std::string type = "someType";
-            std::string arg = "notWingetsRealArg";
+            std::string arg = "notWingetRealArg";
             std::string data = "someData";
 
             bool addCalledOnFactory = false;
@@ -674,7 +674,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
         }
         SECTION("Tombstone is overridden")
         {
-            // We shoould ignore if the default source was already deleted.
+            // We should ignore if the default source was already deleted.
             SetSetting(Streams::UserSources, s_DefaultSourceTombstoned);
 
             auto sources = GetSources();

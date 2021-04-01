@@ -50,7 +50,7 @@ namespace TestCommon
         void SetState(AppInstaller::Settings::TogglePolicy::Policy policy, AppInstaller::Settings::PolicyState state);
     };
 
-    // Matcher that lets us verify GroupPolicyExceptiosn.
+    // Matcher that lets us verify GroupPolicyExceptions.
     struct GroupPolicyExceptionMatcher : public Catch::MatcherBase<AppInstaller::Settings::GroupPolicyException>
     {
         GroupPolicyExceptionMatcher(AppInstaller::Settings::TogglePolicy::Policy policy) : m_expectedPolicy(policy) {}

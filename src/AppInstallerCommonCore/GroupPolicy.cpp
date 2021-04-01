@@ -12,6 +12,7 @@ namespace AppInstaller::Settings
     {
         GroupPolicy& InstanceInternal(std::optional<GroupPolicy*> overridePolicy = {})
         {
+            // TODO: Read from the actual registry key
             static GroupPolicy s_groupPolicy{ Registry::Key{} };
             static GroupPolicy* s_override = nullptr;
 
@@ -104,6 +105,12 @@ namespace AppInstaller::Settings
             (FoldHelper{}, ..., Validate<static_cast<ValuePolicy>(P)>(policiesKey, policies));
         }
 
+        // Reads a list from a Group Policy.
+        // The list is stored in a sub-key of the policies key, and each value in that key is a list item.
+        // Cases not considered by this function because we don't use them:
+        //  - When the list is in an arbitrary key, not a sub key.
+        //  - When the list values are mixed with other values and are identified by a prefix in their names.
+        //  - When the value names are relevant.
         template<ValuePolicy P>
         std::optional<typename details::ValuePolicyMapping<P>::value_t> ReadList(const Registry::Key& policiesKey)
         {
@@ -125,7 +132,7 @@ namespace AppInstaller::Settings
                 }
                 else
                 {
-                    // TODO: Log
+                    AICLI_LOG(Core, Warning, << "Failed to read Group Policy list value. Policy [" << Mapping::KeyName << "], Value [" << value.Name() << ']');
                 }
             }
 
@@ -137,7 +144,7 @@ namespace AppInstaller::Settings
             auto jsonString = item.TryGetValue<Registry::Value::Type::String>();
             if (!jsonString.has_value())
             {
-                // TODO: Log
+                AICLI_LOG(Core, Warning, << "Registry value is not a string");
                 return std::nullopt;
             }
 
@@ -148,7 +155,7 @@ namespace AppInstaller::Settings
             Json::String jsonErrors;
             if (!jsonReader->parse(jsonString->c_str(), jsonString->c_str() + stringLength, &sourceJson, &jsonErrors))
             {
-                // TODO: Log
+                AICLI_LOG(Core, Warning, << "Registry value does not contain a valid JSON: " << jsonErrors);
                 return std::nullopt;
             }
 
@@ -161,7 +168,7 @@ namespace AppInstaller::Settings
             } \
             else \
             { \
-                /* TODO: Log */ \
+                AICLI_LOG(Core, Warning, << "Source JSON does not contain a string value for " #_attr_); \
                 return std::nullopt; \
             }
 
