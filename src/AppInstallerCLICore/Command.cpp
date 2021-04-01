@@ -325,7 +325,7 @@ namespace AppInstaller::CLI
                 {
                     auto policy = TogglePolicy::GetPolicy(command->GroupPolicy());
                     AICLI_LOG(CLI, Error, << "Trying to use command: " << *itr << " disabled by group policy " << policy.RegValueName());
-                    throw CommandException(Resource::String::DisabledByGroupPolicy, policy.PolicyName());
+                    throw GroupPolicyException(command->GroupPolicy());
                 }
 
                 AICLI_LOG(CLI, Info, << "Found subcommand: " << *itr);
@@ -657,7 +657,7 @@ namespace AppInstaller::CLI
             {
                 auto policy = TogglePolicy::GetPolicy(arg.GroupPolicy());
                 AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by group policy " << policy.RegValueName());
-                throw CommandException(Resource::String::DisabledByGroupPolicy, policy.PolicyName());
+                throw GroupPolicyException(arg.GroupPolicy());
             }
 
             if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
@@ -779,32 +779,22 @@ namespace AppInstaller::CLI
 
     void Command::Execute(Execution::Context& context) const
     {
-        try
+        // Block any execution if winget is disabled by policy.
+        // Override the function to bypass this.
+        if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGet))
         {
-            // Block any execution if winget is disabled by policy.
-            // Override the function to bypass this.
-            if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGet))
-            {
-                AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");
-                throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGet);
-            }
-
-            AICLI_LOG(CLI, Info, << "Executing command: " << Name());
-            if (context.Args.Contains(Execution::Args::Type::Help))
-            {
-                OutputHelp(context.Reporter);
-            }
-            else
-            {
-                ExecuteInternal(context);
-            }
+            AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");
+            throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGet);
         }
-        catch (const GroupPolicyException& gpe)
+
+        AICLI_LOG(CLI, Info, << "Executing command: " << Name());
+        if (context.Args.Contains(Execution::Args::Type::Help))
         {
-            // Report any action blocked by Group Policy.
-            auto policy = TogglePolicy::GetPolicy(gpe.Policy());
-            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << " : "_liv << policy.PolicyName() << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY);
+            OutputHelp(context.Reporter);
+        }
+        else
+        {
+            ExecuteInternal(context);
         }
     }
 

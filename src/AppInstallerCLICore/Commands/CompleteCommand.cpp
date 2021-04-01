@@ -69,6 +69,10 @@ namespace AppInstaller::CLI
         {
             AICLI_LOG(CLI, Info, << "Error encountered during completion, ignoring: " << ce.Message());
         }
+        catch (const Settings::GroupPolicyException& gpe)
+        {
+            AICLI_LOG(CLI, Info, << "Error encountered during completion, ignoring: Blocked by Group Policy");
+        }
         catch (...)
         {
             AICLI_LOG(CLI, Info, << "Error encountered during completion, ignoring...");
