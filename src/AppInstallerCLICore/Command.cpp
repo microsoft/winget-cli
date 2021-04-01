@@ -881,9 +881,9 @@ namespace AppInstaller::CLI
                 message << std::endl;
             return hre.code();
         }
-        catch (const Settings::GroupPolicyException& gpe)
+        catch (const Settings::GroupPolicyException& e)
         {
-            auto policy = Settings::TogglePolicy::GetPolicy(gpe.Policy());
+            auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
             context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << ": "_liv << policy.PolicyName() << std::endl;
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }

@@ -682,7 +682,7 @@ TEST_CASE("RepoSources_GroupPolicy_DefaultSource", "[sources][groupPolicy]")
             REQUIRE(sources[0].Name == "winget");
             REQUIRE(sources[0].Origin == SourceOrigin::Default);
         }
-        SECTION("Same name source is overriden")
+        SECTION("Same name source is overridden")
         {
             // We should ignore existing user sources with the same name as the default.
             SetSetting(Streams::UserSources, s_UserSourceNamedLikeDefault);
@@ -739,7 +739,7 @@ TEST_CASE("RepoSources_GroupPolicy_AdditionalSources", "[sources][groupPolicy]")
                 REQUIRE(sources[i].Origin == SourceOrigin::GroupPolicy);
             }
         }
-        SECTION("Same-name user source is overriden")
+        SECTION("Same-name user source is overridden")
         {
             // User sources with the same name as an additional source are ignored.
             SourceFromPolicy policySource;

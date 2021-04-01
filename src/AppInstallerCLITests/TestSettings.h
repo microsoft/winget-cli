@@ -55,9 +55,9 @@ namespace TestCommon
     {
         GroupPolicyExceptionMatcher(AppInstaller::Settings::TogglePolicy::Policy policy) : m_expectedPolicy(policy) {}
 
-        bool match(const AppInstaller::Settings::GroupPolicyException& gpe) const override
+        bool match(const AppInstaller::Settings::GroupPolicyException& e) const override
         {
-            return gpe.Policy() == m_expectedPolicy;
+            return e.Policy() == m_expectedPolicy;
         }
 
         std::string describe() const override
