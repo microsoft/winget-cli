@@ -12,8 +12,7 @@ namespace AppInstaller::Settings
     {
         GroupPolicy& InstanceInternal(std::optional<GroupPolicy*> overridePolicy = {})
         {
-            // TODO: Read from the actual registry key
-            static GroupPolicy s_groupPolicy{ Registry::Key{} };
+            static GroupPolicy s_groupPolicy{ Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, "Software\\Policies\\Microsoft\\Windows\\WindowsPackageManager") };
             static GroupPolicy* s_override = nullptr;
 
             if (overridePolicy.has_value())
