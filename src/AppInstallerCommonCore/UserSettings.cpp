@@ -178,22 +178,23 @@ namespace AppInstaller::Settings
 
     namespace details
     {
+#define WINGET_VALIDATE_SIGNATURE(_setting_) \
+        std::optional<SettingMapping<Setting::_setting_>::value_t> \
+        SettingMapping<Setting::_setting_>::Validate(const SettingMapping<Setting::_setting_>::json_t& value)
+
         // Stamps out a validate function that simply returns the input value.
 #define WINGET_VALIDATE_PASS_THROUGH(_setting_) \
-        std::optional<SettingMapping<Setting::_setting_>::value_t> \
-        SettingMapping<Setting::_setting_>::Validate(const SettingMapping<Setting::_setting_>::json_t& value) \
+        WINGET_VALIDATE_SIGNATURE(_setting_) \
         { \
             return value; \
         }
 
-        std::optional<SettingMapping<Setting::AutoUpdateTimeInMinutes>::value_t>
-        SettingMapping<Setting::AutoUpdateTimeInMinutes>::Validate(const SettingMapping<Setting::AutoUpdateTimeInMinutes>::json_t& value)
+        WINGET_VALIDATE_SIGNATURE(AutoUpdateTimeInMinutes)
         {
             return std::chrono::minutes(value);
         }
 
-        std::optional<SettingMapping<Setting::ProgressBarVisualStyle>::value_t>
-        SettingMapping<Setting::ProgressBarVisualStyle>::Validate(const SettingMapping<Setting::ProgressBarVisualStyle>::json_t& value)
+        WINGET_VALIDATE_SIGNATURE(ProgressBarVisualStyle)
         {
             // progressBar property possible values
             static constexpr std::string_view s_progressBar_Accent = "accent";
@@ -226,6 +227,51 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFExport)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(EFRestSource)
+
+        WINGET_VALIDATE_SIGNATURE(InstallScopePreference)
+        {
+            static constexpr std::string_view s_scope_user = "user";
+            static constexpr std::string_view s_scope_machine = "machine";
+
+            if (Utility::CaseInsensitiveEquals(value, s_scope_user))
+            {
+                return ScopePreference::User;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_scope_machine))
+            {
+                return ScopePreference::Machine;
+            }
+
+            return {};
+        }
+
+        WINGET_VALIDATE_SIGNATURE(InstallScopeRequirement)
+        {
+            return SettingMapping<Setting::InstallScopePreference>::Validate(value);
+        }
+    }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static UserSettings* s_UserSettings_Override = nullptr;
+
+    void SetUserSettingsOverride(UserSettings* value)
+    {
+        s_UserSettings_Override = value;
+    }
+#endif
+
+    UserSettings const& UserSettings::Instance()
+    {
+        static UserSettings userSettings;
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_UserSettings_Override)
+        {
+            return *s_UserSettings_Override;
+        }
+#endif
+
+        return userSettings;
     }
 
     UserSettings::UserSettings() : m_type(UserSettingsType::Default)

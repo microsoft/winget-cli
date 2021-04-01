@@ -189,6 +189,7 @@
     <ClCompile Include="ExperimentalFeature.cpp" />
     <ClCompile Include="GroupPolicy.cpp" />
     <ClCompile Include="HashCommand.cpp" />
+    <ClCompile Include="ManifestComparator.cpp" />
     <ClCompile Include="MsixInfo.cpp" />
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
@@ -263,6 +264,9 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Good-AlreadyInstalled.json">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ImportFile-Good-MachineScope.json">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <None Include="packages.config" />

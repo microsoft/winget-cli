@@ -12,7 +12,7 @@ If you are using the non-packaged WinGet version by building it from source code
 
 The `source` settings involve configuration to the WinGet source.
 
-```
+```json
     "source": {
         "autoUpdateIntervalInMinutes": 3
     },
@@ -31,7 +31,7 @@ To manually update the source use `winget source update`
 
 The `visual` settings involve visual elements that are displayed by WinGet
 
-```
+```json
     "visual": {
         "progressBar": "accent"
     },
@@ -44,6 +44,28 @@ Color of the progress bar that WinGet displays when not specified by arguments.
 - accent (default)
 - retro
 - rainbow
+
+## Install Behavior
+
+The `installBehavior` settings affect the default behavior of installing and upgrading (where applicable) packages.
+
+### Preferences and Requirements
+
+Some of the settings are duplicated under `preferences` and `requirements`. `preferences` affect how the various available options are sorted when choosing the one to act on.  For instance, the default scope of package installs is for the current user, but if that is not an option then a machine level installer will be chosen. `requirements` filter the options, potentially resulting in an empty list and a failure to install. In the previous example, a user scope requirement would result in no applicable installers and an error.
+
+Any arguments passed on the command line will effectively override the matching `requirement` setting for the duration of that command.
+
+### Scope
+
+The `scope` behavior affects the choice between installing a package for the current user or for the entire machine. The matching parameter is `--scope`, and uses the same values (`user` or `machine`).
+
+```json
+    "installBehavior": {
+        "preferences": {
+            "scope": "user"
+        }
+    },
+```
 
 ## Telemetry
 
@@ -67,7 +89,7 @@ To allow work to be done and distributed to early adopters for feedback, setting
 
 The `experimentalFeatures` settings involve the configuration of these "experimental" features. Individual features can be enabled under this node. The example below shows sample experimental features.
 
-```
+```json
    "experimentalFeatures": {
        "experimentalCmd": true,
        "experimentalArg": false
@@ -78,7 +100,7 @@ The `experimentalFeatures` settings involve the configuration of these "experime
 
 Microsoft Store App support in WinGet is currently implemented as an experimental feature. It supports a curated list of utility apps from Microsoft Store. You can enable the feature as shown below.
 
-```
+```json
    "experimentalFeatures": {
        "experimentalMSStore": true
    },
@@ -88,7 +110,7 @@ Microsoft Store App support in WinGet is currently implemented as an experimenta
 
 While work is in progress on list, the command is hidden behind a feature toggle. One can enable it as below:
 
-```
+```json
    "experimentalFeatures": {
        "list": true
    },
@@ -98,7 +120,7 @@ While work is in progress on list, the command is hidden behind a feature toggle
 
 While work is in progress on upgrade, the command is hidden behind a feature toggle. One can enable it as below:
 
-```
+```json
    "experimentalFeatures": {
        "upgrade": true
    },
@@ -108,7 +130,7 @@ While work is in progress on upgrade, the command is hidden behind a feature tog
 
 While work is in progress on uninstall, the command is hidden behind a feature toggle. One can enable it as below:
 
-```
+```json
    "experimentalFeatures": {
        "uninstall": true
    },
@@ -118,7 +140,7 @@ While work is in progress on uninstall, the command is hidden behind a feature t
 
 While work is in progress for import, the command is hidden behind a feature toggle. One can enable it as below:
 
-```
+```json
    "experimentalFeatures": {
        "import": true
    },
@@ -128,7 +150,7 @@ While work is in progress for import, the command is hidden behind a feature tog
 
 While work is in progress for rest source support, the feature is hidden behind a feature toggle. Enabling this will not change how client works currently and will allow testing any additional rest sources added. One can enable it as below:
 
-```
+```json
    "experimentalFeatures": {
        "restSource": true
    },
