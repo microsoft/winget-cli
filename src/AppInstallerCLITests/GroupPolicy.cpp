@@ -194,6 +194,10 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
         REQUIRE(policy.value()[1].Data == "s2-data");
         REQUIRE(policy.value()[1].Identifier == "s2-identifier");
     }
+    SECTION("Exported JSON")
+    {
+
+    }
 }
 
 TEST_CASE("GroupPolicy_Toggle", "[groupPolicy]")

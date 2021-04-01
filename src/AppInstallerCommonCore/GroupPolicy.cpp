@@ -246,6 +246,20 @@ namespace AppInstaller::Settings
         return result;
     }
 
+    std::string SourceFromPolicy::ToJsonString() const
+    {
+        Json::Value json{ Json::ValueType::objectValue };
+        json["Name"] = Name;
+        json["Type"] = Type;
+        json["Arg"] = Arg;
+        json["Data"] = Data;
+        json["Identifier"] = Identifier;
+
+        Json::StreamWriterBuilder writerBuilder;
+        writerBuilder.settings_["indentation"] = "";
+        return Json::writeString(writerBuilder, json);
+    }
+
     GroupPolicy::GroupPolicy(const Registry::Key& key)
     {
         ValidateAllValuePolicies(key, m_values, std::make_index_sequence<static_cast<size_t>(ValuePolicy::Max)>());

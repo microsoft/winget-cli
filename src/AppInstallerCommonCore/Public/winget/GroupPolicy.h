@@ -76,7 +76,10 @@ namespace AppInstaller::Settings
         std::string Type;
         std::string Data;
         std::string Identifier;
+
+        std::string ToJsonString() const;
     };
+
 
     namespace details
     {

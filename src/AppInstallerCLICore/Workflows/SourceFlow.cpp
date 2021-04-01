@@ -219,7 +219,26 @@ namespace AppInstaller::CLI::Workflow
         context.Reporter.Info() << Resource::String::Done << std::endl;
     }
 
-    void ExportSourceList(Execution::Context& )
+    void ExportSourceList(Execution::Context& context)
     {
+        const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
+
+        if (sources.empty())
+        {
+            context.Reporter.Info() << Resource::String::SourceListNoSources << std::endl;
+        }
+        else
+        {
+            for (const auto& source : sources)
+            {
+                SourceFromPolicy s;
+                s.Name = source.Name;
+                s.Type = source.Type;
+                s.Arg = source.Arg;
+                s.Data = source.Data;
+                s.Identifier = source.Identifier;
+                context.Reporter.Info() << s.ToJsonString() << std::endl;
+            }
+        }
     }
 }
