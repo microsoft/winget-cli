@@ -181,15 +181,15 @@ namespace AppInstaller::Settings
         // Should not be used when not configured means something different than enabled/disabled.
         bool IsEnabled(TogglePolicy::Policy policy) const;
 
-    private:
-        std::map<TogglePolicy::Policy, PolicyState> m_toggles;
-        ValuePoliciesMap m_values;
-
 #ifndef AICLI_DISABLE_TEST_HOOKS
     protected:
         static void OverrideInstance(GroupPolicy* gp);
         static void ResetInstance();
+#else
+    private:
 #endif
+        std::map<TogglePolicy::Policy, PolicyState> m_toggles;
+        ValuePoliciesMap m_values;
     };
 
     inline const GroupPolicy& GroupPolicies()

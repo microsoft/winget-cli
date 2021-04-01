@@ -18,9 +18,8 @@ using namespace std::string_view_literals;
 
 TEST_CASE("GroupPolicy_WinGet", "[groupPolicy]")
 {
-    auto policiesKey = RegCreateVolatileTestRoot();
-    SetRegistryValue(policiesKey.get(), WinGetPolicyValueName, false);
-    GroupPolicyTestOverride policies{ policiesKey.get() };
+    GroupPolicyTestOverride policies;
+    policies.SetState(TogglePolicy::Policy::WinGet, PolicyState::Disabled);
 
     SECTION("Install is blocked")
     {
@@ -50,9 +49,8 @@ TEST_CASE("GroupPolicy_WinGet", "[groupPolicy]")
 
 TEST_CASE("GroupPolicy_SettingsCommand", "[groupPolicy]")
 {
-    auto policiesKey = RegCreateVolatileTestRoot();
-    SetRegistryValue(policiesKey.get(), WinGetSettingsPolicyValueName, false);
-    GroupPolicyTestOverride policies{ policiesKey.get() };
+    GroupPolicyTestOverride policies;
+    policies.SetState(TogglePolicy::Policy::Settings, PolicyState::Disabled);
 
     Invocation inv{ std::vector<std::string>{ "settings" } };
     RootCommand rootCommand;
@@ -61,9 +59,8 @@ TEST_CASE("GroupPolicy_SettingsCommand", "[groupPolicy]")
 
 TEST_CASE("GroupPolicy_LocalManifests", "[groupPolicy]")
 {
-    auto policiesKey = RegCreateVolatileTestRoot();
-    SetRegistryValue(policiesKey.get(), LocalManifestsPolicyValueName, false);
-    GroupPolicyTestOverride policies{ policiesKey.get() };
+    GroupPolicyTestOverride policies;
+    policies.SetState(TogglePolicy::Policy::LocalManifestFiles, PolicyState::Disabled);
 
     SECTION("Blocked on install")
     {

@@ -129,23 +129,30 @@ namespace AppInstaller::Repository
                 //  - Check only against the source argument as the user source may have a different name.
                 //  - Do a case insensitive check as the domain portion of the URL is case insensitive,
                 //    and we don't need case sensitivity for the rest as we control the domain.
-                // Case 2:
-                //  - The source is a tombstone and we need the policy to be explicitly enabled.
-                //  - We can use the source identifier, but the arg is enough and it mirrors case 1.
                 if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetCommunityDefault_Arg))
                 {
-                    return IsWingetCommunityDefaultSourceEnabled(isTombstone) ? TogglePolicy::Policy::DefaultSource : TogglePolicy::Policy::None;
+                    return IsWingetCommunityDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::DefaultSource;
                 }
 
                 if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetMSStoreDefault_Arg))
                 {
-                    return IsWingetMSStoreDefaultSourceEnabled(isTombstone) ? TogglePolicy::Policy::MSStoreSource : TogglePolicy::Policy::None;
+                    return IsWingetMSStoreDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
                 }
 
-                // From this point we only care about user sources added, not tombstones.
-                // This check should not actually be needed as we only use tombstones for default sources.
+                // Case 2:
+                // The source is a tombstone and we need the policy to be explicitly enabled.
                 if (isTombstone)
                 {
+                    if (name == s_Source_WingetCommunityDefault_Name && IsWingetCommunityDefaultSourceEnabled(true))
+                    {
+                        return TogglePolicy::Policy::DefaultSource;
+                    }
+
+                    if (name == s_Source_WingetMSStoreDefault_Name && IsWingetMSStoreDefaultSourceEnabled(true))
+                    {
+                        return TogglePolicy::Policy::MSStoreSource;
+                    }
+
                     return TogglePolicy::Policy::None;
                 }
 
@@ -427,7 +434,7 @@ namespace AppInstaller::Repository
                     }
 
                     // Check source against list of allowed sources and drop tombstones for required sources
-                    if (IsUserSourceAllowedByPolicy(source.Name, source.Type, source.Arg, source.IsTombstone))
+                    if (!IsUserSourceAllowedByPolicy(source.Name, source.Type, source.Arg, source.IsTombstone))
                     {
                         AICLI_LOG(Repo, Warning, << "User source " << source.Name << " dropped because of group policy");
                         continue;
