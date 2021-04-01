@@ -64,7 +64,7 @@ If you enable this setting, the number of minutes specified will be used by the 
 
 If you do not configure this policy, no additional sources will be configured for the Windows Package Manager.
 
-If you enable this policy, the additional sources will be added to the Windows Package Manager and cannot be removed. Each additional source requires a name, argument (URL), and type (Microsoft.Rest or Microsoft.PreIndexed.Package).
+If you enable this policy, the additional sources will be added to the Windows Package Manager and cannot be removed. The representation for each additional source can be obtained from installed sources using 'winget source export'.
 
 If you disable this policy, no additional sources can be configured for the Windows Package Manager.</string>
       <string id="EnableAllowedSources">Enable Windows App Installer Allowed Sources</string>
@@ -72,7 +72,7 @@ If you disable this policy, no additional sources can be configured for the Wind
 
 If you do not configure this policy, users will be able to add or remove additional sources other than those configured by policy.
 
-If you enable this policy, only the sources specified can be added or removed from the Windows Package Manager. Each allowed source requires a name, argument (URL), and type (Microsoft.Rest or Microsoft.PreIndexed.Package).
+If you enable this policy, only the sources specified can be added or removed from the Windows Package Manager. The representation for each allowed source can be obtained from installed sources using 'winget source export'.
 
 If you disable this policy, no additional sources can be configured for the Windows Package Manager.</string>
     </stringTable>
