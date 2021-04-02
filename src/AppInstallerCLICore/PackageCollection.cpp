@@ -108,9 +108,8 @@ namespace AppInstaller::CLI
             root[ss.PackagesJson_WinGetVersion] = wingetVersion;
             root[ss.PackagesJson_Schema] = ss.PackagesJson_SchemaUri_v1_0;
 
-            // TODO: This uses localtime. Do we want to use UTC or add time zone?
             std::stringstream currentTimeStream;
-            Utility::OutputTimePoint(currentTimeStream, std::chrono::system_clock::now());
+            Utility::OutputTimePoint(currentTimeStream, std::chrono::system_clock::now(), true);
             root[ss.PackagesJson_CreationDate] = currentTimeStream.str();
 
             return root;
