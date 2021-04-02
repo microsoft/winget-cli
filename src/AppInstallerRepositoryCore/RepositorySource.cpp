@@ -156,12 +156,14 @@ namespace AppInstaller::Repository
             //  - Check only against the source argument as the user source may have a different name.
             //  - Do a case insensitive check as the domain portion of the URL is case insensitive,
             //    and we don't need case sensitivity for the rest as we control the domain.
-            if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetCommunityDefault_Arg))
+            if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetCommunityDefault_Arg) &&
+                Utility::CaseInsensitiveEquals(type, Microsoft::PreIndexedPackageSourceFactory::Type()))
             {
                 return IsWingetCommunityDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::DefaultSource;
             }
 
-            if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetMSStoreDefault_Arg))
+            if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetMSStoreDefault_Arg) &&
+                Utility::CaseInsensitiveEquals(type, Microsoft::PreIndexedPackageSourceFactory::Type()))
             {
                 return IsWingetMSStoreDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
             }
