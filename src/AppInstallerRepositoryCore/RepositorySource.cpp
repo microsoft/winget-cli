@@ -208,22 +208,6 @@ namespace AppInstaller::Repository
             return GetPolicyBlockingUserSource(name, type, arg, isTombstone) == TogglePolicy::Policy::None;
         }
 
-        // Check whether all the values in a source are allowed by Group Policy.
-        // This is used after creating the source from its argument and extracting
-        // the data and identifier to verify that those match.
-        bool IsAddedUserSourceAllowedByPolicy(const SourceDetailsInternal& details)
-        {
-            if (GroupPolicies().GetState(TogglePolicy::Policy::AllowedSources) != PolicyState::Enabled)
-            {
-                return true;
-            }
-
-            auto allowedSource = FindSourceInPolicy<ValuePolicy::AllowedSources>(details.Name, details.Type, details.Arg);
-            return allowedSource.has_value() &&
-                allowedSource->Data == details.Data &&
-                allowedSource->Identifier == details.Identifier;
-        }
-
         void EnsureSourceIsRemovable(const SourceDetailsInternal& source)
         {
             // Block removing sources added by Group Policy
@@ -906,13 +890,6 @@ namespace AppInstaller::Repository
 
         AICLI_LOG(Repo, Info, << "Source created with extra data: " << details.Data);
         AICLI_LOG(Repo, Info, << "Source created with identifier: " << details.Identifier);
-
-        if (!IsAddedUserSourceAllowedByPolicy(details))
-        {
-            AICLI_LOG(Repo, Error, << "Added source is not allowed by Group Policy. Rolling back");
-            RemoveSourceFromDetails(details, progress);
-            throw GroupPolicyException(TogglePolicy::Policy::AllowedSources);
-        }
 
         sourceList.AddSource(details);
     }
