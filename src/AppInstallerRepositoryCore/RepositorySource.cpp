@@ -153,7 +153,7 @@ namespace AppInstaller::Repository
 
             // Case 2:
             //  - The source is not a tombstone and we don't need the policy to be explicitly enabled.
-            //  - Check only against the source argument as the user source may have a different name.
+            //  - Check only against the source argument and type as the user source may have a different name.
             //  - Do a case insensitive check as the domain portion of the URL is case insensitive,
             //    and we don't need case sensitivity for the rest as we control the domain.
             if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetCommunityDefault_Arg) &&
@@ -794,7 +794,7 @@ namespace AppInstaller::Repository
                 m_sourceList.erase(FindSource(source.Name));
                 break;
             case SourceOrigin::GroupPolicy:
-                // This should be blocked higher up for better reporting
+                // This should have already been blocked higher up.
                 AICLI_LOG(Repo, Error, << "Attempting to remove Group Policy source: " << source.Name);
                 THROW_HR(E_UNEXPECTED);
             default:
