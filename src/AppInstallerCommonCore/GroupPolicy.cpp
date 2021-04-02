@@ -161,23 +161,29 @@ namespace AppInstaller::Settings
 
             SourceFromPolicy source;
 
-#define READ_SOURCE_ATTRIBUTE(_attr_) \
-            if (sourceJson.isMember(#_attr_) && sourceJson[#_attr_].isString()) \
-            { \
-                source._attr_ = sourceJson[#_attr_].asString(); \
-            } \
-            else \
-            { \
-                AICLI_LOG(Core, Warning, << "Source JSON does not contain a string value for " #_attr_); \
-                return std::nullopt; \
-            }
+            auto readSourceAttribute = [&](const std::string& name, std::string SourceFromPolicy::* member)
+            {
+                if (sourceJson.isMember(name) && sourceJson[name].isString())
+                {
+                    source.*member = sourceJson[name].asString();
+                    return true;
+                }
+                else
+                {
+                    AICLI_LOG(Core, Warning, << "Source JSON does not contain a string value for " << name);
+                    return false;
+                }
+            };
 
-            READ_SOURCE_ATTRIBUTE(Name);
-            READ_SOURCE_ATTRIBUTE(Arg);
-            READ_SOURCE_ATTRIBUTE(Type);
-            READ_SOURCE_ATTRIBUTE(Data);
-            READ_SOURCE_ATTRIBUTE(Identifier);
-#undef READ_SOURCE_ATTRIBUTE
+            bool allRead = readSourceAttribute("Name", &SourceFromPolicy::Name)
+                && readSourceAttribute("Arg", &SourceFromPolicy::Arg)
+                && readSourceAttribute("Type", &SourceFromPolicy::Type)
+                && readSourceAttribute("Data", &SourceFromPolicy::Data)
+                && readSourceAttribute("Identifier", &SourceFromPolicy::Identifier);
+            if (!allRead)
+            {
+                return std::nullopt;
+            }
 
             return source;
         }
