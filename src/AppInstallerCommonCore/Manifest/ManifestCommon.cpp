@@ -178,7 +178,7 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    ScopeEnum ConvertToScopeEnum(const std::string& in)
+    ScopeEnum ConvertToScopeEnum(std::string_view in)
     {
         ScopeEnum result = ScopeEnum::Unknown;
 

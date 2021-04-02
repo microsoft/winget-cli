@@ -38,6 +38,14 @@ namespace AppInstaller::Settings
         Rainbow,
     };
 
+    // The preferred scope for installs.
+    enum class ScopePreference
+    {
+        None,
+        User,
+        Machine,
+    };
+
     // Enum of settings.
     // Must start at 0 to enable direct access to variant in UserSettings.
     // Max must be last and unused.
@@ -59,6 +67,8 @@ namespace AppInstaller::Settings
         EFExport,
         TelemetryDisable,
         EFRestSource,
+        InstallScopePreference,
+        InstallScopeRequirement,
         Max
     };
 
@@ -109,6 +119,8 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExport, bool, bool, false, ".experimentalFeatures.export"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFRestSource, bool, bool, false, ".experimentalFeatures.restSource"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopePreference, std::string, ScopePreference, ScopePreference::User, ".installBehavior.preferences.scope"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopeRequirement, std::string, ScopePreference, ScopePreference::None, ".installBehavior.requirements.scope"sv);
 
         // Used to deduce the SettingVariant type; making a variant that includes std::monostate and all SettingMapping types.
         template <size_t... I>
@@ -138,11 +150,7 @@ namespace AppInstaller::Settings
             bool IsFieldWarning = true;
         };
 
-        static UserSettings const& Instance()
-        {
-            static UserSettings userSettings;
-            return userSettings;
-        }
+        static UserSettings const& Instance();
 
         static std::filesystem::path SettingsFilePath();
 
@@ -170,15 +178,13 @@ namespace AppInstaller::Settings
             return std::get<details::SettingIndex(S)>(itr->second);
         }
 
-    private:
+    protected:
         UserSettingsType m_type = UserSettingsType::Default;
         std::vector<Warning> m_warnings;
         std::map<Setting, details::SettingVariant> m_settings;
 
-    protected:
         UserSettings();
         ~UserSettings() = default;
-
     };
 
     inline UserSettings const& User()

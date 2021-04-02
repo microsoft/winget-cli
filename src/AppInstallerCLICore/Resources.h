@@ -95,9 +95,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowInstallSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowStartingPackageInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallForceArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallScopeDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InteractiveArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidAliasError);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidArgumentSpecifierError);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidArgumentValueError);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidJsonFile);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidNameError);
         WINGET_DEFINE_RESOURCE_STRINGID(LanguageArgumentDescription);

@@ -11,6 +11,7 @@
 
 #include <initializer_list>
 #include <memory>
+#include <optional>
 #include <ostream>
 #include <string>
 #include <string_view>
@@ -21,18 +22,26 @@ namespace AppInstaller::CLI
 {
     struct CommandException
     {
+        CommandException(Resource::LocString message) : m_message(std::move(message)) {}
+
         // The message should be a localized string.
         // The parameters can be either localized or not.
         // We 'convert' the param to a localization independent view here if needed.
-        CommandException(Resource::LocString message, Resource::LocString param) : m_message(std::move(message)), m_param(param) {}
-        CommandException(Resource::LocString message, std::string_view param) : m_message(std::move(message)), m_param(param) {}
+        CommandException(Resource::LocString message, Resource::LocString param) : m_message(std::move(message)), m_params({ param }) {}
+        CommandException(Resource::LocString message, std::string_view param) : m_message(std::move(message)), m_params({ Utility::LocIndString{ param } }) {}
 
-        const Resource::LocString& Message() const { return m_message; }
-        const Utility::LocIndString& Param() const { return m_param; }
+        // The message should be a localized string, but the replacement and parameters are not.
+        // This supports replacing %1 in the message with the replace value.
+        CommandException(Resource::LocString message, Utility::LocIndView replace, std::vector<Utility::LocIndString>&& params) :
+            m_message(std::move(message)), m_replace(replace), m_params(std::move(params)) {}
+
+        const Utility::LocIndString Message() const;
+        const std::vector<Utility::LocIndString>& Params() const { return m_params; }
 
     private:
         Resource::LocString m_message;
-        Utility::LocIndString m_param;
+        std::optional<Utility::LocIndString> m_replace;
+        std::vector<Utility::LocIndString> m_params;
     };
 
     struct Command

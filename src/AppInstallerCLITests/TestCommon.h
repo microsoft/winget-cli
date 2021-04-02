@@ -3,6 +3,7 @@
 #pragma once
 #include <AppInstallerLogging.h>
 #include <AppInstallerProgress.h>
+#include <winget/UserSettings.h>
 #include <wil/result.h>
 
 #include <filesystem>
@@ -114,4 +115,19 @@ namespace TestCommon
     void SetRegistryValue(HKEY key, const std::wstring& name, const std::wstring& value, DWORD type = REG_SZ);
     void SetRegistryValue(HKEY key, const std::wstring& name, const std::vector<BYTE>& value, DWORD type = REG_BINARY);
     void SetRegistryValue(HKEY key, const std::wstring& name, DWORD value);
+
+    // Override UserSettings using this class.
+    // Automatically overrides the user settings for the lifetime of this object.
+    // DOES NOT SUPPORT NESTED USE
+    struct TestUserSettings : public AppInstaller::Settings::UserSettings
+    {
+        TestUserSettings(bool keepFileSettings = false);
+        ~TestUserSettings();
+
+        template <AppInstaller::Settings::Setting S>
+        void Set(typename AppInstaller::Settings::details::SettingMapping<S>::value_t&& value)
+        {
+            m_settings[S].emplace<AppInstaller::Settings::details::SettingIndex(S)>(std::move(value));
+        }
+    };
 }

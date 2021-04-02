@@ -12,6 +12,31 @@ using namespace AppInstaller::Settings;
 namespace AppInstaller::CLI
 {
     constexpr std::string_view s_Command_ArgName_SilentAndInteractive = "silent|interactive"sv;
+    constexpr std::string_view s_CommandException_ReplacementToken = "%1"sv;
+
+    const Utility::LocIndString CommandException::Message() const
+    {
+        if (m_replace)
+        {
+            std::string result;
+
+            // Find the %1 in the message
+            std::string_view message = m_message.get();
+            size_t index = message.find(s_CommandException_ReplacementToken);
+
+            if (index != std::string::npos)
+            {
+                result = message.substr(0, index);
+                result += m_replace.value();
+                result += message.substr(index + s_CommandException_ReplacementToken.length());
+
+                return Utility::LocIndString{ std::move(result) };
+            }
+        }
+
+        // Fall back to just using the message.
+        return Utility::LocIndString{ m_message.get() };
+    }
 
     Command::Command(
         std::string_view name,
@@ -50,8 +75,28 @@ namespace AppInstaller::CLI
         // Error if given
         if (exception)
         {
-            reporter.Error() <<
-                exception->Message() << " : '"_liv << exception->Param() << '\'' << std::endl <<
+            auto error = reporter.Error();
+            error << exception->Message();
+
+            if (!exception->Params().empty())
+            {
+                error << " :"_liv;
+                bool first = true;
+                for (const auto& param : exception->Params())
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        error << ',';
+                    }
+                    error << " '"_liv << param << '\'';
+                }
+            }
+
+            error << std::endl <<
                 std::endl;
         }
 

@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-
 #include "AppInstallerDateTime.h"
 #include "AppInstallerRepositorySource.h"
+#include <winget/Manifest.h>
 
 #include <json.h>
 
@@ -28,6 +28,7 @@ namespace AppInstaller::CLI
 
             Utility::LocIndString Id;
             Utility::VersionAndChannel VersionAndChannel;
+            Manifest::ScopeEnum Scope = Manifest::ScopeEnum::Unknown;
         };
 
         // A source along with a set of packages available from it.

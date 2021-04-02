@@ -103,7 +103,6 @@ IConfiguration
 IHost
 IID
 IInstalled
-incosistencies
 IName
 INET
 inor
@@ -248,13 +247,9 @@ UPSERT
 URIs
 URLZONE
 userfilesetting
-usersettingstest
 USHORT
 Utils
 UWP
-validator
-valijson
-valueiterator
 vamus
 VERSI
 VERSIE
@@ -273,8 +268,9 @@ wingetdev
 winreg
 withstarts
 wn
-wsv
 Workflows
+WSL
+wsv
 wto
 Wunused
 WZDNCRFJ
