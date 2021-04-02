@@ -104,26 +104,116 @@ namespace AppInstaller::Settings
             // Use folding to call each policy validate function.
             (FoldHelper{}, ..., Validate<static_cast<ValuePolicy>(P)>(policiesKey, policies));
         }
+
+        // Reads a list from a Group Policy.
+        // The list is stored in a sub-key of the policies key, and each value in that key is a list item.
+        // Cases not considered by this function because we don't use them:
+        //  - When the list is in an arbitrary key, not a sub key.
+        //  - When the list values are mixed with other values and are identified by a prefix in their names.
+        //  - When the value names are relevant.
+        template<ValuePolicy P>
+        std::optional<typename details::ValuePolicyMapping<P>::value_t> ReadList(const Registry::Key& policiesKey)
+        {
+            using Mapping = details::ValuePolicyMapping<P>;
+
+            auto listKey = policiesKey.SubKey(Mapping::KeyName);
+            if (!listKey.has_value())
+            {
+                return std::nullopt;
+            }
+
+            std::vector<Mapping::item_t> items;
+            for (const auto& value : listKey->Values())
+            {
+                auto item = Mapping::ReadAndValidateItem(value);
+                if (item.has_value())
+                {
+                    items.emplace_back(std::move(item.value()));
+                }
+                else
+                {
+                    AICLI_LOG(Core, Warning, << "Failed to read Group Policy list value. Policy [" << Mapping::KeyName << "], Value [" << value.Name() << ']');
+                }
+            }
+
+            return items;
+        }
+
+        std::optional<SourceFromPolicy> ReadSourceFromRegistryValue(const Registry::Value& item)
+        {
+            auto jsonString = item.TryGetValue<Registry::Value::Type::String>();
+            if (!jsonString.has_value())
+            {
+                AICLI_LOG(Core, Warning, << "Registry value is not a string");
+                return std::nullopt;
+            }
+
+            int stringLength = static_cast<int>(jsonString->length());
+            Json::Value sourceJson;
+            Json::CharReaderBuilder charReaderBuilder;
+            const std::unique_ptr<Json::CharReader> jsonReader(charReaderBuilder.newCharReader());
+            Json::String jsonErrors;
+            if (!jsonReader->parse(jsonString->c_str(), jsonString->c_str() + stringLength, &sourceJson, &jsonErrors))
+            {
+                AICLI_LOG(Core, Warning, << "Registry value does not contain a valid JSON: " << jsonErrors);
+                return std::nullopt;
+            }
+
+            SourceFromPolicy source;
+
+            auto readSourceAttribute = [&](const std::string& name, std::string SourceFromPolicy::* member)
+            {
+                if (sourceJson.isMember(name) && sourceJson[name].isString())
+                {
+                    source.*member = sourceJson[name].asString();
+                    return true;
+                }
+                else
+                {
+                    AICLI_LOG(Core, Warning, << "Source JSON does not contain a string value for " << name);
+                    return false;
+                }
+            };
+
+            bool allRead = readSourceAttribute("Name", &SourceFromPolicy::Name)
+                && readSourceAttribute("Arg", &SourceFromPolicy::Arg)
+                && readSourceAttribute("Type", &SourceFromPolicy::Type)
+                && readSourceAttribute("Data", &SourceFromPolicy::Data)
+                && readSourceAttribute("Identifier", &SourceFromPolicy::Identifier);
+            if (!allRead)
+            {
+                return std::nullopt;
+            }
+
+            return source;
+        }
     }
 
     namespace details
     {
+#define POLICY_MAPPING_DEFAULT_LIST_READ(_policy_) \
+        std::optional<typename ValuePolicyMapping<_policy_>::value_t> ValuePolicyMapping<_policy_>::ReadAndValidate(const Registry::Key& policiesKey) \
+        { \
+            return ReadList<_policy_>(policiesKey); \
+        }
+
+        POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AdditionalSources);
+        POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AllowedSources);
+
         std::optional<uint32_t> ValuePolicyMapping<ValuePolicy::SourceAutoUpdateIntervalInMinutes>::ReadAndValidate(const Registry::Key& policiesKey)
         {
             using Mapping = ValuePolicyMapping<ValuePolicy::SourceAutoUpdateIntervalInMinutes>;
-            return GetRegistryValue<Mapping::ValueType>(policiesKey , Mapping::ValueName);
+            return GetRegistryValue<Mapping::ValueType>(policiesKey, Mapping::ValueName);
         }
 
-        std::optional<std::vector<std::string>> ValuePolicyMapping<ValuePolicy::AdditionalSources>::ReadAndValidate(const Registry::Key&)
+        std::optional<SourceFromPolicy> ValuePolicyMapping<ValuePolicy::AdditionalSources>::ReadAndValidateItem(const Registry::Value& item)
         {
-            // TODO
-            return std::nullopt;
+            return ReadSourceFromRegistryValue(item);
         }
 
-        std::optional<std::vector<std::string>> ValuePolicyMapping<ValuePolicy::AllowedSources>::ReadAndValidate(const Registry::Key&)
+        std::optional<SourceFromPolicy> ValuePolicyMapping<ValuePolicy::AllowedSources>::ReadAndValidateItem(const Registry::Value& item)
         {
-            // TODO
-            return std::nullopt;
+            return ReadSourceFromRegistryValue(item);
         }
     }
 
@@ -144,7 +234,7 @@ namespace AppInstaller::Settings
         case TogglePolicy::Policy::DefaultSource:
             return TogglePolicy(policy, "EnableDefaultSource"sv, String::PolicyEnableDefaultSource);
         case TogglePolicy::Policy::MSStoreSource:
-            return TogglePolicy(policy, "EnableMSStoreSource"sv, String::PolicyEnableMSStoreSource);
+            return TogglePolicy(policy, "EnableMicrosoftStoreSource"sv, String::PolicyEnableMSStoreSource);
         case TogglePolicy::Policy::AdditionalSources:
             return TogglePolicy(policy, "EnableAdditionalSources"sv, String::PolicyAdditionalSources);
         case TogglePolicy::Policy::AllowedSources:
@@ -167,6 +257,20 @@ namespace AppInstaller::Settings
         }
 
         return result;
+    }
+
+    std::string SourceFromPolicy::ToJsonString() const
+    {
+        Json::Value json{ Json::ValueType::objectValue };
+        json["Name"] = Name;
+        json["Type"] = Type;
+        json["Arg"] = Arg;
+        json["Data"] = Data;
+        json["Identifier"] = Identifier;
+
+        Json::StreamWriterBuilder writerBuilder;
+        writerBuilder.settings_["indentation"] = "";
+        return Json::writeString(writerBuilder, json);
     }
 
     GroupPolicy::GroupPolicy(const Registry::Key& key)

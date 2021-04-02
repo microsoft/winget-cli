@@ -21,6 +21,7 @@ namespace AppInstaller::Repository
         Default,
         User,
         Predefined,
+        GroupPolicy,
     };
 
     // Defines the trust level of the source.
