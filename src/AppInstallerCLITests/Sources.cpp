@@ -112,7 +112,7 @@ Sources:
 constexpr std::string_view s_DefaultSourceAsUserSource = R"(
 Sources:
   - Name: not-winget
-    Type: ""
+    Type: Microsoft.PreIndexed.Package
     Arg: https://winget.azureedge.net/cache
     Data: Microsoft.Winget.Source_8wekyb3d8bbwe
     IsTombstone: false
@@ -879,45 +879,6 @@ TEST_CASE("RepoSources_GroupPolicy_AllowedSources", "[sources][groupPolicy]")
                 AddSource("notAllowed", "type", "arg", progress),
                 TogglePolicy::Policy::AllowedSources);
             REQUIRE_FALSE(addCalledOnFactory);
-        }
-        SECTION("Full match required to add")
-        {
-            // When adding a source, the data and identifier need to match the policy.
-            SourceFromPolicy policySource;
-            policySource.Name = "testName";
-            policySource.Type = "testType";
-            policySource.Arg = "testArg";
-            policySource.Data = "testData";
-            policySource.Identifier = "testId";
-
-            policies.SetValue<ValuePolicy::AllowedSources>({ policySource });
-            SetSetting(Streams::UserSources, s_EmptySources);
-            TestHook_ClearSourceFactoryOverrides();
-
-            bool addCalledOnFactory = false;
-            bool removeCalledOnFactory = false;
-            TestSourceFactory factory{ SourcesTestSource::Create };
-            factory.OnAdd = [&](SourceDetails& sd)
-            {
-                addCalledOnFactory = true;
-                sd.Data = "notPolicyData";
-                sd.Identifier = "notPolicyId";
-            };
-            factory.OnRemove = [&](const SourceDetails&) { removeCalledOnFactory = true; };
-            TestHook_SetSourceFactoryOverride(policySource.Type, factory);
-
-            ProgressCallback progress;
-            REQUIRE_POLICY_EXCEPTION(
-                AddSource(policySource.Name, policySource.Type, policySource.Arg, progress),
-                TogglePolicy::Policy::AllowedSources);
-
-            REQUIRE(addCalledOnFactory);
-            REQUIRE(removeCalledOnFactory);
-
-            auto sources = GetSources();
-            REQUIRE(sources.size() == 1);
-            REQUIRE(sources[0].Origin == SourceOrigin::Default);
-
         }
     }
 
