@@ -123,8 +123,8 @@ namespace AppInstaller::Repository
         TogglePolicy::Policy GetPolicyBlockingUserSource(std::string_view name, std::string_view type, std::string_view arg, bool isTombstone)
         {
             // Reasons for not allowing:
-            //  1. The source is a default source that is disabled
-            //  2. The source is a tombstone for default source that is explicitly enabled
+            //  1. The source is a tombstone for default source that is explicitly enabled
+            //  2. The source is a default source that is disabled
             //  3. The source has the same name as a default source that is explicitly enabled (to prevent shadowing)
             //  4. Allowed sources are disabled, blocking all user sources
             //  5. There is an explicit list of allowed sources and this source is not in it
@@ -134,21 +134,6 @@ namespace AppInstaller::Repository
             // Use the name and arg to match sources as we don't have the identifier before adding.
 
             // Case 1:
-            //  - The source is not a tombstone and we don't need the policy to be explicitly enabled.
-            //  - Check only against the source argument as the user source may have a different name.
-            //  - Do a case insensitive check as the domain portion of the URL is case insensitive,
-            //    and we don't need case sensitivity for the rest as we control the domain.
-            if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetCommunityDefault_Arg))
-            {
-                return IsWingetCommunityDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::DefaultSource;
-            }
-
-            if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetMSStoreDefault_Arg))
-            {
-                return IsWingetMSStoreDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
-            }
-
-            // Case 2:
             // The source is a tombstone and we need the policy to be explicitly enabled.
             if (isTombstone)
             {
@@ -162,7 +147,23 @@ namespace AppInstaller::Repository
                     return TogglePolicy::Policy::MSStoreSource;
                 }
 
+                // Any other tombstone is allowed
                 return TogglePolicy::Policy::None;
+            }
+
+            // Case 2:
+            //  - The source is not a tombstone and we don't need the policy to be explicitly enabled.
+            //  - Check only against the source argument as the user source may have a different name.
+            //  - Do a case insensitive check as the domain portion of the URL is case insensitive,
+            //    and we don't need case sensitivity for the rest as we control the domain.
+            if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetCommunityDefault_Arg))
+            {
+                return IsWingetCommunityDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::DefaultSource;
+            }
+
+            if (Utility::CaseInsensitiveEquals(arg, s_Source_WingetMSStoreDefault_Arg))
+            {
+                return IsWingetMSStoreDefaultSourceEnabled(false) ? TogglePolicy::Policy::None : TogglePolicy::Policy::MSStoreSource;
             }
 
             // Case 3:
