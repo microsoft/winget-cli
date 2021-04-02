@@ -4,7 +4,7 @@
 #include "pch.h"
 #include "cpprest/json.h"
 
-namespace AppInstaller::Repository::Rest::Schema::Json
+namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 {
     // Manifest Deserializer.
     struct ManifestDeserializer

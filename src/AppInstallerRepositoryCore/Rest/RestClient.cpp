@@ -4,13 +4,15 @@
 #include "RestClient.h"
 #include "Rest/Schema/1_0/Interface.h"
 #include "Rest/HttpClientHelper.h"
-#include "Rest/Schema/Json/InformationResponseDeserializer.h"
-#include "Rest/Schema/Json/JsonHelper.h"
-#include "Rest/Schema/Json/CommonRestConstants.h"
+#include "Rest/Schema/1_0/Json/InformationResponseDeserializer.h"
+#include "Rest/Schema/JsonHelper.h"
+#include "Rest/Schema/1_0/Json/CommonJsonConstants.h"
+#include "Rest/Schema/CommonRestConstants.h"
 #include "Rest/Schema/RestHelper.h"
 
 using namespace AppInstaller::Repository::Rest::Schema;
-using namespace AppInstaller::Repository::Rest::Schema::Json;
+using namespace AppInstaller::Repository::Rest::Schema::V1_0;
+using namespace AppInstaller::Repository::Rest::Schema::V1_0::Json;
 using namespace AppInstaller::Utility;
 
 namespace AppInstaller::Repository::Rest

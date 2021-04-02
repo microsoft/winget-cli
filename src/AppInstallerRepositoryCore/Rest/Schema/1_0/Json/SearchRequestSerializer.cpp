@@ -4,10 +4,10 @@
 #include "Rest/Schema/IRestClient.h"
 #include "SearchRequestSerializer.h"
 #include <cpprest/json.h>
-#include "JsonHelper.h"
-#include "CommonRestConstants.h"
+#include "Rest/Schema/JsonHelper.h"
+#include "CommonJsonConstants.h"
 
-namespace AppInstaller::Repository::Rest::Schema::Json
+namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 {
     namespace
     {
@@ -56,7 +56,7 @@ namespace AppInstaller::Repository::Rest::Schema::Json
                 json_body[JsonHelper::GetUtilityString(Query)] = requestMatchObject;
             }
 
-            if (searchRequest.Filters.size() > 0)
+            if (!searchRequest.Filters.empty())
             {
                 web::json::value filters = web::json::value::array();
 
@@ -69,7 +69,7 @@ namespace AppInstaller::Repository::Rest::Schema::Json
                 json_body[JsonHelper::GetUtilityString(Filters)] = filters;
             }
 
-            if (searchRequest.Inclusions.size() > 0)
+            if (!searchRequest.Inclusions.empty())
             {
                 web::json::value inclusions = web::json::value::array();
 

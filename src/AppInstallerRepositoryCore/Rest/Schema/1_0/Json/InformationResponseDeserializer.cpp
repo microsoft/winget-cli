@@ -3,11 +3,11 @@
 #include "pch.h"
 #include "Rest/Schema/IRestClient.h"
 #include <cpprest/json.h>
-#include "JsonHelper.h"
+#include "Rest/Schema/JsonHelper.h"
 #include "InformationResponseDeserializer.h"
-#include "CommonRestConstants.h"
+#include "CommonJsonConstants.h"
 
-namespace AppInstaller::Repository::Rest::Schema::Json
+namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 {
     namespace
     {

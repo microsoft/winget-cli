@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "JsonHelper.h"
 
-namespace AppInstaller::Repository::Rest::Schema::Json
+namespace AppInstaller::Repository::Rest::Schema
 {
     utility::string_t JsonHelper::GetUtilityString(std::string_view nodeName)
     {

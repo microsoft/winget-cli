@@ -7,12 +7,12 @@
 #include "cpprest/http_client.h"
 #include "cpprest/json.h"
 #include "ManifestDeserializer.h"
-#include "JsonHelper.h"
-#include "Rest/Schema/Json/CommonRestConstants.h"
+#include "Rest/Schema/JsonHelper.h"
+#include "Rest/Schema/1_0/Json/CommonJsonConstants.h"
 
 using namespace AppInstaller::Manifest;
 
-namespace AppInstaller::Repository::Rest::Schema::Json
+namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 {
     namespace
     {

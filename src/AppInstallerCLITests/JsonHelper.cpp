@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
-#include "Rest/Schema/Json/JsonHelper.h"
+#include "Rest/Schema/JsonHelper.h"
 #include "cpprest/json.h"
 
-using namespace AppInstaller::Repository::Rest::Schema::Json;
+using namespace AppInstaller::Repository::Rest::Schema;
 
 web::json::value GetTestJsonObject()
 {

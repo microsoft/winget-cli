@@ -6,16 +6,17 @@
 #include "Rest/HttpClientHelper.h"
 #include "cpprest/http_client.h"
 #include "cpprest/json.h"
-#include "Rest/Schema/Json/JsonHelper.h"
-#include "Rest/Schema/Json/CommonRestConstants.h"
-#include "Rest/Schema/Json/ManifestDeserializer.h"
-#include "Rest/Schema/RestHelper.h"
-#include "Rest/Schema/Json/SearchResponseDeserializer.h"
+#include "Rest/Schema/JsonHelper.h"
 #include "winget/ManifestValidation.h"
-#include "Rest/Schema/Json/SearchRequestSerializer.h"
+#include "Rest/Schema/RestHelper.h"
+#include "Rest/Schema/CommonRestConstants.h"
+#include "Rest/Schema/1_0/Json/CommonJsonConstants.h"
+#include "Rest/Schema/1_0/Json/ManifestDeserializer.h"
+#include "Rest/Schema/1_0/Json/SearchResponseDeserializer.h"
+#include "Rest/Schema/1_0/Json/SearchRequestSerializer.h"
 
 using namespace std::string_view_literals;
-using namespace AppInstaller::Repository::Rest::Schema::Json;
+using namespace AppInstaller::Repository::Rest::Schema::V1_0::Json;
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0
 {
@@ -26,7 +27,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     // Query params
     constexpr std::string_view VersionQueryParam = "Version"sv;
     constexpr std::string_view ChannelQueryParam = "Channel"sv;
-    constexpr std::string_view LatestVersionQueryParam = "LatestVersion"sv;
 
     namespace
     {
@@ -107,7 +107,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         std::vector<Manifest::Manifest> manifests = GetManifests(packageId, queryParams);
 
         // TODO: Handle multiple manifest selection.
-        if (manifests.size() > 0)
+        if (!manifests.empty())
         {
             return manifests.at(0);
         }
@@ -131,22 +131,23 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     IRestClient::SearchResult Interface::OptimizedSearch(const SearchRequest& request) const
     {
         SearchResult searchResult;
-        std::map<std::string_view, std::string> queryParams;
-        queryParams.emplace(LatestVersionQueryParam, "true");
+        std::vector<Manifest::Manifest> manifests = GetManifests(request.Filters[0].Value);
 
-        std::vector<Manifest::Manifest> manifests = GetManifests(request.Filters[0].Value, queryParams);
-
-        if (manifests.size() > 0)
+        if (!manifests.empty())
         {
-            Manifest::Manifest manifest = manifests.at(0);
+            auto& manifest = manifests.at(0);
             PackageInfo packageInfo = PackageInfo{
                 manifest.Id,
                 manifest.DefaultLocalization.Get<AppInstaller::Manifest::Localization::PackageName>(),
                 manifest.DefaultLocalization.Get<AppInstaller::Manifest::Localization::Publisher>() };
 
+            // Add all the versions to the package info object
             std::vector<VersionInfo> versions;
-            versions.emplace_back(
-                VersionInfo{ AppInstaller::Utility::VersionAndChannel {manifest.Version, manifest.Channel}, std::move(manifest) });
+            for (auto& manifestVersion : manifests)
+            {
+                versions.emplace_back(
+                    VersionInfo{ AppInstaller::Utility::VersionAndChannel {manifestVersion.Version, manifestVersion.Channel}, manifestVersion });
+            }
 
             Package package = Package{ std::move(packageInfo), std::move(versions) };
             searchResult.Matches.emplace_back(std::move(package));
@@ -174,9 +175,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         // Manifest validation
         for (auto& manifestItem : manifests)
         {
-            Manifest::Manifest manifest = manifestItem;
             std::vector<AppInstaller::Manifest::ValidationError> validationErrors =
-                AppInstaller::Manifest::ValidateManifest(manifest);
+                AppInstaller::Manifest::ValidateManifest(manifestItem);
 
             int errors = 0;
             for (auto& error : validationErrors)
@@ -190,7 +190,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA, errors > 0);
 
-            results.emplace_back(manifest);
+            results.emplace_back(manifestItem);
         }
 
         return results;

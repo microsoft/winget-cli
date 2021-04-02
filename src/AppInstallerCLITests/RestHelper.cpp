@@ -31,8 +31,8 @@ TEST_CASE("AppendQueryParamsToUri", "[RestSource]")
 {
     utility::string_t url = L"http://restsource.azurewebsites.net/api";
     std::map<std::string_view, std::string> queryParams;
-    queryParams.emplace("Version", "1.0.0");
+    queryParams.emplace("Version", "1.0 .0");
     queryParams.emplace("Channel", "beta+");
 
-    REQUIRE(RestHelper::AppendQueryParamsToUri(url, queryParams) == L"http://restsource.azurewebsites.net/api?Channel=beta%2B&Version=1.0.0");
+    REQUIRE(RestHelper::AppendQueryParamsToUri(url, queryParams) == L"http://restsource.azurewebsites.net/api?Channel=beta%2B&Version=1.0%20.0");
 }

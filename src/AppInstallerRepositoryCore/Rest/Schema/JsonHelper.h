@@ -5,7 +5,7 @@
 #include <cpprest/json.h>
 #include "winget/Manifest.h"
 
-namespace AppInstaller::Repository::Rest::Schema::Json
+namespace AppInstaller::Repository::Rest::Schema
 {
     // Json helper.
     struct JsonHelper

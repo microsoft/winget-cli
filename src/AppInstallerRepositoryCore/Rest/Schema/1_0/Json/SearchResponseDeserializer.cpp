@@ -4,10 +4,10 @@
 #include "Rest/Schema/IRestClient.h"
 #include "SearchResponseDeserializer.h"
 #include <cpprest/json.h>
-#include "JsonHelper.h"
-#include "CommonRestConstants.h"
+#include "Rest/Schema/JsonHelper.h"
+#include "CommonJsonConstants.h"
 
-namespace AppInstaller::Repository::Rest::Schema::Json
+namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 {
     namespace
     {

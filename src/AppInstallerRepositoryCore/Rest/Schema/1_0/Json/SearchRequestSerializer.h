@@ -5,7 +5,7 @@
 #include "cpprest/json.h"
 #include "Rest/Schema/IRestClient.h"
 
-namespace AppInstaller::Repository::Rest::Schema::Json
+namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 {
     // Search Result Serializer.
     struct SearchRequestSerializer

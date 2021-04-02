@@ -4,9 +4,11 @@
 #include "RestHelper.h"
 #include "cpprest/uri_builder.h"
 #include "cpprest/http_client.h"
-#include "Rest/Schema/Json/JsonHelper.h"
-#include "Rest/Schema/Json/CommonRestConstants.h"
-using namespace AppInstaller::Repository::Rest::Schema::Json;
+#include "Rest/Schema/JsonHelper.h"
+#include "Rest/Schema/1_0/Json/CommonJsonConstants.h"
+
+using namespace AppInstaller::Repository::Rest::Schema;
+using namespace AppInstaller::Repository::Rest::Schema::V1_0::Json;
 
 namespace AppInstaller::Repository::Rest::Schema
 {
@@ -26,7 +28,7 @@ namespace AppInstaller::Repository::Rest::Schema
         }
 
         // Encode the Uri
-        return web::uri::encode_uri(Json::JsonHelper::GetUtilityString(uri));
+        return web::uri::encode_uri(JsonHelper::GetUtilityString(uri));
     }
 
     bool RestHelper::IsValidUri(const utility::string_t& restApiUri)
@@ -63,7 +65,7 @@ namespace AppInstaller::Repository::Rest::Schema
 
     std::optional<utility::string_t> RestHelper::GetContinuationToken(const web::json::value& jsonObject)
     {
-        std::optional<std::string> continuationToken = Json::JsonHelper::GetRawStringValueFromJsonNode(jsonObject, Json::JsonHelper::GetUtilityString(ContinuationToken));
+        std::optional<std::string> continuationToken = JsonHelper::GetRawStringValueFromJsonNode(jsonObject, JsonHelper::GetUtilityString(ContinuationToken));
 
         if (continuationToken)
         {
