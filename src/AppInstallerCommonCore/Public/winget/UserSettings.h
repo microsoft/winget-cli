@@ -85,7 +85,7 @@ namespace AppInstaller::Settings
             // Validate - Function that does semantic validation.
         };
 
-#define SETTINGMAPPING_SPECIALIZATION_EXTEND(_setting_, _json_, _value_, _default_, _path_, _extension_) \
+#define SETTINGMAPPING_SPECIALIZATION_POLICY(_setting_, _json_, _value_, _default_, _path_, _valuePolicy_) \
         template <> \
         struct SettingMapping<_setting_> \
         { \
@@ -94,18 +94,13 @@ namespace AppInstaller::Settings
             static constexpr value_t DefaultValue = _default_; \
             static constexpr std::string_view Path = _path_; \
             static std::optional<value_t> Validate(const json_t& value); \
-            _extension_ \
+            static constexpr ValuePolicy Policy = _valuePolicy_; \
+            using policy_t = GroupPolicy::ValueType<Policy>; \
+            static_assert(Policy == ValuePolicy::None || std::is_same<json_t, policy_t>::value); \
         }
 
 #define SETTINGMAPPING_SPECIALIZATION(_setting_, _json_, _value_, _default_, _path_) \
-        SETTINGMAPPING_SPECIALIZATION_EXTEND(_setting_, _json_, _value_, _default_, _path_, )
-
-#define SETTINGMAPPING_SPECIALIZATION_POLICY(_setting_, _json_, _value_, _default_, _path_, _valuePolicy_) \
-        SETTINGMAPPING_SPECIALIZATION_EXTEND(_setting_, _json_, _value_, _default_, _path_, \
-            static constexpr ValuePolicy Policy = _valuePolicy_; \
-            using policy_t = GroupPolicy::ValueType<Policy>; \
-            static_assert(std::is_same<json_t, policy_t>::value); \
-        )
+        SETTINGMAPPING_SPECIALIZATION_POLICY(_setting_, _json_, _value_, _default_, _path_, ValuePolicy::None)
 
         SETTINGMAPPING_SPECIALIZATION(Setting::ProgressBarVisualStyle, std::string, VisualStyle, VisualStyle::Accent, ".visual.progressBar"sv);
         SETTINGMAPPING_SPECIALIZATION_POLICY(Setting::AutoUpdateTimeInMinutes, uint32_t, std::chrono::minutes, 5min, ".source.autoUpdateIntervalInMinutes"sv, ValuePolicy::SourceAutoUpdateIntervalInMinutes);
