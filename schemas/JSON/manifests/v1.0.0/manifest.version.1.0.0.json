@@ -41,5 +41,6 @@
     "DefaultLocale",
     "ManifestType",
     "ManifestVersion"
-  ]
+  ],
+  "additionalProperties": false
 }

@@ -30,6 +30,7 @@
     "Platform": {
       "type": [ "array", "null" ],
       "items": {
+        "title": "Platform",
         "type": "string",
         "enum": [
           "Windows.Desktop",
@@ -72,6 +73,7 @@
     "InstallModes": {
       "type": [ "array", "null" ],
       "items": {
+        "title": "InstallModes",
         "type": "string",
         "enum": [
           "interactive",
@@ -128,7 +130,8 @@
           "maxLength": 2048,
           "description": "Custom switches will be passed directly to the installer by winget"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "InstallerSuccessCodes": {
       "type": [ "array", "null" ],
@@ -220,7 +223,8 @@
                 "$ref": "#/definitions/PackageVersion"
               }
             },
-            "required": [ "PackageIdentifier" ]
+            "required": [ "PackageIdentifier" ],
+            "additionalProperties": false
           },
           "maxItems": 16,
           "uniqueItems": true,
@@ -237,7 +241,8 @@
           "uniqueItems": true,
           "description": "List of external package dependencies"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "PackageFamilyName": {
       "type": [ "string", "null" ],
@@ -358,7 +363,8 @@
         "Architecture",
         "InstallerUrl",
         "InstallerSha256"
-      ]
+      ],
+      "additionalProperties": false
     }
   },
   "type": "object",
@@ -450,5 +456,6 @@
     "Installers",
     "ManifestType",
     "ManifestVersion"
-  ]
+  ],
+  "additionalProperties": false
 }
