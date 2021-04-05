@@ -190,6 +190,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceExportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceExportCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListAdditionalSource);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListAllowedSource);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListArg);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListCommandShortDescription);
