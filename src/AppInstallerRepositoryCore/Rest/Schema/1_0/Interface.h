@@ -18,10 +18,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         Interface(Interface&&) = default;
         Interface& operator=(Interface&&) = default;
 
-        std::string GetVersion() const override;
+        Utility::Version GetVersion() const override;
         IRestClient::SearchResult Search(const SearchRequest& request) const override;
         std::optional<Manifest::Manifest> GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const override;
-        std::vector<Manifest::Manifest> GetManifests(const std::string& packageId, const std::string& version, const std::string& channel) const override;
+        std::vector<Manifest::Manifest> GetManifests(const std::string& packageId, const std::map<std::string_view, std::string>& params = {}) const override;
    
     protected:
         bool MeetsOptimizedSearchCriteria(const SearchRequest& request) const;

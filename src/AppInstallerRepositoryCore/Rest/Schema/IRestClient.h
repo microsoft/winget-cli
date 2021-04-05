@@ -59,7 +59,7 @@ namespace AppInstaller::Repository::Rest::Schema
     };
 
     // Get interface version.
-    virtual std::string GetVersion() const = 0;
+    virtual Utility::Version GetVersion() const = 0;
 
     // Performs a search based on the given criteria.
     virtual SearchResult Search(const SearchRequest& request) const = 0;
@@ -68,6 +68,6 @@ namespace AppInstaller::Repository::Rest::Schema
     virtual std::optional<Manifest::Manifest> GetManifestByVersion(const std::string& packageId, const std::string& version, const std::string& channel) const = 0;
     
     // Gets the manifests for given query parameters
-    virtual std::vector<Manifest::Manifest> GetManifests(const std::string& packageId, const std::string& version, const std::string& channel) const = 0;
+    virtual std::vector<Manifest::Manifest> GetManifests(const std::string& packageId, const std::map<std::string_view, std::string>& params = {}) const = 0;
     };
 }

@@ -140,6 +140,15 @@
     <ClCompile Include="ManifestComparator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RestHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JsonHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RestClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

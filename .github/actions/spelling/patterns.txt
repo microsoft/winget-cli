@@ -36,3 +36,9 @@ http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer
 
 # doc/ManifestSpecv1.0.md
 ^ShortDescription: "Le nouveau.*"$
+
+# Ignore test patterns
+REQUIRE\(RestHelper::GetRestAPIBaseUri\(".*"\) == L".*"
+
+# URL escaped characters
+\%[0-9A-F]{2}

@@ -4,10 +4,10 @@
 #include "Rest/Schema/IRestClient.h"
 #include "SearchResponseDeserializer.h"
 #include <cpprest/json.h>
-#include "JsonHelper.h"
-#include "CommonRestConstants.h"
+#include "Rest/Schema/JsonHelper.h"
+#include "CommonJsonConstants.h"
 
-namespace AppInstaller::Repository::Rest::Schema::Json
+namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 {
     namespace
     {
@@ -18,7 +18,7 @@ namespace AppInstaller::Repository::Rest::Schema::Json
         constexpr std::string_view PackageFamilyName = "PackageFamilyName"sv;
         constexpr std::string_view ProductCode = "ProductCode"sv;
         constexpr std::string_view Versions = "Versions"sv;
-        constexpr std::string_view PackageVersion = "Version"sv;
+        constexpr std::string_view PackageVersion = "PackageVersion"sv;
         constexpr std::string_view Channel = "Channel"sv;
     }
 
@@ -55,7 +55,7 @@ namespace AppInstaller::Repository::Rest::Schema::Json
                 std::optional<std::string> packageName = JsonHelper::GetRawStringValueFromJsonNode(manifestItem, JsonHelper::GetUtilityString(PackageName));
                 std::optional<std::string> publisher = JsonHelper::GetRawStringValueFromJsonNode(manifestItem, JsonHelper::GetUtilityString(Publisher));
 
-                if (!JsonHelper::IsValidNonEmptyStringValue(packageId) || !JsonHelper::IsValidNonEmptyStringValue(packageName) || !JsonHelper::IsValidNonEmptyStringValue(packageName))
+                if (!JsonHelper::IsValidNonEmptyStringValue(packageId) || !JsonHelper::IsValidNonEmptyStringValue(packageName) || !JsonHelper::IsValidNonEmptyStringValue(publisher))
                 {
                     AICLI_LOG(Repo, Error, << "Missing required package fields in manifest search results.");
                     return {};

@@ -7,12 +7,12 @@
 #include "cpprest/http_client.h"
 #include "cpprest/json.h"
 #include "ManifestDeserializer.h"
-#include "JsonHelper.h"
-#include "Rest/Schema/Json/CommonRestConstants.h"
+#include "Rest/Schema/JsonHelper.h"
+#include "Rest/Schema/1_0/Json/CommonJsonConstants.h"
 
 using namespace AppInstaller::Manifest;
 
-namespace AppInstaller::Repository::Rest::Schema::Json
+namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 {
     namespace
     {
@@ -298,8 +298,13 @@ namespace AppInstaller::Repository::Rest::Schema::Json
         }
         installer.Arch = Utility::ConvertToArchitectureEnum(arch.value());
 
-        installer.InstallerType = Manifest::ConvertToInstallerTypeEnum(
-            JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerType)).value_or(""));
+        std::optional<std::string> installerType = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerType));
+        if (!JsonHelper::IsValidNonEmptyStringValue(installerType))
+        {
+            AICLI_LOG(Repo, Error, << "Missing installer type.");
+            return {};
+        }
+        installer.InstallerType = Manifest::ConvertToInstallerTypeEnum(installerType.value());
         installer.Locale = JsonHelper::GetRawStringValueFromJsonNode(installerJsonObject, JsonHelper::GetUtilityString(InstallerLocale)).value_or("");
 
         // platform
