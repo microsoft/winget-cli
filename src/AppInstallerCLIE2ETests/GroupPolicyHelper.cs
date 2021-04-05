@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -78,6 +79,20 @@ namespace AppInstallerCLIE2ETests
         public static GroupPolicyHelper EnableAllowedSources = new GroupPolicyHelper("EnableAllowedSources", "AllowedSources");
         public static GroupPolicyHelper SourceAutoUpdateInterval = new GroupPolicyHelper("SourceAutoUpdateIntervalInMinutes", "SourceAutoUpdateIntervalInMinutes");
 
+        private static GroupPolicyHelper[] AllPolicies = new GroupPolicyHelper[]
+        {
+            EnableWinget,
+            EnableSettings,
+            EnableExperimentalFeatures,
+            EnableLocalManifests,
+            EnableHashOverride,
+            EnableDefaultSource,
+            EnableMSStoreSource,
+            EnableAdditionalSources,
+            EnableAllowedSources,
+            SourceAutoUpdateInterval,
+        };
+
         private GroupPolicyHelper(string name)
         {
             this.name = name;
@@ -136,9 +151,15 @@ namespace AppInstallerCLIE2ETests
             .Elements()
             .First(element => element.Attribute(XmlNames.Attributes.Id).Value == this.elementId);
 
+        /// <summary>
+        /// Deletes all of the existing policies from the registry.
+        /// </summary>
         public static void DeleteExistingPolicies()
         {
-
+            foreach (var policy in AllPolicies)
+            {
+                policy.SetNotConfigured();
+            }
         }
 
         /// <summary>

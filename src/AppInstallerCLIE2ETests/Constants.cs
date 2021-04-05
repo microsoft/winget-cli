@@ -121,6 +121,10 @@ namespace AppInstallerCLIE2ETests
             public const int APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED = unchecked((int)0x8a150034);
             public const int APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND = unchecked((int)0x8a150035);
             public const int APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE = unchecked((int)0x8a150036);
+            public const int APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE = unchecked((int)0x8A150037);
+            public const int APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE = unchecked((int)0x8A150038);
+            public const int APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA = unchecked((int)0x8A150039);
+            public const int APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY = unchecked((int)0x8a15003A);
         }
     }
 }
