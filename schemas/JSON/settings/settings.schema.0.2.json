@@ -24,8 +24,44 @@
           "description": "Progress bar display style",
           "type": "string",
           "enum": [
-              "accent", "rainbow", "plain", "retro"
+            "accent",
+            "rainbow",
+            "plain",
+            "retro"
           ]
+        }
+      }
+    },
+    "InstallPrefReq": {
+      "description": "Shared schema for preferences and requirements",
+      "type": "object",
+      "properties": {
+        "scope": {
+          "description": "The scope of a package install",
+          "type": "string",
+          "enum": [
+              "user", "machine"
+          ],
+          "default": "user"
+        }
+      }
+    },
+    "InstallBehavior": {
+      "description": "Install settings",
+      "type": "object",
+      "properties": {
+        "preferences": { "$ref": "#/definitions/InstallPrefReq"},
+        "requirements": { "$ref": "#/definitions/InstallPrefReq"}
+      }
+    },
+    "Telemetry": {
+      "description": "Telemetry settings",
+      "type": "object",
+      "properties": {
+        "disable": {
+          "description": "Controls whether telemetry events are written",
+          "type": "boolean",
+          "default": false
         }
       }
     },
@@ -66,12 +102,12 @@
         "import": {
           "description": "Enable the import command while it is in development",
           "type": "boolean",
-          "default":  false
+          "default": false
         },
         "restSource": {
           "description": "Enable the rest source support while it is in development",
           "type": "boolean",
-          "default":  false
+          "default": false
         }
       }
     }
@@ -90,11 +126,23 @@
       "additionalItems": true
     },
     {
-        "properties": {
-          "experimentalFeatures": { "$ref": "#/definitions/Experimental"}
-        },
-        "additionalItems": true
-      }
+      "properties": {
+        "installBehavior": { "$ref": "#/definitions/InstallBehavior"}
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "telemetry": { "$ref": "#/definitions/Telemetry"}
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "experimentalFeatures": { "$ref": "#/definitions/Experimental"}
+      },
+      "additionalItems": true
+    }
   ],
   "additionalProperties": true
 }

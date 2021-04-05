@@ -11,6 +11,71 @@ namespace AppInstaller::Manifest::YamlParser
 {
     namespace
     {
+        // Basic V1 manifest required fields check for later manifest consistency check
+        void ValidateV1ManifestInput(const YamlManifestInfo& entry)
+        {
+            std::vector<ValidationError> errors;
+
+            if (!entry.Root.IsMap())
+            {
+                THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST), "The manifest does not contain a valid root. File: %S", entry.FileName.c_str());
+            }
+
+            if (!entry.Root["PackageIdentifier"])
+            {
+                errors.emplace_back(ValidationError::MessageFieldWithFile(
+                    ManifestError::RequiredFieldMissing, "PackageIdentifier", entry.FileName));
+            }
+
+            if (!entry.Root["PackageVersion"])
+            {
+                errors.emplace_back(ValidationError::MessageFieldWithFile(
+                    ManifestError::RequiredFieldMissing, "PackageVersion", entry.FileName));
+            }
+
+            if (!entry.Root["ManifestVersion"])
+            {
+                errors.emplace_back(ValidationError::MessageFieldWithFile(
+                    ManifestError::RequiredFieldMissing, "ManifestVersion", entry.FileName));
+            }
+
+            if (!entry.Root["ManifestType"])
+            {
+                errors.emplace_back(ValidationError::MessageFieldWithFile(
+                    ManifestError::InconsistentMultiFileManifestFieldValue, "ManifestType", entry.FileName));
+            }
+            else
+            {
+                auto manifestType = ConvertToManifestTypeEnum(entry.Root["ManifestType"].as<std::string>());
+
+                switch (manifestType)
+                {
+                case ManifestTypeEnum::Version:
+                    if (!entry.Root["DefaultLocale"])
+                    {
+                        errors.emplace_back(ValidationError::MessageFieldWithFile(
+                            ManifestError::RequiredFieldMissing, "DefaultLocale", entry.FileName));
+                    }
+                    break;
+                case ManifestTypeEnum::Singleton:
+                case ManifestTypeEnum::Locale:
+                case ManifestTypeEnum::DefaultLocale:
+                    if (!entry.Root["PackageLocale"])
+                    {
+                        errors.emplace_back(ValidationError::MessageFieldWithFile(
+                            ManifestError::RequiredFieldMissing, "PackageLocale", entry.FileName));
+                    }
+                    break;
+                }
+            }
+
+            if (!errors.empty())
+            {
+                ManifestException ex{ std::move(errors) };
+                THROW_EXCEPTION(ex);
+            }
+        }
+
         // Input validations:
         // - Determine manifest version
         // - Check multi file manifest input integrity
@@ -53,139 +118,147 @@ namespace AppInstaller::Manifest::YamlParser
                 THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION), "Unsupported ManifestVersion: %S", manifestVersion.ToString().c_str());
             }
 
-            // multi file manifest is only supported starting ManifestVersion 1.0.0
-            if (isMultifileManifest && manifestVersion < ManifestVersionV1)
+            // Preview manifest validations
+            if (manifestVersion < ManifestVersionV1)
             {
-                THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST), "Preview manifest does not support multi file manifest format.");
+                // multi file manifest is only supported starting ManifestVersion 1.0.0
+                if (isMultifileManifest)
+                {
+                    THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST), "Preview manifest does not support multi file manifest format.");
+                }
+
+                firstYamlManifest.ManifestType = ManifestTypeEnum::Preview;
             }
-
-            if (isMultifileManifest)
-            {
-                // Populates the PackageIdentifier and PackageVersion from first doc for later consistency check
-                std::string packageId = firstYamlManifest.Root["PackageIdentifier"].as<std::string>();
-                std::string packageVersion = firstYamlManifest.Root["PackageVersion"].as<std::string>();
-
-                std::set<std::string> localesSet;
-
-                bool isVersionManifestFound = false;
-                bool isInstallerManifestFound = false;
-                bool isDefaultLocaleManifestFound = false;
-                std::string defaultLocaleFromVersionManifest;
-                std::string defaultLocaleFromDefaultLocaleManifest;
-
-                for (auto& entry : input)
-                {
-                    if (!entry.Root.IsMap())
-                    {
-                        THROW_EXCEPTION_MSG(ManifestException(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST), "The manifest does not contain a valid root. File: %S", entry.FileName.c_str());
-                    }
-
-                    std::string localPackageId = entry.Root["PackageIdentifier"].as<std::string>();
-                    if (localPackageId != packageId)
-                    {
-                        errors.emplace_back(ValidationError::MessageFieldValueWithFile(
-                            ManifestError::InconsistentMultiFileManifestFieldValue, "PackageIdentifier", localPackageId, entry.FileName));
-                    }
-
-                    std::string localPackageVersion = entry.Root["PackageVersion"].as<std::string>();
-                    if (localPackageVersion != packageVersion)
-                    {
-                        errors.emplace_back(ValidationError::MessageFieldValueWithFile(
-                            ManifestError::InconsistentMultiFileManifestFieldValue, "PackageVersion", localPackageVersion, entry.FileName));
-                    }
-
-                    std::string localManifestVersion = entry.Root["ManifestVersion"].as<std::string>();
-                    if (localManifestVersion != manifestVersionStr)
-                    {
-                        errors.emplace_back(ValidationError::MessageFieldValueWithFile(
-                            ManifestError::InconsistentMultiFileManifestFieldValue, "ManifestVersion", localManifestVersion, entry.FileName));
-                    }
-
-                    std::string manifestTypeStr = entry.Root["ManifestType"sv].as<std::string>();
-                    ManifestTypeEnum manifestType = ConvertToManifestTypeEnum(manifestTypeStr);
-                    entry.ManifestType = manifestType;
-
-                    switch (manifestType)
-                    {
-                    case ManifestTypeEnum::Version:
-                        if (isVersionManifestFound)
-                        {
-                            errors.emplace_back(ValidationError::MessageFieldValueWithFile(
-                                ManifestError::DuplicateMultiFileManifestType, "ManifestType", manifestTypeStr, entry.FileName));
-                        }
-                        else
-                        {
-                            isVersionManifestFound = true;
-                            defaultLocaleFromVersionManifest = entry.Root["DefaultLocale"sv].as<std::string>();
-                        }
-                        break;
-                    case ManifestTypeEnum::Installer:
-                        if (isInstallerManifestFound)
-                        {
-                            errors.emplace_back(ValidationError::MessageFieldValueWithFile(
-                                ManifestError::DuplicateMultiFileManifestType, "ManifestType", manifestTypeStr, entry.FileName));
-                        }
-                        else
-                        {
-                            isInstallerManifestFound = true;
-                        }
-                        break;
-                    case ManifestTypeEnum::DefaultLocale:
-                        if (isDefaultLocaleManifestFound)
-                        {
-                            errors.emplace_back(ValidationError::MessageFieldValueWithFile(
-                                ManifestError::DuplicateMultiFileManifestType, "ManifestType", manifestTypeStr, entry.FileName));
-                        }
-                        else
-                        {
-                            isDefaultLocaleManifestFound = true;
-                            auto packageLocale = entry.Root["PackageLocale"sv].as<std::string>();
-                            defaultLocaleFromDefaultLocaleManifest = packageLocale;
-
-                            if (localesSet.find(packageLocale) != localesSet.end())
-                            {
-                                errors.emplace_back(ValidationError::MessageFieldValueWithFile(
-                                    ManifestError::DuplicateMultiFileManifestLocale, "PackageLocale", packageLocale, entry.FileName));
-                            }
-                            else
-                            {
-                                localesSet.insert(packageLocale);
-                            }
-                        }
-                        break;
-                    case ManifestTypeEnum::Locale:
-                        {
-                            auto packageLocale = entry.Root["PackageLocale"sv].as<std::string>();
-                            if (localesSet.find(packageLocale) != localesSet.end())
-                            {
-                                errors.emplace_back(ValidationError::MessageFieldValueWithFile(
-                                    ManifestError::DuplicateMultiFileManifestLocale, "PackageLocale", packageLocale, entry.FileName));
-                            }
-                            else
-                            {
-                                localesSet.insert(packageLocale);
-                            }
-                        }
-                        break;
-                    default:
-                        errors.emplace_back(ValidationError::MessageFieldValueWithFile(
-                            ManifestError::UnsupportedMultiFileManifestType, "ManifestType", manifestTypeStr, entry.FileName));
-                    }
-                }
-
-                if (isVersionManifestFound && isDefaultLocaleManifestFound && defaultLocaleFromDefaultLocaleManifest != defaultLocaleFromVersionManifest)
-                {
-                    errors.emplace_back(ManifestError::InconsistentMultiFileManifestDefaultLocale);
-                }
-
-                if (!schemaValidationOnly && !(isVersionManifestFound && isInstallerManifestFound && isDefaultLocaleManifestFound))
-                {
-                    errors.emplace_back(ManifestError::IncompleteMultiFileManifest);
-                }
-            }
+            // V1 manifest validations
             else
             {
-                if (manifestVersion >= ManifestVersionV1)
+                // Check required fields used by later consistency check for better error message instead of
+                // Field Type Not Match error.
+                for (auto const& entry : input)
+                {
+                    ValidateV1ManifestInput(entry);
+                }
+
+                if (isMultifileManifest)
+                {
+                    // Populates the PackageIdentifier and PackageVersion from first doc for later consistency check
+                    std::string packageId = firstYamlManifest.Root["PackageIdentifier"].as<std::string>();
+                    std::string packageVersion = firstYamlManifest.Root["PackageVersion"].as<std::string>();
+
+                    std::set<std::string> localesSet;
+
+                    bool isVersionManifestFound = false;
+                    bool isInstallerManifestFound = false;
+                    bool isDefaultLocaleManifestFound = false;
+                    std::string defaultLocaleFromVersionManifest;
+                    std::string defaultLocaleFromDefaultLocaleManifest;
+
+                    for (auto& entry : input)
+                    {
+                        std::string localPackageId = entry.Root["PackageIdentifier"].as<std::string>();
+                        if (localPackageId != packageId)
+                        {
+                            errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                                ManifestError::InconsistentMultiFileManifestFieldValue, "PackageIdentifier", localPackageId, entry.FileName));
+                        }
+
+                        std::string localPackageVersion = entry.Root["PackageVersion"].as<std::string>();
+                        if (localPackageVersion != packageVersion)
+                        {
+                            errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                                ManifestError::InconsistentMultiFileManifestFieldValue, "PackageVersion", localPackageVersion, entry.FileName));
+                        }
+
+                        std::string localManifestVersion = entry.Root["ManifestVersion"].as<std::string>();
+                        if (localManifestVersion != manifestVersionStr)
+                        {
+                            errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                                ManifestError::InconsistentMultiFileManifestFieldValue, "ManifestVersion", localManifestVersion, entry.FileName));
+                        }
+
+                        std::string manifestTypeStr = entry.Root["ManifestType"sv].as<std::string>();
+                        ManifestTypeEnum manifestType = ConvertToManifestTypeEnum(manifestTypeStr);
+                        entry.ManifestType = manifestType;
+
+                        switch (manifestType)
+                        {
+                        case ManifestTypeEnum::Version:
+                            if (isVersionManifestFound)
+                            {
+                                errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                                    ManifestError::DuplicateMultiFileManifestType, "ManifestType", manifestTypeStr, entry.FileName));
+                            }
+                            else
+                            {
+                                isVersionManifestFound = true;
+                                defaultLocaleFromVersionManifest = entry.Root["DefaultLocale"sv].as<std::string>();
+                            }
+                            break;
+                        case ManifestTypeEnum::Installer:
+                            if (isInstallerManifestFound)
+                            {
+                                errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                                    ManifestError::DuplicateMultiFileManifestType, "ManifestType", manifestTypeStr, entry.FileName));
+                            }
+                            else
+                            {
+                                isInstallerManifestFound = true;
+                            }
+                            break;
+                        case ManifestTypeEnum::DefaultLocale:
+                            if (isDefaultLocaleManifestFound)
+                            {
+                                errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                                    ManifestError::DuplicateMultiFileManifestType, "ManifestType", manifestTypeStr, entry.FileName));
+                            }
+                            else
+                            {
+                                isDefaultLocaleManifestFound = true;
+                                auto packageLocale = entry.Root["PackageLocale"sv].as<std::string>();
+                                defaultLocaleFromDefaultLocaleManifest = packageLocale;
+
+                                if (localesSet.find(packageLocale) != localesSet.end())
+                                {
+                                    errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                                        ManifestError::DuplicateMultiFileManifestLocale, "PackageLocale", packageLocale, entry.FileName));
+                                }
+                                else
+                                {
+                                    localesSet.insert(packageLocale);
+                                }
+                            }
+                            break;
+                        case ManifestTypeEnum::Locale:
+                        {
+                            auto packageLocale = entry.Root["PackageLocale"sv].as<std::string>();
+                            if (localesSet.find(packageLocale) != localesSet.end())
+                            {
+                                errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                                    ManifestError::DuplicateMultiFileManifestLocale, "PackageLocale", packageLocale, entry.FileName));
+                            }
+                            else
+                            {
+                                localesSet.insert(packageLocale);
+                            }
+                        }
+                        break;
+                        default:
+                            errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                                ManifestError::UnsupportedMultiFileManifestType, "ManifestType", manifestTypeStr, entry.FileName));
+                        }
+                    }
+
+                    if (isVersionManifestFound && isDefaultLocaleManifestFound && defaultLocaleFromDefaultLocaleManifest != defaultLocaleFromVersionManifest)
+                    {
+                        errors.emplace_back(ManifestError::InconsistentMultiFileManifestDefaultLocale);
+                    }
+
+                    if (!schemaValidationOnly && !(isVersionManifestFound && isInstallerManifestFound && isDefaultLocaleManifestFound))
+                    {
+                        errors.emplace_back(ManifestError::IncompleteMultiFileManifest);
+                    }
+                }
+                else
                 {
                     std::string manifestTypeStr = firstYamlManifest.Root["ManifestType"sv].as<std::string>();
                     ManifestTypeEnum manifestType = ConvertToManifestTypeEnum(manifestTypeStr);
@@ -200,10 +273,6 @@ namespace AppInstaller::Manifest::YamlParser
                     {
                         errors.emplace_back(ValidationError::MessageWithFile(ManifestError::IncompleteMultiFileManifest, firstYamlManifest.FileName));
                     }
-                }
-                else
-                {
-                    firstYamlManifest.ManifestType = ManifestTypeEnum::Preview;
                 }
             }
 

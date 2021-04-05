@@ -10,6 +10,7 @@
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::Settings;
     using namespace AppInstaller::Utility::literals;
 
     void GetSourceList(Execution::Context& context)
@@ -166,6 +167,8 @@ namespace AppInstaller::CLI::Workflow
 
     void RemoveSources(Execution::Context& context)
     {
+        // TODO: We currently only allow removing a single source. If that changes,
+        //       we need to check all sources with the Group Policy before removing any of them.
         if (!context.Args.Contains(Args::Type::SourceName))
         {
             context.Reporter.Info() << Resource::String::SourceRemoveAll << std::endl;
@@ -182,7 +185,7 @@ namespace AppInstaller::CLI::Workflow
 
     void QueryUserForSourceReset(Execution::Context& context)
     {
-        if (!context.Args.Contains(Execution::Args::Type::Force))
+        if (!context.Args.Contains(Execution::Args::Type::ForceSourceReset))
         {
             context << GetSourceListWithFilter;
             const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
@@ -214,5 +217,28 @@ namespace AppInstaller::CLI::Workflow
         context.Reporter.Info() << Resource::String::SourceResetAll;
         Repository::DropSource({});
         context.Reporter.Info() << Resource::String::Done << std::endl;
+    }
+
+    void ExportSourceList(Execution::Context& context)
+    {
+        const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
+
+        if (sources.empty())
+        {
+            context.Reporter.Info() << Resource::String::SourceListNoSources << std::endl;
+        }
+        else
+        {
+            for (const auto& source : sources)
+            {
+                SourceFromPolicy s;
+                s.Name = source.Name;
+                s.Type = source.Type;
+                s.Arg = source.Arg;
+                s.Data = source.Data;
+                s.Identifier = source.Identifier;
+                context.Reporter.Info() << s.ToJsonString() << std::endl;
+            }
+        }
     }
 }

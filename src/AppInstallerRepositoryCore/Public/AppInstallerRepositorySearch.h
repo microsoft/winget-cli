@@ -165,7 +165,7 @@ namespace AppInstaller::Repository
         virtual std::vector<Utility::LocIndString> GetMultiProperty(PackageVersionMultiProperty property) const = 0;
 
         // Gets the manifest of this package version.
-        virtual Manifest::Manifest GetManifest() const = 0;
+        virtual Manifest::Manifest GetManifest() = 0;
 
         // Gets the source where this package version is from.
         virtual std::shared_ptr<const ISource> GetSource() const = 0;

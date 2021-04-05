@@ -1,5 +1,6 @@
 PackageIdentifier: AppInstallerCliTest.TestInstaller
 PackageVersion: 1.0.0.0
+PackageLocale: en-US
 PackageName: AppInstaller Test Installer
 Publisher: Microsoft Corporation
 Moniker: AICLITestExe

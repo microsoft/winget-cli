@@ -244,6 +244,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Public\winget\GroupPolicy.h" />
     <ClInclude Include="HttpStream\HttpClientWrapper.h" />
     <ClInclude Include="HttpStream\HttpLocalCache.h" />
     <ClInclude Include="HttpStream\HttpRandomAccessStream.h" />
@@ -280,6 +281,7 @@
     <ClInclude Include="Public\winget\Regex.h" />
     <ClInclude Include="Public\winget\Registry.h" />
     <ClInclude Include="Public\winget\ManifestSchemaValidation.h" />
+    <ClInclude Include="Public\winget\Resources.h" />
     <ClInclude Include="Public\winget\Settings.h" />
     <ClInclude Include="Public\winget\UserSettings.h" />
     <ClInclude Include="Public\winget\Yaml.h" />
@@ -289,6 +291,7 @@
     <ClInclude Include="YamlWrapper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GroupPolicy.cpp" />
     <ClCompile Include="AppInstallerLogging.cpp" />
     <ClCompile Include="AppInstallerStrings.cpp" />
     <ClCompile Include="DateTime.cpp" />

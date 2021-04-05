@@ -104,7 +104,6 @@ IConfiguration
 IHost
 IID
 IInstalled
-incosistencies
 IName
 INET
 inor
@@ -212,6 +211,7 @@ SRL
 srs
 Standalone
 startswith
+streambuf
 strtoull
 subdir
 subkey
@@ -244,13 +244,9 @@ UPSERT
 URIs
 URLZONE
 userfilesetting
-usersettingstest
 USHORT
 Utils
 UWP
-validator
-valijson
-valueiterator
 vamus
 VERSI
 VERSIE
@@ -269,8 +265,9 @@ wingetdev
 winreg
 withstarts
 wn
-wsv
 Workflows
+WSL
+wsv
 wto
 Wunused
 WZDNCRFJ
