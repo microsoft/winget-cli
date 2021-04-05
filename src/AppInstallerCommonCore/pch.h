@@ -14,19 +14,6 @@
 
 #include "TraceLogging.h"
 
-#define YAML_DECLARE_STATIC
-#include <yaml.h>
-
-#include <json.h>
-
-#pragma warning( push )
-#pragma warning ( disable : 4458 4100 4702 )
-#include <valijson/schema.hpp>
-#include <valijson/schema_parser.hpp>
-#include <valijson/validator.hpp>
-#include <valijson/adapters/jsoncpp_adapter.hpp>
-#pragma warning( pop )
-
 #include <algorithm>
 #include <chrono>
 #include <cwctype>
@@ -47,6 +34,19 @@
 #include <string_view>
 #include <type_traits>
 #include <vector>
+
+#define YAML_DECLARE_STATIC
+#include <yaml.h>
+
+#include <json.h>
+
+#pragma warning( push )
+#pragma warning ( disable : 4458 4100 4702 )
+#include <valijson/schema.hpp>
+#include <valijson/schema_parser.hpp>
+#include <valijson/validator.hpp>
+#include <valijson/adapters/jsoncpp_adapter.hpp>
+#pragma warning( pop )
 
 #include <wil/resource.h>
 #include <wil/result_macros.h>

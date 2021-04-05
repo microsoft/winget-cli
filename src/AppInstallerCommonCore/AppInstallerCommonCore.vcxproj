@@ -217,7 +217,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD;WINGET_DISABLE_FOR_FUZZING</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD;WINGET_DISABLE_FOR_FUZZING;_SILENCE_CLANG_COROUTINE_MESSAGE</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -231,7 +231,7 @@
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM64'">stdcpp17</LanguageStandard>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">stdcpp17</LanguageStandard>
       <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">MultiThreaded</RuntimeLibrary>
-      <AdditionalOptions>%(AdditionalOptions) -fsanitize=fuzzer,address</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) -fsanitize=fuzzer,address -Wno-unused-parameter -Wno-defaulted-function-deleted -Wno-switch</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -291,7 +291,12 @@
     <ClInclude Include="YamlWrapper.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GroupPolicy.cpp" />
+    <ClCompile Include="GroupPolicy.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="AppInstallerLogging.cpp" />
     <ClCompile Include="AppInstallerStrings.cpp" />
     <ClCompile Include="DateTime.cpp" />

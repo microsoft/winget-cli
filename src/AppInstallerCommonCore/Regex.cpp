@@ -57,6 +57,7 @@ namespace AppInstaller::Regex
         impl& operator=(const impl& other)
         {
             *this = impl{ other };
+            return *this;
         }
 
         impl(impl&&) = default;

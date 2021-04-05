@@ -52,7 +52,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(LLVMInstallDir)\lib\clang\10.0.0\lib\windows\clang_rt.asan-preinit-x86_64.lib;$(LLVMInstallDir)\lib\clang\10.0.0\lib\windows\clang_rt.asan-x86_64.lib;$(LLVMInstallDir)\lib\clang\10.0.0\lib\windows\clang_rt.asan_cxx-x86_64.lib;$(LLVMInstallDir)\lib\clang\10.0.0\lib\windows\clang_rt.fuzzer-x86_64.lib;icuuc.lib;icuin.lib;urlmon.lib;Bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(LLVMInstallDir)\lib\clang\$(LLVMToolsVersion)\lib\windows\clang_rt.asan-preinit-x86_64.lib;$(LLVMInstallDir)\lib\clang\$(LLVMToolsVersion)\lib\windows\clang_rt.asan-x86_64.lib;$(LLVMInstallDir)\lib\clang\$(LLVMToolsVersion)\lib\windows\clang_rt.asan_cxx-x86_64.lib;$(LLVMInstallDir)\lib\clang\$(LLVMToolsVersion)\lib\windows\clang_rt.fuzzer-x86_64.lib;icuuc.lib;icuin.lib;urlmon.lib;Bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

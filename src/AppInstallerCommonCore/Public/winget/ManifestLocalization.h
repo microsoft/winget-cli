@@ -44,7 +44,7 @@ namespace AppInstaller::Manifest
 
         // Used to deduce the LocalizationVariant type; making a variant that includes std::monostate and all LocalizationMapping types.
         template <size_t... I>
-        inline auto Deduce(std::index_sequence<I...>) { return std::variant<std::monostate, LocalizationMapping<static_cast<Localization>(I)>::value_t...>{}; }
+        inline auto Deduce(std::index_sequence<I...>) { return std::variant<std::monostate, typename LocalizationMapping<static_cast<Localization>(I)>::value_t...>{}; }
 
         // Holds data of any type listed in a LocalizationMapping.
         using LocalizationVariant = decltype(Deduce(std::make_index_sequence<static_cast<size_t>(Localization::Max)>()));

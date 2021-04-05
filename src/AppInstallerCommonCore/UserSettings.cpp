@@ -70,20 +70,20 @@ namespace AppInstaller::Settings
         template <Setting S>
         std::optional<typename details::SettingMapping<S>::policy_t> GetValueFromPolicy(int)
         {
-            // return std::nullopt;
             return GroupPolicies().GetValue<details::SettingMapping<S>::Policy>();
         }
 
         template <Setting S>
         std::optional<typename details::SettingMapping<S>::json_t> GetValueFromPolicy(long)
         {
-            using T = decltype(std::declval<details::SettingMapping<S>::json_t>());
             return std::nullopt;
         }
 
         template <Setting S>
         std::optional<typename details::SettingMapping<S>::json_t> GetValueFromPolicy()
         {
+            // Use SFINAE to choose the int version for settings with Policy defined,
+            // and the long version for settings without a Policy.
             return GetValueFromPolicy<S>(0);
         }
 
