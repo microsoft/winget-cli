@@ -42,7 +42,7 @@ jobs:
       teamId: $(tdbuildTeamId)
       authId: $(tdbuildAuthId)
       authKey: $(tdbuildAuthKey)
-      isPreview: true # TODO: Set to false after validation
+      isPreview: false
       relativePathRoot: doc\admx\en-US
       resourceFilePath: '*.adml'
       outputDirectoryRoot: doc\admx
