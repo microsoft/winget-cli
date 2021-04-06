@@ -54,11 +54,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         }
     }
 
-    Interface::Interface(const std::string& restApi)
+    Interface::Interface(const std::string& restApi, HttpClientHelper&& httpClientHelper)
     {
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(JsonHelper::GetUtilityString(restApi)));
 
         m_restApiUri = restApi;
+        m_httpClientHelper = std::move(httpClientHelper);
         m_searchEndpoint = GetSearchEndpoint(m_restApiUri);
         m_requiredRestApiHeaders.emplace_back(
             std::pair(JsonHelper::GetUtilityString(ContractVersion), JsonHelper::GetUtilityString(GetVersion().ToString())));
@@ -78,8 +79,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         }
 
         // TODO: Handle continuation token
-        HttpClientHelper clientHelper{ m_searchEndpoint };
-        std::optional<web::json::value> jsonObject = clientHelper.HandlePost(GetSearchBody(request), m_requiredRestApiHeaders);
+        std::optional<web::json::value> jsonObject = GetHttpClientHelper().HandlePost(
+            m_searchEndpoint, GetSearchBody(request), m_requiredRestApiHeaders);
 
         if (!jsonObject)
         {
@@ -159,8 +160,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     std::vector<Manifest::Manifest> Interface::GetManifests(const std::string& packageId, const std::map<std::string_view, std::string>& params) const
     {
         std::vector<Manifest::Manifest> results;
-        HttpClientHelper clientHelper{ GetManifestByVersionEndpoint(m_restApiUri, packageId, params) };
-        std::optional<web::json::value> jsonObject = clientHelper.HandleGet(m_requiredRestApiHeaders);
+        std::optional<web::json::value> jsonObject = GetHttpClientHelper().HandleGet(GetManifestByVersionEndpoint(m_restApiUri, packageId, params), m_requiredRestApiHeaders);
 
         if (!jsonObject)
         {
@@ -194,5 +194,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         }
 
         return results;
+    }
+
+    HttpClientHelper Interface::GetHttpClientHelper() const
+    {
+        return m_httpClientHelper;
     }
 }

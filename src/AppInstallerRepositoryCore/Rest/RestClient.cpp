@@ -41,11 +41,10 @@ namespace AppInstaller::Repository::Rest
         return endpoint;
     }
 
-    Version RestClient::GetSupportedVersion(const utility::string_t& restApi, const std::set<Version>& wingetSupportedVersions)
+    Version RestClient::GetSupportedVersion(const utility::string_t& restApi, const std::set<Version>& wingetSupportedVersions, HttpClientHelper&& clientHelper)
     {
         // Call information endpoint
-        HttpClientHelper httpClientHelper{ GetInformationEndpoint(restApi) };
-        std::optional<web::json::value> response = httpClientHelper.HandleGet();
+        std::optional<web::json::value> response = clientHelper.HandleGet(GetInformationEndpoint(restApi));
 
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !response);
 
@@ -83,18 +82,19 @@ namespace AppInstaller::Repository::Rest
     {
         if (version == Version_0_2_0 || version == Version_1_0_0)
         {
-            return std::make_unique<Schema::V1_0::Interface>(api);
+            HttpClientHelper helper{};
+            return std::make_unique<Schema::V1_0::Interface>(api, std::move(helper));
         }
        
         THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
     }
 
-    RestClient RestClient::Create(const std::string& restApi)
+    RestClient RestClient::Create(const std::string& restApi, HttpClientHelper&& helper)
     {
         utility::string_t restEndpoint = RestHelper::GetRestAPIBaseUri(restApi);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(restEndpoint));
 
-        Version version = GetSupportedVersion(restEndpoint, WingetSupportedContracts);
+        Version version = GetSupportedVersion(restEndpoint, WingetSupportedContracts, std::move(helper));
         std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedInterface(utility::conversions::to_utf8string(restEndpoint), version);
         return RestClient{ std::move(supportedInterface) };
     }

@@ -39,3 +39,32 @@ TEST_CASE("GetSupportedInterface", "[RestSource]")
     Version invalid{ "1.2.0" };
     REQUIRE_THROWS(RestClient::GetSupportedInterface("https://restsource.net", invalid));
 }
+
+TEST_CASE("GetSupportedVersion", "[RestSource]")
+{
+    class customHandler : public web::http::http_pipeline_stage
+    {
+    public:
+        virtual pplx::task<web::http::http_response> propagate(web::http::http_request request)
+        {
+            web::json::value data;
+            data[L"SourceIdentifier"] = web::json::value::string(L"Source123");
+            web::json::value versions = web::json::value::array();
+            versions[0] = web::json::value::string(L"0.2.0");
+            data[L"ServerSupportedVersions"] = versions;
+            web::json::value result;
+            result[L"Data"] = data;
+
+            web::http::http_response response;
+            response.set_body(result);
+            response.set_status_code(web::http::status_codes::OK);
+            return pplx::task_from_result(response);
+        }
+    };
+
+    HttpClientHelper helper{ std::make_shared<customHandler>() };
+    utility::string_t restApi = L"http://restsource.net";
+    std::set<AppInstaller::Utility::Version> wingetSupportedContracts = { Version {"1.3.0"}, Version {"0.2.0"}, Version {"1.2.0"} };
+    REQUIRE(RestClient::GetSupportedVersion(restApi, wingetSupportedContracts, std::move(helper)) == Version{ "0.2.0" });
+}
+
