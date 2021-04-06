@@ -94,15 +94,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packages", "packages", "{F5
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "policy", "policy", "{1A47951F-5C7A-4D6D-BB5F-D77484437940}"
 	ProjectSection(SolutionItems) = preProject
-<<<<<<< HEAD
 		..\doc\admx\en-US\DesktopAppInstaller.adml = ..\doc\admx\en-US\DesktopAppInstaller.adml
 		..\doc\admx\DesktopAppInstaller.admx = ..\doc\admx\DesktopAppInstaller.admx
-=======
-		..\doc\admx\en-US\WindowsAppInstaller.adml = ..\doc\admx\en-US\WindowsAppInstaller.adml
-		..\doc\admx\WindowsAppInstaller.admx = ..\doc\admx\WindowsAppInstaller.admx
-		..\doc\admx\en-US\WindowsPackageManager.adml = ..\doc\admx\en-US\WindowsPackageManager.adml
-		..\doc\admx\WindowsPackageManager.admx = ..\doc\admx\WindowsPackageManager.admx
->>>>>>> Fix errors
 	EndProjectSection
 EndProject
 Global
