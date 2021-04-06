@@ -17,6 +17,7 @@ namespace AppInstaller::Settings
     // made up of sub-keys for settings that are lists.
     enum class ValuePolicy
     {
+        None,
         SourceAutoUpdateIntervalInMinutes,
         AdditionalSources,
         AllowedSources,
@@ -101,11 +102,22 @@ namespace AppInstaller::Settings
             //  ReadAndValidateItem() - Function that reads a single item from a subkey
         };
 
+        template<>
+        struct ValuePolicyMapping<ValuePolicy::None>
+        {
+            using value_t = std::monostate;
+            using opt_value_t = std::nullopt_t;
+            using opt_ref_value_t = std::nullopt_t;
+            static std::nullopt_t ReadAndValidate(const Registry::Key& policiesKey);
+        };
+
 #define POLICY_MAPPING_SPECIALIZATION(_policy_, _type_, _extra_) \
         template <> \
         struct ValuePolicyMapping<_policy_> \
         { \
             using value_t = _type_; \
+            using opt_value_t = std::optional<value_t>; \
+            using opt_ref_value_t = std::optional<std::reference_wrapper<const value_t>>; \
             static std::optional<value_t> ReadAndValidate(const Registry::Key& policiesKey); \
             _extra_ \
         }
@@ -153,7 +165,7 @@ namespace AppInstaller::Settings
 
         // Gets the policy value if it is present
         template<ValuePolicy P>
-        std::optional<ValueType<P>> GetValue() const
+        typename details::ValuePolicyMapping<P>::opt_value_t GetValue() const
         {
             if (m_values.Contains(P))
             {
@@ -166,7 +178,7 @@ namespace AppInstaller::Settings
         }
 
         template<ValuePolicy P>
-        std::optional<std::reference_wrapper<const ValueType<P>>> GetValueRef() const
+        typename details::ValuePolicyMapping<P>::opt_ref_value_t GetValueRef() const
         {
             if (m_values.Contains(P))
             {
@@ -176,6 +188,18 @@ namespace AppInstaller::Settings
             {
                 return std::nullopt;
             }
+        }
+
+        template<>
+        std::nullopt_t GetValue<ValuePolicy::None>() const
+        {
+            return std::nullopt;
+        }
+
+        template<>
+        std::nullopt_t GetValueRef<ValuePolicy::None>() const
+        {
+            return std::nullopt;
         }
 
         PolicyState GetState(TogglePolicy::Policy policy) const;

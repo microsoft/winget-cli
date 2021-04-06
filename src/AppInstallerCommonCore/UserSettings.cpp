@@ -68,23 +68,9 @@ namespace AppInstaller::Settings
         }
 
         template <Setting S>
-        std::optional<typename details::SettingMapping<S>::policy_t> GetValueFromPolicy(int)
-        {
-            // return std::nullopt;
-            return GroupPolicies().GetValue<details::SettingMapping<S>::Policy>();
-        }
-
-        template <Setting S>
-        std::optional<typename details::SettingMapping<S>::json_t> GetValueFromPolicy(long)
-        {
-            using T = decltype(std::declval<details::SettingMapping<S>::json_t>());
-            return std::nullopt;
-        }
-
-        template <Setting S>
         std::optional<typename details::SettingMapping<S>::json_t> GetValueFromPolicy()
         {
-            return GetValueFromPolicy<S>(0);
+            return GroupPolicies().GetValue<details::SettingMapping<S>::Policy>();
         }
 
         template <Setting S>

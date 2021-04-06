@@ -84,9 +84,7 @@ namespace AppInstaller::Settings
         }
 
         template <ValuePolicy P>
-        void Validate(
-            const Registry::Key& policiesKey,
-            GroupPolicy::ValuePoliciesMap& policies)
+        void Validate(const Registry::Key& policiesKey, GroupPolicy::ValuePoliciesMap& policies)
         {
             auto value = details::ValuePolicyMapping<P>::ReadAndValidate(policiesKey);
             if (value.has_value())
@@ -94,6 +92,9 @@ namespace AppInstaller::Settings
                 policies.Add<P>(std::move(*value));
             }
         }
+
+        template <>
+        void Validate<ValuePolicy::None>(const Registry::Key&, GroupPolicy::ValuePoliciesMap&) {};
 
         template <size_t... P>
         void ValidateAllValuePolicies(
@@ -199,6 +200,11 @@ namespace AppInstaller::Settings
 
         POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AdditionalSources);
         POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AllowedSources);
+
+        std::nullopt_t ValuePolicyMapping<ValuePolicy::None>::ReadAndValidate(const Registry::Key&)
+        {
+            return std::nullopt;
+        }
 
         std::optional<uint32_t> ValuePolicyMapping<ValuePolicy::SourceAutoUpdateIntervalInMinutes>::ReadAndValidate(const Registry::Key& policiesKey)
         {
