@@ -70,8 +70,8 @@ namespace AppInstallerCLIE2ETests
         private string elementId;
 
         // Policies available.
-        public static GroupPolicyHelper EnableWinget = new GroupPolicyHelper("EnableWindowsPackageManager");
-        public static GroupPolicyHelper EnableSettings = new GroupPolicyHelper("EnableWindowsPackageManagerSettings");
+        public static GroupPolicyHelper EnableWinget = new GroupPolicyHelper("EnableAppInstaller");
+        public static GroupPolicyHelper EnableSettings = new GroupPolicyHelper("EnableSettings");
         public static GroupPolicyHelper EnableExperimentalFeatures = new GroupPolicyHelper("EnableExperimentalFeatures");
         public static GroupPolicyHelper EnableLocalManifests = new GroupPolicyHelper("EnableLocalManifestFiles");
         public static GroupPolicyHelper EnableHashOverride = new GroupPolicyHelper("EnableHashOverride");
