@@ -138,6 +138,5 @@
     "ShortDescription",
     "ManifestType",
     "ManifestVersion"
-  ],
-  "additionalProperties": false
+  ]
 }

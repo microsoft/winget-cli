@@ -134,6 +134,5 @@
     "PackageLocale",
     "ManifestType",
     "ManifestVersion"
-  ],
-  "additionalProperties": false
+  ]
 }
