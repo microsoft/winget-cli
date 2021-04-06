@@ -9,7 +9,7 @@ namespace AppInstallerCLIE2ETests
     /// Tests for enforcement of Group Policy.
     /// Behavior is better tested in the unit tests; these tests mostly ensure match between the code and the definition.
     /// </summary>
-    public class GroupPolicyTests : BaseCommand
+    public class GroupPolicy : BaseCommand
     {
         [SetUp]
         public void Setup()
@@ -29,8 +29,8 @@ namespace AppInstallerCLIE2ETests
         public void PolicyEnableWinget()
         {
             GroupPolicyHelper.EnableWinget.Disable();
-            var result = TestCommon.RunAICLICommand("upgrade", string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            var result = TestCommon.RunAICLICommand("search", string.Empty);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 
         [Test]
@@ -38,7 +38,7 @@ namespace AppInstallerCLIE2ETests
         {
             GroupPolicyHelper.EnableSettings.Disable();
             var result = TestCommon.RunAICLICommand("settings", string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 
         [Test]
@@ -48,9 +48,11 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("experimental", string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
+            // An experimental feature disabled by Group Policy behaves the same as one that is not enabled.
+            // The expected result is a command line error as the argument validation rejects this.
             GroupPolicyHelper.EnableExperimentalFeatures.Disable();
             result = TestCommon.RunAICLICommand("experimental", string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS, result.ExitCode);
         }
 
         [Test]
@@ -58,15 +60,15 @@ namespace AppInstallerCLIE2ETests
         {
             GroupPolicyHelper.EnableLocalManifests.Disable();
             var result = TestCommon.RunAICLICommand("install", $"-m {TestCommon.GetTestDataFile(@"Manifests\TestExeInstaller.yaml")}");
-            Assert.AreEqual(Constants.ErrorCode.APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 
         [Test]
         public void EnableHashOverride()
         {
             GroupPolicyHelper.EnableHashOverride.Disable();
-            var result = TestCommon.RunAICLICommand("install", "AnyPackage --foce");
-            Assert.AreEqual(Constants.ErrorCode.APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+            var result = TestCommon.RunAICLICommand("install", "AnyPackage --force");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 
         [Test]
@@ -82,13 +84,13 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void EnableMSStoreSource()
+        public void EnableMicrosoftStoreSource()
         {
             // Default sources are disabled during setup so they are missing.
             var result = TestCommon.RunAICLICommand("source list", "msstore");
             Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
 
-            GroupPolicyHelper.EnableMSStoreSource.Enable();
+            GroupPolicyHelper.EnableMicrosoftStoreSource.Enable();
             result = TestCommon.RunAICLICommand("source list", "msstore");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
         }
@@ -126,7 +128,7 @@ namespace AppInstallerCLIE2ETests
             });
 
             result = TestCommon.RunAICLICommand("source list", "TestSource");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
 
             // With the test source allowed:
             GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new string[]
@@ -145,7 +147,7 @@ namespace AppInstallerCLIE2ETests
             GroupPolicyHelper.SourceAutoUpdateInterval.SetEnabledValue(123);
             var result = TestCommon.RunAICLICommand(string.Empty, "--info");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.IsTrue(result.StdOut.Contains("Source Auto Update Inverval In Minutes 123"));
+            Assert.IsTrue(result.StdOut.Contains("Source Auto Update Interval In Minutes 123"));
         }
     }
 }

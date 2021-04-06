@@ -21,8 +21,8 @@ namespace AppInstaller::Settings
             if (!GroupPolicies().IsEnabled(TogglePolicy::Policy::ExperimentalFeatures))
             {
                 AICLI_LOG(Core, Info, <<
-                    "Experimental feature " << ExperimentalFeature::GetFeature(feature).Name() <<
-                    " is disabled due to group policy" << TogglePolicy::GetPolicy(TogglePolicy::Policy::ExperimentalFeatures).RegValueName());
+                    "Experimental feature '" << ExperimentalFeature::GetFeature(feature).Name() <<
+                    "' is disabled due to group policy: " << TogglePolicy::GetPolicy(TogglePolicy::Policy::ExperimentalFeatures).RegValueName());
                 return false;
             }
 
@@ -35,6 +35,12 @@ namespace AppInstaller::Settings
             case ExperimentalFeature::Feature::ExperimentalArg:
                 return userSettings.Get<Setting::EFExperimentalArg>();
             case ExperimentalFeature::Feature::ExperimentalMSStore:
+                if (GroupPolicies().GetState(TogglePolicy::Policy::MSStoreSource) == PolicyState::Enabled)
+                {
+                    // Force enable the feature
+                    return true;
+                }
+
                 return userSettings.Get<Setting::EFExperimentalMSStore>();
             case ExperimentalFeature::Feature::ExperimentalList:
                 return userSettings.Get<Setting::EFList>();

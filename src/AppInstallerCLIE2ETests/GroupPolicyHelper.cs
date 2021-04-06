@@ -21,7 +21,7 @@ namespace AppInstallerCLIE2ETests
     public class GroupPolicyHelper
     {
         private const string PoliciesDefinitionFileName = "WindowsAppInstaller.admx";
-        private static Lazy<XElement> policiesDefinition = new Lazy<XElement>(() =>
+        private static Lazy<XElement> policyDefinitions = new Lazy<XElement>(() =>
         {
             string filePath = TestCommon.GetTestDataFile(PoliciesDefinitionFileName);
             string fileText = File.ReadAllText(filePath);
@@ -35,7 +35,9 @@ namespace AppInstallerCLIE2ETests
         {
             private const string Namespace = "http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions";
 
+            // Root element
             public static readonly XName PolicyDefinitions = XName.Get("policyDefinitions", Namespace);
+
             public static readonly XName Policies = XName.Get("policies", Namespace);
             public static readonly XName Policy = XName.Get("policy", Namespace);
 
@@ -48,11 +50,11 @@ namespace AppInstallerCLIE2ETests
 
             public static class Attributes
             {
-                public static readonly XName Name = XName.Get("name", Namespace);
-                public static readonly XName Value = XName.Get("value", Namespace);
-                public static readonly XName Id = XName.Get("id", Namespace);
-                public static readonly XName Key = XName.Get("key", Namespace);
-                public static readonly XName ValueName = XName.Get("valueName", Namespace);
+                public const string Name = "name";
+                public const string Value = "value";
+                public const string Id = "id";
+                public const string Key = "key";
+                public const string ValueName = "valueName";
             }
         }
 
@@ -74,7 +76,7 @@ namespace AppInstallerCLIE2ETests
         public static GroupPolicyHelper EnableLocalManifests = new GroupPolicyHelper("EnableLocalManifestFiles");
         public static GroupPolicyHelper EnableHashOverride = new GroupPolicyHelper("EnableHashOverride");
         public static GroupPolicyHelper EnableDefaultSource = new GroupPolicyHelper("EnableDefaultSource");
-        public static GroupPolicyHelper EnableMSStoreSource = new GroupPolicyHelper("EnableMSStoreSource");
+        public static GroupPolicyHelper EnableMicrosoftStoreSource = new GroupPolicyHelper("EnableMicrosoftStoreSource");
         public static GroupPolicyHelper EnableAdditionalSources = new GroupPolicyHelper("EnableAdditionalSources", "AdditionalSources");
         public static GroupPolicyHelper EnableAllowedSources = new GroupPolicyHelper("EnableAllowedSources", "AllowedSources");
         public static GroupPolicyHelper SourceAutoUpdateInterval = new GroupPolicyHelper("SourceAutoUpdateIntervalInMinutes", "SourceAutoUpdateIntervalInMinutes");
@@ -87,7 +89,7 @@ namespace AppInstallerCLIE2ETests
             EnableLocalManifests,
             EnableHashOverride,
             EnableDefaultSource,
-            EnableMSStoreSource,
+            EnableMicrosoftStoreSource,
             EnableAdditionalSources,
             EnableAllowedSources,
             SourceAutoUpdateInterval,
@@ -107,7 +109,7 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Gets the content of the ADMX file as an XML.
         /// </summary>
-        private static XElement PoliciesDefinition => policiesDefinition.Value;
+        private static XElement PolicyDefinitions => policyDefinitions.Value;
 
         /// <summary>
         /// Gets the XML element that defines this policy.
@@ -119,8 +121,7 @@ namespace AppInstallerCLIE2ETests
         //     <policy name="..." ... />
         //   </policies>
         // </policyDefinitions>
-        private XElement PolicyElement => PoliciesDefinition
-            .Element(XmlNames.PolicyDefinitions)
+        private XElement PolicyElement => PolicyDefinitions
             .Element(XmlNames.Policies)
             .Elements(XmlNames.Policy)
             .First(policy => policy.Attribute(XmlNames.Attributes.Name).Value == this.name);
@@ -133,7 +134,7 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Gets the name of the registry value that backs this policy.
         /// </summary>
-        private string ValueName => this.PolicyElement.Attribute(XmlNames.Attributes.ValueName).Value;
+        private string ValueName => this.PolicyElement.Attribute(XmlNames.Attributes.ValueName)?.Value;
 
         /// <summary>
         /// Gets the XElement that defines the single value element of this policy.
@@ -209,7 +210,7 @@ namespace AppInstallerCLIE2ETests
             {
                 using (RegistryKey key = this.GetKey())
                 {
-                    key.DeleteValue(this.ValueName);
+                    key.DeleteValue(this.ValueName, throwOnMissingValue: false);
                 }
             }
 
@@ -219,14 +220,14 @@ namespace AppInstallerCLIE2ETests
                 if (this.ValueElement.Name == XmlNames.List)
                 {
                     // Lists are stored in separate keys.
-                    Registry.LocalMachine.DeleteSubKeyTree(this.ValueElement.Attribute(XmlNames.Attributes.Key).Value);
+                    Registry.LocalMachine.DeleteSubKeyTree(this.ValueElement.Attribute(XmlNames.Attributes.Key).Value, throwOnMissingSubKey: false);
                 }
                 else if (this.ValueElement.Name == XmlNames.Decimal)
                 {
                     // Decimals are stored in single values
                     using (RegistryKey key = this.GetKey())
                     {
-                        key.DeleteValue(this.ValueElement.Attribute(XmlNames.Attributes.ValueName).Value);
+                        key.DeleteValue(this.ValueElement.Attribute(XmlNames.Attributes.ValueName).Value, throwOnMissingValue: false);
                     }
                 }
             }
@@ -260,7 +261,7 @@ namespace AppInstallerCLIE2ETests
 
             // Delete the existing list
             string listKeyPath = this.ValueElement.Attribute(XmlNames.Attributes.Key).Value;
-            Registry.LocalMachine.DeleteSubKeyTree(listKeyPath);
+            Registry.LocalMachine.DeleteSubKeyTree(listKeyPath, throwOnMissingSubKey: false);
 
             // Create and fill the key.
             // This assumes that the values don't need to have special names or prefixes.
