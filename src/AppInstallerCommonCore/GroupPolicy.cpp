@@ -10,9 +10,9 @@ namespace AppInstaller::Settings
 {
     namespace
     {
-        GroupPolicy& InstanceInternal(std::optional<GroupPolicy*> overridePolicy = {})
+        const GroupPolicy& InstanceInternal(std::optional<GroupPolicy*> overridePolicy = {})
         {
-            static GroupPolicy s_groupPolicy{ Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, "Software\\Policies\\Microsoft\\Windows\\AppInstaller") };
+            const static GroupPolicy s_groupPolicy{ Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, "Software\\Policies\\Microsoft\\Windows\\AppInstaller") };
             static GroupPolicy* s_override = nullptr;
 
             if (overridePolicy.has_value())
