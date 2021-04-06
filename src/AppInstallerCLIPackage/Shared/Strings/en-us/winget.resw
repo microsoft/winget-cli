@@ -908,4 +908,12 @@ Configuration is disabled due to Group Policy.</value>
   <data name="SourceExportCommandShortDescription" xml:space="preserve">
     <value>Export current sources</value>
   </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Additional source</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Allowed source</value>
+    <comment>A source that the user is allowed to add.</comment>
+  </data>
 </root>

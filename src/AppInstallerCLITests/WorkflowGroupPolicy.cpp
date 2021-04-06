@@ -42,7 +42,6 @@ TEST_CASE("GroupPolicy_WinGet", "[groupPolicy]")
         rootCommand.Execute(context);
 
         REQUIRE_FALSE(context.IsTerminated());
-        REQUIRE(output.str().find("Enable Windows Package Manager") != std::string::npos);
     }
 }
 
@@ -88,5 +87,97 @@ TEST_CASE("GroupPolicy_LocalManifests", "[groupPolicy]")
         args.AddArg(Execution::Args::Type::ValidateManifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
         ValidateCommand validateCommand({});
         REQUIRE_NOTHROW(validateCommand.ValidateArguments(args));
+    }
+}
+
+TEST_CASE("GroupPolicy_Info", "[groupPolicy]")
+{
+    GroupPolicyTestOverride policies;
+
+    std::ostringstream output;
+    Execution::Context context{ output, std::cin };
+    context.Args.AddArg(Execution::Args::Type::Info);
+    RootCommand rootCommand({});
+
+    SECTION("Does not list not configured")
+    {
+        rootCommand.Execute(context);
+        INFO(output.str());
+
+        REQUIRE_FALSE(context.IsTerminated());
+        REQUIRE(output.str().find("Group Policy") == std::string::npos);
+    }
+    SECTION("Shows enabled policies")
+    {
+        policies.SetState(TogglePolicy::Policy::HashOverride, PolicyState::Enabled);
+
+        rootCommand.Execute(context);
+        INFO(output.str());
+
+        REQUIRE_FALSE(context.IsTerminated());
+        REQUIRE(output.str().find("Group Policy") != std::string::npos);
+        REQUIRE(output.str().find("Hash Override Enabled") != std::string::npos);
+    }
+    SECTION("Shows disabled policies")
+    {
+        policies.SetState(TogglePolicy::Policy::LocalManifestFiles, PolicyState::Disabled);
+
+        rootCommand.Execute(context);
+        INFO(output.str());
+
+        REQUIRE_FALSE(context.IsTerminated());
+        REQUIRE(output.str().find("Group Policy") != std::string::npos);
+        REQUIRE(output.str().find("Local Manifest Files Disabled") != std::string::npos);
+    }
+    SECTION("Shows auto update interval")
+    {
+        policies.SetValue<ValuePolicy::SourceAutoUpdateIntervalInMinutes>(60);
+
+        rootCommand.Execute(context);
+        INFO(output.str());
+
+        REQUIRE_FALSE(context.IsTerminated());
+        REQUIRE(output.str().find("Group Policy") != std::string::npos);
+        REQUIRE(output.str().find("Source Auto Update Interval In Minutes 60") != std::string::npos);
+    }
+    SECTION("Shows additional sources list")
+    {
+        SourceFromPolicy source;
+        source.Name = "policy-source";
+        source.Type = "Test.Type";
+        source.Arg = "test-arg";
+        policies.SetState(TogglePolicy::Policy::AdditionalSources, PolicyState::Enabled);
+        policies.SetValue<ValuePolicy::AdditionalSources>({ source });
+
+        rootCommand.Execute(context);
+        INFO(output.str());
+
+        REQUIRE_FALSE(context.IsTerminated());
+        REQUIRE(output.str().find("Group Policy") != std::string::npos);
+        REQUIRE(output.str().find("Sources Enabled") != std::string::npos);
+        REQUIRE(output.str().find("Additional source") != std::string::npos);
+        REQUIRE(output.str().find(source.Name) != std::string::npos);
+        REQUIRE(output.str().find(source.Type) != std::string::npos);
+        REQUIRE(output.str().find(source.Arg) != std::string::npos);
+    }
+    SECTION("Shows allowed sources list")
+    {
+        SourceFromPolicy source;
+        source.Name = "allowed-source";
+        source.Type = "Test.Type";
+        source.Arg = "test-arg";
+        policies.SetState(TogglePolicy::Policy::AllowedSources, PolicyState::Enabled);
+        policies.SetValue<ValuePolicy::AllowedSources>({ source });
+
+        rootCommand.Execute(context);
+        INFO(output.str());
+
+        REQUIRE_FALSE(context.IsTerminated());
+        REQUIRE(output.str().find("Group Policy") != std::string::npos);
+        REQUIRE(output.str().find("Allowed Sources Enabled") != std::string::npos);
+        REQUIRE(output.str().find("Allowed source") != std::string::npos);
+        REQUIRE(output.str().find(source.Name) != std::string::npos);
+        REQUIRE(output.str().find(source.Type) != std::string::npos);
+        REQUIRE(output.str().find(source.Arg) != std::string::npos);
     }
 }

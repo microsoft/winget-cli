@@ -18,8 +18,8 @@ namespace AppInstaller::Settings
     enum class ValuePolicy
     {
         SourceAutoUpdateIntervalInMinutes,
-        AdditionalSources, // TODO
-        AllowedSources, // TODO
+        AdditionalSources,
+        AllowedSources,
         Max,
     };
 
@@ -37,8 +37,8 @@ namespace AppInstaller::Settings
             HashOverride,
             DefaultSource,
             MSStoreSource,
-            AdditionalSources, // TODO
-            AllowedSources, // TODO
+            AdditionalSources,
+            AllowedSources,
             Max,
         };
 
