@@ -20,7 +20,7 @@ namespace AppInstallerCLIE2ETests
     /// </remarks>
     public class GroupPolicyHelper
     {
-        private const string PoliciesDefinitionFileName = "WindowsAppInstaller.admx";
+        private const string PoliciesDefinitionFileName = "DesktopAppInstaller.admx";
         private static Lazy<XElement> policyDefinitions = new Lazy<XElement>(() =>
         {
             string filePath = TestCommon.GetTestDataFile(PoliciesDefinitionFileName);
