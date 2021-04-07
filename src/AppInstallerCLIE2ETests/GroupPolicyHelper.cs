@@ -236,7 +236,7 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Sets the value of the policy when enabled.
         /// This uses only the "elements" of the policy, not the "enabledValue".
-        /// The type used in the registry is choosen automatically.
+        /// The type used in the registry is chosen automatically.
         /// </summary>
         /// <param name="value">Value of the policy.</param>
         public void SetEnabledValue(object value)
