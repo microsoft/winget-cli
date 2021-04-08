@@ -322,7 +322,7 @@ jobs:
   - task: BinSkim@3
     displayName: 'Run BinSkim '
     inputs:
-      arguments: 'analyze "$(system.defaultWorkingDirectory)\src\$(buildPlatform)\Release\AppInstallerCLI\*.exe" "$(system.defaultWorkingDirectory)\src\$(buildPlatform)\Release\WinGetUtil\*.dll" --config default --recurse' 
+      arguments: 'analyze "$(system.defaultWorkingDirectory)\src\AppInstallerCLI*.exe" "$(system.defaultWorkingDirectory)\src\WinGetUtil*.dll" --config default --recurse' 
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
     displayName: 'Publish Security Analysis Logs'
