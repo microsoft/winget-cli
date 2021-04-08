@@ -118,7 +118,7 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRuleSet>..\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -227,9 +227,9 @@
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Guard</ControlFlowGuard>
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Guard</ControlFlowGuard>
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Guard</ControlFlowGuard>
-      <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</SDLCheck>
-      <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">false</SDLCheck>
-      <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</SDLCheck>
+      <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</SDLCheck>
+      <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</SDLCheck>
+      <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</SDLCheck>
       <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</SDLCheck>
       <EnablePREfast Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</EnablePREfast>
       <EnablePREfast Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</EnablePREfast>
