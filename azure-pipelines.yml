@@ -39,6 +39,7 @@ jobs:
       workingDirectory: 'src'
 
 - job: 'Build'
+  timeoutInMinutes: 120
   dependsOn: 'GetReleaseTag'
   condition: always()
   variables:
