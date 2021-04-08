@@ -6,8 +6,12 @@
 #include <windows.h>
 #include <urlmon.h>
 
+#pragma warning( push )
+#pragma warning ( disable : 6001 )
 #include <wil/resource.h>
+#include <wil/result.h>
 #include <wil/result_macros.h>
+#pragma warning( pop )
 
 #include <AppInstallerDateTime.h>
 #include <AppInstallerDeployment.h>
@@ -54,3 +58,10 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+
+#pragma warning( push )
+#pragma warning ( disable : 26495 26439 )
+#include <cpprest/http_client.h>
+#include <cpprest/json.h>
+#include <cpprest/uri_builder.h>
+#pragma warning( pop )

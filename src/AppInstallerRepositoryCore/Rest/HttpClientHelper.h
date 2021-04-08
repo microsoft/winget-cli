@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 #pragma once
 #include "pch.h"
-#include "cpprest/http_client.h"
-#include "cpprest/json.h"
 
 namespace AppInstaller::Repository::Rest
 {

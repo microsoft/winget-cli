@@ -37,7 +37,7 @@ namespace AppInstaller::Utility::HttpStream
     private:
         std::shared_ptr<HttpClientWrapper> m_httpHelper;
         std::unique_ptr<HttpLocalCache> m_httpLocalCache;
-        unsigned long long m_size;
-        unsigned long long m_requestedPosition;
+        unsigned long long m_size = 0;
+        unsigned long long m_requestedPosition = 0;
     };
 }

@@ -10,7 +10,7 @@ namespace AppInstaller::Utility::HttpStream
     // Represents an entry in the cache.
     struct CachedPage
     {
-        int lastAccessCounter;
+        int lastAccessCounter = 0;
         winrt::Windows::Storage::Streams::IBuffer buffer;
     };
 

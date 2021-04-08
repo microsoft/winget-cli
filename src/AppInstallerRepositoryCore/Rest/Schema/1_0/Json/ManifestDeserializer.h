@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #pragma once
 #include "pch.h"
-#include "cpprest/json.h"
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 {

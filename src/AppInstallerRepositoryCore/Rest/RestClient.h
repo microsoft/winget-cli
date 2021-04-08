@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #pragma once
 #include <set>
+#include <cpprest/json.h>
 #include "Rest/Schema/IRestClient.h"
-#include "cpprest/json.h"
 
 namespace AppInstaller::Repository::Rest
 {

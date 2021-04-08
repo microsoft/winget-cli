@@ -4,8 +4,6 @@
 #include "Rest/Schema/1_0/Interface.h"
 #include "Rest/Schema/IRestClient.h"
 #include "Rest/HttpClientHelper.h"
-#include "cpprest/http_client.h"
-#include "cpprest/json.h"
 #include "ManifestDeserializer.h"
 #include "Rest/Schema/JsonHelper.h"
 #include "Rest/Schema/1_0/Json/CommonJsonConstants.h"

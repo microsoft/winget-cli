@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #pragma once
 #include "pch.h"
-#include <cpprest/json.h>
 #include "winget/Manifest.h"
 
 namespace AppInstaller::Repository::Rest::Schema
