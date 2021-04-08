@@ -173,7 +173,7 @@ namespace AppInstaller::CLI::Workflow
         catch (const winrt::hresult_error& e)
         {
             if (e.code() == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED) ||
-                HRESULT_FACILITY(e.code()) == FACILITY_HTTP)
+                static_cast<int>(HRESULT_FACILITY(e.code())) == FACILITY_HTTP)
             {
                 // Failed to get signature hash through HttpStream, use download
                 downloadInstead = true;
