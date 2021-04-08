@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 #pragma once
-#include "pch.h"
+
 
 namespace AppInstaller::Utility::HttpStream
 {

@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "pch.h"
+#include <winget/Manifest.h>
+#include <cpprest/json.h>
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 {

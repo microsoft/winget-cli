@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "pch.h"
+#include <string_view>
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 {
