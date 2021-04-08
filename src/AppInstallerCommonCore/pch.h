@@ -49,7 +49,7 @@
 #include <vector>
 
 #pragma warning( push )
-#pragma warning ( disable : 6001 6285 6287 )
+#pragma warning ( disable : 6001 6285 6287 6388 )
 #include <wil/resource.h>
 #include <wil/result.h>
 #include <wil/result_macros.h>

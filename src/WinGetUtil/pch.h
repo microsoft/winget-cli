@@ -6,7 +6,7 @@
 #include <Windows.h>
 
 #pragma warning( push )
-#pragma warning ( disable : 6001 )
+#pragma warning ( disable : 6001 6388 )
 #include <wil/result.h>
 #include <wil/result_macros.h>
 #pragma warning( pop )

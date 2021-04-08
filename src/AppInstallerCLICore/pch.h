@@ -38,7 +38,7 @@
 #include <winrt/Windows.ApplicationModel.Store.Preview.InstallControl.h>
 
 #pragma warning( push )
-#pragma warning ( disable : 6001 6285 )
+#pragma warning ( disable : 6001 6285 6388 )
 #include <wil/result.h>
 #include <wil/result_macros.h>
 #include <wil/safecast.h>
