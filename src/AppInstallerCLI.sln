@@ -92,6 +92,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packages", "packages", "{F5
 		..\schemas\JSON\packages\packages.schema.1.0.json = ..\schemas\JSON\packages\packages.schema.1.0.json
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "policy", "policy", "{1A47951F-5C7A-4D6D-BB5F-D77484437940}"
+	ProjectSection(SolutionItems) = preProject
+		..\doc\admx\en-US\DesktopAppInstaller.adml = ..\doc\admx\en-US\DesktopAppInstaller.adml
+		..\doc\admx\DesktopAppInstaller.admx = ..\doc\admx\DesktopAppInstaller.admx
+	EndProjectSection
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1A5D7A7D-5CB2-47D5-B40D-4E61CAEDC798}"
 	ProjectSection(SolutionItems) = preProject
 		CodeAnalysis.ruleset = CodeAnalysis.ruleset
@@ -482,6 +488,7 @@ Global
 		{F2149997-295A-4593-9282-4C675DFEB670} = {92637527-6CDA-4F4A-84FD-858793776777}
 		{1487DFBB-7C53-4BD3-9B2C-9B94C6C91528} = {F2149997-295A-4593-9282-4C675DFEB670}
 		{F5CED6B6-C27F-4405-9033-6C273B8B129C} = {F2149997-295A-4593-9282-4C675DFEB670}
+		{1A47951F-5C7A-4D6D-BB5F-D77484437940} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6FDB70C-A751-422C-ACD1-E35419495857}
