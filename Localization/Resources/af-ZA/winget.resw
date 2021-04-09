@@ -386,7 +386,7 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
     <value>Filtreer resultate volgens naam</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Geen installeerders is van toepassing op die huidige stelsel nie.</value>
+    <value>Geen toepaslike installeerder gevind nie; sien logboeke vir meer besonderhede.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Daar is huidiglik geen eksperimentele kenmerke beskikbaar nie. </value>
@@ -813,5 +813,107 @@ Dit kan deur die instellinglêer ‘winget settings’ gekonfigureer word.</valu
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Pad bestaan nie:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>Die JSON-lêer spesifiseer nie 'n erkende skema nie.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Selekteer die installeringsomvang (gebruiker of masjien)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Die waarde vir die argument `%1` is ongeldig; geldige waardes is</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Hierdie operasie is deur Groepbeleid gedeaktiveer</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Aktiveer bykomende Windows-toepassinginstalleerder bronne</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Aktiveer Windows-toepassinginstalleerder toegelaat bronne</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Aktiveer Windows-toepassinginstalleerder verstekbron</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Aktiveer Windows-toepassinginstalleerder eksperimentele kenmerke</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Aktiveer Windows-toepassinginstalleerder Microsoft Store-bron</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Aktiveer Windows Pakketbestuurder-instellings</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Aktiveer Windows Pakketbestuurder</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Stel Windows Pakketbestuurder bron se outomatiese bywerking in minute</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Gedeaktiveer</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Geaktiveer</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Groepsbeleid</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Toestand</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Aktiveer Windows-toepassinginstalleerder plaaslike manifeslêers</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Veld:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Ongeldige veldformaat.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Ongeldige veldwaarde.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Ongeldige instelling van Groepsbeleid.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Gelaaide instellings vanaf rugsteunlêer.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Kon nie lêer ontleed nie:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Waarde:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Die volgende eksperimentele kenmerke is aan die gang.
+Konfigurasie is gedeaktiveer as gevolg van Groepsbeleid.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Installeerderhuts pas nie.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Aktiveer Windows-toepassinginstalleerderhuts oorheers</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Voer huidige bronne uit as JSON vir Groepsbeleid.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Voer huidige bronne uit</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Bykomende bron</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Toegelate bron</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>應用程式安裝程式</displayName>
+  <description>應用程式安裝程式</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">傳統型應用程式安裝程式</string>
+      <string id="EnableAppInstaller">啟用應用程式安裝程式</string>
+      <string id="EnableAppInstallerExplanation">此原則可控制使用者是否可以使用 Windows 套件管理員。
+
+如果您啟用或未設定這個設定，使用者將可以使用 Windows 套件管理員。
+
+如果停用此設定，使用者將無法使用 Windows 套件管理員。</string>
+      <string id="EnableSettings">啟用應用程式安裝程式設定</string>
+      <string id="EnableSettingsExplanation">此原則可控制使用者是否可以變更其設定。
+
+如果您啟用或未設定這個設定，使用者將可以變更 Windows 套件管理員的設定。
+
+如果停用此設定，使用者將無法變更 Windows 套件管理員的設定。</string>
+      <string id="EnableExperimentalFeatures">啟用應用程式安裝程式實驗性功能</string>
+      <string id="EnableExperimentalFeaturesExplanation">此原則可控制使用者是否能在 Windows 套件管理員中啟用實驗性功能。
+
+如果啟用或未設定此設定，使用者將能夠啟用 Windows 套件管理員的實驗性功能。
+
+如果停用此設定，使用者將無法啟用 Windows 套件管理員的實驗性功能。</string>
+      <string id="EnableLocalManifestFiles">啟用應用程式安裝程式本機資訊清單檔案</string>
+      <string id="EnableLocalManifestFilesExplanation">此原則可控制使用者是否能安裝具有本機資訊清單檔案的套件。
+
+如果您啟用或未設定這個設定，使用者將可以使用 Windows 套件管理員來安裝具有本機資訊清單的套件。
+
+若停用此設定，使用者將無法使用 Windows 套件管理員來安裝具有本機資訊清單的套件。</string>
+      <string id="EnableHashOverride">啟用應用程式安裝程式雜湊覆寫</string>
+      <string id="EnableHashOverrideExplanation">此原則會控制 Windows 封裝管理員是否可以設定以便啟用在設定中覆寫 SHA256 安全性驗證的能力。
+
+如果您啟用或未設定此原則，使用者就可以在 Windows 封裝管理員設定中啟用覆寫 SHA256 安全性驗證的能力。
+
+如果您停用此原則，使用者就無法在 Windows 封裝管理員設定中啟用覆寫 SHA256 安全性驗證的能力。</string>
+      <string id="EnableDefaultSource">啟用應用程式安裝程式預設來源</string>
+      <string id="EnableDefaultSourceExplanation">此原則控制 Windows 封裝管理員隨附的預設來源。
+
+如果您未設定此設定，Windows 封裝管理員的預設來源將可供使用，而且可以移除。
+
+如果您啟用此設定，Windows 封裝管理員的預設來源將可供使用，且無法移除。
+
+如果您停用此設定，Windows 封裝管理員的預設來源將無法使用。</string>
+      <string id="EnableMicrosoftStoreSource">啟用應用程式安裝程式 Microsoft Store 來源</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">此原則控制 Windows 封裝管理員隨附的 Microsoft Store 來源。
+
+如果您未設定此設定，Windows 封裝管理員的 Microsoft Store 來源將可供使用，而且可以移除。
+
+如果您啟用此設定，Windows 封裝管理員的 Microsoft Store 來源將可供使用，且無法移除。
+
+如果您停用此設定，Windows 封裝管理員的 Microsoft Store 來源將無法使用。</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">設定應用程式安裝程式來源自動更新間隔 (分鐘)</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">此原則可控制套件型來源的自動更新間隔。
+
+如果停用或未設定此設定，Windows 套件管理員將使用 [設定] 中指定的預設間隔或值。
+
+如果您啟用這個設定，Windows 套件管理員將使用指定的分鐘數。</string>
+      <string id="EnableAdditionalSources">啟用應用程式安裝程式其他來源</string>
+      <string id="EnableAdditionalSourcesExplanation">此原則控制企業 IT 系統管理員提供的其他來源。
+
+如果您未設定此原則，將不會為 Windows 封裝管理員設定其他來源。
+
+如果您啟用此原則，其他來源將會新增到 Windows 封裝管理員，而且無法移除。每個其他來源的標記法都可以使用 'winget 來源匯出' 從已安裝的來源取得。
+
+如果您停用此原則，則 Windows 封裝管理員無法為其他來源進行設定。</string>
+      <string id="EnableAllowedSources">啟用應用程式安裝程式允許的來源</string>
+      <string id="EnableAllowedSourcesExplanation">此原則控制企業 IT 系統管理員允許的其他來源。
+
+如果您未設定此原則，使用者將可以新增或移除其他非此原則設定的來源。
+
+如果您啟用此原則，僅可以從 Windows 封裝管理員新增或移除指定的來源。每個允許來源的代表都可以從使用 'winget 來源匯出' 的已安裝來源取得。
+
+如果您停用此原則，則 Windows 封裝管理員無法為其他來源進行配置。</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">來源自動更新間隔 (分鐘)</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">其他來源： </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">允許的來源： </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

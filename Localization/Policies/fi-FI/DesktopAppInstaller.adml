@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Sovellusten asennusohjelma</displayName>
+  <description>Sovellusten asennusohjelma</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Työpöytäsovellusten asennusohjelma</string>
+      <string id="EnableAppInstaller">Ota käyttöön Sovellusten asennusohjelma</string>
+      <string id="EnableAppInstallerExplanation">Tämä käytäntö määrittää, voiko käyttäjä käyttää Windows-pakettien hallintaa.
+
+Jos otat tämän asetuksen käyttöön tai et määritä sitä, käyttäjät pystyvät käyttämään Windows-paketin hallintaa.
+
+Jos poistat tämän asetuksen käytöstä, käyttäjät eivät voi käyttää Windows-pakettien hallintaa.</string>
+      <string id="EnableSettings">Ota käyttöön Sovellusten asennusohjelman asetukset</string>
+      <string id="EnableSettingsExplanation">Tämä käytäntö määrittää, voivatko käyttäjät muuttaa asetuksiaan.
+
+Jos otat tämän asetuksen käyttöön tai et määritä sitä, käyttäjät voivat muuttaa Windows-paketin hallinnan asetuksia.
+
+Jos poistat tämän asetuksen käytöstä, käyttäjät eivät voi muuttaa Windows-paketin hallinnan asetuksia.</string>
+      <string id="EnableExperimentalFeatures">Ota käyttöön Sovellusten asennusohjelman kokeiluominaisuudet</string>
+      <string id="EnableExperimentalFeaturesExplanation">Tämä käytäntö määrittää, voivatko käyttäjät ottaa kokeelliset ominaisuudet käyttöön Windows-pakettien hallinnassa.
+
+Jos otat tämän asetuksen käyttöön tai et määritä sitä, käyttäjät voivat ottaa kokeelliset ominaisuudet käyttöön Windows-pakettien hallinnassa.
+
+Jos poistat tämän asetuksen käytöstä, käyttäjät eivät voi ottaa kokeelliset ominaisuuksia käyttöön Windows-pakettien hallinnassa.</string>
+      <string id="EnableLocalManifestFiles">Ota käyttöön Sovellusten asennusohjelman paikalliset sovellusvaatimustiedostot</string>
+      <string id="EnableLocalManifestFilesExplanation">Tämä käytäntö määrittää, voivatko käyttäjät asentaa paketteja paikallisiin luettelo tiedostoihin.
+
+Jos otat tämän asetuksen käyttöön tai et määritä sitä, käyttäjät voivat asentaa paketteja, joilla on paikallisia luettelo tiedostoja Windows-pakettien hallinnan avulla.
+
+Jos poistat tämän asetuksen käytöstä, käyttäjät eivät voi asentaa paketteja, joissa on paikallisia luettelo tiedostoja Windows-pakettien hallinnan avulla.</string>
+      <string id="EnableHashOverride">Ota käyttöön Sovellusten asennusohjelman hajautusarvon ohitus</string>
+      <string id="EnableHashOverrideExplanation">Tämä käytäntö hallitsee sitä, voiko Windows Package Managerin määrittää ottamaan käyttöön mahdollisuuden ohittaa SHA256- suojausvahvistuksen asetuksissa.
+
+Jos otat tämän käytännön käyttöön tai et määritä sitä, käyttäjät voivat ottaa käyttöön mahdollisuuden ohittaa SHA256-suojausvahvistuksen Windows Package Managerin asetuksissa.
+
+Jos poistat käytännön käytöstä, käyttäjät eivät voi ottaa käyttöön mahdollisuutta ohittaa SHA256-suojausvahvistusta Windows Package Managerin asetuksissa.</string>
+      <string id="EnableDefaultSource">Ota käyttöön Sovellusten asennusohjelman oletuslähde</string>
+      <string id="EnableDefaultSourceExplanation">Tämä käytäntö ohjaa Windows’Package Managerin sisältämää oletuslähdettä.
+
+Jos et määritä tätä asetusta, Windows Package Managerin oletuslähde on käytettävissä, ja se voidaan poistaa.
+
+Jos otat tämän asetuksen käyttöön, Windows Package Managerin oletuslähde on käytettävissä, eikä sitä voi poistaa.
+
+Jos poistat tämän asetuksen käytöstä, Windows Package Managerin oletuslähde ei ole käytettävissä.</string>
+      <string id="EnableMicrosoftStoreSource">Ota käyttöön Sovellusten asennusohjelman Microsoft Storen lähde</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Tämä käytäntö ohjaa Windows Package Managerin sisältämää Microsoft Storen lähdettä.
+
+Jos et määritä tätä asetusta, Windows Package Managerin Microsoft Storen lähde on käytettävissä, ja se voidaan poistaa.
+
+Jos otat tämän asetuksen käyttöön, Windows Package Managerin Microsoft Storen lähde on käytettävissä, eikä sitä voi poistaa.
+
+Jos poistat tämän asetuksen käytöstä, Windows Package Managerin Microsoft Storen lähde ei ole käytettävissä.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Aseta Sovellusten asennusohjelman lähteiden automaattisen päivityksen aikaväli minuutteina</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Tämä käytäntö ohjaa pakettipohjaisten lähteiden automaattisen päivityksen aikaväliä.
+
+Jos poistat tämän asetuksen käytöstä tai et määritä sitä, Windows Package Manager käyttää oletusaikaväliä tai asetuksissa määritettyä arvoa.
+
+Jos otat tämän asetuksen käyttöön, Windows Package Manager käyttää määritettyä minuuttimäärää.</string>
+      <string id="EnableAdditionalSources">Ota käyttöön Sovellusten asennusohjelman lisälähteet</string>
+      <string id="EnableAdditionalSourcesExplanation">Tämä käytäntö ohjaa yrityksen IT-järjestelmänvalvojan antamia lisälähteitä.
+
+Jos et määritä tätä käytäntöä, Windows Package Managerille ei määritetä lisälähteitä.
+
+Jos tämä käytäntö otetaan käyttöön, lisälähteet lisätään Windows Package Manageriin, eikä niitä voi poistaa. Kunkin lisälähteen esitys voidaan hakea asennetuista lähteistä winget-lähdeviennin avulla.
+
+Jos poistat tämän käytännön käytöstä, Windows Package Manageriin ei voi määrittää lisälähteitä.</string>
+      <string id="EnableAllowedSources">Ota käyttöön Sovellusten asennusohjelman sallitut lähteet</string>
+      <string id="EnableAllowedSourcesExplanation">Tämä käytäntö ohjaa yrityksen IT-järjestelmänvalvojan antamia lisälähteitä.
+
+Jos et määritä tätä käytäntöä, käyttäjät voivat lisätä tai poistaa lisälähteitä, joita ei ole määritetty käytännöllä.
+
+Jos tämä käytäntö otetaan käyttöön, vain määritettyjä lisälähteitä voidaan lisätä tai poistaa Windows Package Managerissa. Kunkin lisälähteen esitys voidaan hakea asennetuista lähteistä winget-lähdeviennin avulla.
+
+Jos poistat tämän käytännön käytöstä, Windows Package Manageriin ei voi määrittää lisälähteitä.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Lähteen automaattisen päivityksen aikaväli minuutteina</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Lisälähteet: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Sallitut lähteet: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

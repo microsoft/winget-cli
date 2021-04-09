@@ -45,7 +45,7 @@ jobs:
       isPreview: false
       relativePathRoot: doc\admx\en-US
       resourceFilePath: '*.adml'
-      outputDirectoryRoot: doc\admx
+      outputDirectoryRoot: Localization\Policies\
 
   - script: |
       cd $(Build.SourcesDirectory)

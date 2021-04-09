@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Instalador de Aplicativo</displayName>
+  <description>Instalador de Aplicativo</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Instalador de Aplicativos de Área de Trabalho</string>
+      <string id="EnableAppInstaller">Habilitar o Instalador de Aplicativos</string>
+      <string id="EnableAppInstallerExplanation">Esta política controla se o Gerenciador de pacotes do Windows pode ser usado por usuários.
+
+Se você habilitar ou não definir essa configuração, os usuários poderão usar o Gerenciador de pacotes do Windows.
+
+Se você desabilitar essa configuração, os usuários não poderão usar o Gerenciador de pacotes do Windows.</string>
+      <string id="EnableSettings">Habilitar as Configurações do Instalador de Aplicativos</string>
+      <string id="EnableSettingsExplanation">Esta política controla se os usuários podem alterar suas configurações.
+
+Se você habilitar ou não definir essa configuração, os usuários poderão alterar as configurações do Gerenciador de pacotes do Windows.
+
+Se você desabilitar essa configuração, os usuários não poderão alterar configurações para o Gerenciador de pacotes do Windows.</string>
+      <string id="EnableExperimentalFeatures">Habilitar os Recursos Experimentais do Instalador de Aplicativos</string>
+      <string id="EnableExperimentalFeaturesExplanation">Essa política controla se os usuários podem habilitar recursos experimentais no Gerenciador de pacotes do Windows.
+
+Se você habilitar ou não definir essa configuração, os usuários poderão habilitar recursos experimentais para o Gerenciador de pacotes do Windows.
+
+Se você desabilitar essa configuração, os usuários não poderão habilitar os recursos experimentais do Gerenciador de pacotes do Windows.</string>
+      <string id="EnableLocalManifestFiles">Habilitar os Arquivos de Manifesto Local do Instalador de Aplicativos</string>
+      <string id="EnableLocalManifestFilesExplanation">Essa política controla se os usuários podem instalar pacotes com arquivos de manifesto locais.
+
+Se você habilitar ou não definir essa configuração, os usuários poderão instalar pacotes com manifestos locais usando o Gerenciador de pacotes do Windows.
+
+Se você desabilitar essa configuração, os usuários não poderão instalar pacotes com manifestos locais usando o Gerenciador de pacotes do Windows.</string>
+      <string id="EnableHashOverride">Habilitar a Substituição do Hash do Instalador de Aplicativos</string>
+      <string id="EnableHashOverrideExplanation">Esta política controla se o Gerenciador de Pacotes do Windows pode ou não ser configurado para permitir a capacidade de substituição da validação de segurança SHA256 nas configurações.
+
+Se você habilitar ou não configurar esta política, os usuários poderão habilitar a capacidade de substituição da validação de segurança SHA256 nas configurações do Gerenciador de Pacotes do Windows.
+
+Se você desabilitar esta política, os usuários não poderão habilitar a capacidade de substituição da validação de segurança SHA256 nas configurações do Gerenciador de Pacotes do Windows.</string>
+      <string id="EnableDefaultSource">Habilitar a Fonte Padrão do Instalador de Aplicativos</string>
+      <string id="EnableDefaultSourceExplanation">Esta política controla a fonte padrão incluída no Gerenciador de Pacotes do Windows.
+
+Se você não definir essa configuração, a fonte padrão do Gerenciador de Pacotes do Windows estará disponível e poderá ser removida.
+
+Se você habilitar essa configuração, a fonte padrão para o Gerenciador de Pacotes do Windows estará disponível e não poderá ser removida.
+
+Se você desabilitar esta configuração, a fonte padrão para o Gerenciador de Pacotes do Windows não estará disponível.</string>
+      <string id="EnableMicrosoftStoreSource">Habilitar a Fonte da Microsoft Store do Instalador de Aplicativos</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Esta política controla a fonte da Microsoft Store incluída com o Gerenciador de Pacotes do Windows.
+
+Se você não definir essa configuração, a fonte da Microsoft Store para o Gerenciador do Pacote Windows estará disponível e poderá ser removida.
+
+Se você habilitar essa configuração, a fonte da Microsoft Store para o Gerenciador de Pacotes do Windows estará disponível e não poderá ser removida.
+
+Se você desabilitar esta configuração, a fonte da Microsoft Store para o Gerenciador de Pacotes do Windows não estará disponível.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Definir o Intervalo de Atualização Automática da Fonte do Instalador de Aplicativo em Minutos</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Esta política controla o intervalo de atualização automática para origens baseadas em pacote.
+
+Se você desabilitar ou não definir essa configuração, o intervalo padrão ou o valor especificado em configurações serão usados pelo Gerenciador de pacotes do Windows.
+
+Se você habilitar essa configuração, o número de minutos especificado será usado pelo Gerenciador de pacotes do Windows.</string>
+      <string id="EnableAdditionalSources">Habilitar as Fontes Adicionais do Instalador de Aplicativos</string>
+      <string id="EnableAdditionalSourcesExplanation">Esta política controla as fontes adicionais fornecidas pelo administrador de TI da empresa.
+
+Se você não configurar esta política, nenhuma fonte adicional será configurada para o Gerenciador de Pacotes do Windows.
+
+Se você habilitar essa política, as fontes adicionais serão adicionadas ao Gerenciador de Pacotes do Windows e não poderão ser removidas. A representação de cada fonte adicional poderá ser obtida a partir das fontes instaladas usando a 'exportação de fonte de winget'.
+
+Se você desabilitar esta política, nenhuma fonte adicional poderá ser configurada para o Gerenciador de Pacotes do Windows.</string>
+      <string id="EnableAllowedSources">Habilitar as Fontes Permitidas do Instalador de Aplicativos</string>
+      <string id="EnableAllowedSourcesExplanation">Esta política controla as fontes adicionais permitidas pelo administrador de TI da empresa.
+
+Se você não configurar esta política, os usuários poderão adicionar ou remover fontes adicionais além daquelas configuradas pela política.
+
+Se você habilitar essa política, apenas as fontes especificadas poderão ser adicionadas ou removidas do Gerenciador de Pacotes do Windows. A representação de cada fonte permitida pode ser obtida a partir das fontes instaladas usando a 'exportação de fonte de winget'.
+
+Se você desabilitar esta política, nenhuma fonte adicional poderá ser configurada para o Gerenciador de Pacotes do Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Intervalo de atualização automática da fonte em minutos</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Fontes Adicionais: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Fontes Permitidas: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

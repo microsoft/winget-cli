@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Inštalátor aplikácií</displayName>
+  <description>Inštalátor aplikácií</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Inštalátor počítačových aplikácií</string>
+      <string id="EnableAppInstaller">Povoliť inštalátor aplikácií</string>
+      <string id="EnableAppInstallerExplanation">Táto politika určuje, či môžu používatelia používať Windows Správcu balíkov.
+
+Ak toto nastavenie zapnete alebo nenakonfigurujete, používatelia budú môcť používať Windows Správcu balíkov.
+
+Ak toto nastavenie zakážete, používatelia nebudú môcť používať Windows Správcu balíkov.</string>
+      <string id="EnableSettings">Povoliť nastavenia inštalátora aplikácií</string>
+      <string id="EnableSettingsExplanation">Táto politika určuje, či môžu používatelia meniť svoje nastavenia.
+
+Ak toto nastavenie zapnete alebo NENAKONFIGURUJETE, používatelia budú môcť zmeniť nastavenia pre správcu balíka Windows.
+
+Ak toto nastavenie zakážete, používatelia nebudú môcť zmeniť nastavenia pre správcu balíka Windows.</string>
+      <string id="EnableExperimentalFeatures">Povoliť experimentálne funkcie inštalátora aplikácií</string>
+      <string id="EnableExperimentalFeaturesExplanation">Táto politika určuje, či môžu používatelia povoliť experimentálne funkcie v správcovi balíkov systému Windows.
+
+Ak toto nastavenie zapnete alebo nakonfigurujete, používatelia budú môcť povoliť experimentálne funkcie pre správcu balíka Windows.
+
+Ak toto nastavenie zakážete, používatelia nebudú môcť povoliť experimentálne funkcie pre správcu balíka Windows.</string>
+      <string id="EnableLocalManifestFiles">Povoliť súbory lokálneho manifestu inštalátora aplikácií</string>
+      <string id="EnableLocalManifestFilesExplanation">Táto politika určuje, či môžu používatelia inštalovať balíky so súbormi lokálneho manifestu.
+
+Ak toto nastavenie zapnete alebo nenakonfigurujete, používatelia budú môcť nainštalovať balíky s lokálnymi manifestami pomocou Windows Správcu balíkov.
+
+Ak toto nastavenie zakážete, používatelia nebudú môcť nainštalovať balíky s lokálnymi manifestami pomocou Windows Správcu balíkov.</string>
+      <string id="EnableHashOverride">Povoliť prepísanie hodnoty hash inštalátora aplikácií</string>
+      <string id="EnableHashOverrideExplanation">Táto politika určuje, či je alebo nie je možné nakonfigurovať Windows Správcu balíkov tak, aby umožnil prepísanie overenia zabezpečenia SHA256 v nastaveniach.
+
+Ak povolíte alebo nenakonfigurujete túto politiku, používatelia budú môcť povoliť prepísanie overenia zabezpečenia SHA256 v nastaveniach Windows Správcu balíkov.
+
+Ak túto politiku zakážete, používatelia nebudú môcť povoliť prepísanie overenia zabezpečenia SHA256 v nastaveniach Windows Správcu balíkov.</string>
+      <string id="EnableDefaultSource">Povoliť predvolený zdroj inštalátora aplikácií</string>
+      <string id="EnableDefaultSourceExplanation">Táto politika ovláda predvolený zdroj, ktorý je súčasťou Windows Správcu balíkov.
+
+Ak toto nastevenie nenakonfigurujete, predvolený zdroj pre Windows Správcu balíkov bude dostupný a môže sa odstrániť.
+
+Ak toto nastavenie zapnete, predvolený zdroj pre Windows Správcu balíkov bude dostupný a nemožno ho odstrániť.
+
+Ak toto nastavenie zakážete, predvolený zdroj pre Windows Správcu balíkov nebude k dispozícii.</string>
+      <string id="EnableMicrosoftStoreSource">Povoliť zdroj Microsoft Store pre inštalátor aplikácií</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Táto politika ovláda zdroj Microsoft Storeu, ktorý je súčasťou Windows Správcu balíkov.
+
+Ak toto nastevenie nenakonfigurujete, zdroj Microsoft Storeu pre Windows Správcu balíkov bude dostupný a môže sa odstrániť.
+
+Ak toto nastavenie zapnete, zdroj Microsoft Storeu pre Windows Správcu balíkov bude dostupný a nemožno ho odstrániť.
+
+Ak toto nastavenie zakážete, zdroj Microsoft Storeu pre Windows Správcu balíkov nebude k dispozícii.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Nastaviť interval automatickej aktualizácie zdroja inštalátora aplikácií v minútach</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Táto politika riadi interval automatickej aktualizácie pre zdroje založené na balíku.
+
+Ak toto nastavenie zakážete alebo NENAKONFIGURUJETE, predvolený interval alebo hodnota zadaná v nastaveniach sa použije v správcovi balíkov systému Windows.
+
+Ak povolíte toto nastavenie, počet zadaných minút bude používať Správca balíkov systému Windows.</string>
+      <string id="EnableAdditionalSources">Povoliť ďalšie zdroje pre inštalátor aplikácií</string>
+      <string id="EnableAdditionalSourcesExplanation">Táto politika ovláda ďalšie zdroje, ktoré vám poskytol podnikový správca IT.
+
+Ak túto politiku nenakonfigurujete, nebudú nakonfigurované žiadne ďalšie zdroje pre Windows Správcu balíkov.
+
+Ak túto politiku povolíte, ďalšie zdroje sa pridajú do Windows Správcu balíkov a nie je možné ich odstrániť. Zobrazenie pre každý ďalší zdroj je možné získať z nainštalovaných zdrojov pomocou zdrojového exportu WinGet.
+
+Ak túto politiku zakážete, nie je možné nakonfigurovať žiadne ďalšie zdroje pre Windows Správcu balíkov.</string>
+      <string id="EnableAllowedSources">Povoliť povolené zdroje pre inštalátor aplikácií</string>
+      <string id="EnableAllowedSourcesExplanation">Táto politika ovláda ďalšie zdroje, ktoré povolil podnikový správca IT.
+
+Ak túto politiku nenakonfigurujete, používatelia nebudú môcť pridávať ani odstraňovať iné zdroje ako tie, ktoré nakonfigurovala politika.
+
+Ak túto politiku povolíte, bude možné pridať alebo odstrániť z Windows Správcu balíkov iba určené zdroje. Zobrazenie pre každý povolený zdroj je možné získať z nainštalovaných zdrojov pomocou zdrojového exportu WinGet.
+
+Ak túto politiku zakážete, nie je možné nakonfigurovať žiadne ďalšie zdroje pre Windows Správcu balíkov.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Interval automatickej aktualizácie zdroja v minútach</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Ďalšie zdroje: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Povolené zdroje: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

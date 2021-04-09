@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Appinstallasjonsprogram</displayName>
+  <description>Appinstallasjonsprogram</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Appinstallasjonsprogram for skrivebord</string>
+      <string id="EnableAppInstaller">Aktiver appinstallasjonsprogram</string>
+      <string id="EnableAppInstallerExplanation">Denne policy innstillingen styrer om brukere kan bruke Windows-pakkefilen.
+
+Hvis du aktiverer eller ikke konfigurerer denne innstillingen, kan brukerne bruke pakke behandling i Windows.
+
+Hvis du deaktiverer denne innstillingen, vil ikke brukere kunne bruke pakke behandling i Windows.</string>
+      <string id="EnableSettings">Aktiver innstillinger for appinstallasjonsprogram</string>
+      <string id="EnableSettingsExplanation">Denne policyen styrer om brukere kan endre innstillingene.
+
+Hvis du aktiverer eller ikke konfigurerer denne innstillingen, kan brukerne endre innstillinger for Windows pakke behandling.
+
+Hvis du deaktiverer denne innstillingen, kan ikke brukerne endre innstillinger for Windows pakke behandling.</string>
+      <string id="EnableExperimentalFeatures">Aktiver eksperimentelle funksjoner for appinstallasjonsprogram</string>
+      <string id="EnableExperimentalFeaturesExplanation">Denne policyen kontrollerer om brukere kan aktivere eksperimentelle funksjoner i Windows pakke behandling.
+
+Hvis du aktiverer eller ikke konfigurerer denne innstillingen, kan brukerne aktivere eksperimentelle funksjoner for Windows pakke behandling.
+
+Hvis du deaktiverer denne innstillingen, vil ikke brukere kunne aktivere eksperimentelle funksjoner for Windows-pakkefilen.</string>
+      <string id="EnableLocalManifestFiles">Aktiver lokale manifestfiler for appinstallasjonsprogram</string>
+      <string id="EnableLocalManifestFilesExplanation">Denne policyen styrer om brukere kan installere pakker med lokale manifest filer.
+
+Hvis du aktiverer eller ikke konfigurerer denne innstillingen, kan brukerne installere pakker med lokale manifester ved hjelp av Windows Package Manager.
+
+Hvis du deaktiverer denne innstillingen, vil ikke brukere kunne installere pakker med lokale manifester ved hjelp av Windows-pakkefilen.</string>
+      <string id="EnableHashOverride">Aktiver hashoverstyring for appinstallasjonsprogram</string>
+      <string id="EnableHashOverrideExplanation">Denne policyen kontrollerer om pakkebehandling for Windows kan konfigureres til å aktivere muligheten til å overstyre SHA256-sikkerhetsvalideringen i innstillinger eller ikke.
+
+Dersom du aktiverer eller ikke konfigurerer denne policyen, vil brukere kunne aktivere muligheten for å overstyre SHA256-sikkerhetsvalideringen i innstillingene for pakkebehandling for Windows.
+
+Dersom du deaktiverer denne policyen, vil brukere ikke kunne aktivere muligheten for å overstyre SHA256-sikkerhetsvalideringen i innstillingene for pakkebehandling for Windows.</string>
+      <string id="EnableDefaultSource">Aktiver standard kilde for appinstallasjonsprogram</string>
+      <string id="EnableDefaultSourceExplanation">Denne policyen styrer standardkilden som er inkludert med pakkebehandling for Windows.
+
+Hvis du ikke konfigurerer denne innstillingen, vil standardkilden for pakkebehandling for Windows være tilgjengelig og kan fjernes.
+
+Hvis du aktiverer denne innstillingen, vil standardkilden for pakkebehandling for Windows være tilgjengelig og kan ikke fjernes.
+
+Hvis du deaktiverer denne innstillingen, vil ikke standardkilden for pakkebehandling for Windows være tilgjengelig.</string>
+      <string id="EnableMicrosoftStoreSource">Aktiver Microsoft Store-kilde for appinstallsjonsprogram</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Denne policyen styrer Microsoft Store-kilden som er inkludert med pakkebehandling for Windows.
+
+Hvis du ikke konfigurerer denne innstillingen, vil Microsoft Store-kilden for pakkebehandling for Windows være tilgjengelig og kan fjernes.
+
+Hvis du aktiverer denne innstillingen, vil Microsoft Store-kilden for pakkebehandling for Windows være tilgjengelig og kan ikke fjernes.
+
+Hvis du deaktiverer denne innstillingen, vil ikke Microsoft Store-kilden for pakkebehandling for Windows være tilgjengelig.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Angi intervall i minutter for automatisk oppdatering av kilde for appinstallasjonsprogram</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Denne policyen kontrollerer intervallet for automatisk oppdatering for pakke BAS ert kilder.
+
+Hvis du deaktiverer eller ikke konfigurerer denne innstillingen, brukes standard intervallet eller verdien som er angitt i innstillinger, av Windows-pakkefilen.
+
+Hvis du aktiverer denne innstillingen, brukes antallet minutter som er angitt av Windows-pakkefilen.</string>
+      <string id="EnableAdditionalSources">Aktiver ekstra kilder for appinstallasjonsprogram</string>
+      <string id="EnableAdditionalSourcesExplanation">Denne policyen styrer ekstra kilder som leveres av organisasjonens IT-administrator.
+
+Hvis du ikke konfigurerer denne policyen, blir ingen ekstra kilder konfigurert for pakkebehandling i Windows.
+
+Hvis du aktiverer denne policyen, blir de ekstra kildene lagt til i pakkebehandling for Windows og kan ikke fjernes. Representasjonen for hver ekstra kilde kan hentes fra installerte kilder ved hjelp av «winget kildeeksport».
+
+Hvis du deaktiverer denne policyen, kan ingen ekstra kilder konfigureres for pakkebehandling for Windows.</string>
+      <string id="EnableAllowedSources">Aktiver tillatte kilder for appinstallasjonsprogram</string>
+      <string id="EnableAllowedSourcesExplanation">Denne policyen styrer ekstra kilder som tillates av organisasjonens IT-administrator.
+
+Hvis du ikke konfigurerer denne policyen, vil brukere kunne legge til eller fjerne ekstra kilder som ikke er konfigurert av policyen.
+
+Hvis du aktiverer denne policyen, kan bare de angitte filene legges til eller fjernes fra pakkebehandling i Windows. Representasjonen for hver tillatte kilde kan hentes fra installerte kilder ved hjelp av «winget kildeeksport».
+
+Hvis du deaktiverer denne policyen, kan ingen ekstra kilder konfigureres for pakkebehandling for Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Intervall i minutter for automatisk oppdatering av kilde</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Ekstra kilder: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Tillatte kilder: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

@@ -386,7 +386,7 @@
     <value>លទ្ធផល​តម្រង​តាម​ឈ្មោះ</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>គ្មាន​កម្មវិធី​ដំឡើង​ដែល​អាច​អនុវត្ត​បាន​ចំពោះ​ប្រព័ន្ធ​បច្ចុប្បន្ន​ទេ។</value>
+    <value>រកមិនឃើញកម្មវិធីដំឡើងដែលអាចប្រើបានទេ។ សូមមើលកំណត់ហេតុ ដើម្បីទទួលបានព័ត៌មានលម្អិតបន្ថែម។</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>បច្ចុប្បន្ននេះ មិនមាន​​មុខងារ​​ពិសោធន៍​ទេ។ </value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>មិនមានផ្លូវទេ៖</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>ឯកសារ JSON មិនបានបញ្ជាក់ពីស្គីមម៉ាដែលបានទទួលស្គាល់ទេ។</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>ជ្រើសរើសវិសាលភាពនៃការដំឡើង (អ្នកប្រើ ឬម៉ាស៊ីន)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>តម្លៃដែលបានផ្តល់សម្រាប់អាគុយម៉ង់ '%1' មិនត្រឹមត្រូវទេ។ តម្លៃត្រឹមត្រូវគឺ</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>ប្រតិបត្តិការនេះត្រូវបានបិទដោយគោលការណ៍ក្រុម</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>បើកប្រភពកម្មវិធីដំឡើងកម្មវិធី Windows បន្ថែម</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>បើកប្រភពដែលអនុញ្ញាតរបស់កម្មវិធីដំឡើងកម្មវិធី Windows</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>បើកប្រភពលំនាំដើមរបស់​កម្មវិធីដំឡើងកម្មវិធី Windows</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>បើកមុខងារ​បែប​ពិសោធន៍របស់​កម្មវិធីដំឡើងកម្មវិធី Windows</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>បើកប្រភព Microsoft Store របស់​កម្មវិធីដំឡើងកម្មវិធី Windows</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>បើកការកំណត់នៃឧបករណ៍គ្រប់គ្រងកញ្ចប់របស់ Windows</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>បើកឧបករណ៍គ្រប់គ្រងកញ្ចប់របស់ Windows</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>កំណត់ចន្លោះពេលធ្វើ​បច្ចុប្បន្នភាព​ប្រភព​ដោយ​ស្វ័យប្រវត្តិនៃ​ឧបករណ៍គ្រប់គ្រង​កញ្ចប់របស់ Windows ជានាទី</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>បានបិទ</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>បានបើក</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>គោលការណ៍ក្រុម</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>ស្ថានភាព</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>បើកឯកសារមេនីហ្វេសថ៍ក្នុងឧបករណ៍របស់កម្មវិធីដំឡើងកម្មវិធី Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>កន្លែង​បញ្ចូល៖</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>ទម្រង់កន្លែងបញ្ចូលមិនត្រឹមត្រូវទេ។</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>តម្លៃនៃកន្លែងបញ្ចូលមិនត្រឹមត្រូវទេ។</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>ការកំណត់មិនត្រឹមត្រូវពីគោការណ៍ក្រុម។</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>បានស្រង់ការកំណត់ពីឯកសារបម្រុងទុក។</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>បញ្ហា​ក្នុង​ការញែកឯកសារ៖</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>តម្លៃ៖</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>មុខងារ​បែប​ពិសោធន៍ដូចខាងក្រោមកំពុងតែដំណើរការ។
+ការរៀបចំត្រូវបានបិទ ដោយសារតែគោលការណ៍ក្រុម។</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>កូដតំណាងកម្មវិធីដំឡើងមិនត្រូវគ្នាទេ។</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>បើកការលុប​ពី​លើ​កូដ​តំណាង​កម្មវិធីដំឡើងកម្មវិធី Windows</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>នាំចេញប្រភពបច្ចុប្បន្នជា JSON សម្រាប់គោលការណ៍ក្រុម។</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>នាំចេញ​ប្រភព​បច្ចុប្បន្ន​</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>ប្រភពបន្ថែម</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>ប្រភពដែលអនុញ្ញាត</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

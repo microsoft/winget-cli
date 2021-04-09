@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>ऐप इंस्टॉलर</displayName>
+  <description>ऐप इंस्टॉलर</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">डेस्कटॉप ऐप इंस्टॉलर</string>
+      <string id="EnableAppInstaller">ऐप इंस्टॉलर को सक्षम करें</string>
+      <string id="EnableAppInstallerExplanation">यह नीति नियंत्रित करती है कि उपयोगकर्ता Windows पैकेज प्रबंधक का उपयोग कर सकते हैं या नहीं.
+
+यदि आप इस सेटिंग को सक्षम करते हैं या कॉन्फ़िगर नहीं करते हैं, तो उपयोगकर्ता Windows पैकेज प्रबंधक का उपयोग करने में सक्षम होंगे.
+
+यदि आप इस सेटिंग को अक्षम करते हैं, तो उपयोगकर्ता Windows पैकेज प्रबंधक का उपयोग नहीं कर सकेंगे.</string>
+      <string id="EnableSettings">ऐप इंस्टॉलर सेटिंग्स को सक्षम करें</string>
+      <string id="EnableSettingsExplanation">यह नीति नियंत्रित करती है कि उपयोगकर्ता अपनी सेटिंग बदल सकते हैं या नहीं.
+
+यदि आप इस सेटिंग को सक्षम करते हैं या कॉन्फ़िगर नहीं करते हैं, तो उपयोगकर्ता Windows पैकेज प्रबंधक के लिए सेटिंग बदलने में सक्षम होंगे.
+
+यदि आप इस सेटिंग को अक्षम करते हैं, तो उपयोगकर्ता Windows पैकेज प्रबंधक के लिए सेटिंग्स को बदलने में सक्षम नहीं होंगे.</string>
+      <string id="EnableExperimentalFeatures">ऐप इंस्टॉलर प्रयोगात्मक सुविधाओं को सक्षम करें</string>
+      <string id="EnableExperimentalFeaturesExplanation">यह नीति नियंत्रित करती है कि क्या उपयोगकर्ता Windows पैकेज प्रबंधक में प्रायोगिक सुविधाओं को सक्षम कर सकते हैं या नहीं.
+
+यदि आप इस सेटिंग को सक्षम करते हैं या कॉन्फ़िगर नहीं करते हैं, तो उपयोगकर्ता Windows पैकेज प्रबंधक के लिए प्रायोगिक सुविधाओं को सक्षम कर सकेंगे.
+
+यदि आप इस सेटिंग को अक्षम करते हैं, तो उपयोगकर्ता Windows पैकेज प्रबंधक के लिए प्रायोगिक सुविधाओं को सक्षम नहीं कर सकेंगे.</string>
+      <string id="EnableLocalManifestFiles">ऐप इंस्टॉलर स्थानीय मैनिफ़ेस्ट फ़ाइलें सक्षम करें</string>
+      <string id="EnableLocalManifestFilesExplanation">यह नीति नियंत्रित करती है कि उपयोगकर्ता स्थानीय मैनिफ़ेस्ट फ़ाइलों के साथ पैकेज स्थापित कर सकते हैं या नहीं.
+
+यदि आप इस सेटिंग को सक्षम करते हैं या कॉन्फ़िगर नहीं करते हैं, तो उपयोगकर्ता Windows पैकेज प्रबंधक का उपयोग करके स्थानीय मैनिफ़ेस्ट के साथ पैकेज स्थापित करने में सक्षम होंगे.
+
+यदि आप इस सेटिंग को अक्षम करते हैं, तो उपयोगकर्ता Windows पैकेज प्रबंधक का उपयोग करके स्थानीय मैनिफ़ेस्ट वाले पैकेज स्थापित करने में सक्षम नहीं होंगे.</string>
+      <string id="EnableHashOverride">ऐप इंस्टॉलर हैश ओवरराइड को सक्षम करें</string>
+      <string id="EnableHashOverrideExplanation">यह नीति इसे नियंत्रित करती है कि Windows पैकेज प्रबंधक को सेटिंग्स में SHA256 सुरक्षा प्रमाणीकरण को ओवरराइड करने की क्षमता को सक्षम करने के लिए कॉन्फ़िगर किया जा सकता है या नहीं. 
+
+यदि आप इसे सक्षम करते हैं या इस नीति को कॉन्फ़िगर नहीं करते, तो उपयोगकर्ता Windows पैकेज प्रबंधक सेटिंग्स में SHA256 सुरक्षा प्रमाणीकरण को ओवरराइड करने की क्षमता को सक्षम कर सकेंगे.
+
+ यदि आप इस नीति को अक्षम करते हैं, तो उपयोगकर्ता Windows पैकेज प्रबंधक सेटिंग्स में SHA256 सुरक्षा प्रमाणीकरण को ओवरराइड करने की क्षमता को सक्षम नहीं कर सकेंगे.</string>
+      <string id="EnableDefaultSource">ऐप इंस्टॉलर डिफ़ॉल्ट स्रोत सक्षम करें</string>
+      <string id="EnableDefaultSourceExplanation">यह नीति Windows पैकेज प्रबंधक के साथ शामिल डिफ़ॉल्ट स्रोत को नियंत्रित करता है.
+
+यदि आप इस सेटिंग को कॉन्फ़िगर नहीं करते हैं, तो Windows पैकेज प्रबंधक के लिए डिफ़ॉल्ट स्रोत उपलब्ध होगा और इसे निकाला जा सकता है.
+
+यदि आप इस सेटिंग को सक्षम करते हैं, तो Windows पैकेज प्रबंधक के लिए डिफ़ॉल्ट स्रोत उपलब्ध होगा और इसे निकाला नहीं जा सकता.
+
+यदि आप इस सेटिंग को अक्षम करते हैं, तो Windows पैकेज प्रबंधक के लिए डिफ़ॉल्ट स्रोत उपलब्ध नहीं होगा.</string>
+      <string id="EnableMicrosoftStoreSource">ऐप इंस्टॉलर Microsoft Store स्रोत को सक्षम करें</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">यह नीति Windows पैकेज प्रबंधक के साथ शामिल Microsoft स्टोर स्रोत को नियंत्रित करती है.
+
+यदि आप इस सेटिंग को कॉन्फ़िगर नहीं करते हैं, तो Windows पैकेज प्रबंधक के लिए Microsoft स्टोर स्रोत उपलब्ध होगा और इसे निकाला जा सकता है.
+
+यदि आप इस सेटिंग को सक्षम करते हैं, तो Windows पैकेज प्रबंधक के लिए Microsoft Store स्रोत उपलब्ध होगा और इसे निकाला नहीं जा सकता.
+
+यदि आप इस सेटिंग को अक्षम करते हैं, तो Windows पैकेज प्रबंधक के लिए Microsoft स्टोर स्रोत उपलब्ध नहीं होगा.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">मिनटों में ऐप इंस्टॉलर स्रोत स्वतःअद्यतन अंतराल सेट करें</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">यह नीति पैकेज-आधारित स्रोतों के लिए स्वत: अद्यतन अंतराल नियंत्रित करती है.
+
+यदि आप इस सेटिंग को अक्षम या कॉन्फ़िगर नहीं करते हैं, तो Windows पैकेज प्रबंधक द्वारा डिफ़ॉल्ट अंतराल या सेटिंग में निर्दिष्ट मान का उपयोग किया जाएगा.
+
+यदि आप यह सेटिंग सक्षम करते हैं, तो निर्दिष्ट मिनटों की संख्या का उपयोग Windows पैकेज प्रबंधक द्वारा किया जाएगा.</string>
+      <string id="EnableAdditionalSources">ऐप इंस्टॉलर अतिरिक्त स्रोतों को सक्षम करें</string>
+      <string id="EnableAdditionalSourcesExplanation">यह नीति एंटरप्राइज़ IT व्यवस्थापक द्वारा प्रदान किए गए अतिरिक्त स्रोतों को नियंत्रित करती है.
+
+यदि आप इस नीति को कॉन्फ़िगर नहीं करते हैं, तो Windows पैकेज प्रबंधक के लिए कोई अतिरिक्त स्रोत कॉन्फ़िगर नहीं होंगे.
+
+यदि आप इस नीति को सक्षम करते हैं, तो अतिरिक्त स्रोत Windows पैकेज प्रबंधक में जोड़े जाएँगे और ये निकाले नहीं जा सकते. प्रत्येक अतिरिक्त स्रोत के लिए अलग-अलग स्रोत को 'winget स्रोत निर्यात' का उपयोग कर स्थापित स्रोतों से प्राप्त किया जा सकता है.
+
+यदि आप इस नीति को अक्षम करते हैं, तो Windows पैकेज प्रबंधक के लिए कोई अतिरिक्त स्रोत कॉन्फ़िगर नहीं किए जा सकते हैं.</string>
+      <string id="EnableAllowedSources">ऐप इंस्टॉलर अनुमत स्रोतों को सक्षम करें</string>
+      <string id="EnableAllowedSourcesExplanation">यह नीति एंटरप्राइज़ IT व्यवस्थापक द्वारा अनुमत अतिरिक्त स्रोतों को नियंत्रित करती है.
+
+यदि आप इस नीति को कॉन्फ़िगर नहीं करते हैं, तो उपयोगकर्ता नीति द्वारा कॉन्फ़िगर किए गए अतिरिक्त स्रोतों को जोड़ या निकाल सकेंगे.
+
+यदि आप इस नीति को सक्षम करते हैं, तो Windows पैकेज प्रबंधक से केवल निर्दिष्ट स्रोत जोड़े जा सकते हैं या निकाले जा सकते हैं. प्रत्येक अनुमत स्रोत के लिए 'winget स्रोत निर्यात' का उपयोग कर स्थापित स्रोतों से प्राप्त किया जा सकता है.
+
+यदि आप इस नीति को अक्षम करते हैं, तो Windows पैकेज प्रबंधक के लिए कोई अतिरिक्त स्रोत कॉन्फ़िगर नहीं किए जा सकते हैं.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">मिनटों में स्रोत स्वतः अद्यतन अंतराल</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">अतिरिक्त स्रोत: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">अनुमत स्रोत: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

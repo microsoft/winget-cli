@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>የመተግበሪያ ጫኝ</displayName>
+  <description>የመተግበሪያ ጫኝ</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">የዴስክቶፕ መተግበሪያ ጫኝ</string>
+      <string id="EnableAppInstaller">መተግበሪያ ጫኝን አንቃ</string>
+      <string id="EnableAppInstallerExplanation">ይህ መመሪያ የ Windows ጥቅል ሥራ አስኪያጅ በተጠቃሚዎች ሊጠቀምበት ይችል እንደሆነ ይቆጣጠራል ፡፡ 
+
+ ይህንን ቅንብር ካነቁት ወይም ካላዋቀሩት ተጠቃሚዎች የ Windows ጥቅል አስተዳዳሪውን መጠቀም ይችላሉ። 
+
+ ይህን ቅንብር ካሰናከሉ ተጠቃሚዎች የ Windows ጥቅል አቀናባሪን መጠቀም አይችሉም።</string>
+      <string id="EnableSettings">የመተግበሪያ ጫኝ ቅንጅቶችን ያንቁ</string>
+      <string id="EnableSettingsExplanation">ይህ መመሪያ ተጠቃሚዎች ቅንብሮቻቸውን መለወጥ ይችሉ እንደሆነ ይቆጣጠራል። 
+
+ ይህንን ቅንብር ካነቁት ወይም ካላዋቀሩት ተጠቃሚዎች የ Windows ጥቅል አስተዳዳሪ ቅንብሮችን መለወጥ ይችላሉ። 
+
+ ይህን ቅንብር ካሰናከሉ ተጠቃሚዎች የ Windows ጥቅል አቀናባሪ ቅንብሮችን መለወጥ አይችሉም።</string>
+      <string id="EnableExperimentalFeatures">የመተግበሪያ ጫኝ የሙከራ ባህሪያትን ያንቁ</string>
+      <string id="EnableExperimentalFeaturesExplanation">ይህ መመሪያ ተጠቃሚዎች በ Windows ጥቅል ሥራ አስኪያጅ ውስጥ የሙከራ ባህሪያትን ማንቃት ይችሉ እንደሆነ ይቆጣጠራል። 
+
+ ይህንን ቅንብር ካነቁት ወይም ካላዋቀሩት ተጠቃሚዎች ለ Windows ጥቅል አስተዳዳሪ የሙከራ ባህሪያትን ማንቃት ይችላሉ። 
+
+ ይህን ቅንብር ካሰናከሉ ተጠቃሚዎች አይችሉም ለ Windows ጥቅል ሥራ አስኪያጅ የሙከራ ባህሪያትን ለማንቃት።</string>
+      <string id="EnableLocalManifestFiles">የመተግበሪያ ጫኝ የአካባቢያዊ ግልጽ ፋይሎችን ያንቁ</string>
+      <string id="EnableLocalManifestFilesExplanation">ይህ መመሪያ ተጠቃሚዎች ጥቅሎችን በአካባቢያዊ አንጸባራቂ ፋይሎች መጫን ይችሉ እንደሆነ ይቆጣጠራል። 
+
+ ይህንን ቅንብር ካነቁት ወይም ካላዋቀሩት ተጠቃሚዎች የ Windows ጥቅል አቀናባሪን በመጠቀም ጥቅሎችን ከአካባቢያዊ መግለጫዎች ጋር መጫን ይችላሉ። 
+
+ ይህንን ቅንብር ካሰናከሉ ተጠቃሚዎች የ Windows ጥቅል አስተዳዳሪ በመጠቀም አካባቢያዊ መግለጫዎችን በመጠቀም ጥቅልን መጫን አይችሉም።</string>
+      <string id="EnableHashOverride">የመተግበሪያ ጫኝ ሃሽ መሻርን ያንቁ</string>
+      <string id="EnableHashOverrideExplanation">ይህ ፓሊሲ የክንውን አውዶች ውስጥ የ SHA256 የደህንነት ማረጋገጥ የመሻር ችሎታን ለማንቃት የ Windows ጥቅል አስተዳዳሪን ማዋቀር መቻል ወይም አለመቻልን የሚቆጣጠር ነው። 
+
+ ይህን ካነቁ ወይም ይህንን ፓሊሲ ካላዋቀሩ፣ ተጠቃሚዎች የ Windows ጥቅል አስተዳዳሪ የክንውን አውዶች ውስጥ የ SHA256 የደህንነት ማረጋገጥ የመሻር ችሎታን ለማንቃት ይችላሉ። 
+
+ ይህንን ፓሊሲ ካሰናከሉ፣ ተጠቃሚዎች የ Windows ጥቅል አስተዳዳሪ የክንውን አውዶች ውስጥ የ SHA256 የደህንነት ማረጋገጥ የመሻር ችሎታን ለማንቃት አይችሉም።</string>
+      <string id="EnableDefaultSource">የመተግበሪያ ጫኝ ነባሪ ምንጭን ያንቁ</string>
+      <string id="EnableDefaultSourceExplanation">ይህ ፖሊሲ በድርጅቱ የአይቲ አስተዳዳሪ የተፈቀዱ ተጨማሪ ምንጮችን ይቆጣጠራል። 
+
+ ይህንን መመሪያ ካላዋቀሩ ተጠቃሚዎች በመመሪያ ከተዋቀሩት ውጭ ተጨማሪ ምንጮችን ማከል ወይም ማስወገድ ይችላሉ። 
+
+ ይህንን መመሪያ ካነቁ የተጠቀሱት ምንጮች ብቻ ከ Windows ጥቅል ሥራ አስኪያጅ ሊታከሉ ወይም ሊወገዱ ይችላሉ። 
+
+ ይህንን ቅንብር ካሰናከሉ ለዊንዶውስ ፓኬጅ አስተዳዳሪ ነባሪው ምንጭ አይገኝም።</string>
+      <string id="EnableMicrosoftStoreSource">የመተግበሪያ ጫኝ የ Microsoft መደብር ምንጭ ያንቁ</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">ይህ መመሪያ ከ Windows ጥቅል ሥራ አስኪያጅ ጋር የተካተተውን የ Microsoft መደብር ምንጭን ይቆጣጠራል። 
+
+ ይህንን ቅንብር ካላዋቀሩት የ Windows ጥቅል ሥራ አስኪያጅ የ Microsoft መደብር ምንጭ የሚገኝ ሲሆን ሊወገድ ይችላል። 
+
+ ይህን ቅንብር ካነቁት ለ Windows ጥቅል ሥራ አስኪያጅ የ Microsoft መደብር ምንጭ የሚገኝ ሲሆን ሊወገድ አይችልም። 
+
+ ይህንን ቅንብር ካሰናከሉ የ Windows ጥቅል ሥራ አስኪያጅ የ Microsoft መደብር ምንጭ አይገኝም።</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">በደቂቃዎች ውስጥ የመተግበሪያ ጫኝ ምንጭ ራስ-ሰር አዘምን ክፍተት ያዘጋጁ</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">በጥቅሉ ላይ ለተመሰረቱ ምንጮች ይህ መመሪያ የራስ-አዘምን ክፍተትን ይቆጣጠራል። 
+
+ ይህንን ቅንብር ካሰናከሉ ወይም ካላዋቀሩት ነባሪው የጊዜ ክፍተት ወይም በቅንብሮች ውስጥ የተጠቀሰው እሴት በ Windows ጥቅል ሥራ አስኪያጅ ጥቅም ላይ ይውላል። 
+
+ ይህንን ቅንብር ካነቁት የተገለጹት ደቂቃዎች ብዛት በ Windows ጥቅል ሥራ አስኪያጅ ጥቅም ላይ ይውላል።</string>
+      <string id="EnableAdditionalSources">የመተግበሪያ ጫኝ ተጨማሪ ምንጮችን ያንቁ</string>
+      <string id="EnableAdditionalSourcesExplanation">ይህ ፖሊሲ በድርጅቱ የአይቲ አስተዳዳሪ የሚሰጡ ተጨማሪ ምንጮችን ይቆጣጠራል ፡፡ 
+
+ ይህንን መመሪያ ካላዋቀሩ ለ Windows ጥቅል አስተዳዳሪ ምንም ተጨማሪ ምንጮች አይዋቀሩም።
+
+ ይህንን መመሪያ ካነቁ ተጨማሪዎቹ ምንጮች ወደ Windows ጥቅል ሥራ አስኪያጅ ይታከላሉ እና ሊወገዱ አይችሉም። የእያንዳንዱ ተጨማሪ ምንጭ ውክልና ‹ዊንጌት ምንጭ ኤክስፖርት› በመጠቀም ከተጫኑ ምንጮች ማግኘት ይቻላል፡፡
+
+ ይህንን መመሪያ ካሰናከሉ ለ Windows ጥቅል ሥራ አስኪያጅ ምንም ተጨማሪ ምንጮች ሊዋቀሩ አይችሉም።</string>
+      <string id="EnableAllowedSources">የተፈቀዱ ምንጮችን የመተግበሪያ ጫኝን ያንቁ</string>
+      <string id="EnableAllowedSourcesExplanation">ይህ ፖሊሲ በድርጅቱ የአይቲ አስተዳዳሪ የተፈቀዱ ተጨማሪ ምንጮችን ይቆጣጠራል። 
+
+ ይህንን መመሪያ ካላዋቀሩ ተጠቃሚዎች በመመሪያ ከተዋቀሩት ውጭ ተጨማሪ ምንጮችን ማከል ወይም ማስወገድ ይችላሉ። 
+
+ ይህንን መመሪያ ካነቁ የተጠቀሱት ምንጮች ብቻ ከ Windows ጥቅል ሥራ አስኪያጅ ሊታከሉ ወይም ሊወገዱ ይችላሉ። ይህ ፖሊሲ በድርጅቱ የአይቲ አስተዳዳሪ የተፈቀዱ ተጨማሪ ምንጮችን ይቆጣጠራል። ይህንን መመሪያ ካላዋቀሩ ተጠቃሚዎች በመመሪያ ከተዋቀሩት ውጭ ተጨማሪ ምንጮችን ማከል ወይም ማስወገድ ይችላሉ። 
+
+ይህንን መመሪያ ካነቁ የተጠቀሱት ምንጮች ብቻ ከ Windows ጥቅል ሥራ አስኪያጅ ሊታከሉ ወይም ሊወገዱ ይችላሉ።</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">ምንጭ ራስ-አዘምን ልዩነት በደቂቃዎች ውስጥ</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">ተጨማሪ ምንጮች </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">የተፈቀዱ ምንጮች:- </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

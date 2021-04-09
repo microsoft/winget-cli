@@ -386,7 +386,7 @@
     <value>Iragazi emaitzak izenaren arabera</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Uneko sisteman aplika daitekeen instalatzailerik ez dago.</value>
+    <value>Ez da aurkitu instalatzaile aplikagarririk. Ikusi xehetasun gehiago egunkarian.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Une honetan ez dago erabilgarri eginbide esperimentalik. </value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Bidea ez dago:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON fitxategiak ez du zehazten eskema ezagunik.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Hautatu instalazioaren esparrua (erabiltzailea edo makina)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>“%1” argumenturako emandako balioa ez da egokia. Hauek dira balio egokiak:</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Eragiketa hau desgaituta dago talde-gidalerroak direla eta</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Gaitu Windows-en aplikazio-instalatzailearen iturburu gehiago</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Gaitu Windows-en aplikazio-instalatzailearen iturburu onartuak</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Gaitu Windows-en aplikazio-instalatzailearen iturburu lehenetsia</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Gaitu Windows-en aplikazio-instalatzailearen eginbide esperimentalak</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Gaitu Windows-en aplikazio-instalatzailearen Microsoft Store-ko iturburua</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Gaitu Windows-en pakete-kudeatzailearen ezarpenak</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Gaitu Windows-en pakete-kudeatzailea</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Ezarri Windows-en pakete-kudeatzailearen iturburua automatikoki eguneratzeko tartea, minututan</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Desgaituta</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Gaituta</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Talde-gidalerroak</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Egoera</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Gaitu Windows-en aplikazio-instalatzailearen manifestu-fitxategi lokalak</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Eremua:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Eremuaren formatuak ez du balio.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Eremuaren balioa ez da egokia.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Talde-gidalerroen ezarpenak ez du balio.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Ezarpenak kargatu dira babeskopia-fitxategitik.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Errore bat gertatu da fitxategia analizatzean:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Balioa:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Eginbide esperimental hauek abian dira.
+Konfigurazioa desgaituta dago talde-gidalerroak direla eta.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Instalatzailearen hash-a ez dator bat.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Gaitu Windows-en aplikazio-instalatzailearen hash-a gainidazteko aukera</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Esportatu talde-gidalerroaren uneko iturburuak JSON gisa.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Esportatu uneko iturburuak</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Iturburu gehiago</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Onartutako iturburua</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

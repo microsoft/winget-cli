@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Programme d'installation d'application</displayName>
+  <description>Programme d'installation d'application</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Programme d’installation des applications de bureau</string>
+      <string id="EnableAppInstaller">Activer le programme d’installation de l’application</string>
+      <string id="EnableAppInstallerExplanation">Cette stratégie contrôle si le gestionnaire de packages Windows peut être utilisé par les utilisateurs.
+
+Si vous activez ou ne configurez pas ce paramètre, les utilisateurs peuvent utiliser le gestionnaire de packages Windows.
+
+Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas utiliser le gestionnaire de packages Windows.</string>
+      <string id="EnableSettings">Activer les paramètres du Programme d’installation de l’application</string>
+      <string id="EnableSettingsExplanation">Cette stratégie contrôle si les utilisateurs peuvent modifier leurs paramètres.
+
+Si vous activez ou ne configurez pas ce paramètre, les utilisateurs peuvent modifier les paramètres du gestionnaire de packages Windows.
+
+Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas modifier les paramètres du gestionnaire de packages Windows.</string>
+      <string id="EnableExperimentalFeatures">Activer les fonctionnalités expérimentales du Programme d’installation de l’application</string>
+      <string id="EnableExperimentalFeaturesExplanation">Cette stratégie contrôle si les utilisateurs peuvent activer les fonctionnalités expérimentales dans le gestionnaire de packages Windows.
+
+Si vous activez ou ne configurez pas ce paramètre, les utilisateurs peuvent activer des fonctionnalités expérimentales pour le gestionnaire de package Windows.
+
+Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas activer les fonctionnalités expérimentales pour le gestionnaire de package Windows.</string>
+      <string id="EnableLocalManifestFiles">Activer les fichiers de manifeste locaux du Programme d'installation de l'application</string>
+      <string id="EnableLocalManifestFilesExplanation">Cette stratégie contrôle si les utilisateurs peuvent installer des packages avec des fichiers de manifeste locaux.
+
+Si vous activez ou ne configurez pas ce paramètre, les utilisateurs peuvent installer des packages avec des manifestes locaux à l’aide du gestionnaire de packages Windows.
+
+Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas installer de packages avec des manifestes locaux à l’aide du gestionnaire de packages Windows.</string>
+      <string id="EnableHashOverride">Activer le remplacement de code de hachage du Programme d’installation de l’application</string>
+      <string id="EnableHashOverrideExplanation">Cette stratégie détermine si les utilisateurs peuvent configurer le Gestionnaire de package Windows ou non pour activer la fonction de remplacement de la validation de sécurité SHA256 dans les paramètres.
+
+Si vous activez ou ne configurez pas cette stratégie, les utilisateurs pourront activer la fonction de remplacement la validation de sécurité SHA256 dans les paramètres du Gestionnaire de package Windows.
+
+Si vous désactivez cette stratégie, les utilisateurs ne pourront pas activer la fonction de remplacement la validation de sécurité SHA256 dans les paramètres du Gestionnaire de package Windows.</string>
+      <string id="EnableDefaultSource">Activer la source par défaut du Programme d'installation d'application</string>
+      <string id="EnableDefaultSourceExplanation">Cette stratégie contrôle la source par défaut incluse dans le Gestionnaire de package Windows.
+
+Si vous ne configurez pas ce paramètre, la source par défaut pour le Gestionnaire de package Windows est disponible et peut être supprimée.
+
+Si vous activez ce paramètre, la source par défaut pour le Gestionnaire de package Windows est disponible et ne peut pas être supprimée.
+
+Si vous désactivez ce paramètre, la source par défaut pour le Gestionnaire de package Windows n’est pas disponible.</string>
+      <string id="EnableMicrosoftStoreSource">Activer la source Microsoft Store du Programme d’installation d’application</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Cette stratégie contrôle la source du Microsoft Store incluse dans le Gestionnaire de package Windows.
+
+Si vous ne configurez pas ce paramètre, la source du Microsoft Store pour le Gestionnaire de package Windows est disponible et peut être supprimée.
+
+Si vous activez ce paramètre, la source du Microsoft Store pour le Gestionnaire de package Windows est disponible et ne peut pas être supprimée.
+
+Si vous désactivez ce paramètre, la source du Microsoft Store pour le Gestionnaire de package Windows n’est pas disponible.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Définir l’intervalle en minutes de mise à jour automatique de source du programme d’installation de l’application</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Cette stratégie contrôle l’intervalle de mise à jour automatique pour les sources basées sur un package.
+
+Si vous désactivez ou ne configurez pas ce paramètre, l’intervalle par défaut ou la valeur spécifiée dans les paramètres est utilisé par le gestionnaire de packages Windows.
+
+Si vous activez ce paramètre, le nombre de minutes spécifiées est utilisé par le gestionnaire de packages Windows.</string>
+      <string id="EnableAdditionalSources">Activer les sources supplémentaires du Programme d’installation de l’application</string>
+      <string id="EnableAdditionalSourcesExplanation">Cette stratégie contrôle les sources supplémentaires offertes par l’administrateur informatique de l’entreprise.
+
+Si vous ne configurez pas ce paramètre de stratégie, aucune source supplémentaire n’est configurée pour le Gestionnaire de package Windows.
+
+Si vous activez ce paramètre de stratégie, les sources supplémentaires sont ajoutées au Gestionnaire de package Windows et ne peuvent pas être supprimées. La représentation de chaque source supplémentaire peut être obtenue à partir de sources installées à l’aide de « Winget source export ».
+
+Si vous désactivez ce paramètre de stratégie, aucune source supplémentaire ne peut être configurée pour le Gestionnaire de package Windows.</string>
+      <string id="EnableAllowedSources">Activer les sources autorisées du Programme d’installation de l’application</string>
+      <string id="EnableAllowedSourcesExplanation">Cette stratégie contrôle les sources supplémentaires autorisées par l’administrateur informatique de l’entreprise.
+
+Si vous ne configurez pas ce paramètre de stratégie, les utilisateurs pourront ajouter ou supprimer des sources supplémentaires autres que celles configurées par la stratégie Si
+
+Si vous activez cette stratégie, seules les sources spécifiées peuvent être ajoutées ou supprimées du Gestionnaire de package Windows. La représentation de chaque source autorisée peut être obtenue à partir de sources installées à l’aide de « Winget source export ».
+
+Si vous désactivez ce paramètre de stratégie, aucune source supplémentaire ne peut être configurée pour le Gestionnaire de package Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Intervalle en minutes de mise à jour automatique de source</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Sources supplémentaires : </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Sources autorisées : </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

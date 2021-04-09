@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Programma di installazione app</displayName>
+  <description>Programma di installazione app</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Programma di installazione app desktop</string>
+      <string id="EnableAppInstaller">Abilita programma di installazione app</string>
+      <string id="EnableAppInstallerExplanation">Questo criterio Controlla se Windows Gestione pacchetti può essere utilizzato dagli utenti.
+
+Se si Abilita o non si configura questa impostazione, gli utenti potranno utilizzare Windows Gestione pacchetti.
+
+Se si disabilita questa impostazione, gli utenti non potranno utilizzare Windows Gestione pacchetti.</string>
+      <string id="EnableSettings">Abilita impostazioni del programma di installazione app</string>
+      <string id="EnableSettingsExplanation">Questo criterio Controlla se gli utenti possono modificare le impostazioni.
+
+Se si Abilita o non si configura questa impostazione, gli utenti potranno modificare le impostazioni di Windows Gestione pacchetti.
+
+Se si disabilita questa impostazione, gli utenti non saranno in grado di modificare le impostazioni per Windows Gestione pacchetti.</string>
+      <string id="EnableExperimentalFeatures">Abilita funzionalità sperimentali del programma di installazione app</string>
+      <string id="EnableExperimentalFeaturesExplanation">Questo criterio Controlla se gli utenti possono abilitare le funzionalità sperimentali in Windows Gestione pacchetti.
+
+Se si Abilita o non si configura questa impostazione, gli utenti potranno abilitare le funzionalità sperimentali per Windows Gestione pacchetti.
+
+Se si disabilita questa impostazione, gli utenti non saranno in grado di abilitare le funzionalità sperimentali per Windows Gestione pacchetti.</string>
+      <string id="EnableLocalManifestFiles">Abilita file manifesto locali del programma di installazione app</string>
+      <string id="EnableLocalManifestFilesExplanation">Questo criterio Controlla se gli utenti possono installare pacchetti con file di manifesto locali.
+
+Se si Abilita o non si configura questa impostazione, gli utenti potranno installare pacchetti con manifesti locali tramite Windows Gestione pacchetti.
+
+Se si disabilita questa impostazione, gli utenti non saranno in grado di installare pacchetti con manifesti locali tramite Windows Gestione pacchetti.</string>
+      <string id="EnableHashOverride">Abilita sostituzione hash del programma di installazione app</string>
+      <string id="EnableHashOverrideExplanation">Questa impostazione dei criteri consente di specificare se Windows Gestione pacchetti può essere configurato per abilitare la possibilità di ignorare la convalida di sicurezza SHA256 nelle impostazioni.
+
+Se si Abilita o non si configura questa impostazione dei criteri, gli utenti potranno abilitare la funzionalità di poter ignorare la convalida della sicurezza SHA256 nelle impostazioni di Windows Gestione pacchetti.
+
+Se si disabilita questa impostazione dei criteri, gli utenti non potranno abilitare la funzionalità di ignorare la convalida della sicurezza SHA256 nelle impostazioni di Windows Gestione pacchetti.</string>
+      <string id="EnableDefaultSource">Abilita origine predefinita del programma di installazione app</string>
+      <string id="EnableDefaultSourceExplanation">Questo criterio controlla l'origine predefinita inclusa in Gestione pacchetti Windows.
+
+Se non si configura questa impostazione, l'origine predefinita per il gestore dei pacchetti di Windows sarà disponibile e potrà essere rimossa.
+
+Se si abilita questa impostazione, l'origine predefinita per Windows Gestione pacchetti sarà disponibile e non potrà essere rimossa.
+
+Se si disabilita questa impostazione, l'origine predefinita per Windows Gestione pacchetti non sarà disponibile.</string>
+      <string id="EnableMicrosoftStoreSource">Abilita l'origine Microsoft Store del programma di installazione app</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Questo criterio controlla l'origine Microsoft Store inclusa in Windows Gestione pacchetti.
+
+Se non si configura questa impostazione, l'origine Microsoft Store per il gestore dei pacchetti di Windows sarà disponibile e potrà essere rimossa.
+
+Se si abilita questa impostazione, l'origine Microsoft Store per Windows Gestione pacchetti sarà disponibile e non potrà essere rimossa.
+
+Se si disabilita questa impostazione, l'origine Microsoft Store per Windows Gestione pacchetti non sarà disponibile.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Imposta l'intervallo di aggiornamento automatico dell'origine del programma di installazione app in minuti</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Questo criterio Controlla l'intervallo di aggiornamento automatico per le origini basate sul pacchetto.
+
+Se si disabilita o non si configura questa impostazione, l'intervallo predefinito o il valore specificato nelle impostazioni verranno utilizzati da Windows Gestione pacchetti.
+
+Se si abilita questa impostazione, il numero di minuti specificato verrà utilizzato da Windows Gestione pacchetti.</string>
+      <string id="EnableAdditionalSources">Abilita altre origini del programma di installazione app</string>
+      <string id="EnableAdditionalSourcesExplanation">Questo criterio controlla le origini aggiuntive fornite dall'amministratore IT dell'organizzazione.
+
+Se non si configura questa impostazione dei criteri, non verrà configurata alcuna origine aggiuntiva per Windows Gestione pacchetti.
+
+Se si Abilita questo criterio, le origini aggiuntive verranno aggiunte a Windows Gestione pacchetti e non potranno essere rimosse. È possibile ottenere la rappresentazione di ogni origine aggiuntiva dalle origini installate usando 'esportazione di origine winget'.
+
+Se si disabilita questo criterio, non sarà possibile configurare altre origini per Windows Gestione pacchetti.</string>
+      <string id="EnableAllowedSources">Abilita le origini consentite del programma di installazione app</string>
+      <string id="EnableAllowedSourcesExplanation">Questo criterio controlla le origini aggiuntive fornite dall'amministratore IT dell'organizzazione.
+
+Se non si configura questa impostazione dei criteri, gli utenti potranno aggiungere o rimuovere ulteriori origini oltre quelle configurate dal criterio.
+
+Se si Abilita questo criterio, solo le origini specificate possono essere aggiunte o rimosse a Windows Gestione pacchetti. È possibile ottenere la rappresentazione di ogni origine aggiuntiva dalle origini installate usando 'esportazione di origine winget'.
+
+Se si disabilita questo criterio, non sarà possibile configurare altre origini per Windows Gestione pacchetti.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Intervallo di aggiornamento automatico di origine in minuti</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Origini aggiuntive: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Origini consentite: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

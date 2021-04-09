@@ -386,7 +386,7 @@
     <value>ผลลัพธ์การกรองตามชื่อ</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>ไม่มีของที่สามารถใช้ได้กับระบบปัจจุบัน</value>
+    <value>ไม่พบตัวติดตั้งที่เกี่ยวข้อง ดูรายการบันทึกสำหรับรายละเอียดเพิ่มเติม</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>ขณะนี้ไม่มีฟีเจอร์การทดลองที่พร้อมใช้งาน </value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>ไม่มีเส้นทางนี้อยู่:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>ไฟล์ JSON ไม่ได้ระบุ Schema ที่รู้จัก</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>เลือกขอบเขตการติดตั้ง (ผู้ใช้หรือเครื่อง)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>ค่าที่ให้มาสำหรับอาร์กิวเมนต์ '%1' ไม่ถูกต้อง ค่าที่ถูกต้องคือ</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>การดําเนินการนี้ถูกปิดใช้งานโดยนโยบายกลุ่ม</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>เปิดใช้งานแหล่งที่มาของตัวติดตั้งแอป Windows เพิ่มเติม</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>เปิดใช้งานแหล่งที่มาที่อนุญาตของตัวติดตั้งแอป Windows</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>เปิดใช้งานแหล่งที่มาเริ่มต้นของตัวติดตั้งแอป Windows</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>เปิดใช้งานฟีเจอร์การทดลองของตัวติดตั้งแอป Windows</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>เปิดใช้งานแหล่งที่มา Microsoft Store ของตัวติดตั้งแอป Windows</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>เปิดใช้งานการตั้งค่า Windows Package Manager</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>เปิดใช้งาน Windows Package Manager</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>ตั้งค่าช่วงเวลาการอัปเดตอัตโนมัติของ Windows Package Manager เป็นนาที</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>ปิดใช้งาน</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>เปิดใช้งาน</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>นโยบายกลุ่ม</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>สถานะ</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>เปิดใช้งานแฟ้มกำกับภายในของตัวติดตั้งแอป Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>เขตข้อมูล:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>รูปแบบเขตข้อมูลไม่ถูกต้อง</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>ค่าเขตข้อมูลไม่ถูกต้อง</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>การตั้งค่าจากนโยบายกลุ่มไม่ถูกต้อง</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>โหลดการตั้งค่าจากแฟ้มสำรองแล้ว</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>ข้อผิดพลาดในการแยกวิเคราะห์ไฟล์:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>ค่า:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>ฟีเจอร์การทดลองต่อไปนี้กำลังดำเนินการ
+การกําหนดค่าถูกปิดใช้งานเนื่องจากนโยบายกลุ่ม</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>แฮชตัวติดตั้งไม่ตรงกัน</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>เปิดใช้งานการแทนที่แฮชของตัวติดตั้งแอป Windows</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>ส่งออกแหล่งที่มาปัจจุบันเป็น JSON สำหรับนโยบายกลุ่ม</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>ส่งออกแหล่งที่มาปัจจุบัน</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>แหล่งที่มาเพิ่มเติม</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>แหล่งที่มาที่อนุญาต</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

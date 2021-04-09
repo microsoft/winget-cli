@@ -386,7 +386,7 @@
     <value>ກັ່ນຕອງຜົນການຊອກຫາຕາມຊື່</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>ບໍ່ມີຕົວຕິດຕັ້ງທີ່ສາມາດໃຊ້ໄດ້ກັບລະບົບປັດຈຸບັນ.</value>
+    <value>ບໍ່ພົບຕົວຕິດຕັ້ງທີ່ໃຊ້ໄດ້; ເບິ່ງບັນທຶກສໍາລັບລາຍລະອຽດເພີ່ມເຕີມ.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>ດຽວນີ້ບໍ່ມີຄຸນສົມບັດໃຊ້ງານທົດລອງທີ່ມີຢູ່. </value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>ບໍ່ມີເສັ້ນທາງຢູ່:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>ໄຟລ໌ JSON ບໍ່ໄດ້ລະບຸແບບແຜນທີ່ຖືກຮັບຮູ້.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>ເລືອກຂອບເຂດການຕິດຕັ້ງ (ຜູ້ໃຊ້ຫຼືເຄື່ອງ)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>ຄ່າທີ່ລະບຸສຳລັບອາກິວເມັນ `%1` ແມ່ນບໍ່ຖືກຕ້ອງ; ຄ່າທີ່ຖືກຕ້ອງແມ່ນ</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>ການດໍາເນີນງານນີ້​ຖືກ​ປິດ​ໃຊ້​​ງານໂດຍ​ນະ​ໂຍບາຍ​ກຸ່ມ.</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>ເປີດໃຊ້ງານແຫຼ່ງຂໍ້ມູນເພີ່ມເຕີມຂອງຕົວຕິດຕັ້ງແອັບ Windows</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>ເປີດໃຊ້ງານແຫຼ່ງຂໍ້ມູນທີ່ອະນຸຍາດຂອງຕົວຕິດຕັ້ງແອັບ Windows</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>ເປີດໃຊ້ງານແຫຼ່ງຂໍ້ມູນເລີ່ມຕົ້ນຂອງຕົວຕິດຕັ້ງແອັບ Windows</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>ເປີດໃຊ້ງານຄຸນສົມບັດໃຊ້ງານທົດລອງຂອງຕົວຕິດຕັ້ງແອັບ Windows</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>ເປີດໃຊ້ງານແຫຼ່ງຂໍ້ມູນ Microsoft Store ຂອງຕົວຕິດຕັ້ງແອັບ Windows</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>ການຕັ້ງຄ່າເປີດໃຊ້ງານໂຕຈັດການແພັກເກດ Windows</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>ເປີດໃຊ້ງານໂຕຈັດການແພັກເກດ Windows</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>ຕັ້ງຄ່າໄລຍະເວລາການອັບເດດອັດຕະໂນມັດແຫຼ່ງຂໍ້ມູນຂອງໂຕຈັດການແພັກເກດ Windows ພາຍໃນນາທີ</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>ປິດໃຊ້ງານແລ້ວ</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>ເປີດໃຊ້ງານແລ້ວ</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>ນະໂຍບາຍກຸ່ມ</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>ລັດ</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>ເປີດໃຊ້ງານໄຟລ໌ສະແດງລາຍການໃນເຄື່ອງຂອງຕົວຕິດຕັ້ງແອັບ Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>ຊ່ອງຂໍ້ມູນ:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>ຮູບແບບຊ່ອງຂໍ້ມູນບໍ່ຖືກຕ້ອງ</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>ຄ່າຊ່ອງຂໍ້ມູນບໍ່ຖືກຕ້ອງ</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>ການຕັ້ງຄ່າຈາກນະໂຍບາຍກຸ່ມບໍ່ຖືກຕ້ອງ.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>ໂຫຼດການຕັ້ງຄ່າຈາກໄຟລ໌ສຳຮອງ.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>ເກີດຄວາມຜິດພາດໃນການແຍກວິເຄາະໄຟລ໌:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>ຄ່າ:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>ຄຸນລັກສະນະການທົດລອງຕໍ່ໄປນີ້ກຳລັງດຳເນີນຢູ່.
+ການກໍານົດຄ່າຖືກປິດໃຊ້ງານເນື່ອງຈາກນະໂຍບາຍກຸ່ມ.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>ແຮຊຕົວຕິດຕັ້ງບໍ່ກົງກັນ.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>ເປີດໃຊ້ງານການແທນທີ່ແຮຊຕົວຕິດຕັ້ງແອັບ Windows</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>ສົ່ງອອກແຫຼ່ງຂໍ້ມູນໃນປະຈຸບັນເປັນ JSON ສໍາລັບນະໂຍບາຍກຸ່ມ.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>ສົ່ງອອກແຫຼ່ງຂໍ້ມູນປັດຈຸບັນ</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>ແຫຼ່ງຂໍ້ມູນເພີ່ມເຕີມ</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>ແຫຼ່ງຂໍ້ມູນທີ່ອະນຸຍາດ</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>
