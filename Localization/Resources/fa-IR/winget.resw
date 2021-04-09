@@ -386,7 +386,7 @@
     <value>نتایج را بر اساس نام فیلتر می‌کند</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>هیچ نصب‌کننده‌ای برای سیستم فعلی قابل اجرا نیست.</value>
+    <value>هیچ نصب‌کننده قابل اجرایی یافت نشد؛ برای جزئیات بیشتر، گزارش‌ها را مشاهده کنید.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>در حال حاضر هیچ ویژگی آزمایشی در دسترس نیست. </value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>مسیر وجود ندارد:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>فایل JSON طرح کلی شناخته‌شده‌ای را مشخص نمی‌کند.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>انتخاب دامنه نصب (کاربر یا ماشین)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>مقدار ارائه‌شده برای آرگومان «%1» نامعتبر است؛ مقادیر معتبر عبارتند از</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>این عملیات توسط خط مشی گروه غیرفعال شده است</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>فعال کردن منابع اضافی نصب‌کننده برنامه Windows</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>فعال کردن منابع مجاز نصب‌کننده برنامه Windows</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>فعال کردن منبع پیش‌فرض نصب‌کننده برنامه Windows</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>فعال کردن ویژگی‌های آزمایشی نصب‌کننده برنامه Windows</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>فعال کردن منبع Microsoft Store نصب‌کننده برنامه Windows</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>فعال کردن تنظیمات مدیر بسته Windows</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>فعال کردن مدیر بسته Windows</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>تنظیم فاصله زمانی به‌روزرسانی خودکار منبع مدیر بسته Windows برحسب دقیقه</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>غیرفعال</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>فعال</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>خط مشی گروه</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>حالت</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>فعال کردن فایل‌های مانیفست محلی نصب‌کننده برنامه Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>فیلد:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>قالب فیلد نامعتبر است.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>مقدار فیلد نامعتبر است.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>تنظیم مربوط به خط مشی گروه نامعتبر است.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>تنظیمات از فایل‌های پشتیبان بارگیری شد.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>خطا در تجزیه فایل:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>مقدار:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>ویژگی‌های آزمایشی زیر در حال انجام است.
+به دلیل خط مشی گروه، پیکربندی غیرفعال شده است.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>هش نصب‌کننده مطابقت ندارد.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>فعال کردن نادیده گرفتن هش نصب‌کننده برنامه Windows</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>منابع موجود را در قالب JSON برای خط مشی گروه صادر کنید.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>صدور منابع فعلی</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>منبع اضافی</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>منبع مجاز</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

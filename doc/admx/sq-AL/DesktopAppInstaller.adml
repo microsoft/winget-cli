@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Instaluesi i aplikacioneve</displayName>
+  <description>Instaluesi i aplikacioneve</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Instaluesi i Aplikacionit të Desktopit</string>
+      <string id="EnableAppInstaller">Aktivizo Instaluesin e Aplikacionit</string>
+      <string id="EnableAppInstallerExplanation">Kjo rregullore kontrollon nëse Menaxheri i Paketës së Windows mund të përdoret nga përdoruesit.
+
+Nëse e aktivizon ose nuk e konfiguron këtë parametër, përdoruesit do të jenë në gjendje për të përdorur Menaxherin e Paketës së Windows.
+
+Nëse e çaktivizon këtë parametër, përdoruesit nuk do të jenë në gjendje për të përdorur Menaxherin e Paketës së Windows.</string>
+      <string id="EnableSettings">Aktivizo Parametrat e Instaluesit të Aplikacionit</string>
+      <string id="EnableSettingsExplanation">Kjo rregullore kontrollon nëse përdoruesit mund të ndryshojnë parametrat e tyre.
+
+Nëse e aktivizon ose nuk e konfiguron këtë parametër, përdoruesit do të jenë në gjendje të ndryshojnë parametrat për Menaxherin e Paketës së Windows.
+
+Nëse e çaktivizon këtë parametër, përdoruesit nuk do të jenë në gjendje për të ndryshuar parametrat për Menaxherin e Paketës së Windows.</string>
+      <string id="EnableExperimentalFeatures">Aktivizo Tiparet Eksperimentale të Instaluesit të Aplikacionit</string>
+      <string id="EnableExperimentalFeaturesExplanation">Kjo rregullore kontrollon nëse përdoruesit mund të aktivizojnë tiparet eksperimentale në Menaxherin e Paketës së Windows.
+
+Nëse e aktivizon ose nuk e konfiguron këtë parametër, përdoruesit do të jenë në gjendje të aktivizojnë tiparet eksperimentale për Menaxherin e Paketës së Windows.
+
+Nëse e çaktivizon këtë parametër, përdoruesit nuk do të jenë në gjendje të aktivizosh tiparet eksperimentale për Menaxherin e Paketës së Windows.</string>
+      <string id="EnableLocalManifestFiles">Aktivizo Skedarët Lokalë të Manifestit për Instaluesin e Aplikacionit</string>
+      <string id="EnableLocalManifestFilesExplanation">Kjo rregullore kontrollon nëse përdoruesit mund të instalojnë paketat me skedarët lokalë të manifestit.
+
+Nëse e aktivizon ose nuk e konfiguron këtë parametër, përdoruesit do të jenë në gjendje të instalojnë paketat me manifestime lokale duke përdorur Menaxherin e Paketave të Windows.
+
+Nëse e çaktivizon këtë parametër, përdoruesit nuk do të jenë në gjendje për të instaluar paketat me manifeste lokale duke përdorur Menaxherin e Paketës së Windows.</string>
+      <string id="EnableHashOverride">Aktivizo Injorimin e Kompilimit të Instaluesit të Aplikacionit të Windows</string>
+      <string id="EnableHashOverrideExplanation">Kjo politikë kontrollon nëse Menaxheri i paketave i Windows mund të konfigurohet për të aktivizuar aftësinë e shpërfilljes së vërtetimit të sigurisë SHA256 te parametrat.
+
+Nëse e aktivizon ose nuk e konfiguron këtë politikë, përdoruesit do të mund të aktivizojnë aftësinë për të shpërfillur vërtetimin e sigurisë SHA256 te parametrat e Menaxherit të paketave të Windows.
+
+Nëse e çaktivizon këtë politikë, përdoruesit nuk do të mund të aktivizojnë aftësinë për të shpërfillur vërtetimin e sigurisë SHA256 te parametrat e Menaxherit të paketave të Windows.</string>
+      <string id="EnableDefaultSource">Aktivizo Burimin e Parazgjedhur të Instaluesit të Aplikacionit</string>
+      <string id="EnableDefaultSourceExplanation">Kjo rregullore kontrollon burimin e të parazgjedhur të përfshirë me Menaxherin e Paketës së Windows.
+
+Nëse nuk e konfiguron këtë parametër, burimi i parazgjedhur për Menaxherin e Paketës së Windows do të jetë në dispozicion dhe mund të hiqet.
+
+Nëse e aktivizon këtë parametër, burimi i parazgjedhur për Menaxherin e Paketës së Windows do të jetë në dispozicion dhe nuk mund të hiqet.
+
+Nëse e çaktivizon këtë parametër, burimi i parazgjedhur për Menaxherin e Paketës së Windows nuk do të jetë në dispozicion.</string>
+      <string id="EnableMicrosoftStoreSource">Aktivizo Burimin e Microsoft Store të Instaluesit të Aplikacionit</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Kjo rregullore kontrollon burimin e Microsoft Store të përfshirë me Menaxherin e Paketës së Windows.
+
+Nëse nuk e konfiguron këtë parametër, burimi i Microsoft Store për menaxherin e Paketës së Windows do të jetë në dispozicion dhe mund të hiqet.
+
+Nëse e aktivizon këtë parametër, burimi i Microsoft Store për Menaxherin e Paketës së Windows do të jetë në dispozicion dhe nuk mund të hiqet.
+
+Nëse e çaktivizon këtë parametër, burimi i Microsoft Store për Menaxherin e Paketës së Windows nuk do të jetë në dispozicion.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Vendos në minuta Intervalin e Përditësimit Automatik të Burimit të Instaluesit të Aplikacionit</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Kjo rregullore kontrollon intervalin e përditësimit automatik për burimet e bazuara në paketë.
+
+Nëse e çaktivizon ose nuk e konfiguron këtë parametër, intervali i parazgjedhur ose vlera e specifikuar në parametra do të përdoren nga Menaxheri i Paketës së Windows.
+
+Nëse e aktivizon këtë parametër, numri i minutave të specifikuara do të përdoren nga Menaxheri i Paketës së Windows.</string>
+      <string id="EnableAdditionalSources">Aktivizo Burimet e Tjera të Instaluesit të Aplikacionit</string>
+      <string id="EnableAdditionalSourcesExplanation">Kjo rregullore kontrollon burime të tjera të ofruara nga administratori IT i ndërmarrjes.
+
+Nëse nuk e konfiguron këtë rregullore, asnjë burim tjetër nuk do të konfigurohet për Menaxherin e Paketës së Windows.
+
+Nëse e aktivizon këtë rregullore, burimet e tjera do të shtohen te Menaxheri i Paketës së Windows dhe nuk mund të hiqen. Përfaqësimi për çdo burim tjetër mund të sigurohej nga burime të instaluara duke përdorur 'eksportin e burimit winget'.
+
+Nëse e çaktivizon këtë rregullore, asnjë burim tjetër nuk mund të konfigurohet për Menaxherin e Paketës së Windows.</string>
+      <string id="EnableAllowedSources">Aktivizo Burimet e Lejuara të Instaluesit të Aplikacionit</string>
+      <string id="EnableAllowedSourcesExplanation">Kjo rregullore kontrollon burime të tjera të ofruara nga administratori IT i ndërmarrjes.
+
+Nëse nuk e konfiguron këtë rregullore, përdoruesit nuk do të jenë në gjendje të shtojnë ose heqin burime të tjera nga ato që janë të konfiguruara nga rregullorja.
+
+Nëse e aktivizon këtë rregullore, vetëm burimet e specifikuara mund të shtohen ose heqen nga Menaxheri i Paketës së Windows. Përfaqësimi për çdo burim të lejuar mund të sigurohej nga burime të instaluara duke përdorur 'eksportin e burimit winget'.
+
+Nëse e çaktivizon këtë rregullore, asnjë burim tjetër nuk mund të konfigurohet për Menaxherin e Paketës së Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Intervali i Përditësimit Automatik të Burimit në minuta</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Burime të tjera: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Burimet e lejuara: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

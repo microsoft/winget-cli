@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>مثبت التطبيقات</displayName>
+  <description>مثبت التطبيقات</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">مثبت تطبيقات سطح المكتب</string>
+      <string id="EnableAppInstaller">تمكين مثبت التطبيقات</string>
+      <string id="EnableAppInstallerExplanation">يتحكم هذا النهج في امكانيه استخدام "أداره حزم Windows" من قبل المستخدمين.
+
+إذا قمت بتمكين هذا الاعداد أو لم يتم تكوينه ، سيتمكن المستخدمون من استخدام "أداره حزم Windows".
+
+إذا قمت بتعطيل هذا الاعداد ، فلن يتمكن المستخدمون من استخدام "أداره حزم Windows".</string>
+      <string id="EnableSettings">تفعيل إعدادات مثبت التطبيقات</string>
+      <string id="EnableSettingsExplanation">يتحكم هذا النهج بما إذا كان بإمكان المستخدمين تغيير الإعدادات الخاصة بهم.
+
+إذا قمت بتمكين هذا الاعداد أو لم يتم تكوينه ، سيتمكن المستخدمون من تغيير إعدادات "أداره حزم Windows".
+
+إذا قمت بتعطيل هذا الاعداد ، فلن يتمكن المستخدمون من تغيير إعدادات "أداره حزم Windows".</string>
+      <string id="EnableExperimentalFeatures">تمكين الميزات التجريبية لمثبت التطبيقات</string>
+      <string id="EnableExperimentalFeaturesExplanation">يتحكم هذا النهج بما إذا كان بإمكان المستخدمين تمكين ميزات تجريبية في "أداره حزم Windows".
+
+إذا قمت بتمكين هذا الاعداد أو لم يتم تكوينه ، سيتمكن المستخدمون من تمكين الميزات التجريبية لأداره حزم Windows.
+
+إذا قمت بتعطيل هذا الاعداد ، فلن يتمكن المستخدمون من تمكين الميزات التجريبية لأداره حزم Windows.</string>
+      <string id="EnableLocalManifestFiles">تمكين ملفات البيان المحلي لمثبت التطبيق</string>
+      <string id="EnableLocalManifestFilesExplanation">يتحكم هذا النهج بما إذا كان بإمكان المستخدمين تثبيت الحزم مع ملفات البيانات المحلية.
+
+إذا قمت بتمكين هذا الاعداد أو لم يتم تكوينه ، سيتمكن المستخدمون من تثبيت الحزم مع البيانات المحلية باستخدام "أداره حزم Windows".
+
+إذا قمت بتعطيل هذا الاعداد ، فلن يتمكن المستخدمون من تثبيت الحزم مع البيانات المحلية باستخدام "أداره حزم Windows".</string>
+      <string id="EnableHashOverride">تفعيل تجاوز تجزئة مثبت التطبيقات</string>
+      <string id="EnableHashOverrideExplanation">يتحكم هذا النهج في إمكانية تكوين «مدير حزم Windows» أم لا لتمكين القدرة على تجاوز التحقق من صحة أمان SHA256 في الإعدادات.
+
+إذا قمت بتمكين هذا النهج أو عدم تكوينه، فسيتمكن المستخدمون من تمكين القدرة على تجاوز التحقق من صحة أمان SHA256 في إعدادات "مدير حزم Windows".
+
+إذا قمت بتعطيل هذا النهج، فلن يتمكن المستخدمون من تمكين القدرة على تجاوز التحقق من صحة أمان SHA256 في إعدادات "مدير حزم Windows".</string>
+      <string id="EnableDefaultSource">تمكين المصدر الافتراضي لمثبت التطبيقات</string>
+      <string id="EnableDefaultSourceExplanation">تتحكم هذه السياسة في المصدر الافتراضي المضمن في مدير حزم Windows.
+
+ إذا لم تقم بتكوين هذا الإعداد، فسيكون المصدر الافتراضي لمدير حزم Windows متاحًا ويمكن إزالته.
+
+ إذا قمت بتمكين هذا الإعداد، فسيكون المصدر الافتراضي لمدير حزم Windows متاحًا ولا يمكن إزالته. 
+
+إذا قمت بتعطيل هذا الإعداد، فلن يكون المصدر الافتراضي لمدير حزم Windows متاحًا.</string>
+      <string id="EnableMicrosoftStoreSource">تمكين مصدر Microsoft Store لمثبت التطبيقات</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">تتحكم هذه السياسة في مصدر Microsoft Store المضمن مع مدير حزم Windows.
+
+ إذا لم تقم بتكوين هذا الإعداد، فسيكون مصدر Microsoft Store لمدير حزمة Windows متاحًا ويمكن إزالته.
+
+ إذا قمت بتمكين هذا الإعداد، فسيكون مصدر Microsoft Store لمدير حزم Windows متاحًا ولا يمكن إزالته.
+
+ إذا قمت بتعطيل هذا الإعداد، فلن يكون مصدر Microsoft Store لمدير حزم Windows متاحًا.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">قم بتعيين الفاصل الزمني للتحديث التلقائي لمصدر مثبت التطبيق في دقائق</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">يتحكم هذا النهج في الفاصل الزمني للتحديث التلقائي للمصادر المستندة إلى الحزمة.
+
+في حال تعطيل هذا الاعداد أو عدم تكوينه ، سيتم استخدام الفاصل الزمني الافتراضي أو القيمة المحددة في الإعدادات من قبل "أداره حزم Windows".
+
+إذا قمت بتمكين هذا الاعداد ، سيتم استخدام عدد الدقائق المحددة من قبل "أداره حزم Windows".</string>
+      <string id="EnableAdditionalSources">تمكين مصادر إضافية لمثبت التطبيقات</string>
+      <string id="EnableAdditionalSourcesExplanation">تتحكم هذه السياسة في المصادر الإضافية التي يوفرها مسؤول تكنولوجيا المعلومات في المؤسسة.
+
+ إذا لم تقم بتكوين هذا النهج، فلن يتم تكوين مصادر إضافية لمدير حزم Windows.
+
+ إذا قمت بتمكين هذا النهج، فستتم إضافة المصادر الإضافية إلى مدير حزم Windows ولا يمكن إزالتها. يمكن الحصول على تمثيل لكل مصدر إضافي من المصادر المثبتة باستخدام "تصدير مصدر winget". 
+
+إذا قمت بتعطيل هذه السياسة، فلا يمكن تكوين مصادر إضافية لمدير حزم Windows.</string>
+      <string id="EnableAllowedSources">تمكين المصادر المسموح بها لمثبت التطبيقات</string>
+      <string id="EnableAllowedSourcesExplanation">تتحكم هذه السياسة في المصادر الإضافية التي يسمح بها مسؤول تكنولوجيا المعلومات في المؤسسة.
+
+ إذا لم تقم بتكوين هذه السياسة، فسيتمكن المستخدمون من إضافة أو إزالة مصادر إضافية غير تلك التي تم تكوينها بواسطة السياسة.
+
+ إذا قمت بتمكين هذه السياسة، يمكن فقط إضافة المصادر المحددة أو إزالتها من مدير حزم Windows. يمكن الحصول على التمثيل لكل مصدر مسموح به من المصادر المثبتة باستخدام "تصدير مصدر الجناح".
+
+ إذا قمت بتعطيل هذه السياسة، فلا يمكن تكوين مصادر إضافية لمدير حزم Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">الفاصل الزمني للتحديث التلقائي للمصدر بالدقائق</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">المصادر الإضافية: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">المصادر المسموح بها: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

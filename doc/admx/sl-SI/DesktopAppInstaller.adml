@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Namestitveni program za aplikacije</displayName>
+  <description>Namestitveni program za aplikacije</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Namestitveni program za namizne aplikacije</string>
+      <string id="EnableAppInstaller">Omogoči namestitveni program za aplikacije</string>
+      <string id="EnableAppInstallerExplanation">Ta pravilnik nadzoruje, ali lahko uporabniki uporabljajo upravitelja paketov sistema Windows.
+
+Če omogočite ali ne konfigurirate te nastavitve, bodo uporabniki lahko uporabljali upravitelja paketov sistema Windows.
+
+Če onemogočite to nastavitev, uporabniki ne bodo mogli uporabljati upravitelja paketov sistema Windows.</string>
+      <string id="EnableSettings">Omogoči nastavitve namestitvenega programa za aplikacije</string>
+      <string id="EnableSettingsExplanation">Ta pravilnik nadzoruje, ali lahko uporabniki spremenijo svoje nastavitve.
+
+Če omogočite ali ne konfigurirate te nastavitve, bodo uporabniki lahko spremenili nastavitve za upravitelja paketov sistema Windows.
+
+Če onemogočite to nastavitev, uporabniki ne bodo mogli spremeniti nastavitev za upravitelja paketov sistema Windows.</string>
+      <string id="EnableExperimentalFeatures">Omogoči eksperimentalne funkcije namestitvenega programa za aplikacije</string>
+      <string id="EnableExperimentalFeaturesExplanation">Ta pravilnik nadzoruje, ali lahko uporabniki omogočijo eksperimentalne funkcije v upravitelju paketov sistema Windows.
+
+Če omogočite ali ne konfigurirate te nastavitve, bodo uporabniki lahko omogočili eksperimentalne funkcije za upravitelja paketa sistema Windows.
+
+Če onemogočite to nastavitev, uporabniki ne bodo mogli omogočiti eksperimentalnih funkcij za upravitelja paketov sistema Windows.</string>
+      <string id="EnableLocalManifestFiles">Omogoči lokalne datoteke manifesta namestitvenega programa za aplikacije</string>
+      <string id="EnableLocalManifestFilesExplanation">Ta pravilnik nadzoruje, ali lahko uporabniki namestijo pakete z lokalnimi datotekami manifesta.
+
+Če to nastavitev omogočite ali ne konfigurirate, bodo lahko uporabniki z upraviteljem paketov sistema Windows namestili pakete z lokalnimi manifesti.
+
+Če onemogočite to nastavitev, uporabniki z upraviteljem paketov Windows ne bodo mogli namestiti paketov z lokalnimi manifesti.</string>
+      <string id="EnableHashOverride">Omogoči preglasitev zgoščene vrednosti namestitvenega programa za aplikacije</string>
+      <string id="EnableHashOverrideExplanation">Ta pravilnik nadzoruje, ali je mogoče Paketni upravitelj Windows konfigurirati tako, da omogoča prepis varnostnega preverjanja SHA256 v nastavitvah.
+
+Če omogočite pravilnik ali ga ne konfigurirate, lahko uporabniki v nastavitvah Paketnega upravitelja Windows omogočijo preglasitev varnostnega preverjanja SHA256.
+
+Če onemogočite ta pravilnik, uporabniki v nastavitvah Paketnega upravitelja Windows ne bodo mogli omogočiti preglasitve varnostnega preverjanja SHA256.</string>
+      <string id="EnableDefaultSource">Omogoči privzeti vir namestitvenega programa za aplikacije</string>
+      <string id="EnableDefaultSourceExplanation">Ta pravilnik nadzoruje privzeti vir, ki je vključen v upravitelja paketa sistema Windows.
+
+Če te nastavitve ne konfigurirate, bo privzeti vir za upravitelja paketov sistema Windows na voljo in ga bo mogoče odstraniti.
+
+Če omogočite to nastavitev, bo privzeti vir za upravitelja paketov sistema Windows na voljo in ga ne bo mogoče odstraniti.
+
+Če onemogočite to nastavitev, privzeti vir za upravitelja paketov sistema Windows ne bo na voljo.</string>
+      <string id="EnableMicrosoftStoreSource">Omogoči vir trgovine Microsoft Store namestitvenega programa za aplikacije</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Ta pravilnik nadzoruje vir iz trgovine Microsoft Store, ki je vključen v upravitelja paketa sistema Windows.
+
+Če te nastavitve ne konfigurirate, bo vir Microsoft Store za upravitelja paketov sistema Windows na voljo in ga bo mogoče odstraniti.
+
+Če omogočite to nastavitev, bo vir Microsoft Store za upravitelja paketov sistema Windows na voljo in ga ne bo mogoče odstraniti.
+
+Če onemogočite to nastavitev, vir Microsoft Store za upravitelja paketov sistema Windows ne bo na voljo.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Nastavi interval samodejnega posodabljanja vira namestitvenega programa za aplikacije v minutah</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Ta pravilnik nadzoruje interval samodejnega posodabljanja za vire, ki temeljijo na paketu.
+
+Če onemogočite ali ne konfigurirate te nastavitve, bo privzeti interval ali vrednost, ki je določena v nastavitvah, uporabljena v upravitelju paketov sistema Windows.
+
+Če omogočite to nastavitev, bo upravitelj paketov Windows uporabil določeno število minut.</string>
+      <string id="EnableAdditionalSources">Omogoči dodatne vire za namestitveni program za aplikacije</string>
+      <string id="EnableAdditionalSourcesExplanation">Ta pravilnik nadzira dodatne vire, ki jih ponuja skrbnik IT podjetja.
+
+Če tega pravilnika ne konfigurirate, za upravitelja paketov sistema Windows ne bodo konfigurirani dodatni viri.
+
+Če omogočite ta pravilnik, bodo upravitelju paketov sistema Windows dodani dodatni viri in jih ne bo mogoče odstraniti. Predstavitev za vsak dodatni vir je mogoče pridobiti iz nameščenih virov z uporabo »izvoza vira WinGet«.
+
+Če onemogočite ta pravilnik, ne bo mogoče konfigurirati dodatnih virov za upravitelja paketov sistema Windows.</string>
+      <string id="EnableAllowedSources">Omogoči dovoljene vire za namestitveni program za aplikacije</string>
+      <string id="EnableAllowedSourcesExplanation">Ta pravilnik nadzira dodatne vire, ki jih dovoli skrbnik IT podjetja.
+
+Če tega pravilnika ne konfigurirate, bodo lahko uporabniki dodali ali odstranili dodatne vire, ki niso nastavljeni s pravilnikom.
+
+Če omogočite ta pravilnik, lahko iz upravitelja paketov sistema Windows dodate ali odstranite samo določene vire. Predstavitev vsakega dovoljenega vira je mogoče dobiti iz nameščenih virov z uporabo »izvoza vira WinGet«.
+
+Če onemogočite ta pravilnik, ne bo mogoče konfigurirati dodatnih virov za upravitelja paketov sistema Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Interval samodejnega posodabljanja v minutah</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Dodatni viri: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Dovoljeni viri: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

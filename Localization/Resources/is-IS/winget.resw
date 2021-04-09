@@ -386,7 +386,7 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
     <value>Sía niðurstöður eftir heiti</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Engin uppsetningarforrit eru nothæf fyrir núverandi kerfi.</value>
+    <value>Engin viðeigandi uppsetningarforrit fundust; frekari upplýsingar er að finna í annálum.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Engir eiginleikar á tilraunastigi eru tiltækir eins og er. </value>
@@ -813,5 +813,107 @@ Hægt er að grinnstilla þá í stillingaskránni „winget settings“.</value
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Slóð er ekki til:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON-skráin tilgreinir ekki viðurkennd skemu.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Velja uppsetningarumfang (notandi eða vél)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Gildið sem var sett upp fyrir `%1` frumbreytuna er ógilt; gild gildi eru</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Þessi aðgerð er óvirk vegna hópreglu</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Virkja fleiri uppruna fyrir Windows-uppsetningarforrit</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Virkja leyfða uppruna Windows-uppsetningarforrits</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Virkja sjálfgefinn uppruna fyrir Windows-uppsetningarforrit</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Virkja tilraunaeiginleika Windows-uppsetningarforrits</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Virkja Microsoft Store-uppruna Windows-uppsetningarforrits</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Virkja stillingar Windows-pakkastjóra</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Virkja Windows-pakkastjóra</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Stilla millibil sjálfvirkrar uppfærslu uppruna Windows-pakkastjóra í mínútum</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Óvirk</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Virk</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Hópregla</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Staða</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Virkja staðbundnar upplýsingaskrár Windows-uppsetningarforrits</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Svið:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Ógilt snið reits.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Ógilt gildi reits.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Ógild stilling frá hópreglu.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Hlaðnar stillingar úr skrá öryggisafrit.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Villa við að þátta skrá:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Virði:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Eftirfarandi tilraunaaðgerðir eru í vinnslu.
+Grunnstilling er óvirk vegna hópreglu.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Tætigildi uppsetningarforrits passar ekki.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Leyfa hnekkingu tætigildis Windows-uppsetningarforrits</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Flytja út núverandi uppruna sem JSON fyrir hópreglu.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Flytja út núverandi uppruna</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Viðbótaruppruni</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Leyfður uppruni</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

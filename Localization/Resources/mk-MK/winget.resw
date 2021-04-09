@@ -386,7 +386,7 @@
     <value>Филтрирајте ги резултатите по име</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Нема програми за инсталирање што се применливи на тековниот систем.</value>
+    <value>Нема соодветна програма за инсталирање; погледнете ја евиденцијата за повеќе детали.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Во моментов нема достапни пробни функции. </value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Патеката не постои:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON-датотеката нема препознаена шема.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Изберете опсег на инсталирање (корисник или машина)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Вредноста наведена за аргументот „%1“ е неважечка; важечките вредности се</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Операцијава е исклучена поради групните правила</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Вклучете дополнителни извори за инсталаторот на апликации на Windows</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Вклучете ги дозволените извори на инсталаторот на апликации на Windows</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Вклучете го стандардниот извор на инсталаторот на апликации на Windows</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Вклучете ги експерименталните карактеристики за инсталаторот на апликации на Windows</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Вклучете извор од Microsoft Store за инсталаторот на апликации на Windows</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Вклучете ги параметрите за Управникот за пакети на Windows</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Вклучете го Управникот за пакети на Windows</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Поставете интервал за автоматско ажурирање на изворот на Управникот за пакети на Windows во минути</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Исклучени</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Вклучени</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Групни правила</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Состојба</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Вклучете локални датотеки за манифести за инсталаторот на апликации на Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Поле:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Неважечки формат на поле.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Неважечка вредност на поле.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Неважечки параметар за групните правила.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Параметрите се вчитаа од резервната датотека.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Грешка при разложувањето на датотеката:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Вредност:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Следниве експериментални карактеристики се во тек.
+Конфигурацијата е исклучена поради групните правила.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Хашот на програмата за инсталирање не одговара.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Вклучете пребришување на хашот за инсталаторот на апликации на Windows</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Извезете ги тековните извори како JSON за групните правила.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Извезете ги тековните извори</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Дополнителен извор</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Дозволен извор</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>
