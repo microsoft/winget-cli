@@ -245,7 +245,7 @@
       <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</SDLCheck>
       <EnablePREfast Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</EnablePREfast>
       <EnablePREfast Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">false</EnablePREfast>
-      <EnablePREfast Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</EnablePREfast>
+      <EnablePREfast Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</EnablePREfast>
       <EnablePREfast Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</EnablePREfast>
     </ClCompile>
     <Link>
