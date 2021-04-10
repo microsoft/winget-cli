@@ -11,7 +11,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     // Interface to this schema version exposed through IRestClient.
     struct Interface : public IRestClient
     {
-        Interface(const std::string& restApi, HttpClientHelper&& httpClientHelper);
+        Interface(const std::string& restApi, const HttpClientHelper& httpClientHelper = HttpClientHelper{});
 
         Interface(const Interface&) = delete;
         Interface& operator=(const Interface&) = delete;
@@ -25,7 +25,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         std::vector<Manifest::Manifest> GetManifests(const std::string& packageId, const std::map<std::string_view, std::string>& params = {}) const override;
    
     protected:
-        HttpClientHelper GetHttpClientHelper() const;
         bool MeetsOptimizedSearchCriteria(const SearchRequest& request) const;
         IRestClient::SearchResult OptimizedSearch(const SearchRequest& request) const;
 
