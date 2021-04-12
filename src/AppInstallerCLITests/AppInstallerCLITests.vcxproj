@@ -190,6 +190,7 @@
     <ClCompile Include="ExperimentalFeature.cpp" />
     <ClCompile Include="GroupPolicy.cpp" />
     <ClCompile Include="HashCommand.cpp" />
+    <ClCompile Include="HttpClientHelper.cpp" />
     <ClCompile Include="ManifestComparator.cpp" />
     <ClCompile Include="JsonHelper.cpp" />
     <ClCompile Include="MsixInfo.cpp" />
@@ -202,6 +203,7 @@
     <ClCompile Include="RestClient.cpp" />
     <ClCompile Include="RestHelper.cpp" />
     <ClCompile Include="RestInterface_1_0.cpp" />
+    <ClCompile Include="SearchRequestSerializer.cpp" />
     <ClCompile Include="SQLiteIndexSource.cpp" />
     <ClCompile Include="Strings.cpp" />
     <ClCompile Include="TestHandler.cpp" />

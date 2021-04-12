@@ -44,7 +44,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
             if (searchRequest.IsForEverything())
             {
-                json_body[JsonHelper::GetUtilityString(FetchAllManifests)] = web::json::value::string(L"true");
+                json_body[JsonHelper::GetUtilityString(FetchAllManifests)] = web::json::value::boolean(true);
                 return json_body;
             }
 
@@ -52,8 +52,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             {
                 auto& requestMatch = searchRequest.Query.value();
                 web::json::value requestMatchObject = web::json::value::object();
-                requestMatchObject[JsonHelper::GetUtilityString(RequestMatch)] = GetRequestMatchJsonObject(requestMatch);
-                json_body[JsonHelper::GetUtilityString(Query)] = requestMatchObject;
+                json_body[JsonHelper::GetUtilityString(Query)] = GetRequestMatchJsonObject(requestMatch);;
             }
 
             if (!searchRequest.Filters.empty())

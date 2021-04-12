@@ -34,12 +34,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
     std::optional<IRestClient::SearchResult> SearchResponseDeserializer::DeserializeSearchResult(const web::json::value& searchResponseObject) const
     {
         // Make search result from json output.
+        IRestClient::SearchResult result;
         if (searchResponseObject.is_null())
         {
-            return {};
+            return result;
         }
 
-        IRestClient::SearchResult result;
         try
         {
             std::optional<std::reference_wrapper<const web::json::array>> dataArray = JsonHelper::GetRawJsonArrayFromJsonNode(searchResponseObject, JsonHelper::GetUtilityString(Data));
