@@ -21,6 +21,7 @@ AType
 AUrl
 Aysnc
 azurewebsites
+Baz
 Beigi
 bfd
 bght
@@ -28,6 +29,7 @@ bitmask
 bkup
 blargle
 blogs
+bluetooth
 bomgar
 BOMs
 brk
@@ -62,8 +64,10 @@ curated
 CYRL
 deigh
 deleteifnotneeded
+delimeter
 dirs
 dnld
+dummyurl
 dvinns
 dw
 endian
@@ -76,6 +80,7 @@ execustom
 EXEHASH
 experimentalfeatures
 fd
+fileextension
 fintimes
 Fixfor
 flargle
@@ -274,4 +279,5 @@ wsv
 wto
 Wunused
 WZDNCRFJ
+XPLATSTR
 zy

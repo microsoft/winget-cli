@@ -322,7 +322,7 @@ TEST_CASE("Search_BadResponse_NotFoundCode", "[RestSource]")
     HttpClientHelper helper{ GetTestHandler(web::http::status_codes::NotFound) };
     Interface v1{ TestRestUriString, std::move(helper) };
     Schema::IRestClient::SearchResult result = v1.Search({});
-    REQUIRE(result.Matches.size() == 0);
+    REQUIRE(result.Matches.empty());
 }
 
 TEST_CASE("Search_Optimized_ManifestResponse", "[RestSource]")
@@ -364,18 +364,7 @@ TEST_CASE("Search_Optimized_NoResponse_NotFoundCode", "[RestSource]")
     request.Filters.emplace_back(std::move(filter));
     Interface v1{ TestRestUriString, std::move(helper) };
     Schema::IRestClient::SearchResult result = v1.Search(request);
-    REQUIRE(result.Matches.size() == 0);
-}
-
-TEST_CASE("Search_Optimized_NoResponse_SuccessCode", "[RestSource]")
-{
-    // TODO: Test this.
-    HttpClientHelper helper{ GetTestHandler(web::http::status_codes::OK) };
-    AppInstaller::Repository::SearchRequest request;
-    PackageMatchFilter filter{ PackageMatchField::Id, MatchType::Exact, "Foo" };
-    request.Filters.emplace_back(std::move(filter));
-    Interface v1{ TestRestUriString, std::move(helper) };
-    REQUIRE_THROWS_HR(v1.Search(request), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
+    REQUIRE(result.Matches.empty());
 }
 
 TEST_CASE("GetManifests_GoodResponse", "[RestSource]")
