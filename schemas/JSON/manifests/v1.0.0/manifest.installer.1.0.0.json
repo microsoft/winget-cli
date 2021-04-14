@@ -60,7 +60,7 @@
         "burn",
         "pwa"
       ],
-      "description": "Enumeration of supported installer types"
+      "description": "Enumeration of supported installer types. InstallerType is required in either root level or individual Installer level"
     },
     "Scope": {
       "type": [ "string", "null" ],
@@ -179,7 +179,7 @@
       "items": {
         "type": "string",
         "pattern": "^[^\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]+$",
-        "maxLength": 40
+        "maxLength": 64
       },
       "maxItems": 256,
       "uniqueItems": true,
