@@ -4,7 +4,6 @@
 #include "RestSourceFactory.h"
 #include "RestClient.h"
 #include "RestSource.h"
-#include <Rest/HttpClientHelper.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;

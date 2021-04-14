@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestHandler.h"
+#include <set>
 #include <Rest/Schema/1_0/Interface.h>
 #include <Rest/Schema/IRestClient.h>
 #include <AppInstallerVersions.h>
-#include <set>
-#include "AppInstallerErrors.h"
-#include "TestHandler.h"
-#include "winget/ManifestValidation.h"
+#include <AppInstallerErrors.h>
+#include <winget/ManifestValidation.h>
 #include <Public/AppInstallerSHA256.h>
 
 using namespace TestCommon;
@@ -21,12 +21,12 @@ using namespace AppInstaller::Repository::Rest::Schema::V1_0;
 
 namespace
 {
-    std::string TestRestUriString = "http://restsource.com/api";
+    const std::string TestRestUriString = "http://restsource.com/api";
 
     utility::string_t GetGoodManifest_RequiredFields()
     {
         return _XPLATSTR(
-            R"delimeter({
+            R"delimiter({
         "Data": {
             "PackageIdentifier": "Foo.Bar",
             "Versions": [
@@ -44,13 +44,13 @@ namespace
                             "Architecture": "x64",
                             "InstallerSha256": "011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6",
                             "InstallerType": "exe",
-                            "InstallerUrl": "https://dummyurl.com/foobar.exe"
+                            "InstallerUrl": "https://installer.example.com/foobar.exe"
                         }
                     ]
                 }
             ]
         }
-    })delimeter");
+    })delimiter");
     }
 
     struct GoodManifest_AllFields
@@ -60,7 +60,7 @@ namespace
         {
             utility::string_t id = L"Foo.Bar";
             return _XPLATSTR(
-                R"delimeter(
+                R"delimiter(
         {
           "Data": {
             "PackageIdentifier": "Foo.Bar",
@@ -149,7 +149,7 @@ namespace
                        "protocol1"
                     ],
                     "FileExtensions": [
-                      ".fileextension"
+                      ".file-extension"
                     ],
                     "Dependencies": {
                       "WindowsFeatures": [
@@ -171,7 +171,7 @@ namespace
                     "PackageFamilyName": "FooBar.PackageFamilyName",
                     "ProductCode": "",
                     "Capabilities": [
-                      "bluetooth"
+                      "Bluetooth"
                     ],
                     "RestrictedCapabilities": [
                       "restrictedCapability"
@@ -182,7 +182,7 @@ namespace
             ]
           },
           "ContinuationToken": "abcd"
-        })delimeter");
+        })delimiter");
         }
 
         void VerifyLocalizations_AllFields(Manifest manifest)
@@ -258,7 +258,7 @@ namespace
             REQUIRE(actualInstaller.UpdateBehavior == UpdateBehaviorEnum::Install);
             REQUIRE(actualInstaller.Commands.at(0) == "command1");
             REQUIRE(actualInstaller.Protocols.at(0) == "protocol1");
-            REQUIRE(actualInstaller.FileExtensions.at(0) == ".fileextension");
+            REQUIRE(actualInstaller.FileExtensions.at(0) == ".file-extension");
             REQUIRE(actualInstaller.Dependencies.WindowsFeatures.at(0) == "feature1");
             REQUIRE(actualInstaller.Dependencies.WindowsLibraries.at(0) == "library1");
             REQUIRE(actualInstaller.Dependencies.PackageDependencies.at(0).Id == "Foo.Baz");
@@ -266,7 +266,7 @@ namespace
             REQUIRE(actualInstaller.Dependencies.ExternalDependencies.at(0) == "FooBarBaz");
             REQUIRE(actualInstaller.PackageFamilyName == "FooBar.PackageFamilyName");
             REQUIRE(actualInstaller.ProductCode == "");
-            REQUIRE(actualInstaller.Capabilities.at(0) == "bluetooth");
+            REQUIRE(actualInstaller.Capabilities.at(0) == "Bluetooth");
             REQUIRE(actualInstaller.RestrictedCapabilities.at(0) == "restrictedCapability");
         }
     };
@@ -275,7 +275,7 @@ namespace
 TEST_CASE("Search_GoodResponse", "[RestSource]")
 {
     utility::string_t sample = _XPLATSTR(
-        R"delimeter({
+        R"delimiter({
             "Data" : [
                {
               "PackageIdentifier": "git.package",
@@ -285,9 +285,9 @@ TEST_CASE("Search_GoodResponse", "[RestSource]")
                 {   "PackageVersion": "1.0.0" },
                 {   "PackageVersion": "2.0.0"}]
             }]
-        })delimeter");
+        })delimiter");
 
-    HttpClientHelper helper{ GetTestHandler(web::http::status_codes::OK, std::move(sample)) };
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
     Interface v1{ TestRestUriString, std::move(helper) };
     Schema::IRestClient::SearchResult searchResponse = v1.Search({});
     REQUIRE(searchResponse.Matches.size() == 1);
@@ -300,26 +300,26 @@ TEST_CASE("Search_GoodResponse", "[RestSource]")
     REQUIRE(package.Versions.at(1).VersionAndChannel.GetVersion().ToString().compare("2.0.0") == 0);
 }
 
-TEST_CASE("Search_BadResponse", "[RestSource]")
+TEST_CASE("Search_BadResponse_NoVersions", "[RestSource]")
 {
     utility::string_t sample = _XPLATSTR(
-        R"delimeter({
+        R"delimiter({
             "Data" : [
                {
               "PackageIdentifier": "git.package",
               "PackageName": "package",
               "Publisher": "git",
               "Versions": null }]
-        })delimeter");
+        })delimiter");
 
-    HttpClientHelper helper{ GetTestHandler(web::http::status_codes::OK, std::move(sample)) };
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
     Interface v1{ TestRestUriString, std::move(helper) };
     REQUIRE_THROWS_HR(v1.Search({}), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
 }
 
 TEST_CASE("Search_BadResponse_NotFoundCode", "[RestSource]")
 {
-    HttpClientHelper helper{ GetTestHandler(web::http::status_codes::NotFound) };
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::NotFound) };
     Interface v1{ TestRestUriString, std::move(helper) };
     Schema::IRestClient::SearchResult result = v1.Search({});
     REQUIRE(result.Matches.empty());
@@ -328,7 +328,7 @@ TEST_CASE("Search_BadResponse_NotFoundCode", "[RestSource]")
 TEST_CASE("Search_Optimized_ManifestResponse", "[RestSource]")
 {
     utility::string_t sample = GetGoodManifest_RequiredFields();
-    HttpClientHelper helper{ GetTestHandler(web::http::status_codes::OK, std::move(sample)) };
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
     AppInstaller::Repository::SearchRequest request;
     PackageMatchFilter filter{ PackageMatchField::Id, MatchType::Exact, "Foo" };
     request.Filters.emplace_back(std::move(filter));
@@ -353,12 +353,12 @@ TEST_CASE("Search_Optimized_ManifestResponse", "[RestSource]")
     REQUIRE(manifest.Installers[0].Arch == Architecture::X64);
     REQUIRE(manifest.Installers[0].Sha256 == AppInstaller::Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6"));
     REQUIRE(manifest.Installers[0].InstallerType == InstallerTypeEnum::Exe);
-    REQUIRE(manifest.Installers[0].Url == "https://dummyurl.com/foobar.exe");
+    REQUIRE(manifest.Installers[0].Url == "https://installer.example.com/foobar.exe");
 }
 
 TEST_CASE("Search_Optimized_NoResponse_NotFoundCode", "[RestSource]")
 {
-    HttpClientHelper helper{ GetTestHandler(web::http::status_codes::NotFound) };
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::NotFound) };
     AppInstaller::Repository::SearchRequest request;
     PackageMatchFilter filter{ PackageMatchField::Id, MatchType::Exact, "Foo" };
     request.Filters.emplace_back(std::move(filter));
@@ -371,7 +371,7 @@ TEST_CASE("GetManifests_GoodResponse", "[RestSource]")
 {
     GoodManifest_AllFields sampleManifest;
     utility::string_t sample = sampleManifest.GetSampleManifest_AllFields();
-    HttpClientHelper helper{ GetTestHandler(web::http::status_codes::OK, std::move(sample)) };
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
     Interface v1{ TestRestUriString, std::move(helper) };
     std::vector<Manifest> manifests = v1.GetManifests("Foo.Bar");
     REQUIRE(manifests.size() == 1);
@@ -389,7 +389,7 @@ TEST_CASE("GetManifests_GoodResponse", "[RestSource]")
 TEST_CASE("GetManifests_BadResponse_SuccessCode", "[RestSource]")
 {
     utility::string_t badManifest = _XPLATSTR(
-        R"delimeter({
+        R"delimiter({
         "Data": {
             "PackageIdentifier": "Foo.Bar",
             "Versions": [
@@ -398,16 +398,17 @@ TEST_CASE("GetManifests_BadResponse_SuccessCode", "[RestSource]")
                 }
             ]
         }
-    })delimeter");
+    })delimiter");
 
-    HttpClientHelper helper{ GetTestHandler(web::http::status_codes::OK, std::move(badManifest)) };
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(badManifest)) };
     Interface v1{ TestRestUriString, std::move(helper) };
     REQUIRE_THROWS_HR(v1.GetManifests("Foo.Bar"), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA);
 }
 
 TEST_CASE("GetManifests_NotFoundCode", "[RestSource]")
 {
-    HttpClientHelper helper{ GetTestHandler(web::http::status_codes::NotFound) };
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::NotFound) };
     Interface v1{ TestRestUriString, std::move(helper) };
-    REQUIRE_NOTHROW(v1.GetManifests("Foo.Bar"));
+    std::vector<Manifest> manifests = v1.GetManifests("Foo.Bar");
+    REQUIRE(manifests.empty());
 }

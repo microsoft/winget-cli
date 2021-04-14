@@ -7,7 +7,7 @@
 
 namespace AppInstaller::Repository::Rest
 {
-    HttpClientHelper::HttpClientHelper(std::optional<std::shared_ptr<web::http::http_pipeline_stage>> stage) : m_requestHandlerStage(stage) {}
+    HttpClientHelper::HttpClientHelper(std::optional<std::shared_ptr<web::http::http_pipeline_stage>> stage) : m_defaultRequestHandlerStage(stage) {}
 
     pplx::task<web::http::http_response> HttpClientHelper::Post(
         const utility::string_t& uri, const web::json::value& body, const std::vector<std::pair<utility::string_t, utility::string_t>>& headers) const
@@ -74,10 +74,10 @@ namespace AppInstaller::Repository::Rest
     {
         web::http::client::http_client client{ uri };
 
-        // Add custom handlers if any.
-        if (m_requestHandlerStage)
+        // Add default custom handlers if any.
+        if (m_defaultRequestHandlerStage)
         {
-            client.add_handler(m_requestHandlerStage.value());
+            client.add_handler(m_defaultRequestHandlerStage.value());
         }
 
         return client;

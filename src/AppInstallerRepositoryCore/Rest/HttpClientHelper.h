@@ -26,6 +26,6 @@ namespace AppInstaller::Repository::Rest
         std::optional<web::json::value> ExtractJsonResponse(const web::http::http_response& response) const;
 
     private:
-        std::optional<std::shared_ptr<web::http::http_pipeline_stage>> m_requestHandlerStage;
+        std::optional<std::shared_ptr<web::http::http_pipeline_stage>> m_defaultRequestHandlerStage;
     };
 }

@@ -29,7 +29,7 @@ bitmask
 bkup
 blargle
 blogs
-bluetooth
+Bluetooth
 bomgar
 BOMs
 brk
@@ -64,10 +64,8 @@ curated
 CYRL
 deigh
 deleteifnotneeded
-delimeter
 dirs
 dnld
-dummyurl
 dvinns
 dw
 endian
@@ -80,7 +78,6 @@ execustom
 EXEHASH
 experimentalfeatures
 fd
-fileextension
 fintimes
 Fixfor
 flargle

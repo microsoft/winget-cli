@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
-#include "AppInstallerErrors.h"
 #include "TestHandler.h"
-#include "Rest/Schema/1_0/Json/SearchRequestSerializer.h"
+#include <AppInstallerErrors.h>
+#include <Rest/Schema/1_0/Json/SearchRequestSerializer.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::Repository;

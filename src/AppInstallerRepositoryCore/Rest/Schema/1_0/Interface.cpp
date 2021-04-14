@@ -54,12 +54,11 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         }
     }
 
-    Interface::Interface(const std::string& restApi, const HttpClientHelper& httpClientHelper)
+    Interface::Interface(const std::string& restApi, const HttpClientHelper& httpClientHelper) : m_httpClientHelper(httpClientHelper)
     {
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(JsonHelper::GetUtilityString(restApi)));
 
         m_restApiUri = restApi;
-        m_httpClientHelper = httpClientHelper;
         m_searchEndpoint = GetSearchEndpoint(m_restApiUri);
         m_requiredRestApiHeaders.emplace_back(
             std::pair(JsonHelper::GetUtilityString(ContractVersion), JsonHelper::GetUtilityString(GetVersion().ToString())));
