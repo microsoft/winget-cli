@@ -12,7 +12,7 @@ using namespace AppInstaller::Utility;
 using namespace AppInstaller::Repository::Rest;
 using namespace AppInstaller::Repository::Rest::Schema;
 
-TEST_CASE("GetLatestCommonVersion", "[RestSource]")
+TEST_CASE("GetLatestCommonVersion", "[RestSource][RestClient]")
 {
     std::set<AppInstaller::Utility::Version> wingetSupportedContracts = { Version {"1.0.0"}, Version {"1.2.0"} };
     std::vector<std::string> versions{ "1.0.0", "2.0.0", "1.2.0" };
