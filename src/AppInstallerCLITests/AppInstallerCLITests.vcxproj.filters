@@ -36,7 +36,7 @@
     <ClInclude Include="TestSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TestHandler.h">
+    <ClInclude Include="TestRestRequestHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -155,7 +155,7 @@
     <ClCompile Include="RestInterface_1_0.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TestHandler.cpp">
+    <ClCompile Include="TestRestRequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HttpClientHelper.cpp">

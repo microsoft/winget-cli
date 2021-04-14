@@ -176,7 +176,7 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="TestCommon.h" />
-    <ClInclude Include="TestHandler.h" />
+    <ClInclude Include="TestRestRequestHandler.h" />
     <ClInclude Include="TestHooks.h" />
     <ClInclude Include="TestSettings.h" />
     <ClInclude Include="TestSource.h" />
@@ -206,7 +206,7 @@
     <ClCompile Include="SearchRequestSerializer.cpp" />
     <ClCompile Include="SQLiteIndexSource.cpp" />
     <ClCompile Include="Strings.cpp" />
-    <ClCompile Include="TestHandler.cpp" />
+    <ClCompile Include="TestRestRequestHandler.cpp" />
     <ClCompile Include="TestSettings.cpp" />
     <ClCompile Include="TestSource.cpp" />
     <ClCompile Include="UserSettings.cpp" />

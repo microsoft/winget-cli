@@ -54,11 +54,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         }
     }
 
-    Interface::Interface(const std::string& restApi, const HttpClientHelper& httpClientHelper) : m_httpClientHelper(httpClientHelper)
+    Interface::Interface(const std::string& restApi, const HttpClientHelper& httpClientHelper) : m_restApiUri(restApi), m_httpClientHelper(httpClientHelper)
     {
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(JsonHelper::GetUtilityString(restApi)));
 
-        m_restApiUri = restApi;
         m_searchEndpoint = GetSearchEndpoint(m_restApiUri);
         m_requiredRestApiHeaders.emplace_back(
             std::pair(JsonHelper::GetUtilityString(ContractVersion), JsonHelper::GetUtilityString(GetVersion().ToString())));
@@ -117,6 +116,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
     bool Interface::MeetsOptimizedSearchCriteria(const SearchRequest& request) const
     {
+        // Optimization: If the user wants to install a certain package with an exact match on package id and a particular rest source, we will
+        // call the package manifest endpoint to get the manifest directly insteading of running a search for it.
         if (!request.Query && request.Inclusions.size() == 0 &&
             request.Filters.size() == 1 && request.Filters[0].Field == PackageMatchField::Id &&
             request.Filters[0].Type == MatchType::Exact)

@@ -98,6 +98,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
     std::optional<std::vector<Manifest::Manifest>> ManifestDeserializer::DeserializeVersion(const web::json::value& dataJsonObject) const
     {
+        if (dataJsonObject.is_null())
+        {
+            AICLI_LOG(Repo, Error, << "Missing json object.");
+            return {};
+        }
+
         std::vector<Manifest::Manifest> manifests;
         try
         {

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
-#include "TestHandler.h"
+#include "TestRestRequestHandler.h"
 #include <Rest/RestClient.h>
 #include <Rest/Schema/IRestClient.h>
 #include <AppInstallerVersions.h>
