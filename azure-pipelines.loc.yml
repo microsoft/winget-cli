@@ -18,17 +18,34 @@ jobs:
     vmImage: windows-2019
   variables:
     skipComponentGovernanceDetection: true
+    tdbuildTeamId: 8343
+    tdbuildAuthId: 2796a411-f030-46c1-ae3e-ab56f60ea523
+    tdbuildAuthKey: $(LocServiceKey)
   steps:
+    # Upload client resources
   - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@1
     displayName: Send resources to Touchdown Build
     inputs:
-      teamId: 8343
-      authId: 2796a411-f030-46c1-ae3e-ab56f60ea523
-      authKey: $(LocServiceKey)
+      teamId: $(tdbuildTeamId)
+      authId: $(tdbuildAuthId)
+      authKey: $(tdbuildAuthKey)
       isPreview: false
       relativePathRoot: src\AppInstallerCLIPackage\Shared\Strings\en-us
       resourceFilePath: '*.resw'
       outputDirectoryRoot: localization/Resources/
+
+    # Upload Group Policy ADML
+    # Do it as a separate step as we need the result in a different location
+  - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@1
+    displayName: Send ADML to Touchdown Build
+    inputs:
+      teamId: $(tdbuildTeamId)
+      authId: $(tdbuildAuthId)
+      authKey: $(tdbuildAuthKey)
+      isPreview: false
+      relativePathRoot: doc\admx\en-US
+      resourceFilePath: '*.adml'
+      outputDirectoryRoot: Localization\Policies\
 
   - script: |
       cd $(Build.SourcesDirectory)

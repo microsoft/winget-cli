@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Appinstallationsprogram</displayName>
+  <description>Appinstallationsprogram</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Appinstallationsprogram för skrivbord</string>
+      <string id="EnableAppInstaller">Aktivera Appinstallationsprogram</string>
+      <string id="EnableAppInstallerExplanation">Den här principen styr om Windows paket hanteraren kan användas av användare.
+
+Om den här inställningen aktive ras eller inte konfigureras kan användarna använda paket hanteraren i Windows.
+
+Om du inaktiverar den här inställningen kan användarna inte använda Windows paket hanteraren.</string>
+      <string id="EnableSettings">Aktivera inställningar i Appinstallationsprogram</string>
+      <string id="EnableSettingsExplanation">Den här principen anger om användare kan ändra sina inställningar.
+
+Om du aktiverar eller låter bli att konfigurera den här inställningen kan användarna ändra inställningarna för paket hanteraren i Windows.
+
+Om du inaktiverar den här inställningen kan användarna inte ändra inställningarna för paket hanteraren i Windows.</string>
+      <string id="EnableExperimentalFeatures">Aktivera experimentfunktioner i Appinstallationsprogram</string>
+      <string id="EnableExperimentalFeaturesExplanation">Den här principen anger om användare kan aktivera experimentella funktioner i Windows paket hanteraren.
+
+Om du aktiverar eller låter bli att konfigurera den här inställningen kan användarna aktivera experimentella funktioner för Windows paket hanteraren.
+
+Om du inaktiverar den här inställningen kan användarna inte aktivera experimentella funktioner för Windows paket hanteraren.</string>
+      <string id="EnableLocalManifestFiles">Aktivera lokala manifestfiler för Appinstallationsprogram</string>
+      <string id="EnableLocalManifestFilesExplanation">Den här principen anger om användare kan installera paket med lokala manifestfiler.
+
+Om du aktiverar eller låter bli att konfigurera den här inställningen kan användarna installera paket med lokala manifest med hjälp av Windows Package Manager.
+
+Om du inaktiverar den här inställningen kan användarna inte installera paket med lokala manifest med hjälp av Windows Package Manager.</string>
+      <string id="EnableHashOverride">Aktivera åsidosättning av hash för Appinstallationsprogram</string>
+      <string id="EnableHashOverrideExplanation">Den här principen anger om Windows Package Manager kan konfigureras så att den tillåter möjligheten att åsidosätta SHA256 säkerhetsverifiering i inställningar.
+
+Om du aktiverar eller låter bli att konfigurera den här principen kan användarna aktivera möjligheten att åsidosätta SHA256 säkerhetsverifiering i Windows Package Manager.
+
+Om du inaktiverar den här principen kan inte användarna aktivera funktionen SHA256 säkerhetsverifiering i Windows Package Manager.</string>
+      <string id="EnableDefaultSource">Aktivera standardkälla för Appinstallationsprogram</string>
+      <string id="EnableDefaultSourceExplanation">Den här principen styr standardkällan som ingår i Windows Package Manager.
+
+Om du inte konfigurerar den här inställningen kommer standardkällan för Windows Package Manager att vara tillgänglig och kan tas bort.
+
+Om du aktiverar den här inställningen kommer standardkällan för Windows Package Manager att vara tillgänglig och kan inte tas bort.
+
+Om du inaktiverar den här inställningen kommer inte standardkällan för Windows Package Manager att vara tillgänglig.</string>
+      <string id="EnableMicrosoftStoreSource">Aktivera Microsoft Store-källa för Appinstallationsprogram</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Den här principen styr Microsoft Store-källan som ingår i Windows Package Manager.
+
+Om du inte konfigurerar den här inställningen kommer Microsoft Store-källan för Windows Package Manager att vara tillgänglig och kan tas bort.
+
+Om du aktiverar den här inställningen kommer Microsoft Store-källan för Windows Package Manager att vara tillgänglig och kan inte tas bort.
+
+Om du inaktiverar den här inställningen kommer inte Microsoft Store-källan för Windows Package Manager att vara tillgänglig.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Ange intervall i minuter för automatisk uppdatering av Appinstallationsprogram</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Den här principen styr det automatiska uppdateringsintervallet för paketbaserade källor.
+
+Om du inaktiverar eller låter bli att konfigurera den här inställningen kommer standardintervallet eller det värde som anges i inställningar att användas av Windows Package Manager.
+
+Om den här inställningen aktiveras används det antal minuter som anges av Windows Package Manager.</string>
+      <string id="EnableAdditionalSources">Aktivera ytterligare källor i Appinstallationsprogram</string>
+      <string id="EnableAdditionalSourcesExplanation">Den här principen styr ytterligare källor från IT-administratören på företaget.
+
+Om du inte konfigurerar den här principen kommer inga ytterligare källor att konfigureras för Windows Package Manager.
+
+Om du aktiverar den här principen kommer de nya källorna att läggas till i Windows Package Manager och kan inte tas bort. Representationen för varje ytterligare källa kan erhållas från installerade källor med "winget source export".
+
+Om du inaktiverar den här principen kan inga ytterligare källor konfigureras för Windows Package Manager.</string>
+      <string id="EnableAllowedSources">Aktivera tillåtna källor i Appinstallationsprogram</string>
+      <string id="EnableAllowedSourcesExplanation">Den här principen styr ytterligare källor som IT-administratören på företaget har tillåtit.
+
+Om du inte konfigurerar denna policy kan användare lägga till eller ta bort andra källor än de som konfigurerats av principen.
+
+Om du aktiverar denna princip kan bara de angivna källorna läggas till eller tas bort från Windows Package Manager. Representationen för varje tillåten källa kan erhållas från installerade källor med "winget source export".
+
+Om du inaktiverar den här principen kan inga ytterligare källor konfigureras för Windows Package Manager.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Intervall i minuter för automatisk uppdatering av källa</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Ytterligare källor: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Tillåtna källor: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

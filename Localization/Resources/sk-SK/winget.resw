@@ -386,7 +386,7 @@ Môžu byť nakonfigurované prostredníctvom súboru „winget settings“.</va
     <value>Filtrovať výsledky podľa názvu</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Na aktuálny systém nie sú použiteľné žiadne inštalačné súbory.</value>
+    <value>Nenašiel sa žiaden použiteľný Inštalátor; Ďalšie podrobnosti nájdete v denníkoch.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Momentálne nie sú k dispozícii žiadne exprimentálne funkcie.</value>
@@ -813,5 +813,107 @@ Môžu byť nakonfigurované prostredníctvom súboru „winget settings“.</va
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Cesta neexistuje:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>Súbor JSON neurčuje rozpoznanú schému.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Vyberte rozsah inštalácie (používateľ alebo počítač)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Hodnota zadaná pre argument%1je neplatná. platné hodnoty sú</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Táto operácia je zakázaná skupinovou politikou</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Povoliť ďalšie zdroje inštalátora aplikácií Windows</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Povoliť povolené zdroje inštalátora aplikácií Windows</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Povoliť predvolený zdroj inštalátora aplikácií Windows</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Povoliť experimentálne funkcie inštalátora aplikácií Windows</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Povoliť zdroj Microsoft Store pre inštalátor aplikácií Windows</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Povoliť nastavenia Windows Správcu balíkov</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Povoliť Windows Správcu balíkov</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Nastaviť interval automatickej aktualizácie zdroja Windows Správcu balíkov v minútach</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Zakázané</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Povolené</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Skupinová politika</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Stav</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Povoliť súbory lokálneho manifestu inštalátora aplikácií systému Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Pole:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Neplatný formát poľa.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Neplatná hodnota poľa.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Neplatné nastavenie zo skupinovej politiky.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Načítali sa nastavenia zo záložného súboru.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Chyba pri analýze súboru:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Hodnota:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Prebieha nasledujúce experimentálne funkcie.
+Konfigurácia je vypnutá z dôvodu skupinovej politiky.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Hodnota hash inštalátora sa nezhoduje.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Povoliť prepísanie hodnoty hash inštalátora aplikácií Windows</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Exportujte aktuálne zdroje ako JSON pre skupinovú politiku.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Exportujte aktuálne zdroje</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Ďalší zdroj</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Povolený zdroj</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

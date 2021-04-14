@@ -386,7 +386,7 @@
     <value>이름을 기준으로 결과 필터링</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>현재 시스템에 적용할 수 있는 설치 관리자가 없습니다.</value>
+    <value>적용 가능한 설치 관리자를 찾을 수 없습니다. 자세한 내용은 로그를 참조하십시오.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>현재 사용 가능한 실험적 기능이 없습니다. </value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>경로가 존재하지 않습니다.</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON 파일에서 인식되는 스키마를 지정하지 않습니다.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>설치 범위 선택(사용자 또는 컴퓨터)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>'%1' 인수에 지정된 값이 잘못되었습니다. 올바른 값:</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>그룹 정책에 따라 이 작업을 사용할 수 없습니다.</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>추가 Windows 앱 설치 관리자 원본 사용</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Windows 앱 설치 관리자 허용된 원본 사용</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Windows 앱 설치 관리자 기본 원본 사용</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Windows 앱 설치 관리자 실험적 기능 사용</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Windows 앱 설치 관리자 Microsoft Store 소스 사용</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Windows 패키지 관리자 설정 사용</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Windows 패키지 관리자 사용</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Windows 패키지 관리자 원본 자동 업데이트 간격(분) 설정</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>사용 안 함</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>사용</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>그룹 정책</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>시/도</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Windows 앱 설치 관리자 로컬 매니페스트 파일 사용</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>필드:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>잘못된 필드 형식입니다.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>잘못된 필드 값</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>그룹 정책에서 잘못된 설정</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>백업 파일의 설정이 로드된 경우</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>오류 구문 분석 파일:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>값:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>다음 실험적 기능이 진행 중입니다.
+그룹 정책으로 인해 구성을 사용할 수 없습니다.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>설치 관리자 해시가 일치하지 않습니다.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Windows 앱 설치 관리자 해시 재정의 사용</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>현재 원본을 그룹 정책에 대한 JSON으로 내보냅니다.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>현재 원본 내보내기</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>추가 원본</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>허용된 원본</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

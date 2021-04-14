@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Alat za instalaciju aplikacija</displayName>
+  <description>Alat za instalaciju aplikacija</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Alat za instalaciju aplikacija na stolnom računalu</string>
+      <string id="EnableAppInstaller">Omogućivanje alata za instalaciju aplikacija</string>
+      <string id="EnableAppInstallerExplanation">To određuje kontrole pravilnika u sustavu Windows koje korisnici mogu koristiti.
+
+Ako omogućite ili ne konfigurirate tu postavku, korisnici će moći koristiti Upravitelj paketa za Windows.
+
+Ako onemogućite tu postavku, korisnici neće moći koristiti Upravitelj paketa za Windows.</string>
+      <string id="EnableSettings">Omogućivanje postavki alata za instalaciju aplikacija</string>
+      <string id="EnableSettingsExplanation">To određuje kontrole pravilnika ako korisnici mogu promijeniti svoje postavke.
+
+Ako omogućite ili ne konfigurirate tu postavku, korisnici će moći promijeniti postavke za upravitelj paketa Windows.
+
+Ako onemogućite tu postavku, korisnici neće moći promijeniti postavke za upravitelj paketa Windows.</string>
+      <string id="EnableExperimentalFeatures">Omogućivanje pokusnih značajki alata za instalaciju aplikacija</string>
+      <string id="EnableExperimentalFeaturesExplanation">Tim se pravilnikom upravlja mogu li korisnici omogućiti eksperimentalne značajke u upravitelju Windows Package Manager.
+
+Ako tu postavku omogućite ili ne konfigurirate, korisnici će moći omogućiti eksperimentalne značajke za Windows Package Manager.
+
+Ako onemogućite tu postavku, korisnici neće moći omogućiti eksperimentalne značajke upravitelja Windows Package Manager.</string>
+      <string id="EnableLocalManifestFiles">Omogućivanje datoteka lokalnih manifesta za alat za instalaciju aplikacija</string>
+      <string id="EnableLocalManifestFilesExplanation">Tim se pravilnikom upravlja mogu li korisnici instalirati pakete s datotekama lokalnih manifesta.
+
+Ako omogućite ili ne konfigurirate tu postavku, korisnici će moći instalirati pakete s lokalnim manifestima s pomoću upravitelja Windows Package Manager.
+
+Ako onemogućite tu postavku, korisnici neće moći instalirati pakete s lokalnim manifestima s pomoću upravitelja Windows Package Manager.</string>
+      <string id="EnableHashOverride">Omogućivanje nadjačavanja značajke Hash Installer za aplikacije</string>
+      <string id="EnableHashOverrideExplanation">Ovaj pravilnik kontrolira može li se Windows Package Manager konfigurirati da omogući mogućnost nadjačavanja sigurnosne provjere komponente SHA256 u postavkama.
+
+Ako omogućite ili ne konfigurirate taj pravilnik, korisnici će moći omogućiti mogućnost nadjačavanja sigurnosne provjere komponente SHA256 u postavkama alata Windows Package Manager.
+
+Ako onemogućite taj pravilnik, korisnici neće moći omogućiti mogućnost nadjačavanja sigurnosne provjere komponente SHA256 u postavkama alata Windows Package Manager.</string>
+      <string id="EnableDefaultSource">Omogućivanje zadanog izvora alata za instalaciju aplikacija</string>
+      <string id="EnableDefaultSourceExplanation">Tim se pravilnikom upravlja zadani izvor koji je dio upravitelja Windows Package Manager.
+
+Ako ne konfigurirate tu postavku, zadani izvor za upravitelja Windows Package Manager bit će dostupan i moguće ga je ukloniti.
+
+Ako omogućite tu postavku, zadani izvor za upravitelja Windows Package Manager bit će dostupan i nije ga moguće ukloniti.
+
+Ako onemogućite tu postavku, zadani izvor za upravitelja Windows Package Manager neće biti dostupan.</string>
+      <string id="EnableMicrosoftStoreSource">Omogućivanje izvora trgovine Microsoft Store za alat za instalaciju aplikacija</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Tim se pravilnikom upravlja izvor trgovine Microsoft Store koji je dio upravitelja Windows Package Manager.
+
+Ako ne konfigurirate tu postavku, izvor trgovine Microsoft Store za upravitelja Windows Package Manager bit će dostupan i moguće ga je ukloniti.
+
+Ako omogućite tu postavku, izvor trgovine Microsoft Store za upravitelja Windows Package Manager bit će dostupan i nije ga moguće ukloniti.
+
+Ako onemogućite tu postavku, izvor trgovine Microsoft Store za upravitelja Windows Package Manager neće biti dostupan.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Postavljanje intervala automatskog ažuriranja izvora alata za instalaciju aplikacija u nekoliko minuta</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Ovim se pravilnikom upravlja intervalom automatskog ažuriranja za izvore koji se temelje na paketu.
+
+Ako onemogućite ili ne konfigurirate tu postavku, upravitelj Windows Package Manager upotrijebit će zadani interval ili vrijednost navedenu u postavkama.
+
+Ako omogućite tu postavku, upravitelj Windows Package Manager upotrijebit će broj određenih minuta.</string>
+      <string id="EnableAdditionalSources">Omogućivanje dodatnih izvora alata za instalaciju aplikacija</string>
+      <string id="EnableAdditionalSourcesExplanation">Tim se pravilnikom kontroliraju dodatni izvori koje nudi korporacijski IT administrator.
+
+Ako ne konfigurirate taj pravilnik, za upravitelja Windows Package Manager neće se konfigurirati dodatni izvori.
+
+Ako omogućite taj pravilnik, dodatni izvori bit će dodani upravitelju Windows Package Manager i neće se moći ukloniti. Prikaz svakog dodatnog izvora može se dobiti iz instaliranih izvora s pomoću „winget izvoza izvora”.
+
+Ako onemogućite taj pravilnik, za upravitelja Windows Package Manager nije moguće konfigurirati dodatne izvore.</string>
+      <string id="EnableAllowedSources">Omogućivanje dopuštenih izvora za alat za instalaciju aplikacija</string>
+      <string id="EnableAllowedSourcesExplanation">Tim se pravilnikom kontroliraju dodatni izvori koje nudi korporacijski IT administrator.
+
+Ako ne konfigurirate taj pravilnik, korisnici će moći dodavati ili uklanjati dodatne izvore osim onih konfiguriranih pravilnikom.
+
+Ako omogućite taj pravilnik, samo se navedeni izvori mogu dodavati ili uklanjati iz upravitelja Windows Package Manager. Prikaz svakog dopuštenog izvora može se dobiti iz instaliranih izvora s pomoću „winget izvoza izvora”.
+
+Ako onemogućite taj pravilnik, za upravitelja Windows Package Manager nije moguće konfigurirati dodatne izvore.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Interval automatskog ažuriranja izvora u nekoliko minuta</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Dodatni izvori: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Dopušteni izvori: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

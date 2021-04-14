@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>App-Installer</displayName>
+  <description>App-Installer</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Desktop-App-Installer</string>
+      <string id="EnableAppInstaller">App-Installer aktivieren</string>
+      <string id="EnableAppInstallerExplanation">Mit dieser Richt Linie wird gesteuert, ob der Windows-Paket-Manager von Benutzern verwendet werden kann.
+
+Wenn Sie diese Einstellung aktivieren oder nicht konfigurieren, können Benutzer die Windows-Paket-Manager verwenden.
+
+Wenn Sie diese Einstellung deaktivieren, können Benutzer den Windows-Paket-Manager nicht verwenden.</string>
+      <string id="EnableSettings">Einstellungen für den App-Installer aktivieren</string>
+      <string id="EnableSettingsExplanation">Mit dieser Richt Linie wird gesteuert, ob Benutzer Ihre Einstellungen ändern können.
+
+Wenn Sie diese Einstellung aktivieren oder nicht konfigurieren, können Benutzer Einstellungen für die Windows-Paket-Manager ändern.
+
+Wenn Sie diese Einstellung deaktivieren, können Benutzer Einstellungen für die Windows-Paket-Manager nicht ändern.</string>
+      <string id="EnableExperimentalFeatures">Experimentelle Features für den App-Installer aktivieren</string>
+      <string id="EnableExperimentalFeaturesExplanation">Mit dieser Richt Linie wird gesteuert, ob Benutzer Experiment elle Funktionen in der Windows-Paket-Manager aktivieren können.
+
+Wenn Sie diese Einstellung aktivieren oder nicht konfigurieren, können Benutzer Experiment elle Features für die Windows-Paket-Manager aktivieren.
+
+Wenn Sie diese Einstellung deaktivieren, können Benutzer Experiment elle Features für die Windows-Paket-Manager nicht aktivieren.</string>
+      <string id="EnableLocalManifestFiles">Lokale Manifestdateien für App-Installer aktivieren</string>
+      <string id="EnableLocalManifestFilesExplanation">Mit dieser Richt Linie wird gesteuert, ob Benutzer Pakete mit lokalen Manifestdateien installieren können.
+
+Wenn Sie diese Einstellung aktivieren oder nicht konfigurieren, können Benutzer Pakete mit lokalen Manifeste mithilfe des Windows-Paket-Manager installieren.
+
+Wenn Sie diese Einstellung deaktivieren, können Benutzer keine Pakete mit lokalen Manifeste unter Verwendung des Windows-Paket-Manager installieren.</string>
+      <string id="EnableHashOverride">Hash-Überschreibung für den App-Installer aktivieren</string>
+      <string id="EnableHashOverrideExplanation">Diese Richtlinie steuert, ob der Windows-Paket-Manager so konfiguriert werden kann, dass die Fähigkeit „SHA256-Sicherheitsvalidierung überschreiben“ in den Einstellungen aktiviert werden kann.
+
+Wenn Sie diese Richtlinie aktivieren oder nicht konfigurieren, können Benutzer die Fähigkeit „SHA256-Sicherheitsvalidierung überschreiben“ in den Windows-Paket-Manager-Einstellungen aktivieren.
+
+Wenn Sie diese Richtlinie deaktivieren, können Benutzer die Fähigkeit „SHA256-Sicherheitsvalidierung überschreiben“ in den Windows-Paket-Manager-Einstellungen nicht aktivieren.</string>
+      <string id="EnableDefaultSource">Standardquelle für den App-Installer aktivieren</string>
+      <string id="EnableDefaultSourceExplanation">Diese Richtlinie steuert die Standardquelle, die im Windows-Paket-Manager enthalten ist.
+
+Wenn Sie diese Einstellung nicht konfigurieren, ist die Standardquelle für den Windows-Paket-Manager verfügbar und kann entfernt werden.
+
+Wenn Sie diese Einstellung aktivieren, ist die Standardquelle für den Windows-Paket-Manager verfügbar und kann nicht entfernt werden.
+
+Wenn Sie diese Einstellung deaktivieren, ist die Standardquelle für den Windows-Paket-Manager nicht verfügbar.</string>
+      <string id="EnableMicrosoftStoreSource">Microsoft Store-Quelle für den App-Installer aktivieren</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Diese Richtlinie steuert die Microsoft Store-Quelle, die im Windows-Paket-Manager enthalten ist.
+
+Wenn Sie diese Einstellung nicht konfigurieren, ist die Microsoft Store-Quelle für den Windows-Paket-Manager verfügbar und kann entfernt werden.
+
+Wenn Sie diese Einstellung aktivieren, ist die Microsoft Store-Quelle für den Windows-Paket-Manager verfügbar und kann nicht entfernt werden.
+
+Wenn Sie diese Einstellung deaktivieren, ist die Microsoft Store-Quelle für den Windows-Paket-Manager nicht verfügbar.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Intervall für automatische Aktualisierung der App-Installer-Quelle in Minuten festlegen</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Diese Richt Linie steuert das Intervall für die automatische Aktualisierung für Paket basierte Quellen.
+
+Wenn Sie diese Einstellung deaktivieren oder nicht konfigurieren, wird das Standard Intervall oder der in den Einstellungen angegebene Wert vom Windows-Paket-Manager verwendet.
+
+Wenn Sie diese Einstellung aktivieren, wird die angegebene Anzahl von Minuten vom Windows-Paket-Manager verwendet.</string>
+      <string id="EnableAdditionalSources">Zusätzliche Quellen für den App-Installer aktivieren</string>
+      <string id="EnableAdditionalSourcesExplanation">Diese Richtlinie steuert zusätzliche Quellen, die vom IT-Administrator des Unternehmens bereitgestellt werden.
+
+Wenn Sie diese Richtlinie nicht konfigurieren, werden keine zusätzlichen Quellen für den Windows-Paket-Manager konfiguriert.
+
+Wenn Sie diese Richtlinie aktivieren, werden die zusätzlichen Quellen dem Windows-Paket-Manager hinzugefügt und können nicht entfernt werden. Die Repräsentation für jede zusätzliche Quelle kann aus den installierten Quellen mit „winget source export“ bezogen werden.
+
+Wenn Sie diese Richtlinie deaktivieren, können keine zusätzlichen Quellen für den Windows-Paket-Manager konfiguriert werden.</string>
+      <string id="EnableAllowedSources">Zulässige Quellen für den App-Installer aktivieren</string>
+      <string id="EnableAllowedSourcesExplanation">Diese Richtlinie steuert zusätzliche Quellen, die vom IT-Administrator des Unternehmens zugelassen werden.
+
+Wenn Sie diese Richtlinie nicht konfigurieren, können Benutzer zusätzliche Quellen neben den in der Richtlinie konfigurierten hinzufügen oder entfernen.
+
+Wenn Sie diese Richtlinie aktivieren, können nur die angegebenen Quellen dem Windows-Paket-Manager hinzugefügt oder von ihm entfernt werden. Die Repräsentation für jede erlaubte Quelle kann aus den installierten Quellen mit „winget source export“ bezogen werden.
+
+Wenn Sie diese Richtlinie deaktivieren, können keine zusätzlichen Quellen für den Windows-Paket-Manager konfiguriert werden.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Intervall für automatische Aktualisierung der Quelle in Minuten</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Zusätzliche Quellen: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Erlaubte Quellen: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

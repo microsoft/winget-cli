@@ -386,7 +386,7 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
     <value>Filtruoti rezultatus pagal pavadinimą</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Nėra diegimo programų, kurios taikomos esamai sistemai.</value>
+    <value>Taikomos diegimo programos nerasta; daugiau informacijos rasite žurnaluose.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Šiuo metu pasiekiamų eksperimentinių funkcijų nėra. </value>
@@ -813,5 +813,107 @@ Jas galima sukonfigūruoti naudojant parametrų failą „winget settings“.</v
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Kelio nėra:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON faile atpažinta schema nenurodyta.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Pasirinkite diegimo aprėptį (vartotojas arba kompiuteris)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Pateikta "%1" argumento reikšmė yra neleistina; leistinos reikšmės yra</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Grupės strategija išjungė šią operaciją</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Įgalinti papildomus „Windows“ programėlių diegimo programos šaltinius</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Įgalinti „Windows“ programėlių diegimo programos leidžiamus šaltinius</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Įgalinti "Windows App Installer" numatytąjį šaltinį</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Įgalinti „Windows“ programėlių diegimo programos eksperimento funkcijas</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Įgalinti „Windows“ programėlių diegimo programos „Microsoft Store“ šaltinį</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Įgalinti „Windows“ paketų tvarkytuvo parametrus</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Įgalinti „Windows“ paketų tvarkytuvą</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Nustatyti „Windows“ paketų tvarkytuvo šaltinio automatinio naujinimo intervalą minutėmis</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Išjungtas</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Įgalinta</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Grupės strategija</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Būsena</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Įgalinti „Windows“ programėlių diegimo programos vietinius deklaracijos failus</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Laukas:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Lauko formatas neleistinas.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Lauko reikšmė neleistina.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Neleistinas grupės strategijos parametras.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Parametrai įkelti iš atsarginės kopijos failo.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Analizuojamas klaidos failas:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Reikšmė:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Vykdoma šios eksperimentines funkcijos.
+Konfigūracija išjungta dėl grupės strategijos.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Diegimo programos maiša nesutampa.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Įgalinti „Windows“ programėlių diegimo programos maišos perrašymą</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Eksportuoti šiuos šaltinius kaip grupės strategijos JSON.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Eksportuoti dabartinius šaltinius</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Papildomas šaltinis</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Leidžiamas šaltinis</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

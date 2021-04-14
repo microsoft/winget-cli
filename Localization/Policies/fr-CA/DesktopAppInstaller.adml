@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Installeur d'applications</displayName>
+  <description>Installeur d'applications</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Installeur d'applications de bureau</string>
+      <string id="EnableAppInstaller">Activer l’Installeur d'applications</string>
+      <string id="EnableAppInstallerExplanation">Cette politique contrôle si le Gestionnaire d'ensemble Windows peut être utilisé par les utilisateurs.
+
+Si vous activez ou ne configurez pas ce paramètre, les utilisateurs pourront utiliser le Gestionnaire d'ensemble Windows.
+
+Si vous désactivez ce paramètre, les utilisateurs ne seront pas en mesure d’utiliser le Gestionnaire d'ensemble Windows.</string>
+      <string id="EnableSettings">Activer les paramètres de l’Installeur d'applications</string>
+      <string id="EnableSettingsExplanation">Cette politique contrôle si les utilisateurs peuvent modifier leurs paramètres.
+
+Si vous activez ou ne configurez pas ce paramètre, les utilisateurs pourront modifier les paramètres du Gestionnaire d’ensemble Windows.
+
+Si vous désactivez ce paramètre, les utilisateurs ne seront pas en mesure de modifier les paramètres pour le Gestionnaire d'ensemble Windows.</string>
+      <string id="EnableExperimentalFeatures">Activer les fonctions expérimentales de l’Installeur d'applications</string>
+      <string id="EnableExperimentalFeaturesExplanation">Cette politique contrôle si les utilisateurs peuvent activer les fonctions expérimentales dans le Gestionnaire d’ensemble Windows.
+
+Si vous activez ou ne configurez pas ce paramètre, les utilisateurs pourront activer les fonctions expérimentales pour le Gestionnaire d'ensemble Windows.
+
+Si vous désactivez ce paramètre, les utilisateurs ne seront pas en mesure d’activer les fonctions expérimentales pour le Gestionnaire d’ensemble Windows.</string>
+      <string id="EnableLocalManifestFiles">Activer les fichiers de manifeste locaux de l’Installeur d'applications</string>
+      <string id="EnableLocalManifestFilesExplanation">Cette politique contrôle si les utilisateurs peuvent installer des ensembles avec des fichiers de manifeste locaux.
+
+Si vous activez ou ne configurez pas ce paramètre, les utilisateurs pourront installer des ensembles avec des manifestes locaux à l’aide du Gestionnaire d’ensemble Windows.
+
+Si vous désactivez ce paramètre, les utilisateurs ne seront pas en mesure d’installer des ensembles avec des manifestes locaux à l’aide du Gestionnaire d'ensemble Windows.</string>
+      <string id="EnableHashOverride">Activer le remplacement du hash de l’Installeur d'applications</string>
+      <string id="EnableHashOverrideExplanation">Cette politique détermine si le Gestionnaire d’ensemble Windows peut être configuré ou non pour permettre la possibilité de remplacer la validation de sécurité SHA256 dans les paramètres.
+
+Si vous activez ou ne configurez pas cette politique, les utilisateurs pourront activer la possibilité de remplacer la validation de sécurité SHA256 dans les paramètres du Gestionnaire d’ensemble Windows.
+
+Si vous désactivez cette stratégie, les utilisateurs ne seront pas en mesure d’activer la possibilité de remplacer la validation de sécurité SHA256 dans les paramètres du Gestionnaire d’ensemble Windows.</string>
+      <string id="EnableDefaultSource">Activer la source par défaut de l’Installeur d'applications</string>
+      <string id="EnableDefaultSourceExplanation">Cette politique contrôle la source par défaut incluse dans le Gestionnaire d’ensemble Windows.
+
+Si vous ne configurez pas ce paramètre, la source par défaut pour le Gestionnaire d’ensemble Windows sera disponible et peut être supprimée.
+
+Si vous activez ce paramètre, la source par défaut pour le Gestionnaire d’ensemble Windows sera st disponible et ne peut pas être supprimée.
+
+Si vous désactivez ce paramètre, la source par défaut pour le Gestionnaire d’ensemble Windows ne sera pas disponible.</string>
+      <string id="EnableMicrosoftStoreSource">Activer la source Microsoft Store de l’Installeur d'applications</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Cette politique contrôle la source du Microsoft Store incluse dans le Gestionnaire d’ensemble Windows.
+
+Si vous ne configurez pas ce paramètre, la source du Microsoft Store pour le Gestionnaire d’ensemble Windows est disponible et peut être supprimée.
+
+Si vous activez ce paramètre, la source du Microsoft Store pour le Gestionnaire d’ensemble Windows sera disponible et ne pourra pas être supprimée.
+
+Si vous désactivez ce paramètre, la source du Microsoft Store pour le Gestionnaire d’ensemble Windows ne sera pas disponible.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Définir l’intervalle en minutes de mise à jour automatique de la source de l’Installeur d'applications</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Cette politique contrôle l’intervalle de mise à jour automatique pour les sources basées sur des ensembles.
+
+Si vous désactivez ou ne configurez pas ce paramètre, l’intervalle par défaut ou la valeur spécifiée dans les paramètres sera utilisé par le Gestionnaire d'ensemble Windows.
+
+Si vous activez ce paramètre, le nombre de minutes spécifié sera utilisé par le Gestionnaire d'ensemble Windows.</string>
+      <string id="EnableAdditionalSources">Activer les sources supplémentaires de l’Installeur d'applications</string>
+      <string id="EnableAdditionalSourcesExplanation">Cette politique contrôle les sources supplémentaires offertes par l’administrateur informatique de l’entreprise.
+
+Si vous ne configurez pas cette politique, aucune source supplémentaire ne sera configurée pour le Gestionnaire d’ensemble Windows.
+
+Si vous activez cette politique, les sources supplémentaires seront ajoutées au Gestionnaire d’ensemble Windows et ne pourront pas être supprimées. La représentation de chaque source supplémentaire peut être obtenue à partir de sources installées à l’aide de « WinGget source export ».
+
+Si vous désactivez cette politique, aucune source supplémentaire ne peut être configurée pour le Gestionnaire d’ensemble Windows.</string>
+      <string id="EnableAllowedSources">Activer les sources autorisées de l’Installeur d'applications</string>
+      <string id="EnableAllowedSourcesExplanation">Cette politique contrôle les sources supplémentaires autorisées par l’administrateur informatique de l’entreprise.
+
+Si vous ne configurez pas ce paramètre, les utilisateurs pourront ajouter ou supprimer des sources supplémentaires autres que celles configurées par la politique.
+
+Si vous activez cette politique, seules les sources spécifiées peuvent être ajoutées ou supprimées du Gestionnaire d’ensemble Windows. La représentation de chaque source autorisée peut être obtenue à partir de sources installées à l’aide de « WinGet source export ».
+
+Si vous désactivez cette politique, aucune source supplémentaire ne peut être configurée pour le Gestionnaire d’ensemble Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Intervalle en minutes de mise à jour automatique de la source</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Sources supplémentaires : </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Sources autorisées : </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

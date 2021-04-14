@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Instal·lador de l'aplicació</displayName>
+  <description>Instal·lador de l'aplicació</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Instal·lador de l'aplicació d'escriptori</string>
+      <string id="EnableAppInstaller">Habilita l'instal·lador de l'aplicació</string>
+      <string id="EnableAppInstallerExplanation">Aquesta norma controla si els usuaris poden utilitzar l'administrador de paquets del Windows.
+
+Si habiliteu o no configureu aquest paràmetre, els usuaris podran utilitzar l'administrador de paquets del Windows.
+
+Si desactiveu aquesta opció, els usuaris no podran utilitzar el Windows package Manager.</string>
+      <string id="EnableSettings">Habilita la configuració de l'instal·lador de l'aplicació</string>
+      <string id="EnableSettingsExplanation">Aquesta norma controla si els usuaris poden canviar la seva configuració.
+
+Si habiliteu o no Configureu aquesta configuració, els usuaris podran canviar la configuració de l'administrador de paquets del Windows.
+
+Si desactiveu aquesta opció, els usuaris no podran canviar la configuració de l'administrador de paquets del Windows.</string>
+      <string id="EnableExperimentalFeatures">Habilita les característiques experimentals de l'instal·lador de l'aplicació</string>
+      <string id="EnableExperimentalFeaturesExplanation">Aquesta norma controla si els usuaris poden habilitar característiques experimentals a l'administrador de paquets del Windows.
+
+Si activeu o no configureu aquest paràmetre, els usuaris podran habilitar característiques experimentals de l'administrador de paquets del Windows.
+
+Si desactiveu aquest paràmetre, els usuaris no podran habilitar característiques experimentals de l'administrador de paquets del Windows.</string>
+      <string id="EnableLocalManifestFiles">Habilita els fitxers del manifest local de l'instal·lador de l'aplicació</string>
+      <string id="EnableLocalManifestFilesExplanation">Aquesta norma controla si els usuaris poden instal·lar paquets amb fitxers de manifest local.
+
+Si activeu o no configureu aquest paràmetre, els usuaris podran instal·lar paquets amb manifests locals mitjançant l'administrador de paquets del Windows.
+
+Si desactiveu aquest paràmetre, els usuaris no podran instal·lar paquets amb manifests locals mitjançant l'administrador de paquets del Windows.</string>
+      <string id="EnableHashOverride">Habilita la substitució de hash de l'instal·lador de l'aplicació</string>
+      <string id="EnableHashOverrideExplanation">Aquesta norma controla si es pot configurar l'Administrador de paquets del Windows per habilitar la capacitat de substituir la validació de seguretat SHA256 a la configuració.
+
+Si habiliteu o no configureu aquesta norma, els usuaris podran habilitar la capacitat de substituir la validació de seguretat SHA256 a la configuració de l'Administrador de paquets del Windows.
+
+Si desactiveu aquesta norma, els usuaris no podran habilitar la capacitat de substituir la validació de seguretat SHA256 a la configuració de l'Administrador de paquets del Windows.</string>
+      <string id="EnableDefaultSource">Habilita l'origen per defecte de l'instal·lador de l'aplicació</string>
+      <string id="EnableDefaultSourceExplanation">Aquesta norma controla l'origen per defecte inclòs amb l'administrador de paquets del Windows.
+
+Si no configureu aquest paràmetre, l'origen per defecte de l'administrador de paquets del Windows estarà disponible i es pot suprimir.
+
+Si activeu aquest paràmetre, l'origen per defecte de l'administrador de paquets del Windows estarà disponible i no es pot suprimir.
+
+Si desactiveu aquest paràmetre, l'origen per defecte de l'administrador de paquets del Windows no estarà disponible.</string>
+      <string id="EnableMicrosoftStoreSource">Habilita l'origen del Microsoft Store de l'instal·lador de l'aplicació</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Aquesta norma controla l'origen del Microsoft Store inclòs amb l'administrador de paquets del Windows.
+
+Si no configureu aquest paràmetre, l'origen del Microsoft Store per a l'administrador de paquets del Windows estarà disponible i es pot suprimir.
+
+Si activeu aquest paràmetre, l'origen del Microsoft Store per a l'administrador de paquets del Windows estarà disponible i no es pot suprimir.
+
+Si desactiveu aquest paràmetre, l'origen del Microsoft Store per a l'administrador de paquets del Windows no estarà disponible.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Defineix l'interval d'actualització automàtica de l'instal·lador de l'aplicació en minuts</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Aquesta norma controla l'interval d'actualització automàtica per a orígens basats en paquets.
+
+Si inhabiliteu o no configureu aquest paràmetre, l'interval per defecte o el valor especificat a la configuració l'utilitzaran l'administrador de paquets del Windows.
+
+Si habiliteu aquesta opció, el Windows package Manager utilitzarà el nombre de minuts especificats.</string>
+      <string id="EnableAdditionalSources">Habilita els orígens addicionals de l'instal·lador de l'aplicació</string>
+      <string id="EnableAdditionalSourcesExplanation">Aquesta norma controla orígens addicionals proporcionats per l'administrador de TI de l'empresa.
+
+Si no configureu aquesta norma, no es configuraran orígens addicionals per a l'administrador de paquets del Windows.
+
+Si habiliteu aquesta norma, els orígens addicionals s'afegiran a l'administrador de paquets del Windows i no es podran suprimir. La representació de cada origen addicional es pot aconseguir dels orígens instal·lats mitjançant 'winget source export' (exportació d'orígens winget).
+
+Si desactiveu aquesta norma, no es poden configurar orígens addicionals per a l'administrador de paquets del Windows.</string>
+      <string id="EnableAllowedSources">Habilita els orígens permesos de l'instal·lador de l'aplicació</string>
+      <string id="EnableAllowedSourcesExplanation">Aquesta norma controla els orígens addicionals permesos per l'administrador de TI de l'empresa.
+
+Si no configureu aquesta norma, els usuaris podran afegir o suprimir orígens addicionals que no siguin els configurats per la norma.
+
+Si activeu aquesta norma, només es poden afegir o suprimir els orígens especificats de l'administrador de paquets del Windows. La representació de cada origen permès es pot obtenir dels orígens instal·lats mitjançant 'winget source export' (exportació d'orígens winget).
+
+Si desactiveu aquesta norma, no es pot configurar cap origen addicional per a l'administrador de paquets del Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Interval d'actualització automàtica de l'origen en minuts</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Orígens addicionals: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Orígens permesos: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

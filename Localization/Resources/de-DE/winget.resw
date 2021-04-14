@@ -386,7 +386,7 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
     <value>Ergebnisse nach Name filtern</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Für das aktuelle System sind keine Installationsprogramme verfügbar.</value>
+    <value>Es wurde kein anwendbarer Installer gefunden. Weitere Informationen finden Sie in den Protokollen.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Derzeit sind keine experimentellen Funktionen verfügbar. </value>
@@ -813,5 +813,107 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Der Pfad ist nicht vorhanden:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>In der JSON-Datei ist kein bekanntes Schema angegeben.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Installationsbereich auswählen (Benutzer oder Computer)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Der für das Argument „%1“ angegebene Wert ist ungültig. Gültige Werte sind</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Dieser Vorgang ist durch eine Gruppenrichtlinie deaktiviert</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Zusätzliche Windows-App-Installer-Quellen aktivieren</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Zulässige Quellen für Windows-App-Installer aktivieren</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Standardquelle für den Windows-App-Installer aktivieren</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Experimentelle Features für den Windows-App-Installer aktivieren</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Microsoft Store-Quelle für den Windows-App-Installer aktivieren</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Einstellungen des Windows-Paket-Manager aktivieren</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Windows-Paket-Manager aktivieren</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Intervall für das automatische Aktualisieren der Windows-Paket-Manager-Quelle in Minuten festlegen</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Deaktiviert</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Aktiviert</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Gruppenrichtlinie</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Status</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Lokale Manifestdateien für Windows-App-Installer aktivieren</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Feld:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Ungültiges Feldformat.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Ungültiger Feldwert.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Ungültige Einstellung aus der Gruppenrichtlinie.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Einstellungen wurden aus der Sicherungsdatei geladen.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Fehler beim Analysieren der Datei:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Wert:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Die folgenden Experiment-Features werden zurzeit ausgeführt.
+Die Konfiguration ist aufgrund der Gruppen Richtlinie deaktiviert.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Der Hash-Wert des Installers stimmt nicht überein.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Hash-Überschreibung für den Windows-App-Installer aktivieren</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Aktuelle Quellen als JSON für die Gruppenrichtlinie exportieren.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Aktuelle Quellen exportieren</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Zusätzliche Quelle</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Zulässige Quelle</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

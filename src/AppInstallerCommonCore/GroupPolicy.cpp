@@ -10,10 +10,9 @@ namespace AppInstaller::Settings
 {
     namespace
     {
-        GroupPolicy& InstanceInternal(std::optional<GroupPolicy*> overridePolicy = {})
+        const GroupPolicy& InstanceInternal(std::optional<GroupPolicy*> overridePolicy = {})
         {
-            // TODO: Read from the actual registry key
-            static GroupPolicy s_groupPolicy{ Registry::Key{} };
+            const static GroupPolicy s_groupPolicy{ Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, "Software\\Policies\\Microsoft\\Windows\\AppInstaller") };
             static GroupPolicy* s_override = nullptr;
 
             if (overridePolicy.has_value())
@@ -228,9 +227,9 @@ namespace AppInstaller::Settings
         switch (policy)
         {
         case TogglePolicy::Policy::WinGet:
-            return TogglePolicy(policy, "EnableWindowsPackageManager"sv, String::PolicyEnableWinGet);
+            return TogglePolicy(policy, "EnableAppInstaller"sv, String::PolicyEnableWinGet);
         case TogglePolicy::Policy::Settings: return
-            TogglePolicy(policy, "EnableWindowsPackageManagerSettings"sv, String::PolicyEnableWingetSettings);
+            TogglePolicy(policy, "EnableSettings"sv, String::PolicyEnableWingetSettings);
         case TogglePolicy::Policy::ExperimentalFeatures:
             return TogglePolicy(policy, "EnableExperimentalFeatures"sv, String::PolicyEnableExperimentalFeatures);
         case TogglePolicy::Policy::LocalManifestFiles:

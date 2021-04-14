@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>应用安装程序</displayName>
+  <description>应用安装程序</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">桌面应用安装程序</string>
+      <string id="EnableAppInstaller">启用应用安装程序</string>
+      <string id="EnableAppInstallerExplanation">此策略控制用户是否可以使用 Windows 程序包管理器。
+
+如果启用或未配置此设置，则用户可以使用 Windows 程序包管理器。
+
+如果禁用此设置，则用户将无法使用 Windows 程序包管理器。</string>
+      <string id="EnableSettings">启用应用安装程序设置</string>
+      <string id="EnableSettingsExplanation">此策略控制用户是否可以更改其设置。
+
+如果启用或未配置此设置，则用户可以更改 Windows 程序包管理器的设置。
+
+如果禁用此设置，则用户将无法更改 Windows 程序包管理器的设置。</string>
+      <string id="EnableExperimentalFeatures">启用应用安装程序实验性功能</string>
+      <string id="EnableExperimentalFeaturesExplanation">此策略控制用户是否可以在 Windows 程序包管理器中启用实验性功能。
+
+如果启用或未配置此设置，则用户将能够为 Windows 包管理器启用实验性功能。
+
+如果禁用此设置，则用户将无法启用 Windows 包管理器的实验性功能。</string>
+      <string id="EnableLocalManifestFiles">启用应用安装程序本地清单文件</string>
+      <string id="EnableLocalManifestFilesExplanation">此策略控制用户是否可以使用本地清单文件安装程序包。
+
+如果启用或未配置此设置，则用户可以使用 Windows 程序包管理器在本地清单中安装包。
+
+如果禁用此设置，则用户将无法使用 Windows 程序包管理器在本地清单中安装包。</string>
+      <string id="EnableHashOverride">启用应用安装程序哈希替代</string>
+      <string id="EnableHashOverrideExplanation">此策略控制是否可以配置 Windows 程序包管理器，以便在设置中启用覆盖 SHA256 安全验证的能力。
+
+如果启用或未配置此策略，则用户将能够在 Windows 程序包管理器设置中启用覆盖 SHA256 安全验证的能力。
+
+如果禁用此策略，则用户将无法在 Windows 程序包管理器设置中启用覆盖 SHA256 安全验证的能力。</string>
+      <string id="EnableDefaultSource">启用应用安装程序默认源</string>
+      <string id="EnableDefaultSourceExplanation">此策略控制 Windows 程序包管理器中包含的默认源。
+
+如果未配置此设置，Windows 程序包管理器的默认源将可用并可删除。
+
+如果启用此设置，Windows 程序包管理器的默认源将可用，无法删除。
+
+如果禁用此设置，Windows 程序包管理器的默认源将不可用。</string>
+      <string id="EnableMicrosoftStoreSource">启用应用安装程序 Microsoft Store 源</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">此策略控制 Windows 程序包管理器中包含的 Microsoft Store 源。
+
+如果未配置此设置，Windows 程序包管理器的 Microsoft Store 源将可用并可删除。
+
+如果启用此设置，Windows 程序包管理器的 Microsoft Store 源将可用，无法删除。
+
+如果禁用此设置，Windows 程序包管理器的 Microsoft Store 源将不可用。</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">设置应用安装程序源自动更新间隔（分钟）</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">此策略控制基于程序包的源的自动更新间隔。
+
+如果禁用或未配置此设置，则 Windows 程序包管理器将使用在 "设置" 中指定的默认间隔或值。
+
+如果启用此设置，则 Windows 程序包管理器将使用指定的分钟数。</string>
+      <string id="EnableAdditionalSources">启用应用安装程序其他源</string>
+      <string id="EnableAdditionalSourcesExplanation">此策略控制企业 IT 管理员提供的其他源。
+
+如果未配置此策略，则将不会为 Windows 程序包管理器配置其他源。
+
+如果启用此策略，则将向 Windows 程序包管理器添加其他源并且这些源不可删除。可使用“winget source export”从已安装的源获取每个其他源的表示形式。
+
+如果禁用此策略，则不能为 Windows 程序包管理器配置其他源。</string>
+      <string id="EnableAllowedSources">启用应用安装程序允许的源</string>
+      <string id="EnableAllowedSourcesExplanation">此策略控制企业 IT 管理员允许的其他源。
+
+如果未配置此策略，用户将能够添加或删除策略配置的源之外的其他源。
+
+如果启用此策略，则只能从 Windows 程序包管理器中添加或删除指定的源。可使用“winget source export”从已安装的源获取每个允许的源的表示形式。
+
+如果禁用此策略，则不能为 Windows 程序包管理器配置其他源。</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">源自动更新间隔(分钟)</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">其他源: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">允许的源: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

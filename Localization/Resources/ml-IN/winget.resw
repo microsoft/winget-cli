@@ -386,7 +386,7 @@
     <value>പേര് അനുസരിച്ച് ഫലങ്ങൾ ഫിൽട്ടർ ചെയ്യുക</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>നിലവിലുള്ള സിസ്റ്റത്തിന് ഇൻസ്റ്റാളറുകൾ ഉചിതമായത് ഒന്നും ലഭ്യമല്ല.</value>
+    <value>ബാധകമായ ഇൻസ്റ്റാളർ ഒന്നും കണ്ടെത്തിയില്ല; കൂടുതൽ വിശദാംശങ്ങൾക്ക് ലോഗുകൾ കാണുക.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>പരീക്ഷണ സവിശേഷതകളൊന്നും ഇപ്പോൾ ലഭ്യമല്ല.</value>
@@ -813,5 +813,107 @@
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>പാത്ത് നിലവിലില്ല:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>JSON ഫയൽ തിരിച്ചറിഞ്ഞ ഒരു സ്കീമ വ്യക്തമാക്കുന്നില്ല.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>ഇൻസ്റ്റാൾ സാധ്യത തിരഞ്ഞെടുക്കുക (ഉപയോക്താവ് അല്ലെങ്കിൽ മെഷീൻ)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>`%1` ആർഗ്യുമെന്റിനായി നൽകിയിരിക്കുന്ന മൂല്യം അസാധുവാണ്; സാധുവായ മൂല്യങ്ങൾ ഇതാണ്</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>ഗ്രൂപ്പ് നയം മുഖേന ഈ പ്രവർത്തനം അപ്രാപ്തമാക്കി</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>അധിക Windows ആപ്പ് ഇൻസ്റ്റാളർ ഉറവിടങ്ങൾ പ്രാപ്തമാക്കുക</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Windows ആപ്പ് ഇൻസ്റ്റാളർ അനുവദിച്ച ഉറവിടങ്ങൾ പ്രാപ്തമാക്കുക</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Windows ആപ്പ് ഇൻസ്റ്റാളർ ഡിഫോൾട്ട് ഉറവിടം പ്രാപ്തമാക്കുക</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Windows ആപ്പ് ഇൻസ്റ്റാളർ പരീക്ഷണാത്മക സവിശേഷതകൾ പ്രാപ്തമാക്കുക</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Windows ആപ്പ് ഇൻസ്റ്റാളർ Microsoft Store ഉറവിടം പ്രാപ്തമാക്കുക</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Windows പാക്കേജ് മാനേജർ സജ്ജീകരണങ്ങൾ പ്രാപ്തമാക്കുക</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Windows പാക്കേജ് മാനേജർ പ്രാപ്തമാക്കുക</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Windows പാക്കേജ് മാനേജർ ഉറവിട സ്വപ്രേരിത അപ്ഡേറ്റ് ഇടവേള മിനിറ്റുകൾക്കുള്ളിൽ സജ്ജമാക്കുക</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>അപ്രാപ്തമാക്കി</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>പ്രാപ്തമാക്കി</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>ഗ്രൂപ്പ് നയം</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>അവസ്ഥ</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Windows ആപ്പ് ഇൻസ്റ്റാളർ പ്രാദേശിക മാനിഫെസ്റ്റ് ഫയലുകൾ പ്രാപ്തമാക്കുക</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>ഫീല്‍ഡ്:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>അസാധുവായ ഫീൽഡ് ഫോർമാറ്റ്.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>അസാധുവായ ഫീൽഡ് മൂല്യം.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>ഗ്രൂപ്പ് നയത്തിൽ നിന്ന് അസാധുവായ സജ്ജീകരണം.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>ബാക്കപ്പ് ഫയലിൽ നിന്ന് സജ്ജീകരണങ്ങൾ ലോഡുചെയ്തു.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>ഫയൽ പാഴ്സുചെയ്യുന്നതിലെ പിശക്:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>മൂല്യം:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>ഇനിപ്പറയുന്ന പരീക്ഷണാത്മക സവിശേഷതകൾ പുരോഗമിക്കുന്നു.
+ഗ്രൂപ്പ് നയം കാരണം കോൺഫിഗറേഷൻ അപ്രാപ്തമാക്കി.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>ഇഇൻസ്റ്റാളർ ഹാഷ് പൊരുത്തപ്പെടുന്നില്ല.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Windows ആപ്പ് ഇൻസ്റ്റാളർ ഹാഷ് അസാധുവാക്കുന്നത് പ്രാപ്തമാക്കുക</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>ഗ്രൂപ്പ് നയത്തിനായി നിലവിലെ ഉറവിടങ്ങൾ JSON ആയി എക്സ്‌പോർട്ട് ചെയ്യുക.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>നിലവിലെ ഉറവിടങ്ങൾ എക്‌സ്‌പോർട്ടുചെയ്യുക</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>അധിക ഉറവിടം</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>അനുവദിച്ച ഉറവിടം</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>
