@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "pch.h"
-#include "cpprest/http_client.h"
-#include "cpprest/json.h"
+#include <cpprest/http_client.h>
+#include <cpprest/json.h>
+
+#include <optional>
+#include <vector>
 
 namespace AppInstaller::Repository::Rest
 {

@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "RestHelper.h"
-#include "cpprest/uri_builder.h"
-#include "cpprest/http_client.h"
 #include "Rest/Schema/JsonHelper.h"
 #include "Rest/Schema/1_0/Json/CommonJsonConstants.h"
 

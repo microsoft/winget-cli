@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "pch.h"
-#include "..\AppInstallerCommonCore\Public\AppInstallerProgress.h"
+#include "AppInstallerProgress.h"
 #include "ExecutionContext.h"
 #include "Workflows/WorkflowBase.h"
 

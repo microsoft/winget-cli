@@ -226,7 +226,7 @@ namespace AppInstaller::Msix
 
         // fullNameCount == 1 at this point
         PWSTR fullNamePtr;
-        std::wstring buffer(bufferLength + 1, '\0');
+        std::wstring buffer(static_cast<size_t>(bufferLength) + 1, L'\0');
 
         THROW_IF_WIN32_ERROR(FindPackagesByPackageFamily(pfn.c_str(), PACKAGE_FILTER_HEAD, &fullNameCount, &fullNamePtr, &bufferLength, &buffer[0], &properties));
         if (fullNameCount != 1 || bufferLength == 0)

@@ -329,6 +329,7 @@ robuffer
 rowcount
 rowid
 rubengustorage
+ruleset
 runsettings
 runtimes
 safecast

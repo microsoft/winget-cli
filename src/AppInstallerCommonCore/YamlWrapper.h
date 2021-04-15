@@ -123,7 +123,7 @@ namespace AppInstaller::YAML::Wrapper
         Event() = default;
 
         DestructionToken m_token;
-        yaml_event_t m_event;
+        yaml_event_t m_event = {};
     };
 
     // A libyaml yaml_emitter_t.

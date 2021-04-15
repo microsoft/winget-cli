@@ -57,8 +57,8 @@ namespace AppInstaller::CLI::VirtualTerminal
         ConstructedSequence(const ConstructedSequence& other) : m_str(other.m_str) { Set(m_str); }
         ConstructedSequence& operator=(const ConstructedSequence& other) { m_str = other.m_str; Set(m_str); }
 
-        ConstructedSequence(ConstructedSequence&& other) : m_str(std::move(other.m_str)) { Set(m_str); }
-        ConstructedSequence& operator=(ConstructedSequence&& other) { m_str = std::move(other.m_str); Set(m_str); }
+        ConstructedSequence(ConstructedSequence&& other) noexcept : m_str(std::move(other.m_str)) { Set(m_str); }
+        ConstructedSequence& operator=(ConstructedSequence&& other) noexcept { m_str = std::move(other.m_str); Set(m_str); }
 
         void Append(const Sequence& sequence);
 

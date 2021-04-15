@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "Rest/Schema/IRestClient.h"
 #include "SearchResponseDeserializer.h"
-#include <cpprest/json.h>
 #include "Rest/Schema/JsonHelper.h"
 #include "CommonJsonConstants.h"
 

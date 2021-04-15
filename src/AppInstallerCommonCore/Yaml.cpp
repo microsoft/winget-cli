@@ -314,8 +314,8 @@ namespace AppInstaller::YAML
         SetAllowedInputs<InputType::BeginMap, InputType::BeginSeq>();
     }
 
-    Emitter::Emitter(Emitter&&) = default;
-    Emitter& Emitter::operator=(Emitter&&) = default;
+    Emitter::Emitter(Emitter&&) noexcept = default;
+    Emitter& Emitter::operator=(Emitter&&) noexcept = default;
 
     Emitter::~Emitter() = default;
 

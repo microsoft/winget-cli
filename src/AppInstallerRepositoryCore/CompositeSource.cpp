@@ -269,7 +269,7 @@ namespace AppInstaller::Repository
             // Data relevant to correlation for an installed package.
             struct InstalledPackageData : public PackageData
             {
-                size_t MatchIndex;
+                size_t MatchIndex = 0;
             };
 
             // For a given package version, prepares the results for it.

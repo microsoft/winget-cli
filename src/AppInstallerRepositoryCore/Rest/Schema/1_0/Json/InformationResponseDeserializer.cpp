@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Rest/Schema/IRestClient.h"
-#include <cpprest/json.h>
 #include "Rest/Schema/JsonHelper.h"
 #include "InformationResponseDeserializer.h"
 #include "CommonJsonConstants.h"

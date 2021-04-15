@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "Rest/Schema/IRestClient.h"
+#include <cpprest/json.h>
 #include "cpprest/json.h"
 #include "Rest/HttpClientHelper.h"
 #include <vector>

@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "cpprest/http_client.h"
-#include "cpprest/json.h"
 #include "HttpClientHelper.h"
 
 namespace AppInstaller::Repository::Rest

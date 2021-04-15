@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "pch.h"
 #include "Microsoft/Schema/Version.h"
 #include <AppInstallerVersions.h>
 #include <vector>
