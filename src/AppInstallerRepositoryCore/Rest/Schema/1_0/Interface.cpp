@@ -4,8 +4,6 @@
 #include "Rest/Schema/1_0/Interface.h"
 #include "Rest/Schema/IRestClient.h"
 #include "Rest/HttpClientHelper.h"
-#include "cpprest/http_client.h"
-#include "cpprest/json.h"
 #include "Rest/Schema/JsonHelper.h"
 #include "winget/ManifestValidation.h"
 #include "Rest/Schema/RestHelper.h"

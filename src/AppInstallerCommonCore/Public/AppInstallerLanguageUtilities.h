@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <wil/result.h>
-
 #include <initializer_list>
 #include <map>
 #include <string>
@@ -132,7 +130,7 @@ namespace AppInstaller
         typename Variant::variant_t& GetVariant(Enum e)
         {
             auto itr = m_data.find(e);
-            THROW_HR_IF_MSG(E_NOT_SET, itr == m_data.end(), "GetVariant(%d)", e);
+            THROW_HR_IF_MSG(E_NOT_SET, itr == m_data.end(), "GetVariant(%d)", static_cast<int>(e));
             return itr->second;
         }
 

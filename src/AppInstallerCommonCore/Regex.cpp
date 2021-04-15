@@ -116,7 +116,7 @@ namespace AppInstaller::Regex
                 // First, send off the unmatched part before the match
                 if (pos > startPos)
                 {
-                    if (!f(false, input.substr(startPos, pos - startPos)))
+                    if (!f(false, input.substr(startPos, static_cast<size_t>(pos) - startPos)))
                     {
                         return;
                     }
@@ -127,7 +127,7 @@ namespace AppInstaller::Regex
                 WINGET_THROW_REGEX_ERROR_IF_FAILED(uec, uregex_end);
                 THROW_HR_IF(E_UNEXPECTED, end == -1);
 
-                if (!f(true, input.substr(pos, end - pos)))
+                if (!f(true, input.substr(pos, static_cast<size_t>(end) - pos)))
                 {
                     return;
                 }
@@ -181,8 +181,8 @@ namespace AppInstaller::Regex
         return *this = Expression{ other };
     }
 
-    Expression::Expression(Expression&&) = default;
-    Expression& Expression::operator=(Expression&&) = default;
+    Expression::Expression(Expression&&) noexcept = default;
+    Expression& Expression::operator=(Expression&&) noexcept = default;
 
     Expression::~Expression() = default;
 

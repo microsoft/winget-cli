@@ -182,8 +182,8 @@ namespace AppInstaller::YAML
         Emitter(const Emitter&) = delete;
         Emitter& operator=(const Emitter&) = delete;
 
-        Emitter(Emitter&&);
-        Emitter& operator=(Emitter&&);
+        Emitter(Emitter&&) noexcept;
+        Emitter& operator=(Emitter&&) noexcept;
 
         ~Emitter();
 

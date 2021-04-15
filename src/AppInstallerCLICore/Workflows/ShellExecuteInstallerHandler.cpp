@@ -42,7 +42,7 @@ namespace AppInstaller::CLI::Workflow
                 }
                 if (waitResult != WAIT_TIMEOUT)
                 {
-                    THROW_LAST_ERROR_MSG("Unexpected WaitForSingleObjectResult: %d", waitResult);
+                    THROW_LAST_ERROR_MSG("Unexpected WaitForSingleObjectResult: %lu", waitResult);
                 }
             }
 

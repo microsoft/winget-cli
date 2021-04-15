@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "cpprest/json.h"
+#include <cpprest/json.h>
 
 namespace AppInstaller::Repository::Rest::Schema
 {
