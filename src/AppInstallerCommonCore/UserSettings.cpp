@@ -164,15 +164,8 @@ namespace AppInstaller::Settings
             std::vector<UserSettings::Warning>& warnings,
             std::index_sequence<S...>)
         {
-#ifdef WINGET_DISABLE_FOR_FUZZING
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-value"
-#endif
             // Use folding to call each setting validate function.
             (FoldHelper{}, ..., Validate<static_cast<Setting>(S)>(root, settings, warnings));
-#ifdef WINGET_DISABLE_FOR_FUZZING
-#pragma clang diagnostic pop
-#endif
         }
     }
 
