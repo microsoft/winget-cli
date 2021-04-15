@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>Program de instalare a aplicației</displayName>
+  <description>Program de instalare a aplicației</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">Programul de instalare a aplicației desktop</string>
+      <string id="EnableAppInstaller">Activarea programului de instalare a aplicației</string>
+      <string id="EnableAppInstallerExplanation">Această politică controlează dacă managerul de pachete Windows poate fi utilizat de utilizatori.
+
+Dacă activați sau nu configurați această setare, utilizatorii vor avea posibilitatea să utilizeze managerul de pachete Windows.
+
+Dacă dezactivați această setare, utilizatorii nu vor avea posibilitatea să utilizeze managerul de pachete Windows.</string>
+      <string id="EnableSettings">Activarea setărilor programului de instalare a aplicației</string>
+      <string id="EnableSettingsExplanation">Această politică controlează dacă utilizatorii își pot modifica setările.
+
+Dacă activați sau nu configurați această setare, utilizatorii vor putea modifica setările pentru managerul de pachete Windows.
+
+Dacă dezactivați această setare, utilizatorii nu vor avea posibilitatea să modifice setările pentru managerul de pachete Windows.</string>
+      <string id="EnableExperimentalFeatures">Activarea caracteristicilor experimentale ale programului de instalare a aplicației</string>
+      <string id="EnableExperimentalFeaturesExplanation">Această politică controlează dacă utilizatorii pot activa caracteristici experimentale în managerul de pachete Windows.
+
+Dacă activați sau nu configurați această setare, utilizatorii vor putea activa caracteristici experimentale pentru managerul de pachete Windows.
+
+Dacă dezactivați această setare, utilizatorii nu vor putea activa caracteristici experimentale pentru managerul de pachete Windows.</string>
+      <string id="EnableLocalManifestFiles">Activarea fișierelor manifest locale ale programului de instalare a aplicației</string>
+      <string id="EnableLocalManifestFilesExplanation">Această politică controlează dacă utilizatorii pot instala pachete cu fișiere manifest locale.
+
+Dacă activați sau nu configurați această setare, utilizatorii vor putea să instaleze pachete cu manifeste locale utilizând Manager pachet Windows.
+
+Dacă dezactivați această setare, utilizatorii nu vor putea să instaleze pachete cu manifeste locale utilizând Manager pachet Windows.</string>
+      <string id="EnableHashOverride">Activarea înlocuirii hash-ului programului de instalare a aplicației</string>
+      <string id="EnableHashOverrideExplanation">Această politică controlează dacă managerul de pachete Windows poate fi configurat pentru a activa capacitatea de a înlocui validarea de securitate SHA256 din Setări.
+
+Dacă activați sau nu configurați această politică, utilizatorii vor putea să activeze capacitatea de a înlocui validarea de securitate SHA256 din setările managerului de pachete Windows.
+
+Dacă dezactivați această politică, utilizatorii nu vor putea să activeze capacitatea de a înlocui validarea de securitate SHA256 din setările managerului de pachete Windows.</string>
+      <string id="EnableDefaultSource">Activarea sursei implicite a programului de instalare a aplicației</string>
+      <string id="EnableDefaultSourceExplanation">Această politică controlează sursa implicită inclusă cu managerul de pachete Windows.
+
+Dacă nu configurați această setare, sursa implicită pentru managerul de pachete Windows va fi disponibilă și poate fi eliminată.
+
+Dacă activați această setare, sursa implicită pentru managerul de pachete Windows va fi disponibilă și nu poate fi eliminată.
+
+Dacă dezactivați această setare, sursa implicită pentru managerul de pachete Windows nu va fi disponibilă.</string>
+      <string id="EnableMicrosoftStoreSource">Activarea sursei Microsoft Store a programului de instalare a aplicației</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Această politică controlează sursa Microsoft Store inclusă cu managerul de pachete Windows.
+
+Dacă nu configurați această setare, sursa Microsoft Store pentru managerul de pachete Windows va fi disponibilă și poate fi eliminată.
+
+Dacă activați această setare, sursa Microsoft Store pentru managerul de pachete Windows va fi disponibilă și nu poate fi eliminată.
+
+Dacă dezactivați această setare, sursa Microsoft Store pentru managerul de pachete Windows nu va fi disponibilă.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Setarea intervalului de actualizare automată a sursei programului de instalare a aplicației, în minute</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Această politică controlează intervalul de actualizare automată pentru sursele bazate pe pachet.
+
+Dacă dezactivați sau nu configurați această setare, intervalul implicit sau valoarea specificată în setări vor fi utilizate de managerul de pachete Windows.
+
+Dacă activați această setare, numărul de minute specificat va fi utilizat de managerul de pachete Windows.</string>
+      <string id="EnableAdditionalSources">Activarea surselor suplimentare ale programului de instalare a aplicațiilor</string>
+      <string id="EnableAdditionalSourcesExplanation">Această politică controlează sursele suplimentare furnizate de administratorul IT al întreprinderii.
+
+Dacă nu configurați această politică, nu vor fi configurate surse suplimentare pentru managerul de pachete Windows.
+
+Dacă activați această politică, se vor adăuga surse suplimentare la managerul de pachete Windows și nu se pot elimina. Reprezentarea pentru fiecare sursă suplimentară poate și obținută din surse instalate utilizând "export sursă widget".
+
+Dacă dezactivați această politică, nu pot fi configurate surse suplimentare pentru managerul de pachete Windows.</string>
+      <string id="EnableAllowedSources">Activarea surselor permise ale programului de instalare a aplicației</string>
+      <string id="EnableAllowedSourcesExplanation">Această politică controlează sursele suplimentare permise de administratorul IT al întreprinderii.
+
+Dacă nu configurați această politică, utilizatorii vor putea să adauge sau să elimine surse suplimentare altele decât cele configurate de politică.
+
+Dacă activați această politică, se pot adăuga sau elimina doar sursele specificate din managerul de pachete Windows. Reprezentarea pentru fiecare sursă permisă poate fi obținută din surse instalate utilizând "export sursă widget".
+
+Dacă dezactivați această politică, nu se pot configura surse suplimentare pentru managerul de pachete Windows.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Intervalul de actualizare automată a sursei, în minute</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Surse suplimentare: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Surse permise: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

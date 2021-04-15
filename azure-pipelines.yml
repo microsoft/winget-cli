@@ -39,6 +39,7 @@ jobs:
       workingDirectory: 'src'
 
 - job: 'Build'
+  timeoutInMinutes: 120
   dependsOn: 'GetReleaseTag'
   condition: always()
   variables:
@@ -280,7 +281,7 @@ jobs:
                                   -ExeTestInstallerPath $(system.defaultWorkingDirectory)\src\x86\Release\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
     condition: succeededOrFailed()
-    
+
   - task: PublishBuildArtifacts@1
     displayName: Publish E2E Tests Packaged x86 Log
     inputs:
@@ -295,7 +296,7 @@ jobs:
       PathtoPublish: 'src\x64\Release\AppInstallerCLI\AppInstallerCLI.exe'
       ArtifactName: 'AppInstallerCLI.exe'
       publishLocation: 'Container'
-  
+
   - task: PublishBuildArtifacts@1
     displayName: Publish Util Binary
     inputs:
@@ -309,10 +310,19 @@ jobs:
       PathtoPublish: 'src\x64\Release\WinGetUtil\WinGetUtil.pdb'
       ArtifactName: 'WinGetUtil.pdb'
       publishLocation: 'Container'
-  
+
   - task: ComponentGovernanceComponentDetection@0
     displayName: Component Governance
     inputs:
       scanType: 'Register'
       verbosity: 'Verbose'
       alertWarningLevel: 'High'
+
+  # Run BimSkim for all the binaries
+  - task: BinSkim@3
+    displayName: 'Run BinSkim '
+    inputs:
+      arguments: 'analyze "$(system.defaultWorkingDirectory)\src\AppInstaller*CLI.exe" "$(system.defaultWorkingDirectory)\src\WinGet*Util.dll" --config default --recurse' 
+
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
+    displayName: 'Publish Security Analysis Logs'

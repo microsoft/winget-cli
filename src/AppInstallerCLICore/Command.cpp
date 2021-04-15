@@ -325,7 +325,7 @@ namespace AppInstaller::CLI
                 {
                     auto policy = TogglePolicy::GetPolicy(command->GroupPolicy());
                     AICLI_LOG(CLI, Error, << "Trying to use command: " << *itr << " disabled by group policy " << policy.RegValueName());
-                    throw CommandException(Resource::String::DisabledByGroupPolicy, policy.PolicyName());
+                    throw GroupPolicyException(command->GroupPolicy());
                 }
 
                 AICLI_LOG(CLI, Info, << "Found subcommand: " << *itr);
@@ -657,7 +657,7 @@ namespace AppInstaller::CLI
             {
                 auto policy = TogglePolicy::GetPolicy(arg.GroupPolicy());
                 AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by group policy " << policy.RegValueName());
-                throw CommandException(Resource::String::DisabledByGroupPolicy, policy.PolicyName());
+                throw GroupPolicyException(arg.GroupPolicy());
             }
 
             if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
@@ -783,10 +783,8 @@ namespace AppInstaller::CLI
         // Override the function to bypass this.
         if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGet))
         {
-            auto policy = TogglePolicy::GetPolicy(Settings::TogglePolicy::Policy::WinGet);
-            AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy " << policy.RegValueName());
-            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << " : "_liv << policy.PolicyName() << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY);
+            AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");
+            throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGet);
         }
 
         AICLI_LOG(CLI, Info, << "Executing command: " << Name());
@@ -882,6 +880,12 @@ namespace AppInstaller::CLI
                 Resource::String::UnexpectedErrorExecutingCommand << ' ' << std::endl <<
                 message << std::endl;
             return hre.code();
+        }
+        catch (const Settings::GroupPolicyException& e)
+        {
+            auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
+            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << ": "_liv << policy.PolicyName() << std::endl;
+            return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
         catch (const std::exception& e)
         {

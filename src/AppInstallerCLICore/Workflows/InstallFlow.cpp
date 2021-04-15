@@ -172,7 +172,7 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (const winrt::hresult_error& e)
         {
-            if (e.code() == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED) ||
+            if (static_cast<HRESULT>(e.code()) == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED) ||
                 HRESULT_FACILITY(e.code()) == FACILITY_HTTP)
             {
                 // Failed to get signature hash through HttpStream, use download
@@ -636,8 +636,8 @@ namespace AppInstaller::CLI::Workflow
                 changes.size(),
                 findByManifest.Matches.size(),
                 packagesInBoth.size(),
-                toLog ? static_cast<std::string_view>(toLog->GetProperty(PackageVersionProperty::Name)) : "",
-                toLog ? static_cast<std::string_view>(toLog->GetProperty(PackageVersionProperty::Version)) : "",
+                toLog ? static_cast<std::string>(toLog->GetProperty(PackageVersionProperty::Name)) : "",
+                toLog ? static_cast<std::string>(toLog->GetProperty(PackageVersionProperty::Version)) : "",
                 toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Publisher]) : "",
                 toLog ? static_cast<std::string_view>(toLogMetadata[PackageVersionMetadata::Locale]) : ""
             );

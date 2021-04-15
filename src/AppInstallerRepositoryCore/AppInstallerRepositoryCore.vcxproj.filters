@@ -43,7 +43,7 @@
     <Filter Include="Rest\Schema\1_0">
       <UniqueIdentifier>{8a93b62f-d065-4048-b43a-a2b14b70c330}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rest\Schema\Json">
+    <Filter Include="Rest\Schema\1_0\Json">
       <UniqueIdentifier>{6bcbaf7a-289f-4d0b-b128-67bef903745c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -183,22 +183,28 @@
     <ClInclude Include="Rest\RestSourceFactory.h">
       <Filter>Rest</Filter>
     </ClInclude>
-    <ClInclude Include="Rest\Schema\Json\JsonHelper.h">
-      <Filter>Rest\Schema\Json</Filter>
-    </ClInclude>
-    <ClInclude Include="Rest\Schema\Json\CommonRestConstants.h">
-      <Filter>Rest\Schema\Json</Filter>
-    </ClInclude>
-    <ClInclude Include="Rest\Schema\Json\InformationResponseDeserializer.h">
-      <Filter>Rest\Schema\Json</Filter>
-    </ClInclude>
-    <ClInclude Include="Rest\Schema\Json\ManifestDeserializer.h">
-      <Filter>Rest\Schema\Json</Filter>
-    </ClInclude>
-    <ClInclude Include="Rest\Schema\Json\SearchResponseDeserializer.h">
-      <Filter>Rest\Schema\Json</Filter>
-    </ClInclude>
     <ClInclude Include="Rest\Schema\RestHelper.h">
+      <Filter>Rest\Schema</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_0\Json\CommonJsonConstants.h">
+      <Filter>Rest\Schema\1_0\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_0\Json\InformationResponseDeserializer.h">
+      <Filter>Rest\Schema\1_0\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_0\Json\ManifestDeserializer.h">
+      <Filter>Rest\Schema\1_0\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_0\Json\SearchRequestSerializer.h">
+      <Filter>Rest\Schema\1_0\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_0\Json\SearchResponseDeserializer.h">
+      <Filter>Rest\Schema\1_0\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\JsonHelper.h">
+      <Filter>Rest\Schema</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\CommonRestConstants.h">
       <Filter>Rest\Schema</Filter>
     </ClInclude>
   </ItemGroup>
@@ -293,19 +299,22 @@
     <ClCompile Include="Rest\RestSourceFactory.cpp">
       <Filter>Rest</Filter>
     </ClCompile>
-    <ClCompile Include="Rest\Schema\Json\InformationResponseDeserializer.cpp">
-      <Filter>Rest\Schema\Json</Filter>
-    </ClCompile>
-    <ClCompile Include="Rest\Schema\Json\JsonHelper.cpp">
-      <Filter>Rest\Schema\Json</Filter>
-    </ClCompile>
-    <ClCompile Include="Rest\Schema\Json\ManifestDeserializer.cpp">
-      <Filter>Rest\Schema\Json</Filter>
-    </ClCompile>
-    <ClCompile Include="Rest\Schema\Json\SearchResponseDeserializer.cpp">
-      <Filter>Rest\Schema\Json</Filter>
-    </ClCompile>
     <ClCompile Include="Rest\Schema\RestHelper.cpp">
+      <Filter>Rest\Schema</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_0\Json\InformationResponseDeserializer.cpp">
+      <Filter>Rest\Schema\1_0\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_0\Json\ManifestDeserializer.cpp">
+      <Filter>Rest\Schema\1_0\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_0\Json\SearchRequestSerializer.cpp">
+      <Filter>Rest\Schema\1_0\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_0\Json\SearchResponseDeserializer.cpp">
+      <Filter>Rest\Schema\1_0\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\JsonHelper.cpp">
       <Filter>Rest\Schema</Filter>
     </ClCompile>
   </ItemGroup>

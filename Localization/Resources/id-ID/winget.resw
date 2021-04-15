@@ -386,7 +386,7 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
     <value>Filter hasil menurut nama</value>
   </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
-    <value>Tidak ada installer yang berlaku untuk sistem saat ini.</value>
+    <value>Tidak ditemukan Penginstal yang berlaku; Lihat log untuk detail selengkapnya.</value>
   </data>
   <data name="NoExperimentalFeaturesMessage" xml:space="preserve">
     <value>Saat ini tidak ada fitur eksperimental yang tersedia. </value>
@@ -813,5 +813,107 @@ Mereka dapat dikonfigurasi melalui ' winget settings ' file pengaturan.</value>
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Jalur tidak ada:</value>
+  </data>
+  <data name="ImportFileHasInvalidSchema" xml:space="preserve">
+    <value>File JSON tidak menentukan skema yang dikenali.</value>
+  </data>
+  <data name="InstallScopeDescription" xml:space="preserve">
+    <value>Pilih lingkup penginstalan (pengguna atau komputer)</value>
+    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+  </data>
+  <data name="InvalidArgumentValueError" xml:space="preserve">
+    <value>Nilai yang diberikan untuk argumen '%1' tidak valid; Nilai valid</value>
+    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+  </data>
+  <data name="DisabledByGroupPolicy" xml:space="preserve">
+    <value>Operasi ini dinonaktifkan oleh Kebijakan Grup</value>
+  </data>
+  <data name="PolicyAdditionalSources" xml:space="preserve">
+    <value>Aktifkan Sumber Penginstal Aplikasi Windows Tambahan</value>
+  </data>
+  <data name="PolicyAllowedSources" xml:space="preserve">
+    <value>Aktifkan Sumber yang Diperbolehkan Penginstal Aplikasi Windows</value>
+  </data>
+  <data name="PolicyEnableDefaultSource" xml:space="preserve">
+    <value>Aktifkan Sumber Default Penginstal Aplikasi Windows</value>
+  </data>
+  <data name="PolicyEnableExperimentalFeatures" xml:space="preserve">
+    <value>Aktifkan Fitur Eksperimental Penginstal Aplikasi Windows</value>
+  </data>
+  <data name="PolicyEnableMSStoreSource" xml:space="preserve">
+    <value>Aktifkan Sumber Microsoft Store Penginstal Aplikasi Windows</value>
+  </data>
+  <data name="PolicyEnableWinGetSettings" xml:space="preserve">
+    <value>Aktifkan Pengaturan Pengelola Paket Windows</value>
+  </data>
+  <data name="PolicyEnableWinGet" xml:space="preserve">
+    <value>Aktifkan Pengelola Paket Windows</value>
+  </data>
+  <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
+    <value>Atur Interval Pembaruan Otomatis Sumber Pengelola Paket Windows Dalam Menit</value>
+  </data>
+  <data name="PoliciesDisabled" xml:space="preserve">
+    <value>Dinonaktifkan</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesEnabled" xml:space="preserve">
+    <value>Diaktifkan</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="PoliciesPolicy" xml:space="preserve">
+    <value>Kebijakan Grup</value>
+    <comment>Header for a table listing active Group Policies</comment>
+  </data>
+  <data name="PoliciesState" xml:space="preserve">
+    <value>Status</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
+  </data>
+  <data name="PolicyEnableLocalManifests" xml:space="preserve">
+    <value>Aktifkan File Manifes Lokal Penginstal Aplikasi Windows</value>
+  </data>
+  <data name="SettingsWarningField" xml:space="preserve">
+    <value>Bidang:</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
+    <value>Format bidang tidak valid.</value>
+  </data>
+  <data name="SettingsWarningInvalidFieldValue" xml:space="preserve">
+    <value>Nilai bidang tidak valid.</value>
+  </data>
+  <data name="SettingsWarningInvalidValueFromPolicy" xml:space="preserve">
+    <value>Pengaturan yang tidak valid dari Kebijakan Grup.</value>
+  </data>
+  <data name="SettingsWarningLoadedBackupSettings" xml:space="preserve">
+    <value>Memuat pengaturan dari file cadangan.</value>
+  </data>
+  <data name="SettingsWarningParseError" xml:space="preserve">
+    <value>Kesalahan penguraian file:</value>
+  </data>
+  <data name="SettingsWarningValue" xml:space="preserve">
+    <value>Nilai:</value>
+  </data>
+  <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
+    <value>Fitur eksperimental berikut sedang berlangsung.
+Konfigurasi dinonaktifkan karena kebijakan grup.</value>
+  </data>
+  <data name="InstallerHashMismatchError" xml:space="preserve">
+    <value>Hash penginstal tidak cocok.</value>
+  </data>
+  <data name="PolicyEnableHashOverride" xml:space="preserve">
+    <value>Aktifkan Penimpaan Hash Penginstal Aplikasi Windows</value>
+  </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Ekspor sumber saat ini sebagai JSON untuk kebijakan grup.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Ekspor sumber saat ini</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Sumber tambahan</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Sumber yang diperbolehkan</value>
+    <comment>A source that the user is allowed to add.</comment>
   </data>
 </root>

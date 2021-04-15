@@ -902,4 +902,18 @@ Configuration is disabled due to Group Policy.</value>
   <data name="PolicyEnableHashOverride" xml:space="preserve">
     <value>Enable Windows App Installer Hash Override</value>
   </data>
+  <data name="SourceExportCommandLongDescription" xml:space="preserve">
+    <value>Export current sources as JSON for Group Policy.</value>
+  </data>
+  <data name="SourceExportCommandShortDescription" xml:space="preserve">
+    <value>Export current sources</value>
+  </data>
+  <data name="SourceListAdditionalSource" xml:space="preserve">
+    <value>Additional source</value>
+    <comment>An additional source required by policy.</comment>
+  </data>
+  <data name="SourceListAllowedSource" xml:space="preserve">
+    <value>Allowed source</value>
+    <comment>A source that the user is allowed to add.</comment>
+  </data>
 </root>

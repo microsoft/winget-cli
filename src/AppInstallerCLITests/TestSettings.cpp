@@ -26,11 +26,16 @@ namespace TestCommon
 
     GroupPolicyTestOverride::GroupPolicyTestOverride(const AppInstaller::Registry::Key& key) : GroupPolicy(key)
     {
-        AppInstaller::Settings::GroupPolicy::OverrideInstance(this);
+        GroupPolicy::OverrideInstance(this);
     }
 
     GroupPolicyTestOverride::~GroupPolicyTestOverride()
     {
-        AppInstaller::Settings::GroupPolicy::ResetInstance();
+        GroupPolicy::ResetInstance();
+    }
+
+    void GroupPolicyTestOverride::SetState(TogglePolicy::Policy policy, PolicyState state)
+    {
+        m_toggles[policy] = state;
     }
 }

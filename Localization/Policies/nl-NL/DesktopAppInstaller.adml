@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>App-installatieprogramma</displayName>
+  <description>App-installatieprogramma</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">App-installatieprogramma voor het bureaublad</string>
+      <string id="EnableAppInstaller">App-installatieprogramma inschakelen</string>
+      <string id="EnableAppInstallerExplanation">Met deze beleidsinstelling bepaalt u of Windows Package Manager kan worden gebruikt door gebruikers.
+
+Als u deze instelling inschakelt of niet configureert, kunnen gebruikers Windows pakketbeheer gebruiken.
+
+Als u deze instelling uitschakelt, kunnen gebruikers Windows pakketbeheer niet meer gebruiken.</string>
+      <string id="EnableSettings">Instellingen voor app-installatieprogramma inschakelen</string>
+      <string id="EnableSettingsExplanation">Met deze beleidsinstelling bepaalt u of gebruikers hun instellingen kunnen wijzigen.
+
+Als u deze instelling inschakelt of niet configureert, kunnen gebruikers de instellingen voor Windows pakketbeheer wijzigen.
+
+Als u deze instelling uitschakelt, kunnen gebruikers de instellingen voor Windows pakketbeheer niet wijzigen.</string>
+      <string id="EnableExperimentalFeatures">Experimentele functies van het app-installatieprogramma inschakelen</string>
+      <string id="EnableExperimentalFeaturesExplanation">Met deze beleidsinstelling bepaalt u of gebruikers experimentele functies kunnen inschakelen in Windows pakketbeheer.
+
+Als u deze instelling inschakelt of niet configureert, kunnen gebruikers experimentele functies voor Windows pakketbeheer inschakelen.
+
+Als u deze instelling uitschakelt, kunnen gebruikers geen experimentele functies inschakelen voor Windows pakketbeheer.</string>
+      <string id="EnableLocalManifestFiles">Lokale manifestbestanden van het app-installatieprogramma inschakelen</string>
+      <string id="EnableLocalManifestFilesExplanation">Dit beleid bepaald of gebruikers pakketten kunnen installeren met lokale manifestbestanden.
+
+Als u deze instelling inschakelt of niet configureert, kunnen gebruikers pakketten met lokale manifesten installeren met behulp van Windows-pakketbeheerder.
+
+Als u deze instelling uitschakelt, kunnen gebruikers geen pakketten met lokale manifesten installeren via Windows-pakketbeheerder.</string>
+      <string id="EnableHashOverride">Hash-overschrijving van app-installatieprogramma inschakelen</string>
+      <string id="EnableHashOverrideExplanation">Met dit beleid bepaalt u of Windows pakketbeheer kan worden geconfigureerd om de mogelijkheid te bieden de SHA256-beveiligingsvalidatie in instellingen te overschrijven.
+
+Als u deze beleidsinstelling inschakelt of niet configureert, kunnen gebruikers de mogelijkheid inschakelen om de SHA256-beveiligingsvalidatie in de instellingen van Windows pakketbeheer te negeren.
+
+Als u deze beleidsinstelling uitschakelt, kunnen gebruikers de mogelijkheid om de SHA256-beveiligingsvalidatie in de instellingen van Windows pakketbeheer te negeren, niet inschakelen.</string>
+      <string id="EnableDefaultSource">Standaardbron voor app-installatieprogramma inschakelen</string>
+      <string id="EnableDefaultSourceExplanation">Dit beleid bepaald de standaardbron die is opgenomen in Windows-pakketbeheerder.
+
+Als u deze instelling niet configureert, zal de standaardbron voor Windows-pakketbeheerder beschikbaar zijn en kunt u deze verwijderen.
+
+Als u deze instelling inschakelt, zal de standaardbron voor Windows-pakketbeheerder beschikbaar zijn en kan deze niet worden verwijderd.
+
+Als u deze instelling uitschakelt, zal de standaardbron voor Windows-pakketbeheerder niet beschikbaar zijn.</string>
+      <string id="EnableMicrosoftStoreSource">Microsoft Store-bron voor app-installatieprogramma inschakelen</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">Dit beleid regelt de Microsoft Store-bron die is opgenomen in Windows-pakketbeheerder.
+
+Als u deze instelling niet configureert, is de Microsoft Store-bron voor Windows-pakketbeheer beschikbaar en kunt u deze verwijderen.
+
+Als u deze instelling inschakelt, is de Microsoft Store-bron voor Windows-pakketbeheer beschikbaar en kan deze niet worden verwijderd.
+
+Als u deze instelling uitschakelt, is de Microsoft Store-bron voor Windows-pakketbeheer niet beschikbaar.</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">Interval voor automatische updates van de bron van het app-installatieprogramma instellen in minuten</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">Dit beleid regelt het automatisch bijwerken van het interval voor bronnen op basis van het pakket.
+
+Als u deze instelling uitschakelt of niet configureert, wordt het standaardinterval of de waarde die is opgegeven bij instellingen gebruikt door Windows-pakketbeheerder.
+
+Als u deze instelling inschakelt, wordt het aantal minuten dat is opgegeven door Windows-pakketbeheerder gebruikt.</string>
+      <string id="EnableAdditionalSources">Extra bronnen van het app-installatieprogramma inschakelen</string>
+      <string id="EnableAdditionalSourcesExplanation">Dit beleid bepaalt welke extra bronnen worden geleverd door de IT-beheerder van de onderneming.
+
+Als u dit beleid niet configureert, worden er geen extra bronnen geconfigureerd voor Windows-pakketbeheer.
+
+Als u dit beleid inschakelt, worden de extra bronnen toegevoegd aan Windows-pakketbeheer en kunnen deze niet worden verwijderd. De weergave voor elke extra bron kan worden verkregen door geïnstalleerde bronnen via 'Winget source export' te gebruiken.
+
+Als u dit beleid uitschakelt, kunnen er geen extra bronnen worden geconfigureerd voor Windows-pakketbeheer.</string>
+      <string id="EnableAllowedSources">Toegestane bronnen van het app-installatieprogramma inschakelen</string>
+      <string id="EnableAllowedSourcesExplanation">Dit beleid bepaalt welke extra bronnen worden geleverd door de IT-beheerder van de onderneming.
+
+Als u dit beleid niet configureert, kunnen gebruikers extra bronnen, die niet zijn geconfigureerd volgens het beleid, toevoegen of verwijderen.
+
+Als u dit beleid inschakelt, zullen alleen de ingestelde bronnen kunnen worden toegevoegd of verwijderd vanuit het Windows-pakketbeheer. De weergave voor elke extra bron kan worden verkregen door geïnstalleerde bronnen via 'Winget source export' te gebruiken.
+
+Als u dit beleid uitschakelt, kunnen er geen extra bronnen worden geconfigureerd voor Windows-pakketbeheer.</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">Interval voor automatisch bijwerken van bron in minuten instellen</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">Aanvullende bronnen: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">Toegestane bronnen: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

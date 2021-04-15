@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>ตัวติดตั้งแอป</displayName>
+  <description>ตัวติดตั้งแอป</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">ตัวติดตั้งแอปบนเดสก์ท็อป</string>
+      <string id="EnableAppInstaller">เปิดใช้งานตัวติดตั้งแอป</string>
+      <string id="EnableAppInstallerExplanation">นโยบายนี้จะควบคุมว่าผู้ใช้สามารถใช้ Windows Package Manager ได้หรือไม่
+
+ถ้าคุณเปิดใช้งานหรือไม่ได้กําหนดค่าการตั้งค่านี้ ผู้ใช้จะสามารถใช้ Windows Package Manager ได้
+
+ถ้าคุณปิดใช้งานการตั้งค่านี้ ผู้ใช้จะไม่สามารถใช้ Windows Package Manager ได้</string>
+      <string id="EnableSettings">เปิดใช้งานการตั้งค่าของตัวติดตั้งแอป</string>
+      <string id="EnableSettingsExplanation">นโยบายนี้จะควบคุมว่าผู้ใช้สามารถเปลี่ยนแปลงการตั้งค่าได้หรือไม่
+
+ถ้าคุณเปิดใช้งานหรือไม่ได้กําหนดค่าการตั้งค่านี้ ผู้ใช้จะสามารถเปลี่ยนแปลงการตั้งค่าต่างของ Windows Package Manager ได้
+
+ถ้าคุณปิดใช้งานการตั้งค่านี้ ผู้ใช้จะไม่สามารถเปลี่ยนแปลงการตั้งค่าของ Windows Package Manager ได้</string>
+      <string id="EnableExperimentalFeatures">เปิดใช้งานฟีเจอร์การทดลองของตัวติดตั้งแอป</string>
+      <string id="EnableExperimentalFeaturesExplanation">นโยบายนี้จะควบคุมว่าผู้ใช้สามารถเปิดใช้งานฟีเจอร์การทดลองใน Windows Package Manager ได้หรือไม่
+
+ถ้าคุณเปิดใช้งานหรือไม่ได้กําหนดค่าการตั้งค่านี้ ผู้ใช้จะสามารถเปิดใช้งานฟีเจอร์การทดลองของ Windows Package Manager ได้
+
+ถ้าคุณปิดใช้งานการตั้งค่านี้ ผู้ใช้จะไม่สามารถเปิดใช้งานฟีเจอร์การทดลองของ Windows Package Manager ได้</string>
+      <string id="EnableLocalManifestFiles">เปิดใช้งานแฟ้มกำกับภายในของตัวติดตั้งแอป</string>
+      <string id="EnableLocalManifestFilesExplanation">นโยบายนี้จะควบคุมว่าผู้ใช้สามารถติดตั้งแพคเกจที่มีแฟ้มกำกับภายในได้หรือไม่
+
+ถ้าคุณเปิดใช้งานหรือไม่ได้กําหนดค่าการตั้งค่านี้ ผู้ใช้จะสามารถติดตั้งแพคเกจที่มีแฟ้มกำกับภายในโดยใช้ Windows Package Manager ได้
+
+ถ้าคุณปิดใช้งานการตั้งค่านี้ ผู้ใช้จะไม่สามารถติดตั้งแพคเกจที่มีแฟ้มกำกับภายในโดยใช้ Windows Package Manager ได้</string>
+      <string id="EnableHashOverride">เปิดใช้งานการแทนที่แฮชของตัวติดตั้งแอป</string>
+      <string id="EnableHashOverrideExplanation">นโยบายนี้ควบคุมว่าจะให้ Windows Package Manager สามารถกําหนดค่าเพื่อเปิดใช้งานความสามารถในการแทนที่การตรวจสอบความถูกต้องของความปลอดภัย SHA256 ในการตั้งค่าหรือไม่
+
+ถ้าคุณเปิดใช้งานหรือไม่ได้กําหนดค่านโยบายนี้ ผู้ใช้จะสามารถเปิดใช้งานความสามารถในการแทนที่การตรวจสอบความถูกต้องของความปลอดภัย SHA256 ในการตั้งค่า Windows Package Manager ได้
+
+ถ้าคุณปิดใช้งานนโยบายนี้ ผู้ใช้จะไม่สามารถเปิดใช้งานความสามารถในการแทนที่การตรวจสอบความถูกต้องของความปลอดภัย SHA256 ในการตั้งค่า Windows Package Manager</string>
+      <string id="EnableDefaultSource">เปิดใช้งานแหล่งที่มาเริ่มต้นของตัวติดตั้งแอป</string>
+      <string id="EnableDefaultSourceExplanation">นโยบายนี้จะควบคุมแหล่งที่มาเริ่มต้นที่รวมอยู่ใน Windows Package Manager
+
+ถ้าคุณไม่ได้กําหนดค่าการตั้งค่านี้ แหล่งที่มาเริ่มต้นของ Windows Package Manager จะพร้อมใช้งานและถูกนำออกได้
+
+ถ้าคุณเปิดใช้งานการตั้งค่านี้ แหล่งที่มาเริ่มต้นของ Windows Package Manager จะพร้อมใช้งานและไม่สามารถนำออกได้
+
+ถ้าคุณปิดใช้งานการตั้งค่านี้ แหล่งที่มาเริ่มต้นของ Windows Package Manager จะไม่พร้อมใช้งาน</string>
+      <string id="EnableMicrosoftStoreSource">เปิดใช้งานแหล่งที่มาของ Microsoft Store สำหรับตัวติดตั้งแอป</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">นโยบายนี้จะควบคุมแหล่งที่มาของ Microsoft Store รวมถึง Windows Package Manager
+
+ถ้าคุณไม่ได้กําหนดค่าการตั้งค่านี้ แหล่งที่มาของ Microsoft Store สำหรับ Windows Package Manager จะพร้อมใช้งานและถูกนำออกได้
+
+ถ้าคุณเปิดใช้งานการตั้งค่านี้ แหล่งที่มาของ Microsoft Store สำหรับ Windows Package Manager จะพร้อมใช้งานและไม่สามารถนำออกได้
+
+ถ้าคุณปิดใช้งานการตั้งค่านี้ แหล่งที่มาของ Microsoft Store สำหรับ Windows Package Manager จะไม่พร้อมใช้งาน</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">ตั้งค่าช่วงเวลาการอัปเดตอัตโนมัติของแหล่งที่มาสำหรับตัวติดตั้งแอปเป็นนาที</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">นโยบายนี้จะควบคุมช่วงเวลาการอัปเดตอัตโนมัติสำหรับแหล่งที่มาตามแพคเกจ
+
+ถ้าคุณปิดใช้งานหรือไม่ได้กำหนดค่าการตั้งค่านี้ช่วงเวลาเริ่มต้นหรือค่าที่ระบุในการตั้งค่าจะถูกใช้โดย Windows Package Manager
+
+ถ้าคุณเปิดใช้งานการตั้งค่านี้ จำนวนนาทีที่ระบุจะถูกใช้โดย Windows Package Manager</string>
+      <string id="EnableAdditionalSources">เปิดใช้งานแหล่งที่มาเพิ่มเติมของตัวติดตั้งแอป</string>
+      <string id="EnableAdditionalSourcesExplanation">นโยบายนี้จะควบคุมแหล่งที่มาเพิ่มเติมที่มาจากผู้ดูแลระบบ IT ขององค์กร
+
+ถ้าคุณไม่ได้กำหนดค่านโยบายนี้ จะไม่มีการกำหนดค่าแหล่งที่มาเพิ่มเติมให้กับ Windows Package Manager
+
+ถ้าคุณเปิดใช้งานนโยบายนี้ แหล่งที่มาเพิ่มเติมจะถูกเพิ่มไปยัง Windows Package Manager และไม่สามารถนำออกได้ การแสดงแหล่งที่มาเพิ่มเติมแต่ละแหล่งสามารถได้รับจากแหล่งที่มาที่ติดตั้งโดยใช้ 'การส่งออกแหล่งข้อมูล Winget'
+
+ถ้าคุณปิดใช้งานนโยบายนี้ จะไม่มีแหล่งที่มาเพิ่มเติมที่สามารถกําหนดค่าให้กับ Windows Package Manager ได้</string>
+      <string id="EnableAllowedSources">เปิดใช้งานแหล่งที่มาที่อนุญาตของตัวติดตั้งแอป</string>
+      <string id="EnableAllowedSourcesExplanation">นโยบายนี้จะควบคุมแหล่งที่มาเพิ่มเติมที่ได้รับอนุญาตจากผู้ดูแลระบบ IT ขององค์กร
+
+ถ้าคุณไม่ได้กําหนดค่านโยบายนี้ ผู้ใช้จะสามารถเพิ่มหรือลบแหล่งที่มาเพิ่มเติมนอกเหนือจากที่กําหนดค่าโดยนโยบาย
+
+ถ้าคุณเปิดใช้งานนโยบายนี้ เฉพาะแหล่งที่มาที่ระบุเท่านั้นที่สามารถเพิ่มหรือนำออกจาก Windows Package Manager ได้ การแสดงแหล่งที่มาที่ได้รับอนุญาตแต่ละแหล่งสามารถได้รับจากแหล่งที่มาที่ติดตั้งโดยใช้ 'การส่งออกแหล่งที่มา Winget'
+
+ถ้าคุณปิดใช้งานนโยบายนี้ จะไม่มีแหล่งที่มาเพิ่มเติมที่สามารถกําหนดค่าให้ Windows Package Manager ได้</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">ช่วงเวลาการอัปเดตอัตโนมัติของแหล่งที่มาเป็นนาที</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">แหล่งที่มาเพิ่มเติม: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">แหล่งที่มาที่อนุญาต: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

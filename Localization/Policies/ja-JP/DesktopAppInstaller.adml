@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" revision="1.0" schemaVersion="1.0" xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>アプリ インストーラー</displayName>
+  <description>アプリ インストーラー</description>
+  <resources>
+    <stringTable>
+      <string id="AppInstaller">デスクトップ アプリ インストーラー</string>
+      <string id="EnableAppInstaller">アプリ インストーラーを有効にする</string>
+      <string id="EnableAppInstallerExplanation">このポリシーでは、ユーザーが Windows パッケージマネージャーを使用できるかどうかを制御します。
+
+この設定を有効にした場合、または構成しなかった場合、ユーザーは Windows パッケージマネージャーを使用できます。
+
+この設定を無効にした場合、ユーザーは Windows パッケージマネージャーを使用できなくなります。</string>
+      <string id="EnableSettings">アプリのインストーラーの設定を有効にする</string>
+      <string id="EnableSettingsExplanation">このポリシーでは、ユーザーが設定を変更できるかどうかを制御します。
+
+この設定を有効にした場合、または構成しなかった場合、ユーザーは Windows パッケージマネージャーの設定を変更することができます。
+
+この設定を無効にした場合、ユーザーは Windows パッケージマネージャーの設定を変更できなくなります。</string>
+      <string id="EnableExperimentalFeatures">アプリ インストーラーの試験的な機能を有効にする</string>
+      <string id="EnableExperimentalFeaturesExplanation">このポリシーでは、ユーザーが Windows パッケージマネージャーで試験的な機能を有効にできるかどうかを制御します。
+
+この設定を有効にした場合、または構成しなかった場合、ユーザーは Windows パッケージマネージャーに対して実験的な機能を有効にすることができます。
+
+この設定を無効にした場合、ユーザーは Windows パッケージマネージャーの実験的な機能を有効にできなくなります。</string>
+      <string id="EnableLocalManifestFiles">アプリ インストーラーのローカル マニフェスト ファイルを有効にする</string>
+      <string id="EnableLocalManifestFilesExplanation">このポリシーでは、ローカルマニフェストファイルを含むパッケージをユーザーがインストールできるかどうかを制御します。
+
+この設定を有効にした場合、または構成しなかった場合、ユーザーは Windows パッケージマネージャーを使用してローカルのマニフェストを含むパッケージをインストールできます。
+
+この設定を無効にした場合、ユーザーは Windows パッケージマネージャーを使用してローカルのマニフェストを含むパッケージをインストールできなくなります。</string>
+      <string id="EnableHashOverride">アプリ インストーラーのハッシュ上書きを有効にする</string>
+      <string id="EnableHashOverrideExplanation">このポリシーでは、設定の SHA256 セキュリティ検証を上書きする機能を有効にできるように Windows パッケージ マネージャーを構成できるかどうかを制御します。
+
+このポリシーを有効にした場合、または構成しなかった場合、ユーザーは Windows パッケージ マネージャーの設定で SHA256 セキュリティ検証を上書きする機能を有効にすることができます。
+
+このポリシーを無効にした場合、ユーザーは Windows パッケージ マネージャーの設定で SHA256 セキュリティ検証を上書きする機能を有効することができなくなります。</string>
+      <string id="EnableDefaultSource">アプリ インストーラーの既定のソースを有効にする</string>
+      <string id="EnableDefaultSourceExplanation">このポリシーでは、Windows パッケージ マネージャーに含まれている 既定ソースを制御します。
+
+この設定を構成しなかった場合、Windows パッケージ マネージャーの 既定ソースが利用可能になり、削除できるようになります。
+
+この設定を有効にした場合、Windows パッケージ マネージャーの 既定ソースが利用できるようになり、削除できなくなります。
+
+この設定を無効にした場合、Windows パッケージマ ネージャーの 既定ソースは利用できなくなります。</string>
+      <string id="EnableMicrosoftStoreSource">アプリ インストーラー Microsoft Store ソースを有効にする</string>
+      <string id="EnableMicrosoftStoreSourceExplanation">このポリシーでは、Windows パッケージ マネージャーに含まれている Microsoft Store ソースを制御します。
+
+この設定を構成しなかった場合、Windows パッケージ マネージャーの Microsoft Store ソースが利用可能になり、削除できるようになります。
+
+この設定を有効にした場合、Windows パッケージ マネージャーの Microsoft Store ソースが利用できるようになり、削除できなくなります。
+
+この設定を無効にした場合、Windows パッケージマ ネージャーの Microsoft Store ソースは利用できなくなります。</string>
+      <string id="SourceAutoUpdateIntervalInMinutes">アプリ インストーラー ソースの自動更新間隔を分単位で設定します</string>
+      <string id="SourceAutoUpdateIntervalInMinutesExplanation">このポリシーでは、パッケージベースのソースの自動更新間隔を制御します。
+
+この設定を無効にした場合、または構成しなかった場合は、Windows パッケージマネージャーによって [設定] で指定した既定の間隔または値が使用されます。
+
+この設定を有効にした場合、指定した分数が Windows パッケージマネージャーによって使用されます。</string>
+      <string id="EnableAdditionalSources">アプリ インストーラーの追加ソースを有効にする</string>
+      <string id="EnableAdditionalSourcesExplanation">このポリシーは、エンタープライズIT管理者によって提供される追加のソースを制御します。
+
+このポリシーを構成しない場合、Windows パッケージ マネージャー用に追加のソースは構成されません。
+
+このポリシーを有効にすると、追加のソースが Windows パッケージ マネージャーに追加され、削除できなくなります。 追加の各ソースの表現は、「wingetsourceexport」を使用してインストールされたソースから取得できます。
+
+このポリシーを無効にすると、Windows パッケージ マネージャーに追加のソースを構成できなくなります。</string>
+      <string id="EnableAllowedSources">アプリ インストーラーの許可されたソースを有効にする</string>
+      <string id="EnableAllowedSourcesExplanation">このポリシーは、エンタープライズ IT 管理者が許可する追加のソースを制御します。
+
+このポリシーを構成しない場合、ユーザーはポリシーで構成されたソース以外のソースを追加または削除できます。
+
+このポリシーを有効にすると、指定したソースのみを Windows パッケージ マネージャーに追加または Windows パッケージ マネージャーから削除できます。 許可された各ソースの表現は、「wingetsourceexport」を使用してインストールされたソースから取得できます。
+
+このポリシーを無効にすると、Windows パッケージ マネージャーに追加のソースを構成できなくなります。</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="SourceAutoUpdateIntervalInMinutes">
+        <decimalTextBox refId="SourceAutoUpdateIntervalInMinutes" defaultValue="5">ソースの自動更新間隔 (分)</decimalTextBox>
+      </presentation>
+      <presentation id="AdditionalSources">
+        <listBox refId="AdditionalSources" required="false">追加ソース: </listBox>
+      </presentation>
+      <presentation id="AllowedSources">
+        <listBox refId="AllowedSources" required="false">許可されたソース: </listBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

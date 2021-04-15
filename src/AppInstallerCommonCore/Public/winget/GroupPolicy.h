@@ -17,9 +17,10 @@ namespace AppInstaller::Settings
     // made up of sub-keys for settings that are lists.
     enum class ValuePolicy
     {
+        None,
         SourceAutoUpdateIntervalInMinutes,
-        AdditionalSources, // TODO
-        AllowedSources, // TODO
+        AdditionalSources,
+        AllowedSources,
         Max,
     };
 
@@ -37,8 +38,8 @@ namespace AppInstaller::Settings
             HashOverride,
             DefaultSource,
             MSStoreSource,
-            AdditionalSources, // TODO
-            AllowedSources, // TODO
+            AdditionalSources,
+            AllowedSources,
             Max,
         };
 
@@ -68,6 +69,19 @@ namespace AppInstaller::Settings
         Enabled,
     };
 
+    // A source defined by Group Policy to be added or allowed
+    struct SourceFromPolicy
+    {
+        std::string Name;
+        std::string Arg;
+        std::string Type;
+        std::string Data;
+        std::string Identifier;
+
+        std::string ToJsonString() const;
+    };
+
+
     namespace details
     {
 
@@ -81,32 +95,51 @@ namespace AppInstaller::Settings
             //  ValueName - Name of the registry value
             //  ValueType - Type of the registry value
             //  reg_value_t - Type returned by the registry when reading the value
+
+            // For lists:
+            //  item_t - Type of each item
+            //  KeyName -- Name of the sub-key containing the list
+            //  ReadAndValidateItem() - Function that reads a single item from a subkey
         };
 
-#define POLICY_MAPPING_SPECIALIZATION(_policy_, _type_) \
+        template<>
+        struct ValuePolicyMapping<ValuePolicy::None>
+        {
+            using value_t = std::monostate;
+            using opt_value_t = std::nullopt_t;
+            using opt_ref_value_t = std::nullopt_t;
+            static std::nullopt_t ReadAndValidate(const Registry::Key& policiesKey);
+        };
+
+#define POLICY_MAPPING_SPECIALIZATION(_policy_, _type_, _extra_) \
         template <> \
         struct ValuePolicyMapping<_policy_> \
         { \
             using value_t = _type_; \
+            using opt_value_t = std::optional<value_t>; \
+            using opt_ref_value_t = std::optional<std::reference_wrapper<const value_t>>; \
             static std::optional<value_t> ReadAndValidate(const Registry::Key& policiesKey); \
+            _extra_ \
         }
 
 #define POLICY_MAPPING_VALUE_SPECIALIZATION(_policy_, _type_, _valueName_, _valueType_) \
-        template<> \
-        struct ValuePolicyMapping<_policy_> \
-        { \
+        POLICY_MAPPING_SPECIALIZATION(_policy_, _type_, \
             static constexpr std::string_view ValueName = _valueName_; \
             static constexpr Registry::Value::Type ValueType = _valueType_; \
-            using value_t = _type_; \
             using reg_value_t = decltype(std::declval<Registry::Value>().GetValue<ValueType>()); \
-            static std::optional<value_t> ReadAndValidate(const Registry::Key& policiesKey); \
-        }
+        )
+
+#define POLICY_MAPPING_LIST_SPECIALIZATION(_policy_, _type_, _keyName_) \
+        POLICY_MAPPING_SPECIALIZATION(_policy_, std::vector<_type_>, \
+            static constexpr std::string_view KeyName = _keyName_; \
+            using item_t = _type_; \
+            static std::optional<item_t> ReadAndValidateItem(const Registry::Value& item); \
+        )
 
         POLICY_MAPPING_VALUE_SPECIALIZATION(ValuePolicy::SourceAutoUpdateIntervalInMinutes, uint32_t, "SourceAutoUpdateIntervalInMinutes"sv, Registry::Value::Type::DWord);
 
-        // TODO: Wire up policies for sources
-        POLICY_MAPPING_SPECIALIZATION(ValuePolicy::AdditionalSources, std::vector<std::string>);
-        POLICY_MAPPING_SPECIALIZATION(ValuePolicy::AllowedSources, std::vector<std::string>);
+        POLICY_MAPPING_LIST_SPECIALIZATION(ValuePolicy::AdditionalSources, SourceFromPolicy, "AdditionalSources"sv);
+        POLICY_MAPPING_LIST_SPECIALIZATION(ValuePolicy::AllowedSources, SourceFromPolicy, "AllowedSources"sv);
     }
 
     // Representation of the policies read from the registry.
@@ -127,9 +160,12 @@ namespace AppInstaller::Settings
         GroupPolicy(GroupPolicy&&) = delete;
         GroupPolicy& operator=(GroupPolicy&&) = delete;
 
+        template<ValuePolicy P>
+        using ValueType = typename details::ValuePolicyMapping<P>::value_t;
+
         // Gets the policy value if it is present
         template<ValuePolicy P>
-        std::optional<typename details::ValuePolicyMapping<P>::value_t> GetValue() const
+        typename details::ValuePolicyMapping<P>::opt_value_t GetValue() const
         {
             if (m_values.Contains(P))
             {
@@ -141,25 +177,61 @@ namespace AppInstaller::Settings
             }
         }
 
+        template<ValuePolicy P>
+        typename details::ValuePolicyMapping<P>::opt_ref_value_t GetValueRef() const
+        {
+            if (m_values.Contains(P))
+            {
+                return std::cref(m_values.Get<P>());
+            }
+            else
+            {
+                return std::nullopt;
+            }
+        }
+
+        template<>
+        std::nullopt_t GetValue<ValuePolicy::None>() const
+        {
+            return std::nullopt;
+        }
+
+        template<>
+        std::nullopt_t GetValueRef<ValuePolicy::None>() const
+        {
+            return std::nullopt;
+        }
+
         PolicyState GetState(TogglePolicy::Policy policy) const;
 
         // Checks whether a policy is enabled, using an appropriate default when not configured.
         // Should not be used when not configured means something different than enabled/disabled.
         bool IsEnabled(TogglePolicy::Policy policy) const;
 
-    private:
-        std::map<TogglePolicy::Policy, PolicyState> m_toggles;
-        ValuePoliciesMap m_values;
-
 #ifndef AICLI_DISABLE_TEST_HOOKS
     protected:
         static void OverrideInstance(GroupPolicy* gp);
         static void ResetInstance();
+#else
+    private:
 #endif
+        std::map<TogglePolicy::Policy, PolicyState> m_toggles;
+        ValuePoliciesMap m_values;
     };
 
     inline const GroupPolicy& GroupPolicies()
     {
         return GroupPolicy::Instance();
     }
+
+    struct GroupPolicyException
+    {
+        GroupPolicyException(TogglePolicy::Policy policy) : m_policy(policy) {}
+
+        const TogglePolicy::Policy& Policy() const { return m_policy; }
+
+    private:
+        TogglePolicy::Policy m_policy;
+    };
+
 }

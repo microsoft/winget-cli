@@ -161,6 +161,7 @@ IBuffer
 icu
 IDisposable
 IDX
+IEnumerable
 ifdef
 ifndef
 ifstream
@@ -328,6 +329,7 @@ robuffer
 rowcount
 rowid
 rubengustorage
+ruleset
 runsettings
 runtimes
 safecast
@@ -511,6 +513,8 @@ xamarin
 xlang
 xml
 xmlns
+XElement
+XName
 XResource
 xsd
 XTOKEN
