@@ -115,7 +115,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     bool Interface::MeetsOptimizedSearchCriteria(const SearchRequest& request) const
     {
         // Optimization: If the user wants to install a certain package with an exact match on package id and a particular rest source, we will
-        // call the package manifest endpoint to get the manifest directly insteading of running a search for it.
+        // call the package manifest endpoint to get the manifest directly instead of running a search for it.
         if (!request.Query && request.Inclusions.size() == 0 &&
             request.Filters.size() == 1 && request.Filters[0].Field == PackageMatchField::Id &&
             request.Filters[0].Type == MatchType::Exact)

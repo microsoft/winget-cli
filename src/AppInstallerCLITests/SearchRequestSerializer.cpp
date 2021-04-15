@@ -23,7 +23,7 @@ TEST_CASE("SearchRequestSerializer_InclusionsFilters", "[RestSource]")
 
     REQUIRE(!actual.is_null());
     REQUIRE(!actual.has_field(L"FetchAllManifests"));
-    REQUIRE(actual.at(L"MaximumResults").as_integer() == searchRequest.MaximumResults);
+    REQUIRE(actual.at(L"MaximumResults").as_integer() == static_cast<int>(searchRequest.MaximumResults));
 
     // Inclusions
     web::json::array inclusions = actual.at(L"Inclusions").as_array();
