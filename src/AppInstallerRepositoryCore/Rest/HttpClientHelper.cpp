@@ -5,12 +5,13 @@
 
 namespace AppInstaller::Repository::Rest
 {
-    HttpClientHelper::HttpClientHelper(const utility::string_t& url) : m_client(url), m_url(url) {}
+    HttpClientHelper::HttpClientHelper(std::optional<std::shared_ptr<web::http::http_pipeline_stage>> stage) : m_defaultRequestHandlerStage(stage) {}
 
     pplx::task<web::http::http_response> HttpClientHelper::Post(
-        const web::json::value& body, const std::vector<std::pair<utility::string_t, utility::string_t>>& headers)
+        const utility::string_t& uri, const web::json::value& body, const std::vector<std::pair<utility::string_t, utility::string_t>>& headers) const
     {
-        AICLI_LOG(Repo, Verbose, << "Sending http POST request to: " << utility::conversions::to_utf8string(m_url));
+        AICLI_LOG(Repo, Verbose, << "Sending http POST request to: " << utility::conversions::to_utf8string(uri));
+        web::http::client::http_client client = GetClient(uri);
         web::http::http_request request{ web::http::methods::POST };
         request.headers().set_content_type(web::http::details::mime_types::application_json);
         request.set_body(body.serialize());
@@ -21,14 +22,14 @@ namespace AppInstaller::Repository::Rest
             request.headers().add(pair.first, pair.second);
         }
 
-        return MakeRequest(request);
+        return client.request(request);
     }
 
     std::optional<web::json::value> HttpClientHelper::HandlePost(
-        const web::json::value& body, const std::vector<std::pair<utility::string_t, utility::string_t>>& headers)
+        const utility::string_t& uri, const web::json::value& body, const std::vector<std::pair<utility::string_t, utility::string_t>>& headers) const
     {
         web::http::http_response httpResponse;
-        HttpClientHelper::Post(body, headers).then([&httpResponse](const web::http::http_response& response)
+        HttpClientHelper::Post(uri, body, headers).then([&httpResponse](const web::http::http_response& response)
             {
                 AICLI_LOG(Repo, Verbose, << "Response status: " << response.status_code());
                 httpResponse = response;
@@ -37,9 +38,11 @@ namespace AppInstaller::Repository::Rest
             return ValidateAndExtractResponse(httpResponse);
     }
 
-    pplx::task<web::http::http_response> HttpClientHelper::Get(const std::vector<std::pair<utility::string_t, utility::string_t>>& headers)
+    pplx::task<web::http::http_response> HttpClientHelper::Get(
+        const utility::string_t& uri, const std::vector<std::pair<utility::string_t, utility::string_t>>& headers) const
     {
-        AICLI_LOG(Repo, Verbose, << "Sending http GET request to: " << utility::conversions::to_utf8string(m_url));
+        AICLI_LOG(Repo, Verbose, << "Sending http GET request to: " << utility::conversions::to_utf8string(uri));
+        web::http::client::http_client client = GetClient(uri);
         web::http::http_request request{ web::http::methods::GET };
         request.headers().set_content_type(web::http::details::mime_types::application_json);
 
@@ -49,13 +52,14 @@ namespace AppInstaller::Repository::Rest
             request.headers().add(pair.first, pair.second);
         }
 
-        return MakeRequest(request);
+        return client.request(request);
     }
 
-    std::optional<web::json::value> HttpClientHelper::HandleGet(const std::vector<std::pair<utility::string_t, utility::string_t>>& headers)
+    std::optional<web::json::value> HttpClientHelper::HandleGet(
+        const utility::string_t& uri, const std::vector<std::pair<utility::string_t, utility::string_t>>& headers) const
     {
         web::http::http_response httpResponse;
-        Get(headers).then([&httpResponse](const web::http::http_response& response)
+        Get(uri, headers).then([&httpResponse](const web::http::http_response& response)
             {
                 AICLI_LOG(Repo, Verbose, << "Response status: " << response.status_code());
                 httpResponse = response;
@@ -64,7 +68,20 @@ namespace AppInstaller::Repository::Rest
             return ValidateAndExtractResponse(httpResponse);
     }
 
-    std::optional<web::json::value> HttpClientHelper::ValidateAndExtractResponse(const web::http::http_response& response)
+    web::http::client::http_client HttpClientHelper::GetClient(const utility::string_t& uri) const
+    {
+        web::http::client::http_client client{ uri };
+
+        // Add default custom handlers if any.
+        if (m_defaultRequestHandlerStage)
+        {
+            client.add_handler(m_defaultRequestHandlerStage.value());
+        }
+
+        return client;
+    }
+
+    std::optional<web::json::value> HttpClientHelper::ValidateAndExtractResponse(const web::http::http_response& response) const
     {
         std::optional<web::json::value> result;
         switch (response.status_code())
@@ -89,7 +106,7 @@ namespace AppInstaller::Repository::Rest
         return result;
     }
 
-    std::optional<web::json::value> HttpClientHelper::ExtractJsonResponse(const web::http::http_response& response)
+    std::optional<web::json::value> HttpClientHelper::ExtractJsonResponse(const web::http::http_response& response) const
     {
         utility::string_t contentType = response.headers().content_type();
 
@@ -97,10 +114,5 @@ namespace AppInstaller::Repository::Rest
             !contentType._Starts_with(web::http::details::mime_types::application_json));
 
         return response.extract_json().get();
-    }
-
-    pplx::task<web::http::http_response> HttpClientHelper::MakeRequest(web::http::http_request req)
-    {
-        return m_client.request(req);
     }
 }

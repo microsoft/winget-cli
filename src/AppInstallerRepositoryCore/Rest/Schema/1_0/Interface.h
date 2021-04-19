@@ -3,6 +3,8 @@
 #pragma once
 #include "Rest/Schema/IRestClient.h"
 #include <cpprest/json.h>
+#include "cpprest/json.h"
+#include "Rest/HttpClientHelper.h"
 #include <vector>
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0
@@ -10,7 +12,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     // Interface to this schema version exposed through IRestClient.
     struct Interface : public IRestClient
     {
-        Interface(const std::string& restApi);
+        Interface(const std::string& restApi, const HttpClientHelper& httpClientHelper = {});
 
         Interface(const Interface&) = delete;
         Interface& operator=(const Interface&) = delete;
@@ -31,5 +33,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         std::string m_restApiUri;
         utility::string_t m_searchEndpoint;
         std::vector<std::pair<utility::string_t, utility::string_t>> m_requiredRestApiHeaders;
+        HttpClientHelper m_httpClientHelper;
     };
 }

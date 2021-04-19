@@ -4,6 +4,8 @@
 #include <set>
 #include <cpprest/json.h>
 #include "Rest/Schema/IRestClient.h"
+#include "Rest/HttpClientHelper.h"
+#include "cpprest/json.h"
 
 namespace AppInstaller::Repository::Rest
 {
@@ -29,11 +31,11 @@ namespace AppInstaller::Repository::Rest
 
         static utility::string_t GetInformationEndpoint(const utility::string_t& restApiUri);
         
-        static AppInstaller::Utility::Version GetSupportedVersion(const utility::string_t& restApi, const std::set<AppInstaller::Utility::Version>& wingetSupportedVersions);
+        static AppInstaller::Utility::Version GetSupportedVersion(const utility::string_t& restApi, const std::set<AppInstaller::Utility::Version>& wingetSupportedVersions, const HttpClientHelper& httpClientHelper);
 
         static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const AppInstaller::Utility::Version& version);
 
-        static RestClient Create(const std::string& restApi);
+        static RestClient Create(const std::string& restApi, const HttpClientHelper& helper = {});
 
     private:
         std::unique_ptr<Schema::IRestClient> m_interface;

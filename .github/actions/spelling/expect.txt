@@ -23,6 +23,7 @@ AType
 AUrl
 Aysnc
 azurewebsites
+Baz
 Beigi
 bfd
 bght
@@ -30,6 +31,7 @@ bitmask
 bkup
 blargle
 blogs
+Bluetooth
 bomgar
 BOMs
 brk
@@ -276,5 +278,6 @@ wsv
 wto
 Wunused
 WZDNCRFJ
+XPLATSTR
 xsi
 zy

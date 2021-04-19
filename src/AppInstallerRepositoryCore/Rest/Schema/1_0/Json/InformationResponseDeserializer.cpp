@@ -29,6 +29,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
     {
         try
         {
+            if (dataObject.is_null())
+            {
+                AICLI_LOG(Repo, Error, << "Missing json object.");
+                return {};
+            }
+
             std::optional<std::reference_wrapper<const web::json::value>> data = JsonHelper::GetJsonValueFromNode(dataObject, JsonHelper::GetUtilityString(Data));
             if (!data)
             {

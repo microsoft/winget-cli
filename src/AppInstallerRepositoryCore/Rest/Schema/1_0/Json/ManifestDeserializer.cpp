@@ -96,6 +96,12 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
     std::optional<std::vector<Manifest::Manifest>> ManifestDeserializer::DeserializeVersion(const web::json::value& dataJsonObject) const
     {
+        if (dataJsonObject.is_null())
+        {
+            AICLI_LOG(Repo, Error, << "Missing json object.");
+            return {};
+        }
+
         std::vector<Manifest::Manifest> manifests;
         try
         {
@@ -250,6 +256,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         }
         locale.Add<AppInstaller::Manifest::Localization::ShortDescription>(std::move(shortDescription.value()));
 
+        locale.Add<AppInstaller::Manifest::Localization::PublisherUrl>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(PublisherUrl)).value_or(""));
         locale.Add<AppInstaller::Manifest::Localization::PublisherSupportUrl>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(PublisherSupportUrl)).value_or(""));
         locale.Add<AppInstaller::Manifest::Localization::PrivacyUrl>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(PrivacyUrl)).value_or(""));
         locale.Add<AppInstaller::Manifest::Localization::Author>(JsonHelper::GetRawStringValueFromJsonNode(localeJsonObject, JsonHelper::GetUtilityString(Author)).value_or(""));
