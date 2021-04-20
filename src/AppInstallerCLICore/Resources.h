@@ -102,11 +102,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidArgumentValueError);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidJsonFile);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidNameError);
-        WINGET_DEFINE_RESOURCE_STRINGID(LanguageArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreement);
         WINGET_DEFINE_RESOURCE_STRINGID(Links);
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(LocaleArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(LocationArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(LogArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Logs);

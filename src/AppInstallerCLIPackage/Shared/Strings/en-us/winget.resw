@@ -298,8 +298,8 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="InvalidNameError" xml:space="preserve">
     <value>Argument name was not recognized for the current command</value>
   </data>
-  <data name="LanguageArgumentDescription" xml:space="preserve">
-    <value>Language to install (if supported)</value>
+  <data name="LocaleArgumentDescription" xml:space="preserve">
+    <value>Locale to install (if supported)</value>
   </data>
   <data name="LicenseAgreement" xml:space="preserve">
     <value>License Agreement</value>

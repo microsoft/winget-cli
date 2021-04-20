@@ -17,6 +17,7 @@ namespace AppInstaller::CLI
     namespace
     {
         constexpr Utility::LocIndView s_ArgumentName_Scope = "scope"_liv;
+        constexpr Utility::LocIndView s_ArgumentName_Locale = "locale"_liv;
     }
 
     std::vector<Argument> InstallCommand::GetArguments() const
@@ -34,7 +35,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),
-            Argument::ForType(Args::Type::Language),
+            Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::Log),
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation),
@@ -67,7 +68,7 @@ namespace AppInstaller::CLI
             context <<
                 Workflow::CompleteWithSingleSemanticsForValue(valueType);
             break;
-        case Args::Type::Language:
+        case Args::Type::Locale:
             // May well move to CompleteWithSingleSemanticsForValue,
             // but for now output nothing.
             context <<
@@ -105,6 +106,14 @@ namespace AppInstaller::CLI
             if (ConvertToScopeEnum(execArgs.GetArg(Args::Type::InstallScope)) == Manifest::ScopeEnum::Unknown)
             {
                 throw CommandException(Resource::String::InvalidArgumentValueError, s_ArgumentName_Scope, { "user"_lis, "machine"_lis });
+            }
+        }
+
+        if (execArgs.Contains(Args::Type::Locale))
+        {
+            if (!Utility::IsWellFormedBcp47Tag(execArgs.GetArg(Args::Type::Locale)))
+            {
+                throw CommandException(Resource::String::InvalidArgumentValueError, s_ArgumentName_Locale, { "bcp 47 language tags"_lis });
             }
         }
     }

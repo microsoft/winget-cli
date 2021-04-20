@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include <AppInstallerRuntime.h>
+#include "AppInstallerRuntime.h"
 #include "AppInstallerLanguageUtilities.h"
 #include "AppInstallerLogging.h"
 #include "JsonUtil.h"
 #include "winget/Settings.h"
 #include "winget/UserSettings.h"
+#include "winget/Locale.h"
 
 namespace AppInstaller::Settings
 {
@@ -234,6 +235,21 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_SIGNATURE(InstallScopeRequirement)
         {
             return SettingMapping<Setting::InstallScopePreference>::Validate(value);
+        }
+
+        WINGET_VALIDATE_SIGNATURE(InstallLocalePreference)
+        {
+            if (Utility::IsWellFormedBcp47Tag(value))
+            {
+                return value;
+            }
+
+            return {};
+        }
+
+        WINGET_VALIDATE_SIGNATURE(InstallLocaleRequirement)
+        {
+            return SettingMapping<Setting::InstallLocalePreference>::Validate(value);
         }
     }
 

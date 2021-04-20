@@ -67,6 +67,20 @@ The `scope` behavior affects the choice between installing a package for the cur
     },
 ```
 
+### Locale
+
+The `locale` behavior affects the choice of installer based on installer locale. The matching parameter is `--locale`, and uses bcp47 language tag.
+
+Note the locale preference will also be applied to `winget show` command if applicable.
+
+```json
+    "installBehavior": {
+        "preferences": {
+            "locale": "en-US"
+        }
+    },
+```
+
 ## Telemetry
 
 The `telemetry` settings control whether winget writes ETW events that may be sent to Microsoft on a default installation of Windows.
