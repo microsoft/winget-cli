@@ -13,11 +13,7 @@ namespace AppInstaller::StringResource
 #define WINGET_WIDE_STRINGIFY_HELP(_id_) L ## _id_
 #define WINGET_WIDE_STRINGIFY(_id_) WINGET_WIDE_STRINGIFY_HELP(_id_)
 
-#ifdef WINGET_DISABLE_FOR_FUZZING
-#define WINGET_DEFINE_RESOURCE_STRINGID(_id_) static constexpr AppInstaller::StringResource::StringId _id_ { {} }
-#elif
 #define WINGET_DEFINE_RESOURCE_STRINGID(_id_) static constexpr AppInstaller::StringResource::StringId _id_ { WINGET_WIDE_STRINGIFY(#_id_) ## sv }
-#endif
 
     // A resource identifier
     struct StringId : public std::wstring_view
