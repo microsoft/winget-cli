@@ -12,7 +12,6 @@ namespace AppInstaller::StringResource
 
 #define WINGET_WIDE_STRINGIFY_HELP(_id_) L ## _id_
 #define WINGET_WIDE_STRINGIFY(_id_) WINGET_WIDE_STRINGIFY_HELP(_id_)
-
 #define WINGET_DEFINE_RESOURCE_STRINGID(_id_) static constexpr AppInstaller::StringResource::StringId _id_ { WINGET_WIDE_STRINGIFY(#_id_) ## sv }
 
     // A resource identifier
