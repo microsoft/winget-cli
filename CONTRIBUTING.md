@@ -114,7 +114,7 @@ Once you've discussed your proposed feature/fix/etc. with a team member, and you
 1. Create & push a feature branch
 1. Create a [Draft Pull Request (PR)](https://github.blog/2019-02-14-introducing-draft-pull-requests/)
 1. Work on your changes
-1. Build and see if it works. Consult [How to build OpenConsole](./doc/building.md) if you have problems.
+1. Build and see if it works.
 
 ### Testing
 
