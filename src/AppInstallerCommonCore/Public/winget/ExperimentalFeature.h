@@ -26,8 +26,7 @@ namespace AppInstaller::Settings
             ExperimentalList = 0x8,
             ExperimentalUpgrade = 0x10,
             ExperimentalUninstall = 0x20,
-            ExperimentalImport = 0x40,
-            ExperimentalRestSource = 0x80,
+            ExperimentalRestSource = 0x40,
             Max, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command
