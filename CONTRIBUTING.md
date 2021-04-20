@@ -52,9 +52,6 @@ When you hit "New Issue", select the type of issue closest to what you want to r
 
 **Complete the information requested in the issue template, providing as much information as possible**. The more information you provide, the more likely your issue/ask will be understood and implemented. Helpful information includes:
 
-* What device you're running (inc. CPU type, memory, disk, etc.)
-* What build of Windows your device is running
-
   👉 Tip: Run the following command
 
   `winget --info`
