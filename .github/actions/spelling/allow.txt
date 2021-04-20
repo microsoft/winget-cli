@@ -27,6 +27,7 @@ azureedge
 bcrypt
 binver
 Bitmask
+blog
 Blog
 boolalpha
 BSTR
@@ -84,6 +85,7 @@ deserializing
 dest
 devblogs
 differentpath
+distro
 DIRECTONLY
 dll
 dllexport
@@ -334,6 +336,7 @@ runsettings
 runtimes
 safecast
 savepoint
+screenshots
 SCROLLER
 SCROLLVIEWER
 sdk
