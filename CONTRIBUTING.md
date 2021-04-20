@@ -10,7 +10,7 @@ When the team finds issues we file them in the repository. When we propose new i
 
 The point of doing all this work in public is to ensure that we are holding ourselves to a high degree of transparency, and so that the community sees that we apply the same processes and hold ourselves to the same quality-bar as we do to community-submitted issues and PRs. We also want to make sure that we expose our team culture and "tribal knowledge" that is inherent in any closely-knit team, which often contains considerable value to those new to the project who are trying to figure out "why the heck does this thing look/work like this???"
 
-### Repo Bot
+### Repository Bot
 
 The team triages new issues several times a week. During triage, the team uses labels to categorize, manage, and drive the project workflow.
 
@@ -59,7 +59,7 @@ When you hit "New Issue", select the type of issue closest to what you want to r
 * What tools and apps you're using (e.g. VS 2019, VSCode, etc.)
 * Don't assume we're experts in setting up YOUR environment and don't assume we are experts in `<your distro/tool of choice>`. Teach us to help you!
 * **We LOVE detailed reproduction steps!** What steps do we need to take to reproduce the issue? Assume we love to read reproduction steps. As much detail as you can stand is probably _barely_ enough detail for us!
-* Prefer error message text where possible or screenshots of errors if text cannot be captured
+* Prefer error message text where possible or screenshots of errors if text cannot be captured.
 * We MUCH prefer text command-line script than screenshots of command-line script.
 * **If you intend to implement the fix/feature yourself then say so!** If you do not indicate otherwise we will assume that the issue is our to solve, or may label the issue as `Help-Wanted`.
 
@@ -91,7 +91,7 @@ Specs will be managed in a very similar manner as code contributions so please f
 
 To write/contribute to a spec: fork, branch and commit via PRs, as you would with any code changes.
 
-Specs are written in markdown, stored under the `\doc\spec` folder and named `[issue id] - [spec description].md`.
+Specs are written in markdown, stored under the `/doc/spec` folder and named `[issue id] - [spec description].md`.
 
 👉 **It is important to follow the spec templates and complete the requested information**. The available spec templates will help ensure that specs contain the minimum information & decisions necessary to permit development to begin. In particular, specs require you to confirm that you've already discussed the issue/idea with the team in an issue and that you provide the issue ID for reference.
 
@@ -99,7 +99,7 @@ Team members will be happy to help review specs and guide them to completion.
 
 ### Help Wanted
 
-Once the team have approved an issue/spec, development can proceed. If no developers are immediately available, the spec can be parked ready for a developer to get started. Parked specs' issues will be labeled "Help Wanted". To find a list of development opportunities waiting for developer involvement, visit the Issues and filter on [the Help-Wanted label](https://github.com/microsoft/terminal/labels/Help%20Wanted).
+Once the team have approved an issue/spec, development can proceed. If no developers are immediately available, the spec can be parked ready for a developer to get started. Parked specs' issues will be labeled "Help Wanted". To find a list of development opportunities waiting for developer involvement, visit the Issues and filter on [the Help-Wanted label](https://github.com/microsoft/winget-cli/labels/Help%20Wanted).
 
 ---
 
@@ -109,11 +109,11 @@ Once the team have approved an issue/spec, development can proceed. If no develo
 
 Once you've discussed your proposed feature/fix/etc. with a team member, and you've agreed an approach or a spec has been written and approved, it's time to start development:
 
-1. Fork the repo if you haven't already
-1. Clone your fork locally
-1. Create & push a feature branch
-1. Create a [Draft Pull Request (PR)](https://github.blog/2019-02-14-introducing-draft-pull-requests/)
-1. Work on your changes
+1. Fork the repository if you haven't already.
+1. Clone your fork locally.
+1. Create & push a feature branch.
+1. Create a [Draft Pull Request (PR)](https://github.blog/2019-02-14-introducing-draft-pull-requests/).
+1. Work on your changes.
 1. Build and see if it works.
 
 ### Testing
