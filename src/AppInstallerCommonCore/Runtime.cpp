@@ -5,6 +5,8 @@
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
 
+#include <optional>
+
 #define WINGET_DEFAULT_LOG_DIRECTORY "DiagOutputDir"
 
 namespace AppInstaller::Runtime

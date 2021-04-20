@@ -41,6 +41,7 @@ chrono
 cin
 cla
 CLSCTX
+cmake
 cmp
 CNG
 cnt
@@ -198,6 +199,8 @@ junit
 langutil
 lastwritetime
 Linux
+LLVM
+llvmorg
 LOCALAPPDATA
 localtime
 LOGPATH
@@ -215,11 +218,13 @@ MANIFESTSCHEMA
 MANIFESTVERSION
 MBs
 mday
+memset
 metadata
 microsoft
 mimetype
 Minimatch
 MINORVERSION
+mkdir
 monostate
 motw
 msbuild
@@ -335,6 +340,7 @@ ruleset
 runsettings
 runtimes
 safecast
+SANITIZERS
 savepoint
 screenshots
 SCROLLER
@@ -473,6 +479,7 @@ utf
 uuidof
 validator
 valijson
+vcvars
 vcxitems
 vcxproj
 vdproj
