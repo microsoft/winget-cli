@@ -12,7 +12,6 @@ namespace AppInstallerCLIE2ETests
         public void Setup()
         {
             InitializeAllFeatures(false);
-            ConfigureFeature("import", true);
             ConfigureFeature("export", true);
             CleanupTestExe();
         }
