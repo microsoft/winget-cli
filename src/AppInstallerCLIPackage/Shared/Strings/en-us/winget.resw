@@ -480,7 +480,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Shows information on a specific package. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
   </data>
   <data name="ShowCommandShortDescription" xml:space="preserve">
-    <value>Shows info about an package</value>
+    <value>Shows information about a package</value>
   </data>
   <data name="ShowVersion" xml:space="preserve">
     <value>Version</value>
@@ -659,11 +659,11 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>No applicable update found.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
-    <value>Updates the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
+    <value>Upgrades the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated.</comment>
   </data>
   <data name="UpgradeCommandShortDescription" xml:space="preserve">
-    <value>Updates the given package</value>
+    <value>Upgrades the given package</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>usage</value>
