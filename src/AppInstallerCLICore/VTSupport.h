@@ -4,6 +4,7 @@
 #include <AppInstallerLanguageUtilities.h>
 
 #include <iostream>
+#include <optional>
 #include <string>
 
 
@@ -132,6 +133,20 @@ namespace AppInstaller::CLI::VirtualTerminal
         extern const Sequence EraseLineForward;
         extern const Sequence EraseLineBackward;
         extern const Sequence EraseLineEntirely;
+    }
+
+    namespace Progress
+    {
+        enum class ProgressState
+        {
+            None,
+            Indeterminate,
+            Normal,
+            Paused,
+            Error
+        };
+
+        ConstructedSequence ProgressBar(ProgressState state, std::optional<int> percentage = std::nullopt);
     }
 }
 
