@@ -69,8 +69,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v140</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0' And '$(Configuration)'!='Fuzzing'">v142</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0' And '$(Configuration)'=='Fuzzing'">ClangCL</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
@@ -86,6 +85,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <LinkIncremental>false</LinkIncremental>
+    <EnableASAN>true</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <SpectreMitigation>Spectre</SpectreMitigation>
@@ -283,7 +283,7 @@
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Fuzzing|ARM64'">stdcpp17</LanguageStandard>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">stdcpp17</LanguageStandard>
       <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">MultiThreaded</RuntimeLibrary>
-      <AdditionalOptions>%(AdditionalOptions) -fsanitize=fuzzer,address</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /fsanitize-coverage=inline-8bit-counters /fsanitize-coverage=edge /fsanitize-coverage=trace-cmp /fsanitize-coverage=trace-div</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -343,7 +343,9 @@
     <ClInclude Include="YamlWrapper.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GroupPolicy.cpp" />
+    <ClCompile Include="GroupPolicy.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="AppInstallerLogging.cpp" />
     <ClCompile Include="AppInstallerStrings.cpp" />
     <ClCompile Include="DateTime.cpp" />

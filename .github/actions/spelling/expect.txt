@@ -36,6 +36,7 @@ bomgar
 BOMs
 brk
 Buf
+BUILTINS
 casemap
 casemappings
 cch
