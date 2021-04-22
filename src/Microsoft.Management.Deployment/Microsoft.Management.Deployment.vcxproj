@@ -117,7 +117,22 @@
     </Link>
     <PostBuildEvent>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
-winmdidl /outdir:output "$(TargetDir)$(ProjectName).winmd"
+winmdidl /outdir:output "$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName).winmd"
+midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
+winmdidl /outdir:output "$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName).winmd"
+midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
+winmdidl /outdir:output "$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName).winmd"
+midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">call "$(DevEnvDir)..\..\vc\Auxiliary\Build\vcvarsall.bat" x86
+winmdidl /outdir:output "$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\$(MSBuildProjectName).winmd"
 midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDir)$(TargetName)_i.c" /env win32 /h "$(ProjectDir)$(TargetName).h" /winmd "Output\$(TargetName).winmd" /W1 /char signed /nologo /winrt /dlldata "$(ProjectDir)dlldata.c" /proxy "$(ProjectDir)$(TargetName)_p.c" "Output\$(TargetName).idl" /ns_prefix </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -136,16 +151,29 @@ midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDi
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AppCatalog.h" />
+    <ClInclude Include="FindPackagesOptions.h" />
+    <ClInclude Include="FindPackagesResult.h" />
+    <ClInclude Include="GetCompositeAppCatalogOptions.h" />
     <ClInclude Include="InstallOptions.h" />
     <ClInclude Include="InstallResult.h" />
+    <ClInclude Include="Package.h" />
+    <ClInclude Include="PackageVersion.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="AppInstaller.h">
       <DependentUpon>AppInstaller.idl</DependentUpon>
     </ClInclude>
+    <ClInclude Include="ResultMatch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AppCatalog.cpp" />
+    <ClCompile Include="FindPackagesOptions.cpp" />
+    <ClCompile Include="FindPackagesResult.cpp" />
+    <ClCompile Include="GetCompositeAppCatalogOptions.cpp" />
     <ClCompile Include="InstallOptions.cpp" />
     <ClCompile Include="InstallResult.cpp" />
+    <ClCompile Include="Package.cpp" />
+    <ClCompile Include="PackageVersion.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
@@ -153,6 +181,7 @@ midl /metadata_dir "%WindowsSdkDir%UnionMetadata\10.0.19041.0" /iid "$(ProjectDi
       <DependentUpon>AppInstaller.idl</DependentUpon>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="ResultMatch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="AppInstaller.idl" />

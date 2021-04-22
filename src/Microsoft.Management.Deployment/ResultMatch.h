@@ -1,5 +1,5 @@
 #pragma once
-#include "InstallResult.g.h"
+#include "ResultMatch.g.h"
 
 // Note: Remove this static_assert after copying these generated source files to your project.
 // This assertion exists to avoid compiling these generated source files directly.
@@ -7,17 +7,17 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    struct InstallResult : InstallResultT<InstallResult>
+    struct ResultMatch : ResultMatchT<ResultMatch>
     {
-        InstallResult() = default;
+        ResultMatch() = default;
 
-        hstring CorrelationId();
-        bool RebootRequired();
+        Microsoft::Management::Deployment::Package Package();
+        Microsoft::Management::Deployment::PackageMatchFilter MatchCriteria();
     };
 }
 namespace winrt::Microsoft::Management::Deployment::factory_implementation
 {
-    struct InstallResult : InstallResultT<InstallResult, implementation::InstallResult>
+    struct ResultMatch : ResultMatchT<ResultMatch, implementation::ResultMatch>
     {
     };
 }

@@ -1,3 +1,409 @@
+
+# 1. Background
+
+The Windows Package Manager currently exposes a command line interface to search for packages, install them, view progress, and more. 
+This API is designed to provide another way for callers to make use of that functionality. The API will be preferred by 
+callers that want to recieve progress and completion events, and UWP packages that do not have permission to launch command line 
+processes. The goal for this api is to provide the full set of install functionality possible using the Windows Package Manager command line.
+The command line is documented at https://docs.microsoft.com/en-us/windows/package-manager/winget/
+
+# 2. Description
+
+Windows Package Manager is a package manager for windows applications. It comes with a predefined repository of applications and users can add 
+new repositories using the winget command line. This API allows packaged apps with the packageManagement capability and other higher 
+privilege processes to start, manage, and monitor installation of packages that are listed in Windows Package Manager repositories.
+
+# 3. Examples
+
+Sample member values for the following examples:
+m_installAppId = L"Microsoft.VSCode";
+
+## 3.1. Create objects
+
+Creation of objects has to be done through CoCreateInstance rather than normal winrt initialization since it's hosted by an out of proc com server.
+These helper methods will be used in the rest of the examples.
+
+```c++ (C++ish pseudocode)
+    AppInstaller CreateAppInstaller()
+    {
+        com_ptr<abi::IAppInstaller> abiAppInstaller = nullptr;
+        check_hresult(CoCreateInstance(CLSID_AppInstaller, nullptr, CLSCTX_LOCAL_SERVER, IID_PPV_ARGS(abiAppInstaller.put())));
+        check_pointer(abiAppInstaller.get());
+        AppInstaller appInstaller{ abiAppInstaller.as<AppInstaller>() };
+        return appInstaller;
+    }
+    InstallOptions CreateInstallOptions()
+    {
+        com_ptr<abi::IInstallOptions> abiInstallOptions = nullptr;
+        check_hresult(CoCreateInstance(CLSID_InstallOptions, nullptr, CLSCTX_LOCAL_SERVER, IID_PPV_ARGS(abiInstallOptions.put())));
+        check_pointer(abiInstallOptions.get());
+        InstallOptions installOptions{ abiInstallOptions.as<winrt::Microsoft::Management::Deployment::InstallOptions>() };
+        return installOptions;
+    }
+    FindPackagesOptions CreateFindOptions()
+    {
+        com_ptr<abi::IFindPackagesOptions> abifindOptions = nullptr;
+        check_hresult(CoCreateInstance(CLSID_FindPackagesOptions, nullptr, CLSCTX_LOCAL_SERVER, IID_PPV_ARGS(abifindOptions.put())));
+        check_pointer(abifindOptions.get());
+        FindPackagesOptions findPackagesOptions{ abifindOptions.as<FindPackagesOptions>() };
+        return findPackagesOptions;
+    } 
+    GetCompositeAppCatalogOptions CreateGetCompositeAppCatalogOptions()
+    {
+        com_ptr<abi::IGetCompositeAppCatalogOptions> abiGetCompositeAppCatalogOptions = nullptr;
+        check_hresult(CoCreateInstance(CLSID_GetCompositeAppCatalogOptions), nullptr, CLSCTX_LOCAL_SERVER, IID_PPV_ARGS(abiGetCompositeAppCatalogOptions.put())));
+        check_pointer(abiGetCompositeAppCatalogOptions.get());
+        GetCompositeAppCatalogOptions getCompositeAppCatalogOptions{ abiGetCompositeAppCatalogOptions.as<GetCompositeAppCatalogOptions>() };
+        return getCompositeAppCatalogOptions;
+    }
+```
+
+## 3.1. Search
+
+The api can be used to search for packages in a catalog known to Windows Package Manager. This can be used to get availability information
+or start an install.
+
+```c++ (C++ish pseudocode)
+
+
+    IAsyncOperation<Package> FindPackageInCatalog(AppCatalog catalog, std::wstring packageId)
+    {
+        FindPackagesOptions findPackagesOptions = CreateFindOptions();
+        PackageMatchFilter filter;
+        filter.IsAdditive = true;
+        filter.Field = PackageMatchField::Id;
+        filter.Type = MatchType::Exact;
+        filter.Value = packageId;
+        findPackagesOptions.Filters().Append(filter);
+        FindPackagesResult findPackagesResult{ co_await catalog.FindPackagesAsync(findPackagesOptions) };
+
+        winrt::IVectorView<ResultMatch> matches = findPackagesResult.Matches();
+        co_return matches.GetAt(0).Package();
+    }
+
+    IAsyncOperation<Package> MainPage::FindPackage()
+    {
+        // Capture the ui thread context.
+        winrt::apartment_context uiThread;
+        co_await winrt::resume_background();
+
+        AppInstaller appInstaller = CreateAppInstaller();
+        AppCatalog catalog{ co_await appInstaller.GetAppCatalogAsync(PredefinedAppCatalog::OpenWindowsCatalog) };
+        co_await catalog.OpenAsync();
+        Package package = { co_await FindPackageInCatalog(catalog, m_installAppId) };
+
+        co_return package;
+    }
+
+```
+
+## 3.2. Install
+
+```c++ (C++ish pseudocode)
+
+    IAsyncOperationWithProgress<InstallResult, InstallProgress> InstallPackage(Package package)
+    {
+        AppInstaller appInstaller = CreateAppInstaller();
+        InstallOptions installOptions = CreateInstallOptions();
+
+        installOptions.InstallScope(InstallScope::User);
+        installOptions.Package(package);
+        installOptions.InstallMode(InstallMode::Silent);
+
+        return appInstaller.InstallPackageAsync(installOptions);
+    }
+
+    IAsyncAction UpdateUIProgress(InstallProgress progress, winrt::apartment_context uiThread, winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar, winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
+    {
+        co_await uiThread;
+        progressBar.Value(progress.DownloadPercentage);
+
+        std::wstring downloadText{ L"Downloading." };
+        switch (progress.State)
+        {
+        case InstallProgressState::Queued:
+            statusText.Text(L"Queued");
+            break;
+        case InstallProgressState::Downloading:
+            downloadText += progress.BytesDownloaded + L" bytes of " + progress.BytesRequired;
+            statusText.Text(downloadText.c_str());
+            break;
+        case InstallProgressState::Installing:
+            statusText.Text(L"Installing");
+            break;
+        case InstallProgressState::PostInstall:
+            statusText.Text(L"Finishing install");
+            break;
+        default:
+            statusText.Text(L"");
+        }
+        co_return;
+    }
+
+    IAsyncAction UpdateUIForInstall(
+        IAsyncOperationWithProgress<InstallResult, InstallProgress> installPackageOperation, 
+        winrt::apartment_context uiThread,
+        winrt::Windows::UI::Xaml::Controls::Button button,
+        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar, 
+        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
+    {
+        installPackageOperation.Progress([&](
+            IAsyncOperationWithProgress<InstallResult, InstallProgress> const& /* sender */,
+            InstallProgress const& progress)
+        {
+            UpdateUIProgress(progress, uiThread, progressBar, statusText).get();
+        });
+
+        winrt::hresult installOperationHr = S_OK;
+        std::wstring errorMessage{ L"Unknown Error" };
+        InstallResult installResult{ nullptr };
+        try
+        {
+            installResult = co_await installPackageOperation;
+        }
+        catch (hresult_canceled const&)
+        {
+            OutputDebugString(L"Operation was cancelled");
+        }
+        catch (winrt::hresult_error const& ex)
+        {
+            // Operation failed
+            // Example: HRESULT_FROM_WIN32(ERROR_DISK_FULL).
+            installOperationHr = ex.code();
+            // Example: "There is not enough space on the disk."
+            errorMessage = ex.message();
+            OutputDebugString(L"Operation failed");
+        }
+
+        // Switch back to ui thread context.
+        co_await uiThread;
+
+        if (installPackageOperation.Status() == AsyncStatus::Canceled)
+        {
+            button.Content(box_value(L"Retry"));
+            statusText.Text(L"Install cancelled.");
+        }
+        if (installPackageOperation.Status() == AsyncStatus::Error || installResult == nullptr)
+        {
+            button.Content(box_value(L"Error"));
+            statusText.Text(errorMessage.c_str());
+        }
+        else if (installResult.RebootRequired())
+        {
+            button.Content(box_value(L"Reboot Required."));
+            statusText.Text(L"Reboot to finish installation.");
+        }
+        else
+        {
+            button.Content(box_value(L"Installed"));
+        }
+    }
+
+    IAsyncAction MainPage::StartInstall(
+        winrt::Windows::UI::Xaml::Controls::Button button,
+        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
+        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
+    {
+        // Capture the ui thread context.
+        winrt::apartment_context uiThread;
+        co_await winrt::resume_background();
+
+        AppInstaller appInstaller = CreateAppInstaller();
+        AppCatalog catalog{ co_await appInstaller.GetAppCatalogAsync(PredefinedAppCatalog::OpenWindowsCatalog) };
+        co_await catalog.OpenAsync();
+        Package package{ co_await FindPackageInCatalog(catalog, m_installAppId) };
+
+        m_installPackageOperation = InstallPackage(package);
+        UpdateUIForInstall(m_installPackageOperation, uiThread, button, progressBar, statusText);
+        co_return;
+    }
+```
+
+## 3.3.1 Cancel
+
+The async operation must be stored, or the install code must wait on an event that can be triggered.
+
+```c++ (C++ish pseudocode)
+    void MainPage::CancelButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
+    {
+        if (m_installPackageOperation)
+        {
+            m_installPackageOperation.Cancel();
+        }
+    }
+```
+
+## 3.3.2. Cancel
+
+Cancel the async operation
+
+```c++ (C++ish pseudocode)
+    
+    IAsyncAction CancelInstall(
+        std::wstring installAppId)
+    {
+        winrt::apartment_context uiThread;
+
+        co_await winrt::resume_background();
+        // Creation of the AppInstaller has to use CoCreateInstance rather than normal winrt initialization since it's created by an out of proc com server.
+        AppInstaller appInstaller = CreateAppInstaller();
+        AppCatalog windowsCatalog{ co_await appInstaller.GetAppCatalogAsync(PredefinedAppCatalog::OpenWindowsCatalog) };
+        co_await windowsCatalog.OpenAsync();
+        AppCatalog installingCatalog{ co_await appInstaller.GetAppCatalogAsync(PredefinedAppCatalog::InstallingPackages) };
+        co_await installingCatalog.OpenAsync();
+        GetCompositeAppCatalogOptions getCompositeAppCatalogOptions = CreateGetCompositeAppCatalogOptions();
+        getCompositeAppCatalogOptions.Catalogs().Append(windowsCatalog);
+        getCompositeAppCatalogOptions.Catalogs().Append(installingCatalog);
+        // Specify that the search behavior is to only query for local packages.
+        // Since the local catalog that is open is InstallingPackages, this will only find a result if installAppId is currently installing.
+        getCompositeAppCatalogOptions.CompositeSearchBehavior(CompositeSearchBehavior::Installing);
+        AppCatalog compositeCatalog{ co_await appInstaller.GetCompositeAppCatalogAsync(getCompositeAppCatalogOptions) };
+        co_await compositeCatalog.OpenAsync();
+
+        FindPackagesOptions findPackagesOptions = CreateFindOptions();
+        PackageMatchFilter filter;
+        filter.IsAdditive = true;
+        filter.Field = PackageMatchField::Id;
+        filter.Type = MatchType::Exact;
+        filter.Value = installAppId;
+        findPackagesOptions.Filters().Append(filter);
+        FindPackagesResult findPackagesResult{ co_await compositeCatalog.FindPackagesAsync(findPackagesOptions) };
+        winrt::IVectorView<ResultMatch> matches = findPackagesResult.Matches();
+        Package package = matches.GetAt(0).Package();
+
+        if (package.IsInstalling())
+        {
+            Windows::Foundation::IAsyncOperationWithProgress<InstallResult, InstallProgress> installOperation = package.InstallProgress();
+            installOperation.Cancel();
+        }
+    }
+```
+
+## 3.3. Get progress for installing app
+
+Check which packages are installing and show progress. This can be useful if the calling app closes and reopens while an install is still in progress.
+
+```c++ (C++ish pseudocode)
+
+    MainPage::MainPage()
+    {
+        InitializeComponent();
+        m_installAppId = L"Microsoft.VSCode";
+        InitializeInstallUI(m_installAppId, installButton(), installProgressBar(), installStatusText());
+    }
+
+    IAsyncAction MainPage::InitializeInstallUI(
+        std::wstring installAppId,
+        winrt::Windows::UI::Xaml::Controls::Button button,
+        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
+        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
+    {
+        winrt::apartment_context uiThread;
+
+        co_await winrt::resume_background();
+        // Creation of the AppInstaller has to use CoCreateInstance rather than normal winrt initialization since it's created by an out of proc com server.
+        AppInstaller appInstaller = CreateAppInstaller();
+        AppCatalog windowsCatalog{ co_await appInstaller.GetAppCatalogAsync(PredefinedAppCatalog::OpenWindowsCatalog) };
+        co_await windowsCatalog.OpenAsync();
+        AppCatalog installingCatalog{ co_await appInstaller.GetAppCatalogAsync(PredefinedAppCatalog::InstallingPackages) };
+        co_await installingCatalog.OpenAsync();
+        Windows::Foundation::Collections::IVector<AppCatalog> catalogs{ winrt::single_threaded_vector<AppCatalog>() };
+        // Get a composite catalog that allows search of both the OpenWindowsCatalog and InstallingPackages.
+        // Creation of the GetCompositeAppCatalogOptions has to use CoCreateInstance rather than normal winrt initialization since it's created by an out of proc com server.
+        GetCompositeAppCatalogOptions getCompositeAppCatalogOptions = CreateGetCompositeAppCatalogOptions();
+        getCompositeAppCatalogOptions.Catalogs().Append(windowsCatalog);
+        getCompositeAppCatalogOptions.Catalogs().Append(installingCatalog);
+        // Specify that the search behavior is to only query for local packages.
+        // Since the local catalog that is open is InstallingPackages, this will only find a result if installAppId is currently installing.
+        getCompositeAppCatalogOptions.CompositeSearchBehavior(CompositeSearchBehavior::AllLocal);
+        AppCatalog compositeCatalog{ co_await appInstaller.GetCompositeAppCatalogAsync(getCompositeAppCatalogOptions) };
+        co_await compositeCatalog.OpenAsync();
+
+        FindPackagesOptions findPackagesOptions = CreateFindOptions();
+        PackageMatchFilter filter;
+        filter.IsAdditive = true;
+        filter.Field = PackageMatchField::Id;
+        filter.Type = MatchType::Exact;
+        filter.Value = installAppId;
+        findPackagesOptions.Filters().Append(filter);
+        FindPackagesResult findPackagesResult{ co_await compositeCatalog.FindPackagesAsync(findPackagesOptions) };
+        winrt::IVectorView<ResultMatch> matches = findPackagesResult.Matches();
+        Package package = matches.GetAt(0).Package();
+
+        if (package.IsInstalling())
+        {
+            m_installPackageOperation = package.InstallProgress();
+            UpdateUIForInstall(m_installPackageOperation, uiThread, button, progressBar, statusText);
+        }
+    }
+```
+
+## 3.4. Find sources
+
+```c++ (C++ish pseudocode)
+    IAsyncOperation<AppCatalog> FindDefaultSource()
+    {
+        AppInstaller appInstaller = CreateAppInstaller();
+
+        winrt::IVectorView<AppCatalog> catalogs{ co_await appInstaller.GetAppCatalogsAsync() };
+        for (AppCatalog catalog : catalogs)
+        {
+            if (catalog.Details().Origin == AppCatalogOrigin::Default)
+            {
+                co_await catalog.OpenAsync();
+                co_return catalog;
+            }
+        }
+        winrt::throw_hresult(E_UNEXPECTED);
+    }
+```
+
+## 3.4. Open a catalog by name
+
+Open a catalog known to the caller. There is no way to use the api to add a catalog, that must be done on the command line.
+
+```c++ (C++ish pseudocode)
+
+    IAsyncOperation<AppCatalog> FindSource(std::wstring packageSource)
+    {
+        AppInstaller appInstaller = CreateAppInstaller();
+        AppCatalog catalog{ co_await appInstaller.GetAppCatalogAsync(packageSource) };
+        co_await catalog.OpenAsync();
+        co_return catalog;
+    }
+```
+
+
+# 4 Remarks
+
+Notes have been added inline throughout the api details.
+
+The biggest open question right now is whether the api needs to provide a way for the client to verify that the server is actually the Windows Package Manager package.
+The concern is the following scenario: 
+The client app has packageManagement capability which currently only allows install of msix applications.
+The user clicks on buttons in the client app to start an install of Microsoft.VSCode. The client app calls the server to do the install, and a UAC prompt is shown.
+The UAC prompt indicates that the app asking for permission is not Microsoft.VSCode, but rather some other app, however the user does not bother to read the prompt and simply clicks accept.
+In this way, an app that takes over the com registration of the Windows Package Manager could use the user's mistake to allow itself to escalate.
+A proposed mitigation is provided in OpenCatalogAsync which is an optional call.
+
+Another question is whether it's required to provide a wrapper api for this api to avoid callers having to use CoCreateInstance, or write their own wrapper to project into c#.
+We could provide a 1 to 1 wrapper implementation in Microsoft.Management.Deployment.Client.
+
+Naming of the items is as always a tricky question. For this api there are multiple similar apis that are relevant with regard to naming and consistency. There is the
+Windows Package Manager command line which uses "source" to describe the various repositories that can host packages and "search" to describe looking up an app. 
+https://docs.microsoft.com/en-us/windows/package-manager/winget/
+There is the Windows::ApplicationModel::PackageCatalog which exists as a Windows API for installing packages and monitoring their installation progress.
+https://docs.microsoft.com/en-us/uwp/api/windows.applicationmodel.packagecatalog?view=winrt-19041
+And there is Windows.Management.Deployment.PackageManager which allows packages with the packageManagement capability to install msix apps and uses "Find" to describe looking up an app
+https://docs.microsoft.com/en-us/uwp/api/windows.management.deployment.packagemanager?view=winrt-19041 
+
+I've chosen to align with the Windows APIs in using *Catalog and Find. But this may cause some confusion if callers are using both the winget command line and this API.
+In particular a problem may be that since this API does not yet propose to implement adding a "source", client applications would need to work with the command line
+interface in order to do that which may cause the name change from Source to AppCatalog to be particularly confusing.
+
+# 5 API Details
+
+```c# (but really MIDL3)
 namespace Microsoft.Management.Deployment
 {
     /// State of the install.
@@ -327,6 +733,14 @@ namespace Microsoft.Management.Deployment
         /// Searches for Packages in the catalog.
         Windows.Foundation.IAsyncOperation<FindPackagesResult> FindPackagesAsync(FindPackagesOptions options);
     }
+    /// Result when using GetAppCatalogsAsync
+    runtimeclass GetAppCatalogsResult
+    {
+        GetAppCatalogsResult();
+
+        /// IMPLEMENTATION NOTE: This is a list of sources returned by  Windows Package Manager source list excluding the known sources.
+        Windows.Foundation.Collections.IVectorView<AppCatalog> AppCatalogs { get; };
+    }
 
     /// Catalogs with AppCatalogOrigin Predefined
     enum PredefinedAppCatalog
@@ -424,3 +838,9 @@ namespace Microsoft.Management.Deployment
         Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> InstallPackageAsync(InstallOptions options);
     }
 }
+
+
+```
+
+# Appendix
+
