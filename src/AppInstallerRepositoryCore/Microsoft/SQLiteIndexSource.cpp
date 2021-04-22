@@ -113,7 +113,7 @@ namespace AppInstaller::Repository::Microsoft
                         bool success = false;
                         try
                         {
-                            (void)Utility::DownloadToStream(fullPath, manifestStream, emptyCallback);
+                            (void)Utility::DownloadToStream(fullPath, manifestStream, Utility::DownloadType::Manifest, emptyCallback);
                             success = true;
                         }
                         catch (...)

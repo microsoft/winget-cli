@@ -120,6 +120,7 @@ namespace AppInstaller::CLI::Workflow
                 hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
                     installer.Url,
                     tempInstallerPath,
+                    Utility::DownloadType::Installer,
                     std::placeholders::_1,
                     true));
 

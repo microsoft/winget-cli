@@ -14,6 +14,16 @@
 
 namespace AppInstaller::Utility
 {
+    // The type of data being downloaded; determines what code should
+    // be used when dowloading.
+    enum class DownloadType
+    {
+        Index,
+        Manifest,
+        WinGetUtil,
+        Installer,
+    };
+
     // Downloads a file from the given URL and places it in the given location.
     //   url: The url to be downloaded from. http->https redirection is allowed.
     //   dest: The stream to be downloaded to.
@@ -21,6 +31,7 @@ namespace AppInstaller::Utility
     std::optional<std::vector<BYTE>> DownloadToStream(
         const std::string& url,
         std::ostream& dest,
+        DownloadType type,
         IProgressCallback& progress,
         bool computeHash = false);
 
@@ -31,6 +42,7 @@ namespace AppInstaller::Utility
     std::optional<std::vector<BYTE>> Download(
         const std::string& url,
         const std::filesystem::path& dest,
+        DownloadType type,
         IProgressCallback& progress,
         bool computeHash = false);
 

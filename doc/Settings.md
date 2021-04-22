@@ -83,6 +83,21 @@ See [details on telemetry](../README.md#datatelemetry), and our [primary privacy
 
 If set to true, the `telemetry.disable` setting will prevent any event from being written by the program.
 
+## Network
+
+The `network` settings influence how winget uses the network to retrieve packages and metadata.
+
+### Downloader
+
+The `downloader` setting controls which code is used when downloading packages. The default is `default`, which may be any of the options based on our determination of which is best.
+`wininet` uses the [WinINet](https://docs.microsoft.com/en-us/windows/win32/wininet/about-wininet) APIs, while `do` uses the [Delivery Optimization](https://support.microsoft.com/en-us/windows/delivery-optimization-in-windows-10-0656e53c-15f2-90de-a87a-a2172c94cf6d) service first, falling back to the wininet functionality if that fails for any reason.
+
+```json
+   "network": {
+       "downloader": "do"
+   }
+```
+
 ## Experimental Features
 
 To allow work to be done and distributed to early adopters for feedback, settings can be used to enable "experimental" features. 
