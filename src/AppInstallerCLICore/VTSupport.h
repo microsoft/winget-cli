@@ -3,6 +3,7 @@
 #pragma once
 #include <AppInstallerLanguageUtilities.h>
 
+#include <cstdint>
 #include <iostream>
 #include <optional>
 #include <string>
@@ -137,7 +138,7 @@ namespace AppInstaller::CLI::VirtualTerminal
 
     namespace Progress
     {
-        enum class ProgressState
+        enum class State
         {
             None,
             Indeterminate,
@@ -146,7 +147,7 @@ namespace AppInstaller::CLI::VirtualTerminal
             Error
         };
 
-        ConstructedSequence ProgressBar(ProgressState state, std::optional<int> percentage = std::nullopt);
+        ConstructedSequence Construct(State state, std::optional<uint32_t> percentage = std::nullopt);
     }
 }
 

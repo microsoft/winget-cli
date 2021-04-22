@@ -193,7 +193,7 @@ namespace AppInstaller::CLI::Execution
             if (UseVT())
             {
                 // Additional VT-based progress reporting, for terminals that support it
-                m_out << Progress::ProgressBar(Progress::ProgressState::Indeterminate);
+                m_out << Progress::Construct(Progress::State::Indeterminate);
             }
 
             // Indent two spaces for the spinner, but three here so that we can overwrite it in the loop.
@@ -211,7 +211,7 @@ namespace AppInstaller::CLI::Execution
 
             if (UseVT())
             {
-                m_out << Progress::ProgressBar(Progress::ProgressState::None);
+                m_out << Progress::Construct(Progress::State::None);
             }
         }
 
@@ -257,7 +257,7 @@ namespace AppInstaller::CLI::Execution
                 // We always clear the VT-based progress bar, even if hideProgressWhenDone is false
                 // since it would be confusing for users if progress continues to be shown after winget exits
                 // (it is typically not automatically cleared by terminals on process exit)
-                m_out << Progress::ProgressBar(Progress::ProgressState::None);
+                m_out << Progress::Construct(Progress::State::None);
             }
 
             m_isVisible = false;
@@ -369,7 +369,7 @@ namespace AppInstaller::CLI::Execution
             }
 
             // Additional VT-based progress reporting, for terminals that support it
-            m_out << Progress::ProgressBar(Progress::ProgressState::Normal, static_cast<int>(percentage * 100));
+            m_out << Progress::Construct(Progress::State::Normal, static_cast<int>(percentage * 100));
         }
         else
         {

@@ -167,24 +167,24 @@ namespace AppInstaller::CLI::VirtualTerminal
 
     namespace Progress
     {
-        ConstructedSequence ProgressBar(ProgressState state, std::optional<int> percentage)
+        ConstructedSequence Construct(State state, std::optional<uint32_t> percentage)
         {
             // See https://conemu.github.io/en/AnsiEscapeCodes.html#ConEmu_specific_OSC
 
-            THROW_HR_IF(E_BOUNDS, percentage.has_value() && (percentage < 0 || percentage > 100));
+            THROW_HR_IF(E_BOUNDS, percentage.has_value() && percentage > 100u);
 
             // Workaround some quirks in the Windows Terminal implementation of the progress OSC sequence
             switch (state)
             {
-            case ProgressState::None:
-            case ProgressState::Indeterminate:
+            case State::None:
+            case State::Indeterminate:
                 // Windows Terminal does not recognize the OSC sequence if the progress value is left out.
                 // As a workaround, we can specify an arbitrary value since it does not matter for None and Indeterminate states.
                 percentage = percentage.value_or(0);
                 break;
-            case ProgressState::Normal:
-            case ProgressState::Error:
-            case ProgressState::Paused:
+            case State::Normal:
+            case State::Error:
+            case State::Paused:
                 // Windows Terminal does not support switching progress states without also setting a progress value at the same time,
                 // so we disallow this case for now.
                 THROW_HR_IF(E_INVALIDARG, !percentage.has_value());
@@ -194,19 +194,19 @@ namespace AppInstaller::CLI::VirtualTerminal
             int stateId;
             switch (state)
             {
-            case ProgressState::None:
+            case State::None:
                 stateId = 0;
                 break;
-            case ProgressState::Indeterminate:
+            case State::Indeterminate:
                 stateId = 3;
                 break;
-            case ProgressState::Normal:
+            case State::Normal:
                 stateId = 1;
                 break;
-            case ProgressState::Error:
+            case State::Error:
                 stateId = 2;
                 break;
-            case ProgressState::Paused:
+            case State::Paused:
                 stateId = 4;
                 break;
             default:
