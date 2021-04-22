@@ -187,7 +187,7 @@ namespace AppInstaller::CLI::VirtualTerminal
             case ProgressState::Paused:
                 // Windows Terminal does not support switching progress states without also setting a progress value at the same time,
                 // so we disallow this case for now.
-                THROW_HR_IF(E_UNEXPECTED, !percentage.has_value());
+                THROW_HR_IF(E_INVALIDARG, !percentage.has_value());
                 break;
             }
 
