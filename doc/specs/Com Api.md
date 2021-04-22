@@ -16,7 +16,10 @@ privilege processes to start, manage, and monitor installation of packages that 
 # 3. Examples
 
 Sample member values for the following examples:
+
+```c++ (C++ish pseudocode)
 m_installAppId = L"Microsoft.VSCode";
+```
 
 ## 3.1. Create objects
 
@@ -58,7 +61,7 @@ These helper methods will be used in the rest of the examples.
     }
 ```
 
-## 3.1. Search
+## 3.2. Search
 
 The api can be used to search for packages in a catalog known to Windows Package Manager. This can be used to get availability information
 or start an install.
@@ -97,7 +100,7 @@ or start an install.
 
 ```
 
-## 3.2. Install
+## 3.3. Install
 
 ```c++ (C++ish pseudocode)
 
@@ -217,9 +220,17 @@ or start an install.
         UpdateUIForInstall(m_installPackageOperation, uiThread, button, progressBar, statusText);
         co_return;
     }
+
+    void MainPage::InstallButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
+    {
+        if (m_installPackageOperation == nullptr)
+        {
+            StartInstall(installButton(), installProgressBar(), installStatusText());
+        }
+    }
 ```
 
-## 3.3.1 Cancel
+## 3.4. Cancel
 
 The async operation must be stored, or the install code must wait on an event that can be triggered.
 
@@ -233,53 +244,7 @@ The async operation must be stored, or the install code must wait on an event th
     }
 ```
 
-## 3.3.2. Cancel
-
-Cancel the async operation
-
-```c++ (C++ish pseudocode)
-    
-    IAsyncAction CancelInstall(
-        std::wstring installAppId)
-    {
-        winrt::apartment_context uiThread;
-
-        co_await winrt::resume_background();
-        // Creation of the AppInstaller has to use CoCreateInstance rather than normal winrt initialization since it's created by an out of proc com server.
-        AppInstaller appInstaller = CreateAppInstaller();
-        AppCatalog windowsCatalog{ co_await appInstaller.GetAppCatalogAsync(PredefinedAppCatalog::OpenWindowsCatalog) };
-        co_await windowsCatalog.OpenAsync();
-        AppCatalog installingCatalog{ co_await appInstaller.GetAppCatalogAsync(PredefinedAppCatalog::InstallingPackages) };
-        co_await installingCatalog.OpenAsync();
-        GetCompositeAppCatalogOptions getCompositeAppCatalogOptions = CreateGetCompositeAppCatalogOptions();
-        getCompositeAppCatalogOptions.Catalogs().Append(windowsCatalog);
-        getCompositeAppCatalogOptions.Catalogs().Append(installingCatalog);
-        // Specify that the search behavior is to only query for local packages.
-        // Since the local catalog that is open is InstallingPackages, this will only find a result if installAppId is currently installing.
-        getCompositeAppCatalogOptions.CompositeSearchBehavior(CompositeSearchBehavior::Installing);
-        AppCatalog compositeCatalog{ co_await appInstaller.GetCompositeAppCatalogAsync(getCompositeAppCatalogOptions) };
-        co_await compositeCatalog.OpenAsync();
-
-        FindPackagesOptions findPackagesOptions = CreateFindOptions();
-        PackageMatchFilter filter;
-        filter.IsAdditive = true;
-        filter.Field = PackageMatchField::Id;
-        filter.Type = MatchType::Exact;
-        filter.Value = installAppId;
-        findPackagesOptions.Filters().Append(filter);
-        FindPackagesResult findPackagesResult{ co_await compositeCatalog.FindPackagesAsync(findPackagesOptions) };
-        winrt::IVectorView<ResultMatch> matches = findPackagesResult.Matches();
-        Package package = matches.GetAt(0).Package();
-
-        if (package.IsInstalling())
-        {
-            Windows::Foundation::IAsyncOperationWithProgress<InstallResult, InstallProgress> installOperation = package.InstallProgress();
-            installOperation.Cancel();
-        }
-    }
-```
-
-## 3.3. Get progress for installing app
+## 3.5. Get progress for installing app
 
 Check which packages are installing and show progress. This can be useful if the calling app closes and reopens while an install is still in progress.
 
@@ -315,7 +280,7 @@ Check which packages are installing and show progress. This can be useful if the
         getCompositeAppCatalogOptions.Catalogs().Append(installingCatalog);
         // Specify that the search behavior is to only query for local packages.
         // Since the local catalog that is open is InstallingPackages, this will only find a result if installAppId is currently installing.
-        getCompositeAppCatalogOptions.CompositeSearchBehavior(CompositeSearchBehavior::AllLocal);
+        getCompositeAppCatalogOptions.CompositeSearchBehavior(CompositeSearchBehavior::Installing);
         AppCatalog compositeCatalog{ co_await appInstaller.GetCompositeAppCatalogAsync(getCompositeAppCatalogOptions) };
         co_await compositeCatalog.OpenAsync();
 
@@ -333,12 +298,14 @@ Check which packages are installing and show progress. This can be useful if the
         if (package.IsInstalling())
         {
             m_installPackageOperation = package.InstallProgress();
-            UpdateUIForInstall(m_installPackageOperation, uiThread, button, progressBar, statusText);
+            UpdateUIForInstall(m_installPackageOperation, uiThread, button, progressBar, statusText); 
+            // Alternatively to Cancel the operation, use:
+            // m_installPackageOperation.Cancel();
         }
     }
 ```
 
-## 3.4. Find sources
+## 3.6. Find sources
 
 ```c++ (C++ish pseudocode)
     IAsyncOperation<AppCatalog> FindDefaultSource()
@@ -358,9 +325,9 @@ Check which packages are installing and show progress. This can be useful if the
     }
 ```
 
-## 3.4. Open a catalog by name
+## 3.7. Open a catalog by name
 
-Open a catalog known to the caller. There is no way to use the api to add a catalog, that must be done on the command line.
+Open a user-added catalog by name. There is no way to use the api to add a catalog, that must be done on the command line.
 
 ```c++ (C++ish pseudocode)
 
@@ -372,7 +339,6 @@ Open a catalog known to the caller. There is no way to use the api to add a cata
         co_return catalog;
     }
 ```
-
 
 # 4 Remarks
 
